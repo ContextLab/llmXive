@@ -1,220 +1,181 @@
 """
-Global configuration and reproducibility initialization for the OPID routing complexity analysis.
+Global configuration constants and initialization for the llmXive OPID Routing Complexity Analysis.
 
-This module handles:
-- Global constants (SEED, TIER_NODE_RANGES, etc.)
-- Reproducibility initialization (seeding random, numpy, random modules)
-- Directory structure management
-- Configuration snapshots and summaries
+This module defines all project-wide constants and ensures reproducibility by seeding
+random number generators at module load time as per FR-007 and Const I.
 """
-
 import os
 import json
 import random
 import hashlib
 import sys
 from datetime import datetime
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List, Optional
 
 import numpy as np
 
 # ============================================================================
-# GLOBAL CONSTANTS
+# GLOBAL CONSTANTS (FR-003, FR-006, FR-007, Const I, Const VII)
 # ============================================================================
 
-SEED = 42
-"""Global random seed for reproducibility (FR-007, Const I)."""
+# Reproducibility Seed (FR-007, Const I)
+SEED: int = 42
 
-# Tier node ranges: (min_nodes, max_nodes)
-TIER_NODE_RANGES = {
-    "tier_1": (10, 20),      # Deterministic, single path
-    "tier_2": (20, 50),      # Branching, stochastic
-    "tier_3": (50, 100),     # Complex, sparse rewards
+# Tier Node Ranges (T011, T012, T013)
+# Tier 1: 5 to 10 nodes (Deterministic)
+# Tier 2: 20 to 50 nodes (Branching/Stochastic)
+# Tier 3: 50+ nodes (Sparse/High-Entropy) - using a flexible range starting at 50
+TIER_NODE_RANGES: Dict[str, Dict[str, int]] = {
+    "tier_1": {"min": 5, "max": 10},
+    "tier_2": {"min": 20, "max": 50},
+    "tier_3": {"min": 50, "max": 200},  # Scalable upper bound
 }
-"""Node count ranges for each complexity tier."""
 
-# Deferred value: minimum 1000 based on G*Power analysis, to be determined in research
-EPISODES_PER_SETTING = 1000
-"""Number of episodes to run per (tier, threshold) combination."""
+# Minimum episodes per setting (FR-003, Const VII)
+EPISODES_PER_SETTING: int = 1000
 
-THRESHOLD_STEPS = 11
-"""Number of threshold steps from 0.0 to 1.0 (inclusive, step=0.1)."""
+# Threshold steps (FR-006): 0.0 to 1.0 in 0.1 increments = 11 steps
+THRESHOLD_STEPS: int = 11
 
-# Project metadata
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VERSION = "0.1.0"
+# Retry limits for graph generation (T011-T013)
+MAX_RETRIES: int = 100
+
+# Directory paths (relative to project root)
+ROOT_DIR: str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR: str = os.path.join(ROOT_DIR, "data")
+DATA_RAW_DIR: str = os.path.join(DATA_DIR, "raw")
+DATA_PROCESSED_DIR: str = os.path.join(DATA_DIR, "processed")
+DATA_SYNTHETIC_GRAPHS_DIR: str = os.path.join(DATA_RAW_DIR, "synthetic_graphs")
+FIGURES_DIR: str = os.path.join(ROOT_DIR, "figures")
+LOGS_DIR: str = os.path.join(ROOT_DIR, "logs")
 
 # ============================================================================
-# REPRODUCIBILITY INITIALIZATION (T008)
+# SEED INITIALIZATION (FR-007, Const I)
 # ============================================================================
+# MUST be called at module load to ensure reproducibility.
+# This satisfies the requirement to seed both numpy and python random at import.
 
-def set_seed(seed: int) -> None:
+def _initialize_seeds():
     """
-    Set the random seed for all relevant modules to ensure reproducibility.
-    
-    Args:
-        seed: The integer seed value to use.
+    Initialize random seeds for reproducibility.
+    Called immediately upon module import.
     """
-    random.seed(seed)
-    np.random.seed(seed)
-    # Note: os.environ['PYTHONHASHSEED'] is typically set before Python starts
-    # for full reproducibility, but we seed the standard libraries here.
+    random.seed(SEED)
+    np.random.seed(SEED)
+    # Note: We do not seed os.urandom or other OS-level entropy sources
+    # as they are system-dependent and not suitable for deterministic simulation.
+
+# Execute seed initialization immediately
+_initialize_seeds()
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
 
 def get_seed() -> int:
-    """
-    Get the current global seed value.
-    
-    Returns:
-        The current seed (defaults to SEED if not explicitly set).
-    """
-    # We maintain the seed in a module-level variable for retrieval
-    return getattr(_seed_manager, 'current_seed', SEED)
+    """Return the global seed constant."""
+    return SEED
 
-class _SeedManager:
-    """Internal manager to track the current seed state."""
-    current_seed = SEED
-
-def initialize_reproducibility(seed: Optional[int] = None) -> int:
+def set_seed(new_seed: int) -> None:
     """
-    Initialize reproducibility by setting seeds for all random number generators.
-    
-    This function MUST be called at the start of any experiment to ensure
-    deterministic behavior across runs (FR-007, Const I).
-    
-    Args:
-        seed: Optional seed value. If None, uses the global SEED constant.
-    
-    Returns:
-        The seed value that was set.
+    Update the global seed and re-seed random generators.
+    Useful for specific experiment overrides while maintaining global state.
     """
-    if seed is None:
-        seed = SEED
-    
-    _SeedManager.current_seed = seed
-    set_seed(seed)
-    
-    # Log the initialization (avoid circular imports by using basic logging)
-    print(f"[config] Reproducibility initialized with seed: {seed}")
-    
-    return seed
+    global SEED
+    SEED = new_seed
+    random.seed(SEED)
+    np.random.seed(SEED)
 
-# ============================================================================
-# DIRECTORY MANAGEMENT
-# ============================================================================
+def initialize_reproducibility(seed: Optional[int] = None) -> None:
+    """
+    Explicitly initialize reproducibility with an optional custom seed.
+    If seed is None, uses the global SEED constant.
+    """
+    if seed is not None:
+        set_seed(seed)
+    else:
+        set_seed(SEED)
 
 def ensure_directories() -> None:
     """
-    Create the required directory structure if it doesn't exist.
-    
-    Creates:
-    - data/raw/synthetic_graphs/
-    - data/processed/
-    - figures/
-    - logs/
+    Create all required directory structures if they do not exist.
     """
-    directories = [
-        os.path.join(PROJECT_ROOT, "data", "raw", "synthetic_graphs"),
-        os.path.join(PROJECT_ROOT, "data", "processed"),
-        os.path.join(PROJECT_ROOT, "figures"),
-        os.path.join(PROJECT_ROOT, "logs"),
+    dirs = [
+        DATA_DIR,
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        DATA_SYNTHETIC_GRAPHS_DIR,
+        FIGURES_DIR,
+        LOGS_DIR,
     ]
-    
-    for directory in directories:
-        os.makedirs(directory, exist_ok=True)
-
-# ============================================================================
-# CONFIGURATION MANAGEMENT
-# ============================================================================
+    for d in dirs:
+        os.makedirs(d, exist_ok=True)
 
 def get_version_hash() -> str:
     """
-    Generate a hash of the current code version for reproducibility tracking.
-    
-    Returns:
-        A short hash string representing the current code state.
+    Generate a short hash of the current code state based on file modification times
+    or a static identifier. For now, returns a timestamp-based hash.
     """
-    try:
-        # Try to get git hash if available
-        import subprocess
-        result = subprocess.run(
-            ["git", "rev-parse", "--short", "HEAD"],
-            capture_output=True,
-            text=True,
-            cwd=PROJECT_ROOT
-        )
-        if result.returncode == 0:
-            return result.stdout.strip()
-    except Exception:
-        pass
-    
-    # Fallback: hash of the config file itself
-    with open(__file__, "rb") as f:
-        return hashlib.md5(f.read()).hexdigest()[:8]
+    now = datetime.now().isoformat()
+    return hashlib.sha256(now.encode()).hexdigest()[:8]
 
-def get_tier_config(tier: str) -> Dict[str, Any]:
+def get_tier_config(tier_name: str) -> Dict[str, int]:
     """
-    Get configuration for a specific complexity tier.
-    
-    Args:
-        tier: The tier identifier (e.g., "tier_1", "tier_2", "tier_3").
-    
-    Returns:
-        A dictionary containing the node range and other tier-specific settings.
-    
-    Raises:
-        ValueError: If the tier is not recognized.
+    Retrieve the node range configuration for a specific tier.
+    Raises KeyError if tier_name is invalid.
     """
-    if tier not in TIER_NODE_RANGES:
-        raise ValueError(f"Unknown tier: {tier}. Must be one of {list(TIER_NODE_RANGES.keys())}")
-    
-    return {
-        "tier": tier,
-        "node_range": TIER_NODE_RANGES[tier],
-        "min_nodes": TIER_NODE_RANGES[tier][0],
-        "max_nodes": TIER_NODE_RANGES[tier][1],
-    }
+    if tier_name not in TIER_NODE_RANGES:
+        raise KeyError(f"Unknown tier: {tier_name}. Valid tiers: {list(TIER_NODE_RANGES.keys())}")
+    return TIER_NODE_RANGES[tier_name]
 
-def save_config_snapshot(output_path: str) -> None:
+def save_config_snapshot(filepath: str) -> None:
     """
-    Save a snapshot of the current configuration to a JSON file.
-    
-    Args:
-        output_path: The path where the configuration snapshot will be saved.
+    Save the current configuration state to a JSON file.
     """
     config_data = {
-        "seed": get_seed(),
+        "seed": SEED,
         "tier_node_ranges": TIER_NODE_RANGES,
         "episodes_per_setting": EPISODES_PER_SETTING,
         "threshold_steps": THRESHOLD_STEPS,
-        "version": VERSION,
+        "max_retries": MAX_RETRIES,
         "version_hash": get_version_hash(),
         "timestamp": datetime.now().isoformat(),
-        "project_root": PROJECT_ROOT,
     }
-    
-    with open(output_path, "w") as f:
+    with open(filepath, 'w', encoding='utf-8') as f:
         json.dump(config_data, f, indent=2)
 
 def get_config_summary() -> Dict[str, Any]:
     """
-    Get a summary of the current configuration for logging purposes.
-    
-    Returns:
-        A dictionary containing key configuration values.
+    Return a summary of the current configuration.
     """
     return {
-        "seed": get_seed(),
+        "seed": SEED,
         "episodes_per_setting": EPISODES_PER_SETTING,
         "threshold_steps": THRESHOLD_STEPS,
-        "version": VERSION,
-        "version_hash": get_version_hash(),
+        "tiers": list(TIER_NODE_RANGES.keys()),
     }
 
 # ============================================================================
-# MODULE INITIALIZATION
+# MAIN ENTRY POINT (for testing/config verification)
 # ============================================================================
 
-# Initialize reproducibility at module load time to ensure deterministic behavior
-# This satisfies FR-007 and Const I requirements
-_SeedManager.current_seed = SEED
-set_seed(SEED)
+def main() -> None:
+    """
+    Main entry point to verify configuration and print summary.
+    """
+    print("=== llmXive Configuration Verification ===")
+    print(f"Seed: {get_seed()}")
+    print(f"EPISODES_PER_SETTING: {EPISODES_PER_SETTING}")
+    print(f"THRESHOLD_STEPS: {THRESHOLD_STEPS}")
+    print("Tier Node Ranges:")
+    for tier, range_info in TIER_NODE_RANGES.items():
+        print(f"  {tier}: {range_info['min']} - {range_info['max']} nodes")
+    print(f"Max Retries: {MAX_RETRIES}")
+    print("Directories:")
+    ensure_directories()
+    for d in [DATA_DIR, FIGURES_DIR, LOGS_DIR]:
+        print(f"  {d}: {'Exists' if os.path.exists(d) else 'Missing'}")
+    print("==========================================")
+
+if __name__ == "__main__":
+    main()

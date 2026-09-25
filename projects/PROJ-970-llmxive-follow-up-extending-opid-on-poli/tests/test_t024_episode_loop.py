@@ -1,167 +1,183 @@
-"""
-Tests for Task T024: Episode Loop Implementation.
-
-Verifies that the episode runner executes the correct number of episodes
-and produces valid output data.
-"""
 import os
 import sys
-import tempfile
 import csv
 import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
+import json
+from unittest.mock import patch, MagicMock
+import numpy as np
 
-# Add code to path if running standalone
+# Add code to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from experiments.episode_runner import EpisodeRunner, EpisodeRunnerConfig
-from experiments.runner import EpisodeResult
-from config import ensure_directories
+from experiments.runner import ExperimentRunner, ExperimentConfig, EpisodeResult
+from config import EPISODES_PER_SETTING
 
-class TestEpisodeRunner:
-    """Tests for the EpisodeRunner class."""
-
-    @pytest.fixture
-    def temp_output_dir(self):
-        """Create a temporary directory for test outputs."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield tmpdir
+class TestT024EpisodeLoop:
+    """
+    Tests for T024: Implement episode loop in ExperimentRunner.run_sweep.
+    Verifies that the loop executes exactly EPISODES_PER_SETTING (1000) episodes 
+    for each (Tier, Threshold) combination.
+    """
 
     @pytest.fixture
-    def mock_graph(self):
-        """Create a mock graph object."""
-        graph = MagicMock()
-        graph.start_node_id = "start"
-        graph.goal_node_id = "goal"
-        graph.nodes = {"start", "middle", "goal"}
-        graph.edges = [("start", "middle"), ("middle", "goal")]
-        graph.get_neighbors = MagicMock(side_effect=lambda x: {"middle" if x == "start" else ["goal"] if x == "middle" else []})
-        return graph
-
-    def test_config_defaults(self):
-        """Verify default configuration values."""
-        config = EpisodeRunnerConfig()
-        assert config.episodes_per_setting == 1000
-        assert config.seed == 42
-        assert config.output_filename == "episode_results.csv"
-
-    def test_run_single_episode_structure(self, mock_graph):
-        """Test that a single episode returns a valid EpisodeResult."""
-        # Setup mocks for dependencies
-        mock_router = MagicMock()
-        mock_router.should_inject.return_value = False
-        mock_router.apply_skill_injection = lambda probs, nodes: probs
-        
-        mock_policy = MagicMock()
-        mock_policy.get_action_probs = MagicMock(return_value=([0.5, 0.5], 0.693))
-        mock_policy.sample_action = MagicMock(side_effect=lambda nodes, probs: "goal")
-        
-        config = EpisodeRunnerConfig(episodes_per_setting=1)
-        runner = EpisodeRunner(config)
-        
-        # Run
-        result = runner.run_single_episode(mock_graph, mock_router, mock_policy, 0)
-        
-        # Assertions
-        assert isinstance(result, EpisodeResult)
-        assert result.success is True
-        assert result.steps > 0
-        assert result.path_traversed is not None
-
-    @patch('experiments.episode_runner.GraphGenerator')
-    @patch('experiments.episode_runner.GraphValidator')
-    @patch('experiments.episode_runner.OPIDRouter')
-    @patch('experiments.episode_runner.create_baseline_policy')
-    def test_episode_count_per_setting(
-        self, 
-        mock_policy_factory, 
-        mock_router_class, 
-        mock_validator_class, 
-        mock_gen_class,
-        temp_output_dir
-    ):
-        """
-        Verify that exactly 1,000 episodes are generated per (Tier, Threshold) setting.
-        This is the core requirement of T024 (FR-003).
-        """
-        episodes_per_setting = 1000
-        tiers = [1]
-        thresholds = [0.5]
-        
-        # Setup mocks
-        mock_validator = MagicMock()
-        mock_validator.validate.return_value.is_valid = True
-        mock_validator_class.return_value = mock_validator
-        
-        mock_gen = MagicMock()
+    def mock_graph_gen(self):
+        """Mock the graph generator to return a valid simple graph."""
         mock_graph = MagicMock()
-        mock_graph.start_node_id = "s"
-        mock_graph.goal_node_id = "g"
-        mock_graph.nodes = {"s", "g"}
-        mock_graph.edges = [("s", "g")]
-        mock_gen.generate.return_value = mock_graph
-        mock_gen_class.return_value = mock_gen
-        
+        mock_graph.is_valid.return_value = True
+        mock_graph.start = "start"
+        mock_graph.goal = "goal"
+        mock_graph.nodes = {"start", "goal"}
+        mock_graph.transition = MagicMock(side_effect=lambda node, action: "goal" if action == "move" else node)
+        return mock_graph
+
+    @pytest.fixture
+    def mock_policy(self):
+        """Mock the policy."""
+        mock_policy = MagicMock()
+        mock_policy.get_action_probs.return_value = ({"move": 0.5}, {"move": -0.69})
+        mock_policy.sample_action = MagicMock(return_value="move")
+        return mock_policy
+
+    @pytest.fixture
+    def mock_router(self):
+        """Mock the router."""
         mock_router = MagicMock()
         mock_router.should_inject.return_value = False
-        mock_router.apply_skill_injection = lambda p, n: p
-        mock_router_class.return_value = mock_router
-        
-        mock_policy = MagicMock()
-        mock_policy.get_action_probs.return_value = ([1.0], 0.0)
-        mock_policy.sample_action.return_value = "g"
-        mock_policy_factory.return_value = mock_policy
+        mock_router.get_goal_directed_action.return_value = "move"
+        return mock_router
 
-        config = EpisodeRunnerConfig(
-            episodes_per_setting=episodes_per_setting,
-            seed=42,
-            output_dir=temp_output_dir,
-            output_filename="test_results.csv"
+    def test_episode_count_per_setting(self, mock_graph_gen, mock_policy, mock_router):
+        """
+        Verify that run_sweep executes exactly EPISODES_PER_SETTING episodes
+        for each (Tier, Threshold) pair.
+        """
+        # Setup config with small numbers for testing
+        # 2 tiers, 3 thresholds -> 6 settings
+        test_config = ExperimentConfig(
+            num_tiers=2,
+            thresholds=[0.0, 0.5, 1.0],
+            episodes_per_setting=10, # Use 10 for quick test
+            output_dir="/tmp/t024_test",
+            log_file="/tmp/t024_test/results.csv",
+            seed_base=42
         )
         
-        runner = EpisodeRunner(config)
+        os.makedirs(test_config.output_dir, exist_ok=True)
         
-        # Run the specific setting
-        results = runner.run_setting_sweep(tiers[0], thresholds)
+        runner = ExperimentRunner(test_config)
         
-        # Verify count
-        expected_count = len(tiers) * len(thresholds) * episodes_per_setting
-        assert len(results) == expected_count, f"Expected {expected_count} results, got {len(results)}"
-        
-        # Verify per-threshold count
-        threshold_results = [r for r in results if r.metadata.get('threshold') == 0.5]
-        assert len(threshold_results) == episodes_per_setting
+        # Mock dependencies
+        with patch.object(runner, 'graph_gen', mock_graph_gen), \
+             patch('experiments.runner.create_baseline_policy', return_value=mock_policy), \
+             patch('experiments.runner.OPIDRouter', return_value=mock_router), \
+             patch('experiments.runner.initialize_reproducibility'):
+            
+            runner.run_sweep()
+            
+            # Verify CSV content
+            assert os.path.exists(test_config.log_file)
+            
+            with open(test_config.log_file, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            # Total rows should be: 2 tiers * 3 thresholds * 10 episodes = 60
+            expected_total = 2 * 3 * 10
+            assert len(rows) == expected_total, f"Expected {expected_total} rows, got {len(rows)}"
+            
+            # Verify per-setting count
+            counts = {}
+            for row in rows:
+                key = (row['tier'], row['threshold'])
+                counts[key] = counts.get(key, 0) + 1
+            
+            for key, count in counts.items():
+                assert count == 10, f"Expected 10 episodes for {key}, got {count}"
 
-    def test_csv_output_generation(self, temp_output_dir):
-        """Verify that the runner produces a valid CSV file."""
-        config = EpisodeRunnerConfig(
-            episodes_per_setting=10,
-            seed=42,
-            output_dir=temp_output_dir,
-            output_filename="test.csv"
+    def test_episodes_per_setting_constant(self, mock_graph_gen, mock_policy, mock_router):
+        """
+        Verify that the code uses config.EPISODES_PER_SETTING explicitly.
+        This test checks that changing the config value changes the loop count.
+        """
+        test_config = ExperimentConfig(
+            num_tiers=1,
+            thresholds=[0.5],
+            episodes_per_setting=5,
+            output_dir="/tmp/t024_test2",
+            log_file="/tmp/t024_test2/results.csv",
+            seed_base=42
         )
         
-        # We can't easily run the full loop without mocking everything,
-        # but we can test the writer logic directly if we had results.
-        # Instead, we verify the runner creates the file path correctly.
-        expected_path = os.path.join(temp_output_dir, "test.csv")
+        os.makedirs(test_config.output_dir, exist_ok=True)
         
-        # Mock the run logic to avoid heavy lifting
-        with patch.object(runner := EpisodeRunner(config), 'run_full_experiment', return_value=expected_path):
-            path = runner.run_full_experiment([1], [0.5])
-            assert path == expected_path
-
-    def test_seed_reproducibility_logic(self):
-        """Verify that seeds are calculated deterministically."""
-        config = EpisodeRunnerConfig(seed=42)
-        runner = EpisodeRunner(config)
+        runner = ExperimentRunner(test_config)
         
-        # The logic in _generate_graph_for_setting calculates:
-        # graph_seed = self.config.seed + int(threshold * 1000000)
-        # We verify the calculation logic exists and is deterministic
-        # by checking the source or mocking.
-        # Here we just ensure the runner instantiates without error.
-        assert runner.config.seed == 42
+        with patch.object(runner, 'graph_gen', mock_graph_gen), \
+             patch('experiments.runner.create_baseline_policy', return_value=mock_policy), \
+             patch('experiments.runner.OPIDRouter', return_value=mock_router), \
+             patch('experiments.runner.initialize_reproducibility'):
+            
+            runner.run_sweep()
+            
+            with open(test_config.log_file, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            # 1 tier * 1 threshold * 5 episodes = 5
+            assert len(rows) == 5
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_real_constant_usage(self):
+        """
+        Verify that the code imports and uses the real EPISODES_PER_SETTING constant.
+        """
+        # Check if the constant is imported correctly in the module
+        from experiments.runner import ExperimentConfig
+        config = ExperimentConfig()
+        assert config.episodes_per_setting == EPISODES_PER_SETTING, \
+            f"Config did not use real constant. Expected {EPISODES_PER_SETTING}, got {config.episodes_per_setting}"
+
+    def test_log_file_structure(self, mock_graph_gen, mock_policy, mock_router):
+        """
+        Verify that the output CSV has the correct structure.
+        """
+        test_config = ExperimentConfig(
+            num_tiers=1,
+            thresholds=[0.0],
+            episodes_per_setting=3,
+            output_dir="/tmp/t024_test3",
+            log_file="/tmp/t024_test3/results.csv",
+            seed_base=42
+        )
+        
+        os.makedirs(test_config.output_dir, exist_ok=True)
+        
+        runner = ExperimentRunner(test_config)
+        
+        with patch.object(runner, 'graph_gen', mock_graph_gen), \
+             patch('experiments.runner.create_baseline_policy', return_value=mock_policy), \
+             patch('experiments.runner.OPIDRouter', return_value=mock_router), \
+             patch('experiments.runner.initialize_reproducibility'):
+            
+            runner.run_sweep()
+            
+            with open(test_config.log_file, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+            
+            assert len(rows) == 3
+            
+            # Check headers
+            expected_headers = ['tier', 'threshold', 'episode_id', 'success', 'steps', 
+                              'action_entropy', 'num_injections', 'seed']
+            assert reader.fieldnames == expected_headers
+            
+            # Check data types in first row
+            first_row = rows[0]
+            assert int(first_row['tier']) >= 1
+            assert float(first_row['threshold']) >= 0.0
+            assert int(first_row['episode_id']) >= 0
+            assert int(first_row['success']) in [0, 1]
+            assert int(first_row['steps']) >= 0
+            assert float(first_row['action_entropy']) >= 0.0
+            assert int(first_row['num_injections']) >= 0
+            assert int(first_row['seed']) >= 0

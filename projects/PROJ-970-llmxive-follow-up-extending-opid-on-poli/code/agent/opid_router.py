@@ -10,121 +10,128 @@ class OPIDRouterConfig:
     """Configuration for the OPID Router."""
     routing_threshold: float = 0.5
     seed: int = 42
+    skill_injection_magnitude: float = 2.0  # Advantage magnitude for injection
 
 class OPIDRouter:
     """
     OPID Router implementing critical-first routing logic.
     
-    Controls hindsight skill injection density based on a tunable threshold.
+    Controls whether to inject hindsight skill signals based on a tunable threshold.
+    - If should_inject returns True: Injects skill signal (advantage shift).
+    - If should_inject returns False: Suppresses skill signal, allowing baseline policy to act.
     """
     
-    def __init__(self, config: Optional[OPIDRouterConfig] = None):
-        if config is None:
-            config = OPIDRouterConfig()
-        
-        self.routing_threshold = config.routing_threshold
+    def __init__(self, config: OPIDRouterConfig):
+        self.config = config
+        self.skill_injection_magnitude = config.skill_injection_magnitude
         set_seed(config.seed)
         self.logger = logging.getLogger(__name__)
         
-        # Validate threshold range
-        if not (0.0 <= self.routing_threshold <= 1.0):
-            raise ValueError(f"routing_threshold must be between 0.0 and 1.0, got {self.routing_threshold}")
+        if not 0.0 <= self.config.routing_threshold <= 1.0:
+            raise ValueError(f"routing_threshold must be in [0.0, 1.0], got {self.config.routing_threshold}")
 
     def should_inject(self, state: Dict[str, Any]) -> bool:
         """
-        Determine if a skill signal should be injected for the current state.
+        Perform a Bernoulli trial to decide whether to inject skill signals.
         
-        Implements Bernoulli trial with p = 1 - threshold.
-        Returns True if injection should occur, False otherwise.
+        Probability of injection p = 1 - routing_threshold.
+        - threshold=0.0 -> p=1.0 (always inject)
+        - threshold=1.0 -> p=0.0 (never inject, suppress all signals)
         
         Args:
-            state: Current environment state dictionary
+            state: Current environment state dictionary.
             
         Returns:
-            bool: True if skill signal should be injected, False to suppress
+            bool: True if skill injection should occur, False otherwise.
         """
-        # Bernoulli trial: p = 1 - threshold
-        # If threshold is 0.0 -> p = 1.0 (always inject)
-        # If threshold is 1.0 -> p = 0.0 (never inject)
-        p_inject = 1.0 - self.routing_threshold
-        result = random.random() < p_inject
-        
-        if not result:
-            # Suppress skill signal: policy acts as baseline
-            self.logger.debug(f"Suppressing skill signal (threshold={self.routing_threshold}, p_inject={p_inject:.2f})")
-        
-        return result
+        injection_prob = 1.0 - self.config.routing_threshold
+        return random.random() < injection_prob
 
-    def inject_skill_signal(self, state: Dict[str, Any], policy_logits: List[float]) -> List[float]:
+    def inject_skill_signal(self, log_probs: np.ndarray, action: int) -> np.ndarray:
         """
-        Inject a skill signal by modifying policy logits.
-        
-        Adds a constant advantage to the goal-directed action.
+        Inject a hindsight skill signal by adding an advantage to the goal-directed action.
         
         Args:
-            state: Current environment state
-            policy_logits: Raw logits from the baseline policy
+            log_probs: Array of log probabilities from the baseline policy.
+            action: The goal-directed action index to boost.
             
         Returns:
-            List[float]: Modified logits with skill signal injected
+            np.ndarray: Modified log probabilities with injected advantage.
         """
-        if not self.should_inject(state):
-            # Suppress skill signal: return baseline policy unchanged
-            return policy_logits
-        
-        # Simulate log-probability shift (add constant advantage to goal action)
-        # For demonstration, assume the last action index is the goal-directed action
-        modified_logits = policy_logits.copy()
-        goal_action_idx = len(modified_logits) - 1
-        advantage = 2.0  # Fixed advantage for skill injection
-        modified_logits[goal_action_idx] += advantage
-        
-        self.logger.debug(f"Injected skill signal: added advantage {advantage} to action {goal_action_idx}")
-        return modified_logits
+        shifted = log_probs.copy()
+        shifted[action] += self.skill_injection_magnitude
+        return shifted
 
-    def get_policy_action(self, state: Dict[str, Any], policy_logits: List[float]) -> Tuple[int, List[float]]:
+    def suppress_skill_signal(self, log_probs: np.ndarray) -> np.ndarray:
         """
-        Get the selected action, potentially with skill signal injection.
+        Suppress skill signals, ensuring the policy acts purely as the baseline.
         
-        This is the main entry point for the policy decision process.
+        This method explicitly returns the input log probabilities unchanged,
+        ensuring no hindsight injection occurs when should_inject returns False.
         
         Args:
-            state: Current environment state
-            policy_logits: Raw logits from the baseline policy
+            log_probs: Array of log probabilities from the baseline policy.
             
         Returns:
-            Tuple[int, List[float]]: (selected_action_index, final_logits_used)
+            np.ndarray: The original log probabilities (no modification).
         """
-        # Check if we should inject skill signal
+        # Explicitly return a copy to ensure no side effects, but values are unchanged.
+        # This satisfies the requirement: "suppress skill signals... ensuring the policy acts as the baseline."
+        return log_probs.copy()
+
+    def process_action_selection(self, log_probs: np.ndarray, state: Dict[str, Any], action: int) -> Tuple[np.ndarray, float, bool]:
+        """
+        Orchestrate the decision to inject or suppress skill signals.
+        
+        Args:
+            log_probs: Baseline policy log probabilities.
+            state: Current environment state.
+            action: The target action index for potential injection.
+            
+        Returns:
+            Tuple containing:
+                - modified_log_probs: The log probs after injection or suppression.
+                - log_prob_shift: The magnitude of the shift (0.0 if suppressed).
+                - injected: Boolean flag indicating if injection occurred.
+        """
         if self.should_inject(state):
-            # Inject skill signal and get modified logits
-            final_logits = self.inject_skill_signal(state, policy_logits)
-            # Select action based on modified logits (softmax sampling)
-            probs = np.exp(final_logits) / np.sum(np.exp(final_logits))
-            selected_action = np.random.choice(len(probs), p=probs)
+            modified = self.inject_skill_signal(log_probs, action)
+            # Calculate shift as the difference in the specific action's log prob
+            shift = modified[action] - log_probs[action]
+            return modified, shift, True
         else:
-            # Suppress skill signal: use baseline policy as-is
-            final_logits = policy_logits
-            probs = np.exp(policy_logits) / np.sum(np.exp(policy_logits))
-            selected_action = np.random.choice(len(probs), p=probs)
-        
-        return selected_action, final_logits
+            # SUPPRESS: Return baseline unchanged
+            modified = self.suppress_skill_signal(log_probs)
+            return modified, 0.0, False
 
 def main():
-    """Main function to demonstrate OPIDRouter functionality."""
+    """CLI entry point for testing the router logic."""
     logging.basicConfig(level=logging.INFO)
     
-    # Test with different thresholds
-    for threshold in [0.0, 0.5, 1.0]:
-        print(f"\n--- Testing with threshold={threshold} ---")
-        config = OPIDRouterConfig(routing_threshold=threshold, seed=42)
-        router = OPIDRouter(config)
-        
-        # Simulate a few states
-        for i in range(5):
-            state = {"step": i, "location": f"node_{i}"}
-            should_inject = router.should_inject(state)
-            print(f"State {i}: should_inject={should_inject}")
+    config = OPIDRouterConfig(routing_threshold=0.0, seed=42)
+    router = OPIDRouter(config)
+    
+    # Test Case 1: Threshold 0.0 (Always Inject)
+    print("Testing Threshold 0.0 (Always Inject)...")
+    router.config.routing_threshold = 0.0
+    log_probs = np.array([0.1, 0.2, 0.3])
+    state = {"node": 5}
+    modified, shift, injected = router.process_action_selection(log_probs, state, action=2)
+    assert injected, "Should inject at threshold 0.0"
+    assert shift > 0, "Shift should be positive"
+    print(f"  Injected: {injected}, Shift: {shift:.4f}")
+    
+    # Test Case 2: Threshold 1.0 (Always Suppress)
+    print("Testing Threshold 1.0 (Always Suppress)...")
+    router.config.routing_threshold = 1.0
+    modified, shift, injected = router.process_action_selection(log_probs, state, action=2)
+    assert not injected, "Should suppress at threshold 1.0"
+    assert shift == 0.0, "Shift should be zero when suppressed"
+    # Verify values are exactly the same (baseline)
+    assert np.allclose(modified, log_probs), "Log probs should be unchanged when suppressed"
+    print(f"  Injected: {injected}, Shift: {shift:.4f}, Baseline preserved: {np.allclose(modified, log_probs)}")
+    
+    print("OPIDRouter suppression logic verified successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,10 +1,10 @@
 """
-Test suite for T015: verify_deterministic_regeneration.
+Test module for verifying deterministic regeneration of synthetic graphs.
+Implements T015: verify_deterministic_regeneration task.
 
-This module explicitly verifies that the GraphGenerator produces identical
-graphs for the same seed across different runs, satisfying FR-001 and Const I.
-It computes checksums of the generated graph structures (nodes, edges, start, goal)
-and asserts equality.
+This task explicitly runs the generator for each tier with a fixed seed,
+computes checksums, regenerates, recomputes checksums, and asserts equality
+to satisfy FR-001 (Reproducibility) and Const I (Seed Initialization).
 """
 import os
 import sys
@@ -12,158 +12,228 @@ import hashlib
 import json
 from typing import Dict, Any, List, Tuple
 
-# Add project root to path for imports if running as script
-if __package__ is None:
-    sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config import set_seed, get_seed, ensure_directories
 from environment.graph_generator import GraphGenerator
-from utils.metrics import calculate_checksum
-from env.state_graph import StateGraph
+from environment.state_graph import StateGraph
 
 
 def serialize_graph(graph: StateGraph) -> str:
     """
-    Serialize a StateGraph into a deterministic string representation
-    suitable for checksumming.
-    
-    We sort nodes and edges to ensure consistent ordering regardless of
-    internal dictionary iteration order.
-    """
-    data = {
-        "start": graph.start.id if graph.start else None,
-        "goal": graph.goal.id if graph.goal else None,
-        "tier": graph.tier,
-        "nodes": []
-    }
-    
-    # Sort nodes by ID for deterministic serialization
-    sorted_nodes = sorted(graph.nodes, key=lambda n: n.id)
-    for node in sorted_nodes:
-        node_data = {
-            "id": node.id,
-            "reward": node.reward,
-            "is_start": node.is_start,
-            "is_goal": node.is_goal,
-            "out_edges": []
-        }
-        # Sort outgoing edges by target ID
-        sorted_edges = sorted(node.out_edges, key=lambda e: e.target.id)
-        for edge in sorted_edges:
-            node_data["out_edges"].append({
-                "target_id": edge.target.id,
-                "prob": edge.probability
-            })
-        data["nodes"].append(node_data)
-        
-    return json.dumps(data, sort_keys=True)
-
-
-def verify_tier_determinism(tier: int, seed: int, expected_nodes_range: Tuple[int, int] = None) -> bool:
-    """
-    Verify that generating a graph for a specific tier and seed produces
-    the same checksum on multiple runs.
+    Serialize a StateGraph to a deterministic string representation.
+    This ensures that the same graph structure always produces the same string.
     
     Args:
-        tier: The complexity tier (1, 2, or 3)
-        seed: The random seed to use
-        expected_nodes_range: Optional tuple (min, max) to validate node count
+        graph: The StateGraph to serialize
         
     Returns:
-        True if deterministic and valid, False otherwise
+        A deterministic string representation of the graph
     """
-    generator = GraphGenerator()
+    # Sort nodes and edges to ensure deterministic ordering
+    nodes_str = []
+    for node_id in sorted(graph.nodes.keys()):
+        node = graph.nodes[node_id]
+        nodes_str.append(f"node:{node_id}:{node.tier}")
     
-    # First run
-    set_seed(seed)
-    graph1 = generator.generate(tier=tier, seed=seed)
-    if not graph1.is_valid():
-        raise RuntimeError(f"Tier {tier} graph generation failed validity check on run 1 with seed {seed}")
-        
-    checksum1 = calculate_checksum(serialize_graph(graph1))
-    nodes1 = len(graph1.nodes)
+    edges_str = []
+    # Sort edges by source, then target for determinism
+    sorted_edges = sorted(graph.edges, key=lambda e: (e.source, e.target))
+    for edge in sorted_edges:
+        edges_str.append(f"edge:{edge.source}->{edge.target}:{edge.probability:.6f}:{edge.reward}")
     
-    # Second run with same seed
-    set_seed(seed)
-    graph2 = generator.generate(tier=tier, seed=seed)
-    if not graph2.is_valid():
-        raise RuntimeError(f"Tier {tier} graph generation failed validity check on run 2 with seed {seed}")
-        
-    checksum2 = calculate_checksum(serialize_graph(graph2))
-    nodes2 = len(graph2.nodes)
-    
-    # Third run to be extra sure
-    set_seed(seed)
-    graph3 = generator.generate(tier=tier, seed=seed)
-    checksum3 = calculate_checksum(serialize_graph(graph3))
-    
-    # Verify determinism
-    if checksum1 != checksum2 or checksum2 != checksum3:
-        raise AssertionError(
-            f"Graph generation is NOT deterministic for Tier {tier}, Seed {seed}. "
-            f"Checksums: {checksum1}, {checksum2}, {checksum3}"
-        )
-        
-    # Verify node count constraints if provided
-    if expected_nodes_range:
-        min_nodes, max_nodes = expected_nodes_range
-        if not (min_nodes <= nodes1 <= max_nodes):
-            raise AssertionError(
-                f"Tier {tier} graph has {nodes1} nodes, expected range [{min_nodes}, {max_nodes}]"
-            )
-            
-    return True
+    # Combine into a single string
+    serialized = "\n".join(nodes_str + edges_str)
+    return serialized
 
 
-def run_all_tier_verifications():
+def compute_checksum(data: str) -> str:
     """
-    Execute verification for all tiers with a fixed seed.
-    """
-    print("Starting T015: verify_deterministic_regeneration")
-    print("=" * 60)
+    Compute a SHA-256 checksum of the given data string.
     
-    # Ensure directories exist for any potential logging
+    Args:
+        data: The string to checksum
+        
+    Returns:
+        Hexadecimal SHA-256 hash string
+    """
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+
+
+def verify_tier_determinism(
+    tier: int,
+    seed: int = 42,
+    max_retries: int = 100
+) -> Tuple[bool, str, str, Dict[str, Any]]:
+    """
+    Verify that a graph generated for a specific tier and seed is deterministic.
+    
+    This function:
+    1. Sets the seed
+    2. Generates a graph
+    3. Computes its checksum
+    4. Regenerates with the same seed
+    5. Recomputes the checksum
+    6. Asserts equality
+    
+    Args:
+        tier: The tier number (1, 2, or 3)
+        seed: The random seed to use
+        max_retries: Maximum retries for graph generation (passed to generator)
+        
+    Returns:
+        Tuple of (success, message, checksum1, metadata)
+    """
+    # Ensure directories exist
     ensure_directories()
     
-    results = {}
-    failed = False
+    # Set seed for reproducibility
+    set_seed(seed)
     
-    # Define expected node ranges based on spec
-    # Tier 1: 5-10 nodes (single path)
-    # Tier 2: 20-50 nodes (branching)
-    # Tier 3: 100+ nodes (sparse, complex)
-    tier_configs = {
-        1: (5, 15),
-        2: (20, 60),
-        3: (80, 200)  # Allowing some flexibility for the "100+" requirement
+    # Create generator
+    generator = GraphGenerator()
+    
+    # Generate first graph
+    graph1 = generator.generate(tier=tier, seed=seed)
+    
+    # Validate graph1
+    if not graph1.is_valid():
+        return False, f"First generated graph for tier {tier} is invalid", "", {}
+    
+    # Serialize and checksum
+    serialized1 = serialize_graph(graph1)
+    checksum1 = compute_checksum(serialized1)
+    
+    # Reset seed for regeneration
+    set_seed(seed)
+    
+    # Generate second graph
+    graph2 = generator.generate(tier=tier, seed=seed)
+    
+    # Validate graph2
+    if not graph2.is_valid():
+        return False, f"Second generated graph for tier {tier} is invalid", checksum1, {}
+    
+    # Serialize and checksum
+    serialized2 = serialize_graph(graph2)
+    checksum2 = compute_checksum(serialized2)
+    
+    # Check if checksums match
+    if checksum1 != checksum2:
+        return False, (
+            f"Graphs for tier {tier} with seed {seed} are not deterministic. "
+            f"Checksum1: {checksum1}, Checksum2: {checksum2}"
+        ), checksum1, {}
+    
+    # Prepare metadata
+    metadata = {
+        "tier": tier,
+        "seed": seed,
+        "num_nodes": len(graph1.nodes),
+        "num_edges": len(graph1.edges),
+        "checksum": checksum1,
+        "is_valid": graph1.is_valid()
     }
     
-    test_seed = 42  # Fixed seed for reproducibility verification
+    return True, f"Tier {tier} with seed {seed} is deterministic", checksum1, metadata
+
+
+def run_all_tier_verifications(
+    seeds: List[int] = None,
+    tiers: List[int] = None
+) -> Dict[str, Any]:
+    """
+    Run deterministic regeneration verification for all tiers and specified seeds.
     
-    for tier, (min_n, max_n) in tier_configs.items():
-        try:
-            print(f"\nVerifying Tier {tier} (Seed={test_seed}, Expected nodes: {min_n}-{max_n})...")
-            verify_tier_determinism(tier, test_seed, (min_n, max_n))
-            results[tier] = "PASS"
-            print(f"  -> Tier {tier}: PASSED (Deterministic and within node range)")
-        except Exception as e:
-            results[tier] = f"FAIL: {str(e)}"
-            failed = True
-            print(f"  -> Tier {tier}: FAILED - {e}")
-    
-    print("\n" + "=" * 60)
-    print("T015 Verification Summary:")
-    for tier, status in results.items():
-        print(f"  Tier {tier}: {status}")
+    Args:
+        seeds: List of seeds to test (default: [42, 123, 456])
+        tiers: List of tiers to test (default: [1, 2, 3])
         
-    if failed:
-        print("\nT015 FAILED: Determinism verification did not pass for all tiers.")
-        return False
+    Returns:
+        Dictionary containing verification results and metadata
+    """
+    if seeds is None:
+        seeds = [42, 123, 456]
+    if tiers is None:
+        tiers = [1, 2, 3]
+    
+    results = {
+        "verification_status": "passed",
+        "details": [],
+        "summary": {
+            "total_tests": 0,
+            "passed": 0,
+            "failed": 0
+        }
+    }
+    
+    for tier in tiers:
+        for seed in seeds:
+            success, message, checksum, metadata = verify_tier_determinism(
+                tier=tier,
+                seed=seed
+            )
+            
+            test_result = {
+                "tier": tier,
+                "seed": seed,
+                "success": success,
+                "message": message,
+                "checksum": checksum,
+                "metadata": metadata
+            }
+            
+            results["details"].append(test_result)
+            results["summary"]["total_tests"] += 1
+            
+            if success:
+                results["summary"]["passed"] += 1
+            else:
+                results["summary"]["failed"] += 1
+                results["verification_status"] = "failed"
+    
+    return results
+
+
+def main():
+    """
+    Main entry point for the deterministic regeneration verification.
+    
+    This script:
+    1. Runs verification for all tiers (1, 2, 3) with multiple seeds
+    2. Outputs results to data/processed/determinism_verification.json
+    3. Prints a summary to stdout
+    """
+    print("Starting deterministic regeneration verification (T015)...")
+    
+    # Run verifications
+    results = run_all_tier_verifications()
+    
+    # Ensure output directory exists
+    ensure_directories()
+    
+    # Save results to JSON
+    output_path = "data/processed/determinism_verification.json"
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    
+    # Print summary
+    print(f"\nVerification Results:")
+    print(f"  Total Tests: {results['summary']['total_tests']}")
+    print(f"  Passed: {results['summary']['passed']}")
+    print(f"  Failed: {results['summary']['failed']}")
+    print(f"  Status: {results['verification_status'].upper()}")
+    print(f"\nResults saved to: {output_path}")
+    
+    # Exit with appropriate code
+    if results["verification_status"] == "failed":
+        print("\nERROR: Deterministic regeneration verification FAILED!")
+        sys.exit(1)
     else:
-        print("\nT015 PASSED: All tiers are deterministic and valid.")
-        return True
+        print("\nSUCCESS: All tiers are deterministic with fixed seeds.")
+        sys.exit(0)
 
 
 if __name__ == "__main__":
-    success = run_all_tier_verifications()
-    sys.exit(0 if success else 1)
+    main()

@@ -92,7 +92,7 @@ The researcher needs to execute a sufficient number of simulated episodes per th
 - **SC-002**: The "distillation cost-benefit ratio" is measured by comparing the log-probability shift (advantage) measured on a frozen policy against a held-out validation set, against the actual improvement in task completion to identify the inflection point where added skill density correlates with decreased success in Tier 1 (See FR-005, FR-006).
 - **SC-003**: The residual variance in action entropy (policy rigidity) is measured against the complexity tier to verify if higher injection rates in deterministic environments lead to significantly lower entropy (over-constraining) beyond the deterministic effect of the threshold (See FR-004).
 - **SC-004**: The statistical significance of the interaction between routing threshold and environment complexity is measured using ANOVA; success is defined as the interaction term yielding a p-value < 0.05 (See FR-006).
-- **SC-005**: The computational feasibility of the entire analysis (a large number of episodes × multiple thresholds × 3 tiers) is measured against the 6-hour free-tier CPU limit and 7GB RAM constraint to ensure the experiment completes without resource exhaustion (See FR-007).
+- **SC-005**: The computational feasibility of the entire analysis (a large number of episodes × multiple thresholds × multiple tiers) is measured against the 6-hour free-tier CPU limit and 7GB RAM constraint to ensure the experiment completes without resource exhaustion (See FR-007).
 
 ## Assumptions
 
