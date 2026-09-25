@@ -5,192 +5,193 @@ import csv
 import logging
 from pathlib import Path
 
-# Ensure project root is in path for imports if run directly
-if __name__ == "__main__" and "code" not in sys.path:
-    sys.path.insert(0, str(Path(__file__).parent))
+# Add project root to path if running as script
+if __name__ == "__main__" and __package__ is None:
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
 
-from utils.logging_config import get_logger, log_excluded_sample
-from utils.config_manager import get_config
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
-
+# Constants for schema
+LABELS_COLUMNS = ['clip_id', 'label', 'reason', 'confidence_score', 'perturbation_type']
+EXCLUDED_COLUMNS = ['clip_id', 'reason', 'confidence_score']
 CONFIDENCE_THRESHOLD = 0.9
 
-def load_json_file(file_path: str) -> dict:
-    """Load a JSON file."""
-    with open(file_path, 'r') as f:
+def load_json_file(filepath: str) -> dict:
+    """Load a JSON file and return its contents."""
+    path = Path(filepath)
+    if not path.exists():
+        raise FileNotFoundError(f"JSON file not found: {filepath}")
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def load_temp_labels(file_path: str) -> list:
-    """Load temporary labels from a JSON file (output of T023)."""
-    # T023 output structure assumed: list of dicts with clip_id, label, reason, confidence_score, perturbation_type
-    # If T023 outputs CSV, this would need adjustment, but spec implies intermediate JSON or dict structure.
-    # Based on T023 description, it assigns labels. We assume it outputs a list of result dicts.
-    try:
-        with open(file_path, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        logger.error(f"Temporary labels file not found: {file_path}")
+def load_temp_labels(filepath: str) -> list:
+    """
+    Load temporary labels from a CSV (labels_raw.csv).
+    Expected columns: clip_id, label, reason, confidence_score, perturbation_type
+    Returns a list of dictionaries.
+    """
+    path = Path(filepath)
+    if not path.exists():
+        # If raw labels don't exist, return empty list (will result in empty outputs)
+        logger.warning(f"Temporary labels file not found: {filepath}. Proceeding with empty list.")
         return []
+    
+    rows = []
+    with open(path, 'r', encoding='utf-8', newline='') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            # Ensure types are correct
+            if 'confidence_score' in row:
+                try:
+                    row['confidence_score'] = float(row['confidence_score'])
+                except (ValueError, TypeError):
+                    row['confidence_score'] = 0.0
+            if 'perturbation_type' in row:
+                try:
+                    row['perturbation_type'] = int(row['perturbation_type'])
+                except (ValueError, TypeError):
+                    row['perturbation_type'] = 0
+            rows.append(row)
+    return rows
 
 def process_labels_and_exclusions(temp_labels: list, threshold: float = CONFIDENCE_THRESHOLD) -> tuple:
     """
-    Process temporary labels to assign 'null' to low confidence or failed samples.
+    Process temporary labels to:
+    1. Identify samples with confidence < threshold or label indicating failure (e.g., 'null' already, or specific error reasons).
+    2. Assign 'null' label to these samples if not already null.
+    3. Separate excluded samples for the log.
     
-    Args:
-        temp_labels: List of dicts containing label info.
-        threshold: Confidence threshold for exclusion.
-        
     Returns:
-        Tuple of (final_labels_list, excluded_samples_list)
+        tuple: (processed_labels_list, excluded_samples_list)
     """
-    final_labels = []
-    excluded_samples = []
+    processed = []
+    excluded = []
     
-    for item in temp_labels:
-        clip_id = item.get('clip_id')
-        label = item.get('label')
-        reason = item.get('reason', 'unknown')
-        confidence_score = item.get('confidence_score', 0.0)
-        perturbation_type = item.get('perturbation_type', 0)
+    for row in temp_labels:
+        clip_id = row.get('clip_id', 'unknown')
+        confidence = row.get('confidence_score', 0.0)
+        current_label = row.get('label', '')
+        current_reason = row.get('reason', '')
+        perturbation_type = row.get('perturbation_type', 0)
         
-        # Determine if this sample should be excluded (assigned 'null')
-        # Condition 1: Simulation failures (often indicated by label being None or specific reason)
-        # Condition 2: Confidence score < threshold
-        is_excluded = False
-        exclusion_reason = reason
+        # Determine if this sample should be excluded/flagged as null
+        # Criteria: confidence < threshold OR simulation failure indicated in reason/label
+        is_low_confidence = confidence < threshold
+        is_simulation_failure = 'simulation_failed' in current_reason.lower() or 'failed' in current_reason.lower()
+        is_already_null = current_label == 'null'
         
-        # If label is already 'null' or None from previous step, keep it null
-        if label is None or label == 'null':
-            is_excluded = True
-            if not exclusion_reason:
-                exclusion_reason = "simulation_failure_or_missing"
-        elif confidence_score is not None and confidence_score < threshold:
-            is_excluded = True
-            exclusion_reason = f"low_confidence_{confidence_score:.4f}"
+        needs_null_assignment = (is_low_confidence or is_simulation_failure) and not is_already_null
         
-        if is_excluded:
-            # Assign 'null' label
-            final_label = 'null'
-            final_reason = exclusion_reason
-            # Log the excluded sample
-            log_excluded_sample(clip_id, final_reason, confidence_score)
-            excluded_samples.append({
+        if needs_null_assignment:
+            # Update the label to 'null'
+            new_label = 'null'
+            new_reason = current_reason if current_reason else 'Low confidence or simulation failure'
+            new_confidence = confidence
+            new_perturbation = 0 # Perturbation doesn't apply if we are nulling due to failure
+            
+            processed.append({
                 'clip_id': clip_id,
-                'reason': final_reason,
-                'confidence_score': confidence_score
+                'label': new_label,
+                'reason': new_reason,
+                'confidence_score': new_confidence,
+                'perturbation_type': new_perturbation
             })
-            # Update the item for the final list
-            item['label'] = final_label
-            item['reason'] = final_reason
-            item['confidence_score'] = confidence_score # Keep original score for metadata
+            
+            # Add to excluded list
+            excluded.append({
+                'clip_id': clip_id,
+                'reason': new_reason,
+                'confidence_score': new_confidence
+            })
         else:
-            # Keep original label
-            final_label = label
-            final_reason = reason
-            item['label'] = final_label
-            item['reason'] = final_reason
-            item['confidence_score'] = confidence_score
-        
-        final_labels.append(item)
-        
-    return final_labels, excluded_samples
+            # Keep as is
+            processed.append(row)
+            
+    return processed, excluded
 
-def save_labels_csv(labels: list, output_path: str):
-    """Save the final labels to a CSV file."""
-    if not labels:
-        logger.warning("No labels to save.")
-        # Create empty file with headers if no data
-        with open(output_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['clip_id', 'label', 'reason', 'confidence_score', 'perturbation_type'])
-        return
-
-    # Ensure headers are present
-    fieldnames = ['clip_id', 'label', 'reason', 'confidence_score', 'perturbation_type']
+def save_labels_csv(labels: list, filepath: str):
+    """Save the processed labels to a CSV file."""
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    with open(path, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=LABELS_COLUMNS)
         writer.writeheader()
-        for label in labels:
-            writer.writerow({
-                'clip_id': label.get('clip_id', ''),
-                'label': label.get('label', ''),
-                'reason': label.get('reason', ''),
-                'confidence_score': label.get('confidence_score', 0.0),
-                'perturbation_type': label.get('perturbation_type', 0)
-            })
-    logger.info(f"Saved {len(labels)} labels to {output_path}")
+        writer.writerows(labels)
+    logger.info(f"Saved {len(labels)} labels to {filepath}")
 
-def save_excluded_log(excluded_samples: list, output_path: str):
+def save_excluded_log(excluded: list, filepath: str):
     """Save the excluded samples log to a CSV file."""
-    # Even if empty, create the file with headers as per requirement
-    fieldnames = ['clip_id', 'reason', 'confidence_score']
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    # Ensure the file exists even if empty
+    with open(path, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=EXCLUDED_COLUMNS)
         writer.writeheader()
-        for sample in excluded_samples:
-            writer.writerow({
-                'clip_id': sample.get('clip_id', ''),
-                'reason': sample.get('reason', ''),
-                'confidence_score': sample.get('confidence_score', 0.0)
-            })
+        if excluded:
+            writer.writerows(excluded)
     
-    logger.info(f"Saved {len(excluded_samples)} excluded samples to {output_path}")
+    logger.info(f"Saved {len(excluded)} excluded samples to {filepath}")
 
-def save_metadata(labels: list, output_path: str):
-    """Save metadata about the labeling process."""
-    # Extract confidence scores and other stats
-    metadata = {
-        'total_samples': len(labels),
-        'null_count': sum(1 for l in labels if l.get('label') == 'null'),
-        'valid_count': sum(1 for l in labels if l.get('label') == 'valid'),
-        'invalid_count': sum(1 for l in labels if l.get('label') == 'invalid'),
-        'confidence_threshold': CONFIDENCE_THRESHOLD
-    }
-    
-    with open(output_path, 'w') as f:
+def save_metadata(metadata: dict, filepath: str):
+    """Save metadata JSON file."""
+    path = Path(filepath)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(metadata, f, indent=2)
-    logger.info(f"Saved metadata to {output_path}")
+    logger.info(f"Saved metadata to {filepath}")
 
 def main():
     """Main entry point for applying null labels."""
-    # Paths relative to project root
-    project_root = Path(__file__).parent.parent
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
     data_processed_dir = project_root / "data" / "processed"
-    data_processed_dir.mkdir(parents=True, exist_ok=True)
     
-    # Input from T023 (assumed to be a JSON file of temporary labels)
-    # The spec says T023 outputs labels. We assume a temporary JSON file.
-    temp_labels_path = data_processed_dir / "temp_labels.json"
+    input_path = data_processed_dir / "labels_raw.csv"
+    output_labels_path = data_processed_dir / "labels.csv"
+    output_excluded_path = data_processed_dir / "excluded_samples.log"
+    metadata_path = data_processed_dir / "null_labels_metadata.json"
     
-    # Output paths
-    labels_csv_path = data_processed_dir / "labels.csv"
-    excluded_log_path = data_processed_dir / "excluded_samples.log"
-    metadata_path = data_processed_dir / "metadata.json"
+    logger.info(f"Starting null label application. Input: {input_path}")
     
-    if not temp_labels_path.exists():
-        logger.error(f"Input file {temp_labels_path} not found. T023 may not have completed.")
-        # Create empty outputs to satisfy artifact existence requirement
-        save_labels_csv([], str(labels_csv_path))
-        save_excluded_log([], str(excluded_log_path))
-        save_metadata([], str(metadata_path))
-        return
-    
-    # Load temporary labels
-    temp_labels = load_temp_labels(str(temp_labels_path))
-    logger.info(f"Loaded {len(temp_labels)} temporary labels.")
-    
-    # Process labels and exclusions
-    final_labels, excluded_samples = process_labels_and_exclusions(temp_labels)
-    
-    # Save artifacts
-    save_labels_csv(final_labels, str(labels_csv_path))
-    save_excluded_log(excluded_samples, str(excluded_log_path))
-    save_metadata(final_labels, str(metadata_path))
-    
-    logger.info("T024 completed successfully.")
+    try:
+        # Load temporary labels
+        temp_labels = load_temp_labels(str(input_path))
+        logger.info(f"Loaded {len(temp_labels)} temporary labels.")
+        
+        # Process labels and identify exclusions
+        processed_labels, excluded_samples = process_labels_and_exclusions(temp_labels)
+        
+        # Save outputs
+        save_labels_csv(processed_labels, str(output_labels_path))
+        save_excluded_log(excluded_samples, str(output_excluded_path))
+        
+        # Generate metadata
+        metadata = {
+            "total_samples": len(temp_labels),
+            "processed_samples": len(processed_labels),
+            "excluded_samples_count": len(excluded_samples),
+            "confidence_threshold": CONFIDENCE_THRESHOLD,
+            "output_labels_file": str(output_labels_path),
+            "output_excluded_file": str(output_excluded_path)
+        }
+        save_metadata(metadata, str(metadata_path))
+        
+        logger.info("Null label application completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

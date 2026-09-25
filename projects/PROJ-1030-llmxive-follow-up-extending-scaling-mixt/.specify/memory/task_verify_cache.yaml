@@ -1,17 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file list was provided showing that the required folders
-    (`code`, `code/utils`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`,
-    `docs/figures`, `state`) actually exist; the claim is unsupported by any artifact.
-    The task remains undone.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided evidence contains only high\u2011level feature specifications for\
-    \ video extraction and labeling; there is no `.pre-commit-config.yaml`, `pyproject.toml`,\
-    \ or any configuration files/scripts for ruff, black, or pre\u2011commit hooks.\
-    \ Consequently, the required linting/formatting setup is missing."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,31 +6,39 @@ T008:
     \ that error handling and logging (especially a \u201CFAIL LOUDLY\u201D mechanism\
     \ for data fetch) have been set up. Consequently, the required artifact \u2013\
     \ a configured error\u2011handling and logging infrastructure \u2013 is missing."
-T013:
+T017:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No extraction script, model download code, or resulting NumPy files containing
-    latent vectors and binary expert masks are present. The claim lacks any concrete
-    artifact (code, data files, or output) that demonstrates `torch.no_grad()` inference
-    on CPU and the generation of the required intermediate DiT layer outputs.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing the required frame\u2011subsampling\
-    \ and temporal\u2011chunking logic was provided, nor any test output showing that\
-    \ clips are processed within the 7\u202FGB RAM limit. Consequently the task\u2019\
-    s core requirement cannot be verified."
+  h: c44822d3f132d1f81b70a0eb924c6a0289e6a31adb0754da75cffef908e28685
+  r: "The `code/utils/log_memory.py` file exists but is truncated (the `log_memory_usage`\
+    \ function is incomplete) and never writes to the required `data/processed/memory_log.json`.\
+    \ Moreover, the JSON log file itself is missing, so the task\u2019s requirement\
+    \ to record peak RAM usage to that path is not fulfilled."
 T024:
   c: false
   h: 71e52952eba06ea01fc159b5db09a7a9b981816f91609dc793d5deee9bb46477
   r: "Both required artifacts (`data/processed/labels.csv` and `data/processed/excluded_samples.log`)\
     \ are missing from the repository, so the labeling step and logging side\u2011\
     effect have not been provided. The task therefore remains unfinished."
-T026:
+T032:
+  c: false
+  h: 8cfb46c7baaf8b3f5baf1b2d2294086fb9eaac1db22fc8b24883bb2c0b25e22d
+  r: The required output file `data/processed/activation_distribution.json` does not
+    exist, and the provided `compute_baseline.py` script is truncated (ends with `logger.in`)
+    and never actually writes the JSON to the expected location. Consequently the
+    baseline distribution has not been computed and saved as required.
+T032#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or documentation for \u201CAdd logging for simulation\
-    \ errors and excluded samples\u201D was provided; the only artifacts described\
-    \ relate to feature extraction and labeling, not to logging. The required logging\
-    \ implementation (e.g., log statements, log file output, handling of error cases)\
-    \ is missing."
+  r: "No `metrics.json` (or any other file) containing the calculated precision, recall,\
+    \ F1 scores and the required \u201Crandom guessing\u201D baseline is present.\
+    \ The claim provides only a textual description of the task; without the actual\
+    \ JSON output and evidence that the baseline uses the exact filtered test\u2011\
+    set IDs, the requirement is not satisfied. The implementer must supply a non\u2011\
+    empty `metrics.json` file with the computed metrics and baseline values."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No SHAP or other feature\u2011importance analysis code, results, or visualizations\
+    \ were provided, nor any comparison against the baseline distribution from T032.1.\
+    \ The claim lacks any artifact (script, notebook, data files, or report) that\
+    \ demonstrates the required analysis, so the task is not satisfied."

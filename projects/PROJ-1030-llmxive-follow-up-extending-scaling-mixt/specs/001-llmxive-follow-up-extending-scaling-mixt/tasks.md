@@ -37,13 +37,10 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Setup `code/utils/memory_manager.py` for chunking and frame subsampling logic (FR-006)
-- [X] T005.1 [P] Implement generic memory chunking utility: Create `code/utils/memory_chunker.py` to implement frame subsampling and temporal chunking strategies. This utility MUST be reusable by both US1 (feature extraction) and US2 (labeling) to ensure FR-006 compliance across the pipeline. It must handle clips exceeding substantial RAM requirements by chunking temporally or subsampling frames as needed.
 - [X] T005.1.1 [P] Implement frame subsampling logic: Create `code/utils/memory_chunker.py` function `subsample_frames` that reduces frame count while preserving temporal resolution.
 - [X] T005.1.2 [P] Implement temporal chunking logic: Create `code/utils/memory_chunker.py` function `chunk_temporal` that splits long clips into manageable segments.
 - [X] T005.1.3 [P] Write unit tests for memory chunking: Create `tests/unit/test_memory_chunker.py` to verify subsampling and chunking logic.
 - [X] T005 [P] Implement `code/utils/physics_sim.py` wrapper for PyBullet (scale normalization, error handling)
-- [ ] T006.3 [P] Define the 'Label Independence' metric and threshold: Create `code/utils/prior_audit_config.py` containing `CORRELATION_THRESHOLD = 0.1` and the algorithm definition. The algorithm MUST calculate the Pearson correlation between the `depth_confidence_score` and the `physical_label` (0 for valid, 1 for invalid) for the entire dataset. If correlation > 0.1, the audit fails. This task defines the constants and criteria used by T006.4. **Crucially**: This audit must NOT use `perturbation_type` as the target variable to avoid tautology.
-- [ ] T006.4 [P] Implement the core logic for `code/utils/prior_audit.py`: Implement the algorithm defined in T006.3 to calculate the correlation between depth confidence and `physical_label`. The task MUST accept the full `labels.csv` (including 'null' rows) as input, but MUST exclude rows where `label == 'null'` from the correlation calculation to ensure the metric is defined. It MUST return a boolean result (True if shared priors detected, False otherwise) based on the threshold defined in T006.3.
 - [X] T007 [P] Create base data models in `code/models/data_models.py`: Define classes `VideoClip`, `EstimatedState3D`, `ActivationPattern`, and `PhysicalLabel` in a single file to ensure consistency.
 - [ ] T008.1 [P] Implement "FAIL LOUDLY" logging infrastructure: Create `code/utils/logging.py` with a `fail_loudly` function that raises exceptions on data fetch failures instead of falling back to synthetic data. Artifact: `code/utils/logging.py`.
 - [ ] T008.2 [P] Implement exponential backoff logic: Create `code/utils/retry.py` with a `retry_with_backoff` function for download failures. Artifact: `code/utils/retry.py`.
@@ -70,17 +67,18 @@
 
 - [ ] T012.0.1 [P] [US1] Define sampling strategy: Create `code/utils/sampling_strategy.py` to define the stratified sampling logic based on 'action type'. Artifact: `code/utils/sampling_strategy.py`.
 - [ ] T012.0.2 [P] [US1] Generate sample list artifact: Create `data/raw/sample_list.csv` using the strategy from T012.0.1. Artifact: `data/raw/sample_list.csv`.
-- [ ] T012.0.3 [P] [US1] Download LingBot-Video weights: Download the pre-trained LingBot-Video model weights from HuggingFace to `data/external/lingbot_weights/`. Artifact: `data/external/lingbot_weights/`.
 - [ ] T012.0.4 [P] [US1] Verify class balance: Create `code/utils/verify_balance.py` to ensure the sample list from T012.0.2 has a representative mix of action types. Artifact: `code/utils/verify_balance.py`.
+- [ ] T012.0.3 [P] [US1] Download LingBot-Video weights: Download the pre-trained LingBot-Video model weights from HuggingFace to `data/external/lingbot_weights/`. Artifact: `data/external/lingbot_weights/`.
 - [ ] T012.2.1 [P] [US1] Implement selection logic: Create `code/utils/select_clips.py` to select/stream clips based on the sample list. Artifact: `code/utils/select_clips.py`.
 - [ ] T012.2.2 [P] [US1] Verify class balance: Run `code/utils/verify_balance.py` to confirm the selected clips meet diversity requirements. Artifact: `data/processed/balance_report.json`.
-- [ ] T012.1 [US1] Implement `code/extract_features.py` to download LingBot-Video model (HF) and video clips (streaming); ensure extraction logic skips full video decoding/generation and only accesses intermediate DiT layers.
-- [ ] T013 [US1] Implement `torch.no_grad()` inference to extract latent vectors and binary expert masks from intermediate DiT layers. **Deliverable**: Save extracted vectors and masks to `data/processed/features.npy`. **Verification**: Verify file exists and is non-empty with expected dimensions.
-- [ ] T014 [US1] Implement frame subsampling AND temporal chunking strategy to stay within 7 GB RAM limit (FR-006). The task MUST implement both strategies: subsample frames if the clip is short, but chunk temporally if the clip is long to prevent OOM. (Reuses T005.1). **Output Artifact**: `data/processed/memory_log.json` (via T017.1).
-- [ ] T015 [US1] Add logic to handle download failures with exponential backoff, then fail gracefully (no synthetic fallback). **Artifact**: Implement retry logic in `code/extract_features.py` using `code/utils/retry.py`. **Verification**: Unit test in `tests/unit/test_retry_logic.py` confirms exponential backoff behavior.
+- [ ] T017.1 [P] [US1] Generate memory log: Create `code/utils/log_memory.py` to record peak RAM usage to `data/processed/memory_log.json`.
+- [ ] T014 [US1] Implement frame subsampling AND temporal chunking strategy to stay within 7 GB RAM limit (FR-006). The task MUST implement both strategies: subsample frames if the clip is short, but chunk temporally if the clip is long to prevent OOM. (Reuses T005.1.1/T005.1.2). **Output Artifact**: `data/processed/chunking_config.json` (strategy config) and `data/processed/memory_log.json` (via T017.1).
+- [ ] T014.2 [US1] Integrate memory chunking into extraction: Create `code/extraction/memory_integration.py` that explicitly calls T005.1.1 and T005.1.2 functions within the extraction pipeline logic. This task MUST ensure T012.1 imports and uses this module. **Dependency**: T014 must be complete.
+- [ ] T012.1 [US1] Implement `code/extract_features.py` to download LingBot-Video model (HF) and video clips (streaming); ensure extraction logic uses T014.2 for memory management and skips full video decoding/generation, accessing only intermediate DiT layers. **Artifact**: Script that outputs to `data/processed/features.npy`. **Dependency**: T014.2, T012.0.3.
+- [ ] T013 [US1] Implement `torch.no_grad()` inference to extract latent vectors and binary expert masks from intermediate DiT layers. **Deliverable**: Save extracted vectors and masks to `data/processed/features.npy`. **Verification**: Verify file exists and is non-empty with expected dimensions. <!-- FAILED: unspecified -->
+- [X] T015 [US1] Add logic to handle download failures with exponential backoff, then fail gracefully (no synthetic fallback). **Artifact**: Implement retry logic in `code/extract_features.py` using `code/utils/retry.py`. **Verification**: Unit test in `tests/unit/test_retry_logic.py` confirms exponential backoff behavior.
 - [ ] T016 [US1] Save extracted features as `data/processed/features.npy` with metadata JSON
-- [ ] T017 [US1] Add logging for extraction progress and memory usage. **Artifact**: Generate `data/processed/extract.log`. **Verification**: Log contains memory usage entries for each chunk.
-- [ ] T017.1 [P] [US1] Generate memory log: Create `code/utils/log_memory.py` to record peak RAM usage to `data/processed/memory_log.json`. **Dependency**: T014 must call this function.
+- [ ] T017 [US1] Add logging for extraction progress and memory usage. **Artifact**: Generate `data/processed/extract.log`. **Verification**: Log contains memory usage entries for each chunk. <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,12 +101,11 @@
 - [ ] T021.1 [US2] Implement D state reconstruction logic: Create `code/labeling/reconstruct_3d.py` to extract positions/velocities from depth maps. **Artifact**: Save `EstimatedState3D` vectors to `data/processed/recon_states.npy`. **Verification**: Verify dimensions match input video frames.
 - [ ] T021.2 [US2] Implement Kinematic Consistency Check: Create `code/labeling/kinematic_check.py` to filter trajectories that are kinematically impossible (e.g., negative depth). **Artifact**: `data/processed/kinematic_filter_log.json`.
 - [X] T022 [US2] Integrate `code/utils/physics_sim.py` to simulate reconstructed states in PyBullet
-- [ ] T023.1 [US2] Implement logic to assign "valid"/"invalid" labels based on physics constraints. **Primary Logic**: Run the physics engine on ALL reconstructed states. If a violation is detected (e.g., gravity defiance, collision), assign "invalid". **Secondary Logic**: For a specific subset of samples, apply a known synthetic perturbation (e.g., 'constant upward velocity') to the reconstructed state, run the physics engine, and assign "invalid" if the perturbation causes a violation. **Output Requirements**: The task MUST record the `physical_label` ("valid", "invalid", or "null") and the `perturbation_type` (0 for no perturbation, 1 for synthetic perturbation) in the output. If a violation is detected naturally, `perturbation_type` MUST be 0. If a perturbation was applied and caused a violation, `perturbation_type` MUST be 1. **Artifact**: Update `data/processed/labels.csv` with new rows. **Verification**: Verify `perturbation_type` column is populated correctly for synthetic samples.
-- [X] T024 [US2] Implement a **labeling step** for samples with reconstruction confidence < 0.9 or simulation failures: **Assign a "null" label to these samples in `data/processed/labels.csv`** (as per FR-008). **Simultaneously**, write the excluded sample IDs and reasons to `data/processed/excluded_samples.log` as a side-effect. **Schema Definition**: `labels.csv` MUST contain columns: [clip_id, label, reason, confidence_score, perturbation_type]. `excluded_samples.log` MUST be a CSV with columns: [clip_id, reason, confidence_score]. If no samples are excluded, create an empty `excluded_samples.log` file to ensure the artifact exists for hashing. Do NOT remove these rows from the CSV; they must remain with label="null". (FR-008)
+- [ ] T023.1 [US2] Implement logic to assign "valid"/"invalid" labels based on physics constraints. **Primary Logic**: Run the physics engine on reconstructed states. If a violation is detected (e.g., gravity defiance, collision), assign "invalid". **Secondary Logic**: If the dataset lacks sufficient "invalid" samples after primary logic, apply a known synthetic perturbation (e.g., 'constant upward velocity') to a subset of trajectories to create "invalid" labels. **Output Requirements**: The task MUST record the `physical_label` ("valid", "invalid", or "null") and the `perturbation_type` (0 for no perturbation, 1 for synthetic perturbation) in the output. If a violation is detected naturally, `perturbation_type` MUST be 0. If a perturbation was applied and caused a violation, `perturbation_type` MUST be 1. **Artifact**: Save intermediate results to `data/processed/labels_raw.csv`. **Verification**: Verify `perturbation_type` column is populated correctly for synthetic samples.
+- [ ] T024 [US2] Implement a **labeling step** for samples with reconstruction confidence < 0.9 or simulation failures: **Assign a "null" label to these samples** and merge with `data/processed/labels_raw.csv` to create `data/processed/labels.csv`. **Simultaneously**, write the excluded sample IDs and reasons to `data/processed/excluded_samples.log` as a side-effect. **Crucially**: These rows must remain in `labels.csv` with label="null" for audit purposes, but downstream tasks (T030.1) MUST filter them out. **Schema Definition**: `labels.csv` MUST contain columns: [clip_id, label, reason, confidence_score, perturbation_type]. `excluded_samples.log` MUST be a CSV with columns: [clip_id, reason, confidence_score]. If no samples are excluded, create an empty `excluded_samples.log` file to ensure the artifact exists for hashing. (FR-008)
 - [ ] T024.1.1 [P] [US2] Implement verification script: Create `code/labeling/verify_filtering.py` to verify that `excluded_samples.log` matches the 'null' rows in `labels.csv`.
 - [ ] T024.1.2 [P] [US2] Generate verification report: Run `code/labeling/verify_filtering.py` to generate `data/processed/filtering_verification.json`.
 - [X] T025 [US2] Save valid labels (including "null" rows) to `data/processed/labels.csv` and metadata (confidence scores) to `data/processed/metadata.json`
-- [ ] T026 [US2] Add logging for simulation errors and excluded samples. **Artifact**: Append errors to `data/processed/excluded_samples.log`. **Verification**: Verify log contains clip_id and reason for every failed simulation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -123,24 +120,24 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T027 [P] [US3] Unit test for classifier training logic in `tests/unit/test_train_classifier.py`
-- [ ] T028 [P] [US3] Integration test for end-to-end evaluation in `tests/integration/test_pipeline.py`
+- [X] T028 [P] [US3] Integration test for end-to-end evaluation in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 3
 
+- [ ] T012.0.5 [P] [US3] Verify physical validity balance: Create `code/classification/verify_validity_balance.py` to check that the labeled dataset (from T025) contains a sufficient mix of "valid" vs "invalid" samples. **Dependency**: T025. **Artifact**: `data/processed/validity_balance_report.json`. **Action**: If imbalance is detected, report the ratio and halt training if critical (e.g., < 10% invalid).
+- [ ] T036.3.1 [P] [US3] Implement Latent-Space Independence Audit: Create `code/verify_latent_independence.py` to compute `latent_independence_score` (Pearson correlation between `activation_vectors` and `physical_label`). **Input**: The task MUST read `features.npy` and `labels.csv`. **Calculation**: The task MUST **exclude rows where `label == 'null'`** from the correlation calculation. **Dependency**: T025, T013.
+- [ ] T036.3.2 [P] [US3] Generate Latent-Space Independence Audit Report: Run `code/verify_latent_independence.py` to save results to `data/processed/latent_audit_report.json`. **Dependency**: T036.3.1. **Verification**: Ensure report contains the correlation value and pass/fail status against T006.5 threshold.
 - [ ] T030.1 [US3] Implement filtering logic: Create `code/classification/filter_data.py` to filter out "null" labels from training and test sets. **Artifact**: `data/processed/filtered_train.csv`, `data/processed/filtered_test.csv`.
 - [ ] T030.2 [US3] Implement report generation: Create `code/classification/generate_filter_report.py` to parse `labels.csv` and generate `data/processed/filtering_report.json`.
 - [ ] T030.3 [US3] Verify report schema: Verify `data/processed/filtering_report.json` matches the required schema.
-- [ ] T031 [US3] Implement training of shallow MLP or Random Forest on CPU with limited grid search (FR-004). **Artifact**: Save trained model weights to `data/processed/classifier.pkl`. **Verification**: Verify model can load and predict on test set.
-- [ ] T032.1.1 [US3] [P] Implement computation of the baseline distribution of expert activations: Create `code/classification/compute_baseline.py` to calculate mean, std, histogram, and expert mask counts. **Artifact**: `data/processed/activation_distribution.json`.
-- [ ] T032.1.2 [US3] [P] Save baseline distribution: Save the computed distribution to `data/processed/activation_distribution.json`.
+- [X] T031 [US3] Implement training of shallow MLP or Random Forest on CPU with limited grid search (FR-004). **Artifact**: Save trained model weights to `data/processed/classifier.pkl`. **Verification**: Verify model can load and predict on test set.
+- [ ] T032.1 [US3] Compute and save baseline distribution: Create `code/classification/compute_baseline.py` to calculate mean, std, histogram, and expert mask counts from the filtered data. **Artifact**: `data/processed/activation_distribution.json`.
 - [ ] T032 [US3] Implement evaluation metrics calculation (F1, precision, recall) on held-out test set (FR-005). **Explicitly calculate and report the "random guessing" baseline** using the F1-score of a majority-class predictor on the **filtered** test set (as prepared by T030) in `metrics.json` to serve as the comparison reference required by SC-001. This is the authoritative source for the SC-001 baseline. **Mandatory**: Verify that the baseline calculation uses the exact same sample IDs as the evaluation set.
 - [ ] T033 [US3] Implement feature importance analysis (e.g., SHAP) comparing results against the baseline distribution from T032.1 to identify predictive sub-networks (FR-007, SC-002). **Note**: This task depends on T032.1.
-- [ ] T034 [US3] Add logic to explicitly frame results as ASSOCIATIONAL (avoid causal claims). **Artifact**: Update `docs/results_report.md` with "Associational Framing" section. **Verification**: Verify section text matches FR-007 requirements.
+- [X] T034 [US3] Add logic to explicitly frame results as ASSOCIATIONAL (avoid causal claims). **Artifact**: Update `docs/results_report.md` with "Associational Framing" section. **Verification**: Verify section text matches FR-007 requirements.
 - [ ] T035 [US3] Generate visualization of feature importance and save metrics to `data/processed/metrics.json`
-- [ ] T036.1.1 [P] [US3] Implement audit logic: Create `code/verify_independence.py` to compute `label_independence_score` (Pearson correlation between `depth_confidence` and `physical_label`).
-- [ ] T036.1.2 [P] [US3] Generate audit report: Run `code/verify_independence.py` to save results to `data/processed/audit_report.json`. **Input**: The task MUST read the **full raw `labels.csv`** (including 'null' rows). **Calculation**: The task MUST **exclude rows where `label == 'null'`** from the correlation calculation to ensure the metric is defined for the actual training data. This task MUST run after T025 (labels generated) and before T036. (SC-005)
 - [ ] T036.2 [US3] Measure and log total pipeline time: Implement a timing wrapper in `code/main_pipeline.py` that measures the total execution time of the entire pipeline (extraction + labeling + training). The task MUST log this value to `data/processed/pipeline_time.log` and verify it meets the SC-003 requirement (< 6 hours).
-- [ ] T036 [US3] Implement `code/main_pipeline.py` to orchestrate full pipeline and update `state/manifest.yaml` with SHA-256 hashes for **all artifacts**. The specific artifacts to hash are: `data/processed/features.npy`, `data/processed/labels.csv`, `data/processed/metadata.json`, `data/processed/metrics.json`, `data/processed/activation_distribution.json`, `data/processed/excluded_samples.log`, `data/processed/audit_report.json`, and `data/processed/pipeline_time.log`. (FR-005). **Note**: This task depends on T036.1 and T036.2 to ensure all artifacts exist.
+- [ ] T036 [US3] Implement `code/main_pipeline.py` to orchestrate full pipeline and update `state/manifest.yaml` with SHA-256 hashes for **all artifacts**. The specific artifacts to hash are: `data/processed/features.npy`, `data/processed/labels.csv`, `data/processed/metadata.json`, `data/processed/metrics.json`, `data/processed/activation_distribution.json`, `data/processed/excluded_samples.log`, `data/processed/latent_audit_report.json`, `data/processed/pipeline_time.log`, and `data/processed/validity_balance_report.json`. (FR-005). **Note**: This task depends on T036.3.2 and T036.2 to ensure all artifacts exist.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -153,7 +150,6 @@
 - [ ] T037 [P] Documentation updates in `docs/` (README, usage guide). **Artifact**: Update `docs/README.md` and `docs/usage_guide.md`. **Verification**: Verify README contains quickstart instructions.
 - [ ] T037.1 [P] Generate `results_report.md`: Create `docs/results_report.md` containing the final results. **Mandatory Section**: This report MUST include a dedicated "Associational Framing" section (FR-007) explicitly stating that all correlations are associational and not causal, referencing the limitations of the observational data.
 - [ ] T038 [P] Implement quickstart.md validation script: Create `scripts/validate_quickstart.py` to ensure reproducibility.
-- [ ] T039 [P] Performance optimization: Add timing wrapper to `code/main_pipeline.py` that asserts total runtime < 21600s
 - [ ] T040 [P] Performance optimization: Optimize memory chunking logic in `code/extraction/memory_chunker.py` to minimize peak RAM usage. **Artifact**: Refactor `code/extraction/memory_chunker.py`. **Verification**: Verify peak RAM < 7 GB via `memory_log.json`.
 - [ ] T041 [P] Additional unit tests in `tests/unit/`. **Artifact**: Add `tests/unit/test_data_loader.py::test_streaming`. **Verification**: Verify coverage target met.
 
@@ -196,21 +192,26 @@
 ### Specific Task Dependencies
 
 - **T012.0.1** must complete before **T012.0.2** (strategy before sample list).
+- **T012.0.2** must complete before **T012.0.4** (sample list before balance check).
+- **T012.0.4** must complete before **T012.0.3** (balance check before model download).
 - **T012.0.2** must complete before **T012.2.1** (sample list before selection).
 - **T012.2.1** must complete before **T012.2.2** (selection before balance check).
 - **T012.2.2** must complete before **T012.1** (balance check before extraction).
 - **T012.0.3** must complete before **T012.1** (model download before extraction).
 - **T008.2** must complete before **T015** (backoff logic before usage).
 - **T017.1** must complete before **T014** (logging function before usage).
+- **T014** must complete before **T014.2** (strategy before integration).
+- **T014.2** must complete before **T012.1** (integration before extraction).
+- **T023.1** must complete before **T024** (primary labeling before null handling).
 - **T024** must complete before **T025** (labeling/filtering before saving).
 - **T024.1.1** must complete before **T024.1.2** (script before report).
 - **T024.1.2** must complete before **T030.1** (verification before training prep).
 - **T030.1** must complete before **T031** and **T032** (data prep before training/metrics).
-- **T032.1.1** must complete before **T032.1.2** (calculation before save).
-- **T032.1.2** must complete before **T033** (baseline dist before feature importance).
-- **T036.1.1** must complete before **T036.1.2** (audit logic before report).
-- **T036.1.2** must complete before **T036** (audit report before hashing).
+- **T032.1** must complete before **T033** (baseline dist before feature importance).
+- **T036.3.1** must complete before **T036.3.2** (audit logic before report).
+- **T036.3.2** must complete before **T036** (audit report before hashing).
 - **T036.2** must complete before **T036** (time log before hashing).
+- **T012.0.5** must complete before **T031** (validity balance check before training).
 - **T036** depends on T024 completion to ensure `excluded_samples.log` exists (even if empty).
 
 ---

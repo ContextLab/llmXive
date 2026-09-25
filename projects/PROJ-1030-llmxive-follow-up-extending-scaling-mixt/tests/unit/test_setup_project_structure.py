@@ -1,84 +1,95 @@
 import os
 import sys
-import tempfile
-import shutil
-from pathlib import Path
 import pytest
+from pathlib import Path
+import shutil
 
 # Add the code directory to the path to allow imports
-# Assuming tests are run from the project root
-code_path = Path(__file__).parent.parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
 from setup_project_structure import create_directories
 
-class TestSetupProjectStructure:
-    """Tests for the project structure creation logic."""
-
-    def test_creates_required_directories(self, tmp_path):
-        """Verify that all required directories are created."""
-        # Change to temp directory to isolate test
-        original_cwd = os.getcwd()
+class TestProjectStructure:
+    """
+    Tests for the project structure creation task (T001).
+    Verifies that all required directories are created.
+    """
+    
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self, tmp_path):
+        """
+        Set up a temporary directory to run tests in isolation.
+        """
+        self.original_cwd = Path.cwd()
         os.chdir(tmp_path)
+        yield
+        os.chdir(self.original_cwd)
+    
+    def test_required_directories_created(self):
+        """
+        Verify that all directories specified in T001 are created.
+        Required: code, code/utils, data/raw, data/processed, 
+                tests/unit, tests/integration, docs/figures, state
+        """
+        required_dirs = [
+            "code",
+            "code/utils",
+            "data/raw",
+            "data/processed",
+            "tests/unit",
+            "tests/integration",
+            "docs/figures",
+            "state"
+        ]
         
-        try:
-            # Call the function
-            create_directories()
-            
-            # Define expected directories
-            expected_dirs = [
-                "code",
-                "code/utils",
-                "data/raw",
-                "data/processed",
-                "tests/unit",
-                "tests/integration",
-                "docs/figures",
-                "state"
-            ]
-            
-            # Verify each directory exists
-            for dir_name in expected_dirs:
-                dir_path = tmp_path / dir_name
-                assert dir_path.exists(), f"Directory {dir_path} was not created"
-                assert dir_path.is_dir(), f"{dir_path} is not a directory"
-        finally:
-            os.chdir(original_cwd)
-
-    def test_handles_existing_directories(self, tmp_path):
-        """Verify that existing directories are not overwritten or cause errors."""
-        original_cwd = os.getcwd()
-        os.chdir(tmp_path)
+        # Run the creation function
+        result = create_directories()
         
-        try:
-            # Pre-create some directories
-            (tmp_path / "code").mkdir()
-            (tmp_path / "data").mkdir()
-            (tmp_path / "data" / "raw").mkdir()
-            
-            # Call the function - should not raise
-            result = create_directories()
-            assert result is True
-            
-            # Verify pre-existing directories still exist
-            assert (tmp_path / "code").exists()
-            assert (tmp_path / "data" / "raw").exists()
-        finally:
-            os.chdir(original_cwd)
-
-    def test_creates_nested_directories(self, tmp_path):
-        """Verify that nested directories (e.g., code/utils) are created correctly."""
-        original_cwd = os.getcwd()
-        os.chdir(tmp_path)
+        assert result is True, "create_directories should return True on success"
         
-        try:
-            create_directories()
-            
-            # Check nested paths
-            assert (tmp_path / "code" / "utils").exists()
-            assert (tmp_path / "tests" / "unit").exists()
-            assert (tmp_path / "tests" / "integration").exists()
-            assert (tmp_path / "docs" / "figures").exists()
-        finally:
-            os.chdir(original_cwd)
+        base_dir = Path.cwd()
+        
+        for dir_name in required_dirs:
+            dir_path = base_dir / dir_name
+            assert dir_path.exists(), f"Directory {dir_path} was not created"
+            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory"
+    
+    def test_nested_directory_structure(self):
+        """
+        Verify that nested directories (e.g., code/utils) are created correctly.
+        """
+        create_directories()
+        
+        base_dir = Path.cwd()
+        
+        # Check nested paths
+        nested_paths = [
+            "code/utils",
+            "data/raw",
+            "data/processed",
+            "tests/unit",
+            "tests/integration",
+            "docs/figures"
+        ]
+        
+        for path_str in nested_paths:
+            dir_path = base_dir / path_str
+            assert dir_path.exists(), f"Nested directory {dir_path} was not created"
+    
+    def test_idempotency(self):
+        """
+        Verify that running the script multiple times does not cause errors.
+        """
+        # First run
+        result1 = create_directories()
+        assert result1 is True
+        
+        # Second run (should handle existing directories gracefully)
+        result2 = create_directories()
+        assert result2 is True
+        
+        # Verify directories still exist
+        base_dir = Path.cwd()
+        assert (base_dir / "code").exists()
+        assert (base_dir / "data/processed").exists()
+        assert (base_dir / "state").exists()
