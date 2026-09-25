@@ -115,7 +115,7 @@ No violations detected. Complexity is justified by the need for Nested CV, scaff
 ### Phase 1: Descriptor Computation & Splitting
 - Compute Gasteiger charges and topological indices using RDKit.
 - Filter rows with unparseable SMILES or failed descriptor calculation.
-- Stratified split (70/15/15) by `substrate_class`.
+- Stratified split by `substrate_class` with a majority allocation to the training set.
 - Output: `data/processed/descriptors.csv`, `data/processed/split_train.csv`, etc.
 
 ### Phase 2: Model Training (Nested CV)
