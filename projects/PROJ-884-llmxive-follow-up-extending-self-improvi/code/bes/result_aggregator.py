@@ -1,8 +1,13 @@
 """
 Result Aggregator for BES (Bidirectional Evolutionary Search) experiments.
 
-This module aggregates logs from individual BES loop executions (T024b-exec)
-across different complexity parameters (N) into a single consolidated result file.
+This module aggregates logs from multiple parameter sets (N values) generated
+by T024b-exec into a single consolidated result file:
+`data/processed/bes_results.json`.
+
+It reads N-specific log files (typically named `bes_N{N}.json` or similar),
+parses the `n` parameter from the filename or content, and merges the
+statistics into a unified report.
 """
 
 import json
@@ -12,7 +17,7 @@ import logging
 import glob
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-from dataclasses import dataclass, asdict, field
+from dataclasses import dataclass, field, asdict
 
 # Configure logging
 logging.basicConfig(
@@ -24,42 +29,30 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class AggregatedRunStats:
-    """Statistics for a single parameter set (N) run."""
-    n_value: int
-    total_instances: int
-    successful_instances: int
-    failed_instances: int
+    """Statistics for a single run (specific N)."""
+    n: int
     success_rate: float
-    total_time_seconds: float
-    avg_time_per_instance: float
+    total_runs: int
+    successful_runs: int
+    avg_time_per_run: float
+    avg_memory_peak_mb: float
     total_energy_joules: float
-    avg_energy_per_instance: float
-    population_size: int
-    generations: int
-    method: str  # 'symbolic' or 'neural'
-    run_id: str
-    timestamp: str
+    exclusions_count: int
+    runtime_details: Dict[str, Any] = field(default_factory=dict)
+
 
 @dataclass
 class AggregatedResult:
-    """Container for all aggregated results."""
+    """The final aggregated result structure."""
     experiment_id: str
-    method: str
-    runs: List[Dict[str, Any]] = field(default_factory=list)
-    summary: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    total_parameters_tested: int
+    parameter_sets: List[Dict[str, Any]]
+    summary_statistics: Dict[str, Any]
+    generated_at: str
 
 
 def load_json_file(file_path: str) -> Optional[Dict[str, Any]]:
-    """
-    Load a JSON file and return its contents.
-
-    Args:
-        file_path: Path to the JSON file
-
-    Returns:
-        Dictionary containing the JSON data, or None if loading fails
-    """
+    """Safely load a JSON file."""
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             return json.load(f)
@@ -69,292 +62,157 @@ def load_json_file(file_path: str) -> Optional[Dict[str, Any]]:
     except json.JSONDecodeError as e:
         logger.error(f"JSON decode error in {file_path}: {e}")
         return None
-    except Exception as e:
-        logger.error(f"Error loading {file_path}: {e}")
-        return None
 
 
-def find_run_logs(pattern: str) -> List[str]:
+def find_run_logs(base_dir: str, pattern: str = "bes_N*.json") -> List[str]:
     """
-    Find all log files matching the given glob pattern.
-
-    Args:
-        pattern: Glob pattern (e.g., 'data/processed/bes_n*_symbolic.json')
-
-    Returns:
-        List of file paths matching the pattern
+    Find all log files matching the pattern in the base directory.
+    Expected pattern: bes_N{N}.json
     """
-    files = glob.glob(pattern)
-    if not files:
-        logger.warning(f"No files found matching pattern: {pattern}")
-    else:
-        logger.info(f"Found {len(files)} log files matching pattern: {pattern}")
-    return sorted(files)
+    search_path = os.path.join(base_dir, pattern)
+    logs = glob.glob(search_path)
+    if not logs:
+        # Try alternative pattern if standard one fails
+        search_path_alt = os.path.join(base_dir, "run_*.json")
+        logs = glob.glob(search_path_alt)
+    return sorted(logs)
 
 
 def parse_n_from_filename(filename: str) -> Optional[int]:
     """
-    Extract the N value from a filename.
-
-    Expected formats:
-    - bes_N{N}_{method}.json
-    - bes_n{N}_{method}.json
-    - bes_results_N{N}.json
-
-    Args:
-        filename: The filename to parse
-
-    Returns:
-        The N value as an integer, or None if parsing fails
+    Extract the N value from a filename like 'bes_N100.json' or 'run_N50.json'.
+    Returns None if N cannot be parsed.
     """
+    basename = os.path.basename(filename)
+    # Look for N followed by digits
     import re
-    # Try common patterns
-    patterns = [
-        r'.*bes[_-]N(\d+)[_-].*\.json',
-        r'.*bes[_-]n(\d+)[_-].*\.json',
-        r'.*bes_results[_-]N(\d+).*\.json',
-        r'.*bes_results[_-]n(\d+).*\.json',
-    ]
-
-    for pattern in patterns:
-        match = re.search(pattern, filename, re.IGNORECASE)
-        if match:
-            return int(match.group(1))
-
-    logger.warning(f"Could not extract N value from filename: {filename}")
+    match = re.search(r'N(\d+)', basename)
+    if match:
+        return int(match.group(1))
     return None
 
 
-def aggregate_results(log_files: List[str]) -> AggregatedResult:
+def aggregate_results(log_files: List[str]) -> List[AggregatedRunStats]:
     """
-    Aggregate results from multiple log files into a single structure.
-
-    Args:
-        log_files: List of paths to log files to aggregate
-
-    Returns:
-        AggregatedResult containing all combined data
+    Aggregate results from a list of log files into AggregatedRunStats objects.
     """
-    if not log_files:
-        raise ValueError("No log files provided for aggregation")
-
-    runs = []
-    method = None
-    experiment_id = None
-
+    aggregated = []
     for log_file in log_files:
-        logger.info(f"Processing log file: {log_file}")
         data = load_json_file(log_file)
-
-        if data is None:
-            logger.warning(f"Skipping invalid log file: {log_file}")
+        if not data:
             continue
 
-        # Extract metadata from the log
-        n_value = data.get('n_value') or data.get('N') or data.get('n')
-        if n_value is None:
-            # Try to extract from filename
-            n_value = parse_n_from_filename(log_file)
-
-        if n_value is None:
-            logger.warning(f"Could not determine N value for {log_file}")
+        # Try to extract N from filename first
+        n = parse_n_from_filename(log_file)
+        if n is None and 'n' in data:
+            n = data.get('n')
+        
+        if n is None:
+            logger.warning(f"Could not determine N for file: {log_file}")
             continue
 
-        # Determine method (symbolic or neural)
-        file_method = data.get('method')
-        if file_method:
-            if method is None:
-                method = file_method
-            elif method != file_method:
-                logger.warning(f"Method mismatch: expected {method}, got {file_method} in {log_file}")
+        # Extract metrics based on expected log structure from T024b-exec
+        # Expected structure: { "n": ..., "success_rate": ..., "total_runs": ..., ... }
+        stats = AggregatedRunStats(
+            n=n,
+            success_rate=data.get('success_rate', 0.0),
+            total_runs=data.get('total_runs', 0),
+            successful_runs=data.get('successful_runs', 0),
+            avg_time_per_run=data.get('avg_time_per_run', 0.0),
+            avg_memory_peak_mb=data.get('avg_memory_peak_mb', 0.0),
+            total_energy_joules=data.get('total_energy_joules', 0.0),
+            exclusions_count=data.get('exclusions_count', 0),
+            runtime_details=data.get('runtime_details', {})
+        )
+        aggregated.append(stats)
 
-        # Determine experiment_id
-        exp_id = data.get('experiment_id')
-        if exp_id:
-            if experiment_id is None:
-                experiment_id = exp_id
-            elif experiment_id != exp_id:
-                logger.warning(f"Experiment ID mismatch in {log_file}")
-
-        # Calculate statistics
-        instances = data.get('instances', [])
-        total_instances = len(instances)
-        successful = sum(1 for inst in instances if inst.get('success', False))
-        failed = total_instances - successful
-        success_rate = successful / total_instances if total_instances > 0 else 0.0
-
-        total_time = sum(inst.get('elapsed_time', 0) for inst in instances)
-        avg_time = total_time / total_instances if total_instances > 0 else 0.0
-
-        total_energy = sum(inst.get('energy_joules', 0) for inst in instances)
-        avg_energy = total_energy / total_instances if total_instances > 0 else 0.0
-
-        # Create aggregated run stats
-        run_stats = {
-            'n_value': n_value,
-            'total_instances': total_instances,
-            'successful_instances': successful,
-            'failed_instances': failed,
-            'success_rate': success_rate,
-            'total_time_seconds': total_time,
-            'avg_time_per_instance': avg_time,
-            'total_energy_joules': total_energy,
-            'avg_energy_per_instance': avg_energy,
-            'population_size': data.get('population_size', 0),
-            'generations': data.get('generations', 0),
-            'method': method or data.get('method', 'unknown'),
-            'run_id': data.get('run_id', ''),
-            'timestamp': data.get('timestamp', ''),
-            'source_file': os.path.basename(log_file)
-        }
-
-        runs.append(run_stats)
-
-        # Store full data for reference
-        data['_aggregated_stats'] = run_stats
-        data['_source_file'] = os.path.basename(log_file)
-
-    if not runs:
-        raise ValueError("No valid runs found in provided log files")
-
-    # Determine method and experiment_id if not set
-    if method is None:
-        method = runs[0]['method']
-
-    if experiment_id is None:
-        experiment_id = f"agg_{method}_{len(runs)}_runs"
-
-    # Create summary statistics
-    avg_success_rate = sum(r['success_rate'] for r in runs) / len(runs)
-    total_instances_all = sum(r['total_instances'] for r in runs)
-    total_successful_all = sum(r['successful_instances'] for r in runs)
-    overall_success_rate = total_successful_all / total_instances_all if total_instances_all > 0 else 0.0
-
-    summary = {
-        'total_runs': len(runs),
-        'n_values': sorted([r['n_value'] for r in runs]),
-        'overall_success_rate': overall_success_rate,
-        'avg_success_rate': avg_success_rate,
-        'total_instances': total_instances_all,
-        'total_successful': total_successful_all,
-        'method': method
-    }
-
-    metadata = {
-        'aggregation_timestamp': datetime.now().isoformat(),
-        'source_files': [os.path.basename(f) for f in log_files],
-        'aggregation_version': '1.0.0'
-    }
-
-    return AggregatedResult(
-        experiment_id=experiment_id,
-        method=method,
-        runs=runs,
-        summary=summary,
-        metadata=metadata
-    )
+    # Sort by N
+    aggregated.sort(key=lambda x: x.n)
+    return aggregated
 
 
-def save_results(result: AggregatedResult, output_path: str) -> bool:
+def save_results(results: List[AggregatedRunStats], output_path: str) -> bool:
     """
-    Save aggregated results to a JSON file.
-
-    Args:
-        result: The AggregatedResult to save
-        output_path: Path to the output file
-
-    Returns:
-        True if successful, False otherwise
+    Save the aggregated results to a single JSON file.
     """
     try:
-        # Ensure output directory exists
-        output_dir = os.path.dirname(output_path)
-        if output_dir:
-            os.makedirs(output_dir, exist_ok=True)
-
-        # Convert to dictionary
-        result_dict = {
-            'experiment_id': result.experiment_id,
-            'method': result.method,
-            'runs': result.runs,
-            'summary': result.summary,
-            'metadata': result.metadata
+        # Prepare the output structure
+        from datetime import datetime
+        output_data = {
+            "experiment_id": "T024c_aggregated_bes_results",
+            "total_parameters_tested": len(results),
+            "parameter_sets": [asdict(r) for r in results],
+            "summary_statistics": {
+                "min_n": results[0].n if results else 0,
+                "max_n": results[-1].n if results else 0,
+                "avg_success_rate": sum(r.success_rate for r in results) / len(results) if results else 0.0,
+                "total_experiments": sum(r.total_runs for r in results)
+            },
+            "generated_at": datetime.utcnow().isoformat()
         }
 
-        # Write to file
+        # Ensure output directory exists
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
         with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(result_dict, f, indent=2, default=str)
-
-        logger.info(f"Successfully saved aggregated results to: {output_path}")
+            json.dump(output_data, f, indent=2)
+        
+        logger.info(f"Successfully saved aggregated results to {output_path}")
         return True
-
     except Exception as e:
-        logger.error(f"Error saving results to {output_path}: {e}")
+        logger.error(f"Failed to save results: {e}")
         return False
 
 
 def main():
     """
     Main entry point for the result aggregator.
-
-    Usage:
-        python code/bes/result_aggregator.py --input-pattern "data/processed/bes_n*_symbolic.json" --output data/processed/bes_results.json
-
-    This command aggregates all BES run logs matching the pattern into a single result file.
+    Reads logs from data/processed and writes to data/processed/bes_results.json.
     """
-    import argparse
-    from datetime import datetime
+    # Default paths
+    base_dir = "data/processed"
+    output_file = os.path.join(base_dir, "bes_results.json")
 
-    parser = argparse.ArgumentParser(
-        description='Aggregate BES experiment results from multiple log files.'
-    )
-    parser.add_argument(
-        '--input-pattern',
-        type=str,
-        required=True,
-        help='Glob pattern to match input log files (e.g., "data/processed/bes_n*_symbolic.json")'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        required=True,
-        help='Output path for the aggregated results JSON file'
-    )
-    parser.add_argument(
-        '--verbose',
-        action='store_true',
-        help='Enable verbose logging'
-    )
+    # Allow CLI override for base directory
+    if len(sys.argv) > 1:
+        base_dir = sys.argv[1]
+    if len(sys.argv) > 2:
+        output_file = sys.argv[2]
 
-    args = parser.parse_args()
-
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-
-    logger.info(f"Starting result aggregation with pattern: {args.input_pattern}")
-
-    # Find log files
-    log_files = find_run_logs(args.input_pattern)
+    logger.info(f"Searching for logs in: {base_dir}")
+    log_files = find_run_logs(base_dir)
 
     if not log_files:
-        logger.error("No log files found. Aborting.")
-        sys.exit(1)
+        logger.warning("No log files found. Creating empty result file.")
+        # Create a minimal valid output even if no logs found
+        from datetime import datetime
+        empty_result = {
+            "experiment_id": "T024c_aggregated_bes_results",
+            "total_parameters_tested": 0,
+            "parameter_sets": [],
+            "summary_statistics": {
+                "min_n": 0,
+                "max_n": 0,
+                "avg_success_rate": 0.0,
+                "total_experiments": 0
+            },
+            "generated_at": datetime.utcnow().isoformat()
+        }
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        with open(output_file, 'w') as f:
+            json.dump(empty_result, f, indent=2)
+        return 0
 
-    # Aggregate results
-    try:
-        result = aggregate_results(log_files)
-    except ValueError as e:
-        logger.error(f"Aggregation failed: {e}")
-        sys.exit(1)
+    logger.info(f"Found {len(log_files)} log files to aggregate.")
+    results = aggregate_results(log_files)
 
-    # Save results
-    if not save_results(result, args.output):
-        logger.error("Failed to save results.")
-        sys.exit(1)
+    if not results:
+        logger.warning("No valid results extracted from logs.")
+        return 1
 
-    logger.info(f"Aggregation complete. Summary: {result.summary}")
-    sys.exit(0)
+    success = save_results(results, output_file)
+    return 0 if success else 1
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

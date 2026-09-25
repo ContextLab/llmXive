@@ -1,1 +1,3 @@
-# Integration tests package for llmXive project
+"""
+Integration tests package for the llmXive project.
+"""

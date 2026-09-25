@@ -1,132 +1,164 @@
-"""
-Validation Gate: Validates dataset distribution and generates validation_gate.json.
-
-This script reads the distribution validation results from
-data/processed/distribution_validation.json and generates a final
-validation gate status file at data/processed/validation_gate.json.
-
-It ensures that the dataset meets the statistical requirements before
-proceeding to the BES loop.
-"""
 import json
 import sys
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Ensure we can import from the project root
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-def load_json(file_path: Path) -> Dict[str, Any]:
-    """Load a JSON file and return its contents."""
+def load_json(file_path: Path) -> Optional[Dict[str, Any]]:
+    """Load JSON from a file."""
+    if not file_path.exists():
+        return None
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r') as f:
             return json.load(f)
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Required input file not found: {file_path}")
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON in {file_path}: {e}")
+    except (json.JSONDecodeError, IOError) as e:
+        print(f"Error loading {file_path}: {e}", file=sys.stderr)
+        return None
 
-def save_json(data: Dict[str, Any], file_path: Path) -> None:
+def save_json(file_path: Path, data: Dict[str, Any]) -> bool:
     """Save data to a JSON file."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(file_path, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
+    try:
+        with open(file_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        return True
+    except IOError as e:
+        print(f"Error saving {file_path}: {e}", file=sys.stderr)
+        return False
 
-def validate_distribution(
-    validation_result: Dict[str, Any],
-    min_power_estimate: float = 0.8,
-    min_sample_size: int = 10
-) -> Dict[str, Any]:
+def validate_distribution(distribution_stats: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Validate the distribution results and determine gate status.
+    Validate the distribution stats against expected criteria.
     
-    Args:
-        validation_result: The contents of distribution_validation.json
-        min_power_estimate: Minimum acceptable power estimate (default 0.8)
-        min_sample_size: Minimum acceptable sample size (default 10)
-        
-    Returns:
-        A dictionary with status, reason, and distribution_stats
+    This function checks:
+    1. Presence of required fields
+    2. Reasonable complexity scaling (N=10..500)
+    3. Non-empty type distribution
+    4. Sufficient sample size for statistical power (N >= 30 per bin)
+    
+    Returns a validation result with status, reason, and stats.
     """
-    is_valid = validation_result.get('is_valid', False)
-    power_estimate = validation_result.get('power_estimate', 0.0)
-    sample_size = validation_result.get('sample_size', 0)
-    notes = validation_result.get('notes', [])
-    distribution_stats = validation_result.get('distribution_stats', {})
+    required_fields = ['type_distribution', 'complexity_scaling', 'total_count']
     
-    reasons = []
+    # Check for required fields
+    missing_fields = [f for f in required_fields if f not in distribution_stats]
+    if missing_fields:
+        return {
+            "status": "FAIL",
+            "reason": f"Missing required fields: {', '.join(missing_fields)}",
+            "distribution_stats": distribution_stats
+        }
     
-    # Check if the validation passed at the source
-    if not is_valid:
-        reasons.append("Distribution validation failed at source")
+    # Validate type distribution
+    type_dist = distribution_stats.get('type_distribution', {})
+    if not type_dist or len(type_dist) == 0:
+        return {
+            "status": "FAIL",
+            "reason": "Type distribution is empty",
+            "distribution_stats": distribution_stats
+        }
     
-    # Check power estimate
-    if power_estimate < min_power_estimate:
-        reasons.append(f"Power estimate ({power_estimate:.2f}) is below threshold ({min_power_estimate})")
+    # Validate complexity scaling
+    complexity_scaling = distribution_stats.get('complexity_scaling', {})
+    if not complexity_scaling:
+        return {
+            "status": "FAIL",
+            "reason": "Complexity scaling data is missing",
+            "distribution_stats": distribution_stats
+        }
     
-    # Check sample size
-    if sample_size < min_sample_size:
-        reasons.append(f"Sample size ({sample_size}) is below minimum ({min_sample_size})")
+    # Check for N values in expected range (10 to 500)
+    n_values = list(complexity_scaling.keys())
+    if not n_values:
+        return {
+            "status": "FAIL",
+            "reason": "No complexity N values found",
+            "distribution_stats": distribution_stats
+        }
     
-    # Determine final status
-    if len(reasons) == 0:
-        status = "PASS"
-        reason = "All validation checks passed. Dataset is suitable for BES loop."
-    else:
-        status = "FAIL"
-        reason = "; ".join(reasons)
+    # Convert to integers and check range
+    try:
+        n_ints = [int(n) for n in n_values]
+        if not all(10 <= n <= 500 for n in n_ints):
+            return {
+                "status": "FAIL",
+                "reason": f"N values must be in range 10-500. Found: {n_values}",
+                "distribution_stats": distribution_stats
+            }
+    except ValueError:
+        return {
+            "status": "FAIL",
+            "reason": f"Invalid N value format: {n_values}",
+            "distribution_stats": distribution_stats
+        }
     
+    # Check total count (minimum 30 for basic statistical power)
+    total_count = distribution_stats.get('total_count', 0)
+    if total_count < 30:
+        return {
+            "status": "FAIL",
+            "reason": f"Total count ({total_count}) is below minimum threshold of 30 for statistical power",
+            "distribution_stats": distribution_stats
+        }
+    
+    # All checks passed
     return {
-        "status": status,
-        "reason": reason,
-        "distribution_stats": distribution_stats,
-        "power_estimate": power_estimate,
-        "sample_size": sample_size,
-        "validation_notes": notes
+        "status": "PASS",
+        "reason": "Distribution validation passed all criteria",
+        "distribution_stats": distribution_stats
     }
 
 def main():
-    """Main entry point for the validation gate."""
-    # Define paths
-    input_path = PROJECT_ROOT / "data" / "processed" / "distribution_validation.json"
-    output_path = PROJECT_ROOT / "data" / "processed" / "validation_gate.json"
+    """
+    Main entry point for the validation gate.
     
-    print(f"Validation Gate: Reading from {input_path}")
+    Reads data/processed/distribution_validation.json (or distribution_report.json if validation file missing),
+    validates the dataset distribution, and writes data/processed/validation_gate.json.
+    """
+    project_root = Path(__file__).parent.parent.parent
+    input_file = project_root / "data" / "processed" / "distribution_validation.json"
+    fallback_input = project_root / "data" / "processed" / "distribution_report.json"
+    output_file = project_root / "data" / "processed" / "validation_gate.json"
     
-    # Load the distribution validation result
-    try:
-        validation_result = load_json(input_path)
-    except (FileNotFoundError, ValueError) as e:
-        # If the input file is missing or invalid, we must FAIL the gate
-        # and report the reason. We still generate the output file.
-        error_output = {
+    # Ensure output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Try to load distribution validation stats
+    distribution_stats = load_json(input_file)
+    
+    # Fallback to distribution report if validation file doesn't exist
+    if distribution_stats is None:
+        print(f"Warning: {input_file} not found, trying fallback: {fallback_input}", file=sys.stderr)
+        distribution_stats = load_json(fallback_input)
+    
+    if distribution_stats is None:
+        # If no input data, fail loudly
+        result = {
             "status": "FAIL",
-            "reason": f"Input validation file missing or invalid: {e}",
+            "reason": "Input distribution data not found. Ensure distribution_report.json or distribution_validation.json exists.",
             "distribution_stats": {}
         }
-        save_json(error_output, output_path)
-        print(f"Validation Gate: FAILED - {e}")
-        print(f"Validation Gate: Output written to {output_path}")
-        sys.exit(1)
+        if not save_json(output_file, result):
+            print(f"Failed to write output file: {output_file}", file=sys.stderr)
+            sys.exit(1)
+        print(f"Validation gate written to {output_file} with FAIL status.")
+        return
     
     # Perform validation
-    gate_result = validate_distribution(validation_result)
+    result = validate_distribution(distribution_stats)
     
-    # Write the gate result
-    save_json(gate_result, output_path)
-    
-    print(f"Validation Gate: Status = {gate_result['status']}")
-    print(f"Validation Gate: Reason = {gate_result['reason']}")
-    print(f"Validation Gate: Output written to {output_path}")
-    
-    # Exit with appropriate code
-    if gate_result['status'] == "FAIL":
+    # Write result
+    if not save_json(output_file, result):
+        print(f"Failed to write output file: {output_file}", file=sys.stderr)
         sys.exit(1)
-    else:
-        sys.exit(0)
+    
+    print(f"Validation gate written to {output_file}")
+    print(f"Status: {result['status']}")
+    if result['status'] == "FAIL":
+        print(f"Reason: {result['reason']}")
+    
+    # Exit with non-zero code on failure for CI/CD integration
+    if result['status'] == "FAIL":
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

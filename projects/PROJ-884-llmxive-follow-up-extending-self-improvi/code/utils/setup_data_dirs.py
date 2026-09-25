@@ -1,132 +1,116 @@
-"""
-Setup script to create and verify the data directory hierarchy.
-This script creates data/raw and data/processed directories and verifies
-they exist and are writable.
-"""
 import os
 import sys
 import argparse
-import json
 from pathlib import Path
 from typing import List, Tuple
 
-def setup_data_directories(base_dir: Path) -> Tuple[bool, List[str]]:
+def get_project_root() -> Path:
     """
-    Create the required data directory hierarchy and verify writability.
+    Determine the project root directory.
+    Assumes the script is run from the project root or a subdirectory.
+    Looks for a 'data' directory or 'tasks.md' to identify the root.
+    """
+    current = Path.cwd()
+    # Walk up until we find a marker or hit the filesystem root
+    while current != current.parent:
+        if (current / "tasks.md").exists() or (current / "data").exists():
+            return current
+        current = current.parent
+    
+    # Fallback to current directory if no marker found
+    return Path.cwd()
+
+def setup_data_directories(base_path: Path, verbose: bool = True) -> Tuple[bool, List[str]]:
+    """
+    Create the required data directory hierarchy:
+    - data/raw (for immutable puzzles)
+    - data/processed (for logs/results)
     
     Args:
-        base_dir: The project root directory path.
-        
+        base_path: The project root path
+        verbose: If True, print status messages
+    
     Returns:
-        Tuple of (success: bool, messages: List[str])
+        Tuple of (success_flag, list_of_created_paths)
     """
-    messages = []
-    success = True
+    data_root = base_path / "data"
+    raw_dir = data_root / "raw"
+    processed_dir = data_root / "processed"
     
-    # Define the required directories
-    data_dir = base_dir / "data"
-    raw_dir = data_dir / "raw"
-    processed_dir = data_dir / "processed"
+    created_paths = []
+    errors = []
     
-    required_dirs = [data_dir, raw_dir, processed_dir]
+    directories_to_create = [data_root, raw_dir, processed_dir]
     
-    # Create directories
-    for dir_path in required_dirs:
+    for dir_path in directories_to_create:
         try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            messages.append(f"Created directory: {dir_path}")
-        except PermissionError:
-            messages.append(f"ERROR: Permission denied creating {dir_path}")
-            success = False
-        except OSError as e:
-            messages.append(f"ERROR: Failed to create {dir_path}: {e}")
-            success = False
-    
-    # Verify directories exist and are writable
-    for dir_path in required_dirs:
-        if not dir_path.exists():
-            messages.append(f"ERROR: Directory does not exist after creation: {dir_path}")
-            success = False
-            continue
-        
-        if not dir_path.is_dir():
-            messages.append(f"ERROR: Path is not a directory: {dir_path}")
-            success = False
-            continue
-        
-        # Test writability by creating a temporary file
-        test_file = dir_path / ".write_test"
-        try:
-            with open(test_file, 'w') as f:
-                f.write("write_test")
-            with open(test_file, 'r') as f:
-                content = f.read()
-            if content != "write_test":
-                messages.append(f"ERROR: Write/read test failed for {dir_path}")
-                success = False
+            if not dir_path.exists():
+                dir_path.mkdir(parents=True, exist_ok=True)
+                if verbose:
+                    print(f"Created directory: {dir_path}")
+                created_paths.append(str(dir_path))
             else:
-                messages.append(f"Verified writable: {dir_path}")
-            # Clean up test file
-            test_file.unlink()
-        except PermissionError:
-            messages.append(f"ERROR: Directory is not writable: {dir_path}")
-            success = False
-        except OSError as e:
-            messages.append(f"ERROR: Failed write test for {dir_path}: {e}")
-            success = False
+                if verbose:
+                    print(f"Directory already exists: {dir_path}")
+        
+            # Verify writability
+            test_file = dir_path / ".write_test"
+            try:
+                test_file.touch(exist_ok=True)
+                test_file.unlink()
+                if verbose:
+                    print(f"Verified writable: {dir_path}")
+            except (OSError, PermissionError) as e:
+                error_msg = f"Directory exists but is not writable: {dir_path} ({e})"
+                errors.append(error_msg)
+                if verbose:
+                    print(f"ERROR: {error_msg}", file=sys.stderr)
+        
+        except (OSError, PermissionError) as e:
+            error_msg = f"Failed to create directory {dir_path}: {e}"
+            errors.append(error_msg)
+            if verbose:
+                print(f"ERROR: {error_msg}", file=sys.stderr)
     
-    return success, messages
+    success = len(errors) == 0
+    return success, created_paths
 
 def main():
-    """Main entry point for the setup script."""
     parser = argparse.ArgumentParser(
-        description="Setup data directory hierarchy for the project."
+        description="Setup data directory hierarchy for the llmXive project."
     )
     parser.add_argument(
-        "--base-dir",
-        type=str,
-        default=".",
-        help="Project root directory (default: current directory)"
-    )
-    parser.add_argument(
-        "--output",
+        "--project-root",
         type=str,
         default=None,
-        help="Optional path to write a JSON status report"
+        help="Path to the project root. If not provided, auto-detected."
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Suppress output messages."
     )
     
     args = parser.parse_args()
-    base_dir = Path(args.base_dir).resolve()
     
-    print(f"Setting up data directories in: {base_dir}")
-    success, messages = setup_data_directories(base_dir)
+    base_path = Path(args.project_root) if args.project_root else get_project_root()
+    verbose = not args.quiet
     
-    for msg in messages:
-        print(msg)
+    if verbose:
+        print(f"Project root detected as: {base_path}")
+    
+    success, created = setup_data_directories(base_path, verbose=verbose)
     
     if success:
-        print("\n✓ Data directory setup completed successfully.")
+        if verbose:
+            print("\nSetup successful. Data directories created/verified:")
+            for p in created:
+                print(f"  - {p}")
+        sys.exit(0)
     else:
-        print("\n✗ Data directory setup encountered errors.")
+        if verbose:
+            print("\nSetup failed. Errors encountered:", file=sys.stderr)
         sys.exit(1)
-    
-    # Write output report if requested
-    if args.output:
-        output_path = Path(args.output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        report = {
-            "success": success,
-            "base_dir": str(base_dir),
-            "directories": [
-                str(base_dir / "data"),
-                str(base_dir / "data" / "raw"),
-                str(base_dir / "data" / "processed")
-            ],
-            "messages": messages
-        }
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        print(f"\nStatus report written to: {output_path}")
 
 if __name__ == "__main__":
     main()

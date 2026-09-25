@@ -1,7 +1,11 @@
 """
-Setup script to create and verify the data directory structure.
-Creates: data/raw (immutable puzzles) and data/processed (logs/results).
-Verifies existence and writability.
+Setup script for T004: Data Directory Structure.
+
+Creates and verifies the data directory hierarchy:
+- data/raw: for immutable puzzles
+- data/processed: for logs, results, and intermediate artifacts
+
+Constraint: Must verify directories exist and are writable.
 """
 import os
 import sys
@@ -10,70 +14,136 @@ from pathlib import Path
 from typing import List, Tuple
 
 def get_project_root() -> Path:
-    """Return the project root directory."""
-    # Assumes script is run from project root or code/
-    current = Path.cwd()
-    if current.name == "code":
-        return current.parent
-    return current
-
-def setup_data_directories(project_root: Path) -> List[Path]:
     """
-    Create data/raw and data/processed directories if they don't exist.
-    Returns the list of created/verified directories.
+    Determine the project root directory.
+    Assumes the script is run from the project root or a subdirectory of it.
+    """
+    current = Path.cwd()
+    # Look for a marker file or just assume the current directory is the root
+    # given the task context (PROJ-884-llmxive-follow-up-extending-self-improvi)
+    if (current / "tasks.md").exists():
+        return current
+    # Fallback: traverse up until we find tasks.md or hit the filesystem root
+    while current != current.parent:
+        if (current / "tasks.md").exists():
+            return current
+        current = current.parent
+    # If not found, assume current working directory
+    return Path.cwd()
+
+def setup_data_directories(project_root: Path) -> Tuple[bool, List[str]]:
+    """
+    Create the required data directory structure and verify writability.
+    
+    Creates:
+    - data/raw
+    - data/processed
+    
+    Returns:
+        Tuple[success: bool, messages: List[str]]
     """
     data_root = project_root / "data"
     raw_dir = data_root / "raw"
     processed_dir = data_root / "processed"
+    
+    messages = []
+    success = True
 
-    dirs_to_create = [data_root, raw_dir, processed_dir]
-
-    created_or_verified = []
-
-    for directory in dirs_to_create:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {directory}")
-        else:
-            print(f"Directory already exists: {directory}")
-        
-        # Verify writability by attempting to create a temporary file
-        test_file = directory / ".write_test"
+    # Ensure data root exists
+    if not data_root.exists():
         try:
-            test_file.touch(exist_ok=True)
-            test_file.unlink()
-            created_or_verified.append(directory)
-            print(f"Verified writability: {directory}")
+            data_root.mkdir(parents=True, exist_ok=True)
+            messages.append(f"Created data root: {data_root}")
         except OSError as e:
-            print(f"ERROR: Directory {directory} is not writable: {e}", file=sys.stderr)
-            raise RuntimeError(f"Directory {directory} is not writable") from e
+            messages.append(f"ERROR: Failed to create data root {data_root}: {e}")
+            success = False
+            return success, messages
 
-    return created_or_verified
+    # Create and verify data/raw
+    if not raw_dir.exists():
+        try:
+            raw_dir.mkdir(parents=True, exist_ok=True)
+            messages.append(f"Created data/raw: {raw_dir}")
+        except OSError as e:
+            messages.append(f"ERROR: Failed to create data/raw {raw_dir}: {e}")
+            success = False
+
+    # Verify data/raw is writable
+    if raw_dir.exists():
+        test_file = raw_dir / ".write_test"
+        try:
+            with open(test_file, 'w') as f:
+                f.write("write_test")
+            if test_file.exists():
+                test_file.unlink() # Clean up
+                messages.append(f"Verified writability: {raw_dir}")
+            else:
+                messages.append(f"ERROR: Could not verify writability of {raw_dir} (file disappeared?)")
+                success = False
+        except OSError as e:
+            messages.append(f"ERROR: data/raw is not writable: {e}")
+            success = False
+
+    # Create and verify data/processed
+    if not processed_dir.exists():
+        try:
+            processed_dir.mkdir(parents=True, exist_ok=True)
+            messages.append(f"Created data/processed: {processed_dir}")
+        except OSError as e:
+            messages.append(f"ERROR: Failed to create data/processed {processed_dir}: {e}")
+            success = False
+
+    # Verify data/processed is writable
+    if processed_dir.exists():
+        test_file = processed_dir / ".write_test"
+        try:
+            with open(test_file, 'w') as f:
+                f.write("write_test")
+            if test_file.exists():
+                test_file.unlink() # Clean up
+                messages.append(f"Verified writability: {processed_dir}")
+            else:
+                messages.append(f"ERROR: Could not verify writability of {processed_dir} (file disappeared?)")
+                success = False
+        except OSError as e:
+            messages.append(f"ERROR: data/processed is not writable: {e}")
+            success = False
+
+    return success, messages
 
 def main():
+    """
+    CLI entry point for T004.
+    """
     parser = argparse.ArgumentParser(
-        description="Setup data directory structure for llmXive project."
+        description="Setup data directory structure (T004)."
     )
     parser.add_argument(
         "--project-root",
-        type=Path,
+        type=str,
         default=None,
-        help="Path to project root (default: current directory or parent if in code/)"
+        help="Path to the project root. If not provided, auto-detected."
     )
+    
     args = parser.parse_args()
-
-    project_root = args.project_root if args.project_root else get_project_root()
-    print(f"Project root: {project_root}")
-
-    try:
-        verified_dirs = setup_data_directories(project_root)
-        print(f"Successfully setup and verified {len(verified_dirs)} directories.")
-        for d in verified_dirs:
-            print(f"  - {d}")
-        return 0
-    except Exception as e:
-        print(f"Failed to setup data directories: {e}", file=sys.stderr)
-        return 1
+    
+    project_root = Path(args.project_root) if args.project_root else get_project_root()
+    
+    print(f"Project root detected: {project_root}")
+    print("-" * 40)
+    
+    success, messages = setup_data_directories(project_root)
+    
+    for msg in messages:
+        print(msg)
+    
+    print("-" * 40)
+    if success:
+        print("SUCCESS: Data directory structure setup and verified.")
+        sys.exit(0)
+    else:
+        print("FAILURE: Data directory setup encountered errors.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

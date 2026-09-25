@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-884-llmxive-follow-up-extending-self-improvi",
+  "tasks": [
+    {
+      "task_key": "T001c",
+      "reject_count": 1,
+      "last_reason": "No evidence of a `tests/` directory or its `unit` and `integration` subdirectories is provided, nor any verification that they exist and are writable. The required hierarchy is missing.",
+      "first_seen": "2026-09-25T23:20:37.961306+00:00",
+      "last_seen": "2026-09-25T23:20:37.961306+00:00"
+    },
+    {
+      "task_key": "T024c",
+      "reject_count": 1,
+      "last_reason": "The repository contains `code/bes/result_aggregator.py`, but the required output file `data/processed/bes_results.json` is absent, and the provided snippet is truncated before any code that writes the aggregated data to that exact path. The implementation must actually produce `data/processed/bes_results.json` combining all N\u2011specific logs.",
+      "first_seen": "2026-09-25T23:20:42.801364+00:00",
+      "last_seen": "2026-09-25T23:20:42.801364+00:00"
+    },
+    {
+      "task_key": "T016a",
+      "reject_count": 1,
+      "last_reason": "The provided `validate_data_against_contracts.py` is truncated (ends mid\u2011function with an unfinished line) and does not contain a complete implementation that actually loads and validates the schema. Moreover, the required `contracts/dataset.schema.yaml` file is missing from the repository. Consequently the script cannot fulfill the requirement to read and validate against the contract.",
+      "first_seen": "2026-09-25T23:20:45.448033+00:00",
+      "last_seen": "2026-09-25T23:20:45.448033+00:00"
+    },
+    {
+      "task_key": "T029g",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/processed/complexity_report.json",
+      "first_seen": "2026-09-25T23:20:47.719308+00:00",
+      "last_seen": "2026-09-25T23:20:47.719308+00:00"
+    }
+  ],
+  "updated_at": "2026-09-25T23:20:47.719308+00:00"
+}
