@@ -1,16 +1,10 @@
-"""
-Preprocessing pipeline for fungal community data.
-Implements MICE imputation, VIF calculation, and diversity metrics.
-"""
 import os
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Optional, Tuple, List
-import warnings
 
-# Import miceforest for MICE imputation
 try:
     import miceforest as mf
 except ImportError:
@@ -20,52 +14,30 @@ except ImportError:
     )
 
 from src.config.constants import get_config
-from src.utils.logging import log_event
 
+# Initialize logging
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_ITERATIONS = 5
-DEFAULT_RANDOM_STATE = 42
-MIN_ROWS_FOR_IMPUTATION = 10
-
-def load_harmonized_metadata(
-    input_path: str = "data/metadata/harmonized_matrix.csv"
-) -> pd.DataFrame:
+def load_harmonized_metadata(input_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Load the harmonized metadata matrix produced by ingest.py.
-
-    Args:
-        input_path: Path to the harmonized metadata CSV.
-
-    Returns:
-        DataFrame with harmonized metadata.
-
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the file is empty or invalid.
+    Loads the harmonized metadata from the default location or specified path.
     """
+    if input_path is None:
+        config = get_config()
+        input_path = config.get("paths", {}).get("harmonized_metadata", "data/metadata/harmonized_matrix.csv")
+    
     path = Path(input_path)
     if not path.exists():
-        raise FileNotFoundError(f"Harmonized metadata file not found: {input_path}")
-
+        raise FileNotFoundError(f"Harmonized metadata file not found at {input_path}")
+    
+    logger.info(f"Loading harmonized metadata from {input_path}")
     df = pd.read_csv(input_path)
-    
-    if df.empty:
-        raise ValueError(f"Harmonized metadata file is empty: {input_path}")
-    
-    logger.info(f"Loaded harmonized metadata with {len(df)} rows and {len(df.columns)} columns")
     return df
 
 def identify_numeric_columns(df: pd.DataFrame) -> List[str]:
     """
-    Identify numeric columns suitable for imputation.
-    
-    Args:
-        df: Input DataFrame.
-        
-    Returns:
-        List of numeric column names.
+    Identifies numeric columns in the dataframe that are candidates for imputation.
+    Excludes non-numeric or categorical columns.
     """
     numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     logger.info(f"Identified {len(numeric_cols)} numeric columns for imputation: {numeric_cols}")
@@ -73,200 +45,167 @@ def identify_numeric_columns(df: pd.DataFrame) -> List[str]:
 
 def perform_mice_imputation(
     df: pd.DataFrame,
-    numeric_cols: Optional[List[str]] = None,
-    iterations: int = DEFAULT_ITERATIONS,
-    random_state: int = DEFAULT_RANDOM_STATE,
-    impute_target_cols: Optional[List[str]] = None
+    numeric_cols: List[str],
+    max_iterations: int = 5,
+    seed: int = 42
 ) -> Tuple[pd.DataFrame, bool]:
     """
-    Perform Multiple Imputation by Chained Equations (MICE) using miceforest.
-    
-    This function:
-    1. Identifies missing values in numeric columns.
-    2. Runs MICE imputation with the specified number of iterations.
-    3. Checks convergence.
-    4. If not converged, logs a warning and drops rows with missing values.
-    5. Returns the imputed DataFrame and a convergence flag.
+    Performs MICE imputation using the miceforest library.
     
     Args:
-        df: Input DataFrame with potential missing values.
-        numeric_cols: List of numeric columns to impute. If None, auto-detects.
-        iterations: Maximum number of MICE iterations.
-        random_state: Random seed for reproducibility.
-        impute_target_cols: Specific columns to impute. If None, all numeric cols are used.
-        
+        df: The input dataframe with missing values.
+        numeric_cols: List of column names to impute.
+        max_iterations: Maximum number of iterations for the MICE algorithm.
+        seed: Random seed for reproducibility.
+    
     Returns:
-        Tuple of (imputed DataFrame, convergence_flag).
-        convergence_flag is True if imputation converged, False otherwise.
-        
-    Raises:
-        ValueError: If there are too few rows for imputation or no missing values found.
+        Tuple of (imputed dataframe, convergence_flag)
     """
-    if len(df) < MIN_ROWS_FOR_IMPUTATION:
-        logger.warning(f"DataFrame has only {len(df)} rows (< {MIN_ROWS_FOR_IMPUTATION}). "
-                     "Skipping MICE imputation due to insufficient samples.")
-        return df, True
-    
-    # Identify numeric columns if not provided
-    if numeric_cols is None:
-        numeric_cols = identify_numeric_columns(df)
-    
     if not numeric_cols:
-        logger.warning("No numeric columns found for imputation.")
+        logger.warning("No numeric columns provided for imputation. Returning original dataframe.")
         return df, True
+
+    # Filter dataframe to only include columns of interest for imputation
+    impute_df = df[numeric_cols].copy()
     
     # Check if there are any missing values
-    missing_mask = df[numeric_cols].isnull().any()
-    if not missing_mask.any():
+    if impute_df.isnull().sum().sum() == 0:
         logger.info("No missing values found in numeric columns. Skipping imputation.")
         return df, True
-    
-    # Determine which columns actually have missing values
-    cols_with_missing = [col for col in numeric_cols if df[col].isnull().any()]
-    logger.info(f"Columns with missing values: {cols_with_missing}")
-    
-    # If specific target columns are provided, filter to those
-    if impute_target_cols:
-        cols_with_missing = [col for col in cols_with_missing if col in impute_target_cols]
-        if not cols_with_missing:
-            logger.info("No target columns have missing values. Skipping imputation.")
-            return df, True
-    
-    # Create a copy to avoid modifying the original
-    df_impute = df.copy()
-    
-    # Initialize the KernelDataSet
-    logger.info(f"Initializing MICE imputation with {iterations} iterations...")
-    kernel_data = mf.KernelDataSet(
-        df_impute[cols_with_missing].copy(),
-        random_state=random_state
-    )
-    
-    # Perform imputation
-    try:
-        kernel_data.mice(iterations=iterations)
-    except Exception as e:
-        logger.error(f"MICE imputation failed with error: {e}")
-        raise RuntimeError(f"MICE imputation failed: {e}")
-    
-    # Check convergence
-    # miceforest stores convergence info in the imputed_data attribute
-    # We check if the imputation process completed successfully
-    # The library doesn't explicitly return a convergence flag, so we check for NaNs in result
-    imputed_values = kernel_data.imputed_data(0)  # Get first imputation dataset
-    
-    # Check for any remaining NaNs in the imputed columns
-    has_remaining_nans = imputed_values.isnull().any().any()
-    
-    if has_remaining_nans:
-        logger.warning(
-            "MICE imputation did not converge (NaNs remain). "
-            "Dropping rows with missing values as per FR-008."
-        )
-        # Drop rows with any remaining NaNs in the imputed columns
-        df_impute[cols_with_missing] = imputed_values
-        df_impute = df_impute.dropna(subset=cols_with_missing)
-        convergence_flag = False
-    else:
-        logger.info("MICE imputation converged successfully.")
-        # Update the full dataframe with imputed values
-        df_impute[cols_with_missing] = imputed_values
-        convergence_flag = True
-    
-    # Final check: ensure no NaNs remain in numeric columns
-    final_missing = df_impute[numeric_cols].isnull().sum()
-    if final_missing.sum() > 0:
-        logger.warning(f"Final check found {final_missing.sum()} remaining NaNs. Dropping affected rows.")
-        df_impute = df_impute.dropna(subset=numeric_cols)
-    
-    return df_impute, convergence_flag
 
-def save_cleaned_metadata(
-    df: pd.DataFrame,
-    output_path: str = "data/cleaned_metadata.csv"
-) -> None:
+    logger.info(f"Starting MICE imputation for columns: {numeric_cols}")
+    logger.info(f"Missing value count before imputation: {impute_df.isnull().sum().sum()}")
+
+    try:
+        # Create the kernel dataset
+        kernel_set = mf.KernelSet(impute_df, seed=seed)
+        
+        # Train the models
+        kernel_set.train(
+            iterations=max_iterations,
+            progress=False # Disable progress bar for cleaner logs
+        )
+        
+        # Check convergence
+        # miceforest stores convergence info in the model's history
+        # We check if the last iteration's loss decreased significantly or stabilized
+        convergence_flag = True
+        
+        # Simple convergence check: verify that the imputation completed without error
+        # and that the number of missing values is zero in the result.
+        # A more sophisticated check would look at the change in imputed values between iterations.
+        # For this implementation, we rely on the library's internal stability and the fact
+        # that it completed the requested iterations.
+        
+        # Generate imputed dataset
+        imputed_data = kernel_set.complete_data()
+        
+        # Verify no NaNs remain in the imputed columns
+        nan_count = imputed_data.isnull().sum().sum()
+        if nan_count > 0:
+            logger.warning(f"MICE imputation completed but {nan_count} NaNs remain in imputed columns.")
+            convergence_flag = False
+        else:
+            logger.info("MICE imputation successful. No NaNs remaining in imputed columns.")
+        
+        # Replace the original columns with the imputed ones
+        result_df = df.copy()
+        result_df[numeric_cols] = imputed_data[numeric_cols]
+        
+        return result_df, convergence_flag
+
+    except Exception as e:
+        logger.error(f"MICE imputation failed with error: {str(e)}")
+        raise
+
+def save_cleaned_metadata(df: pd.DataFrame, output_path: Optional[str] = None) -> str:
     """
-    Save the cleaned metadata to CSV.
+    Saves the cleaned (imputed) metadata to a CSV file.
     
     Args:
-        df: Cleaned DataFrame.
-        output_path: Path to save the CSV file.
+        df: The dataframe to save.
+        output_path: Optional output path. Defaults to config.
+    
+    Returns:
+        The path to the saved file.
     """
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    if output_path is None:
+        config = get_config()
+        output_path = config.get("paths", {}).get("cleaned_metadata", "data/cleaned_metadata.csv")
     
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Saving cleaned metadata to {output_path}")
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved cleaned metadata to {output_path} with {len(df)} rows")
     
-    # Verify no NaNs remain
-    nan_count = df.isnull().sum().sum()
-    if nan_count > 0:
-        logger.error(f"CRITICAL: {nan_count} NaN values remain in cleaned metadata!")
-        raise ValueError(f"Cleaned metadata still contains {nan_count} NaN values")
-    else:
-        logger.info("Verification passed: No NaN values in cleaned metadata.")
+    # Verify no NaNs in the saved file
+    saved_df = pd.read_csv(output_path)
+    if saved_df.isnull().sum().sum() > 0:
+        raise RuntimeError(f"Saved file {output_path} still contains NaNs! Verification failed.")
+    
+    return str(output_path)
 
 def run_preprocessing_pipeline(
-    input_path: str = "data/metadata/harmonized_matrix.csv",
-    output_path: str = "data/cleaned_metadata.csv",
-    iterations: int = DEFAULT_ITERATIONS,
-    random_state: int = DEFAULT_RANDOM_STATE
-) -> Tuple[pd.DataFrame, bool]:
+    input_path: Optional[str] = None,
+    output_path: Optional[str] = None,
+    max_iterations: int = 5
+) -> str:
     """
-    Run the full preprocessing pipeline for metadata.
-    
-    This function:
-    1. Loads harmonized metadata.
-    2. Performs MICE imputation.
-    3. Saves cleaned metadata.
-    4. Returns the cleaned DataFrame and convergence status.
-    
-    Args:
-        input_path: Path to harmonized metadata input.
-        output_path: Path for cleaned metadata output.
-        iterations: Number of MICE iterations.
-        random_state: Random seed.
-        
-    Returns:
-        Tuple of (cleaned DataFrame, convergence_flag).
-    """
-    log_event("preprocessing_pipeline_start", {"input": input_path})
-    
-    # Load data
-    df = load_harmonized_metadata(input_path)
-    
-    # Perform MICE imputation
-    df_clean, converged = perform_mice_imputation(
-        df,
-        iterations=iterations,
-        random_state=random_state
-    )
-    
-    # Save cleaned data
-    save_cleaned_metadata(df_clean, output_path)
-    
-    log_event("preprocessing_pipeline_complete", {
-        "input_rows": len(df),
-        "output_rows": len(df_clean),
-        "converged": converged,
-        "output_path": output_path
-    })
-    
-    return df_clean, converged
-
-# Convenience function for direct import
-def impute_and_clean(
-    input_path: str = "data/metadata/harmonized_matrix.csv",
-    output_path: str = "data/cleaned_metadata.csv"
-) -> Tuple[pd.DataFrame, bool]:
-    """
-    Alias for run_preprocessing_pipeline for easier importing.
+    Runs the full preprocessing pipeline:
+    1. Load harmonized metadata
+    2. Identify numeric columns
+    3. Perform MICE imputation
+    4. Save cleaned metadata
     
     Args:
         input_path: Path to harmonized metadata.
-        output_path: Path for cleaned metadata.
-        
+        output_path: Path to save cleaned metadata.
+        max_iterations: Max iterations for MICE.
+    
     Returns:
-        Tuple of (cleaned DataFrame, convergence_flag).
+        Path to the saved cleaned metadata file.
     """
-    return run_preprocessing_pipeline(input_path, output_path)
+    logger.info("Starting preprocessing pipeline")
+    
+    df = load_harmonized_metadata(input_path)
+    numeric_cols = identify_numeric_columns(df)
+    
+    if df.isnull().sum().sum() == 0:
+        logger.info("No missing values found. Saving original data as cleaned.")
+        return save_cleaned_metadata(df, output_path)
+    
+    imputed_df, converged = perform_mice_imputation(df, numeric_cols, max_iterations=max_iterations)
+    
+    if not converged:
+        logger.warning("MICE imputation did not converge. Dropping rows with remaining NaNs.")
+        imputed_df = imputed_df.dropna()
+        logger.info(f"Dropped rows with remaining NaNs. Remaining rows: {len(imputed_df)}")
+    
+    if len(imputed_df) == 0:
+        raise ValueError("No valid rows remaining after imputation and dropping NaNs.")
+    
+    output_file = save_cleaned_metadata(imputed_df, output_path)
+    logger.info("Preprocessing pipeline completed successfully.")
+    return output_file
+
+def impute_and_clean(
+    input_path: str,
+    output_path: str,
+    max_iterations: int = 5
+) -> str:
+    """
+    High-level entry point for T015.
+    Reads harmonized metadata, imputes missing values using MICE,
+    ensures no NaNs remain (dropping rows if necessary), and saves the result.
+    
+    Args:
+        input_path: Path to harmonized metadata CSV.
+        output_path: Path to save cleaned metadata CSV.
+        max_iterations: Max iterations for MICE.
+    
+    Returns:
+        Path to the saved cleaned metadata file.
+    """
+    logger.info(f"Running impute_and_clean: input={input_path}, output={output_path}")
+    return run_preprocessing_pipeline(input_path, output_path, max_iterations)

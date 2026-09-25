@@ -1,12 +1,13 @@
 status: none
-intent: HuggingFace datasets download IMO IPhO OpenSci-Reason benchmark python package
-  dataset
+intent: download IMO IPhO olympiad problems OpenSci-Reason ScienceQA dataset python
+  package dataset
 required_fields:
-- id
-- prompt
-- ground_truth_answer
+- prompt_id
+- prompt_text
+- reference_answer
+- dataset_name
 - subject
-- source
-cache_key: d1a126c0c58e924fbdc944a6a4ab09566fd5a52e9c56c5e423fdb6a05cd120db
-searched_at: '2026-09-09T06:48:07.098734+00:00'
+- difficulty_level
+cache_key: 914ceb512a603807039797d3b8bc212e217c72b55591282a5a519304d5a78d64
+searched_at: '2026-09-25T12:58:25.016702+00:00'
 retry_count: 1

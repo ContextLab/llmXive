@@ -2,68 +2,95 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   Sufficient RAM (Sufficient memory is recommended for safety.)
--   Internet access (for dataset download)
+- Python 3.11+
+- 7GB+ RAM (CPU-only) or 16GB+ VRAM (GPU escape hatch)
+- HuggingFace CLI token (for model access)
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project directory).
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins `torch` to the CPU-only version and `transformers` to a stable release.*
+1. **Clone and Setup**:
+   ```bash
+   git clone <repo-url>
+   cd specs/001-llmxive-followup
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+2. **Download Datasets**:
+   ```bash
+   # Download MMLU (STEM Subset)
+   python src/data/download.py --dataset HuggingFaceH4/mmlu --subset STEM --output data/raw/mmlu_stem.jsonl
+   # Download OpenScience (Raw Source for OpenSci-Reason)
+   python src/data/download.py --dataset nvidia/OpenScience --output data/raw/open_science_raw.jsonl
+   ```
 
 ## Running the Pipeline
 
-The pipeline is executed via a single entry point script.
-
-### 1. Data Download & Validation
+### Step 1: Curate & Unify Prompts
+Filter raw data and merge into a unified dataset with `domain` labels.
 ```bash
-python code/data/download.py
-```
-This script downloads datasets from verified URLs, computes checksums, and formats them into `data/processed/unified_prompts.jsonl` (converting ScienceQA MCQs to open-ended prompts).
+python src/data/curate.py \
+  --input data/raw/open_science_raw.jsonl \
+  --output data/intermediate/open_sci_reason.jsonl \
+  --filter ill_structured
 
-### 2. Inference (CPU-Only)
+python src/data/preprocess.py \
+  --mmlu data/raw/mmlu_stem.jsonl \
+  --opendsi data/intermediate/open_sci_reason.jsonl \
+  --output data/intermediate/prompts_unified.jsonl
+```
+
+### Step 2: Generate Responses
+Run inference for SU-01 and Baseline on both MMLU and OpenSci-Reason.
 ```bash
-python code/inference/runner.py --model su01 --dataset opensci --n_samples: a sufficiently large number to ensure statistical power.
-python code/inference/runner.py --model baseline --dataset opensci --n_samples 500
+python src/inference/run_generation.py \
+  --model SU-01 \
+  --dataset data/intermediate/prompts_unified.jsonl \
+  --output data/intermediate/responses_SU01.jsonl \
+  --temperature 0.7 \
+  --max_tokens 2048 \
+  --device cpu
 ```
-*Note: The SU-01 model weights must be available locally or via HuggingFace. If the model is not found, the script will exit with an error.*
+*Note: If OOM occurs, the script will auto-switch to 8-bit quantization or fail gracefully.*
 
-### 3. Scoring
+### Step 3: Score Responses
+Run the proxy scoring model.
 ```bash
-python code/scoring/proxy_model.py --input data/processed/su01_responses.jsonl --output data/processed/su01_scores.jsonl
-python code/scoring/proxy_model.py --input data/processed/baseline_responses.jsonl --output data/processed/baseline_scores.jsonl
+python src/inference/scoring.py \
+  --input data/intermediate/responses_SU01.jsonl \
+  --model meta-llama/Meta-Llama-3-8B-Instruct \
+  --output data/intermediate/scores.jsonl \
+  --quantize 8bit
 ```
-*This step uses the INT quantized Llama-3-8B model. It may take significant time on CPU.*
 
-### 4. Analysis
+### Step 4: Validate Proxy Model
+Check correlation with Gold Standard (Manually Curated).
 ```bash
-python code/analysis/stats.py
+python src/analysis/validation.py \
+  --scores data/intermediate/scores.jsonl \
+  --gold-standard data/raw/gold_standard_50.json \
+  --threshold 0.6 \
+  --fallback-mode auto
 ```
-This generates the final statistical report, including the Linear Mixed Effects (LME) model results, dimension independence metrics, and power analysis.
+*Note: If correlation < 0.6, the script will attempt to switch to a fallback proxy or human-only mode.*
 
-## Verification
-
-To verify the proxy model:
+### Step 5: Statistical Analysis
+Compute correlations, t-tests, and LME.
 ```bash
-python code/scoring/validator.py
+python src/analysis/simple_stats.py \
+  --olympiad-scores data/intermediate/mmlu_results.jsonl \
+  --open-sci-scores data/intermediate/scores.jsonl \
+  --output data/final/simple_stats.json
+
+python src/analysis/lme_analysis.py \
+  --data data/intermediate/scores.jsonl \
+  --output data/final/lme_results.json
 ```
-This checks the correlation between proxy scores and the `gold_standard` set.
 
 ## Troubleshooting
 
--   **OOM Error**: Ensure `load_in_4bit=True` is set in `proxy_model.py`. If still failing, reduce `batch_size` to 1 (default).
--   **Timeout**: If the job exceeds a prolonged duration, check the `truncation_log.jsonl` for excessive token usage.
--   **Model Not Found**: Ensure `SU-01` weights are present in the expected HuggingFace cache or local path.
-
-
-## projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/contracts/output_schema.schema.yaml
+- **OOM Error**: Ensure `--quantize 8bit` is used. If still failing, reduce `batch_size` to 1.
+- **Timeout**: Reduce dataset size to 200 prompts.
+- **CUDA Required**: If the script detects CUDA dependencies, it will attempt to offload to a GPU environment (if available) or fail with a clear error message.
+- **Proxy Validation Failed**: If the primary proxy fails, the system will automatically attempt the fallback proxy. Check `logs/validation.log` for details.

@@ -104,7 +104,7 @@
 - [X] T017 [US1] Implement beta-diversity (Bray-Curtis) and alpha-diversity (Shannon, Observed ASVs) calculation in `src/pipelines/preprocess.py` using `skbio`; **Output**: Bray-Curtis distance matrix and Euclidean distance matrix (FR-002).
 - [ ] T018 [US1] Implement PERMANOVA (adonis2) with ≥999 permutations and Benjamini-Hochberg FDR correction in `src/pipelines/analysis.py`. **Conditional Logic**: If sample size < 20, use **exact permutation test** or **≥9999 permutations** (FR-003). **Input**: Distance matrices from T017; **Output**: `results/permanova_summary.csv` with columns: term, R2, p-value, p-value_adj.
 - [X] T019 [US1] Implement variance partitioning (varpart) to quantify unique/shared variance by predictor in `src/pipelines/analysis.py` (FR-004).
-- [ ] T020 [US1] Implement db-RDA triplot generation in `src/pipelines/report.py` showing sample clustering by dominant vector. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T020 [US1] Implement db-RDA triplot generation in `src/pipelines/report.py` showing sample clustering by dominant vector. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T022 [US1] Generate `results/permanova_summary.csv` and `results/db_rda_variance.csv` with FDR-corrected p-values. <!-- ATOMIZE: requested -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

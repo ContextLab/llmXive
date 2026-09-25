@@ -1,10 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Statistics Output Schema"
-description: "Schema for final statistical results stored in data/processed/stats.json"
+description: "Schema for final statistical results stored in data/final/stats.json"
 type: "object"
 properties:
+  simple_stats:
+    type: "object"
+    description: "Results from Point-Biserial and t-test (Descriptive)."
+    properties:
+      point_biserial:
+        type: "object"
+        properties:
+          correlation:
+            type: "number"
+            description: "Point-Biserial correlation coefficient."
+          p_value:
+            type: "number"
+            description: "P-value for the correlation."
+        required:
+          - correlation
+          - p_value
+      paired_t_test:
+        type: "object"
+        properties:
+          t_statistic:
+            type: "number"
+          p_value:
+            type: "number"
+        required:
+          - t_statistic
+          - p_value
+      correlation_sensitivity:
+        type: "object"
+        description: "Sensitivity analysis of correlation (SC-005)."
+        properties:
+          original_correlation:
+            type: "number"
+          filtered_correlation:
+            type: "number"
+          excluded_count:
+            type: "integer"
+        required:
+          - original_correlation
+          - filtered_correlation
+          - excluded_count
+    required:
+      - point_biserial
+      - paired_t_test
+      - correlation_sensitivity
   lme_analysis:
     type: "object"
+    description: "Linear Mixed Effects model results (Primary Test)."
     properties:
       fixed_effect_model_type:
         type: "number"
@@ -33,6 +78,7 @@ properties:
       - method
   dimension_independence:
     type: "object"
+    description: "Check for halo effect between Consistency and Novelty/Feasibility."
     properties:
       consistency_novelty_corr:
         type: "number"
@@ -63,8 +109,26 @@ properties:
       - n
       - effect_size
       - power
+  proxy_validation:
+    type: "object"
+    properties:
+      correlation:
+        type: "number"
+        description: "Correlation between proxy and human scores."
+      is_valid:
+        type: "boolean"
+        description: "True if correlation > 0.6."
+      fallback_used:
+        type: "boolean"
+        description: "True if a fallback proxy or human-only mode was used."
+    required:
+      - correlation
+      - is_valid
+      - fallback_used
 required:
+  - simple_stats
   - lme_analysis
   - dimension_independence
   - power_analysis
+  - proxy_validation
 additionalProperties: false

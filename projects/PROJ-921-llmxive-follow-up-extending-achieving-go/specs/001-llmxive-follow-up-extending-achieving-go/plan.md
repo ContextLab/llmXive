@@ -5,33 +5,41 @@
 
 ## Summary
 
-This project investigates whether the "reverse-perplexity" curriculum used to train the SU-01 model for Olympiad-level reasoning inadvertently encodes rigid heuristics that degrade performance on open-ended, ill-structured scientific problems. The technical approach involves a comparative inference pipeline running the SU-01 model and a baseline model on two distinct datasets: a deterministic Math Olympiad benchmark (IMO) and a curated "OpenSci-Reason" dataset (derived from ScienceQA). Responses are scored by a frozen, quantized LLM proxy (Llama-8B-INT4) on dimensions of Novelty, Feasibility, and Consistency. The analysis uses a Linear Mixed Effects (LME) model to isolate the interaction between model type and domain performance, and performs a dimension independence check to validate the scoring proxy. The pipeline is constrained to CPU-only execution on GitHub Actions free-tier runners.
+This project investigates the trade-off between "gold-medal" Olympiad reasoning rigor and adaptability to ill-structured scientific problems. The primary requirement is to execute a CPU-only inference pipeline for the SU-01 model and a baseline on two datasets: deterministic benchmarks (**HuggingFaceH4/mmlu STEM subset**) and a curated "OpenSci-Reason" dataset. 
+
+**Methodological Strategy (Mandatory Two-Stage Analysis)**:
+1.  **Stage 1 (Spec Compliance & Baseline)**: Implements the functional requirements of the revised FR-005. We will compute per-prompt correctness on MMLU-STEM and creativity scores on OpenSci-Reason. We will perform a descriptive **Point-Biserial correlation** between per-prompt correctness and creativity to establish a baseline.
+2.  **Stage 2 (Primary Hypothesis Test)**: To rigorously test the "rigidity" hypothesis, we will implement a **Linear Mixed Effects (LME) model**. This model tests the interaction effect `Model_Type * Domain` (where Domain is Deterministic vs. Ill-Structured). A significant interaction effect (reversal of performance gap) is the primary evidence of rigidity. This analysis is now a mandatory system output, not an optional research step.
+
+The technical approach involves generating responses with stochastic sampling (temperature 0.7), scoring them via a frozen, fine-tuned proxy LLM (Llama-3-8B quantized) on Novelty, Feasibility, and Consistency, and performing the statistical analysis. The plan strictly adheres to GitHub Actions free-tier constraints (CPU, RAM, 6h limit) by utilizing 8-bit quantization for the scoring model and streaming for large datasets.
 
 ## Technical Context
 
-**Language/Version**: Python 3  
-**Primary Dependencies**: `transformers` (v4.40+), `torch` (CPU-only build), `datasets` (v2.19+), `pandas`, `scipy`, `statsmodels`, `pyyaml`, `huggingface_hub`  
-**Storage**: Local file system (JSONL/Parquet), GitHub Actions ephemeral storage (~ GB)  
-**Testing**: `pytest` (unit tests for data parsing, scoring logic, statistical functions)  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner, CPU-only)  
-**Project Type**: Research pipeline / CLI  
-**Performance Goals**: Complete full inference and analysis within 6 hours; peak RAM usage < 7 GB; no CUDA dependencies.  
-**Constraints**: CPU-only inference; strict token limits to prevent timeouts; quantized models for scoring to fit RAM; no proprietary data access.  
-**Scale/Scope**: A set of OpenSci prompts (ScienceQA derived), full IMO test set (subset if necessary), N=50 gold standard validation set.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `transformers` (>=4.40.0), `datasets` (>=2.18.0), `scikit-learn` (>=1.4.0), `pandas`, `numpy`, `torch` (CPU-only build), `accelerate`, `statsmodels` (for LME), `pingouin` (for correlation)  
+**Storage**: Local file system (`data/`), JSONL for intermediate artifacts, Parquet for aggregated results.  
+**Testing**: `pytest` for unit tests on scoring logic; integration tests for pipeline completion.  
+**Target Platform**: Linux (GitHub Actions free-tier runner).  
+**Project Type**: Research pipeline / CLI tool.  
+**Performance Goals**: Complete full inference and scoring on OpenSci prompts + MMLU subset within 6 hours.  
+**Constraints**: CPU-only inference; 7GB RAM limit (requires 8-bit quantization for scoring model); no proprietary data access; hard token limit to prevent timeouts.  
+**Scale/Scope**: OpenSci prompts; N=50 gold standard validation set (manually curated); A small set of models (SU-01, Baseline).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file*
 
-1.  **I. Reproducibility (NON-NEGOTIABLE)**: **PASS**. The plan mandates pinned random seeds in `code/`, canonical dataset sources (verified URLs), and a `requirements.txt` to ensure re-runs on fresh runners yield identical results.
-2.  **II. Verified Accuracy**: **PASS**. All dataset citations in `research.md` are restricted to the "Verified datasets" block provided in the prompt. No fabricated URLs will be used. The proxy model validation (FR-008) ensures the scoring mechanism is verified against human gold standards.
-3.  **III. Data Hygiene**: **PASS**. The plan includes a checksumming step for all downloaded datasets. Raw data is preserved; derivations (e.g., scored responses) are written to new files with documented hashes.
-4.  **IV. Single Source of Truth**: **PASS**. The statistical analysis script will read directly from the generated JSONL files. No manual data entry will occur in the final report.
-5.  **V. Versioning Discipline**: **PASS**. The implementation will generate content hashes for all artifacts (datasets, model outputs, analysis results) and update the project state YAML.
-6.  **VI. Evaluation of Ambiguity and Creativity**: **PASS**. The scoring pipeline (FR-004, FR-007) explicitly preserves raw semantic outputs (`score.raw_output`, `score.rationale`) and flags low-confidence responses (variance > 1.5, entropy > 2.0) to prevent loss of context regarding "false certainty."
-7.  **VII. Inference Constraints and Thermal Stability**: **PASS**. The plan enforces `batch_size=1`, `temperature=0.7`, and explicitly logs `generation_params` (seed, temperature) per-generation in the inference output artifacts to validate thermal stability.
+| Principle | Status | Notes |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | PASS | Plan mandates pinned seeds, `requirements.txt`, and re-runnable scripts in `code/`. External datasets fetched from canonical HF sources. |
+| **II. Verified Accuracy** | PASS | All dataset URLs in `research.md` are restricted to the "Verified datasets" block. No invented URLs. |
+| **III. Data Hygiene** | PASS | Plan includes checksumming of raw data and immutable derivation steps. |
+| **IV. Single Source of Truth** | PASS | All statistical outputs will be generated by scripts and stored in `data/`; no hand-typed numbers in paper. |
+| **V. Versioning Discipline** | PASS | Artifact hashes will be recorded in state YAML; content hashes for code/data. |
+| **VI. Evaluation of Ambiguity** | PASS | **Explicitly Addressed**: The plan mandates preserving the `raw_output` (semantic reasoning) from the proxy model in the `score` entity and `scoring_output` contract. This ensures that the context for "rigidity" is not lost to scalar averaging, satisfying Principle VI. |
+| **VII. Inference Constraints** | PASS | Plan enforces explicit logging of `temperature=0.7` and `batch_size=1`; CPU-only execution path defined. |
 
 ## Project Structure
 
@@ -44,56 +52,79 @@ specs/001-llmxive-followup/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (created by /speckit-tasks)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-921-llmxive-follow-up-extending-achieving-go/
-├── code/
-│   ├── __init__.py
-│   ├── data/
-│   │   ├── download.py           # Handles dataset ingestion from verified URLs
-│   │   ├── preprocess.py         # Unified JSONL formatting + ScienceQA prompt conversion
-│   │   └── gold_standard.py      # Loader for N=50 human-rated set
-│   ├── inference/
-│   │   ├── runner.py             # CPU-only inference loop (SU-01 & Baseline)
-│   │   └── config.py             # Token limits, seeds, temperature
-│   ├── scoring/
-│   │   ├── proxy_model.py        # Llama-8B-INT4 scoring logic
-│   │   └── validator.py          # Correlation check against gold standard
-│   ├── analysis/
-│   │   ├── stats.py              # LME model, dimension independence, power analysis
-│   │   └── report.py             # Generates summary tables/plots
-│   └── utils/
-│       ├── logging.py            # Audit log for failures/truncations
-│       └── checksum.py           # Data hygiene utilities
+src/
 ├── data/
-│   ├── raw/                      # Downloaded datasets (checksummed)
-│   ├── processed/                # Unified JSONL, scored results
-│   └── gold/                     # N=50 human-rated set
-├── tests/
-│   ├── unit/
-│   │   ├── test_preprocess.py
-│   │   └── test_stats.py
-│   └── integration/
-│       └── test_full_pipeline.py
-├── requirements.txt
-└── pyproject.toml
+│   ├── download.py          # Handles streaming and caching of datasets
+│   ├── curate.py            # Filters raw data to create OpenSci-Reason
+│   └── preprocess.py        # Unifies formats to JSONL (adds `domain` field)
+├── inference/
+│   ├── run_generation.py    # CPU inference for SU-01 and Baseline
+│   └── scoring.py           # Proxy model scoring pipeline
+├── analysis/
+│   ├── simple_stats.py      # Point-Biserial and t-test (Descriptive)
+│   ├── lme_analysis.py      # Linear Mixed Effects model (Primary Test)
+│   └── validation.py        # Proxy model validation (N=50)
+├── models/
+│   └── config.py            # Model loading configs (quantization, device)
+├── cli/
+│   └── main.py              # Orchestration entry point
+└── utils/
+    ├── logging.py           # Audit logs for failures/ambiguities
+    └── checksum.py          # Data integrity verification
+
+tests/
+├── contract/
+│   └── test_schema.py       # Validates JSONL/Parquet against contracts
+├── integration/
+│   └── test_pipeline.py     # End-to-end run on small sample
+└── unit/
+    └── test_scoring.py      # Unit tests for scoring logic
 ```
 
-**Structure Decision**: A modular CLI-style structure is selected to separate data ingestion, inference, scoring, and analysis. This aligns with the research pipeline nature of the project, allowing independent testing of each stage (e.g., verifying the scoring model without re-running inference). The `data/` directory strictly separates raw downloads from processed artifacts to satisfy Constitution Principle III.
+**Structure Decision**: Selected Option 1 (Single project) with modular separation (`data`, `inference`, `analysis`) to ensure the pipeline can be executed sequentially on CI without complex dependency injection. This supports the "Single Source of Truth" principle by keeping all data transformations local and versioned.
 
 ## Complexity Tracking
 
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Dual-dataset approach** | Required to test the specific hypothesis (Olympiad vs. OpenSci). | A single dataset cannot distinguish between "rigid" and "creative" reasoning modes as the hypothesis posits a trade-off. |
-| **Proxy LLM Scoring** | Human evaluation is infeasible for CI; automated scoring is required for reproducibility. | Simple keyword matching or binary classification fails to capture the nuance of "Novelty" and "Feasibility" in ill-structured problems. |
-| **Quantized Model (INT4)** | Required to fit a medium-sized Llama model into limited RAM on a CPU-only runner. | Running a full precision model would cause OOM errors, failing the compute feasibility constraint. |
-| **Gold Standard Validation** | Required to ensure the proxy model is not hallucinating scores (FR-008). | Using the proxy model without validation risks measuring model bias rather than actual creativity. |
-| **Linear Mixed Effects (LME)** | Required to handle nested data structure (responses within prompts) and test interaction effects. | Simple correlation or t-test fails to account for prompt difficulty variance and circularity of same-model metrics. |
+| :--- | :--- | :--- |
+| **8-bit Quantization for Scoring Model** | Required to fit Llama-3-8B into 7GB RAM on CPU. | Running full precision 8B model would exceed RAM, causing OOM and CI failure. |
+| **Streaming Data Loading** | OpenSci dataset may exceed local disk/RAM limits if fully cached. | Loading entire dataset into memory risks OOM; streaming allows processing large datasets on limited hardware. |
+| **Proxy Scoring Model (Llama-3-8B)** | Needed to automate "Novelty/Feasibility" scoring at scale. | Human evaluation is too slow for CI; simpler heuristics (e.g., keyword matching) cannot capture semantic "rigidity" or "creativity". |
+| **Linear Mixed Effects (LME) Model** | **Mandatory Primary Test**: Required to handle nested data (multiple candidates per prompt) and test the interaction effect (Model × Domain) which defines "rigidity". | Simple t-tests/point-biserial correlations ignore the hierarchical structure and cannot isolate the domain-specific performance reversal. |
+| **Fallback Proxy Strategy** | Required to prevent pipeline abort if primary proxy fails validation. | A hard abort would waste compute resources and prevent the main analysis; a fallback ensures continuity. |
 
+## Implementation Tasks
 
-## projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/research.md
+### Phase 1: Data Acquisition & Curation
+- **T-001**: Download `HuggingFaceH4/mmlu` (STEM subset) and `nvidia/OpenScience` (Raw) using `datasets.load_dataset(..., streaming=True)`.
+- **T-002**: **Curate OpenSci-Reason**: Filter `nvidia/OpenScience` to identify "ill-structured" prompts (removing factual Q&A) and create the 500-item `OpenSci-Reason` dataset.
+- **T-003**: **Unified Preprocessing**: Merge MMLU and OpenSci-Reason into a single `prompts_unified.jsonl`. **Crucial**: Add `domain` field ("deterministic" or "ill-structured") to every prompt to enable LME analysis.
+- **T-004**: Curate N=50 "Gold Standard" set by manual expert rating of a subset of `OpenSci-Reason` responses (Human-in-the-loop step).
+
+### Phase 2: Inference
+- **T-005**: Generate responses for SU-01 and Baseline on **both** MMLU (Determined) and OpenSci-Reason (Ill-Structured).
+- **T-006**: Enforce `temperature=0.7`, `batch_size=1`, `max_tokens=2048`. Log all truncations and failures.
+- **T-007**: **Per-Prompt Correctness**: For MMLU responses, compute binary correctness (1/0) per prompt and store in `olympiad_results.jsonl`.
+
+### Phase 3: Scoring & Validation
+- **T-008**: Score OpenSci-Reason responses using the frozen proxy model (8-bit).
+- **T-009**: **Preserve Raw Output**: Store the full semantic reasoning string from the proxy model alongside scalar scores (Principle VI).
+- **T-010**: **Validate Proxy Model**: Run on the N=50 manually curated Gold Standard set. Calculate correlation.
+- **T-011**: **Fallback Strategy**: If correlation < 0.6, automatically switch to secondary proxy (Llama-3-2B) or trigger Human-Only scoring mode. Do **not** abort the pipeline.
+
+### Phase 4: Statistical Analysis (Mandatory Two-Stage)
+- **T-020**: **Descriptive (FR-005)**: Compute Point-Biserial correlation between per-prompt MMLU correctness and OpenSci creativity (within each model).
+- **T-021**: **Descriptive (FR-005)**: Perform paired t-test comparing mean creativity scores of SU-01 vs. Baseline on OpenSci.
+- **T-022**: **Primary Test (LME)**: Fit Linear Mixed Effects model: `Creativity_Score ~ Model_Type * Domain + (1|Prompt_ID)`. Test for significant interaction effect.
+- **T-023**: **Robustness**: Perform sensitivity analysis on the LME interaction p-value (re-calculate after excluding low-confidence prompts).
+
+### Phase 5: Reporting
+- **T-024**: Output results to `data/final/results.parquet` and `data/final/stats.json` (adhering to contracts).

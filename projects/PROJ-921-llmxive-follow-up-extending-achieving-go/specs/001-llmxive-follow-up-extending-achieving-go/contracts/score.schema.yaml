@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Score"
+description: "Schema for an evaluation score assigned by the proxy model."
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Composite key referencing the response."
+  novelty:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Score for Novelty (1-5)."
+  feasibility:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Score for Feasibility (1-5)."
+  consistency:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Score for Logical Consistency (1-5)."
+  reasoning:
+    type: "string"
+    description: "Raw semantic reasoning from the proxy model."
+  entropy:
+    type: "number"
+    description: "Entropy of the model's output logits."
+  variance:
+    type: "number"
+    description: "Variance of scores if multiple evaluations were performed."
+  confidence:
+    type: "string"
+    enum:
+      - "high"
+      - "low"
+    description: "Confidence level of the score."
+required:
+  - response_id
+  - novelty
+  - feasibility
+  - consistency
+  - reasoning
+  - confidence
+additionalProperties: false

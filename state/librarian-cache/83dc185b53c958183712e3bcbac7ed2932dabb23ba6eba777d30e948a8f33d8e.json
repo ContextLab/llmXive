@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-08-13T07:04:57Z",
+  "fetched_at": "2026-09-25T12:52:21Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Playful Agentic Robot Learning\"",
       "target_n": 5
     },
-    "duration_seconds": 67.0,
-    "ended_at": "2026-08-13T07:04:57Z",
+    "duration_seconds": 68.802,
+    "ended_at": "2026-09-25T12:52:21Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "playful robot learning with large language models"
+          "playful robotics learning"
         ],
         [
           2,
-          "agentic behavior in embodied AI systems"
+          "agentic robot learning frameworks"
         ],
         [
           3,
-          "LLM-driven robotic exploration and play"
+          "reinforcement learning for playful robot behaviors"
         ],
         [
           4,
-          "reinforcement learning for playful robot agents"
+          "large language models in robotic skill acquisition"
         ],
         [
           5,
-          "large language models for robot skill acquisition"
+          "autonomous agents in robotic play scenarios"
         ],
         [
           6,
-          "playful interaction strategies in robotics"
+          "generative AI for robot learning strategies"
         ],
         [
           7,
-          "agentic robot learning via language models"
+          "embodied AI playful interaction"
         ],
         [
           8,
-          "embodied agents with LLM-based reasoning"
+          "language-guided robotic exploration"
         ],
         [
           9,
-          "robot learning through playful simulation environments"
+          "open-ended learning for autonomous robots"
         ],
         [
           10,
-          "generative AI for autonomous robot behavior"
+          "LLM-driven robot policy generation"
         ],
         [
           11,
-          "language-conditioned robot exploration"
+          "interactive robot learning through play"
         ],
         [
           12,
-          "playful reinforcement learning agents"
+          "adaptive agent learning in simulated environments"
         ],
         [
           13,
-          "LLM-based planning for robotic agents"
+          "multimodal learning for robotic agents"
         ],
         [
           14,
-          "autonomous robot learning via playful interaction"
+          "curiosity-driven robot learning"
         ],
         [
           15,
-          "large language models in robotic control policies"
+          "human-robot play interaction using LLMs"
         ],
         [
           16,
-          "agentic robotics with generative language models"
+          "transfer learning in playful robotic tasks"
         ],
         [
           17,
-          "playful learning paradigms for embodied AI"
+          "foundation models for robotic control"
         ],
         [
           18,
-          "LLM-guided robot curiosity and exploration"
+          "self-supervised learning in robot play"
         ],
         [
           19,
-          "multi-modal robot learning with language models"
+          "generative planning for agentic robots"
         ],
         [
           20,
-          "agentic learning frameworks for playful robotics"
+          "natural language instruction for robot play"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
         "llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science": 0,
-        "playful robot learning with large language models": 5
+        "playful robotics learning": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "playful reinforcement learning robotic agents",
-      "embodied AI game-based learning simulation",
-      "curiosity-driven exploration intrinsic motivation robotics",
-      "sample efficiency robot policy generalization",
-      "open-ended learning curriculum generation agents"
+      "embodied RL simulation-to-real transfer playful",
+      "robot learning benchmark manipulation tasks environments",
+      "intrinsic motivation exploration curiosity-driven agent",
+      "sample efficiency imitation learning reinforcement learning",
+      "open-ended learning emergent behavior agent autonomy"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,41 +115,30 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2606.19419"
+        "2607.15330"
       ]
     },
     "per_query_hit_count": {
-      "curiosity-driven exploration intrinsic motivation robotics": 3,
-      "embodied AI game-based learning simulation": 3,
+      "embodied RL simulation-to-real transfer playful": 2,
+      "intrinsic motivation exploration curiosity-driven agent": 3,
       "llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science": 3,
-      "open-ended learning curriculum generation agents": 3,
-      "playful reinforcement learning robotic agents": 2,
-      "sample efficiency robot policy generalization": 3
+      "open-ended learning emergent behavior agent autonomy": 3,
+      "robot learning benchmark manipulation tasks environments": 3,
+      "sample efficiency imitation learning reinforcement learning": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 2,
-      "rejections": [
-        {
-          "primary_pointer": "2410.12096",
-          "rationale": "The paper focuses on integrating LLMs with Graph Structure Learning for general representation learning and noise reduction, which does not address the specific domain of \"agentic robot learning\" or the \"Playful\" framework mentioned in the user's question. While both involve LLMs, the paper lacks the critical robotic agent, physical interaction, or playful learning mechanism required to be considered prior work for this specific research trajectory.",
-          "title": "Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning"
-        },
-        {
-          "primary_pointer": "2509.16679",
-          "rationale": "The paper is a general survey on Reinforcement Learning (RL) applied to Large Language Models (LLMs) and does not address the specific domain of \"Agentic Robot Learning\" or the \"Playful\" interaction mechanisms central to the user's question. While it covers RL and LLMs (the \"llmXive\" component), it lacks the critical robotic embodiment and agentic physical interaction variables required to be considered relevant prior work for a study on robot learning, failing criteria (a), (b), and (e) for dom",
-          "title": "Reinforcement Learning Meets Large Language Models: A Survey of Advancements and Applications Across the LLM Lifecycle"
-        }
-      ]
+      "rejected_count": 0,
+      "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-08-13T07:03:50Z",
+    "started_at": "2026-09-25T12:51:12Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"playful agentic robot learning\" computer science",
       "raw": "llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science"
@@ -168,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-08-13T07:04:20Z",
+        "failed_at": "2026-09-25T12:51:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -187,7 +176,204 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-08-13T07:04:20Z",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scaling generalist vision-language-action (VLA) policies is severely bottlenecked by the inherent heterogeneity of embodied data, which spans diverse robot morphologies, camera configurations, and low-level action spaces. Existing paradigms typically address this mismatch through explicit action retargeting, human-to-robot video synthesis, or dataset-specific adaptation branches, fundamentally hindering the joint learning of a unified policy. We introduce UCAG-P, a camera-centric unified action formulation that structurally aligns heterogeneous embodied datasets into a shared geometric action space. Rather than treating robot-specific commands as the shared policy target, UCAG-P represents manipulation through camera-observable anchor motion in image and camera-frame coordinates, treating robot arms, humanoids, and human hands as different embodiments of a common action schema. A geometry-conditioned action translator combines predicted motion with target-embodiment kinematics to produce executable controls. The resulting decoupled architecture allows a shared VLA policy to learn transferable manipulation geometry while retaining embodiment-specific controllability. UCAG-P is trained on 4.03K hours of robot and simulation data and 2.34K hours of human demonstrations. A single checkpoint reaches 98.3% on LIBERO, 88.7% and 89.2% on RoboTwin Easy and Hard, 82.0% zero-shot on LIBERO-Plus, and 62.0% on RoboCasa GR-1, without benchmark-specific fine-tuning.",
+          "claimed_authors": [
+            " Xiaomi Embodied Intelligence Team",
+            "University of Macau",
+            " :",
+            "Shaoqing Xu",
+            "Fang Li",
+            "Guozhi Zhan",
+            "Zhixiang Duan",
+            "Yuhan Wang",
+            "Yuechen Luo",
+            "Shengyin Jiang",
+            "Hanbing Li",
+            "Zhiying Du",
+            "Longlong Wang",
+            "Longmei Jiang",
+            "Weixiang Liang",
+            "Ying Gong",
+            "Yong Pan",
+            "Ziping Zhao",
+            "Zhiyuan Chen",
+            "Yangwei You",
+            "Kun Ma",
+            "Qinyuan Liu",
+            "Hangjun Ye",
+            "Zhi-xin Yang"
+          ],
+          "claimed_title": "One Policy, Many Embodiments: Unified Camera-Centric Action Geometry Pre-training for Heterogeneous Embodied Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.26058"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='One Policy, Many Embodiments: Unified Camera-Centric Action Geometry Pre-training for Heterogeneous Embodied Manipulation')",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied artificial intelligence emphasizes the role of an agent's body in generating human-like behaviors. The recent efforts on EmbodiedAI pay a lot of attention to building up machine learning models to possess perceiving, planning, and acting abilities, thereby enabling real-time interaction with the world. However, most works focus on bounded indoor environments, such as navigation in a room or manipulating a device, with limited exploration of embodying the agents in open-world scenarios. That is, embodied intelligence in the open and outdoor environment is less explored, for which one potential reason is the lack of high-quality simulators, benchmarks, and datasets. To address it, in this paper, we construct a benchmark platform for embodied intelligence evaluation in real-world city environments. Specifically, we first construct a highly realistic 3D simulation environment based on the real buildings, roads, and other elements in a real city. In this environment, we combine historically collected data and simulation algorithms to conduct simulations of pedestrian and vehicle flows with high fidelity. Further, we designed a set of evaluation tasks covering different EmbodiedAI abilities. Moreover, we provide a complete set of input and output interfaces for access, enabling embodied agents to easily take task requirements and current environmental observations as input and then make decisions and obtain performance evaluations. On the one hand, it expands the capability of existing embodied intelligence to higher levels. On the other hand, it has a higher practical value in the real world and can support more potential applications for artificial general intelligence. Based on this platform, we evaluate some popular large language models for embodied intelligence capabilities of different dimensions and difficulties.",
+          "claimed_authors": [
+            "Chen Gao",
+            "Baining Zhao",
+            "Weichen Zhang",
+            "Jinzhu Mao",
+            "Jun Zhang",
+            "Zhiheng Zheng",
+            "Fanhang Man",
+            "Jianjie Fang",
+            "Zile Zhou",
+            "Jinqiang Cui",
+            "Xinlei Chen",
+            "Yong Li"
+          ],
+          "claimed_title": "EmbodiedCity: A Benchmark Platform for Embodied Agent in Real-world City Environment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.09604"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='EmbodiedCity: A Benchmark Platform for Embodied Agent in Real-world City Environment')",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
+          "claimed_authors": [
+            "Jake Bruce",
+            "Niko Suenderhauf",
+            "Piotr Mirowski",
+            "Raia Hadsell",
+            "Michael Milford"
+          ],
+          "claimed_title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1711.10137"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay')",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Complex manipulation tasks, such as rearrangement planning of numerous objects, are combinatorially hard problems. Existing algorithms either do not scale well or assume a great deal of prior knowledge about the environment, and few offer any rigorous guarantees. In this paper, we propose a novel hybrid control architecture for achieving such tasks with mobile manipulators. On the discrete side, we enrich a temporal logic specification with mobile manipulation primitives such as moving to a point, and grasping or moving an object. Such specifications are translated to an automaton representation, which orchestrates the physical grounding of the task to mobility or manipulation controllers. The grounding from the discrete to the continuous reactive controller is online and can respond to the discovery of unknown obstacles or decide to push out of the way movable objects that prohibit task accomplishment. Despite the problem complexity, we prove that, under specific conditions, our architecture enjoys provable completeness on the discrete side, provable termination on the continuous side, and avoids all obstacles in the environment. Simulations illustrate the efficiency of our architecture that can handle tasks of increased complexity while also responding to unknown obstacles or unanticipated adverse configurations.",
+          "claimed_authors": [
+            "Vasileios Vasilopoulos",
+            "Yiannis Kantaros",
+            "George J. Pappas",
+            "Daniel E. Koditschek"
+          ],
+          "claimed_title": "Technical Report: Reactive Planning for Mobile Manipulation Tasks in Unexplored Semantic Environments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.00642"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Technical Report: Reactive Planning for Mobile Manipulation Tasks in Unexplored Semantic Environments')",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "ROBEL is an open-source platform of cost-effective robots designed for reinforcement learning in the real world. ROBEL introduces two robots, each aimed to accelerate reinforcement learning research in different task domains: D'Claw is a three-fingered hand robot that facilitates learning dexterous manipulation tasks, and D'Kitty is a four-legged robot that facilitates learning agile legged locomotion tasks. These low-cost, modular robots are easy to maintain and are robust enough to sustain on-hardware reinforcement learning from scratch with over 14000 training hours registered on them to date. To leverage this platform, we propose an extensible set of continuous control benchmark tasks for each robot. These tasks feature dense and sparse task objectives, and additionally introduce score metrics as hardware-safety. We provide benchmark scores on an initial set of tasks using a variety of learning-based methods. Furthermore, we show that these results can be replicated across copies of the robots located in different institutions. Code, documentation, design files, detailed assembly instructions, final policies, baseline details, task videos, and all supplementary materials required to reproduce the results are available at www.roboticsbenchmarks.org.",
+          "claimed_authors": [
+            "Michael Ahn",
+            "Henry Zhu",
+            "Kristian Hartikainen",
+            "Hugo Ponte",
+            "Abhishek Gupta",
+            "Sergey Levine",
+            "Vikash Kumar"
+          ],
+          "claimed_title": "ROBEL: Robotics Benchmarks for Learning with Low-Cost Robots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.11639"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='ROBEL: Robotics Benchmarks for Learning with Low-Cost Robots')",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
+          "claimed_authors": [
+            "The VEXAG Exploration Strategy Study Analysis Workgroup"
+          ],
+          "claimed_title": "A New Strategy for the Exploration of Venus",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06830"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='A New Strategy for the Exploration of Venus')",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Intrinsic rewards have been increasingly used to mitigate the sparse reward problem in single-agent reinforcement learning. These intrinsic rewards encourage the agent to look for novel experiences, guiding the agent to explore the environment sufficiently despite the lack of extrinsic rewards. Curiosity-driven exploration is a simple yet efficient approach that quantifies this novelty as the prediction error of the agent's curiosity module, an internal neural network that is trained to predict the agent's next state given its current state and action. We show here, however, that naively using this curiosity-driven approach to guide exploration in sparse reward cooperative multi-agent environments does not consistently lead to improved results. Straightforward multi-agent extensions of curiosity-driven exploration take into consideration either individual or collective novelty only and thus, they do not provide a distinct but collaborative intrinsic reward signal that is essential for learning in cooperative multi-agent tasks. In this work, we propose a curiosity-driven multi-agent exploration method that has the mixed objective of motivating the agents to explore the environment in ways that are individually and collectively novel. First, we develop a two-headed curiosity module that is trained to predict the corresponding agent's next observation in the first head and the next joint observation in the second head. Second, we design the intrinsic reward formula to be the sum of the individual and joint prediction errors of this curiosity module. We empirically show that the combination of our curiosity module architecture and intrinsic reward formulation guides multi-agent exploration more efficiently than baseline approaches, thereby providing the best performance boost to MARL algorithms in cooperative navigation environments with sparse rewards.",
+          "claimed_authors": [
+            "Roben Delos Reyes",
+            "Kyunghwan Son",
+            "Jinhwan Jung",
+            "Wan Ju Kang",
+            "Yung Yi"
+          ],
+          "claimed_title": "Curiosity-Driven Multi-Agent Exploration with Mixed Objectives",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.16468"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Curiosity-Driven Multi-Agent Exploration with Mixed Objectives')",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "What are the functions of curiosity? What are the mechanisms of curiosity-driven learning? We approach these questions about the living using concepts and tools from machine learning and developmental robotics. We argue that curiosity-driven learning enables organisms to make discoveries to solve complex problems with rare or deceptive rewards. By fostering exploration and discovery of a diversity of behavioural skills, and ignoring these rewards, curiosity can be efficient to bootstrap learning when there is no information, or deceptive information, about local improvement towards these problems. We also explain the key role of curiosity for efficient learning of world models. We review both normative and heuristic computational frameworks used to understand the mechanisms of curiosity in humans, conceptualizing the child as a sense-making organism. These frameworks enable us to discuss the bi-directional causal links between curiosity and learning, and to provide new hypotheses about the fundamental role of curiosity in self-organizing developmental structures through curriculum learning. We present various developmental robotics experiments that study these mechanisms in action, both supporting these hypotheses to understand better curiosity in humans and opening new research avenues in machine learning and artificial intelligence. Finally, we discuss challenges for the design of experimental paradigms for studying curiosity in psychology and cognitive neuroscience.\n  Keywords: Curiosity, intrinsic motivation, lifelong learning, predictions, world model, rewards, free-energy principle, learning progress, machine learning, AI, developmental robotics, development, curriculum learning, self-organization.",
+          "claimed_authors": [
+            "Pierre-Yves Oudeyer"
+          ],
+          "claimed_title": "Computational Theories of Curiosity-Driven Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.10546"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Computational Theories of Curiosity-Driven Learning')",
+        "failed_at": "2026-09-25T12:51:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-09-25T12:51:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -209,237 +395,26 @@
           "primary_pointer": "2607.18488"
         },
         "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='The Open Ant: A Robot Platform for Reinforcement Learning Research')",
-        "failed_at": "2026-08-13T07:04:20Z",
+        "failed_at": "2026-09-25T12:51:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_abstract": "The Pommerman simulation was recently developed to mimic the classic Japanese game Bomberman, and focuses on competitive gameplay in a multi-agent setting. We focus on the 2$\\times$2 team version of Pommerman, developed for a competition at NeurIPS 2018. Our methodology involves training an agent initially through imitation learning on a noisy expert policy, followed by a proximal-policy optimization (PPO) reinforcement learning algorithm. The basic PPO approach is modified for stable transition from the imitation learning phase through reward shaping, action filters based on heuristics, and curriculum learning. The proposed methodology is able to beat heuristic and pure reinforcement learning baselines with a combined 100,000 training games, significantly faster than other non-tree-search methods in literature. We present results against multiple agents provided by the developers of the simulation, including some that we have enhanced. We include a sensitivity analysis over different parameters, and highlight undesirable effects of some strategies that initially appear promising. Since Pommerman is a complex multi-agent competitive environment, the strategies developed here provide insights into several real-world problems with characteristics such as partial observability, decentralized execution (without communication), and very sparse and delayed rewards.",
           "claimed_authors": [
-            "Abdul Wahab",
-            "Raksha Kumaraswamy",
-            "Martha White"
+            "Hardik Meisheri",
+            "Omkar Shelke",
+            "Richa Verma",
+            "Harshad Khadilkar"
           ],
-          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_title": "Accelerating Training in Pommerman with Imitation and Reinforcement Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.12375"
+          "claimed_year": 2019,
+          "primary_pointer": "1911.04947"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
-          "claimed_authors": [
-            "Yang Liu",
-            "Weixing Chen",
-            "Yongjie Bai",
-            "Xiaodan Liang",
-            "Guanbin Li",
-            "Wen Gao",
-            "Liang Lin"
-          ],
-          "claimed_title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.06886"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Game creation challenges in schools potentially provide engaging, goal-oriented, and interactive experiences in classes; thereby supporting the transfer of knowledge for learning in a fun and pedagogic manner. A key element of the ongoing European project No One Left Behind (NOLB) is to integrate a game-making teaching framework (GMTF) into the educational app Pocket Code. Pocket Code allows learners to create programs in a visual Lego-style way to facilitate learning how to code at secondary high schools. The concept of the NOLB GMTF is based on principles of the Universal Design for Learning (UDL) model. This framework provides a coherent approach to learning and teaching by integrating leisure oriented gaming methods into multi-discipline curricula. One output of this framework is the integration of game-based methods via game templates that refer to didactical scenarios that include a refined set of genres, assets, rules, challenges, and strategies. These templates allows: 1) teachers to start with a well-structured program, and 2) pupils to add content and adjust the code to integrate their own ideas. During the project game genres such as adventure, action, and quiz, as well as rewards or victory point mechanisms, have been embedded into different subjects, e.g., science, mathematics, and arts. The insights gained during the class hours were used to generate 13 game templates, which are integrated in Create@School (a new version of the Pocket Code app which targets schools). To test the efficiency of these templates, user experience (UX) tests were conducted during classes to compare games created by pupils who used templates and those who started to create a game from scratch. Preliminary results showed that these templates allow learners to focus on subject-relevant problem solving activities rather than on understanding the functionality of the app.",
-          "claimed_authors": [
-            "Bernadette Spieler",
-            "Christian Schindler",
-            "Wolfgang Slany",
-            "Olena Mashkina",
-            "Maria Eugenia Beltran",
-            "Helen Boulton",
-            "David Brown"
-          ],
-          "claimed_title": "Evaluation of Game Templates to support Programming Activities in Schools",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1805.04517"
-        },
-        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Evaluation of Game Templates to support Programming Activities in Schools')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Omnidirectional vision, using 360-degree vision to understand the environment, has become increasingly critical across domains like robotics, industrial inspection, and environmental monitoring. Compared to traditional pinhole vision, omnidirectional vision provides holistic environmental awareness, significantly enhancing the completeness of scene perception and the reliability of decision-making. However, foundational research in this area has historically lagged behind traditional pinhole vision. This talk presents an emerging trend in the embodied AI era: the rapid development of omnidirectional vision, driven by growing industrial demand and academic interest. We highlight recent breakthroughs in omnidirectional generation, omnidirectional perception, omnidirectional understanding, and related datasets. Drawing on insights from both academia and industry, we propose an ideal panoramic system architecture in the embodied AI era, PANORAMA, which consists of four key subsystems. Moreover, we offer in-depth opinions related to emerging trends and cross-community impacts at the intersection of panoramic vision and embodied AI, along with the future roadmap and open challenges. This overview synthesizes state-of-the-art advancements and outlines challenges and opportunities for future research in building robust, general-purpose omnidirectional AI systems in the embodied AI era.",
-          "claimed_authors": [
-            "Xu Zheng",
-            "Chenfei Liao",
-            "Ziqiao Weng",
-            "Kaiyu Lei",
-            "Zihao Dongfang",
-            "Haocong He",
-            "Yuanhuiyi Lyu",
-            "Lutao Jiang",
-            "Lu Qi",
-            "Li Chen",
-            "Danda Pani Paudel",
-            "Kailun Yang",
-            "Linfeng Zhang",
-            "Luc Van Gool",
-            "Xuming Hu"
-          ],
-          "claimed_title": "PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2509.12989"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The 2023-2032 Planetary Science and Astrobiology Decadal Survey Origins, Worlds, and Life recommended that \"NASA develop scientific exploration strategies, as it has for Mars, in areas of broad scientific importance, e.g., Venus... that have an increasing number of U.S. missions and international collaboration opportunities\" (OWL, p.22-10). In NASA's initial responses to that Decadal Survey, the agency asserted that \"...specific scientific exploration strategies should be community generated by bodies such as the Analysis Groups,\" thus placing the onus on the planetary community to generate and support these exploration strategies. In late 2022, the Venus Exploration Analysis Group began a project to develop a new exploration strategy for Venus, reflecting the 2021 selections of the VERITAS, DAVINCI, and EnVision missions and the sweeping comparative planetology recommendations relevant to Venus in Origins, Worlds, and Life.\n  This is that strategy.\n  Taking a broad look at the scientific, technological, and programmatic advances required to address the key outstanding questions that Venus poses, and predicated on VERITAS, DAVINCI, and EnVision flying as planned in the early 2030s, this report outlines a set of actions available to NASA, VEXAG, and the planetary science community at large to establish a sustained program of Venus exploration in the years and decades ahead. Key to this approach is recognizing Venus as a unique setting where multiple, cross-disciplinary, Decadal-level planetary, Earth, heliophysics, and exoplanet science questions can be addressed, as well as being a worthy target of exploration in its own right.\n  This report offers Assessments of the current state of Venus exploration, and Actions for the U.S. and international Venus community, as well as NASA, to consider. This strategy is a living document and should be updated as warranted.",
-          "claimed_authors": [
-            "The VEXAG Exploration Strategy Study Analysis Workgroup"
-          ],
-          "claimed_title": "A New Strategy for the Exploration of Venus",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2412.06830"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='A New Strategy for the Exploration of Venus')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We present Xiaomi-Robotics-1, a foundational vision-language-action (VLA) model capable of (1) following diverse language instructions to perform a wide range of mobile manipulation tasks in unseen environments out-of-the-box, and (2) efficiently adapting to novel downstream tasks with minimal fine-tuning data. We propose a two-stage training recipe consisting of pre-training and post-training. During pre-training, we imbue the model with broad and generalizable action-generation capabilities by training on over 100k hours of real-world manipulation trajectories collected via UMI devices. Crucially, we develop a scalable auto-labeling pipeline that annotates trajectory clips with natural languages describing scene state transitions, providing rich and precise conditioning for action learning. During post-training, we aim to align these capabilities with robot embodiments and imperative instructions that humans naturally use to prompt robots. Extensive experiments demonstrate strong scaling behavior. Xiaomi-Robotics-1 consistently improves with increased data scales and model sizes during pre-training. This scaling behavior directly transfers to post-training, where a stronger pre-training model yields better out-of-the-box real-robot performance in unseen environments. Furthermore, Xiaomi-Robotics-1 serves as a strong robot foundation policy that can be efficiently fine-tuned on complex, dexterous tasks with high data efficiency. Across multiple simulation benchmarks, Xiaomi-Robotics-1 outperforms state-of-the-art methods. Notably, it establishes a new state-of-the-art with a 57.4% success rate on RoboCasa365, surpassing the previous best of 46.6%. Furthermore, it achieves an average score of 20.07 on RoboDojo, significantly outperforming the prior state-of-the-art (13.07). Code and model checkpoints will be released. Project page: https://robotics.xiaomi.com/xiaomi-robotics-1.html",
-          "claimed_authors": [
-            " Xiaomi Robotics Team",
-            "Jun Guo",
-            "Piaopiao Jin",
-            "Jason Li",
-            "Peiyan Li",
-            "Yingyan Li",
-            "Futeng Liu",
-            "Wanli Peng",
-            "Optimus Qin",
-            "Yifei Su",
-            "Nan Sun",
-            "Qiao Sun",
-            "Runze Suo",
-            "Heyun Wang",
-            "Yunhong Wang",
-            "Rujie Wu",
-            "Caoyu Xia",
-            "Lina Zhang",
-            "Jack Zhao",
-            "Guoliang Chen",
-            "Wenlong Chen",
-            "Xinze He",
-            "Bin Li",
-            "Qing Li",
-            "Zhuorong Li",
-            "Heng Qu",
-            "Wenxuan Song",
-            "Diyun Xiang",
-            "Yifan Xie",
-            "Peiran Xu",
-            "Hangjun Ye",
-            "Wen Ye",
-            "Han Zhao",
-            "Quanyun Zhou"
-          ],
-          "claimed_title": "Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2607.15330"
-        },
-        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "What are the functions of curiosity? What are the mechanisms of curiosity-driven learning? We approach these questions about the living using concepts and tools from machine learning and developmental robotics. We argue that curiosity-driven learning enables organisms to make discoveries to solve complex problems with rare or deceptive rewards. By fostering exploration and discovery of a diversity of behavioural skills, and ignoring these rewards, curiosity can be efficient to bootstrap learning when there is no information, or deceptive information, about local improvement towards these problems. We also explain the key role of curiosity for efficient learning of world models. We review both normative and heuristic computational frameworks used to understand the mechanisms of curiosity in humans, conceptualizing the child as a sense-making organism. These frameworks enable us to discuss the bi-directional causal links between curiosity and learning, and to provide new hypotheses about the fundamental role of curiosity in self-organizing developmental structures through curriculum learning. We present various developmental robotics experiments that study these mechanisms in action, both supporting these hypotheses to understand better curiosity in humans and opening new research avenues in machine learning and artificial intelligence. Finally, we discuss challenges for the design of experimental paradigms for studying curiosity in psychology and cognitive neuroscience.\n  Keywords: Curiosity, intrinsic motivation, lifelong learning, predictions, world model, rewards, free-energy principle, learning progress, machine learning, AI, developmental robotics, development, curriculum learning, self-organization.",
-          "claimed_authors": [
-            "Pierre-Yves Oudeyer"
-          ],
-          "claimed_title": "Computational Theories of Curiosity-Driven Learning",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1802.10546"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Computational Theories of Curiosity-Driven Learning')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Purpose - The purpose of this paper is to present a CAD-based human-robot interface that allows non-expert users to teach a robot in a manner similar to that used by human beings to teach each other.\n  Design/methodology/approach - Intuitive robot programming is achieved by using CAD drawings to generate robot programs off-line. Sensory feedback allows minimization of the effects of uncertainty, providing information to adjust the robot paths during robot operation.\n  Findings - It was found that it is possible to generate a robot program from a common CAD drawing and run it without any major concerns about calibration or CAD model accuracy.\n  Research limitations/implications - A limitation of the proposed system has to do with the fact that it was designed to be used for particular technological applications.\n  Practical implications - Since most manufacturing companies have CAD packages in their facilities today, CAD-based robot programming may be a good option to program robots without the need for skilled robot programmers.\n  Originality/value - The paper proposes a new CAD-based robot programming system. Robot programs are directly generated from a CAD drawing running on a commonly available 3D CAD package (Autodesk Inventor) and not from a commercial, computer aided robotics (CAR) software, making it a simple CAD integrated solution. This is a low-cost and low-setup time system where no advanced robot programming skills are required to operate it. In summary, robot programs are generated with a high-level of abstraction from the robot language.",
-          "claimed_authors": [
-            "Pedro Neto",
-            "Nuno Mendes",
-            "Ricardo Araújo",
-            "J. Norberto Pires",
-            "A. Paulo Moreira"
-          ],
-          "claimed_title": "High-level robot programming based on CAD: dealing with unpredictable environments",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1309.2086"
-        },
-        "details": "query-relevance 0.222 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='High-level robot programming based on CAD: dealing with unpredictable environments')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Explainability is highly-desired in Machine Learning (ML) systems supporting high-stakes policy decisions in areas such as health, criminal justice, education, and employment. While the field of explainable ML has expanded in recent years, much of this work has not taken real-world needs into account. A majority of proposed methods are designed with \\textit{generic} explainability goals without well-defined use-cases or intended end-users and evaluated on simplified tasks, benchmark problems/datasets, or with proxy users (e.g., AMT). We argue that these simplified evaluation settings do not capture the nuances and complexities of real-world applications. As a result, the applicability and effectiveness of this large body of theoretical and methodological work in real-world applications are unclear. In this work, we take steps toward addressing this gap for the domain of public policy. First, we identify the primary use-cases of explainable ML within public policy problems. For each use case, we define the end-users of explanations and the specific goals the explanations have to fulfill. Finally, we map existing work in explainable ML to these use-cases, identify gaps in established capabilities, and propose research directions to fill those gaps to have a practical societal impact through ML. The contribution is 1) a methodology for explainable ML researchers to identify use cases and develop methods targeted at them and 2) using that methodology for the domain of public policy and giving an example for the researchers on developing explainable ML methods that result in real-world impact.",
-          "claimed_authors": [
-            "Kasun Amarasinghe",
-            "Kit Rodolfa",
-            "Hemank Lamba",
-            "Rayid Ghani"
-          ],
-          "claimed_title": "Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2010.14374"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Explainable Machine Learning for Public Policy: Use Cases, Gaps, and Research Directions')",
-        "failed_at": "2026-08-13T07:04:20Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In a rapidly evolving digital landscape autonomous tools and robots are becoming commonplace. Recognizing the significance of this development, this paper explores the integration of Large Language Models (LLMs) like Generative pre-trained transformer (GPT) into human-robot teaming environments to facilitate variable autonomy through the means of verbal human-robot communication. In this paper, we introduce a novel framework for such a GPT-powered multi-robot testbed environment, based on a Unity Virtual Reality (VR) setting. This system allows users to interact with robot agents through natural language, each powered by individual GPT cores. By means of OpenAI's function calling, we bridge the gap between unstructured natural language input and structure robot actions. A user study with 12 participants explores the effectiveness of GPT-4 and, more importantly, user strategies when being given the opportunity to converse in natural language within a multi-robot environment. Our findings suggest that users may have preconceived expectations on how to converse with robots and seldom try to explore the actual language and cognitive capabilities of their robot collaborators. Still, those users who did explore where able to benefit from a much more natural flow of communication and human-like back-and-forth. We provide a set of lessons learned for future research and technical implementations of similar systems.",
-          "claimed_authors": [
-            "Younes Lakhnati",
-            "Max Pascher",
-            "Jens Gerken"
-          ],
-          "claimed_title": "Exploring Large Language Models to Facilitate Variable Autonomy for Human-Robot Teaming",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.07214"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Exploring Large Language Models to Facilitate Variable Autonomy for Human-Robot Teaming')",
-        "failed_at": "2026-08-13T07:04:20Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Accelerating Training in Pommerman with Imitation and Reinforcement Learning')",
+        "failed_at": "2026-09-25T12:51:41Z",
         "reason": "query_irrelevant"
       },
       {
@@ -472,41 +447,49 @@
           "primary_pointer": "2107.12808"
         },
         "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Open-Ended Learning Leads to Generally Capable Agents')",
-        "failed_at": "2026-08-13T07:04:20Z",
+        "failed_at": "2026-09-25T12:51:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We introduce a generic, compositional and interpretable class of generative world models that supports open-ended learning agents. This is a sparse class of Bayesian networks capable of approximating a broad range of stochastic processes, which provide agents with the ability to learn world models in a manner that may be both interpretable and computationally scalable. This approach integrating Bayesian structure learning and intrinsically motivated (model-based) planning enables agents to actively develop and refine their world models, which may lead to developmental learning and more robust, adaptive behavior.",
+          "claimed_abstract": "Recent works have proven that intricate cooperative behaviors can emerge in agents trained using meta reinforcement learning on open ended task distributions using self-play. While the results are impressive, we argue that self-play and other centralized training techniques do not accurately reflect how general collective exploration strategies emerge in the natural world: through decentralized training and over an open-ended distribution of tasks. In this work we therefore investigate the emergence of collective exploration strategies, where several agents meta-learn independent recurrent policies on an open ended distribution of tasks. To this end we introduce a novel environment with an open ended procedurally generated task space which dynamically combines multiple subtasks sampled from five diverse task types to form a vast distribution of task trees. We show that decentralized agents trained in our environment exhibit strong generalization abilities when confronted with novel objects at test time. Additionally, despite never being forced to cooperate during training the agents learn collective exploration strategies which allow them to solve novel tasks never encountered during training. We further find that the agents learned collective exploration strategies extend to an open ended task setting, allowing them to solve task trees of twice the depth compared to the ones seen during training. Our open source code as well as videos of the agents can be found on our companion website.",
           "claimed_authors": [
-            "Lancelot Da Costa"
+            "Richard Bornemann",
+            "Gautier Hamon",
+            "Eleni Nisioti",
+            "Clément Moulin-Frier"
           ],
-          "claimed_title": "Toward Universal and Interpretable World Models for Open-ended Learning Agents",
+          "claimed_title": "Emergence of Collective Open-Ended Exploration from Decentralized Meta-Reinforcement Learning",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2409.18676"
+          "claimed_year": 2023,
+          "primary_pointer": "2311.00651"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Toward Universal and Interpretable World Models for Open-ended Learning Agents')",
-        "failed_at": "2026-08-13T07:04:20Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Emergence of Collective Open-Ended Exploration from Decentralized Meta-Reinforcement Learning')",
+        "failed_at": "2026-09-25T12:51:41Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Quantum machine learning (QML) requires significant quantum resources to address practical real-world problems. When the underlying quantum information exhibits hierarchical structures in the data, limitations persist in training complexity and generalization. Research should prioritize both the efficient design of quantum architectures and the development of learning strategies to optimize resource usage. We propose a framework called quantum curriculum learning (Q-CurL) for quantum data, where the curriculum introduces simpler tasks or data to the learning model before progressing to more challenging ones. Q-CurL exhibits robustness to noise and data limitations, which is particularly relevant for current and near-term noisy intermediate-scale quantum devices. We achieve this through a curriculum design based on quantum data density ratios and a dynamic learning schedule that prioritizes the most informative quantum data. Empirical evidence shows that Q-CurL significantly enhances training convergence and generalization for unitary learning and improves the robustness of quantum phase recognition tasks. Q-CurL is effective with physical learning applications in physics and quantum chemistry.",
+          "claimed_abstract": "Measuring and promoting policy diversity is critical for solving games with strong non-transitive dynamics where strategic cycles exist, and there is no consistent winner (e.g., Rock-Paper-Scissors). With that in mind, maintaining a pool of diverse policies via open-ended learning is an attractive solution, which can generate auto-curricula to avoid being exploited. However, in conventional open-ended learning algorithms, there are no widely accepted definitions for diversity, making it hard to construct and evaluate the diverse policies. In this work, we summarize previous concepts of diversity and work towards offering a unified measure of diversity in multi-agent open-ended learning to include all elements in Markov games, based on both Behavioral Diversity (BD) and Response Diversity (RD). At the trajectory distribution level, we re-define BD in the state-action space as the discrepancies of occupancy measures. For the reward dynamics, we propose RD to characterize diversity through the responses of policies when encountering different opponents. We also show that many current diversity measures fall in one of the categories of BD or RD but not both. With this unified diversity measure, we design the corresponding diversity-promoting objective and population effectivity when seeking the best responses in open-ended learning. We validate our methods in both relatively simple games like matrix game, non-transitive mixture model, and the complex \\textit{Google Research Football} environment. The population found by our methods reveals the lowest exploitability, highest population effectivity in matrix game and non-transitive mixture model, as well as the largest goal difference when interacting with opponents of various levels in \\textit{Google Research Football}.",
           "claimed_authors": [
-            "Quoc Hoan Tran",
-            "Yasuhiro Endo",
-            "Hirotaka Oshima"
+            "Xiangyu Liu",
+            "Hangtian Jia",
+            "Ying Wen",
+            "Yaodong Yang",
+            "Yujing Hu",
+            "Yingfeng Chen",
+            "Changjie Fan",
+            "Zhipeng Hu"
           ],
-          "claimed_title": "Quantum Curriculum Learning",
+          "claimed_title": "Unifying Behavioral and Response Diversity for Open-ended Learning in Zero-sum Games",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.02419"
+          "claimed_year": 2021,
+          "primary_pointer": "2106.04958"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Quantum Curriculum Learning')",
-        "failed_at": "2026-08-13T07:04:20Z",
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Playful Agentic Robot Learning\" computer science', candidate_title='Unifying Behavioral and Response Diversity for Open-ended Learning in Zero-sum Games')",
+        "failed_at": "2026-09-25T12:51:41Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -546,34 +529,90 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2606.19419",
           "http_status": 200,
-          "pdf_sample_score": 0.3034,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.4444,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-13T07:04:20Z"
+          "verified_at": "2026-09-25T12:51:40Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Jake Bruce",
-            "Niko Suenderhauf",
-            "Piotr Mirowski",
-            "Raia Hadsell",
-            "Michael Milford"
+            " Xiaomi Robotics Team",
+            "Jun Guo",
+            "Piaopiao Jin",
+            "Jason Li",
+            "Peiyan Li",
+            "Yingyan Li",
+            "Futeng Liu",
+            "Wanli Peng",
+            "Optimus Qin",
+            "Yifei Su",
+            "Nan Sun",
+            "Qiao Sun",
+            "Runze Suo",
+            "Heyun Wang",
+            "Yunhong Wang",
+            "Rujie Wu",
+            "Caoyu Xia",
+            "Lina Zhang",
+            "Jack Zhao",
+            "Guoliang Chen",
+            "Wenlong Chen",
+            "Xinze He",
+            "Bin Li",
+            "Qing Li",
+            "Zhuorong Li",
+            "Heng Qu",
+            "Wenxuan Song",
+            "Diyun Xiang",
+            "Yifan Xie",
+            "Peiran Xu",
+            "Hangjun Ye",
+            "Wen Ye",
+            "Han Zhao",
+            "Quanyun Zhou"
           ],
-          "title": "One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay",
+          "title": "Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories",
           "venue": "arXiv",
-          "year": 2017
+          "year": 2026
         },
-        "primary_pointer": "1711.10137",
-        "summary": "Recently, model-free reinforcement learning algorithms have been shown to solve challenging problems by learning from extensive interaction with the environment. A significant issue with transferring this success to the robotics domain is that interaction with the real world is costly, but training on limited experience is prone to overfitting. We present a method for learning to navigate, to a fixed goal and in a known environment, on a mobile robot. The robot leverages an interactive world model built from a single traversal of the environment, a pre-trained visual feature encoder, and stochastic environmental augmentation, to demonstrate successful zero-shot transfer under real-world environmental variations without fine-tuning.",
+        "primary_pointer": "2607.15330",
+        "summary": "We present Xiaomi-Robotics-1, a foundational vision-language-action (VLA) model capable of (1) following diverse language instructions to perform a wide range of mobile manipulation tasks in unseen environments out-of-the-box, and (2) efficiently adapting to novel downstream tasks with minimal fine-tuning data. We propose a two-stage training recipe consisting of pre-training and post-training. During pre-training, we imbue the model with broad and generalizable action-generation capabilities by training on over 100k hours of real-world manipulation trajectories collected via UMI devices. Crucially, we develop a scalable auto-labeling pipeline that annotates trajectory clips with natural languages describing scene state transitions, providing rich and precise conditioning for action learning. During post-training, we aim to align these capabilities with robot embodiments and imperative instructions that humans naturally use to prompt robots. Extensive experiments demonstrate strong scaling behavior. Xiaomi-Robotics-1 consistently improves with increased data scales and model sizes during pre-training. This scaling behavior directly transfers to post-training, where a stronger pre-training model yields better out-of-the-box real-robot performance in unseen environments. Furthermore, Xiaomi-Robotics-1 serves as a strong robot foundation policy that can be efficiently fine-tuned on complex, dexterous tasks with high data efficiency. Across multiple simulation benchmarks, Xiaomi-Robotics-1 outperforms state-of-the-art methods. Notably, it establishes a new state-of-the-art with a 57.4% success rate on RoboCasa365, surpassing the previous best of 46.6%. Furthermore, it achieves an average score of 20.07 on RoboDojo, significantly outperforming the prior state-of-the-art (13.07). Code and model checkpoints will be released. Project page: https://robotics.xiaomi.com/xiaomi-robotics-1.html",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1711.10137",
+          "final_url": "https://arxiv.org/abs/2607.15330",
+          "http_status": 200,
+          "pdf_sample_score": 0.4109,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-25T12:51:46Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matin Macktoobian",
+            "Zhan Shu",
+            "Qing Zhao"
+          ],
+          "title": "Learning Optimal Topology for Ad-hoc Robot Networks",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12900",
+        "summary": "In this paper, we synthesize a data-driven method to predict the optimal topology of an ad-hoc robot network. This problem is technically a multi-task classification problem. However, we divide it into a class of multi-class classification problems that can be more efficiently solved. For this purpose, we first compose an algorithm to create ground-truth optimal topologies associated with various configurations of a robot network. This algorithm incorporates a complex collection of optimality criteria that our learning model successfully manages to learn. This model is an stacked ensemble whose output is the topology prediction for a particular robot. Each stacked ensemble instance constitutes three low-level estimators whose outputs will be aggregated by a high-level boosting blender. Applying our model to a network of 10 robots displays over 80% accuracy in the prediction of optimal topologies corresponding to various configurations of the cited network.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12900",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.3333,
@@ -581,35 +620,60 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-13T07:04:33Z"
+          "verified_at": "2026-09-25T12:51:46Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Stina Sundstedt",
-            "Mattias Wingren",
-            "Susanne Hägglund",
-            "Daniel Ventus"
+            "Alejandro Murillo-Gonzalez",
+            "Lantao Liu"
           ],
-          "title": "Leveraging Large Language Models for Robot-Assisted Learning of Morphological Structures in Preschool Children with Language Vulnerabilities",
+          "title": "Action Flow Matching for Continual Robot Learning",
           "venue": "arXiv",
           "year": 2025
         },
-        "primary_pointer": "2509.22287",
-        "summary": "Preschool children with language vulnerabilities -- such as developmental language disorders or immigration related language challenges -- often require support to strengthen their expressive language skills. Based on the principle of implicit learning, speech-language therapists (SLTs) typically embed target morphological structures (e.g., third person -s) into everyday interactions or game-based learning activities. Educators are recommended by SLTs to do the same. This approach demands precise linguistic knowledge and real-time production of various morphological forms (e.g., \"Daddy wears these when he drives to work\"). The task becomes even more demanding when educators or parent also must keep children engaged and manage turn-taking in a game-based activity. In the TalBot project our multiprofessional team have developed an application in which the Furhat conversational robot plays the word retrieval game \"Alias\" with children to improve language skills. Our application currently employs a large language model (LLM) to manage gameplay, dialogue, affective responses, and turn-taking. Our next step is to further leverage the capacity of LLMs so the robot can generate and deliver specific morphological targets during the game. We hypothesize that a robot could outperform humans at this task. Novel aspects of this approach are that the robot could ultimately serve as a model and tutor for both children and professionals and that using LLM capabilities in this context would support basic communication needs for children with language vulnerabilities. Our long-term goal is to create a robust LLM-based Robot-Assisted Language Learning intervention capable of teaching a variety of morphological structures across different languages.",
+        "primary_pointer": "2504.18471",
+        "summary": "Continual learning in robotics seeks systems that can constantly adapt to changing environments and tasks, mirroring human adaptability. A key challenge is refining dynamics models, essential for planning and control, while addressing issues such as safe adaptation, catastrophic forgetting, outlier management, data efficiency, and balancing exploration with exploitation -- all within task and onboard resource constraints. Towards this goal, we introduce a generative framework leveraging flow matching for online robot dynamics model alignment. Rather than executing actions based on a misaligned model, our approach refines planned actions to better match with those the robot would take if its model was well aligned. We find that by transforming the actions themselves rather than exploring with a misaligned model -- as is traditionally done -- the robot collects informative data more efficiently, thereby accelerating learning. Moreover, we validate that the method can handle an evolving and possibly imperfect model while reducing, if desired, the dependency on replay buffers or legacy model snapshots. We validate our approach using two platforms: an unmanned ground vehicle and a quadrotor. The results highlight the method's adaptability and efficiency, with a record 34.2\\% higher task success rate, demonstrating its potential towards enabling continual robot learning. Code: https://github.com/AlejandroMllo/action_flow_matching.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2509.22287",
+          "final_url": "https://arxiv.org/abs/2504.18471",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.8333,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-08-13T07:04:34Z"
+          "verified_at": "2026-09-25T12:51:47Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Issam Hammad",
+            "Kamal El-Sankary",
+            "Jason Gu"
+          ],
+          "title": "A Comparative Study on Machine Learning Algorithms for the Control of a Wall Following Robot",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1912.11856",
+        "summary": "A comparison of the performance of various machine learning models to predict the direction of a wall following robot is presented in this paper. The models were trained using an open-source dataset that contains 24 ultrasound sensors readings and the corresponding direction for each sample. This dataset was captured using SCITOS G5 mobile robot by placing the sensors on the robot waist. In addition to the full format with 24 sensors per record, the dataset has two simplified formats with 4 and 2 input sensor readings per record. Several control models were proposed previously for this dataset using all three dataset formats. In this paper, two primary research contributions are presented. First, presenting machine learning models with accuracies higher than all previously proposed models for this dataset using all three formats. A perfect solution for the 4 and 2 inputs sensors formats is presented using Decision Tree Classifier by achieving a mean accuracy of 100%. On the other hand, a mean accuracy of 99.82% was achieves using the 24 sensor inputs by employing the Gradient Boost Classifier. Second, presenting a comparative study on the performance of different machine learning and deep learning algorithms on this dataset. Therefore, providing an overall insight on the performance of these algorithms for similar sensor fusion problems. All the models in this paper were evaluated using Monte-Carlo cross-validation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1912.11856",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-25T12:51:47Z"
         }
       }
     ]

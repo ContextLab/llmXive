@@ -1,7 +1,10 @@
 """
-Data models for simulation boxes, bond networks, and vibrational spectra.
+llmXive research-implementer agent system prompt
+Project: PROJ-260-investigating-the-influence-of-network-s
+Package: src.models
 """
-from .simulation_box import SimulationBox
-from .bond_network import BondNetwork
+from src.models.simulation_box import SimulationBox
+from src.models.bond_network import BondNetwork
+from src.models.vibrational_spectrum import VibrationalSpectrum
 
-__all__ = ["SimulationBox", "BondNetwork"]
+__all__ = ["SimulationBox", "BondNetwork", "VibrationalSpectrum"]

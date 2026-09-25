@@ -1,3 +1,5 @@
 """
-Command-line interface entry points and argument parsing.
+llmXive research-implementer agent system prompt
+Project: PROJ-260-investigating-the-influence-of-network-s
+Package: src.cli
 """

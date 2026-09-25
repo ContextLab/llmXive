@@ -13,7 +13,7 @@ The researcher MUST be able to load the deterministic Olympiad datasets (IMO/IPh
 
 **Why this priority**: Without the ability to generate the raw data (model responses) on both datasets, no analysis can occur. This is the foundational data acquisition step that enables all subsequent evaluation.
 
-**Independent Test**: The system can be tested by executing the inference pipeline on a sample of prompts from each dataset and verifying that the output files (JSONL) contain valid text responses within the 6-hour CI time limit and 7GB RAM constraint.
+**Independent Test**: The system can be tested by executing the inference pipeline on a sample of prompts from each dataset and verifying that the output files (JSONL) contain valid text responses within the CI time limit and RAM constraint.
 
 **Acceptance Scenarios**:
 
@@ -97,7 +97,7 @@ The researcher MUST be able to compute the Point-Biserial correlation between Ol
 ## Assumptions
 
 - The "OpenSci-Reason" dataset can be constructed entirely from text-only sources (NSF/ERC abstracts, open physics challenges) without requiring proprietary data or complex formatting.
-- The pre-fine-tuned scoring model (e.g., `meta-llama/Meta-Llama-8B-Instruct` at INT4) can run within the 7GB RAM limit on the GitHub Actions free tier.
+- The pre-fine-tuned scoring model (e.g., `meta-llama/Meta-LlamaB-Instruct` at INT4) can run within the 7GB RAM limit on the GitHub Actions free tier.
 - The SU-01 model weights are available via HuggingFace or the original repository in a format compatible with `transformers` on CPU.
 - The "reverse-perplexity" curriculum is the primary differentiator between the SU-01 model and the baseline model, with no other significant architectural changes.
 - The proxy expert model, fine-tuned on diverse general scientific literature, is sufficiently calibrated to distinguish between "rigid" and "creative" responses without requiring domain-specific fine-tuning on Olympiad data.

@@ -47,7 +47,7 @@
 - [ ] T001b [P] Create `src/__init__.py`, `src/models/__init__.py`, `src/services/__init__.py`, `src/cli/__init__.py`, `src/lib/__init__.py`
 - [X] T001c [P] Create `tests/__init__.py`, `tests/unit/__init__.py`, `tests/integration/__init__.py`, `tests/contract/__init__.py`
 - [X] T002 Initialize Python project with `requirements.txt` (numpy, scipy, pandas, scikit-learn, ase, matplotlib, seaborn, networkx, pytest, pytest-cov, pytest-randomly)
-- [ ] T003a [P] Create `ruff.toml` with strict linting rules: select=["E", "F", "I", "W"], ignore=[], line-length=88
+- [X] T003a [P] Create `ruff.toml` with strict linting rules: select=["E", "F", "I", "W"], ignore=[], line-length=88
  - **Content**: Explicitly set `target-version = "py311"`, `preview = true`
 - [X] T003b [P] Create `pyproject.toml` [tool.black] section: line-length=88, target-version=['py311'], include='\.pyi?$'
 
@@ -125,7 +125,7 @@
  - Construct bond network based on cutoff.
  - Compute local metrics (coordination number, bond angle variance).
  - **Anomaly Flagging**: Implement mandatory flagging of any atom with coordination > 6 as a "Physical Anomaly" without halting the process.
- - Validate average coordination against reference value (4.00 ± 0.05) [UNRESOLVED-CLAIM: c_0a4bbbb1 — status=not_enough_info] and flag result.
+ - Validate average coordination against reference value (4.00 ± 0.05) [UNRESOLVED-CLAIM: c_1d057ae5 — status=not_enough_info] and flag result.
  - Output `data/derived/topology/` CSVs.
  - **TDD Note**: Can be developed using a local mock file before T056 succeeds.
 - [ ] T018 [US1] Add logging for topology extraction steps and RDF cutoff decisions (US-1 Edge Cases)
@@ -172,12 +172,12 @@
  - Document numerical tolerance thresholds in code comments and `data/derived/vdos/tolerance_report.txt` (Constitution Principle VI).
  - Output `data/derived/vdos/` CSVs.
 - [ ] T027 [US2] Implement `src/services/sensitivity_analyzer.py` (US-2)
- - Sweep under-coordination threshold (±0.5)
+ - Sweep under-coordination threshold (±0.5) [UNRESOLVED-CLAIM: c_866eaf85 — status=not_enough_info]
  - Calculate bottleneck density (coordination < 3)
  - Report coefficient of variation
  - Output sensitivity report
 - [ ] T028 [US2] Add validation for acoustic modes (non-zero low-freq) and high-freq peak (10.0–15.0 THz) in `src/services/vdos_calculator.py` (US-2 Acceptance 1)
- - **Thresholds**: {{claim:c_ae658279}} High-freq peak range: –15.0 THz (positive values) [UNRESOLVED-CLAIM: c_c0d5a1f5 — status=not_enough_info].
+ - **Thresholds**: {{claim:c_ae658279}} High-freq peak range: –15.0 THz (positive values).
  - **Action**: Log warning if acoustic modes are near zero or high-freq peak is missing.
 - [ ] T029 [US2] Create `tests/integration/test_full_vdos.py` to verify end-to-end VDOS calculation on a reference box
 - [ ] T030 [US2] Document numerical tolerance thresholds in code comments and `data/derived/vdos/tolerance_report.txt` (Constitution Principle VI)

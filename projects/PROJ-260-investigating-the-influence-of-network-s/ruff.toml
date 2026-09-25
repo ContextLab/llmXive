@@ -1,0 +1,25 @@
+# Ruff configuration for llmXive project
+# Strict linting rules as per task T003a
+
+select = ["E", "F", "I", "W"]
+ignore = []
+line-length = 88
+target-version = "py311"
+preview = true
+
+# Optional: Exclude common directories that don't need linting
+exclude = [
+    ".git",
+    ".tox",
+    ".eggs",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "node_modules",
+    "__pycache__",
+]
+
+# Optional: Per-file ignores if needed
+# [per-file-ignores]
+# "__init__.py" = ["F401"]
