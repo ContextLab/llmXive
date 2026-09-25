@@ -1,0 +1,23 @@
+status: verified
+kind: pypi_package
+ref: pytrends
+access_python: "import pandas as pd\nfrom pytrends.request import TrendReq\nfrom datetime\
+  \ import datetime, timedelta\n\n# Retrieve Google Trends search volume for the term\
+  \ \"anxiety\" over the last 7 days\npytrends = TrendReq()\nend = datetime.utcnow()\n\
+  start = end - timedelta(days=7)\ntimeframe = f\"{start.strftime('%Y-%m-%d')} {end.strftime('%Y-%m-%d')}\"\
+  \npytrends.build_payload(['anxiety'], timeframe=timeframe)\ndf = pytrends.interest_over_time()\n\
+  if df.empty:\n    raise ValueError('No Google Trends data returned')\n# Prepare\
+  \ output with required column names\ndf = df.reset_index()[['date', 'anxiety']].rename(columns={'anxiety':\
+  \ 'anxiety_search_volume'})\nprint(f'RECORDS={len(df)}')\nprint('FIELDS=date,anxiety_search_volume')"
+record_count: 8
+sample_fields:
+- date
+- anxiety_search_volume
+field_coverage: 1.0
+required_fields:
+- date
+- negative_news_volume
+- anxiety_search_volume
+intent: GDELT Event Database negative sentiment daily counts Google Trends anxiety
+  search python package dataset
+cache_key: e562da70d96e80cf20a11005eccc4abf87ff20a3079bb81ad1a3b5ebd1053806

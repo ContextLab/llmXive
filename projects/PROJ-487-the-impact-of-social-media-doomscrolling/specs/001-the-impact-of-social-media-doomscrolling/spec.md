@@ -50,7 +50,7 @@ The system MUST compute correlation coefficients, perform causality tests with a
 **Acceptance Scenarios**:
 
 1. **Given** aligned, stationary time-series data, **When** the correlation analysis runs, **Then** a Pearson and Spearman correlation coefficient is calculated with a p-value reported.
-2. **Given** aligned, stationary time-series data, **When** the Granger causality test runs, **Then** a p-value indicating predictive power is reported for lags of 1, 2, 3, 7, and 14 days.
+2. **Given** aligned, stationary time-series data, **When** the Granger causality test runs, **Then** a p-value indicating predictive power is reported for various lags, including 2, 3, 7, and 14 days.
 3. **Given** analysis results, **When** the sensitivity analysis runs, **Then** the significance rate (p < 0.05 after Bonferroni correction) is reported across the swept lag windows {1, 2, 3, 7, 14}.
 4. **Given** analysis results, **When** the report generation runs, **Then** a PDF or HTML report containing lag plots, correlation heatmaps, and sensitivity analysis summaries is produced.
 

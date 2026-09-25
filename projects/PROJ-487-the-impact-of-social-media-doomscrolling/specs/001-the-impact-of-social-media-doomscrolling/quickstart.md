@@ -3,65 +3,87 @@
 ## Prerequisites
 
 - Python 3.11+
-- pip (Python package manager)
-- Internet access (for API fetching)
+- `pip`
+- Access to GDELT API (no authentication required for basic queries) or AWS S3 (public bucket)
+- Access to Google Trends (via `pytrends`)
 
 ## Installation
 
-1. **Clone the repository**:
+1. Clone the repository and navigate to the project directory:
    ```bash
    git clone <repo-url>
-   cd projects/PROJ-487-the-impact-of-social-media-doomscrolling/code
+   cd projects/PROJ-487-the-impact-of-social-media-doomscrolling
    ```
 
-2. **Create a virtual environment**:
+2. Create a virtual environment and install dependencies:
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r code/requirements.txt
    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+## Data Fetching
 
-## Running the Pipeline
+Run the data fetching scripts to retrieve raw data:
 
-### Step 1: Fetch Data
 ```bash
-python data/fetch_gdelt.py --start-date 2020-01-01 --end-date 2023-12-31
-python data/fetch_google_trends.py --start-date 2020-01-01 --end-date 2023-12-31
+# For pilot validation (API)
+python code/data/fetch_gdelt.py --start 2020-01-01 --end 2020-01-31 --mode pilot
+# For full dataset (S3 Bulk)
+python code/data/fetch_gdelt.py --start 2020-01-01 --end 2023-12-31 --mode bulk
+python code/data/fetch_trends.py --start 2020-01-01 --end 2023-12-31
 ```
-- Outputs: `data/raw/gdelt_events.csv`, `data/raw/google_trends.csv`
 
-### Step 2: Preprocess Data
+This will generate:
+- `data/raw/gdelt_events.csv`
+- `data/raw/google_trends.csv`
+
+## Preprocessing
+
+Run the preprocessing script to align, check stationarity, and normalize data:
+
 ```bash
-python data/preprocess.py
+python code/data/alignment.py
 ```
-- Outputs: `data/processed/aligned_timeseries.csv`, `data/processed/stationarity_check.csv`
-- Note: This step performs forward fill, ADF testing, cointegration testing, and ECM/differencing.
 
-### Step 3: Run Analysis
+This will generate:
+- `data/processed/aligned_timeseries.csv`
+- `data/processed/stationarity_check.csv`
+
+## Analysis
+
+Run the analysis script to compute correlations, Granger causality, and sensitivity analysis:
+
 ```bash
-python data/analyze.py
+python code/analysis/granger.py
 ```
-- Outputs: `analysis_results.json`, `plots/` (correlation heatmap, lag plots)
-- Note: Uses AIC/BIC for lag selection and Joint F-tests.
 
-### Step 4: Generate Report
+This will generate:
+- `data/reports/analysis_results.json`
+- `data/reports/plots/` (directory with generated plots)
+
+## Reporting
+
+Generate the final report:
+
 ```bash
-python data/generate_report.py
+python code/main.py --generate-report
 ```
-- Outputs: `report.pdf` or `report.html`
 
-## Verification
+This will produce:
+- `data/reports/final_report.pdf` (or `.html`)
 
-- **Data Completeness**: Check `data/processed/aligned_timeseries.csv` for missing values (should be 0).
-- **Stationarity/Cointegration**: Verify `data/processed/stationarity_check.csv` shows appropriate status (stationary or cointegrated).
-- **Significance**: Check `analysis_results.json` for p-values < 0.05 in the Joint F-test.
+## Validation
+
+Run the test suite to ensure everything is working correctly:
+
+```bash
+pytest code/tests/ -v
+```
 
 ## Troubleshooting
 
-- **API Rate Limits**: If fetching fails, retry with exponential backoff (max 3 attempts).
-- **Non-Stationary Data**: If ADF test fails, the script will automatically check for cointegration and apply ECM or differencing.
-- **Insufficient Data**: If time series length < 20 days, the script exits with "Insufficient data for Granger causality."
+- **API Errors**: If GDELT API returns errors, the script will retry up to 3 times with exponential backoff. If it still fails, check your internet connection or the GDELT API status.
+- **Data Completeness**: If data completeness is < 95%, the pipeline will exit with an error. Check the raw data files for missing dates.
+- **Stationarity**: If the data is non-stationary, the pipeline will apply detrending and differencing until it is stationary. If it cannot be made stationary, check the data for anomalies.
+- **Keyword Volatility**: If the pilot correlation check fails (r < 0.7), the script will automatically switch to fallback keywords.

@@ -6,19 +6,23 @@ properties:
     type: "string"
     format: "date"
     description: "Aligned daily date"
-  news_sentiment_z:
+  news_impact_z:
     type: "number"
-    description: "Z-score normalized GDELT AVGTONE"
+    description: "Z-score normalized Negative News Impact Score (Volume * |Tone|)"
   anxiety_search_z:
     type: "number"
     description: "Z-score normalized Google Trends value"
   completeness_flag:
     type: "boolean"
     description: "True if no imputation was needed for this row"
+  variance_stable:
+    type: "boolean"
+    description: "True if ARCH-LM test indicates stable variance"
 required:
   - date
-  - news_sentiment_z
+  - news_impact_z
   - anxiety_search_z
   - completeness_flag
+  - variance_stable
 additionalProperties: false
 description: "Schema for the final aligned and normalized time-series dataset."
