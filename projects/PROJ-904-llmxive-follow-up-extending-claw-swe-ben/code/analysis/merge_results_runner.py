@@ -1,16 +1,17 @@
 """
-Wrapper script to ensure merge_results.py is executed as a standalone command
-and writes data/results.csv as required by T028.
-This file is invoked by the run-book if merge_results.py is not directly callable
-or to ensure the specific command structure required by the pipeline.
+Runner script to execute merge_results.py logic.
+This script aggregates all JSONL files (baseline, hf_run_1b, hf_run_7b)
+into a single data/results.csv (Single Source of Truth).
 """
 import sys
 from pathlib import Path
 
-# Add parent to path to allow imports
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Add project root to path to allow imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from analysis.merge_results import main
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,3 +1,8 @@
+"""
+Configuration management for llmXive project.
+Exports: StrategyType, FailureType, TaskInstance, ContextConfiguration, ExecutionResult, 
+         set_global_seeds, get_env_var, get_hf_token, get_model_path, get_data_dir, get_output_dir, get_log_level
+"""
 import os
 import random
 import numpy as np
@@ -5,89 +10,109 @@ import torch
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 from enum import Enum
+import logging
 
-# Constitution Principle I: Hardcoded seeds for reproducibility
-GLOBAL_SEED = 42
-torch.manual_seed(GLOBAL_SEED)
-np.random.seed(GLOBAL_SEED)
-random.seed(GLOBAL_SEED)
-if torch.cuda.is_available():
-    torch.cuda.manual_seed_all(GLOBAL_SEED)
+# --- Enums ---
+class StrategyType(Enum):
+    BASELINE = "baseline"
+    TF_IDF = "tfidf"
+    DIFF_AWARE = "diff_aware"
+    SEMANTIC_SUMMARY = "semantic_summarization"
 
-def set_global_seeds(seed: int = GLOBAL_SEED) -> None:
-    """Explicitly set all random seeds for reproducibility."""
+class FailureType(Enum):
+    MISSING_CONTEXT = "missing_context"
+    REASONING_ERROR = "reasoning_error"
+    TIMEOUT = "timeout"
+    OOM = "oom"
+    UNKNOWN = "unknown"
+
+# --- Dataclasses ---
+@dataclass
+class TaskInstance:
+    instance_id: str
+    description: str
+    repo_name: str
+    patch: str
+    status: str = "pending"
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+@dataclass
+class ContextConfiguration:
+    strategy: StrategyType
+    max_tokens: int = 2048
+    temperature: float = 0.0
+    top_p: float = 1.0
+    seed: int = 42
+
+@dataclass
+class ExecutionResult:
+    instance_id: str
+    strategy: str
+    model_size: str
+    pass_status: bool
+    duration_seconds: float
+    error_message: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+# --- Configuration Functions ---
+def set_global_seeds(seed: int = 42):
+    """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 def get_env_var(key: str, default: Optional[str] = None) -> str:
-    """Retrieve an environment variable, raising if missing and no default."""
-    val = os.getenv(key, default)
+    """Get an environment variable or raise an error if missing (unless default provided)."""
+    val = os.getenv(key)
     if val is None:
-        raise EnvironmentError(f"Required environment variable '{key}' is not set.")
+        if default is not None:
+            return default
+        raise ValueError(f"Environment variable {key} is not set.")
     return val
 
 def get_hf_token() -> str:
-    """Retrieve HuggingFace token from environment."""
+    """Get Hugging Face token from environment."""
     return get_env_var("HF_TOKEN")
 
 def get_model_path(model_name: str) -> str:
     """Get model path from environment or default."""
-    env_key = f"MODEL_PATH_{model_name.upper()}"
-    return get_env_var(env_key, f"models/{model_name}")
+    # Map model names to paths if needed
+    defaults = {
+        "1b": "meta-llama/Llama-3.2-1B-Instruct",
+        "7b": "meta-llama/Llama-3.1-8B-Instruct"
+    }
+    return os.getenv(f"MODEL_PATH_{model_name.upper()}", defaults.get(model_name, model_name))
 
-def get_data_dir() -> str:
-    """Get the project data directory."""
-    return get_env_var("DATA_DIR", "data")
+def get_data_dir() -> Path:
+    """Get the data directory path."""
+    from pathlib import Path
+    base = Path(os.getenv("DATA_DIR", "data"))
+    base.mkdir(parents=True, exist_ok=True)
+    return base
 
-def get_output_dir() -> str:
-    """Get the project output directory."""
-    return get_env_var("OUTPUT_DIR", "data/intermediate")
+def get_output_dir() -> Path:
+    """Get the output directory path."""
+    from pathlib import Path
+    base = Path(os.getenv("OUTPUT_DIR", "data"))
+    base.mkdir(parents=True, exist_ok=True)
+    return base
 
 def get_log_level() -> int:
     """Get log level from environment."""
-    level_str = get_env_var("LOG_LEVEL", "INFO").upper()
+    level_str = os.getenv("LOG_LEVEL", "INFO").upper()
     return getattr(logging, level_str, logging.INFO)
 
-class StrategyType(str, Enum):
-    BASELINE = "baseline"
-    TFIDF = "tfidf"
-    DIFF_AWARE = "diff_aware"
-    SEMANTIC = "semantic"
+# --- Imports for API Surface ---
+# Ensure these are available at module level for imports like:
+# from config import StrategyType, ...
+__all__ = [
+    'StrategyType', 'FailureType', 'TaskInstance', 'ContextConfiguration', 'ExecutionResult',
+    'set_global_seeds', 'get_env_var', 'get_hf_token', 'get_model_path', 
+    'get_data_dir', 'get_output_dir', 'get_log_level'
+]
 
-class FailureType(str, Enum):
-    MISSING_CONTEXT = "missing_context"
-    REASONING_ERROR = "reasoning_error"
-    TIMEOUT = "timeout"
-    MEMORY_ERROR = "memory_error"
-
-@dataclass
-class TaskInstance:
-    instance_id: str
-    problem_statement: str
-    repo: str
-    base_commit: str
-    patch: str
-    test_patch: str
-    file_paths: List[str] = field(default_factory=list)
-
-@dataclass
-class ContextConfiguration:
-    strategy: StrategyType
-    context_window: int
-    max_tokens: int
-    parameters: Dict[str, Any] = field(default_factory=dict)
-
-@dataclass
-class ExecutionResult:
-    instance_id: str
-    model_id: str
-    strategy: str
-    status: str
-    pass_: bool
-    output: str
-    duration: float
-    tokens_used: int
-    error: Optional[str] = None
+# Import Path at module level to avoid circular imports in type hints if necessary
+from pathlib import Path

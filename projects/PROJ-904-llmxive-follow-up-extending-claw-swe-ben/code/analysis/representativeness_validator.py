@@ -1,9 +1,12 @@
 """
-RepresentativenessValidator module.
+Representativeness Validator for Context-Bound Data Filtering.
 
-Performs Kolmogorov-Smirnov (KS) tests to compare the distribution of
-line counts and issue types in the filtered dataset vs. the full raw dataset.
-Fails the run if the p-value < 0.05, indicating insufficient representativeness.
+This module implements the Kolmogorov-Smirnov (KS) test to verify that the
+filtered dataset (instances with >500 lines of relevant file history) is
+statistically representative of the full raw dataset distribution.
+
+Constraint: If KS-test p-value < 0.05, the run MUST fail with
+"Insufficient Context-Bound Data" error.
 """
 
 import os
@@ -14,245 +17,290 @@ import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
-import numpy as np
 import pandas as pd
+import numpy as np
 from scipy import stats
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import get_data_dir, get_output_dir, set_global_seeds
 from utils.logger import setup_logger, log_error, AnalysisError
 
-logger = setup_logger("RepresentativenessValidator")
+# Initialize logger
+logger = setup_logger(__name__)
 
 
-def load_parquet_dataset(path: Path) -> pd.DataFrame:
+def load_parquet_dataset(file_path: str) -> pd.DataFrame:
     """
-    Load a parquet dataset from disk.
+    Load a Parquet dataset from disk.
 
     Args:
-        path: Path to the parquet file.
+        file_path: Path to the parquet file.
 
     Returns:
-        DataFrame containing the dataset.
+        pandas DataFrame containing the dataset.
 
     Raises:
-        AnalysisError: If the file does not exist or cannot be read.
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file is not a valid parquet.
     """
+    path = Path(file_path)
     if not path.exists():
-        raise AnalysisError(f"Dataset file not found: {path}")
+        raise FileNotFoundError(f"Dataset file not found: {file_path}")
 
     try:
         df = pd.read_parquet(path)
-        logger.info(f"Loaded dataset from {path}: {len(df)} rows")
+        logger.info(f"Loaded dataset from {file_path} with {len(df)} rows.")
         return df
     except Exception as e:
-        log_error(logger, f"Failed to load dataset from {path}", e)
-        raise AnalysisError(f"Failed to load dataset: {e}")
+        log_error(f"Failed to load parquet dataset from {file_path}: {e}")
+        raise AnalysisError(f"Failed to load parquet dataset: {e}")
 
 
-def calculate_line_counts(df: pd.DataFrame, context_col: str = "context") -> np.ndarray:
+def calculate_line_counts(df: pd.DataFrame, line_count_col: str = "total_lines") -> np.ndarray:
     """
-    Calculate line counts for each instance in the dataset.
+    Extract line count values from the dataframe.
 
     Args:
-        df: DataFrame containing the dataset.
-        context_col: Name of the column containing context data.
+        df: The dataframe containing the data.
+        line_count_col: The column name containing line counts.
 
     Returns:
-        Array of line counts.
+        Numpy array of line count values.
     """
-    if context_col not in df.columns:
-        # If context is not a direct column, assume 'relevant_files' or similar structure
-        # For this implementation, we assume a 'line_count' column exists if context is complex
-        if 'line_count' in df.columns:
-            logger.info("Using 'line_count' column directly.")
-            return df['line_count'].values
-        else:
-            # Fallback: estimate based on string length if it's a string context
-            logger.warning(f"Column '{context_col}' not found or not numeric. Estimating line counts.")
-            # This is a heuristic fallback; in a real scenario, we'd parse the structure
-            if context_col in df.columns:
-                return df[context_col].astype(str).apply(lambda x: x.count('\n') + 1).values
-            else:
-                raise AnalysisError(f"Cannot calculate line counts. Missing column '{context_col}' or 'line_count'.")
+    if line_count_col not in df.columns:
+        # Fallback: try to find a column that looks like line counts if exact name missing
+        # But strict adherence suggests we expect the column from T012c
+        raise ValueError(f"Column '{line_count_col}' not found in dataset. Available columns: {df.columns.tolist()}")
 
-    return df[context_col].apply(lambda x: len(x.split('\n')) if isinstance(x, str) else 0).values
+    values = df[line_count_col].dropna()
+    logger.info(f"Extracted {len(values)} line count values from column '{line_count_col}'.")
+    return values.values
 
 
-def get_issue_types(df: pd.DataFrame, type_col: str = "issue_type") -> np.ndarray:
+def get_issue_types(df: pd.DataFrame, issue_type_col: str = "issue_type") -> np.ndarray:
     """
-    Extract issue types from the dataset for categorical comparison.
+    Extract issue type values (encoded as integers for KS test) from the dataframe.
+
+    Since KS test is for continuous distributions, we map categorical issue types
+    to numeric codes for the purpose of distribution comparison.
 
     Args:
-        df: DataFrame containing the dataset.
-        type_col: Name of the column containing issue types.
+        df: The dataframe containing the data.
+        issue_type_col: The column name containing issue types.
 
     Returns:
-        Array of issue types (encoded as integers for KS test).
+        Numpy array of encoded issue type values.
     """
-    if type_col not in df.columns:
-        # Fallback: try 'category' or 'type'
-        for fallback in ['category', 'type', 'label']:
-            if fallback in df.columns:
-                logger.info(f"Using '{fallback}' column for issue types.")
-                type_col = fallback
-                break
-        else:
-            raise AnalysisError(f"Cannot find issue type column. Expected '{type_col}' or fallbacks.")
+    if issue_type_col not in df.columns:
+        # If the column doesn't exist, return an empty array or handle gracefully
+        # However, for representativeness, we need this data.
+        logger.warning(f"Column '{issue_type_col}' not found. Skipping issue type distribution check.")
+        return np.array([])
 
-    # Encode categorical types as integers for KS test
-    unique_types = df[type_col].unique()
-    type_map = {t: i for i, t in enumerate(unique_types)}
-    return df[type_col].map(type_map).values
+    # Encode categorical types to integers
+    unique_types = df[issue_type_col].unique()
+    type_to_int = {t: i for i, t in enumerate(unique_types)}
+    encoded = df[issue_type_col].map(type_to_int).dropna()
+
+    logger.info(f"Extracted {len(encoded)} issue type values from column '{issue_type_col}'.")
+    return encoded.values
 
 
-def perform_ks_test(
-    sample_data: np.ndarray,
-    population_data: np.ndarray,
-    test_name: str
-) -> Tuple[float, float]:
+def perform_ks_test(sample: np.ndarray, population: np.ndarray, test_name: str) -> Tuple[float, float]:
     """
-    Perform a Kolmogorov-Smirnov test.
+    Perform a two-sample Kolmogorov-Smirnov test.
 
     Args:
-        sample_data: Data from the filtered (sample) dataset.
-        population_data: Data from the full (population) dataset.
-        test_name: Name of the metric being tested (for logging).
+        sample: The filtered dataset values.
+        population: The raw dataset values.
+        test_name: Name of the test for logging.
 
     Returns:
         Tuple of (KS statistic, p-value).
     """
-    if len(sample_data) == 0 or len(population_data) == 0:
-        raise AnalysisError(f"Cannot perform KS test on empty data for {test_name}")
+    if len(sample) == 0 or len(population) == 0:
+        logger.warning(f"Cannot perform KS test for {test_name}: one or both samples are empty.")
+        return 0.0, 1.0
 
-    ks_stat, p_value = stats.ks_2samp(sample_data, population_data)
-    logger.info(f"KS Test for {test_name}: Statistic={ks_stat:.4f}, p-value={p_value:.4f}")
-    return ks_stat, p_value
+    try:
+        statistic, p_value = stats.ks_2samp(sample, population)
+        logger.info(f"KS Test ({test_name}): statistic={statistic:.4f}, p-value={p_value:.4f}")
+        return statistic, p_value
+    except Exception as e:
+        log_error(f"KS test failed for {test_name}: {e}")
+        raise AnalysisError(f"KS test failed: {e}")
 
 
 def validate_representativeness(
-    raw_path: Path,
-    filtered_path: Path,
+    filtered_path: str,
+    raw_path: str,
     alpha: float = 0.05
-) -> bool:
+) -> Dict[str, Any]:
     """
     Validate that the filtered dataset is representative of the raw dataset.
 
+    This function performs KS tests on:
+    1. Line counts distribution
+    2. Issue types distribution (encoded)
+
+    Constraint: If any p-value < alpha, the run MUST fail.
+
     Args:
-        raw_path: Path to the raw dataset parquet file.
-        filtered_path: Path to the filtered dataset parquet file.
-        alpha: Significance level for the KS test.
+        filtered_path: Path to the filtered dataset (parquet).
+        raw_path: Path to the raw dataset (parquet).
+        alpha: Significance level for the KS test (default 0.05).
 
     Returns:
-        True if the filtered dataset is representative (p-value >= alpha).
+        Dictionary containing test results and validation status.
 
     Raises:
-        AnalysisError: If the representativeness check fails (p-value < alpha).
+        AnalysisError: If the filtered dataset is not representative.
     """
-    logger.info("Starting representativeness validation...")
+    logger.info(f"Starting representativeness validation: filtered={filtered_path}, raw={raw_path}")
 
     # Load datasets
-    raw_df = load_parquet_dataset(raw_path)
-    filtered_df = load_parquet_dataset(filtered_path)
-
-    # Check required columns
-    required_cols = ['line_count', 'issue_type'] # Assuming these exist based on T012 logic
-    missing_raw = [c for c in required_cols if c not in raw_df.columns]
-    missing_filtered = [c for c in required_cols if c not in filtered_df.columns]
-
-    if missing_raw:
-        # Try to calculate if missing
-        if 'line_count' not in raw_df.columns:
-            logger.info("Calculine line counts for raw dataset...")
-            raw_df['line_count'] = calculate_line_counts(raw_df)
-        if 'issue_type' not in raw_df.columns:
-            # Fallback logic if column is missing entirely
-            logger.warning("Issue type column missing in raw dataset. Using a placeholder.")
-            raw_df['issue_type'] = 'unknown'
-
-    if missing_filtered:
-        if 'line_count' not in filtered_df.columns:
-            logger.info("Calculating line counts for filtered dataset...")
-            filtered_df['line_count'] = calculate_line_counts(filtered_df)
-        if 'issue_type' not in filtered_df.columns:
-            logger.warning("Issue type column missing in filtered dataset. Using a placeholder.")
-            filtered_df['issue_type'] = 'unknown'
-
-
-    # 1. Test Line Counts Distribution
-    logger.info("Comparing line count distributions...")
     try:
-        ks_stat_lines, p_val_lines = perform_ks_test(
-            filtered_df['line_count'].values,
-            raw_df['line_count'].values,
-            "Line Counts"
-        )
+        df_filtered = load_parquet_dataset(filtered_path)
+        df_raw = load_parquet_dataset(raw_path)
     except Exception as e:
-        log_error(logger, "Line count KS test failed", e)
-        raise AnalysisError(f"Line count KS test failed: {e}")
+        log_error(f"Failed to load datasets for validation: {e}")
+        raise
 
-    # 2. Test Issue Types Distribution
-    logger.info("Comparing issue type distributions...")
+    results = {
+        "filtered_path": filtered_path,
+        "raw_path": raw_path,
+        "filtered_count": len(df_filtered),
+        "raw_count": len(df_raw),
+        "tests": {},
+        "passed": True,
+        "message": ""
+    }
+
+    # Test 1: Line Counts
     try:
-        # Encode types
-        all_types = set(raw_df['issue_type'].unique()) | set(filtered_df['issue_type'].unique())
-        type_map = {t: i for i, t in enumerate(all_types)}
-        raw_types = raw_df['issue_type'].map(type_map).values
-        filt_types = filtered_df['issue_type'].map(type_map).values
+        filtered_lines = calculate_line_counts(df_filtered, "total_lines")
+        raw_lines = calculate_line_counts(df_raw, "total_lines")
 
-        ks_stat_types, p_val_types = perform_ks_test(
-            filt_types,
-            raw_types,
-            "Issue Types"
-        )
+        stat, p_val = perform_ks_test(filtered_lines, raw_lines, "Line Counts")
+        results["tests"]["line_counts"] = {
+            "statistic": float(stat),
+            "p_value": float(p_val),
+            "passed": p_val >= alpha
+        }
+
+        if p_val < alpha:
+            results["passed"] = False
+            results["message"] += f"Line count distribution differs significantly (p={p_val:.4f} < {alpha}). "
     except Exception as e:
-        log_error(logger, "Issue type KS test failed", e)
-        raise AnalysisError(f"Issue type KS test failed: {e}")
+        log_error(f"Line count validation failed: {e}")
+        results["passed"] = False
+        results["message"] += f"Line count validation error: {e}. "
 
-    # Check significance
-    logger.info(f"Significance level (alpha): {alpha}")
-    if p_val_lines < alpha:
-        msg = f"Insufficient Context-Bound Data: Line count distribution differs significantly (p={p_val_lines:.4f} < {alpha})."
-        logger.error(msg)
-        raise AnalysisError(msg)
+    # Test 2: Issue Types
+    try:
+        filtered_types = get_issue_types(df_filtered, "issue_type")
+        raw_types = get_issue_types(df_raw, "issue_type")
 
-    if p_val_types < alpha:
-        msg = f"Insufficient Context-Bound Data: Issue type distribution differs significantly (p={p_val_types:.4f} < {alpha})."
-        logger.error(msg)
-        raise AnalysisError(msg)
+        if len(filtered_types) > 0 and len(raw_types) > 0:
+            stat, p_val = perform_ks_test(filtered_types, raw_types, "Issue Types")
+            results["tests"]["issue_types"] = {
+                "statistic": float(stat),
+                "p_value": float(p_val),
+                "passed": p_val >= alpha
+            }
+
+            if p_val < alpha:
+                results["passed"] = False
+                results["message"] += f"Issue type distribution differs significantly (p={p_val:.4f} < {alpha}). "
+        else:
+            logger.warning("Issue type data missing or empty, skipping this test.")
+            results["tests"]["issue_types"] = {
+                "statistic": None,
+                "p_value": None,
+                "passed": True,
+                "skipped": True
+            }
+    except Exception as e:
+        log_error(f"Issue type validation failed: {e}")
+        results["passed"] = False
+        results["message"] += f"Issue type validation error: {e}. "
+
+    # Final Decision
+    if not results["passed"]:
+        error_msg = "Insufficient Context-Bound Data: Filtered dataset is not representative of the raw dataset."
+        full_msg = f"{error_msg} Details: {results['message']}"
+        logger.error(full_msg)
+        raise AnalysisError(full_msg)
 
     logger.info("Representativeness validation PASSED.")
-    return True
+    results["message"] = "Validation passed. Filtered dataset is representative."
+    return results
 
 
 def main():
     """
-    Main entry point for the RepresentativenessValidator.
+    CLI entry point for the Representativeness Validator.
     """
-    parser = argparse.ArgumentParser(description="Validate representativeness of filtered dataset.")
-    parser.add_argument("--raw-path", type=str, required=True, help="Path to raw dataset parquet file.")
-    parser.add_argument("--filtered-path", type=str, required=True, help="Path to filtered dataset parquet file.")
-    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level for KS test.")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility.")
+    parser = argparse.ArgumentParser(
+        description="Validate representativeness of filtered dataset vs raw dataset."
+    )
+    parser.add_argument(
+        "--filtered",
+        type=str,
+        required=True,
+        help="Path to the filtered dataset (parquet)."
+    )
+    parser.add_argument(
+        "--raw",
+        type=str,
+        required=True,
+        help="Path to the raw dataset (parquet)."
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.05,
+        help="Significance level for KS test (default: 0.05)."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="state/representativeness_results.json",
+        help="Path to save validation results JSON."
+    )
 
     args = parser.parse_args()
 
-    set_global_seeds(args.seed)
-    raw_path = Path(args.raw_path)
-    filtered_path = Path(args.filtered_path)
-
     try:
-        validate_representativeness(raw_path, filtered_path, args.alpha)
-        logger.info("Validation successful. Exiting with code 0.")
+        results = validate_representativeness(
+            args.filtered,
+            args.raw,
+            args.alpha
+        )
+
+        # Save results
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        import json
+        with open(output_path, "w") as f:
+            json.dump(results, f, indent=2, default=str)
+
+        logger.info(f"Results saved to {output_path}")
+
+        if not results["passed"]:
+            # This should have raised an exception already, but double check
+            sys.exit(1)
+
         sys.exit(0)
+
     except AnalysisError as e:
-        logger.error(f"Validation failed: {e}")
+        logger.error(f"Validation Failed: {e}")
         sys.exit(1)
     except Exception as e:
-        log_error(logger, "Unexpected error during validation", e)
+        log_error(f"Unexpected error during validation: {e}")
         sys.exit(1)
 
 

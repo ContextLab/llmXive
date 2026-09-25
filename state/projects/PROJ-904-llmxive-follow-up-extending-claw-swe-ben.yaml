@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-904-llmxive-follow-up-extending-claw-swe-ben
-last_run_id: 0ba5dbbf-9536-48f7-9d85-f5f5cdace9c0
+last_run_id: b4f500da-68f2-4440-8972-4db41e52eaae
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-904-llmxive-follow-up-extending-claw-swe-ben/specs/001-llmxive-follow-up-extending-claw-swe-ben
 title: 'llmXive follow-up: extending "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style
   Agent Harnes"'
-updated_at: '2026-09-22T18:55:53.934337Z'
+updated_at: '2026-09-25T09:57:00.586892Z'

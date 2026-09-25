@@ -1,6 +1,6 @@
 """
 Configuration module for llmXive project.
-Provides environment variable management, random seed pinning, and model paths.
+Exports all configuration utilities and constants.
 """
 import os
 import random
@@ -10,18 +10,18 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 from enum import Enum
 
-# Constitution Principle I: Hardcoded seeds
-GLOBAL_SEED = 42
+# Constants
+RANDOM_SEED = 42
+HF_TOKEN = os.getenv("HF_TOKEN", "")
+MODEL_PATH = os.getenv("MODEL_PATH", "meta-llama/Llama-2-7b-hf")
 
 class StrategyType(Enum):
-    """Enumeration of context processing strategies."""
     BASELINE = "baseline"
-    TFIDF = "tfidf"
+    TF_IDF = "tfidf"
     DIFF_AWARE = "diff_aware"
-    SEMANTIC_SUMMARIZATION = "summarization"
+    SEMANTIC_SUMMARY = "semantic_summary"
 
 class FailureType(Enum):
-    """Enumeration of failure types."""
     MISSING_CONTEXT = "missing_context"
     REASONING_ERROR = "reasoning_error"
     TIMEOUT = "timeout"
@@ -29,70 +29,61 @@ class FailureType(Enum):
 
 @dataclass
 class TaskInstance:
-    """Data model for a task instance."""
     instance_id: str
-    issue_description: str
-    patch: str
     repo: str
     base_commit: str
-    file_history: List[Dict[str, Any]]
+    patch: str
+    test_patch: str
+    problem_statement: str
+    hints: List[str] = field(default_factory=list)
+    environment_setup_commit: Optional[str] = None
 
 @dataclass
 class ContextConfiguration:
-    """Data model for context configuration."""
     strategy: StrategyType
-    max_tokens: int
-    relevant_lines_threshold: int
-    params: Dict[str, Any] = field(default_factory=dict)
+    max_context_tokens: int = 4096
+    retrieval_k: int = 5
+    include_dependencies: bool = True
 
 @dataclass
 class ExecutionResult:
-    """Data model for execution result."""
     instance_id: str
-    strategy: str
     model_size: str
+    strategy: str
     pass_status: bool
-    log: str
-    duration: float
+    execution_time: float
+    tokens_used: int
+    error_message: Optional[str] = None
+    failure_category: Optional[FailureType] = None
 
-def set_global_seeds(seed: int = GLOBAL_SEED) -> None:
-    """
-    Pin random seeds for reproducibility.
-    Constitution Principle I.
-    """
+def set_global_seeds(seed: int = RANDOM_SEED):
+    """Set global random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-def get_env_var(key: str, default: Optional[str] = None) -> str:
-    """Get an environment variable or return default."""
-    val = os.getenv(key, default)
-    if val is None:
-        raise ValueError(f"Environment variable {key} is not set")
-    return val
+def get_env_var(name: str, default: Optional[str] = None) -> str:
+    """Get environment variable with optional default."""
+    return os.getenv(name, default if default is not None else "")
 
 def get_hf_token() -> str:
     """Get Hugging Face token from environment."""
     return get_env_var("HF_TOKEN")
 
-def get_model_path(model_name: str) -> str:
-    """Get the path to a model from environment or default mapping."""
-    defaults = {
-        "1b": "meta-llama/Llama-3.2-1B-Instruct",
-        "7b": "meta-llama/Llama-3.2-7B-Instruct",
-    }
-    return os.getenv(f"MODEL_PATH_{model_name.upper()}", defaults.get(model_name, model_name))
+def get_model_path() -> str:
+    """Get model path from environment or default."""
+    return get_env_var("MODEL_PATH", MODEL_PATH)
 
 def get_data_dir() -> str:
-    """Get the data directory path."""
+    """Get data directory path."""
     return get_env_var("DATA_DIR", "data")
 
 def get_output_dir() -> str:
-    """Get the output directory path."""
-    return get_env_var("OUTPUT_DIR", "data/intermediate")
+    """Get output directory path."""
+    return get_env_var("OUTPUT_DIR", "data")
 
 def get_log_level() -> str:
-    """Get the log level from environment."""
+    """Get log level from environment."""
     return get_env_var("LOG_LEVEL", "INFO")

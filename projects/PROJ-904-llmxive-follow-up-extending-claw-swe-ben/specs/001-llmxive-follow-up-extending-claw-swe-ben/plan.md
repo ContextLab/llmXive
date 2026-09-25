@@ -39,7 +39,7 @@ To determine "relevant file history" (>500 lines) without ground-truth patches:
 ### Context Strategy Definitions (FR-003)
 - **Baseline**: First-N-lines truncation. **N is defined as the first a substantial number of tokens or a substantial number of lines of the relevant files, whichever is reached first..** This ensures a consistent, large context window for the baseline.
 - **TF-IDF/BM25**: Relevance-ranked snippets.
-- **Heuristic Keyword-Proxy** (formerly Diff-Aware): Identify lines in "relevant files" containing keywords ('fix', 'bug', 'error', 'TODO') and include a 10-line window around them. **Note**: This is a construct validity limitation; the plan acknowledges this is a lower-bound proxy for "diff-aware" retrieval.
+- **Heuristic Keyword-Proxy** (formerly Diff-Aware): Identify lines in "relevant files" containing keywords ('fix', 'bug', 'error', 'TODO') and include a contextual window around them. **Note**: This is a construct validity limitation; the plan acknowledges this is a lower-bound proxy for "diff-aware" retrieval.
 - **Rule-Based Summarization**: Extract the **first sentence of every paragraph** and the **last sentence of every function block** (defined by indentation or `def`/`function` keywords), concatenate with `...` separator, and truncate to context window.
 
 ### GLM Implementation (FR-006)
@@ -66,7 +66,7 @@ To determine "relevant file history" (>500 lines) without ground-truth patches:
 | **IV. Single Source of Truth** | PASS | `data/results.csv` is the sole aggregation point. All figures in paper trace to this file. |
 | **V. Versioning Discipline** | PASS | **After any data transformation or result generation, the `state/...yaml` file is updated with the new artifact hash and timestamp** by the `utils/checksum.py` module. Content hashes generated for all artifacts in `data/` and recorded in state YAML. |
 | **VI. Context-Fidelity vs. Scaling** | PASS | Experimental design explicitly isolates `context_strategy` (4 levels) vs `model_size` (2 levels) in GLM interaction term. |
-| **VII. Resource-Constrained Execution** | PASS | Plan mandates `Q4_K_M` quantization for 7B model and streaming data loading to fit 7GB RAM. **Total experiment duration ≤72 hours**. |
+| **VII. Resource-Constrained Execution** | PASS | Plan mandates `Q_K_M` quantization for 7B model and streaming data loading to fit 7GB RAM. **Total experiment duration ≤72 hours**. |
 
 ## Project Structure
 
@@ -140,7 +140,7 @@ state/
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | **Firth Penalized GLM** | Required by FR-006 and Constitution Principle VI to handle sparse binary data (Pass/Fail) in small cells (n<50) where standard GLM fails to converge. | Standard `statsmodels` GLM often fails to converge with separation in binary outcomes; Firth correction is the only robust method for this sample size. |
-| **Q4_K_M Quantization** | Required by FR-007 and Constitution Principle VII to fit 7B model in 7GB RAM. | Full multi-bit models exceed available RAM capacity.; 8-bit quantization still risks OOM on 7GB limit; Q4_K_M is the minimal viable precision for reasoning tasks. |
+| **Q4_K_M Quantization** | Required by FR-007 and Constitution Principle VII to fit 7B model in 7GB RAM. | Full multi-bit models exceed available RAM capacity.; High-bit quantization still risks OOM on 7GB limit; Q4_K_M is the minimal viable precision for reasoning tasks. |
 | **Hybrid IR-Seeding** | Required by FR-001 to ensure "context-bound complexity" (>500 lines) without using ground-truth patches and to avoid circularity with test strategies. | Keyword-only extraction fails on natural language issues; pure random filtering does not guarantee "relevant file history" complexity. |
 | **Streaming Data Loading** | Required by Constitution Principle III and compute constraints to avoid loading full dataset into RAM. | Loading full SWE-bench into RAM would crash the runner; streaming allows processing on-disk. |
 | **Exploratory Design** | Required by Methodology Panel due to low power (N=400) for interaction detection. | A confirmatory design with N=400 would yield high Type II error rates; the study must report effect sizes (OR) with 95% CI as the primary metric. |

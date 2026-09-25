@@ -1,84 +1,85 @@
 """
-BatchExecutor and TimeoutGuard for experiment execution.
-Handles parallel batching and timeout enforcement.
+Batch Execution and Timeout Management.
 """
+
 import os
 import sys
 import logging
 import time
 import signal
 import json
-from typing import Dict, Any, Callable, Optional
-from functools import wraps
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from typing import Callable, Optional
+from datetime import datetime
 
 class TimeoutError(Exception):
     """Custom timeout exception."""
     pass
 
-def TimeoutGuard(seconds: int):
+class TimeoutGuard:
     """
-    Decorator that enforces a timeout on a function.
+    Decorator/Guard to enforce a timeout on a function call.
     """
-    def decorator(func: Callable):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            def timeout_handler(signum, frame):
-                raise TimeoutError(f"Function timed out after {seconds} seconds")
+    def __init__(self, timeout: int):
+        self.timeout = timeout
 
-            # Set the signal handler
-            old_handler = signal.signal(signal.SIGALRM, timeout_handler)
-            signal.alarm(seconds)
+    def __call__(self, func: Callable, *args, **kwargs):
+        def handler(signum, frame):
+            raise TimeoutError(f"Function timed out after {self.timeout} seconds")
 
-            try:
-                result = func(*args, **kwargs)
-                signal.alarm(0)  # Cancel the alarm
-                signal.signal(signal.SIGALRM, old_handler)
-                return result
-            except TimeoutError:
-                signal.alarm(0)
-                signal.signal(signal.SIGALRM, old_handler)
-                raise
-        return wrapper
-    return decorator
+        # Set the signal handler
+        old_handler = signal.signal(signal.SIGALRM, handler)
+        signal.alarm(self.timeout)
+
+        try:
+            result = func(*args, **kwargs)
+        finally:
+            signal.alarm(0)
+            signal.signal(signal.SIGALRM, old_handler)
+
+        return result
+
+class GlobalTimeBudgetEnforcer:
+    """
+    Enforces a global time budget for the entire experiment.
+    """
+    def __init__(self, total_seconds: int):
+        self.start_time = time.time()
+        self.total_seconds = total_seconds
+
+    def is_time_exceeded(self) -> bool:
+        elapsed = time.time() - self.start_time
+        if elapsed > self.total_seconds:
+            logging.warning(f"Global time budget exceeded: {elapsed:.2f}s > {self.total_seconds}s")
+            return True
+        return False
 
 class BatchExecutor:
     """
-    Executor for batch processing of instances.
-    Enforces timeouts and tracks durations.
+    Manages batch execution of tasks.
     """
-    def __init__(self, timeout_per_instance: float = 60.0):
-        self.timeout_per_instance = timeout_per_instance
+    def __init__(self, max_workers: int = 4):
+        self.max_workers = max_workers
+        self.results = []
 
-    @TimeoutGuard(60)
-    def _run_single(self, instance_id: str, prompt: str, context: str, model_runner) -> Dict[str, Any]:
-        """Run a single instance with timeout."""
-        start = time.time()
+    def submit(self, func: Callable, *args, **kwargs):
+        """
+        Submits a task for execution.
+        """
+        # For simplicity in this task, we run sequentially.
+        # Parallelism can be added using multiprocessing or threading.
         try:
-            response, duration, success = model_runner.generate(prompt, context)
-            return {
-                "success": success,
-                "log": response,
-                "duration": duration
-            }
+            result = func(*args, **kwargs)
+            self.results.append(result)
         except Exception as e:
-            return {
-                "success": False,
-                "log": str(e),
-                "duration": time.time() - start
-            }
-
-    def submit(self, instance_id: str, prompt: str, context: str, model_runner) -> Dict[str, Any]:
-        """
-        Submit an instance for execution.
-        """
-        return self._run_single(instance_id, prompt, context, model_runner)
+            logging.error(f"Task failed: {e}")
+            self.results.append(None)
 
 def main():
-    """Main entry point for testing the executor."""
-    print("BatchExecutor initialized")
+    """
+    Entry point for testing batch executor.
+    """
+    logging.basicConfig(level=logging.INFO)
+    logging.info("BatchExecutor module loaded.")
 
 if __name__ == "__main__":
     main()

@@ -12,6 +12,13 @@ T005:
     \ is truncated) and does not contain a `log_error()` function at all. Moreover,\
     \ the required unit test `tests/unit/test_logger.py` is absent, so the verification\
     \ command cannot run. The task\u2019s required artifacts are missing or incomplete."
+T012c:
+  c: false
+  h: 2e0b798c270b368e221aeb5dfb49ae0ef16b6994d038aead2f73fd1bceb827cb
+  r: "The required output file `data/filtered_swe_bench_v1.parquet` does not exist,\
+    \ and the provided `loader.py` snippet is truncated with no visible implementation\
+    \ of the graph\u2011traversal line\u2011count filtering or parquet writing. Consequently\
+    \ the task\u2019s core requirements are not satisfied."
 T016b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -19,6 +26,12 @@ T016b:
     \ and thus there is no evidence of implemented per\u2011instance hard timeout\
     \ or a total wall\u2011clock limit of \u226472\u202Fhours. The required artifact\
     \ is missing."
+T017b:
+  c: false
+  h: 91066ef87c5be85a521911d3343c2bff94672bfa0fd790a96ec894b3679676ff
+  r: "The required artifact `data/intermediate/baseline_run.jsonl` is missing, so\
+    \ no annotations or fallback handling can be verified. The task\u2019s core output\
+    \ does not exist."
 T017c:
   c: false
   h: 0a89c117c130271ec9c4c6ae68b00bdd51c7449db7a53f3ad05ba22b480af761
@@ -26,6 +39,14 @@ T017c:
     \ is no evidence that `failure_classifier.py` was run or that any annotated failure\u2011\
     mode output was produced. Without the source data and resulting annotations, the\
     \ task is not satisfied."
+T023:
+  c: false
+  h: f4b3fcc5c4083aff517bf46d6bee7f98192e1e42c5b0a16b56e52132e5fb500f
+  r: "The repository lacks the required `data/intermediate/hf_run_1b.jsonl` file (it\
+    \ is missing) and the `execution_result.schema.yaml` needed for validation. Moreover,\
+    \ the provided `run_high_fidelity.py` does not show an implemented `run_strategy()`\
+    \ function (the file is truncated and no such function is present). These missing\
+    \ artifacts mean the task\u2019s requirements are not satisfied."
 T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

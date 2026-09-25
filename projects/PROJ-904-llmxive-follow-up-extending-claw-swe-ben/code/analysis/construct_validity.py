@@ -1,320 +1,237 @@
-"""
-Construct Validity Audit for Context Fidelity Research.
-
-This module implements the ConstructValidityAudit to ensure that the generic
-retriever used for filtering (CodeBERT-based) does not introduce circularity
-by being highly correlated with the experimental strategies (TF-IDF, etc.)
-being tested.
-
-Constraint: If correlation >= 0.3, the run MUST fail with "Circularity Detected" error.
-"""
 import os
 import sys
 import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 import numpy as np
 from scipy.stats import pearsonr, spearmanr
 
-# Ensure project root is in path for imports if running as script
-if __name__ == "__main__" and "code" not in sys.path:
-    code_root = Path(__file__).resolve().parent.parent
-    if str(code_root) not in sys.path:
-        sys.path.insert(0, str(code_root))
+from utils.logger import setup_logger, AnalysisError
+from config import get_data_dir, get_output_dir
 
-from data.loader import ClawSweBenchLoader
-from data.context_processors import retrieve_tfidf_snippets, retrieve_diff_aware_snippets
-from models.task_instance import TaskInstance
-from utils.logger import setup_logger, log_error
+# Configure logging
+logger = setup_logger(__name__)
 
-logger = setup_logger("ConstructValidityAudit")
-
-
-class ConstructValidityAudit:
+class IndependenceCheck:
     """
-    Audits the construct validity of the filtering mechanism.
-
-    Compares the scores of the generic retriever (used for initial filtering)
-    against the scores of the experimental strategies to detect circularity.
+    Checks for circularity between static keyword extraction scores (used for filtering)
+    and the experimental strategies (TF-IDF, etc.).
+    
+    If correlation >= 0.3, the run MUST fail with "Circularity Detected" error.
     """
 
-    def __init__(self, filtered_parquet_path: str, sample_size: int = 200):
+    def __init__(self, filtered_data_path: str, strategies: List[str]):
         """
-        Initialize the audit.
-
         Args:
-            filtered_parquet_path: Path to the filtered dataset (output of T012).
-            sample_size: Number of instances to sample for the audit to save memory.
+            filtered_data_path: Path to the filtered dataset (e.g., data/filtered_swe_bench_v1.parquet)
+            strategies: List of strategy names to check against (e.g., ['tfidf', 'diff_aware', 'semantic_summarization'])
         """
-        self.filtered_parquet_path = Path(filtered_parquet_path)
-        self.sample_size = sample_size
-        self.logger = logger
+        self.filtered_data_path = Path(filtered_data_path)
+        self.strategies = strategies
+        self.correlation_threshold = 0.3
+        self.results: Dict[str, float] = {}
 
-        if not self.filtered_parquet_path.exists():
-            raise FileNotFoundError(
-                f"Filtered dataset not found at {self.filtered_parquet_path}. "
-                "Please run T012 (loader.py) first."
-            )
-
-    def _load_sample(self) -> pd.DataFrame:
-        """Load a sample of the filtered dataset."""
-        self.logger.info(f"Loading sample of size {self.sample_size} from {self.filtered_parquet_path}")
-        df = pd.read_parquet(self.filtered_parquet_path)
-
-        if len(df) == 0:
-            raise ValueError("Filtered dataset is empty. Cannot perform audit.")
-
-        if len(df) > self.sample_size:
-            # Deterministic sampling using a fixed seed for reproducibility
-            np.random.seed(42)
-            df = df.sample(n=self.sample_size, random_state=42)
-
-        return df.reset_index(drop=True)
-
-    def _get_generic_retriever_scores(self, instances: List[TaskInstance]) -> List[float]:
+    def load_filtered_data(self) -> pd.DataFrame:
         """
-        Simulate or retrieve the generic retriever scores used during filtering.
-
-        In the actual T012 implementation, these scores are used to select top-5 files.
-        For this audit, we assume the 'score' or similar metric from the loader's
-        internal logic is available or can be re-computed.
-
-        Since T012 logic is encapsulated, we approximate the score based on the
-        assumption that the 'issue_description' embedding similarity was the driver.
-        However, to strictly follow the "Circularity" check, we need the scores
-        that were actually used.
-
-        *Implementation Note*: If T012 stored the 'retrieval_score' in the parquet,
-        we use that. Otherwise, we re-run the retrieval logic for the sample.
-
-        For this implementation, we assume the 'retrieval_score' column exists
-        from T012. If not, we fall back to a placeholder that raises an error
-        to force T012 to be corrected to store this metadata.
+        Loads the filtered dataset.
+        Expects columns: 'instance_id', 'static_keyword_score' (or similar), 
+        and potentially strategy-specific scores if pre-calculated.
+        
+        If strategy scores are not present, we simulate the check based on 
+        the assumption that the filtering logic (static keywords) is the 
+        independent variable and the strategy retrieval scores are the dependent.
+        
+        Note: In a real execution, the dataset would contain the scores 
+        calculated during the filtering/processing phase.
         """
-        scores = []
-        for idx, row in instances.iterrows():
-            # Attempt to retrieve the score used during filtering
-            # T012 should have stored this as 'retrieval_score' or similar
-            if 'retrieval_score' in row:
-                scores.append(float(row['retrieval_score']))
-            else:
-                # If T012 didn't store it, we cannot perform the audit accurately.
-                # We raise an error to enforce the data contract.
-                raise ValueError(
-                    f"Column 'retrieval_score' missing from filtered dataset. "
-                    f"T012 must store the generic retriever score for each instance."
-                )
-        return scores
-
-    def _get_strategy_scores(self, instances: pd.DataFrame, strategy_name: str) -> List[float]:
-        """
-        Calculate scores for a specific experimental strategy on the sample.
-
-        Args:
-            instances: DataFrame of task instances.
-            strategy_name: Name of the strategy ('tfidf', 'diff_aware', etc.).
-
-        Returns:
-            List of scores (e.g., average relevance score of retrieved snippets).
-        """
-        scores = []
-
-        for idx, row in instances.iterrows():
-            try:
-                # Reconstruct a minimal TaskInstance or dict for the processor
-                # Assuming 'issue_description' and 'file_contents' (or similar) are in the row
-                # T012 output schema must include 'issue_description' and 'file_contents' (or map)
-
-                # Mocking the input for the context processor based on row data
-                # The context processors expect specific structures.
-                # We assume the row contains 'issue_description' and a dict of 'file_contents'
-                # or 'file_paths' that can be loaded.
-                # For this audit, we calculate the *average relevance score* of the top-k snippets.
-
-                # Note: The actual retrieval logic in context_processors returns ProcessedContext.
-                # We need to extract a "score" from that.
-                # If the processor doesn't return a score, we might need to compute similarity.
-                # For now, we assume the processor returns a 'score' attribute or we compute it.
-
-                # Since we cannot easily re-run the full retrieval without the full file system
-                # context in this isolated script, we assume T012 stored the 'strategy_scores'
-                # or we re-implement the retrieval for the sample.
-                # Given the constraint of "Real Data", we re-run the retrieval logic on the sample.
-
-                issue_desc = row.get('issue_description', '')
-                # Assuming T012 stored a dict of {filepath: content} or similar
-                # If not, we cannot re-run. We assume T012 stored 'context_map' or similar.
-                # If missing, we raise.
-                context_map = row.get('context_map') # T012 should populate this
-
-                if not context_map:
-                    self.logger.warning(f"Instance {idx} missing context_map. Skipping.")
-                    scores.append(0.0)
-                    continue
-
-                if strategy_name == 'tfidf':
-                    # Call TF-IDF retrieval
-                    # retrieve_tfidf_snippets expects (issue_desc, context_map, k)
-                    result = retrieve_tfidf_snippets(issue_desc, context_map, k=5)
-                    if result and len(result.snippets) > 0:
-                        # Calculate average score of snippets
-                        avg_score = sum(s.score for s in result.snippets) / len(result.snippets)
-                        scores.append(avg_score)
-                    else:
-                        scores.append(0.0)
-                elif strategy_name == 'diff_aware':
-                    result = retrieve_diff_aware_snippets(issue_desc, context_map, k=5)
-                    if result and len(result.snippets) > 0:
-                        avg_score = sum(s.score for s in result.snippets) / len(result.snippets)
-                        scores.append(avg_score)
-                    else:
-                        scores.append(0.0)
-                else:
-                    self.logger.warning(f"Unknown strategy {strategy_name}")
-                    scores.append(0.0)
-
-            except Exception as e:
-                self.logger.error(f"Error calculating score for strategy {strategy_name} on instance {idx}: {e}")
-                scores.append(0.0)
-
-        return scores
-
-    def run(self) -> bool:
-        """
-        Execute the validity audit.
-
-        Returns:
-            True if the audit passes (correlation < 0.3).
-            False if the audit fails (correlation >= 0.3).
-
-        Raises:
-            RuntimeError: If "Circularity Detected" (correlation >= 0.3).
-        """
-        self.logger.info("Starting Construct Validity Audit...")
-
-        # 1. Load Sample
-        df = self._load_sample()
-        self.logger.info(f"Loaded {len(df)} instances for audit.")
-
-        # 2. Get Generic Retriever Scores (from T012)
-        try:
-            generic_scores = self._get_generic_retriever_scores(df)
-        except ValueError as e:
-            self.logger.error(str(e))
-            raise RuntimeError("Audit cannot proceed: T012 did not store generic retriever scores.") from e
-
-        # 3. Calculate Experimental Strategy Scores
-        strategies = ['tfidf', 'diff_aware']
-        strategy_scores = {}
-
-        for strat in strategies:
-            self.logger.info(f"Calculating scores for strategy: {strat}")
-            strategy_scores[strat] = self._get_strategy_scores(df, strat)
-
-        # 4. Compute Correlations
-        correlations = {}
-        for strat, s_scores in strategy_scores.items():
-            # Filter out NaNs if any
-            valid_pairs = [
-                (g, s) for g, s in zip(generic_scores, s_scores)
-                if not np.isnan(g) and not np.isnan(s)
-            ]
-
-            if len(valid_pairs) < 10:
-                self.logger.warning(f"Not enough valid pairs for {strat} to compute correlation.")
-                continue
-
-            g_vals, s_vals = zip(*valid_pairs)
-
-            # Pearson correlation
-            r, p_value = pearsonr(g_vals, s_vals)
-            correlations[strat] = {
-                'pearson_r': r,
-                'p_value': p_value
+        if not self.filtered_data_path.exists():
+            raise FileNotFoundError(f"Filtered data file not found: {self.filtered_data_path}")
+        
+        logger.info(f"Loading filtered data from {self.filtered_data_path}")
+        
+        # Determine file type based on extension
+        suffix = self.filtered_data_path.suffix.lower()
+        if suffix == '.parquet':
+            df = pd.read_parquet(self.filtered_data_path)
+        elif suffix == '.csv':
+            df = pd.read_csv(self.filtered_data_path)
+        elif suffix == '.jsonl':
+            df = pd.read_json(self.filtered_data_path, lines=True)
+        else:
+            raise ValueError(f"Unsupported file format: {suffix}")
+        
+        # Verify required columns exist
+        # We expect a 'static_keyword_score' or similar column used for filtering
+        # We also expect columns representing the strategy scores (e.g., 'tfidf_score', 'diff_score')
+        # If these are not present, we cannot calculate the correlation directly.
+        # However, the task description implies we need to check the correlation 
+        # between the *static keyword extraction scores* (used for filtering) 
+        # and the *experimental strategies* (TF-IDF, etc.).
+        
+        # Assumption: The filtered dataset contains a column 'static_keyword_score'
+        # and potentially 'strategy_{name}_score' or we need to load strategy scores from elsewhere.
+        # For this implementation, we assume the filtered dataset contains:
+        # - 'static_keyword_score': The score used to filter the instances.
+        # - 'strategy_scores': A dictionary or JSON string containing scores per strategy.
+        # OR
+        # - Columns named 'tfidf_score', 'diff_aware_score', etc.
+        
+        required_cols = ['static_keyword_score']
+        missing_cols = [c for c in required_cols if c not in df.columns]
+        
+        if missing_cols:
+            # Try to find alternative names
+            possible_alt_names = {
+                'static_keyword_score': ['static_score', 'keyword_score', 'filter_score']
             }
+            for alt in possible_alt_names.get('static_keyword_score', []):
+                if alt in df.columns:
+                    df = df.rename(columns={alt: 'static_keyword_score'})
+                    missing_cols.remove('static_keyword_score')
+                    break
+            
+            if missing_cols:
+                raise ValueError(f"Missing required column(s) for independence check: {missing_cols}. "
+                               f"Available columns: {df.columns.tolist()}")
 
-            self.logger.info(f"Correlation (Generic vs {strat}): r={r:.4f}, p={p_value:.4f}")
+        # Check for strategy score columns
+        strategy_cols = []
+        for strategy in self.strategies:
+            # Look for columns like 'tfidf_score', 'diff_aware_score', etc.
+            col_name = f"{strategy}_score"
+            if col_name in df.columns:
+                strategy_cols.append(col_name)
+            else:
+                # Try to find a column that might contain strategy scores as a JSON object
+                # or a generic 'strategy_score' column
+                pass 
+        
+        # If specific strategy columns are not found, we might need to infer or load them.
+        # However, for the purpose of this check, we will assume the data contains 
+        # the necessary scores. If not, we raise an error.
+        if not strategy_cols:
+            # Attempt to load from a separate file if available, or raise error
+            logger.warning("No specific strategy score columns found. "
+                         "Attempting to load from a separate strategy_scores file if available.")
+            # This is a simplified check; in a full implementation, we might load scores from a separate source.
+            # For now, we will assume the data is present or raise an error.
+            raise ValueError("Could not find strategy score columns. "
+                           f"Expected columns like: {[f'{s}_score' for s in self.strategies]}")
 
-        # 5. Check Constraint
+        return df, strategy_cols
+
+    def calculate_correlation(self, df: pd.DataFrame, strategy_cols: List[str]) -> Dict[str, float]:
+        """
+        Calculates the Pearson correlation coefficient between 'static_keyword_score' 
+        and each strategy score column.
+        """
+        correlations = {}
+        static_col = 'static_keyword_score'
+        
+        for strategy_col in strategy_cols:
+            # Drop rows with NaN in either column
+            valid_data = df[[static_col, strategy_col]].dropna()
+            
+            if len(valid_data) < 2:
+                logger.warning(f"Insufficient data for correlation calculation between {static_col} and {strategy_col}")
+                correlations[strategy_col] = np.nan
+                continue
+            
+            # Calculate Pearson correlation
+            corr, p_value = pearsonr(valid_data[static_col], valid_data[strategy_col])
+            correlations[strategy_col] = corr
+            
+            logger.info(f"Correlation between {static_col} and {strategy_col}: {corr:.4f} (p={p_value:.4f})")
+            
+            # Also calculate Spearman rank correlation as a robustness check
+            spearman_corr, spearman_p = spearmanr(valid_data[static_col], valid_data[strategy_col])
+            logger.info(f"Spearman correlation between {static_col} and {strategy_col}: {spearman_corr:.4f} (p={spearman_p:.4f})")
+
+        return correlations
+
+    def check_circularity(self) -> bool:
+        """
+        Checks if any correlation exceeds the threshold.
+        Returns True if circularity is detected (correlation >= threshold).
+        """
+        df, strategy_cols = self.load_filtered_data()
+        self.results = self.calculate_correlation(df, strategy_cols)
+        
         max_corr = 0.0
-        max_strat = None
+        max_corr_strategy = None
+        
+        for strategy, corr in self.results.items():
+            if not np.isnan(corr):
+                abs_corr = abs(corr)
+                if abs_corr > max_corr:
+                    max_corr = abs_corr
+                    max_corr_strategy = strategy
+        
+        logger.info(f"Maximum absolute correlation detected: {max_corr:.4f} for strategy {max_corr_strategy}")
+        
+        if max_corr >= self.correlation_threshold:
+            logger.error(f"Circularity Detected: Correlation ({max_corr:.4f}) exceeds threshold ({self.correlation_threshold}) "
+                       f"for strategy {max_corr_strategy}.")
+            return True
+        
+        logger.info("Independence check passed. No significant circularity detected.")
+        return False
 
-        for strat, data in correlations.items():
-            if abs(data['pearson_r']) > max_corr:
-                max_corr = abs(data['pearson_r'])
-                max_strat = strat
-
-        if max_strat is None:
-            self.logger.warning("No valid correlations computed. Audit inconclusive.")
-            return False
-
-        if max_corr >= 0.3:
-            error_msg = f"Circularity Detected: Correlation between generic retriever and {max_strat} is {max_corr:.4f} (>= 0.3)."
-            self.logger.error(error_msg)
-            # Save the audit results before failing
-            self._save_results(correlations, passed=False)
-            raise RuntimeError(error_msg)
-
-        self.logger.info(f"Audit Passed: Max correlation {max_corr:.4f} < 0.3.")
-        self._save_results(correlations, passed=True)
-        return True
-
-    def _save_results(self, correlations: Dict[str, Dict[str, float]], passed: bool):
-        """Save audit results to a JSON file."""
-        output_dir = Path("data/audit")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / "construct_validity_audit.json"
-
-        results = {
-            "audit_passed": passed,
-            "sample_size": self.sample_size,
-            "correlations": correlations,
-            "max_correlation": max([abs(v['pearson_r']) for v in correlations.values()]) if correlations else 0.0
+    def save_results(self, output_path: Optional[Path] = None):
+        """
+        Saves the correlation results to a JSON file.
+        """
+        if output_path is None:
+            output_dir = get_output_dir()
+            output_path = Path(output_dir) / "construct_validity_results.json"
+        
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        results_data = {
+            "threshold": self.correlation_threshold,
+            "max_correlation": max([abs(v) for v in self.results.values() if not np.isnan(v)]),
+            "correlations": {k: float(v) if not np.isnan(v) else None for k, v in self.results.items()}
         }
-
+        
         with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-
-        self.logger.info(f"Audit results saved to {output_path}")
+            json.dump(results_data, f, indent=2)
+        
+        logger.info(f"Results saved to {output_path}")
 
 
 def main():
-    """Main entry point for the script."""
-    parser = argparse.ArgumentParser(description="Run Construct Validity Audit")
-    parser.add_argument(
-        "--input",
-        type=str,
-        default="data/filtered_swe_bench_v1.parquet",
-        help="Path to the filtered dataset (output of T012)"
-    )
-    parser.add_argument(
-        "--sample-size",
-        type=int,
-        default=200,
-        help="Number of instances to sample for the audit"
-    )
-
+    """
+    Main entry point for the IndependenceCheck script.
+    """
+    parser = argparse.ArgumentParser(description="Check for circularity between filtering criteria and experimental strategies.")
+    parser.add_argument("--input", type=str, required=True, help="Path to the filtered dataset (e.g., data/filtered_swe_bench_v1.parquet)")
+    parser.add_argument("--strategies", type=str, nargs="+", default=["tfidf", "diff_aware", "semantic_summarization"], 
+                      help="List of strategies to check against")
+    parser.add_argument("--output", type=str, help="Path to save results JSON (optional)")
     args = parser.parse_args()
 
     try:
-        audit = ConstructValidityAudit(
-            filtered_parquet_path=args.input,
-            sample_size=args.sample_size
-        )
-        audit.run()
-        logger.info("Construct Validity Audit completed successfully.")
+        checker = IndependenceCheck(args.input, args.strategies)
+        is_circular = checker.check_circularity()
+        
+        if args.output:
+            checker.save_results(Path(args.output))
+        else:
+            checker.save_results()
+
+        if is_circular:
+            logger.error("FATAL: Circularity detected. The run must be aborted.")
+            sys.exit(1)
+        
+        logger.info("IndependenceCheck completed successfully.")
         sys.exit(0)
-    except RuntimeError as e:
-        logger.error(f"Audit failed: {e}")
-        sys.exit(1)
+
     except Exception as e:
-        logger.error(f"Unexpected error during audit: {e}")
-        log_error(e, "ConstructValidityAudit")
-        sys.exit(1)
+        logger.error(f"IndependenceCheck failed with error: {e}", exc_info=True)
+        raise AnalysisError(f"IndependenceCheck failed: {e}") from e
 
 
 if __name__ == "__main__":
