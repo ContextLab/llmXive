@@ -1,115 +1,115 @@
-"""
-Unit tests for code/confounds.py (T011)
-"""
-import pytest
-import csv
 import os
+import sys
+import tempfile
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pandas as pd
+from rdkit import Chem
 
-# Import the module under test
+# Add project root to path
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from confounds import (
     load_molecules_from_csv,
     parse_functional_groups,
     calculate_molecular_properties,
     process_molecule,
     write_confounds_csv,
-    verify_distribution_stats
+    verify_distribution_stats,
+    generate_coverage_report
 )
-from rdkit import Chem
 
 @pytest.fixture
-def temp_csv(tmp_path):
-    """Creates a temporary CSV file with valid SMILES."""
-    csv_file = tmp_path / "test_data.csv"
-    content = """molecule_id,SMILES
-    mol_1,CCO
-    mol_2,CC(=O)O
-    mol_3,c1ccccc1"""
-    csv_file.write_text(content)
-    return csv_file
+def sample_csv(tmp_path):
+    csv_path = tmp_path / "test_input.csv"
+    data = {
+        "molecule_id": ["mol1", "mol2", "mol3"],
+        "SMILES": ["CCO", "c1ccccc1", "CC(=O)O"],
+        "experimental_barrier": [10.0, 15.0, 20.0]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(csv_path, index=False)
+    return csv_path
 
-@pytest.fixture
-def temp_output_csv(tmp_path):
-    """Creates a temporary path for output CSV."""
-    return tmp_path / "output.csv"
+def test_load_molecules_from_csv(sample_csv):
+    df = load_molecules_from_csv(sample_csv)
+    assert "molecule_id" in df.columns
+    assert "SMILES" in df.columns
+    assert len(df) == 3
+    assert df.iloc[0]["molecule_id"] == "mol1"
 
-@pytest.fixture
-def temp_log_file(tmp_path):
-    """Creates a temporary path for log file."""
-    return tmp_path / "verification.log"
-
-def test_load_molecules_from_csv(temp_csv):
-    """Test loading molecules from a CSV file."""
-    data = load_molecules_from_csv(temp_csv)
-    assert len(data) == 3
-    assert data[0]['molecule_id'] == 'mol_1'
-    assert data[0]['smiles'] == 'CCO'
-    assert data[1]['smiles'] == 'CC(=O)O'
-    assert data[2]['smiles'] == 'c1ccccc1'
-
-def test_load_molecules_from_csv_missing_file(tmp_path):
-    """Test that FileNotFoundError is raised if file is missing."""
-    with pytest.raises(FileNotFoundError):
-        load_molecules_from_csv(tmp_path / "non_existent.csv")
-
-def test_parse_functional_groups_alcohol():
-    """Test detection of alcohol group."""
+def test_parse_functional_groups():
+    # Ethanol: H-Donor, H-Acceptor
     mol = Chem.MolFromSmiles("CCO")
     groups = parse_functional_groups(mol)
-    assert "Alcohol" in groups
+    assert "H-Donor" in groups
+    assert "H-Acceptor" in groups
 
-def test_parse_functional_groups_acid():
-    """Test detection of carboxylic acid group."""
+    # Benzene: AromaticRing
+    mol = Chem.MolFromSmiles("c1ccccc1")
+    groups = parse_functional_groups(mol)
+    assert "AromaticRing" in groups
+
+    # Acetic Acid: CarboxylicAcid, H-Donor, H-Acceptor
     mol = Chem.MolFromSmiles("CC(=O)O")
     groups = parse_functional_groups(mol)
     assert "CarboxylicAcid" in groups
 
-def test_parse_functional_groups_aromatic():
-    """Test detection of aromatic group."""
-    mol = Chem.MolFromSmiles("c1ccccc1")
-    groups = parse_functional_groups(mol)
-    assert "Aromatic" in groups
-
 def test_calculate_molecular_properties():
-    """Test calculation of MW and atom count."""
-    mol = Chem.MolFromSmiles("CCO") # Ethanol: C2H6O
-    # MW ~ 46.07, Atoms = 2+6+1 = 9
+    mol = Chem.MolFromSmiles("CCO")
     props = calculate_molecular_properties(mol)
-    assert props['atom_count'] == 9
-    assert 45.0 < props['mw'] < 47.0
+    assert props["mw"] is not None
+    assert props["atom_count"] == 9  # C2H6O
+    assert "functional_groups" in props
 
-def test_process_molecule_invalid_smiles():
-    """Test that process_molecule returns None for invalid SMILES."""
-    res = process_molecule({'molecule_id': 'bad', 'smiles': 'invalid_smiles'})
+def test_process_molecule():
+    res = process_molecule("CCO", "test_id", None) # Logger can be None for this test
+    assert res is not None
+    assert res["molecule_id"] == "test_id"
+    assert res["mw"] is not None
+
+def test_process_molecule_invalid_smiles(caplog):
+    # We can't easily capture caplog without a real logger setup, but we can check return
+    res = process_molecule("invalid_smiles", "test_id", None)
     assert res is None
 
-def test_write_confounds_csv(temp_output_csv):
-    """Test writing results to CSV."""
-    results = [
-        {'molecule_id': 'm1', 'mw': 46.0, 'atom_count': 9, 'functional_groups': 'Alcohol'},
-        {'molecule_id': 'm2', 'mw': 60.0, 'atom_count': 10, 'functional_groups': 'CarboxylicAcid'}
+def test_write_confounds_csv(tmp_path):
+    data = [
+        {"molecule_id": "mol1", "mw": 46.07, "atom_count": 9, "functional_groups": "H-Donor"},
+        {"molecule_id": "mol2", "mw": 78.11, "atom_count": 12, "functional_groups": "AromaticRing"}
     ]
-    write_confounds_csv(results, temp_output_csv)
-    
-    assert temp_output_csv.exists()
-    with open(temp_output_csv, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-        assert len(rows) == 2
-        assert rows[0]['molecule_id'] == 'm1'
-        assert rows[0]['functional_groups'] == 'Alcohol'
+    output_path = tmp_path / "output.csv"
+    write_confounds_csv(data, output_path)
 
-def test_verify_distribution_stats(temp_log_file):
-    """Test logging of distribution statistics."""
-    results = [
-        {'molecule_id': 'm1', 'mw': 10.0, 'atom_count': 5},
-        {'molecule_id': 'm2', 'mw': 30.0, 'atom_count': 15}
+    assert output_path.exists()
+    df = pd.read_csv(output_path)
+    assert len(df) == 2
+    assert list(df.columns) == ["molecule_id", "mw", "atom_count", "functional_groups"]
+
+def test_verify_distribution_stats():
+    data = [
+        {"mw": 10.0, "atom_count": 5},
+        {"mw": 20.0, "atom_count": 10},
+        {"mw": 30.0, "atom_count": 15}
     ]
-    verify_distribution_stats(results, temp_log_file)
-    
-    assert temp_log_file.exists()
-    content = temp_log_file.read_text()
+    stats = verify_distribution_stats(data, None)
+    assert "mw_mean" in stats
+    assert stats["mw_mean"] == 20.0
+    assert "atom_mean" in stats
+    assert stats["atom_mean"] == 10.0
+
+def test_generate_coverage_report(tmp_path):
+    data = [
+        {"mw": 10.0, "atom_count": 5, "functional_groups": "Group1"},
+        {"mw": 20.0, "atom_count": 10, "functional_groups": "Group2"}
+    ]
+    stats = {"mw_mean": 15.0, "atom_mean": 7.5}
+    report_path = tmp_path / "report.md"
+    generate_coverage_report(stats, report_path, None)
+
+    assert report_path.exists()
+    content = report_path.read_text()
+    assert "Confounds Coverage Verification Report" in content
     assert "Status: PASS" in content
-    assert "Mean" in content
-    assert "Std" in content

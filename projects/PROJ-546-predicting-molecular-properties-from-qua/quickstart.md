@@ -1,119 +1,107 @@
-# Quick Start Guide
+# Quickstart Guide
+
+This guide outlines how to run the full pipeline for predicting molecular properties from quantum chemical calculations.
 
 ## Prerequisites
 
 - Python 3.11+
 - DFTB+ installed and in PATH
 - Psi4 installed and in PATH
-- Required Python packages (see `requirements.txt`)
+- Required Python packages (install via `pip install -r code/requirements.txt`)
 
 ## Installation
 
-```bash
-# Create virtual environment
-python -m venv code/.venv
-source code/.venv/bin/activate # On Windows: code\.venv\Scripts\activate
-
-# Install dependencies
-pip install -r code/requirements.txt
-```
+1. Clone the repository.
+2. Install dependencies:
+ ```bash
+ cd projects/PROJ-546-predicting-molecular-properties-from-qua
+ pip install -r code/requirements.txt
+ ```
 
 ## Running the Pipeline
 
-The main entry point is `code/main.py`. It orchestrates the entire workflow:
+The pipeline is orchestrated via `code/main.py`.
+
+### Full Pipeline Execution
+
+To run the entire pipeline from data fetching to final reporting:
 
 ```bash
-# Run the full pipeline
-python code/main.py
+python code/main.py run
 ```
 
-### Selective Execution
+This executes the following steps sequentially:
+1. **Fetch**: Download and normalize data (T004b, T004c).
+2. **Confounds**: Analyze confounds (T011).
+3. **Optimize**: Geometry optimization and semi-empirical descriptors (T013).
+4. **DFT**: DFT calculations on subset (T020).
+5. **Train**: Train models (T021).
+6. **Evaluate**: Evaluate models (T022).
+7. **Sensitivity**: Sensitivity analysis (T030b).
+8. **Checksums**: Generate checksums (T034).
+9. **Resources**: Validate resource constraints (T033b).
+10. **Summary**: Generate summary report (T035).
 
-You can skip specific steps if already completed:
+### Individual Stage Execution
 
-```bash
-# Skip data fetching
-python code/main.py --skip-fetch
+You can also run specific stages independently:
 
-# Skip confound analysis
-python code/main.py --skip-confounds
-
-# Skip semi-empirical descriptor generation
-python code/main.py --skip-semi
-
-# Skip DFT descriptor generation
-python code/main.py --skip-dft
-
-# Skip model training
-python code/main.py --skip-train
-
-# Skip model evaluation
-python code/main.py --skip-eval
-
-# Combine multiple skips
-python code/main.py --skip-fetch --skip-confounds
-```
+- **Fetch Data**:
+ ```bash
+ python code/main.py fetch
+ ```
+- **Confounds Analysis**:
+ ```bash
+ python code/main.py confounds
+ ```
+- **Optimization & Semi-Empirical Descriptors**:
+ ```bash
+ python code/main.py optimize
+ ```
+- **DFT Calculations**:
+ ```bash
+ python code/main.py dft
+ ```
+- **Train Models**:
+ ```bash
+ python code/main.py train
+ ```
+- **Evaluate Models**:
+ ```bash
+ python code/main.py evaluate
+ ```
+- **Sensitivity Analysis**:
+ ```bash
+ python code/main.py sensitivity
+ ```
+- **Generate Checksums**:
+ ```bash
+ python code/main.py checksums
+ ```
+- **Validate Resources**:
+ ```bash
+ python code/main.py resources
+ ```
+- **Generate Summary Report**:
+ ```bash
+ python code/main.py summary
+ ```
 
 ## Output Artifacts
 
-After successful execution, the following files will be generated:
+Upon successful completion, the following artifacts will be generated generated:
 
-- `data/raw/barrier_dataset.csv` - Raw experimental data
-- `data/confounds.csv` - Molecular properties and functional groups
-- `data/descriptors_semi.csv` - Semi-empirical descriptors (DFTB+)
-- `data/descriptors_dft.csv` - DFT descriptors (Psi4) for subset
-- `data/optimized_geometries/*.xyz` - Optimized geometries
-- `reports/evaluation.json` - Model evaluation results
-- `reports/sensitivity.csv` - Feature importance and sensitivity analysis
-- `reports/summary_report.md` - Comprehensive summary report
+- `data/raw/barrier_dataset.csv`: Normalized raw dataset.
+- `data/confounds.csv`: Molecular properties and functional groups.
+- `data/descriptors_semi.csv`: Semi-empirical descriptors (HOMO, LUMO, Mayer).
+- `data/descriptors_dft.csv`: DFT descriptors (subset).
+- `data/optimized_geometries/`: XYZ files for optimized geometries.
+- `state/`: Model artifacts and split indices.
+- `reports/`: Evaluation reports, sensitivity reports, and summary.
+- `logs/`: Execution logs and validation reports.
 
 ## Troubleshooting
 
-### Missing Dependencies
-
-If you encounter import errors, ensure all packages are installed:
-
-```bash
-pip install -r code/requirements.txt
-```
-
-### DFTB+ or Psi4 Not Found
-
-Ensure DFTB+ and Psi4 are installed and available in your PATH:
-
-```bash
-which dftb+
-which psi4
-```
-
-### Convergence Failures
-
-If DFTB+ or Psi4 calculations fail to converge, check the logs:
-
-- `logs/convergence_failures.log`
-- `logs/dft_execution.log`
-- `logs/structural_failures.log`
-
-### Memory Issues
-
-If you encounter out-of-memory errors, reduce the subset size or increase available memory. Logs are written to `logs/oom_failures.log`.
-
-## Verification
-
-To verify the pipeline ran correctly:
-
-```bash
-# Check that all expected output files exist
-ls -la data/raw/barrier_dataset.csv
-ls -la data/confounds.csv
-ls -la data/descriptors_semi.csv
-ls -la data/descriptors_dft.csv
-ls -la reports/evaluation.json
-```
-
-## Next Steps
-
-- Review `reports/evaluation.json` for model performance metrics
-- Examine `reports/sensitivity.csv` for feature importance insights
-- Read `reports/summary_report.md` for a comprehensive overview
-- Check `docs/reproducibility.md` for experimental details and checksums
+- **Convergence Failures**: Check `logs/convergence_failures.log` for details.
+- **Missing Data**: Ensure Zenodo ID is correct in `code/config.py` and internet access is available.
+- **Resource Limits**: Check `logs/dft_execution.log` for memory and time usage.

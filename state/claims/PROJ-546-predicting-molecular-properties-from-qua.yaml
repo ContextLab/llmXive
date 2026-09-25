@@ -3198,3 +3198,519 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T04:33:48Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Zenodo Accession ID 1048765
+  claim_id: c_6c6a9cd6
+  context: Task T004a requires extracting the specific Zenodo Accession ID 1048765
+    from the idea file and hardcoding it into code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract the specific Zenodo Accession ID 1048765 from idea/predicting-molecular-properties-from-qua.md
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:25:08Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Dataset fetched from Zenodo ID 1048765
+  claim_id: c_2718c4b6
+  context: Task T004b implements fetching the experimental barrier dataset from Zenodo
+    ID 1048765.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset is fetched from Zenodo ID 1048765
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:25:27Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum verification
+  claim_id: c_e62e1aa0
+  context: Task T004b requires calculating the SHA-256 checksum of the downloaded
+    file before processing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate SHA-256 checksum for verification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:25:49Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Output file data/raw/barrier_dataset.csv
+  claim_id: c_72340656
+  context: Task T004c guarantees the canonical filename data/raw/barrier_dataset.csv
+    is required by subsequent tasks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_file_data/raw/barrier_dataset.csv
+  kind: entity_fact
+  raw_text: The final output file must be exactly data/raw/barrier_dataset.csv
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:26:17Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Distribution stats mean std range for MW and atom count
+  claim_id: c_b4da340c
+  context: Task T011 requires calculating distribution statistics for molecular weight
+    and atom count from the fetched dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distribution_stats_mean_std_range_for_MW_and_atom_count
+  kind: entity_fact
+  raw_text: Calculate distribution stats (mean, std, range) for MW/atom count
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:26:43Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: HOMO and LUMO in eV
+  claim_id: c_b60628d1
+  context: Task T013a specifies unit normalization to eV for HOMO and LUMO descriptor
+    extraction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HOMO_and_LUMO_in_eV
+  kind: entity_fact
+  raw_text: Calculate HOMO and LUMO in eV
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:27:10Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: DFTB+ geometry optimization and descriptor extraction
+  claim_id: c_6519cdfe
+  context: Task T013a implements invoking DFTB+ for geometry optimization and extracting
+    HOMO, LUMO, and Mayer bond orders.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DFTB+_geometry_optimization_and_descriptor_extraction
+  kind: entity_fact
+  raw_text: Invoke DFTB+ for geometry optimization and descriptor extraction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:27:34Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Mayer bond orders calculation
+  claim_id: c_ca337667
+  context: Task T013a includes extracting Mayer bond orders as a descriptor.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mayer_bond_orders_calculation
+  kind: entity_fact
+  raw_text: Calculate Mayer bond orders
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:28:16Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: HOMO energy less than LUMO energy validation
+  claim_id: c_c62dd07f
+  context: Task T013c validates that HOMO energy is strictly less than LUMO energy,
+    retrying if violated.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HOMO_energy_less_than_LUMO_energy_validation
+  kind: magnitude
+  raw_text: Validate HOMO_energy < LUMO_energy
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:28:57Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Optimized geometries saved as molecule_id.xyz
+  claim_id: c_35091071
+  context: Task T013d exports optimized geometries to data/optimized_geometries/ with
+    the filename format {molecule_id}.xyz.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optimized_geometries_saved_as_molecule_id.xyz
+  kind: entity_fact
+  raw_text: Save optimized geometries as {molecule_id}.xyz
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:29:43Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Schema data/descriptors_semi.csv molecule_id HOMO_energy LUMO_energy
+    mayer_bond_order
+  claim_id: c_0ccbc68d
+  context: Task T013e defines the schema for the semi-empirical descriptors CSV file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_data/descriptors_semi.csv_molecule_id_HOMO_energy_LUM
+  kind: entity_fact
+  raw_text: 'Schema for data/descriptors_semi.csv: molecule_id (str), HOMO_energy
+    (float), LUMO_energy (float), mayer_bond_order (float)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:30:10Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Log schema molecule_id command exit_code duration peak_memory_mb
+  claim_id: c_a077184a
+  context: Task T013f requires JSON-line logging to logs/dft_execution.log with specific
+    keys for resource monitoring.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_schema_molecule_id_command_exit_code_duration_peak_memor
+  kind: entity_fact
+  raw_text: 'Log execution to logs/dft_execution.log with JSON schema: molecule_id,
+    command, exit_code, duration, peak_memory_mb'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:30:46Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Psi4 B3LYP/def2-SVP calculations
+  claim_id: c_305fc1b7
+  context: Task T020b specifies invoking Psi4 to perform B3LYP/def2-SVP calculations
+    on the selected subset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Psi4_B3LYP/def2-SVP_calculations
+  kind: entity_fact
+  raw_text: Invoke Psi4 for B3LYP/def2-SVP calculations
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:31:17Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Schema data/descriptors_dft.csv molecule_id HOMO_energy LUMO_energy mayer_bond_order
+  claim_id: c_c47a7779
+  context: Task T020b defines the schema for the DFT descriptors CSV file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_data/descriptors_dft.csv_molecule_id_HOMO_energy_LUMO
+  kind: entity_fact
+  raw_text: 'Output schema for data/descriptors_dft.csv: molecule_id (str), HOMO_energy
+    (float), LUMO_energy (float), mayer_bond_order (float)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:31:40Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Train two Random Forest models semi vs DFT
+  claim_id: c_f450ce2b
+  context: Task T021 involves training two Random Forest models, one for semi-empirical
+    and one for DFT descriptors.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_two_Random_Forest_models_semi_vs_DFT
+  kind: entity_fact
+  raw_text: Train two Random Forest models (semi vs DFT)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:32:14Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Paired t-test error distributions
+  claim_id: c_30f2fc74
+  context: Task T022 requires performing a paired t-test comparing the error distributions
+    of the Semi-Empirical and DFT RF models.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_error_distributions
+  kind: entity_fact
+  raw_text: Perform a paired t-test comparing error distributions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:32:53Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Significance level 0.05
+  claim_id: c_f5d4a724
+  context: Task T022 specifies a significance level of alpha=0.05 for the paired t-test.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Significance Level alpha = 0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T17:33:06Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Gaussian noise sigma 0.01 0.05
+  claim_id: c_f161c80f
+  context: Task T030b specifies injecting Gaussian noise into descriptor features
+    using noise levels of sigma=0.01 and 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject Gaussian noise with sigma = 0.01 and 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:33:34Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stable flag true if rank correlation rho >= 0.9
+  claim_id: c_f4698c91
+  context: Task T030b defines the stable_flag as True only if the Spearman's rank
+    correlation rho is greater than or equal to 0.9.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stable flag is True only if rank correlation rho >= 0.9
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:34:03Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Total runtime less than or equal to 6 hours
+  claim_id: c_70c36379
+  context: Task T033b requires validating that the total runtime of the full pipeline
+    does not exceed 6 hours.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: Validate total runtime <= 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:34:33Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Peak memory less than or equal to 7 GB
+  claim_id: c_52734d2e
+  context: Task T033b requires validating that the peak memory usage does not exceed
+    7 GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: Validate peak memory <= 7 GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:34:58Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Subset availability filter 90 percent
+  claim_id: c_83ccfac9
+  context: Task T020a specifies logging a warning if the count of available molecules
+    is less than 90% of the target subset size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter subset for availability if count < 90% of target
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:34:59Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Zenodo Accession ID 1048765 used for experimental barrier dataset
+  claim_id: c_75c0751c
+  context: Task T004a requires resolving the Zenodo ID from the idea file and hardcoding
+    it for data fetching.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract the specific Zenodo Accession ID 1048765 from idea/predicting-molecular-properties-from-qua.md
+    and hardcode it into code/config.py as ZENODO_ID = "1048765".
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:43:02Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Experimental barrier dataset fetched from Zenodo ID 1048765
+  claim_id: c_44e84f57
+  context: Task T004b involves fetching the dataset using the specific Zenodo ID.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/fetch_data.py to fetch the experimental barrier dataset
+    from Zenodo ID 1048765.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:43:25Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Paired t-test significance level set to 0.05
+  claim_id: c_4f7731c5
+  context: Task T022 specifies the significance level for the paired t-test comparing
+    error distributions.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Significance Level (\u03B1=0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:43:59Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep uses feature importance cutoffs 0.01, 0.05, 0.1 and
+    noise levels 0.01, 0.05
+  claim_id: c_ee27e123
+  context: Task T030b defines the specific parameters for the sensitivity and stability
+    verification sweep.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full cross-combination sweep of feature importance cutoffs\
+    \ {0.01, 0.05, 0.1} and noise injection levels {\u03C3=0.01, 0.05}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:44:22Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Spearman's rank correlation used to measure descriptor stability in sensitivity
+    sweep
+  claim_id: c_ea3c83f0
+  context: Task T030b specifies the statistical method for evaluating model stability
+    under noise.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman's_rank_correlation_used_to_measure_descriptor_stabi
+  kind: entity_fact
+  raw_text: Calculate Spearman's rank correlation (rho) between the top-ranked descriptors
+    of the perturbed model and the original model for every combination.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:44:54Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 1
+  canonical: Stability flag threshold set to rank correlation 0.9
+  claim_id: c_0a85a368
+  context: Task T030b defines the condition for the stable_flag boolean in the sensitivity
+    matrix output.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stable_flag is True only if rank_correlation >= 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:45:20Z'
+- artifact_path: projects/PROJ-546-predicting-molecular-properties-from-qua/specs/001-predicting-molecular-properties-from-qua/tasks.md
+  attempts: 2
+  canonical: "Pipeline validation requires total runtime \u2264 6 hours and peak memory\
+    \ \u2264 7 GB"
+  claim_id: c_66ba08d1
+  context: Task T033b sets resource constraints for the full pipeline execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate runtime logs from T033a: verify total runtime \u2264 6 hours\
+    \ and peak memory \u2264 7 GB per Constitution Principle VII (Resource-Bound Execution)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T17:45:38Z'

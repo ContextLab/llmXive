@@ -1,3 +1,8 @@
-# Root project dependencies for PROJ-546
-# These are high-level dependencies often needed for environment setup or top-level scripts
-# Specific pinned versions for reproducibility are in code/requirements.txt
+scikit-learn
+pandas
+rdkit
+requests
+datasets
+pyyaml
+pytest
+joblib

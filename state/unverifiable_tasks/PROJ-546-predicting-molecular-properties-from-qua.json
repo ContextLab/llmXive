@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-546-predicting-molecular-properties-from-qua",
+  "tasks": [
+    {
+      "task_key": "T011",
+      "reject_count": 1,
+      "last_reason": "The required input file `data/raw/barrier_dataset.csv` is missing, so the script cannot run, and consequently `data/confounds.csv` and `reports/confounds_coverage_report.md` were never generated. The task\u2019s core outputs are absent.",
+      "first_seen": "2026-09-25T18:03:25.955310+00:00",
+      "last_seen": "2026-09-25T18:03:25.955310+00:00"
+    }
+  ],
+  "updated_at": "2026-09-25T18:03:25.955310+00:00"
+}
