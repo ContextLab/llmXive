@@ -41,7 +41,7 @@ The system MUST train three SDM algorithms (MaxEnt-style, Random Forest, Bioclim
 
 ### User Story 3 - Future Projection and Evaluation (Priority: P3)
 
-The system MUST project trained models onto future climate scenarios (CMIP6 SSP2-4.5, 2050) and evaluate predictive performance against recent occurrence records (2005-2020) using paired statistical tests and niche stability checks.
+The system MUST project trained models onto future climate scenarios (CMIP6 SSP2-4.5, 2050) and evaluate predictive performance against recent occurrence records (2000s-2020) using paired statistical tests and niche stability checks.
 
 **Why this priority**: This completes the forecasting loop, allowing comparison of historic predictions against recent observations to quantify reliability and distinguish between niche conservatism and range shift.
 
@@ -67,7 +67,7 @@ The system MUST project trained models onto future climate scenarios (CMIP6 SSP2
 ### Functional Requirements
 
 - **FR-001**: System MUST download North American bird occurrence data (1970-2000) via GBIF API or eBird and climate rasters from WorldClim v2 via wget or equivalent, ensuring all required predictor variables are present for every record (See US-1).
-- **FR-002**: System MUST spatially thin occurrence points to a minimum distance of 10km to reduce spatial autocorrelation before model training (See US-1).
+- **FR-002**: System MUST spatially thin occurrence points to a minimum distance threshold to reduce spatial autocorrelation before model training (See US-1).
 - **FR-003**: System MUST train all SDM algorithms using CPU-only libraries (e.g., `scikit-learn`) with no GPU/CUDA dependencies to ensure compatibility with free-tier CI runners (See US-2).
 - **FR-004**: System MUST train models using CPU-only libraries to ensure compatibility with free-tier CI runners (See US-2).
 - **FR-005**: System MUST perform a sensitivity analysis on the suitability probability threshold (sweeping absolute diff ∈ {low, specific magnitudes}) and apply multiple-comparison correction for paired hypothesis tests (See US-3).

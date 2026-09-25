@@ -1,71 +1,110 @@
-import pandas as pd
-import numpy as np
-import pytest
+"""
+Unit tests for the preprocess module.
+"""
+
+import os
 import sys
+import tempfile
+import json
+import pandas as pd
+import pytest
 from pathlib import Path
 from datetime import datetime
 
-# Add parent directory to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from preprocess import filter_breeding_season, remove_duplicates, spatial_thin, validate_training_data
+from code.preprocess import check_historical_data_sufficiency, thin_occurrences
+from code.config import DATA_DIR, METRICS_DIR
 
-def test_filter_breeding_season():
-    data = {
-        'species': ['A', 'A', 'A', 'B'],
-        'eventDate': ['2020-05-15', '2020-01-15', '2020-07-20', '2020-06-01'],
-        'decimalLatitude': [40.0, 40.0, 40.0, 40.0],
-        'decimalLongitude': [-75.0, -75.0, -75.0, -75.0]
-    }
-    df = pd.DataFrame(data)
-    result = filter_breeding_season(df)
-    # May, July, June are in breeding season (4-9). Jan is not.
-    assert len(result) == 3
-    assert 'eventDate' in result.columns
+class TestDataSufficiencyCheck:
+    def test_insufficient_data_flag(self, tmp_path):
+        """Test that species with <100 records are flagged."""
+        # Create a mock CSV
+        input_file = tmp_path / "occurrence.csv"
+        output_file = tmp_path / "insufficient.json"
+        
+        # Create data with one species having 50 records, another 150
+        data = {
+            'species': ['SpeciesA'] * 50 + ['SpeciesB'] * 150,
+            'decimalLatitude': [40.0] * 200,
+            'decimalLongitude': [-75.0] * 200,
+            'eventDate': ['2000-06-01'] * 200
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(input_file, index=False)
+        
+        result = check_historical_data_sufficiency(
+            input_path=str(input_file),
+            output_path=str(output_file),
+            threshold=100
+        )
+        
+        assert result['insufficient_species_count'] == 1
+        assert result['sufficient_species_count'] == 1
+        assert any(r['species'] == 'SpeciesA' for r in result['records'])
+        
+        # Verify JSON file exists
+        assert os.path.exists(output_file)
 
-def test_remove_duplicates():
-    data = {
-        'species': ['A', 'A', 'A', 'B'],
-        'decimalLatitude': [40.0, 40.0, 41.0, 40.0],
-        'decimalLongitude': [-75.0, -75.0, -75.0, -75.0]
-    }
-    df = pd.DataFrame(data)
-    result = remove_duplicates(df)
-    # First two are duplicates (A, 40, -75). Keep one.
-    assert len(result) == 3
+class TestSpatialThinning:
+    def test_thinning_logic(self, tmp_path):
+        """Test that thinning enforces minimum distance."""
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        
+        # Create data with points very close together (within 1km)
+        # Species A: 3 points at same location
+        # Species B: 2 points 100km apart
+        data = {
+            'species': ['SpeciesA', 'SpeciesA', 'SpeciesA', 'SpeciesB', 'SpeciesB'],
+            'decimalLatitude': [40.0, 40.001, 40.002, 40.0, 50.0], # ~0.1 deg ~ 11km
+            'decimalLongitude': [-75.0, -75.001, -75.002, -75.0, -75.0],
+            'eventDate': ['2000-06-01', '2000-06-01', '2000-06-01', '2000-06-01', '2000-06-01']
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(input_file, index=False)
+        
+        result = thin_occurrences(
+            input_path=str(input_file),
+            output_path=str(output_file),
+            distance_km=10.0
+        )
+        
+        # Load output
+        output_df = pd.read_csv(output_file)
+        
+        # SpeciesA should have 1 point (others too close)
+        # SpeciesB should have 2 points (far apart)
+        species_a_count = len(output_df[output_df['species'] == 'SpeciesA'])
+        species_b_count = len(output_df[output_df['species'] == 'SpeciesB'])
+        
+        assert species_a_count == 1
+        assert species_b_count == 2
+        assert result['after_count'] == 3
 
-def test_spatial_thin():
-    # Create points: A at 0,0 and 0.1,0 (approx 11km apart), A at 0, 0.001 (approx 0.1km)
-    # Distance threshold is 10km.
-    # 0,0 and 0.1,0 -> ~11km -> Keep both.
-    # 0,0 and 0, 0.001 -> ~0.1km -> Remove the second one.
-    data = {
-        'species': ['A', 'A', 'A'],
-        'decimalLatitude': [0.0, 0.1, 0.001],
-        'decimalLongitude': [0.0, 0.0, 0.0]
-    }
-    df = pd.DataFrame(data)
-    # Min distance 10km
-    result = spatial_thin(df, min_dist_km=10.0)
-    # Should keep at least one point per cluster, but logic depends on shuffle order.
-    # With seed, it's deterministic.
-    # Point 0: 0,0. Point 1: 0.1,0 (~11km). Point 2: 0.001,0 (~0.1km).
-    # If 0 is kept, 2 is removed. 1 is kept. Result: 0, 1.
-    # If 2 is kept (shuffled first), 0 is removed (dist 0.1). 1 is kept. Result: 2, 1.
-    # In either case, count should be 2.
-    assert len(result) == 2
-
-def test_validate_training_data():
-    data = {
-        'species': ['A', 'A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'B', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C'],
-        'decimalLatitude': [0.0]*22,
-        'decimalLongitude': [0.0]*22
-    }
-    df = pd.DataFrame(data)
-    # A: 5, B: 5, C: 12. Threshold 10.
-    result, invalid = validate_training_data(df)
-    assert len(result) == 12
-    assert 'C' in result['species'].values
-    assert 'A' not in result['species'].values
-    assert 'B' not in result['species'].values
-    assert set(invalid) == {'A', 'B'}
+    def test_breeding_season_filter(self, tmp_path):
+        """Test that non-breeding season records are removed."""
+        input_file = tmp_path / "input.csv"
+        output_file = tmp_path / "output.csv"
+        
+        data = {
+            'species': ['SpeciesA', 'SpeciesA', 'SpeciesA'],
+            'decimalLatitude': [40.0, 40.0, 40.0],
+            'decimalLongitude': [-75.0, -75.0, -75.0],
+            'eventDate': ['2000-01-01', '2000-06-01', '2000-12-01'] # Jan, June, Dec
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(input_file, index=False)
+        
+        thin_occurrences(
+            input_path=str(input_file),
+            output_path=str(output_file),
+            distance_km=10.0
+        )
+        
+        output_df = pd.read_csv(output_file)
+        # Only June (month 6) should remain
+        assert len(output_df) == 1
+        assert output_df.iloc[0]['species'] == 'SpeciesA'

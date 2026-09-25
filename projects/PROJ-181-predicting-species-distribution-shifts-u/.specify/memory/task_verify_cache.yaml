@@ -1,25 +1,11 @@
-T001a:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or screenshots were provided to confirm that the required
-    folders (`projects/PROJ-181-predicting-species-distribution-shifts-u/data/`, `data/raw/`,
-    `data/processed/`, `data/artifacts/`) actually exist; thus the claim cannot be
-    verified. The implementer must supply evidence (e.g., a directory tree output)
-    showing these paths have been created.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file listings were provided showing that `projects/PROJ-181-predicting-species-distribution-shifts-u/code/`,
-    `code/utils/`, `tests/unit/`, or `tests/integration/` actually exist (or contain
-    any files). Without concrete evidence of these paths, the requirement is not satisfied.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file system evidence were provided showing that the
-    required folders (`projects/PROJ-181-predicting-species-distribution-shifts-u/metrics/`,
-    `reports/`, `logs/`, `state/`, `contracts/`) actually exist, so the claim cannot
-    be verified. The implementer must supply proof (e.g., a directory tree snapshot)
-    that these directories have been created.
+  r: "No directory tree or file listings were provided to demonstrate that `projects/PROJ-181-predicting-species-distribution-shifts-u/`\
+    \ and all required sub\u2011directories exist, nor that each contains a `.gitkeep`\
+    \ placeholder. The implementer must supply concrete evidence (e.g., a tree view,\
+    \ `ls` output, or a zip of the created folders) showing the full structure with\
+    \ the `.gitkeep` files."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -28,17 +14,55 @@ T003:
     \ evidence, so the requirement to configure flake8 and black is not demonstrated.\
     \ The implementer must add the appropriate configuration files and show they are\
     \ integrated into the project (e.g., via a Makefile target or CI step)."
-T011:
+T010:
   c: false
-  h: 888403cbc6d60b7863c91aff8ca972e340b668c6ef6b836d8bb3fc4b1c5b279e
-  r: "The provided `code/download.py` contains logic for downloading WorldClim climate\
-    \ files, not recent occurrence records, and does not create or write `data/raw/occurrence_2005_2020.csv`.\
-    \ Moreover, the required CSV file is absent from the repository. The task\u2019\
-    s core requirement\u2014fetching occurrence data (2005\u20112020) with the specified\
-    \ metadata columns and saving it to the indicated path\u2014is therefore not satisfied."
+  h: 313c4eed02aeff9125f66260a8224a177dcfd51927657b503b4ae2d27d3d36fc
+  r: "The required output CSV `data/raw/occurrence_1970_2000.csv` does not exist,\
+    \ so the task\u2019s core deliverable is missing. Additionally, the provided `download.py`\
+    \ is truncated and does not show the logic that reads the species list, invokes\
+    \ the fetch function, and writes the CSV, leaving uncertainty that all required\
+    \ columns and constraints are satisfied. The next implementer must ensure the\
+    \ script creates the specified CSV with the mandated metadata columns."
 T013:
   c: false
   h: 6966478272f285e639d8e283be7f8d257fafb835a56bca7aae7dff906148941a
   r: 'Both required artifacts are absent: `code/preprocess.py` does not exist, and
     the log file `logs/preprocess_counts.yaml` is missing, so the preprocessing functionality
     and logging are not implemented.'
+T013b:
+  c: false
+  h: 217a3020c3a7bc1547601afa5eeef5e3ca25854db48bd5f0390eb7441a94691d
+  r: "The required input file `data/raw/occurrence_1970_2000.csv` is absent, and the\
+    \ provided `code/preprocess.py` (as shown) contains no logic that reads this CSV,\
+    \ counts records per species, or writes `metrics/historical_insufficient_data.json`\
+    \ with the specified schema. Consequently the task\u2019s core requirement is\
+    \ not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/artifacts/model_{species}_{algo}.pkl` file (or code that
+    creates such files) was provided; the implementer did not supply the saved model
+    artifacts nor any script demonstrating the saving step. The required output is
+    missing.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `metrics/training_metrics.csv` file or its contents were presented, and there
+    is no evidence that AUC/TSS values were computed and saved. The required output
+    file is missing, so the task is not satisfied.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., training logs, process monitoring output, code checks, or\
+    \ test results) was provided to demonstrate that the model training runs without\
+    \ invoking any GPU/CUDA libraries. Without such evidence, we cannot confirm that\
+    \ the requirement \u201Cno GPU/CUDA dependencies are invoked during training\u201D\
+    \ is satisfied. The implementer must supply concrete proof\u2014such as a log\
+    \ showing absence of CUDA initialization, a dependency list confirming only CPU\
+    \ libraries, or a test run that verifies no CUDA errors."
+T029b:
+  c: false
+  h: f1889f20cb1b7353c07ff0ae9317516075ed5a918062a958ab32b42aa71a3dd4
+  r: "The required output `data/processed/occurrence_recent_clean.csv` does not exist,\
+    \ and there is no evidence that the script creates the `metrics/insufficient_data.json`\
+    \ flag. Without these artifacts, the task\u2019s core requirements are unmet."

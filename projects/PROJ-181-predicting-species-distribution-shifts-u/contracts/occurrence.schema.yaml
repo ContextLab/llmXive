@@ -1,125 +1,14 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Occurrence Record Schema
-description: |
-  JSON Schema for validating occurrence data files (raw and processed).
-  Ensures compliance with Constitution Principle VI (metadata columns) 
-  and data integrity requirements (FR-001, FR-002).
-type: object
-required:
-  - records
-properties:
-  records:
-    type: array
-    description: List of occurrence records.
-    items:
-      type: object
-      required:
-        - species
-        - latitude
-        - longitude
-        - source_identifier
-        - download_timestamp
-        - original_dataset_name
-      properties:
-        species:
-          type: string
-          description: Scientific name of the species.
-        latitude:
-          type: number
-          minimum: -90
-          maximum: 90
-          description: Decimal latitude (WGS84).
-        longitude:
-          type: number
-          minimum: -180
-          maximum: 180
-          description: Decimal longitude (WGS84).
-        year:
-          type: integer
-          minimum: 1900
-          maximum: 2100
-          description: Year of observation.
-        month:
-          type: integer
-          minimum: 1
-          maximum: 12
-          description: Month of observation (optional).
-        source_identifier:
-          type: string
-          description: Unique identifier from the source dataset (GBIF key or dataset ID).
-        download_timestamp:
-          type: string
-          format: date-time
-          description: ISO 8601 timestamp of when the data was downloaded.
-        original_dataset_name:
-          type: string
-          description: Name of the original dataset from which this record was sourced.
-        event_date:
-          type: string
-          format: date
-          description: Full date of the event (YYYY-MM-DD).
-        coordinate_uncertainty_in_meters:
-          type: number
-          minimum: 0
-          description: Estimated uncertainty of the coordinate in meters.
-        basis_of_record:
-          type: string
-          description: Basis of record (e.g., 'HumanObservation', 'MachineObservation').
-        individual_count:
-          type: integer
-          minimum: 1
-          description: Number of individuals observed.
-        climate_bio1:
-          type: number
-          description: Annual Mean Temperature (extracted from raster).
-        climate_bio12:
-          type: number
-          description: Annual Precipitation (extracted from raster).
-        # Allow other bio variables (bio2-bio19) as optional numeric fields
-        climate_bio2:
-          type: number
-        climate_bio3:
-          type: number
-        climate_bio4:
-          type: number
-        climate_bio5:
-          type: number
-        climate_bio6:
-          type: number
-        climate_bio7:
-          type: number
-        climate_bio8:
-          type: number
-        climate_bio9:
-          type: number
-        climate_bio10:
-          type: number
-        climate_bio11:
-          type: number
-        climate_bio13:
-          type: number
-        climate_bio14:
-          type: number
-        climate_bio15:
-          type: number
-        climate_bio16:
-          type: number
-        climate_bio17:
-          type: number
-        climate_bio18:
-          type: number
-        climate_bio19:
-          type: number
-        thinning_distance_km:
-          type: number
-          minimum: 0
-          description: Distance used for spatial thinning if applicable.
-        data_quality_flag:
-          type: string
-          enum:
-            - VALID
-            - IMPUTED
-            - OUT_OF_BOUNDS
-            - INSUFFICIENT_DATA
-          description: Flag indicating data quality status.
-additionalProperties: false
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["source_identifier", "download_timestamp", "original_dataset_name", "species", "decimalLatitude", "decimalLongitude", "eventDate"],
+  "properties": {
+    "source_identifier": {"type": "string"},
+    "download_timestamp": {"type": "string", "format": "date-time"},
+    "original_dataset_name": {"type": "string"},
+    "species": {"type": "string"},
+    "decimalLatitude": {"type": "number"},
+    "decimalLongitude": {"type": "number"},
+    "eventDate": {"type": "string"}
+  }
+}

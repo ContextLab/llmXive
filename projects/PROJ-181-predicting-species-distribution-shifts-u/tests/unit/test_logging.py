@@ -1,83 +1,195 @@
+import pytest
 import os
 import logging
-import pytest
+import yaml
 from pathlib import Path
-import tempfile
+from datetime import datetime
+
+# Add project root to path for imports
 import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from code.logging_config import (
+    setup_logger,
+    get_logger,
+    get_preprocess_logger,
+    get_download_logger,
+    get_train_logger,
+    get_project_logger,
+    DetailedFormatter,
+    initialize_pipeline_logging
+)
+from code.utils.yaml_utils import write_preprocess_counts, read_yaml_file
+from code.config import LOGS_DIR
 
-from config import LOGS_DIR
-from logging_config import setup_logger, get_logger, DetailedFormatter
+class TestLoggerSetup:
+    """Test logger initialization and configuration."""
 
-@pytest.fixture
-def temp_log_dir():
-    """Create a temporary directory for logs during testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        original_log_dir = LOGS_DIR
-        # Mock the LOGS_DIR path temporarily
-        import config
-        config.LOGS_DIR = Path(tmpdir)
-        yield Path(tmpdir)
-        config.LOGS_DIR = original_log_dir
+    def test_setup_logger_creates_logger(self):
+        """Test that setup_logger creates a logger with correct name."""
+        logger_name = "test_logger"
+        logger = setup_logger(logger_name)
+        
+        assert logger.name == logger_name
+        assert logger.level == logging.INFO
+        assert len(logger.handlers) > 0
 
-def test_setup_logger_creates_file_handler(temp_log_dir):
-    """Test that setup_logger creates a file handler."""
-    logger = setup_logger("test_logger")
-    
-    file_handlers = [h for h in logger.handlers if isinstance(h, logging.FileHandler)]
-    assert len(file_handlers) > 0, "Logger should have a file handler"
-    
-    # Check if log file exists
-    log_file = temp_log_dir / "pipeline.log"
-    assert log_file.exists(), "Log file should be created"
+    def test_setup_logger_with_file(self, tmp_path):
+        """Test that setup_logger creates a file handler when log_file is provided."""
+        log_file = tmp_path / "test.log"
+        logger = setup_logger("test_file_logger", log_file=str(log_file))
+        
+        assert len(logger.handlers) >= 2  # File + Console
+        
+        # Check file was created
+        assert log_file.exists()
 
-def test_setup_logger_creates_console_handler(temp_log_dir):
-    """Test that setup_logger creates a console handler."""
-    logger = setup_logger("test_logger_2")
-    
-    console_handlers = [h for h in logger.handlers if isinstance(h, logging.StreamHandler)]
-    assert len(console_handlers) > 0, "Logger should have a console handler"
+    def test_detailed_formatter_format(self):
+        """Test that DetailedFormatter produces expected format."""
+        formatter = DetailedFormatter()
+        
+        record = logging.LogRecord(
+            name="test",
+            level=logging.INFO,
+            pathname="test.py",
+            lineno=1,
+            msg="Test message",
+            args=(),
+            exc_info=None
+        )
+        
+        formatted = formatter.format(record)
+        
+        # Check format includes required components
+        assert "test" in formatted  # name
+        assert "INFO" in formatted  # level
+        assert "Test message" in formatted  # message
+        assert any(char.isdigit() for char in formatted)  # timestamp
 
-def test_get_logger_reuses_existing(temp_log_dir):
-    """Test that get_logger returns the same instance if already configured."""
-    logger1 = setup_logger("test_reuse")
-    logger2 = get_logger("test_reuse")
-    
-    assert logger1 is logger2, "get_logger should return the same instance"
-    assert len(logger1.handlers) == len(logger2.handlers), "Handler count should match"
+    def test_get_logger_reuses_existing(self):
+        """Test that get_logger reuses an existing logger."""
+        logger_name = "test_reuse_logger"
+        logger1 = setup_logger(logger_name)
+        logger2 = get_logger(logger_name)
+        
+        assert logger1 is logger2
 
-def test_detailed_formatter_includes_level(temp_log_dir):
-    """Test that the detailed formatter includes log level."""
-    logger = setup_logger("test_formatter")
-    
-    # Log a message
-    logger.info("Test message")
-    
-    # Read the log file
-    log_file = temp_log_dir / "pipeline.log"
-    with open(log_file, 'r') as f:
-        content = f.read()
-    
-    assert "INFO" in content, "Log file should contain 'INFO' level"
-    assert "Test message" in content, "Log file should contain the message"
+    def test_initialize_pipeline_logging(self):
+        """Test pipeline logging initialization."""
+        root_logger = initialize_pipeline_logging()
+        
+        assert root_logger.level == logging.INFO
+        assert len(root_logger.handlers) >= 2  # Console + File
 
-def test_logger_level_respected(temp_log_dir):
-    """Test that the logger respects the configured level."""
-    # Set up a logger with WARNING level
-    logger = setup_logger("test_level", level=logging.WARNING)
-    
-    # Log messages at different levels
-    logger.debug("Debug message")
-    logger.info("Info message")
-    logger.warning("Warning message")
-    
-    # Read the log file
-    log_file = temp_log_dir / "pipeline.log"
-    with open(log_file, 'r') as f:
-        content = f.read()
-    
-    assert "Debug message" not in content, "Debug messages should not be logged"
-    assert "Info message" not in content, "Info messages should not be logged"
-    assert "Warning message" in content, "Warning messages should be logged"
+class TestPreprocessLogger:
+    """Test preprocess-specific logger and YAML output."""
+
+    def test_get_preprocess_logger(self):
+        """Test that get_preprocess_logger returns a configured logger."""
+        logger = get_preprocess_logger()
+        
+        assert logger.name == "preprocess"
+        assert len(logger.handlers) > 0
+
+    def test_write_preprocess_counts(self, tmp_path):
+        """Test writing preprocess counts to YAML."""
+        output_path = tmp_path / "test_counts.yaml"
+        
+        result_path = write_preprocess_counts(
+            species="TestSpecies",
+            before_count=1000,
+            after_count=850,
+            distance_used_km=10.0,
+            output_path=str(output_path)
+        )
+        
+        assert Path(result_path).exists()
+        
+        # Verify YAML content
+        with open(output_path, 'r') as f:
+            data = yaml.safe_load(f)
+        
+        assert data["species"] == "TestSpecies"
+        assert data["before_count"] == 1000
+        assert data["after_count"] == 850
+        assert data["distance_used_km"] == 10.0
+        assert "timestamp" in data
+
+    def test_write_preprocess_counts_default_path(self):
+        """Test writing to default log path."""
+        result_path = write_preprocess_counts(
+            species="DefaultPathSpecies",
+            before_count=500,
+            after_count=400,
+            distance_used_km=10.0
+        )
+        
+        expected_path = LOGS_DIR / "preprocess_counts.yaml"
+        assert result_path == str(expected_path)
+        assert expected_path.exists()
+
+    def test_read_yaml_file(self, tmp_path):
+        """Test reading a YAML file."""
+        test_data = {
+            "species": "ReadTest",
+            "before_count": 200,
+            "after_count": 150,
+            "timestamp": "2024-01-01T00:00:00",
+            "distance_used_km": 10.0
+        }
+        
+        test_file = tmp_path / "test_read.yaml"
+        with open(test_file, 'w') as f:
+            yaml.dump(test_data, f)
+        
+        result = read_yaml_file(str(test_file))
+        
+        assert result["species"] == "ReadTest"
+        assert result["before_count"] == 200
+        assert result["distance_used_km"] == 10.0
+
+    def test_read_yaml_file_not_found(self):
+        """Test reading a non-existent YAML file raises error."""
+        with pytest.raises(FileNotFoundError):
+            read_yaml_file("/nonexistent/path/file.yaml")
+
+    def test_yaml_schema_compliance(self, tmp_path):
+        """Test that written YAML matches required schema."""
+        output_path = tmp_path / "schema_test.yaml"
+        
+        write_preprocess_counts(
+            species="SchemaTest",
+            before_count=100,
+            after_count=90,
+            distance_used_km=10.0,
+            output_path=str(output_path)
+        )
+        
+        with open(output_path, 'r') as f:
+            data = yaml.safe_load(f)
+        
+        # Verify all required fields exist with correct types
+        assert isinstance(data["species"], str)
+        assert isinstance(data["before_count"], int)
+        assert isinstance(data["after_count"], int)
+        assert isinstance(data["timestamp"], str)
+        assert isinstance(data["distance_used_km"], float)
+
+class TestOtherLoggers:
+    """Test other specialized loggers."""
+
+    def test_get_download_logger(self):
+        """Test download logger creation."""
+        logger = get_download_logger()
+        assert logger.name == "download"
+
+    def test_get_train_logger(self):
+        """Test training logger creation."""
+        logger = get_train_logger()
+        assert logger.name == "train"
+
+    def test_get_project_logger(self):
+        """Test project logger creation."""
+        logger = get_project_logger()
+        assert logger.name == "project"

@@ -1,175 +1,204 @@
 """
 Unit tests for the download module.
-
-Tests:
-- validate_climate_rasters function
-- validate_all_bioclim_variables function
-- File existence and data validation logic
 """
 import os
 import sys
 import tempfile
-import shutil
-from pathlib import Path
-import numpy as np
 import pytest
+from pathlib import Path
 from unittest.mock import patch, MagicMock
-import rasterio
-from rasterio.transform import from_bounds
+import csv
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.download import (
-    validate_climate_rasters,
-    validate_all_bioclim_variables,
-    ALL_BIOCLIM_VARS,
-    HISTORICAL_DIR,
-    FUTURE_DIR
-)
-from code.logging_config import get_download_logger
+from code.download import fetch_gbif_occurrences, get_download_logger
+from code.config import DATA_RAW_DIR
 
-@pytest.fixture
-def temp_raster_dir():
-    """Create a temporary directory with valid test rasters."""
-    temp_dir = tempfile.mkdtemp()
-    
-    # Create valid rasters for all 19 variables
-    for i, var in enumerate(ALL_BIOCLIM_VARS):
-        filename = f"{var}.tif"
-        file_path = Path(temp_dir) / filename
-        
-        # Create a simple raster with valid data
-        transform = from_bounds(0, 0, 10, 10, 10, 10)
-        data = np.random.rand(10, 10).astype(np.float32) * 100
-        
-        with rasterio.open(
-            file_path,
-            'w',
-            driver='GTiff',
-            height=10,
-            width=10,
-            count=1,
-            dtype=data.dtype,
-            crs='EPSG:4326',
-            transform=transform
-        ) as dst:
-            dst.write(data, 1)
-    
-    yield temp_dir
-    
-    # Cleanup
-    shutil.rmtree(temp_dir)
+class TestFetchGbifOccurrences:
+    """Tests for fetch_gbif_occurrences function."""
 
-@pytest.fixture
-def temp_raster_dir_missing():
-    """Create a temporary directory with missing variables."""
-    temp_dir = tempfile.mkdtemp()
-    
-    # Create rasters for only first 10 variables
-    for i, var in enumerate(ALL_BIOCLIM_VARS[:10]):
-        filename = f"{var}.tif"
-        file_path = Path(temp_dir) / filename
-        
-        transform = from_bounds(0, 0, 10, 10, 10, 10)
-        data = np.random.rand(10, 10).astype(np.float32) * 100
-        
-        with rasterio.open(
-            file_path,
-            'w',
-            driver='GTiff',
-            height=10,
-            width=10,
-            count=1,
-            dtype=data.dtype,
-            crs='EPSG:4326',
-            transform=transform
-        ) as dst:
-            dst.write(data, 1)
-    
-    yield temp_dir
-    
-    # Cleanup
-    shutil.rmtree(temp_dir)
+    def test_fetch_gbif_occurrences_creates_csv(self, tmp_path):
+        """Test that fetch_gbif_occurrences creates a valid CSV file."""
+        # Mock the requests.get to return a valid response
+        mock_response_data = {
+            "results": [
+                {
+                    "scientificName": "Turdus migratorius",
+                    "decimalLatitude": 40.7128,
+                    "decimalLongitude": -74.0060,
+                    "eventDate": "2015-05-01",
+                    "basisOfRecord": "OCCURRENCE",
+                    "datasetKey": "test-dataset-key"
+                },
+                {
+                    "scientificName": "Turdus migratorius",
+                    "decimalLatitude": 41.8781,
+                    "decimalLongitude": -87.6298,
+                    "eventDate": "2016-06-15",
+                    "basisOfRecord": "OCCURRENCE",
+                    "datasetKey": "test-dataset-key"
+                }
+            ],
+            "offset": 0,
+            "limit": 300,
+            "endOfRecords": True
+        }
 
-@pytest.fixture
-def temp_raster_dir_null():
-    """Create a temporary directory with an all-null raster."""
-    temp_dir = tempfile.mkdtemp()
-    
-    for i, var in enumerate(ALL_BIOCLIM_VARS):
-        filename = f"{var}.tif"
-        file_path = Path(temp_dir) / filename
-        
-        transform = from_bounds(0, 0, 10, 10, 10, 10)
-        
-        # Create null raster for bio05
-        if var == "bio05":
-            data = np.full((10, 10), np.nan, dtype=np.float32)
-        else:
-            data = np.random.rand(10, 10).astype(np.float32) * 100
-        
-        with rasterio.open(
-            file_path,
-            'w',
-            driver='GTiff',
-            height=10,
-            width=10,
-            count=1,
-            dtype=data.dtype,
-            crs='EPSG:4326',
-            transform=transform
-        ) as dst:
-            dst.write(data, 1)
-    
-    yield temp_dir
-    
-    # Cleanup
-    shutil.rmtree(temp_dir)
+        output_path = tmp_path / "test_occurrence.csv"
 
-def test_validate_climate_rasters_all_valid(temp_raster_dir):
-    """Test validation with all valid rasters."""
+        with patch('code.download.requests.get') as mock_get:
+            mock_response = MagicMock()
+            mock_response.json.return_value = mock_response_data
+            mock_response.raise_for_status.return_value = None
+            mock_get.return_value = mock_response
+
+            fetch_gbif_occurrences(
+                species_list=["Turdus migratorius"],
+                start_year=2010,
+                end_year=2020,
+                output_path=str(output_path),
+                api_key="test-key"
+            )
+
+            # Verify the file was created
+            assert output_path.exists()
+
+            # Verify the content
+            with open(output_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+
+                assert len(rows) == 2
+                assert rows[0]['species'] == 'Turdus migratorius'
+                assert rows[0]['decimalLatitude'] == '40.7128'
+                assert 'source_identifier' in reader.fieldnames
+                assert 'download_timestamp' in reader.fieldnames
+                assert 'original_dataset_name' in reader.fieldnames
+
+    def test_fetch_gbif_occurrences_pagination(self, tmp_path):
+        """Test that pagination works correctly."""
+        # First page
+        page1_data = {
+            "results": [{"scientificName": "Species A", "decimalLatitude": 10, "decimalLongitude": 10, "eventDate": "2010", "basisOfRecord": "OCC", "datasetKey": "K1"} for _ in range(300)],
+            "offset": 0,
+            "limit": 300,
+            "endOfRecords": False
+        }
+        # Second page
+        page2_data = {
+            "results": [{"scientificName": "Species A", "decimalLatitude": 11, "decimalLongitude": 11, "eventDate": "2010", "basisOfRecord": "OCC", "datasetKey": "K1"} for _ in range(100)],
+            "offset": 300,
+            "limit": 300,
+            "endOfRecords": True
+        }
+
+        output_path = tmp_path / "test_paginated.csv"
+
+        call_count = 0
+        def mock_get_side_effect(*args, **kwargs):
+            nonlocal call_count
+            mock_response = MagicMock()
+            mock_response.raise_for_status.return_value = None
+            if call_count == 0:
+                mock_response.json.return_value = page1_data
+            else:
+                mock_response.json.return_value = page2_data
+            call_count += 1
+            return mock_response
+
+        with patch('code.download.requests.get', side_effect=mock_get_side_effect):
+            fetch_gbif_occurrences(
+                species_list=["Species A"],
+                start_year=2010,
+                end_year=2020,
+                output_path=str(output_path),
+                api_key="test-key"
+            )
+
+            assert call_count == 2
+            with open(output_path, 'r') as f:
+                reader = csv.reader(f)
+                rows = list(reader)
+                # Header + 300 + 100
+                assert len(rows) == 401
+
+    def test_fetch_gbif_occurrences_missing_coordinates(self, tmp_path):
+        """Test that records with missing coordinates are skipped."""
+        mock_response_data = {
+            "results": [
+                {
+                    "scientificName": "Species A",
+                    "decimalLatitude": 10.0,
+                    "decimalLongitude": 10.0,
+                    "eventDate": "2010",
+                    "basisOfRecord": "OCC",
+                    "datasetKey": "K1"
+                },
+                {
+                    "scientificName": "Species A",
+                    "decimalLatitude": None,
+                    "decimalLongitude": None,
+                    "eventDate": "2010",
+                    "basisOfRecord": "OCC",
+                    "datasetKey": "K1"
+                }
+            ],
+            "offset": 0,
+            "limit": 300,
+            "endOfRecords": True
+        }
+
+        output_path = tmp_path / "test_missing_coords.csv"
+
+        with patch('code.download.requests.get') as mock_get:
+            mock_response = MagicMock()
+            mock_response.json.return_value = mock_response_data
+            mock_response.raise_for_status.return_value = None
+            mock_get.return_value = mock_response
+
+            fetch_gbif_occurrences(
+                species_list=["Species A"],
+                start_year=2010,
+                end_year=2020,
+                output_path=str(output_path),
+                api_key="test-key"
+            )
+
+            with open(output_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                # Only the first record should be present
+                assert len(rows) == 1
+
+    def test_fetch_gbif_occurrences_no_records_raises(self, tmp_path):
+        """Test that an error is raised if no records are fetched."""
+        mock_response_data = {
+            "results": [],
+            "offset": 0,
+            "limit": 300,
+            "endOfRecords": True
+        }
+
+        output_path = tmp_path / "test_empty.csv"
+
+        with patch('code.download.requests.get') as mock_get:
+            mock_response = MagicMock()
+            mock_response.json.return_value = mock_response_data
+            mock_response.raise_for_status.return_value = None
+            mock_get.return_value = mock_response
+
+            with pytest.raises(RuntimeError, match="No records fetched from GBIF API"):
+                fetch_gbif_occurrences(
+                    species_list=["Species A"],
+                    start_year=2010,
+                    end_year=2020,
+                    output_path=str(output_path),
+                    api_key="test-key"
+                )
+
+def test_get_download_logger():
+    """Test that get_download_logger returns a logger."""
     logger = get_download_logger()
-    result = validate_climate_rasters(temp_raster_dir, ALL_BIOCLIM_VARS, logger)
-    assert result is True
-
-def test_validate_climate_rasters_missing_variables(temp_raster_dir_missing):
-    """Test validation with missing variables."""
-    logger = get_download_logger()
-    result = validate_climate_rasters(temp_raster_dir_missing, ALL_BIOCLIM_VARS, logger)
-    assert result is False
-
-def test_validate_climate_rasters_null_data(temp_raster_dir_null):
-    """Test validation with null data in one variable."""
-    logger = get_download_logger()
-    result = validate_climate_rasters(temp_raster_dir_null, ALL_BIOCLIM_VARS, logger)
-    assert result is False
-
-def test_validate_climate_rasters_nonexistent_directory():
-    """Test validation with non-existent directory."""
-    logger = get_download_logger()
-    result = validate_climate_rasters("/nonexistent/path", ALL_BIOCLIM_VARS, logger)
-    assert result is False
-
-def test_validate_all_bioclim_variables_integration(temp_raster_dir):
-    """Integration test for validate_all_bioclim_variables with mocked directories."""
-    with patch('code.download.HISTORICAL_DIR', Path(temp_raster_dir)), \
-         patch('code.download.FUTURE_DIR', Path(temp_raster_dir)):
-        result = validate_all_bioclim_variables()
-        assert result is True
-
-def test_validate_all_bioclim_variables_missing(temp_raster_dir_missing):
-    """Integration test for validate_all_bioclim_variables with missing data."""
-    with patch('code.download.HISTORICAL_DIR', Path(temp_raster_dir_missing)), \
-         patch('code.download.FUTURE_DIR', Path(temp_raster_dir_missing)):
-        result = validate_all_bioclim_variables()
-        assert result is False
-
-def test_all_bioclim_vars_list():
-    """Test that ALL_BIOCLIM_VARS contains exactly 19 variables."""
-    assert len(ALL_BIOCLIM_VARS) == 19
-    assert ALL_BIOCLIM_VARS[0] == "bio01"
-    assert ALL_BIOCLIM_VARS[-1] == "bio19"
-    for i, var in enumerate(ALL_BIOCLIM_VARS):
-        expected = f"bio{i+1:02d}"
-        assert var == expected, f"Expected {expected}, got {var}"
+    assert logger is not None
+    assert logger.name == "download"

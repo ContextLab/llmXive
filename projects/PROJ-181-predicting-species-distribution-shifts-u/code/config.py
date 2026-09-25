@@ -84,3 +84,13 @@ SENSITIVITY_THRESHOLDS = [0.01, 0.05, 0.1]
 # Logging defaults
 LOG_LEVEL = "INFO"
 LOG_FILE_NAME = "pipeline.log"
+
+# --- Species List for MVP ---
+# Target North American bird species for the pipeline
+SPECIES_LIST = [
+    "Turdus migratorius", # American Robin
+    "Setophaga ruticilla", # American Redstart
+    "Cardinalis cardinalis", # Northern Cardinal
+    "Sialia sialis", # Eastern Bluebird
+    "Poecile carolinensis" # Carolina Chickadee
+]

@@ -131,7 +131,7 @@ All phases are ordered so that data is downloaded before any downstream task, mo
 ## Compute Feasibility
 
 - **Memory**: Raster reads are streamed; species subset limited to keep RAM < 6 GB.  
-- **Runtime**: Empirical benchmark on a GitHub Actions runner shows a multi-hour total for 15 species.  
+- **Runtime**: Empirical benchmark on a GitHub Actions runner shows a multi-hour total for multiple species.  
 - **No GPU**: All libraries are CPU‑only; `n_jobs` limited to 2.
 
 ## Decision Rationale
