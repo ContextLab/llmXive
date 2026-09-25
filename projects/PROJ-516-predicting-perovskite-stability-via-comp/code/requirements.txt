@@ -4,6 +4,5 @@ requests
 pyyaml
 numpy
 pymatgen
+mp-api
 python-dotenv
-urllib3
-joblib  # auto-added: imported by run-book but missing from venv

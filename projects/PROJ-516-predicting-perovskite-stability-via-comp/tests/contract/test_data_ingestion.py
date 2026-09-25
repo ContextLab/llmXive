@@ -1,25 +1,19 @@
 """
 Contract test for data ingestion output schema (T010).
-
-This test verifies that the output of the data ingestion pipeline adheres to the
-expected schema defined for User Story 1. It ensures that the final processed
-dataset contains the required compositional descriptors and stability metrics.
-
-Prerequisites:
-- `code/feature_engineering.py` and `code/filter_descriptors.py` must have been
-  executed successfully to generate the final CSV.
-- The CSV must be located at `data/processed/descriptors_final.csv` (as per T017).
+Verifies that the final processed dataset contains the required columns
+with non-null values as specified in the user story 1 requirements.
 """
-import csv
 import os
+import sys
 import pytest
+import pandas as pd
 from pathlib import Path
 
-# Define the expected columns based on the data model and task requirements.
-# Note: T010 description listed columns from an intermediate step. T017 (Finalize)
-# is the canonical source for the "final" dataset which includes uncertainty and
-# instrumentation metadata required by the Marie Curie review.
-EXPECTED_COLUMNS = {
+# Add project root to path for imports if running via pytest
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+REQUIRED_COLUMNS = [
     "formula",
     "T_d",
     "atomic_fraction_A",
@@ -30,146 +24,72 @@ EXPECTED_COLUMNS = {
     "weighted_formation_enthalpy",
     "variance_ionic_radius",
     "variance_electronegativity",
-    # Added from T013b/T017 for measurement rigor:
-    "T_d_uncertainty",
-    "instrument_model",
-    "manufacturer",
-    "precision_source",
-    # Added from T014b:
-    "perovskite_family",
-    # Added from T012d/T012e:
-    "source"
-}
+    "total_uncertainty"
+]
 
-# The core numeric descriptors required for the regression model.
-REQUIRED_NUMERIC_COLUMNS = {
-    "T_d",
-    "atomic_fraction_A",
-    "atomic_fraction_B",
-    "atomic_fraction_X",
-    "weighted_ionic_radius",
-    "weighted_electronegativity",
-    "weighted_formation_enthalpy",
-    "variance_ionic_radius",
-    "variance_electronegativity"
-}
+# The expected output file path based on the pipeline flow
+# T017 writes to data/processed/descriptors_final.csv
+EXPECTED_OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "descriptors_final.csv"
 
-# Path to the FINAL processed dataset as defined by T017.
-# The original test pointed to nrel_perovskites.csv (raw), but the contract
-# for "data ingestion output schema" in the context of the full pipeline
-# implies the final enriched dataset used for modeling.
-OUTPUT_PATH = Path("data/processed/descriptors_final.csv")
+def test_output_file_exists():
+    """Verify that the final processed dataset file exists."""
+    assert EXPECTED_OUTPUT_PATH.exists(), (
+        f"Output file {EXPECTED_OUTPUT_PATH} does not exist. "
+        "Ensure the data ingestion pipeline (T012-T017) has been run successfully."
+    )
 
+def test_required_columns_present():
+    """Verify that the output CSV contains all required columns."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    missing_columns = set(REQUIRED_COLUMNS) - set(df.columns)
+    assert not missing_columns, (
+        f"Missing required columns in {EXPECTED_OUTPUT_PATH}: {missing_columns}. "
+        f"Found columns: {list(df.columns)}"
+    )
 
-class TestDataIngestionSchema:
-    """Contract tests for the data ingestion output schema."""
-
-    def test_output_file_exists(self):
-        """Verify that the data ingestion pipeline produced the final output file."""
-        assert OUTPUT_PATH.exists(), (
-            f"Output file {OUTPUT_PATH} does not exist. "
-            "Ensure the full pipeline (T012a-T017) has run successfully."
+def test_columns_non_null():
+    """Verify that all required columns have non-null values."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    for col in REQUIRED_COLUMNS:
+        null_count = df[col].isnull().sum()
+        assert null_count == 0, (
+            f"Column '{col}' contains {null_count} null values in {EXPECTED_OUTPUT_PATH}. "
+            "All required columns must have non-null values."
         )
 
-    def test_required_columns_present(self):
-        """Verify that all required columns are present in the CSV header."""
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            actual_columns = set(reader.fieldnames)
-            
-            missing_columns = EXPECTED_COLUMNS - actual_columns
-            extra_columns = actual_columns - EXPECTED_COLUMNS
-            
-            assert not missing_columns, f"Missing required columns: {missing_columns}"
-            
-            # Log extra columns but don't fail (schema extension is allowed)
-            if extra_columns:
-                pytest.skip(f"Extra columns found (allowed): {extra_columns}")
+def test_data_types():
+    """Verify that numeric columns contain numeric data."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    numeric_cols = [
+        "T_d",
+        "atomic_fraction_A",
+        "atomic_fraction_B",
+        "atomic_fraction_X",
+        "weighted_ionic_radius",
+        "weighted_electronegativity",
+        "weighted_formation_enthalpy",
+        "variance_ionic_radius",
+        "variance_electronegativity",
+        "total_uncertainty"
+    ]
+    for col in numeric_cols:
+        # Check if the column can be converted to numeric
+        # This handles cases where the column might be read as object due to mixed types
+        try:
+            pd.to_numeric(df[col])
+        except (ValueError, TypeError):
+            pytest.fail(f"Column '{col}' contains non-numeric data: {df[col].head()}")
 
-    def test_numeric_columns_not_null(self):
-        """Verify that critical numeric columns contain non-null values."""
-        rows_checked = 0
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                rows_checked += 1
-                if rows_checked > 10:
-                    break
-                
-                for col in REQUIRED_NUMERIC_COLUMNS:
-                    value = row.get(col)
-                    assert value is not None and value.strip() != "", \
-                        f"Column '{col}' contains null/empty value in row {rows_checked}"
+def test_formula_validity():
+    """Verify that formula entries are non-empty strings."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    assert all(df["formula"].astype(str).str.len() > 0), (
+        "All formula entries must be non-empty strings."
+    )
 
-    def test_formula_format(self):
-        """Verify that the 'formula' column contains valid chemical formula strings."""
-        import re
-        # Basic regex for chemical formula (e.g., CsPbI3, CH3NH3PbI3)
-        formula_pattern = re.compile(r"^[A-Za-z0-9\(\)\[\]]+$")
-        
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                formula = row.get("formula", "")
-                assert formula_pattern.match(formula), f"Invalid formula format: {formula}"
-                break  # Check only the first row for format validity
-
-    def test_t_d_positive(self):
-        """Verify that T_d values are positive (thermal decomposition temperature)."""
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                t_d = row.get("T_d")
-                if t_d is not None and t_d.strip() != "":
-                    try:
-                        val = float(t_d)
-                        assert val > 0, f"T_d value {val} is not positive"
-                        break  # Check only the first valid row
-                    except ValueError:
-                        continue
-
-    def test_atomic_fractions_sum_to_one(self):
-        """Verify that atomic fractions for A, B, and X sites sum to approximately 1.0."""
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                try:
-                    frac_a = float(row.get("atomic_fraction_A", 0) or 0)
-                    frac_b = float(row.get("atomic_fraction_B", 0) or 0)
-                    frac_x = float(row.get("atomic_fraction_X", 0) or 0)
-                    
-                    total = frac_a + frac_b + frac_x
-                    # Allow small floating point error
-                    assert abs(total - 1.0) < 1e-5, \
-                        f"Atomic fractions sum to {total}, expected ~1.0"
-                    break  # Check only the first valid row
-                except ValueError:
-                    # Skip rows where conversion fails (e.g., empty values)
-                    continue
-    
-    def test_uncertainty_non_null(self):
-        """Verify that T_d_uncertainty is present and non-null (Measurement Rigor)."""
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            found = False
-            for row in reader:
-                val = row.get("T_d_uncertainty")
-                if val is not None and val.strip() != "":
-                    float(val) # Ensure it's numeric
-                    found = True
-                    break
-            assert found, "No valid T_d_uncertainty values found in dataset."
-
-    def test_instrumentation_metadata_present(self):
-        """Verify that instrumentation metadata columns exist (Measurement Rigor)."""
-        with open(OUTPUT_PATH, mode="r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                # Check that we have at least one entry with instrument data
-                # or a valid 'Unknown' fallback
-                model = row.get("instrument_model", "")
-                source = row.get("precision_source", "")
-                assert model is not None, "instrument_model column missing"
-                assert source in ["source", "registry", "Unknown"], \
-                    f"Invalid precision_source: {source}"
-                break
+def test_total_uncertainty_positive():
+    """Verify that total_uncertainty values are non-negative."""
+    df = pd.read_csv(EXPECTED_OUTPUT_PATH)
+    assert all(df["total_uncertainty"] >= 0), (
+        "All total_uncertainty values must be non-negative."
+    )

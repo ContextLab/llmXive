@@ -1,156 +1,150 @@
 """
-Unit tests for fetch_nrel_perovskites.py
+Unit tests for NREL data fetching (T012a).
 """
 import unittest
 from unittest.mock import patch, MagicMock
-import json
-import csv
-import os
-import sys
 from pathlib import Path
-import tempfile
-import shutil
+import sys
+import csv
+import json
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from fetch_nrel_perovskites import filter_for_t_d, normalize_record, validate_checksum
-from utils.checksum_verifier import compute_sha256
+from fetch_nrel_perovskites import (
+    fetch_nrel_materials,
+    filter_for_t_d,
+    normalize_record,
+    save_to_csv,
+    validate_checksum
+)
 
-class TestFilterForTD(unittest.TestCase):
-    
-    def test_filter_with_tga_data(self):
-        """Test filtering when TGA data is present."""
-        materials = [
-            {
-                "formula": "MAPbI3",
-                "experimental": [
-                    {
-                        "measurement_type": "TGA",
-                        "property_name": "decomposition_temperature",
-                        "value": 150.0,
-                        "instrument_model": "TA Instruments",
-                        "manufacturer": "TA Instruments",
-                        "error": 2.0
-                    }
-                ]
-            }
+class TestNRELFetcher(unittest.TestCase):
+
+    def test_filter_for_t_d(self):
+        """Test filtering for T_d data."""
+        records = [
+            {"formula": "CsPbI3", "thermal_properties": {"T_d": 450}},
+            {"formula": "FAPbI3", "thermal_properties": {"other": 100}},
+            {"formula": "MAPbBr3", "thermal_properties": {"T_d": 380}}
         ]
-        
-        result = filter_for_t_d(materials)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['formula'], 'MAPbI3')
-        self.assertEqual(result[0]['T_d'], 150.0)
-        self.assertEqual(result[0]['instrument_model'], 'TA Instruments')
-        self.assertEqual(result[0]['temperature_precision'], 10.0) # Default from registry fallback or specific
 
-    def test_filter_without_experimental(self):
-        """Test filtering when no experimental data is present."""
-        materials = [
-            {
-                "formula": "CsPbBr3",
-                "experimental": []
+        filtered = filter_for_t_d(records)
+
+        self.assertEqual(len(filtered), 2)
+        self.assertEqual(filtered[0]["formula"], "CsPbI3")
+        self.assertEqual(filtered[1]["formula"], "MAPbBr3")
+
+    def test_normalize_record(self):
+        """Test record normalization."""
+        raw_record = {
+            "formula": "CsPbI3",
+            "material_id": "nrel-123",
+            "thermal_properties": {"T_d": 450},
+            "instrumentation": {
+                "model": "TA Q500",
+                "manufacturer": "TA Instruments",
+                "precision_celsius": 5.0
             }
-        ]
-        
-        result = filter_for_t_d(materials)
-        self.assertEqual(len(result), 0)
-
-    def test_filter_without_td_value(self):
-        """Test filtering when experimental data exists but no T_d."""
-        materials = [
-            {
-                "formula": "FAPbI3",
-                "experimental": [
-                    {
-                        "measurement_type": "XRD",
-                        "property_name": "lattice_parameter",
-                        "value": 6.3
-                    }
-                ]
-            }
-        ]
-        
-        result = filter_for_t_d(materials)
-        self.assertEqual(len(result), 0)
-
-    def test_default_precision_for_unknown_instrument(self):
-        """Test that default precision is used for unknown instruments."""
-        materials = [
-            {
-                "formula": "MAPbBr3",
-                "experimental": [
-                    {
-                        "measurement_type": "TGA",
-                        "value": 140.0,
-                        "instrument_model": "Unknown Model X",
-                        "manufacturer": "Generic"
-                    }
-                ]
-            }
-        ]
-        
-        result = filter_for_t_d(materials)
-        self.assertEqual(len(result), 1)
-        # Should use default 10.0 as per T042/T052
-        self.assertEqual(result[0]['temperature_precision'], 10.0)
-
-class TestNormalizeRecord(unittest.TestCase):
-    
-    def test_normalize_structure(self):
-        """Test that normalize_record produces correct keys."""
-        record = {
-            'formula': 'MAPbI3',
-            'T_d': 150.0,
-            'source': 'NREL',
-            'instrument_model': 'TA',
-            'manufacturer': 'TA',
-            'temperature_precision': 10.0,
-            'experimental_error': 2.0
         }
-        
-        normalized = normalize_record(record)
-        
-        expected_keys = ['formula', 'T_d', 'source', 'instrument_model', 
-                       'manufacturer', 'temperature_precision', 'experimental_error']
-        self.assertEqual(list(normalized.keys()), expected_keys)
 
-class TestValidateChecksum(unittest.TestCase):
-    
-    def setUp(self):
-        self.temp_dir = tempfile.mkdtemp()
-        self.data_path = Path(self.temp_dir) / "test.csv"
-        self.manifest_path = Path(self.temp_dir) / "checksum.json"
-        
-        # Create a dummy CSV
-        with open(self.data_path, 'w') as f:
-            f.write("formula,T_d\nMAPbI3,150\n")
-        
-        # Compute and save checksum
-        checksum = compute_sha256(self.data_path)
-        manifest = {'file': str(self.data_path), 'sha256': checksum}
-        with open(self.manifest_path, 'w') as f:
-            json.dump(manifest, f)
+        normalized = normalize_record(raw_record)
 
-    def tearDown(self):
-        shutil.rmtree(self.temp_dir)
+        self.assertEqual(normalized["formula"], "CsPbI3")
+        self.assertEqual(normalized["T_d"], 450)
+        self.assertEqual(normalized["source"], "NREL")
+        self.assertEqual(normalized["instrument_model"], "TA Q500")
+        self.assertEqual(normalized["manufacturer"], "TA Instruments")
+        self.assertEqual(normalized["precision_celsius"], 5.0)
 
-    def test_valid_checksum(self):
-        """Test validation passes when checksum matches."""
-        self.assertTrue(validate_checksum(self.data_path, self.manifest_path))
+    def test_normalize_record_missing_instrumentation(self):
+        """Test normalization with missing instrumentation data."""
+        raw_record = {
+            "formula": "CsPbI3",
+            "material_id": "nrel-123",
+            "thermal_properties": {"T_d": 450}
+        }
 
-    def test_invalid_checksum(self):
-        """Test validation fails when checksum mismatches."""
-        # Modify the data file
-        with open(self.data_path, 'w') as f:
-            f.write("formula,T_d\nCsPbI3,200\n")
-        
-        self.assertFalse(validate_checksum(self.data_path, self.manifest_path))
+        normalized = normalize_record(raw_record)
 
-    def test_missing_manifest(self):
-        """Test validation returns True (skips) if manifest is missing."""
-        missing_manifest = Path(self.temp_dir) / "missing.json"
-        self.assertTrue(validate_checksum(self.data_path, missing_manifest))
+        self.assertEqual(normalized["instrument_model"], "Unknown")
+        self.assertEqual(normalized["manufacturer"], "Unknown")
+        self.assertEqual(normalized["precision_celsius"], 10.0)
 
-if __name__ == '__main__':
+    def test_save_to_csv(self, tmp_path):
+        """Test saving records to CSV."""
+        records = [
+            {"formula": "CsPbI3", "T_d": 450, "source": "NREL",
+             "instrument_model": "TA Q500", "manufacturer": "TA Instruments",
+             "precision_celsius": 5.0, "material_id": "nrel-123"}
+        ]
+
+        output_path = tmp_path / "test_output.csv"
+        save_to_csv(records, output_path)
+
+        self.assertTrue(output_path.exists())
+
+        with open(output_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["formula"], "CsPbI3")
+        self.assertEqual(rows[0]["T_d"], "450")
+
+    @patch('fetch_nrel_perovskites.fetch_with_retry')
+    @patch('fetch_nrel_perovskites.load_config')
+    def test_fetch_nrel_materials_success(self, mock_load_config, mock_fetch):
+        """Test successful fetch from NREL API."""
+        mock_config = {"api_key": "test-key"}
+        mock_load_config.return_value = mock_config
+
+        mock_response = {
+            "results": [
+                {"formula": "CsPbI3", "material_id": "1", "thermal_properties": {"T_d": 450}},
+                {"formula": "FAPbI3", "material_id": "2", "thermal_properties": {"T_d": 380}}
+            ]
+        }
+        mock_fetch.return_value = mock_response
+
+        # Set environment variable
+        import os
+        os.environ["NREL_API_KEY"] = "test-key"
+
+        try:
+            data = fetch_nrel_materials()
+            self.assertEqual(len(data), 2)
+        finally:
+            del os.environ["NREL_API_KEY"]
+
+    def test_validate_checksum(self, tmp_path):
+        """Test checksum validation."""
+        # Create a test file
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Hello, World!")
+
+        # Create a manifest with correct checksum
+        import hashlib
+        checksum = hashlib.sha256(b"Hello, World!").hexdigest()
+        manifest = {"sha256": checksum}
+        manifest_path = tmp_path / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest))
+
+        # Validate
+        self.assertTrue(validate_checksum(test_file, manifest_path))
+
+    def test_validate_checksum_mismatch(self, tmp_path):
+        """Test checksum validation with mismatch."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Hello, World!")
+
+        # Create a manifest with wrong checksum
+        manifest = {"sha256": "wrong_checksum"}
+        manifest_path = tmp_path / "manifest.json"
+        manifest_path.write_text(json.dumps(manifest))
+
+        # Validate - should return False
+        self.assertFalse(validate_checksum(test_file, manifest_path))
+
+if __name__ == "__main__":
     unittest.main()

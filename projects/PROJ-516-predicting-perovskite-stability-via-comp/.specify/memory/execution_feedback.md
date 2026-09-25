@@ -7,20 +7,17 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/data_ingestion.py -> rc=1
-    INFO:__main__:Starting T012a: NREL Data Ingestion
-CRITICAL:__main__:Task T012a failed: Required API key 'NREL_API_KEY' is missing. Please ensure it is set in the .env file or environment variables.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/data_ingestion.py", line 159, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/data_ingestion.py", line 121, in main
-    raw_df = load_raw_data()
-             ^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/data_ingestion.py", line 34, in load_raw_data
-    api_key = get_api_key("NREL_API_KEY")
-              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/utils/config_manager.py", line 96, in get_api_key
-    raise ConfigError(
-utils.config_manager.ConfigError: Required API key 'NREL_API_KEY' is missing. Please ensure it is set in the .env file or environment variables.
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/data_ingestion.py", line 15, in <module>
+    from fetch_nrel_perovskites import main as fetch_nrel_main
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/fetch_nrel_perovskites.py", line 16, in <module>
+    from utils.checksum_verifier import compute_sha256, generate_checksum_manifest
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/utils/__init__.py", line 4, in <module>
+    from .config_manager import ConfigError, load_dotenv_file, get_api_key, validate_environment
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-516-predicting-perovskite-stability-via-comp/code/utils/config_manager.py", line 43, in <module>
+    def validate_environment(required_keys: List[str]) -> bool:
+                                            ^^^^
+NameError: name 'List' is not defined. Did you mean: 'list'?
 - python code/model_training.py -> rc=1
     INFO:__main__:Loading data...
 Traceback (most recent call last):
@@ -65,32 +62,35 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/utils/vif_calculator.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/vif_report.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/metadata.json` is declared but was NOT written. Scripts referencing it:
-    - `code/fetch_mp_perovskites.py` — NOT invoked by the run-book
-    - `code/data_ingestion.py` — IS a run-book command
     - `code/filter_descriptors.py` — NOT invoked by the run-book
-    - `code/data_ingestion_metadata.py` — NOT invoked by the run-book
+    - `code/propagate_uncertainty.py` — NOT invoked by the run-book
     - `code/save_models.py` — NOT invoked by the run-book
-    - `code/uncertainty_flagger.py` — NOT invoked by the run-book
     - `code/write_metadata.py` — NOT invoked by the run-book
-    - `code/extract_metadata.py` — NOT invoked by the run-book
+    - `code/data_ingestion.py` — IS a run-book command
+    - `code/grid_search.py` — NOT invoked by the run-book
+    - `code/fetch_nrel_perovskites.py` — NOT invoked by the run-book
+    - `code/uncertainty_flagger.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/metadata.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/mp_perovskites.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/fetch_mp_perovskites.py` — NOT invoked by the run-book
-    - `code/merge_datasets.py` — NOT invoked by the run-book
     - `code/verify_dual_source.py` — NOT invoked by the run-book
+    - `code/finalize_descriptors.py` — NOT invoked by the run-book
+    - `code/fetch_mp_perovskites.py` — NOT invoked by the run-book
+    - `code/data_ingestion.py` — IS a run-book command
+    - `code/merge_datasets.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/mp_perovskites.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/nrel_perovskites.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/merge_datasets.py` — NOT invoked by the run-book
+    - `code/verify_dual_source.py` — NOT invoked by the run-book
+    - `code/finalize_descriptors.py` — NOT invoked by the run-book
     - `code/data_ingestion.py` — IS a run-book command
     - `code/fetch_nrel_perovskites.py` — NOT invoked by the run-book
-    - `code/data_ingestion_metadata.py` — NOT invoked by the run-book
-    - `code/verify_dual_source.py` — NOT invoked by the run-book
+    - `code/merge_datasets.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/nrel_perovskites.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/raw/perovskites_merged.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/merge_datasets.py` — NOT invoked by the run-book
     - `code/feature_engineering.py` — NOT invoked by the run-book
     - `code/finalize_descriptors.py` — NOT invoked by the run-book
     - `code/write_metadata.py` — NOT invoked by the run-book
+    - `code/data_ingestion_metadata.py` — NOT invoked by the run-book
+    - `code/merge_datasets.py` — NOT invoked by the run-book
     - `code/extract_metadata.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/raw/perovskites_merged.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
@@ -102,5 +102,5 @@ One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a 
 
 ### `data/processed/descriptors.csv`
 
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/filter_descriptors.py`, `code/feature_engineering.py`, `code/vif_diagnostic.py`, `code/save_models.py`, `code/finalize_descriptors.py`, `code/grid_search.py`, `code/propagate_uncertainty.py`, `code/utils/vif_calculator.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/descriptors.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/model_training.py`, `code/filter_descriptors.py`, `code/feature_engineering.py`, `code/vif_diagnostic.py`, `code/save_models.py`, `code/finalize_descriptors.py`, `code/verify_descriptors.py`, `code/grid_search.py`, `code/propagate_uncertainty.py`, `code/utils/vif_calculator.py`.
+This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/filter_descriptors.py`, `code/propagate_uncertainty.py`, `code/feature_engineering.py`, `code/save_models.py`, `code/vif_diagnostic.py`, `code/grid_search.py`, `code/utils/vif_calculator.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/processed/descriptors.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
+Consumers waiting on it: `code/filter_descriptors.py`, `code/propagate_uncertainty.py`, `code/feature_engineering.py`, `code/model_training.py`, `code/save_models.py`, `code/vif_diagnostic.py`, `code/grid_search.py`, `code/verify_descriptors.py`, `code/utils/vif_calculator.py`.

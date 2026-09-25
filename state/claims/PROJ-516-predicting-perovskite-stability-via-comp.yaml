@@ -3516,3 +3516,1005 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T21:29:15Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NREL Perovskite Stability Subset available at Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_52e7247c
+  context: 'T057 [US3] Fetch Specific Dataset: Download the NREL Perovskite Stability
+    Subset from Zenodo (DOI: 10.5281/zenodo.10972088) using the URL.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:14:18Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty methodology cites ISO 5725 and NIST Technical Note 1297
+  claim_id: c_99ff5188
+  context: 'T065 [P] Write a Measurement Uncertainty Methodology document in docs/uncertainty_methodology.md
+    that explains the theoretical basis for the uncertainty propagation approach,
+    citing standard practices in thermogravimetric analysis and metrology. **Constraint**:
+    The document MUST explicitly state that the uncertainty values are treated as
+    known constants for the purpose of this analysis, and that any systematic errors
+    in the source data are not accounted for. **Citations**: MUST reference ISO 5725
+    (Accuracy of measurement methods) and NIST Technical Note 1297 (Evaluation of
+    Measurement Data).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The document MUST explicitly state that the uncertainty values are treated
+    as known constants for the purpose of this analysis, and that any systematic errors
+    in the source data are not accounted for. **Citations**: MUST reference ISO 5725
+    (Accuracy of measurement methods) and NIST Technical Note 1297 (Evaluation of
+    Measurement Data).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:14:44Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default TGA precision is \xB110\xB0C when instrument is missing or unknown"
+  claim_id: c_cc3a75ca
+  context: "T047c [P] Implement code/utils/instrument_registry.py to maintain a lookup\
+    \ table of known TGA instruments with documented precision values. **Source**:\
+    \ Load the registry from data/raw/instrument_registry.csv (created by T047c_init).\
+    \ **Schema**: The CSV MUST have columns: instrument_model, manufacturer, precision_celsius.\
+    \ If the file is missing or an instrument is not found, use the spec default of\
+    \ \xB110\xB0C and log a warning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the file is missing or an instrument is not found, use the spec default\
+    \ of \xB110\xB0C and log a warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:15:17Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty methodology cites ISO 5725 and NIST Technical Note 1297
+  claim_id: c_de2cb3fa
+  context: Phase 12, T065
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The document MUST explicitly state that the uncertainty values are treated
+    as known constants for the purpose of this analysis, and that any systematic errors
+    in the source data are not accounted for. Citations: MUST reference ISO 5725 (Accuracy
+    of measurement methods) and NIST Technical Note 1297 (Evaluation of Measurement
+    Data).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:17:18Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NREL Perovskite Stability Subset sourced from Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_8ba928c1
+  context: Phase 11, T057
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088)
+    using the URL.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:17:20Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Total uncertainty computed using root-sum-square of instrument precision
+    and experimental error
+  claim_id: c_dc15691e
+  context: Phase 3, T061
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_uncertainty_computed_using_root-sum-square_of_instrume
+  kind: entity_fact
+  raw_text: Implement `code/utils/uncertainty_calculator.py` to compute the total
+    uncertainty for each T_d value by combining the instrument precision (from T047c)
+    and any reported experimental error (from source metadata) using the root-sum-square
+    method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:18:04Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 'Combined standard uncertainty formula: sigma = sqrt(precision^2 + experimental_error^2)'
+  claim_id: c_68e79626
+  context: Phase 2, T043
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/utils/uncertainty_propagator.py` to calculate the combined
+    standard uncertainty for T_d based on the instrument precision and any reported
+    experimental error. Formula: sigma = sqrt(precision^2 + experimental_error^2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:18:53Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default temperature precision of \xB110\xB0C applied when instrument\
+    \ registry entry is missing"
+  claim_id: c_7fbdf9f6
+  context: Phase 2, T047c
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If the file is missing or an instrument is not found, use the spec default\
+    \ of \xB110\xB0C and log a warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:18:54Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default precision of \xB110\xB0C and experimental error of 0 used when\
+    \ components are missing"
+  claim_id: c_265767d1
+  context: Phase 3, T061
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If either component is missing, use the documented default (\xB110\xB0\
+    C for precision, 0 for experimental error) and log a warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:19:27Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search hyperparameter combinations capped at 10 per model
+  claim_id: c_12da9884
+  context: Phase 4, T020
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grid search limited to <= 10 combinations per model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:20:09Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified KFold cross-validation with k=5 on perovskite families
+  claim_id: c_7028273d
+  context: Phase 4, T020e
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified KFold logic with k=5 using perovskite_family column
+    from T014e (specifically [lead-halide, tin-halide, double perovskite]) in code/model_training.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:20:32Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Low confidence weight configurable via code/config.yaml
+  claim_id: c_8401feb2
+  context: Phase 2, T054
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Low_confidence_weight_configurable_via_code/config.yaml
+  kind: entity_fact
+  raw_text: The weight MUST be read from code/config.yaml under the key low_confidence_weight
+    with a configurable default value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:21:08Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Data fetcher retry logic configured for 3 retries with exponential backoff
+  claim_id: c_bbff0f98
+  context: Phase 2, T006b
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/utils/data_fetcher.py` with retry logic: up to 3 retries
+    with exponential backoff using retry_delays from code/config.yaml.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:21:38Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Instrument registry CSV schema requires instrument_model, manufacturer,
+    and precision_celsius columns
+  claim_id: c_24da70c7
+  context: Phase 2, T047c_init
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Instrument_registry_CSV_schema_requires_instrument_model,_ma
+  kind: entity_fact
+  raw_text: 'The CSV MUST have columns: instrument_model, manufacturer, precision_celsius.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:22:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty analysis assumes uncertainty values are known constants and
+    excludes systematic errors
+  claim_id: c_38c345bc
+  context: Phase 12, T065
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uncertainty_analysis_assumes_uncertainty_values_are_known_co
+  kind: entity_fact
+  raw_text: The document MUST explicitly state that the uncertainty values are treated
+    as known constants for the purpose of this analysis, and that any systematic errors
+    in the source data are not accounted for.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:22:57Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Measurement Confidence Score calculates composite score based on instrument
+    precision and uncertainty propagation
+  claim_id: c_ad00b3e4
+  context: 'Phase 8: Revision: Explicit Instrumentation Traceability. Task T047f requires
+    implementing a score based on known precision.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Measurement_Confidence_Score_calculates_composite_score_base
+  kind: entity_fact
+  raw_text: Implement a 'Measurement Confidence Score' in code/validation.py that
+    calculates a composite score for each prediction based on the known precision
+    of the instrument used for the training data point and the uncertainty propagation
+    model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:26:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: NREL Perovskite Stability Subset downloaded from Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_08a54015
+  context: 'Phase 11: Review Action: Literature Data Sourcing. Task T057 specifies
+    the exact DOI for external validation data.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:26:14Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty methodology document cites ISO 5725 and NIST Technical Note
+    1297 and treats uncertainties as known constants
+  claim_id: c_801f5a6e
+  context: 'Phase 12: Revision: Measurement Uncertainty Propagation. Task T065 requires
+    specific citations and theoretical constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The document MUST explicitly state that the uncertainty values are treated
+    as known constants for the purpose of this analysis, and that any systematic errors
+    in the source data are not accounted for. Citations: MUST reference ISO 5725 (Accuracy
+    of measurement methods) and NIST Technical Note 1297 (Evaluation of Measurement
+    Data).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:26:15Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: "Default temperature precision of 10\xB0C used for missing or unknown\
+    \ TGA instruments"
+  claim_id: c_2d40c27e
+  context: 'Phase 2: Foundational. Task T047c defines the fallback precision for instrumentation
+    data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/utils/instrument_registry.py` to maintain a lookup table\
+    \ of known TGA instruments with documented precision values. If the file is missing\
+    \ or an instrument is not found, use the spec default of \xB110\xB0C and log a\
+    \ warning."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:26:58Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Combined standard uncertainty calculated using root-sum-square of precision
+    and experimental error
+  claim_id: c_83988d51
+  context: 'Phase 2: Foundational. Task T043 defines the uncertainty propagation formula.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/utils/uncertainty_propagator.py` to calculate the combined
+    standard uncertainty for T_d based on the instrument precision and any reported
+    experimental error using the formula: sigma = sqrt(precision^2 + experimental_error^2).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:27:32Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Variance metrics for ionic radius and electronegativity computed for
+    descriptors
+  claim_id: c_33c09e1e
+  context: 'Phase 3: User Story 1. Task T014c specifies the computation of variance
+    metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_metrics_for_ionic_radius_and_electronegativity_comp
+  kind: entity_fact
+  raw_text: 'Implement `code/utils/feature_engineering.py` to compute variance metrics
+    (ionic radius, electronegativity) and append to data/processed/descriptors_features.csv.
+    Verification: Verify output CSV contains columns variance_ionic_radius and variance_electronegativity
+    with non-null values.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:28:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 1000 permutations executed for feature importance
+  claim_id: c_cd43be8c
+  context: 'Verification: Verify feature_importance.csv contains p-values, 1000 permutations
+    were executed, and the selected correction method is documented.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 permutations were executed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:30:37Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Literature dataset sourced from Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_0a74e050
+  context: 'T057 [US3] Download the NREL Perovskite Stability Subset from Zenodo (DOI:
+    10.5281/zenodo.10972088) using the URL.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The literature dataset is sourced from Zenodo with DOI 10.5281/zenodo.10972088
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:30:40Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty values treated as known constants in analysis
+  claim_id: c_b35344e0
+  context: 'T065 [P] Write a ''Measurement Uncertainty Methodology'' document... Constraint:
+    The document MUST explicitly state that the uncertainty values are treated as
+    known constants for the purpose of this analysis...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uncertainty_values_treated_as_known_constants_in_analysis
+  kind: entity_fact
+  raw_text: The documentation MUST explicitly state that the uncertainty values are
+    treated as known constants for the purpose of this analysis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:32:30Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Document references ISO 5725
+  claim_id: c_2964c790
+  context: 'Citations: MUST reference ISO 5725 (Accuracy of measurement methods) and
+    NIST Technical Note 1297 (Evaluation of Measurement Data).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A shift in the meaning of these terms appeared with the publication of
+        the ISO 5725 series of standards in 1994, which is also reflected in the 2008
+        issue of the BIPM International Vocabulary of Metrology (VIM), items 2.13
+        and 2.14.
+      source_id: Accuracy and precision
+      url: https://en.wikipedia.org/wiki/Accuracy_and_precision
+      value: '1994'
+    filled: true
+  kind: numeric
+  raw_text: The document MUST reference ISO 5725 (Accuracy of measurement methods)
+  resolved_value: '1994'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T12:32:55Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Document references NIST Technical Note 1297
+  claim_id: c_5884a2e3
+  context: 'Citations: MUST reference ISO 5725 (Accuracy of measurement methods) and
+    NIST Technical Note 1297 (Evaluation of Measurement Data).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The document MUST reference NIST Technical Note 1297 (Evaluation of Measurement
+    Data)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:33:49Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Validation report compares R2 and RMSE of weighted vs unweighted model
+  claim_id: c_32cb188f
+  context: "T063 [US3] Update data/processed/validation_report.md... Constraint: The\
+    \ section MUST include a table comparing the R\xB2 and RMSE of the weighted model\
+    \ vs. the unweighted model."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_report_compares_R2_and_RMSE_of_weighted_vs_unweig
+  kind: entity_fact
+  raw_text: "The validation report must include a table comparing the R\xB2 and RMSE\
+    \ of the weighted model vs. the unweighted model"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:35:19Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty weighting exponent swept for p in 0, 1, 2, 3
+  claim_id: c_c8e129d7
+  context: T064 [US3] Implement a sensitivity analysis... that sweeps the uncertainty
+    weighting exponent (e.g., weight = 1 / uncertainty^p for p in {0, 1, 2, 3})...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The uncertainty weighting exponent is swept for p in {0, 1, 2, 3}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:36:21Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis run on held-out literature dataset
+  claim_id: c_8ea41177
+  context: 'T064 [US3]... Constraint: This analysis MUST be run on the held-out literature
+    dataset (data/raw/literature_validation.csv from T059) to avoid overfitting.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_run_on_held-out_literature_dataset
+  kind: entity_fact
+  raw_text: The sensitivity analysis is run on the held-out literature dataset to
+    avoid overfitting
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:37:10Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search limited to 10 combinations per model
+  claim_id: c_4da575c2
+  context: 'T020 [US2]... Constraint: Grid search limited to <= 10 combinations per
+    model.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grid search is limited to <= 10 combinations per model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:37:11Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Full pipeline completes within 4 hours
+  claim_id: c_310e1efc
+  context: T037b [P] Optimize identified bottlenecks to ensure full pipeline completes
+    within 4 hours (performance goal).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline must complete within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:37:50Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: VIF threshold set to 5
+  claim_id: c_0f3753a7
+  context: T016a [US1] Implement code/utils/vif_calculator.py to compute VIF for all
+    descriptors with a threshold > 5 to identify multicollinearity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold is set to > 5 to identify multicollinearity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:37:51Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified KFold uses k=5
+  claim_id: c_7e2ae597
+  context: T020e [US2] Implement stratified KFold logic with k=5 using perovskite_family
+    column...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified KFold logic uses k=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:39:40Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default temperature precision is 10 degrees Celsius
+  claim_id: c_6570b8ee
+  context: "T047c [P]... If the file is missing or an instrument is not found, use\
+    \ the spec default of \xB110\xB0C and log a warning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The default temperature precision is \xB110\xB0C if instrument metadata\
+    \ is missing"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:40:07Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Combined uncertainty formula is sqrt(precision^2 + experimental_error^2)
+  claim_id: c_6f58ca31
+  context: 'T043 [P]... Formula: sigma = sqrt(precision^2 + experimental_error^2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The combined standard uncertainty is calculated using the formula sigma
+    = sqrt(precision^2 + experimental_error^2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:40:51Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Sample weights calculated as 1 divided by total uncertainty squared
+  claim_id: c_1dd8270c
+  context: 'T020d [US2]... Implementation: This task is the definitive implementation
+    of sample weighting. It MUST compute weights as 1 / (total_uncertainty^2)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sample weights are calculated as 1/\u03C3\xB2 (1/total_uncertainty^2)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:41:48Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Permutation testing requires 1000 permutations
+  claim_id: c_4d53ae80
+  context: 'T029 [US3] Implement permutation importance testing with a sufficient
+    number of permutations to ensure statistical stability. The task MUST use Benjamini-Hochberg
+    correction for p < 0.05 significance; report p-values in data/processed/feature_importance.csv.
+    **Constraint**: Perform a sufficient number of permutations as mandated by Constitution
+    Principle VII. <!-- Verification: Verify feature_importance.csv contains p-values,
+    1000 permutations were executed, and the selected correction method is documented.
+    -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a sufficient number of permutations as mandated by Constitution
+    Principle VII.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:43:32Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Out-of-distribution detection uses Mahalanobis distance threshold > 3.0
+  claim_id: c_8ce62390
+  context: 'T031 [US3] Implement OOD detection: Flag compositions with elements NOT
+    in the training set (based on T017 dataset) or with a Mahalanobis distance > 3.0
+    from the training distribution. Add is_ood boolean column to data/processed/descriptors_final.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag compositions with elements NOT in the training set or with a Mahalanobis
+    distance > 3.0 from the training distribution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:43:33Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: External validation data sourced from Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_e6d6cedd
+  context: 'T057 [US3] Fetch Specific Dataset: Download the NREL Perovskite Stability
+    Subset from Zenodo (DOI: 10.5281/zenodo.10972088) using the URL. **Logic**: If
+    the download fails (404, timeout), attempt to fetch from the verified local snapshot
+    at data/raw/snapshot_literature.csv if available.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:43:36Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty methodology treats uncertainty values as known constants
+  claim_id: c_05547b16
+  context: 'T065 [P] Write a Measurement Uncertainty Methodology document in docs/uncertainty_methodology.md
+    that explains the theoretical basis for the uncertainty propagation approach...
+    **Constraint**: The document MUST explicitly state that the uncertainty values
+    are treated as known constants for the purpose of this analysis, and that any
+    systematic errors in the source data are not accounted for.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uncertainty_methodology_treats_uncertainty_values_as_known_c
+  kind: entity_fact
+  raw_text: The document MUST explicitly state that the uncertainty values are treated
+    as known constants for the purpose of this analysis
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:44:47Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty methodology cites ISO 5725 and NIST Technical Note 1297
+  claim_id: c_5ac67fe4
+  context: 'T065 [P] Write a Measurement Uncertainty Methodology document in docs/uncertainty_methodology.md...
+    **Citations**: MUST reference ISO 5725 (Accuracy of measurement methods) and NIST
+    Technical Note 1297 (Evaluation of Measurement Data).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST reference ISO 5725 (Accuracy of measurement methods) and NIST Technical
+    Note 1297 (Evaluation of Measurement Data)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:45:10Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 1000 permutations executed
+  claim_id: c_c6f24c9c
+  context: 'Verification: Verify feature_importance.csv contains p-values, 1000 permutations
+    were executed, and the selected correction method is documented.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 permutations were executed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:47:59Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Grid search limited to 10 combinations per model
+  claim_id: c_70e77202
+  context: 'Constraint: Grid search limited to <= 10 combinations per model. Verification:
+    Verify code/model_training.py contains implementations for all three models and
+    that grid search is capped at 10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Grid search is limited to <= 10 combinations per model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:47:59Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit of 4 hours
+  claim_id: c_2c8971da
+  context: Integration test for full pipeline runtime (must complete <= 4 hours) in
+    tests/integration/test_pipeline_runtime.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:48:37Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Stratified KFold with 5 folds
+  claim_id: c_0bf87354
+  context: Implement stratified KFold logic with k=5 using perovskite_family column
+    from T014e (specifically [lead-halide, tin-halide, double perovskite]) in code/model_training.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stratified KFold logic with k=5 is used
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:49:03Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 'Perovskite families: lead-halide, tin-halide, double perovskite'
+  claim_id: c_9570ee35
+  context: Implement stratified KFold logic with k=5 using perovskite_family column
+    from T014e (specifically [lead-halide, tin-halide, double perovskite]) in code/model_training.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perovskite_families:_lead-halide,_tin-halide,_double_perovsk
+  kind: entity_fact
+  raw_text: Perovskite families used for stratification are lead-halide, tin-halide,
+    and double perovskite
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:50:08Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Mahalanobis distance threshold 3.0 for OOD detection
+  claim_id: c_abef26fc
+  context: 'Implement OOD detection: Flag compositions with elements NOT in the training
+    set (based on T017 dataset) or with a Mahalanobis distance > 3.0 from the training
+    distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Mahalanobis distance threshold for OOD detection is > 3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:50:09Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: VIF threshold 5 for multicollinearity
+  claim_id: c_2be6e278
+  context: Implement code/utils/vif_calculator.py to compute VIF for all descriptors
+    with a threshold > 5 to identify multicollinearity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF threshold for identifying multicollinearity is > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:50:10Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Default temperature precision 10 degrees Celsius
+  claim_id: c_6e661cf3
+  context: "If the file is missing or an instrument is not found, use the spec default\
+    \ of \xB110\xB0C and log a warning."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Default temperature precision for missing instrumentation is \xB110\xB0\
+    C"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:50:45Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Literature dataset from Zenodo DOI 10.5281/zenodo.10972088
+  claim_id: c_f9939012
+  context: 'Download the NREL Perovskite Stability Subset from Zenodo (DOI: 10.5281/zenodo.10972088)
+    using the URL.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'The literature dataset is sourced from Zenodo (DOI: 10.5281/zenodo.10972088)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:50:48Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Uncertainty weighting formula 1 over sigma squared
+  claim_id: c_4b75176e
+  context: "Implement sample_weight (1/\u03C3\xB2) for uncertainty weighting using\
+    \ total_uncertainty from T061 (via T017) in code/model_training.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Uncertainty weighting uses the formula 1/\u03C3\xB2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:51:36Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Citations include ISO 5725 and NIST Technical Note 1297
+  claim_id: c_13c25d70
+  context: 'The document MUST explicitly state that the uncertainty values are treated
+    as known constants for the purpose of this analysis... Citations: MUST reference
+    ISO 5725 (Accuracy of measurement methods) and NIST Technical Note 1297 (Evaluation
+    of Measurement Data).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The document MUST reference ISO 5725 and NIST Technical Note 1297
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:52:19Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis exponents 0, 1, 2, 3
+  claim_id: c_4853edce
+  context: "Implement a sensitivity analysis in code/validation.py that sweeps the\
+    \ uncertainty weighting exponent (e., g., weight = 1 / uncertainty^p for p in\
+    \ {0, 1, 2, 3}) and reports how the model performance (R\xB2, RMSE) varies with\
+    \ the exponent."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps uncertainty weighting exponent p in {0, 1,
+    2, 3}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:52:57Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: 'Dependencies: pandas, scikit-learn, requests, pyyaml, numpy, pymatgen'
+  claim_id: c_d2f03b46
+  context: 'Create code/requirements.txt with initial dependencies: pandas, scikit-learn,
+    requests, pyyaml, numpy, pymatgen'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dependencies:_pandas,_scikit-learn,_requests,_pyyaml,_numpy,
+  kind: entity_fact
+  raw_text: Initial dependencies include pandas, scikit-learn, requests, pyyaml, numpy,
+    and pymatgen
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:53:54Z'
+- artifact_path: projects/PROJ-516-predicting-perovskite-stability-via-comp/specs/001-predicting-perovskite-stability-via-comp/tasks.md
+  attempts: 1
+  canonical: Python version 3.11
+  claim_id: c_09268ae8
+  context: Initialize Python 3.11 project with dependencies (code/requirements.txt)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python version 3.11 is required
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T12:54:25Z'

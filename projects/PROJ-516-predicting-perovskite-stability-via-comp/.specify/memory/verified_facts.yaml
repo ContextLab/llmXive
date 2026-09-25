@@ -1,5 +1,7 @@
-21 3|582d3d21 claim implement logic:
-  quote: 'P1533: Q113107166'
-  source_id: Q113106917
-  url: https://www.wikidata.org/wiki/Q113106917
-  value: Q113107166
+'|document iso must reference':
+  quote: A shift in the meaning of these terms appeared with the publication of the
+    ISO 5725 series of standards in 1994, which is also reflected in the 2008 issue
+    of the BIPM International Vocabulary of Metrology (VIM), items 2.13 and 2.14.
+  source_id: Accuracy and precision
+  url: https://en.wikipedia.org/wiki/Accuracy_and_precision
+  value: '1994'

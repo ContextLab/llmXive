@@ -19,6 +19,22 @@ T008:
   r: No `.env` file, configuration script, or documentation was presented showing
     that API keys for Materials Project and NREL have been set up and managed via
     environment variables. The required artifact is missing, so the task is not satisfied.
+T012a:
+  c: false
+  h: bc28f769cdc3e2c47738a5a1f2895899cd40ea83ce40044b6f7d750c0244c11c
+  r: "The repository lacks the required `data/raw/nrel_perovskites.csv` file, and\
+    \ `code/data_ingestion.py` does not implement a `fetch_and_validate_data` function\
+    \ nor contain logic that writes the CSV with a non\u2011null `T_d` column. Consequently\
+    \ the task\u2019s core output is missing."
+T012b:
+  c: false
+  h: 7d9628431dbf5f16ff0ac92b4efc62598958fee6b3c9d9b7bd8f9903afe2e0d1
+  r: "The repository lacks a `fetch_and_validate_data` function in `code/data_ingestion.py`\
+    \ and does not contain the required `data/raw/mp_perovskites.csv` file; consequently\
+    \ the task\u2019s core behavior (fetching from the Materials Project API, validation,\
+    \ filtering for `T_d`, and writing the CSV) is not present. The missing CSV also\
+    \ means the verification condition (existence and non\u2011null `T_d` column)\
+    \ cannot be satisfied."
 T012d:
   c: false
   h: 6fcd6ad49a08c620fb9ba185b98de8cc21cbbc79fb176341585fd77572e9ce19
@@ -26,15 +42,6 @@ T012d:
     \ are missing, so the task\u2019s condition (existence and at least one row) is\
     \ not satisfied and no verification or critical error logging can have occurred.\
     \ The implementer must provide the two CSV files with data."
-T014:
-  c: false
-  h: 158e7382bca26b99e736eb6784506bc643ce7946dcc5c1c81a1a2c10ebc7162a
-  r: "The repository contains a `code/feature_engineering.py` file, but the shown\
-    \ excerpt stops after defining constant dictionaries and includes no functions\
-    \ that compute atomic fractions, weighted averages, variances, verify the \u201C\
-    first ionization energy\u201D column, or write a CSV. Moreover, the required output\
-    \ file `data/processed/descriptors.csv` is absent. Both the implementation and\
-    \ the expected output artifact are missing."
 T019:
   c: false
   h: 86c0f6d2a8a0c60b9a89c1b0ce5fc9bde3fc8a06cd99769c519f5a284e44e764
