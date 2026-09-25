@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-25T01:47:01.243751+00:00'
+issue_number: 1415
+project_id: PROJ-538-quantifying-the-impact-of-network-struct

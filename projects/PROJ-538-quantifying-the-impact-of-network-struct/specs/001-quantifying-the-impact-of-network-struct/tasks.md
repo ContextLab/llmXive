@@ -63,10 +63,10 @@
 
 **Purpose**: Verify data availability and set execution mode (Real vs Synthetic) before any ingestion. **Note**: This phase requires Phase 1 infrastructure (directories, logging) to be initialized first. **Execution Order**: Run T000 only after T001.1 and T008 are complete.
 
-- [X] T000 [US1] Implement `DataAudit` class in `code/ingest.py`: **Check for local file `data/raw/real_snapshots.parquet` ONLY**. **Logic**: 
-  1. If file exists AND contains ≥ 20 valid snapshots with `thermal_conductivity` metadata: Set mode to **Real**.
-  2. If file missing OR count < 20 OR metadata incomplete: Log `DataAvailabilityError` to `data/audit_log.json` and set mode to **Synthetic**.
-  **Constraint**: Do NOT query OpenKim/Materials Cloud APIs (Plan override: No verified source exists). This task must NOT attempt external fetches. **[Depends: T001.1, T008]**
+- [X] T000 [US1] Implement `DataAudit` class in `code/ingest.py`: **Check for local file `data/raw/real_snapshots.parquet` ONLY**. **Logic**:
+ 1. If file exists AND contains ≥ 20 valid snapshots with `thermal_conductivity` metadata: Set mode to **Real**.
+ 2. If file missing OR count < 20 OR metadata incomplete: Log `DataAvailabilityError` to `data/audit_log.json` and set mode to **Synthetic**.
+ **Constraint**: Do NOT query OpenKim/Materials Cloud APIs (Plan override: No verified source exists). This task must NOT attempt external fetches. **[Depends: T001.1, T008]**
 
 ---
 
@@ -92,11 +92,11 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] **REMOVED** (Consolidated into T000).
-- [X] T013 [US1] **Conditional Stub for Real Data**. Implement `RealDataLoader` in `code/ingest.py`: 
-  1. **Check**: If `data/raw/real_snapshots.parquet` exists and is valid (per T000 audit), parse MD snapshots, extract species/coordinates, check for key `thermal_conductivity_W_m_K`.
-  2. **Failure Path**: If file missing or invalid (but T000 expected Real Mode due to config), raise `DataAvailabilityError` immediately with **code E_DATA_MISSING** and message "Real data file missing or incomplete; switching to Synthetic". **Verify that Orchestrator (T045) catches this specific error code and switches to Synthetic Mode (T014)**. This intentional error triggers the Orchestrator to switch to Synthetic Mode (T014).
-  3. **Success Path**: If file exists and valid, return parsed data.
-  **Note**: This task is a stub for future Real Mode support. In current "Synthetic Validation Mode", T000 will likely trigger Synthetic, making T013 raise an error (as designed) to confirm the fallback path. **[Depends: T000 - Conditional]**
+- [X] T013 [US1] **Conditional Stub for Real Data**. Implement `RealDataLoader` in `code/ingest.py`:
+ 1. **Check**: If `data/raw/real_snapshots.parquet` exists and is valid (per T000 audit), parse MD snapshots, extract species/coordinates, check for key `thermal_conductivity_W_m_K`.
+ 2. **Failure Path**: If file missing or invalid (but T000 expected Real Mode due to config), raise `DataAvailabilityError` immediately with **code E_DATA_MISSING** and message "Real data file missing or incomplete; switching to Synthetic". **Verify that Orchestrator (T045) catches this specific error code and switches to Synthetic Mode (T014)**. This intentional error triggers the Orchestrator to switch to Synthetic Mode (T014).
+ 3. **Success Path**: If file exists and valid, return parsed data.
+ **Note**: This task is a stub for future Real Mode support. In current "Synthetic Validation Mode", T000 will likely trigger Synthetic, making T013 raise an error (as designed) to confirm the fallback path. **[Depends: T000 - Conditional]**
 - [X] T014 [US1] Implement `SyntheticDataGenerator` in `code/synthetic.py`: Generate **N=50** statistically independent snapshots using Lennard-Jones potentials (`ase`) with unique random seeds (-49) and NVT thermalization steps. Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103 eV, sigma=2.89 A). **CRITICAL**: **Embed a known ground truth correlation (r=0.6) between defect density and thermal conductivity** as defined in Plan.md "Validation Strategy". **Verification**: Verify that running the generator with seed=42 produces a dataset where the correlation between defect density and thermal conductivity is recoverable within ±0.05 of 0.6. **[Depends: T000 - Conditional]**
 - [X] T015 [US1] Implement `ThermalConductivityEstimator` in `code/synthetic.py`: Estimate conductivity via Callaway phonon-scattering model (based on defect density/mass diff, NOT graph metrics) to avoid tautology. **Per Plan.md "Synthetic Override", derive conductivity from Callaway model (defect density) to avoid tautology, NOT from graph metrics.** **Validation Context**: This step is critical for the "Synthetic Validation Mode" to ensure the recovered correlation matches the known ground truth (r=0.6) defined in the Plan. **[Depends: T014]**
 - [X] T016a [US1] **Conditional**: Implement `DefectGraphBuilder` for Real Data in `code/ingest.py`: Use `pymatgen` or `ase` neighbors with periodic box data to define nearest neighbors via Voronoi tessellation. **CRITICAL**: Must handle Periodic Boundary Conditions explicitly using `pymatgen.analysis.sites.VoronoiNN(pbc=True)` or `ase.neighborlist.neighbor_list` with periodic box. Draw edges ONLY between mismatched species. **Execute ONLY if T000 detected Real Mode AND T013 succeeded**. **[Depends: T013, Mode=Real]**
@@ -174,11 +174,11 @@
 **Purpose**: Execute the full pipeline, aggregate results, and generate the final research report.
 
 - [X] T045 [P] Implement `PipelineOrchestrator` in `code/main.py`: **Execute Logic**:
-  1. Run T000 (DataAudit).
-  2. **IF** T000 triggers Synthetic Mode (file missing or count < 20): **SKIP T013**. Execute T014 (Synthetic Data) -> T016b (Synthetic Graph) -> T024 -> T028 -> T031 -> T033/T034.
-  3. **ELSE IF** T000 finds valid Real Data: Execute T013 (Real Data). **IF T013 raises `DataAvailabilityError` (e.g., file corrupt)**: Catch error, fallback to T014 (Synthetic). **IF T013 succeeds**: Execute T016a (Real Graph) -> T024 -> T028 -> T031 -> T033/T034.
-  4. **Note**: T016a and T016b are mutually exclusive. Only one path is taken based on T000/T013 result.
-  **[Depends: T013, T014, T016a, T016b, T020, T027, T028, T032]**
+ 1. Run T000 (DataAudit).
+ 2. **IF** T000 triggers Synthetic Mode (file missing or count < 20): **SKIP T013**. Execute T014 (Synthetic Data) -> T016b (Synthetic Graph) -> T024 -> T028 -> T031 -> T033/T034.
+ 3. **ELSE IF** T000 finds valid Real Data: Execute T013 (Real Data). **IF T013 raises `DataAvailabilityError` (e.g., file corrupt)**: Catch error, fallback to T014 (Synthetic). **IF T013 succeeds**: Execute T016a (Real Graph) -> T024 -> T028 -> T031 -> T033/T034.
+ 4. **Note**: T016a and T016b are mutually exclusive. Only one path is taken based on T000/T013 result.
+ **[Depends: T013, T014, T016a, T016b, T020, T027, T028, T032]**
 - [X] T046 [P] Create `run_pipeline.sh` script to execute the full pipeline with `python code/main.py --mode auto`. **[Depends: T045]**
 - [X] T047 [P] Implement `ReportGenerator` in `code/reports.py`: Aggregate `data/processed/*.json` and `data/processed/*.png` into a single `data/processed/final_report.md`. **[Depends: T043, T031]**
 - [X] T048 [P] Verify final report contains: Ground truth correlation (Synthetic Mode) or Data Source URL (Real Mode), Recovered Correlation, Power Analysis Result, Sensitivity Stability Flag, and Visualizations. **[Depends: T047]**
@@ -189,11 +189,11 @@
 
 **Purpose**: Address specific reviewer concerns regarding data integrity, edge case handling, and validation rigor.
 
-- [ ] T049 [US1] **Data Integrity Check**: Implement a strict checksum validation in `code/ingest.py` for the synthetic data generator output. **Verify that running T014 with seed=42 produces a file with hash X (pre-calculated)**. **If hash != X, raise `DataIntegrityError`**. **[Depends: T014]**
-- [ ] T050 [US2] **Metric Stability Test**: Add a unit test in `tests/unit/test_metric_stability.py` that verifies the `MetricCalculator` (T020) produces identical results for the same graph input across multiple runs, ensuring no floating-point non-determinism affects the correlation analysis. **[Depends: T020]**
+- [X] T049 [US1] **Data Integrity Check**: Implement a strict checksum validation in `code/ingest.py` for the synthetic data generator output. **Verify that running T014 with seed=42 produces a file with hash X (pre-calculated)**. **If hash != X, raise `DataIntegrityError`**. **[Depends: T014]**
+- [X] T050 [US2] **Metric Stability Test**: Add a unit test in `tests/unit/test_metric_stability.py` that verifies the `MetricCalculator` (T020) produces identical results for the same graph input across multiple runs, ensuring no floating-point non-determinism affects the correlation analysis. **[Depends: T020]**
 - [ ] T051 [US3] **Correlation Robustness Check**: Enhance `code/stats.py` to perform a bootstrap resampling (1000 iterations) of the correlation coefficient for the primary metric. If the 95% confidence interval includes zero despite the p-value < 0.05, flag this as "Unstable" in `data/processed/sensitivity_report.csv`. **[Depends: T028]**
-- [ ] T052 [US1] **Graph Topology Sanity Check**: Implement a pre-analysis check in `code/ingest.py` to ensure the generated defect graphs are not fully disconnected or fully connected (which would trivialize the analysis). If > 90% of graphs are disconnected, log a `TopologyAnomaly` warning and halt, requiring a review of the synthetic generator parameters. **[Depends: T016b]**
-- [ ] T053 [US3] **Visual Verification Task**: Add a manual review step in `code/reports.py` to generate a "sanity check" PDF containing the first 5 scatter plots and their corresponding raw data points. This ensures the visualization engine (T032) is not plotting NaNs or empty arrays. **[Depends: T033]**
+- [X] T052 [US1] **Graph Topology Sanity Check**: Implement a pre-analysis check in `code/ingest.py` to ensure the generated defect graphs are not fully disconnected or fully connected (which would trivialize the analysis). If > 90% of graphs are disconnected, log a `TopologyAnomaly` warning and halt, requiring a review of the synthetic generator parameters. **[Depends: T016b]**
+- [X] T053 [US3] **Visual Verification Task**: Add a manual review step in `code/reports.py` to generate a "sanity check" PDF containing the first 5 scatter plots and their corresponding raw data points. This ensures the visualization engine (T032) is not plotting NaNs or empty arrays. **[Depends: T033]**
 
 ---
 

@@ -124,21 +124,6 @@
   updated_at: '2026-09-08T00:50:46Z'
 - artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
   attempts: 1
-  canonical: Correlation heatmaps generated at 300 DPI
-  claim_id: c_27bd939e
-  context: Generate correlation heatmaps in code/viz.py (300 DPI) (FR-005).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate correlation heatmaps at 300 DPI.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-08T00:51:14Z'
-- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
-  attempts: 1
   canonical: Data availability error raised for completeness less than 90 percent
   claim_id: c_beb077b9
   context: 'MUST raise DataAvailabilityError with specific message ''Completeness
@@ -478,3 +463,150 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T07:27:21Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 50 statistically independent snapshots generated with Lennard-Jones potentials
+  claim_id: c_23543944
+  context: 'T014 [US1] Implement SyntheticDataGenerator in code/synthetic.py: Generate
+    N=50 statistically independent snapshots using Lennard-Jones potentials (ase)
+    with unique random seeds (-49) and NVT thermalization steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=50 statistically independent snapshots using Lennard-Jones
+    potentials with unique random seeds (-49) and NVT thermalization steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:23:23Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Lennard-Jones parameters: Cu-Ni epsilon 0.104 eV sigma 2.56 A; Au-Ag
+    epsilon 0.103 eV sigma 2.89 A'
+  claim_id: c_5f7aa744
+  context: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:23:49Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Correlation recoverable within 0.05 of 0.6 for seed 42
+  claim_id: c_a3a70aee
+  context: "Verification: Verify that running the generator with seed=42 produces\
+    \ a dataset where the correlation between defect density and thermal conductivity\
+    \ is recoverable within \xB10.05 of 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that running the generator with seed=42 produces a dataset where\
+    \ the correlation between defect density and thermal conductivity is recoverable\
+    \ within \xB10.05 of 0.6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:24:08Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Real mode triggered if 20 or more valid snapshots with thermal conductivity
+    metadata exist
+  claim_id: c_f00482a4
+  context: "Logic: 1. If file exists AND contains \u2265 20 valid snapshots with thermal_conductivity\
+    \ metadata: Set mode to Real."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If file exists AND contains \u2265 20 valid snapshots with thermal_conductivity\
+    \ metadata, set mode to Real."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:24:09Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Power analysis flags if sample size N is less than 20
+  claim_id: c_fd3d24cb
+  context: Report minimum detectable effect size using statsmodels.stats.power.FTestPower
+    for correlation tests; flag if N < 20 (FR-007).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_flags_if_sample_size_N_is_less_than_20
+  kind: magnitude
+  raw_text: Report minimum detectable effect size using statsmodels.stats.power.FTestPower
+    for correlation tests; flag if N < 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:25:12Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 2
+  canonical: Correlation heatmaps generated at 300 DPI
+  claim_id: c_27bd939e
+  context: Generate correlation heatmaps in code/viz.py (300 DPI) (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate correlation heatmaps at 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:25:35Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling of 1000 iterations for correlation coefficient
+  claim_id: c_2607a085
+  context: Enhance code/stats.py to perform a bootstrap resampling (1000 iterations)
+    of the correlation coefficient for the primary metric.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a bootstrap resampling (1000 iterations) of the correlation coefficient
+    for the primary metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:26:05Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Topology anomaly warning triggered if more than 90% of graphs are disconnected
+  claim_id: c_3a0e2ee8
+  context: If > 90% of graphs are disconnected, log a TopologyAnomaly warning and
+    halt, requiring a review of the synthetic generator parameters.
+  evidence:
+    candidates:
+    - - ''
+      - 90.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Topology_anomaly_warning_triggered_if_more_than_90%25_of_graph
+  kind: magnitude
+  raw_text: If > 90% of graphs are disconnected, log a TopologyAnomaly warning and
+    halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-25T01:26:51Z'
