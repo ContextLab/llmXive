@@ -63,3 +63,10 @@ T037a:
   r: No evidence of a `ruff check --fix` run, no linting report, and no modified files
     in the `code/` directory are provided; thus the required code cleanup artifact
     is missing.
+T059:
+  c: false
+  h: bcd17ab4d26fd9419e5c6dc5b7bb83d967d0c74de5ba94eac0a8ccd2eeb153b0
+  r: "The `compressed_context.py` file shows no code that checks `context_reduction_pct`\
+    \ or `status`, nor any logging to `data/processed/edge_cases.log`. Additionally,\
+    \ the required `data/processed/edge_cases.log` file does not exist. The task\u2019\
+    s explicit edge\u2011case logging requirement is therefore unmet."

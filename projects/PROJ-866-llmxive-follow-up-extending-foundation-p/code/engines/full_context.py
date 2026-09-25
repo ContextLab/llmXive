@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import inspect
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 from engines.oracle_policy import OraclePolicyEngine
@@ -11,6 +12,55 @@ class FullContextEngine:
 
     def __init__(self):
         self.oracle = OraclePolicyEngine()
+        self._verify_oracle_isolation()
+
+    def _verify_oracle_isolation(self) -> None:
+        """Runtime check to ensure Oracle is used only for validation.
+        
+        This enforces Constitution Principle VI: The Oracle must remain the
+        independent ground truth. This check verifies that no execution logic
+        is implemented directly in this engine that should belong to the Oracle.
+        
+        Raises:
+            RuntimeError: If the engine attempts to implement policy logic itself.
+        """
+        # Get the source code of this class
+        source = inspect.getsource(self.__class__)
+        
+        # Define forbidden patterns that indicate policy logic implementation
+        forbidden_patterns = [
+            "if node_data.get('budget')",
+            "if node_data.get('sovereignty')",
+            "if node_data.get('latency')",
+            "node_data['budget'] <",
+            "node_data['sovereignty'] >=",
+            "node_data['latency'] >=",
+            "budget_limit =",
+            "sovereignty_check =",
+            "latency_threshold =",
+            "self._check_budget",
+            "self._check_sovereignty",
+            "self._check_latency"
+        ]
+        
+        violations = []
+        for pattern in forbidden_patterns:
+            if pattern in source:
+                violations.append(pattern)
+        
+        if violations:
+            raise RuntimeError(
+                f"Constitution Principle VI Violation: FullContextEngine contains "
+                f"policy logic that should be in OraclePolicyEngine. "
+                f"Detected forbidden patterns: {violations}"
+            )
+        
+        # Verify that we are using the Oracle for validation
+        if "self.oracle.validate" not in source:
+            raise RuntimeError(
+                "Constitution Principle VI Violation: FullContextEngine must use "
+                "OraclePolicyEngine for validation. No call to self.oracle.validate found."
+            )
 
     def execute(self, workflow: Dict[str, Any]) -> Dict[str, Any]:
         """Execute a workflow with full context.

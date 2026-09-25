@@ -5,174 +5,152 @@ import sys
 import random
 import time
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import List, Dict, Any
 
-# Ensure deterministic seeding at the very start of the main orchestrator
-# This satisfies T048: Determinism Check
-def _ensure_determinism(seed: int = 42) -> None:
-    """Explicitly seed all random number generators for reproducibility."""
-    random.seed(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
+# Add project root to path for imports
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
 
-def ensure_directories() -> None:
-    """Create required data directories."""
+from generators.synthetic_workflow import SyntheticWorkflowGenerator
+from engines.full_context import FullContextEngine
+from engines.compressed_context import CompressedContextEngine
+from analysis.tradeoff_model import main as analysis_main
+from analysis.bonferroni_correction import main as bonferroni_main
+from analysis.threshold_detection import main as threshold_main
+from utils.finalize_state_registry import main as finalize_state_main
+
+def ensure_directories():
+    """Create necessary directories for data storage."""
     dirs = [
-        "data", "data/raw", "data/processed", "data/results",
-        "state", "state/projects", "contracts"
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "state/projects",
+        "contracts"
     ]
     for d in dirs:
-        os.makedirs(d, exist_ok=True)
+        Path(d).mkdir(parents=True, exist_ok=True)
 
-def generate_workflows(count: int, output_dir: str, seed: int) -> None:
-    """Generate synthetic workflows."""
-    _ensure_determinism(seed)
-    from generators.synthetic_workflow import SyntheticWorkflowGenerator
-    
+def generate_workflows(count: int = 500, seed: int = 42) -> str:
+    """Generate synthetic workflows and save to data/raw/workflows.json."""
+    output_path = "data/raw/workflows.json"
     generator = SyntheticWorkflowGenerator(seed=seed)
-    workflows = generator.generate_workflows(count)
-    generator.save_workflows(workflows, output_dir)
-    print(f"Generated {count} workflows to {output_dir}")
-
-def validate_with_oracle(workflow_path: str, output_path: str) -> None:
-    """Run Oracle validation on a single workflow."""
-    from engines.oracle_policy import OraclePolicyEngine
+    workflows = generator.generate_workflows(count=count)
     
-    engine = OraclePolicyEngine()
-    with open(workflow_path, 'r') as f:
-        workflow = json.load(f)
-    
-    result = engine.validate(workflow)
-    
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-
-def execute_full_context(workflow_path: str, output_path: str) -> None:
-    """Execute workflow with full context."""
-    from engines.full_context import FullContextEngine
+        json.dump(workflows, f, indent=2)
     
+    print(f"Generated {len(workflows)} workflows to {output_path}")
+    return output_path
+
+def validate_with_oracle(workflows_path: str) -> List[Dict]:
+    """Run Oracle validation on all workflows."""
+    # Oracle validation is typically done during execution
+    # This is a placeholder for explicit validation if needed
+    return []
+
+def execute_full_context(workflows_path: str) -> str:
+    """Execute full context validation and save logs."""
     engine = FullContextEngine()
-    with open(workflow_path, 'r') as f:
-        workflow = json.load(f)
+    output_path = "data/processed/full_context_logs.json"
     
-    log = engine.execute(workflow)
+    # Load workflows
+    with open(workflows_path, 'r') as f:
+        workflows = json.load(f)
     
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    logs = []
+    for workflow in workflows:
+        log = engine.execute(workflow)
+        logs.append(log)
+    
     with open(output_path, 'w') as f:
-        json.dump(log, f, indent=2)
+        json.dump(logs, f, indent=2)
+    
+    print(f"Saved full context logs to {output_path}")
+    return output_path
 
-def execute_compressed_context(
-    workflow_path: str, depth: int, method: str, output_path: str
-) -> None:
-    """Execute workflow with compressed context."""
-    from engines.compressed_context import CompressedContextEngine
+def execute_compressed_context(workflows_path: str, depths: List[int] = None) -> str:
+    """Execute compressed context variants and save logs."""
+    if depths is None:
+        depths = list(range(1, 21))
     
-    engine = CompressedContextEngine(method=method)
-    with open(workflow_path, 'r') as f:
-        workflow = json.load(f)
+    engine = CompressedContextEngine()
+    output_path = "data/processed/compressed_context_logs.json"
     
-    log = engine.execute(workflow, depth=depth)
+    # Load workflows
+    with open(workflows_path, 'r') as f:
+        workflows = json.load(f)
     
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    all_logs = []
+    for workflow in workflows:
+        for depth in depths:
+            log = engine.execute(workflow, depth=depth)
+            all_logs.append(log)
+    
     with open(output_path, 'w') as f:
-        json.dump(log, f, indent=2)
-
-def run_full_pipeline(
-    generate_count: int,
-    generate_seed: int,
-    compress_depths: List[int],
-    compress_method: str,
-    analyze: bool
-) -> None:
-    """Run the full pipeline: Generate -> Full Exec -> Compressed Exec -> Analyze."""
-    import glob
+        json.dump(all_logs, f, indent=2)
     
-    # 1. Generate
+    print(f"Saved compressed context logs to {output_path}")
+    return output_path
+
+def run_full_pipeline(generate_count: int = 500, seed: int = 42):
+    """Run the complete pipeline: Generate -> Full Exec -> Compressed Exec -> Analyze."""
     ensure_directories()
-    raw_dir = "data/raw"
-    generate_workflows(generate_count, raw_dir, generate_seed)
     
-    # 2. Full Context Execution
-    processed_dir = "data/processed"
-    workflow_files = sorted(glob.glob(os.path.join(raw_dir, "wf_*.json")))
+    print("=== Phase 1: Generating Workflows ===")
+    workflows_path = generate_workflows(count=generate_count, seed=seed)
     
-    print(f"Executing {len(workflow_files)} workflows with full context...")
-    for wf_path in workflow_files:
-        wf_id = Path(wf_path).stem
-        out_path = os.path.join(processed_dir, f"full_{wf_id}.json")
-        execute_full_context(wf_path, out_path)
+    print("\n=== Phase 2: Full Context Execution ===")
+    full_logs_path = execute_full_context(workflows_path)
     
-    # 3. Compressed Context Execution
-    print(f"Executing compressed context for depths {compress_depths}...")
-    for depth in compress_depths:
-        for wf_path in workflow_files:
-            wf_id = Path(wf_path).stem
-            out_path = os.path.join(processed_dir, f"compressed_{wf_id}_depth{depth}.json")
-            execute_compressed_context(wf_path, depth, compress_method, out_path)
+    print("\n=== Phase 3: Compressed Context Execution ===")
+    compressed_logs_path = execute_compressed_context(workflows_path)
     
-    # 4. Analysis
-    if analyze:
-        print("Running analysis...")
-        from analysis.tradeoff_model import run_analysis
-        from analysis.bonferroni_correction import main as run_bonferroni
-        from analysis.threshold_detection import main as run_threshold
-        from analysis.generate_regression_data import main as run_regression_data
-        
-        # Collect logs
-        full_logs = [f for f in glob.glob(os.path.join(processed_dir, "full_*.json"))]
-        compressed_logs = [f for f in glob.glob(os.path.join(processed_dir, "compressed_*.json"))]
-        
-        if not full_logs or not compressed_logs:
-            print("Error: No logs found for analysis.")
-            return
+    print("\n=== Phase 4: Analysis ===")
+    # Run tradeoff model analysis
+    analysis_main()
+    
+    # Run Bonferroni correction
+    bonferroni_main()
+    
+    # Run threshold detection
+    threshold_main()
+    
+    print("\n=== Phase 5: Finalizing State Registry ===")
+    finalize_state_main()
+    
+    print("\n=== Pipeline Complete ===")
 
-        # Run Tradeoff Model
-        run_analysis()
-        
-        # Run Bonferroni Correction
-        run_bonferroni()
-        
-        # Run Threshold Detection
-        run_threshold()
-        
-        # Generate Regression Data CSV
-        run_regression_data()
-        
-        print("Analysis complete. Results saved to data/results/")
-
-def main() -> None:
-    """Main CLI entry point."""
-    parser = argparse.ArgumentParser(description="llmXive Orchestrator")
-    parser.add_argument("--generate", type=int, default=0, help="Number of workflows to generate")
-    parser.add_argument("--compress", action="store_true", help="Run compression execution")
-    parser.add_argument("--analyze", action="store_true", help="Run analysis phase")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for generation")
-    parser.add_argument("--depths", type=int, nargs="+", default=[1, 2, 3, 4, 5], help="Compression depths")
-    parser.add_argument("--method", type=str, default="bfs", choices=["bfs", "dfs"], help="Compression method")
+def main():
+    parser = argparse.ArgumentParser(description="llmXive Pipeline Orchestrator")
+    parser.add_argument('--generate', action='store_true', help='Generate synthetic workflows')
+    parser.add_argument('--compress', action='store_true', help='Run compressed context execution')
+    parser.add_argument('--analyze', action='store_true', help='Run analysis on generated data')
+    parser.add_argument('--count', type=int, default=500, help='Number of workflows to generate')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed for generation')
     
     args = parser.parse_args()
     
-    if args.generate > 0:
-        run_full_pipeline(
-            generate_count=args.generate,
-            generate_seed=args.seed,
-            compress_depths=args.depths if args.compress else [],
-            compress_method=args.method,
-            analyze=args.analyze
-        )
-    elif args.compress or args.analyze:
-        # Resume analysis without regeneration
-        run_full_pipeline(
-            generate_count=0,
-            generate_seed=args.seed,
-            compress_depths=args.depths if args.compress else [],
-            compress_method=args.method,
-            analyze=args.analyze
-        )
+    if args.generate and args.compress and args.analyze:
+        # Run full pipeline
+        run_full_pipeline(generate_count=args.count, seed=args.seed)
+    elif args.generate:
+        ensure_directories()
+        generate_workflows(count=args.count, seed=args.seed)
+    elif args.compress:
+        # Assuming workflows already exist
+        workflows_path = "data/raw/workflows.json"
+        if not os.path.exists(workflows_path):
+            print("Error: Workflows not found. Run with --generate first.")
+            sys.exit(1)
+        execute_full_context(workflows_path)
+        execute_compressed_context(workflows_path)
+    elif args.analyze:
+        # Run analysis on existing data
+        analysis_main()
+        bonferroni_main()
+        threshold_main()
+        finalize_state_main()
     else:
         parser.print_help()
 

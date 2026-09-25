@@ -1594,3 +1594,955 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T21:33:49Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 25 workflows per depth level 1 to 20
+  claim_id: c_8b2f3592
+  context: 'T010 Unit test for graph variance in tests/unit/test_generator.py. Assertion:
+    Implement a test test_uniform_distribution that runs the generator and asserts
+    len(workflows_by_depth[d]) == 25 for all d in 1..20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a test test_uniform_distribution that runs the generator and
+    asserts len(workflows_by_depth[d]) == 25 for all d in 1..20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:18:04Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 25 workflows per depth level 1 to 20
+  claim_id: c_2aed928e
+  context: 'T012 Algorithm: MUST generate exactly 25 workflows for each depth level
+    from 1 to 20 (totaling workflows).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST generate exactly 25 workflows for each depth level from 1 to 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:18:46Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 1 to 3 constraints low complexity, 4 to 8 constraints high complexity
+  claim_id: c_71638c73
+  context: T012 For each depth, vary complexity (number of constraints) randomly between
+    low (1-3 constraints) and high (4-8 constraints) levels to ensure determinism.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vary complexity between low (1-3 constraints) and high (4-8 constraints)
+    levels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:19:22Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 500 workflows processed at compression levels 1 to 20
+  claim_id: c_34768059
+  context: T023 Implement the --compress CLI flag to iterate over data/raw/ (500 workflows)
+    and apply compression levels 1 through 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over data/raw/ (500 workflows) and apply compression levels 1
+    through 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:19:53Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Benchmark includes VIF calculation, sensitivity analysis, and multiple
+    bootstrap seeds
+  claim_id: c_e76879ef
+  context: 'T038 CRITICAL: This benchmark MUST include the full scope of analysis
+    (Phase N+3 tasks T056-T058) to account for VIF calculation, sensitivity analysis,
+    and multiple bootstrap seeds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_includes_VIF_calculation,_sensitivity_analysis,_an
+  kind: entity_fact
+  raw_text: The benchmark MUST include the full scope of analysis to account for VIF
+    calculation, sensitivity analysis, and multiple bootstrap seeds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:20:23Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Benchmark fails if wall clock time exceeds 14400 seconds
+  claim_id: c_4e83ace1
+  context: 'T038 Acceptance: If total_wall_clock_seconds > 14400 (4 hours), the script
+    MUST exit with code 1, failing the build immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 14400 (4 hours), the script MUST exit with
+    code 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:20:23Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold defined as 1% policy-violation error rate
+  claim_id: c_14f4c81b
+  context: 'T031 Method: Identify the specific context reduction percentage where
+    the policy-violation error rate first exceeds 1% (nominal threshold), interpolated
+    from the GLMM curve.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the specific context reduction percentage where the policy-violation
+    error rate first exceeds 1%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:20:24Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold value rounded to 2 decimal places
+  claim_id: c_e1cccda2
+  context: 'T031 Rounding: Round the final threshold value to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:21:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: VIF warning threshold set to 5
+  claim_id: c_151e8c16
+  context: T057 If VIF > 5, log a warning and document the potential impact on coefficient
+    stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, log a warning and document the potential impact on coefficient
+    stability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:21:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Token count discrepancy threshold set to 1 token
+  claim_id: c_45de65e4
+  context: T061 Create a standalone script code/utils/verify_token_counts.py that
+    re-runs tiktoken on a sample of policy subgraphs from data/processed/ and compares
+    the results against the stored token_count in the logs. Report any discrepancies
+    > 1 token.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report any discrepancies > 1 token
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:21:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 25 synthetic workflows per depth level from 1 to 20
+  claim_id: c_17067325
+  context: 'Algorithm: MUST generate exactly 25 workflows for each depth level from
+    1 to 20 (totaling workflows). For each depth, vary complexity (number of constraints)
+    randomly between low (1-3 constraints) and high (4-8 constraints) levels to ensure
+    determinism.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST generate exactly 25 workflows for each depth level from 1 to 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:23:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Uniform distribution of 25 workflows across depths 1 to 20
+  claim_id: c_f55133db
+  context: 'Assertion: Implement a test test_uniform_distribution that runs the generator
+    and asserts len(workflows_by_depth[d]) == 25 for all d in 1..20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a test test_uniform_distribution that runs the generator and
+    asserts len(workflows_by_depth[d]) == 25 for all d in 1..20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:23:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Chi-Square Goodness-of-Fit test for uniform workflow distribution
+  claim_id: c_a9cbcbaa
+  context: 'Statistical Test: Perform a Chi-Square Goodness-of-Fit test to verify
+    the distribution is uniform (expected count equal across all bins).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-Square_Goodness-of-Fit_test_for_uniform_workflow_distrib
+  kind: entity_fact
+  raw_text: Perform a Chi-Square Goodness-of-Fit test to verify the distribution is
+    uniform
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:23:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 'Complexity variation: 1-3 constraints (low) and 4-8 constraints (high)'
+  claim_id: c_a5579e7c
+  context: For each depth, vary complexity (number of constraints) randomly between
+    low (1-3 constraints) and high (4-8 constraints) levels to ensure determinism.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vary complexity between low (1-3 constraints) and high (4-8 constraints)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:24:38Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Batch execution over 500 workflows across compression levels 1 to 20
+  claim_id: c_e78d9aeb
+  context: 'Deliverable: Implement the --compress CLI flag to iterate over data/raw/
+    (500 workflows) and apply compression levels 1 through 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the --compress CLI flag to iterate over data/raw/ (500 workflows)
+    and apply compression levels 1 through 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:25:00Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor warning threshold of 5
+  claim_id: c_2c91834a
+  context: Calculate and report the Variance Inflation Factor (VIF) for the covariates
+    (depth, complexity) to detect multicollinearity. If VIF > 5, log a warning and
+    document the potential impact on coefficient stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, log a warning and document the potential impact on coefficient
+    stability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:25:01Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Token count discrepancy threshold of 1 token
+  claim_id: c_644a4a65
+  context: Create a standalone script code/utils/verify_token_counts.py that re-runs
+    tiktoken on a sample of policy subgraphs from data/processed/ and compares the
+    results against the stored token_count in the logs. Report any discrepancies >
+    1 token.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report any discrepancies > 1 token
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:25:01Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Benchmark timeout threshold of 14400 seconds (4 hours)
+  claim_id: c_d68cf206
+  context: 'Acceptance: If total_wall_clock_seconds > 14400 (4 hours), the script
+    MUST exit with code 1, failing the build immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 14400 (4 hours), the script MUST exit with
+    code 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:25:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 25 workflows per depth level from 1 to 20
+  claim_id: c_03db9c92
+  context: 'Unit test for graph variance in tests/unit/test_generator.py. Assertion:
+    Implement a test test_uniform_distribution that runs the generator and asserts
+    len(workflows_by_depth[d]) == 25 for all d in 1..20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a test test_uniform_distribution that runs the generator and
+    asserts len(workflows_by_depth[d]) == 25 for all d in 1..20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:29:24Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 25 workflows per depth level from 1 to 20
+  claim_id: c_e944eca7
+  context: 'Algorithm: MUST generate exactly 25 workflows for each depth level from
+    1 to 20 (totaling workflows). For each depth, vary complexity (number of constraints)
+    randomly between low (1-3 constraints) and high (4-8 constraints) levels to ensure
+    determinism.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST generate exactly 25 workflows for each depth level from 1 to 20 (totaling
+    workflows).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:29:25Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Constraints per workflow vary between 1-3 (low) and 4-8 (high)
+  claim_id: c_c16e877b
+  context: 'Algorithm: MUST generate exactly 25 workflows for each depth level from
+    1 to 20 (totaling workflows). For each depth, vary complexity (number of constraints)
+    randomly between low (1-3 constraints) and high (4-8 constraints) levels to ensure
+    determinism.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each depth, vary complexity (number of constraints) randomly between
+    low (1-3 constraints) and high (4-8 constraints) levels to ensure determinism.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:29:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Benchmark pipeline run with depths 1 through 20
+  claim_id: c_9451206d
+  context: 'Benchmark & Performance Gate: Implement and run the full pipeline (python
+    code/main.py --generate --compress --analyze) with depths 1 through 20 on the
+    target runner. Measure wall-clock time.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the full pipeline (python code/main.py --generate --compress --analyze)
+    with depths 1 through 20 on the target runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:30:26Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Benchmark timeout threshold is 14400 seconds
+  claim_id: c_83cc7d56
+  context: 'Acceptance: If total_wall_clock_seconds > 14400 (4 hours), the script
+    MUST exit with code 1, failing the build immediately. This task is a blocking
+    gate for FR-007 and SC-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 14400 (4 hours), the script MUST exit with
+    code 1, failing the build immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:30:26Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Batch execution over 500 workflows across 20 compression levels
+  claim_id: c_cd837e37
+  context: 'Deliverable: Implement the --compress CLI flag to iterate over data/raw/
+    (500 workflows) and apply compression levels 1 through 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the --compress CLI flag to iterate over data/raw/ (500 workflows)
+    and apply compression levels 1 through 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:30:26Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 2
+  canonical: Threshold detection at 1% policy-violation error rate
+  claim_id: c_b4ba7a6e
+  context: 'Method: Identify the specific context reduction percentage where the policy-violation
+    error rate first exceeds 1% (nominal threshold), interpolated from the GLMM curve.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the specific context reduction percentage where the policy-violation
+    error rate first exceeds 1%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:30:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 2
+  canonical: Threshold value rounded to 2 decimal places
+  claim_id: c_38a1b8dd
+  context: 'Rounding: Round the final threshold value to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:30:27Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold undefined if max reduction below 1%
+  claim_id: c_cdb0ee58
+  context: 'Logic: If max_reduction < 1%, report threshold as ''undefined''. If error
+    > 1% at 0% reduction, report threshold as ''0.00''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If max_reduction < 1%, report threshold as 'undefined'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:30:28Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Threshold 0.00 if error exceeds 1% at 0% reduction
+  claim_id: c_eb26188a
+  context: 'Logic: If max_reduction < 1%, report threshold as ''undefined''. If error
+    > 1% at 0% reduction, report threshold as ''0.00''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If error > 1% at 0% reduction, report threshold as '0.00'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:30:28Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Unit test for tiktoken cl100k_base encoding accuracy
+  claim_id: c_8b182a08
+  context: 'Verify Token Counting Accuracy: Add a unit test in tests/unit/test_token_counter.py
+    that compares tiktoken output against a known reference string to ensure cl100k_base
+    is correctly encoding the policy subgraph text.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_test_for_tiktoken_cl100k_base_encoding_accuracy
+  kind: entity_fact
+  raw_text: Add a unit test in tests/unit/test_token_counter.py that compares tiktoken
+    output against a known reference string to ensure cl100k_base is correctly encoding
+    the policy subgraph text.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:31:17Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: VIF calculation for depth and complexity covariates
+  claim_id: c_6086be19
+  context: 'Add Covariate Correlation Analysis: In code/analysis/tradeoff_model.py
+    (T029), calculate and report the Variance Inflation Factor (VIF) for the covariates
+    (depth, complexity) to detect multicollinearity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/VIF_calculation_for_depth_and_complexity_covariates
+  kind: entity_fact
+  raw_text: Calculate and report the Variance Inflation Factor (VIF) for the covariates
+    (depth, complexity) to detect multicollinearity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:31:55Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: VIF warning threshold is 5
+  claim_id: c_ae651b86
+  context: If VIF > 5, log a warning and document the potential impact on coefficient
+    stability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, log a warning and document the potential impact on coefficient
+    stability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:31:55Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: generate 25 workflows per depth level from 1 to 20
+  claim_id: c_6c7475d4
+  context: 'Algorithm: MUST generate exactly 25 workflows for each depth level from
+    1 to 20 (totaling workflows). For each depth, vary complexity (number of constraints)
+    randomly between low (1-3 constraints) and high (4-8 constraints) levels to ensure
+    determinism.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST generate exactly 25 workflows for each depth level from 1 to 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:33:15Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: benchmark includes VIF calculation, sensitivity analysis, and multiple
+    bootstrap seeds
+  claim_id: c_979beef1
+  context: 'CRITICAL: This benchmark MUST include the full scope of analysis (Phase
+    N+3 tasks T056-T058) to account for VIF calculation, sensitivity analysis, and
+    multiple bootstrap seeds. Write a single JSON object to data/results/benchmark.log
+    containing {"total_wall_clock_seconds": <float>, "timestamp": "<ISO8601>"}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_includes_VIF_calculation,_sensitivity_analysis,_an
+  kind: entity_fact
+  raw_text: benchmark MUST include the full scope of analysis to account for VIF calculation,
+    sensitivity analysis, and multiple bootstrap seeds
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:33:17Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: benchmark fails if total_wall_clock_seconds exceeds 14400 seconds
+  claim_id: c_60e459cc
+  context: 'Acceptance: If total_wall_clock_seconds > 14400 (4 hours), the script
+    MUST exit with code 1, failing the build immediately. This task is a blocking
+    gate for FR-007 and SC-005.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_wall_clock_seconds > 14400 (4 hours), the script MUST exit with
+    code 1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:33:17Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: assert 25 workflows per depth level 1 to 20
+  claim_id: c_5d844985
+  context: 'Assertion: Implement a test test_uniform_distribution that runs the generator
+    and asserts len(workflows_by_depth[d]) == 25 for all d in 1..20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: assert len(workflows_by_depth[d]) == 25 for all d in 1..20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:35:13Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Chi-Square Goodness-of-Fit test for uniform distribution
+  claim_id: c_254f2364
+  context: 'Statistical Test: Perform a Chi-Square Goodness-of-Fit test to verify
+    the distribution is uniform (expected count equal across all bins).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-Square_Goodness-of-Fit_test_for_uniform_distribution
+  kind: entity_fact
+  raw_text: Perform a Chi-Square Goodness-of-Fit test to verify the distribution is
+    uniform
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:35:16Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: apply compression levels 1 through 20
+  claim_id: c_c06d3631
+  context: 'Deliverable: Implement the --compress CLI flag to iterate over data/raw/
+    (500 workflows) and apply compression levels 1 through 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply compression levels 1 through 20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:35:43Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: 500 workflows generated
+  claim_id: c_618f718d
+  context: 'Deliverable: Implement the --compress CLI flag to iterate over data/raw/
+    (500 workflows) and apply compression levels 1 through 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 500 workflows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:36:03Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: threshold is context reduction where error rate exceeds 1%
+  claim_id: c_0eddb0ef
+  context: 'Method: Identify the specific context reduction percentage where the policy-violation
+    error rate first exceeds 1% (nominal threshold), interpolated from the GLMM curve.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the specific context reduction percentage where the policy-violation
+    error rate first exceeds 1%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:36:04Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: round threshold value to 2 decimal places
+  claim_id: c_18277f5c
+  context: 'Rounding: Round the final threshold value to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Round the final threshold value to 2 decimal places
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:36:04Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: log warning if VIF exceeds 5
+  claim_id: c_b2b024d6
+  context: 'If VIF > 5, log a warning and document the potential impact on coefficient
+    stability. Output: Write the VIF report to data/results/vif_report.json with the
+    metric name ''VIF'', the calculated value, and the threshold exceeded.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, log a warning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:36:04Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: report token count discrepancies greater than 1
+  claim_id: c_f26a04b6
+  context: Create a standalone script code/utils/verify_token_counts.py that re-runs
+    tiktoken on a sample of policy subgraphs from data/processed/ and compares the
+    results against the stored token_count in the logs. Report any discrepancies >
+    1 token.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_token_count_discrepancies_greater_than_1
+  kind: magnitude
+  raw_text: Report any discrepancies > 1 token
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:36:39Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: benchmark fails if wall clock time exceeds 14400 seconds
+  claim_id: c_04a95f9f
+  context: 'Acceptance: If total_wall_clock_seconds > 14400 (4 hours), the script
+    MUST exit with code 1, failing the build immediately.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_fails_if_wall_clock_time_exceeds_14400_seconds
+  kind: magnitude
+  raw_text: The script MUST exit with code 1 if total_wall_clock_seconds is greater
+    than 14400 (4 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:40:15Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: generator produces 25 workflows per depth level for depths 1 to 20
+  claim_id: c_7474ee97
+  context: 'T012 [P] [US1] Implement code/generators/synthetic_workflow.py... Algorithm:
+    MUST generate exactly 25 workflows for each depth level from 1 to 20...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generator MUST generate exactly 25 workflows for each depth level
+    from 1 to 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:40:41Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: workflow distribution is uniform with 25 per depth level 1 to 20
+  claim_id: c_7e8a4773
+  context: 'Constraint: The distribution MUST be uniform: exactly 25 workflows per
+    depth level 1-20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distribution MUST be uniform with exactly 25 workflows per depth level
+    1-20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:41:06Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Chi-Square Goodness-of-Fit test verifies uniform distribution
+  claim_id: c_88163256
+  context: 'Statistical Test: Perform a Chi-Square Goodness-of-Fit test to verify
+    the distribution is uniform (expected count equal across all bins).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-Square_Goodness-of-Fit_test_verifies_uniform_distributio
+  kind: entity_fact
+  raw_text: The Chi-Square Goodness-of-Fit test is used to verify the distribution
+    is uniform.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:41:47Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: analysis iterates over 500 workflows
+  claim_id: c_0caf16e6
+  context: T023 [US2] Implement batch execution logic... Implement the --compress
+    CLI flag to iterate over data/raw/ (500 workflows)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis iterates over 500 workflows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:42:14Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: compression levels 1 to 20 are applied
+  claim_id: c_ad5fdf5a
+  context: T023 [US2]... apply compression levels 1 through 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compression levels 1 through 20 are applied to the workflows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:42:39Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: safe operating zone defined as error rate less than or equal to 1 percent
+  claim_id: c_d5143d01
+  context: "Goal: Perform statistical analysis to model the trade-off curve and identify\
+    \ the \"safe operating zone\" (\u22641% error)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Safe_operating_zone_defined_as_error_rate_less_than_or_equal
+  kind: magnitude
+  raw_text: The safe operating zone is defined as having an error rate of less than
+    or equal to 1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:43:02Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: threshold is reduction percentage where error rate first exceeds 1 percent
+  claim_id: c_c40797fa
+  context: T031 [US3]... Identify the specific context reduction percentage where
+    the policy-violation error rate first exceeds 1% (nominal threshold)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold detection identifies the context reduction percentage where
+    the policy-violation error rate first exceeds 1%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:43:03Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: threshold value rounded to 2 decimal places
+  claim_id: c_22b8f5dc
+  context: 'Rounding: Round the final threshold value to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final threshold value is rounded to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:43:36Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: Variance Inflation Factor calculated for covariates to detect multicollinearity
+  claim_id: c_52d9124d
+  context: T057 [US3]... calculate and report the Variance Inflation Factor (VIF)
+    for the covariates (depth, complexity) to detect multicollinearity.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P366: multicollinearity'
+      source_id: Q13434396
+      url: https://www.wikidata.org/wiki/Q13434396
+      value: multicollinearity
+    filled: true
+  kind: entity_fact
+  raw_text: Variance Inflation Factor (VIF) is calculated for covariates to detect
+    multicollinearity.
+  resolved_value: multicollinearity
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T15:43:50Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: VIF greater than 5 triggers warning
+  claim_id: c_3c65b594
+  context: If VIF > 5, log a warning and document the potential impact on coefficient
+    stability.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_greater_than_5_triggers_warning
+  kind: magnitude
+  raw_text: A VIF greater than 5 triggers a warning and documentation of potential
+    impact.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:44:59Z'
+- artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  attempts: 1
+  canonical: sample size is 500 workflows
+  claim_id: c_43a77435
+  context: T046 [US3]... explaining the rationale for the chosen sample size (500
+    workflows)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size is 500 workflows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:45:27Z'

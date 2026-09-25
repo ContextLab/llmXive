@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 4120748e6d2c809fc9f3a8981387f4263d567310c9e22fcbc7cc20961844507f
+  artifact_path: projects/PROJ-866-llmxive-follow-up-extending-foundation-p/specs/001-llmxive-follow-up-extending-foundation-p/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: variance inflation factor - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q13434396
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q13434396
+  verified_at: '2026-09-25T15:54:00.216672Z'

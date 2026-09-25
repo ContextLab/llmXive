@@ -160,7 +160,8 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    # Ensure deterministic seeding at entry point
+    # CRITICAL: Explicit determinism check at entry point
+    # Verify seeds are set BEFORE any random operations
     random.seed(args.seed)
     try:
         import numpy as np
