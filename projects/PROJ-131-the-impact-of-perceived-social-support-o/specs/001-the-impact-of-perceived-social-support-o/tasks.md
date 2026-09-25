@@ -27,24 +27,28 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  ============================================================================
 -->
 
-## Phase 0: Data Source Verification & Spec Alignment (Blocking Prerequisite)
+## Phase 0: Data Source Acquisition & Spec Alignment (Blocking Prerequisite)
 
-**Purpose**: Verify the existence and accessibility of the mandatory real data source (Cyberbullying Survey 2021) AND ensure `spec.md` is aligned with the Plan's single-dataset approach BEFORE any pipeline logic is built.
+**Purpose**: ACQUIRE the mandatory real data source (Cyberbullying Survey 2021) AND ensure `spec.md` is aligned with the Plan's single-dataset approach BEFORE any pipeline logic is built. This phase MUST complete before Phase 1. **T070a-Search must run first to resolve the 'blocked' data state.**
 
-- [ ] T070a-Input [P] **Check Data Source Existence**: Check if the verified URL or dataset ID for the Cyberbullying Survey 2021 exists in the `code/config/data_sources.yaml` or verified datasets block.
- **Action**: Check the config file or verified block. If found, create a *template* `code/config/data_sources.yaml` with the URL/ID. If NOT found, log `WAITING_FOR_USER_INPUT: Data source not found. Awaiting user input.` and halt the pipeline. **Do NOT attempt to search for a URL as this is not executable without external tools.**
- **Deliverable**: `code/config/data_sources.yaml` (template) or a log indicating the need for user input.
- **Constraint**: Do NOT hard-code a specific dataset ID in the script; read from config. If the config is missing the specific ID, log error and halt.
+- [ ] T070a-Acquire [P] **Acquire Data Source**: Check if the verified URL or dataset ID for the Cyberbullying Survey 2021 exists in `code/config/data_sources.yaml`.
+ **Action**: If the file/directory exists, read it. If the URL/ID is missing or the file does not exist, **RUN T070a-Search**. If T070a-Search fails to find a source, **PROMPT THE USER** to provide the valid URL or dataset ID. Write the provided value to `code/config/data_sources.yaml`. If the user cannot provide a valid source, log `WAITING_FOR_USER_INPUT: Data source not found. Aborting.` and halt.
+ **Deliverable**: `code/config/data_sources.yaml` with the user-provided URL/ID or the found URL.
+ **Constraint**: Do NOT hard-code a specific dataset ID. Read from config. If config is missing the specific ID, prompt user or search.
 
-- [ ] T070a-Verify [P] **Verify Data Source**: Verify the dataset source defined in `code/config/data_sources.yaml`.
- **Action**: Write a script `code/data/verify_source.py` that reads the dataset ID/URL from the config file.
+- [ ] T070a-Search [P] **Search for Data Source**: Actively search for the 'Cyberbullying Survey 2021' dataset.
+ **Action**: Search Hugging Face `datasets` library and UCI Machine Learning Repository for 'Cyberbullying Survey 2021' or equivalent. If found, record the ID/URL. If not found, log `INFO: Search failed. Prompting user.` and trigger the user prompt in T070a-Acquire.
+ **Deliverable**: `data/results/search_log.txt` with search results or failure confirmation.
+ **Dependency**: None (First task in Phase 0).
+
+- [ ] T070a-Verify [P] **Verify Data Source Configuration**: Write a script `code/data/verify_source.py` that checks the dataset configuration.
+ **Action**: Read the dataset ID/URL from `code/config/data_sources.yaml`. If the URL/ID is missing, raise `RuntimeError` "E-NO-SOURCE-CONFIG: Configuration missing. Aborting." If present, attempt to fetch the dataset (or check local file). If fetch fails (network error, ID not found) AND local file is missing, raise `RuntimeError` "E-NO-REAL-SOURCE-001: Real data source not found. Aborting."
  **Success**: If the dataset loads successfully (via network fetch OR local file check in `data/raw/`), log `INFO: Source verified`.
- **Failure**: If the fetch fails (network error, ID not found) AND the local file is missing or checksum mismatch, the script MUST raise `RuntimeError` with message "E-NO-REAL-SOURCE-001: Real data source not found. Aborting."
  **Deliverable**: `code/data/verify_source.py` and execution log confirming success or halting with E-NO-REAL-SOURCE-001.
- **Dependency**: Must run after T070a-Input.
+ **Dependency**: Must run after T070a-Acquire and T070a-Search.
 
 - [ ] T070b [US1] **Verify Data Columns**: Inspect the loaded dataset from T070a-Verify to confirm the presence of the `platform` column.
- **Action**: Load the dataset (using the verified source from config) and check column names.
+ **Action**: **IF** T070a-Verify succeeded, load the dataset (using the verified source from config) and check column names. **ELSE** (if T070a-Verify failed), log `SKIPPED: Data source not verified` and skip this task.
  **Deliverable**: Save a JSON file `data/results/platform_status.json` with keys: `platform_exists` (boolean), `platform_categories` (list of unique values if exists).
  **Dependency**: Must run after T070a-Verify.
 
@@ -52,48 +56,55 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  **Action**: Write `dataset_id: <verified_id>`, `source: <source_type>`, `verified: true` to the config file. **Constraint**: This config MUST be committed as a static file. Do NOT allow runtime updates to the ID.
  **Dependency**: Must run after T070a-Verify and T070b. (If T070a-Verify fails, this task is skipped).
 
-- [ ] T072a [P] **Verify Spec Alignment (FR-001/FR-002)**: Verify that `specs/001-social-support-resilience/spec.md` contains the "REMOVED" blocks for FR-001/FR-002 and "REVISED" block for SC-001.
- **Action**: Read the file and assert the presence of the required deprecation/revision text.
+- [ ] T072a [P] **Verify Spec Alignment (FR-001/FR-002)**: Verify that `specs/001-social-support-resilience/spec.md` contains the "REMOVED" or "DEPRECATED" blocks for FR-001/FR-002 and "REVISED" block for SC-001.
+ **Action**: Read the file and assert the presence of the required deprecation/revision text (accepting both "REMOVED" and "DEPRECATED" labels).
  **Success**: If the spec is already aligned, log `INFO: Spec state verified as per Plan requirements.` and skip T072.
  **Failure**: If the spec is NOT aligned, log `ERROR: Spec state mismatch.` and halt. (Do NOT attempt to edit the spec; this is a verification-only task).
  **Deliverable**: Log confirmation.
- **Dependency**: Must run after T001 (Setup).
+ **Dependency**: None (independent of T001). **Status: PENDING** until spec alignment is confirmed.
 
 - [ ] T073a [P] **Verify Data Dictionary Alignment**: Verify that the Data Dictionary in `spec.md` lists the Cyberbullying Survey 2021 as the **sole** source for all variables.
  **Action**: Check if every row in the Data Dictionary table has "(Sole Source)" in the "Source" column.
  **Success**: If aligned, log `INFO: Data Dictionary verified.` and skip T073.
  **Failure**: If not aligned, log `ERROR: Data Dictionary mismatch.` and halt. (Do NOT attempt to edit the spec; this is a verification-only task).
  **Deliverable**: Log confirmation.
- **Dependency**: Must run after T001 (Setup).
+ **Dependency**: None (independent of T001). **Status: PENDING** until spec alignment is confirmed.
 
-- [ ] T074a [P] **Verify Methodological Notes Alignment**: Verify that Section 5 "Methodological Notes" in `spec.md` contains the "Revised Approach" rationale and does not mention the "Synthetic Cohort".
- **Action**: Check if Section 5 contains the "Revised Approach" text and does not contain "Synthetic Cohort" (except in the rejection context).
+- [ ] T074a [P] **Verify Methodological Notes Alignment**: Verify that Section 5 "Methodological Notes" in `spec.md` contains the "Revised Approach" rationale and handles the "Synthetic Cohort" mention correctly.
+ **Action**: Check if Section 5 contains the "Revised Approach" text. Check that the phrase "Synthetic Cohort" appears ONLY within the "Rejection of Dual-Dataset Matching" section (i.e., in the context of rejection). **Explicitly allow the phrase if it is used to describe the rejected approach.**
  **Success**: If aligned, log `INFO: Methodological Notes verified.` and skip T074.
  **Failure**: If not aligned, log `ERROR: Methodological Notes mismatch.` and halt. (Do NOT attempt to edit the spec; this is a verification-only task).
  **Deliverable**: Log confirmation.
- **Dependency**: Must run after T001 (Setup).
+ **Dependency**: None (independent of T001). **Status: PENDING** until spec alignment is confirmed.
 
 ---
 
 ## Phase 1: Setup & Kickback (Shared Infrastructure & Methodology Alignment)
 
-**Purpose**: Project initialization and resolution of the spec/plan conflict.
+**Purpose**: Project initialization and resolution of the spec/plan conflict. **Must run after Phase 0.**
 
-- [ ] T041 [P] **Verify Spec State**: Confirm that `specs/001-social-support-resilience/spec.md` already contains the "DEPRECATED" blocks for FR-001/FR-002 and "REVISED" block for SC-001.
- **Action**: Read the file and assert the presence of the required deprecation/revision text.
- **Deliverable**: Log confirmation `INFO: Spec state verified as per Plan requirements.`
-
-- [ ] T001 Create project structure per implementation plan (`code/data`, `code/analysis`, `code/config`, `code/tests`)
+- [ ] T001 [P] **Create Project Structure**: Create the directory hierarchy defined in the plan.
+ **Action**: Run `mkdir -p code/data code/analysis code/config code/tests data/raw data/results`.
+ **Deliverable**: Directory structure created.
+ **Verification**: Run `ls code/` to confirm directories exist.
+ **Dependency**: None (Standard setup).
 
 - [ ] T002 [P] **Initialize Git Repository**: Initialize the git repository for the project.
  **Action**: Run `git init` in the repository root.
  **Deliverable**: `.git` directory created.
  **Verification**: Run `git status` to confirm repository initialization.
+ **Dependency**: None.
 
 - [ ] T003 [P] **Create.gitignore**: Create a `.gitignore` file to exclude `data/raw/`, `data/results/`, `__pycache__/`, and `*.pyc`.
  **Action**: Create file at repository root.
  **Deliverable**: `.gitignore` file with correct entries.
  **Verification**: Run `git check-ignore` on a sample file in `data/raw/` to confirm it is ignored.
+ **Dependency**: None.
+
+- [ ] T041 [P] **Verify Spec State**: Confirm that `specs/001-social-support-resilience/spec.md` already contains the "DEPRECATED" or "REMOVED" blocks for FR-001/FR-002 and "REVISED" block for SC-001.
+ **Action**: Read the file and assert the presence of the required deprecation/revision text (accepting both "REMOVED" and "DEPRECATED" labels).
+ **Deliverable**: Log confirmation `INFO: Spec state verified as per Plan requirements.`
+ **Dependency**: None.
 
 ---
 
@@ -110,18 +121,19 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  # 3. PCL: Weathers, F. W., et al. (2013). The PTSD Checklist for DSM-5 (PCL-5).
  # NOTE: The dataset provides aggregate scores, not raw items.
  CES-D:
-   variable: 'depression' # Mapped from spec's Data Dictionary
-   type: 'aggregate_score'
+ variable: 'depression' # Mapped from spec's Data Dictionary
+ type: 'aggregate_score'
  GAD-7:
-   variable: 'anxiety' # Mapped from spec's Data Dictionary
-   type: 'aggregate_score'
+ variable: 'anxiety' # Mapped from spec's Data Dictionary
+ type: 'aggregate_score'
  PCL-5:
-   variable: 'ptsd' # Mapped from spec's Data Dictionary
-   type: 'aggregate_score'
+ variable: 'ptsd' # Mapped from spec's Data Dictionary
+ type: 'aggregate_score'
  ```
  **Verification**: Cross-reference these weights against the official instrument documentation (cited above) before hard-coding.
  **Instruction**: The `variable` keys must match the column names from the spec's Data Dictionary (`depression`, `anxiety`, `ptsd`).
  **Deliverable**: `config/scales.yaml` AND `code/logs/scale_verification.txt` confirming the source URLs, DOIs, or document titles used.
+ **Dependency**: None.
 
 - [ ] T005 [US1] Implement `tests/test_scales.py` with unit tests verifying scoring logic matches the definitions in `config/scales.yaml`. **Dependency**: Must run after T004.
 - [ ] T006 [P] Setup `code/data/ingestion.py` skeleton with read‑only raw data validation logic.
@@ -130,9 +142,10 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 - [ ] T009 [P] Setup environment configuration for data paths **and** create `config/seeds.yaml` to define reproducible seeds.
  **Content outline**:
  ```yaml
- random_seed:
+ A fixed random seed will be applied to ensure reproducibility.
  ```
  **Instruction**: Ensure the file contains valid YAML with the integer value `42` for `random_seed`. This seed will be used for all random operations (imputation, bootstrapping, sampling).
+ **Dependency**: None.
 
 - [ ] T053c [P] [Plan-Constraints] **Define Bootstrap Configuration Data Model**: Create `code/config/bootstrap_config.yaml` to explicitly define the 'Bootstrap Configuration' Data Model entity.
  **Requirement**: This file must specify the resample count, confidence level, method (BCa), and seed source.
@@ -146,7 +159,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 
 ## Phase 3: User Story 1 - Data Ingestion & Cohort Preparation (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest the Cyberbullying Survey 2021, harmonize variables, handle missingness, and prepare a clean analysis cohort. **Note**: The GSS dataset is excluded per the Plan's 'Revised Approach'.
+**Goal**: Ingest the Cyberbullying Survey 2021, harmonize variables, handle missingness, and prepare a clean analysis cohort. **Note**: The GSS dataset is excluded per the Plan's 'Revised Approach'. **T017 (Logging) must run first to ensure all processing is logged.**
 
 ### Tests for User Story 1 (OPTIONAL)
 
@@ -155,19 +168,24 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 
 ### Implementation for User Story 1
 
+- [ ] T017 [P] [US1] **Initialize Logging**: Set up the logging infrastructure for the pipeline.
+ **Action**: Create `code/utils/logger.py` to initialize a logger that writes to `data/results/pipeline_run.log`. Ensure all subsequent tasks (T012-T016) use this logger.
+ **Dependency**: None (First task in Phase 3).
+
 - [ ] T012 [US1] **[FR-003]** Implement `code/data/ingestion.py` to **download and load** the Cyberbullying Survey 2021 dataset:
  - **Source**: Use the dataset ID/URL from `code/config/data_sources.yaml` (verified in T070a-Verify).
  - **Harmonization**: Map raw columns to canonical names (`social_support`, `harassment_severity`, `depression`, etc.) as defined in the Data Dictionary.
  - **Validation**: Verify file integrity (checksum) and log E‑MISSING‑ if required items are absent.
  - **GSS Exclusion**: Do NOT attempt to load GSS 2022. If GSS is found in `data/raw`, log a warning that it is being ignored per the Plan's 'Revised Approach'.
  - **Fail Loudly**: If the real fetch fails, raise `RuntimeError` with message "Real data fetch failed. Aborting to prevent synthetic data fabrication."
- - **Dependency**: Must run after T070a-Verify and T071.
+ - **Dependency**: Must run after T070a-Verify, T071, **and T017**.
 
 - [ ] T013a [US1] **[FR-004]** **Implement MICE Imputation**: Apply Multiple Imputation by Chained Equations (MICE) to missing values in the **predictor matrix** (`['age','gender','education','income','social_support','harassment_severity']`).
  **Configuration**: Use `sklearn.impute.IterativeImputer` with `m=5`, `max_iter=10`, `random_state=42`. **Use `max_iter=10` and `random_state=42` explicitly; do not rely on version-dependent defaults for these parameters.**
  **Constraint**: **Do not** impute the binary `harassment_exposure` directly. Impute the continuous `harassment_severity` first.
  **Failure Handling**: If MICE fails to converge, log error `E-MICE-NONCONV-001` and **HALT** the pipeline. **Do NOT fall back to listwise deletion for predictors.** This is a deliberate design choice to prevent data fabrication or weak imputation; FR-004's "listwise deletion" applies only to outcome missingness (T013d), not predictor imputation failure. Halting is the correct behavior to preserve predictor matrix integrity.
  **Deliverable**: Imputed DataFrame.
+ **Dependency**: Must run after T012.
 
 - [ ] T013b [US1] **Derive Binary Exposure**: Derive the binary `harassment_exposure` variable from the imputed `harassment_severity`.
  **Action**: `exposure = 1 if severity > 0 else 0`.
@@ -176,6 +194,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 - [ ] T013c [US1] **Scale Scoring**: Apply scoring algorithms defined in `config/scales.yaml` to raw item columns to generate `depression`, `anxiety`, and `ptsd` scores.
  **Action**: Use the weights from T004.
  **PCL-5 Handling**: **If PCL-5 columns are present in the dataset**, score them and include `ptsd` in the analysis. **If PCL-5 columns are absent**, log a warning `W-PCL5-MISSING` and proceed with `depression` and `anxiety` only. **Do not** drop `ptsd` if the data exists.
+ **Dependency**: Must run after T013a.
 
 - [ ] T013d [US1] **[FR-004]** **Handle Outcome Missingness**: Perform listwise deletion **only** on rows where critical outcome variables (`depression`, `anxiety`, `ptsd`) are missing after imputation and derivation.
  **Constraint**: Do NOT perform listwise deletion on predictor variables before imputation. This is a distinct step from T013a (predictor imputation).
@@ -185,6 +204,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  1. Filter the dataset to remove rows with critical missing values (harassment_severity, social_support, or at least one mental health outcome) based on the output of T013d.
  2. Ensure `harassment_severity` has sufficient variance (SD > 0.5, N > 30). If not, log `E-LOW-VAR-001` and halt.
  3. Output `data/results/analysis_cohort.csv`.
+ **Dependency**: Must run after T013d.
 
 - [ ] T015 [US1] **[SC-001]** **Validate the analysis cohort**: **[REVISED SC-001]**
  - **Variance Check**: Check **variance of Harassment Exposure** (SD > 0.5, N > 30).
@@ -195,11 +215,10 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  - **Deliverable**: Generate `data/results/validation_report.json` containing the results of these checks (Pass/Fail status, calculated values).
  - **Logic**: If VIF >= 5 or Variance check fails, raise a `RuntimeError` with message "Cohort validity check failed. Aborting." to prevent downstream execution.
  - **Note**: The SMD check (SC-001) is **inapplicable** to the single-dataset approach and is **removed**. This task implements the **REVISED** SC-001 criteria.
+ **Dependency**: Must run after T014.
 
 - [ ] T016 [US1] Save the validated analysis cohort to `data/results/analysis_cohort.csv` **only after** successful T015.
  **Dependency**: Must run after T015. This task depends on the *output* of T015 (`validation_report.json` and pass status).
-
-- [ ] T017 [US1] Add comprehensive logging for ingestion, preprocessing, and validation steps, including any fallback decisions (e.g., missing PCL-5).
 
 **Checkpoint**: User Story 1 is fully functional and produces a valid single-dataset cohort.
 
@@ -293,7 +312,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  - **Dependency**: Must run after all phase tasks are complete.
 - [ ] T032 Code cleanup and refactoring in `code/analysis/` to ensure modularity.
 - [ ] T033 [P] [Plan-Constraints] **Bootstrap Runtime Estimator & Optimization**: Implement a pre-flight check in `code/analysis/models.py` to estimate bootstrap runtime and apply optimization if needed.
- **Requirement**: Run a quick "dry run" with 10 resamples using a **small representative subset (first 100 rows via `df.head(100)`)** of the full cohort to estimate time per resample. If `1000 * estimated_time > 6 hours`, log error `E-COMPUTE-OVERFLOW-001` and **HALT** the pipeline immediately. Do not proceed with a warning.
+ **Requirement**: Run a quick "dry run" with A sufficient number of resamples using a **small representative subset (a subset of rows via `df.head(100)`)** of the full cohort to estimate time per resample. If `1000 * estimated_time > 6 hours`, log error `E-COMPUTE-OVERFLOW-001` and **HALT** the pipeline immediately. Do not proceed with a warning.
  **Action**: Read configuration from `code/config/bootstrap_config.yaml` (created in T053c). Ensure the resample count is strictly CPU-tractable on the available runner.; if the estimate is high, halt. **Do not** reduce resamples to 500. Reducing resamples is strictly prohibited as it violates FR-007 and Constitution Principle I.
  **Data Source**: Use the `analysis_cohort.csv` generated by T016. If the cohort is sufficiently small to be fully processed, use the entire cohort..
  **Verification**: Run the dry-run on the CI runner and verify the estimated total time is logged and the pipeline halts if the limit is exceeded.
@@ -385,7 +404,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 
 ## Dependencies & Execution Order
 
-- **Setup (Phase 0)** → **Foundational (Phase 2)** (blocking)
+- **Setup (Phase 1)** → **Foundational (Phase 2)** (blocking)
 - **User Story 1** (T012‑T017) → **User Story 2** (T020‑T025) → **User Story 3** (T027a‑T030)
 - **Polish (Phase 6)** runs after all user stories.
 - **Execution Safety (Phase 7)** must be completed before the final production run to ensure data integrity and reproducibility.
@@ -397,13 +416,14 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
  - T027a/T027b (Generate Data) → T029 (Save Data) → T028 (Read & Compare). T029 is NOT parallel; it must wait for T027a/b.
  - T061a (Create File) → T061 (Modify File). T061 must wait for T061a.
  - T055 (Reproducibility Audit) handles its own initialization (previously T055a).
- - **T070a-Input (Acquire URL) → T070a-Verify (Verify Source) → T071 (Finalize Config)**. T071 cannot proceed until T070a-Verify confirms the source.
- - **T070a-Input/T070a-Verify → T012**. T012 is blocked until the source is verified.
+ - **T070a-Search (Search) → T070a-Acquire (Acquire) → T070a-Verify (Verify Source) → T071 (Finalize Config)**. T071 cannot proceed until T070a-Verify confirms the source.
+ - **T070a-Search/T070a-Acquire/T070a-Verify → T012**. T012 is blocked until the source is verified.
  - **T070b (Verify Platform) → T027b**. T027b relies on T070b's output.
  - **T053c (Config) → T033**. T033 depends on T053c.
  - **T016 (Cohort) → T033**. T033 depends on T016 for the data subset.
- - **T070a-Input → T070a-Verify → T071**: Strict serial chain.
+ - **T070a-Search → T070a-Acquire → T070a-Verify → T071**: Strict serial chain.
  - **T061 → T061a**: Strict serial chain. (Note: T075-T077 removed).
+ - **T017 (Logging) → T012**: T012 depends on T017 to ensure logging is initialized.
 
 ---
 
@@ -411,7 +431,7 @@ The implementation **strictly follows the Plan's 'Revised Approach'** (Single-Da
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 0: Data Source Verification & Spec Alignment
+1. Complete Phase 0: Data Source Verification & Spec Alignment (including T070a-Search)
 2. Complete Phase 1: Setup
 3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 4. Complete Phase 3: User Story 1 (T012-T017)
@@ -454,3 +474,5 @@ With multiple developers:
 - **CRITICAL**: T027b creates a header-only file if stratification is skipped to ensure downstream compatibility.
 - **CRITICAL**: Phase 0 (Spec Alignment) must be completed before the project advances.
 - **CRITICAL**: Phase 9 (Final Documentation Audit) must be completed before the project advances.
+- **CRITICAL**: T017 (Logging) must complete before T012 (Ingestion) to ensure all data processing is logged.
+- **CRITICAL**: T070a-Search must run first to resolve the 'blocked' data state.

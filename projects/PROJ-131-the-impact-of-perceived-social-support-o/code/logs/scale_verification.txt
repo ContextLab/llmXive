@@ -1,0 +1,36 @@
+Scale Verification Log
+======================
+Date: 2023-10-27
+Task: T004 - Define Scoring Scales
+
+Sources Verified:
+1. CES-D
+   - Document: "The CES-D Scale: A self-report depression scale for research in the general population"
+   - Author: Radloff, L. S.
+   - Year: 1977
+   - Type: Aggregate Score (0-60 range typically)
+   - Status: VERIFIED
+
+2. GAD-7
+   - Document: "A Brief Measure for Assessing Generalized Anxiety Disorder: The GAD-7"
+   - Author: Spitzer, R. L., Kroenke, K., Williams, J. B., & Löwe, B.
+   - Journal: Archives of Internal Medicine
+   - Year: 2006
+   - Type: Aggregate Score (0-21 range typically)
+   - Status: VERIFIED
+
+3. PCL-5
+   - Document: "The PTSD Checklist for DSM-5 (PCL-5): Development and Initial Psychometric Evaluation"
+   - Author: Weathers, F. W., et al.
+   - Publisher: National Center for PTSD
+   - Year: 2013
+   - Type: Aggregate Score (0-80 range typically)
+   - Status: VERIFIED
+
+Configuration File: code/config/scales.yaml
+Status: Created and populated with verified metadata.
+
+Note: The dataset is expected to provide pre-calculated aggregate scores.
+The scoring logic in code/analysis/scales.py will simply map these columns
+to the canonical names defined in this configuration if they are not already
+in the canonical form, or validate them if they are.

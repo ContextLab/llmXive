@@ -1,7 +1,22 @@
-datasets  # auto-added: imported by run-book but missing from venv
-numpy  # auto-added: imported by run-book but missing from venv
-pandas  # auto-added: imported by run-book but missing from venv
-scikit-learn  # auto-added: imported by run-book but missing from venv
-statsmodels  # auto-added: imported by run-book but missing from venv
-tomlkit  # auto-added: imported by run-book but missing from venv
-pyyaml  # auto-added: imported by run-book but missing from venv
+# Core Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Machine Learning & Imputation
+scikit-learn>=1.2.0
+
+# Statistical Analysis
+statsmodels>=0.14.0
+
+# Data Loading (HuggingFace Datasets)
+datasets>=2.14.0
+
+# Configuration & Logging
+pyyaml>=6.0
+rich>=13.0.0
+
+# Testing & Linting
+pytest>=7.0.0
+ruff>=0.1.0
+black>=23.0.0

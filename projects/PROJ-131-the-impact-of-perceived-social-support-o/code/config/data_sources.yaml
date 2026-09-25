@@ -1,21 +1,16 @@
-# Data Source Configuration for PROJ-131
-# This configuration is updated after T070a (Source Verification) and T070b (Column Verification).
-# It explicitly defines the single-dataset approach mandated by the Plan.
+# Data Source Configuration
+# This file must be populated with the verified dataset ID/URL
+# before the pipeline can run.
 
 cyberbullying_survey_2021:
-  dataset_id: 123
-  source: ucimlrepo
-  verified: true
-  fetch_method: ucimlrepo.fetch_dataset
-  description: "Cyberbullying Survey 2021 - Real data source verified for social support and resilience analysis."
-  required_columns:
-    - social_support
-    - harassment_severity
-    - depression
-    - anxiety
-    - platform
-  notes: "GSS 2022 is excluded per the Plan's Revised Approach (Single-Dataset Analysis)."
+  dataset_id: "cyberbullying_survey_2021"
+  source: "verified"
+  method: "ucimlrepo"
+  verified: false
+  note: "Pending verification - update with actual dataset ID from T070a-Input"
 
-gss_2022:
-  status: excluded
-  reason: "Methodologically invalid per Plan's 'Revised Approach'. Synthetic cohort matching is not implemented."
+# Placeholder for future datasets
+# gss_2022:
+#   dataset_id: "gss_2022"
+#   source: "excluded"
+#   reason: "Methodologically invalid per Plan's Revised Approach"

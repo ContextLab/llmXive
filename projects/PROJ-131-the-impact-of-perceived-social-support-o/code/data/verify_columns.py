@@ -1,92 +1,126 @@
-"""
-T012b: Verify Platform Column in Ingested Dataset.
-
-This script loads the Cyberbullying Survey 2021 dataset (via the verified ingestion logic)
-and checks for the existence of the 'platform' column.
-
-It updates data/results/platform_status.json with the verification results.
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
+import yaml
 
-# Add parent directory to path to allow imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add project root to path to allow relative imports if run as script
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from data.ingestion import load_cyber_data
+from logger import get_logger
+from data.ingestion import load_config, download_dataset
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-RESULTS_DIR = project_root / "data" / "results"
-OUTPUT_FILE = RESULTS_DIR / "platform_status.json"
+def load_config():
+    """Load configuration from code/config/data_sources.yaml"""
+    config_path = Path("code/config/data_sources.yaml")
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    return config
 
 def verify_platform_column():
     """
-    Load the dataset and verify the presence of the 'platform' column.
-    Saves the result to data/results/platform_status.json.
+    Load the verified dataset and check for the presence of the 'platform' column.
+    Saves results to data/results/platform_status.json.
     """
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
+    logger.info("Starting platform column verification...")
+    
+    # Load configuration to get dataset source
+    config = load_config()
+    dataset_id = config.get('dataset_id')
+    source_type = config.get('source')
+    
+    if not dataset_id:
+        raise RuntimeError("E-NO-DATASET-ID: dataset_id not found in config.")
+    
+    logger.info(f"Dataset ID: {dataset_id}, Source: {source_type}")
+    
+    # Download/Load the dataset using the ingestion module
+    # This function is expected to handle the actual fetching logic
+    # and return a pandas DataFrame or similar object.
     try:
-        logger.info("Loading Cyberbullying Survey 2021 dataset to verify columns...")
-        # This function is expected to load the REAL data from the verified source (UCI ID 123)
-        # or raise an error if it fails, preventing synthetic fallback.
-        df = load_cyber_data()
+        # We assume download_dataset returns a DataFrame or similar structure
+        # If the ingestion module returns a path, we would need to load it here.
+        # Based on the API surface, download_dataset is the primary loader.
+        # We need to handle the case where it might return a path or a DataFrame.
+        # For now, we assume it returns a DataFrame directly or we load from the returned path.
         
-        if df is None or df.empty:
-            logger.error("Dataset loaded but is empty. Cannot verify columns.")
-            raise RuntimeError("E-EMPTY-DATA-001: Dataset loaded but contains no rows.")
+        # Attempt to load data. The ingestion module's download_dataset is the source.
+        # If it returns a path, we load it. If it returns data, we use it.
+        # Since the exact return type isn't specified in the API surface, 
+        # we assume it returns a DataFrame for this specific task context.
+        # However, to be safe, we check if it's a string path.
+        
+        data_source = download_dataset(dataset_id, source_type)
+        
+        # If data_source is a string (path), load it
+        if isinstance(data_source, str):
+            import pandas as pd
+            df = pd.read_csv(data_source)
+        elif hasattr(data_source, 'read'): # Handle file-like objects
+            import pandas as pd
+            df = pd.read_csv(data_source)
+        else:
+            # Assume it's already a DataFrame or similar
+            df = data_source
 
+        if df is None:
+            raise RuntimeError("E-NO-DATA: Dataset loading returned None.")
+
+        # Check for 'platform' column
         columns = df.columns.tolist()
-        logger.info(f"Dataset columns: {columns}")
-
         platform_exists = 'platform' in columns
-        platform_categories = []
-
+        
+        result = {
+            "platform_exists": platform_exists,
+            "platform_categories": []
+        }
+        
         if platform_exists:
             # Get unique values, handling potential NaNs
             unique_vals = df['platform'].dropna().unique().tolist()
-            platform_categories = [str(v) for v in unique_vals]
-            logger.info(f"Found 'platform' column. Unique values: {platform_categories}")
+            result["platform_categories"] = unique_vals
+            logger.info(f"Column 'platform' found. Categories: {unique_vals}")
         else:
-            logger.warning("'platform' column NOT found in the dataset.")
+            logger.warning("Column 'platform' NOT found in dataset.")
+            logger.warning(f"Available columns: {columns}")
 
-        result = {
-            "platform_exists": platform_exists,
-            "platform_categories": platform_categories,
-            "total_rows": len(df),
-            "total_columns": len(columns),
-            "source_verified": True
-        }
-
-        with open(OUTPUT_FILE, 'w') as f:
-            json.dump(result, f, indent=2)
-
-        logger.info(f"Verification complete. Results saved to {OUTPUT_FILE}")
+        # Ensure output directory exists
+        output_dir = Path("data/results")
+        output_dir.mkdir(parents=True, exist_ok=True)
         
-        if not platform_exists:
-            # According to task T027b, if missing, we log a warning and skip stratification.
-            # However, for this specific task T012b, we just report the status.
-            logger.warning("W-NO-PLATFORM-001: Platform column missing. Stratification analyses will be skipped.")
-
+        output_file = output_dir / "platform_status.json"
+        
+        with open(output_file, 'w') as f:
+            json.dump(result, f, indent=2)
+        
+        logger.info(f"Verification results saved to {output_file}")
         return result
 
     except Exception as e:
-        logger.error(f"Failed to verify platform column: {e}")
-        # Re-raise to ensure the pipeline halts if data cannot be loaded
+        logger.error(f"Failed to verify platform column: {e}", exc_info=True)
         raise
 
 def main():
-    """Entry point for T012b."""
-    verify_platform_column()
+    """Entry point for the script."""
+    try:
+        verify_platform_column()
+        logger.info("Platform column verification completed successfully.")
+    except Exception as e:
+        logger.error(f"Verification failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

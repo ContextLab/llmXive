@@ -1,12 +1,23 @@
-T008:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `main_pipeline.py` file or any code configuring an entry point to orchestrate\
-    \ the modular steps is present in the provided evidence. Without this script,\
-    \ the requirement to set up the pipeline\u2019s entry point is unmet. The next\
-    \ implementer must add a functional `main_pipeline.py` that imports and runs the\
-    \ data ingestion, preprocessing, modeling, and sensitivity analysis modules in\
-    \ the correct order."
+  r: No evidence of the required directory hierarchy (`code/data`, `code/analysis`,
+    `code/config`, `code/tests`) is present in the provided artifacts; the implementer
+    did not supply any file or folder listing confirming that the project structure
+    was created. The task therefore remains unfinished.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Git repository (e.g., a `.git` directory, initial commit log,\
+    \ or any repository metadata) is provided. Without such artifacts, we cannot confirm\
+    \ that the project\u2019s Git repository was actually initialized."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.gitignore` file content was presented; the required file with the specified\
+    \ ignore patterns is missing from the evidence. The implementer must supply a\
+    \ non\u2011empty `.gitignore` that excludes `data/raw/`, `data/results/`, `__pycache__/`,\
+    \ and `*.pyc`."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,18 +52,33 @@ T028:
     \ coefficients from the baseline run (T020) and from each sensitivity analysis,\
     \ nor a computed table of their shifts, was provided. The implementer\u2019s response\
     \ contains only the task description and project spec, without the required output."
-T041:
+T070b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `specs/001-social-support-resilience/spec.md` file or pull\u2011\
-    request diff is provided; the claim that the spec has been amended to deprecate\
-    \ the synthetic cohort requirements is unsupported by any tangible artifact. The\
-    \ required amendment is missing."
-T073:
+  r: "No artifact (e.g., code output, notebook cell, or data preview) was provided\
+    \ showing that the dataset loaded in T070a\u2011Verify was inspected and that\
+    \ it contains a `platform` column. Without such evidence, we cannot confirm the\
+    \ requirement is satisfied. The next implementer must supply the actual inspection\
+    \ result (e.g., a printed list of columns or a screenshot) demonstrating the presence\
+    \ of the `platform` column."
+T072a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided `spec.md` excerpt contains a populated Data Dictionary table where\
-    \ every variable\u2019s \u201CSource\u201D entry explicitly states \u201CCyberbullying\
-    \ Survey 2021 (Sole Source)\u201D. This satisfies the task\u2019s requirement\
-    \ that the Data Dictionary list the Cyberbullying Survey 2021 as the sole source\
-    \ for all variables."
+  r: "The provided spec excerpt shows FR-001 and FR-002 marked as \u201C[REMOVED \u2026\
+    ]\u201D and includes a \u201CValidation Criteria (Revised SC-001)\u201D section,\
+    \ satisfying the required REMOVED and REVISED blocks."
+T073a:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided `spec.md` excerpt includes the Data Dictionary table, and every\
+    \ variable\u2019s Source entry is \u201CCyberbullying Survey 2021 (Sole Source)\u201D\
+    \ (or derived from it), satisfying the verification requirement."
+T074a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided excerpt of `spec.md`\u2019s Section\u202F5 includes the \u201C\
+    Revised Approach\u201D rationale, but it explicitly mentions the \u201CSynthetic\
+    \ Cohort\u201D (e.g., \u201CThe dual-dataset matching approach \u2026 construct\
+    \ a \u2018Synthetic Cohort\u2019 \u2026\u201D). This violates the requirement\
+    \ that the section must not mention the Synthetic Cohort. The artifact therefore\
+    \ does not satisfy the task."

@@ -1,0 +1,8 @@
+# Bootstrap Configuration Data Model
+# Defines the parameters for bootstrapping analysis
+
+resample_count: 1000
+confidence_level: 0.95
+method: "bca"
+seed_source: "config/seeds.yaml"
+random_seed: 42

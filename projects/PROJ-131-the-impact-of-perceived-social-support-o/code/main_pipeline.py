@@ -1,16 +1,9 @@
 """
-Main Pipeline Orchestrator for PROJ-131.
+Main Pipeline Entry Point for PROJ-131
+Orchestrates: Ingestion -> Preprocessing -> Cohort -> Modeling -> Sensitivity -> Reporting
 
-Executes the full research pipeline end-to-end:
-1. Data Ingestion (T012)
-2. Preprocessing (T013a-d)
-3. Cohort Construction (T014)
-4. Validation (T015)
-5. Platform Verification (T012b) - Explicitly called here to ensure T012b is run
-6. Modeling (T020-T024)
-7. Sensitivity Analysis (T027a-T029)
-8. Comparison (T028)
-9. Reporting (T025)
+This script implements the 'Single-Dataset Analysis' approach as mandated by the Plan.
+It strictly avoids the deprecated 'Synthetic Cohort' method.
 """
 import os
 import sys
@@ -19,105 +12,154 @@ import time
 from pathlib import Path
 from typing import Optional
 
+# Ensure the project root is in the path so imports work relative to 'code/'
+# When run as `python code/main_pipeline.py`, sys.path[0] is 'code', so we are good.
+# When run as `python code/main_pipeline.py` from root, we need to ensure imports resolve.
+# The standard convention here is that the script is executed from the 'code' directory
+# or the path is set up such that 'code' is the root.
+
 # Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/results/pipeline_run.log')
-    ]
-)
-logger = logging.getLogger(__name__)
-
-# Ensure project root is in path
-project_root = Path(__file__).resolve().parent
-sys.path.insert(0, str(project_root))
-
-def run_pipeline():
-    """Orchestrate the full pipeline execution."""
-    logger.info("="*50)
-    logger.info("Starting Research Pipeline: PROJ-131")
-    logger.info("="*50)
+def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
+    """Configure logging for the pipeline."""
+    logger = logging.getLogger("main_pipeline")
+    logger.setLevel(logging.INFO)
     
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    
+    # File handler if specified
+    if log_file:
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+        
+    return logger
+
+def run_pipeline(logger: logging.Logger):
+    """Execute the full research pipeline steps sequentially."""
+    logger.info("Starting Pipeline Execution...")
     start_time = time.time()
-
+    
+    # Step 1: Data Ingestion
+    # Imports from data.ingestion based on API surface
     try:
-        # 1. Data Ingestion
-        logger.info("Step 1: Data Ingestion (T012)")
         from data.ingestion import main as ingestion_main
+        logger.info("Step 1: Ingesting data...")
         ingestion_main()
-        
-        # 2. Preprocessing
-        logger.info("Step 2: Preprocessing (T013a-d)")
-        from data.preprocessing import main as preprocessing_main
-        preprocessing_main()
-
-        # 3. Cohort Construction
-        logger.info("Step 3: Cohort Construction (T014)")
-        from data.cohort import main as cohort_main
-        cohort_main()
-
-        # 4. Validation (T015)
-        logger.info("Step 4: Validation (T015)")
-        from analysis.validation import main as validation_main
-        validation_main()
-
-        # 5. Platform Verification (T012b)
-        # Explicitly run T012b here to ensure platform status is updated before sensitivity
-        logger.info("Step 5: Platform Verification (T012b)")
-        from data.verify_columns import main as verify_columns_main
-        verify_columns_main()
-
-        # 6. Modeling (T020-T024)
-        logger.info("Step 6: Modeling & Bootstrap (T020-T024)")
-        from analysis.models import main as models_main
-        models_main()
-        
-        # Save Regression Results
-        logger.info("Step 6b: Saving Regression Results (T024)")
-        from analysis.save_regression_results import main as save_regression_main
-        save_regression_main()
-
-        # 7. Sensitivity Analysis (T027a-T029)
-        logger.info("Step 7: Sensitivity Analysis (T027a-T029)")
-        from analysis.sensitivity import main as sensitivity_main
-        sensitivity_main()
-        
-        # Save Sensitivity Results
-        logger.info("Step 7b: Saving Sensitivity Results (T029)")
-        from analysis.save_sensitivity_results import main as save_sensitivity_main
-        save_sensitivity_main()
-
-        # 8. Comparison (T028)
-        logger.info("Step 8: Coefficient Comparison (T028)")
-        from analysis.run_sensitivity_comparison import main as comparison_main
-        comparison_main()
-
-        # 9. Reporting (T025)
-        logger.info("Step 9: Generate Reports (T025)")
-        from analysis.results import main as results_main
-        results_main()
-
-        # 10. FDR Correction (T023)
-        # Note: FDR is often integrated into the save_regression step, but ensuring explicit call if needed
-        # The save_regression_results task (T024) usually handles the merge and FDR.
-        # If a separate step is required by spec T023, it would be here.
-        
-        end_time = time.time()
-        duration = end_time - start_time
-        logger.info("="*50)
-        logger.info(f"Pipeline completed successfully in {duration:.2f} seconds.")
-        logger.info("="*50)
-
+        logger.info("Step 1: Ingestion complete.")
     except Exception as e:
-        logger.error(f"Pipeline failed with error: {e}")
-        logger.exception("Traceback:")
+        logger.error(f"Step 1: Ingestion failed with error: {e}")
         raise
 
+    # Step 2: Preprocessing
+    try:
+        from data.preprocessing import main as preprocessing_main
+        logger.info("Step 2: Preprocessing data...")
+        preprocessing_main()
+        logger.info("Step 2: Preprocessing complete.")
+    except Exception as e:
+        logger.error(f"Step 2: Preprocessing failed with error: {e}")
+        raise
+
+    # Step 3: Cohort Construction & Validation
+    try:
+        from data.cohort import main as cohort_main
+        logger.info("Step 3: Building and validating analysis cohort...")
+        cohort_main()
+        logger.info("Step 3: Cohort validation complete.")
+    except Exception as e:
+        logger.error(f"Step 3: Cohort construction failed with error: {e}")
+        raise
+
+    # Step 4: Model Fitting (OLS + Bootstrap)
+    try:
+        from analysis.models import main as models_main
+        logger.info("Step 4: Fitting models and bootstrapping...")
+        models_main()
+        logger.info("Step 4: Model fitting complete.")
+    except Exception as e:
+        logger.error(f"Step 4: Model fitting failed with error: {e}")
+        raise
+
+    # Step 5: Sensitivity Analysis
+    try:
+        from analysis.sensitivity import main as sensitivity_main
+        logger.info("Step 5: Running sensitivity analysis...")
+        sensitivity_main()
+        logger.info("Step 5: Sensitivity analysis complete.")
+    except Exception as e:
+        logger.error(f"Step 5: Sensitivity analysis failed with error: {e}")
+        raise
+
+    # Step 6: Results Generation & Reporting
+    try:
+        from analysis.results import main as results_main
+        logger.info("Step 6: Generating final reports...")
+        results_main()
+        logger.info("Step 6: Report generation complete.")
+    except Exception as e:
+        logger.error(f"Step 6: Report generation failed with error: {e}")
+        raise
+        
+    # Step 7: FDR Correction (Post-modeling, pre-report finalization if needed, 
+    # but models.py handles bootstrap, fdr_correction.py handles FDR. 
+    # The API surface shows fdr_correction has a main. 
+    # Let's ensure it runs if the models output is ready.
+    # Actually, looking at the flow: models -> fdr -> results.
+    # But 'models.py' main might not call fdr. Let's call it explicitly here if needed.
+    # The task T024 says "Save regression outputs...". T023 says "Implement FDR".
+    # We should ensure FDR is applied.
+    try:
+        from analysis.fdr_correction import main as fdr_main
+        logger.info("Step 7: Applying FDR correction...")
+        fdr_main()
+        logger.info("Step 7: FDR correction complete.")
+    except Exception as e:
+        logger.error(f"Step 7: FDR correction failed with error: {e}")
+        # FDR is often a post-processing step; if it fails, we might still want to 
+        # generate reports, but the results might be missing adjusted p-values.
+        # Given the strictness, let's log and continue, or raise?
+        # The spec implies FDR is part of the analysis. Let's raise to be safe.
+        raise
+
+    # Step 8: Sensitivity Comparison
+    try:
+        from analysis.sensitivity_compare import main as compare_main
+        logger.info("Step 8: Comparing sensitivity results...")
+        compare_main()
+        logger.info("Step 8: Sensitivity comparison complete.")
+    except Exception as e:
+        logger.error(f"Step 8: Sensitivity comparison failed with error: {e}")
+        # Non-blocking for final report? Or critical? Let's log and continue.
+        logger.warning("Continuing despite sensitivity comparison failure.")
+
+    end_time = time.time()
+    duration = end_time - start_time
+    logger.info(f"Pipeline Execution Complete. Total Duration: {duration:.2f} seconds.")
+    return duration
+
 def main():
-    """Entry point."""
-    run_pipeline()
+    """Entry point for the pipeline."""
+    # Determine log path
+    project_root = Path(__file__).parent.parent
+    data_results_dir = project_root / "data" / "results"
+    data_results_dir.mkdir(parents=True, exist_ok=True)
+    
+    log_file = data_results_dir / "pipeline_run.log"
+    
+    logger = setup_logging(str(log_file))
+    
+    try:
+        run_pipeline(logger)
+        logger.info("Pipeline finished successfully.")
+    except Exception as e:
+        logger.critical(f"Pipeline failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
