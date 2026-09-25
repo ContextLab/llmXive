@@ -19,13 +19,12 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual Environments
+.venv/
 venv/
 ENV/
 env/
-.venv/
 
 # IDE
 .idea/
@@ -33,35 +32,39 @@ env/
 *.swp
 *.swo
 *~
+.project
+.pydevproject
 
-# Jupyter
-.ipynb_checkpoints
-
-# Data and Artifacts (DO NOT COMMIT)
+# Data and Artifacts (CRITICAL: Do not commit raw or processed data)
 data/raw/
 data/processed/
 data/artifacts/
-*.csv
-*.npy
-*.tsv
-*.json
+data/interim/
 figures/
-*.png
-*.pdf
+*.csv
+*.tsv
+*.json (processed results)
+*.pkl
+*.h5
+*.nii
+*.nii.gz
 
 # Logs
-*.log
 logs/
+*.log
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Test coverage
+# Project specific
+.reproducibility_report.json
+reproducibility_report.json
+
+# Testing
 .coverage
 htmlcov/
 .pytest_cache/
 
-# Config (sensitive)
+# Environment variables
 .env
-config_secrets.json

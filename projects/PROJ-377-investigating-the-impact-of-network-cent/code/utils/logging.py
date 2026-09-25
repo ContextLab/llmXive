@@ -8,6 +8,7 @@ import psutil
 def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     """
     Sets up a logger that writes to both console and a file.
+    Tracks wall_clock_time and RAM usage via formatting and auxiliary calls.
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
@@ -22,15 +23,12 @@ def setup_logger(name: str, level: int = logging.INFO) -> logging.Logger:
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
-    # File handler (optional, depending on project structure)
-    # We assume logs are written to a specific directory if needed, 
-    # but for this utility, console is primary.
-    
     return logger
 
 def get_resource_usage() -> Dict[str, Any]:
     """
     Get current memory and CPU usage.
+    Returns a dict with 'memory_mb' (RAM) and 'cpu_percent'.
     """
     process = psutil.Process(os.getpid())
     return {
@@ -40,7 +38,7 @@ def get_resource_usage() -> Dict[str, Any]:
 
 def log_memory_usage(logger: Optional[logging.Logger] = None, message: str = ""):
     """
-    Logs the current memory usage.
+    Logs the current memory usage (RAM) to the logger or stdout.
     """
     usage = get_resource_usage()
     log_msg = f"{message} Memory Usage: {usage['memory_mb']:.2f} MB"
@@ -50,6 +48,9 @@ def log_memory_usage(logger: Optional[logging.Logger] = None, message: str = "")
         print(log_msg)
 
 class Timer:
+    """
+    Context manager to track wall_clock_time for a block of code.
+    """
     def __init__(self, logger: Optional[logging.Logger] = None):
         self.logger = logger
         self.start_time = None

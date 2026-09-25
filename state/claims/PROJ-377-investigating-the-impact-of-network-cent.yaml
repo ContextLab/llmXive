@@ -736,3 +736,106 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T10:54:19Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Retention rate threshold of 80% for missing behavioral data triggers
+    fatal exit
+  claim_id: c_03fde256
+  context: Phase 0 Task T003 describes the retention and behavioral validation logic
+    where a retention rate below 80% due to missing behavioral data causes the pipeline
+    to exit immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If < 80% due to missing behavioral data, log ''Fatal: Retention < 80%
+    due to missing behavioral data'' and exit.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:46:17Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Power calculation requires a minimum of 50 retained subjects
+  claim_id: c_6f3e6755
+  context: Phase 0 Task T004a specifies that the number of retained subjects (N) must
+    be compared against a threshold of 50 subjects to determine if the study is powered.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compare N against the spec's threshold of \u2265 50 subjects."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:46:17Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Warning for limited power triggered when N is between 50 and 85
+  claim_id: c_f027e6db
+  context: Phase 0 Task T004b outlines the advisory warning generated when the subject
+    count is between 50 and 85, indicating potential power limitations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If 50 <= N < 85, log warning ''N < 85: Power may be limited for small
+    effects''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:48:33Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Cross-validation uses 5 folds with random seed 42
+  claim_id: c_1b500b7d
+  context: Phase 5 Task T037a specifies the configuration for the cross-validation
+    step, requiring 5 folds and a specific random seed of 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform 5-fold k-fold cross-validation with random_seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:52:04Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Multicollinearity decision threshold is VIF > 5
+  claim_id: c_b0e95c43
+  context: Phase 4 Task T027a defines the logic for model selection, triggering a
+    PCA adjustment if any Variance Inflation Factor value exceeds 5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IF any of the three VIF values > 5: Mark decision as ''PCA-Adjusted''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:52:05Z'
+- artifact_path: projects/PROJ-377-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/tasks.md
+  attempts: 1
+  canonical: Regional analysis fallback involves fitting models for approximately
+    90 regions
+  claim_id: c_03c08af0
+  context: Phase 4 Task T032 describes the fallback procedure for regional analysis,
+    which involves fitting separate models for roughly 90 regions if VIF or model
+    validation thresholds are not met.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit separate regression models for each of the ~90 regions to generate
+    regional p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T03:55:53Z'

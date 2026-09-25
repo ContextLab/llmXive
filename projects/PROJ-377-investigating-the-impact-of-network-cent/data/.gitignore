@@ -1,0 +1,22 @@
+# All data directories must be ignored to prevent accidental commits of large files
+raw/
+processed/
+interim/
+artifacts/
+figures/
+logs/
+
+# Specific file types
+*.csv
+*.tsv
+*.json
+*.pkl
+*.h5
+*.nii
+*.nii.gz
+*.mat
+*.fig
+
+# OS
+.DS_Store
+Thumbs.db

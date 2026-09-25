@@ -1,117 +1,72 @@
 import pytest
 import json
-from pathlib import Path
-import tempfile
 import os
+from pathlib import Path
+from unittest.mock import patch, mock_open
 
-from code.data.power_check import (
-    load_retention_metrics,
-    check_power,
-    save_power_check_results,
-)
+# Import the functions to test
+from code.data.power_check import load_retention_metrics, check_power, save_power_check_results
 
+class TestPowerCheck:
+    """Unit tests for the power calculation logic (T004a)."""
 
-class TestCheckPower:
-    def test_passes_power_check(self):
-        """Test that power check passes when N is sufficient."""
-        n_subjects = 100
-        power_threshold = 85
+    @pytest.fixture
+    def sample_retention_data(self):
+        """Fixture providing sample retention data."""
+        return {
+            "total_subjects": 100,
+            "retained_subjects": 65,
+            "retention_rate": 0.65,
+            "exclusion_reasons": {"motion": 10, "missing_data": 25}
+        }
 
-        is_powered, message, warning = check_power(n_subjects, power_threshold)
+    @pytest.fixture
+    def temp_retention_file(self, tmp_path, sample_retention_data):
+        """Fixture creating a temporary retention metrics file."""
+        file_path = tmp_path / "retention_metrics.json"
+        with open(file_path, "w") as f:
+            json.dump(sample_retention_data, f)
+        return file_path
 
-        assert is_powered is True
-        assert "sufficient" in message.lower() or "adequate" in message.lower()
-        assert warning is None
+    def test_check_power_meets_threshold(self, sample_retention_data):
+        """Test that check_power returns True when N >= 50."""
+        result = check_power(sample_retention_data, threshold=50)
+        assert result["n_subjects"] == 65
+        assert result["threshold"] == 50
+        assert result["meets_threshold"] is True
 
-    def test_fails_power_check(self):
-        """Test that power check fails when N is insufficient."""
-        n_subjects = 50
-        power_threshold = 85
+    def test_check_power_fails_threshold(self):
+        """Test that check_power returns False when N < 50."""
+        data = {"retained_subjects": 30}
+        result = check_power(data, threshold=50)
+        assert result["n_subjects"] == 30
+        assert result["threshold"] == 50
+        assert result["meets_threshold"] is False
 
-        is_powered, message, warning = check_power(n_subjects, power_threshold)
+    def test_check_power_exact_threshold(self):
+        """Test that check_power returns True when N == 50."""
+        data = {"retained_subjects": 50}
+        result = check_power(data, threshold=50)
+        assert result["meets_threshold"] is True
 
-        assert is_powered is False
-        assert "underpowered" in message.lower() or "insufficient" in message.lower()
-        assert warning is not None
-        assert "small effects" in warning.lower()
+    def test_load_retention_metrics_file_not_found(self, tmp_path):
+        """Test that load_retention_metrics raises FileNotFoundError if file missing."""
+        fake_path = tmp_path / "nonexistent.json"
+        with patch("code.data.power_check.RETENTION_INPUT", fake_path):
+            with pytest.raises(FileNotFoundError):
+                load_retention_metrics()
 
-    def test_exact_threshold(self):
-        """Test behavior at exact threshold."""
-        n_subjects = 85
-        power_threshold = 85
-
-        is_powered, message, warning = check_power(n_subjects, power_threshold)
-
-        assert is_powered is True
-        assert warning is None
-
-    def test_handles_edge_cases(self):
-        """Test behavior with edge case sample sizes."""
-        # Very small sample
-        is_powered, _, warning = check_power(10, 85)
-        assert is_powered is False
-        assert warning is not None
-
-        # Large sample
-        is_powered, _, warning = check_power(200, 85)
-        assert is_powered is True
-        assert warning is None
-
-
-class TestSavePowerCheckResults:
-    def test_saves_correctly(self):
-        """Test that power check results are saved correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "power_check_results.json"
-            results = {
-                'n_subjects': 100,
-                'power_threshold': 85,
-                'is_powered': True,
-                'message': 'Sample size is sufficient',
-                'warning': None
-            }
-
-            save_power_check_results(results, str(output_path))
-
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                saved_results = json.load(f)
-
-            assert saved_results['n_subjects'] == 100
-            assert saved_results['is_powered'] is True
-
-    def test_handles_warning_message(self):
-        """Test that warning messages are saved correctly."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "power_check_results.json"
-            results = {
-                'n_subjects': 50,
-                'power_threshold': 85,
-                'is_powered': False,
-                'message': 'Sample size is insufficient',
-                'warning': 'Underpowered for small effects (r=0.3)'
-            }
-
-            save_power_check_results(results, str(output_path))
-
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                saved_results = json.load(f)
-
-            assert saved_results['warning'] == 'Underpowered for small effects (r=0.3)'
-
-    def test_creates_directory_if_not_exists(self):
-        """Test that the function creates the output directory if it doesn't exist."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            nested_path = Path(tmpdir) / "nested" / "output" / "power_check_results.json"
-            results = {
-                'n_subjects': 100,
-                'power_threshold': 85,
-                'is_powered': True,
-                'message': 'Sample size is sufficient',
-                'warning': None
-            }
-
-            save_power_check_results(results, str(nested_path))
-
-            assert nested_path.exists()
+    def test_save_power_check_results(self, tmp_path, sample_retention_data):
+        """Test that save_power_check_results writes valid JSON."""
+        output_file = tmp_path / "power_metrics.json"
+        power_data = check_power(sample_retention_data)
+        
+        with patch("code.data.power_check.OUTPUT_PATH", output_file):
+            save_power_check_results(power_data)
+        
+        assert output_file.exists()
+        with open(output_file, "r") as f:
+            saved_data = json.load(f)
+        
+        assert saved_data["n_subjects"] == sample_retention_data["retained_subjects"]
+        assert "meets_threshold" in saved_data

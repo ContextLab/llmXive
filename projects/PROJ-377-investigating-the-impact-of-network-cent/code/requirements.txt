@@ -8,7 +8,6 @@ openneuro-cli
 matplotlib
 seaborn
 pymvpa
-psutil
-scipy
-joblib
-tqdm
+flake8
+black
+isort

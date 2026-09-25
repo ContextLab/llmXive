@@ -1,18 +1,45 @@
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that actually checks the metadata\
+    \ for the required columns and implements the fatal\u2011exit behavior described\
+    \ in T002. Consequently, the required artifact is missing."
 T003:
   c: false
   h: 124bbbefc379ea4b76939115f6d44c5cf8a86ba28af1f8c4962827abe9056f63
   r: "The required `data/processed/behavioral/retention_metrics.json` file is absent,\
     \ so the retention rate was never saved (and no logs of the conditional checks\
     \ are provided). Without this artifact the task\u2019s output is incomplete."
-T044:
+T004b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of any new or additional unit test files in a `tests/unit/` directory
-    was provided; the claim lacks the required artifact, so the task is not satisfied.
-T045:
+  r: "No artifact (e.g., log output, updated `reproducibility_report.json` showing\
+    \ `pipeline_metrics.power_warning: true` or appropriate messages) was provided\
+    \ to demonstrate that the power\u2011logging logic was implemented and executed.\
+    \ Without such evidence the requirement cannot be confirmed."
+T005a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no artifacts (e.g., validation logs, screenshots, or
-    a report) showing that the quickstart.md file was actually validated, nor any
-    evidence that the required steps succeeded. Consequently, the claim that the quickstart
-    validation was completed cannot be verified.
+  r: No directory structure (`code/` with `code/data/`, `code/analysis/`, `code/utils/`)
+    was presented or described; the claim lacks any concrete artifact evidence confirming
+    the folders exist. The implementer must provide a listing or screenshot showing
+    the created directories.
+T005b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence (e.g., directory listings, screenshots, or file paths) was provided
+    showing that a `data/` folder with the required `raw/`, `processed/`, and `artifacts/`
+    subfolders actually exists. Without such artifacts, the task cannot be confirmed
+    as completed.
+T005c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The response contains no evidence (e.g., a file tree, screenshots, or commands)
+    that the `tests/` directory and its `contract/`, `integration/`, and `unit/` subdirectories
+    were actually created. Without such proof, the task requirement is not satisfied.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Git repository being initialized nor a `.gitignore` file for
+    data and artifacts is provided; the claim lacks any displayed artifact or path
+    confirming the required files exist.
