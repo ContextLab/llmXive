@@ -35,7 +35,7 @@ Participant views a BASELINE image for a brief period, completes a short arithme
 
 1. **Given** a baseline image is loaded, **When** participant views it, **Then** display duration is 10 seconds (±0.5 seconds)
 2. **Given** the distractor task begins, **When** participant completes arithmetic questions, **Then** task duration is 2 minutes (±10 seconds)
-3. **Given** the 20-question recognition test begins, **When** participant answers all questions, **Then** All responses are recorded with timestamps and participant ID, where questions reference true details (from baseline) and false/lure details (never appeared in baseline).
+3. **Given** the -question recognition test begins, **When** participant answers all questions, **Then** All responses are recorded with timestamps and participant ID, where questions reference true details (from baseline) and false/lure details (never appeared in baseline).
 
 **Scope Clarification**: Recognition-only testing is sufficient for the research question; recall testing is out of scope for v1.
 
