@@ -145,8 +145,8 @@
 
 ### Tests for User Story 3 (Mandatory per Spec) ⚠️
 
-- [ ] T030 [P] [US3] Integration test: Verify training completes within 6h, <7GB RAM, **and measures/records inference latency** in `tests/integration/test_training_pipeline.py`
-- [ ] T031 [P] [US3] Contract test: Verify "Interruption Reduction Rate" and "Safety Recall" are calculated separately in `tests/unit/test_eval_metrics.py`
+- [X] T030 [P] [US3] Integration test: Verify training completes within 6h, <7GB RAM, **and measures/records inference latency** in `tests/integration/test_training_pipeline.py`
+- [X] T031 [P] [US3] Contract test: Verify "Interruption Reduction Rate" and "Safety Recall" are calculated separately in `tests/unit/test_eval_metrics.py`
 - [ ] T032 [P] [US3] Test Mutual Information calculation and partial correlation analysis in `tests/unit/test_statistical_analysis.py`
 
 ### Implementation for User Story 3

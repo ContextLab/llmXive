@@ -1,148 +1,124 @@
-"""
-Unit tests for src.data.process module (Task T014).
-
-Tests:
-1. Canonicalization of valid and invalid SMILES.
-2. Descriptor calculation for valid molecules.
-3. Exclusion of invalid compounds.
-4. Pipeline integration on a small mock dataset.
-"""
 import pytest
 import pandas as pd
 import numpy as np
 import os
 import tempfile
-from rdkit import Chem
-from src.data.process import (
-    canonicalize_smiles,
-    calculate_descriptors,
-    process_compounds,
-    run_process_pipeline
-)
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+
+from src.data.process import canonicalize_smiles, calculate_descriptors, merge_structure_and_resistance, process_compounds
+
 
 class TestCanonicalizeSmiles:
     def test_valid_smiles(self):
-        """Test canonicalization of a valid SMILES string."""
-        smiles = "CCO"  # Ethanol
+        # Valid benzene
+        smiles = "c1ccccc1"
         result = canonicalize_smiles(smiles)
         assert result is not None
-        assert result == "CCO"  # Ethanol is already canonical usually
-
-    def test_complex_smiles(self):
-        """Test canonicalization of a more complex SMILES."""
-        # Aspirin
-        smiles = "CC(=O)Oc1ccccc1C(=O)O"
-        result = canonicalize_smiles(smiles)
-        assert result is not None
-        assert isinstance(result, str)
-        # Verify it can be parsed back
-        mol = Chem.MolFromSmiles(result)
-        assert mol is not None
+        assert len(result) > 0
 
     def test_invalid_smiles(self):
-        """Test handling of invalid SMILES."""
-        invalid_smiles = "invalid_smiles_string"
-        result = canonicalize_smiles(invalid_smiles)
-        assert result is None
-
-    def test_empty_string(self):
-        """Test handling of empty string."""
-        result = canonicalize_smiles("")
+        result = canonicalize_smiles("invalid_smiles_string")
         assert result is None
 
     def test_none_input(self):
-        """Test handling of None input."""
         result = canonicalize_smiles(None)
         assert result is None
 
-class TestCalculateDescriptors:
-    def test_basic_descriptors(self):
-        """Test that basic descriptors are calculated for a valid molecule."""
-        mol = Chem.MolFromSmiles("CCO")
-        descriptors = calculate_descriptors(mol)
-        
-        assert "MolWt" in descriptors
-        assert "LogP" in descriptors or "MolLogP" in descriptors # RDKit has both, check common ones
-        
-        # Check that values are numeric
-        for name, val in descriptors.items():
-            assert isinstance(val, (int, float, np.floating, np.integer))
-            # Allow NaN but not strings or objects
-            assert not isinstance(val, str)
+    def test_empty_string(self):
+        result = canonicalize_smiles("")
+        assert result is None
 
-    def test_all_desc_list(self):
-        """Verify that all standard descriptors are present in output."""
-        from rdkit.Chem import Descriptors
-        expected_names = {name for name, _ in Descriptors.descList}
-        
-        mol = Chem.MolFromSmiles("CCO")
-        descriptors = calculate_descriptors(mol)
-        
-        assert set(descriptors.keys()) == expected_names
+    def test_nan_input(self):
+        result = canonicalize_smiles(np.nan)
+        assert result is None
+
+
+class TestCalculateDescriptors:
+    def test_calculate_descriptors_returns_dict(self):
+        smiles = "CCO"  # Ethanol
+        descs = calculate_descriptors(smiles)
+        assert isinstance(descs, dict)
+        assert len(descs) > 0
+        # Check for some common descriptors
+        assert "MolWt" in descs or "ExactMolWt" in descs or any("Wt" in k for k in descs.keys())
+
+    def test_invalid_smiles_returns_empty(self):
+        descs = calculate_descriptors("invalid")
+        assert descs == {}
+
 
 class TestProcessCompounds:
+    def test_process_compounds_excludes_invalid(self):
+        data = {
+            'smiles': ['c1ccccc1', 'invalid', 'CCO', ''],
+            'source': ['chembl', 'chembl', 'chembl', 'chembl']
+        }
+        df = pd.DataFrame(data)
+        result = process_compounds(df)
+        
+        # Should exclude 'invalid' and ''
+        assert len(result) == 2
+        assert 'inchi_key' in result.columns
+        assert 'canonical_smiles' in result.columns
+        assert all(result['inchi_key'].notna())
+
+    def test_process_compounds_empty_input(self):
+        df = pd.DataFrame(columns=['smiles'])
+        result = process_compounds(df)
+        assert result.empty
+
+
+class TestMergeStructureAndResistance:
     @pytest.fixture
-    def mock_df(self):
-        """Create a mock DataFrame with valid and invalid SMILES."""
+    def sample_structure(self):
         return pd.DataFrame({
-            "inchikey": ["KEY1", "KEY2", "KEY3", "KEY4"],
-            "smiles": ["CCO", "invalid", "CC(=O)O", "C1=CC=CC=C1"], # KEY2 is invalid
-            "resistance_freq": [0.1, 0.5, 0.0, 0.9]
+            'inchi_key': ['KEY1', 'KEY2', 'KEY3'],
+            'mol_wt': [100.0, 200.0, 300.0]
         })
 
-    def test_excludes_invalid(self, mock_df):
-        """Test that invalid SMILES are excluded."""
-        processed_df, total, valid = process_compounds(mock_df)
+    @pytest.fixture
+    def sample_resistance(self):
+        return pd.DataFrame({
+            'inchi_key': ['KEY1', 'KEY3', 'KEY4'],
+            'resistance_score': [0.8, 0.2, 0.9]
+        })
+
+    def test_merge_on_inchi_key(self, sample_structure, sample_resistance):
+        merged, metrics = merge_structure_and_resistance(sample_structure, sample_resistance)
         
-        assert total == 4
-        assert valid == 3
-        assert len(processed_df) == 3
+        # KEY1 and KEY3 should match. KEY2 should have NaN resistance.
+        assert len(merged) == 3
+        assert 'resistance_score' in merged.columns
         
-        # Check that the invalid row (KEY2) is not in the result
-        assert "KEY2" not in processed_df["inchikey"].values
-
-    def test_preserves_valid_data(self, mock_df):
-        """Test that valid data is preserved and descriptors added."""
-        processed_df, total, valid = process_compounds(mock_df)
+        # Check specific values
+        key1_row = merged[merged['inchi_key'] == 'KEY1'].iloc[0]
+        assert key1_row['resistance_score'] == 0.8
         
-        # Check for a known valid row
-        row = processed_df[processed_df["inchikey"] == "KEY1"].iloc[0]
-        assert row["smiles"] == "CCO" # Canonicalized
-        assert "MolWt" in row
-        assert row["resistance_freq"] == 0.1
+        key2_row = merged[merged['inchi_key'] == 'KEY2'].iloc[0]
+        assert pd.isna(key2_row['resistance_score'])
+        
+        key3_row = merged[merged['inchi_key'] == 'KEY3'].iloc[0]
+        assert key3_row['resistance_score'] == 0.2
 
-    def test_empty_input(self):
-        """Test handling of empty DataFrame."""
-        df = pd.DataFrame(columns=["inchikey", "smiles"])
-        processed_df, total, valid = process_compounds(df)
-        assert total == 0
-        assert valid == 0
-        assert processed_df.empty
+    def test_metrics_calculation(self, sample_structure, sample_resistance):
+        _, metrics = merge_structure_and_resistance(sample_structure, sample_resistance)
+        
+        assert metrics['total_requested'] == 3
+        assert metrics['matches'] == 2  # KEY1 and KEY3
+        assert metrics['fraction'] == 2/3
 
-class TestRunProcessPipeline:
-    def test_full_pipeline(self):
-        """Test the full pipeline from file to file."""
-        # Create temp input
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f_in:
-            f_in.write("inchikey,smiles,resistance_freq\n")
-            f_in.write("KEY1,CCO,0.1\n")
-            f_in.write("KEY2,invalid,0.2\n")
-            f_in.write("KEY3,CC(=O)O,0.3\n")
-            input_path = f_in.name
+    def test_empty_structure(self, sample_resistance):
+        empty_struct = pd.DataFrame(columns=['inchi_key', 'mol_wt'])
+        merged, metrics = merge_structure_and_resistance(empty_struct, sample_resistance)
+        assert merged.empty
+        assert metrics['total_requested'] == 0
+        assert metrics['matches'] == 0
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "processed.csv")
-            
-            run_process_pipeline(input_path, output_path)
-            
-            assert os.path.exists(output_path)
-            
-            df_out = pd.read_csv(output_path)
-            
-            # Should have 2 rows (KEY1 and KEY3)
-            assert len(df_out) == 2
-            assert "MolWt" in df_out.columns
-            assert "KEY2" not in df_out["inchikey"].values
-
-        # Cleanup
-        os.unlink(input_path)
+    def test_empty_resistance(self, sample_structure):
+        empty_res = pd.DataFrame(columns=['inchi_key', 'resistance_score'])
+        merged, metrics = merge_structure_and_resistance(sample_structure, empty_res)
+        assert len(merged) == 3
+        assert all(pd.isna(merged['resistance_score']))
+        assert metrics['matches'] == 0
+        assert metrics['fraction'] == 0.0

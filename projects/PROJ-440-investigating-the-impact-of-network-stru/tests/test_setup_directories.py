@@ -1,90 +1,77 @@
-"""
-Tests for the setup_directories module.
-Verifies that the required directory structure is created correctly.
-"""
 import os
-import pytest
-from pathlib import Path
 import shutil
 import tempfile
+from pathlib import Path
+import pytest
+
+# We need to ensure the module can be imported
+# Since we are running tests from the root, we might need to adjust sys.path
+# or rely on the test runner configuration.
+# Assuming standard pytest behavior where code/ is in the path or we import relative to root.
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from code.setup_directories import setup_directories
 
+def test_setup_directories_creates_all_required_dirs():
+    """
+    Test that setup_directories creates all required directories.
+    """
+    # Create a temporary directory to simulate the project root
+    original_cwd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.chdir(tmpdir)
+        try:
+            # Run the setup function
+            result = setup_directories()
+            
+            # Verify the function returned True
+            assert result is True
+            
+            # Define the expected directories
+            expected_dirs = [
+                "code",
+                "data",
+                "data/raw",
+                "data/processed",
+                "data/analysis",
+                "tests",
+                "contracts",
+                "state"
+            ]
+            
+            # Verify each directory exists
+            for dir_name in expected_dirs:
+                dir_path = Path(dir_name)
+                assert dir_path.exists(), f"Directory {dir_path} was not created"
+                assert dir_path.is_dir(), f"{dir_path} exists but is not a directory"
+            
+            # Verify nested structure
+            assert (Path("data/raw")).exists()
+            assert (Path("data/processed")).exists()
+            assert (Path("data/analysis")).exists()
+            
+        finally:
+            os.chdir(original_cwd)
 
-class TestSetupDirectories:
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """
-        Create a temporary directory for testing and clean up afterwards.
-        """
-        self.original_cwd = os.getcwd()
-        self.temp_dir = tempfile.mkdtemp()
-        os.chdir(self.temp_dir)
-        yield
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.temp_dir)
-
-    def test_setup_directories_creates_all_folders(self):
-        """
-        Verify that all required directories are created.
-        """
-        setup_directories()
-
-        required_dirs = [
-            "code",
-            "data",
-            "data/raw",
-            "data/processed",
-            "data/analysis",
-            "tests",
-            "contracts",
-            "state"
-        ]
-
-        for dir_name in required_dirs:
-            dir_path = Path(dir_name)
-            assert dir_path.exists(), f"Directory {dir_name} was not created"
-            assert dir_path.is_dir(), f"{dir_name} is not a directory"
-
-    def test_nested_directories_exist(self):
-        """
-        Verify that nested directories (e.g., data/raw) are created.
-        """
-        setup_directories()
-
-        nested_dirs = [
-            "data/raw",
-            "data/processed",
-            "data/analysis"
-        ]
-
-        for dir_name in nested_dirs:
-            dir_path = Path(dir_name)
-            assert dir_path.exists(), f"Nested directory {dir_name} was not created"
-            assert dir_path.is_dir(), f"{dir_name} is not a directory"
-
-    def test_directories_are_empty_initially(self):
-        """
-        Verify that the created directories are initially empty.
-        """
-        setup_directories()
-
-        # Note: The directories themselves should exist and be empty
-        # (excluding . and ..)
-        required_dirs = [
-            "code",
-            "data",
-            "data/raw",
-            "data/processed",
-            "data/analysis",
-            "tests",
-            "contracts",
-            "state"
-        ]
-
-        for dir_name in required_dirs:
-            dir_path = Path(dir_name)
-            contents = list(dir_path.iterdir())
-            # Directories might contain hidden files or be empty
-            # We just verify they exist and are directories
-            assert dir_path.is_dir()
+def test_setup_directories_idempotent():
+    """
+    Test that running setup_directories multiple times does not cause errors.
+    """
+    original_cwd = os.getcwd()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        os.chdir(tmpdir)
+        try:
+            # Run twice
+            setup_directories()
+            result2 = setup_directories()
+            
+            # Both should succeed
+            assert result2 is True
+            
+            # Verify directories still exist
+            assert Path("code").exists()
+            assert Path("data/raw").exists()
+            
+        finally:
+            os.chdir(original_cwd)

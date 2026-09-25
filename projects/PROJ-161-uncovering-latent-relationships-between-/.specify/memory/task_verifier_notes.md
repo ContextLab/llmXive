@@ -2,9 +2,21 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T007a [P] Define `data_version.json` schema (fields: `source_url`, `checksum_sha256`, `timestamp`)** — No `data_version.json` schema file or definition was provided; the evidence contains only the task description and project context, with no artifact showing the required fields (`source_url`, `checksum_sha256`, `timestamp`). The implementer must supply a concrete JSON schema (or example file) defining these fields.
-- **T007b [P] Implement logging infrastructure in `src/main.py` to write to `data_version.json`** — No evidence of a modified `src/main.py` or a `data_version.json` file was provided; the claim lacks any actual code or output showing logging infrastructure that writes version data. The required artifact is missing, so the task is not satisfied.
-- **T008 Implement error handling wrapper for API/FTP fetches (exponential backoff) in `src/data/utils.py`** — The required file `src/data/utils.py` does not exist (the only referenced `data/utils.py` is missing), so no error‑handling wrapper with exponential backoff is present. The task’s core artifact is absent.
-- **T009 Setup `contracts/` directory with `dataset.schema.yaml` and `output.schema.yaml` based on plan requirements** — No `contracts/` directory, `dataset.schema.yaml`, or `output.schema.yaml` files were provided or referenced in the evidence; therefore the required schema artifacts are missing.
-- **T010 [P] [US1] Unit test for SMILES canonicalization and invalid SMILES exclusion in `tests/unit/test_data.py`** — No `tests/unit/test_data.py` file or unit test code for SMILES canonicalization and invalid SMILES exclusion was provided; the claim lacks any concrete artifact to verify. The required test implementation is missing.
-- **T011 [P] [US1] Unit test for merge logic on InChIKey (handling missing data/NaNs) in `tests/unit/test_data.py`** — No `tests/unit/test_data.py` file or unit test code for the InChIKey merge logic is present; the required test handling missing data/NaNs is missing entirely. The implementer has not provided the artifact the task demands.
+- **T007a** — The submission contains no `data_version.json` (or schema definition) file, nor any description of its fields. Consequently the required schema with `source_url`, `checksum_sha256`, and `timestamp` is missing. The next implementer must create and provide the JSON schema file (or equivalent documentation) containing those three fields.
+- **T007b** — declared artifact(s) missing/empty/invalid: src/main.py
+- **T008** — declared artifact(s) missing/empty/invalid: src/data/utils.py
+- **T009** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T012** — The required artifact `tests/integration/test_data.py` does not exist, so no integration test is present to verify end‑to‑end fetching and descriptor calculation. The task cannot be considered fulfilled until this file is created with a functional test.
+- **T013** — declared artifact(s) missing/empty/invalid: src/data/download.py
+- **T014** — declared artifact(s) missing/empty/invalid: src/data/process.py
+- **T015** — declared artifact(s) missing/empty/invalid: src/data/process.py
+- **T016** — The implementer did not provide a `data/processed/merge_metrics.json` file, nor any content showing the required `total_requested`, `matches`, and `fraction` fields. Without the actual JSON artifact, the task requirement is unmet.
+- **T017** — declared artifact(s) missing/empty/invalid: src/data/download.py
+- **T022** — declared artifact(s) missing/empty/invalid: src/analysis/dimensionality.py, data/processed/umap_embedding.csv
+- **T023** — declared artifact(s) missing/empty/invalid: src/viz/plots.py, data/processed/umap_scatter.png
+- **T023b** — No `clustering_results.json` file (or any other artifact) containing a logged silhouette score for the UMAP embedding is present. The implementer did not provide evidence that the score was calculated or recorded, so the task requirement is unmet.
+- **T024** — declared artifact(s) missing/empty/invalid: src/analysis/clustering.py
+- **T027** — No code, script, or output file implementing the “exclude clusters with <10 samples and flag as ‘insufficient power’” was provided. The evidence consists only of the task description and specification excerpt, without any concrete artifact (e.g., updated clustering/enrichment module, unit tests, or example results) demonstrating that the required logic has been added. The implementer must supply the actual implementation and proof (e.g., source file changes, test logs, or generated ranking output) showing the new exclusion behavior.
+- **T025** — declared artifact(s) missing/empty/invalid: src/analysis/clustering.py
+- **T026** — declared artifact(s) missing/empty/invalid: src/analysis/clustering.py, src/config.py
+- **T028** — No `clustering_results.json` file or its contents were presented; the claim provides only a description without the required JSON artifact containing cluster IDs, enrichment and permutation p‑values, and diagnostic messages. Consequently the task’s deliverable is missing.

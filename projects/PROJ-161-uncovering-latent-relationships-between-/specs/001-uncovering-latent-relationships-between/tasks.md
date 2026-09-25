@@ -77,16 +77,16 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for SMILES canonicalization and invalid SMILES exclusion in `tests/unit/test_data.py`
-- [ ] T011 [P] [US1] Unit test for merge logic on InChIKey (handling missing data/NaNs) in `tests/unit/test_data.py`
-- [~] T012 [P] [US1] Integration test for end-to-end fetch and descriptor calculation on a small sample of compounds in `tests/integration/test_data.py`
+- [X] T010 [P] [US1] Unit test for SMILES canonicalization and invalid SMILES exclusion in `tests/unit/test_data.py`
+- [X] T011 [P] [US1] Unit test for merge logic on InChIKey (handling missing data/NaNs) in `tests/unit/test_data.py`
+- [ ] T012 [P] [US1] Integration test for end-to-end fetch and descriptor calculation on a small sample of compounds in `tests/integration/test_data.py`
 
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `src/data/download.py` with functions to fetch ChEMBL/ZINC15 SMILES and NCBI Pathogen Detection frequencies (with backoff)
 - [ ] T014 [US1] Implement `src/data/process.py` to canonicalize SMILES, calculate standardized set of RDKit descriptors using `rdkit.Chem.Descriptors.descList`, and exclude invalid compounds
 - [ ] T015 [US1] Implement merge logic in `src/data/process.py` to join structure and resistance data on InChIKey, flagging missing resistance as NaN
-- [~] T016 [US1] Generate `merge_metrics.json` in `data/processed/` reporting `total_requested`, `matches`, and `fraction` (SC-001)
+- [ ] T016 [US1] Generate `merge_metrics.json` in `data/processed/` reporting `total_requested`, `matches`, and `fraction` (SC-001)
 - [ ] T017 [P] [US1] Implement checksum verification (SHA256) for downloaded raw files in `src/data/download.py` and log to `data_version.json` using the schema fields defined in T007a (`source_url`, `checksum_sha256`, `timestamp`)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -110,12 +110,12 @@
 
 - [ ] T022 [US2] Implement `src/analysis/dimensionality.py` to apply UMAP to the descriptor matrix and save 2D embedding to `data/processed/umap_embedding.csv`
 - [ ] T023 [US2] Implement `src/viz/plots.py` to generate UMAP scatter plot colored by resistance phenotype and save to `data/processed/umap_scatter.png`
-- [~] T023b [US2] Calculate silhouette score for the UMAP embedding generated in T022 and log the score to `clustering_results.json` for internal verification (not a required output artifact)
+- [ ] T023b [US2] Calculate silhouette score for the UMAP embedding generated in T022 and log the score to `clustering_results.json` for internal verification (not a required output artifact)
 - [ ] T024 [US2] Implement `src/analysis/clustering.py` to run DBSCAN (eps=0.5, min_samples=10) on UMAP coordinates
-- [~] T027 [US2] Add logic to exclude clusters with <10 samples from enrichment ranking (flag as "insufficient power")
+- [ ] T027 [US2] Add logic to exclude clusters with <10 samples from enrichment ranking (flag as "insufficient power")
 - [ ] T025 [US2] Implement Fisher's exact test in `src/analysis/clustering.py` to evaluate cluster enrichment for high-resistance compounds
 - [ ] T026 [US2] Implement `run_label_permutation_test` in `src/analysis/clustering.py` to validate enrichment is not a tautology; Run exactly 1000 iterations using the `PERMUTATION_ITERATIONS` value from `src/config.py` (T004)
-- [~] T028 [US2] Generate `clustering_results.json` containing cluster IDs, enrichment p-values, permutation p-values, and diagnostic messages
+- [ ] T028 [US2] Generate `clustering_results.json` containing cluster IDs, enrichment p-values, permutation p-values, and diagnostic messages
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

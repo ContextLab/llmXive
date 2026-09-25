@@ -33,3 +33,17 @@ T015:
     \ or documentation implementing deterministic velocity\u2011threshold rules for\
     \ ambiguous events. No artifact addressing the \u201Cambiguous events\u201D requirement\
     \ is present, so the task is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any `data/features/*.jsonl` files containing exported feature
+    vectors with temporal alignment metadata is present; the implementer provided
+    only narrative descriptions and no actual artifact files. The required export
+    output is missing.
+T032:
+  c: false
+  h: f97d5fd8bb7e6d0cfd235b11b76f6640b6e0ed6b9228d222cc21e1c0e7b33799
+  r: The required test file `tests/unit/test_statistical_analysis.py` does not exist,
+    so no test code for Mutual Information or partial correlation analysis is present.
+    The task cannot be considered fulfilled until this file is created with the appropriate
+    unit tests.

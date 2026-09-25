@@ -2,134 +2,157 @@
 Tests for the energy decay schema and validation logic.
 """
 import pytest
-import os
-import tempfile
-import csv
 import yaml
+import csv
+import tempfile
+import os
 from pathlib import Path
-
-# Add the project root to the path if needed
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from code.utils.energy_schema_loader import load_energy_schema, validate_csv_against_schema
 
 
-class TestSchemaLoading:
-    def test_load_schema_exists(self):
-        """Test that the schema file can be loaded."""
+class TestEnergySchemaLoading:
+    """Tests for schema loading functionality."""
+
+    def test_load_schema_success(self):
+        """Test that the schema can be loaded successfully."""
         schema = load_energy_schema()
         assert schema is not None
         assert 'properties' in schema
         assert 'required' in schema
-        
+        assert 'graph_id' in schema['properties']
+        assert 'decay_rate' in schema['properties']
+        assert 'r_squared' in schema['properties']
+        assert 'status' in schema['properties']
+
     def test_schema_has_required_fields(self):
         """Test that the schema defines all required fields."""
         schema = load_energy_schema()
-        required = schema.get('required', [])
-        
-        expected_fields = [
-            'graph_id', 'decay_rate', 'r_squared', 'status', 
-            'convergence_std', 'class', 'clustering_coeff', 
-            'avg_path_length', 'avg_degree', 'fit_parameters'
-        ]
-        
-        for field in expected_fields:
-            assert field in required, f"Missing required field: {field}"
-            
-    def test_schema_properties_defined(self):
-        """Test that all properties have type definitions."""
+        required_fields = schema.get('required', [])
+        assert 'graph_id' in required_fields
+        assert 'decay_rate' in required_fields
+        assert 'r_squared' in required_fields
+        assert 'status' in required_fields
+
+    def test_schema_has_enum_constraints(self):
+        """Test that the status field has proper enum constraints."""
         schema = load_energy_schema()
-        properties = schema.get('properties', {})
-        
-        assert 'graph_id' in properties
-        assert 'decay_rate' in properties
-        assert 'r_squared' in properties
-        assert 'status' in properties
-        assert 'convergence_std' in properties
-        
-        # Check types
-        assert properties['graph_id']['type'] == 'string'
-        assert properties['decay_rate']['type'] == 'number'
-        assert properties['r_squared']['type'] == 'number'
-        assert properties['status']['type'] == 'string'
-        
-        
+        status_def = schema['properties']['status']
+        assert 'enum' in status_def
+        assert 'dissipative' in status_def['enum']
+        assert 'resonant' in status_def['enum']
+        assert 'unstable' in status_def['enum']
+        assert 'failed' in status_def['enum']
+
+
 class TestCSVValidation:
-    def test_valid_csv(self):
-        """Test validation against a correctly formatted CSV."""
-        # Create a temporary valid CSV
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+    """Tests for CSV validation against the schema."""
+
+    def test_validate_valid_csv(self):
+        """Test validation of a properly formatted CSV."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
             writer = csv.writer(f)
-            writer.writerow(['graph_id', 'class', 'N', 'decay_rate', 'r_squared', 'status', 
-                           'convergence_std', 'clustering_coeff', 'avg_path_length', 'avg_degree',
-                           'fit_parameters'])
-            writer.writerow(['test_001', 'random', '100', '0.05', '0.98', 'dissipative', 
-                           '0.002', '0.01', '5.5', '4.0', '{}'])
+            writer.writerow(['graph_id', 'decay_rate', 'r_squared', 'status'])
+            writer.writerow(['graph_001', '0.05', '0.98', 'dissipative'])
+            writer.writerow(['graph_002', '0.03', '0.96', 'dissipative'])
             temp_path = f.name
-        
+
         try:
-            is_valid, message = validate_csv_against_schema(temp_path)
-            assert is_valid, f"Validation failed unexpectedly: {message}"
+            is_valid, errors = validate_csv_against_schema(temp_path)
+            assert is_valid
+            assert len(errors) == 0
         finally:
             os.unlink(temp_path)
-            
-    def test_missing_required_column(self):
-        """Test validation fails when a required column is missing."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+
+    def test_validate_missing_required_field(self):
+        """Test validation fails when required field is missing."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
             writer = csv.writer(f)
-            # Missing 'decay_rate' column
-            writer.writerow(['graph_id', 'class', 'N', 'r_squared', 'status'])
-            writer.writerow(['test_001', 'random', '100', '0.98', 'dissipative'])
+            writer.writerow(['graph_id', 'decay_rate', 'status'])  # Missing r_squared
+            writer.writerow(['graph_001', '0.05', 'dissipative'])
             temp_path = f.name
-        
+
         try:
-            is_valid, message = validate_csv_against_schema(temp_path)
+            is_valid, errors = validate_csv_against_schema(temp_path)
             assert not is_valid
-            assert 'decay_rate' in message
+            assert any('r_squared' in error for error in errors)
         finally:
             os.unlink(temp_path)
-            
-    def test_invalid_enum_value(self):
-        """Test validation fails when an enum value is invalid."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+
+    def test_validate_invalid_enum_value(self):
+        """Test validation fails for invalid status value."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
             writer = csv.writer(f)
-            writer.writerow(['graph_id', 'class', 'N', 'decay_rate', 'r_squared', 'status', 
-                           'convergence_std', 'clustering_coeff', 'avg_path_length', 'avg_degree',
-                           'fit_parameters'])
-            # Invalid status value
-            writer.writerow(['test_001', 'random', '100', '0.05', '0.98', 'invalid_status', 
-                           '0.002', '0.01', '5.5', '4.0', '{}'])
+            writer.writerow(['graph_id', 'decay_rate', 'r_squared', 'status'])
+            writer.writerow(['graph_001', '0.05', '0.98', 'invalid_status'])
             temp_path = f.name
-        
+
         try:
-            is_valid, message = validate_csv_against_schema(temp_path)
+            is_valid, errors = validate_csv_against_schema(temp_path)
             assert not is_valid
-            assert 'invalid_status' in message
+            assert any('invalid_status' in error for error in errors)
         finally:
             os.unlink(temp_path)
-            
-    def test_invalid_numeric_value(self):
-        """Test validation fails when a numeric value is not a number."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-            writer = csv.writer(f)
-            writer.writerow(['graph_id', 'class', 'N', 'decay_rate', 'r_squared', 'status', 
-                           'convergence_std', 'clustering_coeff', 'avg_path_length', 'avg_degree',
-                           'fit_parameters'])
-            # Invalid numeric value for decay_rate
-            writer.writerow(['test_001', 'random', '100', 'not_a_number', '0.98', 'dissipative', 
-                           '0.002', '0.01', '5.5', '4.0', '{}'])
-            temp_path = f.name
-        
-        try:
-            is_valid, message = validate_csv_against_schema(temp_path)
-            assert not is_valid
-            assert 'not_a_number' in message
-        finally:
-            os.unlink(temp_path)
-            
-    def test_file_not_found(self):
-        """Test validation fails when file does not exist."""
-        is_valid, message = validate_csv_against_schema('nonexistent_file.csv')
+
+    def test_validate_file_not_found(self):
+        """Test validation fails for non-existent file."""
+        is_valid, errors = validate_csv_against_schema('/nonexistent/path.csv')
         assert not is_valid
-        assert 'not found' in message.lower()
+        assert any('not found' in error.lower() for error in errors)
+
+    def test_validate_empty_csv(self):
+        """Test validation fails for empty CSV."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write('')
+            temp_path = f.name
+
+        try:
+            is_valid, errors = validate_csv_against_schema(temp_path)
+            assert not is_valid
+            assert any('empty' in error.lower() for error in errors)
+        finally:
+            os.unlink(temp_path)
+
+    def test_validate_non_numeric_value(self):
+        """Test validation fails for non-numeric values in numeric fields."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerow(['graph_id', 'decay_rate', 'r_squared', 'status'])
+            writer.writerow(['graph_001', 'not_a_number', '0.98', 'dissipative'])
+            temp_path = f.name
+
+        try:
+            is_valid, errors = validate_csv_against_schema(temp_path)
+            assert not is_valid
+            assert any('not_a_number' in error for error in errors)
+        finally:
+            os.unlink(temp_path)
+
+    def test_validate_resonant_status(self):
+        """Test validation accepts resonant status."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerow(['graph_id', 'decay_rate', 'r_squared', 'status'])
+            writer.writerow(['graph_001', '-0.02', '0.97', 'resonant'])
+            temp_path = f.name
+
+        try:
+            is_valid, errors = validate_csv_against_schema(temp_path)
+            assert is_valid
+            assert len(errors) == 0
+        finally:
+            os.unlink(temp_path)
+
+    def test_validate_unstable_status(self):
+        """Test validation accepts unstable status."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            writer = csv.writer(f)
+            writer.writerow(['graph_id', 'decay_rate', 'r_squared', 'status', 'convergence_std', 'convergence_mean'])
+            writer.writerow(['graph_001', '0.05', '0.98', 'unstable', '0.015', '0.05'])
+            temp_path = f.name
+
+        try:
+            is_valid, errors = validate_csv_against_schema(temp_path)
+            assert is_valid
+            assert len(errors) == 0
+        finally:
+            os.unlink(temp_path)

@@ -4,34 +4,30 @@ from typing import Optional
 import sys
 from dotenv import load_dotenv
 
-# Load .env from project root
+# Ensure we load from the project root .env file
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ENV_PATH = PROJECT_ROOT / ".env"
+ENV_FILE = PROJECT_ROOT / ".env"
 
-if ENV_PATH.exists():
-    load_dotenv(dotenv_path=ENV_PATH)
-else:
-    # If .env is missing, we rely on system environment variables
-    # This allows the script to run in CI/CD without a local .env file
-    pass
+def load_environment() -> bool:
+    """
+    Load environment variables from .env file if it exists.
+    
+    Returns:
+        bool: True if .env was found and loaded, False otherwise.
+    """
+    if ENV_FILE.exists():
+        loaded = load_dotenv(dotenv_path=ENV_FILE)
+        return loaded
+    return False
 
-def get_fred_api_key() -> str:
+def get_fred_api_key() -> Optional[str]:
     """
     Retrieve the FRED API key from environment variables.
     
     Returns:
-        str: The FRED API key.
-    
-    Raises:
-        KeyError: If the FRED_API_KEY is not set in the environment.
+        Optional[str]: The FRED API key if set, None otherwise.
     """
-    key = os.getenv("FRED_API_KEY")
-    if not key:
-        raise KeyError(
-            "FRED_API_KEY environment variable is not set. "
-            "Please set it in your .env file or system environment."
-        )
-    return key
+    return os.getenv("FRED_API_KEY")
 
 def get_hf_token() -> Optional[str]:
     """
@@ -39,7 +35,6 @@ def get_hf_token() -> Optional[str]:
     
     Returns:
         Optional[str]: The HuggingFace token if set, None otherwise.
-        HF token is optional for this project (used for optional dataset fetching).
     """
     return os.getenv("HF_TOKEN")
 
@@ -47,67 +42,87 @@ def get_gdelt_api_key() -> Optional[str]:
     """
     Retrieve the GDELT API key from environment variables.
     
+    Note: GDELT typically doesn't require an API key for basic access,
+    but this is provided for consistency with the project's config pattern.
+    
     Returns:
         Optional[str]: The GDELT API key if set, None otherwise.
-        GDELT 2.0 API usually does not require a key for basic access,
-        but this allows for future key-based access if needed.
     """
     return os.getenv("GDELT_API_KEY")
 
-def validate_environment() -> bool:
+def validate_environment() -> tuple[bool, list[str]]:
     """
-    Validate that all required environment variables are present.
+    Validate that required environment variables are set.
+    
+    Required variables:
+        - FRED_API_KEY: Required for economic data ingestion.
+    
+    Optional variables:
+        - HF_TOKEN: Recommended for HuggingFace dataset access.
+        - GDELT_API_KEY: Optional for GDELT data access.
     
     Returns:
-        bool: True if all required variables are present, False otherwise.
-    
-    Side Effects:
-        Prints warnings to stderr for missing optional keys.
-        Raises KeyError for missing required keys (FRED_API_KEY).
+        tuple[bool, list[str]]: (is_valid, list_of_missing_required_keys)
     """
-    # Required
-    if not os.getenv("FRED_API_KEY"):
-        raise KeyError(
-            "FRED_API_KEY is required but not found in environment. "
-            "Please add it to .env or set it in your shell."
-        )
+    missing_required = []
     
-    # Optional but recommended
-    if not os.getenv("HF_TOKEN"):
-        print("Warning: HF_TOKEN is not set. Some HuggingFace features may be limited.", file=sys.stderr)
+    # Check required keys
+    if not get_fred_api_key():
+        missing_required.append("FRED_API_KEY")
     
-    return True
-
-def load_environment() -> dict:
-    """
-    Load all relevant environment variables into a dictionary.
+    # Check optional but recommended keys
+    missing_optional = []
+    if not get_hf_token():
+        missing_optional.append("HF_TOKEN (recommended)")
+    if not get_gdelt_api_key():
+        missing_optional.append("GDELT_API_KEY (optional)")
     
-    Returns:
-        dict: A dictionary containing the loaded environment variables.
-    """
-    return {
-        "fred_api_key": os.getenv("FRED_API_KEY"),
-        "hf_token": os.getenv("HF_TOKEN"),
-        "gdelt_api_key": os.getenv("GDELT_API_KEY"),
-    }
+    is_valid = len(missing_required) == 0
+    
+    if not is_valid:
+        print("ERROR: Required environment variables are missing:")
+        for key in missing_required:
+            print(f"  - {key}")
+        print("\nPlease create a .env file in the project root with the following format:")
+        print("  FRED_API_KEY=your_api_key_here")
+        print("\nOptional variables:")
+        for key in missing_optional:
+            print(f"  {key}=<value>")
+    elif missing_optional:
+        print("WARNING: Optional environment variables are missing:")
+        for key in missing_optional:
+            print(f"  - {key}")
+    
+    return is_valid, missing_required
 
 def main():
     """
-    Main entry point for testing environment configuration.
+    Main entry point for environment configuration validation.
     """
     print("Loading environment configuration...")
-    try:
-        validate_environment()
-        print("Environment validation successful.")
-        config = load_environment()
-        print(f"Loaded config keys: {list(config.keys())}")
-        # Mask sensitive values for display
-        masked_config = {k: "***" if v else "None" for k, v in config.items()}
-        print(f"Config values: {masked_config}")
-        return 0
-    except KeyError as e:
-        print(f"Configuration Error: {e}", file=sys.stderr)
-        return 1
+    loaded = load_environment()
+    if loaded:
+        print(f"✓ Loaded environment from {ENV_FILE}")
+    else:
+        print(f"⚠ No .env file found at {ENV_FILE}")
+    
+    is_valid, missing = validate_environment()
+    
+    if is_valid:
+        print("✓ Environment validation passed")
+        print(f"  FRED_API_KEY: {'*' * 10} (set)")
+        if get_hf_token():
+            print(f"  HF_TOKEN: {'*' * 10} (set)")
+        else:
+            print(f"  HF_TOKEN: not set (optional)")
+        if get_gdelt_api_key():
+            print(f"  GDELT_API_KEY: {'*' * 10} (set)")
+        else:
+            print(f"  GDELT_API_KEY: not set (optional)")
+        sys.exit(0)
+    else:
+        print("✗ Environment validation failed")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

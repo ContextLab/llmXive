@@ -1,22 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings, screenshots, or command output were provided to demonstrate
-    that the required folders (`code/`, `data/`, `data/raw/`, `data/processed/`, `data/analysis/`,
-    `tests/`, `contracts/`, `state/`) actually exist. Without concrete evidence the
-    claim cannot be verified.
-T006a:
-  c: false
-  h: 6cde1bf598d663edbf2763efb6ccaae591d5753a3b1327e1eeebdbeb81b746f7
-  r: "The required schema file `contracts/network_schema.schema.yaml` is missing (no\
-    \ `schema.yaml` present), and the referenced CSV `data/raw/networks.csv` also\
-    \ does not exist, so the task\u2019s deliverable is not provided."
-T006b:
-  c: false
-  h: 62d29f3353f68c60cb48b47baed517bfe8dd67ed3dc9c105d5dde6da4150b336
-  r: "The required schema file `contracts/energy_schema.schema.yaml` does not exist,\
-    \ and the referenced data file `data/processed/energy_decay.csv` is also missing,\
-    \ so the task\u2019s deliverable is not present."
 T006c:
   c: false
   h: fb197a31285dc1ac82bf7d27f1e6a89785d5fc3dad4bf44396f5358a2bafa21c

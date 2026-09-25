@@ -1,178 +1,185 @@
 """
-Main orchestration script for the llmXive research pipeline.
-Implements logging infrastructure to track data versions and pipeline execution.
+Main orchestration and logging infrastructure for the llmXive pipeline.
+
+This module provides functions to manage the pipeline lifecycle, log start/end
+events, and persist data versioning information to data_version.json.
 """
 import json
 import os
 import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Add project root to path for imports
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+from src.config import get_project_root, get_data_processed_path
+from src.data.schema import (
+    DataVersionFile,
+    create_empty_data_version,
+    save_data_version_to_file,
+    load_data_version_from_file,
+)
+import logging
 
-from data.schema import DataVersion
+# Configure module logger
+logger = logging.getLogger(__name__)
 
 
-def ensure_data_directory() -> str:
-    """Ensure the data directory exists and return its path."""
-    data_dir = os.path.join(project_root, 'data')
-    os.makedirs(data_dir, exist_ok=True)
+def ensure_data_directory() -> Path:
+    """
+    Ensure the data directory exists.
+    
+    Returns:
+        Path: The path to the data directory.
+    """
+    data_dir = get_project_root() / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
     return data_dir
 
 
-def get_data_version_path() -> str:
-    """Return the path to the data_version.json file."""
-    data_dir = ensure_data_directory()
-    return os.path.join(data_dir, 'data_version.json')
+def get_data_version_path() -> Path:
+    """
+    Get the path to the data_version.json file.
+    
+    Returns:
+        Path: The full path to data_version.json.
+    """
+    return ensure_data_directory() / "data_version.json"
 
 
 def load_data_version() -> Dict[str, Any]:
     """
-    Load existing data version records from data_version.json.
-    Returns an empty dict if the file doesn't exist or is empty.
-    """
-    path = get_data_version_path()
-    if not os.path.exists(path):
-        return {}
-
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read().strip()
-            if not content:
-                return {}
-            return json.loads(content)
-    except (json.JSONDecodeError, IOError) as e:
-        print(f"Warning: Could not load {path}: {e}. Starting fresh.")
-        return {}
-
-
-def save_data_version(data_version: Dict[str, Any]) -> None:
-    """
-    Save data version records to data_version.json.
-    Ensures the file is written atomically and formatted nicely.
-    """
-    path = get_data_version_path()
-    # Write to a temp file first, then rename (atomic on most systems)
-    temp_path = path + '.tmp'
-    try:
-        with open(temp_path, 'w', encoding='utf-8') as f:
-            json.dump(data_version, f, indent=2, default=str)
-        os.replace(temp_path, path)
-    except IOError as e:
-        # Clean up temp file if it exists
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
-        raise IOError(f"Failed to write {path}: {e}") from e
-
-
-def log_data_version(
-    source_url: str,
-    checksum_sha256: str,
-    description: Optional[str] = None
-) -> Dict[str, Any]:
-    """
-    Log a new data version entry to data_version.json.
-
-    Args:
-        source_url: The URL or identifier of the data source.
-        checksum_sha256: SHA256 checksum of the data file.
-        description: Optional description of the data version.
-
+    Load the existing data_version.json or return an empty structure if it doesn't exist.
+    
     Returns:
-        The full updated data version dictionary.
+        Dict[str, Any]: The loaded data version dictionary.
     """
-    existing = load_data_version()
+    version_path = get_data_version_path()
+    if version_path.exists():
+        with open(version_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return create_empty_data_version()
 
-    # Create a unique key based on source_url and checksum
-    version_key = f"{source_url}:{checksum_sha256}"
 
-    # If this exact version already exists, just return it
-    if version_key in existing:
-        print(f"Data version already logged: {version_key}")
-        return existing
+def save_data_version(version_data: Dict[str, Any]) -> None:
+    """
+    Save the data version dictionary to data_version.json.
+    
+    Args:
+        version_data: The dictionary containing version information.
+    """
+    version_path = get_data_version_path()
+    save_data_version_to_file(version_data, version_path)
+    logger.info(f"Data version saved to {version_path}")
 
-    # Create new entry
-    timestamp = datetime.now(timezone.utc).isoformat()
+
+def log_data_version(source_url: str, checksum_sha256: str, timestamp: Optional[str] = None) -> None:
+    """
+    Log data version information to data_version.json.
+    
+    This function appends a new entry to the 'files' list in data_version.json
+    with the provided source URL, checksum, and timestamp.
+    
+    Args:
+        source_url: The URL from which the data was fetched.
+        checksum_sha256: The SHA256 checksum of the downloaded file.
+        timestamp: Optional timestamp string. If None, current UTC time is used.
+    """
+    if timestamp is None:
+        timestamp = datetime.now(timezone.utc).isoformat()
+    
+    version_data = load_data_version()
+    
     new_entry = {
         "source_url": source_url,
         "checksum_sha256": checksum_sha256,
-        "timestamp": timestamp
+        "timestamp": timestamp,
     }
+    
+    version_data["files"].append(new_entry)
+    
+    # Update the overall timestamp of the version file
+    version_data["timestamp"] = timestamp
+    
+    save_data_version(version_data)
+    logger.info(f"Logged data version for {source_url}")
 
-    if description:
-        new_entry["description"] = description
 
-    existing[version_key] = new_entry
-
-    save_data_version(existing)
-    print(f"Logged data version: {version_key}")
-    return existing
-
-
-def log_pipeline_start(pipeline_name: str) -> str:
+def log_pipeline_start(pipeline_name: str) -> Dict[str, Any]:
     """
     Log the start of a pipeline run.
-
+    
     Args:
-        pipeline_name: Name/identifier for the pipeline run.
-
+        pipeline_name: The name of the pipeline being started.
+        
     Returns:
-        A unique run ID for this execution.
-    """
-    run_id = f"{pipeline_name}_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
-    print(f"Pipeline '{pipeline_name}' started at {datetime.now(timezone.utc).isoformat()}")
-    return run_id
-
-
-def log_pipeline_end(run_id: str, success: bool, duration_seconds: float) -> None:
-    """
-    Log the end of a pipeline run.
-
-    Args:
-        run_id: The run ID returned by log_pipeline_start.
-        success: Whether the pipeline completed successfully.
-        duration_seconds: Total execution time in seconds.
-    """
-    status = "SUCCESS" if success else "FAILED"
-    print(f"Pipeline '{run_id}' ended at {datetime.now(timezone.utc).isoformat()}")
-    print(f"Status: {status}, Duration: {duration_seconds:.2f}s")
-
-
-def main() -> int:
-    """
-    Main entry point for the pipeline.
-    Demonstrates the logging infrastructure.
+        Dict[str, Any]: Metadata about the start event.
     """
     start_time = time.time()
-    run_id = log_pipeline_start("llmXive_pipeline")
+    timestamp = datetime.now(timezone.utc).isoformat()
+    
+    logger.info(f"Pipeline '{pipeline_name}' started at {timestamp}")
+    
+    return {
+        "pipeline_name": pipeline_name,
+        "start_time": start_time,
+        "timestamp": timestamp,
+    }
 
+
+def log_pipeline_end(pipeline_name: str, start_info: Dict[str, Any], success: bool = True) -> None:
+    """
+    Log the end of a pipeline run.
+    
+    Args:
+        pipeline_name: The name of the pipeline that ended.
+        start_info: The metadata returned by log_pipeline_start.
+        success: Whether the pipeline completed successfully.
+    """
+    end_time = time.time()
+    duration = end_time - start_info["start_time"]
+    timestamp = datetime.now(timezone.utc).isoformat()
+    
+    status = "SUCCESS" if success else "FAILED"
+    logger.info(f"Pipeline '{pipeline_name}' {status} at {timestamp} (duration: {duration:.2f}s)")
+
+
+def main() -> None:
+    """
+    Main entry point for the pipeline orchestration script.
+    
+    This function demonstrates the logging infrastructure by:
+    1. Starting a pipeline run
+    2. Logging a mock data version entry
+    3. Ending the pipeline run
+    """
+    pipeline_name = "T007b_logging_demo"
+    
+    # Ensure data directory exists
+    ensure_data_directory()
+    
+    # Log pipeline start
+    start_info = log_pipeline_start(pipeline_name)
+    
     try:
-        # Example: Log a data version (this would normally be called after data download)
-        # For demonstration, we'll log a placeholder that shows the infrastructure works
-        # In real usage, this would be called with actual data from T013/T017
+        # Demonstrate logging a data version entry
+        # In a real scenario, this would be called after downloading data
         log_data_version(
-            source_url="https://example.com/mock_data",
+            source_url="https://example.com/mock-data.csv",
             checksum_sha256="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-            description="Example data version logging"
+            timestamp=datetime.now(timezone.utc).isoformat()
         )
-
-        # Simulate some work
-        time.sleep(0.1)
-
-        duration = time.time() - start_time
-        log_pipeline_end(run_id, True, duration)
-        return 0
-
+        
+        logger.info("Logging infrastructure test completed successfully.")
+        
     except Exception as e:
-        duration = time.time() - start_time
-        log_pipeline_end(run_id, False, duration)
-        print(f"Pipeline failed: {e}")
-        return 1
+        logger.error(f"Error during logging infrastructure test: {e}", exc_info=True)
+        log_pipeline_end(pipeline_name, start_info, success=False)
+        sys.exit(1)
+    
+    # Log pipeline end
+    log_pipeline_end(pipeline_name, start_info, success=True)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

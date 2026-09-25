@@ -1,3 +1,6 @@
+"""
+Unit tests for data download module.
+"""
 import os
 import sys
 import tempfile
@@ -6,138 +9,154 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
 
-# Add code to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-
 from src.data.download import calculate_sha256, verify_checksum, log_data_version
-from src.data.schema import DataVersionFile
+from src.data.schema import load_data_version_from_file
 
 class TestChecksumCalculation:
-    def test_calculate_sha256(self):
-        """Test SHA256 calculation on a known string."""
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            f.write(b"test data")
-            temp_path = Path(f.name)
+    """Tests for checksum calculation functions."""
+    
+    def test_calculate_sha256(self, tmp_path):
+        """Test SHA256 calculation on a simple file."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
         
-        try:
-            checksum = calculate_sha256(temp_path)
-            # SHA256 of "test data"
-            expected = "916f0f7500f95292e21000137441155809040603090600000000000000000000" # Placeholder, actual hash needed
-            # Correct hash for "test data"
-            import hashlib
-            expected = hashlib.sha256(b"test data").hexdigest()
-            
-            assert checksum == expected
-        finally:
-            os.unlink(temp_path)
-
-    def test_verify_checksum_match(self):
-        """Test checksum verification when it matches."""
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            f.write(b"test data")
-            temp_path = Path(f.name)
+        checksum = calculate_sha256(test_file)
         
-        try:
-            checksum = calculate_sha256(temp_path)
-            assert verify_checksum(temp_path, checksum) is True
-        finally:
-            os.unlink(temp_path)
-
-    def test_verify_checksum_mismatch(self):
-        """Test checksum verification when it doesn't match."""
-        with tempfile.NamedTemporaryFile(delete=False) as f:
-            f.write(b"test data")
-            temp_path = Path(f.name)
+        # Known SHA256 for "Hello, World!"
+        expected_checksum = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+        assert checksum == expected_checksum
+    
+    def test_calculate_sha256_empty_file(self, tmp_path):
+        """Test SHA256 calculation on an empty file."""
+        test_file = tmp_path / "empty.txt"
+        test_file.write_bytes(b"")
         
-        try:
-            assert verify_checksum(temp_path, "wrong_checksum") is False
-        finally:
-            os.unlink(temp_path)
+        checksum = calculate_sha256(test_file)
+        
+        # Known SHA256 for empty string
+        expected_checksum = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        assert checksum == expected_checksum
+    
+    def test_verify_checksum_match(self, tmp_path):
+        """Test checksum verification when values match."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Test content"
+        test_file.write_bytes(test_content)
+        
+        checksum = calculate_sha256(test_file)
+        assert verify_checksum(test_file, checksum) is True
+    
+    def test_verify_checksum_mismatch(self, tmp_path):
+        """Test checksum verification when values don't match."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Test content")
+        
+        # Wrong checksum
+        assert verify_checksum(test_file, "wrong_checksum") is False
 
 class TestDataVersionLogging:
-    def test_log_data_version_creates_file(self):
-        """Test that log_data_version creates the file if it doesn't exist."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "data_version.json"
-            version_info = [
-                DataVersionFile(
-                    source_url="http://example.com/data1",
-                    checksum_sha256="abc123",
-                    timestamp="2023-01-01T00:00:00+00:00"
-                )
-            ]
-            
-            result_path = log_data_version(version_info, output_path)
-            
-            assert result_path.exists()
-            with open(result_path, "r") as f:
-                data = json.load(f)
-            
-            assert len(data) == 1
-            assert data[0]["source_url"] == "http://example.com/data1"
-
-    def test_log_data_version_appends(self):
-        """Test that log_data_version appends to existing data."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "data_version.json"
-            
-            # Create initial file
-            initial_data = [
-                {
-                    "source_url": "http://example.com/existing",
-                    "checksum_sha256": "def456",
-                    "timestamp": "2023-01-01T00:00:00+00:00"
-                }
-            ]
-            with open(output_path, "w") as f:
-                json.dump(initial_data, f)
-            
-            new_version_info = [
-                DataVersionFile(
-                    source_url="http://example.com/new",
-                    checksum_sha256="ghi789",
-                    timestamp="2023-01-02T00:00:00+00:00"
-                )
-            ]
-            
-            log_data_version(new_version_info, output_path)
-            
-            with open(output_path, "r") as f:
-                data = json.load(f)
-            
-            assert len(data) == 2
-            assert data[1]["source_url"] == "http://example.com/new"
-
-    def test_log_data_version_no_duplicates(self):
-        """Test that log_data_version doesn't add duplicates based on source_url."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "data_version.json"
-            
-            initial_data = [
-                {
-                    "source_url": "http://example.com/existing",
-                    "checksum_sha256": "def456",
-                    "timestamp": "2023-01-01T00:00:00+00:00"
-                }
-            ]
-            with open(output_path, "w") as f:
-                json.dump(initial_data, f)
-            
-            # Try to add the same URL again
-            new_version_info = [
-                DataVersionFile(
-                    source_url="http://example.com/existing",
-                    checksum_sha256="new_checksum",
-                    timestamp="2023-01-02T00:00:00+00:00"
-                )
-            ]
-            
-            log_data_version(new_version_info, output_path)
-            
-            with open(output_path, "r") as f:
-                data = json.load(f)
-            
-            # Should still be 1 entry
-            assert len(data) == 1
-            # Checksum should remain the original one (no overwrite)
-            assert data[0]["checksum_sha256"] == "def456"
+    """Tests for data version logging functionality."""
+    
+    def test_log_data_version_creates_file(self, tmp_path):
+        """Test that log_data_version creates the data_version.json file."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Test content")
+        
+        data_version_path = tmp_path / "data_version.json"
+        
+        log_data_version("http://example.com/test", test_file, data_version_path)
+        
+        assert data_version_path.exists()
+        
+        # Verify file contents
+        with open(data_version_path) as f:
+            data_version = json.load(f)
+        
+        assert "files" in data_version
+        assert len(data_version["files"]) == 1
+        
+        entry = data_version["files"][0]
+        assert entry["source_url"] == "http://example.com/test"
+        assert "checksum_sha256" in entry
+        assert "timestamp" in entry
+    
+    def test_log_data_version_updates_existing(self, tmp_path):
+        """Test that log_data_version updates existing entries."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Test content")
+        
+        data_version_path = tmp_path / "data_version.json"
+        
+        # Log first entry
+        log_data_version("http://example.com/test1", test_file, data_version_path)
+        
+        # Log second entry with different URL
+        log_data_version("http://example.com/test2", test_file, data_version_path)
+        
+        with open(data_version_path) as f:
+            data_version = json.load(f)
+        
+        assert len(data_version["files"]) == 2
+        
+        # Verify both entries exist
+        urls = [entry["source_url"] for entry in data_version["files"]]
+        assert "http://example.com/test1" in urls
+        assert "http://example.com/test2" in urls
+    
+    def test_log_data_version_updates_same_url(self, tmp_path):
+        """Test that log_data_version updates existing entries with same URL."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Test content")
+        
+        data_version_path = tmp_path / "data_version.json"
+        
+        # Log first entry
+        log_data_version("http://example.com/test", test_file, data_version_path)
+        
+        # Log same URL again (should update)
+        log_data_version("http://example.com/test", test_file, data_version_path)
+        
+        with open(data_version_path) as f:
+            data_version = json.load(f)
+        
+        assert len(data_version["files"]) == 1
+        
+        entry = data_version["files"][0]
+        assert entry["source_url"] == "http://example.com/test"
+    
+    def test_log_data_version_timestamp_format(self, tmp_path):
+        """Test that timestamp is in ISO format."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Test content")
+        
+        data_version_path = tmp_path / "data_version.json"
+        
+        log_data_version("http://example.com/test", test_file, data_version_path)
+        
+        with open(data_version_path) as f:
+            data_version = json.load(f)
+        
+        timestamp = data_version["files"][0]["timestamp"]
+        
+        # Should be valid ISO format (no exception raised)
+        from datetime import datetime
+        datetime.fromisoformat(timestamp)
+    
+    def test_log_data_version_checksum_match(self, tmp_path):
+        """Test that logged checksum matches actual file checksum."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Test content for checksum verification"
+        test_file.write_bytes(test_content)
+        
+        data_version_path = tmp_path / "data_version.json"
+        
+        log_data_version("http://example.com/test", test_file, data_version_path)
+        
+        with open(data_version_path) as f:
+            data_version = json.load(f)
+        
+        logged_checksum = data_version["files"][0]["checksum_sha256"]
+        actual_checksum = calculate_sha256(test_file)
+        
+        assert logged_checksum == actual_checksum
