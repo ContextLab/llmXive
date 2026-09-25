@@ -4,7 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T022` (rejected 1x): No code, script, or module implementing the requested log‑likelihood function is present; there is no evidence that a function using the T015‑COV covariance matrix (full or block‑diagonal) and Cholesky decomposition was added. The required artifact is missing, so the task is not satisfied.
+- `T000` (rejected 1x): No `research.md` file was presented in the `specs/PROJ-308-001-quantifying-entanglement/` directory, nor any content from it. The required document is missing, so the task is not satisfied.
+- `T001` (rejected 1x): No directory structure was shown or listed in the provided evidence; the response only contains a feature specification and user stories, with no concrete creation of any folders under `projects/PROJ-308-quantifying-entanglement-entropy-in-rand/`. The required directories are missing, so the task is not satisfied.
 
 ## Required change
 

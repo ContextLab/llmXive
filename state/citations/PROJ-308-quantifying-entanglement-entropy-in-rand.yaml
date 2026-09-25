@@ -1,16 +1,15 @@
-- artifact_hash: 4611b266bb77ef6ee664324309fb73c98dd6466c6a9eab7164f2b21b1261f5eb
+- artifact_hash: b267604108f4d7945adf6bd2d3cdeea2e922b9605e762b66cdbf4e48d6450e8d
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: 'Matrix Product Density Operators: Simulation of Finite-Temperature
-    and Dissipative Systems'
+  fetched_title: null
   kind: doi
-  value: 10.1103/PhysRevLett.93.207204
-  verification_status: pending
-  verified_against_url: https://doi.org/10.1103/physrevlett.93.207204
-  verified_at: '2026-09-20T04:51:01.953681Z'
-- artifact_hash: 2c2af29bcceb6be59f74d8b485eb03f123f1d142b39a9b4fc63fb1cdea788f43
+  value: 10.1038/30364
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1038/30364
+  verified_at: '2026-09-25T15:55:55.001909Z'
+- artifact_hash: e3fee0995b9e85005362ea0ba6c1f9b77d07da1c37ed1d1dca2e5f3370032dfb
   artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -20,4 +19,4 @@
   value: '1304.4292'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-09-20T05:03:53.267215Z'
+  verified_at: '2026-09-25T16:07:24.637401Z'

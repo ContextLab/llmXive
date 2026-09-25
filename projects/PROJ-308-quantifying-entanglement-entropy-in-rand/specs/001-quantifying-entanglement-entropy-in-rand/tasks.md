@@ -48,8 +48,8 @@
 
 - [ ] T000 [P] **Generate Research Document**: Create `research.md` in `specs/PROJ-308-001-quantifying-entanglement/`. Populate with:
  - Scaling ansatz: $S(L) \approx c_{eff} \log L$ (critical) vs Area Law (localized).
- - Citation: Refael-Moore (Phys. Rev. Lett. (2004)). [UNRESOLVED-CLAIM: c_6bcf5aef — status=not_enough_info]
- - Hypothesis: "S(L) $\propto L^\alpha$ with $\alpha$ indicating an area-law in the localized regime and $\alpha$ indicating logarithmic scaling in the critical regime". [UNRESOLVED-CLAIM: c_56ef6c9e — status=not_enough_info]
+ - Citation: Refael-Moore (Phys. Rev. Lett. (2004)).
+ - Hypothesis: "S(L) $\propto L^\alpha$ with $\alpha$ indicating an area-law in the localized regime and $\alpha$ indicating logarithmic scaling in the critical regime".
  - **Verification**: File must exist AND contain sections 'Scaling Ansatz', 'Citations', 'Hypothesis' (verify via `grep`).
 
 ---
@@ -81,9 +81,9 @@
 - [X] T005a [P] **Document AIC Deviation**: Implement `code/analysis.py` documentation header to explicitly state: "Model selection uses AIC per Plan.md and FR-005 (amended), superseding original Spec R² requirement." Log this deviation to `validation_log.txt` at runtime. **Dependency**: T006. Verify via `grep "AIC" code/analysis.py`.
 - [X] T006 [P] **Implement AIC Model Selection**: Implement `code/analysis.py` core: Linear regression of $S(l)$ vs $\log l$ (log-fit) and $S(l)$ vs $l$ (linear-fit); implement AIC-based model selection to distinguish Area Law (Constant), Logarithmic, and Volume Law (Linear). **Note**: Implementation follows Plan's methodological correction (AIC) over Spec's R² requirement. Verify via `test_analysis.py::test_aic_selection_logic` using synthetic data with known slopes.
 - [X] T007 [P] Implement `code/analysis.py` bootstrap module: Non-parametric percentile bootstrap with a sufficient number of resamples to estimate SE and p-value for $\alpha$ (FR-006). Verify via `test_analysis.py::test_bootstrap`.
-- [ ] T008 [P] Implement logic in `code/analysis.py` to filter out 'numerically unresolved' realizations from the dataset before bootstrap/resampling to prevent systematic bias (Plan). Verify via `test_analysis.py::test_filter_unresolved`.
-- [ ] T009 [P] Implement `code/analysis.py` plotting utilities to generate `entropy_vs_l.png` (log-log plot with fit line) (FR-007). Verify via `test_analysis.py::test_plot_generation`.
-- [ ] T010 [P] Implement `code/cli.py` entry point to orchestrate the workflow, handle `delta_grid.csv` input, and manage output artifacts (FR-010). **Include integrated checks for CI width and edge entropy continuity (T037, T048, T049) as flags/warnings, not aborts.** Verify via `test_cli.py::test_cli_run`.
+- [X] T008 [P] Implement logic in `code/analysis.py` to filter out 'numerically unresolved' realizations from the dataset before bootstrap/resampling to prevent systematic bias (Plan). Verify via `test_analysis.py::test_filter_unresolved`.
+- [X] T009 [P] Implement `code/analysis.py` plotting utilities to generate `entropy_vs_l.png` (log-log plot with fit line) (FR-007). Verify via `test_analysis.py::test_plot_generation`.
+- [X] T010 [P] Implement `code/cli.py` entry point to orchestrate the workflow, handle `delta_grid.csv` input, and manage output artifacts (FR-010). **Include integrated checks for CI width and edge entropy continuity (T037, T048, T049) as flags/warnings, not aborts.** Verify via `test_cli.py::test_cli_run`.
 - [ ] T011 [P] **Implement Metadata Logging**: Implement logic to log 'numerically unresolved' realizations (count and reason) to `data/raw/metadata.json` and `state/` to ensure audit trail (Constitution Principle IV). Verify via `test_state.py::test_unresolved_log`.
 - [ ] T012 [P] **Configure State Versioning**: Create `state/projects/PROJ-308-quantifying-entanglement-entropy-in-rand.yaml`. The file MUST contain keys: `artifact_hashes`, `updated_at`, `version`, `stage`. Populate with initial empty hash map. Verify via `cat` and `yaml` parsing.
 
@@ -219,7 +219,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T051 [P] Code cleanup and refactoring of `code/analysis.py` for readability. Verify via `ruff check`.
-- [ ] T052 [P] Performance optimization: Ensure TEBD runs within 6h limit for $L=30, N=100$ on CPU. [UNRESOLVED-CLAIM: c_57b3d9d6 — status=not_enough_info] Verify via `test_workflow_us.py::test_runtime`.
+- [ ] T052 [P] Performance optimization: Ensure TEBD runs within 6h limit for $L=30, N=100$ on CPU. Verify via `test_workflow_us.py::test_runtime`.
 - [ ] T053 [P] Additional unit tests for edge cases (e.g., $\delta=0$, $\delta=1$, $L=40$) in `tests/unit/`. Verify via `pytest`.
 - [ ] T054 [P] Run `quickstart.md` validation to ensure end-to-end reproducibility. Verify via `quickstart.md` execution.
 - [ ] T055 [P] Verify all artifacts (CSVs, PNGs, TXTs) are parsable and match `state/` checksums. Verify via `test_state.py::test_artifacts`.

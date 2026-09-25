@@ -3851,3 +3851,72 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T05:03:52Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Effective central charge for XXZ chain at critical point is 1
+  claim_id: c_bf02f5ac
+  context: where c_eff is the effective central charge. For the XXZ chain at the critical
+    point, c_eff = 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the XXZ chain at the critical point, c_eff = 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:56:23Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Refael and Moore established entanglement entropy scaling coefficient
+    is ln 2 / 3 in Random Singlet Phase
+  claim_id: c_d5561b6d
+  context: 'As established by Refael and Moore, the entanglement entropy scales logarithmically
+    but with a renormalized coefficient: S(L) approx (ln 2)/3 log L + const'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'As established by Refael and Moore, the entanglement entropy scales logarithmically
+    but with a renormalized coefficient: S(L) approx (ln 2)/3 log L + const'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:57:42Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Effective central charge in Random Singlet Phase is ln 2 approximately
+    0.69
+  claim_id: c_0ed17d1e
+  context: This implies an effective central charge c_eff = ln 2 approx 0.69.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This implies an effective central charge c_eff = ln 2 approx 0.69.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T15:59:04Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Slope of entanglement entropy vs log L transitions from 0.33 at delta=0
+    to 0.23 in Random Singlet Phase
+  claim_id: c_92e7c9b3
+  context: Specifically, the slope of S(L) vs log L will transition from c_clean/3
+    approx 0.33 (at delta=0) to (ln 2)/3 approx 0.23 (at finite delta in the RSP),
+    before saturating to zero (Area Law) at high delta.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Specifically, the slope of S(L) vs log L will transition from c_clean/3
+    approx 0.33 (at delta=0) to (ln 2)/3 approx 0.23 (at finite delta in the RSP)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T16:00:47Z'

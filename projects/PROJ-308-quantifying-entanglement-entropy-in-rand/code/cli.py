@@ -1,48 +1,40 @@
 """
-Command Line Interface for the entanglement entropy workflow.
+CLI Entry Point for Entanglement Entropy Pipeline.
 
-Orchestrates the full workflow: parsing arguments, running simulations,
-and generating output artifacts.
+Orchestrates the workflow, handles delta_grid.csv input, and manages
+output artifacts including metadata logging for unresolved realizations.
 """
 import argparse
 import csv
 import os
 import sys
-from pathlib import Path
-from typing import List, Dict, Any, Optional
 import time
+import json
+from pathlib import Path
 
-# Import local modules
-from config import validate_float, validate_int, validate_random_seed, get_default_config
-from hamiltonian import generate_xxz_hamiltonian
-from ground_state import compute_ground_state_batch, is_numerically_unresolved
-from entropy import compute_entanglement_entropy_batch
-from analysis import (
-    compute_scaling_exponent,
-    bootstrap_resample,
-    compute_bootstrap_statistics,
-    generate_entropy_vs_l_plot,
-    filter_unresolved_realizations
-)
-from state_utils import ensure_state_structure, register_artifact, generate_state_report
-from state_manager import log_unresolved_batch, get_unresolved_summary
+from config import validate_config, get_default_config, ConfigError
+from hamiltonian import generate_xxz_hamiltonian, get_coupling_distribution_stats
+from ground_state import compute_ground_state, is_numerically_unresolved, get_ground_state_statistics
+from entropy import compute_entanglement_entropy_batch, get_entropy_statistics
+from analysis import select_model_aic, bootstrap_resample, compute_bootstrap_statistics
+from state_manager import log_unresolved_realization
 
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
-        description="Compute entanglement entropy scaling in random spin chains."
+        description="Quantify entanglement entropy in randomly perturbed quantum spin chains."
     )
     parser.add_argument(
-        "--delta",
-        type=float,
-        default=0.2,
-        help="Disorder strength (default: 0.2)"
+        "--delta-grid",
+        type=str,
+        default="data/raw/delta_grid.csv",
+        help="Path to CSV file containing disorder strengths (default: data/raw/delta_grid.csv)"
     )
     parser.add_argument(
         "--L",
         type=int,
         default=30,
-        help="Chain length (default: 30)"
+        help="System size (default: 30)"
     )
     parser.add_argument(
         "--N-real",
@@ -57,35 +49,41 @@ def parse_args():
         help="Random seed (default: 42)"
     )
     parser.add_argument(
-        "--delta-grid",
-        type=str,
-        default=None,
-        help="Path to CSV file with delta values to scan"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/processed",
-        help="Output directory for results"
+        "--dev-mode",
+        action="store_true",
+        help="Enable development mode (bypasses some validation checks)"
     )
     return parser.parse_args()
 
-def load_delta_grid(grid_path: str) -> List[float]:
+def load_delta_grid(filepath: str) -> list:
     """
-    Load delta values from a CSV file.
+    Load disorder strengths from a CSV file.
 
     Args:
-        grid_path: Path to the CSV file.
+        filepath: Path to the CSV file.
 
     Returns:
-        List of delta values.
+        List of float values for delta.
     """
     deltas = []
-    with open(grid_path, 'r') as f:
+    if not os.path.exists(filepath):
+        # Create a default grid if file doesn't exist for demonstration
+        print(f"Warning: {filepath} not found. Using default grid [0.0, 0.1, 0.2].")
+        return [0.0, 0.1, 0.2]
+
+    with open(filepath, 'r') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            delta = float(row['delta'])
-            deltas.append(delta)
+            # Assume column name is 'delta'
+            if 'delta' in row:
+                deltas.append(float(row['delta']))
+            elif len(row) > 0:
+                # Fallback: first column
+                deltas.append(float(list(row.values())[0]))
+
+    if not deltas:
+        raise ValueError("No delta values found in grid file.")
+
     return deltas
 
 def run_single_delta(
@@ -93,203 +91,199 @@ def run_single_delta(
     L: int,
     N_real: int,
     seed: int,
-    output_dir: Path
-) -> Dict[str, Any]:
+    dev_mode: bool = False
+) -> dict:
     """
-    Run the full workflow for a single delta value.
+    Run the workflow for a single disorder strength.
 
     Args:
         delta: Disorder strength.
-        L: Chain length.
+        L: System size.
         N_real: Number of realizations.
         seed: Random seed.
-        output_dir: Directory to save outputs.
+        dev_mode: If True, bypass certain validation checks.
 
     Returns:
-        Dict with results (alpha, ci, p_value, etc.).
+        Dictionary containing results and metadata.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
+    np = __import__('numpy')
+    np.random.seed(seed)
 
-    # Validate inputs
-    delta = validate_float(delta, "delta", min_val=0.0, max_val=1.0)
-    L = validate_int(L, "L", min_val=20, max_val=40)
-    N_real = validate_int(N_real, "N_real", min_val=50, max_val=200)
-    seed = validate_random_seed(seed)
-
-    print(f"Running for delta={delta}, L={L}, N_real={N_real}, seed={seed}")
-
-    # 1. Generate ground states
-    # Note: In a real implementation, this would call the TEBD solver.
-    # For now, we simulate the process.
-    start_time = time.time()
-    ground_states, unresolved_ids = compute_ground_state_batch(
-        L=L,
-        delta=delta,
-        N_real=N_real,
-        seed=seed
-    )
-    gs_time = time.time() - start_time
-    print(f"Ground state computation took {gs_time:.2f}s")
-
-    # 2. Log unresolved realizations
-    if unresolved_ids:
-        log_unresolved_batch(
-            delta=delta,
-            realization_ids=unresolved_ids,
-            reason="Numerically unresolved ground state"
-        )
-        print(f"Logged {len(unresolved_ids)} unresolved realizations")
-
-    # 3. Compute entanglement entropy
-    # Filter out unresolved realizations
-    valid_indices = [i for i in range(N_real) if i not in unresolved_ids]
-    if not valid_indices:
-        raise ValueError("No valid realizations after filtering unresolved ones.")
-
-    # Compute entropy for valid realizations
-    # Note: This is a placeholder for the actual entropy computation
-    entropy_data = []
-    for idx in valid_indices:
-        # Simulate entropy data for each bipartition
-        # In reality, this would call compute_entanglement_entropy_batch
-        s_vals = [0.1 * l + 0.05 * (l**2) for l in range(1, L)]  # Placeholder
-        entropy_data.append({"realization_id": idx, "entropies": s_vals})
-
-    # 4. Compute scaling exponent
-    # Aggregate entropy data
-    all_entropies = []
-    for item in entropy_data:
-        for l, s in enumerate(item["entropies"], start=1):
-            all_entropies.append({"l": l, "s": s})
-
-    # Compute scaling exponent
-    alpha, r_squared, p_value = compute_scaling_exponent(
-        [e["l"] for e in all_entropies],
-        [e["s"] for e in all_entropies]
-    )
-
-    # 5. Bootstrap analysis
-    # Resample and compute statistics
-    bootstrap_samples = bootstrap_resample(
-        [e["l"] for e in all_entropies],
-        [e["s"] for e in all_entropies],
-        n_resamples=1000
-    )
-    bootstrap_stats = compute_bootstrap_statistics(bootstrap_samples)
-
-    # 6. Generate outputs
-    # a. entropy_data.csv
-    csv_path = output_dir / f"entropy_data_delta_{delta:.2f}.csv"
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(["realization_id", "l", "entropy"])
-        for item in entropy_data:
-            for l, s in enumerate(item["entropies"], start=1):
-                writer.writerow([item["realization_id"], l, s])
-    register_artifact(csv_path, "csv", "Entanglement entropy data")
-
-    # b. scaling_fit.txt
-    fit_path = output_dir / f"scaling_fit_delta_{delta:.2f}.txt"
-    with open(fit_path, 'w') as f:
-        f.write(f"Delta: {delta}\n")
-        f.write(f"Chain length (L): {L}\n")
-        f.write(f"Number of realizations: {len(valid_indices)}\n")
-        f.write(f"Scaling exponent (alpha): {alpha:.4f}\n")
-        f.write(f"R-squared: {r_squared:.4f}\n")
-        f.write(f"P-value: {p_value:.4f}\n")
-        f.write(f"95% CI: [{bootstrap_stats['ci_lower']:.4f}, {bootstrap_stats['ci_upper']:.4f}]\n")
-        f.write(f"Statistically significant: {'Yes' if p_value <= 0.05 else 'No'}\n")
-    register_artifact(fit_path, "txt", "Scaling fit results")
-
-    # c. bootstrap_summary.txt
-    boot_path = output_dir / f"bootstrap_summary_delta_{delta:.2f}.txt"
-    with open(boot_path, 'w') as f:
-        f.write(f"Bootstrap Analysis Summary\n")
-        f.write(f"==========================\n")
-        f.write(f"Number of resamples: {bootstrap_stats['n_resamples']}\n")
-        f.write(f"Standard error: {bootstrap_stats['se']:.4f}\n")
-        f.write(f"95% CI: [{bootstrap_stats['ci_lower']:.4f}, {bootstrap_stats['ci_upper']:.4f}]\n")
-        f.write(f"P-value: {bootstrap_stats['p_value']:.4f}\n")
-    register_artifact(boot_path, "txt", "Bootstrap summary")
-
-    # d. entropy_vs_l.png
-    plot_path = output_dir / f"entropy_vs_l_delta_{delta:.2f}.png"
-    generate_entropy_vs_l_plot(
-        [e["l"] for e in all_entropies],
-        [e["s"] for e in all_entropies],
-        alpha,
-        plot_path
-    )
-    register_artifact(plot_path, "png", "Entropy vs. length plot")
-
-    # 7. Generate state report
-    report_path = output_dir / "state_report.txt"
-    generate_state_report(report_path)
-
-    return {
+    results = {
         "delta": delta,
-        "alpha": alpha,
-        "ci_lower": bootstrap_stats["ci_lower"],
-        "ci_upper": bootstrap_stats["ci_upper"],
-        "ci_width": bootstrap_stats["ci_upper"] - bootstrap_stats["ci_lower"],
-        "p_value": p_value,
-        "n_realizations": len(valid_indices),
-        "n_unresolved": len(unresolved_ids)
+        "L": L,
+        "N_real": N_real,
+        "entropy_data": [],
+        "unresolved_count": 0,
+        "unresolved_reasons": [],
+        "scaling_result": None
     }
+
+    # Generate couplings for each realization
+    for i in range(N_real):
+        # Generate random couplings J_i ~ U[-delta, 1+delta]
+        couplings = np.random.uniform(-delta, 1 + delta, size=L - 1)
+
+        # Compute ground state
+        try:
+            mps, gs_metadata = compute_ground_state(L, couplings)
+
+            if is_numerically_unresolved(gs_metadata):
+                results["unresolved_count"] += 1
+                reason = gs_metadata.get("reason", "Convergence failure")
+                results["unresolved_reasons"].append(reason)
+
+                # Log to metadata
+                log_unresolved_realization(
+                    realization_id=i,
+                    delta=delta,
+                    L=L,
+                    reason=reason
+                )
+                continue
+
+            # Compute entanglement entropy for all bipartitions
+            entropies = compute_entanglement_entropy_batch(mps, L)
+            results["entropy_data"].append({
+                "realization_id": i,
+                "entropies": entropies.tolist()
+            })
+
+        except Exception as e:
+            # Log unresolved realization
+            reason = str(e)
+            results["unresolved_count"] += 1
+            results["unresolved_reasons"].append(reason)
+            log_unresolved_realization(
+                realization_id=i,
+                delta=delta,
+                L=L,
+                reason=reason
+            )
+            continue
+
+    # Perform model selection and bootstrap if we have enough data
+    if len(results["entropy_data"]) > 0:
+        # Aggregate entropies
+        all_entropies = np.array([d["entropies"] for d in results["entropy_data"]])
+        mean_entropies = np.mean(all_entropies, axis=0)
+        positions = np.arange(1, L)
+
+        # Model selection
+        try:
+            model_result = select_model_aic(positions, mean_entropies)
+            results["scaling_result"] = {
+                "model": model_result.model,
+                "alpha": model_result.alpha,
+                "aic": model_result.aic,
+                "r_squared": model_result.r_squared
+            }
+
+            # Bootstrap
+            bootstrap_data = bootstrap_resample(all_entropies, n_resamples=100)
+            bootstrap_stats = compute_bootstrap_statistics(bootstrap_data)
+            results["bootstrap_stats"] = bootstrap_stats
+
+        except Exception as e:
+            results["model_selection_error"] = str(e)
+
+    return results
 
 def main():
     """Main entry point for the CLI."""
     args = parse_args()
-    output_dir = Path(args.output_dir)
-    ensure_state_structure()
 
-    if args.delta_grid:
-        # Grid scan mode
+    # Validate configuration
+    try:
+        config = get_default_config()
+        config["L"] = args.L
+        config["N_real"] = args.N_real
+        config["dev_mode"] = args.dev_mode
+        validate_config(config)
+    except ConfigError as e:
+        print(f"Configuration error: {e}")
+        sys.exit(1)
+
+    # Load delta grid
+    try:
         deltas = load_delta_grid(args.delta_grid)
-        results = []
-        for delta in deltas:
-            result = run_single_delta(
-                delta=delta,
-                L=args.L,
-                N_real=args.N_real,
-                seed=args.seed,
-                output_dir=output_dir
-            )
-            results.append(result)
+    except Exception as e:
+        print(f"Error loading delta grid: {e}")
+        sys.exit(1)
 
-        # Write grid results
-        grid_path = output_dir / "delta_vs_exponent.csv"
-        with open(grid_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(["delta", "alpha", "ci_lower", "ci_upper", "ci_width", "p_value"])
-            for r in results:
-                writer.writerow([
-                    r["delta"],
-                    r["alpha"],
-                    r["ci_lower"],
-                    r["ci_upper"],
-                    r["ci_width"],
-                    r["p_value"]
-                ])
-        register_artifact(grid_path, "csv", "Grid scan results")
+    print(f"Starting workflow for {len(deltas)} disorder strengths...")
+    print(f"System size L={args.L}, Realizations N={args.N_real}")
 
-    else:
-        # Single delta mode
+    start_time = time.time()
+
+    all_results = []
+    for delta in deltas:
+        print(f"Processing delta={delta}...")
         result = run_single_delta(
-            delta=args.delta,
+            delta=delta,
             L=args.L,
             N_real=args.N_real,
-            seed=args.seed,
-            output_dir=output_dir
+            seed=args.seed + int(delta * 1000),
+            dev_mode=args.dev_mode
         )
-        print(f"Completed for delta={args.delta}")
-        print(f"Alpha: {result['alpha']:.4f}")
-        print(f"95% CI: [{result['ci_lower']:.4f}, {result['ci_upper']:.4f}]")
+        all_results.append(result)
 
-    # Final state report
-    final_report = generate_state_report()
-    print("\nState Report:")
-    print(final_report)
+        # Check timeout (6 hours = 21600 seconds)
+        elapsed = time.time() - start_time
+        if elapsed > 21600:
+            print("WARNING: Wall-clock timeout (6h) approaching. Stopping run.")
+            break
+
+    # Save outputs
+    output_dir = Path("data/processed")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save entropy data
+    entropy_file = output_dir / "entropy_data.csv"
+    with open(entropy_file, 'w') as f:
+        # Simplified CSV output
+        f.write("delta,realization_id,position,entropy\n")
+        for res in all_results:
+            for entry in res.get("entropy_data", []):
+                for pos, ent in enumerate(entry["entropies"]):
+                    f.write(f"{res['delta']},{entry['realization_id']},{pos+1},{ent}\n")
+
+    # Save scaling fit results
+    fit_file = output_dir / "scaling_fit.txt"
+    with open(fit_file, 'w') as f:
+        f.write("Scaling Fit Results\n")
+        f.write("=" * 40 + "\n")
+        for res in all_results:
+            f.write(f"Delta: {res['delta']}\n")
+            if res.get("scaling_result"):
+                sr = res["scaling_result"]
+                f.write(f"  Model: {sr['model']}\n")
+                f.write(f"  Alpha: {sr['alpha']:.4f}\n")
+                f.write(f"  AIC: {sr['aic']:.4f}\n")
+                f.write(f"  R^2: {sr['r_squared']:.4f}\n")
+            else:
+                f.write("  No scaling result (insufficient data or error)\n")
+            f.write(f"  Unresolved: {res['unresolved_count']}/{res['N_real']}\n")
+            f.write("-" * 40 + "\n")
+
+    # Save bootstrap summary
+    boot_file = output_dir / "bootstrap_summary.txt"
+    with open(boot_file, 'w') as f:
+        f.write("Bootstrap Summary\n")
+        f.write("=" * 40 + "\n")
+        for res in all_results:
+            f.write(f"Delta: {res['delta']}\n")
+            if res.get("bootstrap_stats"):
+                bs = res["bootstrap_stats"]
+                f.write(f"  Resamples: {bs.get('n_resamples', 0)}\n")
+                f.write(f"  SE: {bs.get('se', 0.0):.4f}\n")
+                f.write(f"  P-value: {bs.get('p_value', 0.0):.4f}\n")
+            else:
+                f.write("  No bootstrap stats available\n")
+            f.write("-" * 40 + "\n")
+
+    print(f"Workflow completed in {time.time() - start_time:.2f} seconds.")
+    print(f"Outputs saved to {output_dir}")
 
 if __name__ == "__main__":
     main()

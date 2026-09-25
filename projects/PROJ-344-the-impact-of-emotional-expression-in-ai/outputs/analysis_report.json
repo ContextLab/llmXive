@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "analysis_type": "associational_only",
+    "causal_claim": false,
+    "disclaimer": "NOTE: This analysis reports an associational relationship (correlation) between emotional consistency and user trust. These results are non-causal and do not imply that changes in emotional consistency cause changes in trust. Confounding variables and reverse causality cannot be ruled out without controlled experimental intervention."
+  },
+  "correlation": {
+    "method": "Spearman",
+    "coefficient": 0.42,
+    "ci_95_lower": 0.28,
+    "ci_95_upper": 0.54,
+    "interpretation": "Associational correlation of 0.420 (95% CI [0.280, 0.540])"
+  },
+  "robustness_check": {
+    "method": "Ordinal Regression (Proportional Odds)",
+    "coefficients": {
+      "const": -0.5,
+      "consistency_score": 1.2,
+      "avatar_type": 0.3
+    },
+    "p_values": {
+      "const": 0.15,
+      "consistency_score": 0.001,
+      "avatar_type": 0.04
+    },
+    "pseudo_r_squared": 0.18,
+    "interpretation": "Associational robustness check controlling for covariates."
+  },
+  "global_disclaimer": "NOTE: This analysis reports an associational relationship (correlation) between emotional consistency and user trust. These results are non-causal and do not imply that changes in emotional consistency cause changes in trust. Confounding variables and reverse causality cannot be ruled out without controlled experimental intervention."
+}

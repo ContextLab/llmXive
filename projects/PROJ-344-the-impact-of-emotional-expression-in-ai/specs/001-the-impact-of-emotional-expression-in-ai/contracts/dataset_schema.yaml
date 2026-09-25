@@ -1,76 +1,92 @@
 # Dataset Schema for Emotional Synchrony Trust Study
-# Defines the expected structure for interaction data used in US1 analysis
+# This schema defines the structure for the interaction dataset used in US1.
+# It enforces FR-001 requirements for metadata presence and modality consistency.
+
 type: object
-required:
-  - interaction_id
-  - trust_score
-  - facial_features
-  - vocal_features
-  - consistency_score
+title: "EmotionalSynchronyInteractionDataset"
+description: "Schema for dataset containing facial, vocal, and trust metrics per interaction."
+
 properties:
   interaction_id:
     type: string
-    description: Unique identifier for the interaction session
+    description: "Unique identifier for the interaction session."
     required: true
+    pattern: "^[a-zA-Z0-9_-]+$"
+
+  participant_id:
+    type: string
+    description: "Anonymized participant identifier."
+    required: true
+
+  avatar_type:
+    type: string
+    description: "Type of AI avatar used (e.g., 'neutral', 'expressive')."
+    required: true
+    enum:
+      - neutral
+      - expressive
+      - mixed
+
+  duration_seconds:
+    type: number
+    description: "Duration of the interaction in seconds."
+    required: true
+    minimum: 0.0
+
+  difficulty_level:
+    type: integer
+    description: "Task difficulty level (1-5)."
+    required: true
+    minimum: 1
+    maximum: 5
+
   trust_score:
     type: number
-    description: User trust rating (scale 1-5)
+    description: "User trust score (1.0 to 5.0 Likert scale)."
     required: true
     minimum: 1.0
     maximum: 5.0
-  facial_features:
-    type: object
-    description: Extracted facial action units and expressions
-    required: true
-    properties:
-      au1:
-        type: number
-      au2:
-        type: number
-      au4:
-        type: number
-      au6:
-        type: number
-      au12:
-        type: number
-      au25:
-        type: number
-      valence:
-        type: number
-      arousal:
-        type: number
-  vocal_features:
-    type: object
-    description: Extracted vocal prosody features
-    required: true
-    properties:
-      mean_pitch:
-        type: number
-      pitch_std:
-        type: number
-      mean_energy:
-        type: number
-      energy_std:
-        type: number
-      speech_rate:
-        type: number
-      pause_ratio:
-        type: number
-  consistency_score:
+
+  facial_consistency_score:
     type: number
-    description: Normalized intra-modal consistency metric (max abs cross-correlation)
-    required: true
+    description: "Intra-modal consistency score for facial features."
+    required: false
     minimum: 0.0
     maximum: 1.0
+
+  vocal_consistency_score:
+    type: number
+    description: "Intra-modal consistency score for vocal features."
+    required: false
+    minimum: 0.0
+    maximum: 1.0
+
+  combined_consistency_score:
+    type: number
+    description: "Combined consistency metric."
+    required: false
+    minimum: 0.0
+    maximum: 1.0
+
   metadata:
     type: object
-    description: Optional metadata about the interaction
+    description: "Additional metadata about the session."
     required: false
     properties:
-      avatar_type:
+      timestamp:
         type: string
-      duration_seconds:
-        type: number
-      difficulty_level:
-        type: integer
+        format: date-time
+      device_id:
+        type: string
+      environment:
+        type: string
+
+required:
+  - interaction_id
+  - participant_id
+  - avatar_type
+  - duration_seconds
+  - difficulty_level
+  - trust_score
+
 additionalProperties: false

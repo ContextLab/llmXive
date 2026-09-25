@@ -98,7 +98,7 @@ def download_raw_csv(timeout: int = TIMEOUT_SECONDS) -> Optional[str]:
             
             df = pd.DataFrame(rows)
             logger.info(f"Dataset loaded successfully in {time.time() - start_time:.2f} seconds.")
-            logger.info(f"Dataset shape: {df.shape}")
+            logger.info(f"Dataset Shape: {df.shape}")
             logger.info(f"Columns: {list(df.columns)}")
 
             # Ensure output directory exists

@@ -4,22 +4,6 @@ T012:
   r: "The repository contains the `fetch_assistments.py` script, but the required\
     \ output file `data/raw/assistments.csv` (and its checksum file) are absent. Without\
     \ these deliverables, the task\u2019s primary requirement is not satisfied."
-T012a:
-  c: false
-  h: 690c79a7e49377d0c3e3e6ac6c0dec9386a07d4cad2f9193d324976cb7e8ee53
-  r: "The `validate_unified_schema.py` file is present but ends abruptly (truncated\
-    \ code) and lacks a complete implementation (e.g., main entry point, full row\
-    \ validation, exit handling). Moreover, the required data files `data/raw/unified_problems.csv`\
-    \ and `contracts/problem.schema.yaml` are missing, so the script cannot be executed\
-    \ to verify the schema as specified. The task\u2019s deliverable is therefore\
-    \ not satisfied."
-T012c:
-  c: false
-  h: aba2c8ee433db8256e542dc61427840b30ab2ca29342f501ce3c3e6eb554e1f4
-  r: "The required output file `data/raw/khan_academy.csv` (and its checksum) is missing,\
-    \ so the deliverable is not present. Additionally, the provided script is truncated\
-    \ and does not show the logic that exits with code\u202F1 and logs the exact required\
-    \ error message on timeout. The task therefore remains unfinished."
 T012e:
   c: false
   h: aaf787721d3cbf6e54dc0d1ae9ec73b85d7a823c36e040662d56b3255a0fb635
@@ -43,6 +27,20 @@ T023:
     so the deliverable does not exist or is incomplete. The next implementer must
     ensure the script fully implements the validation and creates the JSON file with
     the pass/fail flag.
+T030a:
+  c: false
+  h: dc21f30db4ae3f8fb4d8b6e38bc6c41b70ea61aec5dd0baa0e07a3209bc38004
+  r: "The `synthetic_pilot_generator.py` script is present and appears to implement\
+    \ deterministic data generation, but the required output file `data/pilot/real_pilot_data.csv`\
+    \ does not exist in the repository. The task\u2019s deliverable is missing, so\
+    \ the requirement is not satisfied."
+T030c:
+  c: false
+  h: df1fc399aa772e323ad57e9f6cd064f8a88765838e8cfa8f1ddda9910f31e94c
+  r: "The required `data/pilot/real_pilot_data.csv` file is absent, so the deliverable\
+    \ \u201Cvalidated CSV with checksum\u201D is not present. Consequently the script\
+    \ cannot be demonstrated to produce the specified error message or checksum, and\
+    \ the task\u2019s core requirement is unmet."
 T031:
   c: false
   h: b702f62a5049517ffcd410e3554d380dbe0fece769946881a5ee5996d0c69b16
