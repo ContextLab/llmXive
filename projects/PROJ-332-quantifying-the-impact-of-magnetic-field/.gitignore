@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -19,64 +23,75 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Virtual Environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
-.venv
+env.bak/
+venv.bak/
 
-# IDEs and Editors
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Cython debug symbols
+cython_debug/
+
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-.project
-.pydevproject
-.settings/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# OS generated files
+# OS
 .DS_Store
-.DS_Store?
-_Thumbs.db
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
-# Data Artifacts (Raw and Processed)
+# Project specific data artifacts (large files)
 data/raw/*.csv
+data/raw/*.parquet
 data/raw/*.nc
-data/raw/*.h5
+data/intermediate/*.csv
+data/intermediate/*.parquet
 data/processed/*.csv
+data/processed/*.parquet
 data/processed/*.nc
-data/processed/*.h5
-data/processed/*.json
-data/processed/*.pkl
-
-# Output Artifacts
-outputs/*.json
 outputs/*.png
 outputs/*.pdf
+outputs/*.json
 outputs/*.csv
+outputs/*.log
+contracts/*.yaml
+contracts/*.json
 
-# Logs and Temporary Files
+# Logs
 *.log
-.cache/
-.pytest_cache/
-.coverage
-htmlcov/
-.mypy_cache/
-
-# MDSplus specific (if local cache used)
-.mdsplus/
-
-# Secrets and Configs (if not in repo)
-.env
-*.key
-*.pem

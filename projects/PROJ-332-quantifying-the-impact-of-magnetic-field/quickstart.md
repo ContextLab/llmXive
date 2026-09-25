@@ -1,99 +1,79 @@
-# Quickstart Guide: Quantifying the Impact of Magnetic Field Topology on Plasma Confinement
-
-This guide provides instructions for setting up the environment and running the analysis pipeline.
-
-## Prerequisites
-
-- Python 3.9 or higher
-- pip (Python package installer)
-- Access to the public MDSplus archive for DIII-D data
+# Quickstart Guide
 
 ## Environment Setup
 
-1. **Clone the repository** (if not already done):
+1. Clone the repository:
  ```bash
  git clone <repository-url>
- cd <project-directory>
+ cd PROJ-332-quantifying-the-impact-of-magnetic-field
  ```
 
-2. **Create a virtual environment** (recommended):
+2. Create and activate a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
- ```
- *Note: This project does NOT require the `mdsplus` Python library as a direct dependency for the pipeline logic, as data retrieval is handled via specific client logic defined in `code/data/retrieval.py`.*
-
-4. **Verify installation**:
- Ensure `numpy`, `pandas`, `scipy`, `matplotlib`, and `pytest` are installed:
- ```bash
- python -c "import numpy; import pandas; import scipy; import matplotlib; print('Dependencies OK')"
  ```
 
 ## Execution Commands
 
-The main entry point for the analysis pipeline is `code/main.py`.
+### Run the Full Pipeline
 
-### Running the Full Pipeline
+The main entry point is `code/main.py`. It accepts a list of DIII-D discharge IDs:
 
-To run the analysis on a specific set of DIII-D discharges:
-
-```bash
-python code/main.py --discharges 123456,123457,123458,123459,123460
-```
-
-**Arguments**:
-- `--discharges` (required): Comma-separated list of DIII-D discharge IDs (e.g., `123456,123457`).
-- `--output-dir` (optional): Path to the output directory (default: `outputs/`).
-- `--verbose` (optional): Enable verbose logging.
-
-**Example**:
 ```bash
 python code/main.py --discharges 123456,123457,123458
 ```
 
-### Expected Outputs
+Or set the environment variable:
+```bash
+export DIII_D_DISCHARGES="123456,123457,123458"
+python code/main.py
+```
 
-Upon successful completion, the pipeline generates the following artifacts:
+### Run Specific Tasks
 
-- **`data/processed/unified_analysis.csv`**: The unified dataset containing all parsed discharge data.
-- **`data/processed/metrics.csv`**: Calculated topological metrics (island width, resonant surface density).
-- **`outputs/summary_report.json`**: Final statistical analysis report including correlation coefficients, p-values, and hypothesis status.
-- **`outputs/topology_vs_confinement.png`**: Diagnostic scatter plot visualizing the relationship between island width and energy confinement time.
-- **`outputs/checksum.txt`**: Checksum for the unified dataset to ensure data integrity.
+- **Data Retrieval**:
+ ```bash
+ python code/data/retrieval.py
+ ```
 
-### Running Tests
+- **Metrics Calculation**:
+ ```bash
+ python code/analysis/run_metrics.py
+ ```
 
-To run the test suite:
+- **Correlation Analysis**:
+ ```bash
+ python code/analysis/correlation.py
+ ```
+
+### Run Tests
 
 ```bash
 pytest tests/ -v
 ```
 
-To run a specific test file:
+### Check Directory Structure
 
+Run the setup script to ensure all directories exist:
 ```bash
-pytest tests/unit/test_metrics.py -v
+python code/setup_project.py
 ```
 
-## Configuration
+## Output Artifacts
 
-Key configuration parameters are defined in `code/config.py`:
+After running the pipeline, check the following outputs:
 
-- `PER_OPERATION_TIMEOUT`: Timeout threshold for individual operations (default: 300 seconds).
-- `MULTICOLLINEARITY_THRESHOLD`: Threshold for detecting multicollinearity (default: 0.95).
-- `MIN_DISCHARGES`: Minimum number of valid discharges required to proceed (default: 5).
+- `data/processed/unified_analysis.csv`: Unified dataset
+- `outputs/summary_report.json`: Final statistical report
+- `outputs/topology_vs_confinement.png`: Diagnostic scatter plot
 
 ## Troubleshooting
 
-- **MDSplus Connection Failures**: If the pipeline fails to connect to the MDSplus archive, check your network connection and ensure the public archive is accessible. The pipeline includes retry logic but will fail loudly if data cannot be retrieved.
-- **Insufficient Data**: If fewer than 5 valid discharges are found after filtering, the pipeline will terminate with an error.
-- **Memory Issues**: The pipeline monitors memory usage. If it exceeds the 7 GB limit, it will abort.
-
-## Data Provenance
-
-All data is retrieved directly from the public DIII-D MDSplus archive. No synthetic or placeholder data is used. If real data cannot be retrieved, the pipeline fails to ensure scientific integrity.
+- If MDSplus connection fails, check network connectivity and ensure the DIII-D archive is accessible.
+- If the pipeline fails due to insufficient discharges, ensure at least 5 valid discharges are provided.

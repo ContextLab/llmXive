@@ -1,3 +1,20 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other evidence was provided showing that the required
+    folders (`code/`, `data/raw/`, `data/intermediate/`, `data/processed/`, `outputs/`,
+    `tests/`, `contracts/`, `.github/workflows/`) actually exist in the repository.
+    Without concrete proof of these directories, the task cannot be considered completed.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no `.gitignore` file in the provided evidence, nor any excerpt\
+    \ or listing showing its contents. Without the actual file (or a non\u2011empty\
+    \ representation of it) the requirement to create a Python\u2011 and data\u2011\
+    artifact\u2011aware `.gitignore` is not satisfied. The next implementer should\
+    \ add a `.gitignore` file containing appropriate entries (e.g., `__pycache__/`,\
+    \ `*.pyc`, `*.pyo`, `*.pyd`, `env/`, `venv/`, `*.ipynb_checkpoints`, `data/`,\
+    \ `*.csv`, `*.h5`, etc.)."
 T003b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,15 +51,6 @@ T016:
     \ that writes the unified dataset or creates the SHA\u2011256 checksum file. Consequently\
     \ the task\u2019s core requirement (saving the dataset with exact columns and\
     \ generating a checksum) is not satisfied."
-T018c:
-  c: false
-  h: 44e9cfc127c1072cf55ba2dea2b31f5e2961ff8edc238d2923a512db52e6b892
-  r: "The provided `metrics.py` only contains helper functions and a partially\u2011\
-    shown `calculate_resonant_surface_density`; it lacks any Rutherford\u2011equation\
-    \ based island\u2011width derivation, conditional execution based on the `needs_derivation`\
-    \ flag, use of `Bt_field`, and code to write the results to `data/processed/metrics.csv`.\
-    \ Moreover, the required `metrics.csv` file does not exist. The task\u2019s core\
-    \ outputs are missing."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
