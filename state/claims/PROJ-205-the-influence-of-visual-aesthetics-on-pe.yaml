@@ -935,3 +935,464 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T14:18:54Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: N=250 participants with normal distribution mean=4 std=1.5
+  claim_id: c_c36f5d03
+  context: 'T043a_impl [P] Implement Mock Data Generation Logic. Action: Implement
+    the data generation logic in code/utils/generate_mock_data.py to generate a synthetic
+    data/raw/submissions.csv with N=250 participants, normal distribution (mean=4,
+    std=1.5) for ratings, and all required fields.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a synthetic data/raw/submissions.csv with N=250 participants,
+    normal distribution (mean=4, std=1.5) for ratings, and all required fields.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:13:43Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Full analysis pipeline completes within 30 minutes on CPU-only runner
+  claim_id: c_7cc26b17
+  context: 'T043b [P] Verify runtime benchmark: Create tests/benchmark/test_runtime.py
+    that asserts the full analysis pipeline completes within 30 minutes on a CPU-only
+    runner using the mock data from T043a.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full analysis pipeline completes within 30 minutes on a CPU-only runner
+    using the mock data from T043a.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:14:05Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: submissions.csv size less than 5MB for N=250
+  claim_id: c_0bc5515f
+  context: 'T043c [P] Verify File Size. Action: Add assertion in tests/benchmark/test_runtime.py
+    that data/raw/submissions.csv size < 5MB for N=250.'
+  evidence:
+    candidates:
+    - - ''
+      - 250.0
+    - - ''
+      - 5.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Submissions.csv_size_less_than_5MB_for_N%3D250
+  kind: magnitude
+  raw_text: data/raw/submissions.csv size < 5MB for N=250.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-25T18:14:23Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Study examines psychological mechanisms of online information perception
+  claim_id: c_b013dfff
+  context: The rapid evolution of digital communication has fundamentally altered
+    how individuals perceive and process information. In an era where attention spans
+    are shrinking, the visual presentation of online content plays a critical role
+    in establishing initial trust and credibility. This study examines the psychological
+    mechanisms underlying these perceptions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_examines_psychological_mechanisms_of_online_informatio
+  kind: entity_fact
+  raw_text: This study examines the psychological mechanisms underlying these perceptions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:17:55Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Professional stimulus uses serif fonts and navy/white/gray palette
+  claim_id: c_a338696f
+  context: 'Create `code/stimuli/professional.html`. **Design**: High-fidelity CSS,
+    serif fonts (Georgia/Times New Roman), balanced layout, professional color palette
+    (navy #003366, white #FFFFFF, gray #F0F0F0), clean typography, no clutter.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The design of the professional HTML stimulus uses serif fonts (Georgia/Times
+    New Roman), balanced layout, and a professional color palette (navy #003366, white
+    #FFFFFF, gray #F0F0F0).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:18:19Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Minimalist stimulus uses sans-serif fonts and high contrast black/white
+  claim_id: c_a1f437af
+  context: 'Create `code/stimuli/minimalist.html`. **Design**: Low-fidelity CSS, sans-serif
+    fonts (Arial/Helvetica), sparse layout, high contrast black (#000000) / white
+    (#FFFFFF), minimal decoration, simple structure, no images.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The design of the minimalist HTML stimulus uses sans-serif fonts (Arial/Helvetica),
+    sparse layout, and high contrast black (#000000) / white (#FFFFFF).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:18:43Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Low quality stimulus uses mismatched fonts and jarring neon green/red
+    colors
+  claim_id: c_5362036d
+  context: 'Create `code/stimuli/low_quality.html`. **Design**: Broken CSS, mismatched
+    fonts (Comic Sans MS / Times New Roman mix), cluttered layout, jarring colors
+    (neon green #39FF14, red #FF0000), broken alignment, visual noise, overlapping
+    elements.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Low_quality_stimulus_uses_mismatched_fonts_and_jarring_neon
+  kind: entity_fact
+  raw_text: 'The design of the low quality HTML stimulus uses mismatched fonts (Comic
+    Sans MS / Times New Roman mix), cluttered layout, and jarring colors (neon green
+    #39FF14, red #FF0000).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:19:25Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: IP hashing function uses SHA-256 algorithm
+  claim_id: c_4d6f65e7
+  context: Implement `hash_ip(ip_address, salt="project_salt_2024")` using **SHA-256**
+    (not MD5) to ensure security and prevent reverse lookup.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The IP hashing function `hash_ip` uses the SHA-256 algorithm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:19:47Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Mock data generation configured for 250 participants
+  claim_id: c_0dbfb2ce
+  context: Implement the data generation logic in `code/utils/generate_mock_data.py`
+    to generate a synthetic `data/raw/submissions.csv` with N=250 participants, normal
+    distribution (mean=4, std=1.5) for ratings, and all required fields.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock data generation script is configured to generate data for N=250
+    participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:20:50Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Mock data ratings follow normal distribution mean 4 std 1.5
+  claim_id: c_f0d2f196
+  context: Implement the data generation logic in `code/utils/generate_mock_data.py`
+    to generate a synthetic `data/raw/submissions.csv` with N=250 participants, normal
+    distribution (mean=4, std=1.5) for ratings, and all required fields.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mock data generation uses a normal distribution with a mean of 4 and
+    a standard deviation of 1.5 for ratings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:21:22Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Latin Square matrix has 4 permutations for 4 conditions
+  claim_id: c_f65741c3
+  context: 'Implement Latin Square sequences as a hardcoded constant list in `code/survey/constants.py`.
+    **Content**: Define a list of lists `LATIN_SQUARE_MATRIX` with the following permutations
+    (Professional, Minimalist, Low-Quality, Neutral): 1. `[''Professional'', ''Minimalist'',
+    ''Low-Quality'', ''Neutral'']` 2. `[''Minimalist'', ''Low-Quality'', ''Neutral'',
+    ''Professional'']` 3. `[''Low-Quality'', ''Neutral'', ''Professional'', ''Minimalist'']`
+    4. `[''Neutral'', ''Professional'', ''Minimalist'', ''Low-Quality'']`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Latin Square matrix for stimulus presentation consists of 4 specific
+    permutations of Professional, Minimalist, Low-Quality, and Neutral conditions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:21:45Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Latin Square selection uses hash participant ID modulo 4
+  claim_id: c_60770758
+  context: 'In `code/survey/app.py`, implement a function `get_stimulus_order(participant_id:
+    str) -> list` that uses `hash(participant_id) % 4` to select a row index from
+    `LATIN_SQUARE_MATRIX`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Latin Square selection logic uses `hash(participant_id) % 4` to select
+    a row index.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:22:11Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Submission requires 4 stimuli rated for 8 total ratings
+  claim_id: c_ea7f4f5b
+  context: 'Implement validation logic to block submission if < 4 stimuli rated (8
+    total ratings). **Action**: In the submit handler of `app.py`, check if all 4
+    stimuli have been rated (8 total ratings: 4 stimuli * 2 scales).'
+  evidence:
+    entailment_evidence: Submission requires 4 stimuli rated for 8 total ratings
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Submission_requires_4_stimuli_rated_for_8_total_ratings
+  kind: magnitude
+  raw_text: The submission validation logic blocks submission if fewer than 4 stimuli
+    are rated, requiring a total of 8 ratings (4 stimuli * 2 scales).
+  resolved_value: Submission requires 4 stimuli rated for 8 total ratings
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T18:22:13Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Preprocessing script uses chunked reading for large datasets
+  claim_id: c_4784672d
+  context: 'Create preprocess script `code/analysis/00_preprocess.py`. **Action**:
+    Load `data/raw/submissions.csv` using **chunked reading** (streaming) to handle
+    large datasets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_script_uses_chunked_reading_for_large_datasets
+  kind: entity_fact
+  raw_text: The preprocessing script uses chunked reading to handle large datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:22:44Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Power analysis targets 0.8 power and 0.05 alpha
+  claim_id: c_347da8f6
+  context: 'Calculate minimum detectable effect size for N=250 using real or mock
+    data. **Action**: Use `statsmodels.stats.power` to calculate power. **Parameters**:
+    Target power=0.8, alpha=0.05, effect size metric= Cohen''s f.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis targets a power of 0.8 and an alpha of 0.05.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T18:22:56Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction multiplies p-value by number of comparisons
+  claim_id: c_e4795696
+  context: 'Run pairwise t-tests between conditions using `scipy.stats.ttest_rel`.
+    **Correction**: Apply Bonferroni correction manually (`p_value * number_of_comparisons`).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_multiplies_p-value_by_number_of_compar
+  kind: entity_fact
+  raw_text: The Bonferroni correction is applied manually by multiplying the p-value
+    by the number of comparisons.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:23:32Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Cohen's d calculated via pingouin or manual formula
+  claim_id: c_2009cc8d
+  context: '**Effect Size**: Calculate Cohen''s d using `pingouin.compute_effsize`
+    (requires `pingouin` from T002) or manual formula `(mean1 - mean2) / pooled_std`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_d_calculated_via_pingouin_or_manual_formula
+  kind: entity_fact
+  raw_text: Cohen's d is calculated using `pingouin.compute_effsize` or the manual
+    formula `(mean1 - mean2) / pooled_std`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:25:48Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Bootstrapping uses 1000 iterations seed 42
+  claim_id: c_4a718048
+  context: 'Address reviewer concern about the lack of confidence intervals for effect
+    sizes. **Action**: Update `code/analysis/02_pairwise.py` to calculate and report
+    confidence intervals for Cohen''s d using bootstrapping (1000 iterations, **seed=42**).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapping for confidence intervals uses 1000 iterations with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:26:09Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Mixed effects model formula includes condition age education and participant
+    random effect
+  claim_id: c_64c879c1
+  context: 'Implement mixed effects model logic. **Action**: Use `statsmodels` `MixedLM`.
+    **Formula**: `Credibility ~ Condition + Age + Education + (|Participant)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mixed_effects_model_formula_includes_condition_age_education
+  kind: entity_fact
+  raw_text: The mixed-effects model formula is `Credibility ~ Condition + Age + Education
+    + (|Participant)`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:27:30Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Residual normality checked using Shapiro-Wilk test
+  claim_id: c_1f465371
+  context: 'Address reviewer comment: "The mixed-effects model assumes a normal distribution
+    of residuals. Check the residuals for normality and consider data transformations
+    if necessary." **Action**: Add residual normality checks (Shapiro-Wilk test) to
+    the analysis script for mixed-effects modeling using `scipy.stats.shapiro`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Residual_normality_checked_using_Shapiro-Wilk_test
+  kind: entity_fact
+  raw_text: Residual normality is checked using the Shapiro-Wilk test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:28:07Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Analysis pipeline completes within 30 minutes on CPU-only runner
+  claim_id: c_7a01a157
+  context: 'Verify runtime benchmark: Create `tests/benchmark/test_runtime.py` that
+    asserts the full analysis pipeline completes within 30 minutes on a CPU-only runner
+    using the mock data from T043a.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime benchmark asserts the full analysis pipeline completes within
+    30 minutes on a CPU-only runner using mock data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:28:34Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Mock data file size less than 5MB for 250 participants
+  claim_id: c_f4aad938
+  context: '**Verify File Size**. **Action**: Add assertion in `tests/benchmark/test_runtime.py`
+    that `data/raw/submissions.csv` size < 5MB for N=250.'
+  evidence:
+    candidates:
+    - - Mock data file size less than 5MB for
+      - 250.0
+    - - Log in Mock data file size less than
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Mock_data_file_size_less_than_5MB_for_250_participants
+  kind: magnitude
+  raw_text: The mock data file size is asserted to be less than 5MB for N=250.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-25T18:28:58Z'
+- artifact_path: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis calculates MDES for within-subjects 4 conditions
+    80% power 0.05 alpha
+  claim_id: c_a03c9d43
+  context: 'Address reviewer concern regarding the power of the study with N=250.
+    **Action**: Extend `code/analysis/04_power.py` (created in T045) to calculate
+    the minimum detectable effect size (MDES) for the specific design (within-subjects,
+    4 conditions) at 80% power and alpha=0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis calculates the minimum detectable effect size
+    for a within-subjects design with 4 conditions at 80% power and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T18:29:35Z'

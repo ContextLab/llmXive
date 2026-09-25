@@ -5,12 +5,6 @@ T004:
     in `code/stimuli/text_content.txt` cannot be verified as the correct neutral text.
     Moreover, the existing text appears unrelated to the expected neutral source,
     indicating the task was not fulfilled.
-T011c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration file, or log examples were provided showing an `IRB_PROTOCOL_ID`
-    environment variable defined or its inclusion in consent log entries. The required
-    artifact (environment variable definition and logging implementation) is missing.
 T012:
   c: false
   h: 97c66457007ddf2a70ac74f4d2b2e4f4fdab9431d1be9f51b2fbfdb5f3dd10ca
@@ -28,21 +22,11 @@ T015:
     \ artifact is missing. The task cannot be verified as completed."
 T022h:
   c: false
-  h: a44df624317b0b49e6f54d24b0a959ae63572f9ed6629bd2572ed51b9d8faca5
-  r: "The repository contains `code/analysis/05_audit.py`, but the script is truncated\
-    \ and never reaches the part that writes the audit CSV. Moreover, the required\
-    \ input file `data/raw/submissions.csv` and the expected output `data/raw/duplicate_audit.csv`\
-    \ are both missing, so the script cannot be run to produce the duplicate audit.\
-    \ The task\u2019s core requirement\u2014reading the submissions file, flagging\
-    \ duplicate `hashed_ip`s, and generating `duplicate_audit.csv`\u2014is therefore\
-    \ not satisfied."
-T024a:
-  c: false
-  h: 81e0a7e27f2da8305ce1d3e45ea66a59b75dee7fe8775de43a3e4bbb9a628a05
-  r: The repository contains `code/analysis/00_preprocess.py`, but the required input
-    file `data/raw/submissions.csv` does not exist, and the script has not produced
-    the expected output `data/processed/cleaned_data.csv`. Without the raw data and
-    the generated cleaned CSV, the preprocessing task is not fulfilled.
+  h: 6854f22444e9375c994e97e126944a4bfa908425742aba788b06f75b162d80fc
+  r: "The repository contains `code/analysis/05_audit.py` but the required script\
+    \ `code/analysis/audit.py` is missing, and the dependent data files `data/raw/submissions.csv`\
+    \ and the expected output `data/raw/duplicate_audit.csv` do not exist, so the\
+    \ task\u2019s verification step cannot be performed."
 T043a:
   c: false
   h: 7afa11a16dae3ead75bb614996d99ec1421d80c25252cae298e45915fba27993
@@ -51,6 +35,13 @@ T043a:
     \ file is absent, and there is no evidence that the script computes and records\
     \ the CSV\u2019s SHA\u2011256 checksum in the specified YAML state file. These\
     \ missing/incorrect artifacts mean the task\u2019s requirements are not satisfied."
+T043b:
+  c: false
+  h: 8257fbf57bd7cf23f7fc58f1f028fa2309c256d5b8934c581e38a8be0afa5ffc
+  r: "The repository lacks the required `data/raw/submissions.csv` file, and the shown\
+    \ `generate_mock_data.py` does not contain any `numpy.random.seed()` call nor\
+    \ logic to compute and store a SHA\u2011256 checksum in the project YAML. Consequently,\
+    \ the core requirements of the task are not met."
 T043c:
   c: false
   h: e89b741df82c106b0ea39edaae28796ebcdc0405d51f8bd3f05582715079220a
@@ -58,6 +49,14 @@ T043c:
     \ but the dependent file `data/raw/submissions.csv` is absent, so the assertion\
     \ cannot be evaluated and the task\u2019s prerequisite is unmet. The missing CSV\
     \ file must be provided for the task to be considered complete."
+T043d:
+  c: false
+  h: 6d2331e8c680a5238f459237c3a88d21b5b008735200df9832b73ffeb332bb5f
+  r: "The provided `tests/unit/test_data_integrity.py` only contains checksum\u2011\
+    related tests and never asserts that `data/raw/submissions.csv` is flagged as\
+    \ \u201CTEST_DATA\u201D or excluded from the analysis pipeline. Moreover, the\
+    \ required `data/raw/submissions.csv` file is missing entirely. Both the test\
+    \ logic and the data artifact needed to satisfy the task are absent."
 T048:
   c: false
   h: 381779a028dc39c16e351188778a40c3d9cd301f401eea0a049c887370081b2b
@@ -71,10 +70,11 @@ T051c:
   r: Both required files `data/processed/analysis_results.json` and `data/processed/mixed_effects_results.json`
     are missing, so the schema updates cannot be verified. The task needs these JSON
     files present and containing the new `ci_lower` and `ci_upper` keys.
-T053:
+T057:
   c: false
-  h: 2e5859b1b245b81232d1a30bb2b37ec401e9bee52c9acbb010a343eebe621515
-  r: The `code/analysis/06_integrity_audit.py` script is present, but the required
-    input file `data/raw/submissions.csv` does not exist, and the expected output
-    `data/processed/integrity_audit.json` was never generated. Without the data file
-    the script cannot run, and the audit report is missing, so the task is not fulfilled.
+  h: d496437d46e4d24ba7f6a8153aabf62f224fecd094bcb6e786f7879ad38974db
+  r: "The repository lacks any implementation that computes a SHA\u2011256 checksum\
+    \ of `data/raw/submissions.csv`, stores it under `data_checksums` in the project\
+    \ YAML, or verifies it in `code/analysis/00_preprocess.py`. Moreover, the required\
+    \ `data/raw/submissions.csv` file is absent, and the shown portions of `helpers.py`\
+    \ and `00_preprocess.py` contain no checksum\u2011related logic."
