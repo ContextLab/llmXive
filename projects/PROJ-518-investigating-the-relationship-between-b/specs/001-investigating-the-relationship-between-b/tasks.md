@@ -80,16 +80,16 @@
 
 ### Tests
 
-- [ ] T026 [P] [US3] Contract test `tests/contract/test_permutation.py::test_permutation_counts`.
+- [X] T026 [P] [US3] Contract test `tests/contract/test_permutation.py::test_permutation_counts`.
 
 ### Implementation
 
 - [ ] T027 [P] [US3] Implement `run_permutation_test(flexibility, creativity, n_permutations=10000) -> float` that shuffles **creativity scores only** (preserving the flexibility vector) and returns an empirical two‑tailed p‑value.
-- [~] T045 [US3] Implement `apply_fwe_correction(p_values: List[float], method='max-t') -> List[float]` using the **max‑T permutation method**.
-- [~] T046 [US3] Implement `run_sensitivity_analysis(flexibility, creativity, window_lengths=[20,30,40]) -> pd.DataFrame` that returns a table with columns `window_length`, `correlation`, `p_value`.
+- [ ] T045 [US3] Implement `apply_fwe_correction(p_values: List[float], method='max-t') -> List[float]` using the **max‑T permutation method**.
+- [ ] T046 [US3] Implement `run_sensitivity_analysis(flexibility, creativity, window_lengths=[20,30,40]) -> pd.DataFrame` that returns a table with columns `window_length`, `correlation`, `p_value`.
 - [ ] T030 [US3] Save permutation results to `data/interim/permutation_results.csv` and sensitivity summary to `data/interim/sensitivity_summary.csv` with explicit column headers.
-- [~] T031 [US3] Verify the sensitivity DataFrame includes `correlation` and `p_value` for each window length (SC‑005).
-- [~] T060 [US3] Profile and optimise `run_permutation_test` (vectorised NumPy) to complete **≤ 6 hours** on 2 CPU cores and < 7 GB RAM.
+- [ ] T031 [US3] Verify the sensitivity DataFrame includes `correlation` and `p_value` for each window length (SC‑005).
+- [ ] T060 [US3] Profile and optimise `run_permutation_test` (vectorised NumPy) to complete **≤ 6 hours** on 2 CPU cores and < 7 GB RAM.
 
 ## Phase N: Polish & Cross‑Cutting Concerns
 

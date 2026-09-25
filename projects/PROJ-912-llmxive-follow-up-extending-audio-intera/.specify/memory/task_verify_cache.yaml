@@ -13,11 +13,14 @@ T003b:
     \ options), fulfilling the requirement to configure formatting in that location."
 T004c:
   c: false
-  h: 16b4c859c79d10f16c53d4dc4c24eb67651f067056977f23e5692a31c7c6635a
-  r: The `code/config.py` file contains only static dataclass defaults and no runtime
-    logic to read `data/processed/config.yaml`, and the required `data/processed/config.yaml`
-    file is absent from the repository. Consequently, the configuration loader and
-    deferred parameters are not implemented.
+  h: e1f61a7c23f0a0bc45df0638d5aec5ca55ec654ff25e161c8d4cd0fd137f8e26
+  r: The `code/config.py` file only defines dataclasses and does not contain any logic
+    to read, generate, or validate `data/processed/config.yaml`. Moreover, the required
+    `data/processed/config.yaml` file is absent, so the generator/loader behavior
+    described in the task is not implemented. The next implementer must add code that
+    (a) checks for the file, (b) creates it with the required schema and defaults
+    when missing, (c) loads its values into the `Config` class, and (d) raises `ValueError`
+    on malformed content.
 T008b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -59,14 +62,6 @@ T029:
     \ results to `data/processed/correlation_data.json` (the file is missing) and\
     \ the code is truncated before any output logic. Consequently the required JSON\
     \ artifact is not produced, so the task is not fulfilled."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, test, documentation, or any other artifact showing that a validation
-    step was added to enforce descriptive results and block causal claims is present.
-    Without such evidence, we cannot confirm the requirement was met. The implementer
-    must provide the implemented validation logic (e.g., a linting rule, unit tests,
-    or documentation) and demonstrate it works on sample outputs.
 T039a:
   c: false
   h: c90c54347faa0f05310b6e8df089017459c292929631fd44bf8af0f0f0f59e38

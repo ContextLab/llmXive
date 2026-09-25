@@ -1,185 +1,389 @@
 """
-Schema validation utilities for llmXive contracts and data structures.
+Schema validation utilities for contracts and data integrity.
 
-This module provides strict validation functions to ensure data integrity
-across the pipeline, specifically for contracts defined in the project.
-It validates configuration objects, model metadata, and data loader outputs
-against expected schemas.
+This module provides robust validation functions for:
+- Dictionary schemas (contract validation)
+- Dataclass instances
+- JSON files
+- Model metadata structures
+- Configuration sections
+
+All validators raise SchemaValidationError on failure with detailed messages.
 """
+
 import json
+import re
 from typing import Any, Dict, List, Optional, Type, Union
-from dataclasses import is_dataclass, fields
+from dataclasses import is_dataclass, fields, MISSING
 from pathlib import Path
 
 from utils.logger import LlmXiveError, ConfigurationError, DataLoadError
 
 
 class SchemaValidationError(LlmXiveError):
-    """Raised when data fails schema validation."""
+    """Raised when schema validation fails."""
     pass
 
 
-def validate_dict_schema(data: Dict[str, Any], schema: Dict[str, Type], strict: bool = True) -> None:
+def validate_dict_schema(
+    data: Dict[str, Any],
+    schema: Dict[str, Any],
+    path: str = "root"
+) -> bool:
     """
-    Validates a dictionary against a schema definition.
+    Validate a dictionary against a schema definition.
     
     Args:
-        data: The dictionary to validate.
-        schema: A mapping of expected keys to their expected types.
-        strict: If True, raises an error if extra keys are present in data.
-                
+        data: The dictionary to validate
+        schema: Schema definition where keys are field names and values are:
+                - A type (e.g., str, int, list)
+                - A dict with 'type' and optional 'required' keys
+                - A callable that returns True if valid
+        path: Current path in the structure for error messages
+    
+    Returns:
+        True if validation passes
+    
     Raises:
-        SchemaValidationError: If validation fails.
+        SchemaValidationError: If validation fails
     """
     if not isinstance(data, dict):
-        raise SchemaValidationError(f"Expected dict, got {type(data).__name__}")
-
-    # Check for missing required keys
-    for key, expected_type in schema.items():
-        if key not in data:
-            raise SchemaValidationError(f"Missing required key: '{key}'")
-        
-        value = data[key]
-        if not isinstance(value, expected_type):
-            # Special handling for int/float compatibility if needed, 
-            # but strict typing is preferred for contracts.
-            raise SchemaValidationError(
-                f"Key '{key}' expected type {expected_type.__name__}, "
-                f"got {type(value).__name__} (value: {value})"
-            )
-
-    # Check for extra keys in strict mode
-    if strict:
-        extra_keys = set(data.keys()) - set(schema.keys())
-        if extra_keys:
-            raise SchemaValidationError(
-                f"Unexpected keys in strict mode: {extra_keys}"
-            )
-
-
-def validate_dataclass(obj: Any, expected_class: Type) -> None:
-    """
-    Validates that an object is an instance of the expected dataclass
-    and that all its fields are populated (non-None) if they are not Optional.
+        raise SchemaValidationError(f"{path}: Expected dict, got {type(data).__name__}")
     
-    Args:
-        obj: The object to validate.
-        expected_class: The expected dataclass type.
+    for field_name, field_spec in schema.items():
+        field_path = f"{path}.{field_name}"
         
-    Raises:
-        SchemaValidationError: If the object is not an instance or has invalid fields.
-    """
-    if not is_dataclass(obj) or not isinstance(obj, expected_class):
-        raise SchemaValidationError(
-            f"Object is not an instance of {expected_class.__name__}"
-        )
-
-    for field_obj in fields(expected_class):
-        field_name = field_obj.name
-        field_type = field_obj.type
-        value = getattr(obj, field_name)
-
-        # Skip validation for fields with default values if None is allowed
-        if value is None:
-            # Check if Optional is allowed in the type hint
-            # Simple check: if type is typing.Optional or Union with None
-            import typing
-            origin = typing.get_origin(field_type)
-            args = typing.get_args(field_type)
+        # Check if field exists
+        if field_name not in data:
+            # Determine if required
+            is_required = True
+            if isinstance(field_spec, dict):
+                is_required = field_spec.get('required', True)
             
-            is_optional = (origin is typing.Union and type(None) in args)
-            if not is_optional:
-                raise SchemaValidationError(
-                    f"Field '{field_name}' in {expected_class.__name__} is None "
-                    f"but not marked as Optional"
-                )
+            if is_required:
+                raise SchemaValidationError(f"{field_path}: Missing required field")
             continue
+        
+        value = data[field_name]
+        
+        # Validate based on spec type
+        if callable(field_spec):
+            if not field_spec(value):
+                raise SchemaValidationError(f"{field_path}: Custom validation failed")
+        elif isinstance(field_spec, dict):
+            expected_type = field_spec.get('type')
+            if expected_type:
+                if not isinstance(value, expected_type):
+                    raise SchemaValidationError(
+                        f"{field_path}: Expected {expected_type.__name__}, got {type(value).__name__}"
+                    )
+            
+            # Nested schema validation
+            if 'schema' in field_spec and isinstance(value, dict):
+                validate_dict_schema(value, field_spec['schema'], field_path)
+        elif isinstance(field_spec, type):
+            if not isinstance(value, field_spec):
+                raise SchemaValidationError(
+                    f"{field_path}: Expected {field_spec.__name__}, got {type(value).__name__}"
+                )
+    
+    return True
 
-        # Recursive validation for nested dataclasses
-        if is_dataclass(field_type) and isinstance(value, field_type):
-            validate_dataclass(value, field_type)
 
-
-def validate_json_file(file_path: Union[str, Path], schema: Dict[str, Type]) -> Dict[str, Any]:
+def validate_dataclass(instance: Any, schema: Optional[Dict[str, Any]] = None) -> bool:
     """
-    Loads and validates a JSON file against a schema.
+    Validate a dataclass instance against its type hints or an optional schema.
     
     Args:
-        file_path: Path to the JSON file.
-        schema: The schema to validate against.
-        
+        instance: The dataclass instance to validate
+        schema: Optional schema override for field validation
+    
     Returns:
-        The parsed and validated dictionary.
-        
+        True if validation passes
+    
     Raises:
-        DataLoadError: If the file cannot be read or parsed.
-        SchemaValidationError: If the content does not match the schema.
+        SchemaValidationError: If validation fails
+    """
+    if not is_dataclass(instance):
+        raise SchemaValidationError(f"Not a dataclass instance: {type(instance).__name__}")
+    
+    for field_obj in fields(instance):
+        field_name = field_obj.name
+        value = getattr(instance, field_name)
+        
+        # Check for None on non-optional fields
+        if value is None:
+            if not field_obj.type is not type(None) and 'Optional' not in str(field_obj.type):
+                # Check if it has a default
+                if field_obj.default is MISSING and field_obj.default_factory is MISSING:
+                    raise SchemaValidationError(f"{field_name}: None value on non-optional field")
+        
+        # Type checking if schema provided
+        if schema and field_name in schema:
+            field_spec = schema[field_name]
+            if isinstance(field_spec, type):
+                if not isinstance(value, field_spec):
+                    raise SchemaValidationError(
+                        f"{field_name}: Expected {field_spec.__name__}, got {type(value).__name__}"
+                    )
+    
+    return True
+
+
+def validate_json_file(
+    file_path: Union[str, Path],
+    schema: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """
+    Validate a JSON file against an optional schema.
+    
+    Args:
+        file_path: Path to the JSON file
+        schema: Optional schema for validation
+    
+    Returns:
+        Parsed JSON data if valid
+    
+    Raises:
+        SchemaValidationError: If file missing, invalid JSON, or schema mismatch
     """
     path = Path(file_path)
+    
     if not path.exists():
-        raise DataLoadError(f"JSON file not found: {path}")
-
+        raise SchemaValidationError(f"File not found: {path}")
+    
     try:
         with open(path, 'r', encoding='utf-8') as f:
             data = json.load(f)
     except json.JSONDecodeError as e:
-        raise DataLoadError(f"Invalid JSON in {path}: {e}")
-    except IOError as e:
-        raise DataLoadError(f"Error reading {path}: {e}")
-
-    validate_dict_schema(data, schema)
+        raise SchemaValidationError(f"Invalid JSON in {path}: {str(e)}")
+    except Exception as e:
+        raise SchemaValidationError(f"Error reading {path}: {str(e)}")
+    
+    if schema:
+        validate_dict_schema(data, schema, path=str(path))
+    
     return data
 
 
-def validate_model_metadata(metadata: Dict[str, Any]) -> None:
+def validate_model_metadata(metadata: Dict[str, Any]) -> bool:
     """
-    Validates model checkpoint metadata against the expected schema.
+    Validate model metadata structure.
     
-    Expected keys:
-        - bit_width (int)
-        - param_count (int)
-        - quantization_type (str)
-        - training_loss (float)
-        - timestamp (str)
-        
+    Expected schema:
+    {
+        "model_id": str,
+        "bit_width": int,
+        "pruning_ratio": float,
+        "param_count": int,
+        "compression_type": str,
+        "teacher_id": str,
+        "training_loss": float
+    }
+    
     Args:
-        metadata: The metadata dictionary.
-        
+        metadata: The metadata dictionary to validate
+    
+    Returns:
+        True if valid
+    
     Raises:
-        SchemaValidationError: If validation fails.
+        SchemaValidationError: If validation fails
     """
     schema = {
-        "bit_width": int,
-        "param_count": int,
-        "quantization_type": str,
-        "training_loss": float,
-        "timestamp": str
+        'model_id': str,
+        'bit_width': int,
+        'pruning_ratio': float,
+        'param_count': int,
+        'compression_type': str,
+        'teacher_id': str,
+        'training_loss': float
     }
-    validate_dict_schema(metadata, schema, strict=False)
+    
+    return validate_dict_schema(metadata, schema)
 
 
-def validate_config_section(config_dict: Dict[str, Any], section_name: str) -> None:
+def validate_config_section(
+    config_data: Dict[str, Any],
+    section_name: str,
+    required_fields: List[str],
+    type_hints: Optional[Dict[str, Type]] = None
+) -> bool:
     """
-    Generic validator for configuration sections loaded from config.py or JSON.
+    Validate a specific section of a configuration.
     
     Args:
-        config_dict: The configuration dictionary for a specific section.
-        section_name: The name of the section (for error messages).
-        
-    Raises:
-        ConfigurationError: If the configuration is invalid.
-    """
-    if not isinstance(config_dict, dict):
-        raise ConfigurationError(f"Configuration section '{section_name}' must be a dictionary.")
+        config_data: The full configuration dictionary
+        section_name: The key of the section to validate
+        required_fields: List of required field names within the section
+        type_hints: Optional dict mapping field names to expected types
     
-    # Basic sanity checks: no empty dicts for required sections unless specified
-    if not config_dict and section_name != "optional_params":
-        # Allow empty dicts for optional sections if needed, but warn
-        pass
-        
-    # Ensure all keys are strings
-    for key in config_dict.keys():
-        if not isinstance(key, str):
-            raise ConfigurationError(
-                f"Configuration section '{section_name}' contains non-string key: {key}"
-            )
+    Returns:
+        True if valid
+    
+    Raises:
+        SchemaValidationError: If validation fails
+    """
+    if section_name not in config_data:
+        raise SchemaValidationError(f"Missing config section: {section_name}")
+    
+    section = config_data[section_name]
+    
+    if not isinstance(section, dict):
+        raise SchemaValidationError(f"Config section '{section_name}' must be a dict")
+    
+    # Check required fields
+    for field in required_fields:
+        if field not in section:
+            raise SchemaValidationError(f"Missing required field '{field}' in section '{section_name}'")
+    
+    # Check types if provided
+    if type_hints:
+        for field, expected_type in type_hints.items():
+            if field in section:
+                if not isinstance(section[field], expected_type):
+                    raise SchemaValidationError(
+                        f"Field '{field}' in section '{section_name}': "
+                        f"Expected {expected_type.__name__}, got {type(section[field]).__name__}"
+                    )
+    
+    return True
+
+
+def validate_audio_manifest(manifest: Dict[str, Any]) -> bool:
+    """
+    Validate an audio manifest structure.
+    
+    Expected schema:
+    {
+        "files": List[Dict[str, Any]],
+        "class_map": Dict[int, str],
+        "metadata": Dict[str, Any]
+    }
+    
+    Args:
+        manifest: The manifest dictionary
+    
+    Returns:
+        True if valid
+    
+    Raises:
+        SchemaValidationError: If validation fails
+    """
+    schema = {
+        'files': list,
+        'class_map': dict,
+        'metadata': dict
+    }
+    
+    validate_dict_schema(manifest, schema)
+    
+    # Validate class_map keys are integers
+    for key in manifest['class_map'].keys():
+        if not isinstance(key, int):
+            raise SchemaValidationError(f"class_map keys must be integers, found {type(key).__name__}")
+    
+    # Validate files structure
+    for idx, file_entry in enumerate(manifest['files']):
+        if not isinstance(file_entry, dict):
+            raise SchemaValidationError(f"files[{idx}] must be a dict")
+        if 'path' not in file_entry:
+            raise SchemaValidationError(f"files[{idx}] missing 'path' field")
+        if 'class_id' not in file_entry:
+            raise SchemaValidationError(f"files[{idx}] missing 'class_id' field")
+    
+    return True
+
+
+def validate_metrics_csv_header(headers: List[str]) -> bool:
+    """
+    Validate the header row of a metrics CSV file.
+    
+    Required columns: model_id, auc, latency_ms, ram_gb
+    
+    Args:
+        headers: List of header strings
+    
+    Returns:
+        True if valid
+    
+    Raises:
+        SchemaValidationError: If validation fails
+    """
+    required = {'model_id', 'auc', 'latency_ms', 'ram_gb'}
+    header_set = set(h.strip().lower() for h in headers)
+    
+    missing = required - header_set
+    if missing:
+        raise SchemaValidationError(f"Missing required CSV columns: {missing}")
+    
+    return True
+
+
+def validate_breaking_point_json(data: Dict[str, Any]) -> bool:
+    """
+    Validate the breaking point JSON structure.
+    
+    Expected schema:
+    {
+        "bit_width": int,
+        "drop_percent": float,
+        "threshold_violated": bool,
+        "model_id": str
+    }
+    
+    Args:
+        data: The breaking point data
+    
+    Returns:
+        True if valid
+    
+    Raises:
+        SchemaValidationError: If validation fails
+    """
+    schema = {
+        'bit_width': int,
+        'drop_percent': float,
+        'threshold_violated': bool,
+        'model_id': str
+    }
+    
+    return validate_dict_schema(data, schema)
+
+
+def validate_ablation_config(config: Dict[str, Any]) -> bool:
+    """
+    Validate an ablation configuration.
+    
+    Expected schema:
+    {
+        "freeze_heads": List[int],
+        "prune_ffn_layers": List[int]
+    }
+    
+    Args:
+        config: The ablation config
+    
+    Returns:
+        True if valid
+    
+    Raises:
+        SchemaValidationError: If validation fails
+    """
+    schema = {
+        'freeze_heads': list,
+        'prune_ffn_layers': list
+    }
+    
+    validate_dict_schema(config, schema)
+    
+    # Validate lists contain only integers
+    for head in config.get('freeze_heads', []):
+        if not isinstance(head, int):
+            raise SchemaValidationError("freeze_heads must contain only integers")
+    
+    for layer in config.get('prune_ffn_layers', []):
+        if not isinstance(layer, int):
+            raise SchemaValidationError("prune_ffn_layers must contain only integers")
+    
+    return True

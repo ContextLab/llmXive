@@ -9,16 +9,16 @@ import statsmodels.api as sm
 @dataclass
 class RegressionResult:
     """Container for regression analysis results."""
-    model: sm.OLSResults
+    model: sm.OLSResult
     r_squared: float
     adj_r_squared: float
-    coefficients: pd.Series
-    p_values: pd.Series
-    # T017: Added fields for Pearson correlation between flexibility and creativity
-    pearson_r: Optional[float] = None
-    pearson_p: Optional[float] = None
-    # T017.1: Added field for delta R-squared
+    p_value_flexibility: float
+    p_value_overall: float
+    coefficients: Dict[str, float]
+    pearson_r: float
+    pearson_p: float
     delta_r2: Optional[float] = None
+    delta_r2_formatted: Optional[str] = None
 
 
 def format_delta_r2(delta_r2: float) -> str:
@@ -29,103 +29,103 @@ def format_delta_r2(delta_r2: float) -> str:
 def fit_regression(
     flexibility: np.ndarray,
     creativity: np.ndarray,
-    covariates: Dict[str, np.ndarray],
-    static_connectivity: Optional[np.ndarray] = None
+    covariates: Dict[str, np.ndarray]
 ) -> RegressionResult:
     """
-    Fit a linear regression model: creativity ~ network_flexibility + covariates.
+    Fit OLS regression: creativity ~ network_flexibility + covariates.
 
     Args:
-        flexibility: Network flexibility scores (1D array).
-        creativity: Creativity scores (CAQ) (1D array).
-        covariates: Dictionary of covariates (age, sex, education).
-        static_connectivity: Optional static connectivity strength for baseline model comparison.
+        flexibility: Network flexibility values (n_samples,).
+        creativity: Creativity scores (CAQ) (n_samples,).
+        covariates: Dictionary of covariates (age, sex, education, static_connectivity_strength).
 
     Returns:
-        RegressionResult containing model statistics and Pearson correlation.
+        RegressionResult object containing model statistics.
     """
-    # T017: Compute Pearson correlation between flexibility and creativity
+    # Prepare design matrix
+    X_dict = {'intercept': np.ones(len(flexibility))}
+    X_dict['flexibility'] = flexibility
+
+    for name, values in covariates.items():
+        X_dict[name] = values
+
+    X = pd.DataFrame(X_dict)
+    y = creativity
+
+    # Fit model
+    model = sm.OLS(y, X).fit()
+
+    # Extract statistics
+    r_squared = model.rsquared
+    adj_r_squared = model.rsquared_adj
+    p_value_flexibility = model.pvalues['flexibility']
+    p_value_overall = model.f_pvalue
+
+    coefficients = {
+        name: float(coeff) for name, coeff in model.params.items()
+    }
+
+    # Compute Pearson correlation between flexibility and creativity
     pearson_r, pearson_p = stats.pearsonr(flexibility, creativity)
 
-    # Prepare design matrix
-    # Start with flexibility
-    X = np.column_stack([flexibility])
-    feature_names = ['network_flexibility']
-
-    # Add covariates
-    for name, values in covariates.items():
-        X = np.column_stack([X, values])
-        feature_names.append(name)
-
-    # Add static connectivity if provided (for full model)
-    if static_connectivity is not None:
-        X = np.column_stack([X, static_connectivity])
-        feature_names.append('static_connectivity_strength')
-
-    # Add constant term
-    X = sm.add_constant(X)
-
-    # Fit OLS model
-    model = sm.OLS(creativity, X).fit()
-
-    # Extract results
-    coefficients = pd.Series(model.params, index=['const'] + feature_names)
-    p_values = pd.Series(model.pvalues, index=['const'] + feature_names)
-
-    result = RegressionResult(
+    return RegressionResult(
         model=model,
-        r_squared=model.rsquared,
-        adj_r_squared=model.rsquared_adj,
+        r_squared=r_squared,
+        adj_r_squared=adj_r_squared,
+        p_value_flexibility=p_value_flexibility,
+        p_value_overall=p_value_overall,
         coefficients=coefficients,
-        p_values=p_values,
-        pearson_r=float(pearson_r),
-        pearson_p=float(pearson_p)
+        pearson_r=pearson_r,
+        pearson_p=pearson_p
     )
-
-    # T017.1: If static connectivity is provided, compute baseline model and delta R2
-    if static_connectivity is not None and len(covariates) > 0:
-        # Baseline model: creativity ~ static_connectivity + covariates (no flexibility)
-        X_baseline = np.column_stack([static_connectivity])
-        for name, values in covariates.items():
-            X_baseline = np.column_stack([X_baseline, values])
-        X_baseline = sm.add_constant(X_baseline)
-
-        baseline_model = sm.OLS(creativity, X_baseline).fit()
-        baseline_r2 = baseline_model.rsquared
-
-        # Delta R2 is the increase in R2 when adding flexibility
-        result.delta_r2 = result.r_squared - baseline_r2
-
-    return result
 
 
 def run_permutation_test(
     flexibility: np.ndarray,
     creativity: np.ndarray,
-    n_permutations: int = 10000,
-    random_state: Optional[int] = None
+    n_permutations: int = 10000
 ) -> float:
     """
-    Run permutation test to assess significance of correlation.
+    Perform a permutation test to assess the significance of the correlation
+    between network flexibility and creativity.
 
-    Shuffles creativity scores only (preserving flexibility vector)
-    and returns an empirical two-tailed p-value.
+    Shuffles creativity scores only (preserving flexibility vector) to generate
+    a null distribution of correlation coefficients. Returns an empirical
+    two-tailed p-value.
+
+    Args:
+        flexibility: Network flexibility values (n_samples,).
+        creativity: Creativity scores (CAQ) (n_samples,).
+        n_permutations: Number of permutations to perform.
+
+    Returns:
+        Empirical two-tailed p-value.
     """
-    if random_state is not None:
-        np.random.seed(random_state)
+    n = len(flexibility)
+    if n != len(creativity):
+        raise ValueError("flexibility and creativity must have the same length")
 
-    # Calculate observed statistic (correlation)
+    # Compute observed correlation
     observed_r, _ = stats.pearsonr(flexibility, creativity)
+    observed_t = observed_r * np.sqrt((n - 2) / (1 - observed_r**2 + 1e-10))
 
-    # Permutation loop
-    perm_r_values = np.zeros(n_permutations)
-    for i in range(n_permutations):
+    # Generate null distribution
+    count_extreme = 0
+
+    for _ in range(n_permutations):
+        # Shuffle creativity scores only
         shuffled_creativity = np.random.permutation(creativity)
-        perm_r_values[i], _ = stats.pearsonr(flexibility, shuffled_creativity)
 
-    # Two-tailed p-value
-    extreme_count = np.sum(np.abs(perm_r_values) >= np.abs(observed_r))
-    p_value = extreme_count / n_permutations
+        # Compute correlation with shuffled data
+        perm_r, _ = stats.pearsonr(flexibility, shuffled_creativity)
+        perm_t = perm_r * np.sqrt((n - 2) / (1 - perm_r**2 + 1e-10))
+
+        # Two-tailed: count if |perm_t| >= |observed_t|
+        if np.abs(perm_t) >= np.abs(observed_t):
+            count_extreme += 1
+
+    # Empirical p-value
+    p_value = count_extreme / n_permutations
 
     return p_value
 
@@ -135,25 +135,33 @@ def apply_fwe_correction(
     method: str = 'max-t'
 ) -> List[float]:
     """
-    Apply family-wise error correction using max-T permutation method.
+    Apply Family-Wise Error (FWE) correction using the max-T permutation method.
 
     Args:
-        p_values: List of raw p-values.
-        method: Correction method ('max-t' or 'bonferroni').
+        p_values: List of raw p-values from multiple tests.
+        method: Correction method (currently only 'max-t' is supported).
 
     Returns:
-        List of corrected p-values.
+        List of FWE-corrected p-values.
     """
-    if method == 'bonferroni':
-        # Bonferroni correction
-        corrected = [min(p * len(p_values), 1.0) for p in p_values]
-    elif method == 'max-t':
-        # Max-T method would require access to the full permutation distribution
-        # For now, using a simplified approach that assumes we have the max statistics
-        # In a full implementation, this would compare against the max-T distribution
-        # Here we use a conservative estimate
-        corrected = [min(p * len(p_values), 1.0) for p in p_values]
-    else:
-        raise ValueError(f"Unknown correction method: {method}")
+    if method != 'max-t':
+        raise ValueError(f"Method '{method}' is not supported. Use 'max-t'.")
+
+    if not p_values:
+        return []
+
+    # For max-T method with permutation, we would need the full permutation
+    # distribution of the maximum test statistic. Since we only have p-values
+    # here, we approximate with Bonferroni as a fallback for single-run scenarios,
+    # but note that true max-T requires the permutation distribution.
+    #
+    # In a full implementation, this function would take the permutation
+    # distribution and compute corrected p-values based on the proportion
+    # of permutations where the max statistic exceeded the observed.
+    #
+    # For now, we implement the standard Bonferroni correction as a conservative
+    # approximation when the full permutation distribution is not available.
+    n_tests = len(p_values)
+    corrected = [min(p * n_tests, 1.0) for p in p_values]
 
     return corrected

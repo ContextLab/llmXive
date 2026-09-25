@@ -3882,3 +3882,403 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T04:03:08Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Subtle Cue classes defined as dominant frequency > 8kHz OR amplitude
+    < -40dBFS
+  claim_id: c_d8c66b87
+  context: Task T021a defines audio feature extraction criteria in code/data/subtle_cue_features.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subtle_Cue_classes_defined_as_dominant_frequency_%3E_8kHz_OR_a
+  kind: entity_fact
+  raw_text: 'Define criteria: ''Subtle Cue'' classes are those with dominant frequency
+    > 8kHz OR amplitude < -40dBFS.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:38:45Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'MelSpectrogram parameters: n_mels=128, n_fft=2048, hop_length=512, window=hann'
+  claim_id: c_f47a31b5
+  context: Task T021a specifies the algorithm for audio feature extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `torchaudio.transforms.MelSpectrogram` (n_mels=128, n_fft=2048, hop_length=512,
+    window='hann') to compute frequency bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:39:04Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Amplitude calculation uses Hann window with overlap 0.5
+  claim_id: c_93a515c3
+  context: Task T021a specifies amplitude calculation method.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate amplitude as RMS over a fixed temporal window using a Hann window
+    function with overlap=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:39:30Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Control Set classes: engine hum, wind, rain, babbling, chainsaw, drilling,
+    gunshot, jackhammer, siren, street music'
+  claim_id: c_a1db0b16
+  context: Task T021c defines the 'Control Set' classes for binary AUC calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Control_Set_classes:_engine_hum,_wind,_rain,_babbling,_chain
+  kind: entity_fact
+  raw_text: 'Map class names to dataset IDs using a hardcoded mapping table: [''engine
+    hum'', ''wind'', ''rain'', ''babbling'', ''chainsaw'', ''drilling'', ''gunshot'',
+    ''jackhammer'', ''siren'', ''street music''].'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:39:59Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Filtering applied by Class ID based on aggregate properties
+  claim_id: c_a23f1716
+  context: Task T021a specifies the constraint for filtering subtle cue classes.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P8168: Q165579'
+      source_id: Q37502006
+      url: https://www.wikidata.org/wiki/Q37502006
+      value: Q165579
+    filled: true
+  kind: entity_fact
+  raw_text: Filter by Class ID based on aggregate properties, not per-sample.
+  resolved_value: Q165579
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T21:40:15Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Exclude subtle classes from AUC if sample count < 10
+  claim_id: c_2c98a164
+  context: Task T020c implements watchdog/logging in code/data/loader.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Monitor valid sample count per class; if a subtle class has < 10 samples,
+    log WARN and exclude from AUC calculation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:40:15Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Job failure threshold for corrupted files is 0.05
+  claim_id: c_55929f28
+  context: Task T014a specifies error handling for streaming reads during training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail the job if corrupted_count / total_attempted > 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:40:16Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: DeSTA2.5-Audio substituted with facebook/wavvec2-base-960h
+  claim_id: c_ebce76aa
+  context: Task T011 documents the spec gap resolution for the teacher model.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Substituted DeSTA2.5-Audio with facebook/wavvec2-base-960h.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:40:36Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: INT8 quantization uses torch.ao.quantization with qint8 dtype
+  claim_id: c_d2304656
+  context: Task T012 specifies the implementation of compression logic.
+  evidence:
+    entailment_evidence: INT8 quantization uses torch.ao.quantization with qint8 dtyp
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/INT8_quantization_uses_torch.ao.quantization_with_qint8_dtyp
+  kind: entity_fact
+  raw_text: Use `torch.ao.quantization.quantize_dynamic(model, {torch.nn.Linear},
+    dtype=torch.qint8)` for INT8.
+  resolved_value: INT8 quantization uses torch.ao.quantization with qint8 dtype
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T21:40:39Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: INT4 quantization uses torchao with qint4 dtype
+  claim_id: c_597d0460
+  context: Task T012 specifies the implementation of compression logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/INT4_quantization_uses_torchao_with_qint4_dtype
+  kind: entity_fact
+  raw_text: Use `torchao.quantize_dynamic(model, {torch.nn.Linear}, dtype=torch.qint4)`
+    for INT4.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:41:07Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Structural pruning uses l1_unstructured algorithm
+  claim_id: c_5df0cb42
+  context: Task T013 specifies the implementation of structural pruning logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Structural_pruning_uses_l1_unstructured_algorithm
+  kind: entity_fact
+  raw_text: Apply `torch.nn.utils.prune.l1_unstructured` to remove weights using specified
+    ratios.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:41:27Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Default pruning ratios are 0.1, 0.2, 0.3
+  claim_id: c_2017a4ac
+  context: Task T004a defines default parameter values in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default pruning ratios are [0.1, 0.2, 0.3].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:42:07Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Default KD_ALPHA is 0.5 and KD_TEMP is 4.0
+  claim_id: c_00234174
+  context: Task T004a defines default parameter values in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default KD_ALPHA is 0.5 and KD_TEMP is 4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:42:32Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'CI environment limits: 7GB RAM, 2 cores'
+  claim_id: c_211cdd2d
+  context: Task T008b configures CI runner environment variables.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI runner environment variables set MAX_RAM_GB=7 and MAX_CORES=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:42:59Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Inference loop constrained to 2 CPU cores via taskset
+  claim_id: c_8a473a78
+  context: Task T022 implements CPU inference runner with resource constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the inference loop wrapped in `taskset` to enforce the multi-core
+    CPU constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:43:00Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Peak RAM measured via psutil RSS polling every 10ms
+  claim_id: c_f3fa7a60
+  context: Task T023a implements metrics calculation for inference.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_measured_via_psutil_RSS_polling_every_10ms
+  kind: entity_fact
+  raw_text: Measure Peak RAM using a background polling loop with `psutil` (RSS) with
+    a polling interval of 10ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:43:27Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Metric measurement process constrained to 2 CPU cores
+  claim_id: c_c44130df
+  context: Task T023a ensures the measurement process itself is constrained to 2 cores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that the metric process is constrained to exactly 2 CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:43:58Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Execution time < 6h and RAM < 7GB
+  claim_id: c_41ceeef9
+  context: Task T023a specifies assertions for resource usage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execution_time_%3C_6h_and_RAM_%3C_7GB
+  kind: entity_fact
+  raw_text: Assert process completed within 6h and RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:44:29Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: 'Threshold sweep values: 0.01, 0.05, 0.1'
+  claim_id: c_04b71eef
+  context: Task T031 implements sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds over the fixed set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:45:03Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Breaking point defined as relative AUC drop > 10%
+  claim_id: c_307c03d9
+  context: Task T030 implements step-change detection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify the 'breaking point' where relative AUC drop exceeds >10%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:45:03Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Freeze attention heads 0 and 1
+  claim_id: c_e62e1587
+  context: Task T037 implements component freezing logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set `requires_grad=False` on specific early attention head parameters
+    (defined by `config.ablation.freeze_heads = [0, 1]`).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:45:28Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Pearson correlation calculated for Freeze Attention and Prune FFN performance
+    drops
+  claim_id: c_1301a86f
+  context: Task T043 implements a 'Collinearity Check'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_calculated_for_Freeze_Attention_and_Prun
+  kind: entity_fact
+  raw_text: Calculate the Pearson correlation coefficient between 'Freeze Attention'
+    and 'Prune FFN' performance drops.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:46:00Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: Warning issued if correlation > 0.8 for ablation components
+  claim_id: c_37c999f6
+  context: Task T043 specifies the condition for high collinearity warning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If correlation > 0.8, append a warning stating 'High collinearity detected;
+    independent causal effects cannot be claimed.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:46:00Z'
+- artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/tasks.md
+  attempts: 1
+  canonical: JSON floats formatted to 4 decimal places
+  claim_id: c_3ee57803
+  context: Task T039a specifies the schema for ablation_logits.parquet.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Format JSON floats with decimal places using `'{:.4f}'.format(x)`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T21:46:19Z'
