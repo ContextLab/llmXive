@@ -1,78 +1,86 @@
 # Quickstart Guide
 
-This guide outlines the steps to run the full pipeline for predicting plant defense allocation.
-
 ## Prerequisites
 
-- Python 3.9+
-- Conda environment with all dependencies installed (see `requirements.txt` and `environment.yml`)
-- Access to NCBI GEO/SRA (for real data mode)
-- TRY API Key (optional, for real data mode)
-
-## Installation
-
-1. Clone the repository.
-2. Create and activate the conda environment:
- ```bash
- conda env create -f environment.yml
- conda activate plant-defense-pipeline
- ```
-3. Install Python dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+Ensure all dependencies are installed:
+```bash
+pip install -r requirements.txt
+conda install -c bioconda -c conda-forge -y fastp hisat2 subread r-sva r-normqpcr r-phylolm r-ape
+```
 
 ## Running the Pipeline
 
-The pipeline can be run in two modes: `synthetic` (for validation) and `real` (for actual analysis).
-
 ### Synthetic Mode (Validation)
 
-This mode generates synthetic data to validate the pipeline structure and logic without requiring external data access.
+This mode generates synthetic data to validate the pipeline structure without requiring real biological data.
 
-```bash
-python code/scripts/setup_data_dirs.py
-python code/scripts/run_synthetic_generator.py
-python code/scripts/run_verify_metadata.py
-python code/scripts/run_qc.py
-python code/scripts/run_batch_correction.py
-python code/scripts/run_traits_try.py
-python code/scripts/run_traits_fallback.py
-python code/scripts/run_traits.py
-python code/scripts/run_trait_gate.py
-```
+1. **Generate Synthetic Data**:
+ ```bash
+ python code/scripts/run_synthetic_generator.py
+ ```
+ This creates:
+ - `data/raw/SYNTH_TPM_matrix.csv` (synthetic TPM matrix)
+ - `data/manifests/synthetic_manifest.json` (manifest)
+ - `data/processed/metadata_verification_report.json` (verification report)
 
-### Real Mode (Full Analysis)
+2. **Verify Metadata**:
+ ```bash
+ python code/scripts/run_verify_metadata.py --mode synthetic
+ ```
 
-This mode fetches real data from NCBI and performs the full analysis.
+3. **Run QC Pipeline**:
+ ```bash
+ python code/scripts/run_qc.py
+ ```
 
-```bash
-# Set TRY API Key if available
-export TRY_API_KEY="your_api_key_here"
+4. **Run Full Pipeline**:
+ ```bash
+ python code/scripts/run_synthetic_generator.py
+ python code/scripts/run_verify_metadata.py --mode synthetic
+ python code/scripts/run_qc.py
+ python code/scripts/run_batch_correction.py
+ python code/scripts/run_traits_try.py
+ python code/scripts/run_traits_fallback.py
+ python code/scripts/run_trait_gate.py
+ python code/scripts/run_phylogeny_fetcher.py
+ python code/scripts/run_reproducibility.py
+ ```
 
-python code/scripts/setup_data_dirs.py
-python code/scripts/run_download.py --mode real --accession_ids GSE12345,GSE67890
-python code/scripts/run_verify_metadata.py
-python code/scripts/run_qc.py
-python code/scripts/run_batch_correction.py
-python code/scripts/run_traits_try.py
-python code/scripts/run_traits_fallback.py
-python code/scripts/run_traits.py
-python code/scripts/run_trait_gate.py
-```
+### Real Mode
 
-## Output
+Requires valid NCBI/SRA accessions and network access.
 
-The pipeline produces several output files in the `data/` directory:
+1. **Fetch Real Data**:
+ ```bash
+ python code/scripts/run_download.py --mode real
+ ```
 
-- `data/processed/metadata_verification_report.json`
-- `data/processed/post_qc_species_list.json`
-- `data/processed/trait_fallback_summary.json`
-- `data/processed/final_aggregated_traits.json`
-- `data/manifests/human_input_needed.flag` (if gate fails)
+2. **Verify Metadata**:
+ ```bash
+ python code/scripts/run_verify_metadata.py --mode real
+ ```
 
-## Troubleshooting
+3. **Run Full Pipeline**:
+ ```bash
+ python code/scripts/run_download.py --mode real
+ python code/scripts/run_verify_metadata.py --mode real
+ python code/scripts/run_qc.py
+ python code/scripts/run_batch_correction.py
+ python code/scripts/run_traits_try.py
+ python code/scripts/run_traits_fallback.py
+ python code/scripts/run_trait_gate.py
+ python code/scripts/run_phylogeny_fetcher.py
+ python code/scripts/run_reproducibility.py
+ ```
 
-- If the trait gate fails, check `data/manifests/human_input_needed.flag` for details.
-- Ensure all system tools (fastp, hisat2, featureCounts) are installed and in the PATH.
-- Verify that the NCBI E-utilities API is accessible for metadata retrieval.
+## Output Files
+
+The pipeline produces the following key artifacts:
+
+- `data/raw/*.csv`: Raw/processed count matrices
+- `data/processed/metadata_verification_report.json`: Metadata verification results
+- `data/processed/post_qc_species_list.json`: Species passing QC
+- `data/manifests/batch_correction_report.json`: Batch correction metrics
+- `data/processed/aggregated_features.csv`: Aggregated feature matrix
+- `data/processed/final_aggregated_traits.json`: Compiled trait data
+- `data/manifests/reproducibility_report.json`: Reproducibility metrics

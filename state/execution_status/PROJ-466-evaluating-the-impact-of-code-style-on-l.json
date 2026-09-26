@@ -4,13 +4,13 @@
   "reason": "1 command(s) failed: python code/main.py (rc=1); 6 declared deliverable(s) absent: data/processed/bias_flag.json; data/processed/metrics_all.csv; data/processed/metrics_valid.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/code/main.py\", line 14, in <module>\n    from analysis.reporter import run_reporter_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/code/analysis/reporter.py\", line 9, in <module>\n    import matplotlib\nModuleNotFoundError: No module named 'matplotlib'"
+    "python code/main.py -> rc=1\n    2026-09-26 04:10:47,715 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Non-scalable fonts are not supported\n2026-09-26 04:10:47,873 - matplotlib.font_manager - INFO - generated new fontManager\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-466-evaluating-the-impact-of-code-style-on-l/code/main.py\", line 14, in <module>\n    from analysis.reporter import run_reporter_pipeline\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-466-evaluatin"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-07-24T09:30:44Z"
+  "updated_at": "2026-09-26T04:10:53Z"
 }

@@ -1,20 +1,19 @@
 T015:
   c: false
-  h: 0422610cd8eaffbd427f1c602ad64874af548f1f9776a4aecb479ecbc87c9b63
-  r: "The `filter_subjects.py` file is present but the shown code is truncated and\
-    \ does not demonstrate sorting, selection, writing `data/raw/valid_subjects.json`,\
-    \ or raising a `FatalError` with the exact required message. Moreover, the required\
-    \ output file `data/raw/valid_subjects.json` is missing. The task\u2019s core\
-    \ requirement\u2014producing a JSON file with exactly 50 valid subjects or raising\
-    \ the specified error\u2014is not satisfied."
+  h: c5862e0ac436bbfd414ee49ae43c9011605a077fb3b428aebbe307278af889e5
+  r: "The required output file `data/raw/valid_subjects.json` does not exist, so the\
+    \ script has not produced the mandated 50\u2011entry JSON. Additionally, the provided\
+    \ `filter_subjects.py` snippet is truncated and does not show the final logic\
+    \ that writes the file or raises the exact FatalError message, confirming the\
+    \ task is not fully satisfied."
 T016:
   c: false
-  h: d1820720f36e87daf36b4e9a5c5b777bc1bf14a9ece1ee6a667c23d0d9c9e3d9
-  r: "The repository contains a `code/data/download.py` file, but it is incomplete\
-    \ (truncated) and cannot be verified as a working implementation. Moreover, the\
-    \ required `data/raw/valid_subjects.json` file does not exist, so the script has\
-    \ no subject list to operate on. Both required artifacts are missing or non\u2011\
-    functional."
+  h: f967554e413f5aaa909f602356c78e1f1ef60cd963c15b29d4366990ad768733
+  r: The `code/data/download.py` file exists, but the required `data/raw/valid_subjects.json`
+    input is missing, so the script cannot load the subject list it is supposed to
+    download. Additionally, the provided code is truncated and does not show the actual
+    download implementation, leaving the core functionality unverified. The task therefore
+    is not genuinely completed.
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -43,3 +42,31 @@ T021:
     \u202F7\u202FGB as required by US1 Acceptance Scenario\u202F1. The implementer\
     \ must supply the preprocessing code and evidence (e.g., directory size check,\
     \ logs) showing the size constraint is met."
+T026:
+  c: false
+  h: fb342bcadb4a9b0ebdb4e8febf6ecc0a1829421cb5265207b4296303880ea173
+  r: "The provided `verify_atlas_labels.py` is truncated and contains an obvious syntax\
+    \ error (`c` left dangling), so it does not reliably implement the label\u2011\
+    check and CSV\u2011generation logic. Moreover, the required output file `data/atlas/network_label_map.csv`\
+    \ is absent. The task\u2019s core artifact (a working script that creates the\
+    \ mapping CSV) is therefore missing or non\u2011functional."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `metrics.py` file containing a sliding\u2011window correlation\
+    \ implementation was provided; the artifact is missing, empty, or not shown, so\
+    \ the required functionality cannot be verified."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files implementing Louvain clustering on\
+    \ time\u2011varying connectivity matrices were provided. Consequently there is\
+    \ no evidence that discrete community partitions were generated, so the task requirement\
+    \ is unmet."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV or other output file containing the calculated flexibility (state transitions\
+    \ per unit time) for the DMN, Salience, and mapped Hippocampal\u2011Memory networks\
+    \ is present, nor any script or log showing that `network_label_map.csv` was used.\
+    \ The required artifact is missing, so the task is not satisfied."

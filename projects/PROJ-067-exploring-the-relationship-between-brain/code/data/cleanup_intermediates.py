@@ -1,11 +1,15 @@
 """
-Task T021: Ensure intermediate files are cleaned up or compressed to stay within 7GB total directory size.
+Cleanup intermediates script for User Story 1.
 
-This script scans the data/ directory for large intermediate files (e.g., raw NIfTI, 
-temporary processing files, uncompressed derivatives) and either removes them or 
-compresses them using gzip to reduce disk footprint.
+This script ensures intermediate files are cleaned up or compressed
+to stay within the 7GB total directory size constraint (US1 Acceptance Scenario 1).
 
-It respects the 7GB directory size constraint specified in US1 Acceptance Scenario 1.
+It is designed to be run after the preprocessing pipeline (T017) to:
+1. Identify intermediate files (e.g., unnormalized NIfTI, temporary derivatives)
+2. Compress large intermediate files using gzip
+3. Delete unnecessary temporary files
+4. Enforce the 7GB directory size limit
+5. Log all actions and final directory size
 """
 import os
 import sys
@@ -14,227 +18,306 @@ import shutil
 import logging
 import json
 from pathlib import Path
-from typing import List, Tuple, Dict
+from typing import List, Dict, Tuple, Optional
+from datetime import datetime
 
-# Configure logging
+# Import memory monitor to ensure we don't exceed limits during cleanup
+# Note: We assume memory_monitor.py is available as per T007
+try:
+    from utils.memory_monitor import check_memory_limit
+except ImportError:
+    # Fallback if memory_monitor not available (should not happen in normal execution)
+    def check_memory_limit():
+        return True
+
+# Configuration
+DATA_ROOT = Path("data")
+RAW_DIR = DATA_ROOT / "raw"
+PROCESSED_DIR = DATA_ROOT / "processed"
+MAX_SIZE_GB = 7.0
+MAX_SIZE_BYTES = MAX_SIZE_GB * 1024**3
+
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/cleanup.log')
+        logging.FileHandler(DATA_ROOT / "cleanup_log.txt"),
+        logging.StreamHandler(sys.stdout)
     ]
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("cleanup_intermediates")
 
-# Constants
-DATA_DIR = Path("data")
-RAW_DIR = DATA_DIR / "raw"
-PROCESSED_DIR = DATA_DIR / "processed"
-MAX_SIZE_BYTES = 7 * 1024 * 1024 * 1024  # 7GB
-LARGE_FILE_THRESHOLD = 100 * 1024 * 1024  # 100MB
-INTERMEDIATE_EXTENSIONS = ['.nii', '.nii.gz', '.tmp', '.bak', '.log']
-COMPRESSIBLE_EXTENSIONS = ['.nii', '.log']  # .nii.gz is already compressed
-
-def get_directory_size(path: Path) -> int:
-    """Calculate total size of a directory in bytes."""
+def get_directory_size(directory: Path) -> int:
+    """
+    Calculate the total size of a directory in bytes.
+    
+    Args:
+        directory: Path to the directory to measure
+        
+    Returns:
+        Total size in bytes
+    """
     total_size = 0
-    for dirpath, dirnames, filenames in os.walk(path):
-        for filename in filenames:
-            filepath = Path(dirpath) / filename
-            if filepath.exists():
-                total_size += filepath.stat().st_size
+    if not directory.exists():
+        return 0
+    
+    for item in directory.rglob('*'):
+        if item.is_file():
+            total_size += item.stat().st_size
     return total_size
 
-def get_large_files(directory: Path, threshold: int = LARGE_FILE_THRESHOLD) -> List[Tuple[Path, int]]:
-    """Find files larger than threshold in directory."""
+def get_large_files(directory: Path, min_size_mb: float = 100.0) -> List[Tuple[Path, int]]:
+    """
+    Find all files larger than a threshold in a directory.
+    
+    Args:
+        directory: Path to search
+        min_size_mb: Minimum file size in MB to consider
+        
+    Returns:
+        List of (path, size_bytes) tuples for large files
+    """
+    threshold_bytes = min_size_mb * 1024**2
     large_files = []
+    
     if not directory.exists():
         return large_files
-    
-    for filepath in directory.rglob('*'):
-        if filepath.is_file():
-            size = filepath.stat().st_size
-            if size > threshold:
-                large_files.append((filepath, size))
-    
-    return sorted(large_files, key=lambda x: x[1], reverse=True)
-
-def compress_file(filepath: Path) -> bool:
-    """Compress a file using gzip. Returns True if successful."""
-    if filepath.suffix == '.gz':
-        logger.info(f"Skipping {filepath} - already compressed")
-        return True
         
-    compressed_path = Path(str(filepath) + '.gz')
+    for item in directory.rglob('*'):
+        if item.is_file() and item.stat().st_size > threshold_bytes:
+            large_files.append((item, item.stat().st_size))
+    
+    # Sort by size descending
+    large_files.sort(key=lambda x: x[1], reverse=True)
+    return large_files
+
+def compress_file(file_path: Path) -> bool:
+    """
+    Compress a file using gzip.
+    
+    Args:
+        file_path: Path to the file to compress
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    if not file_path.exists():
+        logger.warning(f"File not found: {file_path}")
+        return False
+        
+    compressed_path = file_path.with_suffix(file_path.suffix + '.gz')
     
     try:
-        logger.info(f"Compressing {filepath} ({filepath.stat().st_size / 1024 / 1024:.1f} MB)")
-        with open(filepath, 'rb') as f_in:
+        # Check memory before compressing
+        check_memory_limit()
+        
+        logger.info(f"Compressing: {file_path} -> {compressed_path}")
+        
+        with open(file_path, 'rb') as f_in:
             with gzip.open(compressed_path, 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
         
-        # Verify compressed file
-        if compressed_path.exists():
-            original_size = filepath.stat().st_size
-            compressed_size = compressed_path.stat().st_size
-            logger.info(f"Compressed {filepath} -> {compressed_path} ({compressed_size/original_size*100:.1f}% of original)")
-            filepath.unlink()  # Remove original
+        # Verify compression worked
+        if compressed_path.exists() and compressed_path.stat().st_size < file_path.stat().st_size:
+            # Remove original
+            file_path.unlink()
+            logger.info(f"Successfully compressed and removed original: {file_path}")
             return True
         else:
-            logger.error(f"Failed to create compressed file for {filepath}")
+            logger.warning(f"Compression did not reduce size, keeping original: {file_path}")
+            compressed_path.unlink()  # Remove the failed compression
             return False
             
     except Exception as e:
-        logger.error(f"Error compressing {filepath}: {e}")
+        logger.error(f"Failed to compress {file_path}: {str(e)}")
+        if compressed_path.exists():
+            compressed_path.unlink()
         return False
 
-def remove_intermediate_file(filepath: Path) -> bool:
-    """Remove an intermediate file. Returns True if successful."""
+def remove_intermediate_file(file_path: Path) -> bool:
+    """
+    Remove an intermediate file.
+    
+    Args:
+        file_path: Path to the file to remove
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    if not file_path.exists():
+        logger.warning(f"File not found: {file_path}")
+        return False
+        
     try:
-        size = filepath.stat().st_size
-        logger.info(f"Removing intermediate file: {filepath} ({size / 1024 / 1024:.1f} MB)")
-        filepath.unlink()
+        logger.info(f"Removing intermediate file: {file_path}")
+        file_path.unlink()
         return True
     except Exception as e:
-        logger.error(f"Error removing {filepath}: {e}")
+        logger.error(f"Failed to remove {file_path}: {str(e)}")
         return False
 
-def identify_intermediate_files(directory: Path) -> List[Path]:
-    """Identify files that are safe to remove or compress."""
+def identify_intermediate_files() -> List[Path]:
+    """
+    Identify intermediate files that should be cleaned up.
+    
+    This includes:
+    - Temporary files from preprocessing (e.g., *_temp.nii.gz)
+    - Unnormalized derivatives that are no longer needed
+    - Log files from intermediate steps
+    
+    Returns:
+        List of paths to intermediate files
+    """
+    intermediate_patterns = [
+        "*_temp.nii.gz",
+        "*_temp.nii",
+        "*_tmp.nii.gz",
+        "*_tmp.nii",
+        "*_derivatives_temp.nii.gz",
+        "*.log",
+        "*.tmp"
+    ]
+    
     intermediate_files = []
     
-    if not directory.exists():
-        return intermediate_files
-        
-    for filepath in directory.rglob('*'):
-        if not filepath.is_file():
+    # Search in raw and processed directories
+    for directory in [RAW_DIR, PROCESSED_DIR]:
+        if not directory.exists():
             continue
             
-        filename = filepath.name
-        suffix = filepath.suffix.lower()
-        
-        # Skip already compressed files
-        if suffix == '.gz':
-            continue
-            
-        # Identify intermediate files based on extension and location
-        is_intermediate = False
-          
-        # Raw data that has been processed
-        if filepath.parent == RAW_DIR and suffix in ['.nii']:
-            # Check if corresponding processed file exists
-            processed_path = PROCESSED_DIR / filepath.name
-            if processed_path.exists() or (processed_path.with_suffix('.nii.gz')).exists():
-                is_intermediate = True
-                
-        # Temporary files
-        elif suffix in ['.tmp', '.bak']:
-            is_intermediate = True
-            
-        # Log files that are large
-        elif suffix == '.log' and filepath.stat().st_size > LARGE_FILE_THRESHOLD:
-            is_intermediate = True
-            
-        if is_intermediate:
-            intermediate_files.append(filepath)
-            
-    return intermediate_files
+        for pattern in intermediate_patterns:
+            intermediate_files.extend(directory.rglob(pattern))
+    
+    return list(set(intermediate_files))  # Remove duplicates
 
 def cleanup_pipeline() -> Dict:
-    """Main cleanup pipeline."""
-    stats = {
-        'initial_size_bytes': 0,
-        'final_size_bytes': 0,
-        'files_compressed': 0,
-        'files_removed': 0,
-        'space_saved_bytes': 0,
-        'errors': []
+    """
+    Main cleanup function for the preprocessing pipeline.
+    
+    This function:
+    1. Identifies intermediate files
+    2. Compresses large intermediate files
+    3. Removes unnecessary temporary files
+    4. Enforces the 7GB size limit
+    5. Logs all actions and final state
+    
+    Returns:
+        Dictionary with cleanup statistics and results
+    """
+    results = {
+        "timestamp": datetime.now().isoformat(),
+        "actions": [],
+        "files_compressed": 0,
+        "files_deleted": 0,
+        "space_saved_bytes": 0,
+        "initial_size_bytes": 0,
+        "final_size_bytes": 0,
+        "size_limit_gb": MAX_SIZE_GB,
+        "status": "success"
     }
     
     logger.info("Starting intermediate file cleanup...")
     
-    # Calculate initial size
-    stats['initial_size_bytes'] = get_directory_size(DATA_DIR)
-    logger.info(f"Initial data directory size: {stats['initial_size_bytes'] / 1024 / 1024 / 1024:.2f} GB")
-    
-    if stats['initial_size_bytes'] <= MAX_SIZE_BYTES:
-        logger.info("Directory size is within limits. No cleanup needed.")
-        stats['final_size_bytes'] = stats['initial_size_bytes']
-        return stats
-    
-    # Find large files
-    large_files = get_large_files(DATA_DIR)
-    logger.info(f"Found {len(large_files)} files larger than {LARGE_FILE_THRESHOLD / 1024 / 1024:.0f} MB")
+    # Record initial size
+    results["initial_size_bytes"] = get_directory_size(DATA_ROOT)
+    logger.info(f"Initial directory size: {results['initial_size_bytes'] / (1024**3):.2f} GB")
     
     # Identify intermediate files
-    intermediate_files = identify_intermediate_files(DATA_DIR)
-    logger.info(f"Identified {len(intermediate_files)} intermediate files for cleanup")
+    intermediate_files = identify_intermediate_files()
+    logger.info(f"Found {len(intermediate_files)} intermediate files")
     
     # Process intermediate files
-    for filepath in intermediate_files:
-        if not filepath.exists():
-            continue
-            
-        suffix = filepath.suffix.lower()
+    for file_path in intermediate_files:
+        original_size = file_path.stat().st_size if file_path.exists() else 0
         
-        if suffix in COMPRESSIBLE_EXTENSIONS:
-            if compress_file(filepath):
-                stats['files_compressed'] += 1
+        # Try to compress first if it's a NIfTI file
+        if file_path.suffix in ['.nii', '.nii.gz'] and original_size > 100 * 1024**2:
+            if compress_file(file_path):
+                results["files_compressed"] += 1
+                new_size = file_path.with_suffix(file_path.suffix + '.gz').stat().st_size if file_path.with_suffix(file_path.suffix + '.gz').exists() else 0
+                results["space_saved_bytes"] += (original_size - new_size)
+                results["actions"].append(f"Compressed: {file_path}")
+            else:
+                # If compression fails, try to delete
+                if remove_intermediate_file(file_path):
+                    results["files_deleted"] += 1
+                    results["space_saved_bytes"] += original_size
+                    results["actions"].append(f"Deleted: {file_path}")
         else:
-            if remove_intermediate_file(filepath):
-                stats['files_removed'] += 1
+            # Delete other intermediate files
+            if remove_intermediate_file(file_path):
+                results["files_deleted"] += 1
+                results["space_saved_bytes"] += original_size
+                results["actions"].append(f"Deleted: {file_path}")
     
-    # If still over limit, check for other large files to compress
-    if get_directory_size(DATA_DIR) > MAX_SIZE_BYTES:
-        logger.warning("Still over size limit. Attempting to compress additional large files...")
-        for filepath, size in large_files:
-            if get_directory_size(DATA_DIR) <= MAX_SIZE_BYTES:
-                break
-                
-            if filepath.suffix.lower() in COMPRESSIBLE_EXTENSIONS and not filepath.suffix.lower() == '.gz':
-                if compress_file(filepath):
-                    stats['files_compressed'] += 1
+    # Check if we're still over the limit
+    final_size = get_directory_size(DATA_ROOT)
+    results["final_size_bytes"] = final_size
     
-    # Calculate final size
-    stats['final_size_bytes'] = get_directory_size(DATA_DIR)
-    stats['space_saved_bytes'] = stats['initial_size_bytes'] - stats['final_size_bytes']
-    
-    logger.info(f"Cleanup complete.")
-    logger.info(f"Files compressed: {stats['files_compressed']}")
-    logger.info(f"Files removed: {stats['files_removed']}")
-    logger.info(f"Space saved: {stats['space_saved_bytes'] / 1024 / 1024 / 1024:.2f} GB")
-    logger.info(f"Final directory size: {stats['final_size_bytes'] / 1024 / 1024 / 1024:.2f} GB")
-    
-    if stats['final_size_bytes'] > MAX_SIZE_BYTES:
-        logger.warning(f"WARNING: Directory size ({stats['final_size_bytes'] / 1024 / 1024 / 1024:.2f} GB) still exceeds limit ({MAX_SIZE_BYTES / 1024 / 1024 / 1024} GB)")
+    if final_size > MAX_SIZE_BYTES:
+        logger.warning(f"Directory size {final_size / (1024**3):.2f} GB still exceeds limit of {MAX_SIZE_GB} GB")
+        results["status"] = "warning"
+        
+        # Additional cleanup: compress large processed files if necessary
+        logger.info("Attempting additional cleanup for large processed files...")
+        large_files = get_large_files(PROCESSED_DIR, min_size_mb=500.0)
+        
+        for file_path, size in large_files[:5]:  # Limit to top 5 to avoid over-compression
+            if file_path.suffix in ['.nii', '.nii.gz'] and not file_path.suffix.endswith('.gz'):
+                if compress_file(file_path):
+                    results["files_compressed"] += 1
+                    results["space_saved_bytes"] += size
+                    results["actions"].append(f"Compressed (additional): {file_path}")
+                    
+                    # Check size again
+                    final_size = get_directory_size(DATA_ROOT)
+                    if final_size <= MAX_SIZE_BYTES:
+                        break
+        
+        results["final_size_bytes"] = get_directory_size(DATA_ROOT)
+        if results["final_size_bytes"] > MAX_SIZE_BYTES:
+            results["status"] = "failed"
+            logger.error(f"Failed to reduce directory size below {MAX_SIZE_GB} GB")
     else:
-        logger.info("SUCCESS: Directory size is now within the 7GB limit.")
+        logger.info(f"Final directory size: {final_size / (1024**3):.2f} GB (within limit)")
     
-    return stats
+    # Log summary
+    logger.info(f"Cleanup complete:")
+    logger.info(f"  Files compressed: {results['files_compressed']}")
+    logger.info(f"  Files deleted: {results['files_deleted']}")
+    logger.info(f"  Space saved: {results['space_saved_bytes'] / (1024**2):.2f} MB")
+    logger.info(f"  Final size: {results['final_size_bytes'] / (1024**3):.2f} GB")
+    logger.info(f"  Status: {results['status']}")
+    
+    return results
 
 def main():
-    """Entry point for the cleanup script."""
+    """
+    Main entry point for the cleanup script.
+    """
+    logger.info("Running intermediate file cleanup for preprocessing pipeline...")
+    
     try:
-        stats = cleanup_pipeline()
+        results = cleanup_pipeline()
         
-        # Save stats to JSON
-        stats_path = DATA_DIR / "cleanup_stats.json"
-        with open(stats_path, 'w') as f:
-            json.dump(stats, f, indent=2)
+        # Save results to JSON
+        results_path = DATA_ROOT / "cleanup_results.json"
+        with open(results_path, 'w') as f:
+            json.dump(results, f, indent=2)
         
-        logger.info(f"Cleanup statistics saved to {stats_path}")
+        logger.info(f"Cleanup results saved to: {results_path}")
         
         # Exit with appropriate code
-        if stats['final_size_bytes'] > MAX_SIZE_BYTES:
-            logger.error("Cleanup failed to reduce directory size below 7GB limit.")
+        if results["status"] == "failed":
             sys.exit(1)
+        elif results["status"] == "warning":
+            sys.exit(0)  # Still successful but with warnings
         else:
-            logger.info("Cleanup completed successfully.")
             sys.exit(0)
             
     except Exception as e:
-        logger.error(f"Fatal error during cleanup: {e}")
+        logger.error(f"Cleanup failed with error: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":

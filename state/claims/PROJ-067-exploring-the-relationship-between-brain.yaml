@@ -49,3 +49,594 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T19:17:27Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: FatalError raised if fewer than 50 valid subjects found
+  claim_id: c_3acf504d
+  context: 'T015 [US1] Subject Filtering & N=50 Enforcement: Implement code/data/filter_subjects.py
+    to load validated metadata, filter for subjects with ''dream recall frequency'',
+    sort by subject ID ascending, select the first valid subjects, and truncate the
+    list to a fixed number of entries, then generate data/raw/valid_subjects.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FatalError_raised_if_fewer_than_50_valid_subjects_found
+  kind: magnitude
+  raw_text: If fewer than 50 valid subjects are found, raise a FatalError with message
+    'Insufficient subjects for N=50 target'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:29:33Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Permutation test executed with exactly 1000 iterations
+  claim_id: c_a1d58ef8
+  context: T040 [US3] Implement permutation test with exactly 1000 iterations to generate
+    null distribution (FR-007, SC-003).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement permutation test with exactly 1000 iterations to generate null
+    distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:30:39Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis calculated for N=50
+  claim_id: c_a524d8df
+  context: T041 [US3] Calculate and report post-hoc power analysis (detectable effect
+    size) for N=50 (FR-009, SC-001).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate and report post-hoc power analysis (detectable effect size)
+    for N=50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:31:42Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: RuntimeError raised if total runtime exceeds 4 hours
+  claim_id: c_66087c20
+  context: 'T049 [P] Runtime Verification: Implement a check in main.py that raises
+    a RuntimeError if total runtime > 4 hours and logs results to results/runtime_log.json,
+    asserting total <= 4 hours (SC-005, T045).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise a RuntimeError if total runtime > 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:31:42Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Subjects excluded if Framewise Displacement exceeds 0.5mm
+  claim_id: c_dc87600d
+  context: T019 [US1] Implement Framewise Displacement (FD) calculation in preprocess.py
+    and exclude subjects with FD >0.5mm (Edge Case).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude subjects with FD >0.5mm.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:31:42Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Process aborted if RSS exceeds 7GB
+  claim_id: c_a46cb9ea
+  context: T018 [US1] Integrate memory_monitor.py into preprocess.py to abort if RSS
+    >7GB (FR-002, SC-004).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Process_aborted_if_RSS_exceeds_7GB
+  kind: entity_fact
+  raw_text: Abort if RSS >7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:32:34Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Total directory size constrained to 7GB
+  claim_id: c_002da493
+  context: T021 [US1] Ensure intermediate files are cleaned up or compressed to stay
+    within 7GB total directory size (US1 Acceptance Scenario 1).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Total_directory_size_constrained_to_7GB
+  kind: entity_fact
+  raw_text: Ensure intermediate files are cleaned up or compressed to stay within
+    7GB total directory size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:33:20Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Directory size and peak memory verified to be under 7GB
+  claim_id: c_f1ac2a17
+  context: "Independent Test: Execute download and preprocessing on a subset of subjects;\
+    \ verify output NIfTI files exist, directory size \u22647GB, and peak memory log\
+    \ entry <7GB."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Directory_size_and_peak_memory_verified_to_be_under_7GB
+  kind: entity_fact
+  raw_text: "Verify output NIfTI files exist, directory size \u22647GB, and peak memory\
+    \ log entry <7GB."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:34:08Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Schaefer-100 atlas used instead of Schaefer-400
+  claim_id: c_100f4848
+  context: 'Atlas Choice: Use Schaefer-100 (per Plan) instead of Schaefer-400 to ensure
+    statistical validity on short windows. Documented in T005 and T005b.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Schaefer-100 atlas instead of Schaefer-400.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:44:21Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Tasks restricted to CPU-only CI environment
+  claim_id: c_6fe5a79b
+  context: 'Critical Constraint: All tasks must run on CPU-only CI with a limited
+    number of cores and constrained RAM.. No GPU, no 8-bit models, no heavy deep learning.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_restricted_to_CPU-only_CI_environment
+  kind: entity_fact
+  raw_text: All tasks must run on CPU-only CI with a limited number of cores and constrained
+    RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:46:56Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: GPU, 8-bit models, and heavy deep learning excluded
+  claim_id: c_4d901daa
+  context: 'Critical Constraint: All tasks must run on CPU-only CI with a limited
+    number of cores and constrained RAM.. No GPU, no 8-bit models, no heavy deep learning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No GPU, no 8-bit models, no heavy deep learning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:50:34Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: ICA-AROMA executed with --afni and --no-reports flags
+  claim_id: c_0534d02a
+  context: 'T017 [US1] Implement code/data/preprocess.py to run ICA-AROMA denoising
+    and spatial normalization to MNI152NLin2009cAsym template. Use specific ICA-AROMA
+    flags: --afni, --no-reports.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ICA-AROMA_executed_with_--afni_and_--no-reports_flags
+  kind: entity_fact
+  raw_text: 'Use specific ICA-AROMA flags: --afni, --no-reports.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:50:42Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Spatial normalization performed to MNI152NLin2009cAsym template
+  claim_id: c_e716ec07
+  context: T017 [US1] Implement code/data/preprocess.py to run ICA-AROMA denoising
+    and spatial normalization to MNI152NLin2009cAsym template.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_normalization_performed_to_MNI152NLin2009cAsym_templ
+  kind: entity_fact
+  raw_text: Spatial normalization to MNI152NLin2009cAsym template.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:50:50Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: 'Python project initialized with pinned dependencies: nilearn, networkx,
+    scikit-learn, scipy, pandas, numpy, joblib, requests, nibabel'
+  claim_id: c_aed74e67
+  context: T003 [P] Initialize a Python project with pinned dependencies in code/requirements.txt
+    (nilearn, networkx, scikit-learn, scipy, pandas, numpy, joblib, requests, nibabel)
+    using a compatible modern Python version.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Python_project_initialized_with_pinned_dependencies:_nilearn
+  kind: entity_fact
+  raw_text: Initialize a Python project with pinned dependencies in code/requirements.txt
+    (nilearn, networkx, scikit-learn, scipy, pandas, numpy, joblib, requests, nibabel).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:50:59Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Linting (ruff) and formatting (black) tools configured
+  claim_id: c_d2fdbb64
+  context: T004 [P] Configure linting (ruff) and formatting (black) tools in code/.pre-commit-config.yaml
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linting_(ruff)_and_formatting_(black)_tools_configured
+  kind: entity_fact
+  raw_text: Configure linting (ruff) and formatting (black) tools in code/.pre-commit-config.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:51:07Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: RSS tracked via /proc/self/status
+  claim_id: c_797d666c
+  context: T007 [P] Implement code/utils/memory_monitor.py to track RSS via /proc/self/status
+    and raise exceptions if >7GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RSS_tracked_via_/proc/self/status
+  kind: entity_fact
+  raw_text: Track RSS via /proc/self/status.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:51:16Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: ds000228 metadata fetched
+  claim_id: c_65f579b4
+  context: 'T014 [US1] Metadata Validation (Phase 0 Gate): Implement code/data/validate_metadata.py
+    to fetch ds000228 metadata, verify existence of ''dream recall frequency'' field,
+    and HALT execution if missing (FR-001, Plan Phase 0).'
+  evidence:
+    entailment_evidence: Ds000228 metadata fetched - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Ds000228_metadata_fetched
+  kind: entity_fact
+  raw_text: Fetch ds000228 metadata.
+  resolved_value: ds000228 metadata fetched
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T03:51:18Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Existence of 'dream recall frequency' field verified
+  claim_id: c_5a3907ec
+  context: 'T014 [US1] Metadata Validation (Phase 0 Gate): Implement code/data/validate_metadata.py
+    to fetch ds000228 metadata, verify existence of ''dream recall frequency'' field,
+    and HALT execution if missing (FR-001, Plan Phase 0).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Existence_of_'dream_recall_frequency'_field_verified
+  kind: entity_fact
+  raw_text: Verify existence of 'dream recall frequency' field.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:51:28Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Subjects filtered by 'dream recall frequency' field
+  claim_id: c_39d154c3
+  context: 'T015 [US1] Subject Filtering & N=50 Enforcement: Implement code/data/filter_subjects.py
+    to load validated metadata, filter for subjects with ''dream recall frequency'',
+    sort by subject ID ascending, select the first valid subjects, and truncate the
+    list to a fixed number of entries, then generate data/raw/valid_subjects.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subjects_filtered_by_'dream_recall_frequency'_field
+  kind: entity_fact
+  raw_text: Filter for subjects with 'dream recall frequency'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:53:50Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Subjects sorted by ID ascending
+  claim_id: c_13e969f8
+  context: 'T015 [US1] Subject Filtering & N=50 Enforcement: Implement code/data/filter_subjects.py
+    to load validated metadata, filter for subjects with ''dream recall frequency'',
+    sort by subject ID ascending, select the first valid subjects, and truncate the
+    list to a fixed number of entries, then generate data/raw/valid_subjects.json.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q67269452
+        url: https://www.wikidata.org/wiki/Q67269452
+        value: '872'
+      quote: 'P214: 130233491'
+      source_id: Q12690
+      url: https://www.wikidata.org/wiki/Q12690
+      value: '130233491'
+    filled: true
+  kind: entity_fact
+  raw_text: Sort by subject ID ascending.
+  resolved_value: '130233491'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T03:54:00Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: data/raw/valid_subjects.json generated
+  claim_id: c_aa7c3f0c
+  context: 'T015 [US1] Subject Filtering & N=50 Enforcement: ... then generate data/raw/valid_subjects.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data/raw/valid_subjects.json_generated
+  kind: entity_fact
+  raw_text: Generate data/raw/valid_subjects.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:54:10Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: ds000228 NIfTI files fetched for subjects in valid_subjects.json
+  claim_id: c_c989e6cd
+  context: T016 [US1] Implement code/data/download.py to fetch ds000228 NIfTI files
+    for subjects listed in data/raw/valid_subjects.json (T015 output) (FR-001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ds000228_NIfTI_files_fetched_for_subjects_in_valid_subjects.
+  kind: entity_fact
+  raw_text: Fetch ds000228 NIfTI files for subjects listed in data/raw/valid_subjects.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:54:16Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Regions with 'Hippocampal' or 'Memory' in source_label mapped to 'Hippocampal-Memory'
+  claim_id: c_904f0b40
+  context: 'T026 [US2] Atlas Label Verification & Mapping: ... Mapping Logic: Map
+    any region where source_label contains ''Hippocampal'' or ''Memory'' to mapped_label=''Hippocampal-Memory''.
+    This task MUST complete before T025.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Hippocampal Memory Circuits in Delusions
+      source_id: Q61727982
+      url: https://www.wikidata.org/wiki/Q61727982
+      value: Hippocampal Memory Circuits in Delusions
+    filled: true
+  kind: entity_fact
+  raw_text: Map any region where source_label contains 'Hippocampal' or 'Memory' to
+    mapped_label='Hippocampal-Memory'.
+  resolved_value: Hippocampal Memory Circuits in Delusions
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T03:54:26Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Flexibility calculated for DMN, Salience, and Hippocampal-Memory networks
+  claim_id: c_9c17a169
+  context: T029 [US2] Calculate Flexibility (state transitions per unit time) for
+    DMN, Salience, and mapped Hippocampal-Memory networks using network_label_map.csv
+    (FR-004, T026).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flexibility_calculated_for_DMN,_Salience,_and_Hippocampal-Me
+  kind: entity_fact
+  raw_text: Calculate Flexibility (state transitions per unit time) for DMN, Salience,
+    and mapped Hippocampal-Memory networks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:54:36Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Stability (Mean Dwell Time) calculated for DMN, Salience, and Hippocampal-Memory
+    networks
+  claim_id: c_af3f5011
+  context: T030 [US2] Calculate Stability (Mean Dwell Time) for the same networks
+    (FR-004).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_(Mean_Dwell_Time)_calculated_for_DMN,_Salience,_an
+  kind: entity_fact
+  raw_text: Calculate Stability (Mean Dwell Time) for the same networks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:54:47Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Subject-level metrics output to data/metrics/subject_metrics.csv
+  claim_id: c_df8d3d8c
+  context: T031 [US2] Output subject-level metrics to data/metrics/subject_metrics.csv
+    with proper headers and JSON/CSV validation (FR-008).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subject-level_metrics_output_to_data/metrics/subject_metrics
+  kind: entity_fact
+  raw_text: Output subject-level metrics to data/metrics/subject_metrics.csv with
+    proper headers and JSON/CSV validation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:57:06Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Spearman correlation performed between metrics and dream recall frequency
+  claim_id: c_0423e996
+  context: T038 [US3] Perform Spearman correlation analysis between metrics and dream
+    recall frequency (FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spearman_correlation_performed_between_metrics_and_dream_rec
+  kind: entity_fact
+  raw_text: Perform Spearman correlation analysis between metrics and dream recall
+    frequency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:59:39Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: FDR correction applied to all correlation p-values
+  claim_id: c_b13feb3a
+  context: T039 [US3] Apply False Discovery Rate (FDR) correction to all correlation
+    p-values (FR-006, SC-002).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_applied_to_all_correlation_p-values
+  kind: entity_fact
+  raw_text: Apply False Discovery Rate (FDR) correction to all correlation p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:05:07Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: results/stats.json generated containing rho, uncorrected p, FDR-corrected
+    p, and permutation p-value
+  claim_id: c_7dc3f9cc
+  context: T042 [US3] Generate results/stats.json containing rho, uncorrected p, FDR-corrected
+    p, and permutation p-value (FR-008).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Results/stats.json_generated_containing_rho,_uncorrected_p,
+  kind: entity_fact
+  raw_text: Generate results/stats.json containing rho, uncorrected p, FDR-corrected
+    p, and permutation p-value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:08:10Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: Correlation scatter plot and null distribution histogram generated
+  claim_id: c_abd1aff6
+  context: T043 [US3] Generate correlation scatter plot and null distribution histogram
+    in results/plots/ (US3 Acceptance Scenario 3).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_scatter_plot_and_null_distribution_histogram_gen
+  kind: entity_fact
+  raw_text: Generate correlation scatter plot and null distribution histogram in results/plots/.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:08:22Z'
+- artifact_path: projects/PROJ-067-exploring-the-relationship-between-brain/specs/001-exploring-the-relationship-between-brain/tasks.md
+  attempts: 1
+  canonical: code/main.py updated with wall-clock timing instrumentation for each
+    phase
+  claim_id: c_9da78b97
+  context: "T045 [P] Update code/main.py to orchestrate the full pipeline (Download\
+    \ \u2192 Preprocess \u2192 Metrics \u2192 Stats) with built-in wall-clock timing\
+    \ instrumentation for each phase (SC-005)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code/main.py_updated_with_wall-clock_timing_instrumentation
+  kind: entity_fact
+  raw_text: "Update code/main.py to orchestrate the full pipeline (Download \u2192\
+    \ Preprocess \u2192 Metrics \u2192 Stats) with built-in wall-clock timing instrumentation\
+    \ for each phase."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:08:29Z'

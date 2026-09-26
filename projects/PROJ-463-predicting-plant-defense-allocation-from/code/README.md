@@ -1,31 +1,43 @@
-# Plant Defense Allocation Prediction Pipeline
+# Predicting Plant Defense Allocation from Publicly Available Transcriptomic Data
 
-This project implements a pipeline to predict plant defense allocation from publicly available transcriptomic data.
+## Project Overview
 
-## Project Structure
+This project implements an automated pipeline to predict plant defense allocation strategies from publicly available RNA-seq data.
 
-- `src/`: Source code for the pipeline
- - `utils/`: Configuration, logging, schemas
- - `data/`: Data acquisition, preprocessing, QC
- - `analysis/`: Differential expression, feature engineering, modeling
-- `tests/`: Test suite
- - `unit/`: Unit tests
- - `integration/`: Integration tests
-- `data/`: Data directories
- - `raw/`: Raw FASTQ files from NCBI
- - `processed/`: Intermediate processed data
- - `traits/`: Defense trait data
- - `manifests/`: Data provenance manifests
- - `synthetic/`: Synthetic data for validation
-- `scripts/`: CLI entry points
-- `specs/`: Feature specifications
+## Directory Structure
 
-## Setup
+```
+code/
+├── src/
+│ ├── analysis/ # Analysis modules (DE, modeling, etc.)
+│ ├── cli/ # Command line interfaces
+│ ├── data/ # Data acquisition and preprocessing
+│ └── utils/ # Utilities (config, logging, schemas)
+├── scripts/ # Runner scripts for each module
+├── tests/ # Test suites
+├── data/
+│ ├── raw/ # Raw and synthetic data files
+│ ├── processed/ # Processed data artifacts
+│ ├── traits/ # Trait data
+│ ├── manifests/ # Data manifests and metadata
+│ └── synthetic/ # Synthetic validation data
+├── requirements.txt # Python dependencies
+└── README.md # This file
+```
 
-1. Install dependencies: `pip install -r requirements.txt`
-2. Install system tools: `fastp`, `hisat2`, `featureCounts`
-3. Run the pipeline: `python scripts/run_pipeline.py --mode synthetic`
+## Quickstart
 
-## License
+See `quickstart.md` for detailed instructions on running the pipeline in both synthetic and real modes.
 
-MIT License
+## Running with Real Data
+
+1. Configure `TRY_API_KEY` environment variable if accessing TRY database.
+2. Ensure network access to NCBI/SRA and Open Tree of Life APIs.
+3. Run with `--mode real` flag:
+ ```bash
+ python code/scripts/run_download.py --mode real
+ ```
+
+## Validation
+
+Use synthetic mode (`--mode synthetic`) to validate pipeline structure without real data dependencies.

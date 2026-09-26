@@ -1,166 +1,153 @@
 """
-Unit tests for metadata verification (T011a).
+Unit tests for metadata verification module.
 """
 
 import pytest
 import json
+import os
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
+
 import sys
+from pathlib import Path
 
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.data.verify_metadata import (
-    fetch_sra_metadata,
-    extract_required_metadata,
     verify_metadata_requirements,
     verify_fastq_metadata,
     verify_synthetic_metadata,
     save_verification_report,
-    calculate_sha256
 )
 
 
-class TestVerifyMetadata:
-    """Test cases for metadata verification functions."""
+class TestVerifyMetadataRequirements:
+    """Tests for verify_metadata_requirements function."""
 
-    def test_calculate_sha256(self):
-        """Test SHA256 calculation."""
-        with tempfile.NamedTemporaryFile(delete=False) as tmp:
-            tmp.write(b"test data")
-            tmp_path = Path(tmp.name)
-
-        checksum = calculate_sha256(tmp_path)
-        assert len(checksum) == 64  # SHA256 hex length
-        assert checksum == "916f0027a575074ce72a331777c3478d6513f786a591bd892da1a577bf2335f9"
-
-        tmp_path.unlink()
-
-    def test_extract_required_metadata(self):
-        """Test metadata extraction from file path."""
-        with tempfile.NamedTemporaryFile(suffix=".fastq.gz", delete=False) as tmp:
-            tmp_path = Path(tmp.name)
-
-        metadata = extract_required_metadata(tmp_path)
-        assert "file_path" in metadata
-        assert metadata["file_path"] == str(tmp_path)
-        assert metadata["checksum"] is not None
-
-        tmp_path.unlink()
-
-    def test_verify_metadata_requirements_valid(self):
-        """Test verification with valid metadata."""
+    def test_valid_metadata(self):
+        """Test with valid metadata that meets all requirements."""
         metadata = {
             "species": "Arabidopsis thaliana",
             "tissue": "leaf",
-            "treatment": "chewing",
-            "replicates": 3
+            "treatment": "herbivory",
+            "replicates": 3,
         }
+        is_valid, reason = verify_metadata_requirements(metadata)
+        assert is_valid is True
+        assert reason is None
 
-        is_valid, issues = verify_metadata_requirements(metadata)
-        assert is_valid
-        assert len(issues) == 0
-
-    def test_verify_metadata_requirements_missing_species(self):
-        """Test verification with missing species."""
+    def test_missing_tissue(self):
+        """Test with missing tissue metadata."""
         metadata = {
-            "tissue": "leaf",
-            "treatment": "chewing",
-            "replicates": 3
+            "species": "Arabidopsis thaliana",
+            "tissue": None,
+            "treatment": "herbivory",
+            "replicates": 3,
         }
+        is_valid, reason = verify_metadata_requirements(metadata)
+        assert is_valid is False
+        assert "tissue" in reason
 
-        is_valid, issues = verify_metadata_requirements(metadata)
-        assert not is_valid
-        assert "Missing species information" in issues
-
-    def test_verify_metadata_requirements_insufficient_replicates(self):
-        """Test verification with insufficient replicates."""
+    def test_insufficient_replicates(self):
+        """Test with insufficient replicates."""
         metadata = {
             "species": "Arabidopsis thaliana",
             "tissue": "leaf",
-            "treatment": "chewing",
-            "replicates": 1
+            "treatment": "herbivory",
+            "replicates": 1,
         }
+        is_valid, reason = verify_metadata_requirements(metadata)
+        assert is_valid is False
+        assert "replicates" in reason
 
-        is_valid, issues = verify_metadata_requirements(metadata)
-        assert not is_valid
-        assert any("Insufficient replicates" in issue for issue in issues)
-
-    @patch('src.data.verify_metadata.requests.get')
-    def test_fetch_sra_metadata_success(self, mock_get):
-        """Test successful metadata fetch from SRA."""
-        mock_response = MagicMock()
-        mock_response.json.return_value = {
-            "esearchresult": {
-                "idlist": ["12345"]
-            }
+    def test_empty_treatment(self):
+        """Test with empty treatment metadata."""
+        metadata = {
+            "species": "Arabidopsis thaliana",
+            "tissue": "leaf",
+            "treatment": "",
+            "replicates": 3,
         }
-        mock_response2 = MagicMock()
-        mock_response2.json.return_value = {
-            "result": {
-                "12345": {
-                    "organism": "Arabidopsis thaliana",
-                    "description": "chewing herbivory treatment",
-                    "attributes": [
-                        {"attribute_name": "organ", "attribute_value": "leaf"}
-                    ]
-                }
+        is_valid, reason = verify_metadata_requirements(metadata)
+        assert is_valid is False
+        assert "treatment" in reason
+
+
+class TestVerifySyntheticMetadata:
+    """Tests for verify_synthetic_metadata function."""
+
+    def test_valid_synthetic_report(self):
+        """Test with a valid synthetic report file."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
+            report_data = {
+                "studies": [
+                    {
+                        "accession_id": "SYNTH_001",
+                        "species": "Arabidopsis thaliana",
+                        "tissue": "leaf",
+                        "treatment": "herbivory",
+                        "replicates": 3,
+                        "exclusion_reason": None,
+                    }
+                ]
             }
-        }
+            json.dump(report_data, f)
+            temp_path = f.name
 
-        mock_get.side_effect = [mock_response, mock_response2]
-
-        metadata = fetch_sra_metadata("SRR12345")
-
-        assert metadata is not None
-        assert metadata["species"] == "Arabidopsis thaliana"
-        assert metadata["tissue"] == "leaf"
-
-    def test_verify_synthetic_metadata_existing(self):
-        """Test verification of existing synthetic manifest."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            manifest_path = Path(tmpdir) / "synthetic_manifest.json"
-            manifest_data = {
-                "accession_id": "SYNTH_001",
-                "source_type": "synthetic"
-            }
-            with open(manifest_path, 'w') as f:
-                json.dump(manifest_data, f)
-
-            result = verify_synthetic_metadata(manifest_path)
-            assert result["status"] == "valid"
+        try:
+            result = verify_synthetic_metadata(temp_path)
+            assert result["accession_id"] == "SYNTH_001"
+            assert result["species"] == "Arabidopsis thaliana"
+            assert result["tissue"] == "leaf"
+            assert result["treatment"] == "herbivory"
+            assert result["replicates"] == 3
+            assert result["exclusion_reason"] is None
             assert result["mode"] == "synthetic"
+            assert result["real_data_available"] is False
+        finally:
+            os.unlink(temp_path)
 
-    def test_verify_synthetic_metadata_missing(self):
-        """Test verification of missing synthetic manifest."""
+    def test_invalid_report_file(self):
+        """Test with an invalid report file path."""
+        result = verify_synthetic_metadata("/nonexistent/path/report.json")
+        assert result["exclusion_reason"] is not None
+        assert "Failed to read" in result["exclusion_reason"]
+        assert result["mode"] == "synthetic"
+        assert result["real_data_available"] is False
+
+
+class TestSaveVerificationReport:
+    """Tests for save_verification_report function."""
+
+    def test_save_report(self):
+        """Test saving a verification report."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            manifest_path = Path(tmpdir) / "nonexistent.json"
+            output_path = os.path.join(tmpdir, "test_report.json")
+            report = {
+                "studies": [
+                    {
+                        "accession_id": "TEST_001",
+                        "species": "Test Species",
+                        "tissue": "test_tissue",
+                        "treatment": "test_treatment",
+                        "replicates": 2,
+                        "exclusion_reason": None,
+                        "mode": "synthetic",
+                        "real_data_available": False,
+                    }
+                ]
+            }
 
-            result = verify_synthetic_metadata(manifest_path)
-            assert result["status"] == "error"
-            assert "not found" in result["message"].lower()
+            save_verification_report(report, output_path)
 
-    def test_save_verification_report(self):
-        """Test saving verification report."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "report.json"
-            results = [
-                {
-                    "file": "test.fastq.gz",
-                    "status": "valid",
-                    "species": "Arabidopsis thaliana"
-                }
-            ]
+            # Verify file was created
+            assert os.path.exists(output_path)
 
-            save_verification_report(results, output_path)
+            # Verify content
+            with open(output_path, "r") as f:
+                saved_report = json.load(f)
 
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                report = json.load(f)
-
-            assert report["total_files"] == 1
-            assert report["valid_files"] == 1
+            assert saved_report == report

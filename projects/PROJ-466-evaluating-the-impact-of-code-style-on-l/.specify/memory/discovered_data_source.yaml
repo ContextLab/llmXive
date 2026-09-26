@@ -1,27 +1,10 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: "import sys\nfrom datasets import load_dataset\n\ndata = load_dataset(\"\
-  openai/openai_humaneval\")\nif isinstance(data, dict):\n    total = sum(len(split)\
-  \ for split in data.values())\n    # get a sample record from the first non\u2011\
-  empty split\n    sample = {}\n    for split in data.values():\n        if len(split)\
-  \ > 0:\n            sample = split[0]\n            break\nelse:\n    total = len(data)\n\
-  \    sample = data[0] if total > 0 else {}\n\nif total == 0:\n    raise RuntimeError(\"\
-  Loaded dataset contains zero records\")\n\nfields = list(sample.keys()) if isinstance(sample,\
-  \ dict) else []\n\nprint(f\"RECORDS={total}\")\nif fields:\n    print(\"FIELDS=\"\
-  \ + \",\".join(fields))"
-record_count: 164
-sample_fields:
-- task_id
-- prompt
-- canonical_solution
-- test
-- entry_point
-field_coverage: 0.75
+status: none
+intent: HumanEval dataset download via huggingface datasets python package
 required_fields:
 - Task ID
 - Prompt Template
 - Unit Test Code
 - Expected Output
-intent: HumanEval dataset download via huggingface python package dataset
-cache_key: d501be54e989b1b67b19ded26ed7c229adf91ed5af520d533a9592eb00e9402b
+cache_key: 37ff9a3161b6f49a1bafcaf0600ae8babd8d7e902f993f36f426b935c19572a3
+searched_at: '2026-09-26T04:11:41.323808+00:00'
+retry_count: 1

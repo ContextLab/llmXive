@@ -1,8 +1,9 @@
 """
-Metrics validation module for the llmXive pipeline.
+Validation metrics module for the llmXive simulation pipeline.
 
-Provides functions to scan parquet files for NaN values and
-validate time-bound baseline runs.
+This module provides functions to validate simulation outputs,
+specifically checking for NaN values, time-bound flags, and
+minimum step counts in partial runs.
 """
 import os
 import sys
@@ -10,334 +11,152 @@ import glob
 import logging
 import pandas as pd
 import json
-from typing import List, Dict, Any, Optional
+from pathlib import Path
+from typing import Optional, Tuple, List
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/validation.log')
-    ]
-)
 logger = logging.getLogger(__name__)
 
-def scan_parquet_for_nans(file_path: str) -> Dict[str, Any]:
+def scan_parquet_for_nans(file_path: str) -> Tuple[bool, int]:
     """
-    Scan a parquet file for NaN values.
+    Scan a Parquet file for NaN values.
     
     Args:
-        file_path: Path to the parquet file.
+        file_path: Path to the Parquet file.
         
     Returns:
-        Dictionary with 'has_nans' boolean and 'nan_count' per column.
+        Tuple of (has_nans, count_of_nans)
     """
     try:
         df = pd.read_parquet(file_path)
-        nan_counts = df.isna().sum()
-        total_nans = nan_counts.sum()
-        
-        result = {
-            'file': file_path,
-            'has_nans': total_nans > 0,
-            'nan_count': int(total_nans),
-            'column_nans': nan_counts[nan_counts > 0].to_dict()
-        }
-        
-        if result['has_nans']:
-            logger.warning(f"NaNs found in {file_path}: {result['column_nans']}")
-        else:
-            logger.info(f"No NaNs found in {file_path}")
-            
-        return result
-        
+        nan_count = df.isna().sum().sum()
+        has_nans = nan_count > 0
+        return has_nans, int(nan_count)
     except Exception as e:
-        logger.error(f"Error scanning {file_path}: {e}")
+        logger.error(f"Error scanning {file_path} for NaNs: {e}")
         raise
 
-def validate_time_bound_baseline(
-    file_path: str,
-    min_steps: int = 1000
-) -> Dict[str, Any]:
+def validate_time_bound_baseline(file_path: str, min_steps: int = 1000) -> Tuple[bool, bool, str]:
     """
     Validate a time-bound baseline run.
     
-    Checks:
-    1. The file exists and is readable.
-    2. The 'Time-Bound' flag is present and True.
-    3. The run contains at least min_steps steps.
+    This function checks:
+    1. Presence of the 'Time-Bound' flag in the metadata/status.
+    2. That the partial run contains at least min_steps rows.
     
     Args:
         file_path: Path to the baseline_partial.parquet file.
-        min_steps: Minimum number of steps required (default 1000).
+        min_steps: Minimum required number of steps.
         
     Returns:
-        Dictionary with validation results.
-        
-    Raises:
-        ValueError: If validation fails.
+        Tuple of (has_time_bound_flag, meets_min_steps, status_message)
     """
     if not os.path.exists(file_path):
-        error_msg = f"File not found: {file_path}"
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
+        return False, False, f"File not found: {file_path}"
     
     try:
         df = pd.read_parquet(file_path)
-    except Exception as e:
-        error_msg = f"Failed to read parquet file {file_path}: {e}"
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    
-    # Check for Time-Bound flag
-    has_flag = False
-    flag_value = False
-    
-    # Try common column names for the flag
-    flag_columns = ['is_time_bound', 'time_bound', 'Time-Bound', 'flag', 'status']
-    for col in flag_columns:
-        if col in df.columns:
-            # Check if any row has the flag set to True
-            if df[col].dtype == 'object':
-                # Check for string representation
-                has_flag = (df[col] == 'Time-Bound').any() or (df[col] == 'True').any()
-            elif df[col].dtype in ['bool', 'int', 'float']:
-                has_flag = df[col].any()
-            
-            if has_flag:
-                flag_value = df[col].iloc[0] if len(df) > 0 else False
-                logger.info(f"Found flag column '{col}' with value: {flag_value}")
-                break
-    
-    # If no explicit flag column found, check metadata or other indicators
-    if not has_flag:
-        # Check if there's a 'status' or 'reason' column indicating time-boundedness
-        if 'status' in df.columns:
-            has_flag = (df['status'] == 'Time-Bound').any()
-        elif 'reason' in df.columns:
-            has_flag = (df['reason'] == 'Time-Bound').any()
-        else:
-            # If we can't find a flag, we assume it's not a time-bound run
-            # unless the filename suggests it
-            if 'partial' in os.path.basename(file_path).lower():
-                logger.warning(
-                    f"File {file_path} appears to be partial but no explicit "
-                    "Time-Bound flag found. Assuming time-bound based on filename."
-                )
-                has_flag = True
-    
-    # Check step count
-    step_count = len(df)
-    step_column = None
-    
-    # Try to find a step counter column
-    step_columns = ['step', 'step_id', 'timestep', 'time_step', 'iteration']
-    for col in step_columns:
-        if col in df.columns:
-            step_column = col
-            step_count = df[col].max() + 1 if df[col].dtype in ['int', 'float'] else len(df)
-            break
-    
-    # If no step column, use row count
-    if step_column is None:
-        step_count = len(df)
-    
-    meets_min_steps = step_count >= min_steps
-    
-    result = {
-        'file': file_path,
-        'exists': True,
-        'is_time_bound': has_flag,
-        'flag_value': str(flag_value),
-        'step_count': step_count,
-        'min_steps_required': min_steps,
-        'meets_min_steps': meets_min_steps,
-        'validation_passed': has_flag and meets_min_steps
-    }
-    
-    # Log results
-    if has_flag:
-        logger.info(f"Time-Bound flag detected in {file_path}")
-    else:
-        logger.warning(f"No Time-Bound flag found in {file_path}")
+        total_steps = len(df)
         
-    logger.info(f"Step count: {step_count} (min required: {min_steps})")
-    
-    if not meets_min_steps:
-        error_msg = (
-            f"Validation failed: {file_path} has {step_count} steps, "
-            f"but minimum {min_steps} required for statistical significance."
-        )
-        logger.error(error_msg)
-        result['error'] = error_msg
-    elif not has_flag:
-        error_msg = (
-            f"Validation failed: {file_path} does not have the 'Time-Bound' flag set."
-        )
-        logger.error(error_msg)
-        result['error'] = error_msg
-    else:
-        logger.info(f"Validation passed for {file_path}")
-    
-    return result
+        # Check for Time-Bound flag
+        # The flag might be in a 'status' column or metadata
+        has_time_bound = False
+        
+        # Check columns for status flag
+        if 'status' in df.columns:
+            # Check if any row indicates Time-Bound
+            time_bound_values = df['status'].astype(str).str.contains('Time-Bound', case=False, na=False)
+            has_time_bound = time_bound_values.any()
+        
+        # If not in status column, check metadata or a dedicated flag column
+        if not has_time_bound:
+            if 'time_bound' in df.columns:
+                has_time_bound = df['time_bound'].any()
+            elif 'flags' in df.columns:
+                # Assume flags might be a list or string containing 'Time-Bound'
+                flags_str = str(df['flags'].iloc[0]) if len(df) > 0 else ""
+                has_time_bound = 'Time-Bound' in flags_str
+        
+        # Check minimum steps
+        meets_min = total_steps >= min_steps
+        
+        if not has_time_bound:
+            msg = f"Missing 'Time-Bound' flag. Steps: {total_steps}"
+            return False, meets_min, msg
+        
+        if not meets_min:
+            msg = f"Time-Bound flag present, but steps ({total_steps}) < min_steps ({min_steps})"
+            return True, False, msg
+        
+        return True, True, f"Validation passed: {total_steps} steps with Time-Bound flag"
+        
+    except Exception as e:
+        logger.error(f"Error validating {file_path}: {e}")
+        return False, False, f"Validation error: {e}"
 
-def validate_metrics_directory(
-    directory: str,
-    pattern: str = "*.parquet",
-    min_steps: int = 1000
-) -> Dict[str, Any]:
+def validate_metrics_directory(directory: str, min_steps: int = 1000) -> bool:
     """
     Validate all parquet files in a directory.
     
     Args:
         directory: Path to the directory containing parquet files.
-        pattern: Glob pattern for files to validate (default: "*.parquet").
-        min_steps: Minimum steps for time-bound validation (default: 1000).
+        min_steps: Minimum steps required for time-bound baselines.
         
     Returns:
-        Dictionary with validation results for all files.
+        True if all validations pass, False otherwise.
     """
-    if not os.path.isdir(directory):
-        error_msg = f"Directory not found: {directory}"
-        logger.error(error_msg)
-        raise FileNotFoundError(error_msg)
+    all_valid = True
     
-    files = glob.glob(os.path.join(directory, pattern))
+    # Check for baseline_partial.parquet specifically
+    baseline_path = os.path.join(directory, "baseline_partial.parquet")
+    if os.path.exists(baseline_path):
+        logger.info(f"Validating baseline_partial.parquet...")
+        has_flag, meets_steps, msg = validate_time_bound_baseline(baseline_path, min_steps)
+        logger.info(f"  Result: {msg}")
+        if not has_flag or not meets_steps:
+            all_valid = False
+    else:
+        logger.warning(f"baseline_partial.parquet not found in {directory}")
+        all_valid = False
     
-    results = {
-        'directory': directory,
-        'total_files': len(files),
-        'files': [],
-        'summary': {
-            'total_validated': 0,
-            'passed': 0,
-            'failed': 0,
-            'nan_errors': 0,
-            'time_bound_errors': 0
-        }
-    }
-    
-    for file_path in files:
-        file_result = {
-            'file': file_path,
-            'nan_validation': None,
-            'time_bound_validation': None,
-            'passed': False
-        }
-        
-        # Check for NaNs
-        try:
-            nan_result = scan_parquet_for_nans(file_path)
-            file_result['nan_validation'] = nan_result
-            if nan_result['has_nans']:
-                results['summary']['nan_errors'] += 1
-        except Exception as e:
-            file_result['nan_error'] = str(e)
-            results['summary']['nan_errors'] += 1
-            file_result['passed'] = False
-            results['files'].append(file_result)
+    # Check other parquet files for NaNs
+    parquet_files = glob.glob(os.path.join(directory, "*.parquet"))
+    for pf in parquet_files:
+        if "baseline_partial.parquet" in pf:
             continue
         
-        # Check for time-bound baseline
-        if 'baseline' in os.path.basename(file_path).lower():
-            try:
-                tb_result = validate_time_bound_baseline(file_path, min_steps)
-                file_result['time_bound_validation'] = tb_result
-                if tb_result['validation_passed']:
-                    file_result['passed'] = True
-                    results['summary']['passed'] += 1
-                else:
-                    file_result['passed'] = False
-                    results['summary']['time_bound_errors'] += 1
-            except Exception as e:
-                file_result['time_bound_error'] = str(e)
-                results['summary']['time_bound_errors'] += 1
-                file_result['passed'] = False
+        logger.info(f"Checking {pf} for NaNs...")
+        has_nans, count = scan_parquet_for_nans(pf)
+        if has_nans:
+            logger.error(f"  Found {count} NaN values in {pf}")
+            all_valid = False
         else:
-            # For non-baseline files, just check NaNs
-            if not file_result.get('nan_validation', {}).get('has_nans', False):
-                file_result['passed'] = True
-                results['summary']['passed'] += 1
-            else:
-                file_result['passed'] = False
-                results['summary']['failed'] += 1
-        
-        results['summary']['total_validated'] += 1
-        results['files'].append(file_result)
+            logger.info(f"  No NaN values found.")
     
-    # Log summary
-    logger.info(f"Validation summary: {results['summary']}")
-    
-    return results
+    return all_valid
 
 def main():
-    """Main entry point for the validation script."""
+    """Main entry point for validation."""
     import argparse
     
-    parser = argparse.ArgumentParser(
-        description='Validate simulation metrics and time-bound baseline runs.'
-    )
-    parser.add_argument(
-        '--path',
-        type=str,
-        default='data/raw',
-        help='Path to the directory or file to validate (default: data/raw)'
-    )
-    parser.add_argument(
-        '--min-steps',
-        type=int,
-        default=1000,
-        help='Minimum steps required for time-bound baseline (default: 1000)'
-    )
-    parser.add_argument(
-        '--output',
-        type=str,
-        default=None,
-        help='Path to save validation results JSON (optional)'
-    )
+    parser = argparse.ArgumentParser(description="Validate simulation metrics")
+    parser.add_argument("--path", type=str, default="data/raw",
+                      help="Directory containing parquet files to validate")
+    parser.add_argument("--min-steps", type=int, default=1000,
+                      help="Minimum steps required for time-bound baseline")
     
     args = parser.parse_args()
     
-    try:
-        if os.path.isfile(args.path):
-            # Validate a single file
-            logger.info(f"Validating single file: {args.path}")
-            if 'baseline' in os.path.basename(args.path).lower():
-                result = validate_time_bound_baseline(args.path, args.min_steps)
-            else:
-                result = scan_parquet_for_nans(args.path)
-                result['passed'] = not result.get('has_nans', True)
-            
-            print(json.dumps(result, indent=2, default=str))
-            
-            if not result.get('passed', False):
-                sys.exit(1)
-                
-        elif os.path.isdir(args.path):
-            # Validate directory
-            logger.info(f"Validating directory: {args.path}")
-            result = validate_metrics_directory(args.path, min_steps=args.min_steps)
-            
-            print(json.dumps(result, indent=2, default=str))
-            
-            if result['summary']['failed'] > 0 or result['summary']['time_bound_errors'] > 0:
-                sys.exit(1)
-        else:
-            logger.error(f"Path does not exist: {args.path}")
-            sys.exit(1)
-            
-        # Save results if output path specified
-        if args.output:
-            os.makedirs(os.path.dirname(args.output) or '.', exist_ok=True)
-            with open(args.output, 'w') as f:
-                json.dump(result, f, indent=2, default=str)
-            logger.info(f"Results saved to {args.output}")
-            
-    except Exception as e:
-        logger.error(f"Validation failed: {e}")
-        print(json.dumps({'error': str(e)}, indent=2))
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    success = validate_metrics_directory(args.path, args.min_steps)
+    
+    if success:
+        logger.info("All validations passed.")
+        sys.exit(0)
+    else:
+        logger.error("Validation failed.")
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

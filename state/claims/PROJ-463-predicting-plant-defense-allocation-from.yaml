@@ -5026,3 +5026,342 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-05T15:20:40Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Batch correction reduces housekeeping gene CV by at least 20 percent
+  claim_id: c_49f0a0a5
+  context: "Independent Test for User Story 1: Verify output files match FASTA/TPM\
+    \ specs, batch correction reduces CV \u226520% for housekeeping genes."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_reduces_housekeeping_gene_CV_by_at_least_20
+  kind: magnitude
+  raw_text: Batch correction using ComBat-seq must reduce the Coefficient of Variation
+    (CV) for housekeeping genes by at least 20%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:13:46Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation uses seed 42
+  claim_id: c_713d8b93
+  context: 'T015: Implement src/data/synthetic_generator.py. Logic: Use seed=42 for
+    reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic data generator uses seed 42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:14:08Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Differential expression criteria FDR less than 0.05 and absolute log2
+    fold change greater than 1
+  claim_id: c_adea6757
+  context: 'T016: Unit test for DE gene selection logic (FDR < 0.05, |log2FC| > 1).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Differential_expression_criteria_FDR_less_than_0.05_and_abso
+  kind: magnitude
+  raw_text: Differential expression analysis identifies genes with FDR < 0.05 and
+    absolute log2 fold change > 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:14:29Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Pathway aggregation reduces features to 50 or fewer
+  claim_id: c_ea21c907
+  context: "Independent Test for User Story 2: Verify DESeq2 identifies DE genes correctly,\
+    \ response vectors are consistent across folds, pathway aggregation reduces features\
+    \ to \u226450."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pathway aggregation reduces features to 50 or fewer.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:15:00Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Trait data gate fails if more than 30 percent of species lack data
+  claim_id: c_a242ff71
+  context: 'Independent Test for User Story 2: Verify DESeq2 identifies DE genes correctly...
+    and trait data gate halts if >30% missing.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trait_data_gate_fails_if_more_than_30_percent_of_species_lac
+  kind: magnitude
+  raw_text: The trait data gate halts if more than 30% of target species lack data
+    from all sources.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:15:22Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Permutation test runs for 10000 iterations
+  claim_id: c_9c30ee29
+  context: 'T029: Implement permutation test (N=10 000 or until convergence) for Spearman
+    correlation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test runs with N=10,000 iterations or until convergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:15:48Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Power analysis targets R-squared 0.3 with alpha 0.05 and beta 0.2
+  claim_id: c_33d7caf9
+  context: "T026: Halt Condition: If power is insufficient (calculated to detect R\xB2\
+    =0.3 with \u03B1=0.05 and \u03B2=0.2), raise SystemExit(1)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis is calculated to detect an R-squared value of 0.3 with
+    alpha=0.05 and beta=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:16:24Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: 50 hardcoded housekeeping genes including ACT2, ACT7, GAPDH, and CYP71A
+    series
+  claim_id: c_eccde2e2
+  context: T004-fix Implement configuration management... Hardcode the following 50
+    genes into src/utils/config.py...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The project hardcodes a fixed list of 50 housekeeping genes: ACT2, ACT7,
+    GAPDH, UBQ10, EF1a, TUB6, TUB1, PP2A, SAND, CYP79D16, CYP79D15, CYP79D17, CYP83A1,
+    CYP83B1, CYP96A1, CYP96A2, CYP96A3, CYP71A1, CYP71A2, CYP71A3, CYP71A4, CYP71A5,
+    CYP71A6, CYP71A7, CYP71A8, CYP71A9, CYP71A10, CYP71A11, CYP71A12, CYP71A13, CYP71A14,
+    CYP71A15, CYP71A16, CYP71A17, CYP71A18, CYP71A19, CYP71A20, CYP71A21, CYP71A22,
+    CYP71A23, CYP71A24, CYP71A25, CYP71A26, CYP71A27, CYP71A28, CYP71A29, CYP71A30,
+    CYP71A31, CYP71A32.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:18:50Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Batch correction requires minimum 50 housekeeping genes in candidate
+    pool
+  claim_id: c_f55ca6db
+  context: 'T013... Constraint: If the size of the Candidate Pool is < 50, raise RuntimeError
+    immediately...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_requires_minimum_50_housekeeping_genes_in_c
+  kind: magnitude
+  raw_text: The batch correction logic requires a Candidate Pool of at least 50 genes
+    to proceed; if the pool size is less than 50, a RuntimeError is raised.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:19:40Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Batch correction requires 20% variance reduction
+  claim_id: c_419b72c4
+  context: 'T013... Verification: If reduction_percent < 20.0, raise RuntimeError...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_correction_requires_20%25_variance_reduction
+  kind: magnitude
+  raw_text: The batch correction process must achieve a variance reduction of at least
+    20% for the selected housekeeping genes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:20:14Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Minimum 2 biological replicates required for inclusion
+  claim_id: c_e19ef86e
+  context: 'T014... Exact Threshold: < 2 replicates... if replicates < 2, flag for
+    exclusion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_2_biological_replicates_required_for_inclusion
+  kind: magnitude
+  raw_text: Studies with fewer than 2 biological replicates are excluded from the
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:20:57Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Pathway aggregation limits features to top 50
+  claim_id: c_fcad99c3
+  context: T037... Filter the resulting pathway features to the top 50 (or all if
+    <50)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pathway aggregation filters resulting pathway features to the top 50 features
+    based on variance or significance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:21:40Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Trait data gate fails if >30% species missing data
+  claim_id: c_a5ad5a4b
+  context: 'T025c... Logic: Count species with missing traits. If >30% missing, raise
+    SystemExit(1)...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trait_data_gate_fails_if_%3E30%25_species_missing_data
+  kind: magnitude
+  raw_text: The trait data gate halts execution if more than 30% of target species
+    lack defense trait data from all sources.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:22:07Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Power analysis targets R2 of 0.3 with alpha 0.05 and beta 0.2
+  claim_id: c_72803d1a
+  context: "T026... If power is insufficient (calculated to detect R\xB2=0.3 with\
+    \ \u03B1=0.05 and \u03B2=0.2)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis aims to detect an R-squared value of 0.3 with a significance
+    level of 0.05 and a beta of 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:22:37Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Permutation test runs 10000 iterations
+  claim_id: c_44a2c16d
+  context: T029... Implement permutation test (N=10 000 or until convergence)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test is configured to run 10,000 iterations or until convergence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:23:02Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation seed is 42
+  claim_id: c_f9d22a7c
+  context: 'T015... Seed: Use seed=42 for reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic data generation uses a random seed of 42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:23:39Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Synthetic TPM uses lognorm(s=1.5, scale=10)
+  claim_id: c_9e98ff2c
+  context: 'T015... Distribution: Generate TPM values using scipy.stats.lognorm(s=1.5,
+    scale=10)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic TPM values are generated using a log-normal distribution with
+    shape parameter s=1.5 and scale=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:23:57Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: 'DE gene selection criteria: FDR < 0.05 and |log2FC| > 1'
+  claim_id: c_a1592aa5
+  context: 'T016... Logic: Implement deseq2_results[ (deseq2_results[''padj''] < 0.05)
+    & (abs(deseq2_results[''log2FoldChange'']) > 1) ].'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/DE_gene_selection_criteria:_FDR_%3C_0.05_and_%7Clog2FC%7C_%3E_1
+  kind: magnitude
+  raw_text: The differential expression analysis selects genes with an adjusted p-value
+    (FDR) less than 0.05 and an absolute log2 fold change greater than 1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:24:30Z'
+- artifact_path: projects/PROJ-463-predicting-plant-defense-allocation-from/specs/001-predicting-plant-defense-allocation-from/tasks.md
+  attempts: 1
+  canonical: Synthetic reference gene list uses seed 42
+  claim_id: c_bccda135
+  context: 'T040... Synthetic Mode: Generate a synthetic reference list using a fixed
+    seed (seed=42)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses a fixed seed of 42 to generate a synthetic reference
+    gene list for reproducibility checks in synthetic mode.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:24:57Z'

@@ -94,7 +94,7 @@
  2. **Mode Synthetic (`--mode synthetic`)**: Call T015 to generate synthetic data. **Constraint**: Synthetic mode is for structural validation only.
  3. **Dependency**: Requires T007-fix (directory setup). **[FR-001][VI]**
 - [X] T011-real [US1] Implement `src/data/fetch_real_data.py` to fetch FASTQ files from NCBI GEO/SRA **into `data/raw/`** and record checksums in a manifest under `data/manifests/`. **Primary Requirement**: Fetch real data using `prefetch` (SRA Toolkit) or `wget`/`curl` for FASTQ URLs. **Streaming**: If the dataset is large, use `datasets.load_dataset(..., streaming=True)` or `huggingface_hub.hf_hub_download` for shards to stay within RAM limits. **Fail Loud**: If fetch fails, raise `RuntimeError` immediately. **Do NOT** fallback to synthetic data here. Let the orchestrator (T011) handle the mode switch. **Output**: `data/raw/{accession_id}.fastq.gz` and `data/manifests/real_data_manifest.json` with schema `{ "accession_id": <string>, "checksum": <SHA256>, "source_url": <string>, "downloaded_at": <ISO8601> }`. **Constraint**: Must write to `data/raw/`. **[FR-001][VI]**
-- [ ] T011a [US1] Implement `src/data/verify_metadata.py` to verify downloaded FASTQ files match FR-001 requirements (tissue, herbivore type, replicates) **BEFORE** preprocessing. **Input**: Files from T011-real (or synthetic data when in synthetic mode). **Dependency**: T007, T011 (or T015). **Verification Logic**:
+- [X] T011a [US1] Implement `src/data/verify_metadata.py` to verify downloaded FASTQ files match FR-001 requirements (tissue, herbivore type, replicates) **BEFORE** preprocessing. **Input**: Files from T011-real (or synthetic data when in synthetic mode). **Dependency**: T007, T011 (or T015). **Verification Logic**:
  1. **Real Mode**: Use `Entrez.esearch` with `db='sra'` (for SRA accessions) or `db='gds'` (for GEO accessions). **API Parameters**: `term="accession_id[Accession] AND Plant[Organism]"`. **Rate Limiting**: `time.sleep(0.34)` between requests.
  2. **Extract Metadata**: Parse the XML response from `Entrez.efetch`.
  - **Species**: Extract from `Sample.attributes.Sample_attribute[Key="organism"].Value`.
@@ -141,7 +141,7 @@
  6. **Calculate Coefficient of Variation (CV) for this selected subset (top 50) BEFORE and AFTER correction. DO NOT use the full fixed list for the CV metric.**
  7. **Mandatory Output**: Write both `pre_correction_cv` and `post_correction_cv` to `data/manifests/batch_correction_report.json` with schema `{ "pre_correction_cv": <float>, "post_correction_cv": <float>, "reduction_percent": <float>, "target_reduction": 0.20, "selected_genes": [<list of selected gene IDs>] }`.
  8. **Verification**: If `reduction_percent < 20.0`, raise `RuntimeError` with message "Batch correction failed to meet [deferred] variance reduction target". **[FR-003]**
-- [ ] T015 [US1] Implement `src/data/synthetic_generator.py` to generate structurally valid synthetic **TPM count matrices** **stored in `data/raw/`** (to comply with Constitution Principle VI). **Logic**:
+- [X] T015 [US1] Implement `src/data/synthetic_generator.py` to generate structurally valid synthetic **TPM count matrices** **stored in `data/raw/`** (to comply with Constitution Principle VI). **Logic**:
  1. **Seed**: Use `seed=42` for reproducibility.
  2. **Distribution**: Generate TPM values using `scipy.stats.lognorm(s=1.5, scale=10)` to mimic real expression data.
  3. **Dimensions**: Create a matrix of multiple species × a large set of genes.

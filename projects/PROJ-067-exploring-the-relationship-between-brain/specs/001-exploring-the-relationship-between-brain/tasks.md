@@ -109,13 +109,13 @@
 
 ### Implementation for User Story 2
 
-- [~] T026 [US2] **Atlas Label Verification & Mapping**: Implement `code/analysis/verify_atlas_labels.py` to check if Schaefer-100 contains "Hippocampal-Memory" label. If missing, generate `data/atlas/network_label_map.csv` with columns `region_id`, `network_name`, `source_label`, `mapped_label`. **Mapping Logic**: Map any region where `source_label` contains 'Hippocampal' or 'Memory' to `mapped_label`='Hippocampal-Memory'. This task MUST complete before T025.
+- [ ] T026 [US2] **Atlas Label Verification & Mapping**: Implement `code/analysis/verify_atlas_labels.py` to check if Schaefer-100 contains "Hippocampal-Memory" label. If missing, generate `data/atlas/network_label_map.csv` with columns `region_id`, `network_name`, `source_label`, `mapped_label`. **Mapping Logic**: Map any region where `source_label` contains 'Hippocampal' or 'Memory' to `mapped_label`='Hippocampal-Memory'. This task MUST complete before T025.
 - [X] T025 [US2] Implement `code/analysis/metrics.py` to load Schaefer-100 atlas (verified by T026) and parcellate preprocessed NIfTI files. **If `network_label_map.csv` exists (from T026), use it to dynamically map regions to the required network ROIs (DMN, Salience, Hippocampal-Memory)**. (Plan Deviation, T005b).
-- [~] T027 [US2] Implement sliding window correlation (a fixed-duration window, a defined time step) in `metrics.py` (FR-003).
-- [~] T028 [US2] Implement Louvain clustering on time-varying connectivity matrices to generate discrete community partitions (FR-003).
-- [~] T029 [US2] Calculate Flexibility (state transitions per unit time) for DMN, Salience, and **mapped** Hippocampal-Memory networks using `network_label_map.csv` (FR-004, T026).
+- [ ] T027 [US2] Implement sliding window correlation (a fixed-duration window, a defined time step) in `metrics.py` (FR-003).
+- [ ] T028 [US2] Implement Louvain clustering on time-varying connectivity matrices to generate discrete community partitions (FR-003).
+- [ ] T029 [US2] Calculate Flexibility (state transitions per unit time) for DMN, Salience, and **mapped** Hippocampal-Memory networks using `network_label_map.csv` (FR-004, T026).
 - [~] T030 [US2] Calculate Stability (Mean Dwell Time) for the same networks (FR-004).
-- [ ] T031 [US2] Output subject-level metrics to `data/metrics/subject_metrics.csv` with proper headers and JSON/CSV validation (FR-008).
+- [X] T031 [US2] Output subject-level metrics to `data/metrics/subject_metrics.csv` with proper headers and JSON/CSV validation (FR-008).
 - [~] T032 [US2] Add logic to exclude subjects from analysis if metadata is missing at this stage with a warning (US2 Acceptance Scenario 4).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -253,7 +253,7 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM.. No GPU, no 8-bit models, no heavy deep learning.
+- **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM. [UNRESOLVED-CLAIM: c_6fe5a79b — status=not_enough_info]. No GPU, no 8-bit models, no heavy deep learning. [UNRESOLVED-CLAIM: c_4d901daa — status=not_enough_info]
 - **Data Integrity**: No synthetic data generation. All analysis must use real OpenNeuro data.
 - **Atlas Choice**: Use Schaefer-100 (per Plan) instead of Schaefer-400 to ensure statistical validity on short windows. **Documented in T005 and T005b**.
 - **Runtime**: T049 must raise RuntimeError if > 4h. T050 ensures CI fails on this error.
