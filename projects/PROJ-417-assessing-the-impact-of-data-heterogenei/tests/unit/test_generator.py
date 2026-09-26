@@ -1,268 +1,200 @@
-"""
-Unit tests for the simulation generator module.
-
-This file contains tests verifying the statistical properties of the
-generated synthetic meta-analysis datasets, specifically focusing on
-variance matching and homogeneity conditions.
-"""
-import json
+import pytest
 import os
-import sys
-import unittest
+import json
 import math
-from pathlib import Path
-from typing import List, Dict, Any
-
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
-
 import numpy as np
+from pathlib import Path
+
+# Import from project modules
 from simulation.generator import (
-    SimulationConfig,
-    generate_synthetic_meta_analysis,
-    load_base_data_structure
+    SimulationConfig, 
+    StudyResult, 
+    SimulationResult, 
+    load_base_data_structure, 
+    calculate_effect_and_variance, 
+    create_replicate, 
+    validate_simulation_output,
+    generate_synthetic_meta_analysis
 )
-from config_loader import get_simulation_params, get_replicate_count, get_random_seed
-from utils.logging import setup_logging, get_logger
+from config_loader import get_base_data_path, get_replicate_count, get_tau2_levels, get_random_seed
 
-# Configure logging for tests
-logger = get_logger("test_generator")
+@pytest.fixture
+def mock_base_data():
+    """Create a mock base data structure for testing."""
+    return {
+        'effect_sizes': [0.5, 0.6, 0.4, 0.7, 0.55],
+        'ses': [0.1, 0.12, 0.11, 0.09, 0.1],
+        'N_studies': 5
+    }
 
-class TestGeneratorHomogeneity(unittest.TestCase):
+@pytest.fixture
+def rng():
+    """Create a deterministic RNG for testing."""
+    return np.random.default_rng(42)
+
+def test_load_base_data_structure():
+    """Test that base data is loaded correctly from the configured path."""
+    base_path = get_base_data_path()
+    assert os.path.exists(base_path), f"Base data file not found at {base_path}"
+    
+    data = load_base_data_structure()
+    assert 'effect_sizes' in data
+    assert 'ses' in data
+    assert 'N_studies' in data
+    assert len(data['effect_sizes']) == data['N_studies']
+    assert len(data['ses']) == data['N_studies']
+
+def test_calculate_effect_and_variance_zero_tau2(rng):
+    """Test effect calculation when tau2 is 0 (homogeneity)."""
+    true_effect = 0.5
+    tau2 = 0.0
+    base_se = 0.1
+    
+    obs_effect, obs_se = calculate_effect_and_variance(true_effect, tau2, base_se, rng)
+    
+    # When tau2=0, between-study variance is 0, so total_var = base_se^2
+    expected_se = math.sqrt(base_se**2 + tau2)
+    assert math.isclose(obs_se, expected_se, rel_tol=1e-5)
+    
+    # The effect should be close to true_effect + noise
+    # We can't assert exact value due to randomness, but we can check it's in a reasonable range
+    assert abs(obs_effect - true_effect) < 3 * expected_se, "Observed effect is too far from true effect"
+
+def test_calculate_effect_and_variance_positive_tau2(rng):
+    """Test effect calculation when tau2 > 0."""
+    true_effect = 0.5
+    tau2 = 0.25
+    base_se = 0.1
+    
+    obs_effect, obs_se = calculate_effect_and_variance(true_effect, tau2, base_se, rng)
+    
+    expected_se = math.sqrt(base_se**2 + tau2)
+    assert math.isclose(obs_se, expected_se, rel_tol=1e-5)
+
+def test_create_replicate(mock_base_data, rng):
+    """Test that a replicate is created with the correct structure."""
+    config = SimulationConfig(
+        true_effect=0.5,
+        tau2=0.1,
+        replicate_id=0,
+        n_studies=5
+    )
+    
+    result = create_replicate(config, mock_base_data, rng)
+    
+    assert result.injected_true_effect == 0.5
+    assert result.injected_tau2 == 0.1
+    assert result.N_studies == 5
+    assert len(result.studies) == 5
+    assert result.replicate_id == 0
+    
+    # Check study structure
+    for study in result.studies:
+        assert 'effect' in study
+        assert 'se' in study
+        assert 'study_id' in study
+        assert study['study_id'] < 5
+
+def test_validate_simulation_output(mock_base_data, rng):
+    """Test that validation passes for valid results."""
+    config = SimulationConfig(
+        true_effect=0.5,
+        tau2=0.1,
+        replicate_id=0,
+        n_studies=5
+    )
+    
+    result = create_replicate(config, mock_base_data, rng)
+    results = [result]
+    
+    assert validate_simulation_output(results) is True
+
+def test_validate_simulation_output_invalid_structure():
+    """Test that validation fails for invalid results."""
+    invalid_result = SimulationResult(
+        injected_true_effect=0.5,
+        injected_tau2=0.1,
+        N_studies=5,
+        studies=[],  # Empty studies list
+        replicate_id=0
+    )
+    
+    assert validate_simulation_output([invalid_result]) is False
+
+def test_variance_match_unit_test(mock_base_data, rng):
     """
-    Tests verifying that the generator produces datasets with correct
-    between-study variance properties, specifically for the homogeneity case (tau2=0).
+    Unit test to verify that generated variance matches injected tau2 within Monte Carlo error.
+    This test uses a small number of replicates for speed.
     """
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.results_dir = project_root / "data" / "results"
-        self.results_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Ensure logging is configured
-        setup_logging()
-
-    def _calculate_sample_variance(self, tau_estimates: List[float]) -> float:
-        """
-        Calculate the sample variance of a list of tau^2 estimates.
-        
-        Args:
-            tau_estimates: List of estimated tau^2 values from replicates
-        
-        Returns:
-            Sample variance (using ddof=1 for unbiased estimator)
-        """
-        if len(tau_estimates) < 2:
-            return 0.0
-        return float(np.var(tau_estimates, ddof=1))
-
-    def test_homogeneity_tau2_zero(self):
-        """
-        Verify that tau2=0 produces zero between-study variance (homogeneity).
-        
-        This test generates multiple replicates with injected tau2=0 and verifies
-        that the estimated between-study variance is statistically indistinguishable
-        from zero, accounting for Monte Carlo error.
-        
-        Requirements:
-        - Use sufficient replicates for statistical stability (as per task spec)
-        - Output artifact: data/results/test_homogeneity_check.json
-        - Verify mean estimated variance is within acceptable tolerance of 0
-        """
-        # Get parameters from config
-        config = get_simulation_params()
-        seed = get_random_seed()
-        
-        # Set up simulation for homogeneity test
-        # We use a high number of replicates to ensure statistical stability
-        # as requested in the task description
-        num_replicates = 500
-        injected_tau2 = 0.0
-        injected_true_effect = 0.5  # Mean effect as per synthetic base params
-        
-        logger.info(f"Running homogeneity test with {num_replicates} replicates, "
-                   f"tau2={injected_tau2}, seed={seed}")
-        
-        # Create simulation config
-        sim_config = SimulationConfig(
-            injected_true_effect=injected_true_effect,
-            injected_tau2=injected_tau2,
-            num_studies=20,  # Standard number from base data
-            replicate_count=num_replicates,
-            random_seed=seed
+    n_replicates = 100
+    tau2_target = 0.5
+    true_effect = 0.5
+    n_studies = 20
+    
+    # Generate multiple replicates
+    results = []
+    for i in range(n_replicates):
+        config = SimulationConfig(
+            true_effect=true_effect,
+            tau2=tau2_target,
+            replicate_id=i,
+            n_studies=n_studies
         )
-        
-        # Generate synthetic meta-analysis data
-        # Note: We mock the base data loading since we're testing the generator logic
-        # In a full integration, this would load from data/raw/
-        
-        # For this unit test, we generate the data directly
-        all_tau_estimates = []
-        all_results = []
-        
-        for i in range(num_replicates):
-            # Generate a single replicate
-            replicate_seed = seed + i
-            np.random.seed(replicate_seed)
-            random.seed(replicate_seed)
-            
-            # Generate study-level data for homogeneity (tau2=0)
-            # When tau2=0, all studies share the same true effect
-            true_effects = [injected_true_effect] * sim_config.num_studies
-            
-            # Generate observed effects with sampling error only
-            # SE distribution: LogNormal(mu=0.0, sigma=1.0) as per synthetic base
-            se_values = np.random.lognormal(mean=0.0, sigma=1.0, size=sim_config.num_studies)
-            observed_effects = true_effects + np.random.normal(0, se_values)
-            
-            # Estimate tau2 using DerSimonian-Laird (standard meta-analysis estimator)
-            # For tau2=0 case, we expect estimates to be near zero
-            # Q statistic calculation
-            w_i = 1.0 / (se_values ** 2)
-            w_sum = np.sum(w_i)
-            w_bar = w_sum / sim_config.num_studies
-            
-            # Fixed effects pooled estimate
-            theta_fe = np.sum(w_i * observed_effects) / w_sum
-            
-            # Q statistic
-            Q = np.sum(w_i * (observed_effects - theta_fe) ** 2)
-            
-            # DerSimonian-Laird tau2 estimator
-            # tau2 = max(0, (Q - (k-1)) / C)
-            # where C = sum(w_i) - sum(w_i^2)/sum(w_i)
-            C = w_sum - (np.sum(w_i ** 2) / w_sum)
-            
-            if C > 0:
-                tau2_dl = max(0.0, (Q - (sim_config.num_studies - 1)) / C)
-            else:
-                tau2_dl = 0.0
-            
-            all_tau_estimates.append(tau2_dl)
-            
-            # Store result for output
-            result = {
-                "replicate_id": i,
-                "injected_tau2": injected_tau2,
-                "injected_true_effect": injected_true_effect,
-                "estimated_tau2_dl": float(tau2_dl),
-                "Q_statistic": float(Q),
-                "num_studies": sim_config.num_studies
-            }
-            all_results.append(result)
-        
-        # Calculate statistics
-        mean_tau2_estimate = float(np.mean(all_tau_estimates))
-        std_tau2_estimate = float(np.std(all_tau_estimates, ddof=1))
-        max_tau2_estimate = float(np.max(all_tau_estimates))
-        
-        # Statistical test: Verify that the mean estimated tau2 is close to 0
-        # We use a tolerance based on Monte Carlo error
-        # For n=500 replicates, the standard error of the mean is approximately std/sqrt(n)
-        # We require mean to be within 3 standard errors of 0
-        standard_error = std_tau2_estimate / math.sqrt(num_replicates) if std_tau2_estimate > 0 else 0
-        tolerance = 3 * standard_error
-        
-        # For tau2=0, we also check that the distribution is not significantly different from 0
-        # using a one-sample t-test (though strictly speaking, we expect many 0s)
-        # Instead, we check that the mean is within a reasonable bound
-        
-        # Define pass criteria
-        # The mean estimated tau2 should be very close to 0
-        # Given sampling variability, we allow a small tolerance
-        is_homogeneous = mean_tau2_estimate < 0.01  # Very small threshold for homogeneity
-        
-        logger.info(f"Homogeneity test results:")
-        logger.info(f"  Mean estimated tau2: {mean_tau2_estimate:.6f}")
-        logger.info(f"  Std estimated tau2: {std_tau2_estimate:.6f}")
-        logger.info(f"  Max estimated tau2: {max_tau2_estimate:.6f}")
-        logger.info(f"  Tolerance (3*SE): {tolerance:.6f}")
-        logger.info(f"  Is homogeneous (mean < 0.01): {is_homogeneous}")
-        
-        # Create output artifact
-        output_data = {
-            "test_name": "homogeneity_check",
-            "injected_tau2": injected_tau2,
-            "num_replicates": num_replicates,
-            "results": {
-                "mean_estimated_tau2": mean_tau2_estimate,
-                "std_estimated_tau2": std_tau2_estimate,
-                "max_estimated_tau2": max_tau2_estimate,
-                "standard_error": standard_error,
-                "tolerance": tolerance,
-                "is_homogeneous": is_homogeneous,
-                "pass_criteria": "Mean estimated tau2 < 0.01"
-            },
-            "individual_replicates": all_results[:10],  # Include first 10 for inspection
-            "total_replicates_included": len(all_results),
-            "timestamp": "test_execution"
-        }
-        
-        # Write output artifact
-        output_path = self.results_dir / "test_homogeneity_check.json"
-        with open(output_path, 'w') as f:
-            json.dump(output_data, f, indent=2)
-        
-        logger.info(f"Test results written to {output_path}")
-        
-        # Assert that the test passed
-        self.assertTrue(is_homogeneous, 
-                      f"Homogeneity test failed: mean estimated tau2 ({mean_tau2_estimate:.6f}) "
-                      f"is not close to 0. Expected < 0.01")
-        
-        # Additional check: verify that most estimates are exactly 0 or very close
-        zero_count = sum(1 for x in all_tau_estimates if x < 0.001)
-        zero_percentage = (zero_count / num_replicates) * 100
-        logger.info(f"Percentage of replicates with tau2 < 0.001: {zero_percentage:.1f}%")
-        
-        # At least 80% should be very close to 0 for a proper homogeneity test
-        self.assertGreater(zero_percentage, 80.0,
-                         f"Only {zero_percentage:.1f}% of replicates had tau2 < 0.001. "
-                         f"Expected > 80% for homogeneity.")
+        result = create_replicate(config, mock_base_data, rng)
+        results.append(result)
+    
+    # Extract all effects and compute empirical variance
+    all_effects = []
+    for res in results:
+        for study in res.studies:
+            all_effects.append(study['effect'])
+    
+    # The variance of effects should be approximately tau2 + mean(se^2)
+    # But for simplicity, we check that the between-study variance is close to tau2
+    # We'll compute the variance of the means of each replicate
+    replicate_means = [np.mean([s['effect'] for s in res.studies]) for res in results]
+    empirical_var_between = np.var(replicate_means, ddof=1)
+    
+    # The expected variance of the mean is (tau2 + avg_se^2 / n_studies)
+    # This is a rough check; in practice, we'd need a more sophisticated test
+    # For now, we just ensure it's in the right ballpark
+    avg_se_sq = np.mean([s['se']**2 for res in results for s in res.studies])
+    expected_var_mean = tau2_target + avg_se_sq / n_studies
+    
+    # Allow for Monte Carlo error (10% tolerance)
+    tolerance = 0.1 * expected_var_mean
+    assert abs(empirical_var_between - expected_var_mean) < tolerance, \
+        f"Empirical variance {empirical_var_between} differs too much from expected {expected_var_mean}"
 
-    def test_variance_stability_across_seeds(self):
-        """
-        Verify that the variance estimates are stable across different random seeds.
-        
-        This is a secondary check to ensure the generator produces consistent
-        results regardless of the random seed used.
-        """
-        seeds_to_test = [42, 123, 456, 789, 101112]
-        mean_tau2_values = []
-        
-        for seed in seeds_to_test:
-            np.random.seed(seed)
-            random.seed(seed)
-            
-            # Generate a small sample for quick testing
-            num_replicates = 100
-            injected_tau2 = 0.0
-            injected_true_effect = 0.5
-            num_studies = 20
-            
-            tau_estimates = []
-            for i in range(num_replicates):
-                se_values = np.random.lognormal(mean=0.0, sigma=1.0, size=num_studies)
-                observed_effects = injected_true_effect + np.random.normal(0, se_values)
-                
-                w_i = 1.0 / (se_values ** 2)
-                w_sum = np.sum(w_i)
-                theta_fe = np.sum(w_i * observed_effects) / w_sum
-                Q = np.sum(w_i * (observed_effects - theta_fe) ** 2)
-                
-                C = w_sum - (np.sum(w_i ** 2) / w_sum)
-                tau2_dl = max(0.0, (Q - (num_studies - 1)) / C) if C > 0 else 0.0
-                tau_estimates.append(tau2_dl)
-            
-            mean_tau2 = float(np.mean(tau_estimates))
-            mean_tau2_values.append(mean_tau2)
-        
-        # Check that all means are close to 0
-        max_deviation = max(abs(m) for m in mean_tau2_values)
-        self.assertLess(max_deviation, 0.01,
-                      f"Variance estimates vary too much across seeds. "
-                      f"Max deviation from 0: {max_deviation:.6f}")
-
-if __name__ == '__main__':
-    unittest.main()
+def test_homogeneity_check(mock_base_data, rng):
+    """
+    Unit test to verify that tau2=0 produces zero between-study variance (homogeneity).
+    """
+    n_replicates = 50
+    tau2_target = 0.0
+    true_effect = 0.5
+    n_studies = 20
+    
+    replicate_means = []
+    for i in range(n_replicates):
+        config = SimulationConfig(
+            true_effect=true_effect,
+            tau2=tau2_target,
+            replicate_id=i,
+            n_studies=n_studies
+        )
+        result = create_replicate(config, mock_base_data, rng)
+        replicate_means.append(np.mean([s['effect'] for s in result.studies]))
+    
+    # When tau2=0, the between-study variance should be very small (only due to sampling error)
+    empirical_var_between = np.var(replicate_means, ddof=1)
+    
+    # The expected variance of the mean is avg_se^2 / n_studies
+    # We'll compute a rough bound
+    all_ses = [s['se'] for res in [create_replicate(SimulationConfig(true_effect, tau2_target, i, n_studies), mock_base_data, rng) for i in range(n_replicates)] for s in res.studies]
+    avg_se_sq = np.mean([se**2 for se in all_ses])
+    expected_var_mean = avg_se_sq / n_studies
+    
+    # Allow for some Monte Carlo error
+    assert empirical_var_between < 2 * expected_var_mean, \
+        f"Empirical variance {empirical_var_between} is too large for tau2=0 (expected < {2 * expected_var_mean})"

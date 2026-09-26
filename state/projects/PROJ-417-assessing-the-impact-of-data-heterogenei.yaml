@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-417-assessing-the-impact-of-data-heterogenei
-last_run_id: 858ecd7e-56ad-40c4-823b-3d58dd85e6fe
+last_run_id: a7fce48d-fd91-456d-8a6a-73a879d79132
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-417-assessing-the-impact-of-data-heterogenei/specs/001-assessing-the-impact-of-data-heterogenei
 title: Assessing the Impact of Data Heterogeneity on Meta-Analysis Results
-updated_at: '2026-09-22T06:40:47.130750Z'
+updated_at: '2026-09-26T06:59:07.532947Z'
