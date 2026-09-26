@@ -23,10 +23,10 @@ properties:
     description: "Model R² score."
   p_value_interaction:
     type: "number"
-    description: "P-value for the interaction term."
+    description: "P‑value for the interaction term."
   p_value_interaction_fdr:
     type: "number"
-    description: "FDR-corrected p-value for the interaction term."
+    description: "FDR‑corrected p‑value for the interaction term."
   fdr_corrected:
     type: "boolean"
     description: "True if significant after FDR correction."

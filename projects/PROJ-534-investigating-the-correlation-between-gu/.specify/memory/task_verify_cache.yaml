@@ -1,45 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure (`src/`, `tests/`, `data/raw`, `data/processed`, `data/results`)
-    is shown or referenced in the provided artifacts; the implementer only supplied
-    a feature specification without any file system evidence. The required folders
-    are missing.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black\
-    \ settings, `.ruff.toml`, or a pre\u2011commit hook) were supplied, nor any evidence\
-    \ that the tools have been installed or integrated into the project. The required\
-    \ artifacts to demonstrate that ruff and black are configured are missing."
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration file (e.g.,\u202F`pytest.ini` or `pyproject.toml` with\
-    \ pytest settings) or test directory (e.g.,\u202F`tests/` with placeholder test\
-    \ modules) was provided. Without these artifacts the requirement to set up pytest\
-    \ and its test structure is not satisfied."
-T010:
-  c: false
-  h: 445afb464340912f449bf29d29ce5b5f908f3e970157e01cd84828048ae5027c
-  r: "The required `data/processed/filtered_cohort.csv` file does not exist, and the\
-    \ referenced schema file `contracts/dataset.schema.yaml` (or `schema.yaml`) is\
-    \ also missing, so the contract test cannot actually validate anything. The test\
-    \ script is present but without the data and schema it cannot be executed, meaning\
-    \ the task\u2019s core requirement is unmet."
-T015:
-  c: false
-  h: cc1428c13f076ffb3ba9bfe9c25430769a8a5ee4f96c5c232e454cd0b9891d37
-  r: "The required file `src/data/filtering.py` does not exist, so no logic, imputation\
-    \ handling, or logging has been implemented. The task\u2019s core artifact is\
-    \ missing entirely."
-T016:
-  c: false
-  h: ea0e63a6d4f487eb3c4163ff5f430b90c9239fab55c5483eaac91e653cc7dda7
-  r: The required artifact `tests/unit/test_diversity.py` does not exist on disk,
-    so no unit tests for Shannon, Simpson, or Chao1 calculations are present. The
-    task cannot be considered fulfilled until this file is created with appropriate
-    test cases.
 T017:
   c: false
   h: c33b9160893b55d9c5caaaa3bfe4ade5c1b722926da2f83d2b009fe67926f296
@@ -52,6 +10,12 @@ T018:
   r: "The required artifact `tests/unit/test_correlation.py` does not exist on disk,\
     \ so no unit test for the Benjamini\u2011Hochberg correction was provided. The\
     \ task remains undone."
+T025:
+  c: false
+  h: 0586963e5b98107066abcf2ac971e6d816b982a6361fc15eeaf8221d2e3f0490
+  r: "The required artifact `tests/unit/test_power.py` does not exist on disk, so\
+    \ no unit test for the power calculation logic is present. The task cannot be\
+    \ considered done until a non\u2011empty test file is added at the specified path."
 T027:
   c: false
   h: b8ef52a2c5a87c3c844e6135fdee0e6e7622054134367ae9786c5f1b8eb655cc

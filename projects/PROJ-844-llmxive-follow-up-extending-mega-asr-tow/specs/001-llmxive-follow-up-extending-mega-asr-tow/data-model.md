@@ -1,261 +1,70 @@
 # Data Model: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
 
 ## Overview
-The project manipulates audio clips, distortion parameters, ASR hypotheses, and derived metrics. All intermediate and final artifacts are stored as Parquet files to enable efficient streaming and reproducibility.
+The pipeline produces three primary derived tables stored as Parquet files. Each table conforms to a JSON schema located in `contracts/`. The schemas are version‑controlled and validated automatically (FR‑034).
 
-## Core Schemas
+## 1. `data/derived/stress_curves.parquet`
+*Matches `contracts/stress_curve.schema.yaml`.*
 
-### 1. `stress_curves.schema.yaml`
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Stress Curves"
-type: object
-properties:
-  clip_id:
-    type: string
-    description: "Unique identifier from the Voices‑in‑the‑Wild‑2M source."
-  speaker_id:
-    type: string
-    description: "Speaker identifier (used for stratification)."
-  environment_id:
-    type: string
-    description: "Recording environment proxy (used for stratification)."
-  model_name:
-    type: string
-    enum: ["whisper-tiny", "distil-whisper", "wav2vec2-base", "custom-model-1", "custom-model-2"]
-    description: "ASR model used for inference."
-  snr_db:
-    type: number
-    description: "Signal‑to‑Noise Ratio in decibels."
-  rt60_s:
-    type: number
-    description: "Reverberation time (RT60) in seconds."
-  distortion_id:
-    type: string
-    description: "Composite key e.g., 'snr-10_rt60-0.8'."
-  asr_transcript:
-    type: string
-    description: "ASR hypothesis."
-  wer:
-    type: number
-    description: "Word Error Rate (0 = perfect)."
-  sss:
-    type: number
-    description: "Semantic Similarity Score (cosine similarity, 0‑1)."
-  phoneme_edit_distance:
-    type: number
-    description: "Fallback metric for high‑reverb clips (optional)."
-  timestamp:
-    type: string
-    format: date-time
-    description: "Processing timestamp."
-required:
-  - clip_id
-  - speaker_id
-  - environment_id
-  - model_name
-  - snr_db
-  - rt60_s
-  - distortion_id
-  - asr_transcript
-  - wer
-  - sss
-additionalProperties: false
-```
+| Column | Type | Description |
+|--------|------|-------------|
+| `curve_id` | string | Unique identifier for the stress‑curve record (`{clip_id}_{model_name}_{snr}_{rt60}`) |
+| `audio_id` | string | Foreign key to the original audio clip (same as `clip_id` in the source dataset) |
+| `model_id` | string | ASR model identifier (e.g., `whisper_tiny`) |
+| `vector_id` | string | Composite key for the distortion vector, e.g., `snr-10_rt60-0.8` |
+| `snr_db` | number | Signal‑to‑Noise Ratio in dB |
+| `rt60_sec` | number | Reverberation time in seconds |
+| `ss_score` | number | Semantic Similarity Score (cosine similarity, 0‑1) |
+| `wer` | number | Word Error Rate (0‑1) |
+| `hypothesis` | string | ASR output hypothesis |
+| `reference_transcript` | string | Ground‑truth transcript (clean) |
+| `timestamp` | string (ISO‑8601) | Processing timestamp |
 
-### 2. `collapse_points.schema.yaml`
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Collapse Points"
-type: object
-properties:
-  clip_id:
-    type: string
-    description: "Identifier of the audio clip."
-  model_name:
-    type: string
-    enum: ["whisper-tiny", "distil-whisper", "wav2vec2-base", "custom-model-1", "custom-model-2"]
-    description: "ASR model."
-  collapse_intensity:
-    type: object
-    description: "Distortion vector where collapse occurs (null if none)."
-    properties:
-      snr_db:
-        type: number
-        description: "SNR at collapse."
-      rt60_s:
-        type: number
-        description: "RT60 at collapse."
-    required:
-      - snr_db
-      - rt60_s
-  collapse_method:
-    type: string
-    enum: ["threshold_crossing", "inflection_point", "none"]
-    description: "Algorithmic source per FR‑021."
-  baseline_sss:
-    type: number
-    description: "SSS on clean‑audio baseline."
-  baseline_wer:
-    type: number
-    description: "WER on clean‑audio baseline."
-  detection_params:
-    type: object
-    description: "Parameters used for the deterministic rule."
-    properties:
-      sss_threshold_factor:
-        type: number
-        description: "Factor of baseline SSS (default 0.5)."
-      wer_multiplier:
-        type: number
-        description: "Multiplier of baseline WER (default 2)."
-    required:
-      - sss_threshold_factor
-      - wer_multiplier
-required:
-  - clip_id
-  - model_name
-  - collapse_intensity
-  - collapse_method
-  - baseline_sss
-  - baseline_wer
-additionalProperties: false
-```
+*Derived via*: `src/pipeline/distort.py` → `src/pipeline/sss.py`.
 
-### 3. `collapse_point.schema.yaml`
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Collapse Point (Inflection‑Point Intensity)"
-type: object
-properties:
-  collapse_id:
-    type: string
-    description: "Unique identifier for the inflection‑point record."
-  clip_id:
-    type: string
-    description: "Foreign key to AudioClip."
-  model_name:
-    type: string
-    description: "ASR model identifier."
-  inflection_intensity:
-    type: number
-    description: "Distortion intensity (e.g., normalized SNR‑RT60 coordinate) at the maximum negative derivative."
-  inflection_derivative:
-    type: number
-    description: "Value of the first derivative at the inflection point."
-required:
-  - collapse_id
-  - clip_id
-  - model_name
-  - inflection_intensity
-  - inflection_derivative
-additionalProperties: false
-```
+## 2. `data/derived/collapse_points.parquet`
+| Column | Type | Description |
+|--------|------|-------------|
+| `clip_id` | string | Unique identifier from Voices‑in‑the‑Wild‑2M |
+| `model_name` | string | ASR model identifier (e.g., `whisper_tiny`) |
+| `snr_db` | number | SNR at the identified collapse |
+| `rt60_s` | number | RT60 at the identified collapse |
+| `collapse_intensity` | string | Step identifier (e.g., `"step_23"`) or `"None"` / `"Max Tested"` |
+| `early_collapse_flag` | boolean | `True` if max negative derivative occurs before CCM crossing |
+| `inflection_step` | integer | Index of the step with maximum negative derivative |
+| `universal_collapse_intensity` | string | Step where **absolute SSS ≤ 0.5** (FR‑036) |
+| `metadata` | object | Nested JSON with baseline metrics |
+| `metadata.baseline_sss` | number | Semantic Similarity Score on the clean clip |
+| `metadata.baseline_wer` | number | Word Error Rate on the clean clip |
 
-### 4. `critical_vector.schema.yaml`
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Critical Interaction Vector"
-type: object
-properties:
-  vector_id:
-    type: string
-    description: "Unique identifier for the critical vector."
-  model_name:
-    type: string
-    description: "ASR model identifier."
-  snr_coeff:
-    type: number
-    description: "Coefficient for SNR."
-  rt60_coeff:
-    type: number
-    description: "Coefficient for RT60."
-  snr_sq_coeff:
-    type: number
-    description: "Coefficient for SNR squared."
-  rt60_sq_coeff:
-    type: number
-    description: "Coefficient for RT60 squared."
-  interaction_coeff:
-    type: number
-    description: "Coefficient for the SNR × RT60 interaction term."
-  r2_score:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "R‑squared on test set."
-  mae:
-    type: number
-    minimum: 0.0
-    description: "Mean Absolute Error."
-  p_value_interaction:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "FDR‑corrected p‑value for interaction term."
-  shap_interaction_strength:
-    type: number
-    description: "SHAP interaction strength magnitude."
-required:
-  - vector_id
-  - model_name
-  - snr_coeff
-  - rt60_coeff
-  - snr_sq_coeff
-  - rt60_sq_coeff
-  - interaction_coeff
-  - r2_score
-  - mae
-  - p_value_interaction
-  - shap_interaction_strength
-additionalProperties: false
-```
+*Generated by*: `src/pipeline/collapse.py`.
 
-### 5. `dataset.schema.yaml`
-```yaml
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Audio Clip Metadata"
-type: object
-properties:
-  clip_id:
-    type: string
-    description: "Unique identifier from the source dataset."
-  speaker_id:
-    type: string
-    description: "Speaker identifier."
-  environment_id:
-    type: string
-    description: "Recording environment proxy."
-  transcript:
-    type: string
-    description: "Ground‑truth transcript."
-  audio_path:
-    type: string
-    description: "Relative path to the raw audio file."
-required:
-  - clip_id
-  - speaker_id
-  - environment_id
-  - transcript
-  - audio_path
-additionalProperties: false
-```
+## 3. `data/derived/critical_vector.parquet`
+| Column | Type | Description |
+|--------|------|-------------|
+| `model_name` | string | ASR model |
+| `coeff_snr` | number | Linear coefficient for SNR |
+| `coeff_rt60` | number | Linear coefficient for RT60 |
+| `coeff_interaction` | number | Coefficient for `SNR × RT60` |
+| `coeff_snr_sq` | number | Quadratic SNR term |
+| `coeff_rt60_sq` | number | Quadratic RT60 term |
+| `coeff_baseline_sss` | number | Coefficient for baseline SSS (retained for reporting only) |
+| `coeff_transcript_perplexity` | number | Coefficient for transcript difficulty (perplexity) |
+| `ci_lower` | object | Mapping of coefficient → lower 95 % CI |
+| `ci_upper` | object | Mapping of coefficient → upper 95 % CI |
+| `r2` | number | Out‑of‑sample R² on held‑out test set |
+| `mae` | number | Mean Absolute Error on held‑out test set |
+| `universal_vector` | array[number] | Vector derived from the universal collapse intensity (FR‑036) |
+| `similarity_to_others` | number | Cosine similarity of this vector to the mean across all models (FR‑051) |
 
-## Data Flow Diagram (logical)
+*Generated by*: `src/pipeline/train_regressor.py` and `src/pipeline/evaluate.py`.
 
-```
-Raw ASR parquet --> download.py --> subset.parquet
-subset.parquet --> distort.py --> stress_curves.parquet (Schema 1)
-stress_curves.parquet --> sss.py (adds sss, wer) --> updated stress_curves.parquet
-stress_curves.parquet --> collapse.py --> collapse_points.parquet (Schema 2)
-collapse_points.parquet --> collapse_point.py --> collapse_point.parquet (Schema 3)
-collapse_point.parquet + stress_curves.parquet --> regression.py --> model_metrics.parquet + critical_vector.parquet (Schema 4)
-```
-
-All files are version‑hashed; any change produces a new file name suffix (`_<hash>.parquet`).
+## Schema Validation
+- `contracts/collapse_point.schema.yaml` validates `collapse_points.parquet`.
+- `contracts/critical_vector.schema.yaml` validates `critical_vector.parquet`.
+- Validation is performed via `jsonschema` in the CI step; any violation aborts the run (FR‑034).
 
 ---
 
 
-## Notes on Covariates
-The `collapse_points.schema.yaml` includes `baseline_sss` and `baseline_wer`, which are used as **covariates** (not targets) in the regression model to control for clip‑level difficulty, satisfying FR‑127c2986 concern; they improve construct validity.
+

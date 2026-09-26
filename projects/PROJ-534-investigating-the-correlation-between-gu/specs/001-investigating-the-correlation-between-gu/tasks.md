@@ -77,7 +77,7 @@
 
 - [X] T008 [P] [US1] Unit test for age filtering logic in `tests/unit/test_filtering.py`
 - [X] T009 [P] [US1] Unit test for null-value exclusion in `tests/unit/test_filtering.py`
-- [ ] T010 [P] [US1] Contract test validating `data/processed/filtered_cohort.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
+- [ ] T010 [P] [US1] Contract test validating `data/processed/filtered_cohort.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_schemas.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -102,13 +102,13 @@
 - [ ] T016 [P] [US2] Unit test for Shannon/Simpson/Chao1 calculation in `tests/unit/test_diversity.py`
 - [ ] T017 [P] [US2] Unit test for Pearson/Spearman auto-switch logic (skewness/Shapiro-Wilk) and logging of the switch in `tests/unit/test_correlation.py`
 - [ ] T018 [P] [US2] Unit test for Benjamini-Hochberg correction in `tests/unit/test_correlation.py`
-- [ ] T027 [P] [US2] Contract test validating `data/results/correlation_results.json` against `contracts/analysis_output.schema.yaml` in `tests/contract/test_schemas.py` <!-- FAILED: unspecified -->
+- [ ] T027 [P] [US2] Contract test validating `data/results/correlation_results.json` against `contracts/analysis_output.schema.yaml` in `tests/contract/test_schemas.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 2
 
 - [ ] T019 [US2] Implement `src/analysis/diversity.py` to calculate Alpha (Shannon, Simpson, Chao1) and Beta (Bray-Curtis, UniFrac) metrics from the filtered cohort
 - [ ] T020 [US2] Implement `src/analysis/correlation.py` to perform Pearson/Spearman correlation (auto-switch if skewness > 1.0 or Shapiro-Wilk p < 0.05) with a specified confidence interval, including **logging of the switch**
-- [ ] T021 [US2] Implement `src/analysis/correlation.py` to run Linear Regression (Cognitive ~ Diversity + Covariates) with Benjamini-Hochberg correction
+- [ ] T021 [US2] Implement `src/analysis/correlation.py` to run Linear Regression (Cognitive ~ Diversity + Covariates) with Benjamini-Hochberg correction <!-- FAILED: unspecified -->
 - [ ] T022 [US2] Implement `src/analysis/beta_diversity.py` to perform PERMANOVA (using `skbio.stats.distance.permanova`) for Beta diversity with continuous cognitive scores
 - [ ] T023 [US2] Save `data/results/correlation_results.json` containing coefficients, p-values, adjusted p-values, and CIs, verifying keys: `correlation_coefficient`, `p_value`, `adjusted_p_value`, `confidence_interval` against `contracts/analysis_output.schema.yaml`
 

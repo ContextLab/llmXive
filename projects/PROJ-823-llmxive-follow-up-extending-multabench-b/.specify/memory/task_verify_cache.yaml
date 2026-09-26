@@ -1,3 +1,12 @@
+T008b:
+  c: false
+  h: 6eed9af2775873cc77a41a1c94c0e83827e7b190d0b155e29b79ee5bed247e34
+  r: "The script exists and logs the required error message, but it constructs the\
+    \ baseline file path relative to the `code` directory (`Path(__file__).resolve().parent.parent`)\
+    \ instead of the project root, so it will look for `code/data/raw/multabench_baselines.csv`\
+    \ and fail to detect the file even when it is correctly placed in `data/raw/`.\
+    \ The path logic must be corrected to point to the actual project\u2011root `data/raw/`\
+    \ location."
 T008c:
   c: true
   h: 91536e09529baaf82e2117d361b49f15117fe355021bcda2373b3d493d96cf87

@@ -1,26 +1,52 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Collapse Point (Inflection‑Point Intensity)"
+title: CollapsePoint
 type: object
-properties:
-  collapse_id:
-    type: string
-    description: "Unique identifier for the inflection‑point record."
-  clip_id:
-    type: string
-    description: "Foreign key to AudioClip."
-  model_name:
-    type: string
-    description: "ASR model identifier."
-  inflection_intensity:
-    type: number
-    description: "Distortion intensity (e.g., normalized SNR‑RT60 coordinate) at the maximum negative derivative."
-  inflection_derivative:
-    type: number
-    description: "Value of the first derivative at the inflection point."
 required:
-  - collapse_id
   - clip_id
   - model_name
-  - inflection_intensity
-  - inflection_derivative
-additionalProperties: false
+  - snr_db
+  - rt60_s
+  - collapse_intensity
+  - early_collapse_flag
+  - inflection_step
+  - universal_collapse_intensity
+  - metadata
+properties:
+  clip_id:
+    type: string
+    description: "Unique identifier of the audio clip from Voices‑in‑the‑Wild dataset"
+  model_name:
+    type: string
+    description: "ASR model identifier (e.g., whisper_tiny)"
+  snr_db:
+    type: number
+    description: "Signal‑to‑Noise Ratio (dB) at the identified collapse"
+  rt60_s:
+    type: number
+    description: "Reverberation time (seconds) at the identified collapse"
+  collapse_intensity:
+    type: string
+    description: "Step identifier (e.g., \"step_23\") or \"None\"/\"Max Tested\""
+  early_collapse_flag:
+    type: boolean
+    description: "True if max negative derivative occurs before CCM crossing"
+  inflection_step:
+    type: integer
+    description: "Index of the step with maximum negative derivative"
+  universal_collapse_intensity:
+    type: string
+    description: "Step where **absolute SSS ≤ 0.5** (FR‑036)"
+  metadata:
+    type: object
+    description: "Additional metadata for the clip"
+    required:
+      - baseline_sss
+      - baseline_wer
+    properties:
+      baseline_sss:
+        type: number
+        description: "Semantic Similarity Score on the clean clip"
+      baseline_wer:
+        type: number
+        description: "Word Error Rate on the clean clip"
+

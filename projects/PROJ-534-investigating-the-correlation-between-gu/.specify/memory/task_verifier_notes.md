@@ -20,3 +20,8 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T027** — The required output file `data/results/correlation_results.json` does not exist, and the schema file `contracts/analysis_output.schema.yaml` (or `schema.yaml`) is also missing, so the contract test cannot actually validate anything. The present test script is incomplete (truncated) and cannot run against the absent artifacts.
 - **T019** — declared artifact(s) missing/empty/invalid: src/analysis/diversity.py
 - **T020** — declared artifact(s) missing/empty/invalid: src/analysis/correlation.py
+- **T021** — declared artifact(s) missing/empty/invalid: src/analysis/correlation.py
+- **T022** — declared artifact(s) missing/empty/invalid: src/analysis/beta_diversity.py
+- **T023** — declared artifact(s) missing/empty/invalid: data/results/correlation_results.json, schema.yaml
+- **T025** — The required artifact `tests/unit/test_power.py` does not exist on disk, so no unit test for the power calculation logic is present. The task cannot be considered done until a non‑empty test file is added at the specified path.
+- **T037** — declared artifact(s) missing/empty/invalid: tests/integration/test_viz.py

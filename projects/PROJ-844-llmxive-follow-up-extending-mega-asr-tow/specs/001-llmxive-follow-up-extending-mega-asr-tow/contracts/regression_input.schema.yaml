@@ -1,50 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Regression Input Schema"
-description: "Schema for the flattened dataset used to train the collapse prediction model. Predictors are acoustic distortion parameters and model architecture features; targets are derived scalars representing the collapse point."
-type: "object"
-properties:
-  clip_id:
-    type: "string"
-    description: "Grouping variable: Unique identifier for the audio clip."
-  model_name:
-    type: "string"
-    description: "Grouping variable: Name of the ASR model."
-  snr:
-    type: "number"
-    description: "Feature: SNR value (mean‑centered)."
-  rt60:
-    type: "number"
-    description: "Feature: RT60 value (mean‑centered)."
-  snr_sq:
-    type: "number"
-    description: "Feature: SNR squared."
-  rt60_sq:
-    type: "number"
-    description: "Feature: RT60 squared."
-  snr_rt60:
-    type: "number"
-    description: "Feature: Interaction term (SNR * RT60)."
-  baseline_sss:
-    type: "number"
-    description: "Covariate: Baseline SSS on clean audio."
-  baseline_wer:
-    type: "number"
-    description: "Covariate: Baseline WER on clean audio."
-  transcript_length:
-    type: "integer"
-    description: "Covariate: Number of tokens in the reference transcript."
-  model_layers:
-    type: "integer"
-    description: "Feature: Number of layers in the ASR model."
-  model_embedding_size:
-    type: "integer"
-    description: "Feature: Embedding size of the ASR model."
-  normalized_inflection_coord:
-    type: ["number", "null"]
-    description: "Target: Relative position of the inflection point within the normalized SNR/reverberation‑time space (0.0 to 1.0). Null if undefined."
-  sigmoid_slope:
-    type: ["number", "null"]
-    description: "Target: Slope of the fitted sigmoid function at the inflection point ; null if undefined."
+title: RegressionInput
+type: object
 required:
   - clip_id
   - model_name
@@ -53,11 +9,38 @@ required:
   - snr_sq
   - rt60_sq
   - snr_rt60
-  - baseline_sss
   - baseline_wer
-  - transcript_length
-  - model_layers
-  - model_embedding_size
-  - normalized_inflection_coord
-  - sigmoid_slope
+  - transcript_perplexity
+  - inflection_step
+properties:
+  clip_id:
+    type: string
+    description: "Identifier of the audio clip (foreign key to source dataset)."
+  model_name:
+    type: string
+    description: "ASR model name (e.g., whisper_tiny)."
+  snr:
+    type: number
+    description: "Signal‑to‑Noise Ratio in dB."
+  rt60:
+    type: number
+    description: "Reverberation time (RT60) in seconds."
+  snr_sq:
+    type: number
+    description: "Squared SNR term (snr × snr)."
+  rt60_sq:
+    type: number
+    description: "Squared RT60 term (rt60 × rt60)."
+  snr_rt60:
+    type: number
+    description: "Interaction term (snr × rt60)."
+  baseline_wer:
+    type: number
+    description: "Baseline Word Error Rate on the clean clip."
+  transcript_perplexity:
+    type: number
+    description: "Per‑sentence sentence‑transformers perplexity as a proxy for transcript difficulty."
+  inflection_step:
+    type: integer
+    description: "Target variable – index of the maximum‑negative‑derivative step (inflection step)."
 additionalProperties: false

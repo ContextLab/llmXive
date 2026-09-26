@@ -2,189 +2,236 @@ import logging
 import sys
 from pathlib import Path
 from typing import Tuple, Optional, List
+
 import pandas as pd
 import numpy as np
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/filtering.log')
-    ]
-)
+from code.src.utils.config import LOGS_DIR, PROCESSED_DATA_DIR, ensure_directories
+
+# Configure logging for this module
 logger = logging.getLogger(__name__)
 
-def check_zero_variance(df: pd.DataFrame, columns: Optional[List[str]] = None) -> Tuple[bool, List[str]]:
+def check_zero_variance(df: pd.DataFrame, columns: Optional[List[str]] = None) -> Tuple[List[str], bool]:
     """
-    Check if any numeric columns in the DataFrame have zero variance (constant values).
+    Check for zero-variance columns in the DataFrame.
+    
+    A column has zero variance if it contains only a single unique value 
+    (or is empty/NaN-only), which would cause correlation calculations to fail 
+    or produce undefined results.
     
     Args:
-        df: Input DataFrame
-        columns: List of specific columns to check. If None, checks all numeric columns.
+        df: The DataFrame to check.
+        columns: Optional list of specific columns to check. If None, checks 
+               all numeric columns.
     
     Returns:
-        Tuple of (has_zero_variance, list_of_zero_variance_columns)
+        Tuple of (list of zero-variance column names, boolean indicating 
+        if any zero-variance columns were found).
     """
     if columns is None:
-        # Select only numeric columns
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        columns_to_check = [col for col in numeric_cols if col in df.columns]
-    else:
-        columns_to_check = [col for col in columns if col in df.columns]
+        # Select only numeric columns for variance check
+        columns = df.select_dtypes(include=[np.number]).columns.tolist()
     
-    zero_variance_cols = []
+    zero_var_cols = []
     
-    for col in columns_to_check:
-        if col in df.columns:
-            # Check if all values are the same (variance == 0)
-            # Also handle cases where all values might be NaN
-            if df[col].nunique() <= 1:
-                zero_variance_cols.append(col)
+    for col in columns:
+        if col not in df.columns:
+            logger.warning(f"Column '{col}' not found in DataFrame, skipping.")
+            continue
+        
+        # Drop NaN values for variance calculation
+        non_null_vals = df[col].dropna()
+        
+        if len(non_null_vals) == 0:
+            # All values are NaN - effectively zero variance
+            zero_var_cols.append(col)
+            logger.debug(f"Column '{col}' has no non-null values (zero variance).")
+            continue
+        
+        # Check if there's only one unique value
+        unique_count = non_null_vals.nunique()
+        if unique_count <= 1:
+            zero_var_cols.append(col)
+            logger.debug(f"Column '{col}' has only {unique_count} unique value(s) (zero variance).")
     
-    has_zero_variance = len(zero_variance_cols) > 0
-    return has_zero_variance, zero_variance_cols
+    return zero_var_cols, len(zero_var_cols) > 0
 
 def filter_cohort(
     df: pd.DataFrame,
     min_age: int = 65,
-    required_metrics: Optional[List[str]] = None,
-    required_covariates: Optional[List[str]] = None,
-    handle_missing: str = 'listwise',
-    check_variance: bool = True,
-    variance_columns: Optional[List[str]] = None
-) -> Tuple[pd.DataFrame, bool, List[str]]:
+    required_columns: Optional[List[str]] = None,
+    target_metrics: Optional[List[str]] = None,
+    imputation_strategy: str = 'listwise'
+) -> Tuple[pd.DataFrame, dict]:
     """
-    Filter the cohort based on age, missing values, and zero-variance checks.
+    Filter the cohort based on age, non-null metrics, and required covariates.
+    
+    This function also checks for zero-variance datasets and flags them to 
+    prevent downstream correlation analysis from failing.
     
     Args:
-        df: Input DataFrame with merged cohort data
-        min_age: Minimum age for inclusion (default: 65)
-        required_metrics: List of required metric columns (e.g., Shannon, cognitive scores)
-        required_covariates: List of required covariate columns (e.g., age, sex, BMI, fiber, antibiotics)
-        handle_missing: How to handle missing values ('listwise' or 'impute')
-        check_variance: Whether to check for zero-variance columns
-        variance_columns: Specific columns to check for zero variance. If None, checks all numeric columns.
+        df: The merged cohort DataFrame.
+        min_age: Minimum age threshold (default 65).
+        required_columns: List of required covariate columns (age, sex, BMI, fiber, antibiotics).
+        target_metrics: List of target metric columns (Shannon, Cognitive scores) to check for nulls.
+        imputation_strategy: Strategy for missing covariates ('listwise' or 'mean').
     
     Returns:
-        Tuple of (filtered_df, skipped_due_to_zero_variance, zero_variance_columns)
+        Tuple of (filtered DataFrame, metadata dict with filtering stats and flags).
     """
     logger.info(f"Starting cohort filtering with min_age={min_age}")
     
-    # Apply age filter
+    if required_columns is None:
+        required_columns = ['age', 'sex', 'bmi', 'fiber_intake', 'antibiotics_use']
+    
+    if target_metrics is None:
+        target_metrics = ['shannon_diversity', 'cognitive_score']
+    
+    metadata = {
+        'initial_rows': len(df),
+        'final_rows': 0,
+        'rows_dropped_age': 0,
+        'rows_dropped_null_metrics': 0,
+        'rows_dropped_null_covariates': 0,
+        'zero_variance_detected': False,
+        'zero_variance_columns': [],
+        'imputation_applied': False,
+        'imputation_strategy': imputation_strategy
+    }
+    
+    # 1. Filter by age
     if 'age' in df.columns:
         initial_count = len(df)
         df = df[df['age'] >= min_age]
-        logger.info(f"Age filter applied: {initial_count} -> {len(df)} participants (age >= {min_age})")
+        metadata['rows_dropped_age'] = initial_count - len(df)
+        logger.info(f"Dropped {metadata['rows_dropped_age']} rows with age < {min_age}")
     else:
-        logger.warning("Age column not found in dataset, skipping age filter")
+        logger.warning("Age column not found in dataset. Skipping age filter.")
     
-    # Define required columns
-    if required_metrics is None:
-        required_metrics = []
-    if required_covariates is None:
-        required_covariates = []
+    # 2. Handle missing covariates
+    missing_covariates = []
+    for col in required_columns:
+        if col not in df.columns:
+            logger.warning(f"Required covariate '{col}' not found in dataset.")
+            missing_covariates.append(col)
     
-    all_required_cols = required_metrics + required_covariates
+    if missing_covariates:
+        logger.error(f"Missing required covariates: {missing_covariates}")
+        metadata['rows_dropped_null_covariates'] = len(df)
+        df = df[[]]  # Return empty dataframe
+        return df, metadata
     
-    # Handle missing values
-    if handle_missing == 'listwise':
-        initial_count = len(df)
-        # Drop rows with any NaN in required columns
-        if all_required_cols:
-            df = df.dropna(subset=all_required_cols)
-        else:
-            # If no specific columns defined, drop rows with any NaN in numeric columns
-            numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-            df = df.dropna(subset=numeric_cols)
-        
-        dropped_count = initial_count - len(df)
-        if dropped_count > 0:
-            logger.info(f"Listwise deletion: {dropped_count} rows removed due to missing values")
-    elif handle_missing == 'impute':
-        # Mean imputation for numeric columns
-        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-        for col in numeric_cols:
-            if col in df.columns and df[col].isna().any():
+    # Apply imputation or listwise deletion for missing covariates
+    if imputation_strategy == 'mean':
+        for col in required_columns:
+            if df[col].isna().any():
                 mean_val = df[col].mean()
                 df[col] = df[col].fillna(mean_val)
-                logger.info(f"Imputed {df[col].isna().sum()} missing values in {col} with mean {mean_val:.4f}")
+                metadata['imputation_applied'] = True
+                logger.info(f"Applied mean imputation for '{col}' (mean={mean_val:.4f})")
+    elif imputation_strategy == 'listwise':
+        initial_count = len(df)
+        df = df.dropna(subset=required_columns)
+        dropped = initial_count - len(df)
+        metadata['rows_dropped_null_covariates'] = dropped
+        if dropped > 0:
+            logger.info(f"Dropped {dropped} rows due to missing covariates (listwise deletion)")
     else:
-        raise ValueError(f"Unknown handle_missing option: {handle_missing}. Use 'listwise' or 'impute'")
+        raise ValueError(f"Unknown imputation_strategy: {imputation_strategy}")
     
-    # Check for zero variance
-    skipped_due_to_zero_variance = False
-    zero_variance_cols = []
+    # 3. Filter by target metrics (Shannon, Cognitive scores)
+    initial_count = len(df)
+    df = df.dropna(subset=target_metrics)
+    metadata['rows_dropped_null_metrics'] = initial_count - len(df)
+    if metadata['rows_dropped_null_metrics'] > 0:
+        logger.info(f"Dropped {metadata['rows_dropped_null_metrics']} rows due to missing target metrics")
     
-    if check_variance:
-        has_zero_var, zero_variance_cols = check_zero_variance(df, variance_columns)
-        
-        if has_zero_var:
-            skipped_due_to_zero_variance = True
-            logger.warning(f"Zero-variance detected in columns: {zero_variance_cols}")
-            logger.warning("Correlation analysis will be skipped for this dataset due to zero variance")
-            logger.warning("This indicates a lack of variability in the data, making correlation analysis invalid")
+    # 4. Check for zero-variance in target metrics and covariates
+    check_cols = target_metrics + required_columns
+    zero_var_cols, has_zero_var = check_zero_variance(df, columns=check_cols)
     
-    logger.info(f"Final cohort size: {len(df)} participants")
+    metadata['zero_variance_detected'] = has_zero_var
+    metadata['zero_variance_columns'] = zero_var_cols
     
-    return df, skipped_due_to_zero_variance, zero_variance_cols
+    if has_zero_var:
+        logger.warning(f"Zero-variance detected in columns: {zero_var_cols}")
+        logger.warning("Correlation analysis will be skipped for zero-variance columns.")
+        # Flag the dataset but do not drop rows yet - the analysis step will handle skipping
+    
+    metadata['final_rows'] = len(df)
+    logger.info(f"Cohort filtering complete. Final rows: {len(df)} (from {metadata['initial_rows']})")
+    
+    return df, metadata
 
 def main():
     """
-    Main function to run the filtering pipeline.
-    This is typically called from a script or pipeline orchestration.
-    """
-    from code.src.utils.config import DATA_DIR, PROCESSED_DATA_DIR, ensure_directories, set_global_seed
-    from code.src.data.ingestion import merge_datasets
+    Main entry point for the filtering script.
     
-    # Setup
-    set_global_seed()
+    Loads the merged synthetic cohort from data/processed/, applies filtering
+    logic, and saves the filtered cohort to data/processed/filtered_cohort.csv.
+    Also logs metadata about the filtering process.
+    """
     ensure_directories()
     
-    # Load merged data
-    logger.info("Loading merged cohort data...")
-    try:
-        df = merge_datasets()
-        logger.info(f"Loaded {len(df)} records from merged data")
-    except FileNotFoundError as e:
-        logger.error(f"Merged data file not found: {e}")
-        logger.error("Please run synthetic generation and ingestion first (T011, T012)")
+    input_path = PROCESSED_DATA_DIR / "merged_cohort.csv"
+    output_path = PROCESSED_DATA_DIR / "filtered_cohort.csv"
+    log_path = LOGS_DIR / "filtering.log"
+    
+    # Setup file logging
+    file_handler = logging.FileHandler(log_path)
+    file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(file_handler)
+    
+    logger.info("=" * 60)
+    logger.info("Starting filtering pipeline")
+    logger.info("=" * 60)
+    
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        logger.error("Please run ingestion/synthetic generation first.")
         sys.exit(1)
     
-    # Define required columns based on the study design
-    required_metrics = ['shannon_diversity', 'cognitive_flexibility_score']
-    required_covariates = ['age', 'sex', 'bmi', 'fiber_intake', 'antibiotics_use']
+    # Load data
+    try:
+        df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} rows from {input_path}")
+    except Exception as e:
+        logger.error(f"Failed to load input file: {e}")
+        sys.exit(1)
     
-    # Filter cohort
-    filtered_df, skipped, zero_var_cols = filter_cohort(
+    # Run filtering
+    filtered_df, metadata = filter_cohort(
         df,
         min_age=65,
-        required_metrics=required_metrics,
-        required_covariates=required_covariates,
-        handle_missing='listwise',
-        check_variance=True,
-        variance_columns=required_metrics + required_covariates
+        required_columns=['age', 'sex', 'bmi', 'fiber_intake', 'antibiotics_use'],
+        target_metrics=['shannon_diversity', 'cognitive_score'],
+        imputation_strategy='listwise'
     )
     
     # Save filtered cohort
-    output_path = PROCESSED_DATA_DIR / "filtered_cohort.csv"
-    filtered_df.to_csv(output_path, index=False)
-    logger.info(f"Filtered cohort saved to {output_path}")
-    
-    # Report zero variance status
-    if skipped:
-        logger.error(f"Zero-variance detected in: {zero_var_cols}. Correlation analysis should be skipped.")
-        # Create a flag file to indicate zero variance was detected
-        flag_path = PROCESSED_DATA_DIR / "zero_variance_flag.txt"
-        with open(flag_path, 'w') as f:
-            f.write(f"Zero-variance detected in columns: {zero_var_cols}\n")
-            f.write("Correlation analysis skipped.\n")
-        logger.info(f"Zero variance flag created at {flag_path}")
+    if len(filtered_df) > 0:
+        filtered_df.to_csv(output_path, index=False)
+        logger.info(f"Saved filtered cohort to {output_path} ({len(filtered_df)} rows)")
     else:
-        logger.info("No zero-variance detected. Ready for correlation analysis.")
+        logger.warning("No rows remaining after filtering. Saving empty file.")
+        filtered_df.to_csv(output_path, index=False)
     
-    return filtered_df, skipped, zero_var_cols
+    # Log metadata summary
+    logger.info("-" * 40)
+    logger.info("Filtering Metadata Summary:")
+    for key, value in metadata.items():
+        logger.info(f"  {key}: {value}")
+    logger.info("-" * 40)
+    
+    # Handle zero-variance case
+    if metadata['zero_variance_detected']:
+        logger.warning("ZERO-VARIANCE DETECTED!")
+        logger.warning(f"Affected columns: {metadata['zero_variance_columns']}")
+        logger.warning("Downstream correlation analysis MUST skip these columns or the entire analysis.")
+        # We do not exit here, but the analysis step must check this flag
+    
+    logger.info("Filtering pipeline completed.")
+    logger.info("=" * 60)
 
 if __name__ == "__main__":
     main()

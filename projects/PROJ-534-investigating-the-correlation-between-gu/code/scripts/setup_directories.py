@@ -1,42 +1,48 @@
 """
-Script to create the required project directory structure.
+Script to create the project directory structure for PROJ-534.
 This implements Task T001a: Create project directory structure.
 """
 import os
+import sys
 from pathlib import Path
 
+# Define the project root relative to this script's location
+# The script is at code/scripts/setup_directories.py
+# The project root is code/
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Directory structure to create
+DIRECTORIES = [
+    "src",
+    "tests",
+    "tests/unit",
+    "tests/integration",
+    "tests/contract",
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "logs",
+    "figures",
+    "contracts",
+    "specs",
+]
+
 def main():
-    """Create the standard project directory structure."""
-    # Define the root directory relative to this script's location
-    # The script is in code/scripts/, so root is code/
-    script_dir = Path(__file__).resolve().parent
-    root_dir = script_dir.parent
-
-    # Define the required directories
-    directories = [
-        "src",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "specs",
-        "contracts",
-        "logs",
-        "figures",
-    ]
-
+    """Create all required directories."""
+    print(f"Project root detected at: {PROJECT_ROOT}")
+    
     created_count = 0
-    for dir_name in directories:
-        dir_path = root_dir / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path.relative_to(root_dir)}")
+    for dir_name in DIRECTORIES:
+        target_path = PROJECT_ROOT / dir_name
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {target_path.relative_to(PROJECT_ROOT)}")
             created_count += 1
         else:
-            print(f"Directory already exists: {dir_path.relative_to(root_dir)}")
-
-    print(f"\nSetup complete. {created_count} new directories created.")
-    print(f"Root directory: {root_dir}")
+            print(f"Directory already exists: {target_path.relative_to(PROJECT_ROOT)}")
+    
+    print(f"\nDirectory structure setup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

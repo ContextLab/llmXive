@@ -1,14 +1,16 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AnalysisResult
-description: >-
-  Schema defining the structure of statistical analysis outputs for the
-  gut microbiome and cognitive flexibility correlation study.
-  This schema validates the content of data/results/correlation_results.json
-  and data/results/statistical_results.json.
+description: |
+  Schema for the output of the correlation and regression analysis pipeline.
+  This entity captures the statistical results of the relationship between
+  microbiome diversity metrics and cognitive flexibility, including covariate
+  adjustments and multiple testing corrections.
 type: object
 required:
   - analysis_metadata
-  - results
+  - correlation_results
+  - regression_results
+  - diversity_metrics_summary
 properties:
   analysis_metadata:
     type: object
@@ -16,144 +18,199 @@ properties:
     required:
       - timestamp
       - version
-      - cohort_id
+      - cohort_size
+      - seed
     properties:
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of the analysis execution.
+        description: ISO 8601 timestamp of when the analysis was run.
       version:
         type: string
-        description: Version of the analysis pipeline used (e.g., "1.0.0").
-      cohort_id:
-        type: string
-        description: Identifier for the specific cohort used (e.g., "filtered_age_ge_65").
+        description: Version of the analysis pipeline (e.g., "1.0.0").
+      cohort_size:
+        type: integer
+        minimum: 1
+        description: Number of participants included in the final filtered cohort.
       seed:
         type: integer
-        description: Random seed used for reproducibility if applicable.
+        description: Random seed used for reproducibility (if applicable).
+      software_versions:
+        type: object
+        description: Versions of key libraries used.
+        properties:
+          python:
+            type: string
+          pandas:
+            type: string
+          scipy:
+            type: string
+          statsmodels:
+            type: string
 
-  results:
+  diversity_metrics_summary:
+    type: object
+    description: Summary statistics for the diversity metrics calculated.
+    required:
+      - alpha_diversity
+      - beta_diversity
+    properties:
+      alpha_diversity:
+        type: object
+        description: Summary stats (mean, std, min, max) for alpha metrics.
+        properties:
+          shannon:
+            $ref: '#/$defs/summary_stats'
+          simpson:
+            $ref: '#/$defs/summary_stats'
+          chao1:
+            $ref: '#/$defs/summary_stats'
+      beta_diversity:
+        type: object
+        description: PERMANOVA results for beta diversity.
+        properties:
+          bray_curtis:
+            $ref: '#/$defs/permanova_result'
+          unifrac_weighted:
+            $ref: '#/$defs/permanova_result'
+
+  correlation_results:
     type: array
-    description: List of individual statistical test results.
+    description: |
+      List of correlation results between diversity metrics and cognitive scores.
+      Each entry represents a specific metric-test pair.
     items:
       type: object
       required:
-        - test_type
         - metric_name
-        - variable_pair
+        - test_type
+        - correlation_method
         - correlation_coefficient
         - p_value
         - adjusted_p_value
         - confidence_interval
-        - n_samples
+        - n_obs
+        - skewness
+        - normality_test_p_value
       properties:
-        test_type:
-          type: string
-          enum:
-            - pearson
-            - spearman
-            - linear_regression
-            - permanova
-          description: Type of statistical test performed.
         metric_name:
           type: string
-          description: Name of the microbiome metric (e.g., "Shannon", "Simpson", "Bray-Curtis").
-        variable_pair:
-          type: array
-          items:
-            type: string
-          minItems: 2
-          maxItems: 2
-          description: [diversity_metric, cognitive_metric] pair tested.
+          description: Name of the diversity metric (e.g., 'shannon', 'simpson').
+        test_type:
+          type: string
+          description: Type of cognitive test or score used.
+        correlation_method:
+          type: string
+          enum: [pearson, spearman]
+          description: Method used for correlation (auto-switched if non-normal).
         correlation_coefficient:
           type: number
-          description: The calculated correlation coefficient (r) or regression coefficient.
+          description: The calculated correlation coefficient (r or rho).
         p_value:
           type: number
           minimum: 0
           maximum: 1
-          description: Raw p-value from the statistical test.
+          description: Raw p-value for the correlation.
         adjusted_p_value:
           type: number
           minimum: 0
           maximum: 1
-          description: P-value after Benjamini-Hochberg FDR correction.
+          description: Benjamini-Hochberg adjusted p-value.
         confidence_interval:
           type: object
+          description: 95% confidence interval for the correlation coefficient.
           required:
             - lower
             - upper
-            - level
           properties:
             lower:
               type: number
             upper:
               type: number
-            level:
-              type: number
-              description: Confidence level (e.g., 0.95).
-        n_samples:
+        n_obs:
           type: integer
-          minimum: 1
-          description: Number of samples used in this specific test.
-        method_details:
+          minimum: 2
+          description: Number of observations used in the correlation.
+        skewness:
+          type: number
+          description: Skewness of the distribution (used to determine method).
+        normality_test_p_value:
+          type: number
+          description: Shapiro-Wilk test p-value for normality.
+        decision_log:
+          type: string
+          description: Log message explaining the switch to Spearman if applicable.
+
+  regression_results:
+    type: array
+    description: |
+      Results of linear regression models: Cognitive ~ Diversity + Covariates.
+    items:
+      type: object
+      required:
+        - model_formula
+        - diversity_metric
+        - coefficients
+        - p_values
+        - adjusted_p_values
+        - r_squared
+        - f_statistic
+        - f_p_value
+      properties:
+        model_formula:
+          type: string
+          description: The R-style formula used for the model.
+        diversity_metric:
+          type: string
+          description: The diversity metric used as the primary predictor.
+        coefficients:
           type: object
-          description: Optional details about the method (e.g., normality check results).
-          properties:
-            normality_test:
-              type: string
-              enum:
-                - shapiro_wilk
-                - none
-                - skewness_heuristic
-              description: Method used to assess normality.
-            skewness:
-              type: number
-              description: Calculated skewness if applicable.
-            shapiro_p:
-              type: number
-              description: Shapiro-Wilk p-value if applicable.
-        covariates:
-          type: array
-          items:
-            type: string
-          description: List of covariates included in the model (if regression).
-          default: []
+          description: Dictionary of coefficient estimates for each predictor.
+          additionalProperties:
+            type: number
+        p_values:
+          type: object
+          description: Dictionary of raw p-values for each predictor.
+          additionalProperties:
+            type: number
+        adjusted_p_values:
+          type: object
+          description: Dictionary of BH-adjusted p-values for the diversity metric across models.
+          additionalProperties:
+            type: number
+        r_squared:
+          type: number
+          description: R-squared value of the model.
+        f_statistic:
+          type: number
+          description: F-statistic for the overall model.
+        f_p_value:
+          type: number
+          description: P-value for the F-statistic.
 
-  power_analysis:
-    type: object
-    description: Optional power analysis results derived from the main results.
-    required:
-      - effect_size
-      - observed_power
-      - required_sample_size_80
-    properties:
-      effect_size:
-        type: number
-        description: Observed effect size (e.g., Cohen's d or correlation r).
-      observed_power:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: Statistical power achieved with current sample size.
-      required_sample_size_80:
-        type: integer
-        description: Estimated sample size needed for 80% power at alpha=0.05.
-      alpha_level:
-        type: number
-        default: 0.05
-        description: Significance level used for power calculation.
-
-  sensitivity_analysis:
-    type: object
-    description: Optional sensitivity analysis (E-values) for confounding.
-    properties:
-      e_value:
-        type: number
-        description: E-value for the observed association.
-      e_value_ci:
-        type: number
-        description: E-value for the lower limit of the confidence interval.
-      interpretation:
-        type: string
-        description: Textual interpretation of the sensitivity analysis.
+  $defs:
+    summary_stats:
+      type: object
+      properties:
+        mean:
+          type: number
+        std:
+          type: number
+        min:
+          type: number
+        max:
+          type: number
+        count:
+          type: integer
+    permanova_result:
+      type: object
+      properties:
+        pseudo_f:
+          type: number
+        p_value:
+          type: number
+        n_permutations:
+          type: integer
+        r_squared:
+          type: number
+          description: Explained variance (R2) of the model.

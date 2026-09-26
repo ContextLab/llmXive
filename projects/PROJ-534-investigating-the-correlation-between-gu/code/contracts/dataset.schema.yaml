@@ -1,156 +1,126 @@
+# Dataset Schema for Gut Microbiome and Cognitive Flexibility Study
+# Defines the structure for Participant and MicrobiomeProfile entities
+# Used for data validation and contract testing
+
 $schema: http://json-schema.org/draft-07/schema#
-title: Gut Microbiome and Cognitive Flexibility Dataset Schema
-description: |
-  Schema defining the structure of the merged cohort dataset containing
-  Participant demographics, lifestyle factors, and MicrobiomeProfile metrics.
-  Used for validation in T007 and T010.
+title: GutMicrobiomeCognitiveFlexibilityDataset
+description: Schema for the merged cohort dataset combining participant demographics,
+  lifestyle factors, microbiome profiles, and cognitive scores.
 
 definitions:
   Participant:
     type: object
-    description: Demographic and lifestyle attributes of the study participant.
+    description: Core participant demographic and lifestyle data
     required:
       - participant_id
       - age
       - sex
       - bmi
       - fiber_intake
-      - antibiotic_history
+      - antibiotics_usage
     properties:
       participant_id:
         type: string
-        description: Unique identifier for the participant.
-        minLength: 1
+        description: Unique identifier for the participant
+        pattern: "^P[0-9]{6}$"
       age:
         type: integer
-        description: Age of the participant in years.
-        minimum: 0
+        description: Age of the participant in years
+        minimum: 18
       sex:
         type: string
-        description: Biological sex of the participant.
-        enum:
-          - Male
-          - Female
-          - Other
+        description: Biological sex of the participant
+        enum: ["M", "F"]
       bmi:
         type: number
-        description: Body Mass Index.
-        minimum: 0.0
-        maximum: 100.0
+        description: Body Mass Index
+        minimum: 10.0
+        maximum: 60.0
       fiber_intake:
         type: number
-        description: Daily fiber intake in grams.
+        description: Daily fiber intake in grams
         minimum: 0.0
-      antibiotic_history:
+      antibiotics_usage:
         type: string
-        description: Antibiotic usage in the last 6 months.
-        enum:
-          - None
-          - Short-term
-          - Long-term
-      socioeconomic_status:
-        type: string
-        description: Socioeconomic status category.
-        enum:
-          - Low
-          - Medium
-          - High
-        nullable: true
+        description: Antibiotic usage in the last 6 months
+        enum: ["None", "1-2", "3-5", "6+"]
 
   MicrobiomeProfile:
     type: object
-    description: Alpha diversity metrics derived from 16S rRNA sequencing.
+    description: Microbiome diversity and composition metrics
     required:
       - participant_id
-      - shannon_index
-      - simpson_index
-      - chao1_index
+      - shannon_diversity
+      - simpson_diversity
+      - chao1_richness
+      - bray_curtis_distance
     properties:
       participant_id:
         type: string
-        description: Unique identifier matching the Participant entity.
-        minLength: 1
-      shannon_index:
+        description: Unique identifier for the participant (foreign key)
+        pattern: "^P[0-9]{6}$"
+      shannon_diversity:
         type: number
-        description: Shannon diversity index (H').
+        description: Shannon diversity index (alpha diversity)
         minimum: 0.0
-      simpson_index:
+      simpson_diversity:
         type: number
-        description: Simpson diversity index (1-D).
+        description: Simpson diversity index (alpha diversity)
         minimum: 0.0
-      chao1_index:
+        maximum: 1.0
+      chao1_richness:
         type: number
-        description: Chao1 richness estimator.
+        description: Chao1 richness estimator (alpha diversity)
         minimum: 0.0
-      dominant_phylum:
-        type: string
-        description: Most abundant phylum in the sample.
-        nullable: true
+      bray_curtis_distance:
+        type: number
+        description: Bray-Curtis dissimilarity (beta diversity) relative to cohort centroid
+        minimum: 0.0
+        maximum: 1.0
+      unifrac_weighted:
+        type: number
+        description: Weighted UniFrac distance (beta diversity) relative to cohort centroid
+        minimum: 0.0
+        maximum: 1.0
 
-  CognitiveScore:
+  CognitiveProfile:
     type: object
-    description: Cognitive flexibility assessment scores.
+    description: Cognitive flexibility and executive function scores
     required:
       - participant_id
       - cognitive_flexibility_score
+      - n_back_accuracy
+      - task_switching_cost
     properties:
       participant_id:
         type: string
-        description: Unique identifier matching the Participant entity.
-        minLength: 1
+        description: Unique identifier for the participant (foreign key)
+        pattern: "^P[0-9]{6}$"
       cognitive_flexibility_score:
         type: number
-        description: Normalized score from cognitive flexibility tasks.
+        description: Composite score for cognitive flexibility (0-100)
         minimum: 0.0
         maximum: 100.0
+      n_back_accuracy:
+        type: number
+        description: Accuracy on N-back working memory task (0-1)
+        minimum: 0.0
+        maximum: 1.0
+      task_switching_cost:
+        type: number
+        description: Reaction time cost of task switching (ms)
+        minimum: 0.0
 
-  FilteredCohortRecord:
-    type: object
-    description: |
-      A single row in the final filtered dataset (data/processed/filtered_cohort.csv).
-      This is the union of Participant, MicrobiomeProfile, and CognitiveScore
-      after filtering for age >= 65 and non-null metrics.
-    required:
-      - participant_id
-      - age
-      - sex
-      - bmi
-      - fiber_intake
-      - antibiotic_history
-      - shannon_index
-      - simpson_index
-      - chao1_index
-      - cognitive_flexibility_score
-    properties:
-      participant_id:
-        type: string
-      age:
-        type: integer
-      sex:
-        type: string
-      bmi:
-        type: number
-      fiber_intake:
-        type: number
-      antibiotic_history:
-        type: string
-      socioeconomic_status:
-        type: string
-        nullable: true
-      shannon_index:
-        type: number
-      simpson_index:
-        type: number
-      chao1_index:
-        type: number
-      dominant_phylum:
-        type: string
-        nullable: true
-      cognitive_flexibility_score:
-        type: number
-
-oneOf:
+allOf:
   - $ref: "#/definitions/Participant"
   - $ref: "#/definitions/MicrobiomeProfile"
-  - $ref: "#/definitions/CognitiveScore"
-  - $ref: "#/definitions/FilteredCohortRecord"
+  - $ref: "#/definitions/CognitiveProfile"
+description: >
+  The final merged cohort is the conjunction of Participant, MicrobiomeProfile,
+  and CognitiveProfile. All three sets of fields must be present for a valid record.
+  The merged dataset is expected to be a CSV where each row satisfies this schema.
+
+# Validation Rules (Logical Constraints not captured by JSON Schema alone)
+# 1. age >= 65 for the primary analysis cohort (enforced in filtering logic)
+# 2. No missing values (NaN) in required fields for the final processed dataset
+# 3. participant_id must be unique across all tables before merging

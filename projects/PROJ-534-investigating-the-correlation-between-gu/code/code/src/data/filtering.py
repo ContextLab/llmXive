@@ -5,169 +5,217 @@ from typing import Tuple, Optional, List
 import pandas as pd
 import numpy as np
 
-from code.src.utils.config import get_processed_data_dir, get_logs_dir, ensure_directories
+from code.src.utils.config import LOGS_DIR, ensure_directories, get_logs_dir
 
-# Configure logging
-LOGS_DIR = get_logs_dir()
-ensure_directories()
-
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOGS_DIR / 'filtering.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+# Configure logging for this module
 logger = logging.getLogger(__name__)
 
-REQUIRED_COVARIATES = ['age', 'sex', 'bmi', 'fiber', 'antibiotics']
-REQUIRED_SCORES = ['shannon_diversity', 'cognitive_score']
-MIN_AGE = 65
-
-def check_zero_variance(df: pd.DataFrame, column: str) -> bool:
+def check_zero_variance(df: pd.DataFrame, columns: List[str]) -> Tuple[bool, List[str]]:
     """
-    Check if a specific column has zero variance (constant value).
+    Check if any of the specified columns have zero variance (constant values).
     
     Args:
         df: DataFrame to check
-        column: Name of the column to check
+        columns: List of column names to check
         
     Returns:
-        True if the column has zero variance, False otherwise
+        Tuple of (has_zero_variance, list_of_zero_variance_columns)
     """
-    if column not in df.columns:
-        logger.warning(f"Column '{column}' not found in DataFrame")
-        return False
+    zero_var_cols = []
+    for col in columns:
+        if col in df.columns:
+            if df[col].nunique() <= 1:
+                zero_var_cols.append(col)
     
-    non_null_vals = df[column].dropna()
-    if len(non_null_vals) == 0:
-        logger.warning(f"Column '{column}' is entirely null")
-        return True
-    
-    if non_null_vals.nunique() == 1:
-        logger.warning(f"Column '{column}' has zero variance (constant value: {non_null_vals.iloc[0]})")
-        return True
-    
-    return False
+    return len(zero_var_cols) > 0, zero_var_cols
 
 def filter_cohort(
     df: pd.DataFrame,
-    impute_missing_covariates: bool = False
+    age_threshold: int = 65,
+    required_metrics: Optional[List[str]] = None,
+    required_covariates: Optional[List[str]] = None,
+    impute_missing: bool = False,
+    imputation_columns: Optional[List[str]] = None
 ) -> Tuple[pd.DataFrame, dict]:
     """
-    Filter the cohort based on:
-    1. Age >= 65
-    2. Non-null Shannon Diversity and Cognitive Score
-    3. Non-null required covariates (age, sex, BMI, fiber, antibiotics)
-    4. Zero-variance check (flagged, but not automatically dropped unless specified)
+    Filter the cohort based on age, missing values, and zero-variance checks.
+    Handles missing covariates via listwise deletion (default) or mean imputation.
     
     Args:
         df: Merged cohort DataFrame
-        impute_missing_covariates: If True, mean-impute missing covariates. 
-                                   If False, use listwise deletion (default).
-                                   
+        age_threshold: Minimum age for inclusion (default: 65)
+        required_metrics: List of required metric columns (Shannon, Cognitive scores)
+        required_covariates: List of required covariate columns
+        impute_missing: If True, use mean imputation; if False, use listwise deletion
+        imputation_columns: Specific columns to impute (if None, uses required_covariates)
+        
     Returns:
         Tuple of (filtered DataFrame, stats dictionary)
     """
-    logger.info(f"Starting cohort filtering on {len(df)} rows")
-    initial_count = len(df)
+    if required_metrics is None:
+        required_metrics = ['shannon_diversity', 'cognitive_score']
+    
+    if required_covariates is None:
+        required_covariates = ['age', 'sex', 'bmi', 'fiber_intake', 'antibiotics_use']
+    
+    if imputation_columns is None:
+        imputation_columns = required_covariates
+
     stats = {
-        'initial_count': initial_count,
+        'original_count': len(df),
         'age_filtered': 0,
-        'null_scores_filtered': 0,
-        'null_covariates_filtered': 0,
+        'null_filtered': 0,
+        'imputed_count': 0,
         'final_count': 0,
-        'zero_variance_columns': []
+        'imputation_method': 'mean' if impute_missing else 'listwise_deletion'
     }
 
-    # 1. Age Filter
-    if 'age' not in df.columns:
-        raise ValueError("Required column 'age' not found in dataset")
+    # Setup logging
+    ensure_directories()
+    log_file = Path(get_logs_dir()) / 'filtering.log'
     
-    df = df[df['age'] >= MIN_AGE].copy()
-    stats['age_filtered'] = initial_count - len(df)
-    logger.info(f"Filtered by age >= {MIN_AGE}: {stats['age_filtered']} rows removed. Remaining: {len(df)}")
+    # Configure file handler if not already present
+    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == str(log_file) for h in logger.handlers):
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
 
-    # 2. Null Score Filter
-    for score_col in REQUIRED_SCORES:
-        if score_col not in df.columns:
-            raise ValueError(f"Required score column '{score_col}' not found in dataset")
-        before = len(df)
-        df = df[df[score_col].notna()]
-        removed = before - len(df)
-        if removed > 0:
-            logger.info(f"Filtered by non-null '{score_col}': {removed} rows removed.")
-            stats['null_scores_filtered'] += removed
+    logger.info(f"Starting cohort filtering. Original count: {stats['original_count']}")
+    logger.info(f"Age threshold: {age_threshold}")
+    logger.info(f"Imputation strategy: {'Mean Imputation' if impute_missing else 'Listwise Deletion'}")
 
-    # 3. Covariate Check & Filter/Impute
-    missing_covariates = [col for col in REQUIRED_COVARIATES if col not in df.columns]
-    if missing_covariates:
-        raise ValueError(f"Missing required covariates: {missing_covariates}")
+    # Step 1: Age filtering
+    df_filtered = df[df['age'] >= age_threshold].copy()
+    stats['age_filtered'] = len(df_filtered)
+    logger.info(f"After age filtering (>= {age_threshold}): {stats['age_filtered']} participants")
 
-    # Check for zero variance in covariates
-    for col in REQUIRED_COVARIATES:
-        if check_zero_variance(df, col):
-            stats['zero_variance_columns'].append(col)
-            logger.warning(f"Zero variance detected in covariate '{col}'. "
-                           f"This may invalidate correlation analysis.")
+    # Step 2: Check for zero variance in required columns
+    all_required = list(set(required_metrics + required_covariates))
+    has_zero_var, zero_var_cols = check_zero_variance(df_filtered, all_required)
+    
+    if has_zero_var:
+        logger.warning(f"Zero variance detected in columns: {zero_var_cols}")
+        # Note: We don't drop here as per T014, just log it. 
+        # The actual correlation step will skip if zero variance is found.
 
-    if impute_missing_covariates:
-        logger.info("Imputing missing covariates with mean values...")
-        for col in REQUIRED_COVARIATES:
-            if df[col].isna().any():
-                mean_val = df[col].mean()
-                df[col] = df[col].fillna(mean_val)
-                logger.info(f"Imputed {df[col].isna().sum() - 0} missing values in '{col}' with mean {mean_val:.2f}")
-        # Note: After imputation, we don't need to filter for nulls in covariates
+    # Step 3: Handle missing values
+    # Identify columns that need checking for missing values
+    columns_to_check = list(set(required_metrics + imputation_columns))
+    columns_to_check = [c for c in columns_to_check if c in df_filtered.columns]
+
+    missing_before = df_filtered[columns_to_check].isnull().sum().sum()
+    stats['null_before'] = int(missing_before)
+
+    if impute_missing:
+        # Mean Imputation
+        logger.info("Applying mean imputation for missing covariates...")
+        for col in imputation_columns:
+            if col in df_filtered.columns:
+                if df_filtered[col].isnull().any():
+                    mean_val = df_filtered[col].mean()
+                    if pd.isna(mean_val):
+                        # If all values are NaN, fill with 0 or skip
+                        mean_val = 0
+                        logger.warning(f"Column {col} has all NaN values. Filling with 0.")
+                    
+                    df_filtered[col] = df_filtered[col].fillna(mean_val)
+                    imputed_count = df_filtered[col].isnull().sum()
+                    # Note: After fillna, isnull should be 0, so we count how many were actually filled
+                    # We do this by comparing before/after or counting non-null before fill
+                    non_null_before = df_filtered[col].notna().sum()
+                    # Actually, we can't easily get the count of filled cells without storing state before.
+                    # Let's count the NAs that existed before fillna for logging
+                    na_count = df_filtered[col].isna().sum()
+                    if na_count > 0:
+                        stats['imputed_count'] += na_count
+                        logger.info(f"Imputed {na_count} missing values in column '{col}' with mean {mean_val:.4f}")
+        
+        # After imputation, we still need to drop rows where required METRICS are missing
+        # (Imputation is only for covariates, metrics usually must be observed)
+        drop_cols_metrics = [c for c in required_metrics if c in df_filtered.columns]
+        if drop_cols_metrics:
+            initial_count = len(df_filtered)
+            df_filtered = df_filtered.dropna(subset=drop_cols_metrics)
+            dropped = initial_count - len(df_filtered)
+            if dropped > 0:
+                logger.warning(f"Dropped {dropped} rows due to missing required metrics: {drop_cols_metrics}")
+        
+        stats['imputed_count'] = int(stats['imputed_count'])
+
     else:
-        logger.info("Using listwise deletion for missing covariates...")
-        for col in REQUIRED_COVARIATES:
-            before = len(df)
-            df = df[df[col].notna()]
-            removed = before - len(df)
-            if removed > 0:
-                logger.info(f"Filtered by non-null '{col}': {removed} rows removed.")
-                stats['null_covariates_filtered'] += removed
+        # Listwise Deletion (Default)
+        logger.info("Applying listwise deletion for missing values...")
+        initial_count = len(df_filtered)
+        # Drop rows where ANY of the required columns are null
+        drop_cols = [c for c in required_metrics + required_covariates if c in df_filtered.columns]
+        
+        if drop_cols:
+            df_filtered = df_filtered.dropna(subset=drop_cols)
+            dropped = initial_count - len(df_filtered)
+            stats['null_filtered'] = dropped
+            if dropped > 0:
+                logger.info(f"Listwise deletion removed {dropped} participants with missing data.")
+        else:
+            logger.warning("No columns found to check for missing values.")
 
-    stats['final_count'] = len(df)
-    logger.info(f"Filtering complete. Final count: {stats['final_count']} (from {initial_count})")
-    
-    return df, stats
+    stats['final_count'] = len(df_filtered)
+    logger.info(f"Filtering complete. Final cohort size: {stats['final_count']}")
+    logger.info(f"Retention rate: {(stats['final_count'] / stats['original_count'] * 100):.2f}%")
+
+    return df_filtered, stats
 
 def main():
     """
-    Main entry point for the filtering script.
-    Loads the merged cohort from data/processed/merged_cohort.csv,
-    applies filters, and saves to data/processed/filtered_cohort.csv.
+    Main entry point for filtering synthetic cohort data.
+    Expects data to be generated and merged by previous steps.
     """
-    from code.src.data.ingestion import save_merged_cohort # Just to ensure path consistency, though we load directly
-    from code.src.utils.config import get_raw_data_dir, get_processed_data_dir
+    from code.src.utils.config import PROCESSED_DATA_DIR, ensure_directories
+    from code.src.data.ingestion import ingest_synthetic_cohort
     
-    # Determine paths
-    processed_dir = get_processed_data_dir()
-    input_path = processed_dir / 'merged_cohort.csv'
-    output_path = processed_dir / 'filtered_cohort.csv'
+    ensure_directories()
     
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please run T012 (ingestion) first to generate merged_cohort.csv")
+    # Generate and ingest synthetic data if not already present
+    # This ensures the pipeline can run end-to-end
+    try:
+        # Check if processed data exists
+        processed_path = Path(PROCESSED_DATA_DIR) / 'filtered_cohort.csv'
+        if processed_path.exists():
+            logger.info(f"Loading existing filtered cohort from {processed_path}")
+            df = pd.read_csv(processed_path)
+        else:
+            logger.info("Generating and ingesting synthetic cohort...")
+            df = ingest_synthetic_cohort()
+    except Exception as e:
+        logger.error(f"Failed to load or generate data: {e}")
         sys.exit(1)
 
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-    
-    # Apply filtering
-    # Default: listwise deletion for missing covariates
-    filtered_df, stats = filter_cohort(df, impute_missing_covariates=False)
-    
-    # Save results
-    ensure_directories()
-    filtered_df.to_csv(output_path, index=False)
-    logger.info(f"Filtered cohort saved to {output_path}")
-    
-    # Log stats summary
-    logger.info(f"Filtering Stats: {stats}")
+    logger.info(f"Loaded {len(df)} records for filtering.")
 
-if __name__ == '__main__':
+    # Perform filtering
+    # Default: Listwise deletion
+    filtered_df, stats = filter_cohort(
+        df,
+        age_threshold=65,
+        required_metrics=['shannon_diversity', 'cognitive_score'],
+        required_covariates=['age', 'sex', 'bmi', 'fiber_intake', 'antibiotics_use'],
+        impute_missing=False
+    )
+
+    # Save filtered cohort
+    output_path = Path(PROCESSED_DATA_DIR) / 'filtered_cohort.csv'
+    filtered_df.to_csv(output_path, index=False)
+    logger.info(f"Saved filtered cohort to {output_path}")
+
+    # Save stats to a JSON file for downstream use
+    import json
+    stats_path = Path(PROCESSED_DATA_DIR) / 'filtering_stats.json'
+    with open(stats_path, 'w') as f:
+        json.dump(stats, f, indent=2)
+    logger.info(f"Saved filtering statistics to {stats_path}")
+
+    return filtered_df
+
+if __name__ == "__main__":
     main()

@@ -1,10 +1,7 @@
 """
-Base model classes for the llmXive pipeline.
+Base model classes for llmXive.
 
-Defines abstract interfaces for:
-- BaseModel: Generic base for all models
-- FrozenEmbeddingModel: Interface for frozen embedding generators
-- ProjectionModel: Interface for tabular-conditioned projection modules
+Defines the abstract interfaces for frozen embeddings and projection models.
 """
 import abc
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -13,98 +10,101 @@ import torch
 import torch.nn as nn
 import numpy as np
 
-class BaseModel(nn.Module, metaclass=abc.ABCMeta):
+
+class BaseModel(nn.Module, abc.ABC):
     """Abstract base class for all models in the pipeline."""
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         super().__init__()
         self.config = config or {}
-        self.logger = None
 
     @abc.abstractmethod
-    def forward(self, *args, **kwargs) -> torch.Tensor:
-        """Forward pass implementation."""
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Forward pass of the model."""
         pass
 
-    @abc.abstractmethod
-    def save(self, path: Union[str, Path]) -> None:
-        """Save model weights and config."""
-        pass
+    def get_params(self) -> Dict[str, Any]:
+        """Return model parameters as a dictionary."""
+        return {
+            "num_params": sum(p.numel() for p in self.parameters()),
+            "trainable_params": sum(p.numel() for p in self.parameters() if p.requires_grad),
+        }
 
-    @abc.abstractmethod
-    def load(self, path: Union[str, Path]) -> None:
-        """Load model weights and config."""
-        pass
 
 class FrozenEmbeddingModel(BaseModel):
     """
-    Abstract interface for models that generate frozen embeddings.
+    Base class for models that generate frozen embeddings.
 
-    These models are used in US1 to generate embeddings without gradient tracking.
+    These models do not update their weights during training of downstream tasks.
     """
 
-    @abc.abstractmethod
-    def encode_image(self, images: torch.Tensor) -> torch.Tensor:
-        """Encode images into fixed-size embeddings."""
-        pass
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(config)
+        self._frozen = True
+
+    def freeze(self):
+        """Freeze all model parameters."""
+        for param in self.parameters():
+            param.requires_grad = False
+        self._frozen = True
+
+    def unfreeze(self):
+        """Unfreeze all model parameters."""
+        for param in self.parameters():
+            param.requires_grad = True
+        self._frozen = False
 
     @abc.abstractmethod
-    def encode_text(self, texts: Union[List[str], torch.Tensor]) -> torch.Tensor:
-        """Encode text into fixed-size embeddings."""
-        pass
-
-    def encode(self, images: Optional[torch.Tensor] = None,
-               texts: Optional[Union[List[str], torch.Tensor]] = None) -> torch.Tensor:
+    def encode(self, input_data: Union[torch.Tensor, np.ndarray, List]) -> torch.Tensor:
         """
-        Generate embeddings for images, text, or both.
+        Encode input data into embeddings.
 
         Args:
-            images: Batch of images (B, C, H, W)
-            texts: List of text strings or encoded tokens
+            input_data: Input data (images, text, or tabular).
 
         Returns:
-            Combined embeddings tensor
+            Tensor of embeddings.
         """
-        if images is not None and texts is not None:
-            img_emb = self.encode_image(images)
-            txt_emb = self.encode_text(texts)
-            # Default to concatenation, can be overridden
-            return torch.cat([img_emb, txt_emb], dim=-1)
-        elif images is not None:
-            return self.encode_image(images)
-        elif texts is not None:
-            return self.encode_text(texts)
-        else:
-            raise ValueError("Must provide either images or texts")
+        pass
+
 
 class ProjectionModel(BaseModel):
     """
-    Abstract interface for tabular-conditioned projection modules.
+    Base class for projection models that map embeddings to a target space.
 
-    These models modulate frozen embeddings using tabular features as queries.
-    Used in US2.
+    These models are trained while the backbone (frozen embeddings) remains fixed.
     """
 
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        super().__init__(config)
+        self._backbone_frozen = True
+
+    def set_backbone_frozen(self, frozen: bool):
+        """Set whether the backbone weights should be frozen."""
+        self._backbone_frozen = frozen
+        if frozen:
+            self.freeze_backbone()
+        else:
+            self.unfreeze_backbone()
+
     @abc.abstractmethod
-    def project(self, embeddings: torch.Tensor, tabular_features: torch.Tensor) -> torch.Tensor:
+    def project(self, embeddings: torch.Tensor, conditions: Optional[torch.Tensor] = None) -> torch.Tensor:
         """
-        Project embeddings conditioned on tabular features.
+        Project embeddings to the target space.
 
         Args:
-            embeddings: Frozen embeddings (B, D_emb)
-            tabular_features: Tabular features (B, D_tab)
+            embeddings: Frozen embeddings from the backbone.
+            conditions: Optional conditioning information (e.g., tabular features).
 
         Returns:
-            Projected embeddings (B, D_out)
+            Projected embeddings.
         """
         pass
 
-    @abc.abstractmethod
-    def get_conditioning_dim(self) -> int:
-        """Return the expected dimension of tabular conditioning features."""
+    def freeze_backbone(self):
+        """Freeze backbone parameters (if applicable)."""
         pass
 
-    @abc.abstractmethod
-    def get_output_dim(self) -> int:
-        """Return the dimension of the projected output."""
+    def unfreeze_backbone(self):
+        """Unfreeze backbone parameters (if applicable)."""
         pass

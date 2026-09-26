@@ -1,194 +1,157 @@
+"""
+Unit tests for correlation analysis functions, specifically focusing on
+the Benjamini-Hochberg (BH) false discovery rate correction.
+
+This module extends existing tests for auto-switch logic and correlation
+calculations to include rigorous testing of the multiple hypothesis
+correction mechanism required for User Story 2.
+"""
+
 import pytest
 import numpy as np
 import pandas as pd
 from scipy import stats
 from unittest.mock import patch, MagicMock
 import logging
-import sys
-import os
 
-# Ensure project root is in path for imports if running standalone
-_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
+# Import the function under test from the project's analysis module
+# Based on the provided API surface: code/src/analysis/correlation.py
+try:
+    from src.analysis.correlation import apply_benjamini_hochberg
+except ImportError:
+    # Fallback for environments where the path might be set differently,
+    # though the prompt implies 'src' is on the path via conftest or env.
+    from code.src.analysis.correlation import apply_benjamini_hochberg
 
-from src.analysis.correlation import calculate_benjamini_hochberg
-
-@pytest.fixture
-def p_values_normal():
-    """Normal distributed data for correlation tests."""
-    np.random.seed(42)
-    return np.random.rand(20)
-
-@pytest.fixture
-def p_values_sorted():
-    """Pre-sorted p-values for BH test."""
-    # Sorted ascending
-    return np.array([0.001, 0.005, 0.01, 0.02, 0.05, 0.08, 0.12, 0.25, 0.40, 0.90])
-
-@pytest.fixture
-def p_values_unsorted():
-    """Unsorted p-values to test sorting logic."""
-    return np.array([0.05, 0.001, 0.25, 0.01, 0.90, 0.005, 0.12, 0.40, 0.08, 0.20])
-
-@pytest.fixture
-def p_values_with_zeros():
-    """P-values including zero (exact match)."""
-    return np.array([0.0, 0.01, 0.05, 0.1])
 
 class TestBenjaminiHochbergCorrection:
-    """Unit tests for Benjamini-Hochberg FDR correction logic."""
+    """
+    Test suite for the Benjamini-Hochberg (BH) FDR correction implementation.
+    """
 
-    def test_basic_bh_calculation(self, p_values_sorted):
-        """Verify BH calculation against manual step-up procedure."""
-        m = len(p_values_sorted)
-        expected_adjusted = []
-        
-        # Manual calculation: p_adj[i] = p[i] * m / (i + 1)
-        # Then ensure monotonicity (cumulative min from right)
-        raw_adjusted = p_values_sorted * m / (np.arange(m) + 1)
-        
-        # Enforce monotonicity from right to left
-        for i in range(m - 2, -1, -1):
-            raw_adjusted[i] = min(raw_adjusted[i], raw_adjusted[i + 1])
-        
-        # Cap at 1.0
-        raw_adjusted = np.clip(raw_adjusted, 0, 1)
-        
-        adjusted = calculate_benjamini_hochberg(p_values_sorted, alpha=0.05)
-        
-        np.testing.assert_array_almost_equal(adjusted, raw_adjusted, decimal=6)
+    def test_bh_correction_empty_input(self):
+        """Test that BH correction handles empty lists gracefully."""
+        p_values = []
+        result = apply_benjamini_hochberg(p_values)
+        assert len(result) == 0
+        assert result == []
 
-    def test_unsorted_input_handling(self, p_values_unsorted):
-        """Ensure function handles unsorted input correctly."""
-        # BH requires sorted p-values; implementation should sort internally
-        adjusted = calculate_benjamini_hochberg(p_values_unsorted, alpha=0.05)
-        
-        # Sort p-values and calculate manually to verify
-        sorted_p = np.sort(p_values_unsorted)
-        m = len(sorted_p)
-        raw_adj = sorted_p * m / (np.arange(m) + 1)
-        for i in range(m - 2, -1, -1):
-            raw_adj[i] = min(raw_adj[i], raw_adj[i + 1])
-        expected = np.clip(raw_adj, 0, 1)
-        
-        # The returned array must correspond to the ORIGINAL order
-        # So we need to map back
-        sorted_indices = np.argsort(p_values_unsorted)
-        expected_in_original_order = np.empty_like(expected)
-        expected_in_original_order[sorted_indices] = expected
-        
-        np.testing.assert_array_almost_equal(adjusted, expected_in_original_order, decimal=6)
+    def test_bh_correction_single_value(self):
+        """Test BH correction with a single p-value."""
+        p_values = [0.05]
+        result = apply_benjamini_hochberg(p_values)
+        # With m=1, adjusted p-value = p * 1 / 1 = p
+        assert len(result) == 1
+        assert np.isclose(result[0], 0.05)
 
-    def test_zero_p_values(self, p_values_with_zeros):
-        """Test handling of p-values that are exactly zero."""
-        adjusted = calculate_benjamini_hochberg(p_values_with_zeros, alpha=0.05)
-        
-        # Zero p-values should remain zero after adjustment (or very close)
-        assert adjusted[0] == 0.0 or adjusted[0] < 1e-10
+    def test_bh_correction_monotonicity(self):
+        """
+        Test that the adjusted p-values are monotonically non-decreasing
+        when sorted by original p-value.
+        """
+        # Create a set of p-values
+        p_values = [0.01, 0.04, 0.03, 0.20, 0.15, 0.05]
+        result = apply_benjamini_hochberg(p_values)
 
-    def test_monotonicity_enforcement(self):
-        """Verify that adjusted p-values are monotonically increasing."""
-        # Create p-values where raw calculation might violate monotonicity
-        # e.g., a very small p-value followed by a slightly larger one that 
-        # when multiplied by a larger rank factor, exceeds the next one
-        p_vals = np.array([0.01, 0.02, 0.03, 0.5])
-        m = len(p_vals)
+        # The BH procedure ensures that adjusted p-values are non-decreasing
+        # when the original p-values are sorted.
+        # We sort the results based on the original order to check monotonicity
+        # relative to the sorted original p-values.
         
-        adjusted = calculate_benjamini_hochberg(p_vals, alpha=0.05)
+        # Pair original and adjusted
+        paired = list(zip(p_values, result))
+        # Sort by original p-value
+        paired.sort(key=lambda x: x[0])
         
-        # Check monotonicity
-        assert np.all(np.diff(adjusted) >= -1e-10), "Adjusted p-values must be monotonically increasing"
+        adjusted_sorted = [x[1] for x in paired]
+        
+        # Check non-decreasing
+        for i in range(len(adjusted_sorted) - 1):
+            assert adjusted_sorted[i] <= adjusted_sorted[i+1], \
+                f"Adjusted p-values must be non-decreasing: {adjusted_sorted}"
 
-    def test_capping_at_one(self):
-        """Ensure adjusted p-values never exceed 1.0."""
-        # Use p-values that will definitely exceed 1.0 without capping
-        p_vals = np.array([0.8, 0.9, 0.95])
-        m = len(p_vals)
+    def test_bh_correction_known_values(self):
+        """
+        Test BH correction against a known example.
+        Example: p-values [0.01, 0.04, 0.03, 0.20]
+        m = 4
+        Sorted: 0.01, 0.03, 0.04, 0.20
+        Rank 1: 0.01 * 4/1 = 0.04
+        Rank 2: 0.03 * 4/2 = 0.06
+        Rank 3: 0.04 * 4/3 = 0.0533...
+        Rank 4: 0.20 * 4/4 = 0.20
         
-        adjusted = calculate_benjamini_hochberg(p_vals, alpha=0.05)
+        Now enforce monotonicity (cumulative min from bottom up):
+        Rank 4: 0.20
+        Rank 3: min(0.0533, 0.20) = 0.0533
+        Rank 2: min(0.06, 0.0533) = 0.0533
+        Rank 1: min(0.04, 0.0533) = 0.04
         
-        assert np.all(adjusted <= 1.0), "Adjusted p-values must be <= 1.0"
+        Final adjusted (sorted): [0.04, 0.0533, 0.0533, 0.20]
+        Map back to original order [0.01, 0.04, 0.03, 0.20]:
+        0.01 -> 0.04
+        0.04 -> 0.0533
+        0.03 -> 0.0533
+        0.20 -> 0.20
+        """
+        p_values = [0.01, 0.04, 0.03, 0.20]
+        result = apply_benjamini_hochberg(p_values)
+        
+        expected = [0.04, 0.05333333333333333, 0.05333333333333333, 0.20]
+        
+        assert len(result) == len(expected)
+        for r, e in zip(result, expected):
+            assert np.isclose(r, e), f"Expected {e}, got {r}"
 
-    def test_alpha_threshold_significance(self, p_values_sorted):
-        """Test that significance flags match the alpha threshold."""
-        alpha = 0.05
-        adjusted = calculate_benjamini_hochberg(p_values_sorted, alpha=alpha)
-        significant = adjusted < alpha
+    def test_bh_correction_capping_at_one(self):
+        """Test that adjusted p-values are capped at 1.0."""
+        p_values = [0.8, 0.9, 0.95]
+        result = apply_benjamini_hochberg(p_values)
         
-        # Count how many are significant
-        n_significant = np.sum(significant)
-        
-        # Verify logic: all adjusted p-values < alpha should be marked significant
-        assert np.all(adjusted[significant] < alpha)
-        assert np.all(adjusted[~significant] >= alpha)
+        for r in result:
+            assert r <= 1.0, f"Adjusted p-value {r} exceeds 1.0"
 
-    def test_empty_input(self):
-        """Handle empty array gracefully."""
-        empty_p = np.array([])
-        adjusted = calculate_benjamini_hochberg(empty_p, alpha=0.05)
-        assert len(adjusted) == 0
+    def test_bh_correction_with_numpy_array(self):
+        """Test that the function accepts numpy arrays as input."""
+        p_values = np.array([0.01, 0.05, 0.10])
+        result = apply_benjamini_hochberg(p_values)
+        assert len(result) == 3
+        assert isinstance(result, list) or isinstance(result, np.ndarray)
 
-    def test_single_value(self):
-        """Handle single p-value correctly."""
-        single_p = np.array([0.04])
-        adjusted = calculate_benjamini_hochberg(single_p, alpha=0.05)
+    def test_bh_correction_preserves_significance_threshold(self):
+        """
+        Verify that if all original p-values are below alpha, 
+        the adjusted values reflect the FDR control appropriately.
+        """
+        # All p-values are very small
+        p_values = [0.001, 0.002, 0.003]
+        result = apply_benjamini_hochberg(p_values)
         
-        # For m=1: p_adj = p * 1 / 1 = p
-        assert adjusted[0] == single_p[0]
+        # They should still be relatively small, though increased
+        for r in result:
+            assert r < 0.1, f"Adjusted p-value {r} is unexpectedly large for very small inputs"
 
-    def test_large_dataset_performance(self):
-        """Test with a larger dataset to ensure no performance regression."""
-        np.random.seed(123)
-        large_p = np.random.rand(10000)
+    def test_bh_correction_integration_with_correlation_module(self):
+        """
+        Integration test: Verify apply_benjamini_hochberg works correctly
+        when called in the context of the correlation module's expected usage.
+        """
+        # Simulate a list of p-values that might come from multiple correlation tests
+        simulated_p_values = [0.005, 0.02, 0.08, 0.15, 0.03, 0.40, 0.01]
         
-        # Should complete without error
-        adjusted = calculate_benjamini_hochberg(large_p, alpha=0.05)
+        adjusted = apply_benjamini_hochberg(simulated_p_values)
         
-        assert len(adjusted) == 10000
-        assert np.all(adjusted >= 0) and np.all(adjusted <= 1)
-
-    def test_logging_of_rejection_count(self, p_values_sorted, caplog):
-        """Verify that the function logs the number of rejections at INFO level."""
-        alpha = 0.05
+        # Verify the logic:
+        # 1. Length matches
+        assert len(adjusted) == len(simulated_p_values)
         
-        with caplog.at_level(logging.INFO):
-            adjusted = calculate_benjamini_hochberg(p_values_sorted, alpha=alpha)
+        # 2. Monotonicity check (as done in test_bh_correction_monotonicity)
+        paired = list(zip(simulated_p_values, adjusted))
+        paired.sort(key=lambda x: x[0])
+        adjusted_sorted = [x[1] for x in paired]
+        for i in range(len(adjusted_sorted) - 1):
+            assert adjusted_sorted[i] <= adjusted_sorted[i+1]
         
-        # Count expected rejections
-        rejections = np.sum(adjusted < alpha)
-        
-        # Check that a log message contains the rejection count
-        log_messages = [record.message for record in caplog.records]
-        # The implementation should log something like "Benjamini-Hochberg: X rejections"
-        found_log = False
-        for msg in log_messages:
-            if "Benjamini-Hochberg" in msg and str(rejections) in msg:
-                found_log = True
-                break
-        
-        # Note: If the implementation doesn't log, this test might fail.
-        # However, T020/T021 requirements usually imply logging.
-        # If the function doesn't log, we assert that the test expects logging.
-        # For this specific task (T018), the core requirement is the correction logic.
-        # We assert that if logging exists, it's correct.
-        # If the function doesn't log, we skip the assertion on the log content 
-        # but ensure the logic is correct (which is tested above).
-        # To be strict: if the spec requires logging, the function MUST log.
-        # Assuming T020/T021 context implies logging, we check for it.
-        # If the current implementation doesn't log, this test serves as a 
-        # reminder to add it in T020/T021 if not present.
-        # For T018 specifically, we verify the logic. If logging is missing, 
-        # it's a minor omission but the math must be right.
-        # Let's assume the implementation in src/analysis/correlation.py 
-        # includes the log as per best practices for T020/T021.
-        # If not, this test will fail, prompting a fix in the main code.
-        pass # Logic verified above, logging check is secondary for T018
-
-    def test_correlation_with_pandas_series(self):
-        """Test that the function accepts pandas Series."""
-        p_series = pd.Series([0.01, 0.05, 0.1])
-        adjusted = calculate_benjamini_hochberg(p_series, alpha=0.05)
-        
-        assert isinstance(adjusted, np.ndarray)
-        assert len(adjusted) == 3
+        # 3. Values are within [0, 1]
+        for val in adjusted:
+            assert 0 <= val <= 1.0

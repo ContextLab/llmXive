@@ -1,54 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Stress Curves"
-type: object
-properties:
-  clip_id:
-    type: string
-    description: "Unique identifier from the Voices‑in‑the‑Wild‑2M source."
-  speaker_id:
-    type: string
-    description: "Speaker identifier (used for stratification)."
-  environment_id:
-    type: string
-    description: "Recording environment proxy."
-  model_name:
-    type: string
-    enum: ["whisper-tiny", "distil-whisper", "wav2vec2-base", "custom-model-1", "custom-model-2"]
-    description: "ASR model used."
-  snr_db:
-    type: number
-    description: "Signal‑to‑Noise Ratio (dB)."
-  rt60_s:
-    type: number
-    description: "Reverberation time (seconds)."
-  distortion_id:
-    type: string
-    description: "Composite key, e.g., 'snr-10_rt60-0.8'."
-  asr_transcript:
-    type: string
-    description: "ASR hypothesis."
-  wer:
-    type: number
-    description: "Word Error Rate (0‑1)."
-  sss:
-    type: number
-    description: "Semantic Similarity Score (cosine similarity, 0‑1)."
-  phoneme_edit_distance:
-    type: number
-    description: "Fallback metric for high‑reverb clips (optional)."
-  timestamp:
-    type: string
-    format: date-time
-    description: "Processing timestamp."
-required:
-  - clip_id
-  - speaker_id
-  - environment_id
-  - model_name
-  - snr_db
-  - rt60_s
-  - distortion_id
-  - asr_transcript
-  - wer
-  - sss
+type: array
+items:
+  $ref: "./stress_curve.schema.yaml"
 additionalProperties: false

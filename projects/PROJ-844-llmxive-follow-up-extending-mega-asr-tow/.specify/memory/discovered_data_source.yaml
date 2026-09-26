@@ -1,14 +1,13 @@
 status: none
-intent: Voices in the Wild 2M dataset OpenSLR python package dataset
+intent: pip install real Voices-in-the-Wild-2M dataset audio speech from HuggingFace
+  python package dataset
 required_fields:
-- clip_id
+- audio_path
+- transcript
 - speaker_id
-- language
 - recording_environment
-- audio_url
-- transcription
-- sampling_rate
+- sample_rate
 - duration
-cache_key: a3c0a3005f3d4936c36fe64a437fae1d660d65944a24506b9eeca70b66ebfdfe
-searched_at: '2026-09-01T09:49:09.248819+00:00'
+cache_key: f88d0456da1753076158e2e9f3d6e01d0f17af7c57cce93e5bf4e2181a2b2177
+searched_at: '2026-09-26T15:38:37.737200+00:00'
 retry_count: 1
