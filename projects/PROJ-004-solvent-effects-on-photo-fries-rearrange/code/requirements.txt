@@ -7,3 +7,6 @@ scikit-learn  # auto-added: imported by run-book but missing from venv
 tensorflow  # auto-added: imported by run-book but missing from venv
 torch  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
+arviz  # auto-added: imported by run-book but missing from venv
+pymc  # auto-added: imported by run-book but missing from venv
+serial  # auto-added: imported by run-book but missing from venv
