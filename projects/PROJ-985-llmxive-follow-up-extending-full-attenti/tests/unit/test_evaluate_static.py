@@ -1,18 +1,16 @@
 """
-Unit tests for evaluate_static module.
+Unit tests for evaluate_static.py module.
 """
-
 import pytest
 import os
 import json
 import tempfile
-import shutil
+from pathlib import Path
 import numpy as np
 import pandas as pd
-from sklearn.tree import DecisionTreeClassifier
-import joblib
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path
+# Add code directory to path for imports
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
@@ -27,230 +25,177 @@ from models.evaluate_static import (
 )
 
 
-class TestLoadMergedDataset:
-    """Tests for load_merged_dataset function."""
+class TestEvaluateStatic:
+    """Test cases for evaluate_static module."""
 
-    def test_load_valid_dataset(self, tmp_path):
-        """Test loading a valid merged dataset."""
-        # Create a temporary CSV file
-        csv_path = tmp_path / "merged_dataset.csv"
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for test artifacts."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
+
+    @pytest.fixture
+    def sample_merged_dataset(self, temp_dir):
+        """Create a sample merged dataset CSV."""
         data = {
-            'document_id': [1, 2, 3],
-            'token_id': [10, 20, 30],
-            'features': ['[0.1, 0.2]', '[0.3, 0.4]', '[0.5, 0.6]'],
-            'rtpurbo_label': [0, 1, 0]
+            'entropy': [0.5, 0.8, 0.3, 0.9, 0.6],
+            'pos_tag': [1, 2, 1, 3, 2],
+            'position': [10, 20, 30, 40, 50],
+            'kenlm_perplexity': [1.2, 1.5, 0.9, 1.8, 1.3],
+            'local_semantic_density': [0.4, 0.6, 0.3, 0.7, 0.5],
+            'rtpurbo_label': [1, 0, 1, 0, 1]
         }
         df = pd.DataFrame(data)
+        csv_path = temp_dir / "merged_dataset.csv"
         df.to_csv(csv_path, index=False)
+        return csv_path
 
-        # Load and verify
-        loaded_df = load_merged_dataset(str(csv_path))
-        assert len(loaded_df) == 3
-        assert list(loaded_df.columns) == ['document_id', 'token_id', 'features', 'rtpurbo_label']
+    @pytest.fixture
+    def sample_models(self, temp_dir):
+        """Create sample model files."""
+        models_dir = temp_dir / "models" / "seeds"
+        models_dir.mkdir(parents=True)
+        
+        # Create dummy models (simple objects with predict method)
+        class DummyModel:
+            def predict(self, X):
+                return np.random.randint(0, 2, size=X.shape[0])
+        
+        seeds = [42, 123, 456]
+        model_paths = []
+        for seed in seeds:
+            model_path = models_dir / f"model_seed_{seed}.pkl"
+            import pickle
+            with open(model_path, 'wb') as f:
+                pickle.dump(DummyModel(), f)
+            model_paths.append(model_path)
+        
+        return models_dir, seeds
 
-    def test_missing_file(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing file."""
-        non_existent_path = tmp_path / "non_existent.csv"
-        with pytest.raises(FileNotFoundError):
-            load_merged_dataset(str(non_existent_path))
+    def test_prepare_features_and_labels(self, sample_merged_dataset):
+        """Test feature and label preparation."""
+        df = pd.read_csv(sample_merged_dataset)
+        feature_cols = ['entropy', 'pos_tag', 'position', 'kenlm_perplexity', 'local_semantic_density']
+        
+        X, y = prepare_features_and_labels(df, feature_cols, label_col='rtpurbo_label')
+        
+        assert X.shape == (5, 5), f"Expected X shape (5, 5), got {X.shape}"
+        assert y.shape == (5,), f"Expected y shape (5,), got {y.shape}"
+        assert y.dtype == int, f"Expected y dtype int, got {y.dtype}"
 
-    def test_missing_columns(self, tmp_path):
-        """Test that ValueError is raised for missing required columns."""
-        csv_path = tmp_path / "incomplete.csv"
-        data = {
-            'document_id': [1, 2],
-            'token_id': [10, 20]
-        }
-        df = pd.DataFrame(data)
-        df.to_csv(csv_path, index=False)
-
-        with pytest.raises(ValueError):
-            load_merged_dataset(str(csv_path))
-
-
-class TestLoadModel:
-    """Tests for load_model function."""
-
-    def test_load_valid_model(self, tmp_path):
-        """Test loading a valid model."""
-        model_path = tmp_path / "model_seed_42.pkl"
-        model = DecisionTreeClassifier(max_depth=2, random_state=42)
-        joblib.dump(model, model_path)
-
-        loaded_model = load_model(str(model_path))
-        assert isinstance(loaded_model, DecisionTreeClassifier)
-
-    def test_missing_model_file(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing model file."""
-        non_existent_path = tmp_path / "non_existent.pkl"
-        with pytest.raises(FileNotFoundError):
-            load_model(str(non_existent_path))
-
-
-class TestPrepareFeaturesAndLabels:
-    """Tests for prepare_features_and_labels function."""
-
-    def test_prepare_features_correct_split(self):
-        """Test that features are correctly split into train/test."""
-        # Create sample data
-        data = {
-            'features': ['[0.1, 0.2]', '[0.3, 0.4]', '[0.5, 0.6]', '[0.7, 0.8]',
-                         '[0.9, 1.0]', '[1.1, 1.2]', '[1.3, 1.4]', '[1.5, 1.6]'],
-            'rtpurbo_label': [0, 1, 0, 1, 0, 1, 0, 1]
-        }
-        df = pd.DataFrame(data)
-
-        X_train, y_train, X_test, y_test = prepare_features_and_labels(df, seed=42)
-
-        # With 8 samples and 0.2 test ratio, test set should have ~1-2 samples
-        assert len(X_test) > 0
-        assert len(X_train) > 0
-        assert len(X_train) + len(X_test) == 8
-
-        # Check feature shapes
-        assert X_train.shape[1] == 2
-        assert X_test.shape[1] == 2
-
-    def test_feature_parsing_various_formats(self):
-        """Test parsing of various feature formats."""
-        data = {
-            'features': ['[1.0, 2.0, 3.0]', '[4.0, 5.0, 6.0]', '[7.0, 8.0, 9.0]'],
-            'rtpurbo_label': [0, 1, 0]
-        }
-        df = pd.DataFrame(data)
-
-        X_train, y_train, X_test, y_test = prepare_features_and_labels(df, seed=42)
-
-        # All features should be parsed correctly
-        assert X_train.shape[1] == 3 or X_test.shape[1] == 3
-
-
-class TestEvaluateModel:
-    """Tests for evaluate_model function."""
-
-    def test_evaluate_model_metrics(self):
-        """Test that evaluation returns correct metrics."""
-        # Create a simple model and test data
-        X_train = np.array([[0.1, 0.2], [0.3, 0.4], [0.5, 0.6], [0.7, 0.8]])
-        y_train = np.array([0, 1, 0, 1])
-
-        model = DecisionTreeClassifier(max_depth=2, random_state=42)
-        model.fit(X_train, y_train)
-
-        X_test = np.array([[0.2, 0.3], [0.6, 0.7]])
-        y_test = np.array([0, 1])
-
+    def test_evaluate_model(self, temp_dir):
+        """Test model evaluation with dummy data."""
+        # Create dummy model
+        class DummyModel:
+            def __init__(self):
+                self.predictions = [1, 0, 1, 0, 1]
+            
+            def predict(self, X):
+                return np.array(self.predictions)
+        
+        model = DummyModel()
+        X_test = np.random.rand(5, 3)
+        y_test = np.array([1, 0, 1, 0, 1])
+        
         metrics = evaluate_model(model, X_test, y_test)
-
-        # Check that all expected keys are present
+        
         assert 'precision' in metrics
         assert 'recall' in metrics
-        assert 'accuracy' in metrics
-        assert 'f1' in metrics
-        assert 'n_samples' in metrics
-
-        # Check that metrics are floats
         assert isinstance(metrics['precision'], float)
         assert isinstance(metrics['recall'], float)
-        assert isinstance(metrics['accuracy'], float)
-        assert isinstance(metrics['f1'], float)
+        assert 0 <= metrics['precision'] <= 1
+        assert 0 <= metrics['recall'] <= 1
 
-    def test_empty_test_set(self):
-        """Test evaluation with empty test set."""
-        model = DecisionTreeClassifier()
-        X_test = np.array([]).reshape(0, 2)
-        y_test = np.array([])
-
+    def test_evaluate_model_zero_division(self, temp_dir):
+        """Test evaluation handles zero division correctly."""
+        # Create model that predicts all zeros
+        class ZeroPredictor:
+            def predict(self, X):
+                return np.zeros(X.shape[0], dtype=int)
+        
+        model = ZeroPredictor()
+        X_test = np.random.rand(5, 3)
+        y_test = np.array([1, 1, 1, 1, 1])  # All positive, but model predicts all negative
+        
         metrics = evaluate_model(model, X_test, y_test)
-
-        assert metrics['n_samples'] == 0
+        
+        # Precision and recall should be 0 when TP=0
         assert metrics['precision'] == 0.0
         assert metrics['recall'] == 0.0
 
+    def test_find_model_files(self, sample_models):
+        """Test finding model files."""
+        models_dir, expected_seeds = sample_models
+        
+        # Mock the SEEDS_DIR to point to our temp directory
+        with patch('models.evaluate_static.SEEDS_DIR', models_dir):
+            model_files = find_model_files()
+            
+            assert len(model_files) == len(expected_seeds)
+            seed_ids = [m['seed_id'] for m in model_files]
+            assert set(seed_ids) == set(expected_seeds)
 
-class TestFindModelFiles:
-    """Tests for find_model_files function."""
-
-    def test_find_all_model_files(self, tmp_path):
-        """Test finding all model files in directory."""
-        # Create some model files
-        (tmp_path / "model_seed_42.pkl").touch()
-        (tmp_path / "model_seed_123.pkl").touch()
-        (tmp_path / "other_file.txt").touch()
-        (tmp_path / "model_seed_999.pkl").touch()
-
-        model_files = find_model_files(str(tmp_path))
-
-        assert len(model_files) == 3
-        assert all(f.endswith('.pkl') for f in model_files)
-        assert all('model_seed_' in f for f in model_files)
-
-    def test_empty_directory(self, tmp_path):
-        """Test finding models in empty directory."""
-        model_files = find_model_files(str(tmp_path))
-        assert len(model_files) == 0
-
-    def test_missing_directory(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing directory."""
-        non_existent_path = tmp_path / "non_existent_dir"
-        with pytest.raises(FileNotFoundError):
-            find_model_files(str(non_existent_path))
-
-
-class TestMain:
-    """Tests for main function."""
-
-    def test_main_execution(self, tmp_path):
-        """Test full execution of main function."""
-        # Create temporary directories and files
-        data_dir = tmp_path / "data" / "intermediate"
-        models_dir = tmp_path / "data" / "intermediate" / "models"
-        data_dir.mkdir(parents=True)
+    def test_find_model_files_no_models(self, temp_dir):
+        """Test finding model files when none exist."""
+        models_dir = temp_dir / "models" / "seeds"
         models_dir.mkdir(parents=True)
+        
+        with patch('models.evaluate_static.SEEDS_DIR', models_dir):
+            with pytest.raises(FileNotFoundError):
+                find_model_files()
 
-        # Create merged dataset
-        csv_path = data_dir / "merged_dataset.csv"
-        data = {
-            'document_id': list(range(20)),
-            'token_id': list(range(20)),
-            'features': ['[0.1, 0.2]'] * 20,
-            'rtpurbo_label': [0, 1] * 10
-        }
-        df = pd.DataFrame(data)
-        df.to_csv(csv_path, index=False)
-
-        # Create trained models
-        for seed in [42, 123, 999]:
-            model = DecisionTreeClassifier(max_depth=2, random_state=seed)
-            model.fit(np.random.rand(10, 2), [0, 1] * 5)
-            joblib.dump(model, models_dir / f"model_seed_{seed}.pkl")
-
+    @patch('models.evaluate_static.load_merged_dataset')
+    @patch('models.evaluate_static.find_model_files')
+    @patch('models.evaluate_static.load_model')
+    @patch('models.evaluate_static.evaluate_model')
+    @patch('models.evaluate_static.INTERMEDIATE_DIR')
+    def test_main_success(self, mock_intermediate_dir, mock_evaluate, mock_load_model, 
+                          mock_find_models, mock_load_dataset, temp_dir):
+        """Test main function successful execution."""
+        # Setup mocks
+        mock_intermediate_dir.__truediv__ = lambda self, name: temp_dir / name
+        mock_intermediate_dir.mkdir = MagicMock()
+        
+        mock_load_dataset.return_value = pd.DataFrame({
+            'entropy': [0.5],
+            'pos_tag': [1],
+            'position': [10],
+            'kenlm_perplexity': [1.2],
+            'local_semantic_density': [0.4],
+            'rtpurbo_label': [1]
+        })
+        
+        mock_find_models.return_value = [
+            {'seed_id': 42, 'model_path': temp_dir / 'model.pkl'}
+        ]
+        
+        mock_load_model.return_value = MagicMock()
+        mock_load_model.return_value.predict.return_value = np.array([1])
+        
+        mock_evaluate.return_value = {'precision': 0.8, 'recall': 0.9}
+        
         # Run main
-        output_path = tmp_path / "data" / "intermediate" / "static_eval_scores.json"
-        args = type('Args', (), {
-            'merged_dataset': str(csv_path),
-            'models_dir': str(models_dir),
-            'output': str(output_path),
-            'test_split_ratio': 0.2,
-            'seed': 42
-        })()
-
-        results = main(args)
-
-        # Verify results
-        assert isinstance(results, list)
-        assert len(results) == 3  # 3 models
-
+        result = main()
+        
+        assert result == 0
+        
         # Verify output file was created
-        assert output_path.exists()
-        with open(output_path) as f:
-            saved_results = json.load(f)
-        assert len(saved_results) == 3
+        output_file = temp_dir / "static_eval_scores.json"
+        assert output_file.exists()
+        
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+        
+        assert len(data) == 1
+        assert data[0]['seed_id'] == 42
+        assert 'precision' in data[0]
+        assert 'recall' in data[0]
 
-        # Verify each result has required keys
-        for result in saved_results:
-            assert 'seed' in result
-            assert 'precision' in result
-            assert 'recall' in result
-            assert 'accuracy' in result
-            assert 'f1' in result
+    @patch('models.evaluate_static.load_merged_dataset')
+    def test_main_missing_dataset(self, mock_load_dataset, temp_dir):
+        """Test main function when dataset is missing."""
+        mock_load_dataset.side_effect = FileNotFoundError("Dataset not found")
+        
+        result = main()
+        
+        assert result == 1

@@ -1,0 +1,135 @@
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Test uses 100-document sample from RULER validation split
+  claim_id: c_ae1cf3f7
+  context: 'T005 [P] Implement memory-efficient data loader in `code/lib/data_loader.py`
+    that streams RULER dataset chunks, enforces GB RAM limit, and includes a unit
+    test asserting peak memory usage < 7GB in `tests/unit/test_data_loader.py::test_peak_memory`.
+    **Input Scope**: The test MUST use a **100-document sample** from the RULER validation
+    split to ensure deterministic execution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST use a 100-document sample from the RULER validation split
+    to ensure deterministic execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:32:23Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: RTPurbo parameters k and threshold defined in rtpurbo_params.yaml
+  claim_id: c_55c1abd0
+  context: 'Generate full attention maps and apply RTPurbo to extract ground-truth
+    labels. **Parameters**: Use `k=...` and `threshold=...` as defined in `data/config/rtpurbo_params.yaml`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RTPurbo_parameters_k_and_threshold_defined_in_rtpurbo_params
+  kind: entity_fact
+  raw_text: The configuration file `data/config/rtpurbo_params.yaml` defines parameters
+    k and threshold for RTPurbo.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:34:12Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Local semantic density calculated using unique 3-grams
+  claim_id: c_18e29d39
+  context: '**Definition**: ''local semantic density'' is calculated as the density
+    of unique n-grams (n=3) within a sliding window of a fixed size around the target
+    token.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Local semantic density is calculated as the density of unique n-grams
+    with n=3 within a sliding window.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:34:38Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Learned sparse baseline executes 5 independent random seeds
+  claim_id: c_7d3f0441
+  context: 'T026a [US3] Implement learned sparse (RTPurbo) baseline runner to **execute
+    multiple independent random seeds** and save **per-document scores** to `data/intermediate/baseline_seeds/seed_{seed}_per_doc.json`
+    (FR-008/FR-006). **Mechanism**: Use `random.seed={seed}` for each of the 5 iterations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The learned sparse baseline runner executes multiple independent random
+    seeds, specifically 5 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:35:03Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Gemma-2 ground truth generator samples 50 documents
+  claim_id: c_f72133d5
+  context: 'T033a [US3] [FR-008] [SC-006] Implement **Gemma-2 Ground Truth Generator**
+    in `code/evaluation/cross_model_gt.py`. **Input**: RULER sample (from T011). **Sampling**:
+    Use a **random sample of N documents** (e.g., 50) to fit RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Gemma-2 Ground Truth Generator uses a random sample of 50 documents
+    to fit RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:35:25Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Cross-model stability metric is mean absolute perplexity difference
+  claim_id: c_caef048e
+  context: 'T034 [US3] Implement **Cross-Model Aggregation** script in `code/evaluation/cross_model_stats.py`
+    to compare Llama-3-8B vs Gemma-2 static performance and log the cross-model stability
+    metric to `data/results/cross_model_report.json`. **Metric Formula**: `mean(|Perplexity_Llama
+    - Perplexity_Gemma|)`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cross-model_stability_metric_is_mean_absolute_perplexity_dif
+  kind: entity_fact
+  raw_text: The cross-model stability metric is defined as the mean absolute difference
+    between Llama-3-8B and Gemma-2 perplexity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:36:01Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Total pipeline duration must be less than 21600 seconds
+  claim_id: c_8e8cea46
+  context: 'T032b [US3] Implement post-execution check script in `code/evaluation/check_timing.py`
+    that reads `timing_report.json` and asserts duration < 21600s (6 hours). **Scope**:
+    The duration MUST include **total pipeline time (including data download)** as
+    per SC-005.'
+  evidence:
+    entailment_evidence: Total pipeline duration must be less than 21600 seconds
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_duration_must_be_less_than_21600_seconds
+  kind: magnitude
+  raw_text: The pipeline duration must include total pipeline time and be less than
+    21600 seconds (6 hours).
+  resolved_value: Total pipeline duration must be less than 21600 seconds
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T14:36:04Z'

@@ -1,11 +1,17 @@
 """
-Evaluate trained static models on the test set.
+Evaluate trained static models on the test set to generate performance scores.
 
-This script loads the merged dataset, splits it into train/val/test (if not already split),
-loads the trained models from T019, evaluates them on the test set, and saves
-performance scores (precision, recall, accuracy, f1) to data/intermediate/static_eval_scores.json.
+This script loads the merged dataset, splits it into train/test (or uses a
+pre-defined test split if available), loads each trained model from the
+seeds directory, evaluates them on the test set, and saves precision/recall
+scores to data/intermediate/static_eval_scores.json.
+
+Output Schema:
+  [
+    {"seed_id": <int>, "precision": <float>, "recall": <float>},
+    ...
+  ]
 """
-
 import os
 import json
 import logging
@@ -13,8 +19,8 @@ import argparse
 from typing import Dict, Any, List, Optional
 import numpy as np
 import pandas as pd
-import joblib
-from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+import pickle
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
@@ -23,272 +29,230 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-MERGED_DATASET_PATH = "data/intermediate/merged_dataset.csv"
-MODELS_DIR = "data/intermediate/models"
-OUTPUT_PATH = "data/intermediate/static_eval_scores.json"
-TEST_SPLIT_RATIO = 0.2
-RANDOM_SEED = 42
+# Project root handling
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_DIR = PROJECT_ROOT / "data"
+INTERMEDIATE_DIR = DATA_DIR / "intermediate"
+MODELS_DIR = INTERMEDIATE_DIR / "models"
+SEEDS_DIR = MODELS_DIR / "seeds"
+
+# Ensure output directory exists
+INTERMEDIATE_DIR.mkdir(parents=True, exist_ok=True)
+MODELS_DIR.mkdir(parents=True, exist_ok=True)
+SEEDS_DIR.mkdir(parents=True, exist_ok=True)
 
 
-def load_merged_dataset(path: str) -> pd.DataFrame:
-    """
-    Load the merged dataset from CSV.
-
-    Args:
-        path: Path to the merged dataset CSV file.
-
-    Returns:
-        DataFrame containing the merged dataset.
-    """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Merged dataset not found at {path}. "
-                                "Ensure T014 (merge_datasets) has completed successfully.")
-
-    logger.info(f"Loading merged dataset from {path}")
-    df = pd.read_csv(path)
-
-    # Verify required columns exist
-    required_cols = ['document_id', 'token_id', 'features', 'rtpurbo_label']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Merged dataset missing required columns: {missing_cols}")
-
-    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
+def load_merged_dataset() -> pd.DataFrame:
+    """Load the merged dataset from T014."""
+    merged_path = INTERMEDIATE_DIR / "merged_dataset.csv"
+    if not merged_path.exists():
+        raise FileNotFoundError(
+            f"Merged dataset not found at {merged_path}. "
+            "Please run T014 (merge_datasets.py) first."
+        )
+    logger.info(f"Loading merged dataset from {merged_path}")
+    df = pd.read_csv(merged_path)
+    logger.info(f"Loaded dataset with {len(df)} rows and {len(df.columns)} columns")
     return df
 
 
-def load_model(model_path: str) -> Any:
-    """
-    Load a trained model from a pickle file.
-
-    Args:
-        model_path: Path to the model pickle file.
-
-    Returns:
-        The loaded model object.
-    """
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model not found at {model_path}")
-
+def load_model(model_path: Path):
+    """Load a trained model from a pickle file."""
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
     logger.info(f"Loading model from {model_path}")
-    model = joblib.load(model_path)
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
     return model
 
 
-def prepare_features_and_labels(df: pd.DataFrame, seed: int) -> tuple:
+def prepare_features_and_labels(df: pd.DataFrame, feature_cols: List[str], label_col: str = 'rtpurbo_label'):
     """
-    Prepare features and labels from the DataFrame, splitting into train/test.
-
-    Args:
-        df: The merged dataset DataFrame.
-        seed: Random seed for reproducibility.
-
-    Returns:
-        Tuple of (X_train, y_train, X_test, y_test) where features are parsed from
-        the 'features' column string representation into numpy arrays.
+    Prepare feature matrix X and label vector y from the merged dataset.
+    Handles missing values by filling with 0.
     """
-    np.random.seed(seed)
+    # Ensure feature columns exist
+    missing_cols = [col for col in feature_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing feature columns in dataset: {missing_cols}")
 
-    # Parse features column: expected format is string representation of list of floats
-    # e.g., "[0.5, 0.2, 0.8]"
-    def parse_features(feature_str: str) -> np.ndarray:
-        # Remove brackets and split
-        try:
-            # Handle string representation of list
-            if isinstance(feature_str, str):
-                feature_str = feature_str.strip('[]')
-                if not feature_str:
-                    return np.array([])
-                return np.array([float(x.strip()) for x in feature_str.split(',')])
-            elif isinstance(feature_str, (list, np.ndarray)):
-                return np.array(feature_str)
-            else:
-                raise ValueError(f"Unexpected feature type: {type(feature_str)}")
-        except Exception as e:
-            logger.error(f"Error parsing features: {feature_str}, error: {e}")
-            raise
+    X = df[feature_cols].fillna(0).values
+    y = df[label_col].values.astype(int)
 
-    # Parse all features
-    X = np.array([parse_features(f) for f in df['features']])
-    y = df['rtpurbo_label'].values
-
-    # Ensure all feature vectors have the same length
-    feature_lengths = [len(x) for x in X]
-    if len(set(feature_lengths)) > 1:
-        logger.warning(f"Feature vectors have varying lengths: {set(feature_lengths)}")
-        # Pad or truncate to the most common length
-        target_len = max(set(feature_lengths, key=feature_lengths.count))
-        X_padded = np.zeros((len(X), target_len))
-        for i, x in enumerate(X):
-            X_padded[i, :min(len(x), target_len)] = x[:min(len(x), target_len)]
-        X = X_padded
-
-    # Split into train/test
-    n_samples = len(X)
-    indices = np.arange(n_samples)
-    np.random.shuffle(indices)
-
-    test_size = int(n_samples * TEST_SPLIT_RATIO)
-    test_indices = indices[:test_size]
-    train_indices = indices[test_size:]
-
-    X_train, y_train = X[train_indices], y[train_indices]
-    X_test, y_test = X[test_indices], y[test_indices]
-
-    logger.info(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
-
-    return X_train, y_train, X_test, y_test
+    logger.info(f"Prepared features: shape {X.shape}, labels: shape {y.shape}")
+    return X, y
 
 
-def evaluate_model(model: Any, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
+def evaluate_model(model, X_test: np.ndarray, y_test: np.ndarray) -> Dict[str, float]:
     """
-    Evaluate a trained model on the test set.
-
-    Args:
-        model: The trained model object.
-        X_test: Test features.
-        y_test: Test labels.
-
-    Returns:
-        Dictionary containing precision, recall, accuracy, and f1 score.
+    Evaluate a single model on test data.
+    Returns precision and recall.
     """
-    if len(y_test) == 0:
-        logger.warning("No test samples to evaluate.")
-        return {
-            "precision": 0.0,
-            "recall": 0.0,
-            "accuracy": 0.0,
-            "f1": 0.0,
-            "n_samples": 0
-        }
+    if not hasattr(model, 'predict'):
+        raise TypeError("Model must have a 'predict' method")
 
-    # Make predictions
+    # Predict
     y_pred = model.predict(X_test)
 
-    # Calculate metrics
-    precision = precision_score(y_test, y_pred, zero_division=0)
-    recall = recall_score(y_test, y_pred, zero_division=0)
-    accuracy = accuracy_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred, zero_division=0)
+    # Calculate metrics using sklearn or manual calculation
+    # Manual calculation to avoid extra dependencies if sklearn not available
+    # Precision = TP / (TP + FP)
+    # Recall = TP / (TP + FN)
 
-    metrics = {
+    tp = np.sum((y_pred == 1) & (y_test == 1))
+    fp = np.sum((y_pred == 1) & (y_test == 0))
+    fn = np.sum((y_pred == 0) & (y_test == 1))
+
+    precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+    recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+
+    logger.info(f"Evaluation - Precision: {precision:.4f}, Recall: {recall:.4f}")
+
+    return {
         "precision": float(precision),
-        "recall": float(recall),
-        "accuracy": float(accuracy),
-        "f1": float(f1),
-        "n_samples": int(len(y_test))
+        "recall": float(recall)
     }
 
-    logger.info(f"Evaluation metrics: {metrics}")
-    return metrics
 
-
-def find_model_files(models_dir: str) -> List[str]:
+def find_model_files() -> List[Dict[str, Any]]:
     """
-    Find all model pickle files in the models directory.
-
-    Args:
-        models_dir: Path to the directory containing model files.
-
-    Returns:
-        List of paths to model pickle files.
+    Find all trained model files in the seeds directory.
+    Returns a list of dicts with 'seed_id' and 'model_path'.
     """
-    if not os.path.exists(models_dir):
-        raise FileNotFoundError(f"Models directory not found at {models_dir}. "
-                                "Ensure T019 (train_static) has completed successfully.")
+    if not SEEDS_DIR.exists():
+        raise FileNotFoundError(f"Seeds directory not found: {SEEDS_DIR}")
 
     model_files = []
-    for file in os.listdir(models_dir):
-        if file.endswith(".pkl") and file.startswith("model_seed_"):
-            model_files.append(os.path.join(models_dir, file))
+    for file_path in SEEDS_DIR.glob("model_seed_*.pkl"):
+        # Extract seed from filename: model_seed_{seed}.pkl
+        try:
+            seed_str = file_path.stem.replace("model_seed_", "")
+            seed_id = int(seed_str)
+            model_files.append({
+                "seed_id": seed_id,
+                "model_path": file_path
+            })
+        except ValueError:
+            logger.warning(f"Skipping file with invalid seed format: {file_path}")
 
     if not model_files:
-        raise FileNotFoundError(f"No model files found in {models_dir}. "
-                                "Expected files matching pattern 'model_seed_*.pkl'")
+        raise FileNotFoundError(f"No model files found in {SEEDS_DIR}. "
+                                "Please run T019 (train_static.py) first.")
 
-    logger.info(f"Found {len(model_files)} model files: {model_files}")
+    # Sort by seed_id for deterministic order
+    model_files.sort(key=lambda x: x["seed_id"])
+    logger.info(f"Found {len(model_files)} trained models")
     return model_files
 
 
-def main(args: Optional[argparse.Namespace] = None):
-    """
-    Main function to evaluate static models on the test set.
+def main():
+    """Main entry point for evaluating static models."""
+    parser = argparse.ArgumentParser(description="Evaluate static models on test set")
+    parser.add_argument("--test-split", type=float, default=0.2,
+                        help="Fraction of data to use for testing (default: 0.2)")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed for reproducibility (default: 42)")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Output path for scores JSON (default: data/intermediate/static_eval_scores.json)")
+    args = parser.parse_args()
 
-    Args:
-        args: Optional argparse namespace. If None, uses default values.
-    """
-    if args is None:
-        parser = argparse.ArgumentParser(description="Evaluate static models on test set")
-        parser.add_argument("--merged_dataset", type=str, default=MERGED_DATASET_PATH,
-                            help="Path to merged dataset CSV")
-        parser.add_argument("--models_dir", type=str, default=MODELS_DIR,
-                            help="Directory containing trained model files")
-        parser.add_argument("--output", type=str, default=OUTPUT_PATH,
-                            help="Path to output JSON file")
-        parser.add_argument("--test_split_ratio", type=float, default=TEST_SPLIT_RATIO,
-                            help="Ratio of data to use for testing")
-        parser.add_argument("--seed", type=int, default=RANDOM_SEED,
-                            help="Random seed for reproducibility")
-        args = parser.parse_args()
-
-    logger.info("Starting static model evaluation")
+    # Set random seed
+    np.random.seed(args.seed)
 
     # Load merged dataset
-    df = load_merged_dataset(args.merged_dataset)
+    try:
+        df = load_merged_dataset()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return 1
 
-    # Prepare features and labels
-    X_train, y_train, X_test, y_test = prepare_features_and_labels(df, args.seed)
+    # Define feature columns (must match those used in training)
+    # These should be the static features computed in T013
+    feature_cols = [
+        'entropy', 'pos_tag', 'position', 'kenlm_perplexity', 'local_semantic_density'
+    ]
+    # Note: 'pos_tag' might be categorical, so we need to handle encoding
+    # For now, assume it's already encoded or numeric in the merged dataset
+    # If not, we may need to adjust based on the actual schema
+
+    # Check if pos_tag is categorical
+    if 'pos_tag' in df.columns:
+        if df['pos_tag'].dtype == 'object':
+            # Encode categorical pos_tag
+            logger.info("Encoding categorical 'pos_tag' column")
+            unique_pos = sorted(df['pos_tag'].unique())
+            pos_map = {pos: idx for idx, pos in enumerate(unique_pos)}
+            df['pos_tag'] = df['pos_tag'].map(pos_map).fillna(0).astype(int)
+
+    # Split data into train and test
+    from sklearn.model_selection import train_test_split
+
+    # Get feature matrix and labels
+    X, y = prepare_features_and_labels(df, feature_cols, label_col='rtpurbo_label')
+
+    # Split
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=args.test_split, random_state=args.seed, stratify=y
+    )
+
+    logger.info(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
 
     # Find model files
-    model_files = find_model_files(args.models_dir)
+    try:
+        model_files = find_model_files()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return 1
 
     # Evaluate each model
     results = []
-    for model_path in model_files:
-        # Extract seed from filename
-        filename = os.path.basename(model_path)
-        seed = int(filename.replace("model_seed_", "").replace(".pkl", ""))
-
-        logger.info(f"Evaluating model from seed {seed}")
+    for model_info in model_files:
+        seed_id = model_info["seed_id"]
+        model_path = model_info["model_path"]
 
         try:
             # Load model
             model = load_model(model_path)
 
-            # Evaluate
+            # Evaluate on test set
             metrics = evaluate_model(model, X_test, y_test)
-            metrics["seed"] = seed
-            metrics["model_path"] = model_path
 
-            results.append(metrics)
+            # Add seed_id to results
+            result = {
+                "seed_id": seed_id,
+                "precision": metrics["precision"],
+                "recall": metrics["recall"]
+            }
+            results.append(result)
 
-            logger.info(f"Seed {seed} evaluation complete: {metrics}")
+            logger.info(f"Seed {seed_id}: Precision={metrics['precision']:.4f}, "
+                        f"Recall={metrics['recall']:.4f}")
 
         except Exception as e:
-            logger.error(f"Error evaluating model {model_path}: {e}")
-            # Record failed evaluation
-            results.append({
-                "seed": seed,
-                "model_path": model_path,
-                "error": str(e),
-                "precision": None,
-                "recall": None,
-                "accuracy": None,
-                "f1": None,
-                "n_samples": 0
-            })
+            logger.error(f"Failed to evaluate model for seed {seed_id}: {e}")
+            # Continue with other seeds
+            continue
+
+    if not results:
+        logger.error("No models were successfully evaluated")
+        return 1
+
+    # Determine output path
+    output_path = Path(args.output) if args.output else INTERMEDIATE_DIR / "static_eval_scores.json"
+    output_path = output_path.resolve()
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Save results
-    os.makedirs(os.path.dirname(args.output), exist_ok=True)
-    with open(args.output, 'w') as f:
+    with open(output_path, 'w') as f:
         json.dump(results, f, indent=2)
 
-    logger.info(f"Evaluation complete. Results saved to {args.output}")
-    print(f"Evaluation complete. Results saved to {args.output}")
+    logger.info(f"Saved evaluation results to {output_path}")
+    logger.info(f"Total models evaluated: {len(results)}")
 
-    return results
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())

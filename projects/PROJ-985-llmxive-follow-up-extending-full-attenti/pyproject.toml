@@ -1,11 +1,12 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive"
+name = "llmxive-research"
 version = "0.1.0"
-description = "LLM-Xive: Automated Science Pipeline for Attention Sparsification"
+description = "llmXive Automated Science Pipeline - Full Attention Follow-up"
+readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "transformers",
@@ -17,66 +18,47 @@ dependencies = [
     "numpy",
     "pandas",
     "bitsandbytes",
+    "h5py",
+    "pytest",
     "ruff",
     "black",
+]
+
+[project.optional-dependencies]
+dev = [
     "pytest",
-    "h5py",
-    "tracemalloc",
+    "pytest-cov",
+    "ruff",
+    "black",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ["py310"]
+target-version = ['py310']
 include = '\.pyi?$'
-exclude = '''
+extend-exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
 )/
 '''
 
 [tool.ruff]
 line-length = 88
 target-version = "py310"
-src = ["code", "tests"]
 
 [tool.ruff.lint]
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "B",
-    "C4",
-    "UP",
-]
-ignore = [
-    "E501",
-    "B008",
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["lib", "data", "models", "evaluation", "tests"]
-force-sort-within-sections = true
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
+pythonpath = ["code"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::UserWarning",
-]
-
-[tool.setuptools]
-packages = ["lib", "data", "models", "evaluation", "tests"]
-package-dir = {"" = "code"}

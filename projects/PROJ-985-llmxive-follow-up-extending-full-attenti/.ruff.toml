@@ -1,8 +1,10 @@
 # Ruff configuration for llmXive project
+# Max line length set to 88 as per task requirements
 line-length = 88
 target-version = "py310"
 
 [lint]
+# Enable common rules
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -13,10 +15,13 @@ select = [
     "UP", # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by formatter)
-    "B008", # do not perform function calls in argument defaults
+    "E501", # Line too long (handled by line-length setting)
+    "B008", # Do not perform function call in argument defaults
 ]
 
+[lint.per-file-ignores]
+"__init__.py" = ["F401"] # Allow unused imports in __init__.py
+"tests/*" = ["S101"]     # Allow assert in tests
+
 [lint.isort]
-known-first-party = ["lib", "data", "models", "evaluation", "tests"]
-force-sort-within-sections = true
+known-first-party = ["lib", "data", "models", "evaluation", "setup", "tests"]

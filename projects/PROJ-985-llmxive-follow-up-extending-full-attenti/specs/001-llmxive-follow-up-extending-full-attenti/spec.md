@@ -94,7 +94,7 @@ The system MUST evaluate the performance of the static-heuristic sparsification 
 
 ## Assumptions
 
-- **Assumption A1**: The RULER and Needle-in-Haystack datasets are accessible via public URLs and the [deferred]-document subset fits within the 14 GB disk limit when processed sequentially.
+- **Assumption A1**: The RULER and Needle-in-Haystack datasets are accessible via public URLs and the [deferred]-document subset fits within the disk limit when processed sequentially.
 - **Assumption A2**: The Llama-3-8B model weights are available in a format compatible with CPU inference (e.g., via `transformers` library) and can be loaded without requiring 8-bit quantization or CUDA-specific libraries.
 - **Assumption A3**: The analysis relies on the assumption that static features (entropy, POS) are computationally inexpensive to derive compared to the attention mechanism, ensuring the feature engineering step does not dominate the runtime.
 - **Assumption A4**: The "RTPurbo-selected tokens" identified by RTPurbo are treated as the ground truth for the hypothesis test, acknowledging that this validates the static heuristic's ability to mimic RTPurbo behavior rather than discovering an absolute linguistic necessity, as RTPurbo itself is a learned model proxy.
