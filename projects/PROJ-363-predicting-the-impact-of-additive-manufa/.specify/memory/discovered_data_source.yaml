@@ -1,12 +1,11 @@
 status: none
-intent: LPBF 316L additive manufacturing dataset CSV Zenodo OpenML download python
-  package dataset
+intent: LPBF 316L stainless steel dataset Zenodo OpenML python package dataset
 required_fields:
 - laser_power
 - scan_speed
 - hatch_spacing
 - layer_thickness
 - porosity
-cache_key: 75b2a172440bc6b9bf5da0935454ed372228689a66c4552ef4d7229fffbb76ab
-searched_at: '2026-09-23T15:39:26.046618+00:00'
+cache_key: f5093c0e7017ae12df752c9ac1a8b1b7ec27274caf433daa3ef95209cc4331c1
+searched_at: '2026-09-26T02:52:09.311570+00:00'
 retry_count: 1

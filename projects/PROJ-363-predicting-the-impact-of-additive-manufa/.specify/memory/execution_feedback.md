@@ -7,53 +7,38 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python code/download_data.py -> rc=1
-    2026-09-23 15:37:48,960 - root - INFO - Starting 316L LPBF dataset download
-2026-09-23 15:37:48,960 - root - INFO - Fetching metadata from Zenodo record 6826006
+    2026-09-26 02:50:58,426 - root - INFO - Using dataset URL from research.md: https://zenodo.org/records/10068024
+2026-09-26 02:50:58,959 - root - WARNING - Could not definitively verify 316L material type from metadata, proceeding with filename check.
 
 Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py", line 117, in <module>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py", line 280, in <module>
     main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py", line 100, in main
-    verify_material_type(metadata)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py", line 43, in verify_material_type
-    raise ValueError(f"Material verification failed: Dataset does not appear to be for 316L stainless steel. Title: {title}, Description: {description}")
-ValueError: Material verification failed: Dataset does not appear to be for 316L stainless steel. Title: 24. Increased mobilization of toxic elements from permafrost areas in the Eastern Alps, Description: <p>Poster presentation</p>
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py", line 263, in main
+    verify_material_type(metadata, target_file_name)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/download_data.py", line 200, in verify_material_type
+    raise ValueError(f"Material verification failed: Dataset does not appear to be for 316L stainless steel. File: {file_name}")
+ValueError: Material verification failed: Dataset does not appear to be for 316L stainless steel. File: scGSEA_script.R
 - python code/preprocess.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/preprocess.py", line 232, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/preprocess.py", line 226, in main
-    raise FileNotFoundError(f"Input file not found: {input_file}")
-FileNotFoundError: Input file not found: data/raw/316L_LPBF_dataset.csv
+    2026-09-26 02:50:59,674 - utils - INFO - Starting preprocessing of data/raw/316L_LPBF_dataset.csv
+2026-09-26 02:50:59,674 - utils - ERROR - File not found: Input file not found: data/raw/316L_LPBF_dataset.csv
 - python code/train_models.py -> rc=1
-    ^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 300, in _read
-    parser = TextFileReader(filepath_or_buffer, **kwds)
-             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1643, in __init__
-    self._engine = self._make_engine(f, self.engine)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/.venv/lib/python3.11/site-packages/pandas/io/parsers/readers.py", line 1907, in _make_engine
-    self.handles = get_handle(
-                   ^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/.venv/lib/python3.11/site-packages/pandas/io/common.py", line 930, in get_handle
-    handle = open(
-             ^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'data/processed/cleaned_316L.csv'
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/train_models.py", line 23, in <module>
+    logger = setup_logging("train_models")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/utils.py", line 31, in setup_logging
+    logging.basicConfig(
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py", line 2062, in basicConfig
+    root.setLevel(level)
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py", line 1464, in setLevel
+    self.level = _checkLevel(level)
+                 ^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py", line 207, in _checkLevel
+    raise ValueError("Unknown level: %r" % level)
+ValueError: Unknown level: 'train_models'
 - python code/analyze_explainability.py -> rc=1
-    2026-09-23 15:38:18,737 - root - INFO - Starting Explainability Analysis (US3)
-
-Matplotlib is building the font cache; this may take a moment.
-Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/analyze_explainability.py", line 195, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/analyze_explainability.py", line 154, in main
-    model = load_model_from_path(model_path)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-363-predicting-the-impact-of-additive-manufa/code/analyze_explainability.py", line 25, in load_model_from_path
-    with open(path, 'rb') as f:
-         ^^^^^^^^^^^^^^^^
-FileNotFoundError: [Errno 2] No such file or directory: 'models/artifacts/best_raw_model.pkl'
+    2026-09-26 02:51:04,742 - utils - INFO - Starting Explainability Analysis (US3)
+2026-09-26 02:51:04,742 - utils - ERROR - State file not found: state/selected_model.yaml. Ensure T028 has run.
 
 ## Declared deliverables still missing
 

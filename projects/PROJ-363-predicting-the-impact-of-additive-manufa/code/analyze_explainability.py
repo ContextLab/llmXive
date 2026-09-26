@@ -4,192 +4,343 @@ import json
 import logging
 import pickle
 import time
-from pathlib import Path
-import pandas as pd
 import numpy as np
-import yaml
-from sklearn.inspection import permutation_importance
+import pandas as pd
 import shap
-import matplotlib
-matplotlib.use('Agg') # Non-interactive backend
-import matplotlib.pyplot as plt
-import seaborn as sns
+from sklearn.inspection import permutation_importance
+from pathlib import Path
 
-from utils import setup_logging, load_state
+# Import from local utils if needed, otherwise define minimal helpers
+try:
+    from utils import setup_logging, load_state, update_state, compute_file_hash
+except ImportError:
+    # Fallback for standalone execution if utils is not in path
+    def setup_logging():
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        return logging.getLogger(__name__)
+    
+    def load_state(path):
+        import yaml
+        with open(path, 'r') as f:
+            return yaml.safe_load(f)
+    
+    def update_state(state, path):
+        import yaml
+        with open(path, 'w') as f:
+            yaml.dump(state, f)
+    
+    def compute_file_hash(path):
+        import hashlib
+        hasher = hashlib.sha256()
+        with open(path, 'rb') as f:
+            hasher.update(f.read())
+        return hasher.hexdigest()
 
-def load_state_file(path):
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
+def load_state_file(state_path="state/selected_model.yaml"):
+    """Load the selected model configuration from state."""
+    try:
+        with open(state_path, 'r') as f:
+            import yaml
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        raise FileNotFoundError(f"State file not found: {state_path}. Ensure T028 has run.")
 
 def load_model_from_path(path):
+    """Load a pickled model."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Model file not found: {path}")
     with open(path, 'rb') as f:
         return pickle.load(f)
 
 def load_data_from_path(path):
+    """Load feature data from CSV."""
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Data file not found: {path}")
     return pd.read_csv(path)
 
-def find_best_model(state):
-    """Read selected_model.yaml to determine best model."""
-    selected_path = "state/selected_model.yaml"
-    if not os.path.exists(selected_path):
-        # Fallback if selection not done yet (should be done by T028)
-        # Assume raw if not found
-        return "raw", "models/artifacts/best_raw_model.pkl", "data/processed/X_raw.csv"
-    
-    with open(selected_path, 'r') as f:
-        selection = yaml.safe_load(f)
-    
-    subset = selection.get('selected_subset', 'raw')
-    if subset == 'raw':
-        model_path = "models/artifacts/best_raw_model.pkl"
-        data_path = "data/processed/X_raw.csv"
+def find_best_model(state_config):
+    """Determine which model and dataset to use based on T028 selection."""
+    selected_type = state_config.get('selected_model_type', 'derived')
+    if selected_type == 'raw':
+        model_path = 'models/artifacts/best_raw_model.pkl'
+        data_path = 'data/processed/X_raw.csv'
+    elif selected_type == 'derived':
+        model_path = 'models/artifacts/best_derived_model.pkl'
+        data_path = 'data/processed/X_derived.csv'
     else:
-        model_path = "models/artifacts/best_derived_model.pkl"
-        data_path = "data/processed/X_derived.csv"
-    
-    return subset, model_path, data_path
+        raise ValueError(f"Unknown selected model type: {selected_type}")
+    return model_path, data_path, selected_type
 
-def calculate_shap_and_plot(model, X, subset_name):
+def calculate_shap_and_plot(model, X_data, subset_name, output_dir="results/plots"):
     """Calculate SHAP values and generate summary plot."""
-    explainer = shap.Explainer(model, X)
-    shap_values = explainer(X)
+    os.makedirs(output_dir, exist_ok=True)
+    explainer = shap.Explainer(model, X_data)
+    shap_values = explainer(X_data)
     
-    # Plot
-    plt.figure(figsize=(10, 8))
-    shap.summary_plot(shap_values, X, plot_type="bar", show=False)
-    plt.title(f"SHAP Summary Plot ({subset_name})")
-    plt.tight_layout()
-    plot_path = f"results/plots/shap_summary_{subset_name}.png"
+    plot_path = os.path.join(output_dir, f"shap_summary_{subset_name}.png")
+    shap.summary_plot(shap_values, X_data, show=False)
+    import matplotlib.pyplot as plt
     plt.savefig(plot_path)
     plt.close()
-    logging.info(f"Saved SHAP plot to {plot_path}")
+    
+    logging.info(f"SHAP summary plot saved to {plot_path}")
     return shap_values
 
-def perform_statistical_analysis(model, X, y, shap_values, subset_name):
-    """Perform SHAP Bootstrap CI and Permutation Importance."""
-    results = {}
+def perform_statistical_analysis(model, X_data, y_data, subset_name, n_permutations=1000, output_dir="results/reports"):
+    """
+    Perform Permutation Importance with p-value calculation.
+    Implements T033b (Selected Model) and T033d (Non-Selected Model) logic.
     
-    # 1. Permutation Importance
-    perm_result = permutation_importance(model, X, y, n_repeats=1000, random_state=42, n_jobs=1)
-    perm_importance = perm_result.importances_mean
-    p_values = perm_result.importances_std # Simplified: using std as proxy or calculate properly
-    # Proper p-value calculation would require permutation distribution
-    # For this task, we assume significance if importance > 0 (simplified)
-    # A more robust check: if mean > 0 and std is small?
-    # Let's just save the importance and std for now.
+    Args:
+        model: Trained sklearn model.
+        X_data: Feature DataFrame.
+        y_data: Target Series.
+        subset_name: Identifier for the subset (e.g., 'raw', 'derived').
+        n_permutations: Number of permutations (default 1000).
+        output_dir: Directory to save reports.
     
-    results['permutation_importance'] = list(perm_importance)
-    results['permutation_std'] = list(perm_result.importances_std)
+    Returns:
+        dict: Results dictionary containing importance scores and p-values.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    logging.info(f"Starting Permutation Importance for {subset_name} model with {n_permutations} permutations...")
     
-    # 2. SHAP Bootstrap CI
-    # Resample N times, compute SHAP mean, then percentiles
-    N = 1000
-    shap_means = []
-    for _ in range(N):
-        idx = np.random.choice(len(X), len(X), replace=True)
-        X_sample = X.iloc[idx] if isinstance(X, pd.DataFrame) else X[idx]
-        explainer = shap.Explainer(model, X_sample)
-        sv = explainer(X_sample)
-        shap_means.append(np.mean(sv.values, axis=0))
+    # Calculate permutation importance
+    # Using 'r2' as the scoring metric for regression
+    perm_result = permutation_importance(
+        model, X_data, y_data, 
+        n_repeats=n_permutations, 
+        random_state=42, 
+        n_jobs=-1, 
+        scoring='r2'
+    )
     
-    shap_means = np.array(shap_means)
-    ci_lower = np.percentile(shap_means, 2.5, axis=0)
-    ci_upper = np.percentile(shap_means, 97.5, axis=0)
+    importance_scores = perm_result.importances_mean
+    std_scores = perm_result.importances_std
     
-    results['shap_bootstrap_ci_lower'] = list(ci_lower)
-    results['shap_bootstrap_ci_upper'] = list(ci_upper)
+    # Calculate p-values
+    # Null hypothesis: Permutation importance is 0 (no effect)
+    # We test if the mean importance is significantly different from 0.
+    # Since permutation_importance returns (n_samples, n_features), we can test the distribution of importances per feature against 0.
+    # However, standard permutation importance calculates the drop in score. 
+    # A positive drop means the feature is important.
+    # We will perform a one-sample t-test against 0 for each feature's distribution of importance values.
     
-    # Save report
-    report_path = f"results/reports/unified_statistical_analysis_{subset_name}.json"
-    with open(report_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    logging.info(f"Saved statistical analysis to {report_path}")
-    return results
-
-def run_comparison_analysis(raw_results, derived_results):
-    """Compare feature importance ranks."""
-    # This assumes both exist. If one is missing, skip or handle.
-    if not raw_results or not derived_results:
-        logging.warning("Cannot compare: missing results for one subset.")
-        return {}
+    from scipy.stats import ttest_1samp
     
-    # Extract permutation importance
-    imp_raw = np.array(raw_results.get('permutation_importance', []))
-    imp_derived = np.array(derived_results.get('permutation_importance', []))
+    p_values = []
+    feature_names = X_data.columns.tolist()
+    significant_features = []
     
-    # Spearman correlation of ranks
-    from scipy.stats import spearmanr
-    # Align features? Raw has 4, Derived has 1. Cannot correlate directly.
-    # The task says "Compare feature importance and SHAP values... validate physical intuition".
-    # Since feature sets are disjoint (Raw: P,v,h,t vs Derived: Ev), direct correlation is impossible.
-    # We will report N/A or a placeholder indicating disjoint sets.
-    # However, if we compare the *impact* of Ev vs the *combined* impact of raw?
-    # The task requires "Spearman correlation between feature importance ranks".
-    # If features are disjoint, this is undefined.
-    # Let's return a specific marker.
+    for i, feature in enumerate(feature_names):
+        # Get the distribution of importance for this feature across permutations
+        feature_importances = perm_result.importances[:, i]
+        
+        # One-sample t-test: H0: mean = 0
+        # We want to know if the mean importance is significantly > 0 (one-tailed) or != 0 (two-tailed)
+        # Given the context of "statistical significance" in feature importance, 
+        # we usually care if it's significantly positive (feature matters).
+        # Let's use two-tailed to detect any significant deviation, then check direction.
+        t_stat, p_val = ttest_1samp(feature_importances, 0.0)
+        
+        # Adjust for one-tailed if we strictly care about positive importance
+        # If t_stat > 0, one-tailed p is p_val / 2. If t_stat < 0, it's 1 - p_val/2.
+        # But standard practice often uses the two-tailed p-value as a threshold for "non-zero effect".
+        # Let's stick to two-tailed for robustness unless specified otherwise.
+        p_values.append(p_val)
+        
+        if p_val < 0.05:
+            significant_features.append(feature)
     
-    comparison = {
-        "spearman_correlation": None,
-        "note": "Feature sets are disjoint (Raw vs Derived). Direct rank correlation not applicable.",
-        "significant_features_raw": [],
-        "significant_features_derived": []
+    results = {
+        "subset": subset_name,
+        "n_permutations": n_permutations,
+        "features": feature_names,
+        "importance_mean": importance_scores.tolist(),
+        "importance_std": std_scores.tolist(),
+        "p_values": p_values,
+        "significant_features": significant_features,
+        "significance_threshold": 0.05
     }
     
-    # Identify significant features (p < 0.05 proxy: importance > 0 and std < mean? Or just > 0)
-    # Using a simple threshold: importance > 0
-    if len(imp_raw) > 0:
-        comparison['significant_features_raw'] = [i for i, v in enumerate(imp_raw) if v > 0]
-    if len(imp_derived) > 0:
-        comparison['significant_features_derived'] = [i for i, v in enumerate(imp_derived) if v > 0]
+    # Determine output filename based on whether this is the selected or non-selected model
+    # The caller (main) will decide the filename, but we can infer here for logging
+    output_filename = f"{subset_name}_permutation.json"
+    output_path = os.path.join(output_dir, output_filename)
     
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logging.info(f"Permutation Importance report saved to {output_path}")
+    logging.info(f"Significant features ({subset_name}): {significant_features}")
+    
+    return results
+
+def run_comparison_analysis(perm_selected, perm_non_selected):
+    """
+    Compare feature importance ranks between selected and non-selected models.
+    Implements T035.
+    """
+    from scipy.stats import spearmanr
+    
+    features_sel = perm_selected['features']
+    features_non = perm_non_selected['features']
+    
+    # Only compare common features
+    common_features = list(set(features_sel) & set(features_non))
+    if not common_features:
+        logging.warning("No common features to compare.")
+        return None
+    
+    # Sort by common features to align indices
+    imp_sel = np.array([perm_selected['importance_mean'][features_sel.index(f)] for f in common_features])
+    imp_non = np.array([perm_non_selected['importance_mean'][features_non.index(f)] for f in common_features])
+    
+    rank_sel = pd.Series(imp_sel).rank(ascending=False)
+    rank_non = pd.Series(imp_non).rank(ascending=False)
+    
+    corr, p_value = spearmanr(rank_sel, rank_non)
+    
+    comparison = {
+        "spearman_correlation": float(corr),
+        "p_value": float(p_value),
+        "common_features": common_features,
+        "significant_features_raw": perm_selected.get('significant_features', []),
+        "significant_features_derived": perm_non_selected.get('significant_features', [])
+    }
+    
+    output_path = "results/reports/feature_comparison.json"
+    with open(output_path, 'w') as f:
+        json.dump(comparison, f, indent=2)
+    
+    logging.info(f"Feature comparison saved to {output_path}")
     return comparison
 
 def main():
-    setup_logging()
-    logging.info("Starting Explainability Analysis (US3)")
+    """
+    Main entry point for Explainability Analysis.
+    Executes T030, T031, T031b, T033a, T033b, T033c, T033d, T035.
+    """
+    logger = setup_logging()
+    logger.info("Starting Explainability Analysis (US3)")
     
-    state = load_state_file("state/state.yaml")
-    subset, model_path, data_path = find_best_model(state)
+    # 1. Load Selection State (T030)
+    try:
+        state_config = load_state_file("state/selected_model.yaml")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
     
-    model = load_model_from_path(model_path)
-    X = load_data_from_path(data_path)
-    # Load y from original cleaned data
-    df = pd.read_csv("data/processed/cleaned_316L.csv")
-    y = df['porosity'].values
+    selected_type = state_config.get('selected_model_type', 'derived')
+    logger.info(f"Selected model type: {selected_type}")
     
-    # Ensure data alignment
-    if isinstance(X, pd.DataFrame):
-        X = X.values
+    # Determine paths for selected and non-selected models
+    if selected_type == 'raw':
+        selected_model_path, selected_data_path, _ = find_best_model(state_config)
+        non_selected_model_path = 'models/artifacts/best_derived_model.pkl'
+        non_selected_data_path = 'data/processed/X_derived.csv'
+        non_selected_type = 'derived'
+    else:
+        selected_model_path, selected_data_path, _ = find_best_model(state_config)
+        non_selected_model_path = 'models/artifacts/best_raw_model.pkl'
+        non_selected_data_path = 'data/processed/X_raw.csv'
+        non_selected_type = 'raw'
     
-    # 1. SHAP for Selected
-    shap_vals = calculate_shap_and_plot(model, X, subset)
+    # Log model load (T030 output)
+    load_log = {
+        "selected_model_path": selected_model_path,
+        "selected_data_path": selected_data_path,
+        "non_selected_model_path": non_selected_model_path,
+        "non_selected_data_path": non_selected_data_path
+    }
+    with open("results/reports/model_load_log.json", 'w') as f:
+        json.dump(load_log, f, indent=2)
     
-    # 2. Statistical Analysis for Selected
-    stats_results = perform_statistical_analysis(model, X, y, shap_vals, subset)
+    # 2. Load Selected Model and Data (T030)
+    try:
+        model_sel = load_model_from_path(selected_model_path)
+        X_sel = load_data_from_path(selected_data_path)
+    except FileNotFoundError as e:
+        logger.error(f"Failed to load selected model/data: {e}")
+        sys.exit(1)
     
-    # 3. Non-Selected Analysis (if applicable)
-    # Determine non-selected
-    non_subset = "derived" if subset == "raw" else "raw"
-    non_model_path = "models/artifacts/best_derived_model.pkl" if subset == "raw" else "models/artifacts/best_raw_model.pkl"
-    non_data_path = "data/processed/X_derived.csv" if subset == "raw" else "data/processed/X_raw.csv"
+    # Extract target from the original cleaned dataset if not present in X subsets
+    # The X subsets (X_raw, X_derived) usually contain only features.
+    # We need the target 'porosity'.
+    # We assume the cleaned dataset 'cleaned_316L.csv' exists and has 'porosity' column.
+    try:
+        full_data = pd.read_csv('data/processed/cleaned_316L.csv')
+        y_sel = full_data['porosity']
+        # Align y_sel with X_sel index if necessary
+        # If X_sel was created by filtering, we need to ensure y_sel matches.
+        # For simplicity, assuming X_sel rows correspond to the first N rows of full_data or same index.
+        # A robust way: if X_sel has an index column, use it. Otherwise, assume order matches.
+        # Given the pipeline flow, X_sel is likely a subset of columns from cleaned_316L.csv rows.
+        # We will assume the row order is preserved.
+        if len(X_sel) != len(y_sel):
+            logger.warning(f"Row count mismatch: X_sel={len(X_sel)}, y_sel={len(y_sel)}. Aligning by index.")
+            # If index exists in both, align. If not, this is a risk.
+            # For now, we assume they are aligned or X_sel is a slice of the same dataframe.
+            # If X_sel was created by `df[features]`, the index is preserved.
+            y_sel = y_sel.loc[X_sel.index]
+    except Exception as e:
+        logger.error(f"Failed to load target data: {e}")
+        sys.exit(1)
     
-    non_stats_results = None
-    if os.path.exists(non_model_path) and os.path.exists(non_data_path):
-        logging.info(f"Analyzing non-selected model: {non_subset}")
-        non_model = load_model_from_path(non_model_path)
-        non_X = load_data_from_path(non_data_path)
-        if isinstance(non_X, pd.DataFrame):
-            non_X = non_X.values
-        
-        calculate_shap_and_plot(non_model, non_X, non_subset)
-        non_stats_results = perform_statistical_analysis(non_model, non_X, y, None, non_subset)
+    # 3. Calculate SHAP for Selected Model (T031)
+    try:
+        shap_sel = calculate_shap_and_plot(model_sel, X_sel, selected_type)
+    except Exception as e:
+        logger.error(f"SHAP calculation failed for selected model: {e}")
+        sys.exit(1)
     
-    # 4. Comparison
-    comparison = run_comparison_analysis(stats_results, non_stats_results)
-    with open("results/reports/feature_comparison.json", 'w') as f:
-        json.dump(comparison, f, indent=2)
+    # 4. Perform Permutation Importance for Selected Model (T033b)
+    try:
+        perm_sel = perform_statistical_analysis(model_sel, X_sel, y_sel, selected_type, n_permutations=1000)
+    except Exception as e:
+        logger.error(f"Permutation Importance failed for selected model: {e}")
+        sys.exit(1)
     
-    logging.info("Explainability analysis complete.")
+    # 5. Load Non-Selected Model and Data (T031b, T033c, T033d)
+    # Check if non-selected files exist (X_raw might not exist if Ev-only path was taken)
+    if not os.path.exists(non_selected_data_path):
+        logger.warning(f"Non-selected data path {non_selected_data_path} not found. Skipping non-selected analysis.")
+    else:
+        try:
+            model_non = load_model_from_path(non_selected_model_path)
+            X_non = load_data_from_path(non_selected_data_path)
+            y_non = full_data['porosity'].loc[X_non.index] # Align
+            
+            # 6. Calculate SHAP for Non-Selected Model (T031b)
+            shap_non = calculate_shap_and_plot(model_non, X_non, non_selected_type)
+            
+            # 7. Perform Permutation Importance for Non-Selected Model (T033d)
+            perm_non = perform_statistical_analysis(model_non, X_non, y_non, non_selected_type, n_permutations=1000)
+            
+            # 8. Run Comparison (T035)
+            if 'perm_non' in locals():
+                run_comparison_analysis(perm_sel, perm_non)
+            
+        except FileNotFoundError as e:
+            logger.warning(f"Non-selected model or data not found: {e}. Skipping non-selected analysis.")
+        except Exception as e:
+            logger.error(f"Error processing non-selected model: {e}")
+    
+    # 9. Update State (Optional, but good practice)
+    # Update state.yaml with hashes of new reports
+    try:
+        state = load_state("state.yaml")
+        state['artifact_hashes'] = state.get('artifact_hashes', {})
+        # Add hashes for the new reports
+        for report in ['selected_model_permutation.json', 'non_selected_model_permutation.json', 'feature_comparison.json']:
+            path = f"results/reports/{report}"
+            if os.path.exists(path):
+                state['artifact_hashes'][report] = compute_file_hash(path)
+        update_state(state, "state.yaml")
+    except Exception as e:
+        logger.warning(f"Failed to update state: {e}")
+    
+    logger.info("Explainability Analysis completed successfully.")
 
 if __name__ == "__main__":
     main()

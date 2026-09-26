@@ -20,6 +20,14 @@ T015c:
     \ code\u202F1 and logs \u201CDegenerate Dataset Detected\u201D when the flag exists,\
     \ nor that it proceeds when the flag is absent. The task\u2019s verification criteria\
     \ are therefore unmet."
+T021:
+  c: false
+  h: de6f13500cb6eaf2c452a3a2c5868b5779201fd75cac02db77675adc2aee5790
+  r: "The required input CSVs (`data/processed/cleaned_316L.csv`, `X_raw.csv`, `X_derived.csv`)\
+    \ are absent, and the expected output files (`results/reports/model_metrics_raw.json`,\
+    \ `model_metrics_derived.json`, the model pickle files, and updated `state.yaml`)\
+    \ do not exist. Consequently the training script cannot run and the task\u2019\
+    s deliverables are missing."
 T028:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -34,36 +42,49 @@ T029:
     \ calculation is present; the evidence provided contains only the high\u2011level\
     \ specification and no concrete test implementation or results. The required artifact\
     \ (a runnable unit test) is missing."
-T030:
+T031b:
   c: false
-  h: 1298207d2eb63120d43bf7003615bafbb20c94c72949b8a4e58a67f78ed40fdc
-  r: "The repository lacks the required `state/selected_model.yaml`, the model pickle\
-    \ files (`models/artifacts/best_raw_model.pkl`, `best_derived_model.pkl`) and\
-    \ the processed CSVs (`data/processed/X_raw.csv`, `X_derived.csv`). Without these\
-    \ files the script cannot actually load the selected model or data, so the task\u2019\
-    s core requirement is unmet."
-T033a:
+  h: 29b712062c85744dc7821aa284d9e30e52da6da8bad10dd03ad1ddd9d4b9ae4a
+  r: "The provided `analyze_explainability.py` is truncated, contains a syntax error\
+    \ (`re`), and only loads the *selected* model rather than the non\u2011selected\
+    \ one. Moreover, the required model artifacts (`best_raw_model.pkl` / `best_derived_model.pkl`)\
+    \ are missing and no SHAP summary plot file is present in `results/plots/`. The\
+    \ task\u2019s core requirements are therefore unmet."
+T033b:
   c: false
-  h: e7fa863c2f167ac0ef76cba19abacbb1f4fe1a7e2f8e613f898fb60b56b25e96
-  r: "The `analyze_explainability.py` script is truncated and does not implement the\
-    \ required SHAP bootstrap (it uses an undefined `np.random.c` and the wrong number\
-    \ of resamples) nor compute permutation\u2011importance p\u2011values. Moreover,\
-    \ the expected JSON report files `results/reports/selected_model_shap_ci.json`\
-    \ and `selected_model_permutation.json` are absent."
-T033c:
+  h: 6dcde7f689c705098c11723773c947bd265e447040a105b2d98e59f101d4aea9
+  r: "The repository lacks the required `results/reports/selected_model_permutation.json`\
+    \ file, and the provided `code/analyze_explainability.py` is truncated and does\
+    \ not contain any implementation of permutation importance, p\u2011value calculation,\
+    \ or JSON report generation. The task therefore remains unfinished."
+T033d:
   c: false
-  h: 278857577e5bb751ea378ab324c5a0448dc7af5c115abf6dd557334ea33d1929
-  r: "The provided `analyze_explainability.py` is incomplete (truncated) and does\
-    \ not implement the required SHAP bootstrap CI (uses undefined `np.random.c` and\
-    \ wrong N) nor proper p\u2011value calculation for permutation importance. Moreover,\
-    \ the expected output JSON reports (`results/reports/non_selected_model_shap_ci.json`\
-    \ and `...permutation.json`) are missing. The task requirements are therefore\
-    \ not satisfied."
-T059:
+  h: ab056550a4dc81c4a1b15adb404dfdd6f2da6e464936293f62c4f7a4cf2f6ffa
+  r: "The repository contains `code/analyze_explainability.py`, but the file is truncated\
+    \ and does not show any implementation of 1,000\u2011permutation importance for\
+    \ the non\u2011selected model, nor does it compute p\u2011values or write a JSON\
+    \ report. Moreover, the required output file `results/reports/non_selected_model_permutation.json`\
+    \ is absent. The task therefore remains unfinished."
+T035:
   c: false
-  h: c21d9fa7012ecd1b31d7f6fe097a7b1c3c3162b4e7cfa99ca904a8050c47e9af
-  r: "The required processed dataset `data/processed/cleaned_316L.csv` does not exist,\
-    \ and the schema file `contracts/dataset.schema.yaml` is also missing, so the\
-    \ contract test cannot actually validate anything (it skips when files are absent).\
-    \ The task\u2019s core requirement\u2014validating the cleaned CSV against the\
-    \ schema\u2014is therefore unmet."
+  h: f3451d0a91faaa487405280bdfb341548f5b0f0fd6530234edba3c7d8c4389d8
+  r: "The repository lacks the required `results/reports/feature_comparison.json`\
+    \ and the contract test `tests/contract/test_model_comparison.py`. Moreover, `code/analyze_explainability.py`\
+    \ is truncated and does not implement the Spearman correlation calculation, side\u2011\
+    by\u2011side bar chart, or the JSON report generation described in the task. These\
+    \ essential artifacts and functionality are missing."
+T050:
+  c: false
+  h: 9d4ce3375d94be5df6adbb809910e034f207b58620fe4450f8f1c716ef7b5508
+  r: The required wrapper script `code/run_pipeline.py` is absent, and the expected
+    output artifacts in `data/`, `models/`, and `results/` are not present; `state.yaml`
+    only contains placeholder information and does not show updated artifact entries.
+    The pipeline has not been executed as specified.
+T054:
+  c: false
+  h: 2dcf8c58c57ea3aaa140e633e7f8c7c7f28b421bef7997e54d5db4526c7b6968
+  r: "The test script is present, but the required `data/processed/cleaned_316L.csv`\
+    \ and `contracts/dataset.schema.yaml` files are missing, causing the contract\
+    \ test to be skipped rather than actually validating the dataset against the schema.\
+    \ The task\u2019s core requirement\u2014executing the test to confirm the cleaned\
+    \ CSV conforms to the schema\u2014is therefore not satisfied."
