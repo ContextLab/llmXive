@@ -1,13 +1,10 @@
 status: none
-intent: CodeSearchNet Python subset download HuggingFace datasets library python package
+intent: download CodeSearchNet Python subset via Hugging Face datasets python package
   dataset
 required_fields:
-- code
-- docstring
 - function_name
-- language
-- path
-- repo
-cache_key: b1fe0b9ad9b8a4b413f30407310f2c55d552e99418751bf9433f26aec92e3023
-searched_at: '2026-09-09T13:33:52.831049+00:00'
+- source_code
+- docstring
+cache_key: 7882d1bb62d561a2263e9ebd03a9353513fc7ae41c2303d63102f87ee5566dfc
+searched_at: '2026-09-26T04:11:23.975498+00:00'
 retry_count: 1

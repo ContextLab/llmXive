@@ -3,80 +3,85 @@
 ## Prerequisites
 
 - Python 3.11+
+- Sufficient RAM available (for CPU inference)
+- Significant disk space (for model weights and data)
 - Git
-- Access to Hugging Face Hub (no token required for public datasets)
-- 7 GB RAM (GitHub Actions free tier)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-762-quantifying-hallucination-in-llm-generat/code
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-762-quantifying-hallucination-in-llm-generat
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create and activate a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins `transformers`, `torch` (CPU), `spacy`, `radon`, `pandas`, `scikit-learn`, `datasets`.*
-
-4.  **Download spaCy model**:
-    ```bash
-    python -m spacy download en_core_web_sm
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   python -m spacy download en_core_web_sm
+   ```
 
 ## Running the Pipeline
 
-### Step 1: Download Data (Streaming)
-Download a sample of the CodeSearchNet dataset (streaming to save RAM):
+### 1. Download Data
+Fetch the CodeSearchNet Python subset.
 ```bash
-python src/download.py --sample-size 1000 --streaming
+python code/download.py
 ```
-*Output: `data/processed/features.csv` (partial)*
+*Output*: `data/raw/train.parquet`
 
-### Step 2: Generate Descriptions
-Run the generation pipeline for both models:
+### 2. Generate Descriptions & Compute Metrics
+Run the generation pipeline with pinned seeds.
 ```bash
-python src/generate.py --models codegen-350M starcoderbase-1b --batch-size 1
+python code/generate.py --model codegen-350M --batch-size 1
+python code/generate.py --model starcoderbase-1b --batch-size 1
 ```
-*Output: `data/processed/generations.csv`*
+*Output*: `data/processed/records.csv` (contains F1 scores and decomposed metrics)
 
-### Step 3: Compute Metrics
-Calculate entity-overlap F1 scores:
+### 3. Manual Validation (Annotation Interface)
+Generate the annotation template for human input.
 ```bash
-python src/metrics.py
+python code/validate.py --generate-template --sample-ratio 0.05
 ```
-*Output: `data/processed/metrics.csv`*
+*Output*: `data/manual/annotation_template.csv`
 
-### Step 4: Run Analysis
-Perform correlation, regression, and sensitivity analysis:
+*Note: In a real research run, humans fill this template. For CI testing, use `--simulate` to generate placeholder scores, but these will be flagged in the final report.*
 ```bash
-python src/analysis.py
+python code/validate.py --simulate --sample-ratio 0.05
 ```
-*Output: `data/results/analysis_report.json`*
+*Output*: `data/manual/scores.csv` (placeholder or real data)
 
-### Step 5: Validation (Optional)
-Run the manual validation logic (requires manual annotation of a subset):
+### 4. Statistical Analysis
+Run correlation, regression, and sensitivity analysis.
 ```bash
-python src/validate.py --subset-size 0.05
+python code/analyze.py
 ```
-*Output: `data/results/validation_report.json`*
+*Output*: `results/final_report.json`
 
-## Expected Outputs
+### 5. Performance Validation (Success Criteria Check)
+Verify memory and time limits.
+```bash
+python code/main.py --validate-performance
+```
+*Expected*: `results/performance_log.json` containing `max_memory_mb < 7168` and `total_time_sec < 21600`.
 
-- `data/processed/metrics.csv`: Contains the hallucination index for every function.
-- `data/results/analysis_report.json`: Contains correlation coefficients, p-values, and sensitivity data.
-- `data/results/validation_report.json`: Contains the correlation between automated and manual scores.
+## Expected Output
+
+The final `results/final_report.json` will contain:
+- Correlation coefficients and adjusted p-values.
+- Regression coefficients (controlled for source length).
+- VIF scores.
+- Sensitivity analysis table.
+- Validation flag (PASS/NEEDS_REVIEW).
 
 ## Troubleshooting
 
-- **OOM Error**: If you encounter `MemoryError`, reduce the `--batch-size` to 1 and ensure `--streaming` is enabled during download.
-- **Model Loading**: If `codegen-350M` fails to load, ensure `torch` is installed in CPU mode (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-- **AST Parsing Errors**: Functions with syntax errors will be skipped and logged. Check `logs/preprocess.log` for details.
+- **OOM Error**: Reduce `--batch-size` to 1. Ensure no other heavy processes are running.
+- **Model Load Error**: Ensure `transformers` and `torch` are installed with CPU support (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
+- **Spacy Error**: Run `python -m spacy download en_core_web_sm`.

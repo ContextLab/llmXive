@@ -8,7 +8,7 @@ properties:
     description: "Spearman correlation coefficient between token count and hallucination index."
   correlation_naming:
     type: "number"
-    description: "Spearman correlation coefficient between naming style and hallucination index."
+    description: "Mann-Whitney U statistic or Point-Biserial correlation for naming style."
   correlation_complexity:
     type: "number"
     description: "Spearman correlation coefficient between cyclomatic complexity and hallucination index."
@@ -24,7 +24,12 @@ properties:
     description: "List of Bonferroni-adjusted p-values."
   regression_coefficients:
     type: "object"
-    description: "Dictionary of coefficients from the multiple linear regression model."
+    description: "Dictionary of coefficients from the multiple linear regression model (controlled for source length)."
+    additionalProperties:
+      type: "number"
+  vif_scores:
+    type: "object"
+    description: "Dictionary of Variance Inflation Factors for predictors."
     additionalProperties:
       type: "number"
   sensitivity_data:
@@ -42,7 +47,7 @@ properties:
         - rate
   manual_validation_correlation:
     type: "number"
-    description: "Correlation between automated index and manual score."
+    description: "Correlation between automated index and manual behavioral score."
   disclaimer:
     type: "string"
     description: "Disclaimer stating that findings are associational, not causal."
@@ -54,6 +59,7 @@ required:
   - p_value_raw
   - p_value_adjusted
   - regression_coefficients
+  - vif_scores
   - sensitivity_data
   - manual_validation_correlation
   - disclaimer

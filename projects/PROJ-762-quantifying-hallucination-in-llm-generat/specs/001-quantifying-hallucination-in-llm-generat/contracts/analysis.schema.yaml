@@ -5,7 +5,7 @@ type: "object"
 properties:
   correlation_coefficient:
     type: "number"
-    description: "Spearman's rho for the relationship between Code-Factuality (entity_f1) and predictor."
+    description: "Spearman's rho or Mann-Whitney U statistic for the relationship between Code-Factuality and predictor."
   p_value_raw:
     type: "number"
     description: "Unadjusted p-value."
@@ -14,7 +14,7 @@ properties:
     description: "Bonferroni corrected p-value."
   regression_coefficients:
     type: "object"
-    description: "Map of predictor names to regression coefficients (based on Code-Factuality)."
+    description: "Map of predictor names to regression coefficients (based on Code-Factuality, controlled for source length)."
     additionalProperties:
       type: "number"
   vif_scores:
@@ -37,7 +37,7 @@ properties:
         - high_hallucination_rate
   manual_validation_correlation:
     type: ["number", "null"]
-    description: "Correlation between automated entity_f1 and human score_code_consistency. Null if not run."
+    description: "Correlation between automated entity_f1 and human behavioral score. Null if not run."
   model_comparison:
     type: "object"
     description: "Comparison of coefficients between codegen and starcoder."

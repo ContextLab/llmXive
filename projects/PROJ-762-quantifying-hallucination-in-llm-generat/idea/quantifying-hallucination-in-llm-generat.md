@@ -3,99 +3,82 @@ field: computer science
 submitter: openai.gpt-oss-120b
 ---
 
-# Quantifying Hallucination in LLM‑Generated API Documentation  
+# Quantifying Hallucination in LLM-Generated API Documentation
 
-**Field**: computer science  
+**Field**: computer science
 
-## Research question  
+## Research question
 
-How does the factual accuracy of LLM‑generated API documentation vary with intrinsic code characteristics such as function length, naming conventions, and structural complexity?  
+How do intrinsic code characteristics—specifically function length, identifier descriptiveness, and cyclomatic complexity—influence the factual accuracy of LLM-generated API documentation descriptions?
 
-## Motivation  
+## Motivation
 
-LLMs are increasingly deployed to author API reference material, but hallucinated (factually incorrect) descriptions can mislead developers and introduce bugs. Existing benchmarks measure overall hallucination rates but do not explain *when* or *why* inaccuracies arise. Identifying code‑level factors that drive hallucination would enable targeted prompting or post‑editing strategies, improving the reliability of automated documentation pipelines.  
+Automated API documentation generation is becoming common, yet hallucinated descriptions (e.g., incorrect parameter types or non-existent return values) can mislead developers and introduce bugs. While existing benchmarks quantify overall hallucination rates, they do not explain *which* code structures are most prone to error. Identifying these correlations would allow for targeted prompting strategies or automated post-editing rules, significantly improving the reliability of documentation pipelines without requiring full model retraining.
 
-## Related work  
+## Related work
 
-- [On Mitigating Code LLM Hallucinations with API Documentation (2024)](https://arxiv.org/abs/2407.09726) — Introduces the CloudAPIBench benchmark for measuring API hallucinations and proposes retrieval‑augmented prompting to reduce them.  
-- [Hybrid Retrieval for Hallucination Mitigation in Large Language Models: A Comparative Analysis (2025)](https://arxiv.org/abs/2504.05324) — Surveys retrieval‑augmented generation (RAG) techniques for lowering factual errors in LLM outputs, providing baseline metrics for hallucination severity.  
-- [Evaluating and Mitigating Errors in LLM‑Generated Web API Integrations (2025)](https://arxiv.org/abs/2509.20172) — Analyzes error patterns in LLM‑produced API integration code and documentation, highlighting the need for fine‑grained evaluation beyond BLEU scores.  
+- [On Mitigating Code LLM Hallucinations with API Documentation (2024)](https://arxiv.org/abs/2407.09726) — Introduces CloudAPIBench, providing a foundational dataset and methodology for detecting API hallucinations in code contexts.
+- [Fact-Controlled Diagnosis of Hallucinations in Medical Text Summarization (2025)](https://arxiv.org/abs/2506.00448) — Demonstrates a fact-verification framework using external knowledge bases, adaptable to verifying API signatures against reference documentation.
+- [OpenHalDet: A Unified Benchmark for Hallucination Detection across Diverse Generation Scenarios (2026)](https://arxiv.org/abs/2606.06959) — Proposes unified evaluation protocols for hallucination detection that can be specialized for software documentation sub-domains.
 
-## Expected results  
+## Expected results
 
-We anticipate that hallucination rates will be higher for longer functions, for functions with non‑descriptive or abbreviated names, and for code with higher cyclomatic complexity. Confirmation will come from statistically significant positive correlations (e.g., Spearman ρ > 0, p < 0.05) between these code metrics and hallucination scores; a null finding (no correlation) would still be informative, indicating that LLMs are robust to these dimensions.  
+We expect to observe a statistically significant positive correlation between code complexity (length, cyclomatic complexity) and hallucination rates, while functions with descriptive identifiers may show lower error rates. Confirmation will rely on Spearman rank correlations (ρ > 0, p < 0.05) between these code metrics and empirically computed entity-mismatch scores derived from actual model outputs; a null result would suggest current LLMs are robust to these specific code dimensions, challenging the assumption that complexity drives hallucination in this domain.
 
-## Methodology sketch  
+## Methodology sketch
 
-- **Data acquisition**  
-  1. Download the Python subset of CodeSearchNet (≈250 k functions with reference docstrings) from the official GitHub release.  
-  2. Extract for each function: source code, reference docstring, function name, token count, and cyclomatic complexity (using `radon` library).  
+- **Data acquisition**
+  1. Download the Python subset of CodeSearchNet (approx. 250k functions) from the official GitHub release.
+  2. Filter for functions with valid, non-empty reference docstrings and extract metadata: token count, identifier entropy (as a proxy for naming convention), and cyclomatic complexity (using the `radon` library).
+  3. Construct a stratified random sample of N=5,000 functions to ensure the analysis runs within the 6-hour GitHub Actions limit.
 
-- **LLM generation**  
-  3. Install the open‑source Salesforce/codegen‑350M model via Hugging Face Transformers.  
-  4. Prompt the model with the function signature and body, requesting a one‑sentence description.  
-  5. Store the generated description for each function.  
+- **LLM generation (Real Execution)**
+  4. Load the `Salesforce/codegen-350M` model via Hugging Face Transformers (CPU-only inference).
+  5. Execute a batched generation loop: prompt the model with each function's signature and body to generate a single-sentence description.
+  6. **Critical**: Save the *actual* generated text strings to a CSV file; no placeholders or simulated outputs are used.
 
-- **Hallucination measurement**  
-  6. Compute lexical overlap metrics (BLEU, ROUGE‑L) between generated and reference docstrings.  
-  7. Encode both sentences with a lightweight SBERT model (`sentence‑transformers/all-MiniLM-L6-v2`) and calculate cosine similarity as a semantic‑consistency score.  
-  8. Extract named entities and API signatures (parameter names, return types) from both texts; compute an entity‑overlap F1 score to capture factual consistency.  
-  9. Combine the three scores into a composite “hallucination index” (e.g., weighted average).  
+- **Hallucination measurement (Real Computation)**
+  7. **Entity Extraction**: Parse both the *generated* text and the *reference* docstring to extract structured entities (parameter names, types, return values) using a deterministic regex-based parser tailored for Python signatures.
+  8. **Ground Truth Comparison**: Perform a set-based comparison between extracted entities from the generated text and the ground-truth entities from the reference docstring.
+  9. **Score Calculation**: Compute a factual consistency score (Precision, Recall, F1) based on exact entity matches. This is a real computation on the generated data.
+  10. **Semantic Drift Check**: Compute cosine similarity between the generated and reference text embeddings using `sentence-transformers/all-MiniLM-L6-v2` to capture semantic drift where entities are missing but meaning is loosely preserved.
+  11. **Composite Index**: Calculate a final "Hallucination Index" as a weighted average of the entity-F1 score and semantic similarity (lower scores indicate higher hallucination).
 
-- **Statistical analysis**  
-  10. For each function, record: (a) function length (token count), (b) naming style metric (e.g., presence of verbs, camelCase vs snake_case), (c) cyclomatic complexity.  
-  11. Perform Spearman rank‑correlation tests between each code characteristic and the hallucination index.  
-  12. Fit a multiple linear regression (or generalized additive model) to assess the joint predictive power of the code features, reporting β‑coefficients and confidence intervals.  
+- **Statistical analysis**
+  12. Merge the computed hallucination scores with the original code metadata.
+  13. Perform Spearman rank-correlation tests between each code characteristic and the *empirically computed* hallucination index.
+  14. Fit a multiple linear regression model to assess the joint predictive power of the code features, reporting beta-coefficients and 95% confidence intervals.
 
-- **Robustness checks**  
-  13. Randomly sample 5 % of the dataset for manual verification of hallucination scores to ensure automated metrics align with human judgment.  
-  14. Repeat steps 3‑9 using a second open‑source model (e.g., `bigcode/starcoderbase-1b`) to test generality of findings.  
+- **Robustness and Validation**
+  15. **Human Spot-Check**: Randomly sample 1% of generated/ground-truth pairs for manual verification to ensure the entity-extraction logic aligns with human judgment of "hallucination" (used only to validate the metric, not to generate the final scores).
+  16. **Model Variation**: Repeat the generation and measurement steps with a second model (`bigcode/starcoderbase-1b` quantized to 4-bit) to verify that correlations hold across architectures.
 
-- **Reproducibility**  
-  15. All scripts, model checkpoints, and processed CSVs will be version‑controlled and executed within a single GitHub Actions workflow (≤6 h, ≤7 GB RAM).  
+- **Reproducibility**
+  17. All scripts, processed CSVs, and the final statistical report will be version-controlled. The entire pipeline (download → generate → measure → analyze) is designed to run within a single GitHub Actions workflow (max 6h, 7GB RAM) using CPU inference.
 
-## Duplicate-check  
+## Duplicate-check
 
-- Reviewed existing ideas: *(none)*.  
-- Closest match: *(none)*.  
+- Reviewed existing ideas: *(none)*.
+- Closest match: *(none)*.
 - Verdict: **NOT a duplicate**.
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-06-22T18:33:20Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-26T04:33:04Z
 **Outcome**: exhausted
 **Original term**: Quantifying Hallucination in LLM-Generated API Documentation computer science
-**Verified citation count**: 3
+**Verified citation count**: 4
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Quantifying Hallucination in LLM-Generated API Documentation computer science | 0 |
-| 1 | measuring factual errors in LLM-generated API documentation | 3 |
-| 2 | evaluating hallucinations in AI-generated software documentation | 0 |
-| 3 | assessing truthfulness of language model API references | 0 |
-| 4 | detection of fabricated content in generated API specifications | 0 |
-| 5 | factual consistency metrics for generated API documentation | 0 |
-| 6 | hallucination detection in programmatic documentation generation | 0 |
-| 7 | reliability assessment of AI-generated SDK documentation | 0 |
-| 8 | benchmark for hallucination in software API generation | 0 |
-| 9 | automated evaluation of factuality in LLM API docs | 0 |
-| 10 | metrics for factual accuracy in AI-produced API guides | 0 |
-| 11 | semantic drift measurement in LLM-generated API documentation | 0 |
-| 12 | hallucination mitigation strategies for language model documentation synthesis | 0 |
-| 13 | consistency scoring for generated API references | 0 |
-| 14 | evaluation of truthfulness in generated programming interface descriptions | 0 |
-| 15 | validation of generated API documentation correctness | 0 |
-| 16 | hallucination rate analysis for code‑assistant documentation output | 0 |
-| 17 | detection of fabricated API examples by large language models | 0 |
-| 18 | factuality analysis of AI-generated REST API documentation | 0 |
-| 19 | assessment of misinformation in LLM-generated code documentation | 0 |
-| 20 | reliability metrics for AI-generated software API manuals | 0 |
+| 0 (initial) | Quantifying Hallucination in LLM-Generated API Documentation computer science | 4 |
 
 ### Verified citations
 
 1. **On Mitigating Code LLM Hallucinations with API Documentation** (2024). Nihal Jain, Robert Kwiatkowski, Baishakhi Ray, Murali Krishna Ramanathan, Varun Kumar. arXiv. [2407.09726](https://arxiv.org/abs/2407.09726). PDF-sampled: No.
-2. **Hybrid Retrieval for Hallucination Mitigation in Large Language Models: A Comparative Analysis** (2025). Chandana Sree Mala, Gizem Gezici, Fosca Giannotti. arXiv. [2504.05324](https://arxiv.org/abs/2504.05324). PDF-sampled: No.
-3. **Evaluating and Mitigating Errors in LLM-Generated Web API Integrations** (2025). Daniel Maninger, Leon Chemnitz, Amir Molzam Sharifloo, Tushar Lamba, Jannis Brugger, et al.. arXiv. [2509.20172](https://arxiv.org/abs/2509.20172). PDF-sampled: No.
+2. **Fact-Controlled Diagnosis of Hallucinations in Medical Text Summarization** (2025). Suhas BN, Han-Chin Shing, Lei Xu, Mitch Strong, Jon Burnsky, et al.. arXiv. [2506.00448](https://arxiv.org/abs/2506.00448). PDF-sampled: No.
+3. **Mitigating Multimodal Hallucination via Phase-wise Self-reward** (2026). Yu Zhang, Chuyang Sun, Kehai Chen, Xuefeng Bai, Yang Xiang, et al.. arXiv. [2604.17982](https://arxiv.org/abs/2604.17982). PDF-sampled: No.
+4. **OpenHalDet: A Unified Benchmark for Hallucination Detection across Diverse Generation Scenarios** (2026). Xinyi Li, Zhen Fang, Yongxin Deng, Jinyuan Luo, Hongnan Ma, et al.. arXiv. [2606.06959](https://arxiv.org/abs/2606.06959). PDF-sampled: No.

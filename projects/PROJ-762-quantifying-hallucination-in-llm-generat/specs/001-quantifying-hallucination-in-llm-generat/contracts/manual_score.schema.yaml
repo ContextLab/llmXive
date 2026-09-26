@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Manual Score Schema"
+description: "Schema for human-annotated validation scores in data/manual/scores.csv"
+type: object
+properties:
+  id:
+    type: string
+    description: "Matches FunctionRecord.id"
+  human_score_raw:
+    type: integer
+    minimum: 0
+    maximum: 3
+    description: "Raw score from Behavioral Consistency rubric (0-3)"
+  human_score_norm:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized score (raw / 3.0)"
+  annotator_id:
+    type: string
+    description: "Identifier for the human annotator"
+required:
+  - id
+  - human_score_raw
+  - human_score_norm
+  - annotator_id

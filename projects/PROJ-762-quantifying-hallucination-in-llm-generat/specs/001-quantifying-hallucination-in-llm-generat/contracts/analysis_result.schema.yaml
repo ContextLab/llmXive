@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for the final statistical report in results/final_report.json"
+type: object
+properties:
+  model_name:
+    type: string
+    description: "Name of the LLM model used"
+  correlation_length:
+    type: number
+    description: "Spearman correlation for function length"
+  p_value_length:
+    type: number
+    description: "Raw p-value for length correlation"
+  p_value_length_adj:
+    type: number
+    description: "Bonferroni-adjusted p-value for length"
+  correlation_naming:
+    type: number
+    description: "Mann-Whitney U statistic or Point-Biserial correlation for naming style"
+  p_value_naming:
+    type: number
+    description: "Raw p-value for naming correlation"
+  p_value_naming_adj:
+    type: number
+    description: "Bonferroni-adjusted p-value for naming"
+  correlation_complexity:
+    type: number
+    description: "Spearman correlation for cyclomatic complexity"
+  p_value_complexity:
+    type: number
+    description: "Raw p-value for complexity correlation"
+  p_value_complexity_adj:
+    type: number
+    description: "Bonferroni-adjusted p-value for complexity"
+  regression_coefficients:
+    type: object
+    description: "Coefficients from multiple linear regression (controlled for source length)"
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors for predictors"
+  sensitivity_data:
+    type: array
+    description: "List of threshold sweep results"
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+        rate:
+          type: number
+  manual_validation_correlation:
+    type: number
+    description: "Correlation between automated F1 and manual behavioral score"
+  validation_flag:
+    type: string
+    description: "pass if correlation >= 0.7, otherwise needs_review"
+required:
+  - model_name
+  - correlation_length
+  - p_value_length_adj
+  - validation_flag
