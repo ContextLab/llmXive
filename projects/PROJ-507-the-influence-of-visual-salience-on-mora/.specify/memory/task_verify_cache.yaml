@@ -26,18 +26,6 @@ T026b:
     the `data/survey/` and `data/synth/` directories, enforce naming conventions,
     or raise a `DataHygieneError` for misplaced files. The required enforcement logic
     and verification are missing.
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No new test files or code appear in `tests/unit/` that exercise the edge\u2011\
-    case where the sample size is smaller than the planned size. The required additional\
-    \ unit tests are missing, so the task is not satisfied."
-T041:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a quickstart.md validation run is present\u2014no validation\
-    \ report, log file, or updated quickstart.md showing successful checks. The required\
-    \ artifact confirming that the quickstart documentation was validated is missing."
 T061:
   c: false
   h: 86c37e2ef8bd51c2a9f14e09c06caee5da1ccba90785dd41285af3126fe6001c

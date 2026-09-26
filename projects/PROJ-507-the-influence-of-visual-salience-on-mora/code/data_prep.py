@@ -1,6 +1,7 @@
 """
-Data preparation module for the Visual Salience Moral Judgments project.
-Handles dataset ingestion, filtering, manipulation, and reproducibility logging.
+Data preparation module for the Visual Salience project.
+Handles dataset ingestion, filtering, salience manipulation, and validation.
+Implements strict 'Fail Loudly' behavior for data fetching.
 """
 
 import os
@@ -9,25 +10,27 @@ import hashlib
 import json
 import logging
 import requests
-import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Optional, Dict, List, Any, Tuple
+from dataclasses import dataclass
+import random
 
-# Import from project config
+# Import from project modules
 from config import seed_everything
-from logging_config import get_logger
-from models import Scenario, StimulusVariant
+from env_config import get_config, EnvConfig
+from logging_config import setup_logging, get_logger
+from models import Scenario, StimulusVariant, AmbiguityLabel, SalienceLevel
 
-# Setup logger
+# Configure logging
 logger = get_logger(__name__)
 
 # Custom Exceptions
 class DataFetchError(Exception):
-    """Raised when data fetching from a real source fails."""
+    """Raised when real data fetch fails and no valid fallback is configured."""
     pass
 
 class DataIngestionError(Exception):
-    """Raised when data ingestion logic fails."""
+    """Raised when data ingestion or processing fails."""
     pass
 
 class SemanticChangeError(Exception):
@@ -38,296 +41,427 @@ class ManipulationFailureError(Exception):
     """Raised when salience manipulation fails."""
     pass
 
-# Constants
-DEFAULT_SEED = 42
-DEFAULT_SAMPLE_SIZE = 1000
-RAW_DATA_DIR = Path("data/raw")
-PROCESSED_DATA_DIR = Path("data/processed")
-SAMPLE_METADATA_FILE = RAW_DATA_DIR / "sample_metadata.json"
-SELECTED_IDS_FILE = RAW_DATA_DIR / "selected_ids.json"
+@dataclass
+class DatasetSource:
+    """Represents a potential data source."""
+    name: str
+    url: str
+    is_verified: bool = False
 
-def _compute_sha256_checksum(data_bytes: bytes) -> str:
-    """Compute SHA-256 checksum of data bytes."""
-    return hashlib.sha256(data_bytes).hexdigest()
+def _calculate_sha256(file_path: Path) -> str:
+    """Calculate SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def _log_sample_metadata(count: int, checksum: str, seed: int) -> Dict[str, Any]:
+def _verify_verified_source(source: str) -> Optional[DatasetSource]:
     """
-    Log explicit sample size, checksum, seed, and timestamp to data/raw/sample_metadata.json.
-    This satisfies T061 requirements for reproducibility logging.
+    Check if a verified source is configured via environment variable.
+    If present, return the source details; otherwise, return None.
     """
-    metadata = {
-        "count": count,
-        "checksum_sha256": checksum,
-        "seed": seed,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-    }
-
-    # Ensure directory exists
-    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Write metadata to file
-    with open(SAMPLE_METADATA_FILE, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, indent=2)
-
-    logger.info(f"Sample metadata logged: count={count}, checksum={checksum}, seed={seed}")
-    return metadata
-
-def _load_selected_ids() -> List[int]:
-    """Load the fixed list of selected image IDs from disk."""
-    if not SELECTED_IDS_FILE.exists():
-        raise FileNotFoundError(f"Selected IDs file not found: {SELECTED_IDS_FILE}")
+    if not source:
+        return None
     
-    with open(SELECTED_IDS_FILE, 'r', encoding='utf-8') as f:
-        ids = json.load(f)
+    # Expected format: package_name::recipe_name or direct_url
+    if "::" in source:
+        parts = source.split("::")
+        return DatasetSource(
+            name=parts[0],
+            url=parts[1] if len(parts) > 1 else parts[0],
+            is_verified=True
+        )
+    else:
+        # Assume it's a direct URL or package name
+        return DatasetSource(name=source, url=source, is_verified=True)
+
+def _fetch_from_verified_source(source: DatasetSource, output_dir: Path) -> Path:
+    """
+    Fetch data from a verified source.
+    Currently supports Hugging Face datasets and direct URLs.
+    """
+    if not source.is_verified:
+        raise DataFetchError(f"Source {source.name} is not verified.")
     
-    if not isinstance(ids, list) or not all(isinstance(i, int) for i in ids):
-        raise DataIngestionError(f"Invalid ID format in {SELECTED_IDS_FILE}")
+    # Check if it's a Hugging Face dataset
+    if source.name in ["visual_genome", "morald"]:
+        try:
+            from datasets import load_dataset
+            logger.info(f"Loading dataset from Hugging Face: {source.name}")
+            dataset = load_dataset(source.name, split="train", streaming=False)
+            
+            # Create output directory if it doesn't exist
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save the dataset to a local file (parquet format)
+            output_file = output_dir / f"{source.name}_subset.parquet"
+            dataset.to_parquet(str(output_file))
+            
+            logger.info(f"Dataset saved to {output_file}")
+            return output_file
+        except Exception as e:
+            raise DataFetchError(f"Failed to load dataset from Hugging Face: {str(e)}")
     
-    return sorted(ids)
+    # Check if it's a direct URL
+    elif source.url.startswith(("http://", "https://")):
+        try:
+            response = requests.get(source.url, stream=True)
+            response.raise_for_status()
+            
+            # Create output directory if it doesn't exist
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Save the file
+            output_file = output_dir / Path(source.url).name
+            with open(output_file, "wb") as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            
+            logger.info(f"File downloaded to {output_file}")
+            return output_file
+        except requests.RequestException as e:
+            raise DataFetchError(f"Failed to download file from URL: {str(e)}")
+    
+    else:
+        raise DataFetchError(f"Unsupported source type: {source.name}")
 
 def ingest_dataset(
-    dataset_name: str = "visual_genome",
-    split: str = "train",
-    sample_size: int = DEFAULT_SAMPLE_SIZE,
-    seed: int = DEFAULT_SEED,
-    force_redownload: bool = False
-) -> List[Dict[str, Any]]:
+    output_dir: Optional[Path] = None,
+    force_verify: bool = False
+) -> Tuple[Path, Dict[str, Any]]:
     """
-    Ingest dataset with deterministic sampling and reproducibility logging.
-    
-    This function implements T053, T053b, T054, and T061 requirements:
-    - Generates a fixed, sorted list of IDs (T053)
-    - Verifies checksums on re-download (T053b)
-    - Handles verified source injection (T054)
-    - Logs sample metadata with checksum (T061)
+    Ingest dataset from a real source with strict 'Fail Loudly' behavior.
     
     Args:
-        dataset_name: Name of the dataset to ingest
-        split: Dataset split to use
-        sample_size: Number of samples to select
-        seed: Random seed for reproducibility
-        force_redownload: If True, force re-download even if metadata exists
+        output_dir: Directory to save the dataset. Defaults to data/raw/
+        force_verify: If True, force verification of the dataset even if already downloaded.
     
     Returns:
-        List of dataset items (dictionaries)
+        Tuple of (path_to_dataset, metadata_dict)
+    
+    Raises:
+        DataFetchError: If the real data fetch fails and no valid fallback is configured.
     """
-    seed_everything(seed)
-    logger.info(f"Starting dataset ingestion: {dataset_name}, split={split}, size={sample_size}, seed={seed}")
-
-    # Check for verified source injection (T054)
-    verified_source = os.getenv("VERIFIED_DATA_SOURCE")
-    if verified_source:
-        logger.info(f"Using verified source: {verified_source}")
-        # In a real implementation, this would use hf_hub_download or similar
-        # For now, we proceed with standard loading but log the override
+    seed_everything(42)
     
-    # Generate or load selected IDs (T053)
-    if not SELECTED_IDS_FILE.exists() or force_redownload:
-        logger.info(f"Generating fixed list of {sample_size} IDs with seed={seed}")
-        # In a real implementation, this would select from available IDs
-        # For reproducibility, we generate a deterministic sequence
-        selected_ids = list(range(1, sample_size + 1))
-        with open(SELECTED_IDS_FILE, 'w', encoding='utf-8') as f:
-            json.dump(selected_ids, f, indent=2)
-        logger.info(f"Saved selected IDs to {SELECTED_IDS_FILE}")
-    else:
-        selected_ids = _load_selected_ids()
-        logger.info(f"Loaded {len(selected_ids)} selected IDs from {SELECTED_IDS_FILE}")
-
-    # Attempt to fetch real data (T052 - Fail Loudly)
-    try:
-        # In a real implementation, this would use datasets.load_dataset
-        # For demonstration, we simulate fetching with a real-like structure
-        logger.info(f"Fetching {len(selected_ids)} items from {dataset_name}")
-        
-        # Simulate data fetch - in reality, this would be:
-        # dataset = datasets.load_dataset(dataset_name, split=split, streaming=False)
-        # subset = [item for item in dataset if item['id'] in selected_ids]
-        
-        # For this implementation, we create a placeholder that would be
-        # replaced with actual data fetching logic
-        subset = []
-        for idx in selected_ids:
-            # In real code: fetch actual item from dataset
-            subset.append({
-                "id": idx,
-                "url": f"https://example.com/image/{idx}.jpg",
-                "metadata": {"source": dataset_name, "split": split}
-            })
-        
-        if len(subset) != len(selected_ids):
-            raise DataIngestionError(
-                f"Expected {len(selected_ids)} items, got {len(subset)}. "
-                "Data fetch incomplete."
-            )
-        
-        logger.info(f"Successfully fetched {len(subset)} items")
-        
-    except Exception as e:
-        # T052: Fail loudly - no silent synthetic fallback
-        logger.error(f"Data fetch failed: {e}")
-        raise DataFetchError(f"Failed to fetch real data from {dataset_name}: {e}") from e
-
-    # Compute checksum and log metadata (T061)
-    # Serialize the subset to bytes for checksum computation
-    subset_json = json.dumps(subset, sort_keys=True).encode('utf-8')
-    checksum = _compute_sha256_checksum(subset_json)
+    if output_dir is None:
+        output_dir = Path("data/raw")
     
-    # Log metadata to file (T061 requirement)
-    metadata = _log_sample_metadata(len(subset), checksum, seed)
-    
-    # Verify checksum if re-downloading (T053b)
-    if SAMPLE_METADATA_FILE.exists() and not force_redownload:
-        with open(SAMPLE_METADATA_FILE, 'r', encoding='utf-8') as f:
-            existing_metadata = json.load(f)
-        
-        if existing_metadata.get("checksum_sha256") != checksum:
-            raise DataIngestionError(
-                f"Checksum mismatch! Expected {existing_metadata.get('checksum_sha256')}, "
-                f"got {checksum}. Data may have been corrupted or changed."
-            )
-        logger.info("Checksum verification passed")
-
-    return subset
-
-def filter_candidates(
-    data: List[Dict[str, Any]],
-    tags: List[str] = None,
-    min_ambiguity: float = 3.5
-) -> List[Dict[str, Any]]:
-    """
-    Filter dataset candidates based on metadata tags and ambiguity labels.
-    
-    Args:
-        data: List of dataset items
-        tags: List of required tags (e.g., 'social', 'conflict')
-        min_ambiguity: Minimum ambiguity score threshold
-    
-    Returns:
-        Filtered list of candidates
-    """
-    if tags is None:
-        tags = ['social', 'conflict']
-    
-    logger.info(f"Filtering candidates with tags={tags}, min_ambiguity={min_ambiguity}")
-    
-    filtered = []
-    for item in data:
-        # Check tags
-        item_tags = item.get("metadata", {}).get("tags", [])
-        if not any(tag in item_tags for tag in tags):
-            continue
-        
-        # Check ambiguity (would come from human coding in real scenario)
-        ambiguity = item.get("metadata", {}).get("ambiguity_score", 0)
-        if ambiguity < min_ambiguity:
-            continue
-        
-        filtered.append(item)
-    
-    logger.info(f"Filtered down to {len(filtered)} candidates")
-    return filtered
-
-def manipulate_salience(
-    image_path: str,
-    salience_level: str,
-    target_region: Dict[str, Any]
-) -> bytes:
-    """
-    Manipulate luminance of a target region to create salience variants.
-    
-    Args:
-        image_path: Path to the original image
-        salience_level: 'low', 'medium', or 'high'
-        target_region: Dictionary with bounding box coordinates
-    
-    Returns:
-        Manipulated image as bytes
-    """
-    logger.info(f"Manipulating salience: {image_path}, level={salience_level}")
-    
-    # In real implementation, use PIL/OpenCV to manipulate luminance
-    # For now, return placeholder
-    with open(image_path, 'rb') as f:
-        return f.read()
-
-def process_salience_manipulation(
-    candidates: List[Dict[str, Any]],
-    output_dir: Path,
-    levels: List[str] = ['low', 'medium', 'high']
-) -> List[Dict[str, Any]]:
-    """
-    Process all candidates to generate salience variants.
-    
-    Args:
-        candidates: List of filtered candidate scenarios
-        output_dir: Directory to save manipulated images
-        levels: List of salience levels to generate
-    
-    Returns:
-        List of StimulusVariant records
-    """
-    logger.info(f"Processing salience manipulation for {len(candidates)} candidates")
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    variants = []
-    for candidate in candidates:
-        scenario_id = candidate["id"]
-        
-        for level in levels:
-            # In real implementation:
-            # 1. Load image
-            # 2. Apply luminance manipulation
-            # 3. Verify semantic preservation (T017)
-            # 4. Save to disk
-            # 5. Record variant metadata
-            
-            variant_id = f"{scenario_id}_{level}"
-            variants.append({
-                "variant_id": variant_id,
-                "scenario_id": scenario_id,
-                "salience_level": level,
-                "image_path": str(output_dir / f"{variant_id}.jpg")
-            })
+    # Get configuration
+    config = get_config()
     
-    logger.info(f"Generated {len(variants)} stimulus variants")
+    # Check for verified source first
+    verified_source_str = os.getenv("VERIFIED_DATA_SOURCE", "")
+    verified_source = _verify_verified_source(verified_source_str)
+    
+    if verified_source:
+        logger.info(f"Using verified source: {verified_source.name}")
+        dataset_path = _fetch_from_verified_source(verified_source, output_dir)
+        metadata = {
+            "source": verified_source.name,
+            "source_type": "verified",
+            "checksum": _calculate_sha256(dataset_path),
+            "timestamp": str(pd.Timestamp.now())
+        }
+    else:
+        # Try primary source (MoralD)
+        primary_source = DatasetSource(
+            name="morald",
+            url="https://huggingface.co/datasets/morald",
+            is_verified=False
+        )
+        
+        # Try secondary source (Visual Genome)
+        secondary_source = DatasetSource(
+            name="visual_genome",
+            url="https://huggingface.co/datasets/visual_genome",
+            is_verified=False
+        )
+        
+        dataset_path = None
+        metadata = {}
+        
+        # Try primary source
+        try:
+            logger.info(f"Attempting to fetch from primary source: {primary_source.name}")
+            dataset_path = _fetch_from_verified_source(primary_source, output_dir)
+            metadata = {
+                "source": primary_source.name,
+                "source_type": "primary",
+                "checksum": _calculate_sha256(dataset_path),
+                "timestamp": str(pd.Timestamp.now())
+            }
+        except DataFetchError as e:
+            logger.warning(f"Primary source failed: {str(e)}")
+            
+            # Try secondary source
+            try:
+                logger.info(f"Attempting to fetch from secondary source: {secondary_source.name}")
+                dataset_path = _fetch_from_verified_source(secondary_source, output_dir)
+                metadata = {
+                    "source": secondary_source.name,
+                    "source_type": "secondary",
+                    "checksum": _calculate_sha256(dataset_path),
+                    "timestamp": str(pd.Timestamp.now())
+                }
+            except DataFetchError as e2:
+                logger.error(f"Secondary source also failed: {str(e2)}")
+                
+                # Check if synthetic fallback is explicitly configured
+                synthetic_fallback_enabled = os.getenv("ALLOW_SYNTHETIC_FALLBACK", "").lower() == "true"
+                
+                if synthetic_fallback_enabled:
+                    logger.info("Synthetic fallback is explicitly enabled. Generating synthetic data.")
+                    # Import synthetic generation function if available
+                    try:
+                        from code.synthetic_data import generate_synthetic_dataset
+                        synthetic_path = output_dir / "synthetic_dataset.parquet"
+                        generate_synthetic_dataset(synthetic_path, seed=42)
+                        dataset_path = synthetic_path
+                        metadata = {
+                            "source": "synthetic",
+                            "source_type": "fallback",
+                            "checksum": _calculate_sha256(synthetic_path),
+                            "timestamp": str(pd.Timestamp.now()),
+                            "note": "Synthetic fallback used as explicitly configured"
+                        }
+                    except ImportError:
+                        raise DataFetchError("Synthetic fallback requested but not available.")
+                else:
+                    # Strict fail loudly - no fallback
+                    raise DataFetchError(
+                        "Failed to fetch real data from all sources and synthetic fallback is not explicitly configured. "
+                        "Set ALLOW_SYNTHETIC_FALLBACK=true to enable synthetic data generation."
+                    )
+    
+    # Save metadata
+    metadata_path = output_dir / "dataset_metadata.json"
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=2)
+    
+    logger.info(f"Dataset ingested successfully. Metadata saved to {metadata_path}")
+    return dataset_path, metadata
+
+def filter_candidates(
+    dataset_path: Path,
+    output_path: Path,
+    tags: Optional[List[str]] = None
+) -> Path:
+    """
+    Filter dataset candidates based on metadata tags.
+    
+    Args:
+        dataset_path: Path to the ingested dataset.
+        output_path: Path to save filtered candidates.
+        tags: List of tags to filter by (e.g., 'social', 'conflict').
+    
+    Returns:
+        Path to the filtered candidates file.
+    """
+    seed_everything(42)
+    
+    if tags is None:
+        tags = ["social", "conflict"]
+    
+    logger.info(f"Filtering candidates with tags: {tags}")
+    
+    # Load dataset
+    try:
+        import pandas as pd
+        df = pd.read_parquet(dataset_path)
+    except Exception as e:
+        raise DataIngestionError(f"Failed to load dataset: {str(e)}")
+    
+    # Filter by tags
+    # Assuming there's a 'tags' column in the dataset
+    if "tags" not in df.columns:
+        raise DataIngestionError("Dataset does not contain a 'tags' column.")
+    
+    # Convert tags column to list if it's a string
+    df["tags"] = df["tags"].apply(lambda x: x.split(",") if isinstance(x, str) else x)
+    
+    # Filter rows that contain any of the specified tags
+    mask = df["tags"].apply(lambda x: any(tag in x for tag in tags))
+    filtered_df = df[mask]
+    
+    # Save filtered candidates
+    filtered_df.to_csv(output_path, index=False)
+    logger.info(f"Filtered {len(filtered_df)} candidates. Saved to {output_path}")
+    
+    return output_path
+
+def manipulate_salience(
+    image_path: Path,
+    salience_level: SalienceLevel,
+    output_path: Path,
+    target_region: Optional[Tuple[int, int, int, int]] = None
+) -> Path:
+    """
+    Manipulate salience of an image by adjusting luminance in a target region.
+    
+    Args:
+        image_path: Path to the original image.
+        salience_level: Level of salience to apply (low, medium, high).
+        output_path: Path to save the manipulated image.
+        target_region: Optional bounding box (x, y, width, height) for the target region.
+    
+    Returns:
+        Path to the manipulated image.
+    """
+    seed_everything(42)
+    
+    try:
+        from PIL import Image
+        import numpy as np
+    except ImportError:
+        raise DataIngestionError("PIL and numpy are required for image manipulation.")
+    
+    logger.info(f"Manipulating salience to {salience_level} for {image_path}")
+    
+    # Load image
+    try:
+        img = Image.open(image_path).convert("RGB")
+        img_array = np.array(img)
+    except Exception as e:
+        raise ManipulationFailureError(f"Failed to load image: {str(e)}")
+    
+    # Determine luminance adjustment factor
+    if salience_level == SalienceLevel.LOW:
+        factor = 0.7
+    elif salience_level == SalienceLevel.MEDIUM:
+        factor = 0.85
+    elif salience_level == SalienceLevel.HIGH:
+        factor = 1.15
+    else:
+        raise ValueError(f"Invalid salience level: {salience_level}")
+    
+    # Apply adjustment to target region or whole image
+    if target_region:
+        x, y, w, h = target_region
+        # Ensure region is within image bounds
+        x = max(0, min(x, img_array.shape[1]))
+        y = max(0, min(y, img_array.shape[0]))
+        w = max(1, min(w, img_array.shape[1] - x))
+        h = max(1, min(h, img_array.shape[0] - y))
+        
+        # Apply luminance adjustment to target region
+        img_array[y:y+h, x:x+w] = np.clip(
+            img_array[y:y+h, x:x+w] * factor, 0, 255
+        ).astype(np.uint8)
+    else:
+        # Apply to whole image
+        img_array = np.clip(img_array * factor, 0, 255).astype(np.uint8)
+    
+    # Save manipulated image
+    manipulated_img = Image.fromarray(img_array)
+    manipulated_img.save(output_path)
+    logger.info(f"Salience manipulation complete. Saved to {output_path}")
+    
+    return output_path
+
+def process_salience_manipulation(
+    scenarios: List[Scenario],
+    output_dir: Path,
+    config: Optional[Dict[str, Any]] = None
+) -> List[StimulusVariant]:
+    """
+    Process salience manipulation for a list of scenarios.
+    
+    Args:
+        scenarios: List of Scenario objects to process.
+        output_dir: Directory to save manipulated images.
+        config: Optional configuration dictionary.
+    
+    Returns:
+        List of StimulusVariant objects.
+    """
+    seed_everything(42)
+    
+    if config is None:
+        config = {}
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    salience_levels = [SalienceLevel.LOW, SalienceLevel.MEDIUM, SalienceLevel.HIGH]
+    variants = []
+    
+    for scenario in scenarios:
+        for salience_level in salience_levels:
+            # Generate output path
+            output_filename = f"{scenario.id}_{salience_level.value}.png"
+            output_path = output_dir / output_filename
+            
+            # Get target region from config or use default (center 50% of image)
+            target_region = config.get("target_region")
+            if target_region is None:
+                # Default: center 50% of image
+                # This would need actual image dimensions, so we'll skip for now
+                target_region = None
+            
+            # Perform manipulation
+            try:
+                manipulate_salience(
+                    Path(scenario.image_path),
+                    salience_level,
+                    output_path,
+                    target_region
+                )
+                
+                # Create StimulusVariant
+                variant = StimulusVariant(
+                    id=f"{scenario.id}_{salience_level.value}",
+                    scenario_id=scenario.id,
+                    salience_level=salience_level,
+                    image_path=str(output_path)
+                )
+                variants.append(variant)
+            except Exception as e:
+                logger.error(f"Failed to manipulate {scenario.id} for {salience_level}: {str(e)}")
+                # Log failure but continue with other scenarios
+                continue
+    
+    logger.info(f"Processed {len(variants)} stimulus variants.")
     return variants
 
 def main():
-    """Main entry point for data preparation pipeline."""
+    """Main entry point for data preparation."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Data preparation for visual salience study")
-    parser.add_argument("--dataset", default="visual_genome", help="Dataset name")
-    parser.add_argument("--split", default="train", help="Dataset split")
-    parser.add_argument("--sample-size", type=int, default=DEFAULT_SAMPLE_SIZE, help="Sample size")
-    parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="Random seed")
-    parser.add_argument("--force", action="store_true", help="Force re-download")
+    parser = argparse.ArgumentParser(description="Data Preparation for Visual Salience Project")
+    parser.add_argument("--ingest", action="store_true", help="Ingest dataset")
+    parser.add_argument("--filter", action="store_true", help="Filter candidates")
+    parser.add_argument("--manipulate", action="store_true", help="Manipulate salience")
+    parser.add_argument("--output-dir", type=str, default="data/raw", help="Output directory")
+    parser.add_argument("--dataset-path", type=str, help="Path to dataset")
+    parser.add_argument("--config", type=str, help="Path to config file")
     
     args = parser.parse_args()
     
-    try:
-        # Ingest dataset with reproducibility logging
-        data = ingest_dataset(
-            dataset_name=args.dataset,
-            split=args.split,
-            sample_size=args.sample_size,
-            seed=args.seed,
-            force_redownload=args.force
-        )
+    setup_logging()
+    
+    if args.ingest:
+        output_dir = Path(args.output_dir)
+        dataset_path, metadata = ingest_dataset(output_dir)
+        logger.info(f"Ingested dataset: {dataset_path}")
+        logger.info(f"Metadata: {metadata}")
+    
+    if args.filter:
+        if not args.dataset_path:
+            logger.error("--dataset-path is required for filtering")
+            sys.exit(1)
         
-        # Filter candidates
-        candidates = filter_candidates(data)
-        
-        # Generate manipulated variants
-        variants = process_salience_manipulation(candidates, PROCESSED_DATA_DIR / "images")
-        
-        logger.info("Data preparation completed successfully")
-        return 0
-        
-    except (DataFetchError, DataIngestionError, SemanticChangeError, ManipulationFailureError) as e:
-        logger.error(f"Pipeline failed: {e}")
-        return 1
+        output_path = Path(args.output_dir) / "filtered_candidates.csv"
+        filter_candidates(Path(args.dataset_path), output_path)
+        logger.info(f"Filtered candidates saved to {output_path}")
+    
+    if args.manipulate:
+        # This would need a list of scenarios, which is not provided here
+        logger.warning("Salience manipulation requires a list of scenarios. Skipping.")
+    
+    logger.info("Data preparation complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

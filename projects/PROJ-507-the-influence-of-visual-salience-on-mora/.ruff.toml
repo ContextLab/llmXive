@@ -1,26 +1,25 @@
-# Ruff configuration for llmXive project
-target-version = "py310"
+[lint]
+# Select specific error codes
+select = ["E", "F", "W", "I"]
+
+# Ignore specific rules
+ignore = ["E501"]
+
+# Maximum line length
 line-length = 100
 
-[lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "RUF", # Ruff-specific rules
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B904", # Within an `except` clause, raise exceptions with `raise ... from err`
-]
+# Allow unused variables in certain contexts if needed (optional, default behavior)
+# dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Assert statements allowed in tests
+[format]
+# Use double quotes for strings
+quote-style = "double"
 
-[lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Line ending style
+line-ending = "auto"
