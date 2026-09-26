@@ -1,13 +1,18 @@
 """
-Temporal smoothing module for 1D ROI time-series.
+Temporal Smoothing Module for fMRI ROI Time-Series.
 
-Applies Gaussian temporal smoothing kernels (FWHM) to preprocessed ROI time-series data.
-Implements temporal smoothing as a CPU-tractable equivalent to spatial smoothing,
-mapping spatial kernel sizes to temporal durations (TR=2s).
+This module implements temporal smoothing kernels on 1D ROI time-series data.
+It serves as a CPU-tractable substitute for the spatial smoothing typically
+performed in fMRIPrep, adapted for the temporal dimension as required by
+FR-002 (adapted).
+
+Algorithm: Gaussian kernel with Full Width at Half Maximum (FWHM).
+Sigma calculation: sigma = FWHM / (2 * sqrt(2 * ln(2)))
+Boundary handling: 'reflect' mode.
 
 Mapping:
-  - 4mm spatial -> 4s temporal (2 TRs)
-  - 8mm spatial -> 8s temporal (4 TRs)
+  - 4mm spatial [deferred] -> 4s temporal (TR=2s, kernel_size=2 samples)
+  - 8mm spatial [deferred] -> 8s temporal (TR=2s, kernel_size=4 samples)
 """
 
 import argparse
@@ -18,126 +23,132 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
 
 import numpy as np
-from scipy.signal import convolve
-
-# Import from local project modules
-from utils.seed_manager import set_global_seed
-from utils.timer import log_split
+from scipy.ndimage import gaussian_filter1d
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-DEFAULT_TR = 2.0  # Repetition time in seconds
-DEFAULT_KERNEL_SIZES = [4, 8]  # Temporal kernel sizes in seconds
+DEFAULT_TR = 2.0  # Default repetition time in seconds
+DEFAULT_KERNEL_FWHM = 4.0  # Default FWHM in seconds (maps to 4s temporal)
+DEFAULT_MODE = 'temporal'
 
-
-def _gaussian_kernel_1d(fwhm: float, tr: float = DEFAULT_TR) -> np.ndarray:
+def compute_sigma(fwhm_seconds: float, tr_seconds: float = DEFAULT_TR) -> float:
     """
-    Generate a 1D Gaussian kernel with specified Full Width at Half Maximum (FWHM).
+    Calculate the standard deviation (sigma) for a Gaussian kernel given FWHM.
+
+    Formula: sigma = FWHM / (2 * sqrt(2 * ln(2)))
+    The result is in seconds, which must be converted to samples based on TR.
 
     Args:
-        fwhm: Full width at half maximum in seconds.
-        tr: Repetition time in seconds.
+        fwhm_seconds: Full Width at Half Maximum in seconds.
+        tr_seconds: Repetition time in seconds.
 
     Returns:
-        1D numpy array representing the Gaussian kernel.
+        Sigma in units of samples.
     """
-    # Convert FWHM to standard deviation: sigma = FWHM / (2 * sqrt(2 * ln(2)))
-    sigma = fwhm / (2 * np.sqrt(2 * np.log(2)))
+    if fwhm_seconds <= 0:
+        raise ValueError("FWHM must be positive.")
+    if tr_seconds <= 0:
+        raise ValueError("TR must be positive.")
 
-    # Determine kernel size (odd number of samples)
-    # Kernel width should be at least 3 * sigma on each side
-    kernel_width_samples = int(np.ceil(6 * sigma / tr))
-    if kernel_width_samples % 2 == 0:
-        kernel_width_samples += 1
-
-    # Generate kernel
-    x = np.arange(-kernel_width_samples // 2, kernel_width_samples // 2 + 1) * tr
-    kernel = np.exp(-0.5 * (x / sigma) ** 2)
-
-    # Normalize to sum to 1
-    kernel = kernel / np.sum(kernel)
-
-    return kernel
+    # Sigma in seconds
+    sigma_seconds = fwhm_seconds / (2 * np.sqrt(2 * np.log(2)))
+    # Convert to samples
+    sigma_samples = sigma_seconds / tr_seconds
+    return sigma_samples
 
 
 def apply_temporal_smoothing(
-    timeseries: np.ndarray,
-    kernel_size_seconds: float,
-    tr: float = DEFAULT_TR,
-    boundary_mode: str = 'reflect'
+    time_series: np.ndarray,
+    kernel_fwhm_seconds: float,
+    tr_seconds: float = DEFAULT_TR,
+    mode: str = 'temporal',
+    reflect_threshold: Optional[float] = None
 ) -> np.ndarray:
     """
-    Apply temporal smoothing to a 1D time-series using a Gaussian kernel.
+    Apply temporal smoothing to a 1D ROI time-series using a Gaussian kernel.
+
+    This is a CPU-tractable substitute for fMRIPrep's spatial smoothing,
+    adapted for the temporal dimension.
 
     Args:
-        timeseries: 1D numpy array of time-series values.
-        kernel_size_seconds: Size of the temporal smoothing kernel in seconds.
-        tr: Repetition time in seconds.
-        boundary_mode: Boundary handling mode for convolution ('reflect', 'constant', etc.).
+        time_series: 1D numpy array of ROI time-series data.
+        kernel_fwhm_seconds: Full Width at Half Maximum of the Gaussian kernel in seconds.
+        tr_seconds: Repetition time in seconds.
+        mode: Smoothing mode. Only 'temporal' is supported here as per task requirements.
+              The 'spatial' mode is deferred to spatial_smoothing.py.
+        reflect_threshold: Threshold for reflect mode boundary handling (passed to scipy).
 
     Returns:
         Smoothed 1D numpy array.
+
+    Raises:
+        ValueError: If mode is not 'temporal' or inputs are invalid.
+        TypeError: If time_series is not a numpy array.
     """
-    if timeseries.ndim != 1:
-        raise ValueError(f"Expected 1D time-series, got {timeseries.ndim}D array")
-
-    if len(timeseries) == 0:
-        return timeseries.copy()
-
-    # Generate Gaussian kernel
-    kernel = _gaussian_kernel_1d(kernel_size_seconds, tr)
-
-    # Apply convolution with boundary handling
-    # 'reflect' mode reflects the array at the boundary
-    if boundary_mode == 'reflect':
-        # Manual reflect padding for better control
-        pad_size = len(kernel) // 2
-        if pad_size > 0:
-            padded = np.pad(
-                timeseries,
-                pad_width=pad_size,
-                mode='reflect'
-            )
-            smoothed = convolve(padded, kernel, mode='valid')
-        else:
-            smoothed = timeseries.copy()
-    else:
-        # Use scipy's built-in modes for other cases
-        smoothed = convolve(
-            timeseries,
-            kernel,
-            mode='same',
-            method='direct'
+    if mode != 'temporal':
+        raise ValueError(
+            f"Invalid mode '{mode}'. This function only supports 'temporal' mode. "
+            "For spatial smoothing, use code/preprocess/spatial_smoothing.py."
         )
 
-    return smoothed
+    if not isinstance(time_series, np.ndarray):
+        raise TypeError("time_series must be a numpy array.")
+
+    if time_series.ndim != 1:
+        raise ValueError(f"time_series must be 1D, got {time_series.ndim}D.")
+
+    if kernel_fwhm_seconds <= 0:
+        raise ValueError("kernel_fwhm_seconds must be positive.")
+
+    # Calculate sigma in samples
+    sigma_samples = compute_sigma(kernel_fwhm_seconds, tr_seconds)
+
+    logger.debug(
+        f"Applying temporal smoothing: FWHM={kernel_fwhm_seconds}s, "
+        f"TR={tr_seconds}s, Sigma={sigma_samples:.2f} samples"
+    )
+
+    # Apply Gaussian smoothing with reflect boundary handling
+    # scipy's gaussian_filter1d handles the kernel size calculation internally based on sigma
+    smoothed_data = gaussian_filter1d(
+        time_series,
+        sigma=sigma_samples,
+        mode='reflect',
+        truncate=4.0,  # Standard truncation for Gaussian filters
+        reflect_threshold=reflect_threshold
+    )
+
+    return smoothed_data
 
 
 def load_roi_timeseries(roi_file_path: Path) -> Tuple[np.ndarray, Dict[str, Any]]:
     """
     Load ROI time-series data from a JSON file.
 
-    Expected format:
+    Expected JSON structure:
     {
         "roi_name": "string",
-        "subject_id": "string",
-        "paradigm_id": "string",
-        "timeseries": [float, float, ...],
-        "tr": float,
-        "metadata": {...}
+        "time_series": [float, float, ...],
+        "metadata": { ... }
     }
 
     Args:
         roi_file_path: Path to the JSON file containing ROI data.
 
     Returns:
-        Tuple of (timeseries array, metadata dict).
+        Tuple of (time_series_array, metadata_dict).
+
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+        KeyError: If required fields are missing.
     """
     if not roi_file_path.exists():
         raise FileNotFoundError(f"ROI file not found: {roi_file_path}")
@@ -145,237 +156,232 @@ def load_roi_timeseries(roi_file_path: Path) -> Tuple[np.ndarray, Dict[str, Any]
     with open(roi_file_path, 'r') as f:
         data = json.load(f)
 
-    if 'timeseries' not in data:
-        raise ValueError(f"Missing 'timeseries' key in {roi_file_path}")
+    if 'time_series' not in data:
+        raise KeyError(f"Missing 'time_series' key in {roi_file_path}")
 
-    timeseries = np.array(data['timeseries'], dtype=np.float64)
+    time_series = np.array(data['time_series'], dtype=np.float64)
+    metadata = data.get('metadata', {})
+    metadata['roi_name'] = data.get('roi_name', 'unknown')
 
-    # Extract metadata
-    metadata = {
-        'roi_name': data.get('roi_name', 'unknown'),
-        'subject_id': data.get('subject_id', 'unknown'),
-        'paradigm_id': data.get('paradigm_id', 'unknown'),
-        'tr': data.get('tr', DEFAULT_TR),
-        'original_length': len(timeseries)
-    }
-
-    return timeseries, metadata
+    return time_series, metadata
 
 
 def save_smoothed_timeseries(
-    timeseries: np.ndarray,
-    metadata: Dict[str, Any],
+    smoothed_data: np.ndarray,
+    original_metadata: Dict[str, Any],
     output_path: Path,
-    kernel_size_seconds: float
+  kernel_fwhm_seconds: float,
+    tr_seconds: float,
+    mode: str
 ) -> None:
     """
     Save smoothed time-series data to a JSON file.
 
     Args:
-        timeseries: Smoothed time-series array.
-        metadata: Original metadata dict.
-        output_path: Path to save the JSON file.
-        kernel_size_seconds: Size of the applied smoothing kernel.
+        smoothed_data: 1D numpy array of smoothed data.
+        original_metadata: Metadata from the original data.
+        output_path: Path to save the output JSON file.
+        kernel_fwhm_seconds: The FWHM used for smoothing.
+        tr_seconds: The TR used for smoothing.
+        mode: The mode used for smoothing.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
     output_data = {
-        'roi_name': metadata['roi_name'],
-        'subject_id': metadata['subject_id'],
-        'paradigm_id': metadata['paradigm_id'],
-        'timeseries': timeseries.tolist(),
-        'tr': metadata['tr'],
-        'kernel_size_seconds': kernel_size_seconds,
-        'original_length': metadata['original_length'],
-        'smoothed_length': len(timeseries),
-        'processing_timestamp': str(np.datetime64('now')),
-        'metadata': metadata.get('metadata', {})
+        "roi_name": original_metadata.get('roi_name', 'unknown'),
+        "time_series": smoothed_data.tolist(),
+        "metadata": {
+            **original_metadata,
+            "smoothing_applied": True,
+            "smoothing_type": "temporal_gaussian",
+            "kernel_fwhm_seconds": kernel_fwhm_seconds,
+            "tr_seconds": tr_seconds,
+            "mode": mode,
+            "original_length": len(smoothed_data),
+            "processing_timestamp": str(datetime.now())
+        }
     }
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     with open(output_path, 'w') as f:
         json.dump(output_data, f, indent=2)
 
-    logger.info(f"Saved smoothed timeseries to {output_path}")
+    logger.info(f"Saved smoothed data to {output_path}")
 
 
 def process_single_roi_file(
     input_path: Path,
     output_dir: Path,
-    kernel_size_seconds: float,
-    tr: float = DEFAULT_TR
+    kernel_fwhm_seconds: float,
+    tr_seconds: float = DEFAULT_TR,
+    mode: str = 'temporal'
 ) -> Dict[str, Any]:
     """
     Process a single ROI file: load, smooth, and save.
 
     Args:
-        input_path: Path to input ROI JSON file.
-        output_dir: Directory to save output files.
-        kernel_size_seconds: Size of the temporal smoothing kernel.
-        tr: Repetition time.
+        input_path: Path to the input ROI JSON file.
+        output_dir: Directory to save the smoothed output.
+        kernel_fwhm_seconds: FWHM for the smoothing kernel.
+        tr_seconds: Repetition time.
+        mode: Smoothing mode.
 
     Returns:
-        Dictionary with processing results.
+        Dictionary with processing status and output path.
     """
     try:
+        logger.info(f"Processing {input_path.name}...")
+
         # Load data
-        timeseries, metadata = load_roi_timeseries(input_path)
+        time_series, metadata = load_roi_timeseries(input_path)
 
         # Apply smoothing
-        smoothed_timeseries = apply_temporal_smoothing(
-            timeseries,
-            kernel_size_seconds,
-            tr=tr,
-            boundary_mode='reflect'
+        smoothed_series = apply_temporal_smoothing(
+            time_series,
+            kernel_fwhm_seconds,
+            tr_seconds,
+            mode
         )
 
-        # Generate output filename
-        output_filename = input_path.stem + f"_smoothed_{int(kernel_size_seconds)}s.json"
+        # Prepare output path
+        output_filename = input_path.stem + f"_smoothed_{kernel_fwhm_seconds}s.json"
         output_path = output_dir / output_filename
 
-        # Save results
+        # Save data
         save_smoothed_timeseries(
-            smoothed_timeseries,
+            smoothed_series,
             metadata,
             output_path,
-            kernel_size_seconds
+            kernel_fwhm_seconds,
+            tr_seconds,
+            mode
         )
 
         return {
-            'success': True,
-            'input_file': str(input_path),
-            'output_file': str(output_path),
-            'roi_name': metadata['roi_name'],
-            'subject_id': metadata['subject_id'],
-            'kernel_size_seconds': kernel_size_seconds,
-            'original_length': metadata['original_length'],
-            'smoothed_length': len(smoothed_timeseries)
+            "status": "success",
+            "input_file": str(input_path),
+            "output_file": str(output_path),
+            "roi_name": metadata.get('roi_name', 'unknown'),
+            "original_length": len(time_series),
+            "smoothed_length": len(smoothed_series)
         }
 
     except Exception as e:
-        logger.error(f"Failed to process {input_path}: {str(e)}")
+        logger.error(f"Failed to process {input_path}: {e}", exc_info=True)
         return {
-            'success': False,
-            'input_file': str(input_path),
-            'error': str(e)
+            "status": "failed",
+            "input_file": str(input_path),
+            "error": str(e)
         }
 
 
-def main() -> int:
+def main():
     """
-    Main entry point for temporal smoothing pipeline.
+    Command-line interface for temporal smoothing.
 
-    Processes all ROI files in the input directory with specified kernel sizes.
-    Outputs smoothed files to the designated output directory.
+    Usage:
+        python -m preprocess.temporal_smoothing --input data/derived/roi_data.json --output data/derived/smoothed_roi --fwhm 4.0 --tr 2.0
     """
     parser = argparse.ArgumentParser(
-        description='Apply temporal smoothing to ROI time-series data'
+        description="Apply temporal smoothing to 1D ROI time-series data."
     )
     parser.add_argument(
-        '--input-dir',
-        type=str,
+        "--input", "-i",
+        type=Path,
         required=True,
-        help='Directory containing ROI JSON files'
+        help="Path to input ROI JSON file or directory containing ROI JSON files."
     )
     parser.add_argument(
-        '--output-dir',
-        type=str,
+        "--output", "-o",
+        type=Path,
         required=True,
-        help='Directory to save smoothed ROI files'
+        help="Path to output directory for smoothed data."
     )
     parser.add_argument(
-        '--kernels',
-        type=str,
-        default='4,8',
-        help='Comma-separated list of kernel sizes in seconds (default: 4,8)'
+        "--fwhm",
+        type=float,
+        default=DEFAULT_KERNEL_FWHM,
+        help=f"Full Width at Half Maximum in seconds (default: {DEFAULT_KERNEL_FWHM})"
     )
     parser.add_argument(
-        '--tr',
+        "--tr",
         type=float,
         default=DEFAULT_TR,
-        help=f'Repetition time in seconds (default: {DEFAULT_TR})'
+        help=f"Repetition time in seconds (default: {DEFAULT_TR})"
     )
     parser.add_argument(
-        '--seed',
-        type=int,
-        default=42,
-        help='Random seed for reproducibility'
-    )
-    parser.add_argument(
-        '--log-file',
+        "--mode",
         type=str,
-        default=None,
-        help='Path to save processing log'
+        default=DEFAULT_MODE,
+        choices=['temporal'],
+        help="Smoothing mode. Currently only 'temporal' is supported."
     )
 
     args = parser.parse_args()
 
-    # Set global seed
-    set_global_seed(args.seed)
+    # Validate mode
+    if args.mode != 'temporal':
+        logger.error(f"Mode '{args.mode}' is not supported. Use 'temporal'.")
+        sys.exit(1)
 
-    # Parse kernel sizes
-    kernel_sizes = [float(k.strip()) for k in args.kernels.split(',')]
-    logger.info(f"Applying temporal smoothing with kernel sizes: {kernel_sizes}s")
-    logger.info(f"Using TR = {args.tr}s")
+    logger.info(f"Starting temporal smoothing pipeline.")
+    logger.info(f"Configuration: FWHM={args.fwhm}s, TR={args.tr}s, Mode={args.mode}")
 
-    input_dir = Path(args.input_dir)
-    output_dir = Path(args.output_dir)
+    results = []
 
-    if not input_dir.exists():
-        logger.error(f"Input directory does not exist: {input_dir}")
-        return 1
+    if args.input.is_file():
+        # Process single file
+        result = process_single_roi_file(
+            args.input,
+            args.output,
+            args.fwhm,
+            args.tr,
+            args.mode
+        )
+        results.append(result)
+    elif args.input.is_dir():
+        # Process all JSON files in directory
+        json_files = list(args.input.glob("*.json"))
+        if not json_files:
+            logger.warning(f"No JSON files found in {args.input}")
+        else:
+            logger.info(f"Found {len(json_files)} ROI files to process.")
+            for json_file in json_files:
+                result = process_single_roi_file(
+                    json_file,
+                    args.output,
+                    args.fwhm,
+                    args.tr,
+                    args.mode
+                )
+                results.append(result)
+    else:
+        logger.error(f"Input path does not exist: {args.input}")
+        sys.exit(1)
 
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Summary
+    successful = sum(1 for r in results if r["status"] == "success")
+    failed = sum(1 for r in results if r["status"] == "failed")
 
-    # Find all ROI JSON files
-    roi_files = list(input_dir.glob("*.json"))
-    if not roi_files:
-        logger.warning(f"No JSON files found in {input_dir}")
-        return 0
+    logger.info(f"Processing complete. Success: {successful}, Failed: {failed}")
 
-    logger.info(f"Found {len(roi_files)} ROI files to process")
-
-    # Process results
-    all_results = []
-    processing_log = {
-        'timestamp': str(np.datetime64('now')),
-        'input_dir': str(input_dir),
-        'output_dir': str(output_dir),
-        'kernel_sizes': kernel_sizes,
-        'tr': args.tr,
-        'seed': args.seed,
-        'files_processed': 0,
-        'files_failed': 0,
-        'results': []
-    }
-
-    for kernel_size in kernel_sizes:
-        log_split(f"Processing kernel {kernel_size}s")
-
-        for roi_file in roi_files:
-            result = process_single_roi_file(
-                roi_file,
-                output_dir,
-                kernel_size,
-                args.tr
-            )
-            all_results.append(result)
-            processing_log['results'].append(result)
-
-            if result['success']:
-                processing_log['files_processed'] += 1
-            else:
-                processing_log['files_failed'] += 1
+    if failed > 0:
+        sys.exit(1)
 
     # Save processing log
-    log_path = Path(args.log_file) if args.log_file else output_dir / 'temporal_smoothing_log.json'
+    log_path = args.output / "smoothing_log.json"
     with open(log_path, 'w') as f:
-        json.dump(processing_log, f, indent=2)
+        json.dump({
+            "configuration": {
+                "fwhm_seconds": args.fwhm,
+                "tr_seconds": args.tr,
+                "mode": args.mode
+            },
+            "results": results
+        }, f, indent=2)
 
-    logger.info(f"Processing complete. Log saved to {log_path}")
-    logger.info(f"Successful: {processing_log['files_processed']}, Failed: {processing_log['files_failed']}")
-
-    return 0 if processing_log['files_failed'] == 0 else 1
+    logger.info(f"Processing log saved to {log_path}")
 
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

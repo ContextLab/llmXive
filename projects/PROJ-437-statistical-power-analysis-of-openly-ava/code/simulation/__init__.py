@@ -1,1 +1,3 @@
-# Simulation and noise estimation utilities
+"""
+Simulation and noise estimation modules.
+"""

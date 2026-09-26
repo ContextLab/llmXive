@@ -1,3 +1,3 @@
 """
-Unit tests verifying individual component logic.
+Unit tests package.
 """

@@ -1,1 +1,3 @@
-# Preprocessed and smoothed derived data
+"""
+Derived data (preprocessed, extracted).
+"""

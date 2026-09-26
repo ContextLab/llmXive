@@ -1,1 +1,3 @@
-# Data storage package (raw, derived, aggregated)
+"""
+Data directory root (contains raw, derived, aggregated).
+"""

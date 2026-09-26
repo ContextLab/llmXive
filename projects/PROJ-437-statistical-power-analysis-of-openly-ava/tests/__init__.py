@@ -1,3 +1,3 @@
 """
-Test suite for the Statistical Power Analysis of Openly Available fMRI Datasets.
+Tests package for the llmXive statistical power analysis project.
 """

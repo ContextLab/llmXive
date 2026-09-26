@@ -1,54 +1,69 @@
 """
-Module to create the required data directory structure for the project.
-
-This script ensures that the following directories exist:
-- data/
-- data/raw/
-- data/derived/
-- data/aggregated/
-
-It is idempotent: running it multiple times will not cause errors if the 
-directories already exist.
+Directory creation utility for the llmXive statistical power analysis project.
+This module creates the required data directory structure as specified in T001c.
 """
 import os
 import sys
 from pathlib import Path
+import logging
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def create_data_directories(base_dir: Path = None) -> None:
+def create_data_directories(root_dir: Path) -> None:
     """
-    Create the required data directory hierarchy.
-    
+    Create the required data directory structure.
+
+    Creates:
+    - data/
+    - data/raw/
+    - data/derived/
+    - data/aggregated/
+
     Args:
-        base_dir: The root directory of the project. Defaults to the parent 
-                  of this file's location (assuming standard project structure).
+        root_dir: The project root directory path.
     """
-    if base_dir is None:
-        # Default to the project root (parent of code/data_setup/)
-        base_dir = Path(__file__).resolve().parent.parent.parent
+    data_base = root_dir / "data"
     
-    data_root = base_dir / "data"
-    subdirs = ["raw", "derived", "aggregated"]
+    directories = [
+        data_base,
+        data_base / "raw",
+        data_base / "derived",
+        data_base / "aggregated",
+    ]
+
+    created_count = 0
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            logger.info(f"Directory already exists: {dir_path}")
+
+    logger.info(f"Data directory creation complete. {created_count} new directories created.")
+
+def main() -> int:
+    """
+    Main entry point for the script.
+    Creates data directories relative to the current working directory.
     
-    for subdir in subdirs:
-        target_path = data_root / subdir
-        try:
-            target_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {target_path}")
-        except PermissionError:
-            print(f"Error: Permission denied when creating {target_path}", file=sys.stderr)
-            raise
-        except Exception as e:
-            print(f"Error creating directory {target_path}: {e}", file=sys.stderr)
-            raise
-
-
-def main() -> None:
-    """Entry point for the script."""
-    print("Starting data directory creation...")
-    create_data_directories()
-    print("Data directory creation complete.")
-
+    Returns:
+        0 on success, 1 on failure.
+    """
+    try:
+        # Assume project root is the current working directory
+        root_dir = Path.cwd()
+        logger.info(f"Creating data directories in: {root_dir}")
+        create_data_directories(root_dir)
+        return 0
+    except Exception as e:
+        logger.error(f"Failed to create data directories: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

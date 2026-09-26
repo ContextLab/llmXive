@@ -1,10 +1,14 @@
 """
-Spatial smoothing module for fMRI ROI data.
+Spatial Smoothing Module for fMRI Data (NIfTI).
 
-Implements spatial smoothing kernels (4mm, 8mm) on preprocessed data.
-Generates derived dataset filenames using a pipeline_config_hash.
+This module implements spatial smoothing kernels (4mm, 8mm) on 3D/4D NIfTI data.
+It is distinct from temporal_smoothing.py (T013) which operates on 1D ROI time-series.
+This module operates on the volumetric data directly or on extracted 3D/4D masks.
 
-Primary requirement for FR-002 and US-3.
+Dependencies:
+  - nibabel: For NIfTI I/O
+  - scipy: For Gaussian convolution
+  - numpy: For array manipulation
 """
 
 import argparse
@@ -15,10 +19,12 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Union
 
-import nibabel as nib
 import numpy as np
+import nibabel as nib
 from scipy.ndimage import gaussian_filter
 
+# Project imports
+from models.simulation_config import SimulationConfig
 from utils.seed_manager import set_global_seed
 
 # Configure logging
@@ -28,317 +34,272 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def compute_pipeline_config_hash(
-    roi_mask: str,
-    kernel_size: float,
-    smoothing_type: str = 'spatial'
-) -> str:
-    """
-    Compute a deterministic hash for the pipeline configuration.
-    
-    Args:
-        roi_mask: Path or name of the ROI mask used
-        kernel_size: Smoothing kernel size in mm
-        smoothing_type: Type of smoothing ('spatial' or 'temporal')
-        
-    Returns:
-        A hexadecimal hash string for the configuration
-    """
-    config_str = f"{roi_mask}_{kernel_size}_{smoothing_type}"
-    return hashlib.sha256(config_str.encode()).hexdigest()[:16]
 
-def load_smoothed_timeseries(input_path: Path) -> np.ndarray:
+class SpatialSmoothingError(Exception):
+    """Custom exception for spatial smoothing failures."""
+    pass
+
+
+def compute_pipeline_config_hash(config: SimulationConfig) -> str:
     """
-    Load preprocessed ROI timeseries data.
-    
-    Args:
-        input_path: Path to the input NIfTI file containing ROI data
-        
-    Returns:
-        3D numpy array (x, y, t) or 4D (x, y, z, t)
+    Compute a deterministic hash of the pipeline configuration.
+    This ensures derived data filenames reflect the exact parameters used.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    img = nib.load(input_path)
-    data = img.get_fdata()
-    
-    logger.info(f"Loaded data with shape: {data.shape}")
-    return data
+    config_dict = {
+        'smoothing_kernel_mm': getattr(config, 'smoothing_kernel', 4.0),
+        'random_seed': config.random_seed,
+        'sample_size_target': config.sample_size_target
+    }
+    json_str = json.dumps(config_dict, sort_keys=True)
+    return hashlib.sha256(json_str.encode()).hexdigest()[:16]
+
+
+def load_smoothed_timeseries(roi_path: Path) -> Tuple[np.ndarray, nib.Nifti1Image]:
+    """
+    Load ROI time-series data from a NIfTI file.
+    Returns the data array and the affine/header info for reconstruction.
+    """
+    if not roi_path.exists():
+        raise SpatialSmoothingError(f"ROI file not found: {roi_path}")
+
+    try:
+        img = nib.load(str(roi_path))
+        data = img.get_fdata()
+        return data, img
+    except Exception as e:
+        raise SpatialSmoothingError(f"Failed to load NIfTI {roi_path}: {e}")
+
 
 def apply_spatial_smoothing(
     data: np.ndarray,
-    kernel_size_mm: float,
-    tr: float = 2.0,
-    voxelsize_mm: Tuple[float, float, float] = (2.0, 2.0, 2.0)
+    kernel_mm: float,
+    voxel_sizes: Tuple[float, float, float],
+    mode: str = 'reflect'
 ) -> np.ndarray:
     """
-    Apply Gaussian spatial smoothing to fMRI data.
-    
-    Converts kernel size from mm to voxels and applies Gaussian filter.
-    Boundary handling uses 'reflect' mode as specified.
-    
+    Apply spatial Gaussian smoothing to 3D or 4D NIfTI data.
+
     Args:
-        data: 4D numpy array (x, y, z, t) or 3D (x, y, t)
-        kernel_size_mm: Full Width at Half Maximum (FWHM) in mm
-        tr: Repetition time in seconds (for reference)
-        voxelsize_mm: Voxel dimensions in mm (x, y, z)
-        
+        data: 3D (x, y, z) or 4D (x, y, z, t) numpy array.
+        kernel_mm: Full Width at Half Maximum (FWHM) in millimeters.
+        voxel_sizes: Tuple (dx, dy, dz) in millimeters.
+        mode: Boundary handling mode for scipy.ndimage (default 'reflect').
+
     Returns:
-        Smoothed data array with same shape as input
+        Smoothed numpy array of the same shape.
     """
-    # Convert FWHM to standard deviation in voxels
-    # FWHM = sigma * sqrt(8 * ln(2)) => sigma = FWHM / sqrt(8 * ln(2))
-    sigma_voxels = kernel_size_mm / np.sqrt(8 * np.log(2))
-    
-    # Convert to voxels based on voxel size
-    sigma_x = sigma_voxels / voxelsize_mm[0]
-    sigma_y = sigma_voxels / voxelsize_mm[1]
-    sigma_z = sigma_voxels / voxelsize_mm[2] if len(data.shape) == 4 else 0.0
-    
-    # Create sigma tuple for gaussian_filter
-    # For 4D data: (sigma_x, sigma_y, sigma_z, 0) - no smoothing in time dimension
-    if len(data.shape) == 4:
-        sigma = (sigma_x, sigma_y, sigma_z, 0.0)
+    if data.ndim not in (3, 4):
+        raise SpatialSmoothingError(f"Expected 3D or 4D data, got {data.ndim}D")
+
+    if kernel_mm <= 0:
+        logger.warning("Kernel size <= 0. Returning unsmoothed data.")
+        return data
+
+    # Calculate sigma in voxels: sigma = FWHM / (2 * sqrt(2 * ln(2)))
+    # Standard Gaussian conversion: sigma = FWHM / 2.35482
+    sigma_factor = 2.35482
+    sigma_voxels = kernel_mm / sigma_factor
+
+    # Calculate sigma for each dimension based on voxel size
+    # sigma_voxel_dim = sigma_voxels / voxel_size
+    sigmas = [sigma_voxels / v for v in voxel_sizes]
+
+    # If 4D, we only smooth the spatial dimensions (0, 1, 2), not time (3)
+    if data.ndim == 4:
+        # Apply filter to spatial dimensions only
+        # scipy.ndimage.gaussian_filter allows specifying axes
+        # We need to construct a sigma list where time dimension sigma is 0
+        sigmas_4d = list(sigmas) + [0.0]
+        smoothed_data = gaussian_filter(data, sigma=sigmas_4d, mode=mode)
     else:
-        # 3D data (x, y, t) - assume no z dimension
-        sigma = (sigma_x, sigma_y, 0.0)
-    
-    # Apply Gaussian filter with reflect boundary handling
-    smoothed_data = gaussian_filter(
-        data,
-        sigma=sigma,
-        mode='reflect'
-    )
-    
-    logger.info(f"Applied spatial smoothing with {kernel_size_mm}mm FWHM")
-    logger.info(f"Sigma in voxels: {sigma}")
-    
+        smoothed_data = gaussian_filter(data, sigma=sigmas, mode=mode)
+
     return smoothed_data
+
 
 def save_smoothed_data(
     smoothed_data: np.ndarray,
+    original_img: nib.Nifti1Image,
     output_path: Path,
-    reference_path: Path
+    kernel_mm: float
 ) -> None:
     """
-    Save smoothed data to NIfTI file, preserving affine and header.
-    
-    Args:
-        smoothed_data: Smoothed numpy array
-        output_path: Path to save the output NIfTI file
-        reference_path: Path to reference NIfTI file (for affine/header)
+    Save smoothed data to a new NIfTI file.
+    The filename will include the kernel size to distinguish versions.
     """
-    reference_img = nib.load(reference_path)
-    affine = reference_img.affine
-    header = reference_img.header.copy()
-    
-    # Create new NIfTI image
-    smoothed_img = nib.Nifti1Image(smoothed_data, affine, header)
-    
-    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to disk
-    nib.save(smoothed_img, output_path)
-    logger.info(f"Saved smoothed data to: {output_path}")
+
+    # Create new NIfTI image with same affine and header
+    smoothed_img = nib.Nifti1Image(smoothed_data, original_img.affine, header=original_img.header)
+
+    try:
+        nib.save(smoothed_img, str(output_path))
+        logger.info(f"Saved smoothed data to {output_path} (Kernel: {kernel_mm}mm)")
+    except Exception as e:
+        raise SpatialSmoothingError(f"Failed to save smoothed data to {output_path}: {e}")
+
 
 def process_single_roi_file(
     input_path: Path,
     output_dir: Path,
-    kernel_size_mm: float,
-    roi_mask_name: str,
-    voxelsize_mm: Tuple[float, float, float] = (2.0, 2.0, 2.0)
+    kernel_mm: float,
+    voxel_sizes: Optional[Tuple[float, float, float]] = None
 ) -> Path:
     """
-    Process a single ROI file: load, smooth, and save.
-    
+    Process a single ROI NIfTI file: load, smooth, and save.
+
     Args:
-        input_path: Path to input ROI file
-        output_dir: Directory to save output file
-        kernel_size_mm: Smoothing kernel size in mm
-        roi_mask_name: Name of the ROI mask for hashing
-        voxelsize_mm: Voxel dimensions
-        
+        input_path: Path to input NIfTI file.
+        output_dir: Directory to write output.
+        kernel_mm: Smoothing kernel FWHM in mm.
+        voxel_sizes: Optional override for voxel sizes (otherwise derived from header).
+
     Returns:
-        Path to the output file
+        Path to the saved output file.
     """
-    # Compute pipeline config hash
-    config_hash = compute_pipeline_config_hash(
-        roi_mask=roi_mask_name,
-        kernel_size=kernel_size_mm,
-        smoothing_type='spatial'
-    )
-    
-    # Generate output filename with hash
-    input_stem = input_path.stem
-    output_filename = f"{config_hash}_{input_stem}_smoothed.nii.gz"
+    data, img = load_smoothed_timeseries(input_path)
+
+    if voxel_sizes is None:
+        # Derive from affine
+        affine = img.affine
+        # Extract voxel sizes from the upper 3x3 block of affine
+        # This is an approximation; for precise values, one might use img.header.get_zooms()
+        voxel_sizes = tuple(img.header.get_zooms()[:3])
+
+    logger.info(f"Applying {kernel_mm}mm spatial smoothing to {input_path.name}...")
+    smoothed_data = apply_spatial_smoothing(data, kernel_mm, voxel_sizes)
+
+    # Construct output filename: <basename>_smoothed_<kernel>mm.nii.gz
+      # Ensure output_dir exists
+    output_dir.mkdir(parents=True, exist_ok=True)
+    stem = input_path.stem
+    output_filename = f"{stem}_smoothed_{kernel_mm}mm.nii.gz"
     output_path = output_dir / output_filename
-    
-    # Skip if already processed
-    if output_path.exists():
-        logger.info(f"Output already exists, skipping: {output_path}")
-        return output_path
-    
-    # Load data
-    logger.info(f"Loading data from: {input_path}")
-    data = load_smoothed_timeseries(input_path)
-    
-    # Apply spatial smoothing
-    smoothed_data = apply_spatial_smoothing(
-        data=data,
-        kernel_size_mm=kernel_size_mm,
-        voxelsize_mm=voxelsize_mm
-    )
-    
-    # Save smoothed data
-    save_smoothed_data(
-        smoothed_data=smoothed_data,
-        output_path=output_path,
-        reference_path=input_path
-    )
-    
+
+    save_smoothed_data(smoothed_data, img, output_path, kernel_mm)
+
     return output_path
+
 
 def process_roi_directory(
     input_dir: Path,
     output_dir: Path,
-    kernel_sizes: List[float],
-    roi_mask_name: str,
-    voxelsize_mm: Tuple[float, float, float] = (2.0, 2.0, 2.0)
-) -> Dict[str, List[Path]]:
+    kernel_mm: float,
+    config: Optional[SimulationConfig] = None
+) -> List[Path]:
     """
-    Process all ROI files in a directory with multiple kernel sizes.
-    
-    Args:
-        input_dir: Directory containing input ROI files
-        output_dir: Directory to save output files
-        kernel_sizes: List of kernel sizes in mm (e.g., [4.0, 8.0])
-        roi_mask_name: Name of the ROI mask for hashing
-        voxelsize_mm: Voxel dimensions
-        
-    Returns:
-        Dictionary mapping kernel size to list of output paths
-    """
-    results = {}
-    
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Find all NIfTI files
-    nifti_files = list(input_dir.glob("*.nii.gz")) + list(input_dir.glob("*.nii"))
-    
-    if not nifti_files:
-        logger.warning(f"No NIfTI files found in: {input_dir}")
-        return results
-    
-    logger.info(f"Found {len(nifti_files)} ROI files to process")
-    
-    for kernel_size in kernel_sizes:
-        results[kernel_size] = []
-        logger.info(f"Processing with kernel size: {kernel_size}mm")
-        
-        for input_path in nifti_files:
-            output_path = process_single_roi_file(
-                input_path=input_path,
-                output_dir=output_dir,
-                kernel_size_mm=kernel_size,
-                roi_mask_name=roi_mask_name,
-                voxelsize_mm=voxelsize_mm
-            )
-            results[kernel_size].append(output_path)
-    
-    return results
+    Process all NIfTI files in a directory (e.g., an ROI directory).
 
-def main():
-    """Main entry point for spatial smoothing CLI."""
+    Args:
+        input_dir: Directory containing input NIfTI files.
+        output_dir: Directory to write output files.
+        kernel_mm: Smoothing kernel FWHM in mm.
+        config: Optional SimulationConfig to include in metadata.
+
+    Returns:
+        List of paths to saved output files.
+    """
+    if not input_dir.exists():
+        raise SpatialSmoothingError(f"Input directory does not exist: {input_dir}")
+
+    # Set seed if config provided
+    if config:
+        set_global_seed(config.random_seed)
+
+    nifti_files = list(input_dir.glob("*.nii")) + list(input_dir.glob("*.nii.gz"))
+    if not nifti_files:
+        logger.warning(f"No NIfTI files found in {input_dir}")
+        return []
+
+    output_paths = []
+    for nifti_file in nifti_files:
+        try:
+            out_path = process_single_roi_file(nifti_file, output_dir, kernel_mm)
+            output_paths.append(out_path)
+        except SpatialSmoothingError as e:
+            logger.error(f"Skipping {nifti_file} due to error: {e}")
+        except Exception as e:
+            logger.error(f"Unexpected error processing {nifti_file}: {e}")
+
+    return output_paths
+
+
+def main() -> None:
+    """
+    CLI entry point for spatial smoothing.
+    Usage: python -m preprocess.spatial_smoothing --input_dir <path> --output_dir <path> --kernel 4
+    """
     parser = argparse.ArgumentParser(
-        description="Apply spatial smoothing to preprocessed fMRI ROI data"
+        description="Apply spatial smoothing to fMRI NIfTI data."
     )
     parser.add_argument(
-        "--input-dir",
+        "--input_dir",
         type=Path,
         required=True,
-        help="Directory containing input ROI files"
+        help="Directory containing input NIfTI files."
     )
     parser.add_argument(
-        "--output-dir",
+        "--output_dir",
         type=Path,
         required=True,
-        help="Directory to save smoothed ROI files"
+        help="Directory to write smoothed output files."
     )
     parser.add_argument(
-        "--kernels",
+        "--kernel",
         type=float,
-        nargs="+",
-        default=[4.0, 8.0],
-        help="Smoothing kernel sizes in mm (default: 4.0 8.0)"
-    )
-    parser.add_argument(
-        "--roi-mask",
-        type=str,
-        default="aal_atlas",
-        help="Name of ROI mask used (for config hash)"
-    )
-    parser.add_argument(
-        "--voxelsize",
-        type=float,
-        nargs=3,
-        default=(2.0, 2.0, 2.0),
-        help="Voxel dimensions in mm (x y z)"
+        required=True,
+        help="Smoothing kernel FWHM in mm (e.g., 4, 8)."
     )
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Random seed for reproducibility"
+        help="Random seed for reproducibility."
     )
-    
+
     args = parser.parse_args()
-    
-    # Set global seed
-    set_global_seed(args.seed)
-    
-    logger.info(f"Spatial smoothing started")
-    logger.info(f"Input directory: {args.input_dir}")
-    logger.info(f"Output directory: {args.output_dir}")
-    logger.info(f"Kernel sizes: {args.kernels}")
-    logger.info(f"ROI mask: {args.roi_mask}")
-    
-    # Process ROI directory
-    results = process_roi_directory(
-        input_dir=args.input_dir,
-        output_dir=args.output_dir,
-        kernel_sizes=args.kernels,
-        roi_mask_name=args.roi_mask,
-        voxelsize_mm=tuple(args.voxelsize)
-    )
-    
-    # Log summary
-    total_files = sum(len(paths) for paths in results.values())
-    logger.info(f"Processing complete. Processed {total_files} files across {len(results)} kernel sizes")
-    
-    # Save manifest
-    manifest_path = args.output_dir / "spatial_smoothing_manifest.json"
-    manifest = {
-        "input_dir": str(args.input_dir),
-        "output_dir": str(args.output_dir),
-        "kernel_sizes": args.kernels,
-        "roi_mask": args.roi_mask,
-        "voxelsize": args.voxelsize,
-        "seed": args.seed,
-        "results": {
-            str(k): [str(p) for p in paths]
-            for k, paths in results.items()
-        }
-    }
-    
-    with open(manifest_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Manifest saved to: {manifest_path}")
-    
-    return 0
+
+    # Basic validation
+    if args.kernel <= 0:
+        logger.error("Kernel size must be positive.")
+        sys.exit(1)
+
+    try:
+        # Create a minimal config for seed management if needed
+        config = SimulationConfig(
+            sample_size_target=10,
+            smoothing_kernel=args.kernel,
+            num_iterations=1,
+            random_seed=args.seed
+        )
+
+        output_paths = process_roi_directory(
+            input_dir=args.input_dir,
+            output_dir=args.output_dir,
+            kernel_mm=args.kernel,
+            config=config
+        )
+
+        logger.info(f"Completed spatial smoothing. Processed {len(output_paths)} files.")
+
+        # Log results to a JSON manifest if files were produced
+        if output_paths:
+            manifest_path = args.output_dir / "spatial_smoothing_manifest.json"
+            manifest = {
+                "kernel_mm": args.kernel,
+                "input_dir": str(args.input_dir),
+                "output_dir": str(args.output_dir),
+                "files": [str(p) for p in output_paths],
+                "seed": args.seed
+            }
+            with open(manifest_path, 'w') as f:
+                json.dump(manifest, f, indent=2)
+            logger.info(f"Manifest saved to {manifest_path}")
+
+    except Exception as e:
+        logger.error(f"Spatial smoothing pipeline failed: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

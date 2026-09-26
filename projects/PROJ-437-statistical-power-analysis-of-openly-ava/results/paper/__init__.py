@@ -1,1 +1,3 @@
-# Final paper artifacts and reports
+"""
+Final reports and paper artifacts.
+"""

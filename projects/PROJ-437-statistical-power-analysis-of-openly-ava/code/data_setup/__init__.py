@@ -1,1 +1,3 @@
-"""Data setup package for llmXive statistical power analysis."""
+"""
+Data setup utilities package.
+"""

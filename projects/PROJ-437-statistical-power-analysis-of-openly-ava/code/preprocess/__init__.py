@@ -1,1 +1,3 @@
-# Preprocessing and ROI extraction utilities
+"""
+Preprocessing modules for fMRI data.
+"""

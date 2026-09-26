@@ -1,1 +1,3 @@
-# Statistical analysis and power curve generation
+"""
+Analysis, GLM, and power curve generation modules.
+"""

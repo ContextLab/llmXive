@@ -1,1 +1,3 @@
-# Data models and configuration entities
+"""
+Data models and configuration entities.
+"""

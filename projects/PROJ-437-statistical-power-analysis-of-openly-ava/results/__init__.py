@@ -1,1 +1,3 @@
-# Results output package
+"""
+Results directory root.
+"""

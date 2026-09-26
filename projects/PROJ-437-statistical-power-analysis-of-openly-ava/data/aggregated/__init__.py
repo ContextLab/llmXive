@@ -1,1 +1,3 @@
-# Aggregated statistical results
+"""
+Aggregated results (power curves, statistics).
+"""

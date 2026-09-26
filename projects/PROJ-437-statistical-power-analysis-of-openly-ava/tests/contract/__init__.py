@@ -1,3 +1,3 @@
 """
-Contract tests verifying interfaces and data schemas.
+Contract tests package.
 """
