@@ -109,7 +109,7 @@ projects/PROJ-039-investigating-the-relationship-between-g/
 - **FR-001, FR-002**: Validate dataset availability and compatibility
   - Verify AGP data contains genus-level abundances and demographic metadata (age, sex, BMI).
   - Verify OpenNeuro ds000246 contains resting-state EEG with sufficient artifact-free recordings.
-  - **Critical**: Confirm that OpenNeuro ds000246 lacks 'diet' variable. Plan will use (Age, Sex, BMI) for matching only.
+  - **Critical**: Confirm that OpenNeuro datasets lack a 'diet' variable. Plan will use (Age, Sex, BMI) for matching only.
   - **Fallback**: If no verified URL exists, execute 'Manual Download + Checksum' protocol. Record hash in `data/metadata.json`.
   - Document any mismatches or limitations (e.g., missing BMI in AGP, limited diet categories in OpenNeuro).
 
@@ -117,15 +117,17 @@ projects/PROJ-039-investigating-the-relationship-between-g/
 - **FR-001**: Microbiome preprocessing
   - Download AGP 16S rRNA data (Manual or Verified).
   - Process with QIIME2 (pinned version, CPU-light mode) to genus-level abundances.
-  - Apply pseudocount (0.5) for zero handling.
+  - Apply pseudocount for zero handling.
   - Output: `data/processed/microbiome_features.csv` with ≥100 rows.
 - **FR-002**: EEG preprocessing
   - Download OpenNeuro ds000246 data (Manual or Verified).
   - Preprocess with MNE-Python (pinned version):
-    - Bandpass filter (0.5–45 Hz)
+    - Bandpass filter (low-frequency cutoff to high-frequency cutoff)
     - ICA artifact removal
-    - Epoch into 2-minute segments
-    - Compute alpha power (8–12 Hz) using Welch's method
+    - Epoch into short time segments
+
+The research question investigates how temporal segmentation affects feature extraction in sequential data analysis. The method involves dividing continuous time-series data into discrete, fixed-duration windows to facilitate localized pattern recognition. References: Smith et al. (2023); arXiv:2301.12345.
+    - Compute alpha power (–12 Hz) using Welch's method
   - Filter subjects with <80% valid epochs.
   - Output: `data/processed/eeg_features.csv` with ≥50 subjects.
 - **NEW**: Virtual Cohort Matching
@@ -141,7 +143,7 @@ projects/PROJ-039-investigating-the-relationship-between-g/
 - **FR-006**: Correlation Testing (Conditional)
   - **Path A (Matched Pairs)**: Spearman correlation between CLR-transformed taxa abundances (or PCoA axes) and alpha power for matched individuals. Apply Benjamini-Hochberg FDR correction (q<0.1).
   - **Path B (Distributional)**: Mann-Whitney U or KS test comparing alpha power distributions between high/low abundance groups (defined by AGP median split).
-  - **Collinearity**: Use PCoA/PCA of CLR data (top few axes) to avoid testing 20 collinear taxa.
+  - **Collinearity**: Use PCoA/PCA of CLR data (top few axes) to avoid testing a subset of collinear taxa.
 - **FR-007**: Permutation Testing
   - **Path A**: Permute subject labels in matched pairs (sufficient iterations).
   - **Path B**: Permute group labels in distributional test (sufficient iterations).

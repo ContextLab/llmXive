@@ -1,7 +1,6 @@
 """
-Schema validation module for Gut Microbiome and EEG data.
-Implements validation using jsonschema based on contracts/dataset.schema.yaml 
-and contracts/output.schema.yaml.
+Schema validation utilities for the Gut Microbiome - EEG Alpha Power project.
+Validates data against contracts/dataset.schema.yaml and contracts/output.schema.yaml.
 """
 import os
 import sys
@@ -9,154 +8,124 @@ import json
 import yaml
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Union
-import jsonschema
-from jsonschema import validate, ValidationError, Draft7Validator
+from typing import Dict, Any, List, Optional, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+try:
+    import jsonschema
+    from jsonschema import validate, ValidationError, Draft7Validator
+except ImportError:
+    print("ERROR: jsonschema library is required. Install via: pip install jsonschema")
+    sys.exit(1)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from config import get_project_root
+from logging_config import get_logger
+
+logger = get_logger(__name__)
+
+# Paths relative to project root
+PROJECT_ROOT = get_project_root()
+DATASET_SCHEMA_PATH = PROJECT_ROOT / "contracts" / "dataset.schema.yaml"
+OUTPUT_SCHEMA_PATH = PROJECT_ROOT / "contracts" / "output.schema.yaml"
+
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """Load a JSON Schema from a YAML file."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
 class SchemaValidator:
-    """
-    A class to validate data against JSON schemas.
-    """
+    """Validates data dictionaries against defined schemas."""
     
-    def __init__(self, schema_path: str):
-        """
-        Initialize the SchemaValidator with a schema file path.
-        
-        Args:
-            schema_path: Path to the JSON schema file (YAML or JSON)
-        """
-        self.schema_path = Path(schema_path)
-        self.schema = self._load_schema()
-        self.validator = Draft7Validator(self.schema)
-        
-    def _load_schema(self) -> Dict[str, Any]:
-        """
-        Load the schema from a YAML or JSON file.
-        
-        Returns:
-            The schema as a dictionary.
-        """
-        if not self.schema_path.exists():
-            raise FileNotFoundError(f"Schema file not found: {self.schema_path}")
-        
-        with open(self.schema_path, 'r') as f:
-            if self.schema_path.suffix in ['.yaml', '.yml']:
-                return yaml.safe_load(f)
-            elif self.schema_path.suffix == '.json':
-                return json.load(f)
-            else:
-                raise ValueError(f"Unsupported schema file format: {self.schema_path.suffix}")
-    
-    def validate(self, data: Union[Dict[str, Any], List[Dict[str, Any]]]) -> bool:
-        """
-        Validate data against the loaded schema.
-        
-        Args:
-            data: The data to validate (single record or list of records)
-            
-        Returns:
-            True if validation passes, False otherwise.
-            
-        Raises:
-            ValidationError: If validation fails.
-        """
-        try:
-            if isinstance(data, list):
-                # Validate each item in the list
-                for i, item in enumerate(data):
-                    validate(instance=item, schema=self.schema)
-                    logger.debug(f"Record {i} passed validation")
-            else:
-                # Validate single record
-                validate(instance=data, schema=self.schema)
-                logger.debug("Single record passed validation")
-                
-            return True
-        except ValidationError as e:
-            logger.error(f"Validation failed: {e.message}")
-            logger.error(f"Path: {list(e.path)}")
-            raise
-    
-    def validate_file(self, file_path: str, is_list: bool = True) -> bool:
-        """
-        Validate a JSON or YAML file against the schema.
-        
-        Args:
-            file_path: Path to the data file
-            is_list: Whether the file contains a list of records (default: True)
-            
-        Returns:
-            True if validation passes, False otherwise.
-        """
-        data_path = Path(file_path)
-        if not data_path.exists():
-            raise FileNotFoundError(f"Data file not found: {data_path}")
-        
-        with open(data_path, 'r') as f:
-            if data_path.suffix in ['.yaml', '.yml']:
-                data = yaml.safe_load(f)
-            elif data_path.suffix == '.json':
-                data = json.load(f)
-            else:
-                raise ValueError(f"Unsupported data file format: {data_path.suffix}")
-        
-        return self.validate(data)
+    def __init__(self):
+        self.dataset_schema = load_schema(DATASET_SCHEMA_PATH)
+        self.output_schema = load_schema(OUTPUT_SCHEMA_PATH)
+        self.dataset_validator = Draft7Validator(self.dataset_schema)
+        self.output_validator = Draft7Validator(self.output_schema)
 
-def validate_artifacts() -> bool:
-    """
-    Validate all required artifacts against their schemas.
-    
-    Returns:
-        True if all validations pass, False otherwise.
-    """
-    dataset_schema_path = project_root / "contracts" / "dataset.schema.yaml"
-    output_schema_path = project_root / "contracts" / "output.schema.yaml"
-    
-    # Validate dataset schema exists
-    if not dataset_schema_path.exists():
-        logger.error(f"Dataset schema not found: {dataset_schema_path}")
-        return False
-        
-    # Validate output schema exists
-    if not output_schema_path.exists():
-        logger.error(f"Output schema not found: {output_schema_path}")
-        return False
-    
-    try:
-        # Initialize validators
-        dataset_validator = SchemaValidator(str(dataset_schema_path))
-        output_validator = SchemaValidator(str(output_schema_path))
-        
-        logger.info("Dataset and Output schemas loaded successfully.")
+    def validate_dataset_record(self, record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+        """
+        Validate a single dataset record (row) against the dataset schema.
+        Returns (is_valid, error_message).
+        """
+        errors = list(self.dataset_validator.iter_errors(record))
+        if errors:
+            error_msgs = [f"{e.path}: {e.message}" for e in errors]
+            return False, "; ".join(error_msgs)
+        return True, None
+
+    def validate_output_record(self, record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+        """
+        Validate a single output record (stratum summary) against the output schema.
+        Returns (is_valid, error_message).
+        """
+        errors = list(self.output_validator.iter_errors(record))
+        if errors:
+            error_msgs = [f"{e.path}: {e.message}" for e in errors]
+            return False, "; ".join(error_msgs)
+        return True, None
+
+    def validate_artifacts(self, artifact_path: Path, schema_type: str = "output") -> bool:
+        """
+        Validate a JSON artifact file against the appropriate schema.
+        schema_type: 'dataset' or 'output'
+        """
+        if not artifact_path.exists():
+            logger.error(f"Artifact file not found: {artifact_path}")
+            return False
+
+        try:
+            with open(artifact_path, 'r') as f:
+                data = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.error(f"Invalid JSON in {artifact_path}: {e}")
+            return False
+
+        if schema_type == "output":
+            validator = self.output_validator
+        elif schema_type == "dataset":
+            validator = self.dataset_validator
+        else:
+            logger.error(f"Unknown schema type: {schema_type}")
+            return False
+
+        errors = list(validator.iter_errors(data))
+        if errors:
+            for error in errors:
+                path_str = ".".join(map(str, error.path))
+                logger.error(f"Validation error at {path_str}: {error.message}")
+            return False
+
+        logger.info(f"Artifact {artifact_path} validated successfully against {schema_type} schema.")
         return True
-    except Exception as e:
-        logger.error(f"Failed to initialize validators: {e}")
-        return False
 
 def main():
-    """
-    Main function to run schema validation.
-    """
-    logger.info("Starting schema validation...")
-    
-    # Check if schemas exist and are valid
-    if not validate_artifacts():
-        logger.error("Schema validation failed.")
+    """Run schema validation on known artifacts."""
+    # Define artifacts to validate based on project structure
+    artifacts_to_check = [
+        ("artifacts/strata_report.json", "output"),
+        ("artifacts/correlation_results.json", "output"), # Assuming it follows output-like structure or needs specific schema
+        ("artifacts/analysis_results.json", "output"),
+    ]
+
+    validator = SchemaValidator()
+    all_passed = True
+
+    for rel_path, schema_type in artifacts_to_check:
+        full_path = PROJECT_ROOT / rel_path
+        if full_path.exists():
+            if not validator.validate_artifacts(full_path, schema_type):
+                all_passed = False
+        else:
+            logger.warning(f"Skipping validation, file not found: {full_path}")
+
+    if not all_passed:
+        logger.error("Schema validation failed for one or more artifacts.")
         sys.exit(1)
-    
-    logger.info("Schema validation completed successfully.")
-    sys.exit(0)
+    else:
+        logger.info("All artifacts passed schema validation.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

@@ -1,128 +1,91 @@
-"""
-Unit tests for checksum_utils module.
-"""
 import os
 import tempfile
-import hashlib
 from pathlib import Path
 import pytest
-
-import sys
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
-from checksum_utils import compute_checksum, generate_checksums, verify_checksums, update_checksum_for_file
+from checksum_utils import compute_checksum, generate_checksums, verify_checksums
 
 @pytest.fixture
-def temp_dir():
-    """Create a temporary directory for testing."""
+def temp_data_dir():
+    """Create a temporary directory with test files."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+        data_dir = Path(tmpdir) / 'data'
+        data_dir.mkdir()
+        
+        # Create a test file with known content
+        test_file = data_dir / 'test.txt'
+        test_file.write_text("Hello, World!")
+        
+        # Create a subdirectory with another file
+        subdir = data_dir / 'subdir'
+        subdir.mkdir()
+        sub_file = subdir / 'nested.txt'
+        sub_file.write_text("Nested content")
+        
+        yield data_dir
 
-def test_compute_checksum(temp_dir):
-    """Test that compute_checksum returns correct SHA256 hash."""
-    # Create a test file
-    test_file = temp_dir / "test.txt"
-    content = b"Hello, World!"
-    test_file.write_bytes(content)
+def test_compute_checksum(temp_data_dir):
+    """Test SHA256 computation on a known file."""
+    file_path = temp_data_dir / 'test.txt'
+    checksum = compute_checksum(file_path)
+    
+    # Known SHA256 for "Hello, World!"
+    expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+    assert checksum == expected
 
-    expected_hash = hashlib.sha256(content).hexdigest()
-    actual_hash = compute_checksum(test_file)
-
-    assert actual_hash == expected_hash
-
-def test_compute_checksum_nonexistent_file(temp_dir):
-    """Test that compute_checksum raises FileNotFoundError for missing file."""
-    nonexistent = temp_dir / "does_not_exist.txt"
+def test_compute_checksum_file_not_found():
+    """Test that FileNotFoundError is raised for missing files."""
     with pytest.raises(FileNotFoundError):
-        compute_checksum(nonexistent)
+        compute_checksum(Path('/nonexistent/file.txt'))
 
-def test_generate_checksums(temp_dir):
-    """Test that generate_checksums creates correct output file."""
-    # Create some test files
-    (temp_dir / "file1.txt").write_text("content1")
-    (temp_dir / "subdir").mkdir()
-    (temp_dir / "subdir" / "file2.txt").write_text("content2")
-
-    output_file = temp_dir / "checksums.txt"
+def test_generate_checksums(temp_data_dir):
+    """Test generation of checksums for all files in a directory."""
+    output_path = Path(temp_data_dir.parent) / 'checksums.txt'
     
-    generate_checksums(temp_dir, output_file)
-
-    assert output_file.exists()
-    content = output_file.read_text()
+    checksums = generate_checksums(temp_data_dir, output_path)
     
-    # Verify format: "hash  relative_path"
-    lines = content.strip().split('\n')
-    assert len(lines) == 2
+    assert len(checksums) == 2
+    assert 'test.txt' in checksums
+    assert 'subdir/nested.txt' in checksums
     
-    for line in lines:
-        parts = line.split('  ', 1)
-        assert len(parts) == 2
-        assert len(parts[0]) == 64  # SHA256 hex length
+    # Verify file content
+    assert output_path.exists()
+    content = output_path.read_text()
+    assert 'dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f' in content
 
-def test_verify_checksums_success(temp_dir):
+def test_verify_checksums_success(temp_data_dir):
     """Test successful verification of checksums."""
-    # Create files and generate checksums
-    (temp_dir / "file1.txt").write_text("content1")
-    output_file = temp_dir / "checksums.txt"
-    generate_checksums(temp_dir, output_file)
-
-    # Verify
-    all_valid, failed = verify_checksums(output_file, temp_dir)
+    output_path = Path(temp_data_dir.parent) / 'checksums.txt'
+    generate_checksums(temp_data_dir, output_path)
     
-    assert all_valid is True
+    is_valid, failed = verify_checksums(temp_data_dir, output_path)
+    
+    assert is_valid is True
     assert len(failed) == 0
 
-def test_verify_checksums_failure(temp_dir):
-    """Test verification fails when file content changes."""
-    # Create file and generate checksums
-    test_file = temp_dir / "file1.txt"
-    test_file.write_text("original")
-    output_file = temp_dir / "checksums.txt"
-    generate_checksums(temp_dir, output_file)
-
-    # Modify file
-    test_file.write_text("modified")
-
-    # Verify should fail
-    all_valid, failed = verify_checksums(output_file, temp_dir)
+def test_verify_checksums_failure(temp_data_dir):
+    """Test verification failure when file content changes."""
+    output_path = Path(temp_data_dir.parent) / 'checksums.txt'
+    generate_checksums(temp_data_dir, output_path)
     
-    assert all_valid is False
-    assert len(failed) == 1
-    assert "file1.txt" in failed[0]
+    # Modify a file
+    test_file = temp_data_dir / 'test.txt'
+    test_file.write_text("Modified content")
+    
+    is_valid, failed = verify_checksums(temp_data_dir, output_path)
+    
+    assert is_valid is False
+    assert 'test.txt' in failed
 
-def test_verify_checksums_missing_file(temp_dir):
-    """Test verification fails when file is deleted."""
-    # Create file and generate checksums
-    test_file = temp_dir / "file1.txt"
-    test_file.write_text("content")
-    output_file = temp_dir / "checksums.txt"
-    generate_checksums(temp_dir, output_file)
-
-    # Delete file
+def test_verify_checksums_missing_file(temp_data_dir):
+    """Test verification failure when a file is missing."""
+    output_path = Path(temp_data_dir.parent) / 'checksums.txt'
+    generate_checksums(temp_data_dir, output_path)
+    
+    # Delete a file
+    test_file = temp_data_dir / 'test.txt'
     test_file.unlink()
-
-    # Verify should fail
-    all_valid, failed = verify_checksums(output_file, temp_dir)
     
-    assert all_valid is False
-    assert len(failed) == 1
-
-def test_update_checksum_for_file(temp_dir):
-    """Test updating a single file's checksum."""
-    test_file = temp_dir / "file1.txt"
-    test_file.write_text("original")
-    output_file = temp_dir / "checksums.txt"
+    is_valid, failed = verify_checksums(temp_data_dir, output_path)
     
-    # Generate initial checksums
-    generate_checksums(temp_dir, output_file)
-    
-    # Modify file
-    test_file.write_text("modified")
-    
-    # Update checksum
-    update_checksum_for_file(test_file, output_file)
-    
-    # Verify updated checksum
-    all_valid, failed = verify_checksums(output_file, temp_dir)
-    assert all_valid is True
+    assert is_valid is False
+    assert 'test.txt' in failed

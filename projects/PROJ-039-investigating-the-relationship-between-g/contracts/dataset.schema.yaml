@@ -1,46 +1,39 @@
-# Dataset Schema for Gut Microbiome and EEG Data
-# This schema defines the structure for the combined dataset used in ecological aggregation.
-# Fields: age (int), sex (str), bmi (float), alpha_power (float), taxon_abundances (dict)
-# Note: 'diet' field removed as OpenNeuro lacks it.
-
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GutMicrobiomeEEGDataset"
-type: "object"
+title: "Gut Microbiome and EEG Dataset Schema"
+description: "Schema for the combined dataset containing microbiome abundances, EEG alpha power, and demographics."
+type: object
 required:
   - age
   - sex
   - bmi
   - alpha_power
   - taxon_abundances
-
 properties:
   age:
     type: integer
-    description: "Subject age in years"
     minimum: 0
     maximum: 120
-    
+    description: "Subject age in years"
   sex:
     type: string
+    enum: ["M", "F"]
     description: "Biological sex of the subject"
-    enum: ["Male", "Female", "Other", "Unknown"]
-    
   bmi:
     type: number
-    description: "Body Mass Index"
     minimum: 0.0
-    
+    description: "Body Mass Index"
   alpha_power:
     type: number
-    description: "Resting-state EEG alpha power (8-12 Hz) in µV²"
     minimum: 0.0
-    
+    description: "Resting-state EEG alpha power (log-transformed or raw, depending on preprocessing)"
   taxon_abundances:
     type: object
-    description: "Dictionary of genus-level taxon abundances (relative abundance)"
+    description: "Dictionary mapping genus names to relative abundances (0.0 to 1.0)"
     additionalProperties:
       type: number
       minimum: 0.0
       maximum: 1.0
-      
-description: "Schema for a single subject's combined microbiome and EEG data."
+  diet:
+    type: ["string", "null"]
+    enum: ["Vegan", "Vegetarian", "Omnivore", "Other", null]
+    description: "Dietary preference (optional, nullable)"

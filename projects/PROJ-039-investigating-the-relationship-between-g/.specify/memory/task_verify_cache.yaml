@@ -1,24 +1,17 @@
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No utility functions for SHA256 checksum verification are present, and the required
-    `artifacts/checksums.txt` file (listing checksums for all files in `data/`) is
-    missing or empty. The implementer has not provided any code or generated file
-    to satisfy the task.
 T011b:
   c: false
   h: 433ddc54698537f3beba25064ff68f458404d71f86b9d9d03ae94ed094198525
   r: "The required artifact `tests/integration/test_strata_exit.py` does not exist\
     \ in the repository, so no integration test verifying the <5 strata exit condition\
     \ (exit code\u202F1 and error log) is present. The task therefore remains unfinished."
-T012:
+T013:
   c: false
-  h: fd1440f441d840803fc66f665e1fb513cebc6c0536158b0af26e8c0d64424ab4
-  r: "The repository contains a `preprocess_microbiome.py` script, but it is truncated\
-    \ and does not show any QIIME2 processing, pseudocount application, SHA256 checksum\
-    \ handling, or creation of `data/processed/microbiome_features.csv`. Moreover,\
-    \ the required output CSV file is absent. The task\u2019s core deliverables are\
-    \ therefore not present."
+  h: 3560162d7d8f8a0c631ca38a5949dbc7f39e21e47ca5926902c4a70749750f90
+  r: "The repository contains a `code/preprocess_eeg.py` script, but the required\
+    \ output file `data/processed/eeg_features.csv` is absent, indicating the script\
+    \ either was not run or does not produce the expected CSV. Without this artifact,\
+    \ the task\u2019s core requirement (producing the processed EEG features file)\
+    \ is unmet."
 T019:
   c: false
   h: 4fa6c8d4f9e4b4269ab1d7bac965de511668d12dc1a45a446bfc6c4ca4a0cd3c

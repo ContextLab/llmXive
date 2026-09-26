@@ -1,43 +1,31 @@
-"""
-Script to generate checksums for all files in the data/ directory.
-This script is the entry point for Task T006 to create artifacts/checksums.txt.
-"""
 import logging
 import sys
 from pathlib import Path
-
-# Add parent directory to path to import checksum_utils
-sys.path.insert(0, str(Path(__file__).parent))
-
 from checksum_utils import generate_checksums, logger
 
 def main():
     """
-    Main entry point to generate checksums for the data directory.
+    CLI wrapper to generate checksums for the data directory.
+    Ensures artifacts directory exists and writes checksums.txt.
     """
     project_root = Path(__file__).parent.parent
-    data_root = project_root / 'data'
+    data_dir = project_root / 'data'
     output_path = project_root / 'artifacts' / 'checksums.txt'
 
     # Ensure artifacts directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Ensure data directory exists (if not, we might just generate empty or fail)
-    if not data_root.exists():
-        logger.warning(f"Data directory {data_root} does not exist. Generating empty checksum file.")
-        output_path.write_text("")
-        return
-
+    logger.info(f"Starting checksum generation for {data_dir}")
+    
     try:
-        generate_checksums(data_root, output_path)
-        logging.info(f"Checksum generation complete. Output: {output_path}")
+        generate_checksums(data_dir, output_path)
+        logger.info(f"Checksums successfully written to {output_path}")
+    except FileNotFoundError as e:
+        logger.error(f"Data directory not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logging.error(f"Failed to generate checksums: {e}")
+        logger.error(f"Unexpected error during checksum generation: {e}")
         sys.exit(1)
 
 if __name__ == '__main__':
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
     main()
