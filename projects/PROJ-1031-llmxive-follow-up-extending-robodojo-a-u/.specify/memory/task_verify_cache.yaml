@@ -1,55 +1,18 @@
-T001c:
+T002:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided showing that the four required directories (`code/data/raw/`,
-    `code/data/interim/`, `code/data/processed/`, `code/data/final/`) actually exist;
-    the response contains only the task description and no filesystem artifacts. The
-    implementer must create and list these directories (or provide a directory tree
-    screenshot) to satisfy the requirement.
-T006a:
-  c: false
-  h: a828d4cebc9e56dce778b48483bfdd4c7d043333e88ed3ed563a4ea07e326d61
-  r: The test file `code/tests/contract/test_symbolic_state.py` exists and uses jsonschema,
-    but the required schema file `specs/001-symbolic-dojo-extend/contracts/symbolic_state.schema.yaml`
-    is missing, so the test cannot actually perform the validation. The missing schema
-    must be added for the task to be satisfied.
-T006b:
-  c: false
-  h: a6c4ec9be314a85ab037adea9a6376ed0ee4b2a72eb2045200f5797f943bba23
-  r: The test file `code/tests/contract/test_execution_outcome.py` exists and uses
-    `jsonschema`, but the referenced schema `specs/001-symbolic-dojo-extend/contracts/execution_outcome.schema.yaml`
-    is missing, so the validation cannot actually be performed. The required schema
-    file must be present for the test to be functional.
-T006c:
-  c: false
-  h: 42ea4beb4d5405f1938e9200902bcd61aa8c058f1b3173d5c9b5d1c62df30ed0
-  r: The test file `code/tests/contract/test_compute_metric.py` exists, but the required
-    schema `specs/001-symbolic-dojo-extend/contracts/compute_metric.schema.yaml` is
-    missing, so the jsonschema validation cannot be performed. Add the missing schema
-    file (and ensure it matches the contract) to satisfy the task.
-T006d:
-  c: false
-  h: 65fad0712e2299a2750cda8abdf862e1ffa8c91ae901d9e96475113f8d419156
-  r: The test file `code/tests/contract/test_ablation_result.py` exists and uses jsonschema,
-    but the referenced schema file `specs/001-symbolic-dojo-extend/contracts/ablation_result.schema.yaml`
-    is missing, so the validation cannot actually be performed. The required schema
-    artifact must be added for the task to be complete.
-T010:
-  c: false
-  h: 64fc30d1cad00eb26c30564dcb22820317f4514a1a87aa2b74de2aa457e8eeda
-  r: "The provided `controller_adapter.py` defines a LinearProbe class but does not\
-    \ contain the required data\u2011splitting, training loop, validation logic, threshold\
-    \ check, or weight\u2011saving steps, and the expected weight files (`data/processed/adapter_weights_interim.pt`\
-    \ and `data/processed/adapter_weights.pt`) are absent. The task\u2019s core atomic\
-    \ flow is therefore not implemented."
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ or `black` settings) or setup scripts are present in the `code/` directory,\
+    \ so the required ruff and black tooling has not been actually configured. The\
+    \ implementer provided no artifacts to verify the task\u2019s completion."
 T024:
   c: false
-  h: cc8aba6c21afe30bb2c8e522d2d60a91a0bc6e40cb0799ae4e15286825146915
-  r: The provided `executor.py` only defines data structures and a mock controller;
-    it contains no logic that detects planner or controller failures nor code that
-    appends any label or outcome to a Parquet file. Moreover, the required `data/interim/execution_logs.parquet`
-    file is absent from the repository. Both the implementation and the output artifact
-    are missing.
+  h: 4095e7359a003e4fff63eaf7cb0caed7e076a64f18b1e1f0e20b4b620eec1025
+  r: "The `data/interim/execution_logs.parquet` file does not exist, so no outcomes\
+    \ are being logged. Moreover, the provided `executor.py` is truncated and lacks\
+    \ concrete logic that detects planner vs. controller failures and appends those\
+    \ labels (and outcomes) to a Parquet log. The required failure\u2011detection\
+    \ implementation and logging step are therefore missing."
 T026:
   c: false
   h: 3b6be3551625853ac6bd1b41ebbbbc3322621f1331c7507f3653cf0788f80155

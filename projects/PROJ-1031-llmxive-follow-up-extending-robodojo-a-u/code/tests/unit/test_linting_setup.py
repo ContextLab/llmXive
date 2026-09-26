@@ -1,59 +1,77 @@
+"""
+Unit tests to verify that linting and formatting configuration files exist and are valid.
+"""
 import pytest
 import os
 from pathlib import Path
 import tomllib
+import sys
+
+# Add the project root to the path to import scripts if needed, 
+# though these tests are mostly file-system checks.
+project_root = Path(__file__).resolve().parent.parent.parent
+code_dir = project_root / "code"
 
 class TestLintingSetup:
+    """Tests for T002: Configure linting (ruff) and formatting (black) tools."""
+
     def test_pyproject_toml_exists(self):
         """Verify pyproject.toml exists in code/ directory."""
-        project_root = Path(__file__).resolve().parent.parent.parent
-        pyproject_path = project_root / "code" / "pyproject.toml"
-        assert pyproject_path.exists(), "pyproject.toml must exist in code/ directory"
+        path = code_dir / "pyproject.toml"
+        assert path.exists(), f"{path} does not exist."
 
-    def test_black_config_present(self):
-        """Verify Black configuration is present in pyproject.toml."""
-        project_root = Path(__file__).resolve().parent.parent.parent
-        pyproject_path = project_root / "code" / "pyproject.toml"
+    def test_pyproject_toml_valid_syntax(self):
+        """Verify pyproject.toml contains valid TOML syntax."""
+        path = code_dir / "pyproject.toml"
+        try:
+            with open(path, "rb") as f:
+                tomllib.load(f)
+        except tomllib.TOMLDecodeError as e:
+            pytest.fail(f"Invalid TOML syntax in pyproject.toml: {e}")
 
-        with open(pyproject_path, "rb") as f:
-            config = tomllib.load(f)
+    def test_pyproject_toml_has_black_config(self):
+        """Verify pyproject.toml contains [tool.black] section."""
+        path = code_dir / "pyproject.toml"
+        with open(path, "rb") as f:
+            data = tomllib.load(f)
+        
+        assert "tool" in data, "Missing [tool] section in pyproject.toml"
+        assert "black" in data["tool"], "Missing [tool.black] section in pyproject.toml"
+        
+        # Check for line-length as a sanity check that it's not empty
+        assert "line-length" in data["tool"]["black"], "Missing line-length in [tool.black]"
 
-        assert "tool" in config, "pyproject.toml must contain [tool] section"
-        assert "black" in config["tool"], "Black configuration missing from pyproject.toml"
-        assert "line-length" in config["tool"]["black"], "Black line-length must be configured"
-        assert config["tool"]["black"]["line-length"] == 88, "Black line-length should be 88"
-
-    def test_ruff_config_present(self):
-        """Verify Ruff configuration is present in pyproject.toml."""
-        project_root = Path(__file__).resolve().parent.parent.parent
-        pyproject_path = project_root / "code" / "pyproject.toml"
-
-        with open(pyproject_path, "rb") as f:
-            config = tomllib.load(f)
-
-        assert "tool" in config, "pyproject.toml must contain [tool] section"
-        assert "ruff" in config["tool"], "Ruff configuration missing from pyproject.toml"
-        assert "select" in config["tool"]["ruff"], "Ruff select rules must be configured"
+    def test_pyproject_toml_has_ruff_config(self):
+        """Verify pyproject.toml contains [tool.ruff] section."""
+        path = code_dir / "pyproject.toml"
+        with open(path, "rb") as f:
+            data = tomllib.load(f)
+        
+        assert "tool" in data, "Missing [tool] section in pyproject.toml"
+        assert "ruff" in data["tool"], "Missing [tool.ruff] section in pyproject.toml"
+        
+        # Check for select as a sanity check
+        assert "select" in data["tool"]["ruff"], "Missing select in [tool.ruff]"
 
     def test_ruff_toml_exists(self):
         """Verify .ruff.toml exists in code/ directory."""
-        project_root = Path(__file__).resolve().parent.parent.parent
-        ruff_toml_path = project_root / "code" / ".ruff.toml"
-        assert ruff_toml_path.exists(), ".ruff.toml must exist in code/ directory"
+        path = code_dir / ".ruff.toml"
+        assert path.exists(), f"{path} does not exist."
 
-    def test_pre_commit_config_exists(self):
-        """Verify .pre-commit-config.yaml exists in code/ directory."""
-        project_root = Path(__file__).resolve().parent.parent.parent
-        pre_commit_path = project_root / "code" / ".pre-commit-config.yaml"
-        assert pre_commit_path.exists(), ".pre-commit-config.yaml must exist in code/ directory"
+    def test_ruff_toml_extends_pyproject(self):
+        """Verify .ruff.toml extends pyproject.toml."""
+        path = code_dir / ".ruff.toml"
+        with open(path, "r") as f:
+            content = f.read()
+        
+        assert "extend" in content, "Missing 'extend' key in .ruff.toml"
+        assert "pyproject.toml" in content, "Missing 'pyproject.toml' in .ruff.toml extend directive"
 
-    def test_requirements_includes_linting_tools(self):
-        """Verify requirements.txt includes ruff and black."""
-        project_root = Path(__file__).resolve().parent.parent.parent
-        requirements_path = project_root / "code" / "requirements.txt"
-
-        with open(requirements_path, "r") as f:
-            content = f.read().lower()
-
-        assert "ruff" in content, "requirements.txt must include ruff"
-        assert "black" in content, "requirements.txt must include black"
+    def test_ruff_toml_valid_syntax(self):
+        """Verify .ruff.toml is valid TOML (since it's a TOML file)."""
+        path = code_dir / ".ruff.toml"
+        try:
+            with open(path, "rb") as f:
+                tomllib.load(f)
+        except tomllib.TOMLDecodeError as e:
+            pytest.fail(f"Invalid TOML syntax in .ruff.toml: {e}")

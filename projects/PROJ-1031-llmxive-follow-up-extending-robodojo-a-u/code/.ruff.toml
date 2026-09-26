@@ -1,1 +1,4 @@
 extend = "pyproject.toml"
+
+# Project-specific overrides can be added here if needed.
+# Currently, we rely entirely on the configuration in pyproject.toml.

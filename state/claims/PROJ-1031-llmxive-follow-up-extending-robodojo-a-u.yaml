@@ -2092,3 +2092,342 @@
   source_type: external
   status: verified
   updated_at: '2026-09-05T07:58:59Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Discrete action sequence output within 60 seconds on a 2-core CPU for
+    RoboDojo task specification
+  claim_id: c_159afd7d
+  context: 'Phase 3: User Story 1 - CPU-Tractable Symbolic Planner Execution. Independent
+    Test: The system is tested by feeding a RoboDojo task specification into the planner
+    and verifying that a discrete action sequence is output within 60 seconds on a
+    2-core CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system is tested by feeding a RoboDojo task specification into the
+    planner and verifying that a discrete action sequence is output within 60 seconds
+    on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:22:24Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Power analysis report includes sample size N=18
+  claim_id: c_53641684
+  context: 'Phase 5: User Story 3 - Comparative Statistical Analysis. Implementation
+    T033c: Generate power analysis report text (including N=18) and write it to data/final/statistical_report.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate power analysis report text (including N=18) and write it to
+    data/final/statistical_report.txt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:23:02Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Catastrophic failure rate threshold defined as less than or equal to
+    5%
+  claim_id: c_77c610a0
+  context: "Phase 5: User Story 3 - Comparative Statistical Analysis. Implementation\
+    \ T036: Calculate the rate of these specific events against the total tasks and\
+    \ compare against the predefined threshold of \u2264 5% defined in SC-005."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Catastrophic_failure_rate_threshold_defined_as_less_than_or
+  kind: magnitude
+  raw_text: "Flag the result as Pass/Fail in the final report if the catastrophic\
+    \ failure rate is against the predefined threshold of \u2264 5%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:24:04Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: System tested by running symbolic planner on physical robot recording
+    binary pass/fail outcomes
+  claim_id: c_84eb8c9c
+  context: 'Phase 4: User Story 2 - Real-World Execution Validation. Independent Test:
+    The system is tested by running the symbolic planner output on the physical robot
+    and recording binary pass/fail outcomes with explicit failure mode labels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_running_symbolic_planner_on_physical_robot
+  kind: entity_fact
+  raw_text: The system is tested by running the symbolic planner output on the physical
+    robot and recording binary pass/fail outcomes with explicit failure mode labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:24:28Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Statistical analysis output includes Wilcoxon signed-rank test statistic
+    and p-value
+  claim_id: c_0713ddb9
+  context: 'Phase 5: User Story 3 - Comparative Statistical Analysis. Independent
+    Test: The system is tested by running the statistical analysis module on collected
+    data, verifying the output includes the Wilcoxon signed-rank test statistic and
+    p-value.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_analysis_output_includes_Wilcoxon_signed-rank_te
+  kind: entity_fact
+  raw_text: The system is tested by running the statistical analysis module on collected
+    data, verifying the output includes the Wilcoxon signed-rank test statistic and
+    p-value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:24:56Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: System tested by comparing symbolic planner success rate against simulated
+    oracle to real-world execution rate
+  claim_id: c_f91fb0a5
+  context: 'Phase 6: User Story 4 - Physics Fidelity Isolation Control. Independent
+    Test: The system is tested by running the symbolic planner against a simulated
+    oracle and comparing the success rate to the real-world execution rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_comparing_symbolic_planner_success_rate_aga
+  kind: entity_fact
+  raw_text: The system is tested by running the symbolic planner against a simulated
+    oracle and comparing the success rate to the real-world execution rate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:25:16Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: System tested by comparing success rates and compute overhead across
+    different state representation levels
+  claim_id: c_93c67777
+  context: 'Phase 7: Ablation Study & Final Reporting. Independent Test: The system
+    is tested by comparing success rates and compute overhead across different state
+    representation levels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_comparing_success_rates_and_compute_overhea
+  kind: entity_fact
+  raw_text: The system is tested by comparing success rates and compute overhead across
+    different state representation levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:25:42Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: RoboDojo dataset ID RoboDojo/RoboDojo-v1 commit v.1
+  claim_id: c_df224528
+  context: Create `code/src/config.py` with paths, seeds, and RoboDojo dataset commit
+    hash `v.1`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses dataset ID 'RoboDojo/RoboDojo-v1' and commit 'v.1'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:33:36Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: seed value 42
+  claim_id: c_33991d91
+  context: Create `code/src/config.py` with paths, seeds, and RoboDojo dataset commit
+    hash `v.1`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses a seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:33:58Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: power analysis N=18
+  claim_id: c_0884d112
+  context: Generate power analysis report text (including N=18) and write it to `data/final/statistical_report.txt`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis report includes N=18.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:34:58Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: catastrophic failure rate threshold 5 percent
+  claim_id: c_bf615d1d
+  context: "Calculate the rate of these specific events against the total tasks and\
+    \ compare against the predefined threshold of \u2264 5% defined in SC-005."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Catastrophic_failure_rate_threshold_5_percent
+  kind: entity_fact
+  raw_text: "The catastrophic failure rate threshold is defined as \u2264 5%."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:35:39Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Wilcoxon null hypothesis median difference 0
+  claim_id: c_8816b207
+  context: 'Implement Wilcoxon signed-rank test in `code/src/stats_analysis.py` (null
+    hypothesis: median difference = 0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The null hypothesis for the Wilcoxon signed-rank test is that the median
+    difference equals 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:36:04Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: System tested on physical robot recording binary pass/fail outcomes with
+    failure mode labels
+  claim_id: c_1387e596
+  context: 'Phase 4: User Story 2 - Real-World Execution Validation. Independent Test
+    description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_on_physical_robot_recording_binary_pass/fail_o
+  kind: entity_fact
+  raw_text: The system is tested by running the symbolic planner output on the physical
+    robot and recording binary pass/fail outcomes with explicit failure mode labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:39:28Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: System tested by comparing symbolic planner success rate against simulated
+    oracle and real-world execution rate
+  claim_id: c_fafb84c8
+  context: 'Phase 6: User Story 4 - Physics Fidelity Isolation Control. Independent
+    Test description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_comparing_symbolic_planner_success_rate_aga
+  kind: entity_fact
+  raw_text: The system is tested by running the symbolic planner against a simulated
+    oracle and comparing the success rate to the real-world execution rate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:39:30Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Final report includes Power Analysis with N=18
+  claim_id: c_c83deb47
+  context: 'Phase 5: User Story 3 - Comparative Statistical Analysis. Task T033c Implementation
+    details.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Explicitly include the text ''Power Analysis: N=18'' in the final report.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:40:08Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Catastrophic failure defined as Timeout or Hardware Error events preventing
+    progress
+  claim_id: c_ae8f7117
+  context: 'Phase 5: User Story 3 - Comparative Statistical Analysis. Task T036 Implementation
+    details.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Catastrophic_failure_defined_as_Timeout_or_Hardware_Error_ev
+  kind: entity_fact
+  raw_text: Define 'catastrophic failure' strictly as Timeout or Hardware Error events
+    that prevent any progress.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:40:45Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: Catastrophic failure rate compared against 5% threshold
+  claim_id: c_4109e779
+  context: 'Phase 5: User Story 3 - Comparative Statistical Analysis. Task T036 Implementation
+    details.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate the rate of catastrophic failure events against the total tasks\
+    \ and compare against the predefined threshold of \u2264 5%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:40:45Z'
+- artifact_path: projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u/specs/001-llmxive-follow-up-extending-robodojo-a-u/tasks.md
+  attempts: 1
+  canonical: System tested by comparing success rates and compute overhead across
+    state representation levels
+  claim_id: c_06781f89
+  context: 'Phase 7: Ablation Study & Final Reporting. Independent Test description.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_tested_by_comparing_success_rates_and_compute_overhea
+  kind: entity_fact
+  raw_text: The system is tested by comparing success rates and compute overhead across
+    different state representation levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T02:40:47Z'

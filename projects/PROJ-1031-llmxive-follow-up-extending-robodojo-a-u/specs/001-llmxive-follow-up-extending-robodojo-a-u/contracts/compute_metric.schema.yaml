@@ -1,23 +1,23 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: ComputeMetric
-description: Metrics regarding computational resources used for a specific task execution.
+description: "Schema for CPU tractability metrics collected during symbolic planner execution."
 type: object
 properties:
   task_id:
     type: string
-    description: Unique identifier for the task.
+    description: "Unique identifier for the task being measured."
   cpu_cycles:
     type: integer
-    description: Number of CPU cycles consumed.
+    description: "Estimated CPU cycles consumed during planning."
     minimum: 0
   ram_mb:
     type: number
-    description: RAM usage in Megabytes.
-    minimum: 0
+    description: "Peak RAM usage in megabytes during planning."
+    minimum: 0.0
   wall_clock_s:
     type: number
-    description: Wall-clock time in seconds.
-    minimum: 0
+    description: "Total wall-clock time in seconds for planning."
+    minimum: 0.0
 required:
   - task_id
   - cpu_cycles

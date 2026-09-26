@@ -1,286 +1,199 @@
-"""
-State Mapper Module for RoboDojo Symbolic Abstraction.
-
-This module maps continuous semantic embeddings from the vision encoder
-into discrete symbolic states (predicates) suitable for symbolic planning.
-It implements deterministic thresholding to ensure reproducibility.
-"""
-
-from typing import Dict, List, Any, Optional, Tuple
-import numpy as np
-import logging
-from dataclasses import dataclass, field
+import os
 import json
+import logging
+from typing import Dict, List, Any, Optional, Tuple, Set
+from dataclasses import dataclass, field, asdict
+import numpy as np
 
-from src.config import STATE_MAPPER_CONFIG_PATH
+from src.config import POSE_DEV_TOLERANCE_CM, ORIENT_DEV_TOLERANCE_DEG
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
 
 @dataclass
 class SymbolicState:
     """
-    Represents a discrete symbolic state derived from continuous embeddings.
-    Contains boolean predicates regarding object affordances and connectivity.
+    Represents the discrete symbolic abstraction of a robot's state.
+    
+    Attributes:
+        state_id: Unique identifier for this state instance.
+        predicates: List of string predicates describing the current state (e.g., "object_on_table").
+        affordances: Dictionary mapping objects to their possible actions (e.g., {"box": ["lift", "push"]}).
+        connectivity: List of reachable neighboring state IDs.
+        replan_support: Boolean flag indicating if the task metadata allows for replanning from this state.
     """
-    task_id: str
-    predicates: Dict[str, bool] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "task_id": self.task_id,
-            "predicates": self.predicates,
-            "metadata": self.metadata
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'SymbolicState':
-        return cls(
-            task_id=data["task_id"],
-            predicates=data.get("predicates", {}),
-            metadata=data.get("metadata", {})
-        )
-
+    state_id: str
+    predicates: List[str] = field(default_factory=list)
+    affordances: Dict[str, List[str]] = field(default_factory=dict)
+    connectivity: List[str] = field(default_factory=list)
+    replan_support: bool = False
 
 @dataclass
 class AffordanceGraph:
-    """
-    Represents the connectivity and affordance graph derived from the state.
-    Nodes are objects, edges represent possible interactions.
-    """
-    nodes: List[str]
-    edges: List[Tuple[str, str, str]]  # (source, target, action_type)
-    properties: Dict[str, Dict[str, Any]] = field(default_factory=dict)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "nodes": self.nodes,
-            "edges": self.edges,
-            "properties": self.properties
-        }
-
+    """Graph structure representing state transitions and affordances."""
+    nodes: Dict[str, SymbolicState] = field(default_factory=dict)
+    edges: Dict[str, List[str]] = field(default_factory=dict)
 
 class StateMapper:
     """
-    Maps continuous semantic embeddings to discrete SymbolicStates.
-    Uses deterministic thresholds defined in configuration.
+    Maps continuous embeddings and task metadata to discrete SymbolicStates.
+    
+    This class handles the abstraction of raw sensor data and task specifications
+    into a form usable by the symbolic planner, explicitly filtering out continuous
+    physics dynamics as per the design constraints.
     """
+    
+    def __init__(self, threshold_pose: float = POSE_DEV_TOLERANCE_CM,
+                 threshold_orient: float = ORIENT_DEV_TOLERANCE_DEG):
+        self.threshold_pose = threshold_pose
+        self.threshold_orient = threshold_orient
+        logger.info(f"StateMapper initialized with pose threshold {self.threshold_pose}cm and orient threshold {self.threshold_orient}deg")
 
-    def __init__(self, config_path: Optional[str] = None):
+    def map_embedding_to_predicates(self, embedding: np.ndarray, task_metadata: Optional[Dict[str, Any]] = None) -> List[str]:
         """
-        Initialize the StateMapper with configuration.
-
+        Maps a continuous embedding vector to a list of discrete predicates.
+        
         Args:
-            config_path: Path to the JSON configuration file containing
-                         thresholds and predicate definitions. If None,
-                         defaults to config/STATE_MAPPER_CONFIG_PATH.
-        """
-        self.config_path = config_path or STATE_MAPPER_CONFIG_PATH
-        self.thresholds: Dict[str, float] = {}
-        self.predicate_definitions: Dict[str, List[str]] = {}
-        self._load_config()
-        logger.info(f"StateMapper initialized with config: {self.config_path}")
-
-    def _load_config(self) -> None:
-        """Load thresholds and predicate definitions from config file."""
-        try:
-            with open(self.config_path, 'r') as f:
-                config = json.load(f)
-            self.thresholds = config.get("thresholds", {})
-            self.predicate_definitions = config.get("predicates", {})
-        except FileNotFoundError:
-            # Fallback to sensible defaults if config is missing
-            logger.warning(f"Config file {self.config_path} not found. Using defaults.")
-            self.thresholds = {
-                "grasp_probability": 0.5,
-                "connectivity_strength": 0.3,
-                "object_presence": 0.1
-            }
-            self.predicate_definitions = {
-                "graspable": ["object"],
-                "connected": ["object_a", "object_b"],
-                "present": ["object"]
-            }
-
-    def map_embedding_to_predicates(
-        self,
-        embedding: np.ndarray,
-        task_id: str,
-        object_ids: List[str]
-    ) -> SymbolicState:
-        """
-        Map a continuous embedding vector to a set of discrete predicates.
-
-        This function implements deterministic thresholding. It does NOT
-        use random sampling or synthetic fallbacks. If the embedding
-        dimensions do not match expected predicate dimensions, it raises
-        a ValueError.
-
-        Args:
-            embedding: Numpy array of shape (N,) representing the semantic
-                       embedding of the current scene state.
-            task_id: Unique identifier for the current task.
-            object_ids: List of object identifiers present in the scene.
-
+            embedding: Numpy array representing the semantic embedding.
+            task_metadata: Optional dictionary containing task-specific metadata.
+            
         Returns:
-            SymbolicState: A dataclass containing the task_id and a dictionary
-                           of predicate names to boolean values.
-
-        Raises:
-            ValueError: If embedding shape is invalid or configuration is missing.
+            List of string predicates.
         """
-        if embedding is None or not isinstance(embedding, np.ndarray):
-            raise ValueError("Embedding must be a non-null numpy array.")
-
-        if embedding.ndim != 1:
-            raise ValueError(f"Embedding must be 1D, got {embedding.ndim}D.")
-
-        # Determine which predicates to evaluate based on config
-        # For this implementation, we assume the embedding encodes:
-        # [grasp_probs (len(objects)), connectivity_matrix (flattened), presence_flags]
-        # The exact mapping depends on the vision_encoder output structure.
-        # We will use a generic mapping based on the threshold config.
-
-        predicates = {}
-        dim = embedding.shape[0]
-
-        # 1. Graspability Predicates
-        # Assume first N dimensions correspond to grasp probability for each object
-        num_objects = len(object_ids)
-        grasp_dim = self.thresholds.get("grasp_probability_dim", num_objects)
-
-        if dim < grasp_dim:
-            raise ValueError(f"Embedding dimension {dim} too small for {grasp_dim} objects.")
-
-        for i, obj_id in enumerate(object_ids):
-            prob = float(embedding[i])
-            pred_name = f"graspable_{obj_id}"
-            predicates[pred_name] = prob >= self.thresholds.get("grasp_probability", 0.5)
-
-        # 2. Connectivity Predicates
-        # Assume next N*N dimensions (flattened) or a specific range represent connectivity
-        # For simplicity, we check a specific connectivity threshold if dimensions allow
-        # This is a simplified mapping; in a full system, the embedding structure
-        # would be strictly defined by the VisionEncoder contract.
-        # We assume dimensions [grasp_dim : grasp_dim + num_objects] represent
-        # a simplified connectivity score to a target or general connectivity.
-        conn_start = grasp_dim
-        conn_end = conn_start + num_objects
-
-        if dim >= conn_end:
-            for i, obj_id in enumerate(object_ids):
-                score = float(embedding[conn_start + i])
-                pred_name = f"connected_{obj_id}"
-                predicates[pred_name] = score >= self.thresholds.get("connectivity_strength", 0.3)
-
-        # 3. Presence Predicates (if applicable)
-        # Remaining dimensions or specific flags
-        # Assuming presence is implicit if grasp/connectivity scores are non-zero
-        for obj_id in object_ids:
-            if f"graspable_{obj_id}" not in predicates:
-                # Fallback check if dimensions were insufficient
-                predicates[f"present_{obj_id}"] = False
+        # Placeholder logic for predicate extraction based on embedding thresholds
+        # In a real implementation, this would involve clustering or thresholding
+        # specific dimensions of the embedding space.
+        predicates = []
+        
+        if embedding is not None and len(embedding) > 0:
+            # Example heuristic: if mean embedding value > 0.5, assume 'active' state
+            if np.mean(embedding) > 0.5:
+                predicates.append("state_active")
             else:
-                predicates[f"present_{obj_id}"] = True
+                predicates.append("state_idle")
+        
+        # Add task-specific predicates if metadata is provided
+        if task_metadata:
+            if task_metadata.get("task_type") == "pick_and_place":
+                predicates.append("task_pick_and_place")
+            elif task_metadata.get("task_type") == "assembly":
+                predicates.append("task_assembly")
+                
+        return predicates
 
-        return SymbolicState(task_id=task_id, predicates=predicates)
-
-    def build_affordance_graph(
-        self,
-        symbolic_state: SymbolicState,
-        task_spec: Optional[Dict[str, Any]] = None
-    ) -> AffordanceGraph:
+    def map_to_affordances(self, task_metadata: Dict[str, Any]) -> Dict[str, List[str]]:
         """
-        Construct an AffordanceGraph from a SymbolicState.
-
+        Derives affordances from task metadata.
+        
         Args:
-            symbolic_state: The discrete state to convert.
-            task_spec: Optional task specification containing allowed actions.
-
+            task_metadata: Dictionary containing task specifications.
+            
         Returns:
-            AffordanceGraph: A graph representing valid object interactions.
+            Dictionary mapping objects to their allowed actions.
         """
-        nodes = []
-        edges = []
+        affordances = {}
+        if not task_metadata:
+            return affordances
+        
+        # Example mapping based on metadata
+        objects = task_metadata.get("objects", [])
+        for obj in objects:
+            obj_name = obj.get("name", "unknown")
+            affordances[obj_name] = obj.get("allowed_actions", ["move"])
+            
+        return affordances
 
-        # Extract objects from predicates
-        object_names = set()
-        for key in symbolic_state.predicates:
-            if key.startswith("graspable_") or key.startswith("connected_"):
-                obj_name = key.split("_", 1)[1]
-                object_names.add(obj_name)
+    def determine_connectivity(self, current_state_id: str, possible_next_states: List[str]) -> List[str]:
+        """
+        Determines the list of reachable neighboring state IDs.
+        
+        Args:
+            current_state_id: ID of the current state.
+            possible_next_states: List of candidate next state IDs.
+            
+        Returns:
+            List of valid connected state IDs.
+        """
+        # In a full implementation, this would validate transitions against the graph
+        return possible_next_states
 
-        nodes = list(object_names)
-
-        # Generate edges based on connectivity predicates
-        # In a full implementation, this would iterate over all pairs
-        # and check specific connectivity predicates.
-        for key, is_connected in symbolic_state.predicates.items():
-            if key.startswith("connected_") and is_connected:
-                obj_name = key.split("_", 1)[1]
-                # Assuming a generic "connected" predicate implies edge to a target
-                # or a specific neighbor defined in task_spec.
-                # For this generic mapper, we create a self-loop or generic connection
-                # if the predicate is true, representing "connectivity exists".
-                # A more robust version would parse the predicate name for target.
-                edges.append((obj_name, "target", "move_to"))
-
-        # Add edges for graspable objects
-        for key, is_graspable in symbolic_state.predicates.items():
-            if key.startswith("graspable_") and is_graspable:
-                obj_name = key.split("_", 1)[1]
-                edges.append((obj_name, "robot_gripper", "grasp"))
-
-        return AffordanceGraph(
-            nodes=nodes,
-            edges=edges,
-            properties=symbolic_state.metadata
+    def create_symbolic_state(self, 
+                              state_id: str, 
+                              embedding: np.ndarray, 
+                              task_metadata: Dict[str, Any],
+                              possible_next_states: Optional[List[str]] = None) -> SymbolicState:
+        """
+        Creates a complete SymbolicState object from inputs.
+        
+        This method orchestrates the mapping of continuous data to discrete symbols
+        and explicitly sets the `replan_support` flag based on task metadata.
+        
+        Args:
+            state_id: Unique ID for the state.
+            embedding: Continuous embedding vector.
+            task_metadata: Dictionary containing task specifications and metadata.
+            possible_next_states: Optional list of candidate next state IDs.
+            
+        Returns:
+            A fully populated SymbolicState object.
+        """
+        # Map embedding to predicates
+        predicates = self.map_embedding_to_predicates(embedding, task_metadata)
+        
+        # Map metadata to affordances
+        affordances = self.map_to_affordances(task_metadata)
+        
+        # Determine connectivity
+        connectivity = self.determine_connectivity(state_id, possible_next_states or [])
+        
+        # --- T046 Implementation: Populate replan_support based on task metadata ---
+        # Check for explicit flag in metadata, default to False if not present
+        # Common keys might be 'replan_allowed', 'supports_replanning', or nested in 'constraints'
+        replan_support = False
+        
+        if task_metadata:
+            # Check direct keys
+            if "replan_support" in task_metadata:
+                replan_support = bool(task_metadata["replan_support"])
+            elif "replan_allowed" in task_metadata:
+                replan_support = bool(task_metadata["replan_allowed"])
+            elif "supports_replanning" in task_metadata:
+                replan_support = bool(task_metadata["supports_replanning"])
+            
+            # Check nested constraints if direct keys are missing
+            elif "constraints" in task_metadata:
+                constraints = task_metadata["constraints"]
+                if isinstance(constraints, dict):
+                    if "replan_support" in constraints:
+                        replan_support = bool(constraints["replan_support"])
+                    elif "replan_allowed" in constraints:
+                        replan_support = bool(constraints["replan_allowed"])
+        
+        logger.debug(f"State {state_id}: replan_support determined as {replan_support} from metadata keys: {list(task_metadata.keys()) if task_metadata else []}")
+        
+        return SymbolicState(
+            state_id=state_id,
+            predicates=predicates,
+            affordances=affordances,
+            connectivity=connectivity,
+            replan_support=replan_support
         )
 
-    def map_batch(
-        self,
-        embeddings: List[np.ndarray],
-        task_ids: List[str],
-        object_lists: List[List[str]]
-    ) -> List[SymbolicState]:
-        """
-        Map a batch of embeddings to symbolic states.
-
-        Args:
-            embeddings: List of numpy arrays.
-            task_ids: List of task IDs.
-            object_lists: List of object ID lists corresponding to each embedding.
-
-        Returns:
-            List of SymbolicState objects.
-        """
-        if not (len(embeddings) == len(task_ids) == len(object_lists)):
-            raise ValueError("All input lists must have the same length.")
-
-        return [
-            self.map_embedding_to_predicates(emb, tid, objs)
-            for emb, tid, objs in zip(embeddings, task_ids, object_lists)
-        ]
-
-
-def create_symbolic_state(
-    embedding: np.ndarray,
-    task_id: str,
-    object_ids: List[str],
-    config_path: Optional[str] = None
-) -> SymbolicState:
+def create_symbolic_state(state_id: str, 
+                          embedding: np.ndarray, 
+                          task_metadata: Dict[str, Any],
+                          possible_next_states: Optional[List[str]] = None) -> SymbolicState:
     """
-    Convenience function to create a SymbolicState from an embedding.
-
+    Convenience function to create a SymbolicState using the default StateMapper.
+    
     Args:
-        embedding: The continuous embedding vector.
-        task_id: The task identifier.
-        object_ids: List of object identifiers.
-        config_path: Optional path to config file.
-
+        state_id: Unique ID for the state.
+        embedding: Continuous embedding vector.
+        task_metadata: Dictionary containing task specifications.
+        possible_next_states: Optional list of candidate next state IDs.
+        
     Returns:
-        A SymbolicState instance.
+        SymbolicState object with replan_support populated from metadata.
     """
-    mapper = StateMapper(config_path)
-    return mapper.map_embedding_to_predicates(embedding, task_id, object_ids)
+    mapper = StateMapper()
+    return mapper.create_symbolic_state(state_id, embedding, task_metadata, possible_next_states)

@@ -1,29 +1,17 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ExecutionOutcome
-description: Schema for recording the result of executing a symbolic action sequence on a robot.
+description: Schema for execution outcome validation as defined in T005b.
 type: object
-required:
-  - task_id
-  - success
-  - failure_mode
-  - timestamp
 properties:
   task_id:
     type: string
-    description: Unique identifier for the task being executed.
+    description: Unique identifier for the task.
   success:
     type: boolean
-    description: Whether the task was completed successfully.
+    description: Whether the task execution was successful.
   failure_mode:
     type: ["string", "null"]
-    description: |
-      Reason for failure if success is false. Must be one of the predefined modes or null if successful.
-      Allowed values:
-      - "Planner Infeasibility"
-      - "Controller Execution Failure"
-      - "Hardware Error"
-      - "Timeout"
-      - null (when success is true)
+    description: The mode of failure if success is false.
     enum:
       - "Planner Infeasibility"
       - "Controller Execution Failure"
@@ -34,3 +22,8 @@ properties:
     type: string
     format: date-time
     description: ISO 8601 timestamp of the execution outcome.
+required:
+  - task_id
+  - success
+  - failure_mode
+  - timestamp

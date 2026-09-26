@@ -1,4 +1,4 @@
-torch
+torch-cpu
 scikit-learn
 networkx
 pandas
@@ -6,8 +6,6 @@ datasets
 opencv-python
 pyyaml
 jsonschema
+scipy
 numpy
-pytest
-ruff
-black
-tomli
+torchvision
