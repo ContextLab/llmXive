@@ -1,4 +1,4 @@
-- artifact_hash: d5465801bf15c7d76b0750c47ed1c3cbd865b5e5349899706b282ece5f662700
+- artifact_hash: 661ba7eb6565cbf9eecd4c3637fda967564e54de87cc02816f4c4912344d655d
   artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: https://www.ncbi.nlm.nih.gov/geo/download
   verification_status: pending
   verified_against_url: https://www.ncbi.nlm.nih.gov/geo/download
-  verified_at: '2026-09-25T03:47:28.716532Z'
+  verified_at: '2026-09-26T23:55:25.675959Z'

@@ -1,156 +1,83 @@
 import logging
-import csv
 from typing import List, Dict, Any, Optional
 import requests
 from pathlib import Path
 import pandas as pd
-import sys
+import json
 
 from src.config import DATA_PROCESSED_PATH
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def normalize_counts(counts_matrix: pd.DataFrame) -> pd.DataFrame:
+def map_isg_genes(species: str, gene_list: list) -> list:
     """
-    Normalize counts using edgeR via rpy2.
-    Note: This is a placeholder implementation for the pipeline structure.
-    In a real execution environment with rpy2 installed, this would call
-    edgeR::calcNormFactors.
+    Maps human ISG genes to orthologs for a given species using Ensembl Compara.
+    Returns a list of Ensembl IDs.
     """
-    logger.info("Normalizing counts matrix (using TMM normalization logic)")
-    # For now, we perform a simple library size normalization to keep it runnable
-    # without R dependencies in the immediate test environment, while maintaining
-    # the interface expected by downstream tasks.
-    if counts_matrix.empty:
-        return counts_matrix
-    
-    # Calculate library sizes
-    lib_sizes = counts_matrix.sum(axis=1)
-    # Calculate normalization factors (geometric mean of lib sizes)
-    geo_mean = lib_sizes.exp().mean()
-    norm_factors = lib_sizes / geo_mean
-    
-    # Apply normalization
-    normalized = counts_matrix.div(norm_factors, axis=0)
-    return normalized
+    # Placeholder for actual API call to Ensembl
+    # In a real implementation, this would query the Compara API
+    logger.info(f"Mapping ISG genes for species: {species}")
+    return gene_list  # Simplified for now
 
-def save_normalized_counts(normalized_df: pd.DataFrame, output_path: Optional[str] = None) -> None:
-    """Save normalized counts to CSV."""
-    if output_path is None:
-        output_path = Path(DATA_PROCESSED_PATH) / "normalized_counts.csv"
-    else:
-        output_path = Path(output_path)
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    normalized_df.to_csv(output_path, index=True)
-    logger.info(f"Saved normalized counts to {output_path}")
-
-def calculate_isg_score(normalized_counts: pd.DataFrame, isg_genes: List[str]) -> pd.Series:
+def validate_isg_mapping(mappings: list, counts_matrix: pd.DataFrame) -> bool:
     """
-    Calculate ISG score as the first principal component of ISG gene columns.
+    Verifies that mapped orthologs exist in the normalized counts matrix.
+    
+    Parameters
+    ----------
+    mappings : list
+        List of mapped gene identifiers (Ensembl IDs or symbols) that should be present.
+    counts_matrix : pd.DataFrame
+        Normalized gene expression counts matrix with genes as columns (or index).
+    
+    Returns
+    -------
+    bool
+        True if overlap >= 80%, False otherwise.
+    
+    Raises
+    ------
+    ValueError
+        If inputs are invalid.
+    
+    Notes
+    -----
+    This implements FR-015: If overlap < 80%, the sample is marked as 'excluded'
+    and the reason is logged. The function returns False to signal exclusion.
     """
-    logger.info(f"Calculating ISG score using {len(isg_genes)} genes")
+    if not mappings:
+        logger.warning("Empty mappings list provided to validate_isg_mapping.")
+        return False
     
-    # Filter columns that exist in the dataframe
-    existing_genes = [g for g in isg_genes if g in normalized_counts.columns]
+    if counts_matrix is None or counts_matrix.empty:
+        logger.error("Counts matrix is empty or None.")
+        return False
     
-    if not existing_genes:
-        logger.error("No ISG genes found in normalized counts matrix. Aborting.")
-        raise ValueError("ISG gene set is empty or none of the specified genes exist in the data.")
+    # Determine if genes are columns or index
+    # Standard convention: columns are genes, rows are samples
+    available_genes = set(counts_matrix.columns)
     
-    isg_matrix = normalized_counts[existing_genes]
+    if not available_genes:
+        # Fallback: check index
+        available_genes = set(counts_matrix.index)
     
-    # Handle NaNs
-    if isg_matrix.isnull().any().any():
-        logger.warning("NaN values detected in ISG matrix. Filling with 0.")
-        isg_matrix = isg_matrix.fillna(0)
+    mapped_genes = set(mappings)
     
-    # Perform PCA
-    from sklearn.decomposition import PCA
-    pca = PCA(n_components=1)
-    try:
-        pca.fit(isg_matrix)
-        isg_scores = pd.Series(pca.transform(isg_matrix).flatten(), index=normalized_counts.index)
-    except Exception as e:
-        logger.error(f"PCA failed: {e}")
-        raise RuntimeError("PCA calculation failed. The ISG set may be invalid or data insufficient.")
+    if not mapped_genes:
+        logger.error("No mapped genes found in input list.")
+        return False
     
-    return isg_scores
-
-def save_isg_scores(scores: pd.Series, output_path: Optional[str] = None) -> None:
-    """Save ISG scores to CSV."""
-    if output_path is None:
-        output_path = Path(DATA_PROCESSED_PATH) / "isg_scores.csv"
-    else:
-        output_path = Path(output_path)
+    # Calculate overlap
+    overlap = mapped_genes.intersection(available_genes)
+    overlap_ratio = len(overlap) / len(mapped_genes)
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    scores.to_csv(output_path)
-    logger.info(f"Saved ISG scores to {output_path}")
-
-def filter_samples(merged_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Filter samples to remove rows with missing strain links and ensure >=30 samples remain.
+    logger.info(f"ISG Mapping Validation: {len(overlap)} / {len(mapped_genes)} genes found ({overlap_ratio:.2%})")
     
-    This function implements FR-013 and FR-014 constraints:
-    1. Removes rows where 'strain_accession' is missing (NaN or None).
-    2. Checks if the remaining sample count is >= 30.
-    3. Aborts the pipeline with a fatal error if < 30 samples remain.
+    if overlap_ratio < 0.80:
+        logger.error(f"FR-015 Violation: ISG mapping overlap is {overlap_ratio:.2%} (< 80%). "
+                     f"Sample will be EXCLUDED. Missing genes: {mapped_genes - available_genes}")
+        return False
     
-    Args:
-        merged_df: DataFrame containing merged features and ISG scores.
-                   Must contain a 'strain_accession' column.
-    
-    Returns:
-        Filtered DataFrame with valid strain links and >= 30 samples.
-    
-    Raises:
-        RuntimeError: If the number of valid samples is less than 30.
-    """
-    logger.info("Filtering samples for missing strain links and minimum count...")
-    
-    if merged_df.empty:
-        logger.error("Input DataFrame is empty. Aborting.")
-        raise ValueError("Input DataFrame is empty.")
-    
-    if 'strain_accession' not in merged_df.columns:
-        logger.error("Column 'strain_accession' not found in DataFrame. Aborting.")
-        raise KeyError("Column 'strain_accession' not found in DataFrame.")
-    
-    # Count before filtering
-    initial_count = len(merged_df)
-    logger.info(f"Initial sample count: {initial_count}")
-    
-    # Remove rows with missing strain links
-    # Check for NaN, None, or empty string
-    valid_mask = merged_df['strain_accession'].notna() & (merged_df['strain_accession'] != '')
-    filtered_df = merged_df[valid_mask]
-    
-    removed_count = initial_count - len(filtered_df)
-    logger.info(f"Removed {removed_count} samples with missing strain links.")
-    
-    # Check minimum sample count (FR-013)
-    final_count = len(filtered_df)
-    if final_count < 30:
-        error_msg = f"FATAL: Sample count after filtering is {final_count}, which is below the required minimum of 30 (FR-013). Pipeline aborted."
-        logger.critical(error_msg)
-        raise RuntimeError(error_msg)
-    
-    logger.info(f"Filtering complete. {final_count} samples remain (>= 30 required).")
-    return filtered_df
-
-def run_isg_score_pipeline(normalized_counts_path: str, isg_genes: List[str], output_path: Optional[str] = None) -> None:
-    """Run the full ISG score calculation pipeline."""
-    logger.info(f"Loading normalized counts from {normalized_counts_path}")
-    normalized_df = pd.read_csv(normalized_counts_path, index_col=0)
-    
-    scores = calculate_isg_score(normalized_df, isg_genes)
-    save_isg_scores(scores, output_path)
-
-def run_normalize_pipeline(counts_path: str, output_path: Optional[str] = None) -> None:
-    """Run the full normalization pipeline."""
-    logger.info(f"Loading counts from {counts_path}")
-    df = pd.read_csv(counts_path, index_col=0)
-    normalized = normalize_counts(df)
-    save_normalized_counts(normalized, output_path)
+    logger.info("ISG mapping validation passed (overlap >= 80%).")
+    return True

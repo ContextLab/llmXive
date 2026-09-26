@@ -39,8 +39,8 @@
 
 - [X] T004 Create `src/config.py` defining: `DATA_RAW_PATH='data/raw'`, `DATA_PROCESSED_PATH='data/processed'`, `ARTIFACTS_PATH='data/artifacts'`, `SEED=42`, `MAX_RUNTIME_HOURS=4`, `NCBI_BASE_URL=''`, `GEO_BASE_URL='https://www.ncbi.nlm.nih.gov/geo/download'`.
 - [X] T005 Create `src/download.py` with stub functions: `fetch_viral_genomes(accessions: list) -> list`, `fetch_geo_data(accessions: list) -> dict` (raising `NotImplementedError`), and a `main()` entry point logging "Download skeleton initialized".
-- [X] T002b [P] **Spec Amendment**: Create `docs/spec_amendments.md` with a section titled **"Protein Stability Proxy Override"**. The text MUST explicitly state: "FR-003 requirement for ESM-1b is overridden by Plan.md Section: Complexity Tracking (Uniform Stability Proxy). The system MUST use a Uniform Stability Proxy (Amino Acid Composition + Hydrophobicity Scales) for ALL samples to ensure CPU feasibility on standard multi-core, limited-memory hardware. This methodology is the single source of truth for stability metrics." (Depends on T002).
-- [X] T002c [P] **Spec Amendment**: Create `docs/spec_amendments.md` (append) with a section titled **"k-mer Dimensionality Reduction"**. The text MUST explicitly state: "FR-003 requirement for k=3,4,5,6 is overridden by Plan.md Section: Complexity Tracking (Fixed k-mer Order). The system MUST restrict k-mer extraction to k=3 and k=4 ONLY to ensure CPU tractability and Debiased Lasso validity in the HDLSS regime. This is a fixed, a priori selection protocol." (Depends on T002).
+- [X] T002b [P] **Spec Amendment**: Create `docs/spec_amendments.md` with a section titled **"Protein Stability Proxy Override"**. The text MUST explicitly state: "FR-003 requirement for ESM-1b is overridden by Plan.md Section: Complexity Tracking (Uniform Stability Proxy). The system MUST use a Uniform Stability Proxy (Amino Acid Composition + Hydrophobicity Scales) for ALL samples to ensure CPU feasibility on standard multi-core, limited-memory hardware. [UNRESOLVED-CLAIM: c_d6a9af40 — status=not_enough_info] This methodology is the single source of truth for stability metrics." (Depends on T002).
+- [X] T002c [P] **Spec Amendment**: Create `docs/spec_amendments.md` (append) with a section titled **"k-mer Dimensionality Reduction"**. The text MUST explicitly state: "FR-003 requirement for k=3,4,5,6 is overridden by Plan.md Section: Complexity Tracking (Fixed k-mer Order). The system MUST restrict k-mer extraction to k=3 and k=4 ONLY to ensure CPU tractability and Debiased Lasso validity in the HDLSS regime. [UNRESOLVED-CLAIM: c_0882c928 — status=not_enough_info] This is a fixed, a priori selection protocol." (Depends on T002).
 - [X] T002e [P] **Documentation Task**: Create `docs/research.md` (or update existing) with a section titled **"k-mer Reduction Justification"**. The text MUST explicitly document the decision to use k=3,4 only, citing Plan.md constraints and the HDLSS problem (N < 100, P > 10,000). This ensures the audit trail matches the implementation before code is written. (Depends on Tc).
 - [X] T006a Create `src/download.py` function `generate_manifest_template() -> str` that writes a **JSON** file to `data/manifest_template.json` with keys: "accessions", "source", "timestamp", "version", "database_release_version" (placeholder string), "file_checksum" (placeholder string), and "checksum_algorithm" (set to "sha256").
 - [X] T007 Create `src/models/__init__.py` and `src/models/entities.py` defining Pydantic dataclasses: `ViralGenome` (accession: str, family: str, fasta: str) and `HostExpressionSample` (sample_id: str, counts: dict, metadata: dict, isg_score: float | None).
@@ -59,8 +59,8 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012a [US1] Implement `src/download.py` function `fetch_viral_genomes(accessions: list) -> list` that queries NCBI Virus API for genomes. **MUST WRITE FASTA FILES** to `data/raw/` for each accession. (Depends on T005).
-- [ ] T012b [US1] Implement `src/download.py` function `fetch_geo_data(accessions: list) -> dict` that downloads GEO series matrix files. **MUST WRITE COUNTS MATRICES** to `data/raw/`. (Depends on T005).
+- [X] T012a [US1] Implement `src/download.py` function `fetch_viral_genomes(accessions: list) -> list` that queries NCBI Virus API for genomes. **MUST WRITE FASTA FILES** to `data/raw/` for each accession. (Depends on T005).
+- [X] T012b [US1] Implement `src/download.py` function `fetch_geo_data(accessions: list) -> dict` that downloads GEO series matrix files. **MUST WRITE COUNTS MATRICES** to `data/raw/`. (Depends on T005). <!-- FAILED: unspecified -->
 - [ ] T012c [US1] Implement `src/download.py` function `generate_manifest(accessions: list, geo_accessions: list) -> None` that creates a **SINGLE unified `data/manifest.json`** containing:
  - "accessions" (list of all NCBI and GEO IDs)
  - "source" (NCBI Virus / GEO)
@@ -129,10 +129,10 @@
  1. Run `run_pilot_permutation` (shuffles).
  2. Calculate `estimated_total_time` as a multiple of `pilot_duration`.
  3. **If `estimated_total_time > 3.5 hours` (12600 seconds):**
-    - **DO NOT ABORT.**
-    - Calculate the maximum feasible number of permutations `n_feasible = floor(3.5 * 3600 / pilot_duration)`.
-    - Log a warning: "Runtime limit reached. Reducing permutations to {n_feasible} to ensure results are produced."
-    - Run the permutation test with `n_feasible` shuffles.
+ - **DO NOT ABORT.**
+ - Calculate the maximum feasible number of permutations `n_feasible = floor(3.5 * 3600 / pilot_duration)`.
+ - Log a warning: "Runtime limit reached. Reducing permutations to {n_feasible} to ensure results are produced."
+ - Run the permutation test with `n_feasible` shuffles.
  4. If within limit, proceed with 1,000 permutations.
  Save result to `data/artifacts/permutation_pvalue.json`. (Depends on T032a, T028).
 - [ ] T032c [US2] **P-value Aggregation**: Implement `src/model.py` function `aggregate_permutation_pvalue(null_distribution: list, observed_r2: float) -> float` that calculates the empirical p-value. (Depends on T032b).
@@ -161,7 +161,7 @@
 - [ ] T039 [US3] Implement `src/viz.py` function `plot_partial_dependence(model: Model, X: DataFrame, features: list, n_points: int=50) -> None` that generates partial dependence plots for top-ranked features. **Define "influential" as top 5 ranked by absolute coefficient magnitude from the Debiased Lasso results.** Save to `data/artifacts/plots/pdp_top5.png`.
 - [ ] T040a [US3] Update plot functions `plot_coefficients` and `plot_partial_dependence` in `src/viz.py` to explicitly set `xlabel`, `ylabel`, `title`, and `legend` for every plot generated.
 - [ ] T040b [US3] Create `tests/unit/test_viz_labels.py` with function `test_plot_labels()` verifying Axes objects returned by `plot_coefficients` and `plot_partial_dependence` have `xlabel`, `ylabel`, `title`, and `legend` attributes set correctly.
-- [ ] T041 [US3] **Structural Feature Visualization**: Implement `src/viz.py` function `plot_structural_importance(features_df: DataFrame, coefficients: dict) -> None` that specifically visualizes the contribution of the **Uniform Stability Proxy features** (AAC, Hydrophobicity) identified in T020. **Mandatory**: 
+- [ ] T041 [US3] **Structural Feature Visualization**: Implement `src/viz.py` function `plot_structural_importance(features_df: DataFrame, coefficients: dict) -> None` that specifically visualizes the contribution of the **Uniform Stability Proxy features** (AAC, Hydrophobicity) identified in T020. **Mandatory**:
  1. **Filter** `features_df` to remove any rows where structural feature columns (AAC_*, Hydrophobicity) are NaN (samples without valid ORFs).
  2. Generate a dedicated bar chart comparing the effect sizes of these physical metrics against sequence-based metrics (k-mers, GC).
  3. Save to `data/artifacts/plots/structural_importance.png`. (Depends on T020, T030).
