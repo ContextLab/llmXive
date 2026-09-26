@@ -1,1 +1,3 @@
-# Visualization module initialization
+"""
+Visualization modules for plots and figures.
+"""

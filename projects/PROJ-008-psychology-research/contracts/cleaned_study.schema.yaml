@@ -1,8 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Cleaned Study Schema
-description: |
-  Schema for validated study records extracted from ClinicalTrials.gov and OSF.
-  Enforces Constitution Principle VII (Delivery Format) and FR-010 (Social Skill Domain).
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cleaned Study Schema for ASD Mindfulness Meta-Analysis"
+description: "JSON Schema (Draft 7) defining the structure of cleaned study records extracted from ClinicalTrials.gov and OSF."
 type: object
 required:
   - id
@@ -17,60 +15,64 @@ required:
 properties:
   id:
     type: string
-    description: Unique identifier for the study (e.g., NCT number or OSF ID)
-    minLength: 1
+    description: "Unique identifier for the study (e.g., NCT number or OSF ID)"
   title:
     type: string
-    description: Full title of the study
-    minLength: 1
+    description: "Official title of the study"
   registry:
     type: string
-    description: Source registry
-    enum:
-      - ClinicalTrials.gov
-      - OSF
+    enum: ["ClinicalTrials.gov", "OSF"]
+    description: "Source registry where the study was registered"
   age_range:
-    type: string
-    description: Age range of participants (e.g., "8-12")
-    pattern: "^\\d+-\\d+$"
+    type: object
+    description: "Age range of participants in the study"
+    required:
+      - min
+      - max
+    properties:
+      min:
+        type: integer
+        minimum: 6
+        description: "Minimum age of participants (inclusive)"
+      max:
+        type: integer
+        maximum: 12
+        description: "Maximum age of participants (inclusive)"
   diagnosis:
     type: string
-    description: Diagnostic criteria used (e.g., DSM-5, ADOS-2)
-    minLength: 1
+    const: "ASD"
+    description: "Primary diagnosis of participants (Autism Spectrum Disorder)"
   outcomes:
     type: array
-    description: List of social skill outcome measures used
     items:
       type: string
-      minLength: 1
+    description: "List of outcome measures assessed in the study"
   intervention_components:
     type: array
-    description: Detected mindfulness components (e.g., 'breathing', 'body scan')
     items:
       type: string
-      minLength: 1
+      enum: ["breathing", "body scan", "mindful movement", "mindful eating", "none"]
+    description: "Specific mindfulness components included in the intervention"
   delivery_format:
     type: string
-    description: Format of intervention delivery per Constitution Principle VII
-    enum:
-      - caregiver-mediated
-      - child-led
-      - mixed
-      - not-reported
+    enum: ["caregiver-mediated", "child-led", "mixed", "not-reported"]
+    description: "Format of intervention delivery"
   follow_up:
     type: string
-    description: Follow-up duration (e.g., "3 months", "6 months")
     nullable: true
+    description: "Duration of follow-up assessment (e.g., '3 months', '6 months')"
   abstract_text:
     type: string
-    description: Extracted abstract text for validation fallback
     nullable: true
+    description: "Abstract text of the study, if available"
   social_skill_domain:
     type: string
-    description: Primary social skill domain targeted
-    enum:
-      - communication
-      - peer interaction
-      - emotional regulation
-      - mixed
-additionalProperties: false
+    enum: ["communication", "peer interaction", "emotional regulation", "mixed", "other"]
+    description: "Primary social skill domain targeted by the intervention"
+  blinded_assessment_flag:
+    type: boolean
+    description: "True if outcome assessment was blinded to intervention status"
+  rater_type:
+    type: string
+    enum: ["blinded", "unblinded", "mixed"]
+    description: "Type of rater used for primary outcome"

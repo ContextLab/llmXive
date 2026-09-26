@@ -1,32 +1,42 @@
-T002b:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing that dependencies from T002a were installed (e.g., no `requirements.txt`,
-    `pyproject.toml`, installation logs, or a populated virtual environment) is present.
-    Without such evidence, we cannot confirm that `pip install -e .` was executed
-    successfully in the project root.
-T007:
+  r: "No directory listing or file tree was provided, so we cannot verify that the\
+    \ required folders (`code/`, `data/` with its subfolders, `docs/`, `tests/` with\
+    \ its subfolders, `contracts/`, `scripts/`, `.github/workflows/`) actually exist\
+    \ under `projects/PROJ-008-psychology-research/`. The implementer\u2019s claim\
+    \ lacks concrete evidence of the requested structure."
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `contracts/cleaned_study.schema.yaml` or `contracts/effect_size.schema.yaml`
-    files were provided; the required schema contract artifacts are missing, so the
-    task is not satisfied.
-T016:
+  r: "No `__init__.py` files were presented for any `code/` or `tests/` subdirectory,\
+    \ and there is no evidence that such files exist on disk. The required package\u2011\
+    initialization files are therefore missing."
+T003:
   c: false
-  h: beac43e5485d37a9f0ee0112cb7bdb5c60a6e0908e0b06039994ef88a08d06fe
-  r: "The `collector.py` file is truncated, contains a syntax error (`return No`),\
-    \ and does not include the required logic to check for `data/raw/mock_registry_response.json`\
-    \ or to load it in CI mode. Moreover, the expected artifacts `data/raw/mock_registry_response.json`\
-    \ and `data/raw/retrieval_log.json` are absent, so the logging requirement (including\
-    \ at least one 200\u2011status entry) cannot be satisfied."
-T020:
+  h: 3aa0eff5d6df71efa2b7224de35598b0b5210b1e01db0863c50747a4a2e90715
+  r: The repository contains a correctly configured `[tool.black]` and `[tool.ruff]`
+    section in `pyproject.toml`, but the required `.ruff.toml` file at the repository
+    root is missing. The task explicitly demands this file, so the implementation
+    is incomplete.
+T018:
   c: false
-  h: 3a3ae0da0ced2be31ae70ac335d9975517f416b9e500b2a8b9b885b265a00ef3
-  r: "The provided `code/data/extractor.py` contains only component\u2011extraction\
-    \ helpers and does not implement the abstract\u2011only fallback logic (checking\
-    \ metadata, extracting `abstract_text`, or writing to `data/raw/excluded_studies.log`).\
-    \ Moreover, the required `data/raw/excluded_studies.log` file is absent. These\
-    \ missing pieces mean the task\u2019s requirements are not satisfied."
+  h: 92b64f453ece96ac23941272b4b3d75eed48a670ace36e8cb163bab5e660ecff
+  r: "The provided `code/data/cleaner.py` includes the required validation functions,\
+    \ but the snippet ends before any processing routine that would flag invalid studies\
+    \ and write entries to `data/raw/excluded_studies.log`. Moreover, the `excluded_studies.log`\
+    \ file is absent from the repository. Without the logging implementation and the\
+    \ actual log artifact, the task\u2019s requirement is not satisfied."
+T021:
+  c: false
+  h: 12791156c419519c85a0e0b9e59acd6dafa1e612c42e61aeb5342c5268910a1f
+  r: "The provided `scripts/verify_output.py` exists but is truncated and never loads\
+    \ or validates against `contracts/cleaned_study.schema.yaml` (the schema file\
+    \ is missing). Moreover, the required data artifacts `data/processed/cleaned_studies.csv`\
+    \ and `data/raw/excluded_studies.log` are absent, so the script cannot perform\
+    \ the existence or empty\u2011CSV checks described in the task. The missing schema\
+    \ file and data artifacts must be added and the script completed to satisfy the\
+    \ specification."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

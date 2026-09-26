@@ -1,1 +1,3 @@
-# Data module initialization
+"""
+Data collection, cleaning, and extraction modules.
+"""

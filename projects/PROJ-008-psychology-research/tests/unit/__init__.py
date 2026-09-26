@@ -1,1 +1,3 @@
-# Unit tests initialization
+"""
+Unit tests for individual functions and classes.
+"""

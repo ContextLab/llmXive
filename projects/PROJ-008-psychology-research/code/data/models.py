@@ -1,10 +1,9 @@
 """
-Pydantic data models for the Mindfulness Components and Delivery Formats in ASD Social Skills research pipeline.
+Pydantic data models for the llmXive psychology research pipeline.
 
-These models enforce data integrity and schema validation as required by:
-- Constitution Principle II (Verified Accuracy)
-- Constitution Principle V (Fail Fast)
-- FR-007 (Data Integrity)
+This module defines the core data structures for Studies, Effect Sizes, and
+Meta-Analysis results used throughout the data collection, cleaning, and
+analysis phases.
 """
 
 from datetime import date
@@ -14,216 +13,197 @@ from pydantic import BaseModel, Field, field_validator, ConfigDict
 import math
 
 
-class DeliveryFormat(Enum):
-    """
-    Enumeration of delivery formats for the intervention.
+class RegistrySource(str, Enum):
+    """Enum representing the source registry of a study."""
+    CLINICAL_TRIALS = "ClinicalTrials.gov"
+    OSF = "OSF"
 
-    Constitution Principle VII mandates strict adherence to these categories.
-    FR-010 requires extraction of this field from study metadata.
-    """
-    CAREGIVER_MEDIANATED = "caregiver-mediated"
-    CHILD_LEAD = "child-led"
+
+class DeliveryFormat(str, Enum):
+    """Enum representing the delivery format of the intervention."""
+    CAREGIVER_MEDIATED = "caregiver-mediated"
+    CHILD_LED = "child-led"
     MIXED = "mixed"
     NOT_REPORTED = "not-reported"
 
 
-class MindfulnessComponent(Enum):
-    """
-    Enumeration of specific mindfulness components extracted from study descriptions.
-
-    FR-003 requires detection of these components via regex scanning of abstract/description.
-    Constitution Principle II ensures these labels match the actual intervention content.
-    """
+class MindfulnessComponent(str, Enum):
+    """Enum representing specific mindfulness intervention components."""
     BREATHING = "breathing"
-    BODY_SCAN = "body_scan"
-    MINDFUL_MOVEMENT = "mindful_movement"
-    MINDFUL_EATING = "mindful_eating"
+    BODY_SCAN = "body scan"
+    MINDFUL_MOVEMENT = "mindful movement"
+    MINDFUL_EATING = "mindful eating"
+    NONE = "none"
+
+
+class SocialSkillDomain(str, Enum):
+    """Enum representing the primary social skill domain targeted."""
+    COMMUNICATION = "communication"
+    PEER_INTERACTION = "peer interaction"
+    EMOTIONAL_REGULATION = "emotional regulation"
+    MIXED = "mixed"
     OTHER = "other"
 
 
-class SocialSkillDomain(Enum):
+class BlindingStatus(str, Enum):
+    """Enum representing the blinding status of the outcome rater."""
+    BLINDED = "blinded"
+    UNBLINDED = "unblinded"
+    UNKNOWN = "unknown"
+
+
+class AgeRange(BaseModel):
     """
-    Enumeration of social skill domains targeted by the intervention.
+    Represents the age range of participants in a study.
 
-    Defined in T017b and T031.
-    FR-010 requires mapping keywords to these domains.
+    Attributes:
+        min (int): Minimum age of participants.
+        max (int): Maximum age of participants.
     """
-    COMMUNICATION = "communication"
-    PEER_INTERACTION = "peer_interaction"
-    EMOTIONAL_REGULATION = "emotional_regulation"
-    MIXED = "mixed"
+    model_config = ConfigDict(validate_assignment=True)
+    min: int = Field(..., ge=0, description="Minimum age of participants")
+    max: int = Field(..., ge=0, description="Maximum age of participants")
 
-
-class RegistrySource(Enum):
-    """
-    Source registry for the study data.
-
-    Constitution Principle VI restricts sources to ClinicalTrials.gov and OSF.
-    FR-001 mandates data collection from these specific registries.
-    """
-    CLINICAL_TRIALS_GOV = "ClinicalTrials.gov"
-    OSF = "OSF"
-
-
-class BlindingStatus(Enum):
-    """
-    Status of blinding in the study.
-
-    FR-008 requires capturing blinding status for quality assessment.
-    """
-    SINGLE_BLIND = "single"
-    DOUBLE_BLIND = "double"
-    NOT_BLINDED = "not_blinded"
-    NOT_REPORTED = "not_reported"
+    @field_validator('max')
+    @classmethod
+    def max_must_be_greater_than_min(cls, v, info) -> int:
+        """Ensure max age is not less than min age."""
+        if info.data and 'min' in info.data:
+            if v < info.data['min']:
+                raise ValueError('max age cannot be less than min age')
+        return v
 
 
 class Study(BaseModel):
     """
-    Represents a single study record extracted from a clinical trial registry.
+    Represents a single clinical study record.
 
-    Constitution Principle II (Verified Accuracy): All fields must be derived from
-    verified registry metadata or validated extraction logic.
-    FR-007 (Data Integrity): Schema validation ensures no malformed data enters the pipeline.
-    FR-003: Intervention components must be explicitly detected.
-    FR-010: Social skill domain must be categorized.
+    This model captures the core metadata and intervention details for a study
+    ingested from registries like ClinicalTrials.gov or OSF.
+
+    Attributes:
+        id (str): Unique identifier for the study.
+        title (str): Title of the study.
+        registry (RegistrySource): Source registry of the study.
+        age_range (AgeRange): Age range of the study participants.
+        diagnosis (str): Primary diagnosis (expected "ASD").
+        outcomes (List[str]): List of outcome measures used.
+        intervention_components (List[MindfulnessComponent]): Components of the intervention.
+        delivery_format (DeliveryFormat): Format of intervention delivery.
+        social_skill_domain (SocialSkillDomain): Primary domain targeted.
+        follow_up (Optional[str]): Follow-up duration description.
+        abstract_text (Optional[str]): Abstract text of the study.
+        rater_type (BlindingStatus): Type of rater used.
+        blinded_assessment_flag (bool): Flag indicating if assessment was blinded.
     """
-    model_config = ConfigDict(use_enum_values=True, str_strip_whitespace=True)
+    model_config = ConfigDict(use_enum_values=True)
 
-    id: str = Field(..., description="Unique registry identifier (e.g., NCT number or OSF ID).")
-    title: str = Field(..., description="Full title of the study.")
-    registry: RegistrySource = Field(..., description="Source registry (Constitution Principle VI).")
-    age_range_min: Optional[float] = Field(None, description="Minimum age of participants.")
-    age_range_max: Optional[float] = Field(None, description="Maximum age of participants.")
-    diagnosis: str = Field(..., description="Primary diagnosis criteria (e.g., ASD, Autistic Disorder).")
-    outcomes: List[str] = Field(..., description="List of outcome measures used (must be validated).")
+    id: str = Field(..., description="Unique study identifier")
+    title: str = Field(..., description="Title of the study")
+    registry: RegistrySource = Field(..., description="Source registry")
+    age_range: AgeRange = Field(..., description="Participant age range")
+    diagnosis: str = Field(..., const="ASD", description="Primary diagnosis")
+    outcomes: List[str] = Field(default_factory=list, description="Outcome measures")
     intervention_components: List[MindfulnessComponent] = Field(
-        default_factory=list,
-        description="Detected mindfulness components (FR-003)."
+        default_factory=list, description="Intervention components"
     )
-    delivery_format: DeliveryFormat = Field(
-        default=DeliveryFormat.NOT_REPORTED,
-        description="Delivery format of the intervention (Constitution Principle VII)."
+    delivery_format: DeliveryFormat = Field(..., description="Delivery format")
+    social_skill_domain: SocialSkillDomain = Field(
+        default=SocialSkillDomain.OTHER, description="Social skill domain"
     )
-    follow_up_months: Optional[float] = Field(None, description="Follow-up duration in months.")
-    abstract_text: Optional[str] = Field(None, description="Extracted abstract text (FR-009).")
-    social_skill_domain: Optional[SocialSkillDomain] = Field(
-        None,
-        description="Targeted social skill domain (FR-010)."
+    follow_up: Optional[str] = Field(None, description="Follow-up duration")
+    abstract_text: Optional[str] = Field(None, description="Abstract text")
+    rater_type: BlindingStatus = Field(
+        default=BlindingStatus.UNKNOWN, description="Rater type"
     )
-    blinding_status: Optional[BlindingStatus] = Field(None, description="Blinding status of the study.")
-    n_treatment: Optional[int] = Field(None, description="Number of participants in treatment group.")
-    n_control: Optional[int] = Field(None, description="Number of participants in control group.")
-    mean_treatment: Optional[float] = Field(None, description="Mean outcome for treatment group.")
-    mean_control: Optional[float] = Field(None, description="Mean outcome for control group.")
-    sd_treatment: Optional[float] = Field(None, description="Standard deviation for treatment group.")
-    sd_control: Optional[float] = Field(None, description="Standard deviation for control group.")
-    registry_url: Optional[str] = Field(None, description="URL to the registry entry.")
-    retrieval_timestamp: Optional[str] = Field(None, description="ISO timestamp of data retrieval.")
+    blinded_assessment_flag: bool = Field(
+        default=False, description="Blinded assessment flag"
+    )
 
-    @field_validator('age_range_min', 'age_range_max')
+    @field_validator('diagnosis')
     @classmethod
-    def validate_age(cls, v: Optional[float]) -> Optional[float]:
-        """
-        Validate age values are within reasonable bounds for pediatric ASD research.
-        Constitution Principle II: Ensures data accuracy by rejecting impossible values.
-        """
-        if v is None:
-            return v
-        if v < 0 or v > 100:
-            raise ValueError(f"Age must be between 0 and 100, got {v}")
+    def validate_diagnosis(cls, v) -> str:
+        """Ensure diagnosis is ASD."""
+        if v != "ASD":
+            raise ValueError("Diagnosis must be 'ASD' for this pipeline")
         return v
-
-    @field_validator('outcomes')
-    @classmethod
-    def validate_outcomes(cls, v: List[str]) -> List[str]:
-        """
-        Validate that outcomes are non-empty strings.
-        FR-007: Ensures data integrity by preventing empty outcome lists.
-        """
-        if not v:
-            raise ValueError("Outcomes list cannot be empty")
-        return [str(o).strip() for o in v if str(o).strip()]
 
 
 class EffectSize(BaseModel):
     """
-    Represents a calculated effect size (Hedges' g) for a specific study comparison.
+    Represents a calculated effect size for a study.
 
-    Constitution Principle II: Calculations must be reproducible and accurate.
-    FR-004: Requires Hedges' g with small-sample correction.
+    Attributes:
+        study_id (str): Reference to the study ID.
+        hedges_g (float): Calculated Hedges' g effect size.
+        se (float): Standard error of the effect size.
+        ci_lower (float): Lower bound of the confidence interval.
+        ci_upper (float): Upper bound of the confidence interval.
+        n_treatment (int): Sample size of the treatment group.
+        n_control (int): Sample size of the control group.
+        rater_blinding_status (BlindingStatus): Blinding status of the rater.
     """
-    study_id: str = Field(..., description="Reference to the parent Study.id.")
-    hedges_g: float = Field(..., description="Calculated Hedges' g effect size.")
-    se: float = Field(..., description="Standard error of the effect size.")
-    ci_lower: float = Field(..., description="Lower bound of 95% confidence interval.")
-    ci_upper: float = Field(..., description="Upper bound of 95% confidence interval.")
-    n_treatment: int = Field(..., description="Sample size of treatment group.")
-    n_control: int = Field(..., description="Sample size of control group.")
-    calculation_method: str = Field(
-        default="hedges_g_correction",
-        description="Method used for calculation (FR-004)."
+    study_id: str = Field(..., description="Reference study ID")
+    hedges_g: float = Field(..., description="Hedges' g effect size")
+    se: float = Field(..., description="Standard error")
+    ci_lower: float = Field(..., description="CI lower bound")
+    ci_upper: float = Field(..., description="CI upper bound")
+    n_treatment: int = Field(..., ge=1, description="Treatment group size")
+    n_control: int = Field(..., ge=1, description="Control group size")
+    rater_blinding_status: BlindingStatus = Field(
+        default=BlindingStatus.UNKNOWN, description="Rater blinding status"
     )
 
     @field_validator('hedges_g', 'se', 'ci_lower', 'ci_upper')
     @classmethod
-    def validate_finite(cls, v: float) -> float:
-        """
-        Ensure effect size metrics are finite numbers.
-        Constitution Principle V: Fail fast on invalid numerical results.
-        """
+    def validate_finite_numbers(cls, v) -> float:
+        """Ensure numerical fields are finite."""
         if not math.isfinite(v):
-            raise ValueError(f"Value must be finite, got {v}")
+            raise ValueError("Effect size metrics must be finite numbers")
         return v
 
-    @field_validator('n_treatment', 'n_control')
-    @classmethod
-    def validate_sample_size(cls, v: int) -> int:
-        """
-        Ensure sample sizes are positive integers.
-        FR-004: Required for effect size calculation.
-        """
-        if v <= 0:
-            raise ValueError(f"Sample size must be positive, got {v}")
-        return v
+
+class SubgroupResult(BaseModel):
+    """
+    Represents results for a specific subgroup analysis.
+
+    Attributes:
+        subgroup_name (str): Name of the subgroup.
+        pooled_effect_size (float): Pooled effect size for the subgroup.
+        ci_lower (float): Lower CI bound.
+        ci_upper (float): Upper CI bound.
+        n_studies (int): Number of studies in the subgroup.
+        heterogeneity_i2 (float): Heterogeneity statistic I-squared.
+    """
+    subgroup_name: str = Field(..., description="Name of the subgroup")
+    pooled_effect_size: float = Field(..., description="Pooled effect size")
+    ci_lower: float = Field(..., description="CI lower bound")
+    ci_upper: float = Field(..., description="CI upper bound")
+    n_studies: int = Field(..., description="Number of studies")
+    heterogeneity_i2: float = Field(..., description="I-squared heterogeneity")
 
 
 class MetaAnalysisResult(BaseModel):
     """
-    Represents the aggregated results of a meta-analysis.
+    Represents the final output of a meta-analysis.
 
-    Constitution Principle II: Aggregated statistics must be derived from verified inputs.
-    FR-005: Requires random-effects model and subgroup analysis.
+    Attributes:
+        pooled_effect_size (float): Overall pooled effect size.
+        ci_lower (float): Lower bound of the 95% CI.
+        ci_upper (float): Upper bound of the 95% CI.
+        model_type (str): Type of model used (fixed/random).
+        heterogeneity_i2 (float): Overall heterogeneity I-squared.
+        heterogeneity_q (float): Cochran's Q statistic.
+        p_value (float): P-value for the overall effect.
+        subgroup_results (List[SubgroupResult]): Results for subgroups if analyzed.
     """
-    model_config = ConfigDict(use_enum_values=True)
-
-    analysis_type: str = Field(..., description="Type of analysis (e.g., 'random_effects', 'subgroup').")
-    pooled_effect_size: Optional[float] = Field(None, description="Pooled Hedges' g.")
-    pooled_se: Optional[float] = Field(None, description="Pooled standard error.")
-    ci_lower: Optional[float] = Field(None, description="Lower CI of pooled effect.")
-    ci_upper: Optional[float] = Field(None, description="Upper CI of pooled effect.")
-    i_squared: Optional[float] = Field(None, description="Heterogeneity statistic I².")
-    q_statistic: Optional[float] = Field(None, description="Cochran's Q statistic.")
-    p_value: Optional[float] = Field(None, description="P-value for heterogeneity or pooled effect.")
-    k_studies: int = Field(..., description="Number of studies included in analysis.")
-    subgroup_breakdown: Optional[List[Dict[str, Any]]] = Field(
-        None,
-        description="Results broken down by subgroup (e.g., domain, format)."
+    pooled_effect_size: float = Field(..., description="Overall pooled effect size")
+    ci_lower: float = Field(..., description="CI lower bound")
+    ci_upper: float = Field(..., description="CI upper bound")
+    model_type: str = Field(..., description="Model type used")
+    heterogeneity_i2: float = Field(..., description="I-squared")
+    heterogeneity_q: float = Field(..., description="Cochran's Q")
+    p_value: float = Field(..., description="P-value")
+    subgroup_results: List[SubgroupResult] = Field(
+        default_factory=list, description="Subgroup analysis results"
     )
-    method: str = Field(
-        default="restricted_maximum_likelihood",
-        description="Estimation method for random effects (FR-005)."
-    )
-    timestamp: Optional[str] = Field(None, description="ISO timestamp of analysis run.")
-
-    @field_validator('pooled_effect_size', 'i_squared', 'q_statistic', 'p_value')
-    @classmethod
-    def validate_metrics(cls, v: Optional[float]) -> Optional[float]:
-        """
-        Ensure metrics are finite if present.
-        Constitution Principle V: Fail fast on invalid statistical results.
-        """
-        if v is None:
-            return v
-        if not math.isfinite(v):
-            raise ValueError(f"Metric must be finite, got {v}")
-        return v

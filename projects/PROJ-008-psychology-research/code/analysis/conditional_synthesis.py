@@ -1,6 +1,7 @@
 """
-Conditional synthesis logic for meta-analysis.
-Implements FR-014: Suppress subgroup/meta-regression if N < 10 and switch to descriptive synthesis.
+Conditional synthesis routing module.
+Implements logic to suppress subgroup/meta-regression if N < 10
+and switch to descriptive synthesis.
 """
 import logging
 import os
@@ -10,98 +11,123 @@ from pathlib import Path
 import pandas as pd
 
 from code.utils.logging import get_logger
-from code.utils.config import get_docs_path, get_data_path
 from code.analysis.descriptive_synthesis import perform_descriptive_synthesis, format_synthesis_report
 
 logger = get_logger(__name__)
 
-MIN_SUBGROUP_SIZE = 10
-
 def check_sample_size_and_route(
-    cleaned_studies_path: Optional[str] = None,
-    output_doc_path: Optional[str] = None
+    input_csv: str,
+    output_docs: str,
+    min_sample_size: int = 10
 ) -> Dict[str, Any]:
     """
-    Checks the number of studies in the cleaned dataset.
-    If N < 10, performs descriptive synthesis and writes the report.
-    If N >= 10, returns a flag indicating meta-analysis should proceed (subgroup/regression).
+    Check sample size of input data and route to appropriate analysis.
     
     Args:
-        cleaned_studies_path: Path to the cleaned studies CSV. Defaults to data/processed/cleaned_studies.csv.
-        output_doc_path: Path for the output markdown report. Defaults to docs/native_synthesis.md.
+        input_csv: Path to the cleaned studies CSV file.
+        output_docs: Path to the output documentation directory.
+        min_sample_size: Minimum number of studies required for meta-analysis.
         
     Returns:
-        A dictionary with:
-            - 'proceed_meta_analysis': bool (True if N >= 10)
-            - 'n_studies': int
-            - 'synthesis_report_path': str (if descriptive synthesis was performed)
+        Dictionary containing analysis results and routing decision.
     """
-    if cleaned_studies_path is None:
-        cleaned_studies_path = str(get_data_path() / "processed" / "cleaned_studies.csv")
-    if output_doc_path is None:
-        output_doc_path = str(get_docs_path() / "native_synthesis.md")
-
-    logger.info(f"Checking sample size for conditional synthesis logic. Source: {cleaned_studies_path}")
-
-    if not os.path.exists(cleaned_studies_path):
-        raise FileNotFoundError(f"Cleaned studies file not found at {cleaned_studies_path}. "
-                                "Ensure T021 (verify_output) and the data pipeline have run successfully.")
-
-    try:
-        df = pd.read_csv(cleaned_studies_path)
-    except Exception as e:
-        logger.error(f"Failed to read cleaned studies CSV: {e}")
-        raise
-
+    logger.info(f"Checking sample size for {input_csv} with threshold {min_sample_size}")
+    
+    if not os.path.exists(input_csv):
+        raise FileNotFoundError(f"Input CSV file not found: {input_csv}")
+    
+    df = pd.read_csv(input_csv)
     n_studies = len(df)
-    logger.info(f"Found {n_studies} studies in cleaned dataset.")
-
+    
+    logger.info(f"Found {n_studies} studies in input data")
+    
     result = {
         "n_studies": n_studies,
-        "proceed_meta_analysis": n_studies >= MIN_SUBGROUP_SIZE
+        "min_sample_size": min_sample_size,
+        "route": None,
+        "analysis_results": None
     }
-
-    if n_studies < MIN_SUBGROUP_SIZE:
-        logger.warning(f"Sample size ({n_studies}) is below threshold ({MIN_SUBGROUP_SIZE}). "
-                       f"Switching to descriptive synthesis (FR-014).")
+    
+    if n_studies < min_sample_size:
+        logger.info(f"Sample size ({n_studies}) is below threshold ({min_sample_size}). "
+                    f"Routing to descriptive synthesis.")
+        result["route"] = "descriptive_synthesis"
         
         # Perform descriptive synthesis
         synthesis_result = perform_descriptive_synthesis(df)
-        
-        # Format the report
-        report_content = format_synthesis_report(synthesis_result, n_studies)
+        formatted_report = format_synthesis_report(synthesis_result)
         
         # Ensure output directory exists
-        output_path = Path(output_doc_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path = Path(output_docs)
+        output_path.mkdir(parents=True, exist_ok=True)
         
-        # Write the report
-        with open(output_path, 'w', encoding='utf-8') as f:
-            f.write(report_content)
+        # Write report to file
+        report_file = output_path / "native_synthesis.md"
+        with open(report_file, 'w', encoding='utf-8') as f:
+            f.write(formatted_report)
         
-        logger.info(f"Descriptive synthesis report written to {output_doc_path}")
-        result["synthesis_report_path"] = str(output_path)
+        logger.info(f"Descriptive synthesis report written to {report_file}")
+        
+        result["analysis_results"] = {
+            "type": "descriptive_synthesis",
+            "report_file": str(report_file),
+            "summary": synthesis_result
+        }
     else:
-        logger.info(f"Sample size ({n_studies}) meets threshold ({MIN_SUBGROUP_SIZE}). "
-                    f"Meta-analysis and subgroup regression should proceed.")
-        
+        logger.info(f"Sample size ({n_studies}) meets threshold ({min_sample_size}). "
+                    f"Routing to meta-analysis (not implemented in this task).")
+        result["route"] = "meta_analysis"
+        result["analysis_results"] = {
+            "type": "meta_analysis",
+            "note": "Meta-analysis path not implemented in this task. "
+                    "Please run code/analysis/meta_analysis.py for full results."
+        }
+    
     return result
 
 def main():
-    """
-    Entry point for the conditional synthesis script.
-    """
+    """Main entry point for conditional synthesis routing."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Route analysis based on sample size")
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Path to the cleaned studies CSV file"
+    )
+    parser.add_argument(
+        "--output-docs",
+        type=str,
+        default="docs",
+        help="Path to the output documentation directory"
+    )
+    parser.add_argument(
+        "--min-sample",
+        type=int,
+        default=10,
+        help="Minimum number of studies for meta-analysis"
+    )
+    
+    args = parser.parse_args()
+    
     try:
-        result = check_sample_size_and_route()
-        print(f"Conditional Synthesis Check Complete.")
-        print(f"  Studies Found: {result['n_studies']}")
-        print(f"  Proceed to Meta-Analysis: {result['proceed_meta_analysis']}")
-        if not result['proceed_meta_analysis']:
-            print(f"  Descriptive Synthesis Generated: {result.get('synthesis_report_path', 'N/A')}")
+        result = check_sample_size_and_route(
+            args.input,
+            args.output_docs,
+            args.min_sample
+        )
+        
+        print(f"Routing decision: {result['route']}")
+        print(f"Studies found: {result['n_studies']}")
+        
+        if result['route'] == 'descriptive_synthesis':
+            print(f"Report generated: {result['analysis_results']['report_file']}")
+        
         return 0
     except Exception as e:
-        logger.error(f"Error in conditional synthesis check: {e}")
-        return 1
+        logger.error(f"Error in conditional synthesis routing: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

@@ -1,3 +1,6 @@
+"""
+Meta-analysis engine for pooling effect sizes and performing subgroup analyses.
+"""
 import logging
 import os
 from typing import List, Dict, Any, Optional, Tuple
@@ -6,383 +9,576 @@ import math
 import numpy as np
 import pandas as pd
 from code.utils.logging import get_logger
+from code.utils.config import get_config
 
 logger = get_logger(__name__)
+config = get_config()
 
 @dataclass
 class MetaAnalysisStats:
-    """Statistics for the overall meta-analysis."""
-    pooled_effect: float
-    pooled_se: float
-    z_score: float
-    p_value: float
+    pooled_effect_size: float
+    se: float
     ci_lower: float
     ci_upper: float
     i_squared: float
     q_statistic: float
     df: int
-    tau_squared: float
+    p_value: float
+    model_type: str  # 'fixed' or 'random'
 
 @dataclass
 class SubgroupResult:
-    """Results for a single subgroup."""
-    domain: str
+    subgroup_name: str
     n_studies: int
-    pooled_effect: float
-    pooled_se: float
+    pooled_effect_size: float
+    se: float
     ci_lower: float
     ci_upper: float
-    z_score: float
-    p_value: float
     i_squared: float
     q_statistic: float
     df: int
+    p_value: float
+    model_type: str
 
 @dataclass
 class SubgroupAnalysisResult:
-    """Container for subgroup analysis results."""
-    overall_stats: Optional[MetaAnalysisStats]
-    subgroup_stats: List[SubgroupResult]
-    between_q: float
-    between_df: int
-    between_p_value: float
+    results: List[SubgroupResult] = field(default_factory=list)
+    q_between: float = 0.0
+    p_between: float = 1.0
+    df_between: int = 0
 
 def calculate_hedges_g_correction(j: float) -> float:
-    """Calculate the correction factor for small sample bias."""
-    # J approximation: 1 - (3 / (4 * df - 1))
-    return j
+    """Calculate Hedges' g correction factor for small sample bias."""
+    return 1.0 - (3.0 / (4.0 * j - 1.0))
 
-def run_random_effects_meta_analysis(effect_sizes: List[float], ses: List[float]) -> MetaAnalysisStats:
+def run_random_effects_meta_analysis(effect_sizes: List[Dict[str, Any]]) -> MetaAnalysisStats:
     """
-    Perform a random-effects meta-analysis.
+    Perform random-effects meta-analysis using the DerSimonian-Laird method.
     
     Args:
-        effect_sizes: List of Hedges' g values.
-        ses: List of standard errors.
+        effect_sizes: List of dicts with keys 'hedges_g', 'se'
         
     Returns:
-        MetaAnalysisStats object with pooled results and heterogeneity.
+        MetaAnalysisStats object with pooled results
     """
-    if not effect_sizes or len(effect_sizes) == 0:
-        raise ValueError("Effect size list cannot be empty.")
+    if not effect_sizes:
+        raise ValueError("No effect sizes provided for meta-analysis")
         
-    n = len(effect_sizes)
-    if n == 1:
-        # If only one study, return its stats but heterogeneity is undefined
-        g = effect_sizes[0]
-        se = ses[0]
-        return MetaAnalysisStats(
-            pooled_effect=g,
-            pooled_se=se,
-            z_score=g / se if se != 0 else 0.0,
-            p_value=1.0, # Undefined for n=1, defaulting
-            ci_lower=g - 1.96 * se,
-            ci_upper=g + 1.96 * se,
-            i_squared=0.0,
-            q_statistic=0.0,
-            df=0,
-            tau_squared=0.0
-        )
-
-    # Weights for fixed effect (1/se^2)
-    w_fixed = [1.0 / (se ** 2) if se > 0 else 0.0 for se in ses]
-    sum_w = sum(w_fixed)
+    k = len(effect_sizes)
+    g = np.array([es['hedges_g'] for es in effect_sizes])
+    se = np.array([es['se'] for es in effect_sizes])
+    v = se ** 2  # Variance of effect sizes
     
-    if sum_w == 0:
-        raise ValueError("Sum of weights is zero. Check standard errors.")
-
-    # Pooled effect (fixed effect estimate)
-    g_pool = sum(w * g for w, g in zip(w_fixed, effect_sizes)) / sum_w
+    # Fixed-effects weights
+    w_fe = 1.0 / v
+    sum_w = np.sum(w_fe)
+    sum_wg = np.sum(w_fe * g)
+    theta_fe = sum_wg / sum_w
     
-    # Q statistic (Cochran's Q)
-    q_stat = sum(w * (g - g_pool) ** 2 for w, g in zip(w_fixed, effect_sizes))
-    df = n - 1
+    # Calculate Q statistic
+    q = np.sum(w_fe * (g - theta_fe) ** 2)
+    df = k - 1
     
-    # Tau^2 (DerSimonian-Laird estimator)
-    c = sum(w_fixed) - (sum(w ** 2 for w in w_fixed) / sum_w)
-    if c <= 0:
-        tau_sq = 0.0
+    # DerSimonian-Laird estimator for tau^2
+    if df > 0:
+        c = sum_w - (np.sum(w_fe ** 2) / sum_w)
+        tau_sq = max(0, (q - df) / c) if c > 0 else 0
     else:
-        tau_sq = max(0.0, (q_stat - df) / c)
+        tau_sq = 0
         
-    # Random effects weights
-    w_random = [1.0 / ((se ** 2) + tau_sq) if ((se ** 2) + tau_sq) > 0 else 0.0 for se in ses]
-    sum_w_rand = sum(w_random)
+    # Random-effects weights
+    v_re = v + tau_sq
+    w_re = 1.0 / v_re
+    sum_w_re = np.sum(w_re)
+    sum_wg_re = np.sum(w_re * g)
+    theta_re = sum_wg_re / sum_w_re
     
-    if sum_w_rand == 0:
-        # Fallback to fixed if random weights fail (rare edge case)
-        w_random = w_fixed
-        sum_w_rand = sum_w
-
-    # Pooled effect (random effects)
-    g_pool_re = sum(w * g for w, g in zip(w_random, effect_sizes)) / sum_w_rand
-    se_pool_re = math.sqrt(1.0 / sum_w_rand) if sum_w_rand > 0 else 0.0
+    # Standard error of pooled effect
+    se_re = np.sqrt(1.0 / sum_w_re)
     
-    z_score = g_pool_re / se_pool_re if se_pool_re > 0 else 0.0
+    # 95% CI
+    z_95 = 1.96
+    ci_lower = theta_re - z_95 * se_re
+    ci_upper = theta_re + z_95 * se_re
     
-    # P-value (two-tailed) using normal approximation
-    # Using scipy if available, otherwise manual approximation
-    try:
-        from scipy.stats import norm
-        p_val = 2 * (1 - norm.cdf(abs(z_score)))
-    except ImportError:
-        # Manual approximation
-        p_val = 2 * (1 - (1 / (1 + math.exp(-0.07056 * z_score**3 - 1.5976 * z_score))))
-
-    # I^2 (Higgins & Thompson)
-    # I^2 = max(0, (Q - df) / Q)
-    i_sq = max(0.0, (q_stat - df) / q_stat * 100) if q_stat > 0 else 0.0
-
-    ci_lower = g_pool_re - 1.96 * se_pool_re
-    ci_upper = g_pool_re + 1.96 * se_pool_re
-
+    # Heterogeneity I^2
+    i_squared = max(0, (q - df) / q * 100) if q > 0 else 0
+    
+    # P-value for Q statistic (chi-square)
+    from scipy.stats import chi2
+    p_value = 1 - chi2.cdf(q, df) if df > 0 else 1.0
+    
+    model_type = 'random' if i_squared > 50 else 'fixed'
+    
     return MetaAnalysisStats(
-        pooled_effect=g_pool_re,
-        pooled_se=se_pool_re,
-        z_score=z_score,
-        p_value=p_val,
+        pooled_effect_size=theta_re,
+        se=se_re,
         ci_lower=ci_lower,
         ci_upper=ci_upper,
-        i_squared=i_sq,
-        q_statistic=q_stat,
+        i_squared=i_squared,
+        q_statistic=q,
         df=df,
-        tau_squared=tau_sq
+        p_value=p_value,
+        model_type=model_type
     )
 
-def perform_subgroup_analysis(df: pd.DataFrame, subgroup_col: str) -> SubgroupAnalysisResult:
+def perform_subgroup_analysis(
+    effect_sizes: List[Dict[str, Any]], 
+    subgroup_var: str, 
+    df: pd.DataFrame
+) -> SubgroupAnalysisResult:
     """
-    Perform subgroup analysis on the dataframe grouped by a specific column.
+    Perform subgroup analysis based on a categorical variable.
     
     Args:
-        df: DataFrame containing 'hedges_g' and 'se' columns.
-        subgroup_col: The column name to group by (e.g., 'social_skill_domain').
+        effect_sizes: List of effect size dicts
+        subgroup_var: Column name in df to group by
+        df: DataFrame containing study metadata
         
     Returns:
-        SubgroupAnalysisResult with stats for each subgroup and between-group heterogeneity.
+        SubgroupAnalysisResult object
     """
-    if subgroup_col not in df.columns:
-        raise ValueError(f"Column '{subgroup_col}' not found in dataframe.")
+    if not effect_sizes or len(effect_sizes) != len(df):
+        raise ValueError("Mismatch between effect sizes and dataframe length")
         
-    if 'hedges_g' not in df.columns or 'se' not in df.columns:
-        raise ValueError("DataFrame must contain 'hedges_g' and 'se' columns.")
-
-    groups = df.groupby(subgroup_col)
-    subgroup_results = []
-    all_effects = []
-    all_ses = []
-    group_effects = []
-    group_ses = []
-    group_ns = []
-
-    logger.info(f"Performing subgroup analysis on column: {subgroup_col}")
-
+    # Create mapping from study_id to effect size
+    es_map = {es.get('study_id', f'study_{i}'): es for i, es in enumerate(effect_sizes)}
+    
+    # Add effect sizes to df
+    df_temp = df.copy()
+    df_temp['hedges_g'] = [es_map.get(sid, {}).get('hedges_g', 0) for sid in df_temp['id']]
+    df_temp['se'] = [es_map.get(sid, {}).get('se', 0) for sid in df_temp['id']]
+    
+    # Group by subgroup variable
+    groups = df_temp.groupby(subgroup_var)
+    results = []
+    
     for name, group in groups:
-        g_list = group['hedges_g'].tolist()
-        se_list = group['se'].tolist()
+        group_es = [
+            {'hedges_g': row['hedges_g'], 'se': row['se']}
+            for _, row in group.iterrows()
+            if pd.notna(row['hedges_g']) and pd.notna(row['se'])
+        ]
         
-        all_effects.extend(g_list)
-        all_ses.extend(se_list)
-        
-        group_ns.append(len(g_list))
-        
-        if len(g_list) == 0:
+        if len(group_es) < 2:
+            logger.warning(f"Subgroup '{name}' has fewer than 2 studies, skipping meta-analysis")
             continue
             
-        stats = run_random_effects_meta_analysis(g_list, se_list)
+        stats = run_random_effects_meta_analysis(group_es)
         
-        subgroup_results.append(SubgroupResult(
-            domain=str(name),
-            n_studies=len(g_list),
-            pooled_effect=stats.pooled_effect,
-            pooled_se=stats.pooled_se,
+        results.append(SubgroupResult(
+            subgroup_name=str(name),
+            n_studies=len(group_es),
+            pooled_effect_size=stats.pooled_effect_size,
+            se=stats.se,
             ci_lower=stats.ci_lower,
             ci_upper=stats.ci_upper,
-            z_score=stats.z_score,
-            p_value=stats.p_value,
             i_squared=stats.i_squared,
             q_statistic=stats.q_statistic,
-            df=stats.df
+            df=stats.df,
+            p_value=stats.p_value,
+            model_type=stats.model_type
         ))
+    
+    # Calculate Q_between (test for differences between subgroups)
+    # Simplified: weighted sum of squares between subgroup means and overall mean
+    if len(results) > 1:
+        overall_stats = run_random_effects_meta_analysis(effect_sizes)
+        q_between = 0
+        for res in results:
+            diff = res.pooled_effect_size - overall_stats.pooled_effect_size
+            q_between += (res.n_studies * (diff ** 2)) / (res.se ** 2) if res.se > 0 else 0
         
-        # For between-group Q calculation, we need the pooled effect of each group
-        # and the variance of that pooled effect
-        group_effects.append(stats.pooled_effect)
-        group_ses.append(stats.pooled_se)
-
-    if not subgroup_results:
-        return SubgroupAnalysisResult(
-            overall_stats=None,
-            subgroup_stats=[],
-            between_q=0.0,
-            between_df=0,
-            between_p_value=1.0
-        )
-
-    # Calculate overall stats
-    overall_stats = run_random_effects_meta_analysis(all_effects, all_ses)
-
-    # Calculate Between-Group Heterogeneity (Q_between)
-    # Q_between = Sum(W_i * (G_i - G_overall)^2)
-    # Where W_i is 1 / SE_i^2 for the subgroup pooled effect
-    # G_overall is the overall pooled effect
-    
-    w_between = []
-    for se in group_ses:
-        if se > 0:
-            w_between.append(1.0 / (se ** 2))
-        else:
-            w_between.append(0.0)
-            
-    sum_w_between = sum(w_between)
-    
-    if sum_w_between == 0:
-        q_between = 0.0
+        from scipy.stats import chi2
+        p_between = 1 - chi2.cdf(q_between, len(results) - 1)
+        df_between = len(results) - 1
     else:
-        # Weighted average of subgroup effects
-        g_overall_weighted = sum(w * g for w, g in zip(w_between, group_effects)) / sum_w_between
-        q_between = sum(w * (g - g_overall_weighted) ** 2 for w, g in zip(w_between, group_effects))
-        
-    # Degrees of freedom for between = k - 1 (k = number of subgroups)
-    k = len(subgroup_results)
-    df_between = k - 1 if k > 1 else 0
-    
-    # P-value for Q_between
-    if df_between <= 0:
+        q_between = 0
         p_between = 1.0
-    else:
-        try:
-            from scipy.stats import chi2
-            p_between = 1 - chi2.cdf(q_between, df_between)
-        except ImportError:
-            # Fallback: if Q is large, p is small, otherwise 1.0
-            p_between = 0.01 if q_between > df_between + 2 * math.sqrt(2 * df_between) else 1.0
-
+        df_between = 0
+        
     return SubgroupAnalysisResult(
-        overall_stats=overall_stats,
-        subgroup_stats=subgroup_results,
-        between_q=q_between,
-        between_df=df_between,
-        between_p_value=p_between
+        results=results,
+        q_between=q_between,
+        p_between=p_between,
+        df_between=df_between
     )
 
-def perform_follow_up_subgroup_analysis(df: pd.DataFrame, follow_up_col: str = 'follow_up') -> SubgroupAnalysisResult:
-    """
-    Specific implementation for follow-up duration analysis.
-    Groups by '3-month' vs 'others' based on the follow_up string.
+def parse_follow_up_to_days(follow_up_str: str) -> Optional[int]:
+    """Parse follow-up duration string to days."""
+    if not follow_up_str or pd.isna(follow_up_str):
+        return None
+        
+    follow_up_str = str(follow_up_str).lower()
     
-    Args:
-        df: DataFrame.
-        follow_up_col: Column name.
-        
-    Returns:
-        SubgroupAnalysisResult.
+    # Common patterns
+    if 'month' in follow_up_str:
+        months = float(follow_up_str.split()[0])
+        return int(months * 30.44)  # Average days per month
+    elif 'week' in follow_up_str:
+        weeks = float(follow_up_str.split()[0])
+        return int(weeks * 7)
+    elif 'day' in follow_up_str:
+        days = float(follow_up_str.split()[0])
+        return int(days)
+    elif 'year' in follow_up_str:
+        years = float(follow_up_str.split()[0])
+        return int(years * 365.25)
+    else:
+        # Try to extract any number
+        import re
+        match = re.search(r'(\d+\.?\d*)', follow_up_str)
+        if match:
+            return int(float(match.group(1)))
+        return None
+
+def perform_follow_up_subgroup_analysis(
+    effect_sizes: List[Dict[str, Any]],
+    df: pd.DataFrame
+) -> SubgroupAnalysisResult:
     """
-    # Create a temporary categorical column
-    def categorize_followup(val):
-        if pd.isna(val) or not val:
-            return 'not-reported'
-        val_str = str(val).lower()
-        if '3-month' in val_str or '3 month' in val_str:
-            return '3-month'
-        return 'other'
-        
+    Perform subgroup analysis based on follow-up duration (<90 days vs >=90 days).
+    """
     df_temp = df.copy()
-    df_temp['temp_category'] = df_temp[follow_up_col].apply(categorize_followup)
+    df_temp['follow_up_days'] = df_temp['follow_up'].apply(parse_follow_up_to_days)
     
-    return perform_subgroup_analysis(df_temp, 'temp_category')
+    # Create binary grouping
+    df_temp['follow_up_group'] = df_temp['follow_up_days'].apply(
+        lambda x: '<90 days' if x is not None and x < 90 else '>=90 days' if x is not None else 'missing'
+    )
+    
+    # Filter out missing
+    df_filtered = df_temp[df_temp['follow_up_group'] != 'missing']
+    
+    if len(df_filtered) < 4:
+        logger.warning("Insufficient studies with follow-up data for subgroup analysis")
+        return SubgroupAnalysisResult(results=[])
+        
+    return perform_subgroup_analysis(effect_sizes, 'follow_up_group', df_filtered)
 
-def create_meta_analysis_result(df: pd.DataFrame, subgroup_col: str) -> Dict[str, Any]:
+def perform_blinding_bias_quantification(
+    effect_sizes: List[Dict[str, Any]],
+    df: pd.DataFrame
+) -> Dict[str, Any]:
     """
-    Orchestrates the analysis and returns a dictionary suitable for JSON serialization.
+    Quantify blinding bias by comparing pooled effect sizes between blinded and unblinded studies.
+    
+    This addresses Constitution Principle VII and FR-005 by measuring expectation bias
+    in outcome assessment.
     
     Args:
-        df: Cleaned study dataframe with effect sizes.
-        subgroup_col: Column to subgroup by.
+        effect_sizes: List of effect size dicts with 'study_id', 'hedges_g', 'se'
+        df: DataFrame with study metadata including 'blinded_assessment_flag'
         
     Returns:
-        Dictionary with analysis results.
+        Dict with blinding bias analysis results
     """
-    result = perform_subgroup_analysis(df, subgroup_col)
+    if not effect_sizes or len(effect_sizes) != len(df):
+        raise ValueError("Mismatch between effect sizes and dataframe length")
+        
+    # Create mapping from study_id to effect size
+    es_map = {es.get('study_id', f'study_{i}'): es for i, es in enumerate(effect_sizes)}
     
-    output = {
-        "overall": {
-            "pooled_effect": result.overall_stats.pooled_effect,
-            "ci_lower": result.overall_stats.ci_lower,
-            "ci_upper": result.overall_stats.ci_upper,
-            "i_squared": result.overall_stats.i_squared,
-            "p_value": result.overall_stats.p_value
-        },
-        "subgroups": [
-            {
-                "name": sub.domain,
-                "n_studies": sub.n_studies,
-                "pooled_effect": sub.pooled_effect,
-                "ci_lower": sub.ci_lower,
-                "ci_upper": sub.ci_upper,
-                "i_squared": sub.i_squared
-            }
-            for sub in result.subgroup_stats
-        ],
-        "between_group_test": {
-            "q_statistic": result.between_q,
-            "df": result.between_df,
-            "p_value": result.between_p_value
+    # Add effect sizes and blinding status to df
+    df_temp = df.copy()
+    df_temp['hedges_g'] = [es_map.get(sid, {}).get('hedges_g', np.nan) for sid in df_temp['id']]
+    df_temp['se'] = [es_map.get(sid, {}).get('se', np.nan) for sid in df_temp['id']]
+    
+    # Ensure blinded_assessment_flag is boolean
+    if 'blinded_assessment_flag' not in df_temp.columns:
+        logger.warning("Column 'blinded_assessment_flag' not found in dataframe")
+        return {
+            'status': 'skipped',
+            'reason': 'Missing blinded_assessment_flag column',
+            'blinded_n': 0,
+            'unblinded_n': 0
         }
+    
+    df_temp['blinded_assessment_flag'] = df_temp['blinded_assessment_flag'].astype(bool)
+    
+    # Group by blinding status
+    blinded_studies = df_temp[df_temp['blinded_assessment_flag'] == True]
+    unblinded_studies = df_temp[df_temp['blinded_assessment_flag'] == False]
+    
+    n_blinded = len(blinded_studies)
+    n_unblinded = len(unblinded_studies)
+    
+    logger.info(f"Blinding bias analysis: {n_blinded} blinded, {n_unblinded} unblinded studies")
+    
+    # Check minimum sample size requirement
+    if n_blinded < 3 or n_unblinded < 3:
+        logger.warning(
+            f"Insufficient studies for blinding bias analysis: "
+            f"blinded={n_blinded} (need >=3), unblinded={n_unblinded} (need >=3). "
+            f"Skipping analysis and logging warning."
+        )
+        return {
+            'status': 'skipped',
+            'reason': f'Insufficient sample size (blinded={n_blinded}, unblinded={n_unblinded})',
+            'blinded_n': n_blinded,
+            'unblinded_n': n_unblinded
+        }
+    
+    # Calculate pooled effect sizes for each group
+    blinded_es = [
+        {'hedges_g': row['hedges_g'], 'se': row['se']}
+        for _, row in blinded_studies.iterrows()
+        if pd.notna(row['hedges_g']) and pd.notna(row['se'])
+    ]
+    
+    unblinded_es = [
+        {'hedges_g': row['hedges_g'], 'se': row['se']}
+        for _, row in unblinded_studies.iterrows()
+        if pd.notna(row['hedges_g']) and pd.notna(row['se'])
+    ]
+    
+    if len(blinded_es) < 2 or len(unblinded_es) < 2:
+        logger.warning("Insufficient valid effect sizes in one or both groups")
+        return {
+            'status': 'skipped',
+            'reason': 'Insufficient valid effect sizes in groups',
+            'blinded_n': len(blinded_es),
+            'unblinded_n': len(unblinded_es)
+        }
+    
+    blinded_stats = run_random_effects_meta_analysis(blinded_es)
+    unblinded_stats = run_random_effects_meta_analysis(unblinded_es)
+    
+    # Calculate difference in effect sizes
+    diff = unblinded_stats.pooled_effect_size - blinded_stats.pooled_effect_size
+    se_diff = np.sqrt(blinded_stats.se**2 + unblinded_stats.se**2)
+    
+    # Calculate z-score and p-value for the difference
+    z_score = diff / se_diff if se_diff > 0 else 0
+    from scipy.stats import norm
+    p_value = 2 * (1 - norm.cdf(abs(z_score)))
+    
+    # Determine significance
+    is_significant = p_value < 0.05
+    
+    result = {
+        'status': 'completed',
+        'blinded_n': n_blinded,
+        'unblinded_n': n_unblinded,
+        'blinded_effect_size': blinded_stats.pooled_effect_size,
+        'blinded_se': blinded_stats.se,
+        'blinded_ci_lower': blinded_stats.ci_lower,
+        'blinded_ci_upper': blinded_stats.ci_upper,
+        'unblinded_effect_size': unblinded_stats.pooled_effect_size,
+        'unblinded_se': unblinded_stats.se,
+        'unblinded_ci_lower': unblinded_stats.ci_lower,
+        'unblinded_ci_upper': unblinded_stats.ci_upper,
+        'difference': diff,
+        'se_difference': se_diff,
+        'z_score': z_score,
+        'p_value': p_value,
+        'is_significant': is_significant,
+        'interpretation': (
+            f"{'Significant' if is_significant else 'No significant'} difference in effect sizes "
+            f"between blinded (g={blinded_stats.pooled_effect_size:.3f}) and unblinded "
+            f"(g={unblinded_stats.pooled_effect_size:.3f}) studies (p={p_value:.4f}). "
+            f"Difference: {diff:.3f}."
+        )
     }
-    return output
+    
+    logger.info(f"Blinding bias analysis complete: {result['interpretation']}")
+    return result
 
-def save_meta_analysis_results(result: Dict[str, Any], output_path: str):
-    """Saves the analysis result to a JSON file."""
+def create_meta_analysis_result(
+    stats: MetaAnalysisStats,
+    subgroup_results: Optional[Dict[str, SubgroupAnalysisResult]] = None,
+    blinding_bias: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Create a comprehensive meta-analysis result dictionary."""
+    result = {
+        'pooled_effect_size': stats.pooled_effect_size,
+        'se': stats.se,
+        'ci_lower': stats.ci_lower,
+        'ci_upper': stats.ci_upper,
+        'i_squared': stats.i_squared,
+        'q_statistic': stats.q_statistic,
+        'df': stats.df,
+        'p_value': stats.p_value,
+        'model_type': stats.model_type
+    }
+    
+    if subgroup_results:
+        result['subgroup_analyses'] = {}
+        for name, sub_result in subgroup_results.items():
+            result['subgroup_analyses'][name] = {
+                'results': [
+                    {
+                        'subgroup_name': r.subgroup_name,
+                        'n_studies': r.n_studies,
+                        'pooled_effect_size': r.pooled_effect_size,
+                        'se': r.se,
+                        'ci_lower': r.ci_lower,
+                        'ci_upper': r.ci_upper,
+                        'i_squared': r.i_squared,
+                        'q_statistic': r.q_statistic,
+                        'df': r.df,
+                        'p_value': r.p_value,
+                        'model_type': r.model_type
+                    }
+                    for r in sub_result.results
+                ],
+                'q_between': sub_result.q_between,
+                'p_between': sub_result.p_between,
+                'df_between': sub_result.df_between
+            }
+    
+    if blinding_bias:
+        result['blinding_bias_analysis'] = blinding_bias
+        
+    return result
+
+def save_meta_analysis_results(results: Dict[str, Any], output_path: str):
+    """Save meta-analysis results to JSON file."""
     import json
-    with open(output_path, 'w') as f:
-        json.dump(result, f, indent=2)
-    logger.info(f"Saved meta-analysis results to {output_path}")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2, default=str)
+    logger.info(f"Meta-analysis results saved to {output_path}")
 
 def main():
-    """
-    Main entry point for the meta-analysis script.
-    Expects:
-      --input: Path to CSV with cleaned studies and calculated effect sizes.
-      --output: Path to JSON output.
-      --subgroup: Column name for subgroup analysis (default: 'social_skill_domain').
-    """
+    """Main entry point for meta-analysis script."""
     import argparse
     
-    parser = argparse.ArgumentParser(description="Run meta-analysis with subgroup analysis.")
-    parser.add_argument('--input', required=True, help='Input CSV file path.')
-    parser.add_argument('--output', required=True, help='Output JSON file path.')
-    parser.add_argument('--subgroup', default='social_skill_domain', help='Column to subgroup by.')
-    parser.add_argument('--plots-dir', default='viz', help='Directory for plots (if needed).')
-    
+    parser = argparse.ArgumentParser(description='Run meta-analysis on effect sizes')
+    parser.add_argument('--input', type=str, required=True, help='Input CSV with effect sizes')
+    parser.add_argument('--output', type=str, required=True, help='Output JSON for results')
+    parser.add_argument('--plots-dir', type=str, default='viz/', help='Directory for plots')
     args = parser.parse_args()
     
-    logger.info(f"Loading data from {args.input}")
-    try:
-        df = pd.read_csv(args.input)
-    except FileNotFoundError:
-        logger.error(f"Input file not found: {args.input}")
-        return 1
-        
-    required_cols = ['hedges_g', 'se', args.subgroup]
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        logger.error(f"Missing required columns in input CSV: {missing}")
-        return 1
-        
-    # Filter out rows with NaN effect sizes or SEs
-    df_clean = df.dropna(subset=['hedges_g', 'se'])
+    logger.info(f"Loading effect sizes from {args.input}")
+    df_es = pd.read_csv(args.input)
     
-    if len(df_clean) == 0:
-        logger.warning("No valid studies found after cleaning. Outputting empty result.")
-        save_meta_analysis_results({"subgroups": [], "overall": None}, args.output)
-        return 0
-        
-    logger.info(f"Running subgroup analysis on '{args.subgroup}' with {len(df_clean)} studies.")
-    analysis_result = create_meta_analysis_result(df_clean, args.subgroup)
+    # Load study metadata for subgroup analysis
+    # Assuming effect sizes CSV has 'study_id' that maps to cleaned studies
+    cleaned_studies_path = os.path.join(os.path.dirname(args.input), '..', 'processed', 'cleaned_studies.csv')
+    if os.path.exists(cleaned_studies_path):
+        df_studies = pd.read_csv(cleaned_studies_path)
+    else:
+        logger.warning("Cleaned studies file not found, skipping subgroup analyses")
+        df_studies = None
     
-    save_meta_analysis_results(analysis_result, args.output)
-    logger.info("Meta-analysis completed successfully.")
-    return 0
+    # Convert to list of dicts for meta-analysis
+    effect_sizes = df_es.to_dict('records')
+    
+    # Run main meta-analysis
+    logger.info("Running random-effects meta-analysis")
+    stats = run_random_effects_meta_analysis(effect_sizes)
+    logger.info(f"Pooled effect size: {stats.pooled_effect_size:.3f} (95% CI: {stats.ci_lower:.3f} to {stats.ci_upper:.3f})")
+    logger.info(f"Heterogeneity: I² = {stats.i_squared:.1f}%, Q = {stats.q_statistic:.3f}, p = {stats.p_value:.4f}")
+    
+    results = create_meta_analysis_result(stats)
+    
+    # Perform subgroup analyses if study metadata available
+    if df_studies is not None and len(df_studies) > 0:
+        logger.info("Performing subgroup analyses")
+        
+        # Mindfulness components (binary)
+        if 'intervention_components' in df_studies.columns:
+            df_studies['mindfulness_present'] = df_studies['intervention_components'].apply(
+                lambda x: 'present' if x and x != '[]' and x != 'nan' and x != 'none' else 'absent'
+            )
+            subgroup_results = perform_subgroup_analysis(effect_sizes, 'mindfulness_present', df_studies)
+            results['subgroup_analyses']['mindfulness_components'] = {
+                'results': [
+                    {
+                        'subgroup_name': r.subgroup_name,
+                        'n_studies': r.n_studies,
+                        'pooled_effect_size': r.pooled_effect_size,
+                        'se': r.se,
+                        'ci_lower': r.ci_lower,
+                        'ci_upper': r.ci_upper,
+                        'i_squared': r.i_squared,
+                        'q_between': subgroup_results.q_between,
+                        'p_between': subgroup_results.p_between
+                    }
+                    for r in subgroup_results.results
+                ]
+            }
+        
+        # Delivery format
+        if 'delivery_format' in df_studies.columns:
+            subgroup_results = perform_subgroup_analysis(effect_sizes, 'delivery_format', df_studies)
+            results['subgroup_analyses']['delivery_format'] = {
+                'results': [
+                    {
+                        'subgroup_name': r.subgroup_name,
+                        'n_studies': r.n_studies,
+                        'pooled_effect_size': r.pooled_effect_size,
+                        'se': r.se,
+                        'ci_lower': r.ci_lower,
+                        'ci_upper': r.ci_upper,
+                        'i_squared': r.i_squared,
+                        'q_between': subgroup_results.q_between,
+                        'p_between': subgroup_results.p_between
+                    }
+                    for r in subgroup_results.results
+                ]
+            }
+        
+        # Social skill domain
+        if 'social_skill_domain' in df_studies.columns:
+            subgroup_results = perform_subgroup_analysis(effect_sizes, 'social_skill_domain', df_studies)
+            results['subgroup_analyses']['social_skill_domain'] = {
+                'results': [
+                    {
+                        'subgroup_name': r.subgroup_name,
+                        'n_studies': r.n_studies,
+                        'pooled_effect_size': r.pooled_effect_size,
+                        'se': r.se,
+                        'ci_lower': r.ci_lower,
+                        'ci_upper': r.ci_upper,
+                        'i_squared': r.i_squared,
+                        'q_between': subgroup_results.q_between,
+                        'p_between': subgroup_results.p_between
+                    }
+                    for r in subgroup_results.results
+                ]
+            }
+        
+        # Follow-up duration
+        if 'follow_up' in df_studies.columns:
+            follow_up_results = perform_follow_up_subgroup_analysis(effect_sizes, df_studies)
+            results['subgroup_analyses']['follow_up_duration'] = {
+                'results': [
+                    {
+                        'subgroup_name': r.subgroup_name,
+                        'n_studies': r.n_studies,
+                        'pooled_effect_size': r.pooled_effect_size,
+                        'se': r.se,
+                        'ci_lower': r.ci_lower,
+                        'ci_upper': r.ci_upper,
+                        'i_squared': r.i_squared,
+                        'q_between': follow_up_results.q_between,
+                        'p_between': follow_up_results.p_between
+                    }
+                    for r in follow_up_results.results
+                ]
+            }
+        
+        # Blinding bias quantification (T033b)
+        logger.info("Performing blinding bias quantification (T033b)")
+        blinding_bias = perform_blinding_bias_quantification(effect_sizes, df_studies)
+        results['blinding_bias_analysis'] = blinding_bias
+        
+        # Log blinding bias results
+        if blinding_bias['status'] == 'completed':
+            logger.info(f"Blinding bias difference: {blinding_bias['difference']:.3f} (p={blinding_bias['p_value']:.4f})")
+            if blinding_bias['is_significant']:
+                logger.warning(
+                    "Significant blinding bias detected: unblinded studies show larger effects. "
+                    "This suggests expectation bias in outcome assessment (Kahneman-simulated review concern)."
+                )
+        else:
+            logger.warning(f"Blinding bias analysis skipped: {blinding_bias.get('reason', 'Unknown reason')}")
+    
+    # Save results
+    save_meta_analysis_results(results, args.output)
+    logger.info(f"Meta-analysis complete. Results saved to {args.output}")
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    main()

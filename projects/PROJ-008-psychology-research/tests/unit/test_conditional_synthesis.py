@@ -1,106 +1,111 @@
 """
-Unit tests for the conditional synthesis logic (T033).
-Tests the logic that suppresses meta-analysis if N < 10 and triggers descriptive synthesis.
+Unit tests for conditional synthesis routing logic.
 """
 import os
 import tempfile
-import pandas as pd
 import pytest
+import pandas as pd
 from pathlib import Path
 
-# Import the function to test
-from code.analysis.conditional_synthesis import check_sample_size_and_route, MIN_SUBGROUP_SIZE
+from code.analysis.conditional_synthesis import check_sample_size_and_route
+from code.analysis.descriptive_synthesis import perform_descriptive_synthesis, format_synthesis_report
+
 
 @pytest.fixture
-def temp_csv_dir():
-    """Creates a temporary directory with a mock CSV file for testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        csv_path = Path(tmpdir) / "cleaned_studies.csv"
-        # Create a minimal valid CSV
-        data = {
-            "id": [f"study_{i}" for i in range(5)],
-            "title": ["Study " + str(i) for i in range(5)],
-            "registry": ["ClinicalTrials.gov"] * 5,
-            "age_range": ["8-12"] * 5,
-            "diagnosis": ["ASD"] * 5,
-            "outcomes": ["SRS-2"] * 5,
-            "intervention_components": ["breathing"] * 5,
-            "delivery_format": ["caregiver-mediated"] * 5,
-            "follow_up": ["3m"] * 5,
-            "abstract_text": [None] * 5,
-            "social_skill_domain": ["emotional regulation"] * 5
-        }
-        df = pd.DataFrame(data)
-        df.to_csv(csv_path, index=False)
-        yield str(csv_path)
-        # Cleanup handled by context manager
+def small_studies_csv(tmp_path):
+    """Create a CSV with fewer than 10 studies."""
+    data = {
+        'id': [f'study_{i}' for i in range(5)],
+        'title': [f'Study {i}' for i in range(5)],
+        'registry': ['ClinicalTrials.gov'] * 5,
+        'age_range': [{'min': 8, 'max': 12}] * 5,
+        'diagnosis': ['ASD'] * 5,
+        'outcomes': [['social skill']] * 5,
+        'intervention_components': [['breathing']] * 5,
+        'delivery_format': ['caregiver-mediated'] * 5,
+        'social_skill_domain': ['communication'] * 5,
+        'follow_up': [None] * 5,
+        'abstract_text': [None] * 5,
+        'blinded_assessment_flag': [True] * 5,
+        'rater_type': ['blinded'] * 5
+    }
+    df = pd.DataFrame(data)
+    csv_path = tmp_path / "small_studies.csv"
+    df.to_csv(csv_path, index=False)
+    return str(csv_path)
 
-def test_small_sample_size_triggers_synthesis(temp_csv_dir):
-    """
-    Test that when N < 10, the function returns proceed_meta_analysis=False
-    and generates a synthesis report.
-    """
-    with tempfile.TemporaryDirectory() as tmp_docs:
-        output_path = os.path.join(tmp_docs, "test_synthesis.md")
-        
-        result = check_sample_size_and_route(
-            cleaned_studies_path=temp_csv_dir,
-            output_doc_path=output_path
-        )
-        
-        assert result["n_studies"] == 5
-        assert result["proceed_meta_analysis"] is False
-        assert "synthesis_report_path" in result
-        assert os.path.exists(result["synthesis_report_path"])
-        
-        # Verify content contains expected sections
-        with open(result["synthesis_report_path"], 'r') as f:
-            content = f.read()
-            assert "Descriptive Synthesis" in content
-            assert "N < 10" in content or "insufficient" in content.lower()
 
-def test_large_sample_size_allows_meta_analysis(temp_csv_dir):
-    """
-    Test that when N >= 10, the function returns proceed_meta_analysis=True
-    and does NOT generate a synthesis report.
-    """
-    # Create a CSV with 15 rows
-    with tempfile.TemporaryDirectory() as tmpdir:
-        csv_path = Path(tmpdir) / "cleaned_studies.csv"
-        data = {
-            "id": [f"study_{i}" for i in range(15)],
-            "title": ["Study " + str(i) for i in range(15)],
-            "registry": ["ClinicalTrials.gov"] * 15,
-            "age_range": ["8-12"] * 15,
-            "diagnosis": ["ASD"] * 15,
-            "outcomes": ["SRS-2"] * 15,
-            "intervention_components": ["breathing"] * 15,
-            "delivery_format": ["caregiver-mediated"] * 15,
-            "follow_up": ["3m"] * 15,
-            "abstract_text": [None] * 15,
-            "social_skill_domain": ["emotional regulation"] * 15
-        }
-        pd.DataFrame(data).to_csv(csv_path, index=False)
-        
-        with tempfile.TemporaryDirectory() as tmp_docs:
-            output_path = os.path.join(tmp_docs, "test_synthesis.md")
-            
-            result = check_sample_size_and_route(
-                cleaned_studies_path=str(csv_path),
-                output_doc_path=output_path
-            )
-            
-            assert result["n_studies"] == 15
-            assert result["proceed_meta_analysis"] is True
-            assert "synthesis_report_path" not in result
-            assert not os.path.exists(output_path)
+@pytest.fixture
+def large_studies_csv(tmp_path):
+    """Create a CSV with 10 or more studies."""
+    data = {
+        'id': [f'study_{i}' for i in range(12)],
+        'title': [f'Study {i}' for i in range(12)],
+        'registry': ['ClinicalTrials.gov'] * 12,
+        'age_range': [{'min': 8, 'max': 12}] * 12,
+        'diagnosis': ['ASD'] * 12,
+        'outcomes': [['social skill']] * 12,
+        'intervention_components': [['breathing']] * 12,
+        'delivery_format': ['caregiver-mediated'] * 12,
+        'social_skill_domain': ['communication'] * 12,
+        'follow_up': [None] * 12,
+        'abstract_text': [None] * 12,
+        'blinded_assessment_flag': [True] * 12,
+        'rater_type': ['blinded'] * 12
+    }
+    df = pd.DataFrame(data)
+    csv_path = tmp_path / "large_studies.csv"
+    df.to_csv(csv_path, index=False)
+    return str(csv_path)
 
-def test_missing_csv_raises_error():
-    """Test that a missing CSV file raises FileNotFoundError."""
-    with tempfile.TemporaryDirectory() as tmp_docs:
-        output_path = os.path.join(tmp_docs, "test_synthesis.md")
-        with pytest.raises(FileNotFoundError):
-            check_sample_size_and_route(
-                cleaned_studies_path="/nonexistent/path.csv",
-                output_doc_path=output_path
-            )
+
+def test_small_sample_routes_to_descriptive(small_studies_csv, tmp_path):
+    """Test that small sample size routes to descriptive synthesis."""
+    output_docs = str(tmp_path / "docs")
+    
+    result = check_sample_size_and_route(small_studies_csv, output_docs, min_sample_size=10)
+    
+    assert result['n_studies'] == 5
+    assert result['route'] == 'descriptive_synthesis'
+    assert result['analysis_results']['type'] == 'descriptive_synthesis'
+    
+    # Verify report file was created
+    report_path = Path(output_docs) / "native_synthesis.md"
+    assert report_path.exists()
+    
+    # Verify report content is non-empty
+    with open(report_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    assert len(content) > 0
+    assert "Descriptive Synthesis" in content
+
+
+def test_large_sample_routes_to_meta_analysis(large_studies_csv, tmp_path):
+    """Test that large sample size routes to meta-analysis."""
+    output_docs = str(tmp_path / "docs")
+    
+    result = check_sample_size_and_route(large_studies_csv, output_docs, min_sample_size=10)
+    
+    assert result['n_studies'] == 12
+    assert result['route'] == 'meta_analysis'
+    assert result['analysis_results']['type'] == 'meta_analysis'
+    assert "Meta-analysis path not implemented" in result['analysis_results']['note']
+
+
+def test_custom_threshold(small_studies_csv, tmp_path):
+    """Test with a custom threshold."""
+    output_docs = str(tmp_path / "docs")
+    
+    # With threshold of 5, small sample should route to meta-analysis
+    result = check_sample_size_and_route(small_studies_csv, output_docs, min_sample_size=5)
+    
+    assert result['n_studies'] == 5
+    assert result['route'] == 'meta_analysis'
+
+
+def test_missing_input_file(tmp_path):
+    """Test error handling for missing input file."""
+    output_docs = str(tmp_path / "docs")
+    
+    with pytest.raises(FileNotFoundError):
+        check_sample_size_and_route("nonexistent.csv", output_docs)

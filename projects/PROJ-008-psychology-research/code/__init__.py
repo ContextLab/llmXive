@@ -1,2 +1,3 @@
-# llmXive Psychology Research Project
-# Code package initialization
+"""
+llmXive Psychology Research Package
+"""

@@ -1,11 +1,11 @@
 """
-Effect Size Calculation Module for Psychology Research (US2).
+Effect Size Calculation Module for Psychology Research Pipeline.
 
-Implements Hedges' g calculation with small-sample correction
-as per FR-004 and FR-013.
+This module implements the calculation of Hedges' g effect sizes with
+small-sample correction for meta-analysis of mindfulness interventions
+in ASD social skills studies.
 
-This module processes cleaned study data to compute standardized
-mean differences (Hedges' g) and their standard errors.
+Implements FR-004 (Effect Size Calculation) and FR-013 (Small-sample correction).
 """
 
 import logging
@@ -17,27 +17,28 @@ import pandas as pd
 
 from code.utils.logging import get_logger
 
-# Initialize logger
 logger = get_logger(__name__)
 
 
 @dataclass
 class EffectSizeResult:
     """
-    Container for a single study's effect size calculation.
+    Data class to hold the result of Hedges' g calculation for a single study.
 
     Attributes:
         study_id: Unique identifier for the study
-        hedges_g: Calculated Hedges' g effect size
-        se: Standard error of Hedges' g
+        hedges_g: Calculated Hedges' g effect size with small-sample correction
+        se: Standard error of the effect size
         ci_lower: Lower bound of 95% confidence interval
         ci_upper: Upper bound of 95% confidence interval
-        n_treatment: Sample size of treatment group
-        n_control: Sample size of control group
-        mean_treatment: Mean outcome for treatment group
-        mean_control: Mean outcome for control group
-        sd_treatment: Standard deviation for treatment group
-        sd_control: Standard deviation for control group
+        n_treatment: Sample size in treatment group
+        n_control: Sample size in control group
+        mean_treatment: Mean outcome in treatment group
+        mean_control: Mean outcome in control group
+        sd_treatment: Standard deviation in treatment group
+        sd_control: Standard deviation in control group
+        pooled_sd: Pooled standard deviation used in calculation
+        correction_factor: J factor for small-sample correction
     """
     study_id: str
     hedges_g: float
@@ -46,173 +47,141 @@ class EffectSizeResult:
     ci_upper: float
     n_treatment: int
     n_control: int
-    mean_treatment: float
-    mean_control: float
-    sd_treatment: float
-    sd_control: float
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for serialization."""
-        return {
-            'study_id': self.study_id,
-            'hedges_g': self.hedges_g,
-            'se': self.se,
-            'ci_lower': self.ci_lower,
-            'ci_upper': self.ci_upper,
-            'n_treatment': self.n_treatment,
-            'n_control': self.n_control,
-            'mean_treatment': self.mean_treatment,
-            'mean_control': self.mean_control,
-            'sd_treatment': self.sd_treatment,
-            'sd_control': self.sd_control
-        }
+    mean_treatment: Optional[float]
+    mean_control: Optional[float]
+    sd_treatment: Optional[float]
+    sd_control: Optional[float]
+    pooled_sd: float
+    correction_factor: float
 
 
 def calculate_hedges_g(
+    n_treatment: int,
+    n_control: int,
     mean_treatment: float,
     mean_control: float,
     sd_treatment: float,
-    sd_control: float,
-    n_treatment: int,
-    n_control: int
-) -> Tuple[float, float]:
+    sd_control: float
+) -> Tuple[float, float, float, float, float, float]:
     """
-    Calculate Hedges' g with small-sample correction.
+    Calculate Hedges' g effect size with small-sample correction.
 
-    Per FR-004: Must include small-sample correction (J factor).
-    Per FR-013: Must handle edge cases (zero variance, small N).
+    This function implements the standard formula for Hedges' g, which is a
+    bias-corrected version of Cohen's d, specifically designed for meta-analysis
+    with small sample sizes.
 
-    Formula:
-      1. Calculate pooled standard deviation
-      2. Calculate Cohen's d
-      3. Apply Hedges' correction factor J
+    The calculation follows these steps:
+    1. Calculate pooled standard deviation
+    2. Calculate Cohen's d (raw effect size)
+    3. Apply small-sample correction factor (J)
+    4. Calculate standard error
+    5. Calculate 95% confidence interval
 
     Args:
-        mean_treatment: Mean of treatment group
-        mean_control: Mean of control group
-        sd_treatment: Standard deviation of treatment group
-        sd_control: Standard deviation of control group
-        n_treatment: Sample size of treatment group
-        n_control: Sample size of control group
+        n_treatment: Sample size in treatment group (must be > 0)
+        n_control: Sample size in control group (must be > 0)
+        mean_treatment: Mean outcome in treatment group
+        mean_control: Mean outcome in control group
+        sd_treatment: Standard deviation in treatment group (must be > 0)
+        sd_control: Standard deviation in control group (must be > 0)
 
     Returns:
-        Tuple of (hedges_g, standard_error)
+        Tuple containing:
+            - hedges_g: Corrected effect size
+            - se: Standard error
+            - ci_lower: Lower 95% CI bound
+            - ci_upper: Upper 95% CI bound
+            - pooled_sd: Pooled standard deviation
+            - correction_factor: J factor for small-sample correction
 
     Raises:
-        ValueError: If sample sizes are invalid or variances are zero
+        ValueError: If sample sizes or standard deviations are non-positive
     """
-    # Validate inputs
-    if n_treatment < 1 or n_control < 1:
-        raise ValueError(f"Sample sizes must be >= 1. Got n_treatment={n_treatment}, n_control={n_control}")
-
-    if sd_treatment < 0 or sd_control < 0:
-        raise ValueError(f"Standard deviations must be non-negative. Got sd_treatment={sd_treatment}, sd_control={sd_control}")
-
-    # Handle edge case: zero variance in both groups
-    if sd_treatment == 0 and sd_control == 0:
-        if mean_treatment == mean_control:
-            return 0.0, float('inf')  # No difference, undefined SE
-        else:
-            # Cannot calculate effect size with zero variance
-            raise ValueError("Cannot calculate effect size with zero variance in both groups")
+    if n_treatment <= 0 or n_control <= 0:
+        raise ValueError(f"Sample sizes must be positive. Got n_treatment={n_treatment}, n_control={n_control}")
+    if sd_treatment <= 0 or sd_control <= 0:
+        raise ValueError(f"Standard deviations must be positive. Got sd_treatment={sd_treatment}, sd_control={sd_control}")
 
     # Calculate pooled standard deviation
-    # Pooled SD = sqrt(((n1-1)*sd1^2 + (n2-1)*sd2^2) / (n1+n2-2))
-    df = n_treatment + n_control - 2
-    if df <= 0:
-        raise ValueError(f"Degrees of freedom must be > 0. Got df={df}")
-
+    # Formula: sqrt(((n1-1)*sd1^2 + (n2-1)*sd2^2) / (n1+n2-2))
     pooled_variance = ((n_treatment - 1) * (sd_treatment ** 2) +
-                      (n_control - 1) * (sd_control ** 2)) / df
+                     (n_control - 1) * (sd_control ** 2)) / (n_treatment + n_control - 2)
+    pooled_sd = math.sqrt(pooled_variance)
 
-    # Handle case where pooled variance is zero (both groups have same mean and zero variance)
-    if pooled_variance == 0:
-        if mean_treatment == mean_control:
-            return 0.0, float('inf')
-        else:
-            # Use a small epsilon to avoid division by zero
-            pooled_sd = 1e-10
-    else:
-        pooled_sd = math.sqrt(pooled_variance)
+    if pooled_sd == 0:
+        raise ValueError("Pooled standard deviation is zero; cannot calculate effect size.")
 
-    # Calculate Cohen's d
+    # Calculate Cohen's d (raw effect size)
     cohens_d = (mean_treatment - mean_control) / pooled_sd
 
-    # Apply Hedges' correction factor J
-    # J = 1 - (3 / (4*df - 1))
-    # This corrects for small sample bias
-    j_correction = 1.0 - (3.0 / (4.0 * df - 1.0))
-    hedges_g = cohens_d * j_correction
+    # Calculate small-sample correction factor (J)
+    # Formula: J = 1 - 3/(4*df - 1) where df = n1 + n2 - 2
+    df = n_treatment + n_control - 2
+    correction_factor = 1.0 - (3.0 / (4.0 * df - 1.0))
+
+    # Calculate Hedges' g (corrected effect size)
+    hedges_g = cohens_d * correction_factor
 
     # Calculate standard error of Hedges' g
-    # SE = sqrt((n1 + n2) / (n1 * n2) + (g^2) / (2 * (n1 + n2)))
-    se_squared = (n_treatment + n_control) / (n_treatment * n_control) + (hedges_g ** 2) / (2 * df)
+    # Formula: sqrt((n1+n2)/(n1*n2) + d^2/(2*(n1+n2)))
+    se_squared = (n_treatment + n_control) / (n_treatment * n_control) + \
+                (cohens_d ** 2) / (2 * (n_treatment + n_control))
     se = math.sqrt(se_squared)
 
-    return hedges_g, se
+    # Calculate 95% confidence interval
+    # Using z-score of 1.96 for 95% CI
+    z_score = 1.96
+    ci_lower = hedges_g - (z_score * se)
+    ci_upper = hedges_g + (z_score * se)
+
+    return hedges_g, se, ci_lower, ci_upper, pooled_sd, correction_factor
 
 
 def process_study_for_effect_size(
     study: Dict[str, Any],
-    outcome_column: str = 'outcome_score'
+    effect_size_data: Dict[str, Any]
 ) -> Optional[EffectSizeResult]:
     """
-    Process a single study record to calculate effect size.
+    Process a single study record to calculate its effect size.
+
+    This function extracts the necessary data from study and effect size
+    dictionaries, validates the inputs, and calculates Hedges' g.
 
     Args:
-        study: Dictionary containing study data with required fields
-        outcome_column: Name of the column containing outcome scores
+        study: Dictionary containing study metadata (id, groups, etc.)
+        effect_size_data: Dictionary containing outcome data (means, SDs, n)
 
     Returns:
-        EffectSizeResult if calculation successful, None if study should be skipped
-
-    Required fields in study dict:
-        - study_id: str
-        - mean_treatment: float
-        - mean_control: float
-        - sd_treatment: float
-        - sd_control: float
-        - n_treatment: int
-        - n_control: int
+        EffectSizeResult if calculation successful, None if data is missing
+        or invalid.
     """
+    study_id = study.get('id')
+    if not study_id:
+        logger.warning(f"Study missing 'id' field, skipping effect size calculation")
+        return None
+
+    # Extract group data
+    n_treatment = effect_size_data.get('n_treatment')
+    n_control = effect_size_data.get('n_control')
+    mean_treatment = effect_size_data.get('mean_treatment')
+    mean_control = effect_size_data.get('mean_control')
+    sd_treatment = effect_size_data.get('sd_treatment')
+    sd_control = effect_size_data.get('sd_control')
+
+    # Validate required fields
+    if any(v is None for v in [n_treatment, n_control, mean_treatment, mean_control, sd_treatment, sd_control]):
+        logger.warning(f"Study {study_id} missing required effect size data fields")
+        return None
+
     try:
-        study_id = study.get('study_id')
-        if not study_id:
-            logger.warning(f"Study missing study_id, skipping")
-            return None
-
-        mean_treatment = study.get('mean_treatment')
-        mean_control = study.get('mean_control')
-        sd_treatment = study.get('sd_treatment')
-        sd_control = study.get('sd_control')
-        n_treatment = study.get('n_treatment')
-        n_control = study.get('n_control')
-
-        # Validate required fields
-        if any(v is None for v in [mean_treatment, mean_control, sd_treatment, sd_control, n_treatment, n_control]):
-            logger.warning(f"Study {study_id} missing required effect size fields, skipping")
-            return None
-
-        # Convert to appropriate types
-        mean_treatment = float(mean_treatment)
-        mean_control = float(mean_control)
-        sd_treatment = float(sd_treatment)
-        sd_control = float(sd_control)
-        n_treatment = int(n_treatment)
-        n_control = int(n_control)
-
-        # Calculate effect size
-        hedges_g, se = calculate_hedges_g(
-            mean_treatment, mean_control,
-            sd_treatment, sd_control,
-            n_treatment, n_control
+        hedges_g, se, ci_lower, ci_upper, pooled_sd, correction_factor = calculate_hedges_g(
+            n_treatment=int(n_treatment),
+            n_control=int(n_control),
+            mean_treatment=float(mean_treatment),
+            mean_control=float(mean_control),
+            sd_treatment=float(sd_treatment),
+            sd_control=float(sd_control)
         )
-
-        # Calculate 95% confidence interval
-        # CI = g ± 1.96 * SE
-        z_score = 1.96
-        ci_lower = hedges_g - z_score * se
-        ci_upper = hedges_g + z_score * se
 
         return EffectSizeResult(
             study_id=study_id,
@@ -220,41 +189,65 @@ def process_study_for_effect_size(
             se=se,
             ci_lower=ci_lower,
             ci_upper=ci_upper,
-            n_treatment=n_treatment,
-            n_control=n_control,
-            mean_treatment=mean_treatment,
-            mean_control=mean_control,
-            sd_treatment=sd_treatment,
-            sd_control=sd_control
+            n_treatment=int(n_treatment),
+            n_control=int(n_control),
+            mean_treatment=float(mean_treatment),
+            mean_control=float(mean_control),
+            sd_treatment=float(sd_treatment),
+            sd_control=float(sd_control),
+            pooled_sd=pooled_sd,
+            correction_factor=correction_factor
         )
-
     except ValueError as e:
-        logger.warning(f"Study {study.get('study_id', 'unknown')} failed effect size calculation: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error processing study {study.get('study_id', 'unknown')}: {e}")
+        logger.warning(f"Study {study_id} failed effect size calculation: {e}")
         return None
 
 
 def calculate_effect_sizes_from_studies(
-    studies: List[Dict[str, Any]]
+    studies_df: pd.DataFrame,
+    effect_size_df: pd.DataFrame
 ) -> List[EffectSizeResult]:
     """
-    Calculate effect sizes for a list of studies.
+    Calculate effect sizes for all studies in the provided DataFrames.
+
+    This function merges study metadata with effect size data and calculates
+    Hedges' g for each study.
 
     Args:
-        studies: List of study dictionaries
+        studies_df: DataFrame containing study metadata (from cleaned_studies.csv)
+        effect_size_df: DataFrame containing effect size raw data (means, SDs, n)
 
     Returns:
-        List of EffectSizeResult objects for successfully processed studies
+        List of EffectSizeResult objects for all successfully calculated studies.
     """
     results = []
-    for study in studies:
-        result = process_study_for_effect_size(study)
-        if result is not None:
-            results.append(result)
 
-    logger.info(f"Calculated effect sizes for {len(results)} out of {len(studies)} studies")
+    # Merge on study_id
+    merged_df = studies_df.merge(effect_size_df, on='study_id', how='inner')
+
+    if merged_df.empty:
+        logger.warning("No studies found after merging study metadata with effect size data")
+        return results
+
+    logger.info(f"Processing {len(merged_df)} studies for effect size calculation")
+
+    for _, row in merged_df.iterrows():
+        study_dict = row.to_dict()
+        effect_size_data = {
+            'n_treatment': row.get('n_treatment'),
+            'n_control': row.get('n_control'),
+            'mean_treatment': row.get('mean_treatment'),
+            'mean_control': row.get('mean_control'),
+            'sd_treatment': row.get('sd_treatment'),
+            'sd_control': row.get('sd_control')
+        }
+
+        result = process_study_for_effect_size(study_dict, effect_size_data)
+        if result:
+            results.append(result)
+            logger.debug(f"Calculated Hedges' g = {result.hedges_g:.4f} for study {result.study_id}")
+
+    logger.info(f"Successfully calculated effect sizes for {len(results)} studies")
     return results
 
 
@@ -263,23 +256,37 @@ def save_effect_sizes_to_csv(
     output_path: str
 ) -> None:
     """
-    Save effect size results to a CSV file.
+    Save calculated effect sizes to a CSV file.
 
     Args:
-        results: List of EffectSizeResult objects
-        output_path: Path to output CSV file
+        results: List of EffectSizeResult objects to save
+        output_path: Path to the output CSV file
     """
     if not results:
         logger.warning("No effect size results to save")
-        # Create empty file with headers
-        df = pd.DataFrame(columns=[
-            'study_id', 'hedges_g', 'se', 'ci_lower', 'ci_upper',
-            'n_treatment', 'n_control', 'mean_treatment', 'mean_control',
-            'sd_treatment', 'sd_control'
-        ])
-    else:
-        df = pd.DataFrame([r.to_dict() for r in results])
+        return
 
+    # Convert to DataFrame
+    data = [
+        {
+            'study_id': r.study_id,
+            'hedges_g': r.hedges_g,
+            'se': r.se,
+            'ci_lower': r.ci_lower,
+            'ci_upper': r.ci_upper,
+            'n_treatment': r.n_treatment,
+            'n_control': r.n_control,
+            'mean_treatment': r.mean_treatment,
+            'mean_control': r.mean_control,
+            'sd_treatment': r.sd_treatment,
+            'sd_control': r.sd_control,
+            'pooled_sd': r.pooled_sd,
+            'correction_factor': r.correction_factor
+        }
+        for r in results
+    ]
+
+    df = pd.DataFrame(data)
     df.to_csv(output_path, index=False)
     logger.info(f"Saved {len(results)} effect size results to {output_path}")
 
@@ -288,50 +295,59 @@ def main():
     """
     Main entry point for effect size calculation.
 
-    Reads cleaned study data, calculates Hedges' g for each study,
-    and saves results to CSV.
+    Reads cleaned study data and raw effect size data, calculates Hedges' g
+    for each study, and saves the results to a CSV file.
 
     Usage:
         python code/analysis/effect_sizes.py --input data/processed/cleaned_studies.csv --output data/processed/effect_sizes.csv
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description='Calculate Hedges\' g effect sizes from cleaned study data')
-    parser.add_argument('--input', required=True, help='Path to input CSV with cleaned study data')
-    parser.add_argument('--output', required=True, help='Path to output CSV for effect sizes')
-    parser.add_argument('--log-level', default='INFO', help='Logging level')
+    parser = argparse.ArgumentParser(description='Calculate Hedges\' g effect sizes for meta-analysis')
+    parser.add_argument('--input', type=str, required=True,
+                      help='Path to cleaned studies CSV file')
+    parser.add_argument('--output', type=str, required=True,
+                      help='Path to output effect sizes CSV file')
+    parser.add_argument('--effect-size-input', type=str, default=None,
+                      help='Path to raw effect size data CSV (optional, defaults to same as input)')
 
     args = parser.parse_args()
 
     # Setup logging
-    logging.basicConfig(
-        level=getattr(logging, args.log_level),
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    logger.info(f"Starting effect size calculation")
+    logger.info(f"Input file: {args.input}")
+    logger.info(f"Output file: {args.output}")
 
-    logger.info(f"Reading study data from {args.input}")
-
-    # Read input data
+    # Load cleaned studies data
     try:
-        df = pd.read_csv(args.input)
-        logger.info(f"Loaded {len(df)} studies from {args.input}")
+        studies_df = pd.read_csv(args.input)
+        logger.info(f"Loaded {len(studies_df)} studies from {args.input}")
     except FileNotFoundError:
         logger.error(f"Input file not found: {args.input}")
         raise
     except Exception as e:
-        logger.error(f"Error reading input file: {e}")
+        logger.error(f"Error loading input file: {e}")
         raise
 
-    # Convert DataFrame to list of dictionaries
-    studies = df.to_dict('records')
+    # Load effect size raw data (or use same file if not specified)
+    effect_size_input = args.effect_size_input if args.effect_size_input else args.input
+    try:
+        effect_size_df = pd.read_csv(effect_size_input)
+        logger.info(f"Loaded effect size data from {effect_size_input}")
+    except FileNotFoundError:
+        logger.error(f"Effect size input file not found: {effect_size_input}")
+        raise
+    except Exception as e:
+        logger.error(f"Error loading effect size file: {e}")
+        raise
 
     # Calculate effect sizes
-    results = calculate_effect_sizes_from_studies(studies)
+    results = calculate_effect_sizes_from_studies(studies_df, effect_size_df)
 
     # Save results
     save_effect_sizes_to_csv(results, args.output)
 
-    logger.info("Effect size calculation complete")
+    logger.info("Effect size calculation completed successfully")
 
 
 if __name__ == '__main__':

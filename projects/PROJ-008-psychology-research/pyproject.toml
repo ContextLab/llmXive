@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "psychology-research"
+name = "proj-008-psychology-research"
 version = "0.1.0"
 description = "Mindfulness Components and Delivery Formats in ASD Social Skills Meta-Analysis"
-readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas==2.0.0",
@@ -18,54 +17,29 @@ dependencies = [
     "pytest==7.4.0",
     "bayesmeta==0.1.0",
     "pdfplumber==0.10.0",
-    "pydantic==2.5.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff==0.1.6",
-    "black==23.11.0",
+    "pydantic==2.0.0",
 ]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
 
 [tool.ruff]
-# Configuration is also defined in .ruff.toml for explicitness in the repo
-# This section mirrors .ruff.toml for single-file configuration capability if needed
-target-version = "py311"
 line-length = 88
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "C", "B", "UP", "N", "RUF"]
-ignore = ["E501", "B904"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
-force-sort-within-sections = true
-combine-as-imports = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning"
+target-version = "py311"
+select = [
+    "E",
+    "F",
+    "W",
+    "I",
+]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
 ]

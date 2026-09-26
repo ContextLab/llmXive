@@ -101,6 +101,7 @@ def valid_effect_size_data():
         "ci_lower": 0.18,
         "ci_upper": 0.66,
         "study_year": 2023,
+        "rater_blinding_status": "blinded",
     }
 
 
@@ -165,6 +166,7 @@ def test_effect_size_invalid_type(effect_size_schema):
         "ci_lower": 0.1,
         "ci_upper": 0.9,
         "study_year": 2023,
+        "rater_blinding_status": "blinded",
     }
     
     with pytest.raises(ValidationError):

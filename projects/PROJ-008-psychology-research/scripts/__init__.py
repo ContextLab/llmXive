@@ -1,1 +1,3 @@
-# Utility scripts directory
+"""
+Utility scripts for the research pipeline.
+"""
