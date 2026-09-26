@@ -1,11 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or `.gitkeep` files were presented in the evidence; the
-    claim lacks any tangible artifact showing `data/raw/`, `data/processed/`, `code/`,
-    `outputs/`, and `tests/` directories with the required placeholder files. The
-    implementer must create these folders and include a `.gitkeep` in each to satisfy
-    the task.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,10 +18,12 @@ T035:
     \ report, or updated documentation) is present, and no artifacts matching the\
     \ task\u2019s requirement are provided. The implementer has not supplied any files\
     \ or results demonstrating that the quickstart guide was validated."
-T036:
+T037:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `specs/001-doomscrolling-anxiety/amendment.md` file was presented, nor any
-    excerpt of its contents, so we cannot confirm that the required amendment document
-    exists or follows the prescribed template. The implementer must provide the actual
-    markdown file with the exact sections outlined in the task.
+  h: f159c436466a901b4bccdf1dd38b59bcf21beda647d1f084f421b3f233984d05
+  r: "The repository lacks `data/processed/metadata.json`, and `code/ingest.py` does\
+    \ not contain the required logic to (1) attempt downloading the NHANES 2017\u2011\
+    2018 dataset and check for the `DMQ010` variable, (2) fall back sequentially to\
+    \ GSS, Pew, and YouGov on schema failure, (3) halt only after all sources fail,\
+    \ or (4) write the verified schema and source information to `metadata.json`.\
+    \ These essential task requirements are missing."

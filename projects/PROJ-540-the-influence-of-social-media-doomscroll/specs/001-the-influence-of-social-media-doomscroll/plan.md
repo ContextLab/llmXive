@@ -5,9 +5,9 @@
 
 ## Summary
 
-This project implements a statistical analysis pipeline to test the hypothesis that frequency of negative news consumption on social media **associates with** elevated anxiety scores, independent of demographic factors. The approach involves downloading the verified **NHANES 2017-2018** dataset, performing strict data hygiene (listwise deletion, VIF checks), fitting a multiple linear regression model with diagnostic validation, and generating visualizations and robustness checks. The implementation adheres to the project constitution's requirements for reproducibility, data hygiene, and psychometric validity, while operating within the constraints of a CPU-only GitHub Actions runner (limited cores, 7GB RAM).
+This project implements a statistical analysis pipeline to test the hypothesis that frequency of negative news consumption on social media **associates with** elevated anxiety scores, independent of demographic factors. The approach involves downloading the verified **NHANES -2018** dataset, performing strict data hygiene (listwise deletion, VIF checks), fitting a multiple linear regression model with diagnostic validation, and generating visualizations and robustness checks. The implementation adheres to the project constitution's requirements for reproducibility, data hygiene, and psychometric validity, while operating within the constraints of a CPU-only GitHub Actions runner (limited cores, 7GB RAM).
 
-**Note on Data & Constructs**: The primary dataset (NHANES) contains 'general anxiety' (GAD-7) but not 'anticipatory anxiety'. Per FR-008, the system will use 'general anxiety' as a proxy and explicitly flag this limitation. The 'news exposure' variable will be proxied by available 'media consumption' variables. If the schema does not match, the pipeline halts.
+**Note on Data & Constructs**: The primary dataset (NHANES) contains a measure of general anxiety but not anticipatory anxiety. Per FR-008, the system will use 'general anxiety' as a proxy and explicitly flag this limitation. The 'news exposure' variable will be proxied by available 'media consumption' variables. If the schema does not match, the pipeline halts.
 
 ## Technical Context
 
@@ -33,7 +33,7 @@ This project implements a statistical analysis pipeline to test the hypothesis t
 | **IV. Single Source of Truth** | **PASS** | All statistics in the final output will be generated programmatically from `data/processed/`. No hand-typed numbers in reports. |
 | **V. Versioning Discipline** | **PASS** | Artifacts will include content hashes in `state/`. `requirements.txt` will be pinned. |
 | **VI. Ethical Human‑Subjects** | **PASS** | The selected dataset (NHANES) is public, anonymized, and IRB-approved by the original collectors. No PII will be stored. |
-| **VII. Psychometric Validity** | **PASS (with limitation)** | The anxiety instrument used is the GAD-7 (Generalized Anxiety Disorder 7-item scale) from NHANES. The plan documents this instrument and explicitly flags the use of 'general anxiety' as a proxy for 'anticipatory anxiety' in `research.md` and the output `flags` array. |
+| **VII. Psychometric Validity** | **PASS (with limitation)** | The anxiety instrument used is the GAD (Generalized Anxiety Disorder scale) from NHANES. The plan documents this instrument and explicitly flags the use of 'general anxiety' as a proxy for 'anticipatory anxiety' in `research.md` and the output `flags` array. |
 
 ## Project Structure
 

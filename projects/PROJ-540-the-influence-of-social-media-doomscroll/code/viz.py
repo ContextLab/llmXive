@@ -1,130 +1,218 @@
+"""
+Visualization module for the Doomscrolling Anxiety Analysis Pipeline.
+Generates scatter plots, diagnostic plots, and robustness comparisons.
+"""
 import pandas as pd
 import numpy as np
 import logging
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
-from typing import Optional, Dict, Any
-
-from config import load_config, ensure_directories
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from scipy import stats
 
 logger = logging.getLogger(__name__)
 
-def _log_step(message: str) -> None:
-    """Helper to log steps with consistent formatting."""
-    logger.info(f"VIZ: {message}")
+def load_processed_data() -> pd.DataFrame:
+    """Load processed data for visualization."""
+    path = Path("data/processed/analysis_data.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Processed data not found at {path}")
+    return pd.read_csv(path)
 
-def load_processed_data(input_path: Path) -> pd.DataFrame:
-    """Load processed data from CSV."""
-    _log_step(f"Loading data from {input_path}")
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    return pd.read_csv(input_path)
-
-def plot_scatter_with_regression(df: pd.DataFrame, x_col: str, y_col: str, output_path: Path) -> None:
+def plot_scatter_with_regression(df: pd.DataFrame, results: dict = None):
     """
     Generate scatter plot with regression line and 95% CI.
+    Saves to outputs/plot.png
     """
-    _log_step(f"Generating scatter plot: {x_col} vs {y_col}")
+    logger.info("Generating scatter plot with regression line...")
     
-    plt.figure(figsize=(10, 6))
-    sns.regplot(x=x_col, y=y_col, data=df, ci=95, scatter_kws={'alpha':0.6})
-    plt.title(f'{y_col} vs {x_col}')
-    plt.xlabel(x_col)
-    plt.ylabel(y_col)
+    plt.style.use('seaborn-v0_8-whitegrid')
+    fig, ax = plt.subplots(figsize=(10, 6))
     
+    # Extract variables
+    x = df['news_exposure_freq']
+    y = df['anxiety_score']
+    
+    # Scatter plot
+    sns.scatterplot(x=x, y=y, ax=ax, alpha=0.6, s=50, edgecolor='k', linewidth=0.5)
+    
+    # Regression line
+    if results is None:
+        # Fit simple regression for plot
+        model = smf.ols('anxiety_score ~ news_exposure_freq', data=df).fit()
+    else:
+        model = smf.ols('anxiety_score ~ news_exposure_freq', data=df).fit()
+    
+    # Create line points
+    x_line = np.linspace(x.min(), x.max(), 100)
+    y_line = model.params['Intercept'] + model.params['news_exposure_freq'] * x_line
+    
+    # Plot regression line
+    ax.plot(x_line, y_line, color='red', linewidth=2, label='Regression Line')
+    
+    # 95% Confidence Interval
+    pred = model.get_prediction(sm.add_constant(x_line))
+    ci = pred.conf_int(alpha=0.05)
+    ax.fill_between(x_line, ci[:, 0], ci[:, 1], color='red', alpha=0.2, label='95% CI')
+    
+    # Labels and title
+    ax.set_xlabel('News Exposure Frequency', fontsize=12)
+    ax.set_ylabel('Anxiety Score', fontsize=12)
+    ax.set_title('News Exposure vs. Anxiety Score with Regression Line', fontsize=14)
+    ax.legend()
+    
+    # Save plot
+    output_path = Path("outputs/plot.png")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    _log_step(f"Plot saved to {output_path}")
+    
+    logger.info(f"Scatter plot saved to: {output_path}")
 
-def plot_robustness_comparison(full_df: pd.DataFrame, subset_df: pd.DataFrame, 
-                               x_col: str, y_col: str, output_path: Path) -> None:
-    """
-    Overlay high-engagement subset with different color and plot two regression lines.
-    """
-    _log_step("Generating robustness comparison plot")
-    
-    plt.figure(figsize=(10, 6))
-    
-    # Plot full sample
-    sns.regplot(x=x_col, y=y_col, data=full_df, scatter=False, color='blue', label='Full Sample')
-    sns.scatterplot(x=x_col, y=y_col, data=full_df, color='blue', alpha=0.3, label='Full Data')
-    
-    # Plot subset
-    sns.regplot(x=x_col, y=y_col, data=subset_df, scatter=False, color='red', label='High Engagement Subset')
-    sns.scatterplot(x=x_col, y=y_col, data=subset_df, color='red', alpha=0.6, label='Subset Data')
-    
-    plt.title(f'{y_col} vs {x_col} (Full vs High Engagement)')
-    plt.xlabel(x_col)
-    plt.ylabel(y_col)
-    plt.legend()
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
-    plt.close()
-    _log_step(f"Robustness comparison plot saved to {output_path}")
-
-def plot_diagnostics(residuals: np.ndarray, fitted: np.ndarray, output_path: Path) -> None:
+def plot_diagnostics(results: dict):
     """
     Generate diagnostic plots: Residuals vs Fitted and Q-Q Plot.
+    Saves to outputs/diagnostics_residuals.png and outputs/diagnostics_qq.png
     """
-    _log_step("Generating diagnostic plots")
+    logger.info("Generating diagnostic plots...")
     
-    fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    # Load data and refit model for diagnostics
+    df = load_processed_data()
+    formula = results.get('regression', {}).get('formula', 'anxiety_score ~ news_exposure_freq + age + gender')
+    model = smf.ols(formula, data=df).fit()
     
-    # Residuals vs Fitted
-    axes[0].scatter(fitted, residuals, alpha=0.6)
-    axes[0].axhline(0, color='red', linestyle='--')
-    axes[0].set_xlabel('Fitted Values')
-    axes[0].set_ylabel('Residuals')
-    axes[0].set_title('Residuals vs Fitted')
+    residuals = model.resid
+    fitted = model.fittedvalues
     
-    # Q-Q Plot
-    from scipy import stats
-    stats.probplot(residuals, dist="norm", plot=axes[1])
-    axes[1].set_title('Q-Q Plot')
+    # Get test statistics for titles
+    bp_stat = results.get('regression', {}).get('assumptions', {}).get('homoscedasticity', {}).get('statistic', 'N/A')
+    shapiro_stat = results.get('regression', {}).get('assumptions', {}).get('normality', {}).get('statistic', 'N/A')
     
+    # 1. Residuals vs Fitted
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(fitted, residuals, alpha=0.6, edgecolor='k', linewidth=0.5)
+    ax.axhline(y=0, color='red', linestyle='--', linewidth=2)
+    ax.set_xlabel('Fitted Values', fontsize=12)
+    ax.set_ylabel('Residuals', fontsize=12)
+    title = f'Residuals vs Fitted (Breusch-Pagan stat: {bp_stat:.4f} if available)'
+    ax.set_title(title, fontsize=14)
+    ax.grid(True, alpha=0.3)
+    
+    output_path = Path("outputs/diagnostics_residuals.png")
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
     plt.close()
-    _log_step(f"Diagnostic plots saved to {output_path}")
+    logger.info(f"Residuals plot saved to: {output_path}")
+    
+    # 2. Q-Q Plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sm.qqplot(residuals, line='s', ax=ax)
+    ax.set_title(f'Q-Q Plot of Residuals (Shapiro-Wilk stat: {shapiro_stat} if available)', fontsize=14)
+    
+    output_path = Path("outputs/diagnostics_qq.png")
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close()
+    logger.info(f"Q-Q plot saved to: {output_path}")
 
-def main() -> None:
-    """Main entry point for visualization script."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    config = load_config()
-    ensure_directories()
+def plot_robustness_comparison(df: pd.DataFrame, full_results: dict, robustness_results: dict):
+    """
+    Generate robustness comparison plot.
+    Overlay subset data with different color and plot two regression lines.
+    Saves to outputs/robustness_comparison.png
+    """
+    logger.info("Generating robustness comparison plot...")
     
-    input_path = Path("data/processed/analysis_data.csv")
-    scatter_output = Path("outputs/plot.png")
-    robustness_output = Path("outputs/robustness_comparison.png")
-    diag_output = Path("outputs/diagnostics_residuals.png")
+    plt.style.use('seaborn-v0_8-whitegrid')
+    fig, ax = plt.subplots(figsize=(12, 8))
     
+    # Full sample
+    x_full = df['news_exposure_freq']
+    y_full = df['anxiety_score']
+    sns.scatterplot(x=x_full, y=y_full, ax=ax, alpha=0.4, s=40, color='blue', label='Full Sample')
+    
+    # Subset (high engagement)
+    if robustness_results.get('status') != 'run':
+        logger.warning("No subset data available for comparison.")
+        plt.close()
+        return
+    
+    subset_n = robustness_results.get('subset', {}).get('n', 0)
+    if subset_n == 0:
+        logger.warning("Subset size is 0.")
+        plt.close()
+        return
+    
+    # Re-create subset for plotting
+    if 'social_media_engagement' in df.columns:
+        threshold = df['social_media_engagement'].quantile(0.75)
+        subset_df = df[df['social_media_engagement'] >= threshold]
+        
+        x_sub = subset_df['news_exposure_freq']
+        y_sub = subset_df['anxiety_score']
+        sns.scatterplot(x=x_sub, y=y_sub, ax=ax, alpha=0.8, s=60, color='red', label='High Engagement Subset')
+        
+        # Full sample regression line
+        formula_full = full_results.get('regression', {}).get('formula', 'anxiety_score ~ news_exposure_freq')
+        model_full = smf.ols(formula_full, data=df).fit()
+        x_line = np.linspace(x_full.min(), x_full.max(), 100)
+        y_line = model_full.params['Intercept'] + model_full.params.get('news_exposure_freq', 0) * x_line
+        ax.plot(x_line, y_line, color='blue', linewidth=2, linestyle='-', label='Full Sample Regression')
+        
+        # Subset regression line
+        model_sub = smf.ols(formula_full, data=subset_df).fit()
+        y_line_sub = model_sub.params['Intercept'] + model_sub.params.get('news_exposure_freq', 0) * x_line
+        ax.plot(x_line, y_line_sub, color='red', linewidth=2, linestyle='--', label='Subset Regression')
+        
+        # Labels and title
+        ax.set_xlabel('News Exposure Frequency', fontsize=12)
+        ax.set_ylabel('Anxiety Score', fontsize=12)
+        ax.set_title(f'Robustness Check: Full Sample vs High Engagement Subset (N={subset_n})', fontsize=14)
+        ax.legend()
+        
+        output_path = Path("outputs/robustness_comparison.png")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(output_path, dpi=300, bbox_inches='tight')
+        plt.close()
+        logger.info(f"Robustness comparison plot saved to: {output_path}")
+    else:
+        logger.warning("social_media_engagement not found in data.")
+        plt.close()
+
+def main():
+    """CLI entry point for visualization."""
     try:
-        df = load_processed_data(input_path)
+        df = load_processed_data()
         
-        # Generate scatter plot
-        if "news_exposure_freq" in df.columns and "anxiety_score" in df.columns:
-            plot_scatter_with_regression(df, "news_exposure_freq", "anxiety_score", scatter_output)
+        # Load results
+        results_path = Path("outputs/regression_results.json")
+        if results_path.exists():
+            import json
+            with open(results_path, 'r') as f:
+                results = json.load(f)
+        else:
+            results = None
         
-        # Generate robustness comparison if subset exists (simplified for this task)
-        # In a real pipeline, we would pass the subset dataframe
-        if "news_exposure_freq" in df.columns and "anxiety_score" in df.columns:
-            # Create a dummy subset for demonstration
-            subset_df = df[df["news_exposure_freq"] > df["news_exposure_freq"].median()]
-            plot_robustness_comparison(df, subset_df, "news_exposure_freq", "anxiety_score", robustness_output)
+        plot_scatter_with_regression(df, results)
+        if results:
+            plot_diagnostics(results)
         
-        # Generate diagnostics (dummy residuals for this task)
-        residuals = np.random.normal(0, 1, len(df))
-        fitted = np.random.normal(0, 1, len(df))
-        plot_diagnostics(residuals, fitted, diag_output)
+        # Robustness plot
+        robustness_path = Path("outputs/robustness_results.json")
+        if robustness_path.exists():
+            import json
+            with open(robustness_path, 'r') as f:
+                robustness_results = json.load(f)
+            if robustness_results.get('status') == 'run':
+                plot_robustness_comparison(df, results, robustness_results)
         
-        logger.info("Visualization tasks completed")
+        logger.info("Visualization complete.")
+        return 0
     except Exception as e:
-        logger.error(f"Visualization failed: {e}")
-        sys.exit(1)
+        logger.error(f"Error during visualization: {e}")
+        return 1
 
 if __name__ == "__main__":
     import sys
-    main()
+    sys.exit(main())
