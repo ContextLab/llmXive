@@ -1,3 +1,1 @@
-"""
-Evaluation module for metrics and analysis.
-"""
+"""Evaluation module initialization."""

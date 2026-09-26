@@ -1,122 +1,80 @@
 """
-Pipeline runner for the data ingestion and cleaning phase.
-
-This module orchestrates the sequence of data fetching, scraping,
-aggregation, cleaning, and validation to produce the final cleaned dataset.
-
-It ensures that:
-1. Raw data is fetched from verified sources (T012a, T012d)
-2. Data is aggregated to raw files (T012g)
-3. Data is cleaned and filtered (T013)
-4. Validation metrics are calculated and status is written (T014)
+Pipeline Runner for T058 Audit.
+This script orchestrates the execution of the ingestion and feature engineering pipeline
+to ensure all artifacts are generated before the audit runs.
 """
 import os
 import sys
 import logging
 from pathlib import Path
-import json
-from typing import Optional, Dict, Any
 
 # Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.logging_config import get_logger
-from ingestion.api_fetcher import main as run_api_fetcher
-from ingestion.literature_scraper import main as run_literature_scraper
-from ingestion.aggregator import main as run_aggregator
 from ingestion.cleaner import main as run_cleaner
 from ingestion.validator import main as run_validator
-from ingestion.generate_validation_report import main as run_validation_report
+from features.transformer import main as run_transformer
+from features.descriptor_engine import main as run_descriptor_engine
+from ingestion.verify_task_ordering import main as run_audit
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def run_pipeline():
-    """
-    Execute the full ingestion pipeline.
+    """Execute the pipeline steps in order."""
+    logger.info("Starting Pipeline Execution for T058 Audit...")
     
-    This function runs the ingestion steps in the correct order:
-    1. Fetch data from APIs
-    2. Scrape literature
-    3. Aggregate to raw files
-    4. Clean and filter data
-    5. Validate and write status
-    """
-    logger.info("Starting Ingestion Pipeline...")
-    
-    # Step 1: Fetch API Data
-    logger.info("Step 1: Fetching data from API sources...")
-    try:
-        run_api_fetcher()
-        logger.info("API fetching completed.")
-    except Exception as e:
-        logger.warning(f"API fetching encountered issues (non-fatal if other sources exist): {e}")
-        # We continue because we might have literature data
-    
-    # Step 2: Scrape Literature
-    logger.info("Step 2: Scraping literature sources...")
-    try:
-        run_literature_scraper()
-        logger.info("Literature scraping completed.")
-    except Exception as e:
-        logger.warning(f"Literature scraping encountered issues: {e}")
-        # Continue if we have API data
-    
-    # Step 3: Aggregate Raw Data
-    logger.info("Step 3: Aggregating raw data...")
-    try:
-        run_aggregator()
-        logger.info("Aggregation completed.")
-    except Exception as e:
-        logger.error(f"Aggregation failed: {e}")
-        raise
-    
-    # Step 4: Clean Data
-    logger.info("Step 4: Cleaning and filtering data...")
+    # Step 1: Cleaner (T013) - Produces solder_hardness_cleaned.csv
+    logger.info("Running Cleaner (T013)...")
     try:
         run_cleaner()
-        logger.info("Cleaning completed.")
+        logger.info("Cleaner completed successfully.")
     except Exception as e:
-        logger.error(f"Cleaning failed: {e}")
-        raise
-    
-    # Step 5: Validate Data and Write Status
-    logger.info("Step 5: Validating data and writing status...")
+        logger.error(f"Cleaner failed: {e}")
+        return False
+
+    # Step 2: Validator (T014) - Produces .ingestion_status.json
+    logger.info("Running Validator (T014)...")
     try:
         run_validator()
-        logger.info("Validation completed.")
+        logger.info("Validator completed successfully.")
     except Exception as e:
-        logger.error(f"Validation failed: {e}")
-        raise
-        
-    # Step 6: Generate Validation Report
-    logger.info("Step 6: Generating validation report...")
+        logger.error(f"Validator failed: {e}")
+        return False
+
+    # Step 3: Transformer (T023b) - Produces clr_features.csv
+    logger.info("Running Transformer (T023b)...")
     try:
-        run_validation_report()
-        logger.info("Validation report generated.")
+        run_transformer()
+        logger.info("Transformer completed successfully.")
     except Exception as e:
-        logger.error(f"Validation report generation failed: {e}")
-        # Non-fatal for the pipeline, but good to log
-        
-    logger.info("Ingestion Pipeline completed successfully.")
+        logger.error(f"Transformer failed: {e}")
+        return False
+
+    # Step 4: Descriptor Engine (T023c) - Produces descriptors.csv
+    logger.info("Running Descriptor Engine (T023c)...")
+    try:
+        run_descriptor_engine()
+        logger.info("Descriptor Engine completed successfully.")
+    except Exception as e:
+        logger.error(f"Descriptor Engine failed: {e}")
+        return False
+
+    # Step 5: Audit (T058)
+    logger.info("Running Audit (T058)...")
+    try:
+        run_audit()
+        logger.info("Audit completed successfully.")
+    except Exception as e:
+        logger.error(f"Audit failed: {e}")
+        return False
+
     return True
 
 def main():
-    """
-    Main entry point for the pipeline runner.
-    """
-    try:
-        success = run_pipeline()
-        if success:
-            logger.info("Pipeline execution finished with success.")
-            return 0
-        else:
-            logger.error("Pipeline execution finished with errors.")
-            return 1
-    except Exception as e:
-        logger.critical(f"Pipeline execution crashed: {e}")
-        logger.exception(e)
-        return 1
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    success = run_pipeline()
+    return 0 if success else 1
 
 if __name__ == "__main__":
     sys.exit(main())

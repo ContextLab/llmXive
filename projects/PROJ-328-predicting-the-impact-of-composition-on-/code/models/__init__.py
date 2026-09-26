@@ -1,3 +1,1 @@
-"""
-Models module for training and evaluation.
-"""
+"""Models module initialization."""

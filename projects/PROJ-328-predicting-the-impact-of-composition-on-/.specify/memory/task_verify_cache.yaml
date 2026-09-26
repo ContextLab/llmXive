@@ -12,12 +12,6 @@ T008b:
     \ and there is no evidence that the Reference-Validator Agent was run on T008a\u2019\
     s draft or that verified citations/URLs were extracted. The required artifact\
     \ is missing, so the task is not satisfied."
-T009a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I could find no evidence of a `code/utils/` directory or an `__init__.py` file
-    within it; the provided artifacts contain no such scaffolding, so the required
-    file is missing.
 T009c:
   c: true
   h: bcb19e6fe5a3814a58860c6283a34cd46dac9768d8e486fc6041fd9e8fcc3fe6
@@ -32,6 +26,14 @@ T012a:
     \ if it is absent, and implements fetching logic for Materials Project, NIST/UCI,\
     \ and OpenAlloy with authentication handling and rate\u2011limiting. The required\
     \ `data/config/sources.yaml` file is present and correctly populated."
+T012g:
+  c: false
+  h: ecb58c3f9ec15e2d979a30d7509be2db05117cea76156fc1bc816b493ace5865
+  r: "The repository contains `code/ingestion/aggregator.py`, but the implementation\
+    \ is truncated and does not show any logic that actually writes the required raw\
+    \ files (`raw_mp.json`, `raw_lit.csv`, `raw_openalloy.json`, `raw_slr.csv`). Moreover,\
+    \ the required `data/checksums.txt` file is absent, so SHA256 checksums are not\
+    \ being recorded. The task\u2019s core outputs are therefore missing."
 T014:
   c: false
   h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a
@@ -42,13 +44,6 @@ T014:
     \ to `data/processed/.ingestion_status.json`. Moreover, the required `.ingestion_status.json`\
     \ file is absent. The implementer must add the missing validation logic and ensure\
     \ the status JSON is created with the exact fields."
-T014b:
-  c: false
-  h: 2d823ceb74054ea34840db1d300bdc3b0f8645fbd2298866136500ce9147a41b
-  r: The repository contains the `aggregate_final_report.py` script, but the required
-    input files (`data/processed/.ingestion_status.json` and `data/processed/report.yaml`)
-    are absent, and the expected output file (`data/processed/final_aggregated_report.yaml`)
-    was not generated. Without these artifacts the script cannot fulfill its purpose.
 T016b:
   c: true
   h: c714aec0379373d9a22058b78549e2387a5a947deb18810f6ec97584e08ffcd6
@@ -58,65 +53,47 @@ T016b:
     \ of the input and output data files is not a prerequisite for the script\u2019\
     s existence; the script is ready to generate `validation_report.yaml` when those\
     \ files are provided."
-T016c:
+T029a:
   c: false
-  h: 82e139493ed7536a97062fc3b59a392cbee4ff77a434cf2a0709fa9865afb625
-  r: The required input artifacts `data/processed/.ingestion_status.json` and `validation_metrics.yaml`
-    are missing, and there is no evidence that the script was executed or that a valid
-    `validation_report.yaml` was produced. The integration test therefore was not
-    performed.
-T023b:
+  h: d4dbe5214582fd42e19b267800ba0f9e159d15f868c6fbfdbfe4e30ab94e2476
+  r: The required `code/evaluation/thresholds.py` file does not exist, the generated
+    YAML `data/config/sensitivity_thresholds.yaml` is missing, and the source `test_set_ci.yaml`
+    needed to compute `R2_obs` is also absent. Moreover, `code/config.py` defines
+    a fixed list of thresholds and sets `SENSITIVITY_EXTEND_STEP` to 0.0, contradicting
+    the requirement for a dynamically generated range. The task is therefore not completed.
+T029b:
   c: false
-  h: 5a43eba8c57607fb4416fe0d8aba61d86b7688cc9dbcdcb4d5bcfcf56d6a9a56
-  r: The repository lacks the required input CSV (`data/processed/solder_hardness_cleaned.csv`)
-    and the output CLR matrix (`data/processed/clr_features.csv`). Moreover, `code/features/descriptor_engine.py`
-    contains only partial code for physical descriptors and does not implement any
-    CLR transformation or saving logic. These essential artifacts are missing, so
-    the task is not satisfied.
-T023c:
+  h: 646a32fec004557a3a06a00093f1bc96f6f8762947815e4902c6a6b89e93756d
+  r: "The required output file `data/processed/test_set_ci.yaml` does not exist, and\
+    \ the provided `code/evaluation/bootstrap.py` is truncated and never writes the\
+    \ computed results to that YAML file. Consequently the task\u2019s core deliverable\
+    \ (the CI YAML with the specified keys) is missing."
+T029c:
   c: false
-  h: c50be90405b2fc56645db84b29aaf6c2997cdb352a1d212b4d469cdaeb2e02c1
-  r: "The provided `code/features/descriptor_engine.py` is truncated and does not\
-    \ contain the full implementation of the required descriptor calculations (it\
-    \ ends abruptly at `self._s`). Moreover, the required input file `data/processed/solder_hardness_cleaned.csv`\
-    \ and the output file `data/processed/descriptors.csv` are missing from the repository.\
-    \ Consequently, the task\u2019s core functionality and required artifacts are\
-    \ not present."
-T027a:
+  h: 71b0534636012f7a542bb27a0613057ec176ea275ecb0b8524bd9636cbe9e79d
+  r: The required `data/config/sensitivity_thresholds.yaml` does not exist, and the
+    expected output files `data/processed/sensitivity_analysis.yaml` and `data/outputs/sensitivity_plot.png`
+    are also missing. Consequently the sensitivity analysis cannot be performed as
+    specified, and the implementation is incomplete.
+T029d:
   c: false
-  h: d1be3319f952f54d232e41e10e7e5b40f931137f8be44d7f273fe24d95383d6f
-  r: "The `code/evaluation/paired_ttest.py` file is present but truncated (the `main()`\
-    \ function is incomplete) and never writes the required keys to `data/processed/paired_ttest_results.yaml`.\
-    \ Moreover, the expected output YAML file does not exist at all. The task\u2019\
-    s core deliverable\u2014producing a complete script that generates the specified\
-    \ YAML results\u2014is therefore missing."
+  h: a7c5f92e696d8806c1ce5e3b33f3b1e63fe9af7dc3b131321346844186477e42
+  r: "The `bootstrap.py` file exists but only defines a `BootstrapEvaluator` for a\
+    \ single model and does not implement a comparison between XGBoost and Linear\
+    \ Regression nor write results to `data/processed/bootstrap_comparison.yaml`.\
+    \ Moreover, the required `bootstrap_comparison.yaml` file is missing. The task\u2019\
+    s core requirements are therefore not satisfied."
 T030:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No model files, metric logs, or diagnostic outputs are present in the `models/`
-    or `data/processed/` directories, nor any evidence (e.g., file listings, sample
-    contents) that such artifacts were saved. The required artifacts are missing,
-    so the task is not satisfied.
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (code changes, updated visualizations, or revised final report)\
-    \ were provided showing that associational framing warnings were added to model\
-    \ outputs, visualizations, or the report as required by FR\u2011007. Without concrete\
-    \ evidence of these warnings being implemented, the task cannot be considered\
-    \ completed."
+  h: cee18cf023a7f3d68a9f32b56f367a71656637971d438dd96841faa4943b9c92
+  r: "The provided `code/evaluation/shap_analysis.py` is incomplete (truncated) and\
+    \ shows no logic for writing a YAML file with the required keys. Moreover, the\
+    \ expected output file `data/processed/shap_ranking.yaml` does not exist. Hence\
+    \ the task\u2019s core requirement\u2014calculating SHAP values, ranking features,\
+    \ and persisting the ranking to the specified YAML file\u2014is not satisfied."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence of any plot files saved under `data/outputs/` was provided, nor any
     indication that the plots contain correct axis labels and units. The required
     artifact (saved visualizations) is missing.
-T054:
-  c: false
-  h: c453547be70fc5aa10f22007d10a6a85af8d89106226953d867269ec478d0454
-  r: "The repository contains `code/features/collinearity.py`, but the shown code\
-    \ only defines VIF calculation functions and does not include logic to generate\
-    \ and write a `vif_report.yaml` file. Moreover, the required output file `data/processed/vif_report.yaml`\
-    \ is missing from the project. The task\u2019s core deliverable\u2014a detailed\
-    \ YAML report with VIF scores and an `is_collinear` flag\u2014is therefore not\
-    \ present."
