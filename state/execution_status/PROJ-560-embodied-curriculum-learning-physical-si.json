@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-560-embodied-curriculum-learning-physical-si",
+  "ok": false,
+  "reason": "3 command(s) failed: python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --output=data/processed/analysis_result.json (rc=1); python code/src/cli.py  --mode=synthetic  --n_participants=100  --effect_size=0.5  --output=data/synthetic/generated_dataset.csv (rc=1); python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --sweep_thresholds=0.01,0.05,0.10  --output=data/processed/full_report.json (rc=1); 4 declared deliverable(s) absent: data/processed/perf_log.json; data/processed/results.json; data/processed/validated_fallback.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --output=data/processed/analysis_result.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py\", line 10, in <module>\n    from .utils import set_seed\nImportError: attempted relative import with no known parent package",
+    "python code/src/cli.py  --mode=synthetic  --n_participants=100  --effect_size=0.5  --output=data/synthetic/generated_dataset.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py\", line 10, in <module>\n    from .utils import set_seed\nImportError: attempted relative import with no known parent package",
+    "python code/src/cli.py  --mode=secondary_analysis  --input=data/raw/public_dataset.csv  --sweep_thresholds=0.01,0.05,0.10  --output=data/processed/full_report.json -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-560-embodied-curriculum-learning-physical-si/code/src/cli.py\", line 10, in <module>\n    from .utils import set_seed\nImportError: attempted relative import with no known parent package"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-26T13:20:13Z"
+}

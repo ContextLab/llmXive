@@ -63,7 +63,8 @@ class SyntheticDataGenerator:
             self.mapping_log.append({
                 "physics_param": f"embodied_group_{i}",
                 "math_concept": "gain_score",
-                "mapping_rule": f"post - pre = {mean_diff_embodied} (target)"
+                "mapping_rule": f"post - pre = {mean_diff_embodied} (target)",
+                "causal_mechanism": "Virtual manipulation is assumed to map to abstract principle understanding via linear gain mapping rule."
             })
         
         # Generate static group
@@ -80,11 +81,12 @@ class SyntheticDataGenerator:
             self.mapping_log.append({
                 "physics_param": f"static_group_{i}",
                 "math_concept": "gain_score",
-                "mapping_rule": f"post - pre = {mean_diff_static} (target)"
+                "mapping_rule": f"post - pre = {mean_diff_static} (target)",
+                "causal_mechanism": "Virtual manipulation is assumed to map to abstract principle understanding via linear gain mapping rule."
             })
         
         return records
-    
+
     def write_mapping_log(self, output_path: str) -> None:
         """
         Write the mapping log to a JSON file.

@@ -6,109 +6,80 @@ import os
 import logging
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+def ensure_output_dir():
+    """Ensure the output directory exists."""
+    output_dir = Path("data/processed")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
 
-def ensure_output_dir(output_dir: str) -> None:
-    """
-    Ensure the output directory exists.
+def run_cli_synthetic(n_records=10000):
+    """Run the CLI with synthetic mode and measure time."""
+    cmd = [
+        sys.executable,
+        "code/src/cli.py",
+        "--mode=synthetic",
+        f"--n={n_records}",
+        "--seed=42"
+    ]
     
-    Args:
-        output_dir: Path to the output directory.
-    """
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-
-def run_cli_synthetic(n: int, seed: int, timeout: int = 600) -> bool:
-    """
-    Run the CLI in synthetic mode and measure execution time.
-    
-    Args:
-        n: Number of records to generate.
-        seed: Random seed.
-        timeout: Maximum execution time in seconds.
-        
-    Returns:
-        True if execution completed within timeout, False otherwise.
-    """
     start_time = time.time()
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    end_time = time.time()
     
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "src.cli", "--mode=synthetic", "--n", str(n), "--seed", str(seed)],
-            cwd="code",
-            capture_output=True,
-            text=True,
-            timeout=timeout
-        )
-        duration = time.time() - start_time
-        
-        if result.returncode == 0:
-            logger.info(f"CLI completed successfully in {duration:.2f}s")
-            return True
-        else:
-            logger.error(f"CLI failed with code {result.returncode}: {result.stderr}")
-            return False
-            
-    except subprocess.TimeoutExpired:
-        duration = time.time() - start_time
-        logger.error(f"CLI timed out after {timeout}s")
-        return False
-    except Exception as e:
-        logger.error(f"CLI execution error: {e}")
-        return False
+    duration = end_time - start_time
+    
+    if result.returncode != 0:
+        logging.error(f"CLI execution failed: {result.stderr}")
+        raise RuntimeError(f"CLI execution failed with code {result.returncode}")
+    
+    return duration, result.returncode
 
-def write_perf_log(n: int, duration: float, output_path: str) -> None:
-    """
-    Write performance log to a JSON file.
+def write_perf_log(duration, n_records, output_path=None):
+    """Write performance log to JSON file."""
+    if output_path is None:
+        output_path = "data/processed/perf_log.json"
     
-    Args:
-        n: Number of records processed.
-        duration: Execution time in seconds.
-        output_path: Path to the output JSON file.
-    """
-    from datetime import datetime
     log_entry = {
-        "timestamp": datetime.now().isoformat(),
-        "n_records": n,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "n_records": n_records,
         "duration_seconds": duration
     }
     
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, "w", encoding="utf-8") as f:
+    with open(output_path, 'w') as f:
         json.dump(log_entry, f, indent=2)
     
-    logger.info(f"Performance log written to {output_path}")
+    logging.info(f"Performance log written to {output_path}")
+    return log_entry
 
-def main() -> None:
-    """Main entry point for performance monitoring."""
-    import argparse
+def main():
+    """Main entry point for performance verification."""
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
     
-    parser = argparse.ArgumentParser(description="Performance Monitor")
-    parser.add_argument("--n", type=int, default=10000, help="Number of records")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--timeout", type=int, default=600, help="Timeout in seconds")
-    parser.add_argument("--output", type=str, default="data/processed/perf_log.json", help="Output path")
+    logger.info("Starting performance verification...")
     
-    args = parser.parse_args()
+    # Ensure output directory exists
+    ensure_output_dir()
     
-    ensure_output_dir(os.path.dirname(args.output))
-    
-    success = run_cli_synthetic(args.n, args.seed, args.timeout)
-    duration = time.time() - time.time()  # Placeholder, actual duration from run_cli_synthetic
-    
-    # Re-run to get actual duration
-    start = time.time()
-    success = run_cli_synthetic(args.n, args.seed, args.timeout)
-    duration = time.time() - start
-    
-    write_perf_log(args.n, duration, args.output)
-    
-    if not success:
-        logger.error("Performance verification failed: execution exceeded timeout")
-        sys.exit(1)
-    
-    logger.info("Performance verification passed")
+    # Run CLI with synthetic mode
+    n_records = 10000
+    try:
+        duration, returncode = run_cli_synthetic(n_records)
+        
+        # Write performance log
+        log_entry = write_perf_log(duration, n_records)
+        
+        # Check if within budget
+        if duration > 600:
+            logger.warning(f"Performance benchmark FAILED: {duration:.2f}s > 600s limit")
+            return 1
+        else:
+            logger.info(f"Performance benchmark PASSED: {duration:.2f}s <= 600s limit")
+            return 0
+            
+    except Exception as e:
+        logger.error(f"Performance verification failed: {str(e)}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

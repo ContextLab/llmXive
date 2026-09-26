@@ -1,104 +1,70 @@
-# Quickstart: Embodied Curriculum Learning Analysis
+# Quickstart Guide: Embodied Curriculum Learning Analysis
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` package manager
+- Python 3.9+
+- `pip` installed
 
 ## Setup
 
-1. **Clone the repository** and navigate to the project root.
-2. **Install dependencies**:
+1. Clone the repository.
+2. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
-3. **Verify installation**:
- ```bash
- python code/src/cli.py --help
- ```
 
-## Quick Start Guide
+## Running the Analysis
 
-### Step 1: Prepare Data
+### 1. Synthetic Data Generation (Pipeline Validation)
 
-Place your input data in `data/raw/`. The file should be a CSV or JSON with columns:
-- `pre_test_score`
-- `post_test_score`
-- `instruction_type`
+To validate the pipeline without external data, run the synthetic generator:
 
-Example `data/raw/sample.csv`:
-```csv
-pre_test_score,post_test_score,instruction_type
-50,65,embodied
-48,55,static
-52,70,embodied
-49,58,static
-```
-
-### Step 2: Run Analysis
-
-**Option A: Analyze Real Data**
 ```bash
-python code/src/cli.py --mode=secondary_analysis --input=data/raw/sample.csv
+python -m src.cli --mode=synthetic --n=1000 --seed=42
 ```
-Output: `data/processed/results.json`
 
-**Option B: Generate Synthetic Data (Pipeline Validation Only)**
+This will:
+- Generate a synthetic dataset at `data/synthetic/generated_dataset.csv`.
+- Write a mapping log to `data/synthetic/mapping_log.json` (Constitution Principle VI).
+
+### 2. Secondary Analysis (Public Data)
+
+If you have a public dataset with `pre_test_score`, `post_test_score`, and `instruction_type`:
+
 ```bash
-python code/src/cli.py --mode=synthetic --sample-size=500 --seed=42
+python -m src.cli --mode=secondary_analysis --input=data/raw/your_dataset.csv
 ```
-Output: `data/synthetic/dataset.csv` and `data/synthetic/mapping_log.json`
 
-**Option C: Run Sensitivity Sweep**
+If the input dataset is missing `instruction_type`, the system will automatically attempt to generate synthetic fallback data. If that fails, it will exit with an error.
+
+### 3. Sensitivity Sweep
+
+To run a sensitivity analysis on thresholds (US3):
+
 ```bash
-python code/src/cli.py --mode=secondary_analysis --input=data/raw/sample.csv --sweep_thresholds=0.05,0.01
+python -m src.cli --mode=secondary_analysis --input=data/raw/your_dataset.csv --sweep_thresholds 0.01 0.05 0.10
 ```
 
-### Step 3: Review Results
+### 4. Performance Verification (T039)
 
-Check `data/processed/results.json` for:
-- T-statistic and p-value
-- Cohen's d (effect size)
-- Confidence intervals
-- Power analysis
-- Associational framing notes
+To verify the system meets the 600s performance goal for N=10000:
 
-## Data Sources and Requirements
+```bash
+python code/src/perf_monitor.py
+```
 
-### Required Columns
-All input datasets (CSV or JSON) must contain the following columns:
-- `pre_test_score`: Numeric score before intervention.
-- `post_test_score`: Numeric score after intervention.
-- `instruction_type`: Categorical label indicating the teaching method (e.g., "embodied", "static").
+This script runs the CLI with `--n=10000` and writes the timing result to `data/processed/perf_log.json`.
 
-### Automatic Synthetic Fallback
-The system is designed to handle public datasets that lack the `instruction_type` column.
-- **Behavior**: If `instruction_type` is missing from the provided input file, the system **automatically invokes** the `SyntheticDataGenerator` (T014).
-- **Purpose**: This fallback is strictly for **pipeline validation**. It generates a labeled dataset with configurable statistical properties to ensure the analysis pipeline functions correctly when real-world data is incomplete or unavailable.
-- **Warning**: Synthetic data is not a substitute for real experimental data in final research conclusions. If the synthetic generation fails, the system will exit with an error code and log the failure to `data/derivation_logs/skipped_records.log`.
+## Output Files
 
-### Running with Synthetic Data (Fallback Scenario)
-If you do not have a public dataset with the required `instruction_type` column, or if you wish to validate the pipeline's statistical engine without external data dependencies, use the synthetic generation mode.
-- **Command**: `python code/src/cli.py --mode=synthetic --sample-size=1000 --seed=42`
-- **Output**: This creates a deterministic dataset at `data/synthetic/dataset.csv` and a `mapping_log.json` that documents the derivation parameters.
-- **Note**: The results generated in this mode are for verifying that the t-tests, effect size calculations, and sensitivity sweeps are executing correctly. They do not represent empirical findings.
-
-## Key Concepts
-
-- **Gain Score**: `post_test_score - pre_test_score`
-- **Associational Framing**: All results are correlations, not causal claims. The system explicitly frames findings as "associational" to avoid unwarranted causal inference.
-- **Sensitivity Sweep**: Tests robustness across different significance thresholds (e.g., 0.01, 0.05, 0.10).
-- **Automatic Fallback**: Missing `instruction_type` triggers synthetic data generation for validation purposes.
+- `data/synthetic/mapping_log.json`: Physics-to-math mapping documentation (Synthetic Mode).
+- `data/synthetic/generated_dataset.csv`: Synthetic dataset.
+- `data/processed/validated_fallback.csv`: Processed data with gain scores.
+- `data/processed/results.json`: Full statistical analysis report.
+- `data/processed/perf_log.json`: Performance benchmark results.
+- `data/derivation_logs/skipped_records.log`: JSONL log of skipped records.
 
 ## Troubleshooting
 
-- **Missing Columns**: If `pre_test_score` or `post_test_score` are missing, the system logs skipped records to `data/derivation_logs/skipped_records.log` and excludes them from analysis.
-- **Small Sample Size**: If N < 30, sensitivity analysis is skipped with a warning flag in the output.
-- **Collinearity**: If |r| > 0.8 between predictors, a diagnostic is reported in the results.
-- **Synthetic Generation Failure**: If the fallback generator cannot create data (e.g., invalid parameters), the process terminates immediately with a clear error message.
-
-## Next Steps
-
-- Explore `docs/README.md` for detailed methodological explanations.
-- Run `pytest` in the `code/` directory to verify the installation.
-- Customize `synthetic_gen.py` parameters for specific validation scenarios.
+- **Missing `instruction_type`**: If your public data lacks this column, the system will try to generate synthetic data. If you want to force synthetic generation, use `--mode=synthetic`.
+- **Argparse Errors**: Ensure you are using the correct flags. `--n_participants` and `--effect_size` are not valid arguments; use `--n` and `--mean_diff_embodied`/`--mean_diff_static` respectively.

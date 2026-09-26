@@ -1,0 +1,182 @@
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: System exits with code 1 and specific error message if synthetic generation
+    fails due to missing instruction_type
+  claim_id: c_c19c4307
+  context: 'Phase 3, T012c: Implement handle_fallback_logic... If generation fails,
+    MUST exit with code 1 and MUST print to stderr...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The system must exit with code 1 and print to stderr: ''Primary research
+    question cannot be answered: missing instruction_type and synthetic generation
+    failed'' if synthetic generation fails.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:11:39Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.01, 0.05, and 0.10
+  claim_id: c_07bc604e
+  context: 'Phase 5, T028: ...iterate over the fixed set of thresholds [0.01, 0.05,
+    0.10]...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep iterates over the fixed set of thresholds [0.01,
+    0.05, 0.10].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:12:08Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Robustness warning triggered if effect size < 0.2 in sensitivity sweep
+  claim_id: c_869e0bfe
+  context: 'Phase 5, T030: ...flag robustness_warning: true in the output if the effect
+    size drops below 0.2...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A robustness warning is flagged if the effect size drops below 0.2 at
+    any point in the sensitivity sweep.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:12:35Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Sensitivity sweep returns early if N < 30
+  claim_id: c_c13f30d3
+  context: 'Phase 5, T028: ...if N < 30, return early with insufficient_data flag...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_sweep_returns_early_if_N_%3C_30
+  kind: magnitude
+  raw_text: The sensitivity sweep returns an early insufficient_data flag if the total
+    sample size N is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:13:32Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Performance benchmark uses n=10000
+  claim_id: c_e6456ef3
+  context: 'Phase 6, T039: ...Run time python code/src/cli.py --mode=synthetic --n=10000...
+    The --n=10000 parameter is mandatory...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance benchmark mandates running the analysis with --n=10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:13:58Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Performance benchmark duration limit is 600 seconds on 2-core CPU
+  claim_id: c_900c14b1
+  context: 'Phase 6, T039: ...verify exit time < 600s (10 minutes) wall-clock time
+    on a 2-core CPU...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_benchmark_duration_limit_is_600_seconds_on_2-cor
+  kind: magnitude
+  raw_text: The performance benchmark requires the execution duration to be less than
+    600 seconds (10 minutes) on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:15:03Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Collinearity detected if |r| > 0.8
+  claim_id: c_bdfc3765
+  context: 'Phase 4, T024: ...detect |r| > 0.8 between predictors and report diagnostics...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_detected_if_%7Cr%7C_%3E_0.8
+  kind: magnitude
+  raw_text: Collinearity diagnostics detect and report issues when the absolute correlation
+    |r| is greater than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:15:40Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Underpowered flag set if power < 0.80
+  claim_id: c_d064a087
+  context: 'Phase 4, T025: ...compute achieved power and flag ''underpowered'' results
+    if < 0.80...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Underpowered_flag_set_if_power_%3C_0.80
+  kind: magnitude
+  raw_text: A result is flagged as underpowered if the achieved power is less than
+    0.80.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:16:29Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Synthetic mapping_log requires physics_param='simulated_gain' and math_concept='mathematical_reasoning'
+  claim_id: c_5603afdd
+  context: 'Phase 2, T014: ...Generate mapping_log file... physics_param must be ''simulated_gain'',
+    math_concept must be ''mathematical_reasoning''...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_mapping_log_requires_physics_param='simulated_gain
+  kind: entity_fact
+  raw_text: The synthetic data generator must generate a mapping_log file at data/synthetic/mapping_log.json
+    with physics_param set to 'simulated_gain' and math_concept set to 'mathematical_reasoning'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:17:01Z'
+- artifact_path: projects/PROJ-560-embodied-curriculum-learning-physical-si/specs/001-embodied-curriculum-learning-physical-si/tasks.md
+  attempts: 1
+  canonical: Mapping log includes specific Causal Mechanism assumption text
+  claim_id: c_dd374427
+  context: 'Phase 2, T046: ...include a metadata field... that explicitly states the
+    ''Causal Mechanism'' assumption...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mapping_log_includes_specific_Causal_Mechanism_assumption_te
+  kind: entity_fact
+  raw_text: 'The mapping_log must include a metadata field stating the ''Causal Mechanism''
+    assumption: ''Virtual manipulation is assumed to map to abstract principle understanding
+    via [specific mapping rule].''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T13:17:31Z'
