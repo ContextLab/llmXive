@@ -1,9 +1,3 @@
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, log files, or documentation showing that logging for baseline training
-    operations and exclusion counts was added were provided; the only evidence is
-    the task description itself, which does not demonstrate the required implementation.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

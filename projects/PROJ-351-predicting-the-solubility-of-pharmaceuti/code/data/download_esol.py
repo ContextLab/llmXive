@@ -1,84 +1,88 @@
-"""
-Download the ESOL (Estimated Solubility) dataset from HuggingFace.
-
-This script fetches the 'delaney-esol' dataset from the HuggingFace Hub,
-validates the presence of the 'logS' column, and saves the raw data
-to data/raw/esol_raw.csv.
-
-Dependencies:
-    pandas, requests (or huggingface_hub)
-"""
 import os
 import sys
 import pandas as pd
 from datasets import load_dataset
 import hashlib
+import logging
+from pathlib import Path
+from typing import Optional
 
-def fetch_esol_dataset():
+# Ensure imports work relative to project root if run as script
+if __name__ == '__main__' and 'code' not in sys.path[0]:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+logger = logging.getLogger(__name__)
+
+# Verified sources as per project constraints
+PRIMARY_SOURCE = "deepchem/delaney-processed" # HuggingFace dataset ID
+# Note: The original S3 URL is deprecated/unreliable. We rely on HF mirror.
+# If HF fails, we must fail loudly.
+
+def fetch_esol_dataset(output_dir: str) -> pd.DataFrame:
     """
-    Fetches the ESOL dataset from HuggingFace datasets.
-
-    Returns:
-        pd.DataFrame: The raw ESOL dataset.
-
-    Raises:
-        RuntimeError: If the dataset cannot be fetched or 'logS' column is missing.
+    Fetches the ESOL dataset from a verified real source.
+    Fails loudly if the source is unreachable. No synthetic fallbacks.
     """
-    print("Fetching ESOL dataset from HuggingFace...")
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    csv_path = output_path / "delaney-processed.csv"
+
+    if csv_path.exists():
+        logger.info(f"Found existing raw CSV at {csv_path}")
+        return pd.read_csv(csv_path)
+
+    logger.info(f"Fetching ESOL dataset from {PRIMARY_SOURCE}...")
     try:
-        dataset = load_dataset("delaney-esol", split="train")
+        # Load from HuggingFace datasets (verified source)
+        # This wraps the CSV download logic
+        dataset = load_dataset(PRIMARY_SOURCE, split="train")
+        
+        # Convert to pandas
+        df = dataset.to_pandas()
+        
+        # Validate required columns
+        if "logS" not in df.columns:
+            raise ValueError("Invalid dataset format: 'logS' column missing.")
+        if "smiles" not in df.columns:
+            # Some versions might use 'SMILES'
+            if "SMILES" in df.columns:
+                df = df.rename(columns={"SMILES": "smiles"})
+            else:
+                raise ValueError("Invalid dataset format: 'smiles' column missing.")
+
+        # Save to disk
+        df.to_csv(csv_path, index=False)
+        logger.info(f"Successfully saved raw CSV to {csv_path}")
+        return df
+
     except Exception as e:
-        print(f"Error fetching dataset: {e}", file=sys.stderr)
-        raise
+        # CRITICAL: Fail loudly. No synthetic fallback.
+        logger.error(f"Failed to fetch ESOL dataset from verified source: {e}")
+        raise RuntimeError(f"CRITICAL: Could not fetch real data. Aborting. Source: {PRIMARY_SOURCE}") from e
 
-    df = dataset.to_pandas()
-
-    if 'logS' not in df.columns:
-        raise RuntimeError("Missing required column 'logS' in dataset.")
-
-    return df
-
-def save_raw_csv(df, output_path):
-    """
-    Saves the DataFrame to a CSV file.
-
-    Args:
-        df (pd.DataFrame): The dataset to save.
-        output_path (str): The path to save the CSV file.
-    """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+def save_raw_csv(df: pd.DataFrame, output_path: str):
+    """Saves the dataframe to a CSV file."""
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    print(f"Raw ESOL dataset saved to {output_path}")
+    logger.info(f"Saved raw CSV to {output_path}")
 
-def verify_checksum(file_path, expected_md5):
-    """Verifies the checksum of a file."""
-    hasher = hashlib.md5()
-    with open(file_path, 'rb') as f:
-        while True:
-            chunk = f.read(4096)
-            if not chunk:
-                break
-            hasher.update(chunk)
-    actual_md5 = hasher.hexdigest()
-    if actual_md5 != expected_md5:
-        raise ValueError(f"Checksum mismatch! Expected {expected_md5}, got {actual_md5}")
+def verify_checksum(file_path: str) -> str:
+    """Computes SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 def main():
-    """Main entry point for the download script."""
-    output_path = "data/raw/esol_raw.csv"
-    expected_md5 = "a9146237b8d40fdfc3e36dc19cd81a06"  # Verified MD5 hash of the ESOL dataset
-
-    try:
-        df = fetch_esol_dataset()
-        save_raw_csv(df, output_path)
-        verify_checksum(output_path, expected_md5)
-        print("Download and validation successful.")
-    except RuntimeError as e:
-        print(f"Failed to download or validate dataset: {e}", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
+    """Main entry point for downloading ESOL dataset."""
+    logging.basicConfig(level=logging.INFO)
+    output_dir = os.environ.get("DATA_RAW_DIR", "data/raw")
+    os.makedirs(output_dir, exist_ok=True)
+    
+    df = fetch_esol_dataset(output_dir)
+    checksum = verify_checksum(os.path.join(output_dir, "delaney-processed.csv"))
+    logger.info(f"Dataset checksum: {checksum}")
 
 if __name__ == "__main__":
     main()

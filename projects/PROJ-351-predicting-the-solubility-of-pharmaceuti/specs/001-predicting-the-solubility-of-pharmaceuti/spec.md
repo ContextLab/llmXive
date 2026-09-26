@@ -93,7 +93,7 @@ The researcher MUST be able to perform a paired t-test on prediction errors to d
 
 - The ESOL (Delaney) dataset is publicly available and accessible via the standard MoleculeNet URL without authentication.
 - The RDKit library and PyTorch Geometric are compatible with the Python version used in the CI environment and can be installed without GPU dependencies.
-- The ESOL dataset contains sufficient molecular diversity to support a meaningful 80/10/10 split without severe class imbalance in logS values.
+- The ESOL dataset contains sufficient molecular diversity to support a meaningful train/validation/test split without severe class imbalance in logS values.
 - The "CPU-only" constraint implies that the GNN architecture will be simplified (e.g., fewer layers, smaller hidden dimensions) to ensure convergence within the 6-hour time limit on free-tier runners.
 - The dataset variables (SMILES and logS) are sufficient for the proposed analysis; no additional experimental data (e.g., pH, temperature) is required or available in the source.
 - The Random Forest baseline using Morgan fingerprints is an appropriate standard for comparison in this domain, as established by existing chemoinformatics literature.
