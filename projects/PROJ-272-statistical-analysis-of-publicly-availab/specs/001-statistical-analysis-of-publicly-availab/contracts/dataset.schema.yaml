@@ -1,8 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ADReSS Cognitive Decline Dataset Schema
-description: >
-  JSON Schema defining the structure of the cleaned ADReSS dataset
-  used for statistical analysis of cognitive decline.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ADReSS Dataset Schema"
+description: "Schema for the raw and cleaned ADReSS dataset records."
 type: object
 required:
   - participant_id
@@ -11,34 +9,30 @@ required:
 properties:
   participant_id:
     type: string
-    description: >
-      Unique identifier for the participant. 
-      Format: "sub-<id>" or raw ID from ADReSS corpus.
-    pattern: "^[a-zA-Z0-9_-]+$"
-    minLength: 1
+    description: "Unique identifier for the participant (e.g., P001, P002)."
+    pattern: "^P\\d{3}$"
   label:
     type: string
-    description: >
-      Cognitive status label derived from the dataset.
-      Valid values are strictly defined to ensure consistency.
+    description: "Cognitive status label."
     enum:
-      - Control
-      - MCI
-      - AD
+      - "Control"
+      - "MCI"
+      - "AD"
   text:
     type: string
-    description: >
-      Cleaned transcript text associated with the participant.
-      Must be UTF-8 encoded, with non-verbal annotations removed.
-      Minimum length enforced by preprocessing logic (>= 50 words).
+    description: "The cleaned transcript text associated with the participant."
     minLength: 50
   metadata:
     type: object
-    description: Optional metadata fields (e.g., source file, timestamp).
+    description: "Optional additional metadata fields."
     properties:
-      source_file:
+      source:
         type: string
-      processed_at:
+      download_date:
         type: string
-        format: date-time
+        format: date
+      raw_length:
+        type: integer
+        minimum: 0
+    additionalProperties: true
 additionalProperties: false

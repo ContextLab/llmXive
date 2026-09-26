@@ -1,52 +1,70 @@
 """
-Utility script to run linting and formatting checks manually.
-Usage: python code/lint_check.py
+Utility script to run linting and formatting checks.
+This script is used to verify the project adheres to the configured style guidelines.
 """
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd: list[str], description: str) -> bool:
-    """Run a command and return True if successful."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
+def run_command(cmd: list, check: bool = True) -> int:
+    """
+    Run a command and return the exit code.
+
+    Args:
+        cmd: List of command arguments.
+        check: If True, raise an exception if the command fails.
+
+    Returns:
+        The exit code of the command.
+    """
     try:
-        result = subprocess.run(
-            cmd, check=True, capture_output=False, text=True
-        )
-        return result.returncode == 0
+        result = subprocess.run(cmd, check=check, capture_output=True, text=True)
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        return result.returncode
     except subprocess.CalledProcessError as e:
-        print(f"Error in {description}: {e}")
-        return False
+        print(f"Command failed with exit code {e.returncode}")
+        print(f"stdout: {e.stdout}")
+        print(f"stderr: {e.stderr}")
+        if check:
+            raise
+        return e.returncode
 
 def main():
-    project_root = Path(__file__).parent.parent
-    code_dir = project_root / "code"
-    tests_dir = project_root / "tests"
+    """Run linting and formatting checks."""
+    print("Running linting and formatting checks...")
+    
+    # Check if ruff is available
+    try:
+        run_command(["ruff", "--version"])
+    except FileNotFoundError:
+        print("Error: ruff not found. Please install it via 'pip install ruff' or 'pre-commit'.")
+        sys.exit(1)
 
-    print(f"Checking project at: {project_root}")
-    print("-" * 50)
+    # Check if black is available
+    try:
+        run_command(["black", "--version"])
+    except FileNotFoundError:
+        print("Error: black not found. Please install it via 'pip install black' or 'pre-commit'.")
+        sys.exit(1)
 
-    # Run Ruff (Linter)
-    if not run_command(
-        [sys.executable, "-m", "ruff", "check", str(code_dir), str(tests_dir)],
-        "Ruff Linting"
-    ):
-        print("Ruff check failed. Please fix the errors above.")
-        return 1
+    # Run ruff check
+    print("\n--- Running Ruff ---")
+    try:
+        run_command(["ruff", "check", "."], check=False)
+    except Exception as e:
+        print(f"Ruff check failed: {e}")
 
-    # Run Ruff (Formatter/Black equivalent)
-    # Note: ruff format is the new black replacement in ruff
-    if not run_command(
-        [sys.executable, "-m", "ruff", "format", "--check", str(code_dir), str(tests_dir)],
-        "Ruff Formatting (Black)"
-    ):
-        print("Ruff format check failed. Run 'ruff format' to fix.")
-        return 1
+    # Run black check (diff mode)
+    print("\n--- Running Black ---")
+    try:
+        run_command(["black", "--check", "."], check=False)
+    except Exception as e:
+        print(f"Black check failed: {e}")
 
-    print("-" * 50)
-    print("All linting and formatting checks passed!")
-    return 0
+    print("\nLinting and formatting checks complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

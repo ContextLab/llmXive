@@ -1,58 +1,59 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Linguistic Feature Matrix Schema
-description: >
-  JSON Schema defining the structure of the extracted feature matrix
-  used for statistical hypothesis testing and modeling.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Linguistic Feature Matrix Schema"
+description: "Schema for the extracted feature matrix used in statistical analysis."
 type: object
 required:
   - participant_id
   - label
-  - TTR
-  - MTLD
-  - Noun_Verb_Ratio
-  - Mean_Clause_Length
-  - T_Unit_Count
-  - Sentence_Embedding_Cosine_Similarity
+  - features
 properties:
   participant_id:
     type: string
-    description: >
-      Unique identifier linking this record to the dataset schema.
-    pattern: "^[a-zA-Z0-9_-]+$"
-    minLength: 1
+    description: "Unique identifier for the participant."
+    pattern: "^P\\d{3}$"
   label:
     type: string
-    description: Cognitive status label.
+    description: "Cognitive status label."
     enum:
-      - Control
-      - MCI
-      - AD
-  TTR:
-    type: number
-    description: Type-Token Ratio (lexical diversity).
-    minimum: 0
-    maximum: 1
-  MTLD:
-    type: number
-    description: Measure of Textual Lexical Diversity.
-    minimum: 0
-  Noun_Verb_Ratio:
-    type: number
-    description: Ratio of nouns to verbs in the transcript.
-    minimum: 0
-  Mean_Clause_Length:
-    type: number
-    description: Average number of words per clause (syntactic complexity).
-    minimum: 0
-  T_Unit_Count:
-    type: integer
-    description: Count of T-units in the transcript.
-    minimum: 0
-  Sentence_Embedding_Cosine_Similarity:
-    type: number
-    description: >
-      Mean cosine similarity of sentence embeddings within the transcript
-      (semantic coherence/self-similarity).
-    minimum: -1
-    maximum: 1
+      - "Control"
+      - "MCI"
+      - "AD"
+  features:
+    type: object
+    description: "Map of feature names to their numeric values."
+    required:
+      - TTR
+      - MTLD
+      - Noun_Verb_Ratio
+      - Mean_Clause_Length
+      - T_Unit_Count
+      - Sentence_Embedding_Cosine_Similarity
+    properties:
+      TTR:
+        type: number
+        description: "Type-Token Ratio."
+        minimum: 0
+        maximum: 1
+      MTLD:
+        type: number
+        description: "Mean Length of Textual Discourse."
+        minimum: 0
+      Noun_Verb_Ratio:
+        type: number
+        description: "Ratio of nouns to verbs."
+        minimum: 0
+      Mean_Clause_Length:
+        type: number
+        description: "Average number of words per clause."
+        minimum: 0
+      T_Unit_Count:
+        type: number
+        description: "Total count of T-units."
+        minimum: 0
+      Sentence_Embedding_Cosine_Similarity:
+        type: number
+        description: "Self-similarity score of sentence embeddings."
+        minimum: 0
+        maximum: 1
+    additionalProperties: false
 additionalProperties: false

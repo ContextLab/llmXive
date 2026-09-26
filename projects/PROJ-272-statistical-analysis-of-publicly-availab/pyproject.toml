@@ -3,10 +3,11 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-statistical-cognitive-decline"
+name = "statistical-cognitive-decline"
 version = "0.1.0"
-description = "Statistical analysis of publicly available textual data for detecting cognitive decline"
-requires-python = ">=3.11"
+description = "Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
     "pandas>=2.0.0",
     "scikit-learn>=1.3.0",
@@ -23,13 +24,13 @@ dependencies = [
 dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
-    "pre-commit>=3.0.0",
-    "pytest>=7.0.0",
+    "pre-commit>=3.5.0",
+    "pytest>=7.4.0",
 ]
 
 [tool.black]
-line-length = 100
-target-version = ['py311']
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -46,32 +47,34 @@ exclude = '''
 '''
 
 [tool.ruff]
-target-version = "py311"
-line-length = 100
+# Same as Black.
+line-length = 88
+target-version = "py39"
+
+# Assume we are using the standard library and the dependencies listed in pyproject.toml
+# Ruff will infer standard library from target-version and environment if not explicitly listed,
+# but we can add specific ignores if needed.
+
+[tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in data classes)
 ]
 
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101"] # allow assert in tests
-
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 known-first-party = ["code"]
-force-single-line = true
-order-by-type = false
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"

@@ -13,6 +13,9 @@ class DataSourceConfig:
     ALLOWED_SOURCES = ["ADReSS"]
     # Explicitly exclude DementiaBank per T000a
     EXCLUDED_SOURCES = ["DementiaBank"]
+    # Canonical and Mirror URLs for ADReSS
+    CANONICAL_URL = "https://github.com/compulab/ADReSS-M/raw/master/data/ADReSS-M-2020.zip"
+    MIRROR_URL = "https://zenodo.org/record/4132773/files/ADReSS-M-2020.zip"
 
 class ModelConfig:
     CPU_ONLY = True
@@ -20,20 +23,23 @@ class ModelConfig:
     BATCH_SIZE = 32
     EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
-def set_seed(seed: int = 42) -> None:
+# Random Seed Configuration
+RANDOM_SEED = 42
+
+def set_seed(seed: int = RANDOM_SEED) -> None:
     """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 def get_seed() -> int:
-    return 42
+    return RANDOM_SEED
 
 def get_device() -> str:
     return "cpu"
 
 def get_max_workers() -> int:
-    return 1
+    return MAX_WORKERS
 
 def get_path(relative_path: str) -> str:
     """Get absolute path relative to project root."""

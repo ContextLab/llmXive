@@ -1,179 +1,110 @@
+"""
+Main orchestration script for the statistical analysis pipeline.
+Executes the full run-book sequence.
+"""
 import logging
 import sys
 import time
 import tracemalloc
 from pathlib import Path
 import json
+import subprocess
 
 from config import get_path, ensure_dirs
-from utils import setup_logging, get_logger
 
-# Configure logging
-logger = get_logger(__name__)
-
-def run_command(command: str, description: str = "") -> bool:
-    """
-    Run a shell command and log its execution.
-    
-    Args:
-        command: The shell command to execute.
-        description: Optional description of what the command does.
-        
-    Returns:
-        True if command succeeded, False otherwise.
-    """
-    if description:
-        logger.info(f"Executing: {description}")
-    logger.info(f"Command: {command}")
-    
+def run_command(cmd: list) -> int:
+    """Run a shell command and return the exit code."""
     try:
-        import subprocess
-        result = subprocess.run(
-            command,
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True
-        )
-        logger.info(f"Command completed successfully (return code: {result.returncode})")
-        return True
+        result = subprocess.run(cmd, check=True)
+        return result.returncode
     except subprocess.CalledProcessError as e:
-        logger.error(f"Command failed with return code {e.returncode}")
-        logger.error(f"stdout: {e.stdout}")
-        logger.error(f"stderr: {e.stderr}")
-        return False
-    except Exception as e:
-        logger.error(f"Error executing command: {str(e)}")
-        return False
+        logging.error(f"Command failed: {cmd}. Error: {e}")
+        return e.returncode
+    except FileNotFoundError:
+        logging.error(f"Command not found: {cmd[0]}")
+        return 127
 
 def measure_runtime_and_memory(commands: list) -> dict:
     """
-    Measure total runtime and peak memory usage for a sequence of commands.
-    
-    Args:
-        commands: List of command dictionaries with 'cmd' and 'description' keys.
-        
-    Returns:
-        Dictionary with runtime and memory metrics.
+    Wraps the execution of commands to measure total time and peak memory.
     """
     tracemalloc.start()
     start_time = time.time()
     
-    success = True
-    for cmd_info in commands:
-        cmd = cmd_info.get('cmd', '')
-        desc = cmd_info.get('description', '')
-        if not run_command(cmd, desc):
-            success = False
+    exit_codes = []
+    for cmd in commands:
+        logging.info(f"Running: {' '.join(cmd)}")
+        rc = run_command(cmd)
+        exit_codes.append(rc)
+        if rc != 0:
+            logging.error(f"Command failed with code {rc}. Stopping.")
             break
-    
+      
     end_time = time.time()
-    current, peak = tracemalloc.get_traced_memory()
+    current, peak = tracemalloc.get_memory_usage()
     tracemalloc.stop()
     
+    total_seconds = end_time - start_time
+    peak_rss_gb = peak / (1024 ** 3)
+    
     return {
-        'total_seconds': end_time - start_time,
-        'peak_rss_gb': peak / (1024 * 1024 * 1024),
-        'success': success
+        "total_seconds": total_seconds,
+        "peak_rss_gb": peak_rss_gb,
+        "exit_codes": exit_codes
     }
 
-def save_runtime_metrics(metrics: dict, output_path: str) -> None:
-    """
-    Save runtime metrics to a JSON file.
-    
-    Args:
-        metrics: Dictionary containing runtime and memory metrics.
-        output_path: Path to the output JSON file.
-    """
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
+def save_runtime_metrics(metrics: dict, output_path: Path):
+    """Save runtime metrics to a JSON file."""
+    with open(output_path, "w", encoding="utf-8") as f:
         json.dump(metrics, f, indent=2)
-    
-    logger.info(f"Saved runtime metrics to {output_path}")
+    logging.info(f"Runtime metrics saved to {output_path}")
 
 def main():
     """
-    Main entry point for the pipeline execution.
-    
-    This function orchestrates the full pipeline:
-    1. Data ingestion and preprocessing
-    2. Feature extraction
-    3. Statistical analysis
-    4. Model training and validation
-    5. Runtime and memory measurement
+    Main entry point. Executes the pipeline steps in order.
     """
     # Setup logging
-    setup_logging()
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
     
-    logger.info("Starting the statistical analysis pipeline")
+    project_root = Path(__file__).resolve().parent.parent
+    ensure_dirs(project_root)
     
-    # Define the pipeline commands
-    pipeline_commands = [
-        {
-            'cmd': 'python code/ingestion.py --dataset adress --output data/interim/cleaned_transcripts.csv',
-            'description': 'Download and preprocess ADReSS dataset'
-        },
-        {
-            'cmd': 'python code/t016_create_cleaned_dataset.py',
-            'description': 'Create cleaned dataset file'
-        },
-        {
-            'cmd': 'python code/features.py --input data/interim/cleaned_transcripts.csv --output data/processed/features.csv',
-            'description': 'Extract linguistic and semantic features'
-        },
-        {
-            'cmd': 'python code/t024c_checksum.py',
-            'description': 'Compute checksum for embeddings'
-        },
-        {
-            'cmd': 'python code/t025_save_features.py',
-            'description': 'Save final feature matrix'
-        },
-        {
-            'cmd': 'python code/stats.py --input data/processed/features.csv --output data/results/statistical_metrics.json',
-            'description': 'Run statistical analysis with Bonferroni correction'
-        },
-        {
-            'cmd': 'python code/modeling.py --input data/processed/features.csv --output data/processed/model_results.json',
-            'description': 'Train and validate predictive models'
-        },
-        {
-            'cmd': 'python code/t012f_checksum_record.py',
-            'description': 'Record raw data checksums'
-        },
-        {
-            'cmd': 'python code/t012h_success_criterion.py',
-            'description': 'Calculate success criterion SC-001'
-        }
+    # Define the run-book commands
+    # Note: We assume virtualenv is activated or python is in PATH.
+    # If running in a container/CI, 'python' usually resolves to the correct interpreter.
+    python = sys.executable
+    
+    commands = [
+        [python, str(project_root / "code" / "verify_plan.py")],
+        [python, str(project_root / "code" / "ingestion.py"), "--dataset", "adress", "--output", str(project_root / "data" / "interim" / "cleaned_transcripts.csv")],
+        [python, str(project_root / "code" / "t012b_raw_record_count.py")], # Counts raw records
+        [python, str(project_root / "code" / "t012e_low_power_warning.py")], # Low power check
+        [python, str(project_root / "code" / "t012f_checksum_record.py")],   # Raw checksum
+        [python, str(project_root / "code" / "t016_create_cleaned_dataset.py")], # Create final CSV
+        [python, str(project_root / "code" / "t012h_success_criterion.py")], # Success criterion
+        [python, str(project_root / "code" / "t012g_metadata_aggregation.py")], # Merge metadata
+        [python, str(project_root / "code" / "features.py"), "--input", str(project_root / "data" / "interim" / "cleaned_adress.csv"), "--output", str(project_root / "data" / "processed" / "features.csv")],
+        [python, str(project_root / "code" / "t024c_checksum.py")],         # Embeddings checksum
+        [python, str(project_root / "code" / "stats.py"), "--input", str(project_root / "data" / "processed" / "features.csv"), "--output", str(project_root / "data" / "processed" / "stats_results.json")],
+        [python, str(project_root / "code" / "modeling.py"), "--input", str(project_root / "data" / "processed" / "features.csv"), "--output", str(project_root / "data" / "processed" / "model_results.json")],
+        [python, str(project_root / "code" / "t046_measure_runtime.py")],    # Measure runtime
     ]
     
-    # Measure runtime and memory
-    metrics = measure_runtime_and_memory(pipeline_commands)
+    logging.info("Starting pipeline execution...")
+    metrics = measure_runtime_and_memory(commands)
     
-    # Save metrics
-    runtime_log_path = get_path('results', 'runtime_log.json')
-    memory_profile_path = get_path('results', 'memory_profile.json')
+    output_path = project_root / "data" / "results" / "runtime_log.json"
+    save_runtime_metrics(metrics, output_path)
     
-    save_runtime_metrics(
-        {'total_seconds': metrics['total_seconds'], 'success': metrics['success']},
-        runtime_log_path
-    )
-    
-    save_runtime_metrics(
-        {'peak_rss_gb': metrics['peak_rss_gb'], 'success': metrics['success']},
-        memory_profile_path
-    )
-    
-    if metrics['success']:
-        logger.info("Pipeline completed successfully")
-        logger.info(f"Total runtime: {metrics['total_seconds']:.2f} seconds")
-        logger.info(f"Peak memory usage: {metrics['peak_rss_gb']:.2f} GB")
-    else:
-        logger.error("Pipeline failed during execution")
+    if metrics["exit_codes"] and any(rc != 0 for rc in metrics["exit_codes"]):
+        logging.error("Pipeline execution failed.")
         sys.exit(1)
+    else:
+        logging.info("Pipeline execution completed successfully.")
+        sys.exit(0)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

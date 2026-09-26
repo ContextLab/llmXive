@@ -1,52 +1,114 @@
 """
-Unit tests for the project setup utility.
+Unit tests for the project setup utility (T001a).
+Tests the directory creation functionality.
 """
 import os
 import tempfile
-import pytest
+import shutil
 from pathlib import Path
+import pytest
+
+# Import the function to test
 import sys
-
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 from setup_project import create_directory
 
-def test_create_directory_new():
-    """Test creating a new directory."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        relative_path = "test_new_dir/subdir"
-        full_path = Path(tmpdir) / relative_path
-        
-        result = create_directory(tmpdir, relative_path)
-        
-        assert result is True
-        assert full_path.exists()
-        assert full_path.is_dir()
+class TestSetupProject:
+    """Test cases for directory creation."""
 
-def test_create_directory_exists():
-    """Test creating a directory that already exists."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        relative_path = "test_existing_dir"
-        full_path = Path(tmpdir) / relative_path
-        
-        # Create the directory first
-        full_path.mkdir(parents=True)
-        
-        result = create_directory(tmpdir, relative_path)
-        
-        assert result is True
-        assert full_path.exists()
+    def test_create_single_directory(self):
+        """Test creating a single directory."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            sub_dirs = ["data/raw"]
+            result = create_directory(tmpdir, sub_dirs)
+            
+            assert result is True
+            assert (Path(tmpdir) / "data/raw").exists()
+            assert (Path(tmpdir) / "data/raw").is_dir()
 
-def test_create_directory_nested():
-    """Test creating nested directories."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        relative_path = "level1/level2/level3"
-        full_path = Path(tmpdir) / relative_path
+    def test_create_nested_directories(self):
+        """Test creating nested directory structure."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            sub_dirs = [
+                "data/raw",
+                "data/interim",
+                "data/results",
+                "data/processed",
+                "tests/unit",
+                "tests/contract",
+                "tests/integration",
+                "specs/001-statistical-cognitive-decline/contracts"
+            ]
+            result = create_directory(tmpdir, sub_dirs)
+            
+            assert result is True
+            for sub_dir in sub_dirs:
+                full_path = Path(tmpdir) / sub_dir
+                assert full_path.exists(), f"Directory {sub_dir} was not created"
+                assert full_path.is_dir(), f"{sub_dir} is not a directory"
+
+    def test_create_directories_when_base_exists(self):
+        """Test that directories are created when base path exists."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create base structure first
+            Path(tmpdir, "existing").mkdir()
+            
+            sub_dirs = ["new_dir"]
+            result = create_directory(tmpdir, sub_dirs)
+            
+            assert result is True
+            assert (Path(tmpdir) / "new_dir").exists()
+
+    def test_create_directories_when_already_exists(self):
+        """Test that existing directories don't cause errors."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create the directory first
+            target_dir = Path(tmpdir) / "existing_dir"
+            target_dir.mkdir()
+            
+            sub_dirs = ["existing_dir"]
+            result = create_directory(tmpdir, sub_dirs)
+            
+            assert result is True
+            assert target_dir.exists()
+
+    def test_invalid_base_path(self):
+        """Test behavior when base path doesn't exist."""
+        sub_dirs = ["some_dir"]
+        result = create_directory("/nonexistent/path/that/does/not/exist", sub_dirs)
         
-        result = create_directory(tmpdir, relative_path)
-        
-        assert result is True
-        assert full_path.exists()
-        assert (Path(tmpdir) / "level1").exists()
-        assert (Path(tmpdir) / "level1" / "level2").exists()
+        assert result is False
+
+    def test_complex_nested_structure(self):
+        """Test creating the full T001a structure."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Full structure from T001a
+            sub_dirs = [
+                "data/raw",
+                "data/interim",
+                "data/results",
+                "data/processed",
+                "code",
+                "tests/unit",
+                "tests/contract",
+                "tests/integration",
+                "specs/001-statistical-cognitive-decline/contracts"
+            ]
+            
+            result = create_directory(tmpdir, sub_dirs)
+            
+            assert result is True
+            
+            # Verify each directory
+            for sub_dir in sub_dirs:
+                full_path = Path(tmpdir) / sub_dir
+                assert full_path.exists(), f"Missing: {sub_dir}"
+                assert full_path.is_dir(), f"Not a directory: {sub_dir}"
+
+            # Verify the deepest nesting works
+            deepest = Path(tmpdir) / "specs/001-statistical-cognitive-decline/contracts"
+            assert deepest.exists()
+            assert deepest.is_dir()
+            # Verify parent directories also exist
+            assert (Path(tmpdir) / "specs").exists()
+            assert (Path(tmpdir) / "specs/001-statistical-cognitive-decline").exists()
