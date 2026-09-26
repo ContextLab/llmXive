@@ -4,227 +4,280 @@ import json
 import time
 import random
 import traceback
+import logging
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, Any, List
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Add project root to path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-from src.utils.config import get_config, get_path, set_seed
-from src.utils.logger import log_metrics, start_logging, stop_logging, get_resource_summary
+from src.utils.config import get_config, init_config, set_seed, get_path
+from src.utils.logger import log_metrics, start_logging, stop_logging, get_logger
 from src.environment.baselines import (
     create_pure_pursuit_controller,
     create_dijkstra_planner,
     create_stochastic_policy,
     PurePursuitConfig,
-    DijkstraConfig
+    DijkstraConfig,
+    StochasticPolicy
 )
 from src.environment.sim_wrapper import create_sim_wrapper, NoiseConfig
-from src.environment.checkpoint_manager import create_checkpoint_manager
+from src.environment.checkpoint_manager import create_checkpoint_manager, CheckpointState
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(get_path('results/baseline_execution.log')),
+        logging.StreamHandler()
+    ]
+)
+logger = get_logger('baselines')
 
 def run_single_episode(
     seed: int,
     planner_type: str,
     config: Dict[str, Any],
-    sim_wrapper,
-    checkpoint_manager
+    checkpoint_manager: Any = None
 ) -> Dict[str, Any]:
     """
-    Run a single episode for a specific planner type.
-    Returns a dictionary with success status, path optimality, and steps.
+    Run a single episode with the specified planner.
+    Returns a dictionary with success status, path optimality, and other metrics.
     """
     set_seed(seed)
-    
-    # Initialize controller/planner based on type
-    if planner_type == "pure_pursuit":
-        controller = create_pure_pursuit_controller(PurePursuitConfig(
-            lookhead_distance=config.get("lookhead_distance", 2.0),
-            speed=config.get("speed", 1.0)
-        ))
-    elif planner_type == "dijkstra":
-        controller = create_dijkstra_planner(DijkstraConfig(
-            resolution=config.get("resolution", 0.5)
-        ))
-    elif planner_type == "stochastic":
-        controller = create_stochastic_policy()
-    else:
-        raise ValueError(f"Unknown planner type: {planner_type}")
-
-    state = sim_wrapper.reset(seed=seed)
-    done = False
-    total_reward = 0.0
-    steps = 0
-    success = False
-    path_optimality = 1.0  # Default for stochastic/random
-
-    # Load checkpoint if exists
-    checkpoint_data = checkpoint_manager.load(seed, planner_type)
-    if checkpoint_data:
-        state = checkpoint_data["state"]
-        steps = checkpoint_data["steps"]
-        total_reward = checkpoint_data["total_reward"]
-        # Resume simulation (simplified)
+    result = {
+        "seed": seed,
+        "planner_type": planner_type,
+        "success": False,
+        "path_optimality": None,
+        "steps": 0,
+        "crashed": False,
+        "error": None
+    }
 
     try:
-        while not done:
-            action = controller.step(state)
+        # Initialize simulation environment
+        sim_wrapper = create_sim_wrapper(
+            noise_config=NoiseConfig(
+                sensor_noise=0.0,
+                action_noise=0.0
+            )
+        )
+        
+        # Initialize planner based on type
+        if planner_type == "pure_pursuit":
+            planner = create_pure_pursuit_controller(
+                PurePursuitConfig(
+                    lookahead_distance=config.get("lookahead_distance", 2.0),
+                    speed=config.get("speed", 1.0)
+                )
+            )
+        elif planner_type == "dijkstra":
+            planner = create_dijkstra_planner(
+                DijkstraConfig(
+                    resolution=config.get("resolution", 0.5),
+                    max_iterations=config.get("max_iterations", 1000)
+                )
+            )
+        elif planner_type == "stochastic":
+            planner = create_stochastic_policy()
+        else:
+            raise ValueError(f"Unknown planner type: {planner_type}")
+
+        # Reset environment
+        state = sim_wrapper.reset()
+        done = False
+        steps = 0
+        max_steps = config.get("max_steps", 1000)
+        
+        total_reward = 0.0
+        optimal_path_length = config.get("optimal_path_length", 100.0)
+        actual_path_length = 0.0
+
+        while not done and steps < max_steps:
+            # Get action from planner
+            action = planner.get_action(state)
+            
+            # Step environment
             next_state, reward, done, info = sim_wrapper.step(action)
+            
+            # Track path length (assuming reward relates to progress or distance)
+            # In a real simulation, this would be computed from actual trajectory
+            actual_path_length += abs(reward) if reward < 0 else 0 
+            # Simplified: assuming negative reward is distance traveled
             
             total_reward += reward
             steps += 1
             state = next_state
 
-            # Check for success/failure conditions (simulated)
-            if info.get("success"):
-                success = True
-                # Calculate optimality: ratio of optimal path length to actual path length
-                # In a real sim, we'd compare to ground truth path
-                if planner_type != "stochastic":
-                    optimal_path_len = info.get("optimal_path_length", 100)
-                    actual_path_len = steps * 0.1 # Approximate step size
-                    path_optimality = min(1.0, optimal_path_len / max(actual_path_len, 0.01))
+            # Check for crash/failure
+            if info.get("crashed") or info.get("failure"):
+                result["crashed"] = True
                 done = True
-            elif info.get("failure") or info.get("timeout"):
-                success = False
-                path_optimality = 0.0
-                done = True
+                break
 
-            # Periodic checkpoint
-            if steps % 10 == 0:
-                checkpoint_manager.save({
-                    "state": state,
-                    "steps": steps,
-                    "total_reward": total_reward,
-                    "planner": planner_type,
-                    "seed": seed
-                }, seed, planner_type)
+        # Calculate metrics
+        if not result["crashed"] and done:
+            result["success"] = True
+            # Path optimality: ratio of optimal to actual path length
+            # Lower is better, but we report as a ratio where 1.0 is perfect
+            if actual_path_length > 0:
+                result["path_optimality"] = optimal_path_length / actual_path_length
+            else:
+                result["path_optimality"] = 1.0
+        else:
+            result["success"] = False
+            result["path_optimality"] = 0.0
+
+        result["steps"] = steps
 
     except Exception as e:
-        print(f"Episode {seed} crashed: {e}")
-        traceback.print_exc()
-        success = False
-        path_optimality = 0.0
+        logger.error(f"Episode {seed} failed with error: {str(e)}")
+        result["crashed"] = True
+        result["error"] = str(e)
+        result["success"] = False
+        result["path_optimality"] = 0.0
 
-    finally:
-        # Cleanup checkpoint on success or final failure
-        if success or steps > 100:
-            checkpoint_manager.cleanup(seed, planner_type)
+    return result
 
-    return {
-        "seed": seed,
-        "planner": planner_type,
-        "success": success,
-        "path_optimality": path_optimality,
-        "steps": steps,
-        "total_reward": total_reward
+def save_results(results: List[Dict[str, Any]], output_path: str):
+    """
+    Save baseline results to a JSON file.
+    Includes aggregated metrics: success_rate, path_optimality (mean), seeds.
+    """
+    if not results:
+        logger.warning("No results to save.")
+        return
+
+    # Aggregate metrics
+    successful_runs = [r for r in results if r["success"]]
+    success_rate = len(successful_runs) / len(results) if results else 0.0
+    
+    optimality_values = [r["path_optimality"] for r in successful_runs if r["path_optimality"] is not None]
+    mean_optimality = sum(optimality_values) / len(optimality_values) if optimality_values else 0.0
+
+    summary = {
+        "success_rate": success_rate,
+        "path_optimality": mean_optimality,
+        "seeds": [r["seed"] for r in results],
+        "planner_type": results[0]["planner_type"] if results else None,
+        "total_episodes": len(results),
+        "successful_episodes": len(successful_runs),
+        "failed_episodes": len(results) - len(successful_runs),
+        "individual_results": results
     }
 
-def run_baselines(num_seeds: int = 30):
-    """
-    Orchestrate running baselines across multiple seeds.
-    Logs results including success rates and path optimality ratios.
-    """
-    config = get_config()
-    results_dir = get_path("results")
-    Path(results_dir).mkdir(parents=True, exist_ok=True)
-    
-    output_file = Path(results_dir) / "baseline_metrics.json"
-    
-    # Initialize logging for resources
-    start_logging(interval=1.0)
-    
-    # Initialize simulation and checkpoint manager
-    sim_wrapper = create_sim_wrapper(NoiseConfig())
-    checkpoint_manager = create_checkpoint_manager(str(Path(results_dir) / "checkpoints"))
-    
-    all_results = {
-        "pure_pursuit": {"successes": 0, "optimality_sum": 0.0, "seeds": []},
-        "dijkstra": {"successes": 0, "optimality_sum": 0.0, "seeds": []},
-        "stochastic": {"successes": 0, "optimality_sum": 0.0, "seeds": []}
-    }
+    output_path_obj = Path(output_path)
+    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
 
-    planners = ["pure_pursuit", "dijkstra", "stochastic"]
+    with open(output_path_obj, 'w') as f:
+        json.dump(summary, f, indent=2)
     
-    try:
-        for planner in planners:
-            print(f"Running {planner} for {num_seeds} seeds...")
-            for seed in range(num_seeds):
-                print(f"  Seed {seed}...", end=" ", flush=True)
-                try:
-                    result = run_single_episode(
-                        seed=seed,
-                        planner_type=planner,
-                        config=config.get("baselines", {}),
-                        sim_wrapper=sim_wrapper,
-                        checkpoint_manager=checkpoint_manager
-                    )
-                    
-                    all_results[planner]["seeds"].append(result)
-                    if result["success"]:
-                        all_results[planner]["successes"] += 1
-                        all_results[planner]["optimality_sum"] += result["path_optimality"]
-                    
-                    # Log metrics for this episode
-                    log_metrics({
-                        "episode_seed": seed,
-                        "planner": planner,
-                        "success": result["success"],
-                        "path_optimality": result["path_optimality"],
-                        "steps": result["steps"],
-                        "cpu_percent": get_resource_summary()["cpu_percent"]
-                    })
-                    
-                    print(f"Done (Success: {result['success']}, Opt: {result['path_optimality']:.2f})")
-                except Exception as e:
-                    print(f"Failed: {e}")
-                    # Log failure
-                    log_metrics({
-                        "episode_seed": seed,
-                        "planner": planner,
-                        "success": False,
-                        "path_optimality": 0.0,
-                        "steps": 0,
-                        "error": str(e)
-                    })
+    logger.info(f"Results saved to {output_path}")
+    logger.info(f"Success Rate: {success_rate:.4f}, Mean Path Optimality: {mean_optimality:.4f}")
 
-        # Aggregate and save results
-        final_report = {}
-        for planner, data in all_results.items():
-            count = len(data["seeds"])
-            if count == 0:
+def load_results(input_path: str) -> List[Dict[str, Any]]:
+    """
+    Load existing results from a JSON file.
+    """
+    path = Path(input_path)
+    if not path.exists():
+        return []
+    
+    with open(path, 'r') as f:
+        data = json.load(f)
+    
+    return data.get("individual_results", [])
+
+def run_baselines(
+    planner_type: str,
+    num_seeds: int = 30,
+    checkpoint_path: str = None,
+    config: Dict[str, Any] = None
+) -> Dict[str, Any]:
+    """
+    Run baselines for N seeds.
+    Handles crashes via checkpointing if enabled.
+    """
+    if config is None:
+        config = {
+            "lookahead_distance": 2.0,
+            "speed": 1.0,
+            "resolution": 0.5,
+            "max_iterations": 1000,
+            "max_steps": 1000,
+            "optimal_path_length": 100.0
+        }
+
+    results = []
+    checkpoint_manager = None
+    start_seed = 0
+
+    # Checkpointing logic
+    if checkpoint_path:
+        checkpoint_manager = create_checkpoint_manager(checkpoint_path)
+        existing_state = checkpoint_manager.load()
+        if existing_state:
+            results = existing_state.get("results", [])
+            start_seed = existing_state.get("next_seed", 0)
+            logger.info(f"Resuming from seed {start_seed}")
+
+    for seed in range(start_seed, num_seeds):
+        try:
+            logger.info(f"Running seed {seed} for {planner_type}")
+            episode_result = run_single_episode(seed, planner_type, config, checkpoint_manager)
+            results.append(episode_result)
+
+            # Save checkpoint after each episode if enabled
+            if checkpoint_manager:
+                checkpoint_manager.save(CheckpointState(
+                    results=results,
+                    next_seed=seed + 1
+                ))
+
+        except Exception as e:
+            logger.error(f"Critical error at seed {seed}: {e}")
+            # If checkpointing is off, we might want to break or continue
+            if not checkpoint_manager:
+                raise
+            else:
+                # Log error and continue to next seed
                 continue
-            success_rate = data["successes"] / count
-            avg_optimality = data["optimality_sum"] / data["successes"] if data["successes"] > 0 else 0.0
-            
-            final_report[planner] = {
-                "success_rate": success_rate,
-                "path_optimality": avg_optimality,
-                "seeds": [s["seed"] for s in data["seeds"]]
-            }
-            
-            # Log summary metrics
-            log_metrics({
-                "summary_planner": planner,
-                "summary_success_rate": success_rate,
-                "summary_avg_optimality": avg_optimality
-            })
 
-        # Write final report
-        with open(output_file, 'w') as f:
-            json.dump(final_report, f, indent=2)
+    return results
+
+def main():
+    """
+    Main entry point for running baselines.
+    """
+    # Initialize config
+    init_config()
+    
+    # Parse arguments (simplified for this script)
+    planner_type = os.getenv("BASELINE_PLANNER", "pure_pursuit")
+    num_seeds = int(os.getenv("BASELINE_SEEDS", "30"))
+    output_path = get_path('results/baseline_metrics.json')
+    checkpoint_path = get_path('results/baseline_checkpoint.pkl')
+
+    logger.info(f"Starting baseline execution: {planner_type}, {num_seeds} seeds")
+
+    # Start resource logging
+    start_logging(interval=1)
+
+    try:
+        results = run_baselines(
+            planner_type=planner_type,
+            num_seeds=num_seeds,
+            checkpoint_path=checkpoint_path
+        )
         
-        print(f"\nResults saved to {output_file}")
-        return final_report
+        save_results(results, output_path)
 
     finally:
         stop_logging()
-        # Cleanup checkpoints
-        checkpoint_manager.cleanup_all()
-
-def main():
-    """Entry point for running baselines."""
-    num_seeds = int(os.getenv("NUM_SEEDS", 30))
-    run_baselines(num_seeds=num_seeds)
+        logger.info("Baseline execution finished.")
 
 if __name__ == "__main__":
     main()

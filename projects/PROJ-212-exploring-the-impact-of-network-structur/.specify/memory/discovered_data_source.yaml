@@ -1,16 +1,12 @@
 status: none
-intent: network graph datasets KONECT SNAP Network Repository UCI Network Data Repository
-  python package dataset
+intent: download network graphs dataset from Network Repository KONECT SNAP python
+  package dataset
 required_fields:
+- source_node
+- target_node
+- weight
 - graph_id
-- num_nodes
-- num_edges
-- degree_distribution
-- average_clustering_coefficient
-- average_path_length
-- critical_coupling_strength
-- is_connected
-- source_dataset_name
-cache_key: e2953da796ea2968c9efe0f9d1ef179ddf7fdec4dab2298389f9474bf4078b21
-searched_at: '2026-09-04T16:52:45.061966+00:00'
+- directed
+cache_key: 5e244e952097fac9e937666e503be8d5ea08e8b64272ae8d4852682e5ebf8cf9
+searched_at: '2026-09-26T18:23:53.294274+00:00'
 retry_count: 1

@@ -54,6 +54,9 @@ properties:
   anova_p_value:
     type: number
     description: "P-value from the ANOVA test."
+  warning_message:
+    type: ["string", "null"]
+    description: "Warning if dataset size is insufficient (N < 10)."
 required:
   - model_id
   - predictors
@@ -67,3 +70,4 @@ required:
   - model_type
   - anova_f_statistic
   - anova_p_value
+additionalProperties: false

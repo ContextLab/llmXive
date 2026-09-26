@@ -1,12 +1,2 @@
-pandas
-scikit-learn
-numpy
-requests
-pyyaml
-datasets
-mendeleev
-scipy
-pydantic
-jsonschema
-pytest
-shap
+# Additional dependencies for T054 (if any)
+# No new dependencies required - uses existing utils module

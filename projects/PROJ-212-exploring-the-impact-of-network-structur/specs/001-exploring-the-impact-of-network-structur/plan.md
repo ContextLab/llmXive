@@ -1,43 +1,44 @@
 # Implementation Plan: Exploring the Impact of Network Structure on Synchronization in Complex Physical Systems
 
-**Branch**: `001-network-synchronization-impact` | **Date**: 2026-06-14 | **Spec**: `specs/001-network-synchronization-impact/spec.md`
+**Branch**: `001-network-synchronization-impact` | **Date**: 2026-06-14 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-network-synchronization-impact/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to investigate the relationship between static network topology (degree distribution, clustering, path length) and the dynamic robustness of synchronization in Kuramoto oscillator networks. The system will ingest network graphs, compute topological metrics, simulate Kuramoto dynamics to determine critical coupling thresholds, and perform regression analysis to quantify predictive power. The implementation prioritizes reproducibility, numerical stability (RK45 integration), and strict adherence to statistical rigor (VIF checks, 5x5-Fold CV, ANOVA) as mandated by the project constitution.
+This project implements a computational pipeline to investigate the relationship between static network topology (degree distribution, clustering coefficient, average path length) and the synchronization robustness threshold of Kuramoto oscillator systems. The pipeline ingests network graphs, computes topological metrics using NetworkX, simulates Kuramoto dynamics via RK45 integration to find the critical coupling strength, and performs rigorous statistical regression (linear/polynomial) with cross-validation and multicollinearity checks. The implementation adheres to the strict CPU-first compute constraints of the GitHub Actions free tier, prioritizing data streaming and scalable algorithms where necessary.
+
+Key revisions in this plan:
+1.  **Threshold Precision**: Replaced discrete K-sweep with bisection search to minimize quantization error.
+2.  **Network Reduction**: Defined BFS-based subgraph extraction for networks > 200 nodes.
+3.  **Data Sources**: Corrected dataset URLs to verified SNAP and Network Repository sources.
+4.  **Statistical Logic**: Explicitly implemented Spec FR-005 (LOOCV vs 10-fold) and resolved Constitution conflicts by prioritizing Spec requirements for small datasets.
+5.  **No Synthetic Data**: Removed synthetic augmentation; strictly follows FR-004 (warning if N < 10).
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `networkx` (topology), `scipy` (RK45 integration, stats), `scikit-learn` (regression, CV), `pandas` (data handling), `matplotlib` (visualization), `datasets` (HuggingFace loading).  
-**Storage**: Local `data/` directory for raw/processed datasets; `results/` for outputs.  
-**Testing**: `pytest` with `hypothesis` for property-based testing of graph properties.  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7 GB RAM).  
-**Project Type**: Scientific Research Pipeline / CLI Tool.  
-**Performance Goals**: Complete analysis of 30+ networks within 6 hours; single network simulation < 20 mins.  
-**Constraints**: Must run on CPU-first; no GPU acceleration for Kuramoto integration (RK45 is CPU-tractable for N=200).  
-**Scale/Scope**: Analysis of a curated set of networks from verified sources (SNAP/Network Repository) plus synthetic augmentation if necessary to meet N>=30.
+**Primary Dependencies**: `networkx`, `scipy`, `numpy`, `pandas`, `scikit-learn`, `matplotlib`, `pytest`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `results`)  
+**Testing**: `pytest` with TDD workflow (tests written before implementation)  
+**Target Platform**: Linux (GitHub Actions free tier: 2 vCPU, ~7 GB RAM)  
+**Project Type**: Scientific computing CLI / Data analysis pipeline  
+**Performance Goals**: Complete pipeline for 10+ networks within 6 hours; single network simulation < 20 mins.  
+**Constraints**: No local GPU; memory usage < 7 GB; strict adherence to spec-defined predictors (no unauthorized motif analysis).  
+**Scale/Scope**: Variable dataset size; fallback to descriptive statistics if N < 10.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Implementation Strategy |
-|-----------|--------|-------------------------|
-| **I. Reproducibility** | **Pass** | All random seeds pinned in `config.yaml`. `requirements.txt` pins exact versions. Data fetched via deterministic HuggingFace loaders. |
-| **II. Verified Accuracy** | **Pass** | Citations in `research.md` restricted to verified URLs in the input block. No hallucinated URLs. |
-| **III. Data Hygiene** | **Pass** | Raw data checksums recorded in `state/`. Derivations written to new files (e.g., `metrics.csv`, `sim_results.json`). |
-| **IV. Single Source of Truth** | **Pass** | All statistics in `results/` derived from code execution; no hand-typed numbers in reports. |
-| **V. Versioning Discipline** | **Pass** | Content hashes updated in `state/` upon artifact changes. |
-| **VI. Numerical Stability** | **Pass** | Kuramoto integration uses `scipy.integrate.solve_ivp` with `method='RK45'` and strict tolerances (`rtol=1e-6`, `atol=1e-9`). Frequency distribution width `gamma=1.0` is pinned. |
-| **VII. Statistical Rigor** | **Pass** | Regression includes VIF checks (remove if >5), ANOVA, and **K-Fold Cross-Validation
-
-The specific value to remove/generalize: 'K'
-
-Rewritten passage:** for all datasets. Success criteria include **R² > 0.6** and p < 0.05. |
+- **Principle I (Reproducibility)**: The plan mandates pinned `requirements.txt`, random seed management in `src/simulation.py` (fixed seed for ω_i), and checksumming of all raw data in `data/raw`. The `main.py` orchestration will be deterministic.
+- **Principle II (Verified Accuracy)**: All citations of datasets in `research.md` strictly reference the verified URLs provided in the project input (SNAP, Network Repository). No fabricated URLs.
+- **Principle III (Data Hygiene)**: Raw data will be downloaded and checksummed. Derived metrics (`data/processed_metrics.csv`) will be generated via scripts, never manually edited.
+- **Principle IV (Single Source of Truth)**: Regression results in `results/regression_summary.json` will be the sole source for paper statistics.
+- **Principle V (Versioning)**: All artifacts (code, data, results) will be tracked with content hashes in the project state file.
+- **Principle VI (Numerical Stability)**: The Kuramoto implementation will strictly use `scipy.integrate.ode` with `method='dop5'` (RK45) and fixed tolerances (`rtol=1e-6`, `atol=1e-9`). Initial phases will be seeded via `numpy.random.seed`.
+- **Principle VII (Statistical Rigor)**: The plan enforces VIF checks (threshold > 5) and conditional regression logic (N < 10 warning). Cross-validation strategy (LOOCV for N<50, 10-fold for N≥50) will be implemented exactly as per FR-005, overriding any prior plan text suggesting 5x5-CV. The plan explicitly reports 95% confidence intervals and validates against the R² > 0.6 threshold as required, while acknowledging power limitations if N < 30.
 
 ## Project Structure
 
@@ -50,51 +51,62 @@ specs/001-network-synchronization-impact/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (created later)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-212-exploring-the-impact-of-network-structur/code/
-├── config.yaml          # Seeding, thresholds, paths
-├── requirements.txt     # Pinned dependencies
-├── src/
-│   ├── __init__.py
-│   ├── loader.py        # Dataset fetching (SNAP/HF)
-│   ├── topology.py      # NetworkX metrics (FR-001)
-│   ├── simulation.py    # Kuramoto RK45 (FR-002, FR-003)
-│   ├── stats.py         # Regression, VIF, ANOVA, 5x5-CV (FR-004, FR-005, FR-006)
-│   └── viz.py           # Heatmaps (US-3)
-├── tests/
-│   ├── test_topology.py
-│   ├── test_simulation.py
-│   └── test_stats.py
+src/
+├── __init__.py
+├── loader.py            # Data ingestion (Matrix Market, edge lists)
+├── topology.py          # Metric computation (degree, clustering, path length)
+├── simulation.py        # Kuramoto RK45 integration and threshold detection
+├── stats.py             # Regression, VIF, Cross-validation
+├── viz.py               # Heatmaps and diagnostic plots
+├── utils.py             # Logging, seed management, file I/O helpers
+├── validators.py        # Schema validation for inputs/outputs
 └── main.py              # Orchestration script
+
+data/
+├── raw/                 # Original network files (.mtx, .csv)
+├── processed/           # Computed metrics (.csv)
+└── checksums.txt        # SHA256 hashes of raw data
+
+results/
+├── sim_results.json     # Per-network simulation outputs
+├── regression_summary.json # Statistical analysis results
+├── cv_report.json       # Cross-validation metrics
+├── verification_report.json # SC-003 manual verification log
+├── pipeline_status.json # Timeout/Success status
+└── figures/             # Generated PNGs
+
+tests/
+├── __init__.py
+├── test_loader.py
+├── test_topology.py
+├── test_simulation.py
+├── test_stats.py
+└── test_viz.py
 ```
 
-**Structure Decision**: Single-project structure chosen for scientific pipeline simplicity. `src/` encapsulates logic; `tests/` ensures contract compliance. No separate backend/frontend required.
+**Structure Decision**: Single-project structure selected to minimize overhead for a scientific pipeline. All logic resides in `src/` with clear separation of concerns (loading, topology, simulation, stats, viz). The `contracts/` directory contains schemas used by `src/validators.py` for runtime validation of all output JSONs.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **VIF Check & Ridge Fallback** | Essential for multicollinearity (FR-006) | Simple OLS fails on correlated topological metrics (e.g., degree vs. clustering), leading to unstable coefficients. |
-| **K-Fold Cross-Validation
+| Conditional CV Logic (LOOCV vs 10-fold) | Spec FR-005 mandates different strategies for N<50 vs N>=50 to balance bias/variance. This overrides the Constitution's general "10-fold" rule for this specific implementation. | A fixed CV method would violate the Spec's statistical rigor requirement for small datasets. |
+| VIF Check & Ridge Fallback | Spec FR-006 requires handling multicollinearity to prevent invalid regression coefficients. | Ignoring collinearity would produce scientifically invalid results (spurious correlations). |
+| Disconnected Graph Handling | Spec FR-002/FR-001 requires explicit handling of infinite path length and synchronization impossibility. Disconnected graphs are excluded from regression to avoid bias. | Assuming connectivity would crash the simulation or produce incorrect "synchronized" flags for disconnected components. |
+| Bisection Search for Threshold | Discrete sweep (step=0.1) introduces quantization error that attenuates correlations. Bisection reduces error to <0.001. | Discrete sweep is insufficient for detecting effects in small samples (N<30). |
+| BFS Subgraph Extraction | Networks vary in size (N=200 to N=millions). Random truncation destroys topology. BFS preserves local structure. | Random truncation or edge thinning alters density and synchronization thresholds independently of original topology. |
+| Timeout Logging | SC-004 requires logging the specific network ID causing a timeout. | Generic timeout logging does not identify the bottleneck network. |
+| No Synthetic Data | Spec Assumptions and FR-004 require real data. Synthetic augmentation is explicitly forbidden. | Synthetic data would invalidate the scientific claim about real-world network structures. |
 
-The specific value to remove/generalize: 'K'
+## Data & Compute Feasibility
 
-Rewritten passage:
-K-Fold Cross-Validation
-
-This study addresses the research question of [Research Question] by employing K-Fold Cross-Validation as the primary method to evaluate model performance and ensure robustness against overfitting [Citation].** | Required by Constitution Principle VII and robustness for small N | LOOCV has high variance for small samples; 10-fold is invalid for N<50. Cross-validation provides stable estimates. |
-| **Disconnected Graph Handling** | Required by FR-001/002 | Standard path-length algorithms fail or return 0; explicit infinity/null handling preserves domain logic. |
-| **Decoupling Target Variable** | Required to avoid tautology | Regressing Kc directly on topology is circular because Kc is defined by spectral properties. Residual analysis tests *additional* predictive power. |
-
-## Real-World Data Priority
-
-The research question explicitly targets "complex physical systems," implying real-world network structures. The plan prioritizes **verified real-world graph datasets** (SNAP `email-EuAll`, `ca-AstroPh`, `web-Stanford`) over synthetic generation. Synthetic graphs (Barabási-Albert, Erdős-Rényi) are used only as a fallback to ensure N>=30 if real data is insufficient. This ensures the empirical claim remains valid for real-world topology.
-
-## Sample Size Strategy
-
-To ensure statistical power after VIF filtering, the pipeline targets a minimum of **N=30 networks**. If the verified real-world datasets yield a limited number of graphs, the system will generate synthetic networks. with controlled topological properties to reach the target. The results will explicitly note if synthetic augmentation was used and the potential impact on generalization.
+- **CPU-First**: All simulations (RK45) and statistical models (scikit-learn) are computationally lightweight for N=200 oscillators and typical network sizes (up to 10k nodes). No GPU is required.
+- **Memory**: Streaming the dataset and processing one graph at a time ensures RAM usage remains well under the 7 GB limit.
+- **Time**: With a 6-hour limit, we can process a small to moderate number of networks (assuming Approximately a quarter of an hour per network). If the verified dataset yields more, we will process the initial subset. If the pipeline exceeds 6 hours, `results/pipeline_status.json` will log the specific network ID causing the delay.
+- **Data Sources**: Verified URLs for SNAP and Network Repository are used. If these fail to yield graphs, the pipeline halts with a warning.

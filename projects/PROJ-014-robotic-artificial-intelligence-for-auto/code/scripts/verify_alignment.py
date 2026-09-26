@@ -4,206 +4,235 @@ import json
 import logging
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, Any, List, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add src to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-from src.utils.config import get_path, init_config
-from src.data.calibration import CalibrationReport, validate_calibration
-from src.data.pipeline import OccupancyGridGenerator, OccupancyGridConfig, create_occupancy_grid_generator
-from src.utils.logger import log_metrics
+from src.data.calibration import CalibrationValidator, create_calibration_validator
+from src.data.pipeline import OccupancyGridGenerator, create_occupancy_grid_generator, RGBPreprocessor, create_rgb_preprocessor, DepthDownsampler, create_depth_downsampler
+from src.utils.config import get_path, get_config
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 def load_modalities_from_disk(modality_dir: Path) -> Dict[str, np.ndarray]:
     """
-    Loads the three modalities (RGB, Depth, Occupancy Grid) from the data/modalities directory.
+    Load the three modalities (RGB, Depth, Occupancy Grid) from the data directory.
     Expects files: rgb_frame.npy, depth_frame.npy, occupancy_grid.npy
     """
     modalities = {}
-    required_files = {
+    expected_files = {
         'rgb': 'rgb_frame.npy',
         'depth': 'depth_frame.npy',
         'grid': 'occupancy_grid.npy'
     }
 
-    for name, filename in required_files.items():
-        file_path = modality_dir / filename
-        if not file_path.exists():
-            raise FileNotFoundError(f"Required modality file not found: {file_path}")
+    for key, filename in expected_files.items():
+        filepath = modality_dir / filename
+        if not filepath.exists():
+            raise FileNotFoundError(f"Expected modality file not found: {filepath}")
         
-        logger.info(f"Loading {name} modality from {file_path}")
-        modalities[name] = np.load(file_path)
-    
+        logger.info(f"Loading {key} modality from {filepath}")
+        data = np.load(filepath)
+        modalities[key] = data
+
     return modalities
 
-def calculate_iou(mask1: np.ndarray, mask2: np.ndarray) -> float:
+def calculate_iou(grid1: np.ndarray, grid2: np.ndarray) -> float:
     """
-    Calculates the Intersection over Union (IoU) between two binary masks.
+    Calculate Intersection over Union (IoU) between two binary occupancy grids.
+    Both grids must be binary (0 or 1).
     """
-    intersection = np.logical_and(mask1, mask2)
-    union = np.logical_or(mask1, mask2)
+    if grid1.shape != grid2.shape:
+        raise ValueError(f"Grid shapes do not match: {grid1.shape} vs {grid2.shape}")
     
-    if np.sum(union) == 0:
-        # Both are empty; technically perfect alignment for empty space
-        return 1.0
-    
-    iou = np.sum(intersection) / np.sum(union)
-    return float(iou)
+    # Ensure binary
+    grid1_binary = (grid1 > 0.5).astype(np.uint8)
+    grid2_binary = (grid2 > 0.5).astype(np.uint8)
 
-def verify_spatial_alignment(modalities: Dict[str, np.ndarray], calibration_report: CalibrationReport) -> Dict[str, Any]:
+    intersection = np.logical_and(grid1_binary, grid2_binary).sum()
+    union = np.logical_or(grid1_binary, grid2_binary).sum()
+
+    if union == 0:
+        return 1.0 if intersection == 0 else 0.0
+    
+    return float(intersection / union)
+
+def verify_spatial_alignment(modalities: Dict[str, np.ndarray], 
+                             calibration_report_path: Path,
+                             iou_threshold: float = 0.95) -> Dict[str, Any]:
     """
-    Verifies spatial alignment across RGB, Depth, and Occupancy Grid modalities.
+    Verify spatial alignment across all three modalities for the same ground truth frame.
     
     Strategy:
-    1. Convert Depth to a binary occupancy mask using the same logic as the grid generator.
-    2. Compare the generated Occupancy Grid (from T022) with the Depth-derived mask.
-    3. Compare RGB features (edge map) with the Occupancy Grid to ensure obstacle boundaries align.
+    1. Load calibration parameters.
+    2. Transform Depth and RGB data into a common 2D projection (Occupancy Grid space)
+       using the calibration parameters.
+    3. Compare the generated projected grids against the stored Occupancy Grid.
+    4. Calculate IoU scores.
+    
+    Returns a report dictionary.
     """
-    depth_map = modalities['depth']
-    occupancy_grid = modalities['grid']
-    rgb_frame = modalities['rgb']
-
-    # 1. Derive occupancy from Depth
-    # Use the same threshold logic as OccupancyGridGenerator if available, 
-    # otherwise assume standard max_range logic. 
-    # We'll use a simple distance threshold: valid depth < max_range implies obstacle.
-    # Assuming depth_map contains distances in meters, with -1 or inf for invalid.
-    max_range = get_path('sensor', 'max_range', default=50.0) # Fallback if config missing
-    # Ensure config is loaded
-    try:
-        init_config()
-        max_range = get_path('sensor', 'max_range', default=50.0)
-    except Exception:
-        pass
-
-    # Create binary mask from depth: 1 where valid and close (obstacle), 0 otherwise
-    # Assuming depth_map > 0 is valid. We define an obstacle as depth < max_range.
-    depth_obstacle_mask = (depth_map > 0) & (depth_map < max_range)
+    logger.info(f"Verifying spatial alignment with threshold {iou_threshold}")
     
-    # 2. Compare Depth-derived mask with Occupancy Grid
-    # Resize occupancy_grid to match depth_map if necessary (usually grid is smaller)
-    # For alignment check, we often compare the grid to a downsampled version of the depth mask
-    # or upsample the grid. Let's assume grid is the ground truth representation of the scene.
-    # We will resize the depth mask to grid shape for direct IoU.
+    # 1. Load Calibration
+    if not calibration_report_path.exists():
+        raise FileNotFoundError(f"Calibration report not found: {calibration_report_path}")
     
-    grid_shape = occupancy_grid.shape
-    depth_resized = cv2.resize(depth_obstacle_mask.astype(float), (grid_shape[1], grid_shape[0]), interpolation=cv2.INTER_AREA)
-    depth_resized_binary = (depth_resized > 0.5).astype(bool)
+    with open(calibration_report_path, 'r') as f:
+        calib_data = json.load(f)
     
-    iou_depth_grid = calculate_iou(depth_resized_binary, occupancy_grid)
+    # We assume the report contains the necessary extrinsic/intrinsic params
+    # Re-initialize validator to ensure we have the objects needed for transformation
+    validator = create_calibration_validator(calib_data)
     
-    # 3. Compare RGB Edge Map with Occupancy Grid
-    # Convert RGB to grayscale and detect edges (Canny)
-    if rgb_frame.ndim == 3:
-        gray = cv2.cvtColor(rgb_frame, cv2.COLOR_RGB2GRAY)
-    else:
-        gray = rgb_frame
+    # 2. Process Modalities to a common representation
+    # We will project RGB and Depth to the 2D grid space and compare with the stored grid.
     
-    edges = cv2.Canny(gray, 50, 150)
-    edges_binary = edges > 0
-    
-    # Resize edges to grid shape
-    edges_resized = cv2.resize(edges_binary.astype(float), (grid_shape[1], grid_shape[0]), interpolation=cv2.INTER_AREA)
-    edges_resized_binary = (edges_resized > 0.5).astype(bool)
-    
-    iou_rgb_grid = calculate_iou(edges_resized_binary, occupancy_grid)
-    
-    # 4. Overall Alignment Score
-    # We require both IoUs to be high, but Depth-Grid is the primary geometric check.
-    overall_iou = (iou_depth_grid + iou_rgb_grid) / 2.0
-    
-    return {
-        "iou_depth_grid": iou_depth_grid,
-        "iou_rgb_grid": iou_rgb_grid,
-        "overall_iou": overall_iou,
-        "threshold": 0.95,
-        "passed": overall_iou > 0.95 and iou_depth_grid > 0.95
+    results = {
+        "status": "success",
+        "iou_scores": {},
+        "threshold": iou_threshold,
+        "passed": True,
+        "details": []
     }
+
+    stored_grid = modalities['grid']
+    depth_data = modalities['depth']
+    rgb_data = modalities['rgb']
+
+    # A. Depth -> Occupancy Grid Projection (Direct check)
+    # The stored grid should ideally match the depth-derived grid if calibration is perfect.
+    # We use the OccupancyGridGenerator to project depth to grid using calibration.
+    grid_gen = create_occupancy_grid_generator()
+    
+    # Note: In a real scenario, we'd need the raw depth and camera intrinsics.
+    # Here we assume the 'depth' modality is the downsampled depth map.
+    # We need to re-project it to the grid using the calibration matrix.
+    # Since we don't have the raw raw depth, we simulate the check by:
+    # 1. Taking the stored grid as "Ground Truth"
+    # 2. Taking the Depth map and projecting it to grid space using calibration
+    # 3. Comparing the two.
+    
+    # For this simulation, we will perform a geometric consistency check.
+    # We assume the 'depth' modality contains depth values.
+    # We create a synthetic occupancy grid from depth using the calibration.
+    
+    # Load calibration params for transformation
+    # Assuming calib_data has 'extrinsic' and 'intrinsic' keys
+    try:
+        extrinsic = np.array(calib_data['extrinsic'])
+        intrinsic = np.array(calib_data['intrinsic'])
+    except KeyError:
+        raise ValueError("Calibration report missing 'extrinsic' or 'intrinsic' keys")
+
+    # Project Depth to Grid
+    # Simplified projection: Depth map (H, W) -> Grid (H_grid, W_grid)
+    # We use the calibration to warp the depth map to the grid coordinates.
+    # Since we don't have the full 3D point cloud, we approximate the alignment
+    # by checking if the non-zero regions align after a simple geometric transform.
+    
+    # Create a "Projected Grid" from Depth
+    # This is a simplified check: we assume the depth map is already aligned to the grid
+    # if the calibration is correct. We verify by checking the overlap of obstacles.
+    
+    # Convert depth to binary obstacle map (threshold > 0)
+    depth_obstacles = (depth_data > 0.0).astype(np.uint8)
+    
+    # Resize depth obstacles to match grid size if necessary
+    if depth_obstacles.shape != stored_grid.shape:
+        logger.warning(f"Depth shape {depth_obstacles.shape} != Grid shape {stored_grid.shape}. Resizing.")
+        depth_obstacles = cv2.resize(depth_obstacles, (stored_grid.shape[1], stored_grid.shape[0]), interpolation=cv2.INTER_NEAREST)
+    
+    # Calculate IoU Depth vs Grid
+    iou_depth_grid = calculate_iou(depth_obstacles, stored_grid)
+    results['iou_scores']['depth_vs_grid'] = iou_depth_grid
+    results['details'].append(f"IoU (Depth vs Grid): {iou_depth_grid:.4f}")
+
+    # B. RGB -> Occupancy Grid (via Depth projection or direct feature check)
+    # Since RGB is color, we can't directly compare to binary grid without segmentation.
+    # However, the task asks for spatial alignment. We verify that the RGB image
+    # and the Depth map are spatially consistent (same resolution, no shift).
+    # We check if the RGB image's edges align with the Depth's edges.
+    
+    # Simple edge alignment check
+    rgb_edges = cv2.Canny(rgb_data, 50, 150)
+    depth_edges = cv2.Canny(depth_data.astype(float), 50, 150)
+    
+    # Normalize edge maps to binary
+    rgb_edges_bin = (rgb_edges > 0).astype(np.uint8)
+    depth_edges_bin = (depth_edges > 0).astype(np.uint8)
+    
+    if rgb_edges_bin.shape != depth_edges_bin.shape:
+        # Resize if needed
+        rgb_edges_bin = cv2.resize(rgb_edges_bin, (depth_edges_bin.shape[1], depth_edges_bin.shape[0]), interpolation=cv2.INTER_NEAREST)
+    
+    iou_rgb_depth = calculate_iou(rgb_edges_bin, depth_edges_bin)
+    results['iou_scores']['rgb_edges_vs_depth_edges'] = iou_rgb_depth
+    results['details'].append(f"IoU (RGB Edges vs Depth Edges): {iou_rgb_depth:.4f}")
+
+    # C. Final Alignment Check
+    # The alignment is considered successful if all IoU scores > threshold
+    all_passed = all(score >= iou_threshold for score in results['iou_scores'].values())
+    results['passed'] = all_passed
+
+    if not all_passed:
+        results['status'] = "failed"
+        logger.warning(f"Spatial alignment verification FAILED. Scores: {results['iou_scores']}")
+    else:
+        logger.info(f"Spatial alignment verification PASSED. Scores: {results['iou_scores']}")
+
+    return results
 
 def main():
-    """
-    Main entry point for T025: Verify spatial alignment.
-    Reads modalities from data/modalities/ and calibration from results/calibration_report.json.
-    Outputs results/alignment_report.json.
-    """
-    # Initialize config to ensure paths are correct
-    init_config()
+    logger.info("Starting Spatial Alignment Verification (T025)")
     
     # Paths
-    modality_dir = get_path('data', 'modalities')
-    calibration_path = get_path('results', 'calibration_report.json')
-    output_path = get_path('results', 'alignment_report.json')
+    config = get_config()
+    data_dir = Path(get_path("data_modalities"))
+    calib_report_path = Path(get_path("calibration_report"))
+    output_path = Path(get_path("alignment_report"))
     
-    # Ensure directories exist
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    Path(modality_dir).mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Loading calibration from {calibration_path}")
-    if not Path(calibration_path).exists():
-        logger.error(f"Calibration report not found at {calibration_path}. Run T008b first.")
-        sys.exit(1)
-    
-    with open(calibration_path, 'r') as f:
-        calib_data = json.load(f)
-        # Convert to CalibrationReport object if needed, or just pass dict
-        # For this task, we mainly need to know it passed, but we might use params for validation
-        calibration_report = CalibrationReport(**calib_data)
-    
-    if not calibration_report.valid:
-        logger.error("Calibration report indicates invalid calibration. Aborting alignment check.")
-        sys.exit(1)
-    
-    logger.info(f"Loading modalities from {modality_dir}")
-    try:
-        modalities = load_modalities_from_disk(Path(modality_dir))
-    except FileNotFoundError as e:
-        logger.error(f"Missing modality files: {e}")
-        logger.error("Run T023 (generate_modalities.py) first to create the input files.")
-        sys.exit(1)
-    
-    logger.info("Calculating alignment metrics...")
-    try:
-        import cv2 # Import here to ensure it's available for image processing
-    except ImportError:
-        logger.error("OpenCV (cv2) is required for alignment verification. Install with: pip install opencv-python")
-        sys.exit(1)
+    logger.info(f"Data directory: {data_dir}")
+    logger.info(f"Calibration report: {calib_report_path}")
+    logger.info(f"Output path: {output_path}")
 
-    alignment_results = verify_spatial_alignment(modalities, calibration_report)
-    
-    # Add metadata
-    final_report = {
-        "task_id": "T025",
-        "status": "completed",
-        "timestamp": str(np.datetime64('now')),
-        "calibration_valid": calibration_report.valid,
-        "alignment_metrics": alignment_results,
-        "pass_threshold": 0.95,
-        "recommendation": "Pass" if alignment_results['passed'] else "FAIL: Spatial alignment below threshold. Check calibration or sensor synchronization."
-    }
-    
-    # Save report
-    with open(output_path, 'w') as f:
-        json.dump(final_report, f, indent=2)
-    
-    logger.info(f"Alignment report saved to {output_path}")
-    logger.info(f"IoU (Depth vs Grid): {alignment_results['iou_depth_grid']:.4f}")
-    logger.info(f"IoU (RGB Edges vs Grid): {alignment_results['iou_rgb_grid']:.4f}")
-    logger.info(f"Overall IoU: {alignment_results['overall_iou']:.4f}")
-    
-    if alignment_results['passed']:
-        logger.info("SUCCESS: Spatial alignment verification PASSED.")
-        sys.exit(0)
-    else:
-        logger.warning("FAILURE: Spatial alignment verification FAILED.")
-        # Do not exit with error code to allow pipeline to continue, but log clearly
-        # However, per spec "BLOCK if report is missing or validation fails" -> T008b does block, 
-        # T025 is a verification. If it fails, the pipeline might need to halt or alert.
-        # We will return success code but the content indicates failure.
-        sys.exit(0)
+    # Ensure directories exist
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        # Load modalities
+        modalities = load_modalities_from_disk(data_dir)
+        
+        # Verify alignment
+        report = verify_spatial_alignment(modalities, calib_report_path)
+        
+        # Save report
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        
+        logger.info(f"Alignment report saved to {output_path}")
+        
+        # Exit with error if failed to ensure pipeline stops if needed
+        if not report['passed']:
+            logger.error("Alignment verification failed. Pipeline may need to halt.")
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.error(f"Alignment verification failed with error: {e}")
+        # Create a failure report
+        failure_report = {
+            "status": "error",
+            "error": str(e),
+            "passed": False
+        }
+        with open(output_path, 'w') as f:
+            json.dump(failure_report, f, indent=2)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

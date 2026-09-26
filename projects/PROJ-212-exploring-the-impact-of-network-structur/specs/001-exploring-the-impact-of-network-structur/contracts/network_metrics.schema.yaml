@@ -17,15 +17,23 @@ properties:
   is_connected:
     type: boolean
     description: "True if the graph is a single connected component."
+  largest_component_ratio:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of nodes in the largest connected component."
+  reduced:
+    type: boolean
+    description: "True if the graph was reduced to N=200 via BFS."
   topology_metrics:
     type: object
     properties:
       degree_mean:
         type: number
         description: "Mean degree of the nodes."
-      degree_std:
+      degree_variance:
         type: number
-        description: "Standard deviation of the degree distribution."
+        description: "Variance of the degree distribution."
       clustering_coeff:
         type: number
         minimum: 0.0
@@ -36,18 +44,15 @@ properties:
         description: "Average path length. Null if graph is disconnected."
     required:
       - degree_mean
-      - degree_std
+      - degree_variance
       - clustering_coeff
       - avg_path_length
-    required:
-      - network_id
-      - node_count
-      - edge_count
-      - is_connected
-      - topology_metrics
 required:
   - network_id
   - node_count
   - edge_count
   - is_connected
+  - largest_component_ratio
+  - reduced
   - topology_metrics
+additionalProperties: false

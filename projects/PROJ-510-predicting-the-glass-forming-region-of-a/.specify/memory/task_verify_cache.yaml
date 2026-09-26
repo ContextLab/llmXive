@@ -1,24 +1,3 @@
-T008:
-  c: false
-  h: 7e56fd4a8c02b99f0dccf934971ab9396d52ac4072c5203ea21597a58d5d2637
-  r: "The repository contains a large `code/ingestion.py` but the visible portion\
-    \ ends before any dataset\u2011fetching logic, and no `try/except` around a fetch\
-    \ call is shown. Moreover, the required `data/logs/fetch_error.log` file does\
-    \ not exist, so the script cannot be writing the detailed error log as specified.\
-    \ The task\u2019s error\u2011handling requirement is therefore not met."
-T010a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `test_features.py` file or `test_mixing_enthalpy` unit test is present in
-    the provided artifacts, so the required unit test does not exist or is empty.
-    The implementer has not supplied the test code that should run after T014.
-T010b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `test_features.py` file or the specific `test_size_mismatch` unit test is\
-    \ present; the only evidence is a high\u2011level feature specification, not the\
-    \ required test code or its execution results. The task demands a concrete unit\
-    \ test artifact, which is missing."
 T012b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,13 +16,6 @@ T015:
   r: No `features.py` file or any code implementing `atomic_size_mismatch` and `electronegativity_variance`
     was provided; without the artifact we cannot verify that the required computations
     exist or are correct. The task therefore remains unfinished.
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, notebook, script, or output file showing that `processed_alloys.csv`
-    was loaded and split with `random_state=42` and `test_size=0.2` is present. The
-    required artifact (e.g., a Python script, Jupyter notebook, or saved train/test
-    CSVs) is missing, so the task is not satisfied.
 T022b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -67,6 +39,43 @@ T030b:
     \ stability (e.g., permutation importance results, sensitivity plots, or stability\
     \ metrics) was provided. The required artifact for User Story\u202F3 is missing,\
     \ so the task is not satisfied."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `validate_schemas.py` execution, its output, or any validation
+    report is present; the required artifact (a confirmation that all artifacts match
+    contracts) is missing. The implementer must provide the script run logs or resulting
+    validation summary.
+T046:
+  c: true
+  h: 294deb970d57ebbb06ec27088a87c3602b2a9a5d2655bc57c2d9274a536cfb83
+  r: "The `code/audit_data_source.py` file exists, is non\u2011empty, and implements\
+    \ the required checks: it loads `data/processed/processed_alloys.csv`, verifies\
+    \ the presence and exact value of the `source_label` column, and ensures no synthetic\
+    \ data flags (e.g., `is_synthetic` or synthetic keywords) are present. The script\
+    \ fulfills the task specification."
+T047:
+  c: false
+  h: d4a41db013c948ddcfadbb16a75b546a5c75c55db9e920bc06a909ca971f7802
+  r: "The repository lacks the required `data/logs/ingestion_hash.txt` file, and there\
+    \ is no evidence that the scripts were re\u2011executed, that `processed_alloys.csv`\
+    \ was generated, or that its SHA\u2011256 hash was compared to a stored reference.\
+    \ Consequently the reproducibility check described in the task is not fulfilled."
+T050:
+  c: false
+  h: 752e6d5946867832c00968783cdf6c87ecb60b9ce6fc20421aebc0c958afd58e
+  r: "The provided `code/ingestion.py` does not show any logic that checks for an\
+    \ empty filtered dataset, raises the required `ValueError(\"Dataset is empty after\
+    \ filtering. Check composition parsing logic and data source validity.\")`, or\
+    \ writes to `data/logs/empty_dataset_error.log`. Moreover, the `empty_dataset_error.log`\
+    \ file is absent. The task\u2019s edge\u2011case handling is therefore not implemented."
+T051:
+  c: false
+  h: 9ad70a22710d2e9b13d8e8ebe047e8a46445ec6b7c41dcb0a2c3df38270fa15d
+  r: The provided `code/ingestion.py` (as shown) does not contain any logic that filters
+    rows based on `glass_forming_label` nor does it write to `data/logs/exclusion_log.txt`
+    or create `data/logs/label_filtering_status.json`. Both required output files
+    are absent from the repository. The task therefore remains unfinished.
 T057:
   c: false
   h: 2fb60e575ed2a519b0ef2d4549867706bf25ec6b1f439d95e1d1df204b462c28

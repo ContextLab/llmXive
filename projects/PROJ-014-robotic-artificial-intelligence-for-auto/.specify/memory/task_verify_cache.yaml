@@ -23,11 +23,12 @@ T004:
     \ describes a sensory\u2011fidelity study, not a pytest setup."
 T015:
   c: false
-  h: 41def13469ca931b6a3573adb242162f0dbb78fa4dfab7bdef8865c4a70d4703
-  r: The provided `run_baselines.py` is truncated, contains a syntax error (`elif
-    info.get("failure") or inf`), and does not include logic to loop over 30 seeds,
-    handle crashes, or write the required JSON file. Additionally, the expected `results/baseline_metrics.json`
-    file is absent. These missing/incorrect parts prevent the task from being fulfilled.
+  h: 341dfa08f65715ea23795d6111c132e44b6d2fff39b4d61989d76c6f0b5a7a08
+  r: The `run_baselines.py` file is truncated and shows no orchestration loop over
+    30 seeds, nor any code that writes a JSON file with the required `{success_rate,
+    path_optimality, seeds}` schema. Moreover, the expected output file `results/baseline_metrics.json`
+    is missing from the repository. These missing pieces mean the task requirements
+    are not satisfied.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,3 +42,33 @@ T017:
     baseline path optimality ratios or success rates. Without concrete artifacts (e.g.,
     modified `run_baselines.py` with logging statements, generated log files, or test
     output showing the recorded metrics), the requirement cannot be verified as satisfied.
+T023:
+  c: false
+  h: 7f5301d404f8d0e81a93544bac86494b0efc700730dc9916f136040312ae376c
+  r: The `generate_modalities.py` script is present but the required `results/calibration_report.json`
+    file is missing, so the script cannot actually consume validated calibration parameters.
+    Moreover, the shown portion of the script is truncated and does not demonstrate
+    that it processes raw sensor data and writes the modalities to `data/modalities/`.
+    Both the missing calibration report and the incomplete implementation prevent
+    the task from being satisfied.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the LiDAR dropout fallback (substituting\
+    \ a safe empty occupancy grid and logging the event) was provided. The artifact\
+    \ required to demonstrate the new edge\u2011case handling is missing, so the task\u2019\
+    s requirement is not satisfied."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data artifact showing that the training loop (T031) was actually
+    wired to the DQN agent (T029) and that training data was generated is present.
+    The implementer provided no files, functions, or logs to demonstrate the integration,
+    so the requirement is not satisfied.
+T033:
+  c: false
+  h: 7f6f8014354fee6c3de1fa2ba025c56781d4475cee16fec2dd22986be4cd9f7e
+  r: "The `code/src/analysis/metrics.py` file exists but the provided excerpt is truncated\
+    \ and does not show any code that writes the calculated metrics to `results/learning_metrics.json`.\
+    \ Moreover, the required `results/learning_metrics.json` file is missing entirely.\
+    \ The task\u2019s output artifact is therefore not present."

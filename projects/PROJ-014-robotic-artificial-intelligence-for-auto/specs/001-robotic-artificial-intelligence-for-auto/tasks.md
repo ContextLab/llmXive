@@ -94,8 +94,8 @@ found character '`' that cannot start any token
 - [X] T020 [P] [US2] Implement `code/src/data/pipeline.py` RGB preprocessing (center-crop, normalize, fixed spatial resolution)
 - [X] T021 [P] [US2] Implement `code/src/data/pipeline.py` Depth map downsampling logic
 - [X] T022 [P] [US2] Implement `code/src/data/pipeline.py` 2D Occupancy Grid generation (binary matrix, m-radius, noise handling)
-- [~] T023 [US2] Implement `code/scripts/generate_modalities.py` to process raw sensor data AND consume validated calibration parameters from `results/calibration_report.json` (produced by T008b) to ensure spatial alignment; save modalities to `data/modalities/` (FR-009, US-2)
-- [~] T024 [US2] Implement fallback logic for LiDAR dropout (substitute safe empty grid, log event) per Edge Cases
+- [ ] T023 [US2] Implement `code/scripts/generate_modalities.py` to process raw sensor data AND consume validated calibration parameters from `results/calibration_report.json` (produced by T008b) to ensure spatial alignment; save modalities to `data/modalities/` (FR-009, US-2)
+- [ ] T024 [US2] Implement fallback logic for LiDAR dropout (substitute safe empty grid, log event) per Edge Cases
 - [ ] T025 [US2] Verify spatial alignment across all three modalities for the same ground truth frame: Generate `results/alignment_report.json` with IoU scores (threshold > 0.95)
 - [ ] T026 [P] [US2] Implement sensitivity analysis script `scripts/sweep_thresholds.py` for occupancy grid threshold (FR-008)
 
@@ -118,8 +118,8 @@ found character '`' that cannot start any token
 
 - [X] T029 [P] [US3] Implement `code/src/agents/dqn_agent.py` with pruned MobileNetV2 backbone (CPU-only, no CUDA)
 - [X] T030 [P] [US3] Implement `code/src/agents/memory.py` for replay buffer (CPU-optimized)
-- [ ] T030a [US3] Implement `code/scripts/train_and_analyze.py` master orchestrator with a GLOBAL -hour wall-clock timer (FR-003, SC-005) that wraps the seed loop, saving checkpoints and halting execution if the total budget is exceeded; this task must execute BEFORE T031
-- [ ] T031 [US3] Implement `code/scripts/train_and_analyze.py` to orchestrate training: (1) iterate through N=30 seeds per modality (RGB, Depth, Grid), (2) invoke T030a's global timer, (3) handle memory pressure crashes via checkpointing, and (4) output learning curve CSVs to `results/training_curves/`
+- [X] T030a [US3] Implement `code/scripts/train_and_analyze.py` master orchestrator with a GLOBAL -hour wall-clock timer (FR-003, SC-005) that wraps the seed loop, saving checkpoints and halting execution if the total budget is exceeded; this task must execute BEFORE T031
+- [X] T031 [US3] Implement `code/scripts/train_and_analyze.py` to orchestrate training: (1) iterate through N=30 seeds per modality (RGB, Depth, Grid), (2) invoke T030a's global timer, (3) handle memory pressure crashes via checkpointing, and (4) output learning curve CSVs to `results/training_curves/`
 - [ ] T032 [US3] Integrate training loop logic (T031) with DQN agent (T029) to produce training data
 - [ ] T033 [US3] Implement `code/src/analysis/metrics.py` to calculate: (1) Area Under the Curve (AUC), (2) time-to-convergence, AND (3) **episodes to reach a high sustained success rate** (SC-001); output all metrics to `results/learning_metrics.json`
 - [ ] T034 [US3] Implement `code/src/analysis/stats.py` for Welch's ANOVA/Kruskal-Wallis and post-hoc tests (Tukey/Dunn) (FR-005)

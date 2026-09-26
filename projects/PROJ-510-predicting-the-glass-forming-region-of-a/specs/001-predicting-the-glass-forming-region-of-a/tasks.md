@@ -153,7 +153,7 @@ shap>=0.42.0
 - [X] T020b [US2] **Shared CV Splitter**: Instantiate a `KFold(n_splits=5, shuffle=True, random_state=42)` object.
  - **Action**: Configure the splitter. Do NOT save indices here; T021 will save them.
  - **Deliverable**: Configured splitter object (used in T021).
-- [ ] T021 [US2] Train `RandomForestRegressor` on the training set; perform 5-fold cross-validation using the **shared folds** from T020b. Record each fold RMSE in `data/models/cv_metrics.json`.
+- [ ] T021 [US2] Train `RandomForestRegressor` on the training set; perform 5-fold cross-validation using the **shared folds** from T020b. Record each fold RMSE in `data/models/cv_metrics.json`. <!-- FAILED: unspecified -->
  - Train the model on `data/processed/train_set.csv`.
  - Perform cross-validation.
  - **Explicitly save** the fold indices used to `data/models/cv_folds_indices.json` (authoritative source for T022b-2a).
@@ -191,7 +191,7 @@ shap>=0.42.0
  - If `sc002_met` is `false`, log a **WARNING** "SC-002 failed: Model not statistically distinguishable from null" and save a status flag `sc002_status: FAILED` to `data/models/sc002_status.json`. **Do not raise an exception**; the pipeline must continue to generate the report with this negative finding.
  - If `sc002_met` is `true`, log success and save `sc002_status: PASSED`.
 
-- [ ] T022 [US2] Evaluate on the held‑out test set; save RMSE and the trained model to `data/models/random_forest_model.pkl`.
+- [ ] T022 [US2] Evaluate on the held‑out test set; save RMSE and the trained model to `data/models/random_forest_model.pkl`. <!-- FAILED: unspecified -->
  - Load `data/models/random_forest_model.pkl` and `data/processed/test_set.csv`.
  - Calculate test set RMSE.
  - **Deliverable**: `data/models/test_metrics.json` with schema `{"test_rmse": float}`.
@@ -289,10 +289,10 @@ shap>=0.42.0
 
 **Purpose**: Ensure all outputs meet the "Real Data Only" and "No Fabrication" constitution gates.
 
-- [ ] T046 [P] **Data Source Audit**: Write `code/audit_data_source.py` to verify that `data/processed/processed_alloys.csv` contains a `source_label` column explicitly set to "matsci/glass-forming-ability" and that no synthetic data flags (e.g., `is_synthetic=True`) exist.
-- [ ] T047 [P] **Result Reproducibility Check**: Re-run `code/ingestion.py` and `code/features.py` in a fresh environment and compare the content hash (SHA-256) of the output `processed_alloys.csv` against the original run hash stored in `data/logs/ingestion_hash.txt`. If hashes differ, raise an error.
-- [ ] T048 [P] **Statistical Significance Gate**: Create a script `code/check_sc002.py` that parses `statistical_comparison.json` and logs a **WARNING** if `sc002_met` is false, ensuring the report explicitly flags the failure (consistent with T024c's non-blocking design). **Do NOT exit with code 1**.
-- [ ] T049 [P] **Sensitivity Gate**: Create a script `code/check_sc003.py` that parses `sensitivity_status.json` and logs a failure if `stability_met` is false, ensuring the report explicitly flags unstable thresholds.
+- [X] T046 [P] **Data Source Audit**: Write `code/audit_data_source.py` to verify that `data/processed/processed_alloys.csv` contains a `source_label` column explicitly set to "matsci/glass-forming-ability" and that no synthetic data flags (e.g., `is_synthetic=True`) exist.
+- [ ] T047 [P] **Result Reproducibility Check**: Re-run `code/ingestion.py` and `code/features.py` in a fresh environment and compare the content hash (SHA-256) of the output `processed_alloys.csv` against the original run hash stored in `data/logs/ingestion_hash.txt`. If hashes differ, raise an error. <!-- FAILED: unspecified -->
+- [X] T048 [P] **Statistical Significance Gate**: Create a script `code/check_sc002.py` that parses `statistical_comparison.json` and logs a **WARNING** if `sc002_met` is false, ensuring the report explicitly flags the failure (consistent with T024c's non-blocking design). **Do NOT exit with code 1**.
+- [X] T049 [P] **Sensitivity Gate**: Create a script `code/check_sc003.py` that parses `sensitivity_status.json` and logs a failure if `stability_met` is false, ensuring the report explicitly flags unstable thresholds.
 
 ## Phase R: Edge Case & Robustness Handling (New)
 
@@ -300,9 +300,9 @@ shap>=0.42.0
 
 - [ ] T050 [US1] **Edge Case: Empty Dataset**: Modify `code/ingestion.py` to explicitly check if the filtered dataset is empty after removing malformed compositions. If empty, raise `ValueError("Dataset is empty after filtering. Check composition parsing logic and data source validity.")`. Log the error to `data/logs/empty_dataset_error.log`.
 - [ ] T051 [US1] **Edge Case: Unknown Labels**: Ensure `code/ingestion.py` explicitly filters out rows where `glass_forming_label` is "unknown", "mixed", or null, and logs the count of excluded samples to `data/logs/exclusion_log.txt`. Write a status file `data/logs/label_filtering_status.json` with schema `{"excluded_count": int, "status": "pass"}`.
-- [ ] T052 [US1] **Edge Case: Zero Enthalpy**: Verify `code/features.py` handles `mixing_enthalpy == 0` as a valid numeric value (no special error handling required, but ensure no `NaN` propagation).
-- [ ] T053 [US2] **Edge Case: Low Variance Target**: In `code/train.py`, verify that the target variable `critical_cooling_rate` has non-zero variance before training. If variance is 0, raise `ValueError("Target variable has zero variance; cannot train regression model.")`.
-- [ ] T054 [US3] **Edge Case: Collinearity Resolution Failure**: If T029b fails to identify a stable model after 3 drops (all features collinear), log a **WARNING** "Collinearity resolution failed: No stable feature subset found. Proceeding with best available model." and save the failure state to `data/models/collinearity_resolution_failed.json`. **Do NOT raise a ValueError**.
+- [X] T052 [US1] **Edge Case: Zero Enthalpy**: Verify `code/features.py` handles `mixing_enthalpy == 0` as a valid numeric value (no special error handling required, but ensure no `NaN` propagation).
+- [X] T053 [US2] **Edge Case: Low Variance Target**: In `code/train.py`, verify that the target variable `critical_cooling_rate` has non-zero variance before training. If variance is 0, raise `ValueError("Target variable has zero variance; cannot train regression model.")`.
+- [~] T054 [US3] **Edge Case: Collinearity Resolution Failure**: If T029b fails to identify a stable model after 3 drops (all features collinear), log a **WARNING** "Collinearity resolution failed: No stable feature subset found. Proceeding with best available model." and save the failure state to `data/models/collinearity_resolution_failed.json`. **Do NOT raise a ValueError**.
 
 ## Phase S: Documentation & Reporting Refinement (New)
 
