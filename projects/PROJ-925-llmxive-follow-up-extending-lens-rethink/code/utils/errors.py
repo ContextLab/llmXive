@@ -1,73 +1,69 @@
 """
-Unified error handling utilities for the llmXive pipeline.
-
-This module provides standardized error classes and factory functions
-to ensure consistent error messaging across the project, enforcing
-the "Single Source of Truth" principle for error handling.
+Error definitions and factories for the llmXive pipeline.
+Provides standardized error messages for schema and data validation failures.
 """
 from typing import Optional
 
 
 class DataSchemaError(Exception):
     """
-    Exception raised when dataset or schema validation fails.
-    
-    This error is used to indicate missing required datasets, columns,
-    or schema mismatches. It enforces a unified error message format.
+    Raised when a required dataset or column is missing, or when schema validation fails.
     """
     pass
 
 
 class ConfigurationError(Exception):
-    """Exception raised for configuration-related errors."""
+    """
+    Raised when a configuration issue prevents pipeline execution.
+    """
     pass
 
 
 class ModelInferenceError(Exception):
-    """Exception raised when model inference fails."""
+    """
+    Raised when a model inference step fails (e.g., timeout, model load failure).
+    """
     pass
 
 
-def create_missing_dataset_error(source: str, column: str) -> DataSchemaError:
+def create_missing_dataset_error(source: str, column: str) -> str:
     """
-    Factory function to create a standardized DataSchemaError.
-    
-    This function ensures that all missing dataset/column errors
-    follow the unified message pattern required by the contracts.
-    
+    Generates a standardized error message for missing dataset or column requirements.
+
     Args:
-        source: The dataset or data source name (e.g., 'pick-a-pic')
-        column: The missing column name (e.g., 'human_rating')
-        
+        source: The name of the dataset or source (e.g., 'pick-a-pic').
+        column: The name of the missing column (e.g., 'human_rating').
+
     Returns:
-        DataSchemaError with the standardized message format:
-        "Missing required dataset or column: {source}/{column}"
+        A formatted error string: "Missing required dataset or column: {source}/{column}"
     """
-    message = f"Missing required dataset or column: {source}/{column}"
-    return DataSchemaError(message)
+    return f"Missing required dataset or column: {source}/{column}"
 
 
-def create_configuration_error(message: str) -> ConfigurationError:
+def create_configuration_error(message: str) -> str:
     """
-    Factory function to create a standardized ConfigurationError.
-    
+    Generates a standardized configuration error message.
+
     Args:
-        message: The error description
-        
+        message: The specific configuration issue description.
+
     Returns:
-        ConfigurationError with the provided message
+        A formatted error string.
     """
-    return ConfigurationError(message)
+    return f"Configuration Error: {message}"
 
 
-def create_model_inference_error(message: str) -> ModelInferenceError:
+def create_model_inference_error(reason: str, details: Optional[str] = None) -> str:
     """
-    Factory function to create a standardized ModelInferenceError.
-    
+    Generates a standardized model inference error message.
+
     Args:
-        message: The error description
-        
+        reason: The primary reason for failure (e.g., 'TIMEOUT_EXCEEDED', 'BERT_FAILURE').
+        details: Optional additional context.
+
     Returns:
-        ModelInferenceError with the provided message
+        A formatted error string.
     """
-    return ModelInferenceError(message)
+    if details:
+        return f"Model Inference Error ({reason}): {details}"
+    return f"Model Inference Error ({reason})"

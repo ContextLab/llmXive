@@ -5017,3 +5017,198 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-17T19:02:16Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: citation validator checks title overlap threshold greater than 0.7 via
+    DOI lookup
+  claim_id: c_92d79a22
+  context: 'T050b [Depends: T050a] [P] **Implement Automated Citation Validator**:
+    Create `src/cli/validate_citations.py` to automatically verify citations in `research.md`
+    against primary sources. **Logic**: The script must parse `research.md`, extract
+    citations, query the primary source via DOI lookup, and check title overlap (threshold
+    > 0.7).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Citation_validator_checks_title_overlap_threshold_greater_th
+  kind: magnitude
+  raw_text: The script must parse research.md, extract citations, query the primary
+    source via DOI lookup, and check title overlap (threshold > 0.7).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:57:39Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: linkage aggregation triggered if linkage less than 95 percent or N less
+    than 300
+  claim_id: c_dcae3f50
+  context: 'T017 [US1] [FR-002] [Depends: T004] Implement `src/data/processing/spatial_join.py`...
+    **Mandatory Output**: Generate `data/logs/linkage_validation.json`... If linkage
+    < 95% or N < 300, set `triggered_aggregation` to true.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linkage_aggregation_triggered_if_linkage_less_than_95_percen
+  kind: magnitude
+  raw_text: If linkage < 95% or N < 300, set triggered_aggregation to true.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:58:34Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: aggregated dataset has N greater than or equal to 300 with unique village_id
+  claim_id: c_1fc45817
+  context: 'T021 [US1] [Depends: T017c, T018b] Implement village-level aggregation
+    fallback... **Verification**: Ensure the aggregated dataset retains the `village_id`
+    column, has N >= 300, and that `village_id` is unique per row.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Aggregated_dataset_has_N_greater_than_or_equal_to_300_with_u
+  kind: magnitude
+  raw_text: The aggregated dataset retains the village_id column, has N >= 300, and
+    that village_id is unique per row.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:59:14Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction uses numerator 0.05 divided by 3 tests
+  claim_id: c_efcfe411
+  context: 'T025c [US2] [FR-004] [FR-005] [FR-007] [Depends: T025b] **Implement Bonferroni
+    Correction**... Apply standard Bonferroni correction: `adjusted_alpha = 0.05 /
+    num_tests` (where `num_tests` is 3... The numerator MUST be 0.05, not 0.0025.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Apply standard Bonferroni correction: adjusted_alpha = 0.05 / num_tests
+    (where num_tests is 3: Model 1 CSA_Index, Model 2 CSA_Index, and Interaction Effect).
+    The numerator MUST be 0.05, not 0.0025.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:59:31Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: cloud cover threshold sweep range 0.0 to 0.9
+  claim_id: c_efa214cb
+  context: 'T087 [US3] [FR-006] [Depends: T016, T018, T018b] **Implement Sensitivity
+    Logic**... **Sweep Range**: [0.0, 0.6, 0.7, 0.8, 0.9].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sweep Range: [0.0, 0.6, 0.7, 0.8, 0.9].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T01:00:05Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: baseline coefficient is mean across valid thresholds if threshold 0.0
+    yields no data
+  claim_id: c_80804faf
+  context: 'T035a [US3] [SC-005] [Depends: T087]... `coeff_baseline` is the coefficient
+    at threshold 0.0. If threshold 0.0 yields no data, use the mean coefficient across
+    all valid thresholds as the baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If threshold 0.0 yields no data, use the mean coefficient across all valid
+    thresholds as the baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T01:00:41Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: sample size justification targets N greater than 1000
+  claim_id: c_6a971991
+  context: 'T053c [P] **Sample Size Justification**: Add power analysis or sample-size
+    justification in `data-model.md` for the target N > 1000 (or village aggregation
+    logic).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_justification_targets_N_greater_than_1000
+  kind: magnitude
+  raw_text: Document the calculation and assumptions for sample size justification
+    for the target N > 1000 (or village aggregation logic).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T01:01:21Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: analysis dataset generated with more than 300 rows
+  claim_id: c_ccfe1a21
+  context: 'T081b1 [P] **Implement test_ingestion.py**... **Specifics**: Assert `analysis_dataset.csv`
+    is generated with >300 rows and passes schema.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_dataset_generated_with_more_than_300_rows
+  kind: magnitude
+  raw_text: Assert `analysis_dataset.csv` is generated with >300 rows and passes schema.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T01:01:57Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: analysis dataset validation requires more than 300 records
+  claim_id: c_acb2761b
+  context: 'T090 [P] **Verify Data Artifact Generation**: Run `src/cli/validate.py`
+    against `data/processed/analysis_dataset.csv`. **Verification**: Assert exit code
+    0 and file contains >300 records.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_dataset_validation_requires_more_than_300_records
+  kind: magnitude
+  raw_text: Assert exit code is 0 and file contains >300 records.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T01:02:26Z'
+- artifact_path: projects/PROJ-006-agriculture-optimization/specs/002-agriculture-optimization/tasks.md
+  attempts: 1
+  canonical: rule of thumb N greater than 1000 for multivariate regression or N greater
+    than 30 per predictor
+  claim_id: c_7001b9af
+  context: 'T053c [P] **Sample Size Justification**... **Logic**: Use a standard rule-of-thumb
+    (N > 1000 for multivariate regression, or N > 30 per predictor for aggregated
+    models) to justify the sample size.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rule_of_thumb_N_greater_than_1000_for_multivariate_regressio
+  kind: magnitude
+  raw_text: Use a standard rule-of-thumb (N > 1000 for multivariate regression, or
+    N > 30 per predictor for aggregated models) to justify the sample size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T01:03:13Z'

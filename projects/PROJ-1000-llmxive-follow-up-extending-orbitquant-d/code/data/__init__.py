@@ -1,1 +1,2 @@
-"""Data module for llmXive pipeline."""
+# Data module initialization
+pass

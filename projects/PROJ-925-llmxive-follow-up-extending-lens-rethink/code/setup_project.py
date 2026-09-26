@@ -1,12 +1,17 @@
+"""
+Project structure creation script for llmXive follow-up.
+Executes the directory hierarchy creation as specified in T001b.
+"""
 import os
 import sys
 from pathlib import Path
-from config import get_project_root
+
 
 def create_structure():
     """
-    Execute structure creation for the project.
-    Creates the following directories at the project root:
+    Creates the required directory structure for the project.
+    
+    Creates sibling directories at the project root:
     - data/raw
     - data/processed
     - code
@@ -15,11 +20,18 @@ def create_structure():
     - code/models
     - docs
     
-    Note: data/ and code/ are SIBLING directories at the project root.
+    Note: data/ and code/ are SIBLINGS, not nested.
     """
-    root = get_project_root()
+    # Determine project root (parent of 'code' directory)
+    # We assume this script is run from the project root or code/ directory
+    current_file = Path(__file__).resolve()
+    if current_file.name == '__main__':
+        project_root = Path.cwd()
+    else:
+        # If run as module, assume script is in code/
+        project_root = current_file.parent.parent
     
-    # Define the directories to create relative to the project root
+    # Define relative paths relative to project root
     directories = [
         "data/raw",
         "data/processed",
@@ -27,27 +39,33 @@ def create_structure():
         "code/tests",
         "code/utils",
         "code/models",
-        "docs"
+        "docs",
     ]
     
     created_count = 0
     for dir_path in directories:
-        full_path = root / dir_path
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
             print(f"Created directory: {full_path}")
+            created_count += 1
         else:
             print(f"Directory already exists: {full_path}")
     
-    print(f"Structure creation complete. {created_count} new directories created.")
-    return created_count
+    print(f"\nStructure creation complete. Created {created_count} new directories.")
+    return True
+
 
 def main():
-    """Entry point for script execution."""
-    print("Starting project structure creation...")
-    create_structure()
-    print("Done.")
+    """Main entry point for the script."""
+    try:
+        create_structure()
+        print("SUCCESS: Project structure created successfully.")
+        return 0
+    except Exception as e:
+        print(f"ERROR: Failed to create project structure: {e}", file=sys.stderr)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

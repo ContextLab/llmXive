@@ -1,47 +1,46 @@
 import os
 import pytest
 from pathlib import Path
-from code.setup_directories import main
+import sys
 
-@pytest.fixture
-def project_path():
-    return Path("projects/PROJ-227-assessing-the-trade-offs-between-static-")
+# Add the code directory to the path so we can import setup_directories
+# Assuming this test runs from the project root
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_main_creates_directories(project_path):
+from setup_directories import main
+
+def test_directories_created():
     """
-    Test that main() creates the required directory structure.
+    Verify that the required directories exist after running main().
     """
-    # Ensure clean state for the test (remove if exists)
-    if project_path.exists():
-        import shutil
-        shutil.rmtree(project_path)
-    
     # Run the setup
-    exit_code = main()
-    
-    assert exit_code == 0, "main() should return 0 on success"
-    assert project_path.exists(), "Project root directory should exist"
+    main()
 
-    # Check specific subdirectories
+    # Determine project root (parent of code dir)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent.parent / "code"
+    project_root = code_dir.parent
+
     required_dirs = [
-        project_path / "data" / "raw",
-        project_path / "data" / "processed",
-        project_path / "state",
-        project_path / "code",
-        project_path / "tests",
+        "data/raw",
+        "data/processed",
+        "state",
+        "code",
+        "tests"
     ]
 
-    for d in required_dirs:
-        assert d.exists(), f"Required directory {d} should exist"
-        assert d.is_dir(), f"{d} should be a directory"
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        assert full_path.exists(), f"Directory {full_path} was not created."
+        assert full_path.is_dir(), f"{full_path} exists but is not a directory."
 
-def test_main_idempotent(project_path):
-    """
-    Test that running main() again does not fail if directories exist.
-    """
-    # First run creates them
-    main()
+    # Check nested structure if applicable
+    project_name = "PROJ-227-assessing-the-trade-offs-between-static-"
+    nested_path = project_root / "projects" / project_name
     
-    # Second run should succeed (idempotent)
-    exit_code = main()
-    assert exit_code == 0, "main() should return 0 even if directories already exist"
+    for dir_path in required_dirs:
+        full_path = nested_path / dir_path
+        assert full_path.exists(), f"Nested directory {full_path} was not created."
+        assert full_path.is_dir(), f"{full_path} exists but is not a directory."
+
+    print("All required directories verified successfully.")

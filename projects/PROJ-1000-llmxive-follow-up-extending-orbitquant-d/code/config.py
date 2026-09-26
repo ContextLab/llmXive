@@ -1,6 +1,3 @@
-"""
-Configuration management for the llmXive pipeline.
-"""
 import os
 import torch
 from pathlib import Path
@@ -10,97 +7,78 @@ from typing import Optional, List
 @dataclass
 class Config:
     """
-    Central configuration object for the project.
+    Central configuration for the llmXive project.
+    Handles paths, hyperparameters, device detection, and seeds.
     """
-    # Paths
-    root_dir: Path = field(default_factory=lambda: Path(__file__).resolve().parent.parent)
-    data_dir: Path = field(init=False)
-    processed_dir: Path = field(init=False)
-    code_dir: Path = field(init=False)
-    tests_dir: Path = field(init=False)
-    figures_dir: Path = field(init=False)
-    specs_dir: Path = field(init=False)
-
-    # Model settings
-    device: str = "cpu"
-    dtype: str = "float32"
-    seed: int = 42
-
+    # Project paths
+    project_root: Path = field(default_factory=lambda: Path(__file__).parent.parent)
+    data_dir: Path = field(default_factory=lambda: Path("data"))
+    code_dir: Path = field(default_factory=lambda: Path("code"))
+    tests_dir: Path = field(default_factory=lambda: Path("tests"))
+    
+    # Sub-directories
+    raw_data_dir: Path = field(default_factory=lambda: Path("data/raw"))
+    processed_data_dir: Path = field(default_factory=lambda: Path("data/processed"))
+    figures_dir: Path = field(default_factory=lambda: Path("figures"))
+    
     # Hyperparameters
-    batch_size: int = 32
-    num_workers: int = 4
-    max_epochs: int = 10
-
-    # Quantization settings
-    w_bits: int = 4
-    a_bits: int = 4
-    use_rotation: bool = True
+    seed: int = 42
+    batch_size: int = 1
+    max_prompt_length: int = 512
+    
+    # Model settings
+    model_name: str = "FLUX.1-dev"
+    cpu_fallback_model: str = "stabilityai/stable-diffusion-2-1"
+    
+    # Clustering settings
+    n_clusters: int = 16
+    
+    # Device detection
+    device: Optional[str] = None
 
     def __post_init__(self):
-        """Initialize derived paths."""
-        self.code_dir = self.root_dir / "code"
-        self.data_dir = self.root_dir / "data"
-        self.processed_dir = self.data_dir / "processed"
-        self.tests_dir = self.root_dir / "tests"
-        self.figures_dir = self.data_dir / "figures"
-        self.specs_dir = self.root_dir / "specs"
-
+        """Initialize absolute paths and detect device."""
+        # Make paths absolute relative to project root
+        self.data_dir = self.project_root / self.data_dir
+        self.code_dir = self.project_root / self.code_dir
+        self.tests_dir = self.project_root / self.tests_dir
+        self.raw_data_dir = self.data_dir / "raw"
+        self.processed_data_dir = self.data_dir / "processed"
+        self.figures_dir = self.project_root / "figures"
+        
         # Ensure directories exist
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.processed_dir.mkdir(parents=True, exist_ok=True)
+        self.raw_data_dir.mkdir(parents=True, exist_ok=True)
+        self.processed_data_dir.mkdir(parents=True, exist_ok=True)
         self.figures_dir.mkdir(parents=True, exist_ok=True)
-        self.tests_dir.mkdir(parents=True, exist_ok=True)
-
+        
         # Device detection
-        if self.device == "auto":
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        if self.device is None:
+            if torch.cuda.is_available():
+                self.device = "cuda"
+            elif torch.backends.mps.is_available():
+                self.device = "mps"
+            else:
+                self.device = "cpu"
 
-    @classmethod
-    def from_env(cls) -> "Config":
-        """Load configuration from environment variables."""
-        return cls(
-            device=os.getenv("LLMXIVE_DEVICE", "auto"),
-            seed=int(os.getenv("LLMXIVE_SEED", "42")),
-            batch_size=int(os.getenv("LLMXIVE_BATCH_SIZE", "32")),
-        )
+    def get_coco_path(self) -> Path:
+        """Return path to MS-COCO dataset."""
+        return self.raw_data_dir / "coco"
 
-    def save(self, path: Optional[Path] = None):
-        """Save configuration to a JSON file."""
-        if path is None:
-            path = self.root_dir / "config.json"
-        
-        import json
-        data = {
-            "device": self.device,
-            "dtype": self.dtype,
-            "seed": self.seed,
-            "batch_size": self.batch_size,
-            "num_workers": self.num_workers,
-            "max_epochs": self.max_epochs,
-            "w_bits": self.w_bits,
-            "a_bits": self.a_bits,
-            "use_rotation": self.use_rotation,
-        }
-        
-        with open(path, "w") as f:
-            json.dump(data, f, indent=2)
+    def get_processed_prompts_path(self) -> Path:
+        """Return path to processed prompts CSV."""
+        return self.processed_data_dir / "prompts.csv"
 
-    @classmethod
-    def load(cls, path: Path) -> "Config":
-        """Load configuration from a JSON file."""
-        import json
-        
-        with open(path, "r") as f:
-            data = json.load(f)
-        
-        return cls(
-            device=data.get("device", "auto"),
-            dtype=data.get("dtype", "float32"),
-            seed=data.get("seed", 42),
-            batch_size=data.get("batch_size", 32),
-            num_workers=data.get("num_workers", 4),
-            max_epochs=data.get("max_epochs", 10),
-            w_bits=data.get("w_bits", 4),
-            a_bits=data.get("a_bits", 4),
-            use_rotation=data.get("use_rotation", True),
-        )
+    def get_clustering_report_path(self) -> Path:
+        """Return path to clustering report JSON."""
+        return self.processed_data_dir / "clustering_report.json"
+
+    def get_correlation_results_path(self) -> Path:
+        """Return path to correlation results JSON."""
+        return self.processed_data_dir / "correlation_results.json"
+
+    def get_quantized_activations_path(self) -> Path:
+        """Return path to quantized activations JSON."""
+        return self.processed_data_dir / "quantized_activations.json"
+
+# Global config instance
+config = Config()

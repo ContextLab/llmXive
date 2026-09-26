@@ -1,0 +1,2 @@
+# Analysis module initialization
+pass

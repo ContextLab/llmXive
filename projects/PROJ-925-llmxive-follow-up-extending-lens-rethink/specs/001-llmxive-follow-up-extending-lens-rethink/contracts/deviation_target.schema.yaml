@@ -1,33 +1,23 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Deviation Target Schema
-description: Schema for the calculated alignment deviation target (Y).
+description: Schema for the calculated alignment deviation score (Y).
 type: object
-properties:
-  id:
-    type: string
-    description: Unique identifier for the sample
-  clip_score_normalized:
-    type: number
-    format: float
-    description: Z-score or INT normalized CLIP score
-  human_rating_normalized:
-    type: number
-    format: float
-    description: Z-score or INT normalized human rating
-  deviation_score:
-    type: number
-    format: float
-    description: Absolute difference |CLIP_normalized - Human_normalized|
-  is_excluded:
-    type: boolean
-    description: Flag indicating if the row was excluded due to missing data
-  exclusion_reason:
-    type: ["string", "null"]
-    description: Reason for exclusion if is_excluded is true
 required:
-  - id
+  - caption_id
   - clip_score_normalized
   - human_rating_normalized
   - deviation_score
-  - is_excluded
-additionalProperties: false
+properties:
+  caption_id:
+    type: string
+    description: Unique identifier for the caption.
+  clip_score_normalized:
+    type: number
+    description: Z-score or INT normalized CLIP score.
+  human_rating_normalized:
+    type: number
+    description: Z-score or INT normalized human rating.
+  deviation_score:
+    type: number
+    description: Absolute difference |CLIP - Human|.
+    minimum: 0

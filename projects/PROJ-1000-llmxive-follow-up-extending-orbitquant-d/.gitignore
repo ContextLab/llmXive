@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -20,11 +24,76 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+     ipython_config.py
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
-.venv/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# Data files (large datasets)
+data/raw/
+data/processed/
+figures/
+
+# Model checkpoints
+*.bin
+*.ckpt
+*.safetensors
 
 # IDE
 .idea/
@@ -33,26 +102,6 @@ env/
 *.swo
 *~
 
-# Data (large files)
-data/raw/
-data/processed/*.csv
-data/processed/*.json
-data/processed/*.parquet
-data/processed/*.h5
-data/processed/*.pt
-data/processed/*.pth
-
-# Figures
-figures/
-
-# Logs
-*.log
-
 # OS
 .DS_Store
 Thumbs.db
-
-# Temporary files
-tmp/
-temp/
-*.tmp

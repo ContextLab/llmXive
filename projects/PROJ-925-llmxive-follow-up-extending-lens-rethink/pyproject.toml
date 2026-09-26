@@ -1,12 +1,11 @@
 [build-system]
-requires = ["setuptools>=45", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-lens-followup"
+name = "llmxive-follow-up-extending-lens-rethink"
 version = "0.1.0"
-description = "Extended Lens: Rethinking Training Efficiency for Foundational Text-to-Image Models"
-readme = "README.md"
+description = "Extending Lens: Rethinking Training Efficiency for Foundational Text-to-Image Mo"
 requires-python = ">=3.9"
 dependencies = [
     "xgboost",
@@ -22,7 +21,7 @@ dependencies = [
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
@@ -38,12 +37,51 @@ exclude = '''
     | dist
 )/
 '''
-skip-magic-trailing-comma = false
 
 [tool.ruff]
-# Inherits from .ruff.toml but provides project-level defaults
-line-length = 88
+line-length = 100
 target-version = "py39"
+extend-exclude = [
+    "__pycache__",
+    "*.pyc",
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    ".mypy_cache",
+    ".tox",
+    "build",
+    "dist",
+    "data",
+    "results",
+    "archive",
+    "state"
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # complex structure (allow for now in research code)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"code/data/download.py" = ["B028"] # stacklevel in logging (optional)
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
@@ -51,6 +89,3 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.setuptools]
-packages = ["code", "code.utils", "code.models", "code.data", "code.tests", "code.tests.contract"]

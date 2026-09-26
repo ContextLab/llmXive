@@ -992,3 +992,715 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-18T21:30:37Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Verify pip install exit code 0 for requirements.txt
+  claim_id: c_22198cb6
+  context: T002 Initialize Python 3.11 project with requirements.txt containing pinned
+    dependencies.
+  evidence:
+    asserted: '0.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Verify by running `pip install -r requirements.txt` and checking exit
+    code 0.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T00:44:01Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Enforce resource constraints: CPU 2, RAM 7GB, Time 6h'
+  claim_id: c_ac7e6549
+  context: T007 Implement resource constraint wrapper using psutil and cgroups.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce CPU \u2264 2, RAM \u2264 7GB, Time \u2264 6h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:44:01Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Exit code 137 on resource constraint violation
+  claim_id: c_b366b6be
+  context: T007 Implement resource constraint wrapper using psutil and cgroups.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exit code 137 on violation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:44:24Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Log CPU and RAM metrics every 5 seconds
+  claim_id: c_599f1f90
+  context: T006 Setup logging infrastructure with psutil hook.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log cpu_percent and ram_percent every 5 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:44:42Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains at least 100 records with prompt and test
+    keys
+  claim_id: c_947f19d8
+  context: T011 Implement download.py to fetch HumanEval from openai/human-eval.
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_contains_at_least_100_records_with_prompt
+  kind: magnitude
+  raw_text: "File exists, contains \u2265100 records with keys prompt and test."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-26T00:45:13Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Total dataset size must be at least 500 records
+  claim_id: c_fe201332
+  context: T012 Implement download.py to fetch CodeXGLUE and BigCode if needed.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_dataset_size_must_be_at_least_500_records
+  kind: magnitude
+  raw_text: "If total records from HumanEval + CodeXGLUE < 500, fetch additional samples\
+    \ from bigcode/the-stack until total \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:45:36Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Stratified dataset must have at least 30 records per language
+  claim_id: c_5cc16dcb
+  context: T014 Implement stratification and manifest generation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratified_dataset_must_have_at_least_30_records_per_languag
+  kind: magnitude
+  raw_text: "Count \u2265 30 per language stratum (Python, JS, Java)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:46:01Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Total dataset count must be at least 500
+  claim_id: c_706e4e2a
+  context: T014 Implement stratification and manifest generation.
+  evidence:
+    entailment_evidence: Total dataset count must be at least 500
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Total_dataset_count_must_be_at_least_500
+  kind: magnitude
+  raw_text: "Total count \u2265 500."
+  resolved_value: Total dataset count must be at least 500
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T00:46:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Static analysis retry policy: 3 retries, 2s delay, 2.0 multiplier'
+  claim_id: c_85df1ef3
+  context: T018 Implement static_analysis.py with CodeQL CLI execution wrapper.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Retry: Max 3 retries, initial delay 2s, multiplier 2.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:46:32Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Dynamic execution timeout is 30 minutes per snippet
+  claim_id: c_d0440a48
+  context: T027 Implement timeout handling for dynamic execution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 30 minutes per snippet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:47:11Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Send SIGKILL signal on dynamic execution timeout
+  claim_id: c_eb119af6
+  context: T027 Implement timeout handling for dynamic execution.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P646: /m/07klcj'
+      source_id: Q1753577
+      url: https://www.wikidata.org/wiki/Q1753577
+      value: /m/07klcj
+    filled: true
+  kind: entity_fact
+  raw_text: Use psutil to send SIGKILL on timeout.
+  resolved_value: /m/07klcj
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T00:47:20Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweep for alpha values 0.01, 0.05, and 0.1
+  claim_id: c_f0e16676
+  context: T029 Implement sensitivity analysis sweep as required by FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:47:47Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Apply Bonferroni correction for multiple independent statistical tests
+    across languages
+  claim_id: c_2987a204
+  context: T030 Implement Bonferroni correction for multiple independent statistical
+    tests.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_multiple_independent_statist
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction for multiple independent statistical tests
+    (across languages) as per Plan.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:48:16Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 0
+  canonical: Project dependencies pinned to datasets 2.14.0, pandas 2.0.3, scipy 1.11.0,
+    pytest 7.4.0, requests 2.31.0, pyyaml 6.0.1, psutil 5.9.5
+  claim_id: c_e78d154d
+  context: 'Phase 1: Setup - T002 Initialize Python 3.11 project with pinned dependencies.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: datasets==2.14.0, pandas==2.0.3, scipy==1.11.0,
+    pytest==7.4.0, requests==2.31.0, pyyaml==6.0.1, psutil==5.9.5.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T00:48:34Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Linting max-line-length set to 88
+  claim_id: c_ea1d9b34
+  context: 'Phase 1: Setup - T003 Configure linting and formatting.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create .flake8 with max-line-length=88 and pyproject.toml with [tool.black]
+    line-length = 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:49:02Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Resource constraints: CPU 2, RAM 7GB, Time 6h'
+  claim_id: c_c090fdc5
+  context: 'Phase 2: Foundational - T007 Implement resource constraint wrapper.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Enforce CPU \u2264 2, RAM \u2264 7GB, Time \u2264 6h."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:49:02Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Logging resource metrics every 5 seconds
+  claim_id: c_164ecaa5
+  context: 'Phase 2: Foundational - T006 Setup logging infrastructure.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log cpu_percent and ram_percent every 5 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:49:02Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset contains at least 100 records with prompt and test
+    keys
+  claim_id: c_a5804569
+  context: 'Phase 3: User Story 1 - T011 Implement download logic for HumanEval.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_contains_at_least_100_records_with_prompt
+  kind: magnitude
+  raw_text: "Fetch HumanEval (Python) from openai/human-eval to data/raw/humaneval.json.\
+    \ Verify: File exists, contains \u2265100 records with keys prompt and test."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:49:27Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Total dataset size target is at least 500 records
+  claim_id: c_79c67601
+  context: 'Phase 3: User Story 1 - T012 Implement download logic for CodeXGLUE and
+    BigCode.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_dataset_size_target_is_at_least_500_records
+  kind: magnitude
+  raw_text: "If total records from HumanEval + CodeXGLUE < 500, fetch additional samples\
+    \ from bigcode/the-stack until total \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:49:29Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Stratification requires at least 30 samples per language and 500 total
+  claim_id: c_2c7a6108
+  context: 'Phase 3: User Story 1 - T014 Implement stratification and manifest generation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratification_requires_at_least_30_samples_per_language_and
+  kind: magnitude
+  raw_text: "Verify: Count \u2265 30 per language stratum (Python, JS, Java) AND total\
+    \ count \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:49:59Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Static analysis retry policy: 3 retries, 2s delay, 2.0 multiplier'
+  claim_id: c_b1ecfed4
+  context: 'Phase 4: User Story 2 - T018 Implement CodeQL CLI execution wrapper.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Retry: Max 3 retries, initial delay 2s, multiplier 2.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:49:59Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis alpha values: 0.01, 0.05, 0.1'
+  claim_id: c_fd92a8d7
+  context: 'Phase 5: User Story 3 - T029 Implement sensitivity analysis sweep.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:49:59Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Dynamic analysis timeout set to 30 minutes per snippet
+  claim_id: c_12e34806
+  context: 'Phase 5: User Story 3 - T027 Implement timeout handling for dynamic execution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement timeout handling for dynamic execution: Max 30 minutes per
+    snippet.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:50:25Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 0
+  canonical: 'Project initialized with Python 3.11 and specific pinned dependency
+    versions: datasets 2.14.0, pandas 2.0.3, scipy 1.11.0, pytest 7.4.0, requests
+    2.31.0, pyyaml 6.0.1, psutil 5.9.5'
+  claim_id: c_af2d7529
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: datasets==2.14.0, pandas==2.0.3, scipy==1.11.0,
+    pytest==7.4.0, requests==2.31.0, pyyaml==6.0.1, psutil==5.9.5.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T00:50:58Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Download and verify at least 500 code snippets from HumanEval, CodeXGLUE,
+    and TheStack across Python, JS, and Java
+  claim_id: c_746b84d1
+  context: 'Phase 3: User Story 1 - Data Ingestion & Validation (Priority: P1) Goal'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_and_verify_at_least_500_code_snippets_from_HumanEva
+  kind: magnitude
+  raw_text: "Download and verify \u2265500 code snippets from HumanEval, CodeXGLUE,\
+    \ and BigCode (TheStack) across Python, JS, and Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:51:21Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset from openai/human-eval contains at least 100 records
+    with keys prompt and test
+  claim_id: c_b4b07c84
+  context: 'Phase 3: User Story 1 - Implementation Task T011'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_from_openai/human-eval_contains_at_least_1
+  kind: magnitude
+  raw_text: "Fetch HumanEval (Python) from openai/human-eval to data/raw/humaneval.json.\
+    \ Verify: File exists, contains \u2265100 records with keys prompt and test."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:51:24Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Total records from HumanEval and CodeXGLUE combined are less than 500
+  claim_id: c_879a0262
+  context: 'Phase 3: User Story 1 - Implementation Task T012'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_records_from_HumanEval_and_CodeXGLUE_combined_are_less
+  kind: magnitude
+  raw_text: "If total records from HumanEval + CodeXGLUE < 500, fetch additional samples\
+    \ from bigcode/the-stack until total \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:51:26Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Data stratification requires at least 30 records per language stratum
+    and a total of at least 500 records
+  claim_id: c_b2572dfd
+  context: 'Phase 3: User Story 1 - Implementation Task T014'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_stratification_requires_at_least_30_records_per_languag
+  kind: magnitude
+  raw_text: "Verify: Count \u2265 30 per language stratum (Python, JS, Java) AND total\
+    \ count \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:51:28Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Resource constraints enforced are CPU less than or equal to 2, RAM less
+    than or equal to 7GB, and Time less than or equal to 6 hours
+  claim_id: c_6052d5ba
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T007'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Resource_constraints_enforced_are_CPU_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "Enforce CPU \u2264 2, RAM \u2264 7GB, Time \u2264 6h. Exit code 137 on\
+    \ violation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:51:54Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Logging hook records CPU and RAM percentages every 5 seconds
+  claim_id: c_b8be99e3
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T006'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logging hook to log cpu_percent and ram_percent every 5 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:52:08Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Static analysis retry logic configured for maximum 3 retries with 2 second
+    initial delay and 2.0 multiplier
+  claim_id: c_b36f3e7e
+  context: 'Phase 4: User Story 2 - Implementation Task T018'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Retry: Max 3 retries, initial delay 2s, multiplier 2.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:52:08Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Dynamic analysis execution timeout is set to 30 minutes per snippet
+  claim_id: c_60a0cf40
+  context: 'Phase 5: User Story 3 - Implementation Task T027'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 30 minutes per snippet. Use psutil to send SIGKILL on timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:52:25Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 0
+  canonical: Python 3.11 project with datasets 2.14.0, pandas 2.0.3, scipy 1.11.0,
+    pytest 7.4.0, requests 2.31.0, pyyaml 6.0.1, psutil 5.9.5
+  claim_id: c_cb30cc07
+  context: T002 Initialize Python 3.11 project with requirements.txt containing pinned
+    dependencies.
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
+    containing pinned dependencies: datasets==2.14.0, pandas==2.0.3, scipy==1.11.0,
+    pytest==7.4.0, requests==2.31.0, pyyaml==6.0.1, psutil==5.9.5.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T00:53:39Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Download and verify at least 500 code snippets from HumanEval, CodeXGLUE,
+    and BigCode across Python, JS, and Java
+  claim_id: c_58f8f93f
+  context: 'Phase 3: User Story 1 - Data Ingestion & Validation (Priority: P1) Goal.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Download_and_verify_at_least_500_code_snippets_from_HumanEva
+  kind: magnitude
+  raw_text: "Goal: Download and verify \u2265500 code snippets from HumanEval, CodeXGLUE,\
+    \ and BigCode (TheStack) across Python, JS, and Java."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:54:00Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval file contains at least 100 records with keys prompt and test
+  claim_id: c_c953daf8
+  context: T011 Implement code/download.py to fetch HumanEval (Python) from openai/human-eval
+    to data/raw/humaneval.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HumanEval_file_contains_at_least_100_records_with_keys_promp
+  kind: magnitude
+  raw_text: "Verify: File exists, contains \u2265100 records with keys prompt and\
+    \ test."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:54:30Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: At least 30 records per language stratum and total count of at least
+    500
+  claim_id: c_32f07e71
+  context: 'T014 Implement stratification and manifest generation: Combine all downloaded
+    data into data/manifest.csv.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_30_records_per_language_stratum_and_total_count_of
+  kind: magnitude
+  raw_text: "Verify: Count \u2265 30 per language stratum (Python, JS, Java) AND total\
+    \ count \u2265 500."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:54:33Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Resource constraints: CPU less than or equal to 2, RAM less than or
+    equal to 7GB, Time less than or equal to 6 hours'
+  claim_id: c_9e18c2f0
+  context: 'T007 Implement resource constraint wrapper: Create code/resource_guard.py
+    using psutil and cgroups.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Resource_constraints:_CPU_less_than_or_equal_to_2,_RAM_less
+  kind: magnitude
+  raw_text: "Enforce CPU \u2264 2, RAM \u2264 7GB, Time \u2264 6h."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:54:56Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Execute statistical tests for alpha values 0.01, 0.05, and 0.1
+  claim_id: c_21eaa25f
+  context: 'T029 Implement sensitivity analysis sweep: Execute statistical tests for
+    each alpha in the set {0.01, 0.05, 0.1} as required by FR-007.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute statistical tests for each alpha in the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:54:57Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Maximum execution time of 30 minutes per snippet
+  claim_id: c_c5b0f755
+  context: 'T027 Implement timeout handling for dynamic execution: Max 30 minutes
+    per snippet.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 30 minutes per snippet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:54:57Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Retry logic: Maximum 3 retries, initial delay 2 seconds, multiplier
+    2.0'
+  claim_id: c_107ee3b3
+  context: T018 Implement code/static_analysis.py with CodeQL CLI execution wrapper.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Retry: Max 3 retries, initial delay 2s, multiplier 2.0.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T00:54:57Z'

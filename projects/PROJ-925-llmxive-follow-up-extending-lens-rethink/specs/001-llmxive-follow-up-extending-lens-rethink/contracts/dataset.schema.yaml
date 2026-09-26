@@ -1,29 +1,19 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Pick-a-Pic Dataset Schema
-description: Schema for the raw pick-a-pic dataset used in the llmXive project.
+description: Schema for the raw pick-a-pic dataset used in the llmXive pipeline.
 type: object
-properties:
-  id:
-    type: string
-    description: Unique identifier for the sample
-  caption:
-    type: string
-    description: The text caption associated with the image
-  human_rating:
-    type: number
-    format: float
-    description: Human preference rating (0-1 scale or 0-5 scale depending on source)
-  clip_score:
-    type: number
-    format: float
-    description: Pre-computed CLIP similarity score
-  image_url:
-    type: string
-    format: uri
-    description: URL to the source image
 required:
-  - id
-  - caption
-  - human_rating
-  - clip_score
+  - columns
+properties:
+  columns:
+    type: array
+    description: List of required column names in the dataset.
+    items:
+      type: string
+    contains:
+      const: human_rating
+    contains:
+      const: clip_score
+    contains:
+      const: prompt
 additionalProperties: true

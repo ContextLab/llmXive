@@ -1,49 +1,60 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Dataset Manifest Schema
-description: Schema for the manifest file tracking all downloaded data.
+description: Manifest tracking all downloaded datasets and their stratification.
 type: object
 required:
-  - manifest_version
+  - version
   - generated_at
   - total_records
+  - strata
   - records
 properties:
-  manifest_version:
+  version:
     type: string
-    description: Version of the manifest schema.
+    description: Manifest format version
   generated_at:
     type: string
     format: date-time
-    description: Timestamp of manifest generation.
+    description: Timestamp of manifest generation
   total_records:
     type: integer
-    minimum: 0
-    description: Total number of records in the manifest.
+    minimum: 1
+    description: Total number of records in the manifest
+  strata:
+    type: object
+    description: Counts per language stratum
+    additionalProperties:
+      type: integer
+      minimum: 0
   records:
     type: array
     items:
       type: object
       required:
         - id
-        - source
         - language
+        - source
         - stratum
         - static_only
         - file_path
       properties:
         id:
           type: string
-        source:
-          type: string
         language:
           type: string
+          enum: [python, javascript, java]
+        source:
+          type: string
+          enum: [humaneval, codexglue, the-stack]
         stratum:
           type: string
+          description: Stratification label (e.g., "python", "javascript", "java")
         static_only:
           type: boolean
+          description: Whether this record is excluded from dynamic analysis
         file_path:
           type: string
+          description: Relative path to the raw data file
         checksum:
           type: string
-    description: List of record summaries.
-additionalProperties: false
+          description: SHA256 checksum of the record data

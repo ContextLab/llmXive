@@ -1,36 +1,64 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Analysis Results Schema
-description: Schema for aggregated analysis results per snippet.
+description: Aggregated results from both static and dynamic analysis.
 type: object
 required:
-  - dataset_id
-  - static_issues_count
-  - dynamic_pass
-  - static_tool_used
-  - dynamic_tool_used
+  - snippet_id
+  - static_results
+  - dynamic_results
+  - correlation
 properties:
-  dataset_id:
+  snippet_id:
     type: string
-    description: Reference to the dataset record.
-  static_issues_count:
-    type: integer
-    minimum: 0
-    description: Number of issues found by static analysis.
-  dynamic_pass:
-    type: boolean
-    description: Whether the dynamic tests passed.
-  static_tool_used:
+    description: Unique identifier for the code snippet
+  language:
     type: string
-    description: The static analysis tool that produced results.
-  dynamic_tool_used:
-    type: string
-    description: The dynamic analysis tool that produced results.
-  static_issues:
-    type: array
-    items:
-      type: object
-    description: Detailed list of static issues.
-  dynamic_output:
-    type: string
-    description: Raw output from dynamic tests.
-additionalProperties: false
+    description: Programming language
+  static_results:
+    type: object
+    properties:
+      tool:
+        type: string
+      issue_count:
+        type: integer
+        minimum: 0
+      issue_density:
+        type: number
+        minimum: 0
+        description: Issues per 100 lines of code
+      issues:
+        type: array
+        items:
+          type: object
+  dynamic_results:
+    type: object
+    properties:
+      tool:
+        type: string
+      total_tests:
+        type: integer
+        minimum: 0
+      passed_tests:
+        type: integer
+        minimum: 0
+      failed_tests:
+        type: integer
+        minimum: 0
+      pass_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Ratio of passed tests
+      is_untestable:
+        type: boolean
+        description: True if no tests were found
+  correlation:
+    type: object
+    properties:
+      static_issue_detected:
+        type: boolean
+      dynamic_test_failed:
+        type: boolean
+      match:
+        type: boolean
+        description: True if static issue aligns with dynamic failure

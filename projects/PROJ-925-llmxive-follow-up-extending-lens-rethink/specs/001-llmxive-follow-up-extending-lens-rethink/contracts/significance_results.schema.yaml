@@ -1,75 +1,49 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Significance Results Schema
-description: Schema for the output of permutation importance and sensitivity analysis.
+description: Schema for the output of permutation tests and feature importance ranking.
 type: object
+required:
+  - features
+  - p_values
+  - is_significant
+  - method
+  - n_iterations
+  - alpha
 properties:
-  model_config:
-    type: object
-    properties:
-      model_type:
-        type: string
-      n_estimators:
-        type: integer
-      max_depth:
-        type: integer
-      random_seed:
-        type: integer
-    required:
-      - model_type
-      - random_seed
-  permutation_importance:
+  features:
     type: array
     items:
-      type: object
-      properties:
-        feature_name:
-          type: string
-        mean_decrease:
-          type: number
-        std_decrease:
-          type: number
-        p_value:
-          type: number
-        is_significant:
-          type: boolean
-        adjusted_p_value:
-          type: number
-      required:
-        - feature_name
-        - mean_decrease
-        - p_value
-        - adjusted_p_value
-        - is_significant
-  sensitivity_analysis:
+      type: string
+    description: List of feature names in order.
+  p_values:
+    type: array
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    description: P-values for each feature.
+  is_significant:
+    type: array
+    items:
+      type: boolean
+    description: Boolean flag indicating significance after BH correction.
+  method:
+    type: string
+    description: Name of the correction method used (e.g., Benjamini-Hochberg).
+  n_iterations:
+    type: integer
+    minimum: 1
+    description: Number of permutation iterations.
+  alpha:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Significance threshold.
+  stability_metrics:
     type: object
+    description: Optional metrics for seed/threshold sensitivity.
     properties:
       alpha_sweep_results:
         type: object
-        description: Results aggregated across alpha thresholds {0.01, 0.05, 0.1}
       seed_sweep_results:
         type: object
-        description: Results aggregated across random seeds
-      noise_sensitivity_results:
-        type: object
-        description: Results aggregated across noise injection levels
-    required:
-      - alpha_sweep_results
-      - seed_sweep_results
-  metadata:
-    type: object
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-      total_samples:
-        type: integer
-      significant_features_count:
-        type: integer
-    required:
-      - timestamp
-      - total_samples
-required:
-  - model_config
-  - permutation_importance
-  - sensitivity_analysis
-  - metadata

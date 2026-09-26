@@ -1,0 +1,2 @@
+# Validation module initialization
+pass

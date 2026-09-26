@@ -1,228 +1,232 @@
 """
 Validation utilities for the llmXive pipeline.
 
-Implements schema validation for feature vectors and raw dataset availability checks.
+This module implements strict schema validation for feature vectors and raw datasets
+to enforce the Single Source of Truth principle.
 """
 import os
 import sys
 import logging
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Union
 
 import pandas as pd
 import yaml
-from pydantic import BaseModel, ValidationError
-from pydantic.config import ConfigDict
+from pydantic import BaseModel, Field, ValidationError
+from pydantic import create_model
 
-# Import project utilities
-from config import get_project_root, get_paths
+# Local imports
+from config import get_paths
 from utils.errors import DataSchemaError, create_missing_dataset_error
 from utils.logging import get_logger
 
-# Import models if needed for validation context
-from models.linguistic_feature_vector import LinguisticFeatureVector
-
 logger = get_logger(__name__)
+
 
 def load_schema(schema_path: str) -> Dict[str, Any]:
     """
-    Load a JSON Schema from a YAML file.
-    
+    Load a JSON/YAML schema from disk.
+
     Args:
-        schema_path: Path to the schema file (relative to project root or absolute).
-        
+        schema_path: Path to the schema file.
+
     Returns:
         Dictionary containing the schema definition.
-        
+
     Raises:
         FileNotFoundError: If the schema file does not exist.
-        yaml.YAMLError: If the file is not valid YAML.
+        ValueError: If the schema is invalid JSON/YAML.
     """
     path = Path(schema_path)
-    if not path.is_absolute():
-        project_root = get_project_root()
-        path = project_root / schema_path
-        
     if not path.exists():
-        raise FileNotFoundError(f"Schema file not found: {path}")
-        
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+
     with open(path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
+        try:
+            if path.suffix in ['.yaml', '.yml']:
+                return yaml.safe_load(f)
+            else:
+                return json.load(f)
+        except (json.JSONDecodeError, yaml.YAMLError) as e:
+            raise ValueError(f"Invalid schema format in {schema_path}: {e}")
+
+
+def _schema_to_pydantic_model(schema: Dict[str, Any], model_name: str = "DynamicSchema") -> type[BaseModel]:
+    """
+    Convert a JSON Schema dict into a Pydantic model dynamically.
+
+    This allows us to validate DataFrames against the contract defined in YAML.
+    """
+    properties = schema.get('properties', {})
+    required_fields = schema.get('required', [])
+
+    field_definitions = {}
+    for field_name, field_schema in properties.items():
+        field_type = field_schema.get('type', 'string')
+        description = field_schema.get('description', '')
+
+        # Map JSON Schema types to Python types
+        if field_type == 'string':
+            py_type = str
+        elif field_type == 'integer':
+            py_type = int
+        elif field_type == 'number':
+            py_type = float
+        elif field_type == 'boolean':
+            py_type = bool
+        else:
+            py_type = Any
+
+        # Determine if optional or required
+        if field_name in required_fields:
+            field_definitions[field_name] = (py_type, Field(..., description=description))
+        else:
+            field_definitions[field_name] = (Optional[py_type], Field(None, description=description))
+
+    return create_model(model_name, **field_definitions)
+
 
 def validate_dataframe(df: pd.DataFrame, schema: Dict[str, Any]) -> None:
     """
-    Validate a DataFrame against a JSON Schema definition.
-    
-    This function checks:
-    1. Presence of all required columns.
-    2. Data types match the schema (string, integer, number).
-    3. Value constraints (minimum, maximum) where defined.
-    
+    Validate a DataFrame against a JSON Schema using Pydantic.
+
     Args:
         df: The DataFrame to validate.
-        schema: The schema dictionary loaded from YAML.
-        
+        schema: The schema definition.
+
     Raises:
         ValueError: If the DataFrame does not match the schema.
+        DataSchemaError: If required columns are missing.
     """
-    properties = schema.get('properties', {})
-    required_cols = properties.get('required', [])
-    schema_props = properties.get('properties', {})
-    
-    # 1. Check required columns
-    missing_cols = []
-    for col in required_cols:
-        if col not in df.columns:
-            missing_cols.append(col)
-            
+    required_cols = schema.get('required', [])
+    missing_cols = [col for col in required_cols if col not in df.columns]
+
     if missing_cols:
-        raise ValueError(f"DataFrame missing required columns: {missing_cols}")
-        
-    # 2. Validate each column's type and constraints
-    for col_name, col_schema in schema_props.items():
-        if col_name not in df.columns:
-            continue
-            
-        col_type = col_schema.get('type')
-        min_val = col_schema.get('minimum')
-        max_val = col_schema.get('maximum')
-        
-        series = df[col_name]
-        
-        # Type checking
-        if col_type == 'string':
-            if not pd.api.types.is_string_dtype(series) and not pd.api.types.is_object_dtype(series):
-                # Allow object dtype for strings in pandas
-                pass 
-            # Check for non-string values if strictly typed
-            if not all(isinstance(x, str) or pd.isna(x) for x in series):
-                raise ValueError(f"Column '{col_name}' contains non-string values.")
-                
-        elif col_type == 'integer':
-            if not pd.api.types.is_integer_dtype(series) and not pd.api.types.is_float_dtype(series):
-                # Float might be used for integer columns in some contexts, but strict check
-                if not all(isinstance(x, int) or pd.isna(x) for x in series):
-                    raise ValueError(f"Column '{col_name}' contains non-integer values.")
-                    
-        elif col_type == 'number':
-            if not pd.api.types.is_numeric_dtype(series):
-                raise ValueError(f"Column '{col_name}' contains non-numeric values.")
-                
-        # Range constraints
-        if min_val is not None:
-            if series.min() < min_val:
-                raise ValueError(f"Column '{col_name}' has values below minimum {min_val}. Found min: {series.min()}")
-                
-        if max_val is not None:
-            if series.max() > max_val:
-                raise ValueError(f"Column '{col_name}' has values above maximum {max_val}. Found max: {series.max()}")
+        raise DataSchemaError(f"Missing required columns in DataFrame: {missing_cols}")
+
+    # Check for extra columns not in schema (optional strictness, usually we just check required)
+    # For this task, we focus on required structure and types.
+
+    model_class = _schema_to_pydantic_model(schema)
+
+    # Convert DataFrame to list of dicts for validation
+    # We only validate the rows that are present
+    try:
+        for idx, row in df.iterrows():
+            # Filter row to only include schema properties to avoid extra key errors
+            # unless the schema allows 'additionalProperties': true (which we assume not for strict contracts)
+            row_dict = {k: v for k, v in row.items() if k in schema.get('properties', {})}
+            model_class(**row_dict)
+    except ValidationError as e:
+        raise ValueError(f"DataFrame validation failed: {e}")
+
 
 def validate_raw_dataset_availability(raw_data_path: str, required_columns: List[str]) -> None:
     """
     Validate that the raw dataset exists and contains required columns.
-    
+
+    This implements FR-003: Validate raw dataset availability and 'human_rating' column presence.
+
     Args:
-        raw_data_path: Path to the raw data file (e.g., parquet).
+        raw_data_path: Path to the raw parquet file.
         required_columns: List of column names that must exist.
-        
+
     Raises:
-        DataSchemaError: If the file is missing or columns are absent.
+        DataSchemaError: If file is missing or columns are absent.
     """
     path = Path(raw_data_path)
-    if not path.is_absolute():
-        project_root = get_project_root()
-        path = project_root / raw_data_path
-        
     if not path.exists():
-        # Format error message as per T004b requirement
-        # Assuming source is 'pick-a-pic' based on context
-        raise DataSchemaError(create_missing_dataset_error("pick-a-pic", required_columns[0]))
-        
-    try:
-        # Try to load just the schema/columns to avoid reading full data
-        if path.suffix == '.parquet':
-            df_check = pd.read_parquet(path, columns=required_columns)
-        elif path.suffix == '.csv':
-            df_check = pd.read_csv(path, usecols=required_columns)
-        else:
-            # Fallback: try to read full and check
-            df_check = pd.read_parquet(path) if path.suffix == '.parquet' else pd.read_csv(path)
-            
-        missing_cols = [col for col in required_columns if col not in df_check.columns]
-        if missing_cols:
-            # Determine the first missing column for the error message
-            raise DataSchemaError(create_missing_dataset_error("pick-a-pic", missing_cols[0]))
-            
-    except Exception as e:
-        # If we can't read it, it's a schema/data integrity issue
-        if isinstance(e, DataSchemaError):
-            raise e
-        raise DataSchemaError(f"Failed to read raw dataset or validate columns: {str(e)}")
+        raise DataSchemaError(f"Raw dataset not found at: {raw_data_path}")
 
-def validate_feature_vector_schema(df: pd.DataFrame, schema_path: str) -> None:
+    try:
+        # Read just the schema/columns to avoid loading full data if huge
+        # Using pyarrow or pandas with nrows=0 is efficient
+        df = pd.read_parquet(path, columns=required_columns[:1]) # Read minimal to check existence
+        available_cols = set(df.columns)
+
+        missing = [col for col in required_columns if col not in available_cols]
+        if missing:
+            # Format error message per T004b requirement
+            # Assuming the source is 'pick-a-pic' based on context
+            raise DataSchemaError(f"Missing required dataset or column: pick-a-pic/{missing[0]}")
+
+    except Exception as e:
+        if isinstance(e, DataSchemaError):
+            raise
+        raise DataSchemaError(f"Failed to validate raw dataset at {raw_data_path}: {e}")
+
+
+def validate_feature_vector_schema(df: pd.DataFrame) -> None:
     """
-    Validate a feature vector DataFrame against the specified schema.
-    
+    Main entry point for validating the feature vector DataFrame.
+
+    1. Loads the contract from `specs/.../contracts/feature_vector.schema.yaml`.
+    2. Validates the DataFrame structure and types.
+    3. Validates the raw dataset availability (human_rating) before feature validation.
+
     Args:
-        df: The feature vector DataFrame.
-        schema_path: Path to the feature_vector.schema.yaml file.
-        
+        df: The DataFrame containing extracted features.
+
     Raises:
         ValueError: If validation fails.
-        FileNotFoundError: If schema file is missing.
+        DataSchemaError: If raw data requirements are not met.
     """
-    logger.info(f"Validating feature vector DataFrame against schema: {schema_path}")
-    
-    schema = load_schema(schema_path)
+    paths = get_paths()
+    schema_path = paths.project_root / "specs" / "001-llmxive-follow-up-extending-lens-rethink" / "contracts" / "feature_vector.schema.yaml"
+    raw_data_path = paths.project_root / "data" / "raw" / "pick-a-pic.parquet"
+
+    logger.info(f"Validating feature vector schema against {schema_path}")
+
+    # 1. Validate Raw Dataset Availability (FR-003)
+    # We must ensure the source data had 'human_rating' before we trust the features derived from it
+    # even though features might not directly contain it, the pipeline integrity depends on it.
+    validate_raw_dataset_availability(str(raw_data_path), ['human_rating'])
+
+    # 2. Load Schema
+    schema = load_schema(str(schema_path))
+
+    # 3. Validate DataFrame
     validate_dataframe(df, schema)
-    
+
     logger.info("Feature vector schema validation passed.")
 
-def main():
+
+def main() -> None:
     """
-    Main entry point for standalone validation execution.
-    
-    Usage:
-        python code/utils/validation.py --features data/processed/features.csv --schema specs/001-llmxive-follow-up-extending-lens-rethink/contracts/feature_vector.schema.yaml --raw data/raw/pick-a-pic.parquet
+    CLI entry point for T018a.
+
+    Loads the processed features CSV (produced by T017/T018b),
+    validates it against the schema, and exits.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Validate feature vectors and raw dataset schema.")
-    parser.add_argument("--features", required=True, help="Path to the features CSV file.")
-    parser.add_argument("--schema", required=True, help="Path to the feature vector schema YAML.")
-    parser.add_argument("--raw", required=True, help="Path to the raw dataset file.")
-    parser.add_argument("--raw-cols", nargs="+", default=["human_rating"], help="Required columns in raw dataset.")
-    
-    args = parser.parse_args()
-    
-    setup_logging()
-    
+    paths = get_paths()
+    features_path = paths.project_root / "data" / "processed" / "features.csv"
+
+    if not features_path.exists():
+        logger.error(f"Features file not found: {features_path}")
+        logger.error("Run code/data/features.py first to generate features.")
+        sys.exit(1)
+
     try:
-        # 1. Validate Raw Dataset
-        logger.info(f"Checking raw dataset availability: {args.raw}")
-        validate_raw_dataset_availability(args.raw, args.raw_cols)
-        logger.info(f"Raw dataset validation passed for columns: {args.raw_cols}")
-        
-        # 2. Load Features
-        logger.info(f"Loading features from: {args.features}")
-        df_features = pd.read_csv(args.features)
-        logger.info(f"Loaded {len(df_features)} feature records.")
-        
-        # 3. Validate Features against Schema
-        validate_feature_vector_schema(df_features, args.schema)
-        
-        logger.info("All validations passed successfully.")
-        
+        logger.info(f"Loading features from {features_path}")
+        df = pd.read_csv(features_path)
+
+        logger.info(f"Loaded {len(df)} rows. Validating...")
+        validate_feature_vector_schema(df)
+
+        logger.info("SUCCESS: All validations passed.")
+        sys.exit(0)
+
     except DataSchemaError as e:
         logger.critical(f"Data Schema Error: {e}")
         sys.exit(1)
     except ValueError as e:
-        logger.error(f"Validation Error: {e}")
+        logger.critical(f"Validation Error: {e}")
         sys.exit(1)
     except Exception as e:
         logger.exception(f"Unexpected error during validation: {e}")
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

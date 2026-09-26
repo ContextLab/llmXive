@@ -1,56 +1,22 @@
-# Pre-commit hooks for llmXive project
-# Ensures code quality before every commit
-
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
-        files: \.py$
       - id: end-of-file-fixer
-        files: \.py$
       - id: check-yaml
-        files: \.ya?ml$
-      - id: check-json
-        files: \.json$
       - id: check-added-large-files
-        args: ['--maxkb=10240']
-      - id: detect-private-key
-      - id: check-merge-conflict
+        args: ['--maxkb=10240'] # 10MB limit
+
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        language_version: python3.9
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.9
+    rev: v0.3.4
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
-        name: ruff-format (black compatible)
-
-  - repo: https://github.com/psf/black
-    rev: 23.12.1
-    hooks:
-      - id: black
-        language_version: python3.9
-        additional_dependencies: ['click>=8.0.0']
-
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
-    hooks:
-      - id: flake8
-        additional_dependencies: [
-            'flake8-bugbear',
-            'flake8-comprehensions',
-            'flake8-print',
-        ]
-        args: ['--max-line-length=88', '--extend-ignore=E203,E501']
-
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.8.0
-    hooks:
-      - id: mypy
-        additional_dependencies: [
-            'types-pyyaml',
-            'types-requests',
-            'types-setuptools',
-        ]
-        args: ['--ignore-missing-imports', '--no-strict-optional']

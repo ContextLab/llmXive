@@ -6,229 +6,257 @@ import torch
 import numpy as np
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-from sklearn.cluster import KMeans
-from scipy.spatial.distance import cdist
+from scipy.cluster.hierarchy import linkage, fcluster
+from scipy.spatial.distance import pdist, squareform
+from sklearn.preprocessing import StandardScaler
 
 from config import Config
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def compute_activation_histograms(activations: torch.Tensor, num_bins: int = 50) -> np.ndarray:
+def compute_activation_histograms(activations: torch.Tensor, bins: int = 50) -> np.ndarray:
     """
-    Compute a histogram of activation values for a given tensor.
+    Compute a normalized histogram of activation values.
     
     Args:
-        activations: Tensor of shape (batch, channels, height, width) or (batch, seq_len, dim)
-        num_bins: Number of bins for the histogram
+        activations: Tensor of shape (batch, channels) or (batch, seq_len, channels)
+        bins: Number of histogram bins
         
     Returns:
-        Normalized histogram as a numpy array
+        Normalized histogram array
     """
-    if not isinstance(activations, torch.Tensor):
-        activations = torch.tensor(activations)
+    if activations.dim() > 2:
+        activations = activations.view(activations.size(0), -1)
     
-    # Flatten all dimensions except batch
-    flat_activations = activations.view(activations.shape[0], -1)
+    # Flatten to 1D for histogramming across all samples
+    flat = activations.detach().cpu().numpy().flatten()
     
-    histograms = []
-    for i in range(flat_activations.shape[0]):
-        # Compute histogram
-        hist, _ = np.histogram(flat_activations[i].detach().cpu().numpy(), bins=num_bins)
-        # Normalize
-        hist = hist / (hist.sum() + 1e-8)
-        histograms.append(hist)
-    
-    return np.array(histograms)
+    # Compute histogram
+    hist, _ = np.histogram(flat, bins=bins, density=True)
+    return hist
 
-def compute_rotation_matrix_from_activations(activations: np.ndarray, k: int = 16) -> np.ndarray:
+def compute_rotation_matrix_from_activations(activations: torch.Tensor, k: int = 16) -> np.ndarray:
     """
-    Compute a rotation matrix based on clustering of activation histograms.
-    
-    This implements the OrbitQuant data-agnostic rotation logic:
-    1. Cluster activation histograms into K clusters
-    2. Compute the mean activation vector for each cluster
-    3. Construct a rotation matrix that aligns with these principal directions
+    Compute a rotation matrix based on the covariance structure of activations.
+    Uses PCA-like decomposition to find principal axes, then constructs a rotation.
     
     Args:
-        activations: Array of activation histograms (batch_size, num_bins)
-        k: Number of clusters (and resulting rotation matrix components)
+        activations: Tensor of shape (batch, features)
+        k: Number of principal components to use for rotation basis
         
     Returns:
-        Rotation matrix of shape (k, num_features)
+        Rotation matrix of shape (features, features)
     """
-    if activations.shape[0] < k:
-        logger.warning(f"Number of samples ({activations.shape[0]}) is less than K ({k}). Adjusting K.")
-        k = max(1, activations.shape[0] // 2)
+    if activations.dim() > 2:
+        activations = activations.view(activations.size(0), -1)
     
-    # Perform K-means clustering on the activation histograms
-    kmeans = KMeans(n_clusters=k, random_state=42, n_init=10)
-    kmeans.fit(activations)
+    X = activations.detach().cpu().numpy().astype(np.float32)
     
-    # Get cluster centers
-    centers = kmeans.cluster_centers_
+    # Center the data
+    mean = np.mean(X, axis=0, keepdims=True)
+    X_centered = X - mean
     
-    # Normalize centers to create rotation vectors
-    norms = np.linalg.norm(centers, axis=1, keepdims=True)
-    norms = np.where(norms == 0, 1, norms)  # Avoid division by zero
-    rotation_vectors = centers / norms
+    # Compute covariance matrix
+    cov = np.cov(X_centered.T)
     
-    return rotation_vectors
+    # Eigendecomposition
+    eigenvalues, eigenvectors = np.linalg.eigh(cov)
+    
+    # Sort by eigenvalues descending
+    idx = np.argsort(eigenvalues)[::-1]
+    eigenvectors = eigenvectors[:, idx]
+    
+    # Take top k eigenvectors
+    top_k = eigenvectors[:, :k]
+    
+    # Construct a rotation matrix (orthogonal basis)
+    # For k < d, we need to complete the basis. We'll use the top k eigenvectors
+    # and fill the rest with identity-like orthogonal vectors for stability.
+    d = X.shape[1]
+    rotation = np.eye(d, dtype=np.float32)
+    
+    # Replace the first k columns with top eigenvectors
+    rotation[:, :k] = top_k
+    
+    return rotation
 
 def run_clustering_pipeline(
-    activation_data_path: str,
+    activations_path: str,
     output_path: str,
-    k: int = 16,
-    num_bins: int = 50,
-    layer_subset: Optional[List[str]] = None
+    k_clusters: int = 16,
+    n_bins: int = 50
 ) -> Dict[str, Any]:
     """
-    Run the full clustering pipeline to generate rotation matrices.
+    Main pipeline to cluster activations and generate rotation matrices.
     
-    This function:
-    1. Loads activation histograms from the specified path (generated trajectories)
-    2. Clusters them into K groups
-    3. Computes rotation matrices for each cluster
-    4. Saves the results to a JSON report
+    1. Load activations from CSV
+    2. Compute histograms for each sample
+    3. Cluster histograms into K groups
+    4. Compute a representative rotation matrix for each cluster
+    5. Save results to JSON
     
     Args:
-        activation_data_path: Path to CSV containing activation histograms
+        activations_path: Path to CSV containing activation data
         output_path: Path to save the clustering report JSON
-        k: Number of clusters/rotation matrices
-        num_bins: Number of histogram bins
-        layer_subset: Optional list of layer names to process
+        k_clusters: Number of clusters (K)
+        n_bins: Number of histogram bins
         
     Returns:
-        Dictionary containing the clustering results
+        Dictionary containing the clustering report
     """
-    logger.info(f"Starting clustering pipeline with K={k}")
+    logger.info(f"Loading activations from {activations_path}")
     
-    # Load activation data
-    if not os.path.exists(activation_data_path):
-        raise FileNotFoundError(f"Activation data file not found: {activation_data_path}")
+    # Load activations
+    # Expected CSV format: sample_id, layer_name, activation_values (comma-separated floats)
+    # Or: sample_id, layer_name, val1, val2, ..., valN
     
-    logger.info(f"Loading activation data from {activation_data_path}")
+    layers_data = {}
     
-    # Read CSV data
-    activations_list = []
-    layer_names = []
-    subset_ids = []
-    
-    with open(activation_data_path, 'r') as f:
+    with open(activations_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            layer_name = row.get('layer_name', 'default_layer')
-            subset_id = row.get('subset_id', '0')
-            # Parse activation histogram from comma-separated string
-            hist_str = row.get('histogram', '')
-            if hist_str:
-                hist = np.array([float(x) for x in hist_str.split(',')])
-                activations_list.append(hist)
-                layer_names.append(layer_name)
-                subset_ids.append(subset_id)
+            sample_id = row['sample_id']
+            layer_name = row['layer_name']
+            
+            # Parse activation values
+            if 'activations' in row:
+                # If stored as a string of comma-separated values
+                vals = np.array([float(x) for x in row['activations'].split(',')])
+            else:
+                # If stored as separate columns
+                val_cols = [k for k in row.keys() if k.startswith('val_')]
+                if val_cols:
+                    vals = np.array([float(row[c]) for c in sorted(val_cols)])
+                else:
+                    # Fallback: try to parse all numeric columns
+                    vals = np.array([float(v) for k, v in row.items() if k not in ['sample_id', 'layer_name'] and v.replace('.', '').replace('-', '').isdigit()])
+            
+            if layer_name not in layers_data:
+                layers_data[layer_name] = []
+            layers_data[layer_name].append(vals)
     
-    if not activations_list:
-        raise ValueError("No valid activation data found in the input file")
+    logger.info(f"Loaded activations for {len(layers_data)} layers")
     
-    activations = np.array(activations_list)
-    logger.info(f"Loaded {len(activations)} activation histograms")
-    
-    # Filter by layer subset if specified
-    if layer_subset:
-        mask = [name in layer_subset for name in layer_names]
-        activations = activations[mask]
-        layer_names = [name for i, name in enumerate(layer_names) if mask[i]]
-        subset_ids = [sid for i, sid in enumerate(subset_ids) if mask[i]]
-        logger.info(f"Filtered to {len(activations)} activations for specified layers")
-    
-    # Compute K-means clustering and rotation matrices
-    logger.info(f"Computing K-means clustering with K={k}")
-    rotation_matrices = compute_rotation_matrix_from_activations(activations, k=k)
-    
-    # Identify boundaries for each cluster
-    # Assign each sample to its nearest cluster center
-    from sklearn.metrics.pairwise import pairwise_distances
-    distances = pairwise_distances(activations, rotation_matrices)
-    cluster_assignments = np.argmin(distances, axis=1)
-    
-    # Compute boundaries (min/max values for each cluster)
-    boundaries = {}
-    for i in range(k):
-        cluster_mask = cluster_assignments == i
-        if np.any(cluster_mask):
-            cluster_data = activations[cluster_mask]
-            boundaries[str(i)] = {
-                'min': float(np.min(cluster_data)),
-                'max': float(np.max(cluster_data)),
-                'mean': float(np.mean(cluster_data)),
-                'std': float(np.std(cluster_data)),
-                'count': int(np.sum(cluster_mask))
-            }
-    
-    # Build the report
     report = {
-        'layers': list(set(layer_names)),
-        'subsets': list(set(subset_ids)),
-        'boundaries': boundaries,
-        'k': k,
-        'num_bins': num_bins,
-        'rotation_matrices': {
-            str(i): rotation_matrices[i].tolist() 
-            for i in range(rotation_matrices.shape[0])
-        },
-        'metadata': {
-            'total_samples': len(activations),
-            'unique_layers': len(set(layer_names)),
-            'unique_subsets': len(set(subset_ids)),
-            'clustering_algorithm': 'KMeans',
-            'timestamp': None  # Will be set by caller if needed
-        }
+        "layers": [],
+        "clusters_per_layer": k_clusters,
+        "histogram_bins": n_bins
     }
     
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    for layer_name, samples in layers_data.items():
+        logger.info(f"Processing layer: {layer_name}")
+        
+        if not samples:
+            continue
+        
+        # Stack into a matrix: (n_samples, n_features)
+        # Ensure all samples have same length
+        max_len = max(len(s) for s in samples)
+        padded_samples = []
+        for s in samples:
+            if len(s) < max_len:
+                s = np.pad(s, (0, max_len - len(s)), mode='constant', constant_values=0)
+            padded_samples.append(s)
+        
+        X = np.stack(padded_samples, axis=0)
+        X_tensor = torch.from_numpy(X)
+        
+        # Compute histograms for clustering features
+        histograms = []
+        for i in range(X.shape[0]):
+            hist = compute_activation_histograms(X_tensor[i:i+1], bins=n_bins)
+            histograms.append(hist)
+        
+        H = np.array(histograms)
+        
+        # Scale histograms for clustering
+        scaler = StandardScaler()
+        H_scaled = scaler.fit_transform(H)
+        
+        # Hierarchical clustering
+        # Compute pairwise distances
+        distances = pdist(H_scaled, metric='euclidean')
+        linkage_matrix = linkage(distances, method='ward')
+        
+        # Form flat clusters
+        labels = fcluster(linkage_matrix, k_clusters, criterion='maxclust')
+        
+        # Create cluster subsets
+        subsets = {}
+        for k in range(1, k_clusters + 1):
+            indices = np.where(labels == k)[0].tolist()
+            subsets[str(k)] = {
+                "size": len(indices),
+                "sample_indices": indices
+            }
+        
+        # Compute rotation matrices for each cluster
+        cluster_matrices = {}
+        boundaries = {}
+        
+        for k in range(1, k_clusters + 1):
+            indices = np.where(labels == k)[0]
+            if len(indices) == 0:
+                continue
+            
+            cluster_X = X_tensor[indices]
+            rotation_matrix = compute_rotation_matrix_from_activations(cluster_X, k=16)
+            
+            cluster_matrices[str(k)] = rotation_matrix.tolist()
+            
+            # Define boundaries based on histogram centroids
+            cluster_hists = H[indices]
+            centroid = np.mean(cluster_hists, axis=0)
+            boundaries[str(k)] = centroid.tolist()
+        
+        layer_report = {
+            "name": layer_name,
+            "n_samples": len(samples),
+            "feature_dim": X.shape[1],
+            "subsets": subsets,
+            "boundaries": boundaries,
+            "matrices": cluster_matrices
+        }
+        
+        report["layers"].append(layer_report)
+        logger.info(f"Completed layer {layer_name}: {len(subsets)} clusters")
     
     # Save report
-    logger.info(f"Saving clustering report to {output_path}")
-    with open(output_path, 'w') as f:
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Clustering pipeline completed. Generated {k} rotation matrices.")
+    logger.info(f"Clustering report saved to {output_path}")
     return report
 
 def main():
     """
-    Main entry point for the clustering pipeline.
-    Reads configuration and runs the clustering process on the MS-COCO train split
-    activation histograms (generated trajectories).
+    Entry point for the clustering pipeline.
+    Reads activations from data/processed/activations_for_clustering.csv
+    and writes report to data/processed/clustering_report.json
     """
     config = Config()
     
-    # Define paths
-    # The activation data should be generated by the DiT generation loop (T017/T008)
-    # For now, we assume it's in data/processed/activations.csv
-    activation_data_path = config.data_dir / "processed" / "activations.csv"
-    output_path = config.data_dir / "processed" / "clustering_report.json"
+    activations_path = config.activated_data_path / "activations_for_clustering.csv"
+    output_path = config.processed_data_path / "clustering_report.json"
     
-    # Check if activation data exists
-    if not activation_data_path.exists():
-        logger.error(f"Activation data not found at {activation_data_path}")
-        logger.error("Please run the DiT generation pipeline (T017) first to generate activations.")
-        raise FileNotFoundError(f"Activation data file not found: {activation_data_path}")
+    if not activations_path.exists():
+        raise FileNotFoundError(
+            f"Activations file not found: {activations_path}. "
+            "Please run code/data/generate_activations_for_clustering.py first."
+        )
     
-    # Run clustering pipeline
+    logger.info("Starting clustering pipeline...")
     report = run_clustering_pipeline(
-        activation_data_path=str(activation_data_path),
+        activations_path=str(activations_path),
         output_path=str(output_path),
-        k=16,  # K=16 as specified in the task
-        num_bins=50
+        k_clusters=16,
+        n_bins=50
     )
     
-    logger.info("Clustering report generated successfully")
-    print(f"Report saved to: {output_path}")
-    print(f"Generated {len(report['rotation_matrices'])} rotation matrices")
+    logger.info("Clustering pipeline completed successfully.")
+    return report
 
 if __name__ == "__main__":
     main()

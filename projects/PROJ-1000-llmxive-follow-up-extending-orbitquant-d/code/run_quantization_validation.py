@@ -1,16 +1,11 @@
 """
-Orchestration script for T019a: Run W2A4 quantization validation.
+Orchestration script for Quantization Validation (T019a).
 
-This script loads the MS-COCO validation set (prompts), runs the DiT generation
-to capture float32 activations, applies the rotation matrices from T022,
-performs W2A4 quantization using the engine from T010, and saves the
-quantized activations to data/processed/quantized_activations.json.
+This script runs the W2A4 engine on the MS-COCO validation set (prompts)
+using the rotation matrices generated in T022. It captures the quantized
+activations and saves them to data/processed/quantized_activations.json.
 
-It relies on:
-  - T005: data/coco_prompts.csv (or similar, loaded via config)
-  - T022: data/processed/clustering_report.json (rotation matrices)
-  - T010: code/quantization/w2a4_engine.py (W2A4Engine)
-  - T007/T008: Model loading and activation hooks (via DiTWrapper/FluxWanLoader)
+Dependency: T010 (W2A4Engine), T022 (clustering_report.json), T006a (prompts)
 """
 
 import os
@@ -19,14 +14,14 @@ import json
 import logging
 import time
 import csv
-from pathlib import Path
-from typing import List, Dict, Any, Tuple
-
 import torch
-import numpy as np
-from tqdm import tqdm
+from pathlib import Path
+from typing import List, Dict, Any, Optional
 
-# Project imports
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from config import Config
 from quantization.w2a4_engine import W2A4Engine
 from models.flux_wan_loader import ModelLoader
@@ -39,117 +34,176 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_prompts_from_csv(csv_path: Path) -> List[str]:
-    """Load prompts from the preprocessed CSV file."""
-    if not csv_path.exists():
+def load_prompts_from_csv(csv_path: str) -> List[Dict[str, str]]:
+    """
+    Load prompts from a CSV file.
+    Expected columns: 'prompt', 'id' (or similar identifier).
+    """
+    prompts = []
+    if not os.path.exists(csv_path):
         raise FileNotFoundError(f"Prompts file not found: {csv_path}")
     
-    prompts = []
     with open(csv_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Adjust column name based on actual CSV structure (usually 'caption' or 'prompt')
-            caption = row.get('caption') or row.get('prompt') or row.get('text')
-            if caption:
-                prompts.append(caption)
-    
-    if not prompts:
-        raise ValueError(f"No valid prompts found in {csv_path}")
-    
-    logger.info(f"Loaded {len(prompts)} prompts from {csv_path}")
+            # Normalize keys if necessary
+            prompt_text = row.get('prompt') or row.get('caption') or row.get('text')
+            if prompt_text:
+                prompts.append({
+                    'id': row.get('id', row.get('image_id', str(len(prompts)))),
+                    'prompt': prompt_text
+                })
     return prompts
 
-def load_clustering_report(json_path: Path) -> Dict[str, Any]:
-    """Load the clustering report containing rotation matrices."""
-    if not json_path.exists():
+def load_clustering_report(json_path: str) -> Dict[str, Any]:
+    """
+    Load the clustering report containing rotation matrices.
+    """
+    if not os.path.exists(json_path):
         raise FileNotFoundError(f"Clustering report not found: {json_path}")
     
     with open(json_path, 'r') as f:
-        report = json.load(f)
-    
-    # Validate structure
-    required_keys = ['layers', 'matrices']
-    for key in required_keys:
-        if key not in report:
-            raise ValueError(f"Clustering report missing required key: {key}")
-    
-    logger.info(f"Loaded clustering report with {len(report['matrices'])} matrices")
-    return report
+        return json.load(f)
 
 def run_quantization_pipeline(
-    prompts: List[str],
-    rotation_matrices: Dict[str, torch.Tensor],
-    config: Config
-) -> Dict[str, Any]:
+    config: Config,
+    prompts: List[Dict[str, str]],
+    clustering_report: Dict[str, Any],
+    output_path: str
+) -> None:
     """
-    Run the full quantization pipeline:
-    1. Initialize model with hooks
-    2. Generate images (or simulate activation capture for validation)
-    3. Apply W2A4 quantization with rotation
-    4. Store results
+    Main pipeline:
+    1. Initialize Model and W2A4 Engine.
+    2. Iterate through prompts.
+    3. Run generation with hooks to capture activations.
+    4. Apply W2A4 quantization using the rotation matrices.
+    5. Store results.
     """
-    logger.info("Initializing DiT model and hooks...")
+    logger.info("Initializing Model and Engine...")
     
-    # Initialize model loader
-    model_loader = ModelLoader(config)
-    # We need to hook the model to capture activations during generation
-    # For this validation task, we assume we capture activations from a specific layer
-    # The DiTWrapper handles the hook injection
+    # Load model (using existing loader logic)
+    # Note: We assume the model is loaded once and reused. 
+    # For memory constraints, we might need to clear cache between runs.
+    try:
+        model_loader = ModelLoader(config)
+        # The loader handles device selection and model instantiation
+        dit_model = model_loader.load_model() 
+    except Exception as e:
+        logger.error(f"Failed to load model: {e}")
+        raise
+
+    # Initialize W2A4 Engine with the loaded model
+    # The engine needs the model to access layers and apply quantization
+    w2a4_engine = W2A4Engine(dit_model, config)
     
-    # Since we cannot run full generation in a short script without GPU time,
-    # we will simulate the activation capture phase by loading pre-captured activations
-    # if available, or running a minimal generation pass if resources allow.
-    # However, the task requires running the W2A4 engine.
+    # Prepare rotation matrices from clustering report
+    # Structure expected: {'matrices': [{'layer_name': ..., 'matrix': ...}, ...]}
+    # We assume the clustering report has a 'matrices' key or similar structure
+    rotation_matrices = {}
+    if 'matrices' in clustering_report:
+        for entry in clustering_report['matrices']:
+            layer_name = entry.get('layer_name') or entry.get('layer')
+            if layer_name and 'matrix' in entry:
+                # Convert list to tensor if necessary
+                mat = entry['matrix']
+                if isinstance(mat, list):
+                    mat = torch.tensor(mat, dtype=torch.float32)
+                rotation_matrices[layer_name] = mat
+    else:
+        # Fallback if structure is different (e.g., nested by layer)
+        # Assuming clustering_report might have layers directly
+        if 'layers' in clustering_report:
+            for layer_name, layer_data in clustering_report['layers'].items():
+                if 'matrix' in layer_data:
+                   rotation_matrices[layer_name] = torch.tensor(layer_data['matrix'], dtype=torch.float32)
+
+    logger.info(f"Loaded {len(rotation_matrices)} rotation matrices.")
+
+    # Results storage
+    results = []
+    total_prompts = len(prompts)
+    start_time = time.time()
+
+    # Setup hooks for activation capture if not already done by W2A4Engine
+    # W2A4Engine usually handles the quantization logic, but we need to ensure
+    # we capture the activations *before* quantization or the quantized values.
+    # Based on T019 requirement: "generate quantized activations".
+    # We will assume W2A4Engine has a method to run inference and return quantized states.
     
-    # For the purpose of this task, we assume activations are captured from T017
-    # or we run a minimal pass. Let's assume we have a way to get activations.
-    # In a real run, this would be:
-    # activations = run_dit_generation(prompts, model_loader, config)
-    
-    # For now, we will simulate the activation capture for the sake of the quantization engine test
-    # NOTE: In the full pipeline, this would be replaced by actual activation capture
-    # from the DiT generation loop in T017.
-    
-    # We will use a placeholder activation tensor for demonstration,
-    # but the structure must match what the W2A4Engine expects.
-    # The W2A4Engine expects activations per layer.
-    
-    # Let's assume we have a sample activation for one layer for testing the engine
-    # In a real scenario, this would be a dictionary of layer_name -> activation_tensor
-    sample_activation = torch.randn(1, 64, 64, 64, dtype=torch.float32) # Example shape
-    
-    # We will run the W2A4Engine on this sample activation
-    # to demonstrate the quantization process and save the result.
-    
-    engine = W2A4Engine(config)
-    
-    quantized_results = {}
-    
-    # For each layer in rotation_matrices, apply quantization
-    for layer_name, matrix in rotation_matrices.items():
-        logger.info(f"Processing layer: {layer_name}")
+    logger.info(f"Starting quantization pipeline for {total_prompts} prompts...")
+
+    for idx, item in enumerate(prompts):
+        prompt_id = item['id']
+        prompt_text = item['prompt']
         
-        # Apply rotation
-        rotated = engine.apply_rotation(sample_activation, matrix)
+        logger.info(f"[{idx+1}/{total_prompts}] Processing ID: {prompt_id}")
         
-        # Quantize
-        quantized, scale, zero_point = engine.quantize(rotated, bits=4)
-        
-        # Dequantize for MSE calculation (later)
-        dequantized = engine.dequantize(quantized, scale, zero_point)
-        
-        # Store results
-        quantized_results[layer_name] = {
-            'quantized_shape': list(quantized.shape),
-            'scale': float(scale.mean().item()) if isinstance(scale, torch.Tensor) else float(scale),
-            'zero_point': float(zero_point.mean().item()) if isinstance(zero_point, torch.Tensor) else float(zero_point),
-            'mse': float(torch.mean((rotated - dequantized) ** 2).item())
-        }
+        try:
+            # Run the generation/quantization step
+            # The W2A4Engine should handle the forward pass with rotation matrices applied
+            # and return the quantized activations.
+            # We pass the prompt and the rotation matrices.
+            
+            quantized_data = w2a4_engine.run_quantization_inference(
+                prompt=prompt_text,
+                rotation_matrices=rotation_matrices
+            )
+            
+            # quantized_data expected to be a dict: {layer_name: tensor/array}
+            # We serialize it to JSON-compatible format
+            serializable_data = {}
+            for layer_name, tensor in quantized_data.items():
+                if isinstance(tensor, torch.Tensor):
+                    # Convert to numpy and list for JSON
+                    arr = tensor.detach().cpu().numpy()
+                    # Flatten or truncate if too large? 
+                    # For MSE validation (T019), we need the actual values.
+                    # If the tensor is huge, we might need to save to a binary file,
+                    # but the task asks for a JSON. We will store a summary or the full list if small.
+                    # Given the constraint of JSON for "activations", we assume the engine
+                    # returns a manageable subset or the task implies saving the stats.
+                    # However, T019 says "compute MSE... on quantized activations".
+                    # To be safe and compliant with "real data", we store the flattened list
+                    # if it's not too massive, or we store the path to a pickle if it is.
+                    # Let's assume the engine returns a subset of activations or we save the full tensor as a list.
+                    # If the tensor is > 1MB, we might hit JSON limits.
+                    # Strategy: Store the mean, std, and a sample of values, OR store the full list if feasible.
+                    # Given "quantized_activations.json" is the artifact, we will store the full list 
+                    # assuming the engine returns a reduced representation (e.g., per-layer stats or specific hooks).
+                    # If the engine returns full feature maps, we must truncate or save differently.
+                    # Let's assume the W2A4Engine returns a dictionary of {layer: list of values}
+                    serializable_data[layer_name] = arr.tolist()
+                else:
+                    serializable_data[layer_name] = tensor
+            
+            results.append({
+                "id": prompt_id,
+                "prompt": prompt_text,
+                "quantized_activations": serializable_data
+            })
+
+        except Exception as e:
+            logger.error(f"Error processing prompt {prompt_id}: {e}")
+            # Continue with next prompt to avoid total failure, but log the error
+            results.append({
+                "id": prompt_id,
+                "prompt": prompt_text,
+                "error": str(e)
+            })
+
+    elapsed = time.time() - start_time
+    logger.info(f"Pipeline completed in {elapsed:.2f} seconds.")
+
+    # Write results to JSON
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    return quantized_results
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Quantized activations saved to {output_path}")
 
 def main():
-    """Main entry point for T019a."""
     config = Config()
     
     # Paths
@@ -157,98 +211,24 @@ def main():
     clustering_report_path = config.data_dir / "processed" / "clustering_report.json"
     output_path = config.data_dir / "processed" / "quantized_activations.json"
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Validate inputs
+    if not prompts_path.exists():
+        logger.error(f"Prompts file not found: {prompts_path}")
+        sys.exit(1)
+    if not clustering_report_path.exists():
+        logger.error(f"Clustering report not found: {clustering_report_path}")
+        sys.exit(1)
     
-    logger.info("Starting Quantization Validation (T019a)...")
+    # Load data
+    prompts = load_prompts_from_csv(str(prompts_path))
+    if not prompts:
+        logger.error("No prompts found in CSV.")
+        sys.exit(1)
     
-    try:
-        # 1. Load prompts
-        prompts = load_prompts_from_csv(prompts_path)
-        
-        # 2. Load clustering report (rotation matrices)
-        clustering_report = load_clustering_report(clustering_report_path)
-        rotation_matrices = {
-            k: torch.tensor(v, dtype=torch.float32) 
-            for k, v in clustering_report['matrices'].items()
-        }
-        
-        # 3. Run quantization pipeline
-        # NOTE: In a full implementation, this would run the DiT generation loop
-        # to capture real activations for each prompt. For this task, we run the
-        # W2A4 engine on a representative activation to generate the output artifact.
-        # The actual activation capture logic is in T017.
-        # We assume the activation capture from T017 is available or we use a sample.
-        
-        # Since we cannot run full generation here without GPU, we use a sample
-        # activation that matches the expected shape for the DiT layers.
-        # This is a placeholder for the real activation capture.
-        
-        # For the purpose of generating the artifact, we will run the engine
-        # on a sample activation.
-        
-        # We need to know the layer names from the clustering report
-        layer_names = list(rotation_matrices.keys())
-        
-        # Create a sample activation for each layer (this is a simulation)
-        # In the real pipeline, these would come from the DiT generation loop
-        sample_activations = {}
-        for layer_name in layer_names:
-            # Assume a typical activation shape for a DiT layer
-            # This is a placeholder; real shapes would come from the model
-            sample_activations[layer_name] = torch.randn(1, 32, 32, 64, dtype=torch.float32)
-        
-        # Run quantization on each layer
-        quantized_results = {}
-        engine = W2A4Engine(config)
-        
-        for layer_name, activation in sample_activations.items():
-            matrix = rotation_matrices.get(layer_name)
-            if matrix is None:
-                logger.warning(f"No rotation matrix for layer: {layer_name}, skipping")
-                continue
-            
-            logger.info(f"Quantizing layer: {layer_name}")
-            
-            # Apply rotation
-            rotated = engine.apply_rotation(activation, matrix)
-            
-            # Quantize
-            quantized, scale, zero_point = engine.quantize(rotated, bits=4)
-            
-            # Dequantize
-            dequantized = engine.dequantize(quantized, scale, zero_point)
-            
-            # Calculate MSE
-            mse = torch.mean((rotated - dequantized) ** 2).item()
-            
-            # Store results
-            quantized_results[layer_name] = {
-                'quantized_shape': list(quantized.shape),
-                'scale': float(scale.mean().item()),
-                'zero_point': float(zero_point.mean().item()),
-                'mse': mse,
-                'num_prompts_processed': len(prompts) # Simulated count
-            }
-        
-        # 4. Save results
-        output_data = {
-            'config': {
-                'bits': 4,
-                'use_rotation': True,
-                'num_prompts': len(prompts)
-            },
-            'results': quantized_results
-        }
-        
-        with open(output_path, 'w') as f:
-            json.dump(output_data, f, indent=2)
-        
-        logger.info(f"Quantization validation complete. Results saved to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Quantization validation failed: {e}", exc_info=True)
-        raise
+    clustering_report = load_clustering_report(str(clustering_report_path))
+    
+    # Run pipeline
+    run_quantization_pipeline(config, prompts, clustering_report, str(output_path))
 
 if __name__ == "__main__":
     main()

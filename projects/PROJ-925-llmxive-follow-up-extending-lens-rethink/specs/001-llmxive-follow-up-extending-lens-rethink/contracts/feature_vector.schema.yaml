@@ -1,45 +1,32 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Linguistic Feature Vector Schema
-description: Schema for the extracted linguistic feature vectors.
+description: Schema for the extracted linguistic features from captions.
 type: object
-properties:
-  id:
-    type: string
-    description: Unique identifier for the sample (matches raw dataset)
-  caption_length:
-    type: integer
-    minimum: 1
-    description: Number of tokens in the caption
-  linguistic_uncertainty_proxy:
-    type: number
-    format: float
-    description: Natural log of perplexity (ln(perplexity)) from BERT
-  syntactic_depth:
-    type: integer
-    minimum: 1
-    description: Maximum depth of the dependency parse tree
-  noun_phrase_density:
-    type: number
-    format: float
-    minimum: 0.0
-    maximum: 1.0
-    description: Ratio of noun phrases to total tokens
-  token_diversity:
-    type: number
-    format: float
-    minimum: 0.0
-    maximum: 1.0
-    description: Ratio of unique tokens to total tokens
-  textual_description_complexity:
-    type: integer
-    minimum: 0
-    description: Count of distinct noun phrases
 required:
-  - id
-  - caption_length
+  - caption_id
   - linguistic_uncertainty_proxy
   - syntactic_depth
   - noun_phrase_density
   - token_diversity
-  - textual_description_complexity
-additionalProperties: false
+properties:
+  caption_id:
+    type: string
+    description: Unique identifier for the caption.
+  linguistic_uncertainty_proxy:
+    type: number
+    description: Natural log of perplexity from BERT.
+    minimum: 0
+  syntactic_depth:
+    type: integer
+    description: Depth of the dependency tree.
+    minimum: 0
+  noun_phrase_density:
+    type: number
+    description: Ratio of noun phrases to total tokens.
+    minimum: 0
+    maximum: 1
+  token_diversity:
+    type: number
+    description: Type-token ratio.
+    minimum: 0
+    maximum: 1

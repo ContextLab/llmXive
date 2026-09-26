@@ -76,7 +76,7 @@
 
 **⚠️ CRITICAL**: Phase 3 cannot begin until this phase is complete
 
-- [ ] T023a [P] Implement `code/validation/validate_clustering.py` to verify `data/processed/clustering_report.json` exists, contains required keys (layers, subsets, boundaries, matrices), and validates structure before Phase 3
+- [ ] T023a [P] Implement `code/validation/validate_clustering.py` to verify `data/processed/clustering_report.json` exists, contains required keys (layers, subsets, boundaries, matrices), and validates structure before Phase 3 <!-- FAILED: unspecified -->
 - [X] T023b [P] Implement `code/main.py` orchestration script for Phase 2.5: Run T023a; if validation fails, halt execution and log error; if valid, proceed to Phase 3
 
 ---
@@ -122,7 +122,7 @@
 - [X] T024 [US2] Implement `code/analysis/router.py` to map entropy scores to matrix indices with clamping logic for out-of-range values and outlier handling
 - [X] T025 [US2] Update `code/quantization/w2a4_engine.py` to integrate the dynamic router logic for selecting the rotation matrix during inference
 - [X] T026 [US2] Implement `code/run_router_train.py` orchestration script for Phase 2 Training: Load Train Split -> Cluster -> Generate Matrices -> Save Lookup Table (Note: T022 already performs the heavy lifting; this script orchestrates the specific train/test split usage if needed)
-- [ ] T027 [US2] Implement `code/run_router_inference.py` orchestration script for Phase 2 Inference: Load Test Split -> Compute Entropy -> Select Matrix -> Generate Images -> Log Metrics
+- [X] T027 [US2] Implement `code/run_router_inference.py` orchestration script for Phase 2 Inference: Load Test Split -> Compute Entropy -> Select Matrix -> Generate Images -> Log Metrics
 
 **Checkpoint**: Dynamic router implemented and integrated with W2A4 engine.
 
@@ -137,15 +137,15 @@
 ### Tests for User Story 3
 
 - [ ] T028 [P] [US3] Contract test for metric calculation in `tests/unit/test_metrics.py`
-- [ ] T029 [P] [US3] Integration test for end-to-end pipeline comparison in `tests/integration/test_full_pipeline.py`
+- [X] T029 [P] [US3] Integration test for end-to-end pipeline comparison in `tests/integration/test_full_pipeline.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/evaluation/metrics.py` to compute FID, CLIP scores, and MSE using CPU-compatible implementations
-- [ ] T031 [US3] Implement `code/evaluation/timing.py` to measure wall-clock inference time for both static and dynamic methods
-- [ ] T032 [US3] Implement `code/analysis/statistical_test.py` to perform paired t-tests on metric distributions; **conditionally apply Bonferroni correction** if the number of comparisons exceeds a defined threshold (e.g., >3); define threshold in config
-- [ ] T033 [US3] Implement `code/analysis/sensitivity.py` to sweep entropy cut-off points by **±5% of the total observed entropy range calculated from the Phase 3 results (T018)** and report variance in FID scores
-- [ ] T034 [US3] Implement `code/run_evaluation.py` orchestration script for Phase 3: Run Baseline -> Run Dynamic -> Compute Metrics -> Run Statistical Tests -> Generate Report
+- [X] T030 [US3] Implement `code/evaluation/metrics.py` to compute FID, CLIP scores, and MSE using CPU-compatible implementations
+- [X] T031 [US3] Implement `code/evaluation/timing.py` to measure wall-clock inference time for both static and dynamic methods
+- [X] T032 [US3] Implement `code/analysis/statistical_test.py` to perform paired t-tests on metric distributions; **conditionally apply Bonferroni correction** if the number of comparisons exceeds a defined threshold (e.g., >3); define threshold in config
+- [X] T033 [US3] Implement `code/analysis/sensitivity.py` to sweep entropy cut-off points by **±5% of the total observed entropy range calculated from the Phase 3 results (T018)** and report variance in FID scores
+- [X] T034 [US3] Implement `code/run_evaluation.py` orchestration script for Phase 3: Run Baseline -> Run Dynamic -> Compute Metrics -> Run Statistical Tests -> Generate Report
 - [ ] T035 [US3] Generate `data/processed/final_evaluation_report.json` containing all metrics, p-values, and overhead calculations
 
 **Checkpoint**: All user stories complete; final report generated.

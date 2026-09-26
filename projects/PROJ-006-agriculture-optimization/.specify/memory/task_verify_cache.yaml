@@ -1,11 +1,10 @@
 T002b:
   c: false
-  h: 303162f63def33a07cde474c44d0139835668c7a5c0c4ea30d71f2bc7778b799
-  r: The provided `src/utils/state_manager.py` is truncated and does not contain the
-    full implementation needed to compute hashes and update the YAML file. The required
-    dummy file `data/raw/dummy.txt` is absent, and the state YAML shows no artifact
-    hashes, indicating the verification step was never performed. The task therefore
-    remains unfinished.
+  h: 7c6267a3fcc662f1e118a23360ba960ad0d59c9c38d8c480ed5c12f85119e898
+  r: "The provided `src/utils/state_manager.py` is truncated (e.g., `file_hash = compute`\
+    \ is incomplete) and does not show a complete hash\u2011update implementation.\
+    \ Moreover, the required `data/raw/dummy.txt` and the state YAML file `state/projects/PROJ-006-agriculture-optimization.yaml`\
+    \ are missing, so the verification step was never performed."
 T010a:
   c: false
   h: bda6656e4ad51f329fb6089ebe187fb2b7d072e78997f63a6006ab15d6252c5b
@@ -22,29 +21,6 @@ T010b:
   r: The required `.github/workflows/ci.yml` file is missing, so the CI workflow has
     not been created or configured as specified. Without this file, the verification
     step cannot be performed.
-T015:
-  c: false
-  h: 3fd17618883e526c34365d2a81e67b8eaf7021945c980febe3113b55c754ccf5
-  r: "The repository contains a partially\u2011implemented `src/data/collectors/survey_collector.py`,\
-    \ but the required fallback module `src/data/generators/structural_validation_generator.py`\
-    \ is absent, and the expected output files `data/raw/survey_raw.csv` and `data/raw/filtered_survey.csv`\
-    \ were not generated. Consequently the task\u2019s full specifications are not\
-    \ satisfied."
-T016:
-  c: false
-  h: 08d7113a1e72960854526cb7ae89d3f329d5480bf440cf9ccf60253c69e9572d
-  r: "The provided `remote_sensing_collector.py` does not implement Sentinel\u2011\
-    2 download, cloud\u2011cover filtering, caching to `data/raw/sentinel2/`, nor\
-    \ does it invoke the missing `structural_validation_generator.py` for synthetic\
-    \ NDVI generation. Additionally, the required generator file is absent entirely."
-T017:
-  c: false
-  h: 0ad344425affed513085630a37913ff5412928cc2fa51648f74de05c021fd8d5
-  r: The provided `src/data/processing/spatial_join.py` is only a partial stub and
-    never reads `buffer_size_km` from `src/config/constants.py`, performs a geodesic
-    buffer, extracts mean NDVI, or writes the required `data/processed/spatial_joined_data.csv`
-    and `data/logs/linkage_validation.json`. Both mandatory output files are missing
-    from the repository.
 T018c:
   c: false
   h: a9b5c8b7fb4098c3e9621b081eb3523242072d517a5fd1d50c9bd7ae79a3de9a

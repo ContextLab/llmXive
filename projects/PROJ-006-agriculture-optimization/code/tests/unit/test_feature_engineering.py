@@ -1,5 +1,5 @@
 """
-Unit tests for feature_engineering.py
+Unit tests for feature engineering functions.
 """
 
 import pytest
@@ -8,209 +8,199 @@ import numpy as np
 from pathlib import Path
 import tempfile
 import json
-import sys
-from pathlib import Path as PathSys
-
-# Ensure code directory is in path
-code_root = PathSys(__file__).parent.parent.parent
-if str(code_root) not in sys.path:
-    sys.path.insert(0, str(code_root))
 
 from src.data.processing.feature_engineering import (
     calculate_stability_score,
     calculate_csa_index,
     derive_village_id,
     perform_village_aggregation,
-    check_and_aggregate_if_needed,
     load_linkage_validation
 )
 
-
 class TestStabilityScoreCalculation:
-    def test_stability_score_low_variance(self):
-        """Test stability score with low variance (high stability)."""
-        series = pd.Series([0.8, 0.81, 0.79, 0.8])
-        score = calculate_stability_score(series)
-        assert score > 10.0  # Low CV implies high score
+    """Tests for calculate_stability_score function."""
 
-    def test_stability_score_high_variance(self):
-        """Test stability score with high variance (low stability)."""
-        series = pd.Series([0.2, 0.8, 0.1, 0.9])
-        score = calculate_stability_score(series)
-        assert score < 10.0  # Higher CV implies lower score
+    def test_perfect_stability(self):
+        """Test with identical NDVI values (CV=0)."""
+        ndvi = pd.Series([0.5, 0.5, 0.5, 0.5])
+        score = calculate_stability_score(ndvi)
+        assert score == float('inf')
 
-    def test_stability_score_empty(self):
-        """Test stability score with empty series."""
-        series = pd.Series([], dtype=float)
-        score = calculate_stability_score(series)
-        assert score == 0.0
+    def test_normal_variation(self):
+        """Test with normal variation in NDVI values."""
+        ndvi = pd.Series([0.4, 0.5, 0.6, 0.5])
+        score = calculate_stability_score(ndvi)
+        assert isinstance(score, float)
+        assert score > 0
 
-    def test_stability_score_zero_mean(self):
-        """Test stability score when mean is zero."""
-        series = pd.Series([0.0, 0.0, 0.0])
-        score = calculate_stability_score(series)
-        assert score == 0.0
+    def test_single_value(self):
+        """Test with insufficient data points."""
+        ndvi = pd.Series([0.5])
+        score = calculate_stability_score(ndvi)
+        assert np.isnan(score)
 
+    def test_empty_series(self):
+        """Test with empty series."""
+        ndvi = pd.Series([])
+        score = calculate_stability_score(ndvi)
+        assert np.isnan(score)
+
+    def test_zero_mean(self):
+        """Test with mean NDVI of zero."""
+        ndvi = pd.Series([0.0, 0.0, 0.0])
+        score = calculate_stability_score(ndvi)
+        assert np.isnan(score)
+
+    def test_negative_ndvi(self):
+        """Test with negative NDVI values (should use absolute mean)."""
+        ndvi = pd.Series([-0.1, -0.2, -0.3])
+        score = calculate_stability_score(ndvi)
+        assert isinstance(score, float)
+        assert score > 0
 
 class TestCSAIndexConstruction:
-    def test_csa_index_all_practices(self):
-        """Test CSA Index when all practices are adopted."""
+    """Tests for calculate_csa_index function."""
+
+    def test_all_practices(self):
+        """Test with all practices adopted."""
         row = pd.Series({
             'practice_mixed_farming': True,
             'practice_terracing': True,
             'practice_conservation_tillage': True,
             'practice_agroforestry': True
         })
-        score = calculate_csa_index(row)
-        assert score == 4.0
+        index = calculate_csa_index(row)
+        assert index == 4
 
-    def test_csa_index_no_practices(self):
-        """Test CSA Index when no practices are adopted."""
+    def test_no_practices(self):
+        """Test with no practices adopted."""
         row = pd.Series({
             'practice_mixed_farming': False,
             'practice_terracing': False,
             'practice_conservation_tillage': False,
             'practice_agroforestry': False
         })
-        score = calculate_csa_index(row)
-        assert score == 0.0
+        index = calculate_csa_index(row)
+        assert index == 0
 
-    def test_csa_index_partial(self):
-        """Test CSA Index with partial adoption."""
+    def test_partial_practices(self):
+        """Test with some practices adopted."""
         row = pd.Series({
             'practice_mixed_farming': True,
             'practice_terracing': False,
             'practice_conservation_tillage': True,
             'practice_agroforestry': False
         })
-        score = calculate_csa_index(row)
-        assert score == 2.0
+        index = calculate_csa_index(row)
+        assert index == 2
 
-    def test_csa_index_missing_columns(self):
-        """Test CSA Index when columns are missing."""
-        row = pd.Series({'other_col': True})
-        score = calculate_csa_index(row)
-        assert score == 0.0
+    def test_missing_columns(self):
+        """Test with missing practice columns."""
+        row = pd.Series({'other_column': 1})
+        index = calculate_csa_index(row)
+        assert index == 0
 
+    def test_nan_values(self):
+        """Test with NaN values in practice columns."""
+        row = pd.Series({
+            'practice_mixed_farming': np.nan,
+            'practice_terracing': True,
+            'practice_conservation_tillage': False,
+            'practice_agroforestry': np.nan
+        })
+        index = calculate_csa_index(row)
+        assert index == 1
 
 class TestVillageIDDerivation:
-    def test_village_id_derivation(self):
-        """Test village ID derivation with known coordinates."""
-        row = pd.Series({'latitude': 12.34, 'longitude': 45.67})
-        # grid_resolution = 0.1
-        # lat_grid = int(12.34 / 0.1) * 0.1 = 12.3
-        # lon_grid = int(45.67 / 0.1) * 0.1 = 45.6
-        village_id = derive_village_id(row, grid_resolution=0.1)
-        assert village_id == "12.3_45.6"
+    """Tests for derive_village_id function."""
 
-    def test_village_id_nan(self):
-        """Test village ID derivation with NaN coordinates."""
-        row = pd.Series({'latitude': None, 'longitude': 45.67})
-        village_id = derive_village_id(row, grid_resolution=0.1)
-        assert village_id == "UNKNOWN"
+    def test_basic_derivation(self):
+        """Test basic village ID derivation."""
+        village_id = derive_village_id(10.5, 20.5)
+        # With default GRID_RESOLUTION_KM = 0.1
+        # int(10.5 / 0.1) * 0.1 = 105 * 0.1 = 10.5
+        # int(20.5 / 0.1) * 0.1 = 205 * 0.1 = 20.5
+        assert village_id == "10.5_20.5"
 
+    def test_rounding_behavior(self):
+        """Test rounding to nearest grid cell."""
+        village_id = derive_village_id(10.54, 20.54)
+        # int(10.54 / 0.1) = int(105.4) = 105 -> 10.5
+        assert village_id.startswith("10.5_")
+
+    def test_negative_coordinates(self):
+        """Test with negative coordinates."""
+        village_id = derive_village_id(-10.5, -20.5)
+        # int(-10.5 / 0.1) = int(-105) = -105 -> -10.5
+        assert village_id == "-10.5_-20.5"
 
 class TestVillageAggregation:
-    def test_aggregation_logic(self):
-        """Test that aggregation correctly computes mean by village."""
-        data = {
-            'village_id': ['V1', 'V1', 'V2', 'V2'],
-            'CSA_Index': [1.0, 3.0, 2.0, 4.0],
-            'Stability_Score': [10.0, 20.0, 15.0, 25.0]
-        }
-        df = pd.DataFrame(data)
+    """Tests for perform_village_aggregation function."""
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "agg.csv"
-            result_df = perform_village_aggregation(df, output_path)
+    def test_basic_aggregation(self):
+        """Test basic village-level aggregation."""
+        df = pd.DataFrame({
+            'village_id': ['10.5_20.5', '10.5_20.5', '11.0_21.0'],
+            'CSA_Index': [2, 3, 1],
+            'Stability_Score': [1.5, 2.5, 3.0]
+        })
+        
+        aggregated = perform_village_aggregation(df)
+        
+        assert len(aggregated) == 2
+        assert 'village_id' in aggregated.columns
+        assert 'CSA_Index' in aggregated.columns
+        assert 'Stability_Score' in aggregated.columns
 
-            assert len(result_df) == 2  # 2 unique villages
-            assert result_df[result_df['village_id'] == 'V1']['CSA_Index'].iloc[0] == 2.0
-            assert result_df[result_df['village_id'] == 'V1']['Stability_Score'].iloc[0] == 15.0
+    def test_null_exclusion(self):
+        """Test that rows with null key metrics are excluded."""
+        df = pd.DataFrame({
+            'village_id': ['10.5_20.5', '10.5_20.5', '11.0_21.0'],
+            'CSA_Index': [2, np.nan, 1],
+            'Stability_Score': [1.5, 2.5, np.nan]
+        })
+        
+        aggregated = perform_village_aggregation(df)
+        
+        # Only the third row has both non-null values
+        assert len(aggregated) == 1
+        assert aggregated.loc[0, 'village_id'] == '11.0_21.0'
 
-    def test_aggregation_excludes_nulls(self):
-        """Test that aggregation excludes rows with null metrics."""
-        data = {
-            'village_id': ['V1', 'V1', 'V2'],
-            'CSA_Index': [1.0, None, 2.0],
-            'Stability_Score': [10.0, 20.0, None]
-        }
-        df = pd.DataFrame(data)
+    def test_empty_dataframe(self):
+        """Test aggregation of empty dataframe."""
+        df = pd.DataFrame(columns=['village_id', 'CSA_Index', 'Stability_Score'])
+        aggregated = perform_village_aggregation(df)
+        assert len(aggregated) == 0
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "agg.csv"
-            result_df = perform_village_aggregation(df, output_path)
+class TestLinkageValidationLoading:
+    """Tests for load_linkage_validation function."""
 
-            # V1 has 1 valid row (index 0), V2 has 0 valid rows (index 2 has null Stability)
-            # Wait, index 2 has null Stability, so it's excluded.
-            # Index 0: V1, 1.0, 10.0 -> Valid
-            # Index 1: V1, None, 20.0 -> Excluded (null CSA)
-            # Index 2: V2, 2.0, None -> Excluded (null Stability)
-            # Result should only have V1.
-            assert len(result_df) == 1
-            assert result_df['village_id'].iloc[0] == 'V1'
+    def test_valid_json(self):
+        """Test loading valid JSON file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({'linkage_percentage': 0.95, 'triggered_aggregation': False}, f)
+            temp_path = Path(f.name)
+        
+        try:
+            data = load_linkage_validation(temp_path)
+            assert data['linkage_percentage'] == 0.95
+            assert data['triggered_aggregation'] == False
+        finally:
+            temp_path.unlink()
 
+    def test_missing_file(self):
+        """Test loading non-existent file."""
+        with pytest.raises(FileNotFoundError):
+            load_linkage_validation(Path('/nonexistent/path/file.json'))
 
-class TestIntegration:
-    def test_check_and_aggregate_triggered(self):
-        """Test the full check_and_aggregate_if_needed flow when triggered."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            input_file = tmpdir / "input.csv"
-            output_file = tmpdir / "output.csv"
-            validation_file = tmpdir / "validation.json"
-
-            # Create input data
-            data = {
-                'village_id': ['V1', 'V1', 'V2', 'V2'],
-                'CSA_Index': [1.0, 3.0, 2.0, 4.0],
-                'Stability_Score': [10.0, 20.0, 15.0, 25.0]
-            }
-            pd.DataFrame(data).to_csv(input_file, index=False)
-
-            # Create validation file indicating trigger
-            validation_data = {
-                "triggered_aggregation": True,
-                "linkage_percentage": 90.0,
-                "total_valid_households": 100,
-                "exclusion_reason": "low_linkage"
-            }
-            with open(validation_file, 'w') as f:
-                json.dump(validation_data, f)
-
-            result = check_and_aggregate_if_needed(input_file, output_file, validation_file)
-
-            assert result is True
-            assert output_file.exists()
-            output_df = pd.read_csv(output_file)
-            assert len(output_df) == 2
-
-    def test_check_and_aggregate_not_triggered(self):
-        """Test the flow when aggregation is NOT triggered."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir = Path(tmpdir)
-            input_file = tmpdir / "input.csv"
-            output_file = tmpdir / "output.csv"
-            validation_file = tmpdir / "validation.json"
-
-            # Create validation file indicating NO trigger
-            validation_data = {
-                "triggered_aggregation": False,
-                "linkage_percentage": 99.0,
-                "total_valid_households": 1000,
-                "exclusion_reason": "none"
-            }
-            with open(validation_file, 'w') as f:
-                json.dump(validation_data, f)
-
-            result = check_and_aggregate_if_needed(input_file, output_file, validation_file)
-
-            assert result is False
-            assert not output_file.exists()
-
-    def test_load_linkage_validation_missing(self):
-        """Test loading a missing validation file."""
-        path = Path("/nonexistent/path/validation.json")
-        result = load_linkage_validation(path)
-        assert result['triggered_aggregation'] is False
-        assert result['exclusion_reason'] == "File not found"
+    def test_invalid_json(self):
+        """Test loading invalid JSON file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            f.write("not valid json")
+            temp_path = Path(f.name)
+        
+        try:
+            with pytest.raises(json.JSONDecodeError):
+                load_linkage_validation(temp_path)
+        finally:
+            temp_path.unlink()
