@@ -1,13 +1,12 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-interoceptive-awareness"
+name = "llmxive-interoception"
 version = "0.1.0"
-description = "Impact of interoceptive awareness on emotional regulation during simulated stress"
-readme = "README.md"
-requires-python = ">=3.9"
+description = "Impact of Interoceptive Awareness on Emotional Regulation"
+requires-python = ">=3.8"
 dependencies = [
     "pandas==2.0.3",
     "numpy==1.24.3",
@@ -18,61 +17,21 @@ dependencies = [
     "pyyaml==6.0.1",
     "jsonschema==4.19.0",
     "statsmodels==0.14.0",
+    "scipy==1.11.0"
 ]
 
-[project.optional-dependencies]
-dev = [
-    "flake8==6.1.0",
-    "black==23.12.1",
-    "isort==5.13.2",
-    "pytest==7.4.3",
-    "pytest-cov==4.1.0",
-]
-
-[tool.setuptools]
-packages = ["code", "code.utils"]
+[tool.setuptools.packages.find]
+where = ["code"]
 
 [tool.black]
 line-length = 88
-target-version = ["py39"]
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.isort]
-profile = "black"
-line_length = 88
-skip = [".gitignore", "__init__.py"]
+target-version = ['py38']
 
 [tool.flake8]
 max-line-length = 88
-extend-ignore = ["E203", "W503"]
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-]
-per-file-ignores = [
-    "__init__.py:F401",
-]
+extend-ignore = ['E203', 'W503']
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"

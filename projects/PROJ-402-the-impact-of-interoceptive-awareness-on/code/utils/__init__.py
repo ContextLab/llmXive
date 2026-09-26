@@ -1,3 +1,1 @@
-"""
-Utility modules for the project.
-"""
+# Utility modules for the research pipeline

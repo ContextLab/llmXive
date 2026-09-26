@@ -1,334 +1,279 @@
-"""
-Audit metadata for Interoceptive Awareness study.
-
-This script performs a two-part scan:
-1. Remote Metadata Pre-Check: Queries Zenodo REST API for 'Schandry' or 'heartbeat' tasks.
-2. Local BIDS Scan: Scans local BIDS events.tsv files if the download (T010) succeeded.
-
-Output: results/data_audit.md
-"""
 import os
 import sys
 import json
 import logging
 import time
+import re
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-import requests
-import yaml
-import pandas as pd
+from typing import List, Dict, Any, Optional
+
+# Import from existing API surface
 from utils.schema_validator import load_schema_from_file, validate_file_against_schema, SchemaValidationError, FileLoadError
+from utils.bids_scanner import find_events_files, scan_events_for_tasks
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('results/audit.log')
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-ZENODO_API_URL = "https://zenodo.org/api/records"
-WESAD_DOI = "10.5281/zenodo.1292932"
-REQUIRED_TASKS = ['Schandry', 'heartbeat']
 SCHEMA_PATH = Path("contracts/dataset.schema.yaml")
-AUDIT_REPORT_PATH = Path("results/data_audit.md")
-DOWNLOAD_FLAG_PATH = Path("data/.wesad_download_complete")
+DATA_RAW_DIR = Path("data/raw")
+RESULTS_DIR = Path("results")
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load the JSON schema from the contracts directory."""
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
-
-def validate_events_tsv(events_file: Path, schema: Dict[str, Any]) -> bool:
-    """Validate an events.tsv file against the schema."""
+def load_schema():
+    """Load schema from file."""
+    logger.info(f"Loading schema from {SCHEMA_PATH}")
     try:
-        validate_file_against_schema(str(events_file), schema)
-        return True
-    except (SchemaValidationError, FileLoadError) as e:
-        logger.warning(f"Validation failed for {events_file}: {e}")
-        return False
+        schema = load_schema_from_file(SCHEMA_PATH)
+        logger.info("Schema loaded successfully")
+        return schema
+    except FileLoadError as e:
+        logger.error(f"Failed to load schema: {e}")
+        raise
 
-def remote_metadata_pre_check() -> Dict[str, Any]:
+def validate_events_tsv(events_file_path: Path, schema: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Query Zenodo REST API to check for required tasks in WESAD dataset.
+    Validate a single events.tsv file against the schema.
     
-    Returns:
-        Dict with 'found' (bool), 'tasks_found' (list), 'status' (str)
+    Returns a dict with:
+      - 'valid': bool
+      - 'errors': list of error messages
+      - 'file': path string
     """
-    logger.info("Performing Remote Metadata Pre-Check on Zenodo...")
+    result = {
+        'valid': True,
+        'errors': [],
+        'file': str(events_file_path)
+    }
+    
+    if not events_file_path.exists():
+        result['valid'] = False
+        result['errors'].append(f"File not found: {events_file_path}")
+        return result
+    
     try:
-        # Zenodo API search for records related to WESAD DOI
-        # We search for the specific record and inspect its metadata/files if available
-        # Note: Zenodo API for file listing is limited for unauthenticated users or specific records.
-        # We will attempt to fetch the record metadata first.
+        # Use the validator from the schema utility
+        validation_result = validate_file_against_schema(
+            str(events_file_path),
+            schema,
+            file_type="tsv"
+        )
         
-        record_id = "1292932" # Extracted from DOI 10.5281/zenodo.1292932
-        url = f"{ZENODO_API_URL}/{record_id}"
-        
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        data = response.json()
-        
-        # Check metadata for keywords in description or title
-        metadata = data.get('metadata', {})
-        description = metadata.get('description', '').lower()
-        title = metadata.get('title', '').lower()
-        
-        tasks_found = []
-        for task in REQUIRED_TASKS:
-            if task.lower() in description or task.lower() in title:
-                tasks_found.append(task)
-        
-        # Note: Zenodo API doesn't always expose file-level task labels in the main record metadata.
-        # If not found in metadata, we assume inconclusive and rely on local scan.
-        # However, for this specific dataset (WESAD), the tasks are known to be present in the raw files.
-        # The "Remote Pre-Check" here acts as a sanity check. If the record itself doesn't mention the tasks
-        # (which it might not in the abstract), we mark it as inconclusive to proceed to local scan.
-        
-        if tasks_found:
-            logger.info(f"Remote check found tasks: {tasks_found}")
-            return {
-                'found': True,
-                'tasks_found': tasks_found,
-                'status': 'success'
-            }
+        if not validation_result.get('valid', False):
+            result['valid'] = False
+            result['errors'].extend(validation_result.get('errors', []))
+            logger.warning(f"Validation failed for {events_file_path}: {validation_result.get('errors', [])}")
         else:
-            # If not found in metadata, we cannot definitively say they are missing without file access.
-            # We mark as inconclusive to force local scan if download exists.
-            logger.warning("Remote check inconclusive: Tasks not explicitly listed in record metadata.")
-            return {
-                'found': False,
-                'tasks_found': [],
-                'status': 'inconclusive'
-            }
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Remote metadata check failed: {e}")
-        return {
-            'found': False,
-            'tasks_found': [],
-            'status': 'error'
-        }
-
-def local_bids_scan(data_dir: Path, schema: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Scan local BIDS dataset for events.tsv files and validate them.
-    
-    Args:
-        data_dir: Path to the BIDS dataset root (e.g., data/raw/wesad/)
-        schema: The loaded JSON schema
-        
-    Returns:
-        Dict with 'found' (bool), 'tasks_found' (list), 'valid_files' (list), 'status' (str)
-    """
-    logger.info(f"Performing Local BIDS Scan in {data_dir}...")
-    tasks_found = set()
-    valid_files = []
-    invalid_files = []
-    
-    if not data_dir.exists():
-        logger.warning(f"Data directory not found: {data_dir}")
-        return {
-            'found': False,
-            'tasks_found': [],
-            'valid_files': [],
-            'invalid_files': [],
-            'status': 'directory_missing'
-        }
-
-    # Find all events.tsv files
-    events_files = list(data_dir.rglob("events.tsv"))
-    
-    if not events_files:
-        logger.warning("No events.tsv files found in local dataset.")
-        return {
-            'found': False,
-            'tasks_found': [],
-            'valid_files': [],
-            'invalid_files': [],
-            'status': 'no_events_files'
-        }
-
-    for event_file in events_files:
-        try:
-            # Validate against schema
-            is_valid = validate_events_tsv(event_file, schema)
+            logger.info(f"Validation passed for {events_file_path}")
             
-            if is_valid:
-                valid_files.append(str(event_file))
-                # Read the file to check for task labels
-                try:
-                    df = pd.read_csv(event_file, sep='\t')
-                    if 'task' in df.columns:
-                        unique_tasks = df['task'].unique().tolist()
-                        for task in unique_tasks:
-                            if task in REQUIRED_TASKS or any(r in task.lower() for r in ['schandry', 'heartbeat']):
-                                tasks_found.add(task)
-                    else:
-                        logger.warning(f"File {event_file} missing 'task' column.")
-                except Exception as e:
-                    logger.warning(f"Could not parse {event_file}: {e}")
-            else:
-                invalid_files.append(str(event_file))
-                
-        except Exception as e:
-            logger.error(f"Error processing {event_file}: {e}")
-            invalid_files.append(str(event_file))
+    except Exception as e:
+        result['valid'] = False
+        result['errors'].append(f"Validation error: {str(e)}")
+        logger.error(f"Unexpected error validating {events_file_path}: {e}")
+        
+    return result
 
-    found = len(tasks_found) > 0
-    status = 'success' if found else 'tasks_missing'
+def remote_metadata_pre_check():
+    """Perform remote metadata pre-check."""
+    logger.info("Checking remote metadata sources (OpenNeuro index)...")
+    index_path = DATA_RAW_DIR / "openneuro" / "index.json"
+    
+    if not index_path.exists():
+        logger.warning("OpenNeuro index not found. Skipping remote check.")
+        return {'checked': False, 'reason': 'Index not found'}
+    
+    try:
+        with open(index_path, 'r') as f:
+            index_data = json.load(f)
+        
+        # Look for TSST and heartbeat/interoception keywords
+        relevant_studies = []
+        for dataset in index_data.get('datasets', []):
+            dataset_id = dataset.get('id', '')
+            keywords = dataset.get('keywords', [])
+            description = dataset.get('description', {}).get('name', '')
+            
+            combined_text = (description + " " + " ".join(keywords)).lower()
+            
+            has_tsst = 'tsst' in combined_text
+            has_interoception = any(kw in combined_text for kw in ['heartbeat', 'interoception', 'interoceptive'])
+            
+            if has_tsst and has_interoception:
+                relevant_studies.append({
+                    'id': dataset_id,
+                    'name': description,
+                    'keywords': keywords
+                })
+        
+        logger.info(f"Found {len(relevant_studies)} relevant studies in OpenNeuro index")
+        return {
+            'checked': True,
+            'relevant_studies': relevant_studies,
+            'count': len(relevant_studies)
+        }
+        
+    except Exception as e:
+        logger.error(f"Error checking remote metadata: {e}")
+        return {'checked': False, 'reason': str(e)}
+
+def local_bids_scan(schema: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Perform local BIDS scan for events.tsv files and validate them.
+    
+    Returns a dict with:
+      - 'events_files': list of found files
+      - 'validations': list of validation results
+      - 'found_tasks': set of found task labels
+      - 'feasibility_status': 'Success' or 'Failure'
+    """
+    logger.info("Starting local BIDS scan...")
+    
+    events_files = find_events_files(DATA_RAW_DIR)
+    logger.info(f"Found {len(events_files)} events.tsv files")
+    
+    validations = []
+    found_tasks = set()
+    has_schandry_or_heartbeat = False
+    has_tsst = False
+    
+    for event_file in events_files:
+        # Validate against schema
+        validation_result = validate_events_tsv(event_file, schema)
+        validations.append(validation_result)
+        
+        if validation_result['valid']:
+            # Scan for tasks in valid files
+            try:
+                import pandas as pd
+                df = pd.read_csv(event_file, sep='\t')
+                if 'task' in df.columns:
+                    tasks = df['task'].unique()
+                    for task in tasks:
+                        task_lower = str(task).lower()
+                        found_tasks.add(task_lower)
+                        
+                        if task_lower in ['schandry', 'heartbeat']:
+                            has_schandry_or_heartbeat = True
+                        if task_lower == 'tsst':
+                            has_tsst = True
+            except Exception as e:
+                logger.warning(f"Could not scan tasks from {event_file}: {e}")
+    
+    # Determine feasibility status
+    if has_schandry_or_heartbeat:
+        feasibility_status = "Success"
+        logger.info("Feasibility Success: Found Schandry or heartbeat task")
+    else:
+        feasibility_status = "Failure"
+        logger.info("Feasibility Failure: Missing behavioral task (Schandry/heartbeat)")
     
     return {
-        'found': found,
-        'tasks_found': list(tasks_found),
-        'valid_files': valid_files,
-        'invalid_files': invalid_files,
-        'status': status
+        'events_files': [str(f) for f in events_files],
+        'validations': validations,
+        'found_tasks': list(found_tasks),
+        'has_schandry_or_heartbeat': has_schandry_or_heartbeat,
+        'has_tsst': has_tsst,
+        'feasibility_status': feasibility_status
     }
 
-def generate_audit_report(remote_result: Dict, local_result: Dict, download_success: bool) -> str:
+def generate_audit_report(remote_check: Dict[str, Any], local_scan: Dict[str, Any]) -> Path:
     """
-    Generate the final markdown report based on remote and local scan results.
+    Generate the final audit report to results/data_audit.md.
     
-    Logic:
-    - If remote check says 'success' (found tasks), report Success.
-    - If remote check says 'inconclusive' or 'error', rely on local scan.
-    - If local scan found tasks, report Success.
-    - If local scan found no tasks (and download existed), report Feasibility Failure.
-    - If download failed, report Download Failure.
+    Returns the path to the generated report.
     """
-    report_lines = []
-    report_lines.append("# Data Availability Audit Report")
-    report_lines.append(f"Generated: {time.strftime('%Y-%m-%d %H:%M:%S')}")
-    report_lines.append("")
+    logger.info("Generating audit report...")
     
-    # Feasibility Status Section
-    report_lines.append("## Feasibility Status")
-    report_lines.append("")
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    report_path = RESULTS_DIR / "data_audit.md"
     
-    final_status = "Unknown"
-    final_message = ""
-    
-    if not download_success:
-        final_status = "Feasibility Failure: Download Incomplete"
-        final_message = "The WESAD dataset download (T010) did not complete successfully. Local scan could not be performed."
-        report_lines.append(f"**Status**: {final_status}")
-        report_lines.append(f"**Message**: {final_message}")
-    else:
-        # Download succeeded, check scan results
-        if remote_result['status'] == 'success':
-            final_status = "Feasibility Success"
-            final_message = f"Remote metadata check confirmed presence of required tasks: {', '.join(remote_result['tasks_found'])}."
-        elif local_result['found']:
-            final_status = "Feasibility Success"
-            final_message = f"Local BIDS scan confirmed presence of required tasks: {', '.join(local_result['tasks_found'])}."
+    with open(report_path, 'w') as f:
+        f.write("# Data Availability Audit Report\n\n")
+        f.write(f"**Generated:** {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+        
+        # Remote Check Section
+        f.write("## Remote Metadata Check (OpenNeuro)\n")
+        if remote_check.get('checked'):
+            f.write(f"- **Status:** Checked\n")
+            f.write(f"- **Relevant Studies Found:** {remote_check.get('count', 0)}\n")
+            if remote_check.get('relevant_studies'):
+                f.write("\n### Relevant Studies\n")
+                for study in remote_check['relevant_studies']:
+                    f.write(f"- **{study['id']}**: {study['name']}\n")
+                    f.write(f"  - Keywords: {', '.join(study['keywords'])}\n")
         else:
-            final_status = "Feasibility Failure: Missing Behavioral Task"
-            final_message = "Required behavioral tasks (Schandry, heartbeat) were not found in the dataset metadata or local BIDS files."
+            f.write(f"- **Status:** Not Checked\n")
+            f.write(f"- **Reason:** {remote_check.get('reason', 'Unknown')}\n")
+        f.write("\n")
         
-        report_lines.append(f"**Status**: {final_status}")
-        report_lines.append(f"**Message**: {final_message}")
-    
-    report_lines.append("")
-    report_lines.append("---")
-    report_lines.append("")
-    
-    # Remote Pre-Check Details
-    report_lines.append("## Remote Metadata Pre-Check")
-    report_lines.append(f"Status: {remote_result['status']}")
-    report_lines.append(f"Tasks Found: {', '.join(remote_result['tasks_found']) if remote_result['tasks_found'] else 'None'}")
-    report_lines.append("")
-    
-    # Local BIDS Scan Details
-    report_lines.append("## Local BIDS Scan")
-    report_lines.append(f"Data Directory: data/raw/wesad/")
-    report_lines.append(f"Scan Status: {local_result['status']}")
-    report_lines.append(f"Tasks Found: {', '.join(local_result['tasks_found']) if local_result['tasks_found'] else 'None'}")
-    report_lines.append(f"Valid Events Files: {len(local_result['valid_files'])}")
-    report_lines.append(f"Invalid Events Files: {len(local_result['invalid_files'])}")
-    report_lines.append("")
-    
-    if local_result['valid_files']:
-        report_lines.append("Valid Files:")
-        for f in local_result['valid_files']:
-            report_lines.append(f"- {f}")
-    report_lines.append("")
-    
-    if local_result['invalid_files']:
-        report_lines.append("Invalid Files (Schema Mismatch):")
-        for f in local_result['invalid_files']:
-            report_lines.append(f"- {f}")
-    report_lines.append("")
-    
-    # Conclusion
-    report_lines.append("## Conclusion")
-    report_lines.append("")
-    if final_status == "Feasibility Success":
-        report_lines.append("The dataset contains the required behavioral tasks. The pipeline may proceed to Phase 4 (Preprocessing).")
-    else:
-        report_lines.append("**Pipeline Termination**: The required data is missing. The pipeline must stop here.")
-        report_lines.append("Do NOT proceed to HRV preprocessing or regression analysis.")
+        # Local Scan Section
+        f.write("## Local BIDS Scan\n")
+        f.write(f"- **Events Files Found:** {len(local_scan.get('events_files', []))}\n")
+        f.write(f"- **Tasks Found:** {', '.join(local_scan.get('found_tasks', []))}\n")
+        f.write(f"- **Has Schandry/Heartbeat:** {local_scan.get('has_schandry_or_heartbeat', False)}\n")
+        f.write(f"- **Has TSST:** {local_scan.get('has_tsst', False)}\n")
+        f.write("\n")
         
-    return "\n".join(report_lines)
+        # Validation Results
+        f.write("## Schema Validation Results\n")
+        for v in local_scan.get('validations', []):
+            status = "✅ Valid" if v['valid'] else "❌ Invalid"
+            f.write(f"- **{v['file']}**: {status}\n")
+            if v['errors']:
+                for err in v['errors']:
+                    f.write(f"  - {err}\n")
+        f.write("\n")
+        
+        # Feasibility Status
+        f.write("## Feasibility Status\n")
+        status = local_scan.get('feasibility_status', 'Unknown')
+        if status == "Success":
+            f.write("### ✅ Feasibility Success\n")
+            f.write("Required behavioral tasks (Schandry/heartbeat) found in local data.\n")
+            f.write("Pipeline can proceed to HRV preprocessing (Phase 4).\n")
+        else:
+            f.write("### ❌ Feasibility Failure: Missing Behavioral Task\n")
+            f.write("Required behavioral tasks (Schandry/heartbeat) NOT found in local data.\n")
+            f.write("Pipeline will trigger UBDE calculation path (T030).\n")
+        
+    logger.info(f"Audit report generated at {report_path}")
+    return report_path
 
 def main():
-    """Main entry point for the audit script."""
-    logger.info("Starting Data Availability Audit (T011/T014)...")
+    """Main entry point for audit metadata script."""
+    start_time = time.time()
+    logger.info("Starting metadata audit...")
     
-    # Check if download was successful (T010 flag)
-    download_success = DOWNLOAD_FLAG_PATH.exists()
-    logger.info(f"WESAD Download Flag exists: {download_success}")
-    
-    # 1. Remote Pre-Check
-    remote_result = remote_metadata_pre_check()
-    
-    # 2. Local Scan (only if download succeeded)
-    local_result = {
-        'found': False,
-        'tasks_found': [],
-        'valid_files': [],
-        'invalid_files': [],
-        'status': 'skipped'
-    }
-    
-    if download_success:
-        schema = load_schema(SCHEMA_PATH)
-        data_dir = Path("data/raw/wesad")
-        local_result = local_bids_scan(data_dir, schema)
-    else:
-        logger.info("Skipping local scan because download flag is missing.")
-        local_result['status'] = 'skipped'
-    
-    # 3. Generate Report
-    report_content = generate_audit_report(remote_result, local_result, download_success)
-    
-    # Write report
-    AUDIT_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with open(AUDIT_REPORT_PATH, 'w') as f:
-        f.write(report_content)
-    
-    logger.info(f"Audit report written to {AUDIT_REPORT_PATH}")
-    
-    # Determine exit code
-    # If Feasibility Failure, we exit 0 (success of the script) but the content indicates failure.
-    # The pipeline logic (T029) will read the file and decide to stop.
-    # If download failed completely and we can't even check, we might exit non-zero?
-    # Per spec: "exit 0 with failure status in report" for feasibility failure.
-    # "exit non-zero (if download failed and no local scan possible)" -> handled by T010 mostly, but here if download failed, we report failure.
-    
-    if "Feasibility Failure" in report_content:
-        logger.warning("Feasibility Failure detected. Pipeline should terminate.")
-        # Exit 0 as the script successfully generated the failure report
-        sys.exit(0)
-    else:
-        logger.info("Feasibility Success. Pipeline may proceed.")
-        sys.exit(0)
+    try:
+        # 1. Load Schema
+        schema = load_schema()
+        
+        # 2. Remote Pre-check
+        remote_result = remote_metadata_pre_check()
+        
+        # 3. Local BIDS Scan with Validation
+        local_result = local_bids_scan(schema)
+        
+        # 4. Generate Report
+        report_path = generate_audit_report(remote_result, local_result)
+        
+        elapsed = time.time() - start_time
+        logger.info(f"Audit completed in {elapsed:.2f} seconds")
+        logger.info(f"Report saved to: {report_path}")
+        
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Audit failed: {e}")
+        import traceback
+        traceback.print_exc()
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

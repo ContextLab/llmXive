@@ -1,3 +1,18 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer did not provide any evidence that the required directories (`code/`,
+    `tests/`, `data/`, `results/`) actually exist or contain any files; only narrative
+    user stories were shown. The project structure itself is missing, so the task
+    is not satisfied.
+T002c:
+  c: false
+  h: 9d6f6d99ebb9c38a8822d391600b14d01f7038ac2f9c2dba21c5809657f4c01c
+  r: The provided `code/utils/schema_validator.py` is present but the required schema
+    file `contracts/dataset.schema.yaml` does not exist, so the loader cannot succeed.
+    Moreover, the script does not show a complete implementation for reading BIDS
+    `events.tsv` files, handling TSV/JSON parsing errors, or exiting with the specified
+    error codes. These essential parts are missing.
 T007:
   c: false
   h: 1f2f3677069dfd670811f6d36716ce97fa03e3a23e5d025a8414310fe750a531
@@ -7,40 +22,19 @@ T007:
     \ file is absent. Additionally, the required state file `state/projects/001-impact-of-interoceptive-awareness.yaml`\
     \ does not exist, indicating the script has not successfully created or updated\
     \ it. The task therefore remains unfinished."
-T008:
-  c: false
-  h: 8227aeaefabea554429f0a4387fd4fb8c2a022916c392c17d1b118c0ee7a96e1
-  r: "The provided `code/01_download_data.py` defines a checksum function and a path\
-    \ for `results/checksums.txt`, but the truncated script shows no code that actually\
-    \ writes the SHA\u2011256 values to that file, and the file itself is missing.\
-    \ Additionally, there is no evidence of a pytest configuration with seed pinning\
-    \ or `GITHUB_JOB_DURATION` logging. The task\u2019s core requirement is therefore\
-    \ unmet."
-T009:
-  c: false
-  h: a443daee7d3e8c9c8ab9558a088d498fca2400ce590e91042fdbabcbb9511bff
-  r: "The provided `tests/test_audit.py` file exists, but the visible excerpt does\
-    \ not contain the required test functions `test_parse_metadata_handles_missing_task`\
-    \ and `test_audit_flow_mock_data`, nor the specific assertions about the warning\
-    \ message and the creation of `results/data_audit.md` with a \u201CFeasibility\
-    \ Failure\u201D status. Consequently the test suite does not demonstrably meet\
-    \ the task\u2019s specifications. The missing test definitions need to be added."
-T010:
+T010b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The conversation contains no script, file, or log showing that the WESAD dataset\
-    \ was downloaded to `data/raw/wesad/` using `requests` with the required timeout\
-    \ and error\u2011handling behavior. Without any artifact (e.g., a Python script,\
-    \ download log, or the presence of the downloaded archive), the claim cannot be\
-    \ verified. The required download artifact is missing."
-T011:
+  r: No evidence of a downloaded OpenNeuro metadata file (or any files) in `data/raw/openneuro/`
+    is provided, nor any logs showing error handling or continuation to the next pipeline
+    step. The required artifact is missing, so the task is not satisfied.
+T011b:
   c: false
-  h: 7d93ad967eefecb89e1a6c0b574ff7617aaeb9c739c14764929ed30e57494361
-  r: "The script `code/02_audit_metadata.py` exists, but it depends on `contracts/dataset.schema.yaml`,\
-    \ which is missing, so it cannot perform the required schema validation. Additionally,\
-    \ the provided code excerpt does not show the required \u201CFeasibility Failure:\
-    \ Missing Behavioral Task\u201D logging and pipeline termination logic. The task\
-    \ therefore is not fully satisfied."
+  h: 47d76e66d64c3cea2e5e0fb33af44fc4dbc2d35f2a3db38355f9f52a368d2629
+  r: The `code/02_audit_metadata.py` script contains validation logic that imports
+    and calls `utils.schema_validator`, but the required schema file `contracts/dataset.schema.yaml`
+    is missing, so the validation cannot actually be performed. The missing schema
+    file must be added (or the path corrected) for the implementation to be functional.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

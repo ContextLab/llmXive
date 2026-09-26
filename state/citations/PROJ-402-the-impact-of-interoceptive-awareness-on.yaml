@@ -42,18 +42,18 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
   verified_at: '2026-08-04T18:40:16.650707Z'
-- artifact_hash: e057d52006df194dcf4718ac20cd0dfe01280afe16f449276a956d68596131a2
+- artifact_hash: 8bf8972fb252fd3f47f77320f900670c57d482a66938561d66f89758aa543f68
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Pipeline - Wikipedia
+  fetched_title: null
   kind: url
-  value: https://en.wikipedia.org/wiki/Pipeline_
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Pipeline
-  verified_at: '2026-09-22T12:37:40.679460Z'
-- artifact_hash: e057d52006df194dcf4718ac20cd0dfe01280afe16f449276a956d68596131a2
+  value: https://api.openneuro.org/datasets`
+  verification_status: unreachable
+  verified_against_url: https://api.openneuro.org/datasets
+  verified_at: '2026-09-26T15:57:27.229922Z'
+- artifact_hash: 8bf8972fb252fd3f47f77320f900670c57d482a66938561d66f89758aa543f68
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: 10.5281/zenodo.1292932
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
-  verified_at: '2026-09-22T12:37:40.679460Z'
+  verified_at: '2026-09-26T15:57:27.229922Z'

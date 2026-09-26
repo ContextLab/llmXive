@@ -1,31 +1,30 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: BIDS Events TSV Schema
-description: Schema for validating BIDS events.tsv files for interoceptive awareness tasks.
-type: object
+title: "BIDS events.tsv schema for interoception/stress tasks"
+description: "JSON Schema for validating BIDS events.tsv files in the interoception study."
+type: "object"
 properties:
   task:
-    type: string
+    type: "string"
+    description: "The task label for the event."
     enum:
-      - Schandry
-      - heartbeat
-      - TSST
-      - rest
-      - resting
-      - baseline
-    description: The task name as defined in the BIDS dataset.
+      - "Schandry"
+      - "heartbeat"
+      - "TSST"
+      - "rest"
+      - "baseline"
   onset:
-    type: number
-    description: Onset time in seconds relative to the start of the task.
+    type: "number"
+    description: "Time of event onset in seconds."
   duration:
-    type: number
-    description: Duration of the event in seconds.
+    type: "number"
+    description: "Duration of the event in seconds."
   value:
-    type: number
-    description: Optional value associated with the event (e.,g., intensity).
+    type: "number"
+    description: "Optional value associated with the event (e.g., heart rate)."
   trial_type:
-    type: string
-    description: Optional label for the specific trial type.
+    type: "string"
+    description: "Optional trial type classification."
 required:
-  - task
-  - onset
-  - duration
+  - "task"
+  - "onset"
+  - "duration"
