@@ -1,24 +1,5 @@
 - artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
   attempts: 1
-  canonical: "Ingestion script on NIST subset yields \u226595% success rate"
-  claim_id: c_9162ce06
-  context: "Independent Test: Running the ingestion script on a known subset of the\
-    \ NIST database produces a CSV with valid SMILES, rate constants, and descriptors,\
-    \ with \u226595% success rate and proper stratification."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Running the ingestion script on a known subset of the NIST database produces\
-    \ a CSV with valid SMILES, rate constants, and descriptors, with \u226595% success\
-    \ rate and proper stratification."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T11:48:37Z'
-- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
-  attempts: 1
   canonical: Training job completes within 6 hours on 2-core CPU
   claim_id: c_8d2a10dd
   context: "Independent Test: The training job completes within 6 hours on a 2-core\
@@ -36,28 +17,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T11:49:05Z'
-- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
-  attempts: 1
-  canonical: Interpretability module produces SHAP plot, sensitivity report, and perturbation
-    study
-  claim_id: c_a304f62c
-  context: 'Independent Test: The interpretability module produces a SHAP summary
-    plot, a sensitivity report, and a perturbation study confirming feature importance
-    correlates with predictive performance.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Interpretability_module_produces_SHAP_plot,_sensitivity_repo
-  kind: entity_fact
-  raw_text: The interpretability module produces a SHAP summary plot, a sensitivity
-    report, and a perturbation study confirming feature importance correlates with
-    predictive performance.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T11:49:31Z'
 - artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
   attempts: 1
   canonical: Primary SN1 data source is HuggingFace chemistry/dts-sn1
@@ -1463,3 +1422,392 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-15T09:39:47Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: SN1 ingestion success rate >= 95% on NIST subset
+  claim_id: c_7d63e380
+  context: "Independent Test: Running the ingestion script on a known subset of the\
+    \ NIST database produces a CSV with valid SMILES, rate constants, and descriptors,\
+    \ with \u226595% success rate and proper stratification."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Running the ingestion script on a known subset of the NIST database produces\
+    \ a CSV with valid SMILES, rate constants, and descriptors, with \u226595% success\
+    \ rate and proper stratification."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:16:56Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: MPNN training completes within 6 hours on 2-core CPU
+  claim_id: c_7a2856f7
+  context: "Independent Test: The training job completes within 6 hours on a 2-core\
+    \ CPU runner., saves model weights, and outputs R\xB2/MAE metrics comparing MPNN\
+    \ to linear regression with statistical significance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training job completes within 6 hours on a 2-core CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:17:21Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 2
+  canonical: Interpretability module produces SHAP plot, sensitivity report, and perturbation
+    study
+  claim_id: c_a304f62c
+  context: 'Independent Test: The interpretability module produces a SHAP summary
+    plot, a sensitivity report, and a perturbation study confirming feature importance
+    correlates with predictive performance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interpretability_module_produces_SHAP_plot,_sensitivity_repo
+  kind: entity_fact
+  raw_text: The interpretability module produces a SHAP summary plot, a sensitivity
+    report, and a perturbation study confirming feature importance correlates with
+    predictive performance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:17:53Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Top 10 atoms selected by total absolute SHAP
+  claim_id: c_986647d8
+  context: 'Logic: 1) Map node SHAP values to atoms using node_to_atom_mapping.json.
+    2) Sum absolute SHAP values for each unique atom across the test set. 3) Sort
+    atoms by total absolute SHAP. 4) Select top-k=10 atoms.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top-k=10 atoms are selected based on total absolute SHAP values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:18:18Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: VIF > 5 threshold for collinearity flag
+  claim_id: c_d4116f61
+  context: 'Logic: 1) Check dataset size. If < 2 features, log status: ''skip'', reason:
+    ''insufficient_features'' and exit. 2) Filtering: Explicitly exclude Gasteiger
+    charges from the feature matrix before calculation. 3) Calculate VIF for all remaining
+    predictors. 4) Identify pairs with VIF > 5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pairs with VIF > 5 are identified as flagged in the collinearity report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:18:18Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Feasibility check limits runtime to 5.5 hours
+  claim_id: c_76e0bf5a
+  context: 'Feasibility Check: Before training, estimate runtime. If > 5.5 hours,
+    dynamically select the largest feasible subset (max rows within 5.5 hours) and
+    use that for the consistency check.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feasibility_check_limits_runtime_to_5.5_hours
+  kind: magnitude
+  raw_text: The feasibility check dynamically selects the largest feasible subset
+    if the training runtime estimate exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:19:10Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 2
+  canonical: "Ingestion script on NIST subset yields \u226595% success rate"
+  claim_id: c_9162ce06
+  context: "Independent Test: Running the ingestion script on a known subset of the\
+    \ NIST database produces a CSV with valid SMILES, rate constants, and descriptors,\
+    \ with \u226595% success rate and proper stratification."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Running the ingestion script on a known subset of the NIST database produces\
+    \ a CSV with valid SMILES, rate constants, and descriptors, with \u226595% success\
+    \ rate and proper stratification."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:20:43Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Training job completes within 6 hours on 2-core CPU
+  claim_id: c_b9c48e38
+  context: "Independent Test: The training job completes within 6 hours on a 2-core\
+    \ CPU runner., saves model weights, and outputs R\xB2/MAE metrics comparing MPNN\
+    \ to linear regression with statistical significance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training job completes within 6 hours on a 2-core CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:20:44Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Stratified split matches original distribution within 5% variance
+  claim_id: c_78719c82
+  context: 'Logic: 1) Load cleaned dataset. 2) Stratify on substrate_class. 3) Split
+    data into training, validation, and test sets. 4) Verify proportional representation
+    matches original distribution within 5% variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify proportional representation matches original distribution within
+    5% variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:20:44Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Reduce hyperparameter search if dataset size N >= 2000
+  claim_id: c_c1edf5d8
+  context: 'Logic: 1) Re-run the full pipeline (main.py) from ingestion to final report
+    generation using the production configuration. 2) Dynamic Budgeting: Count rows
+    in data/processed/cleaned_sn1.csv to determine N. If N >= 2000, reduce hyperparameter
+    search configurations to a manageable limit before execution by passing --max-configs
+    to code/models/train.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N >= 2000, reduce hyperparameter search configurations to a manageable
+    limit before execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:21:33Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: SN1 data ingestion success rate >= 95% on NIST subset
+  claim_id: c_8f242df0
+  context: 'Independent Test for User Story 1: Ingest public SN1 kinetic datasets...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Running the ingestion script on a known subset of the NIST database produces\
+    \ a CSV with valid SMILES, rate constants, and descriptors, with \u226595% success\
+    \ rate and proper stratification."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:22:06Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: MPNN training completes within 6 hours on 2-core CPU
+  claim_id: c_4df660be
+  context: 'Independent Test for User Story 2: Train a Message Passing Neural Network...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training job completes within 6 hours on a 2-core CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:22:06Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: MPNN vs linear regression R2/MAE metrics with statistical significance
+  claim_id: c_c593f53a
+  context: 'Independent Test for User Story 2: Train a Message Passing Neural Network...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MPNN_vs_linear_regression_R2/MAE_metrics_with_statistical_si
+  kind: entity_fact
+  raw_text: "The training job outputs R\xB2/MAE metrics comparing MPNN to linear regression\
+    \ with statistical significance."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:22:45Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Interpretability module produces SHAP plot, sensitivity report, and perturbation
+    study confirming feature importance correlation
+  claim_id: c_fff0a34d
+  context: 'Independent Test for User Story 3: Generate feature importance analysis...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interpretability_module_produces_SHAP_plot,_sensitivity_repo
+  kind: entity_fact
+  raw_text: The interpretability module produces a SHAP summary plot, a sensitivity
+    report, and a perturbation study confirming feature importance correlates with
+    predictive performance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:22:47Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Hyperparameter search limited to 50 configurations
+  claim_id: c_8a026e52
+  context: T020 [US2] Implement code/models/train.py with random search hyperparameter
+    optimization...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The hyperparameter search is limited to \u226450 configurations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:22:47Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: MPNN layer count bounded between 1 and 4
+  claim_id: c_ba6f15ca
+  context: T019 [US2] Implement code/models/mpnn.py with shallow architecture...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MPNN layer count is bounded within 1-4 range.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:23:36Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Stratified split proportional representation within 5% variance
+  claim_id: c_e92cdd5f
+  context: T014 [US1] Implement code/data/split.py to perform a stratified split...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stratified split verification ensures proportional representation
+    matches original distribution within 5% variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:23:36Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Multi-seed training feasibility check limits runtime to 5.5 hours
+  claim_id: c_e2328bc9
+  context: T035A [US3] Implement code/analysis/multi_seed_runner.py to execute training
+    across multiple random seeds...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Multi-seed_training_feasibility_check_limits_runtime_to_5.5
+  kind: magnitude
+  raw_text: The feasibility check for multi-seed training dynamically selects the
+    largest feasible subset if runtime exceeds 5.5 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:24:03Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis pass threshold: R2 variance < 0.01'
+  claim_id: c_52d322f1
+  context: T036 [US3] Implement code/analysis/sensitivity_runner.py... log a PASS
+    if variance < 0.01 (SC-003)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis passes if the variance of R\xB2 across the sweep\
+    \ is < 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:24:03Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: 'Hyperparameter sensitivity analysis pass threshold: variance < 0.01'
+  claim_id: c_faa8424b
+  context: T037 [US3] Implement code/analysis/hyperparameter_sensitivity.py... log
+    a PASS if variance < 0.01 (SC-003)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter sensitivity analysis passes if the variance is < 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:24:04Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Collinearity analysis flags pairs with VIF > 5
+  claim_id: c_5b3796d1
+  context: T028 [US3] Implement code/analysis/collinearity.py to calculate VIF...
+    Identify pairs with VIF > 5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The collinearity analysis flags pairs with VIF > 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:24:04Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Hyperparameter search reduced if dataset size >= 2000
+  claim_id: c_42b2aeb2
+  context: T040 [P] Perform a mandatory final end-to-end validation run... If N >=
+    2000, reduce hyperparameter search configurations...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final end-to-end validation run counts rows in cleaned_sn1.csv and
+    reduces hyperparameter search configurations if N >= 2000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T14:24:26Z'

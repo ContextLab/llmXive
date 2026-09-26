@@ -3,91 +3,117 @@ import json
 import csv
 import os
 from pathlib import Path
-import tempfile
-import shutil
+from unittest.mock import patch, MagicMock
+import sys
+
+# Add parent to path
+_parent_dir = str(Path(__file__).resolve().parent.parent.parent)
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
 
 from data.finalize_dataset import (
     calculate_success_rate,
+    save_success_rate_report,
     compute_file_checksum,
-    load_processed_data,
-    save_dataset,
-    save_success_rate_report
+    main
 )
 
 @pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test artifacts."""
-    path = tempfile.mkdtemp()
-    yield Path(path)
-    shutil.rmtree(path)
+def temp_dirs(tmp_path):
+    raw_dir = tmp_path / "raw"
+    processed_dir = tmp_path / "processed"
+    raw_dir.mkdir()
+    processed_dir.mkdir()
+    return {"raw": raw_dir, "processed": processed_dir}
 
 def test_calculate_success_rate():
-    """Test success rate calculation logic."""
     assert calculate_success_rate(95, 100) == 0.95
-    assert calculate_success_rate(0, 100) == 0.0
     assert calculate_success_rate(100, 100) == 1.0
-    assert calculate_success_rate(50, 200) == 0.25
+    assert calculate_success_rate(0, 100) == 0.0
+    assert calculate_success_rate(50, 0) == 0.0  # Guard against div by zero
 
-def test_calculate_success_rate_zero_division():
-    """Test success rate with zero input count."""
-    assert calculate_success_rate(10, 0) == 0.0
+def test_save_success_rate_report(tmp_path):
+    output_path = tmp_path / "success.json"
+    save_success_rate_report(0.99, "PASS", None, output_path)
+    assert output_path.exists()
+    with open(output_path) as f:
+        data = json.load(f)
+    assert data["status"] == "PASS"
+    assert data["success_rate"] == 0.99
+    assert data["reason"] == "success"
 
-def test_compute_file_checksum(temp_dir):
-    """Test file checksum computation."""
-    test_file = temp_dir / "test.txt"
-    test_file.write_text("Hello, World!")
+def test_compute_file_checksum(tmp_path):
+    file_path = tmp_path / "test.txt"
+    file_path.write_text("hello world")
+    checksum = compute_file_checksum(file_path)
+    assert len(checksum) == 32  # MD5 hex length
+    assert isinstance(checksum, str)
+
+@patch('data.finalize_dataset.DataConfig')
+@patch('data.finalize_dataset.ensure_dirs')
+@patch('pandas.read_parquet')
+def test_main_success(mock_read_parquet, mock_ensure, mock_config, temp_dirs, tmp_path):
+    # Setup mocks
+    mock_df = MagicMock()
+    mock_df.__len__ = lambda self: 100
+    mock_read_parquet.return_value = mock_df
     
-    checksum = compute_file_checksum(test_file)
-    assert len(checksum) == 64  # SHA256 hex length
+    mock_config_inst = MagicMock()
+    mock_config_inst.data_raw_dir = temp_dirs["raw"]
+    mock_config_inst.data_processed_dir = temp_dirs["processed"]
+    mock_config.return_value = mock_config_inst
 
-def test_load_processed_data(temp_dir):
-    """Test loading CSV data."""
-    csv_file = temp_dir / "data.csv"
-    with open(csv_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=['a', 'b'])
+    # Create input files
+    input_csv = temp_dirs["processed"] / "cleaned_intermediate.csv"
+    with open(input_csv, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['smiles', 'rate', 'desc'])
         writer.writeheader()
-        writer.writerow({'a': '1', 'b': '2'})
-        writer.writerow({'a': '3', 'b': '4'})
-    
-    data = load_processed_data(csv_file)
-    assert len(data) == 2
-    assert data[0] == {'a': '1', 'b': '2'}
+        for i in range(96): # 96% success rate
+            writer.writerow({'smiles': f'C{i}', 'rate': 1.0, 'desc': 0.5})
 
-def test_save_dataset(temp_dir):
-    """Test saving dataset to CSV."""
-    output_file = temp_dir / "output.csv"
-    data = [{'a': '1', 'b': '2'}, {'a': '3', 'b': '4'}]
-    
-    save_dataset(data, output_file)
-    
-    assert output_file.exists()
-    with open(output_file, 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
-        assert len(rows) == 2
-        assert rows[0] == {'a': '1', 'b': '2'}
+    raw_parquet = temp_dirs["raw"] / "sn1_raw.parquet"
+    raw_parquet.touch() # Mock existence
 
-def test_save_success_rate_report(temp_dir):
-    """Test saving success rate report."""
-    json_file = temp_dir / "report.json"
+    # Run main
+    exit_code = main()
     
-    save_success_rate_report(0.98, "PASS", None, json_file)
-    
-    assert json_file.exists()
-    with open(json_file, 'r') as f:
-        report = json.load(f)
-        assert report['status'] == 'PASS'
-        assert report['success_rate'] == 0.98
-        assert report['reason'] is None
+    assert exit_code == 0
+    assert (temp_dirs["processed"] / "cleaned_sn1.csv").exists()
+    assert (temp_dirs["processed"] / "success_rate.json").exists()
+    assert (temp_dirs["processed"] / "cleaned_sn1.csv.md5").exists()
 
-def test_save_success_rate_report_fail(temp_dir):
-    """Test saving fail success rate report."""
-    json_file = temp_dir / "report_fail.json"
+@patch('data.finalize_dataset.DataConfig')
+@patch('data.finalize_dataset.ensure_dirs')
+@patch('pandas.read_parquet')
+def test_main_fail_low_success(mock_read_parquet, mock_ensure, mock_config, temp_dirs, tmp_path):
+    mock_df = MagicMock()
+    mock_df.__len__ = lambda self: 100
+    mock_read_parquet.return_value = mock_df
     
-    save_success_rate_report(0.90, "FAIL", "success_rate_below_threshold", json_file)
+    mock_config_inst = MagicMock()
+    mock_config_inst.data_raw_dir = temp_dirs["raw"]
+    mock_config_inst.data_processed_dir = temp_dirs["processed"]
+    mock_config.return_value = mock_config_inst
+
+    input_csv = temp_dirs["processed"] / "cleaned_intermediate.csv"
+    with open(input_csv, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['smiles', 'rate', 'desc'])
+        writer.writeheader()
+        for i in range(90): # 90% success rate
+            writer.writerow({'smiles': f'C{i}', 'rate': 1.0, 'desc': 0.5})
+
+    raw_parquet = temp_dirs["raw"] / "sn1_raw.parquet"
+    raw_parquet.touch()
+
+    exit_code = main()
     
-    assert json_file.exists()
-    with open(json_file, 'r') as f:
-        report = json.load(f)
-        assert report['status'] == 'FAIL'
-        assert report['reason'] == 'success_rate_below_threshold'
+    assert exit_code == 1
+    assert not (temp_dirs["processed"] / "cleaned_sn1.csv").exists()
+    
+    # Check failure log
+    json_path = temp_dirs["processed"] / "success_rate.json"
+    assert json_path.exists()
+    with open(json_path) as f:
+        data = json.load(f)
+    assert data["status"] == "FAIL"
+    assert data["reason"] == "success_rate_below_threshold"

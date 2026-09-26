@@ -16,7 +16,7 @@ Rewritten passage:`), validates strict metadata requirements (temperature, solve
 **Primary Dependencies**: `rdkit`, `torch` (CPU-only), `scikit-learn`, `shap`, `datasets`, `pandas`, `pyyaml`  
 **Storage**: Local files in `data/` (raw, processed, artifacts); `data/` files are checksummed.  
 **Testing**: `pytest` for unit tests; integration tests via `main.py` execution on CI.  
-**Target Platform**: GitHub Actions Free Tier (multiple CPUs, ~7 GB RAM, ~14 GB disk, no GPU).  
+**Target Platform**: GitHub Actions Free Tier (multiple CPUs, ~7 GB RAM, ~ GB disk, no GPU).  
 **Project Type**: Computational Research Pipeline / Library  
 **Performance Goals**: Complete full pipeline (ingestion → training → evaluation) within 6 hours on 2-core CPU.  
 **Constraints**: No GPU usage for training; strict exclusion of datasets missing required metadata; deterministic seeding (seed=42); no causal language in output.  
@@ -106,7 +106,7 @@ No violations detected. Complexity is justified by the need for Nested CV, scaff
 ## Implementation Phases
 
 ### Phase 0: Data Ingestion & Validation
-- Download `DTS-SN1-15-01-2024` and `SN18-All-20240204`.
+- Download `DTS-SN-01-2024` and `SN18-All-20240204`.
 - Verify presence of `SMILES`, `rate_constant`, `substrate_class`, `temperature`, `solvent`.
 - Exclude datasets missing any required column (FR-009).
 - **Distribution Shift Check**: Harmonize units (convert all rates to s⁻¹) and check for experimental condition shifts between datasets. Exclude rows with inconsistent units or unresolvable condition shifts.

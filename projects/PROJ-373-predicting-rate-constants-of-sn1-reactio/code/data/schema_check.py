@@ -18,6 +18,9 @@ MAX_RETRIES = 5
 INITIAL_BACKOFF = 1.0  # seconds
 MAX_BACKOFF = 30.0     # seconds
 
+# Required columns for SN1 dataset validation
+REQUIRED_COLUMNS = ['smiles', 'rate_constant', 'substrate_class', 'temperature', 'solvent']
+
 def setup_schema_check_logger() -> logging.Logger:
     """Setup logging for schema check."""
     return get_logger(__name__)
@@ -43,7 +46,9 @@ def fetch_dataset_info_with_retry(dataset_name: str, split: str = 'train') -> Tu
             features = dataset.info.features
             if features:
                 logger.info(f"Successfully fetched dataset info for {dataset_name}")
-                return features, None
+                # Convert features to a dictionary of column names
+                features_dict = {key: str(value) for key, value in features.items()}
+                return features_dict, None
             else:
                 raise ValueError("Dataset features returned empty or None")
 
@@ -77,11 +82,10 @@ def main():
     parser = argparse.ArgumentParser(description="Check dataset schema for SN1 reaction data")
     parser.add_argument("--dataset", type=str, default="author/DTS-SN1-15-01-2024", 
                         help="HuggingFace dataset name")
-    parser.add_argument("--output", type=str, default="data/processed/schema_check.log", 
-                        help="Output log path")
-    parser.add_argument("--required-columns", nargs='+', default=[
-        'smiles', 'rate_constant', 'substrate_class', 'temperature', 'solvent'
-    ], help="Required columns to validate")
+    parser.add_argument("--output", type=str, default="data/processed/.pipeline_status", 
+                        help="Output status file path")
+    parser.add_argument("--required-columns", nargs='+', default=REQUIRED_COLUMNS, 
+                        help="Required columns to validate")
     args = parser.parse_args()
 
     ensure_dirs()
@@ -98,9 +102,7 @@ def main():
             # Fatal error: network issue or dataset not found
             logger.critical(f"Schema check halted: {error}")
             with open(args.output, 'w') as f:
-                f.write(f"status: 'error'\n")
-                f.write(f"reason: '{error}'\n")
-                f.write("action: 'pipeline_halted'\n")
+                f.write("ABORTED\n")
             raise ValueError(f"Schema check failed due to network/dataset error: {error}")
 
         # Validate required columns
@@ -111,20 +113,15 @@ def main():
             error_msg = f"Missing required columns: {missing}"
             logger.critical(f"Schema check halted: {error_msg}")
             with open(args.output, 'w') as f:
-                f.write(f"status: 'fail'\n")
-                f.write(f"reason: '{error_msg}'\n")
-                f.write("action: 'pipeline_halted'\n")
+                f.write("ABORTED\n")
             raise ValueError(error_msg)
 
         # Success
         logger.info("Schema validation passed for all required columns")
         with open(args.output, 'w') as f:
-            f.write("status: 'pass'\n")
-            f.write(f"dataset: {args.dataset}\n")
-            f.write(f"columns_verified: {list(features.keys())}\n")
-            f.write("action: 'proceed'\n")
+            f.write("OK\n")
         
-        logger.info(f"Schema check log written to {args.output}")
+        logger.info(f"Pipeline status written to {args.output}")
 
     except ValueError as ve:
         # Re-raise to halt pipeline as per requirements
@@ -132,9 +129,7 @@ def main():
     except Exception as e:
         logger.critical(f"Unexpected error during schema check: {str(e)}")
         with open(args.output, 'w') as f:
-            f.write(f"status: 'error'\n")
-            f.write(f"reason: 'unexpected_exception: {str(e)}'\n")
-            f.write("action: 'pipeline_halted'\n")
+            f.write("ABORTED\n")
         raise e
 
 if __name__ == "__main__":

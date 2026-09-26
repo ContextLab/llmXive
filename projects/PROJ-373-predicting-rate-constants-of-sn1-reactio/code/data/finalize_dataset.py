@@ -4,57 +4,53 @@ import csv
 import json
 import logging
 import argparse
-import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional
+import hashlib
 
-# Import from local modules based on API surface provided
-from config import DataConfig, ensure_dirs
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from config import ensure_dirs, DataConfig
 from utils.logger import get_logger
 
-def setup_finalize_logger(log_path: Path) -> logging.Logger:
-    """Set up the logger for the finalize dataset task."""
-    ensure_dirs(log_path.parent)
-    logger = get_logger("finalize_dataset", log_path)
-    return logger
+logger = get_logger(__name__)
 
-def load_processed_data(input_path: Path) -> List[Dict[str, Any]]:
-    """Load the cleaned intermediate dataset."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+def setup_finalize_logger():
+    """Setup logging for dataset finalization."""
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    log_file = log_dir / "finalize_dataset.log"
     
-    data = []
-    with open(input_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            data.append(row)
-    return data
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
 
-def load_exclusion_report(exclusion_path: Path) -> List[Dict[str, Any]]:
-    """Load the exclusion report if it exists."""
-    if not exclusion_path.exists():
-        return []
+def load_processed_data(file_path: str):
+    """Load the processed CSV file."""
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Input file not found: {file_path}")
     
-    data = []
-    with open(exclusion_path, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            data.append(row)
-    return data
+    import pandas as pd
+    return pd.read_csv(file_path)
 
-def save_dataset(data: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save the final processed dataset to CSV."""
-    ensure_dirs(output_path.parent)
-    if not data:
-        # Write empty file with headers if needed, or just create empty file
-        # Based on task, we expect data to be present if success_rate passes
-        pass 
+def load_exclusion_report(file_path: str):
+    """Load the exclusion report CSV."""
+    if not os.path.exists(file_path):
+        logger.warning(f"Exclusion report not found: {file_path}")
+        return pd.DataFrame(columns=['row_index', 'reason', 'original_smiles'])
     
-    fieldnames = data[0].keys() if data else []
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
+    import pandas as pd
+    return pd.read_csv(file_path)
+
+def save_dataset(df, output_path: str):
+    """Save the final dataset to CSV."""
+    df.to_csv(output_path, index=False)
+    logger.info(f"Dataset saved to {output_path}")
 
 def calculate_success_rate(final_count: int, input_count: int) -> float:
     """Calculate the success rate of the pipeline."""
@@ -62,104 +58,118 @@ def calculate_success_rate(final_count: int, input_count: int) -> float:
         return 0.0
     return final_count / input_count
 
-def save_success_rate_report(success_rate: float, status: str, reason: Optional[str], output_path: Path) -> None:
-    """Save the success rate report to JSON."""
-    ensure_dirs(output_path.parent)
+def save_success_rate_report(success_rate: float, status: str, output_path: str):
+    """Save the success rate report."""
     report = {
-        "status": status,
-        "success_rate": success_rate,
-        "reason": reason
+        'success_rate': success_rate,
+        'status': status,
+        'threshold': 0.95
     }
-    with open(output_path, 'w', encoding='utf-8') as f:
+    
+    with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
+    logger.info(f"Success rate report saved to {output_path}")
 
-def compute_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
-    """Compute the checksum of a file."""
-    hash_func = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b''):
-            hash_func.update(chunk)
-    return hash_func.hexdigest()
+def compute_file_checksum(file_path: str) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def save_checksum(checksum: str, output_path: Path) -> None:
+def save_checksum(file_path: str, checksum: str, output_path: str):
     """Save the checksum to a file."""
-    ensure_dirs(output_path.parent)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(checksum)
+    with open(output_path, 'w') as f:
+        f.write(f"{checksum}  {os.path.basename(file_path)}\n")
+    logger.info(f"Checksum saved to {output_path}")
 
-def save_final_dataset(data: List[Dict[str, Any]], output_path: Path) -> None:
-    """Wrapper to save final dataset."""
-    save_dataset(data, output_path)
+def save_final_dataset(df, output_path: str):
+    """Save the final dataset (alias for save_dataset)."""
+    save_dataset(df, output_path)
 
-def main(args: Optional[argparse.Namespace] = None) -> int:
-    """Main entry point for T016: Finalize dataset and calculate success rate."""
-    if args is None:
-        parser = argparse.ArgumentParser(description="Finalize dataset and calculate success rate")
-        parser.add_argument("--input-path", type=str, required=True, help="Path to cleaned intermediate CSV")
-        parser.add_argument("--intermediate-path", type=str, required=True, help="Path to intermediate SN1 CSV (for success rate calc)")
-        parser.add_argument("--output-path", type=str, required=True, help="Path to save final cleaned CSV")
-        parser.add_argument("--exclusion-path", type=str, required=True, help="Path to exclusion report CSV")
-        parser.add_argument("--success-rate-path", type=str, required=True, help="Path to save success rate JSON")
-        parser.add_argument("--checksum-path", type=str, required=True, help="Path to save checksum file")
-        parser.add_argument("--threshold", type=float, default=0.95, help="Success rate threshold")
-        args = parser.parse_args()
+def main():
+    parser = argparse.ArgumentParser(description="Finalize the processed dataset")
+    parser.add_argument("--input", type=str, default="data/processed/cleaned_intermediate.csv",
+                      help="Input cleaned intermediate dataset")
+    parser.add_argument("--exclusion-report", type=str, default="data/processed/exclusion_report.csv",
+                      help="Input exclusion report")
+    parser.add_argument("--output", type=str, default="data/processed/cleaned_sn1.csv",
+                      help="Output final dataset")
+    parser.add_argument("--raw-input", type=str, default="data/raw/sn1_raw.parquet",
+                      help="Path to raw input dataset for success rate calculation")
+    parser.add_argument("--success-rate-output", type=str, default="data/processed/success_rate.json",
+                      help="Output path for success rate report")
+    parser.add_argument("--checksum-output", type=str, default="data/processed/cleaned_sn1.csv.sha256",
+                      help="Output path for checksum file")
+    args = parser.parse_args()
 
-    input_path = Path(args.input_path)
-    intermediate_path = Path(args.intermediate_path)
-    output_path = Path(args.output_path)
-    exclusion_path = Path(args.exclusion_path)
-    success_rate_path = Path(args.success_rate_path)
-    checksum_path = Path(args.checksum_path)
-    threshold = args.threshold
-
-    logger = setup_finalize_logger(output_path.with_suffix('.log'))
-    logger.info(f"Starting finalize dataset task. Input: {input_path}, Intermediate: {intermediate_path}")
+    setup_finalize_logger()
+    ensure_dirs()
 
     try:
-        # Load cleaned data
-        if not input_path.exists():
-            raise FileNotFoundError(f"Input file {input_path} not found")
+        # Load input data
+        logger.info(f"Loading input data from {args.input}")
+        df = load_processed_data(args.input)
         
-        cleaned_data = load_processed_data(input_path)
-        logger.info(f"Loaded {len(cleaned_data)} rows from {input_path}")
+        if df.empty:
+            logger.error("Input dataset is empty")
+            with open("data/processed/clean.log", 'w') as f:
+                json.dump({'status': 'fatal_error', 'reason': 'input_missing'}, f)
+            sys.exit(1)
 
-        # Load intermediate data to calculate success rate
-        if not intermediate_path.exists():
-            raise FileNotFoundError(f"Intermediate file {intermediate_path} not found")
-        
-        intermediate_data = load_processed_data(intermediate_path)
-        logger.info(f"Loaded {len(intermediate_data)} rows from {intermediate_path}")
+        # Load raw data for success rate calculation
+        try:
+            if args.raw_input.endswith('.parquet'):
+                import pandas as pd
+                raw_df = pd.read_parquet(args.raw_input)
+                raw_count = len(raw_df)
+            else:
+                raw_count = count_rows(args.raw_input)
+        except Exception as e:
+            logger.warning(f"Could not load raw data for success rate: {e}")
+            raw_count = len(df) * 2  # Estimate if raw data unavailable
 
         # Calculate success rate
-        success_rate = calculate_success_rate(len(cleaned_data), len(intermediate_data))
-        logger.info(f"Calculated success rate: {success_rate:.4f} (Threshold: {threshold})")
+        success_rate = calculate_success_rate(len(df), raw_count)
+        logger.info(f"Success rate: {success_rate:.4f}")
 
         # Check threshold
-        if success_rate < threshold:
-            logger.error(f"Success rate {success_rate} is below threshold {threshold}")
-            save_success_rate_report(success_rate, "FAIL", "success_rate_below_threshold", success_rate_path)
-            logger.error("Pipeline halted due to low success rate.")
-            return 1
+        if success_rate < 0.95:
+            logger.error(f"Success rate {success_rate:.4f} is below threshold 0.95")
+            save_success_rate_report(success_rate, 'FAIL', args.success_rate_output)
+            sys.exit(1)
 
-        # Save success rate
-        save_success_rate_report(success_rate, "PASS", None, success_rate_path)
-        logger.info("Success rate check passed.")
+        # Verify non-null descriptors
+        if 'gasteiger_charges' in df.columns:
+            null_count = df['gasteiger_charges'].isna().sum()
+            if null_count > 0:
+                logger.warning(f"Found {null_count} rows with null gasteiger charges")
 
         # Save final dataset
-        save_final_dataset(cleaned_data, output_path)
-        logger.info(f"Saved final dataset to {output_path}")
+        save_dataset(df, args.output)
+
+        # Save success rate report
+        save_success_rate_report(success_rate, 'PASS', args.success_rate_output)
 
         # Compute and save checksum
-        checksum = compute_file_checksum(output_path)
-        save_checksum(checksum, checksum_path)
-        logger.info(f"Saved checksum to {checksum_path}")
+        checksum = compute_file_checksum(args.output)
+        save_checksum(args.output, checksum, args.checksum_output)
 
-        logger.info("Finalize dataset task completed successfully.")
-        return 0
+        logger.info("Dataset finalization completed successfully")
 
     except Exception as e:
-        logger.exception(f"Fatal error in finalize dataset task: {e}")
-        return 1
+        logger.error(f"Fatal error during finalization: {e}")
+        with open("data/processed/clean.log", 'w') as f:
+            json.dump({'status': 'fatal_error', 'reason': str(e)}, f)
+        sys.exit(1)
+
+def count_rows(file_path: str) -> int:
+    """Count rows in a CSV file."""
+    if not os.path.exists(file_path):
+        return 0
+    with open(file_path, 'r') as f:
+        return sum(1 for _ in f) - 1  # Exclude header
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
