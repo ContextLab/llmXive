@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-595-neural-narrative-networks-brain-inspired",
+  "tasks": [
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "The required output file `data/processed/roi_right_hipp.npy` is missing, so the extraction and saving step was not performed. No other evidence of the timecourse array is present. The task therefore does not meet its stated requirement.",
+      "first_seen": "2026-09-26T04:13:24.135771+00:00",
+      "last_seen": "2026-09-26T04:13:24.135771+00:00"
+    }
+  ],
+  "updated_at": "2026-09-26T04:13:24.135771+00:00"
+}

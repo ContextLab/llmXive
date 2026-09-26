@@ -5,12 +5,30 @@ T000:
     the Summary and Technical Context sections were edited to reference OpenNeuro
     dataset `ds001495` and to remove all mentions of `ds000208`. The required artifact
     is missing.
+T014:
+  c: false
+  h: a022d5d10b8ddf3b9ed5d4d42407f4f86933c99b34c3a59f14bed789b707e2b3
+  r: The required output file `data/processed/roi_left_hipp.npy` is missing, so the
+    core artifact the task demanded does not exist. Consequently the extraction of
+    left hippocampus timecourses has not been performed.
+T016:
+  c: false
+  h: 80973c016e045e7fb7099eb3c7ec3b56634167fd574f868cb26d0d279f2782e5
+  r: "The required output file `data/processed/roi_dlpfc.npy` does not exist, so the\
+    \ extraction and saving step was not performed. Consequently the task\u2019s core\
+    \ requirement is unmet."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No evidence of `utils/checksums.py` being executed or of a state file being\
     \ updated is provided; the required artifact (updated state file with checksum\
     \ entries) is missing, so the task\u2019s requirement is not demonstrably satisfied."
+T021:
+  c: false
+  h: 74dfdc0609b180979db1fffd6c398d32d4c63b3d3dd7572a5d513a6105d8c5c3
+  r: The required `data/processed/roi_timecourses.csv` file is absent, and the referenced
+    `neural-data.schema.yaml` (or any schema file) is also missing, so the validation
+    script cannot be executed as specified. No execution logs or results are provided.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -4269,24 +4269,6 @@
   status: not_enough_info
   updated_at: '2026-08-25T02:22:24Z'
 - artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
-  attempts: 1
-  canonical: baseline model is TinyLSTM quantized transformer
-  claim_id: c_bba1ac27
-  context: Update plan.md Step 2 to explicitly state the baseline is a 'TinyLSTM (quantized
-    transformer)' to match spec FR-004.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Baseline_model_is_TinyLSTM_quantized_transformer
-  kind: entity_fact
-  raw_text: The baseline model is a TinyLSTM (quantized transformer).
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-25T02:22:27Z'
-- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
   attempts: 2
   canonical: system generates at least 1000 unique stories
   claim_id: c_3ba3d82b
@@ -7910,3 +7892,660 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T03:04:56Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: generate 1000 unique stories using Brain-Inspired model
+  claim_id: c_7e54f561
+  context: Implement generation loop to produce at least 1,000 unique stories using
+    the Brain-Inspired model. Load trained weights from data/results/sae_weights.pt.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_1000_unique_stories_using_Brain-Inspired_model
+  kind: magnitude
+  raw_text: The system must generate at least 1,000 unique stories using the Brain-Inspired
+    model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:50:35Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: generate 1000 unique stories using Baseline TinyLSTM model
+  claim_id: c_9fa0801f
+  context: Run generation loop to produce at least 1,000 unique stories using the
+    Baseline (TinyLSTM) model and save to data/results/baseline_stories.jsonl.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_1000_unique_stories_using_Baseline_TinyLSTM_model
+  kind: magnitude
+  raw_text: The system must generate at least 1,000 unique stories using the Baseline
+    (TinyLSTM) model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:52:53Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 2
+  canonical: baseline model is TinyLSTM quantized transformer
+  claim_id: c_bba1ac27
+  context: Update plan.md Step 2 to explicitly state the baseline is a 'TinyLSTM (quantized
+    transformer)' to match spec FR-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_is_TinyLSTM_quantized_transformer
+  kind: entity_fact
+  raw_text: The baseline model is a TinyLSTM (quantized transformer).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:54:45Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: project uses OpenNeuro dataset ds001495
+  claim_id: c_1a920db5
+  context: Update plan.md Summary and Technical Context to explicitly reference OpenNeuro
+    dataset ds001495 (matching spec FR-001).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_OpenNeuro_dataset_ds001495
+  kind: entity_fact
+  raw_text: The project uses OpenNeuro dataset ds001495.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:54:52Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: primary ROCStories dataset ID is jamestran/roc_stories
+  claim_id: c_93cd7185
+  context: 'Download ROCStories corpus via HuggingFace datasets. Primary ID: jamestran/roc_stories.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_ROCStories_dataset_ID_is_jamestran/roc_stories
+  kind: entity_fact
+  raw_text: The primary dataset ID for ROCStories is jamestran/roc_stories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:54:59Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: fallback ROCStories dataset ID is mit/rocstories
+  claim_id: c_a7d42598
+  context: 'Fallback ID: mit/rocstories. Verification: Before download, verify the
+    Primary ID exists on HuggingFace Hub.'
+  evidence:
+    entailment_evidence: Fallback ROCStories dataset ID is mit/rocstories - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_ROCStories_dataset_ID_is_mit/rocstories
+  kind: entity_fact
+  raw_text: The fallback dataset ID for ROCStories is mit/rocstories.
+  resolved_value: fallback ROCStories dataset ID is mit/rocstories
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T03:55:01Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: sample 1000 stories from ROCStories corpus
+  claim_id: c_2dc9440b
+  context: 'Sampling: Use datasets.load_dataset(''<id>'', split=''train'').shuffle(seed=42).select(range(1000)).
+    Sample a representative subset of stories to data/text/rocstories_sample.jsonl.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system samples a subset of 1,000 stories from the ROCStories corpus.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:55:05Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: SAE sparsity ratio constraint <= 0.20
+  claim_id: c_b19f97b0
+  context: "Implement verification script in code/verify_sparsity.py to measure and\
+    \ log the sparsity ratio against the \u22640.20 constraint."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SAE_sparsity_ratio_constraint_%3C=_0.20
+  kind: magnitude
+  raw_text: The SAE sparsity ratio constraint is less than or equal to 0.20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:55:14Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: maximum RAM limit 7GB
+  claim_id: c_3028ec2a
+  context: 'Independent Test: Verify peak RAM < 7GB. Monitor memory; fail if > 7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maximum_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: The maximum RAM limit for the system is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:55:25Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test starts with 1000 permutations
+  claim_id: c_8eb539aa
+  context: Implement permutation test in code/03_rsa_analysis.py. Start with 1,000
+    permutations, batch size 500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test starts with 1,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:55:33Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: p-value variance convergence threshold < 0.001
+  claim_id: c_74678a47
+  context: Iterate permutations until p-value variance < 0.001 over the final 1,000
+    permutations (or all available permutations if total < 2000).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/p-value_variance_convergence_threshold_%3C_0.001
+  kind: magnitude
+  raw_text: The p-value variance convergence threshold is less than 0.001.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:55:44Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: SAE training uses 10 epochs
+  claim_id: c_9d7295db
+  context: 'Training Parameters: Use 10 epochs, batch size 32, Adam optimizer (lr=1e-3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SAE training uses 10 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T03:58:47Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: SAE training max retries 3
+  claim_id: c_ef5023f5
+  context: 'Execute core training loop with retry logic: use config.random_seed as
+    base_seed; increment seed by base_seed + retry_index (max_retries=3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SAE training has a maximum of 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:00:51Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: SAE training uses int8 quantization
+  claim_id: c_97886c89
+  context: Implement TinyLSTM baseline architecture with quantization (int8) using
+    torch.quantization (CPU backend only).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SAE_training_uses_int8_quantization
+  kind: entity_fact
+  raw_text: The SAE training uses int8 quantization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:01:00Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Harvard-Oxford mask coordinates for Hippocampus x=+-24 y=-33 z=-12
+  claim_id: c_3a1f4d8f
+  context: 'Fallback: If fetch fails, generate masks programmatically using nilearn.image.new_img_like
+    with coordinates (L/R Hipp: x=+-24, y=-33, z=-12).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Harvard-Oxford mask coordinates for Left/Right Hippocampus are x=+-24,
+    y=-33, z=-12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:01:09Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: Harvard-Oxford mask coordinates for DLPFC x=+-40 y=36 z=28
+  claim_id: c_46407a3f
+  context: 'Fallback: If fetch fails, generate masks programmatically using nilearn.image.new_img_like
+    with coordinates (DLPFC: x=+-40, y=36, z=28) in MNI space.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Harvard-Oxford mask coordinates for DLPFC are x=+-40, y=36, z=28.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:01:13Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: SAE training max RAM limit 7GB
+  claim_id: c_1de9ab69
+  context: Ensure it runs on CPU and respects the 7GB RAM limit.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SAE_training_max_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: The maximum RAM limit for the SAE training is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:01:27Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: generation loop max RAM limit 7GB
+  claim_id: c_deeb8eaa
+  context: Monitor memory; fail if > 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generation_loop_max_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: The maximum RAM limit for the generation loop is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:01:38Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test max RAM limit 7GB
+  claim_id: c_a9ed43de
+  context: Monitor memory; fail if > 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_max_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: The maximum RAM limit for the permutation test is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:01:47Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: data ingestion pipeline max RAM limit 7GB
+  claim_id: c_ad5d8ed3
+  context: 'Create code/config.py with function get_config() returning dict with keys:
+    max_ram_gb (int=7).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_pipeline_max_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: The maximum RAM limit for the data ingestion pipeline is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:05:28Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: max attempts to generate unique stories 100
+  claim_id: c_29de9362
+  context: 'Abort Condition: If unique_count < 1000 after max_attempts=100, raise
+    E004.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of attempts to generate unique stories is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:05:37Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: seed for shuffling ROCStories sample 42
+  claim_id: c_5cf11866
+  context: 'Sampling: Use datasets.load_dataset(''<id>'', split=''train'').shuffle(seed=42).select(range(1000)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The seed for shuffling the ROCStories sample is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:05:41Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: line-length for ruff and black 88
+  claim_id: c_880309fb
+  context: Create pyproject.toml with [tool.ruff] and [tool.black] sections defining
+    line-length=88.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The line-length for ruff and black is 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:05:51Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: target version for ruff and black is py
+  claim_id: c_ac67312e
+  context: Create pyproject.toml with [tool.ruff] and [tool.black] sections defining
+    target-version='py'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_version_for_ruff_and_black_is_py
+  kind: entity_fact
+  raw_text: The target version for ruff and black is 'py'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:05:57Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: ruff rule selections E F W
+  claim_id: c_408a467b
+  context: Create .ruff.toml with specific rule selections (E, F, W) and ignore rules
+    for the project.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ruff_rule_selections_E_F_W
+  kind: entity_fact
+  raw_text: The ruff rule selections are E, F, and W.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:06:06Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test uses one-tailed test greater than
+  claim_id: c_f0030caf
+  context: 'Statistical Test: Use a one-tailed permutation test (greater than).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_uses_one-tailed_test_greater_than
+  kind: magnitude
+  raw_text: The permutation test uses a one-tailed test (greater than).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:06:14Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test p-value calculation method
+  claim_id: c_3fc1920f
+  context: Calculate p-value as the proportion of null statistics exceeding the observed
+    statistic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_p-value_calculation_method
+  kind: entity_fact
+  raw_text: The permutation test calculates p-value as the proportion of null statistics
+    exceeding the observed statistic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:06:23Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test uses scipy.interpolate.interp1d linear extrapolate
+  claim_id: c_5600376c
+  context: 'Alignment Logic: Use scipy.interpolate.interp1d with kind=''linear'' and
+    fill_value=''extrapolate'' to map event boundaries to timepoints.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_uses_scipy.interpolate.interp1d_linear_extr
+  kind: entity_fact
+  raw_text: The permutation test uses scipy.interpolate.interp1d with kind='linear'
+    and fill_value='extrapolate'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:09:27Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: visualization uses viridis colormap and log normalization
+  claim_id: c_5ec81b3b
+  context: 'Visualization Params: Use ''viridis'' colormap, ''log'' normalization,
+    and an appropriately scaled figure size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Visualization_uses_viridis_colormap_and_log_normalization
+  kind: entity_fact
+  raw_text: The visualization uses 'viridis' colormap and 'log' normalization.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:09:51Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: signal data type in roi_timecourses.csv is float32
+  claim_id: c_8b3c2c9c
+  context: 'Write combined timecourses from T019 to data/processed/roi_timecourses.csv
+    with columns: signal (float32, z-scored).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Signal_data_type_in_roi_timecourses.csv_is_float32
+  kind: entity_fact
+  raw_text: The signal data type in roi_timecourses.csv is float32.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:10:15Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: timepoint data type in roi_timecourses.csv is int
+  claim_id: c_1be447ab
+  context: 'Write combined timecourses from T019 to data/processed/roi_timecourses.csv
+    with columns: timepoint (int).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timepoint_data_type_in_roi_timecourses.csv_is_int
+  kind: entity_fact
+  raw_text: The timepoint data type in roi_timecourses.csv is int.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:10:33Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: subject_id data type in roi_timecourses.csv is str
+  claim_id: c_dfc4ed87
+  context: 'Write combined timecourses from T019 to data/processed/roi_timecourses.csv
+    with columns: subject_id (str).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Subject_id_data_type_in_roi_timecourses.csv_is_str
+  kind: entity_fact
+  raw_text: The subject_id data type in roi_timecourses.csv is str.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:10:51Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: roi data type in roi_timecourses.csv is str
+  claim_id: c_f8d6a661
+  context: 'Write combined timecourses from T019 to data/processed/roi_timecourses.csv
+    with columns: roi (str).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Roi_data_type_in_roi_timecourses.csv_is_str
+  kind: entity_fact
+  raw_text: The roi data type in roi_timecourses.csv is str.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:11:09Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: signal normalized via z-score
+  claim_id: c_2ac91572
+  context: 'Write combined timecourses from T019 to data/processed/roi_timecourses.csv
+    with columns: signal (float32, z-scored).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Signal_normalized_via_z-score
+  kind: entity_fact
+  raw_text: The signal is normalized via z-score.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:11:53Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: refactored data ingestion pipeline max RAM limit 6GB
+  claim_id: c_fa8eed74
+  context: 'Verification: Run benchmark to ensure Peak RAM < 6GB during processing
+    of full subject data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refactored_data_ingestion_pipeline_max_RAM_limit_6GB
+  kind: entity_fact
+  raw_text: The maximum RAM limit for the refactored data ingestion pipeline is 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:12:15Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test checks final 1000 permutations for variance
+  claim_id: c_fa0bb8d8
+  context: 'Convergence Note: Permutation test (T043) explicitly checks the final
+    1,000 permutations for variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test checks the final 1,000 permutations for variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:12:37Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: permutation test no hard 300s timeout
+  claim_id: c_61240895
+  context: No hard 300s timeout is applied; convergence is the primary driver.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_no_hard_300s_timeout
+  kind: entity_fact
+  raw_text: The permutation test has no hard 300s timeout.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:12:54Z'
+- artifact_path: projects/PROJ-595-neural-narrative-networks-brain-inspired/specs/001-neural-narrative-networks-brain-inspired/tasks.md
+  attempts: 1
+  canonical: SAE training hard 3 retry limit
+  claim_id: c_4cbd66bd
+  context: 'Retry Note: SAE training (T035) has a hard 3 retry limit using config.random_seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SAE training has a hard 3 retry limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T04:13:20Z'
