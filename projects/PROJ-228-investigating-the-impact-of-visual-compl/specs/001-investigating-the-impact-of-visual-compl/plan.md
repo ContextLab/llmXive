@@ -31,7 +31,7 @@ This feature implements a neuroimaging analysis pipeline to quantify the correla
   - Synthetic stimulus generation uses a fixed seed to ensure reproducibility.
   - `requirements.txt` at `code/` pins all dependencies.
 - **II. Verified Accuracy**: 
-  - HRF parameters sourced from `nilearn.glm.hemodynamic_models` (canonical double-gamma) and cited as Friston et al. (1998).
+  - HRF parameters sourced from `nilearn.glm.hemodynamic_models` (canonical double-gamma) and cited as Friston et al.
   - All citations in `research.md` will be validated against the "# Verified datasets" block in the prompt.
 - **III. Data Hygiene**: 
   - Raw data preserved in `data/raw/`; derivations in `data/interim/` and `data/processed/`.

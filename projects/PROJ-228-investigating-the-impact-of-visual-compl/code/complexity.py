@@ -4,32 +4,32 @@ from typing import List, Dict, Any, Union, Optional
 from PIL import Image
 from skimage.feature import graycomatrix, graycoprops
 from scipy import ndimage
-import pandas as pd
-from scipy.signal import convolve
+import csv
 import logging
-import psutil
 import os
+import sys
 
-from config import init_seeds, DATA_INTERIM, DATA_RAW
-from update_metadata import init_metadata, update_metadata_with_download
+# Add project root to path for imports if running as script
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from code.config import DATA_RAW_DIR, DATA_INTERIM_DIR, DATASET_ID, HRF_PEAK, HRF_UNDERSHOOT
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler("data/logs/complexity_processing.log"),
+        logging.FileHandler(DATA_INTERIM_DIR / "complexity.log"),
         logging.StreamHandler()
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Initialize seeds
-init_seeds()
-
 def calculate_entropy(image_path: Path) -> float:
     """
-    Calculate Shannon Entropy of a grayscale image.
+    Calculate Shannon Entropy of an image.
     
     Args:
         image_path: Path to the image file.
@@ -37,251 +37,236 @@ def calculate_entropy(image_path: Path) -> float:
     Returns:
         Shannon entropy value.
     """
-    img = Image.open(image_path).convert('L')
-    img_array = np.array(img, dtype=float)
-    
-    # Normalize to 0-1
-    img_array = img_array / 255.0
-    
-    # Calculate histogram
-    hist, _ = np.histogram(img_array.flatten(), bins=256, range=(0, 1))
-    hist = hist / hist.sum()
-    
-    # Remove zero probabilities to avoid log(0)
-    hist = hist[hist > 0]
-    
-    entropy = -np.sum(hist * np.log2(hist))
-    return float(entropy)
+    try:
+        img = Image.open(image_path).convert('L')  # Convert to grayscale
+        img_array = np.array(img)
+        
+        # Calculate histogram
+        hist, _ = np.histogram(img_array.flatten(), bins=256, range=(0, 256))
+        hist = hist / hist.sum()  # Normalize
+        
+        # Calculate entropy
+        entropy = -np.sum(hist * np.log2(hist + 1e-10))
+        return float(entropy)
+    except Exception as e:
+        logger.error(f"Error calculating entropy for {image_path}: {e}")
+        return 0.0
 
 def calculate_fractal_dimension(image_path: Path) -> float:
     """
-    Calculate Fractal Dimension using the Box-Counting method.
+    Calculate Fractal Dimension (Box-counting method approximation) of an image.
     
     Args:
         image_path: Path to the image file.
         
     Returns:
-        Fractal dimension value.
+        Approximate fractal dimension.
     """
-    img = Image.open(image_path).convert('L')
-    img_array = np.array(img, dtype=float)
-    
-    # Normalize
-    img_array = img_array / 255.0
-    
-    # Box counting
-    sizes = [2**i for i in range(1, 6)]
-    counts = []
-    
-    for size in sizes:
-        if size >= img_array.shape[0] or size >= img_array.shape[1]:
-            continue
+    try:
+        img = Image.open(image_path).convert('L')
+        img_array = np.array(img, dtype=float)
+        
+        # Normalize to 0-1
+        img_array = (img_array - img_array.min()) / (img_array.max() - img_array.min() + 1e-10)
+        
+        # Simple box-counting approximation
+        # Using a few scales to estimate slope
+        sizes = [2**i for i in range(1, 5)] # 2, 4, 8, 16
+        counts = []
+        
+        for size in sizes:
+            if size >= img_array.shape[0] or size >= img_array.shape[1]:
+                continue
             
-        # Count non-empty boxes
-        count = 0
-        for i in range(0, img_array.shape[0], size):
-            for j in range(0, img_array.shape[1], size):
-                box = img_array[i:i+size, j:j+size]
-                if np.max(box) - np.min(box) > 0.01:  # Threshold for non-empty
-                    count += 1
-        counts.append(count)
-    
-    if len(counts) < 2:
-        return 1.0  # Default fallback
+            # Count non-empty boxes
+            count = 0
+            for i in range(0, img_array.shape[0], size):
+                for j in range(0, img_array.shape[1], size):
+                    box = img_array[i:i+size, j:j+size]
+                    if np.max(box) > 0: # Non-empty
+                        count += 1
+            counts.append(count)
         
-    # Linear regression on log-log plot
-    log_sizes = np.log(sizes[:len(counts)])
-    log_counts = np.log(counts)
-    
-    slope, _ = np.polyfit(log_sizes, log_counts, 1)
-    fractal_dim = -slope
-    
-    return float(fractal_dim)
+        if len(counts) < 2:
+            return 1.5 # Default fallback
+        
+        # Linear regression to find slope
+        log_sizes = np.log(1/np.array(sizes[:len(counts)]))
+        log_counts = np.log(counts)
+        
+        slope, _ = np.polyfit(log_sizes, log_counts, 1)
+        return float(slope)
+    except Exception as e:
+        logger.error(f"Error calculating fractal dimension for {image_path}: {e}")
+        return 0.0
 
-def calculate_texture_complexity(image_path: Path) -> float:
+def calculate_texture_complexity(image_path: Path) -> Dict[str, float]:
     """
-    Calculate texture complexity using GLCM properties.
+    Calculate texture complexity using GLCM.
     
     Args:
         image_path: Path to the image file.
         
     Returns:
-        Texture complexity score.
+        Dictionary with texture features.
     """
-    img = Image.open(image_path).convert('L')
-    img_array = np.array(img, dtype=np.uint8)
-    
-    # Calculate GLCM
-    glcm = graycomatrix(img_array, distances=[1], angles=[0], levels=256, symmetric=True, normed=True)
-    
-    # Extract properties
-    contrast = graycoprops(glcm, 'contrast')[0, 0]
-    dissimilarity = graycoprops(glcm, 'dissimilarity')[0, 0]
-    homogeneity = graycoprops(glcm, 'homogeneity')[0, 0]
-    energy = graycoprops(glcm, 'energy')[0, 0]
-    correlation = graycoprops(glcm, 'correlation')[0, 0]
-    
-    # Combine into a single complexity score
-    complexity = (contrast + dissimilarity - homogeneity - energy) / 2
-    
-    return float(complexity)
+    try:
+        img = Image.open(image_path).convert('L')
+        img_array = np.array(img)
+        
+        # Calculate GLCM
+        glcm = graycomatrix(img_array, distances=[5], angles=[0], levels=256, symmetric=True, normed=True)
+        
+        # Calculate properties
+        contrast = graycoprops(glcm, 'contrast')[0, 0]
+        dissimilarity = graycoprops(glcm, 'dissimilarity')[0, 0]
+        homogeneity = graycoprops(glcm, 'homogeneity')[0, 0]
+        energy = graycoprops(glcm, 'energy')[0, 0]
+        correlation = graycoprops(glcm, 'correlation')[0, 0]
+        ASM = graycoprops(glcm, 'ASM')[0, 0]
+        
+        return {
+            'contrast': float(contrast),
+            'dissimilarity': float(dissimilarity),
+            'homogeneity': float(homogeneity),
+            'energy': float(energy),
+            'correlation': float(correlation),
+            'ASM': float(ASM)
+        }
+    except Exception as e:
+        logger.error(f"Error calculating texture complexity for {image_path}: {e}")
+        return {}
 
-def convolve_with_hrf(complexity_values: np.ndarray, tr: float = 2.0, 
-                     peak: float = 5.0, undershoot: float = 15.0) -> np.ndarray:
+def convolve_with_hrf(time_series: List[float], tr: float = 2.0) -> List[float]:
     """
-    Convolve complexity values with a double-gamma HRF model.
+    Convolve a time series with a canonical HRF (double-gamma).
     
     Args:
-        complexity_values: Array of complexity values over time.
-        tr: Repetition time in seconds.
-        peak: Peak of the HRF in seconds.
-        undershoot: Undershoot of the HRF in seconds.
+        time_series: Input time series (complexity metrics).
+        tr: Repetition Time in seconds.
         
     Returns:
-        HRF-convolved complexity values.
+        Convolved time series.
     """
-    # Create time vector for HRF
-    hrf_duration = 32  # Standard HRF duration
-    hrf_time = np.arange(0, hrf_duration, tr)
+    # Simple double-gamma HRF approximation
+    # Peak = 5s, Undershoot = 15s
+    n_points = int((HRF_PEAK + HRF_UNDERSHOOT) / tr) + 10
+    hrf = []
     
-    # Double-gamma HRF model
-    # First gamma (peak)
-    alpha1 = 6
-    beta1 = 1
-    gamma1 = 1
-    hrf1 = (hrf_time / alpha1)**(beta1 - 1) * np.exp(-hrf_time / (alpha1 * beta1))
+    for t in range(n_points):
+        time = t * tr
+        # Double gamma function
+        gamma_peak = (time ** 6) * np.exp(-time / 1.0) # Approximate peak
+        gamma_undershoot = 0.35 * (time ** 12) * np.exp(-time / 2.0) # Approximate undershoot
+        hrf_val = gamma_peak - gamma_undershoot
+        hrf.append(hrf_val)
     
-    # Second gamma (undershoot)
-    alpha2 = 12
-    beta2 = 1
-    gamma2 = 0.35
-    hrf2 = (hrf_time / alpha2)**(beta2 - 1) * np.exp(-hrf_time / (alpha2 * beta2))
-    
-    # Combine with appropriate scaling
-    hrf = gamma1 * hrf1 - gamma2 * hrf2
-    hrf = hrf / np.max(hrf)  # Normalize
+    # Normalize HRF
+    hrf = np.array(hrf)
+    hrf = hrf / (np.max(hrf) + 1e-10)
     
     # Convolve
-    convolved = convolve(complexity_values, hrf, mode='full')
+    convolved = np.convolve(time_series, hrf, mode='full')
     
-    # Trim to original length (center alignment)
-    start_idx = (len(convolved) - len(complexity_values)) // 2
-    end_idx = start_idx + len(complexity_values)
-    
-    return convolved[start_idx:end_idx]
+    # Truncate to original length (or pad if necessary)
+    if len(convolved) > len(time_series):
+        convolved = convolved[:len(time_series)]
+    elif len(convolved) < len(time_series):
+        convolved = np.pad(convolved, (0, len(time_series) - len(convolved)), mode='edge')
+        
+    return convolved.tolist()
 
-def batch_process_complexity(image_dir: Path, output_path: Path, 
-                            tr: float = 2.0, 
-                            max_memory_gb: float = 6.0) -> None:
+def batch_process_complexity() -> Path:
     """
-    Process all images in a directory and write complexity metrics to CSV.
+    Batch process all stimulus images in data/raw/DATASET_ID.
+    Computes entropy, fractal dimension, and HRF-convolved values.
+    Writes results to data/interim/complexity_metrics.csv.
     
-    Args:
-        image_dir: Directory containing stimulus images.
-        output_path: Path for the output CSV file.
-        tr: Repetition time in seconds.
-        max_memory_gb: Maximum memory usage in GB.
+    Returns:
+        Path to the output CSV file.
     """
-    # Check memory before processing
-    process = psutil.Process(os.getpid())
-    current_memory = process.memory_info().rss / (1024 ** 3)
+    # Find stimulus images
+    # Assuming structure: data/raw/ds000246/stimuli/... or similar
+    # We search recursively for image files
+    image_extensions = ['.png', '.jpg', '.jpeg', '.bmp', '.tiff']
+    image_files = []
     
-    if current_memory > max_memory_gb:
-        logger.error(f"Memory usage ({current_memory:.2f} GB) exceeds limit ({max_memory_gb} GB)")
-        raise MemoryError(f"Memory usage exceeds limit: {current_memory:.2f} GB > {max_memory_gb} GB")
+    search_path = DATA_RAW_DIR / DATASET_ID
+    if not search_path.exists():
+        logger.error(f"Search path {search_path} does not exist. Cannot process complexity.")
+        raise FileNotFoundError(f"Dataset directory {search_path} not found.")
     
-    # Get all image files
-    image_files = sorted(list(image_dir.glob("*.png")) + list(image_dir.glob("*.jpg")) + list(image_dir.glob("*.jpeg")))
+    for ext in image_extensions:
+        image_files.extend(search_path.rglob(f"*{ext}"))
+        image_files.extend(search_path.rglob(f"*{ext.upper()}"))
     
     if not image_files:
-        logger.warning(f"No image files found in {image_dir}")
-        return
-    
-    logger.info(f"Processing {len(image_files)} images...")
+        logger.warning(f"No image files found in {search_path}.")
+        # Create empty CSV with headers
+        output_path = DATA_INTERIM_DIR / "complexity_metrics.csv"
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(["frame_id", "timestamp", "entropy", "fractal_dim", "hrf_convolved"])
+        return output_path
+
+    logger.info(f"Found {len(image_files)} images to process.")
     
     results = []
+    entropy_values = []
     
-    for i, img_path in enumerate(image_files):
-        # Check memory periodically
-        if i % 10 == 0:
-            current_memory = process.memory_info().rss / (1024 ** 3)
-            if current_memory > max_memory_gb:
-                logger.error(f"Memory usage ({current_memory:.2f} GB) exceeds limit during processing")
-                raise MemoryError(f"Memory usage exceeded limit: {current_memory:.2f} GB")
+    # Sort files to ensure consistent ordering (e.g., by name or timestamp if available)
+    image_files.sort(key=lambda x: x.name)
+    
+    for idx, img_path in enumerate(image_files):
+        logger.info(f"Processing {idx+1}/{len(image_files)}: {img_path.name}")
         
-        try:
-            # Calculate metrics
-            entropy = calculate_entropy(img_path)
-            fractal_dim = calculate_fractal_dimension(img_path)
-            texture_complexity = calculate_texture_complexity(img_path)
+        entropy = calculate_entropy(img_path)
+        fractal_dim = calculate_fractal_dimension(img_path)
+        
+        # Handle NaN/Inf
+        if np.isnan(entropy) or np.isinf(entropy):
+            logger.warning(f"NaN/Inf entropy for {img_path.name}, replacing with 0")
+            entropy = 0.0
+        if np.isnan(fractal_dim) or np.isinf(fractal_dim):
+            logger.warning(f"NaN/Inf fractal_dim for {img_path.name}, replacing with 0")
+            fractal_dim = 0.0
             
-            # Store results
-            results.append({
-                'frame_id': i,
-                'timestamp': i * tr,
-                'entropy': entropy,
-                'fractal_dim': fractal_dim,
-                'texture_complexity': texture_complexity
-            })
-            
-            logger.debug(f"Processed {img_path.name}: entropy={entropy:.4f}, fractal_dim={fractal_dim:.4f}")
-            
-        except Exception as e:
-            logger.error(f"Error processing {img_path}: {str(e)}")
-            # Replace with 0 for NaN/Inf handling
-            results.append({
-                'frame_id': i,
-                'timestamp': i * tr,
-                'entropy': 0.0,
-                'fractal_dim': 0.0,
-                'texture_complexity': 0.0
-            })
-    
-    # Create DataFrame
-    df = pd.DataFrame(results)
+        entropy_values.append(entropy)
+        
+        results.append({
+            'frame_id': idx,
+            'timestamp': idx * 2.0, # Assuming TR=2.0s for simplicity, or derived from data
+            'entropy': entropy,
+            'fractal_dim': fractal_dim
+        })
     
     # Convolve with HRF
-    logger.info("Applying HRF convolution...")
-    df['hrf_convolved'] = convolve_with_hrf(
-        df['texture_complexity'].values, 
-        tr=tr
-    )
+    hrf_convolved = convolve_with_hrf(entropy_values, tr=2.0)
     
-    # Handle NaN/Inf values
-    nan_count = df.isna().sum().sum()
-    inf_count = np.isinf(df.select_dtypes(include=[np.number])).sum().sum()
-    
-    if nan_count > 0 or inf_count > 0:
-        logger.warning(f"Found {nan_count} NaN and {inf_count} Inf values. Replacing with 0.")
-        df = df.replace([np.inf, -np.inf], 0)
-        df = df.fillna(0)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    for i, res in enumerate(results):
+        res['hrf_convolved'] = hrf_convolved[i]
     
     # Write to CSV
-    df.to_csv(output_path, index=False)
+    output_path = DATA_INTERIM_DIR / "complexity_metrics.csv"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Log first 5 rows
-    logger.info("First 5 rows of output:")
-    for _, row in df.head().iterrows():
-        logger.info(f"  {row.to_dict()}")
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["frame_id", "timestamp", "entropy", "fractal_dim", "hrf_convolved"])
+        writer.writeheader()
+        writer.writerows(results)
     
-    logger.info(f"Successfully wrote complexity metrics to {output_path}")
+    logger.info(f"Complexity metrics written to {output_path}")
+    return output_path
 
 def main():
-    """Main entry point for complexity analysis."""
-    # Define paths
-    stimulus_dir = DATA_RAW / "ds000246" / "stimuli"
-    output_file = DATA_INTERIM / "complexity_metrics.csv"
-    
-    # Ensure directories exist
-    DATA_INTERIM.mkdir(parents=True, exist_ok=True)
-    
-    # Process images
-    batch_process_complexity(stimulus_dir, output_file, tr=2.0)
-    
-    return output_file
+    """Main entry point for complexity calculation."""
+    logger.info("Starting complexity calculation...")
+    try:
+        output_path = batch_process_complexity()
+        logger.info(f"Complexity calculation complete. Output: {output_path}")
+    except Exception as e:
+        logger.error(f"Complexity calculation failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

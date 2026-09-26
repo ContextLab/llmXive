@@ -3,103 +3,76 @@ import yaml
 import json
 from datetime import datetime
 from pathlib import Path
+import hashlib
 
-def ensure_dir(file_path: Path) -> None:
-    """Ensure the directory for a file path exists."""
-    file_path.parent.mkdir(parents=True, exist_ok=True)
+def ensure_dir(path: Path):
+    """Ensure directory exists."""
+    path.mkdir(parents=True, exist_ok=True)
 
-def init_metadata(
-    dataset_id: str,
-    version: str,
-    checksum: str,
-    download_date: str,
-    metadata_path: Path
-) -> None:
-    """
-    Initialize or update the data/metadata.yaml file with dataset information.
+def init_metadata():
+    """Initialize metadata.yaml file."""
+    metadata_path = Path("data/metadata.yaml")
+    ensure_dir(metadata_path.parent)
     
-    Args:
-        dataset_id: The OpenNeuro dataset ID (e.g., 'ds000246')
-        version: The dataset version string
-        checksum: The SHA256 checksum of the downloaded dataset
-        download_date: ISO format timestamp of download
-        metadata_path: Path to the metadata.yaml file
-    """
-    ensure_dir(metadata_path)
-    
-    metadata = {
-        "dataset_id": dataset_id,
-        "version": version,
-        "checksum": checksum,
-        "download_date": download_date
+    data = {
+        "dataset_id": "",
+        "version": "",
+        "checksum": "",
+        "download_date": ""
     }
     
     with open(metadata_path, 'w') as f:
-        yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
+        yaml.dump(data, f)
+    
+    return metadata_path
 
-def init_project_state(
-    project_id: str,
-    artifact_hashes: dict,
-    state_path: Path
-) -> None:
-    """
-    Initialize or update the project state YAML file with artifact hashes.
+def init_project_state():
+    """Initialize project state file."""
+    state_dir = Path("state/projects")
+    ensure_dir(state_dir)
     
-    Args:
-        project_id: The project identifier (e.g., 'PROJ-228-investigating-the-impact-of-visual-compl')
-        artifact_hashes: Dictionary mapping artifact names to their checksums
-        state_path: Path to the state YAML file
-    """
-    ensure_dir(state_path)
+    state_path = state_dir / "PROJ-228-investigating-the-impact-of-visual-compl.yaml"
     
-    state = {
-        "project_id": project_id,
-        "artifact_hashes": artifact_hashes,
-        "updated_at": datetime.utcnow().isoformat()
+    data = {
+        "artifact_hashes": {}
     }
     
     with open(state_path, 'w') as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+        yaml.dump(data, f)
+        
+    return state_path
 
-def update_metadata_with_download(
-    dataset_id: str,
-    version: str,
-    checksum: str,
-    project_id: str,
-    artifact_hashes: dict,
-    metadata_path: Path,
-    state_path: Path
-) -> None:
-    """
-    Update both metadata.yaml and project state file after a successful download.
+def update_metadata_with_download(dataset_id: str, checksum: str):
+    """Update metadata with download information."""
+    metadata_path = Path("data/metadata.yaml")
     
-    This function ensures that:
-    1. data/metadata.yaml is updated with the new dataset checksum and download date
-    2. state/projects/{project_id}.yaml is updated with the artifact_hashes map
+    if not metadata_path.exists():
+        init_metadata()
     
-    Args:
-        dataset_id: The OpenNeuro dataset ID
-        version: The dataset version
-        checksum: The SHA256 checksum of the downloaded dataset
-        project_id: The project identifier
-        artifact_hashes: Dictionary of artifact names to checksums
-        metadata_path: Path to data/metadata.yaml
-        state_path: Path to state/projects/{project_id}.yaml
-    """
-    download_date = datetime.utcnow().isoformat()
+    with open(metadata_path, 'r') as f:
+        data = yaml.safe_load(f)
     
-    # Update metadata.yaml
-    init_metadata(
-        dataset_id=dataset_id,
-        version=version,
-        checksum=checksum,
-        download_date=download_date,
-        metadata_path=metadata_path
-    )
+    data["dataset_id"] = dataset_id
+    data["version"] = "latest"
+    data["checksum"] = checksum
+    data["download_date"] = datetime.now().isoformat()
     
-    # Update project state
-    init_project_state(
-        project_id=project_id,
-        artifact_hashes=artifact_hashes,
-        state_path=state_path
-    )
+    with open(metadata_path, 'w') as f:
+        yaml.dump(data, f)
+
+def calculate_file_hash(file_path: Path) -> str:
+    """Calculate SHA256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def main():
+    """Main entry point."""
+    init_metadata()
+    init_project_state()
+    print("Metadata and project state initialized.")
+
+if __name__ == "__main__":
+    main()

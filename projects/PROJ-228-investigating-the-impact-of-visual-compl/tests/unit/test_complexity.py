@@ -1,159 +1,168 @@
+"""
+Unit tests for the complexity module.
+Tests are designed to fail initially to ensure TDD compliance.
+"""
 import pytest
-import numpy as np
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import numpy as np
+from PIL import Image
 import os
-import sys
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from complexity import calculate_entropy, calculate_fractal_dimension, calculate_texture_complexity, convolve_with_hrf, batch_process_complexity
-
-# Create a temporary directory for test images
 import tempfile
-import shutil
 
-@pytest.fixture
-def temp_image_dir():
-    """Create a temporary directory with test images."""
-    temp_dir = tempfile.mkdtemp()
-    
-    # Create a simple test image (10x10 grayscale)
-    from PIL import Image
-    img = Image.new('L', (10, 10), color=128)
-    img.save(os.path.join(temp_dir, 'test_image.png'))
-    
-    # Create a high-entropy image (random noise)
-    random_img = Image.new('L', (10, 10), color=0)
-    pixels = random_img.load()
-    for i in range(10):
-        for j in range(10):
-            pixels[i, j] = np.random.randint(0, 256)
-    random_img.save(os.path.join(temp_dir, 'random_image.png'))
-    
-    yield temp_dir
-    
-    # Cleanup
-    shutil.rmtree(temp_dir)
+# Import the function under test from the sibling module
+# Based on provided API surface: code/complexity.py defines calculate_entropy, calculate_fractal_dimension, convolve_with_hrf
+from code.complexity import calculate_entropy, calculate_fractal_dimension, convolve_with_hrf
 
-def test_entropy_returns_positive(temp_image_dir):
-    """Test that calculate_entropy returns a positive value."""
-    image_path = os.path.join(temp_image_dir, 'test_image.png')
-    entropy = calculate_entropy(image_path)
-    
-    assert entropy >= 0, f"Entropy should be non-negative, got {entropy}"
-    assert isinstance(entropy, float), f"Entropy should be float, got {type(entropy)}"
 
-def test_entropy_high_vs_low(temp_image_dir):
-    """Test that random image has higher entropy than uniform image."""
-    uniform_path = os.path.join(temp_image_dir, 'test_image.png')
-    random_path = os.path.join(temp_image_dir, 'random_image.png')
-    
-    entropy_uniform = calculate_entropy(uniform_path)
-    entropy_random = calculate_entropy(random_path)
-    
-    # Random image should have higher entropy (more information)
-    assert entropy_random > entropy_uniform, f"Random image entropy ({entropy_random}) should be > uniform ({entropy_uniform})"
-
-def test_fractal_dim_returns_positive(temp_image_dir):
-    """Test that calculate_fractal_dimension returns a positive value."""
-    image_path = os.path.join(temp_image_dir, 'test_image.png')
-    fractal_dim = calculate_fractal_dimension(image_path)
-    
-    assert fractal_dim >= 0, f"Fractal dimension should be non-negative, got {fractal_dim}"
-    assert isinstance(fractal_dim, float), f"Fractal dimension should be float, got {type(fractal_dim)}"
-
-def test_fractal_dim_reasonable_range(temp_image_dir):
-    """Test that fractal dimension is within reasonable bounds (0 to 3 for 2D images)."""
-    image_path = os.path.join(temp_image_dir, 'test_image.png')
-    fractal_dim = calculate_fractal_dimension(image_path)
-    
-    assert 0 <= fractal_dim <= 3, f"Fractal dimension should be between 0 and 3, got {fractal_dim}"
-
-def test_texture_complexity_returns_dict(temp_image_dir):
-    """Test that calculate_texture_complexity returns a dictionary with expected keys."""
-    image_path = os.path.join(temp_image_dir, 'test_image.png')
-    texture_props = calculate_texture_complexity(image_path)
-    
-    assert isinstance(texture_props, dict), f"Should return dict, got {type(texture_props)}"
-    
-    expected_keys = ['contrast', 'dissimilarity', 'homogeneity', 'energy', 'correlation', 'asm']
-    for key in expected_keys:
-        assert key in texture_props, f"Missing key: {key}"
-        assert isinstance(texture_props[key], float), f"Value for {key} should be float"
-
-def test_convolve_with_hrf_shape():
-    """Test that convolve_with_hrf returns output of correct shape."""
-    time_series = [1.0, 2.0, 3.0, 4.0, 5.0]
-    convolved = convolve_with_hrf(time_series)
-    
-    assert len(convolved) == len(time_series), f"Output length {len(convolved)} should match input length {len(time_series)}"
-    assert all(isinstance(x, float) for x in convolved), "All output values should be float"
-
-def test_convolve_with_hrf_empty_input():
-    """Test that convolve_with_hrf handles empty input."""
-    convolved = convolve_with_hrf([])
-    assert convolved == [], f"Empty input should return empty list, got {convolved}"
-
-def test_convolve_with_hrf_single_value():
-    """Test that convolve_with_hrf handles single value input."""
-    time_series = [1.0]
-    convolved = convolve_with_hrf(time_series)
-    assert len(convolved) == 1, f"Single value input should return single value output, got {len(convolved)}"
-
-def test_batch_process_complexity_creates_file(temp_image_dir):
-    """Test that batch_process_complexity creates the output file."""
-    output_file = os.path.join(tempfile.gettempdir(), 'test_complexity_output.csv')
-    
-    # Clean up if exists
-    if os.path.exists(output_file):
-        os.remove(output_file)
-    
-    stats = batch_process_complexity(
-        input_dir=temp_image_dir,
-        output_file=output_file,
-        batch_size=10
-    )
-    
-    assert os.path.exists(output_file), f"Output file {output_file} should exist"
-    assert stats['processed'] > 0, f"Should have processed some files, got {stats['processed']}"
-    
-    # Clean up
-    if os.path.exists(output_file):
-        os.remove(output_file)
-
-def test_batch_process_complexity_empty_dir():
-    """Test that batch_process_complexity handles empty directory."""
-    temp_dir = tempfile.mkdtemp()
-    output_file = os.path.join(tempfile.gettempdir(), 'test_empty_output.csv')
-    
-    try:
-        stats = batch_process_complexity(
-            input_dir=temp_dir,
-            output_file=output_file,
-            batch_size=10
-        )
+def test_entropy_returns_positive():
+    """
+    Test that calculate_entropy returns a positive value for a valid image.
+    This test is designed to fail before the implementation is complete.
+    """
+    # Create a temporary directory and a mock image file
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        mock_path = Path(tmp_dir) / "mock_image.png"
         
-        assert stats['total_files'] == 0, f"Should find 0 files, got {stats['total_files']}"
-        assert stats['processed'] == 0, f"Should process 0 files, got {stats['processed']}"
-    finally:
-        # Cleanup
-        shutil.rmtree(temp_dir)
-        if os.path.exists(output_file):
-            os.remove(output_file)
+        # Create a simple valid grayscale image (10x10)
+        # Using a simple pattern to ensure non-zero entropy
+        data = np.random.randint(0, 256, (10, 10), dtype=np.uint8)
+        img = Image.fromarray(data, mode='L')
+        img.save(mock_path)
+        
+        # Call the function
+        result = calculate_entropy(mock_path)
+        
+        # Assert the result is a positive number
+        # The implementation must ensure entropy > 0 for a real image
+        assert result > 0, f"Expected positive entropy, got {result}"
+        
+        # Additional sanity checks
+        assert isinstance(result, float), "Entropy should be returned as a float"
+        assert not np.isnan(result), "Entropy should not be NaN"
+        assert not np.isinf(result), "Entropy should not be Inf"
 
-def test_entropy_file_not_found():
-    """Test that calculate_entropy raises FileNotFoundError for missing file."""
-    with pytest.raises(FileNotFoundError):
-        calculate_entropy("nonexistent_file.png")
 
-def test_fractal_dim_file_not_found():
-    """Test that calculate_fractal_dimension raises FileNotFoundError for missing file."""
-    with pytest.raises(FileNotFoundError):
-        calculate_fractal_dimension("nonexistent_file.png")
+def test_entropy_handles_uniform_image():
+    """
+    Test that a uniform image (all same pixel values) has entropy close to 0.
+    This validates the mathematical correctness of the implementation.
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        mock_path = Path(tmp_dir) / "uniform_image.png"
+        
+        # Create a uniform image
+        data = np.ones((10, 10), dtype=np.uint8) * 128
+        img = Image.fromarray(data, mode='L')
+        img.save(mock_path)
+        
+        result = calculate_entropy(mock_path)
+        
+        # Uniform image should have very low or zero entropy
+        assert result >= 0, "Entropy cannot be negative"
+        # Depending on implementation (e.g., smoothing or binning), it might be slightly > 0
+        # but should be significantly lower than a random image
+        assert result < 0.1, f"Uniform image entropy should be near 0, got {result}"
 
-def test_texture_complexity_file_not_found():
-    """Test that calculate_texture_complexity raises FileNotFoundError for missing file."""
-    with pytest.raises(FileNotFoundError):
-        calculate_texture_complexity("nonexistent_file.png")
+
+def test_entropy_nonexistent_file():
+    """
+    Test that calculate_entropy raises an appropriate error for a non-existent file.
+    """
+    mock_path = Path("/tmp/nonexistent_image_12345.png")
+    
+    with pytest.raises((FileNotFoundError, ValueError, OSError)):
+        calculate_entropy(mock_path)
+
+
+def test_fractal_dim_returns_positive():
+    """
+    Test that calculate_fractal_dimension returns a positive value for a valid image.
+    This test is designed to fail before the implementation is complete.
+    """
+    # Create a temporary directory and a mock image file
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        mock_path = Path(tmp_dir) / "mock_fractal_image.png"
+        
+        # Create a simple valid grayscale image (64x64)
+        # Using a pattern that has some complexity but is deterministic
+        # A checkerboard pattern or noise ensures non-trivial fractal dimension
+        data = np.random.randint(0, 256, (64, 64), dtype=np.uint8)
+        img = Image.fromarray(data, mode='L')
+        img.save(mock_path)
+        
+        # Call the function
+        result = calculate_fractal_dimension(mock_path)
+        
+        # Assert the result is a positive number
+        # Fractal dimension for 2D images is typically between 1.0 and 3.0
+        assert result > 0, f"Expected positive fractal dimension, got {result}"
+        
+        # Additional sanity checks
+        assert isinstance(result, float), "Fractal dimension should be returned as a float"
+        assert not np.isnan(result), "Fractal dimension should not be NaN"
+        assert not np.isinf(result), "Fractal dimension should not be Inf"
+        # Fractal dimension for 2D images is typically between 1.0 and 3.0
+        assert 1.0 <= result <= 3.0, f"Fractal dimension should be between 1.0 and 3.0, got {result}"
+
+
+def test_fractal_dim_handles_uniform_image():
+    """
+    Test that a uniform image (all same pixel values) has a fractal dimension close to 2.0.
+    A perfectly uniform 2D surface has a fractal dimension of 2.0.
+    """
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        mock_path = Path(tmp_dir) / "uniform_fractal_image.png"
+        
+        # Create a uniform image
+        data = np.ones((64, 64), dtype=np.uint8) * 128
+        img = Image.fromarray(data, mode='L')
+        img.save(mock_path)
+        
+        result = calculate_fractal_dimension(mock_path)
+        
+        # Uniform image should have a fractal dimension close to 2.0 (a flat plane)
+        assert result >= 1.0, "Fractal dimension cannot be less than 1.0 for a 2D image"
+        # Allow some tolerance due to numerical precision and algorithm specifics
+        assert result <= 2.1, f"Uniform image fractal dimension should be near 2.0, got {result}"
+
+
+def test_fractal_dim_nonexistent_file():
+    """
+    Test that calculate_fractal_dimension raises an appropriate error for a non-existent file.
+    """
+    mock_path = Path("/tmp/nonexistent_fractal_image_12345.png")
+    
+    with pytest.raises((FileNotFoundError, ValueError, OSError)):
+        calculate_fractal_dimension(mock_path)
+
+
+def test_hrf_convolve_matches_shape():
+    """
+    Test that convolve_with_hrf returns an output array with length >= input length.
+    This test is designed to fail before the implementation is complete.
+    
+    The HRF convolution typically increases the length of the time series due to the
+    impulse response function's duration.
+    """
+    # Create a dummy time-series
+    # Using a simple sine wave with noise to simulate BOLD-like signal
+    np.random.seed(42)
+    n_timepoints = 100
+    dummy_series = np.sin(np.linspace(0, 4 * np.pi, n_timepoints)) + 0.1 * np.random.randn(n_timepoints)
+    
+    # Call the function
+    output = convolve_with_hrf(dummy_series)
+    
+    # Assert the output is a numpy array
+    assert isinstance(output, np.ndarray), "Output should be a numpy array"
+    
+    # Assert the output length is at least as long as the input
+    # Convolution typically increases length, but at minimum it should not shrink
+    assert len(output) >= len(dummy_series), f"Expected output length >= {len(dummy_series)}, got {len(output)}"
+    
+    # Additional sanity checks
+    assert not np.any(np.isnan(output)), "Output should not contain NaN values"
+    assert not np.any(np.isinf(output)), "Output should not contain Inf values"
+    
+    # Verify that the output contains some variance (HRF should not flatten the signal completely)
+    assert np.var(output) > 0, "Output should have non-zero variance"

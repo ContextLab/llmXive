@@ -1,233 +1,251 @@
 """
-ROI Extraction module for fMRI data processing.
+ROI Extraction Module for fMRI Analysis.
 
-This module handles loading AAL atlas masks, identifying DLPFC voxels,
-spatial smoothing, and extracting mean BOLD time-series from specific ROIs.
+This module handles the loading of the AAL atlas, identification of DLPFC voxels,
+spatial smoothing of BOLD data, and extraction of mean time-series from specific ROIs.
 """
 
 import numpy as np
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple, List
+import nibabel as nib
+from nilearn.image import smooth_img
+from scipy.ndimage import binary_erosion
 
-# Import from existing project config if available, otherwise define fallback
-try:
-    from code.config import CONFIG
-except (ImportError, ModuleNotFoundError):
-    # Fallback defaults if config is not yet fully populated or import fails
-    # In a real run, T004 ensures code.config exists with these constants
-    class FallbackConfig:
-        AAL_ATLAS_PATH = None  # Will be resolved dynamically or passed
-        SMOOTHING_FWHM = 4.0
-        TR = 2.0
-    
-    CONFIG = FallbackConfig()
+# Import config for paths if needed, though we use explicit paths here
+# from config import DATA_RAW, DATA_INTERIM 
 
-
-def load_aal_atlas(atlas_path: Optional[Path] = None) -> np.ndarray:
+def load_aal_atlas(atlas_path: Optional[Path] = None) -> nib.Nifti1Image:
     """
-    Load the AAL atlas mask.
-    
+    Load the AAL (Automated Anatomical Labeling) atlas.
+
+    If a specific path is not provided, attempts to locate the standard AAL
+    atlas or a downloaded version in data/raw.
+
     Args:
-        atlas_path: Path to the AAL atlas file. If None, attempts to use
-                    a standard location or raises an error if not found.
-                    
-    Returns:
-        numpy.ndarray: The 3D or 4D atlas mask data.
-        
-    Raises:
-        FileNotFoundError: If the atlas file cannot be found.
-        ImportError: If nibabel is not installed (expected to be in requirements).
-    """
-    try:
-        import nibabel as nib
-    except ImportError:
-        raise ImportError("nibabel is required for ROI extraction. "
-                          "Please install it via `pip install nibabel`.")
+        atlas_path: Path to the AAL atlas NIfTI file.
 
-    if atlas_path is None:
-        # Default assumption: AAL atlas is in data/raw or a standard system path.
-        # For this implementation, we expect the path to be provided or
-        # derived from a standard location if the dataset includes it.
-        # If the dataset ds000246 does not include AAL, we might need to download it.
-        # For now, we raise a clear error if path is missing.
+    Returns:
+        A NIfTI image object representing the atlas.
+
+    Raises:
+        FileNotFoundError: If the atlas cannot be found.
+    """
+    if atlas_path and atlas_path.exists():
+        return nib.load(atlas_path)
+    
+    # Fallback to common locations or standard nilearn atlas if available
+    # For this project, we assume the atlas is in data/raw or provided
+    possible_paths = [
+        Path("data/raw/AAL.nii"),
+        Path("data/raw/AAL_template.nii.gz"),
+        Path("code/data/AAL.nii") 
+    ]
+    
+    for p in possible_paths:
+        if p.exists():
+            return nib.load(p)
+    
+    # If using nilearn's built-in atlas (requires internet or cached)
+    try:
+        from nilearn import datasets
+        # AAL is not directly in datasets, but we can try to fetch standard templates
+        # However, for strict offline/specific AAL usage, we rely on the file provided.
         raise FileNotFoundError(
-            "AAL Atlas path not provided. Please provide 'atlas_path' or "
-            "configure it in code/config.py."
+            f"AAL atlas not found at any standard location. "
+            f"Please download 'AAL.nii' and place it in data/raw/ or provide atlas_path."
+        )
+    except ImportError:
+        raise FileNotFoundError(
+            "AAL atlas file not found. Please ensure 'data/raw/AAL.nii' exists."
         )
 
-    if not atlas_path.exists():
-        raise FileNotFoundError(f"AAL Atlas file not found at: {atlas_path}")
-
-    atlas_img = nib.load(str(atlas_path))
-    return atlas_img.get_fdata()
-
-
-def identify_dlpfc_voxels(atlas_data: np.ndarray, mask_path: Optional[Path] = None) -> np.ndarray:
+def identify_dlpfc_voxels(atlas_img: nib.Nifti1Image, mask_path: Optional[Path] = None) -> np.ndarray:
     """
-    Identify DLPFC (Dorsolateral Prefrontal Cortex) voxels from the atlas.
+    Identify voxels corresponding to the Dorsolateral Prefrontal Cortex (DLPFC).
+
+    The DLPFC is typically associated with specific labels in the AAL atlas:
+    - Frontal_Sup_Orbital_Left/Right (approx)
+    - Frontal_Mid_Orbital_Left/Right
+    - Frontal_Sup_Left/Right (Dorsal)
     
-    The AAL atlas uses specific integer labels for ROIs. DLPFC typically
-    corresponds to labels for Superior Frontal Gyrus (Dorsal) or Middle
-    Frontal Gyrus. In AAL:
-    - 6: Superior Frontal Gyrus, Dorsal (Left)
-    - 7: Superior Frontal Gyrus, Dorsal (Right)
-    - 10: Middle Frontal Gyrus (Left)
-    - 11: Middle Frontal Gyrus (Right)
+    In the standard AAL v1/v2, specific region codes map to these areas.
+    We will filter based on known AAL labels for DLPFC regions.
     
-    We will select labels 6, 7, 10, 11 to approximate DLPFC.
+    Common AAL labels for DLPFC (approximate):
+    10: Frontal_Sup_L (Superior Frontal Gyrus, Left) - often includes DLPFC
+    11: Frontal_Sup_R
+    12: Frontal_Sup_Orb_L
+    13: Frontal_Sup_Orb_R
+    14: Frontal_Mid_Orb_L
+    15: Frontal_Mid_Orb_R
     
+    Note: This is a simplified heuristic. In a full pipeline, a specific mask
+    file (mask_path) would be preferred if available.
+
     Args:
-        atlas_data: 3D numpy array of atlas labels.
-        mask_path: Optional binary mask to restrict search space.
+        atlas_img: The loaded AAL atlas image.
+        mask_path: Optional path to a pre-defined DLPFC mask. If provided, this
+                   overrides atlas-based identification.
+
+    Returns:
+        A boolean array (mask) of the same shape as the atlas, where True indicates
+        a DLPFC voxel.
+    """
+    if mask_path and mask_path.exists():
+        mask_img = nib.load(mask_path)
+        return mask_img.get_fdata().astype(bool)
+
+    atlas_data = atlas_img.get_fdata()
+    shape = atlas_data.shape
+    
+    # Define AAL label indices for DLPFC regions (Left and Right)
+    # These indices correspond to the standard AAL template values.
+    # 10, 11: Superior Frontal
+    # 12, 13: Superior Frontal Orbital
+    # 14, 15: Middle Frontal Orbital
+    # 46, 47: Middle Frontal (often considered part of DLPFC)
+    dl_pfc_labels = [10, 11, 12, 13, 14, 15, 46, 47]
+    
+    mask = np.zeros(shape, dtype=bool)
+    for label in dl_pfc_labels:
+        mask |= (atlas_data == label)
+    
+    # Apply a small erosion to remove boundary voxels that might be partial volume
+    # This ensures we only take core DLPFC voxels
+    mask = binary_erosion(mask, iterations=1)
+    
+    if not np.any(mask):
+        raise ValueError("No DLPFC voxels found in the atlas. Check AAL label mapping.")
         
-    Returns:
-        np.ndarray: Boolean mask of DLPFC voxels (True where DLPFC).
-    """
-    # Define AAL labels corresponding to DLPFC regions
-    dlpfc_labels = [6, 7, 10, 11]
-    
-    # Create a boolean mask where atlas_data matches any of the DLPFC labels
-    dlpfc_mask = np.zeros_like(atlas_data, dtype=bool)
-    for label in dlpfc_labels:
-        dlpfc_mask |= (atlas_data == label)
-    
-    if mask_path is not None:
-        # If a binary brain mask is provided, intersect with it
-        import nibabel as nib
-        mask_img = nib.load(str(mask_path))
-        mask_data = mask_img.get_fdata() > 0
-        dlpfc_mask &= mask_data
-    
-    return dlpfc_mask
+    return mask
 
-
-def smooth_bold_data(bold_path: Path, fwhm: float = 4.0) -> Path:
+def smooth_bold_data(bold_path: Path, fwhm: float = 4.0) -> nib.Nifti1Image:
     """
-    Apply spatial smoothing to BOLD data using nilearn.
-    
+    Apply spatial smoothing to the BOLD fMRI data.
+
     Args:
-        bold_path: Path to the input 4D BOLD NIfTI file.
-        fwhm: Full Width at Half Maximum for smoothing kernel (in mm).
-            
+        bold_path: Path to the preprocessed BOLD NIfTI file.
+        fwhm: Full Width at Half Maximum for the Gaussian kernel in mm.
+
     Returns:
-        Path: Path to the smoothed BOLD file.
+        Smoothed NIfTI image.
     """
-    try:
-        from nilearn.image import smooth_img
-    except ImportError:
-        raise ImportError("nilearn is required for smoothing. "
-                          "Please install it via `pip install nilearn`.")
-
     if not bold_path.exists():
-        raise FileNotFoundError(f"BOLD file not found at: {bold_path}")
-
-    # Define output path
-    output_path = bold_path.parent / f"{bold_path.stem}_smoothed{bold_path.suffix}"
+        raise FileNotFoundError(f"BOLD image not found at {bold_path}")
     
-    # Perform smoothing
-    smooth_img(bold_path, fwhm=fwhm, output_file=str(output_path))
-    
-    return output_path
-
+    # Use nilearn's smooth_img which handles header and affine correctly
+    smoothed_img = smooth_img(bold_path, fwhm=fwhm)
+    return smoothed_img
 
 def extract_roi(bold_path: Path, mask_path: Path) -> np.ndarray:
     """
-    Extract mean BOLD time-series from a specific ROI defined by a mask.
-    
+    Extract the mean BOLD time-series from the ROI defined by the mask.
+
     This function:
-    1. Loads the 4D BOLD data.
-    2. Loads the mask (either a pre-computed mask or an AAL atlas file).
-    3. If the mask is an AAL atlas, it identifies DLPFC voxels.
-    4. Applies spatial smoothing if not already done (optional step, 
-       typically smoothing is done before extraction, but this function 
-       can handle it if the input bold_path is not smoothed).
-    5. Calculates the mean signal across the ROI voxels for each timepoint.
-    
+    1. Loads the BOLD image and the mask.
+    2. Ensures they are spatially aligned (checks affine/shape).
+    3. Extracts the mean signal across all voxels within the mask for each timepoint.
+    4. Returns a 1D numpy array of the time-series.
+
     Args:
-        bold_path (Path): Path to the 4D BOLD NIfTI file.
-        mask_path (Path): Path to the AAL atlas or a binary ROI mask.
-            
+        bold_path: Path to the BOLD NIfTI image (4D: x, y, z, time).
+        mask_path: Path to the ROI mask NIfTI image (3D or 4D with single volume).
+
     Returns:
-        np.ndarray: 1D array of mean BOLD signal values (timepoints).
-                    
+        A 1D numpy array containing the mean BOLD signal over time.
+
     Raises:
         FileNotFoundError: If input files are missing.
-        ValueError: If the mask and BOLD data dimensions do not align.
-        ImportError: If required libraries (nibabel, nilearn) are missing.
+        ValueError: If shapes or affines do not match.
     """
-    try:
-        import nibabel as nib
-    except ImportError:
-        raise ImportError("nibabel is required for ROI extraction.")
-
     if not bold_path.exists():
-        raise FileNotFoundError(f"BOLD file not found at: {bold_path}")
+        raise FileNotFoundError(f"BOLD image not found at {bold_path}")
     if not mask_path.exists():
-        raise FileNotFoundError(f"Mask/Atlas file not found at: {mask_path}")
+        raise FileNotFoundError(f"Mask image not found at {mask_path}")
 
-    # Load BOLD data
-    bold_img = nib.load(str(bold_path))
+    # Load images
+    bold_img = nib.load(bold_path)
+    mask_img = nib.load(mask_path)
+
     bold_data = bold_img.get_fdata()
-    
-    # Load mask/atlas
-    mask_img = nib.load(str(mask_path))
     mask_data = mask_img.get_fdata()
+
+    # Handle mask shape (ensure 3D)
+    if mask_data.ndim == 4:
+        mask_data = mask_data[:, :, :, 0]
+
+    # Ensure mask is boolean
+    mask_bool = mask_data.astype(bool)
+
+    # Check shape compatibility (spatial dimensions)
+    bold_shape = bold_data.shape[:3]
+    mask_shape = mask_data.shape[:3]
     
-    # Check dimensions
-    if bold_data.shape[:3] != mask_data.shape:
-        # Attempt to resample or raise error. For now, strict check.
-        # In a robust pipeline, we would resample the mask to BOLD space.
+    if bold_shape != mask_shape:
+        # Attempt to resample if shapes differ but affines are similar?
+        # For this skeleton, we strictly require alignment or raise error.
+        # In a full pipeline, nilearn.resample_img would be used here.
         raise ValueError(
-            f"Dimension mismatch: BOLD shape {bold_data.shape[:3]} "
-            f"does not match Mask shape {mask_data.shape}. "
-            "Resampling is not implemented in this skeleton."
+            f"Shape mismatch between BOLD {bold_shape} and Mask {mask_shape}. "
+            "Ensure both images are in the same space and resolution."
         )
 
-    # Determine if mask_path is an AAL atlas or a binary mask
-    # Heuristic: If mask_data contains integer labels > 1, assume it's an atlas.
-    # If it's boolean or 0/1, assume it's a binary mask.
-    is_atlas = np.max(mask_data) > 1
+    # Check number of timepoints
+    if bold_data.ndim != 4:
+        raise ValueError(f"BOLD image must be 4D (x, y, z, t), got {bold_data.ndim}D")
     
-    if is_atlas:
-        # Extract DLPFC voxels from AAL atlas
-        roi_mask = identify_dlpfc_voxels(mask_data)
-    else:
-        # Assume binary mask
-        roi_mask = mask_data > 0
+    n_timepoints = bold_data.shape[3]
     
-    # Ensure ROI has voxels
-    if not np.any(roi_mask):
-        raise ValueError("No valid voxels found in the specified ROI.")
+    # Extract time series
+    # We iterate over timepoints to compute mean signal in the ROI
+    # Using numpy masking for efficiency
+    roi_signal = np.zeros(n_timepoints)
     
-    # Flatten the spatial dimensions to get a list of voxel indices
-    # We need to extract the time series for these specific voxels
-    # bold_data shape: (x, y, z, t)
-    # roi_mask shape: (x, y, z)
+    # Flatten spatial dimensions for easier indexing
+    n_voxels = bold_data.shape[0] * bold_data.shape[1] * bold_data.shape[2]
+    flat_bold = bold_data.reshape(n_voxels, n_timepoints)
+    flat_mask = mask_bool.flatten()
     
-    # Get indices of active voxels
-    voxel_indices = np.where(roi_mask)
+    # Select only voxels inside the mask
+    valid_voxels = flat_bold[flat_mask, :]
     
-    # Extract time series for each voxel
-    # We can do this by iterating or using advanced indexing
-    # Efficient way: reshape to (n_voxels, n_timepoints)
-    n_timepoints = bold_data.shape[-1]
+    if valid_voxels.size == 0:
+        raise ValueError("No valid voxels found in the mask after alignment.")
     
-    # Create a 2D array of shape (n_voxels, n_timepoints)
-    # Using advanced indexing: bold_data[x, y, z, t]
-    # We need to map (x, y, z) to a linear index or iterate
+    # Compute mean across voxels for each timepoint
+    roi_signal = np.mean(valid_voxels, axis=0)
     
-    # Method: Reshape bold_data to (n_voxels, n_timepoints) directly
-    # First, reshape to (x*y*z, t)
-    n_spatial = np.prod(bold_data.shape[:3])
-    bold_flat = bold_data.reshape(n_spatial, n_timepoints)
+    return roi_signal
+
+def main():
+    """
+    Main entry point for the ROI extraction module.
+    Demonstrates the workflow: Load atlas -> Identify DLPFC -> Smooth BOLD -> Extract ROI.
+    """
+    import sys
+    from pathlib import Path
+
+    # Example paths (these should be passed as arguments or read from config)
+    # Assuming standard project structure
+    bold_path = Path("data/raw/sub-01_task-stim_bold.nii.gz")
+    # If a specific mask is not provided, we generate one from AAL
+    # atlas_path = Path("data/raw/AAL.nii") 
     
-    # Create a linear index for the ROI voxels
-    linear_indices = np.ravel_multi_index(voxel_indices, bold_data.shape[:3])
+    # For the skeleton verification, we just ensure imports work and functions exist.
+    # Actual execution requires real data files.
+    print("ROI Extraction Module Loaded Successfully.")
+    print("Functions available: load_aal_atlas, identify_dlpfc_voxels, smooth_bold_data, extract_roi")
     
-    # Extract the time series
-    roi_time_series = bold_flat[linear_indices, :]
-    
-    # Calculate mean across voxels for each timepoint
-    mean_signal = np.mean(roi_time_series, axis=0)
-    
-    return mean_signal
+    # Example usage logic (commented out to avoid errors without data)
+    # if bold_path.exists():
+    #     smoothed = smooth_bold_data(bold_path)
+    #     atlas = load_aal_atlas()
+    #     mask = identify_dlpfc_voxels(atlas)
+    #     # Save mask if needed
+    #     # nib.save(nib.Nifti1Image(mask.astype(np.float32), atlas.affine), "data/interim/dlpfc_mask.nii")
+    #     # timeseries = extract_roi(bold_path, "data/interim/dlpfc_mask.nii")
+    #     # print(f"Extracted {len(timeseries)} timepoints.")
+
+if __name__ == "__main__":
+    main()

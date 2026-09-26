@@ -1,5 +1,5 @@
-'|q136366870 wikidata':
-  quote: "Benjamini\u2013Hochberg procedure"
-  source_id: Q136366870
-  url: https://www.wikidata.org/wiki/Q136366870
-  value: "Benjamini\u2013Hochberg procedure"
+'|al based et friston hrf model parameter':
+  quote: We will refer to it as the 3HRF basis. In this case, each
+  source_id: '1402.7015'
+  url: https://arxiv.org/abs/1402.7015
+  value: 3HRF

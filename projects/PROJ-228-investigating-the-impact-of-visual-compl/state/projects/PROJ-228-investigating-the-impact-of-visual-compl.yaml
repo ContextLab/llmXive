@@ -1,4 +1,10 @@
 project_id: PROJ-228-investigating-the-impact-of-visual-compl
 title: Investigating the Impact of Visual Complexity on Prefrontal Cortex Activity
 status: in_progress
-artifact_hashes: {}
+artifact_hashes:
+  data_raw: {}
+  data_interim: {}
+  data_results: {}
+  code: {}
+created_at: 2023-10-27T00:00:00Z
+updated_at: 2023-10-27T00:00:00Z
