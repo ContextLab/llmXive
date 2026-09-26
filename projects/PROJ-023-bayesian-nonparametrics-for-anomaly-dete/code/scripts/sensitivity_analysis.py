@@ -1,324 +1,297 @@
 """
-Sensitivity Analysis Script (T027)
+Sensitivity Analysis Script for Anomaly Detection Thresholds.
 
-Sweeps decision thresholds to evaluate the trade-off between false positives
-and false negatives across different detection methods. Outputs a JSON report
-containing metrics for High Specificity and F1-Optimal thresholds.
+This script sweeps decision thresholds to evaluate the impact on
+precision, recall, F1-score, and false-positive rates. It outputs
+a JSON report containing the metrics for each threshold step.
 
+Task: T026b [US3]
 Output: data/results/sensitivity_analysis.json
 """
+
 import json
 import logging
 import sys
 import argparse
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
-import numpy as np
 import pandas as pd
+import numpy as np
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
 # Constants
-DATA_RESULTS_DIR = Path("data/results")
-OUTPUT_FILE = DATA_RESULTS_DIR / "sensitivity_analysis.json"
-METHODS = ["bayesian", "shewhart", "cusum", "vae"]
+THRESHOLD_START = 0.0
+THRESHOLD_END = 1.0
+THRESHOLD_STEP = 0.05
+OUTPUT_FILE = Path("data/results/sensitivity_analysis.json")
 
-def load_predictions(method: str) -> pd.DataFrame:
+
+def load_predictions(file_path: Path) -> pd.DataFrame:
     """
-    Load predictions for a specific method from the results directory.
-    
+    Load anomaly predictions from a CSV file.
+
     Args:
-        method: The method name (e.g., 'bayesian', 'shewhart').
-        
+        file_path: Path to the predictions CSV.
+
     Returns:
-        DataFrame with prediction data.
-        
+        DataFrame with 'score' and 'anomaly' columns.
+
     Raises:
-        FileNotFoundError: If the prediction file does not exist.
+        FileNotFoundError: If the file does not exist.
+        ValueError: If required columns are missing.
     """
-    file_path = DATA_RESULTS_DIR / f"{method}_predictions.csv"
     if not file_path.exists():
         raise FileNotFoundError(f"Predictions file not found: {file_path}")
-    
-    logger.info(f"Loading predictions for {method} from {file_path}")
+
     df = pd.read_csv(file_path)
-    
-    # Ensure required columns exist
-    required_cols = ["timestamp", "score", "predicted_anomaly"]
-    missing_cols = [c for c in required_cols if c not in df.columns]
+    required_cols = ['score', 'anomaly']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+
     if missing_cols:
         raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
-        
+
+    logger.info(f"Loaded predictions from {file_path}: {len(df)} rows")
     return df
 
-def load_ground_truth() -> pd.DataFrame:
+
+def load_ground_truth(file_path: Path) -> pd.DataFrame:
     """
-    Load the ground truth anomalies from the processed data.
-    
+    Load ground truth labels from a CSV file.
+
+    Args:
+        file_path: Path to the ground truth CSV.
+
     Returns:
-        DataFrame with ground truth labels.
-        
+        DataFrame with 'anomaly' column (binary labels).
+
     Raises:
-        FileNotFoundError: If the ground truth file does not exist.
+        FileNotFoundError: If the file does not exist.
     """
-    file_path = DATA_RESULTS_DIR / "ground_truth.csv"
-    # Fallback to processed directory if not in results
-    if not file_path.exists():
-        file_path = Path("data/processed/ground_truth.csv")
-        
     if not file_path.exists():
         raise FileNotFoundError(f"Ground truth file not found: {file_path}")
-        
-    logger.info(f"Loading ground truth from {file_path}")
+
     df = pd.read_csv(file_path)
-    
-    # Ensure required columns exist
-    required_cols = ["timestamp", "is_anomaly"]
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {file_path}: {missing_cols}")
-        
+    if 'anomaly' not in df.columns:
+        raise ValueError(f"Missing 'anomaly' column in ground truth: {file_path}")
+
+    logger.info(f"Loaded ground truth from {file_path}: {len(df)} rows")
     return df
 
+
 def calculate_metrics_at_threshold(
-    scores: np.ndarray, 
-    labels: np.ndarray, 
+    scores: pd.Series,
+    ground_truth: pd.Series,
     threshold: float
 ) -> Dict[str, float]:
     """
-    Calculate confusion matrix metrics at a specific threshold.
-    
+    Calculate precision, recall, F1, and FPR at a specific threshold.
+
     Args:
-        scores: Array of anomaly scores.
-        labels: Array of binary ground truth labels (1=anomaly, 0=normal).
-        threshold: The decision threshold.
-        
+        scores: Predicted anomaly scores.
+        ground_truth: Binary ground truth labels (0 or 1).
+        threshold: Decision threshold.
+
     Returns:
-        Dictionary with TP, FP, TN, FN, Precision, Recall, F1, Specificity.
+        Dictionary containing precision, recall, f1_score, false_positive_rate.
     """
+    # Apply threshold to get binary predictions
     predictions = (scores >= threshold).astype(int)
-    
-    tp = np.sum((predictions == 1) & (labels == 1))
-    fp = np.sum((predictions == 1) & (labels == 0))
-    tn = np.sum((predictions == 0) & (labels == 0))
-    fn = np.sum((predictions == 0) & (labels == 1))
-    
+
+    # True Positives, False Positives, False Negatives, True Negatives
+    tp = ((predictions == 1) & (ground_truth == 1)).sum()
+    fp = ((predictions == 1) & (ground_truth == 0)).sum()
+    fn = ((predictions == 0) & (ground_truth == 1)).sum()
+    tn = ((predictions == 0) & (ground_truth == 0)).sum()
+
+    # Precision
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+
+    # Recall
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-    specificity = tn / (tn + fp) if (tn + fp) > 0 else 0.0
-    f1 = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0.0
-    
+
+    # F1 Score
+    if precision + recall > 0:
+        f1_score = 2 * (precision * recall) / (precision + recall)
+    else:
+        f1_score = 0.0
+
+    # False Positive Rate
+    fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+
     return {
-        "TP": int(tp),
-        "FP": int(fp),
-        "TN": int(tn),
-        "FN": int(fn),
-        "precision": float(precision),
-        "recall": float(recall),
-        "specificity": float(specificity),
-        "f1_score": float(f1),
-        "false_positive_rate": float(fp / (fp + tn)) if (fp + tn) > 0 else 0.0,
-        "false_negative_rate": float(fn / (fn + tp)) if (fn + tp) > 0 else 0.0
+        "precision": precision,
+        "recall": recall,
+        "f1_score": f1_score,
+        "false_positive_rate": fpr
     }
 
+
 def sweep_thresholds(
-    scores: np.ndarray, 
-    labels: np.ndarray, 
-    n_steps: int = 100
+    scores: pd.Series,
+    ground_truth: pd.Series,
+    start: float = THRESHOLD_START,
+    end: float = THRESHOLD_END,
+    step: float = THRESHOLD_STEP
 ) -> List[Dict[str, Any]]:
     """
-    Sweep through a range of thresholds and calculate metrics.
-    
+    Sweep through thresholds and calculate metrics for each.
+
     Args:
-        scores: Array of anomaly scores.
-        labels: Array of binary ground truth labels.
-        n_steps: Number of threshold steps to evaluate.
-        
+        scores: Predicted anomaly scores.
+        ground_truth: Binary ground truth labels.
+        start: Starting threshold value.
+        end: Ending threshold value.
+        step: Step size for threshold increment.
+
     Returns:
         List of dictionaries containing threshold and metrics.
     """
-    min_score = float(np.min(scores))
-    max_score = float(np.max(scores))
-    
-    # Handle edge case where all scores are identical
-    if min_score == max_score:
-        thresholds = [min_score]
-    else:
-        thresholds = np.linspace(min_score, max_score, n_steps)
-    
     results = []
-    for thresh in thresholds:
-        metrics = calculate_metrics_at_threshold(scores, labels, thresh)
-        metrics["threshold"] = float(thresh)
-        results.append(metrics)
-        
-    return results
-
-def find_optimal_threshold(
-    scores: np.ndarray, 
-    labels: np.ndarray,
-    target_specificity: Optional[float] = None
-) -> Tuple[float, Dict[str, Any]]:
-    """
-    Find the optimal threshold based on F1 score or target specificity.
-    
-    Args:
-        scores: Array of anomaly scores.
-        labels: Array of binary ground truth labels.
-        target_specificity: If provided, find threshold achieving this specificity.
-        
-    Returns:
-        Tuple of (optimal_threshold, metrics_at_threshold).
-    """
-    if target_specificity is not None:
-        # Find threshold that achieves target specificity (closest match)
-        sweep_results = sweep_thresholds(scores, labels, n_steps=200)
-        best_thresh = None
-        min_diff = float('inf')
-        
-        for res in sweep_results:
-            diff = abs(res["specificity"] - target_specificity)
-            if diff < min_diff:
-                min_diff = diff
-                best_thresh = res["threshold"]
-        
-        if best_thresh is None:
-            best_thresh = 0.5
-            
-        metrics = calculate_metrics_at_threshold(scores, labels, best_thresh)
-        return best_thresh, metrics
-    else:
-        # Maximize F1 score
-        sweep_results = sweep_thresholds(scores, labels, n_steps=200)
-        best_res = max(sweep_results, key=lambda x: x["f1_score"])
-        return best_res["threshold"], best_res
-
-def run_analysis() -> Dict[str, Any]:
-    """
-    Run the full sensitivity analysis for all methods.
-    
-    Returns:
-        Dictionary containing analysis results for all methods.
-    """
-    # Load ground truth once
-    try:
-        gt_df = load_ground_truth()
-    except FileNotFoundError as e:
-        logger.error(f"Cannot proceed without ground truth: {e}")
-        raise
-    
-    # Align ground truth on timestamp
-    gt_df = gt_df.sort_values("timestamp").reset_index(drop=True)
-    
-    results = {
-        "methods": {},
-        "summary": {
-            "total_samples": len(gt_df),
-            "anomaly_count": int(gt_df["is_anomaly"].sum()),
-            "anomaly_rate": float(gt_df["is_anomaly"].mean())
-        },
-        "parameters": {
-            "sweep_steps": 100,
-            "high_specificity_target": 0.95,
-            "f1_optimization": True
+    current = start
+    while current <= end + 1e-9:  # Small epsilon for float comparison
+        metrics = calculate_metrics_at_threshold(scores, ground_truth, current)
+        result_entry = {
+            "threshold": round(current, 2),
+            **metrics
         }
-    }
-    
-    for method in METHODS:
-        logger.info(f"Analyzing {method}...")
-        try:
-            pred_df = load_predictions(method)
-            
-            # Merge with ground truth
-            merged = pd.merge(
-                pred_df, 
-                gt_df, 
-                on="timestamp", 
-                how="inner"
-            )
-            
-            if len(merged) == 0:
-                logger.warning(f"No overlapping timestamps for {method}. Skipping.")
-                continue
-                
-            scores = merged["score"].values
-            labels = merged["is_anomaly"].values
-            
-            # 1. High Specificity Analysis (Target 95% specificity)
-            thresh_spec, metrics_spec = find_optimal_threshold(
-                scores, labels, target_specificity=0.95
-            )
-            
-            # 2. F1 Optimal Analysis
-            thresh_f1, metrics_f1 = find_optimal_threshold(
-                scores, labels, target_specificity=None
-            )
-            
-            # 3. Full Sweep (sampled for JSON size)
-            full_sweep = sweep_thresholds(scores, labels, n_steps=100)
-            # Store every 5th point to keep JSON manageable
-            sampled_sweep = full_sweep[::5]
-            
-            results["methods"][method] = {
-                "high_specificity": {
-                    "threshold": thresh_spec,
-                    "metrics": metrics_spec
-                },
-                "f1_optimal": {
-                    "threshold": thresh_f1,
-                    "metrics": metrics_f1
-                },
-                "threshold_sweep_sample": sampled_sweep
-            }
-            
-            logger.info(f"  {method}: F1-Opt F1={metrics_f1['f1_score']:.3f}, "
-                        f"Spec-Opt Specificity={metrics_spec['specificity']:.3f}")
-            
-        except FileNotFoundError as e:
-            logger.warning(f"Skipping {method} due to missing file: {e}")
-            results["methods"][method] = {"error": str(e)}
-    
+        results.append(result_entry)
+        current += step
+
     return results
 
-def main():
-    """Main entry point for the sensitivity analysis script."""
-    parser = argparse.ArgumentParser(
-        description="Run sensitivity analysis on anomaly detection results."
-    )
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default=str(OUTPUT_FILE),
-        help="Path to output JSON file."
-    )
-    args = parser.parse_args()
-    
-    output_path = Path(args.output)
-    
+
+def find_optimal_threshold(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Find the threshold that maximizes F1-score.
+
+    Args:
+        results: List of threshold sweep results.
+
+    Returns:
+        Dictionary containing the optimal threshold and its metrics.
+    """
+    if not results:
+        raise ValueError("No results provided to find optimal threshold")
+
+    best = max(results, key=lambda x: x['f1_score'])
+    logger.info(f"Optimal threshold: {best['threshold']} with F1: {best['f1_score']:.4f}")
+    return best
+
+
+def run_analysis(
+    predictions_path: Path,
+    ground_truth_path: Path,
+    output_path: Path
+) -> Dict[str, Any]:
+    """
+    Run the full sensitivity analysis pipeline.
+
+    Args:
+        predictions_path: Path to predictions CSV.
+        ground_truth_path: Path to ground truth CSV.
+        output_path: Path to save the output JSON.
+
+    Returns:
+        Dictionary containing the full analysis results.
+    """
+    # Load data
+    predictions_df = load_predictions(predictions_path)
+    ground_truth_df = load_ground_truth(ground_truth_path)
+
+    # Ensure alignment (assume same index/order as per pipeline design)
+    if len(predictions_df) != len(ground_truth_df):
+        raise ValueError(
+            f"Length mismatch: predictions ({len(predictions_df)}) "
+            f"vs ground truth ({len(ground_truth_df)})"
+        )
+
+    scores = predictions_df['score']
+    ground_truth = ground_truth_df['anomaly']
+
+    # Sweep thresholds
+    logger.info(f"Sweeping thresholds from {THRESHOLD_START} to {THRESHOLD_END} step {THRESHOLD_STEP}")
+    sweep_results = sweep_thresholds(scores, ground_truth)
+
+    # Find optimal
+    optimal = find_optimal_threshold(sweep_results)
+
+    # Compile final report
+    report = {
+        "analysis_config": {
+            "threshold_start": THRESHOLD_START,
+            "threshold_end": THRESHOLD_END,
+            "threshold_step": THRESHOLD_STEP,
+            "optimization_metric": "f1_score"
+        },
+        "optimal_threshold": optimal,
+        "sweep_results": sweep_results
+    }
+
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info("Starting Sensitivity Analysis (T027)...")
-    
+
+    # Save results
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Results saved to {output_path}")
+    return report
+
+
+def main(args: Optional[argparse.Namespace] = None) -> None:
+    """
+    Main entry point for the sensitivity analysis script.
+
+    Args:
+        args: Command line arguments (optional).
+    """
+    parser = argparse.ArgumentParser(
+        description="Sweep decision thresholds for anomaly detection evaluation."
+    )
+    parser.add_argument(
+        "--predictions",
+        type=str,
+        default="data/results/bayesian_predictions.csv",
+        help="Path to the predictions CSV file."
+    )
+    parser.add_argument(
+        "--ground_truth",
+        type=str,
+        default="data/processed/ground_truth.csv",
+        help="Path to the ground truth CSV file."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/results/sensitivity_analysis.json",
+        help="Path to save the sensitivity analysis JSON report."
+    )
+
+    parsed_args = parser.parse_args() if args is None else args
+
     try:
-        results = run_analysis()
-        
-        # Save results
-        with open(output_path, "w") as f:
-            json.dump(results, f, indent=2)
-            
-        logger.info(f"Analysis complete. Results saved to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+        run_analysis(
+            predictions_path=Path(parsed_args.predictions),
+            ground_truth_path=Path(parsed_args.ground_truth),
+            output_path=Path(parsed_args.output)
+        )
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
         sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

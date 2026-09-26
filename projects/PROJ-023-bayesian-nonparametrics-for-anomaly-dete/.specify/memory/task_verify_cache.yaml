@@ -1,3 +1,10 @@
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or output artifacts (e.g., inference script, CSV of anomaly scores,
+    baseline implementations, or evaluation results) are present; the claim provides
+    only a description without any tangible deliverables, so the required deliverables
+    are missing.
 T014:
   c: false
   h: cbc86452f3931147e540b6149f83924ded1f7235453b127289888d28ffe68cf9
@@ -7,20 +14,50 @@ T014:
     \ does not fulfill the task\u2019s core requirement of calling the anomaly injector\
     \ and producing the two processed CSV files. The missing `code/lib/anomaly_injector.py`\
     \ must be added (or the import removed) for the task to be complete."
-T029:
+T015:
   c: false
-  h: b89906910e854e2f25b0d5da469dd795ba59b4c2309cc4f770b2e7c3a5a48f0e
-  r: The repository contains a `code/scripts/render_fig2.py` file, but the shown excerpt
-    ends abruptly and provides no evidence that it actually creates the plot or writes
-    `paper/figures/fig2_method_comparison.png`. Moreover, the expected PNG file is
-    absent from the `paper/figures` directory. The required output artifact is missing,
-    so the task is not fully satisfied.
-T030:
+  h: 15a874dcba5ed8c80484615a648802b8e732472c7e92161548182dbc89f33cee
+  r: "The required `code/lib/memory_profiler.py` file does not exist, so the utility\
+    \ cannot profile memory, log results, or enforce the 7\u202FGB limit. Without\
+    \ this script the task\u2019s core functionality is unmet."
+T021:
+  c: false
+  h: 912a6acad47854b36740b6c89475b437f0a7825fb7d438da850a2e49d50fa5d3
+  r: "The repository contains a `baseline_cusum.py` file, but its content is truncated\
+    \ and does not show a complete CUSUM implementation nor any code that writes `data/results/cusum_predictions.csv`.\
+    \ Moreover, the required output CSV file is absent from the `data/results` directory.\
+    \ The task\u2019s core deliverables are therefore not fulfilled."
+T022:
+  c: false
+  h: a971c19f93cbf02a036c4e0067cd2a833cbc144cde7e8581e3686746c33ea39b
+  r: "The repository contains `code/scripts/baseline_vae.py`, but it uses raw PyTorch\
+    \ instead of the required scikit-learn or pytorch\u2011lightning, and the expected\
+    \ output file `data/results/vae_predictions.csv` is absent. Both the mandated\
+    \ library choice and the required result artifact are missing."
+T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `paper/results.md` file is present in the provided evidence, and thus no\
-    \ summary of findings, p\u2011values, or associational claims (with causal language\
-    \ avoided) can be verified. The required artifact is missing."
+  r: "No artifacts (e.g., test logs, output files, verification scripts, or reports)\
+    \ were provided to demonstrate that baseline scripts T020\u2011T022 successfully\
+    \ read the unified data format from T004 and generated outputs compatible with\
+    \ evaluation script T026a. The claim lacks concrete evidence, so the integration\
+    \ verification cannot be confirmed."
+T026b:
+  c: false
+  h: 74449fb2c55731c520b91d7c0677ff15bcc67e2cfdb687a67680ab68f49ddc24
+  r: "The repository contains `code/scripts/sensitivity_analysis.py`, but the file\
+    \ is truncated and does not show the full threshold\u2011sweeping logic or JSON\u2011\
+    writing code. Moreover, the required output `data/results/sensitivity_analysis.json`\
+    \ is absent, so the script\u2019s primary deliverable has not been produced. The\
+    \ task\u2019s core requirement is therefore not met."
+T028:
+  c: false
+  h: a6e553c2b9024948bfc78f6635f9f26c74feeb5a01b827166f9c4536de45c75a
+  r: The provided `render_fig1.py` is only partially shown and ends abruptly (the
+    plotting function is truncated), indicating the script does not contain a complete
+    implementation that generates and saves the figure. Moreover, the required output
+    file `paper/figures/fig1_timeseries.png` is absent. Both the script and the figure
+    need to be completed for the task to be satisfied.
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

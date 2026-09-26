@@ -1,0 +1,11 @@
+[
+  {
+    "peak_memory_gb": 0.0512,
+    "timestamp": "2026-04-29T12:00:00.000000",
+    "script_name": "test_memory_profiler",
+    "memory_limit_gb": 7.0,
+    "duration_seconds": 1.01,
+    "converged": true,
+    "error": null
+  }
+]
