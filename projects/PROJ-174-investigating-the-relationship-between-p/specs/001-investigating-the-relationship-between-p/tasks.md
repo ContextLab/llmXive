@@ -149,7 +149,7 @@
 - [X] T028 [US3] Implement `code/classification/classifier.py` with sliding-window logistic regression: use a **fixed-duration lookback window** for feature extraction, but update the classifier every **200ms**; use L2 regularization
 - [ ] T029 [US3] Implement ground-truth labeling logic: if independent measure absent, label by median split of search time; **REMOVE** "predictive validity" claims from ALL outputs (logs, CSVs); write explicit limitation note to `results/limitations.md` stating "Ground truth is derived from search-time median split; predictive validity claims removed" and label output as "Search-Time Estimation"; **SET** the `status` column in `results/classification_metrics.csv` to `UNVALIDATED` to prevent downstream misinterpretation.
 - [X] T030 [US3] Implement `code/classification/evaluate.py` to compute accuracy, precision, recall, ROC-AUC on held-out set
-- [ ] T031 [US3] Implement sensitivity analysis sweeping thresholds across the **specific values {0.40, 0.50, 0.60}** as defined in SC-004; output full metric tables AND calculate/report **relative decrease** or **stability** metrics to `results/sensitivity_analysis.csv` with caveat if ground truth is derived from median split
+- [X] T031 [US3] Implement sensitivity analysis sweeping thresholds across the **specific values {0.40, 0.50, 0.60}** as defined in SC-004; output full metric tables AND calculate/report **relative decrease** or **stability** metrics to `results/sensitivity_analysis.csv` with caveat if ground truth is derived from median split
 - [ ] T032 [US3] Output continuous correlation between predicted probability and search time as auxiliary validation
 
 **Checkpoint**: All user stories should now be independently functional
@@ -162,7 +162,7 @@
 
 - [X] T033 [P] Documentation updates: Create `docs/pipeline.md` and update `README.md` with CLI usage and limitations
 - [ ] T034a [P] Refactor `code/` to reduce cyclomatic complexity of `preprocess.py` and `analysis.py` to < 15; verify by running `radon cc code/` and ensuring all functions score < 15
-- [~] T035a [P] Create `scripts/profile_memory.py` that runs `preprocess.py` and logs peak RAM to `results/memory_profile.csv`; verify script exists and runs successfully <!-- FAILED: unspecified -->
+- [ ] T035a [P] Create `scripts/profile_memory.py` that runs `preprocess.py` and logs peak RAM to `results/memory_profile.csv`; verify script exists and runs successfully <!-- FAILED: unspecified -->
 - [~] T036 [P] Additional unit tests for edge cases (corrupted timestamps, missing metadata)
 - [~] T037 [P] Run `docs/quickstart.sh` validation: execute `bash docs/quickstart.sh` and verify exit code 0 and presence of `results/correlations.csv`
 

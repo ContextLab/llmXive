@@ -1,190 +1,199 @@
-"""
-Ground Truth Labeling Module for US3.
-
-Implements ground-truth labeling logic:
-1. Loads search time data.
-2. Labels by median split if independent measure is absent.
-3. Writes explicit limitation notes to results/limitations.md.
-4. Updates classification metrics with 'UNVALIDATED' status.
-5. Removes 'predictive validity' claims from outputs.
-"""
-
 import os
 import sys
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
+from typing import Optional, Dict, Any, List
 
-# Import from project root config if needed, but using standard paths here
+# Ensure project root is in path if running from subdirectory
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from config import load_config
 
-# Setup logging
 logger = logging.getLogger(__name__)
 
-def load_search_time_data(input_path: Path) -> pd.DataFrame:
+def load_search_time_data(input_path: str) -> pd.DataFrame:
     """
-    Loads the processed data containing search times.
-    Expects a CSV with at least 'subject_id', 'trial_id', and 'search_time'.
+    Load the processed dataset containing search time and other features.
+    Expects a CSV with at least 'search_time' and 'subject_id' columns.
     """
-    if not input_path.exists():
+    path = Path(input_path)
+    if not path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    df = pd.read_csv(input_path)
-    required_cols = ['subject_id', 'trial_id', 'search_time']
+    logger.info(f"Loading search time data from {input_path}")
+    df = pd.read_csv(path)
+    
+    required_cols = ['search_time', 'subject_id', 'trial_id']
     missing = [c for c in required_cols if c not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+        raise ValueError(f"Missing required columns in {input_path}: {missing}")
     
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
     return df
 
-def label_by_median_split(df: pd.DataFrame, column: str = 'search_time') -> pd.DataFrame:
+def label_by_median_split(df: pd.DataFrame, target_col: str = 'search_time') -> pd.DataFrame:
     """
-    Labels data based on median split of the specified column.
-    - Values > median -> 1 (High Load / Long Search)
-    - Values <= median -> 0 (Low Load / Short Search)
+    Create binary ground truth labels based on median split of the target column.
+    Values <= median -> 0 (Low Load), Values > median -> 1 (High Load).
     
-    Returns a copy of the dataframe with a new 'label' column.
+    This method is used when an independent cognitive load measure is absent.
+    
+    Args:
+        df: Input dataframe with the target column.
+        target_col: Name of the column to split on (default: 'search_time').
+    
+    Returns:
+        DataFrame with a new 'ground_truth_label' column.
     """
-    if df.empty:
-        raise ValueError("Cannot label empty dataframe")
+    if target_col not in df.columns:
+        raise ValueError(f"Target column '{target_col}' not found in dataframe.")
     
-    median_val = df[column].median()
-    logger.info(f"Calculated median for '{column}': {median_val}")
+    median_val = df[target_col].median()
+    logger.info(f"Computing median for {target_col}: {median_val}")
     
-    df_labeled = df.copy()
-    # Apply median split
-    df_labeled['label'] = (df_labeled[column] > median_val).astype(int)
+    # Label: 0 if <= median, 1 if > median
+    df['ground_truth_label'] = (df[target_col] > median_val).astype(int)
     
-    # Ensure the label is interpreted as "Search-Time Estimation"
-    # We do not claim predictive validity.
-    logger.info(f"Applied median split. High load (1): {df_labeled['label'].sum()}, Low load (0): {len(df_labeled) - df_labeled['label'].sum()}")
-    
-    return df_labeled
+    logger.info(f"Label distribution:\n{df['ground_truth_label'].value_counts()}")
+    return df
 
-def save_labeled_data(df: pd.DataFrame, output_path: Path) -> None:
+def save_labeled_data(df: pd.DataFrame, output_path: str) -> None:
     """
-    Saves the labeled dataframe to CSV.
+    Save the labeled dataframe to a CSV file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output, index=False)
     logger.info(f"Saved labeled data to {output_path}")
 
-def write_limitations_note(output_path: Path) -> None:
+def write_limitations_note(output_path: str) -> None:
     """
-    Writes the explicit limitation note to results/limitations.md.
-    This fulfills the requirement to state that ground truth is derived
-    from search-time median split and predictive validity claims are removed.
+    Write an explicit limitation note to a markdown file.
+    This note clarifies that ground truth is derived from search-time median split
+    and that predictive validity claims have been removed.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output = Path(output_path)
+    output.parent.mkdir(parents=True, exist_ok=True)
     
-    note_content = """# Limitations of Ground Truth Labeling
+    content = """# Limitations of Ground Truth Labeling
 
 ## Ground Truth Derivation
-The ground truth labels used in this analysis are **derived from a median split of search time**.
-Specifically, trials with search times above the median are labeled as "High Cognitive Load" (1),
-and those below or equal are labeled as "Low Cognitive Load" (0).
+The ground truth labels used for classification in this study are derived from a **median split of search time**. 
+Specifically, trials with search time greater than the median are labeled as "High Load" (1), and those below or equal to the median are labeled as "Low Load" (0).
 
-## Limitations
-- **No Independent Validation**: These labels are not validated against an independent, external measure of cognitive load (e.g., secondary task performance, subjective rating).
-- **Proxy Nature**: Search time is used as a proxy for cognitive load, but it is not a direct measure.
-- **Predictive Validity**: **Predictive validity claims have been removed** from all outputs and interpretations. The model is strictly a "Search-Time Estimation" classifier based on the defined split.
-- **Status**: All classification results are marked as `UNVALIDATED` to prevent downstream misinterpretation.
+## Critical Limitation
+This labeling strategy is a proxy for cognitive load and **does not represent an independent, validated measure of cognitive load**. 
 
-## Implications
-Results should be interpreted as the model's ability to distinguish between shorter and longer search times,
-not as a definitive measure of cognitive load in an absolute or clinically valid sense.
+## Disclaimer
+**Predictive validity claims have been removed.** The results of this classification task should be interpreted as **Search-Time Estimation** rather than a direct measure of cognitive state. The status of these labels is marked as "UNVALIDATED" in the classification metrics to prevent downstream misinterpretation.
+
+## Citation Note
+When citing results from this pipeline, acknowledge that the ground truth is a heuristic proxy based on search duration, not an external cognitive load metric.
 """
     
-    with open(output_path, 'w') as f:
-        f.write(note_content)
+    with open(output, 'w') as f:
+        f.write(content)
     
     logger.info(f"Written limitations note to {output_path}")
 
-def update_classification_metrics(metrics_path: Path, status_value: str = "UNVALIDATED") -> None:
+def update_classification_metrics(input_path: str, output_path: str, status: str = "UNVALIDATED") -> None:
     """
-    Updates the classification metrics CSV to include a 'status' column
-    and sets it to the provided value (default: 'UNVALIDATED').
-    This prevents downstream misinterpretation of the results.
+    Read the classification metrics CSV, ensure the 'status' column exists,
+    and set its value to the specified status (default: "UNVALIDATED").
+    If the file doesn't exist, create it with headers and the status row.
     
-    If the file does not exist, it creates a placeholder or raises an error
-    depending on the context. Here we assume it exists from T030 or T028.
+    This function enforces the requirement to label output as "UNVALIDATED" 
+    to prevent downstream misinterpretation.
     """
-    if not metrics_path.exists():
-        # If the metrics file doesn't exist yet, we might need to wait or create a header.
-        # However, T029 depends on the metrics being generated or generated alongside.
-        # We will create the file with the status column if it's missing, 
-        # assuming the structure is known from T030.
-        logger.warning(f"Metrics file {metrics_path} not found. Creating with status column.")
-        # Create a minimal entry if missing, but usually T030 runs before or concurrently.
-        # We will assume T030 creates it. If not, we log a warning.
-        # For robustness, we try to read, if fail, we create a new one with the status column.
-        try:
-            df_metrics = pd.read_csv(metrics_path)
-        except Exception:
-            # Fallback: Create a minimal dataframe if the file is truly missing
-            # This shouldn't happen in a correct pipeline flow, but handles edge cases.
-            df_metrics = pd.DataFrame(columns=['metric', 'value', 'status'])
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    df_metrics = pd.read_csv(metrics_path)
-    
-    if 'status' not in df_metrics.columns:
-        df_metrics['status'] = status_value
+    if path.exists():
+        df = pd.read_csv(path)
+        logger.info(f"Updating existing metrics file: {output_path}")
     else:
-        # Update existing status column if it exists
-        df_metrics['status'] = status_value
+        # If the file doesn't exist, we assume it's an empty result file
+        # We need to create it with the required status column.
+        # Since we don't have the metrics data yet (that comes from T030),
+        # we create a placeholder structure or just ensure the column exists.
+        # However, T029 is about labeling logic and setting the status.
+        # If T030 hasn't run, we create the file with the status column.
+        # If T030 runs later, it should append or overwrite.
+        # For T029 specifically, we ensure the column is present and set to UNVALIDATED.
+        # We'll create a minimal file if it doesn't exist, or update if it does.
+        # To be safe, if it doesn't exist, we create the headers.
+        df = pd.DataFrame()
+        logger.info(f"Creating new metrics file structure: {output_path}")
     
-    # Ensure the output label is "Search-Time Estimation" if there's a label column
-    # or if we are describing the output type.
-    # The task specifically asks to "label output as Search-Time Estimation".
-    # We can add a column 'output_type' or ensure the 'status' reflects it.
-    # Given the instruction "SET the status column ... to UNVALIDATED", we focus on that.
-    # We will also add a note in the 'metric' or 'value' context if possible, 
-    # but the primary requirement is the status column.
+    # Ensure 'status' column exists
+    if 'status' not in df.columns:
+        # If we have data, we set status for all rows. 
+        # If empty, we just add the column.
+        df['status'] = status
+    else:
+        # Update all existing rows to the new status
+        df['status'] = status
     
-    df_metrics.to_csv(metrics_path, index=False)
-    logger.info(f"Updated {metrics_path} with status='{status_value}'")
+    # If the file was empty, we might need to ensure it has at least one row 
+    # if the specification implies a header-only file is insufficient.
+    # But usually, metrics come from evaluation. 
+    # We ensure the column is there.
+    df.to_csv(path, index=False)
+    logger.info(f"Updated status column to '{status}' in {output_path}")
 
 def main():
     """
-    Main entry point for the ground truth labeling task.
+    Main entry point for T029: Ground Truth Labeling and Limitations.
+    This script:
+    1. Loads processed data (from US1/US2 output).
+    2. Applies median split labeling.
+    3. Saves labeled data.
+    4. Writes limitations note.
+    5. Updates classification metrics status.
     """
-    parser = argparse.ArgumentParser(description="Label data by median split and update limitations.")
-    parser.add_argument("--input", type=str, required=True, help="Path to input processed data CSV")
-    parser.add_argument("--output", type=str, required=True, help="Path to output labeled data CSV")
-    parser.add_argument("--metrics", type=str, default="results/classification_metrics.csv", help="Path to classification metrics CSV")
-    parser.add_argument("--limitations", type=str, default="results/limitations.md", help="Path to limitations note")
-    args = parser.parse_args()
-
-    input_path = Path(args.input)
-    output_path = Path(args.output)
-    metrics_path = Path(args.metrics)
-    limitations_path = Path(args.limitations)
+    config = load_config()
+    
+    # Paths
+    input_data = config.get('paths', {}).get('processed_data', 'data/processed/features.csv')
+    labeled_output = config.get('paths', {}).get('labeled_data', 'data/processed/labeled_features.csv')
+    limitations_path = 'results/limitations.md'
+    metrics_path = 'results/classification_metrics.csv'
+    
+    # Check if input exists
+    if not Path(input_data).exists():
+        # Fallback for testing if the specific processed file isn't named 'features.csv'
+        # In a real run, this should fail loudly if data is missing.
+        logger.warning(f"Input data not found at {input_data}. Attempting to find processed data...")
+        # We will proceed assuming the user provides the correct path or the file exists
+        # If it truly doesn't exist, the script should fail.
+        pass
 
     try:
-        # 1. Load data
-        df = load_search_time_data(input_path)
-
-        # 2. Label by median split
-        df_labeled = label_by_median_split(df)
-
-        # 3. Save labeled data
-        save_labeled_data(df_labeled, output_path)
-
-        # 4. Write limitations note
+        # 1. Load Data
+        df = load_search_time_data(input_data)
+        
+        # 2. Label by Median Split
+        df_labeled = label_by_median_split(df, target_col='search_time')
+        
+        # 3. Save Labeled Data
+        save_labeled_data(df_labeled, labeled_output)
+        
+        # 4. Write Limitations Note
         write_limitations_note(limitations_path)
-
-        # 5. Update classification metrics
-        update_classification_metrics(metrics_path, status_value="UNVALIDATED")
-
-        logger.info("Ground truth labeling and limitations update completed successfully.")
-
+        
+        # 5. Update Classification Metrics Status
+        update_classification_metrics(None, metrics_path, status="UNVALIDATED")
+        
+        logger.info("T029 Ground Truth Labeling completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error during ground truth labeling: {e}")
+        logger.error(f"Error during labeling: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    # Initialize logging for this module
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     main()

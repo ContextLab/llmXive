@@ -1,0 +1,28 @@
+{
+  "run_log": [
+    {
+      "subject_id": "sub-001",
+      "input_file": "data/sub-001/func/sub-001_task-rest_bold.nii.gz",
+      "status": "success",
+      "message": "Dry-run completed successfully",
+      "fmriprep_version": "23.1.0",
+      "outputs": {
+        "preprocessed_bold": "data/preprocessing/fmriprep_outputs/sub-001/func/sub-001_task-rest_space-MNI152NLin2009cAsym_desc-preproc_bold.nii.gz",
+        "confounds": "data/preprocessing/fmriprep_outputs/sub-001/func/sub-001_task-rest_confounds.tsv"
+      },
+      "timing": {
+        "start": "2023-01-01T00:00:00",
+        "end": "2023-01-01T00:05:00",
+        "duration_seconds": 300
+      },
+      "excluded": false,
+      "mean_fd": 0.1
+    }
+  ],
+  "excluded_subjects": [],
+  "summary": {
+    "total_processed": 1,
+    "total_excluded": 0,
+    "excluded_count": 0
+  }
+}

@@ -1,122 +1,113 @@
-"""
-Unit tests for sensitivity analysis logic.
-"""
 import os
 import sys
-import tempfile
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
 from pathlib import Path
+from unittest.mock import mock_open, patch
 
-# Add code directory to path for imports
+# Add code/ to path if running from tests/
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from classification.sensitivity_analysis import (
+    load_classification_predictions,
     compute_metrics_at_threshold,
-    run_sensitivity_analysis,
-    THRESHOLDS_TO_SWEEP
+    calculate_stability_metrics,
+    run_sensitivity_analysis
 )
 
 @pytest.fixture
-def sample_data():
-    """Create sample predictions and true labels for testing."""
-    np.random.seed(42)
-    n_samples = 100
-    
-    # Generate random probabilities
-    probs = np.random.rand(n_samples)
-    
-    # Generate binary labels (slightly correlated with prob for realism)
-    true_labels = (probs > 0.5).astype(int)
-    # Add some noise
-    noise = np.random.rand(n_samples) > 0.8
-    true_labels[noise] = 1 - true_labels[noise]
-    
-    df = pd.DataFrame({
-        'predicted_probability': probs,
-        'subject_id': [f'sub_{i%10}' for i in range(n_samples)],
-        'trial_id': range(n_samples)
+def sample_predictions():
+    """Create a small sample DataFrame for testing."""
+    return pd.DataFrame({
+        'true_label': [1, 1, 0, 0, 1],
+        'predicted_prob': [0.8, 0.3, 0.6, 0.2, 0.9]
     })
-    
-    return df, pd.Series(true_labels)
 
-def test_compute_metrics_accuracy(sample_data):
-    """Test accuracy calculation."""
-    df, labels = sample_data
-    
-    # At threshold 0.5, accuracy should be reasonable
-    metrics = compute_metrics_at_threshold(df, labels, 0.5)
-    
-    assert 'accuracy' in metrics
-    assert 0.0 <= metrics['accuracy'] <= 1.0
-    assert metrics['true_positives'] >= 0
-    assert metrics['true_negatives'] >= 0
+@pytest.fixture
+def temp_output_file(tmp_path):
+    """Create a temporary file path."""
+    return tmp_path / "test_sensitivity.csv"
 
-def test_compute_metrics_perfect_threshold():
-    """Test with a threshold that perfectly separates data."""
-    df = pd.DataFrame({'predicted_probability': [0.1, 0.2, 0.8, 0.9]})
-    labels = pd.Series([0, 0, 1, 1])
-    
-    metrics = compute_metrics_at_threshold(df, labels, 0.5)
-    
-    assert metrics['accuracy'] == 1.0
-    assert metrics['precision'] == 1.0
-    assert metrics['recall'] == 1.0
-    assert metrics['f1_score'] == 1.0
+def test_load_classification_predictions_valid(sample_predictions):
+    """Test loading valid predictions."""
+    # Mock file existence
+    with patch('pathlib.Path.exists', return_value=True):
+        with patch('builtins.open', mock_open(read_data=sample_predictions.to_csv(index=False))):
+            df = load_classification_predictions("dummy.csv")
+            assert 'true_label' in df.columns
+            assert 'predicted_prob' in df.columns
+            assert len(df) == 5
 
-def test_compute_metrics_extreme_thresholds():
-    """Test with extreme thresholds."""
-    df = pd.DataFrame({'predicted_probability': [0.1, 0.2, 0.8, 0.9]})
-    labels = pd.Series([0, 0, 1, 1])
+def test_load_classification_predictions_missing_columns(tmp_path):
+    """Test loading file with missing required columns."""
+    df_bad = pd.DataFrame({'other_col': [1, 2]})
+    file_path = tmp_path / "bad.csv"
+    df_bad.to_csv(file_path, index=False)
     
-    # Threshold 0.0 -> predict all 1
-    metrics_low = compute_metrics_at_threshold(df, labels, 0.0)
-    assert metrics_low['recall'] == 1.0 # All positives caught
-    assert metrics_low['precision'] == 0.5 # 2 TP, 2 FP
-    
-    # Threshold 1.0 -> predict all 0
-    metrics_high = compute_metrics_at_threshold(df, labels, 1.0)
-    assert metrics_high['recall'] == 0.0 # No positives caught
-    assert metrics_high['precision'] == 0.0 # Division by zero handled
+    with pytest.raises(ValueError, match="Missing required columns"):
+        load_classification_predictions(str(file_path))
 
-def test_run_sensitivity_analysis_relative_decrease(sample_data):
-    """Test that relative decrease is calculated correctly."""
-    df, labels = sample_data
+def test_compute_metrics_at_threshold_basic(sample_predictions):
+    """Test metric computation at a specific threshold."""
+    metrics = compute_metrics_at_threshold(sample_predictions, 0.5)
     
-    # Run analysis with a set that includes 0.50 as baseline
-    thresholds = [0.40, 0.50, 0.60]
-    results = run_sensitivity_analysis(df, labels, thresholds)
+    # Expected:
+    # Preds: [0.8->1, 0.3->0, 0.6->1, 0.2->0, 0.9->1]
+    # Truth: [1, 1, 0, 0, 1]
+    # TP: (1,1), (0,0) -> 2? No.
+    # Row 0: P=1, T=1 -> TP
+    # Row 1: P=0, T=1 -> FN
+    # Row 2: P=1, T=0 -> FP
+    # Row 3: P=0, T=0 -> TN
+    # Row 4: P=1, T=1 -> TP
+    # TP=2, TN=1, FP=1, FN=1
+    # Acc = (2+1)/5 = 0.6
+    # Prec = 2/(2+1) = 0.666
+    # Rec = 2/(2+1) = 0.666
     
-    assert 'threshold' in results.columns
-    assert 'accuracy' in results.columns
-    assert 'accuracy_relative_decrease' in results.columns
-    
-    # Check that baseline (0.50) has 0.0 relative decrease
-    baseline_row = results[results['threshold'] == 0.50]
-    assert len(baseline_row) == 1
-    assert np.isclose(baseline_row['accuracy_relative_decrease'].values[0], 0.0)
-    
-    # Check that other rows have non-zero (or NaN) relative decrease
-    other_rows = results[results['threshold'] != 0.50]
-    for _, row in other_rows.iterrows():
-        # Should be a number, not NaN unless baseline was 0 (unlikely)
-        assert not pd.isna(row['accuracy_relative_decrease'])
+    assert abs(metrics['accuracy'] - 0.6) < 1e-6
+    assert abs(metrics['precision'] - 0.666666) < 1e-6
+    assert abs(metrics['recall'] - 0.666666) < 1e-6
+    assert metrics['tp'] == 2
+    assert metrics['tn'] == 1
+    assert metrics['fp'] == 1
+    assert metrics['fn'] == 1
 
-def test_run_sensitivity_analysis_missing_baseline():
-    """Test behavior when baseline threshold is not in sweep."""
-    df = pd.DataFrame({'predicted_probability': [0.1, 0.2, 0.8, 0.9]})
-    labels = pd.Series([0, 0, 1, 1])
+def test_calculate_stability_metrics():
+    """Test stability calculation logic."""
+    metrics = [
+        {'threshold': 0.50, 'accuracy': 0.8, 'precision': 0.8, 'recall': 0.8, 'f1_score': 0.8},
+        {'threshold': 0.60, 'accuracy': 0.7, 'precision': 0.7, 'recall': 0.7, 'f1_score': 0.7}
+    ]
     
-    # Sweep without 0.50
-    thresholds = [0.40, 0.60]
-    results = run_sensitivity_analysis(df, labels, thresholds)
+    stability = calculate_stability_metrics(metrics)
     
-    # Relative decrease columns should exist but be NaN or not calculated
-    # The function currently logs a warning and skips calculation
-    if 'accuracy_relative_decrease' in results.columns:
-        # If the column exists, it might be NaN
-        assert results['accuracy_relative_decrease'].isna().all() or all(pd.isna(results['accuracy_relative_decrease']))
+    # Check baseline
+    assert any(s['threshold'] == 0.50 and s['stability_status'] == 'BASELINE' for s in stability)
+    
+    # Check relative change for 0.60
+    row_060 = next(s for s in stability if s['threshold'] == 0.60)
+    # (0.7 - 0.8) / 0.8 = -0.125
+    assert abs(row_060['rel_f1_change'] - (-0.125)) < 1e-6
+    assert row_060['stability_status'] == 'DECREASE'
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+def test_run_sensitivity_analysis_integration(tmp_path, sample_predictions):
+    """Test full pipeline execution and output file generation."""
+    input_file = tmp_path / "input.csv"
+    output_file = tmp_path / "output.csv"
+    sample_predictions.to_csv(input_file, index=False)
+    
+    run_sensitivity_analysis(
+        input_file=str(input_file),
+        output_file=str(output_file),
+        thresholds=[0.40, 0.50, 0.60]
+    )
+    
+    assert output_file.exists()
+    result_df = pd.read_csv(output_file)
+    assert 'threshold' in result_df.columns
+    assert 'accuracy' in result_df.columns
+    assert 'stability_status' in result_df.columns
+    assert len(result_df) == 3  # 3 thresholds
+    assert set(result_df['threshold'].values) == {0.40, 0.50, 0.60}

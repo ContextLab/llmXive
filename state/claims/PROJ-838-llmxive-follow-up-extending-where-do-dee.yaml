@@ -2480,3 +2480,342 @@
   source_type: external
   status: verified
   updated_at: '2026-09-22T16:50:13Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Dataset source is NJU-LINK/TELBench
+  claim_id: c_4cb6d846
+  context: 'T007 [P] Implement code/downloader.py to fetch TELBench dataset from HuggingFace
+    (Primary ID: NJU-LINK/TELBench).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_is_NJU-LINK/TELBench
+  kind: entity_fact
+  raw_text: The dataset source is NJU-LINK/TELBench.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T21:56:39Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Null permutations count is 1000
+  claim_id: c_0a14b620
+  context: T004 Implement code/config.py to define hyperparameters (cutoff_depth=0.30,
+    seed=42, dataset_url="NJU-LINK/TELBench", sensitivity_thresholds=[0.01, 0.05,
+    0.1], null_permutations=1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The null permutations count is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T21:57:04Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds are [0.01, 0.05, 0.1]
+  claim_id: c_bc3db5d1
+  context: T004 Implement code/config.py to define hyperparameters (cutoff_depth=0.30,
+    seed=42, dataset_url="NJU-LINK/TELBench", sensitivity_thresholds=[0.01, 0.05,
+    0.1], null_permutations=1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity thresholds are set to [0.01, 0.05, 0.1].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T21:57:33Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Primary decision boundary is 20th percentile of success class
+  claim_id: c_0dd5ee2e
+  context: 'T030 [US3-Pre] Implement calculate_20th_percentile_threshold in code/evaluator.py
+    (Input: data/processed/train_metrics.csv, Success Class of the Training Split).
+    PRIMARY THRESHOLD per FR-004.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_decision_boundary_is_20th_percentile_of_success_clas
+  kind: entity_fact
+  raw_text: The primary decision boundary is the 20th percentile of the success class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T21:58:05Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if success class has fewer than 5 samples
+  claim_id: c_62a15424
+  context: 'T030 [US3-Pre] Edge Case: If the success class has an insufficient number
+    of samples (n < 5), HALT the pipeline with exit code 1 and a descriptive error
+    message.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_success_class_has_fewer_than_5_samples
+  kind: magnitude
+  raw_text: The pipeline must halt if the success class has fewer than 5 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T21:58:36Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Linear reasoning index definition
+  claim_id: c_7f076b34
+  context: T037b-2 [US3-Pre] Calculate the linear_reasoning_index for each graph (ratio
+    of nodes with in-degree=1 AND out-degree=1 AND total edges = total nodes - 1).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_reasoning_index_definition
+  kind: entity_fact
+  raw_text: The linear reasoning index is defined as the ratio of nodes with in-degree=1
+    AND out-degree=1 AND total edges = total nodes - 1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T21:59:15Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Linear reasoning connectivity threshold is 25th percentile of success
+    class
+  claim_id: c_70979ba2
+  context: T037b-3 [US3-Pre] Define 'low connectivity' as below the 25th percentile
+    of success-class connectivity (calculated via numpy.quantile(..., 0.25)).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_reasoning_connectivity_threshold_is_25th_percentile_o
+  kind: entity_fact
+  raw_text: The linear reasoning threshold for connectivity is below the 25th percentile
+    of the success class.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T21:59:33Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Benchmark execution time limit is 30 minutes
+  claim_id: c_766e2c28
+  context: 'T059 [US3] Goal: Assert execution time < 30 minutes (SC-003).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_execution_time_limit_is_30_minutes
+  kind: magnitude
+  raw_text: The benchmark execution time must be less than 30 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T21:59:59Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Power analysis flags limitations if power < 0.8
+  claim_id: c_de1e3ddc
+  context: T044 [US3] If power < 0.8, flag the limitation in the final report.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_flags_limitations_if_power_%3C_0.8
+  kind: magnitude
+  raw_text: The power analysis flags limitations if power is less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T22:00:38Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Connectivity formula edges divided by nodes times nodes minus 1 divided
+    by 2
+  claim_id: c_70705544
+  context: 'T021 [US2] Formulas: Connectivity = edges / (nodes * (nodes - 1) / 2);
+    Branching = sum(out-degrees) / N.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The connectivity formula is edges / (nodes * (nodes - 1) / 2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T22:01:02Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Branching factor formula sum out degrees divided by N
+  claim_id: c_56437cf5
+  context: 'T021 [US2] Formulas: Connectivity = edges / (nodes * (nodes - 1) / 2);
+    Branching = sum(out-degrees) / N.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_factor_formula_sum_out_degrees_divided_by_N
+  kind: entity_fact
+  raw_text: The branching factor formula is sum(out-degrees) / N.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T22:02:54Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: P-value calculation formula for null distribution
+  claim_id: c_47271f75
+  context: 'T037a [US3-Pre] P-value Calculation: Calculate p-value as (count of null
+    correlations >= observed correlation + 1) / (total permutations + 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value calculation for the null distribution is (count of null correlations
+    >= observed correlation + 1) / (total permutations + 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T22:03:21Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Pipeline uses spaCy en_core_web_sm
+  claim_id: c_bfd44080
+  context: T014 [US1] Implement co-reference resolution and citation detection using
+    spaCy (en_core_web_sm) and Matcher in code/graph_builder.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_spaCy_en_core_web_sm
+  kind: entity_fact
+  raw_text: The pipeline uses spaCy en_core_web_sm for co-reference resolution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T22:03:51Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Connectivity is 0.0 for fewer than 2 nodes
+  claim_id: c_96f1fae9
+  context: T055 [N] Add a specific docstring to calculate_global_connectivity in code/metrics.py
+    defining the behavior for N < 2 (return 0.0).
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline handles datasets with fewer than 2 nodes by returning 0.0
+    connectivity.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T22:03:51Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Connectivity is 1.0 for 2 nodes with edge
+  claim_id: c_eab1be22
+  context: T055 [N] Add a specific docstring to calculate_global_connectivity in code/metrics.py
+    defining the behavior for ... N = 2 (return 1.0 if edge exists).
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline handles datasets with exactly 2 nodes by returning 1.0 connectivity
+    if an edge exists.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T22:03:52Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/specs/001-llmxive-follow-up-extending-where-do-dee/tasks.md
+  attempts: 1
+  canonical: Linear reasoning mean index threshold is 0.5
+  claim_id: c_d2c0bb51
+  context: T037b-4 [US3-Pre] Flag linear_reasoning_confirmed as true if the mean index
+    > 0.5 (or a data-driven threshold).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The linear reasoning threshold for the mean index is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T22:04:21Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/README.md
+  attempts: 1
+  canonical: DAG construction based on co-reference and citation logic within first
+    30% of trajectory to predict collapse
+  claim_id: c_328d8fe1
+  context: The pipeline parses agent trajectories, constructs a Directed Acyclic Graph
+    (DAG) based on co-reference and citation logic within the first 30% of the trajectory,
+    calculates topological metrics (Global Connectivity and Average Branching Factor),
+    and uses these metrics to predict collapse.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline parses agent trajectories, constructs a Directed Acyclic
+    Graph (DAG) based on co-reference and citation logic within the first 30% of the
+    trajectory, calculates topological metrics (Global Connectivity and Average Branching
+    Factor), and uses these metrics to predict collapse.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T22:05:09Z'
+- artifact_path: projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/README.md
+  attempts: 1
+  canonical: Pipeline analyzes topological structure of deep-research agent trajectories
+    from TELBench dataset to identify early-stage collapse patterns
+  claim_id: c_b1f97261
+  context: This project implements an automated pipeline to analyze the topological
+    structure of deep-research agent trajectories (specifically from the TELBench
+    dataset) to identify early-stage patterns that predict eventual collapse.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_analyzes_topological_structure_of_deep-research_age
+  kind: entity_fact
+  raw_text: This project implements an automated pipeline to analyze the topological
+    structure of deep-research agent trajectories (specifically from the TELBench
+    dataset) to identify early-stage patterns that predict eventual collapse.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T22:05:36Z'

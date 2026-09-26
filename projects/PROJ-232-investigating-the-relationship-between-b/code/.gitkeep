@@ -1,0 +1,7 @@
+# This file ensures the code/ directory exists in version control.
+# The actual project structure is defined by the subdirectories:
+# - code/src/
+# - code/tests/
+# - code/specs/
+# - code/data/ (generated at runtime)
+# - code/figures/ (generated at runtime)

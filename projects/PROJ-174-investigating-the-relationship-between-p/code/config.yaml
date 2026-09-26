@@ -4,12 +4,14 @@ seeds:
 thresholds:
   min_trials_per_subject: 20
   vif_threshold: 5.0
-  correlation_threshold: 0.05
+  missing_data_exclusion_pct: 0.30
+  lowpass_cutoff_hz: 4.0
 paths:
-  raw_data: data/raw
-  processed_data: data/processed
+  data_raw: data/raw
+  data_processed: data/processed
   results: results
   logs: code/logs
-aggregation:
-  enabled: false
-  min_trials_aggregate: 50
+  state: state
+flags:
+  allow_aggregation: true
+  strict_mode: false

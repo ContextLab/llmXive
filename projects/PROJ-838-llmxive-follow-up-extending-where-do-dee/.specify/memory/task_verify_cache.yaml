@@ -14,12 +14,13 @@ T003:
     that linting (ruff) and formatting (black) are configured are missing.
 T004a:
   c: false
-  h: d96aa51bee9ec2500d9c02e2ef36e6124c114fab024666a1882d7aa1f37633be
-  r: The unit tests expect `data/processed/cutoff_depth_validation.json` to be created
-    by `validate_cutoff_depth`, but the file is missing, indicating the function either
-    does not write the file or the write step is incomplete. The missing output file
-    must be generated (and contain the returned JSON) for the task to be considered
-    complete.
+  h: ac915ba8e7bd03f89d29d9cc83b866d0fe79dcd3e38538b58a40c388c68dc8ae
+  r: "The repository contains `code/validator.py` and a unit test `tests/unit/test_validator.py`,\
+    \ but the required output file `data/processed/cutoff_depth_validation.json` is\
+    \ absent, indicating that the function either was not executed or failed to write\
+    \ the file. Additionally, the shown source for `validator.py` is truncated, suggesting\
+    \ the implementation may be incomplete. The task\u2019s core deliverable \u2013\
+    \ a non\u2011empty JSON file with the justification/recommendation \u2013 is missing."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

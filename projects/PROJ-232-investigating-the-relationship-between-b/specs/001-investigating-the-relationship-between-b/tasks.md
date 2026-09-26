@@ -68,7 +68,7 @@
 - [ ] T012d [US1] Implement validation logic in `src/data/preprocess.py`: Verify that output NIfTI files (motion-corrected, bandpass-filtered) exist, are valid, and meet schema criteria before T013 consumes them.
 - [ ] T012e [US1] Implement motion exclusion logic in `src/data/preprocess.py`: Exclude subjects with FD > 0.5 mm. Update `data/preprocessing/run_log.json` with excluded subject IDs.
 - [ ] T013 [US1] Implement `src/analysis/connectivity.py`: Load Schaefer atlas, extract time series from preprocessed fMRI (output of T012d), compute Pearson correlation matrices (200x200). Validate symmetry and diagonal.
-- [ ] T015b [US1] Add logging for download integrity and preprocessing steps in `src/utils/logging.py` (if not already covered by T015).
+- [X] T015b [US1] Add logging for download integrity and preprocessing steps in `src/utils/logging.py` (if not already covered by T015).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (N=1 validation pass).
 
@@ -82,8 +82,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T016 [P] [US2] Contract test for network metrics JSON schema in `tests/contract/test_metrics_schema.py`
-- [ ] T017 [P] [US2] Integration test for metric calculation in `tests/integration/test_metrics.py`
+- [X] T016 [P] [US2] Contract test for network metrics JSON schema in `tests/contract/test_metrics_schema.py`
+- [X] T017 [P] [US2] Integration test for metric calculation in `tests/integration/test_metrics.py`
 
 ### Implementation for User Story 2
 

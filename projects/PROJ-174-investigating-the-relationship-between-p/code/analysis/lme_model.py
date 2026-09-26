@@ -4,314 +4,288 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
-from scipy import stats
+from typing import Dict, Any, List, Optional, Tuple
 
-# Ensure parent directory is in path for relative imports if running as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Attempt to import statsmodels; fail loudly if missing (required dependency)
+try:
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+except ImportError:
+    raise ImportError(
+        "statsmodels is required for LME modeling. "
+        "Please install it via `pip install statsmodels`."
+    )
+
 from config import load_config
-from data_model import ModelResult
 
 logger = logging.getLogger(__name__)
 
-def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
+def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
     """
     Calculate Variance Inflation Factor (VIF) for each predictor.
+    Returns a dictionary mapping feature name to VIF value.
     """
     vif_data = {}
-    # Add intercept for VIF calculation context (though statsmodels handles it)
-    X = df[predictors].copy()
-    
-    # Handle potential constant column if present in predictors
-    if 'intercept' in X.columns:
-        X = X.drop(columns=['intercept'])
-        
-    if X.shape[1] == 0:
-        return {}
+    # Prepare data: drop rows with NaN in any selected feature
+    clean_df = df[features].dropna()
+    if len(clean_df) == 0:
+        logger.warning("No valid data for VIF calculation (all NaN).")
+        return {f: float('inf') for f in features}
 
-    for feature in X.columns:
-        try:
-            # Fit linear model of this feature against others
-            y = X[feature]
-            X_others = X.drop(columns=[feature])
-            # Add constant for regression
-            X_others_with_const = sm.add_constant(X_others)
-            
-            # Check for singular matrix or perfect collinearity
-            if X_others_with_const.shape[1] > 1:
-                model = sm.OLS(y, X_others_with_const).fit()
-                vif_data[feature] = 1 / (1 - model.rsquared)
-            else:
-                # Only one other variable (or none), VIF is not meaningful or 1
-                vif_data[feature] = 1.0
-        except Exception as e:
-            logger.warning(f"Could not calculate VIF for {feature}: {e}")
-            vif_data[feature] = float('inf')
-            
+    X = clean_df[features]
+    # Add intercept for VIF calculation context (though VIF is usually on centered data)
+    # Standard approach: regress each X_j against all other X_k
+    for i, feature in enumerate(features):
+        y = X[feature]
+        X_other = X[[f for f in features if f != feature]]
+        if X_other.shape[1] == 0:
+            vif_data[feature] = 1.0
+            continue
+
+        # Fit OLS
+        model = sm.OLS(y, sm.add_constant(X_other)).fit()
+        r_squared = model.rsquared
+        vif = 1.0 / (1.0 - r_squared) if r_squared < 1.0 else float('inf')
+        vif_data[feature] = vif
+
     return vif_data
 
-def mitigate_collinearity(df: pd.DataFrame, predictors: List[str], threshold: float = 5.0) -> Tuple[List[str], List[str]]:
+def mitigate_collinearity(
+    df: pd.DataFrame,
+    predictors: List[str],
+    vif_threshold: float = 5.0
+) -> List[str]:
     """
-    If any VIF > threshold, drop the predictor with the highest VIF and refit.
-    Returns (remaining_predictors, dropped_predictors).
+    Iteratively drop the predictor with the highest VIF if VIF > threshold.
+    Returns the list of remaining predictors.
     """
     remaining = list(predictors)
+    while len(remaining) > 1:
+        vif_scores = calculate_vif(df, remaining)
+        max_vif_feature = max(vif_scores, key=vif_scores.get)
+        max_vif = vif_scores[max_vif_feature]
+
+        if max_vif <= vif_threshold:
+            break
+
+        logger.warning(
+            f"Collinearity detected: {max_vif_feature} has VIF={max_vif:.2f} > {vif_threshold}. Dropping."
+        )
+        remaining.remove(max_vif_feature)
+
+    return remaining
+
+def handle_unfulfillable_predictors(
+    df: pd.DataFrame,
+    predictors: List[str]
+) -> Tuple[List[str], List[str]]:
+    """
+    Identify predictors that are entirely UNFULFILLABLE (all NaN or marked).
+    Returns (remaining_predictors, dropped_predictors).
+    """
+    remaining = []
     dropped = []
-    current_df = df.copy()
-    
-    # Filter out any predictors that might have been marked as UNFULFILLABLE or NaN
-    # We assume the dataframe passed here is already cleaned or we handle NaNs in fit
-    
-    iteration = 0
-    max_iterations = len(remaining)
-    
-    while iteration < max_iterations:
-        iteration += 1
-        if len(remaining) <= 1:
-            break
-            
-        vif_scores = calculate_vif(current_df, remaining)
-        if not vif_scores:
-            break
-            
-        max_vif_var = max(vif_scores, key=vif_scores.get)
-        max_vif = vif_scores[max_vif_var]
-        
-        logger.info(f"Iteration {iteration}: Max VIF = {max_vif:.2f} for {max_vif_var}")
-        
-        if max_vif <= threshold:
-            break
-            
-        logger.warning(f"VIF {max_vif:.2f} > {threshold} for {max_vif_var}. Dropping predictor.")
-        dropped.append(max_vif_var)
-        remaining.remove(max_vif_var)
-        
+    for p in predictors:
+        if p not in df.columns:
+            dropped.append(p)
+            continue
+        # Check if column is all NaN or marked as 'UNFULFILLABLE'
+        if df[p].isna().all():
+            dropped.append(p)
+            logger.warning(f"Predictor {p} is entirely missing/UNFULFILLABLE. Dropping.")
+        else:
+            remaining.append(p)
     return remaining, dropped
 
-def handle_unfulfillable_predictors(df: pd.DataFrame, predictors: List[str]) -> Tuple[List[str], List[str]]:
+def validate_sufficient_trials(
+    df: pd.DataFrame,
+    subject_col: str = 'subject_id',
+    min_trials: int = 20,
+    allow_aggregation: bool = False
+) -> None:
     """
-    If target salience is missing (UNFULFILLABLE), fit a reduced model excluding that predictor.
-    Returns (used_predictors, excluded_predictors).
-    """
-    used = []
-    excluded = []
+    Validate that each subject has at least `min_trials` trials.
+    If a subject has fewer, raises RuntimeError unless allow_aggregation is True.
     
-    for p in predictors:
-        # Check if column exists and has valid data
-        if p not in df.columns:
-            logger.warning(f"Predictor {p} not found in dataframe. Excluding.")
-            excluded.append(p)
-            continue
+    Args:
+        df: The dataframe containing trial-level data.
+        subject_col: Name of the column identifying subjects.
+        min_trials: Minimum number of trials required per subject.
+        allow_aggregation: If True, log a warning but do not raise.
+    """
+    if subject_col not in df.columns:
+        raise ValueError(f"Subject column '{subject_col}' not found in dataframe.")
+
+    trial_counts = df[subject_col].value_counts()
+    insufficient_subjects = trial_counts[trial_counts < min_trials].index.tolist()
+
+    if insufficient_subjects:
+        msg = (
+            f"Subjects with insufficient trials (< {min_trials}): {insufficient_subjects}. "
+            f"Counts: {trial_counts[trial_counts < min_trials].to_dict()}"
+        )
         
-        # Check for 'UNFULFILLABLE' marker in the data if it's a categorical status, 
-        # or simply check if the column is all NaN/missing for the relevant rows
-        # Assuming the column exists but might be all NaN or marked specifically
-        if df[p].isna().all() or (df[p] == 'UNFULFILLABLE').any():
-            logger.warning(f"Predictor {p} is UNFULFILLABLE or missing. Excluding from model.")
-            excluded.append(p)
+        if not allow_aggregation:
+            raise RuntimeError(f"Subject validation failed: {msg}")
         else:
-            used.append(p)
-            
-    return used, excluded
+            logger.warning(f"Aggregation allowed. Warning: {msg}")
 
-def validate_sufficient_trials(df: pd.DataFrame, subject_col: str = 'subject_id', min_trials: int = 20) -> bool:
+def fit_lme_model(
+    df: pd.DataFrame,
+    outcome: str,
+    predictors: List[str],
+    subject_col: str = 'subject_id'
+) -> sm.lme.LinearMixedEffects:
     """
-    Validate sufficient trials per subject.
-    Raises RuntimeError if any subject has < min_trials unless aggregation is allowed.
+    Fit a Linear Mixed Effects model.
+    Formula: outcome ~ predictor1 + predictor2 + ... | (1 | subject_col)
     """
-    # Check config for aggregation flag
-    try:
-        config = load_config()
-        allow_aggregation = config.get('thresholds', {}).get('allow_aggregation', False)
-    except Exception:
-        allow_aggregation = False
-
-    trial_counts = df.groupby(subject_col).size()
-    min_count = trial_counts.min()
+    if not predictors:
+        raise ValueError("Cannot fit model with no predictors.")
     
-    if min_count < min_trials:
-        if allow_aggregation:
-            logger.warning(f"Minimum trials per subject is {min_count} (< {min_trials}). Aggregation flag is True, proceeding with caution.")
-            return True
-        else:
-            subject_with_low = trial_counts[trial_counts < min_trials].index[0]
-            raise RuntimeError(f"Subject {subject_with_low} has < {min_trials} trials. Pipeline halted.")
-            
-    return True
-
-def fit_lme_model(df: pd.DataFrame, formula: str, random_effect: str = '(1|subject_id)') -> sm.regression.mixed_linear_model.MixedLMResults:
-    """
-    Fit the Linear Mixed Effects model.
-    """
+    formula = f"{outcome} ~ {' + '.join(predictors)}"
+    # Random intercept by subject
+    formula += f" + (1 | {subject_col})"
+    
+    # Handle potential NaNs in the specific columns used for the model
+    # statsmodels LME handles NaNs poorly, so we drop them first
+    cols_to_check = [outcome] + predictors + [subject_col]
+    valid_df = df[cols_to_check].dropna()
+    
+    if len(valid_df) == 0:
+        raise ValueError("No valid data remaining after dropping NaNs for LME fit.")
+    
+    model = smf.lme(formula, data=valid_df, re_formula=f"1 | {subject_col}")
     try:
-        # Handle categorical variables if needed, statsmodels formula API handles this usually
-        # Ensure numeric columns are numeric
-        numeric_df = df.apply(pd.to_numeric, errors='ignore')
-        
-        model = smf.mixedlm(formula, numeric_df, groups=numeric_df['subject_id'])
-        result = model.fit(reml=False) # Using ML for likelihood ratio test compatibility
-        return result
+        fitted = model.fit()
     except Exception as e:
-        logger.error(f"Failed to fit LME model: {e}")
+        logger.error(f"LME fitting failed: {e}")
         raise
+    
+    return fitted
 
-def likelihood_ratio_test(model_full, model_reduced) -> Dict[str, float]:
+def likelihood_ratio_test(
+    model_full: sm.lme.LinearMixedEffects,
+    model_reduced: sm.lme.LinearMixedEffects
+) -> Tuple[float, float]:
     """
-    Perform likelihood-ratio test comparing nested models.
-    Returns dict with chi2 statistic and p-value.
+    Perform Likelihood Ratio Test comparing two nested models.
+    Returns (chi2_statistic, p_value).
     """
+    # Note: statsmodels LME fit objects have llf (log likelihood)
     ll_full = model_full.llf
     ll_reduced = model_reduced.llf
-    df_diff = model_full.df_model - model_reduced.df_model # Approximate df diff for fixed effects
     
-    # Calculate Chi-squared statistic
-    chi2_stat = 2 * (ll_full - ll_reduced)
-    p_value = 1 - stats.chi2.cdf(chi2_stat, df_diff)
+    # Degrees of freedom difference (number of fixed effects parameters difference)
+    # This is a simplification; exact df diff depends on specific parameter counts
+    # For a simple drop of one predictor, df_diff = 1.
+    # Here we approximate by comparing parameter counts if available, or assume 1 if not.
+    # A robust implementation would compare the number of fixed effects coefficients.
+    k_full = model_full.fe_params.shape[0]
+    k_reduced = model_reduced.fe_params.shape[0]
+    df_diff = k_full - k_reduced
     
-    return {
-        'chi2_statistic': chi2_stat,
-        'df_diff': df_diff,
-        'p_value': p_value
-    }
+    if df_diff <= 0:
+        raise ValueError("Models are not nested or reduced model has more params.")
+    
+    chi2 = 2 * (ll_full - ll_reduced)
+    # P-value from Chi-square distribution
+    from scipy.stats import chi2 as chi2_dist
+    p_value = 1 - chi2_dist.cdf(chi2, df_diff)
+    
+    return chi2, p_value
 
-def save_model_summary(result: sm.regression.mixed_linear_model.MixedLMResults, 
-                       predictors: List[str], 
-                       output_path: Path,
-                       lrt_result: Optional[Dict[str, float]] = None,
-                       dropped_predictors: Optional[List[str]] = None):
+def save_model_summary(
+    model: sm.lme.LinearMixedEffects,
+    output_path: Path,
+    predictors: List[str]
+) -> None:
     """
-    Output fixed-effect estimates, SEs, p-values to results/model_summary.csv.
+    Extract fixed effects estimates, SEs, p-values and save to CSV.
     """
-    if not output_path.parent.exists():
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-    # Extract fixed effects parameters
-    # The result object has 'params' and 'bse'
-    # 'params' index includes intercept and predictors
-    summary_data = []
+    summary_df = model.summary().tables[1].as_frame() # type: ignore
+    # Filter for fixed effects only (usually all in this context)
+    # Ensure we only output the requested predictors
     
-    # Get parameter names
-    param_names = result.params.index.tolist()
+    rows = []
+    for param_name, row in summary_df.iterrows():
+        if any(p in param_name for p in predictors) or param_name == "Intercept":
+            rows.append({
+                "parameter": param_name,
+                "estimate": row["coef"],
+                "std_error": row["std err"],
+                "p_value": row["P>|t|"]
+            })
     
-    for name in param_names:
-        # Skip random effects parameters if they appear in params (usually they don't in the main params index for fixed)
-        # But 'group' variance might be there. We focus on fixed effects.
-        if name.startswith('group') or name.startswith('Scale'):
-            continue
-            
-        coef = result.params[name]
-        std_err = result.bse[name] if name in result.bse.index else 0.0
-        p_val = result.pvalues[name] if name in result.pvalues.index else 1.0
-        
-        summary_data.append({
-            'term': name,
-            'estimate': coef,
-            'std_error': std_err,
-            'p_value': p_val
-        })
-        
-    df_summary = pd.DataFrame(summary_data)
-    
-    # Add metadata columns
-    df_summary['model_type'] = 'LME'
-    df_summary['dropped_predictors'] = ';'.join(dropped_predictors) if dropped_predictors else 'None'
-    if lrt_result:
-        df_summary['lrt_chi2'] = lrt_result.get('chi2_statistic', np.nan)
-        df_summary['lrt_p_value'] = lrt_result.get('p_value', np.nan)
-    else:
-        df_summary['lrt_chi2'] = np.nan
-        df_summary['lrt_p_value'] = np.nan
-        
-    df_summary.to_csv(output_path, index=False)
+    out_df = pd.DataFrame(rows)
+    out_df.to_csv(output_path, index=False)
     logger.info(f"Model summary saved to {output_path}")
 
-def run_lme_pipeline(input_path: Path, output_path: Path, config: Dict[str, Any]) -> None:
+def run_lme_pipeline(
+    input_path: Path,
+    output_path: Path,
+    config: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Main pipeline for US2: LME model fitting.
+    Main pipeline for User Story 2:
+    1. Load data
+    2. Validate trials per subject
+    3. Handle unfulfillable predictors
+    4. Mitigate collinearity (VIF)
+    5. Fit model
+    6. Save summary
     """
-    logger.info("Starting LME Pipeline")
+    if config is None:
+        config = load_config()
     
     # Load data
     if not input_path.exists():
         raise FileNotFoundError(f"Input data file not found: {input_path}")
-        
     df = pd.read_csv(input_path)
     
-    # Validate trials
-    validate_sufficient_trials(df, min_trials=config.get('thresholds', {}).get('min_trials_per_subject', 20))
+    # Configuration values
+    min_trials = config.get('thresholds', {}).get('min_trials_per_subject', 20)
+    allow_agg = config.get('flags', {}).get('allow_aggregation', False)
+    vif_thresh = config.get('thresholds', {}).get('vif_threshold', 5.0)
     
-    # Define predictors and outcome
-    # Assuming standard columns from US1 processing
-    outcome = 'pupil_diameter' # Or mean/peak as determined by config
-    base_predictors = ['search_time', 'fixation_count', 'target_salience']
+    # 1. Validate sufficient trials
+    validate_sufficient_trials(df, min_trials=min_trials, allow_aggregation=allow_agg)
     
-    # Handle unfulfillable
-    used_predictors, excluded_predictors = handle_unfulfillable_predictors(df, base_predictors)
+    # Define outcome and potential predictors (standard for this project)
+    outcome = "pupil_diameter" # Or mean/peak depending on preprocessing
+    # Predictors typically: search_time, fixation_count, target_salience
+    potential_predictors = ["search_time", "fixation_count", "target_salience"]
     
-    if not used_predictors:
-        logger.error("No valid predictors remaining after filtering unfulfillable ones.")
-        # Create empty summary or minimal
-        pd.DataFrame({'term': [], 'estimate': [], 'std_error': [], 'p_value': []}).to_csv(output_path, index=False)
-        return
-
-    # Mitigate collinearity
-    final_predictors, dropped_predictors = mitigate_collinearity(df, used_predictors, threshold=config.get('thresholds', {}).get('vif_threshold', 5.0))
+    # 2. Handle unfulfillable predictors
+    available_predictors, dropped = handle_unfulfillable_predictors(df, potential_predictors)
     
-    if not final_predictors:
-        logger.error("No predictors remaining after collinearity mitigation.")
-        pd.DataFrame({'term': [], 'estimate': [], 'std_error': [], 'p_value': []}).to_csv(output_path, index=False)
-        return
-
-    # Construct formula
-    # Fixed effects: outcome ~ predictor1 + predictor2 ...
-    # Random effects: (1|subject_id)
-    formula = f"{outcome} ~ {' + '.join(final_predictors)}"
-    logger.info(f"Fitting formula: {formula}")
+    if len(available_predictors) == 0:
+        raise ValueError("No valid predictors available for modeling.")
     
-    # Fit model
-    model_result = fit_lme_model(df, formula)
+    # 3. Mitigate collinearity
+    final_predictors = mitigate_collinearity(df, available_predictors, vif_threshold=vif_thresh)
     
-    # Likelihood Ratio Test (if we had a reduced model, but task says compare nested)
-    # For this task, we compare the full model against a null model (intercept only)
-    null_formula = f"{outcome} ~ 1"
-    try:
-        null_model = fit_lme_model(df, null_formula)
-        lrt_res = likelihood_ratio_test(model_result, null_model)
-    except Exception as e:
-        logger.warning(f"Could not perform LRT: {e}")
-        lrt_res = None
-        
-    # Save results
-    save_model_summary(model_result, final_predictors, output_path, lrt_res, dropped_predictors)
+    logger.info(f"Fitting LME with predictors: {final_predictors}")
     
-    logger.info("LME Pipeline completed successfully.")
+    # 4. Fit Model
+    model = fit_lme_model(df, outcome=outcome, predictors=final_predictors)
+    
+    # 5. Save Summary
+    save_model_summary(model, output_path, final_predictors)
+    
+    # Optional: Run LRT if a reduced model is specified (e.
+    # g., without salience)
+    # For now, we just save the full summary as per T025/T024 requirements
 
 def main():
-    """
-    Entry point for LME model fitting.
-    """
-    logging.basicConfig(level=logging.INFO)
-    config = load_config()
-    
-    # Default paths based on project structure
-    input_file = Path("data/processed/processed_features.csv") # Assumes US1 output
-    output_file = Path("results/model_summary.csv")
-    
-    # Allow CLI override
     import argparse
-    parser = argparse.ArgumentParser(description="Run LME Model Analysis")
-    parser.add_argument("--input", type=str, help="Path to processed features CSV")
-    parser.add_argument("--output", type=str, help="Path to output summary CSV")
+    parser = argparse.ArgumentParser(description="Run LME Analysis Pipeline")
+    parser.add_argument("--input", type=str, required=True, help="Path to processed CSV")
+    parser.add_argument("--output", type=str, required=True, help="Path to save model summary")
     args = parser.parse_args()
     
-    if args.input:
-        input_file = Path(args.input)
-    if args.output:
-        output_file = Path(args.output)
-        
-    run_lme_pipeline(input_file, output_file, config)
+    setup_logging()
+    run_lme_pipeline(Path(args.input), Path(args.output))
 
 if __name__ == "__main__":
     main()

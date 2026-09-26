@@ -15,11 +15,11 @@ import numpy as np
 def mock_dataset():
     """Create a mock dataset with known span counts."""
     data = [
-        {"spans": [1, 2, 3, 4, 5]},  # 5 spans
-        {"spans": [1, 2, 3]},        # 3 spans
-        {"spans": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}, # 10 spans
-        {"spans": [1, 2]},           # 2 spans
-        {"spans": [1, 2, 3, 4, 5, 6]}, # 6 spans
+        {"id": "traj_1", "spans": [1, 2, 3, 4, 5]},  # 5 spans
+        {"id": "traj_2", "spans": [1, 2, 3]},        # 3 spans
+        {"id": "traj_3", "spans": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}, # 10 spans
+        {"id": "traj_4", "spans": [1, 2]},           # 2 spans
+        {"id": "traj_5", "spans": [1, 2, 3, 4, 5, 6]}, # 6 spans
     ]
     return iter(data)
 
@@ -27,7 +27,7 @@ def mock_dataset():
 def mock_streaming_dataset(mock_dataset):
     """Mock load_dataset to return our mock dataset."""
     with patch('validator.load_dataset') as mock_load:
-        mock_load.return_value = mock_dataset
+        mock_load.return_value = {'train': mock_dataset}
         yield mock_load
 
 def test_validate_cutoff_depth(mock_streaming_dataset):
@@ -106,7 +106,42 @@ def test_validate_cutoff_depth_empty_dataset():
     empty_data = iter([])
 
     with patch('validator.load_dataset') as mock_load:
-        mock_load.return_value = empty_data
+        mock_load.return_value = {'train': empty_data}
         
         with pytest.raises(ValueError, match="No valid trajectories found"):
             validate_cutoff_depth(dataset_id="test/empty")
+
+def test_validate_cutoff_depth_output_file_content(mock_streaming_dataset):
+    """
+    Test that the output file contains all required fields with correct types.
+    """
+    from validator import validate_cutoff_depth
+
+    output_path = Path("data/processed/cutoff_depth_validation.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    result = validate_cutoff_depth(dataset_id="test/dummy")
+
+    # Verify file exists
+    assert output_path.exists()
+
+    # Read and verify file content types
+    with open(output_path, 'r') as f:
+        content = json.load(f)
+
+    # Check top-level fields
+    assert isinstance(content["current_cutoff_depth"], float)
+    assert isinstance(content["recommended_cutoff_depth"], float)
+    assert isinstance(content["justification"], str)
+    assert isinstance(content["valid"], bool)
+    assert isinstance(content["statistics"], dict)
+
+    # Check statistics fields
+    stats = content["statistics"]
+    assert isinstance(stats["mean_spans"], float)
+    assert isinstance(stats["median_spans"], float)
+    assert isinstance(stats["min_spans"], int)
+    assert isinstance(stats["max_spans"], int)
+    assert isinstance(stats["sample_size"], int)
+    assert isinstance(stats["truncated_count"], int)
+    assert isinstance(stats["truncated_percentage"], float)

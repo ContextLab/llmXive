@@ -1,116 +1,169 @@
+%YAML 1.2
+---
+# Schema for analysis outputs
+# Validates connectivity matrices, network metrics, and merged datasets
 $schema: http://json-schema.org/draft-07/schema#
-title: Output Schema for Brain-Connectivity Analysis
-description: |
-  Schema defining the structure of analysis outputs including
-  connectivity matrices, graph metrics, and merged datasets.
+title: AnalysisOutputSchema
+description: >-
+  Defines the expected structure for connectivity matrices, graph metrics,
+  and final merged datasets used in statistical modeling.
+
 definitions:
   connectivity_matrix:
     type: object
-    description: Symmetric correlation matrix
     required:
+      - subject_id
       - matrix
       - atlas
-      - shape
+      - validation
     properties:
+      subject_id:
+        type: string
+      atlas:
+        type: string
+        description: "Name of the atlas used (e.g., Schaefer200)"
       matrix:
         type: array
-        description: 2D array of correlation values
+        description: "2D array representing the connectivity matrix"
         items:
           type: array
           items:
             type: number
-            minimum: -1
-            maximum: 1
-      atlas:
-        type: string
-        description: Name of the atlas used (e.g., "Schaefer200")
-      shape:
-        type: integer
-        description: Dimension of the matrix (e.g., 200)
-        minimum: 1
-      diagonal:
-        type: array
-        description: Diagonal values (should be 1.0)
-        items:
-          type: number
-          enum: [1.0]
-      symmetry_check:
-        type: boolean
-        description: Whether the matrix passed symmetry validation
+            minimum: -1.0
+            maximum: 1.0
+      validation:
+        type: object
+        required:
+          - is_symmetric
+          - diagonal_is_one
+          - shape
+        properties:
+          is_symmetric:
+            type: boolean
+          diagonal_is_one:
+            type: boolean
+          shape:
+            type: array
+            items:
+              type: integer
+            minItems: 2
+            maxItems: 2
+
   network_metrics:
     type: object
-    description: Graph theoretical metrics for a subject
     required:
+      - subject_id
       - global_efficiency
       - modularity
       - participation_coefficient
+      - network_efficiency
+      - edge_strengths
     properties:
+      subject_id:
+        type: string
       global_efficiency:
         type: number
-        minimum: 0
       modularity:
         type: number
       participation_coefficient:
         type: number
       network_efficiency:
         type: object
-        description: Efficiency per network (DMN, Salience, Visual, etc.)
+        description: "Efficiency per network (DMN, Salience, Visual)"
         additionalProperties:
           type: number
       edge_strengths:
         type: array
-        description: List of edge-level connectivity strengths
+        description: "List of edge weights (flattened or sparse representation)"
         items:
           type: number
-  behavioral_score:
+
+  merged_dataset:
     type: object
-    description: Merged behavioral and demographic data
     required:
-      - subject_id
-      - bmrq_scores
-      - demographics
+      - subjects
+      - features
+      - metadata
     properties:
-      subject_id:
-        type: string
-      bmrq_scores:
+      subjects:
+        type: array
+        items:
+          type: string
+      features:
         type: object
+        description: "Matrix of features (rows=subjects, cols=features)"
         additionalProperties:
-          type: number
-      demographics:
+          type: array
+          items:
+            type: number
+      metadata:
         type: object
         properties:
-          age:
+          n_subjects:
             type: integer
-          sex:
-            type: string
+          n_features:
+            type: integer
+          excluded_subjects:
+            type: array
+            items:
+              type: string
+            description: "Subjects excluded due to motion or missing data"
+
 type: object
-required:
-  - subject_id
-  - connectivity
-  - network_metrics
-  - behavioral
 properties:
-  subject_id:
-    type: string
-    description: Unique subject identifier
-  connectivity:
-    $ref: "#/definitions/connectivity_matrix"
-  network_metrics:
-    $ref: "#/definitions/network_metrics"
-  behavioral:
-    $ref: "#/definitions/behavioral_score"
-  analysis_metadata:
+  connectivity_results:
     type: object
-    description: Metadata about the analysis run
+    description: "Output from T013 connectivity analysis"
+    additionalProperties: false
+    required:
+      - matrices
     properties:
-      timestamp:
+      matrices:
+        type: array
+        items:
+          $ref: "#/definitions/connectivity_matrix"
+
+  graph_metrics_results:
+    type: object
+    description: "Output from T018 graph metrics calculation"
+    additionalProperties: false
+    required:
+      - metrics
+    properties:
+      metrics:
+        type: array
+        items:
+          $ref: "#/definitions/network_metrics"
+
+  final_dataset:
+    type: object
+    description: "Output from T021 merge operation"
+    additionalProperties: false
+    required:
+      - data
+    properties:
+      data:
+        $ref: "#/definitions/merged_dataset"
+
+  power_analysis_status:
+    type: object
+    description: "Output from T025 power gate"
+    additionalProperties: false
+    required:
+      - status
+      - achieved_power
+    properties:
+      status:
         type: string
-        format: date-time
-      software_versions:
-        type: object
-        additionalProperties:
-          type: string
-      parameters:
-        type: object
-        description: Analysis parameters used
+        enum: ["pass", "fail"]
+      achieved_power:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+
+required:
+  - connectivity_results
+  - graph_metrics_results
+  - final_dataset
+  - power_analysis_status
 additionalProperties: false

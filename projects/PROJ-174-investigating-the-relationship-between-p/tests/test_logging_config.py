@@ -1,10 +1,5 @@
 """
-Tests for logging infrastructure (T005).
-
-These tests verify that:
-1. The log file is created at code/logs/preprocess.log
-2. The quality report is created at results/quality_report.csv
-3. The quality report has the correct headers
+Unit tests for the logging configuration module (T005).
 """
 import os
 import csv
@@ -13,140 +8,151 @@ from pathlib import Path
 import sys
 
 # Add code directory to path for imports
-code_dir = Path(__file__).parent.parent
+code_dir = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(code_dir))
 
 from logging_config import (
-    setup_logging,
-    initialize_quality_report,
-    write_quality_entry,
+    setup_logging, 
+    initialize_quality_report, 
+    write_quality_entry, 
+    get_logger,
     LOG_FILE_PATH,
     QUALITY_REPORT_PATH,
-    PROJECT_ROOT
+    LOGGER_NAME
 )
+import logging
 
-
-class TestLoggingInfrastructure:
-    """Test suite for logging infrastructure."""
-
-    def setup_method(self):
-        """Setup before each test."""
-        # Ensure directories exist
-        (PROJECT_ROOT / "logs").mkdir(parents=True, exist_ok=True)
-        (PROJECT_ROOT / "results").mkdir(parents=True, exist_ok=True)
-        
-        # Remove existing files for clean test
+@pytest.fixture(autouse=True)
+def cleanup_logs_and_reports(tmp_path):
+    """
+    Fixture to clean up log files and quality reports before and after tests.
+    Uses a temporary directory structure to avoid polluting the real project state during tests,
+    but since the module uses absolute paths relative to project root, we must be careful.
+    
+    Note: In a real CI environment, we might want to mock the paths or use a temp project root.
+    For this test suite, we assume the test runner can handle the side effects or we clean up manually.
+    However, to be safe and strictly follow "no side effects on real data", we will:
+    1. Not run the actual file creation in a way that overwrites real data if possible.
+    2. Or, rely on the fact that tests are run in an isolated environment.
+    
+    Since the module uses `Path(__file__).resolve().parent.parent` which is the project root,
+    and we cannot easily change that without refactoring the module to accept paths as args,
+    we will proceed by ensuring the tests clean up after themselves if they create files,
+    or assume the environment is clean.
+    
+    Actually, the task requires verifying file creation. We will run the functions and then clean up.
+    """
+    # Backup existing files if they exist
+    backup_log = None
+    backup_report = None
+    
+    if LOG_FILE_PATH.exists():
+        backup_log = LOG_FILE_PATH.read_bytes()
+        LOG_FILE_PATH.unlink()
+    
+    if QUALITY_REPORT_PATH.exists():
+        backup_report = QUALITY_REPORT_PATH.read_text()
+        QUALITY_REPORT_PATH.unlink()
+    
+    yield
+    
+    # Restore or clean up
+    if backup_log:
+        LOG_FILE_PATH.write_bytes(backup_log)
+    else:
         if LOG_FILE_PATH.exists():
             LOG_FILE_PATH.unlink()
+            
+    if backup_report:
+        QUALITY_REPORT_PATH.write_text(backup_report)
+    else:
         if QUALITY_REPORT_PATH.exists():
             QUALITY_REPORT_PATH.unlink()
 
-    def teardown_method(self):
-        """Cleanup after each test."""
-        # Optional: clean up test artifacts
-        pass
+def test_setup_logging_creates_file():
+    """Test that setup_logging creates the log file."""
+    # Ensure file doesn't exist before
+    if LOG_FILE_PATH.exists():
+        LOG_FILE_PATH.unlink()
+    
+    logger = setup_logging("INFO")
+    logger.info("Test message")
+    
+    assert LOG_FILE_PATH.exists(), "Log file was not created."
+    content = LOG_FILE_PATH.read_text()
+    assert "Test message" in content, "Log message not found in file."
 
-    def test_log_file_creation(self):
-        """Test that setup_logging creates the log file."""
-        # Call setup_logging
-        logger = setup_logging("DEBUG")
-        
-        # Verify log file exists
-        assert LOG_FILE_PATH.exists(), f"Log file not created at {LOG_FILE_PATH}"
-        
-        # Verify log file is not empty after logging
-        logger.debug("Test message")
-        assert LOG_FILE_PATH.stat().st_size > 0, "Log file is empty"
+def test_initialize_quality_report_creates_file_with_headers():
+    """Test that initialize_quality_report creates the CSV with correct headers."""
+    # Ensure file doesn't exist
+    if QUALITY_REPORT_PATH.exists():
+        QUALITY_REPORT_PATH.unlink()
+    
+    result = initialize_quality_report()
+    
+    assert result is True, "Initialization should return True."
+    assert QUALITY_REPORT_PATH.exists(), "Quality report file was not created."
+    
+    with open(QUALITY_REPORT_PATH, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        header = next(reader, None)
+        assert header == ['exclusion_type', 'count'], f"Incorrect headers: {header}"
 
-    def test_quality_report_creation(self):
-        """Test that initialize_quality_report creates the CSV with headers."""
-        # Initialize quality report
-        initialize_quality_report()
-        
-        # Verify file exists
-        assert QUALITY_REPORT_PATH.exists(), f"Quality report not created at {QUALITY_REPORT_PATH}"
-        
-        # Verify headers
-        with open(QUALITY_REPORT_PATH, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            headers = next(reader, None)
-            
-            assert headers is not None, "Quality report is empty"
-            assert headers == ["exclusion_type", "count"], f"Unexpected headers: {headers}"
+def test_write_quality_entry():
+    """Test that write_quality_entry appends rows correctly."""
+    # Initialize first
+    initialize_quality_report()
+    
+    success = write_quality_entry("blink_exclusion", 5)
+    assert success is True, "Write should return True."
+    
+    with open(QUALITY_REPORT_PATH, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.reader(f)
+        rows = list(reader)
+        assert len(rows) == 2, "Expected header + 1 data row."
+        assert rows[1] == ['blink_exclusion', '5'], f"Row content incorrect: {rows[1]}"
 
-    def test_quality_report_headers_persistence(self):
-        """Test that existing quality report headers are preserved or corrected."""
-        # Create a file with wrong headers
-        QUALITY_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(QUALITY_REPORT_PATH, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(["wrong_header", "another_wrong"])
-        
-        # Initialize should fix headers
-        initialize_quality_report()
-        
-        # Verify headers are correct
-        with open(QUALITY_REPORT_PATH, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            headers = next(reader, None)
-            assert headers == ["exclusion_type", "count"], f"Headers not corrected: {headers}"
+def test_get_logger():
+    """Test that get_logger returns a configured logger."""
+    logger = get_logger()
+    assert isinstance(logger, logging.Logger), "Should return a Logger instance."
+    assert logger.name == LOGGER_NAME, "Logger name mismatch."
+    
+    child_logger = get_logger("submodule")
+    assert child_logger.name == f"{LOGGER_NAME}.submodule", "Child logger name mismatch."
 
-    def test_write_quality_entry(self):
-        """Test that write_quality_entry appends entries correctly."""
-        # Initialize report
-        initialize_quality_report()
-        
-        # Write entries
-        write_quality_entry("blink", 5)
-        write_quality_entry("missing_data", 3)
-        
-        # Verify content
-        with open(QUALITY_REPORT_PATH, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            rows = list(reader)
-            
-            assert len(rows) == 3, f"Expected 3 rows, got {len(rows)}"  # header + 2 entries
-            assert rows[0] == ["exclusion_type", "count"]
-            assert rows[1] == ["blink", "5"]
-            assert rows[2] == ["missing_data", "3"]
+def test_full_verification_flow():
+    """Simulate the full verification flow as described in T005."""
+    # Reset state
+    if LOG_FILE_PATH.exists():
+        LOG_FILE_PATH.unlink()
+    if QUALITY_REPORT_PATH.exists():
+        QUALITY_REPORT_PATH.unlink()
 
-    def test_log_file_path_is_absolute(self):
-        """Test that LOG_FILE_PATH is an absolute path under project root."""
-        assert LOG_FILE_PATH.is_absolute(), "Log file path should be absolute"
-        assert str(LOG_FILE_PATH).startswith(str(PROJECT_ROOT)), \
-            f"Log file path should be under project root: {PROJECT_ROOT}"
-
-    def test_quality_report_path_is_absolute(self):
-        """Test that QUALITY_REPORT_PATH is an absolute path under project root."""
-        assert QUALITY_REPORT_PATH.is_absolute(), "Quality report path should be absolute"
-        assert str(QUALITY_REPORT_PATH).startswith(str(PROJECT_ROOT)), \
-            f"Quality report path should be under project root: {PROJECT_ROOT}"
-
-    def test_get_logger(self):
-        """Test that get_logger returns a configured logger."""
-        from logging_config import get_logger
-        
-        logger = get_logger("test_logger")
-        
-        assert logger.name == "test_logger"
-        assert len(logger.handlers) > 0, "Logger should have handlers"
-
-    def test_logging_to_file(self):
-        """Test that log messages are written to the file."""
-        # Setup logging
-        logger = setup_logging("DEBUG")
-        test_logger = get_logger("test_module")
-        
-        # Write test messages
-        test_logger.debug("Debug message")
-        test_logger.info("Info message")
-        test_logger.warning("Warning message")
-        
-        # Read file and verify content
-        assert LOG_FILE_PATH.exists()
-        with open(LOG_FILE_PATH, 'r', encoding='utf-8') as f:
-            content = f.read()
-            
-        assert "Debug message" in content
-        assert "Info message" in content
-        assert "Warning message" in content
+    # 1. Setup logging
+    logger = setup_logging("DEBUG")
+    
+    # 2. Initialize report
+    assert initialize_quality_report() is True
+    
+    # 3. Verify file creation
+    assert LOG_FILE_PATH.exists()
+    assert QUALITY_REPORT_PATH.exists()
+    
+    # 4. Verify headers
+    with open(QUALITY_REPORT_PATH, 'r') as f:
+        header = f.readline().strip()
+        assert header == "exclusion_type,count"
+    
+    # 5. Write entry
+    write_quality_entry("noise_filter", 10)
+    
+    # 6. Verify entry
+    with open(QUALITY_REPORT_PATH, 'r') as f:
+        lines = f.readlines()
+        assert len(lines) == 2
+        assert lines[1].strip() == "noise_filter,10"
+    
+    # 7. Log a message
+    logger.info("Verification complete")
+    assert "Verification complete" in LOG_FILE_PATH.read_text()

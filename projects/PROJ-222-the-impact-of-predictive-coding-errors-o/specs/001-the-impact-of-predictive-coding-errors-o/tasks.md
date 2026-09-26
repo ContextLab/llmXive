@@ -102,7 +102,7 @@
  3. **Note**: This task ensures the artifact is valid for the full duration of Phase 3 and before Phase 4 begins.
  4. Logs success/failure to `analysis/verification_log.json`. (SC‑001)
 
-- [ ] T017b [US1] **Markov State Validation**. Verify `markov_state.json` (produced by T041d) exists, `order == 1`, and write a confirmation entry to `analysis/verification_log.json`. (Constitution VI, SC‑001)
+- [ ] T017b [US1] **Markov State Validation**. Verify `markov_state.json` (produced by T041d) exists, `order == 1`, and write a confirmation entry to `analysis/verification_log.json`. (Constitution VI, SC‑001) <!-- FAILED: unspecified -->
 
 - [X] T042 [US1] **Sample Size Declaration**. Add logic to `code/preprocess.py` to explicitly log the sampling strategy (e.g., "Streaming full dataset" or "First N=5000 trials") to `data/README.md` (section: "Sampling Strategy") and `analysis/verification_log.json` under key `sampling_strategy`. (Rule: "State the exact streaming/sampling rule")
 
@@ -142,12 +142,12 @@
 
 - [X] T021d [US2] **Model Convergence Reporting**. After T021a, compute the proportion of datasets where the full model converged without fallback and write `analysis/convergence_report.json`. (SC‑002)
 
-- [ ] T023a [US2] **Test Count & Correction Decision**. In `code/analysis.py`:
+- [X] T023a [US2] **Test Count & Correction Decision**. In `code/analysis.py`:
  1. Count the number of hypothesis tests performed.
  2. Set flag `needs_correction` = (test_count > 1).
  3. Write `needs_correction` to `analysis/results.json`. (FR‑005, SC‑003)
 
-- [ ] T023b [US2] **Multiple‑Comparison Correction**. In `code/analysis.py`:
+- [X] T023b [US2] **Multiple‑Comparison Correction**. In `code/analysis.py`:
  1. **Conditionally** apply Benjamini-Hochberg correction ONLY if `needs_correction` is true (from T023a).
  2. If `needs_correction` is false, skip correction and log `correction_applied=false`.
  3. Write `adjusted_pvalues` and `correction_applied` to `analysis/results.json`. (FR‑005, SC‑003)
@@ -162,7 +162,7 @@
 
 - [X] T025b [US2] **MDE Reporting for All Datasets**. Ensure the MDE calculation (T025) runs for every dataset analyzed, regardless of outcome, and logs to `analysis/mde_report.json`. (SC‑005)
 
-- [ ] T025c [US2] **Cutoff Sensitivity Analysis (Conditional)**. Implement `code/analysis.py` to:
+- [X] T025c [US2] **Cutoff Sensitivity Analysis (Conditional)**. Implement `code/analysis.py` to:
  1. Check if the researcher introduced any *new* binary cutoffs (e.g., high vs. low surprisal) in the pipeline by scanning `data/processed/standardized.csv` for columns that are binary (0/1) and not present in the original schema.
  2. **If no new binary columns are found**, this task is a no-op; log `cutoff_sensitivity_skipped=true`.
  3. **If cutoffs exist**, perform a sensitivity sweep and log results.

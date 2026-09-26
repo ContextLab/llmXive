@@ -1,67 +1,77 @@
-# Quickstart Guide for llmXive Follow-up Project
+# Quick Start Guide: llmXive Deep-Research Analysis
+
+This guide walks you through running the full analysis pipeline to reproduce the
+"Where Do Deep-Research Agents Go Wrong?" study.
 
 ## Prerequisites
 
-- Python 3.11+
-- pip
+- Python 3.11 or higher
+- Internet connection (to download the TELBench dataset)
+- ~15 GB disk space (for dataset and processed artifacts)
 
-## Setup
+## Step 1: Environment Setup
 
-1. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+Clone the repository and install dependencies:
 
-2. Ensure the project structure is correct:
- ```bash
- mkdir -p code data tests data/raw data/processed graphs data/processed/graphs
- ```
+```bash
+pip install -r requirements.txt
+```
 
-## Execution
+## Step 2: Run the Pipeline
 
-Run the full pipeline:
+Execute the main orchestration script:
 
 ```bash
 python code/pipeline.py --config code/config.py
 ```
 
-This command will:
-1. Download and validate the TELBench dataset
-2. Build graphs for all trajectories
-3. Calculate metrics (connectivity and branching)
-4. Split data into train/test sets
-5. Run evaluation and generate reports
+**What this does:**
+1. **Download**: Fetches `NJU-LINK/TELBench` from HuggingFace (streaming mode)
+2. **Parse**: Extracts early spans (first 30%) and builds co-reference graphs
+3. **Metrics**: Calculates Global Connectivity and Average Branching Factor
+4. **Split**: Stratifies data into Train/Test sets
+5. **Evaluate**: Computes the 20th percentile threshold and predicts collapse
+6. **Report**: Generates `results_report.json` and all intermediate artifacts
 
-## Output Artifacts
+**Expected Runtime:** ~10-30 minutes (depending on dataset size and CPU speed)
 
-The pipeline produces the following artifacts in `data/processed/`:
-- `metrics.csv`: Metrics for all trajectories
-- `train_metrics.csv`, `test_metrics.csv`: Split datasets
-- `threshold_config.json`: 20th percentile threshold
-- `baseline_report.json`: Baseline connectivity
-- `results_report.json`: Final evaluation results
-- `sensitivity_threshold_matrix.json`, `sensitivity_percentile_matrix.json`: Sensitivity analysis
-- `sc_002_result.json`: Correlation significance result
-- `power_analysis.json`: Power analysis results
-- `comparative_report.json`: Comparative threshold analysis
-- `linear_reasoning_report.json`: Linear reasoning analysis (if applicable)
-- `f1_max_threshold.json`: F1-max threshold for comparison
+## Step 3: Inspect Results
+
+After completion, check `data/processed/` for:
+
+- `results_report.json`: The final comprehensive report
+- `evaluation_results.json`: Structured metrics (precision, recall, F1)
+- `threshold_config.json`: The primary threshold value
+- `sensitivity_heatmap.png`: Visualization of threshold robustness
+- `linear_reasoning_report.json`: Analysis of chain-like reasoning patterns
+
+## Troubleshooting
+
+### "No such file or directory: code/pipeline.py"
+Ensure you are running from the project root directory.
+
+### "Dataset not found"
+The pipeline requires internet access to fetch `NJU-LINK/TELBench`. Check your connection.
+
+### "Insufficient samples for threshold calculation"
+If the success class has fewer than 5 samples, the pipeline will halt. This is a
+statistical safety check (see `code/evaluator.py::calculate_20th_percentile_threshold`).
 
 ## Validation
 
-To validate the pipeline:
-```bash
-python -m pytest tests/ -v
-```
+To verify the pipeline ran correctly:
 
-To check reproducibility:
-```bash
-python tests/integration/test_reproducibility.py
-```
+1. Check that `data/processed/results_report.json` exists and is non-empty.
+2. Run the test suite:
+ ```bash
+ pytest tests/ -v
+ ```
+3. Verify formatting:
+ ```bash
+ black --check code/ && ruff check code/
+ ```
 
-## Notes
+## Next Steps
 
-- All seeds are read from `code/config.py`
-- The pipeline runs on CPU only
-- Real data from `NJU-LINK/TELBench` is required
-- The pipeline will fail loudly if the dataset is missing
+- Read `research.md` for the full scientific context and methodology.
+- Review `specs/001-gene-regulation/` for detailed user stories and requirements.

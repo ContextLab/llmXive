@@ -1,71 +1,132 @@
+%YAML 1.2
+---
+# Schema for raw and preprocessed dataset inputs
+# Used to validate data downloaded from OpenNeuro/HCP before processing
 $schema: http://json-schema.org/draft-07/schema#
-title: Dataset Schema for Brain-Music Emotion Study
-description: |
-  Schema defining the structure of the raw and preprocessed dataset
-  expected from OpenNeuro ds000233 (HCP/OpenNeuro rs-fMRI + BMRQ).
-type: object
-required:
-  - subject_id
-  - raw_fMRI_nifti_path
-  - behavioral_csv_path
-  - bmrq_scores
-  - demographics
-  - preprocessing_status
-properties:
-  subject_id:
-    type: string
-    description: Unique subject identifier (e.g., "sub-001")
-    pattern: "^sub-\\d{3}$"
-  raw_fMRI_nifti_path:
-    type: string
-    description: Relative path to the raw rs-fMRI NIfTI file
-    pattern: "^data/raw/.+\\.nii(\\.gz)?$"
-  behavioral_csv_path:
-    type: string
-    description: Relative path to the behavioral CSV file containing BMRQ scores
-    pattern: "^data/raw/.+\\.csv$"
-  bmrq_scores:
+title: DatasetInputSchema
+description: >-
+  Defines the expected structure for raw behavioral data (CSV) and
+  preprocessed neuroimaging metadata (JSON) to ensure downstream compatibility.
+
+definitions:
+  subject_info:
     type: object
-    description: |
-      Dictionary of BMRQ subscale scores extracted from the behavioral CSV.
-      Keys must match the column names in the source CSV.
     required:
-      - Musical Emotion Perception
-    additionalProperties:
-      type: number
-  demographics:
-    type: object
-    description: Subject demographic information
-    required:
+      - subject_id
       - age
       - sex
+      - handedness
     properties:
+      subject_id:
+        type: string
+        pattern: "^sub-[A-Za-z0-9]+$"
+        description: "Standard BIDS subject identifier"
       age:
         type: integer
         minimum: 0
+        maximum: 120
       sex:
         type: string
-        enum: ["M", "F"]
-  preprocessing_status:
-    type: string
-    description: Status of preprocessing for this subject
-    enum:
-      - pending
-      - processing
-      - completed
-      - failed
-      - excluded_motion
-  fd_mean:
-    type: number
-    description: Mean Framewise Displacement (calculated during preprocessing)
-    minimum: 0
-    nullable: true
-  excluded:
-    type: boolean
-    description: Whether the subject was excluded due to motion (FD > 0.5)
-    default: false
-  exclusion_reason:
-    type: string
-    description: Reason for exclusion if applicable
-    nullable: true
+        enum: ["M", "F", "Other"]
+      handedness:
+        type: string
+        enum: ["R", "L", "A"]
+
+  behavioral_scores:
+    type: object
+    required:
+      - subject_id
+      - BMRQ_Total
+    properties:
+      subject_id:
+        type: string
+        pattern: "^sub-[A-Za-z0-9]+$"
+      BMRQ_Total:
+        type: number
+        description: "Total score from the Basic Musical Questionnaire"
+      BMRQ_Score_1:
+        type: number
+        description: "Individual item scores if available"
+      # Add other BMRQ dimensions if present in the dataset
+      age:
+        type: integer
+      sex:
+        type: string
+
+  fmri_metadata:
+    type: object
+    required:
+      - subject_id
+      - task
+      - run
+      - repetition_time
+      - acquisition_time
+    properties:
+      subject_id:
+        type: string
+      task:
+        type: string
+        const: "rest"
+      run:
+        type: integer
+      repetition_time:
+        type: number
+        minimum: 0.5
+      acquisition_time:
+        type: number
+
+type: object
+properties:
+  behavioral_csv:
+    type: object
+    description: "Structure of the downloaded behavioral CSV file"
+    additionalProperties: false
+    required:
+      - header
+      - rows
+    properties:
+      header:
+        type: array
+        items:
+          type: string
+        minItems: 2
+        contains:
+          const: "subject_id"
+      rows:
+        type: array
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - subject_id
+            - BMRQ_Total
+
+  preprocessed_nifti_info:
+    type: object
+    description: "Metadata extracted from preprocessed NIfTI files"
+    additionalProperties: false
+    required:
+      - subject_id
+      - file_path
+      - dimensions
+      - voxelsize
+    properties:
+      subject_id:
+        type: string
+      file_path:
+        type: string
+      dimensions:
+        type: array
+        items:
+          type: integer
+        minItems: 3
+      voxelsize:
+        type: array
+        items:
+          type: number
+        minItems: 3
+
+required:
+  - behavioral_csv
+  - preprocessed_nifti_info
 additionalProperties: false

@@ -1,9 +1,3 @@
-"""
-Connectivity analysis module for T013.
-
-Loads preprocessed fMRI data, applies the Schaefer 200 atlas, extracts
-time series, computes Pearson correlation matrices, and validates them.
-"""
 import os
 import sys
 import json
@@ -13,460 +7,413 @@ from typing import Dict, List, Optional, Tuple, Any
 
 import numpy as np
 import nibabel as nib
-import pandas as pd
-from nilearn import image, masking
-from nilearn.datasets import fetch_atlas_schaefer_2018
-from scipy.stats import pearsonr
+from nilearn import datasets, masking
+from nilearn.image import new_img_like
+import networkx as nx
 
-# Import from project utilities
-from src.utils.logging import get_logger, setup_experiment_logging
-
-# Ensure project root is in path if running as script
-if __name__ == "__main__":
-    # Add parent of 'code' to path if needed, though usually handled by environment
-    project_root = Path(__file__).resolve().parents[2]
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+from src.utils.logging import get_logger
+from src.config.env_config import get_data_path
 
 logger = get_logger(__name__)
 
+# Constants for Schaefer Atlas (200 parcels, 7 networks)
+SCHAEFER_200_URL = (
+    "https://raw.githubusercontent.com/ThomasYeoLab/CBIG/v0.14.3/"
+    "stable_examples/BrainParcellation/Schaefer2018_LocalGlobal/"
+    "Parcellations/MNI/Schaefer2018_200Parcels_7Networks_order_FSLMNI152_2mm.nii.gz"
+)
+SCHAEFER_200_LABELS_URL = (
+    "https://raw.githubusercontent.com/ThomasYeoLab/CBIG/v0.14.3/"
+    "stable_examples/BrainParcellation/Schaefer2018_LocalGlobal/"
+    "Parcellations/MNI/Schaefer2018_200Parcels_7Networks_order.txt"
+)
 
-def load_schaefer_atlas(resolution: int = 2) -> Dict[str, Any]:
+def load_schaefer_atlas(cache_dir: Optional[Path] = None) -> Tuple[nib.Nifti1Image, List[str]]:
     """
-    Fetch and load the Schaefer 2018 atlas (200 parcels, 7 networks).
+    Downloads and loads the Schaefer 200-parcel atlas.
     
-    Args:
-        resolution: MRI resolution in mm (default 2mm).
-        
     Returns:
-        Dictionary containing 'labels' (numpy array), 'maps' (nifti image),
-        and 'networks' (list of network names).
+        Tuple of (atlas image, list of parcel labels in order)
     """
-    logger.info(f"Fetching Schaefer 2018 atlas (resolution={resolution}mm)...")
-    try:
-        atlas_data = fetch_atlas_schaefer_2018(
-            resolution=resolution,
-            maps=True,
-            yeo_networks=True,
-            data_dir=str(Path(__file__).parents[2] / "data" / "external" / "atlas")
-        )
-    except Exception as e:
-        logger.error(f"Failed to fetch Schaefer atlas: {e}")
-        raise RuntimeError(f"Could not fetch Schaefer atlas: {e}")
-
-    # atlas_data is a dict with keys: 'maps', 'labels', 'networks', etc.
-    # 'maps' is the path to the NIfTI file
-    # 'labels' is a numpy array of parcel names
+    if cache_dir is None:
+        cache_dir = Path.home() / ".cache" / "nilearn" / "yeo"
+        
+    cache_dir = Path(cache_dir)
+    cache_dir.mkdir(parents=True, exist_ok=True)
     
-    return {
-        "maps_path": atlas_data['maps'],
-        "labels": atlas_data['labels'],
-        "networks": atlas_data['networks'] if 'networks' in atlas_data else [],
-        "n_parcels": len(atlas_data['labels'])
-    }
-
+    atlas_path = cache_dir / "schaefer_200.nii.gz"
+    labels_path = cache_dir / "schaefer_200_labels.txt"
+    
+    # Download atlas if not present
+    if not atlas_path.exists():
+        logger.info(f"Downloading Schaefer 200 atlas to {atlas_path}")
+        try:
+            import requests
+            response = requests.get(SCHAEFER_200_URL, stream=True)
+            response.raise_for_status()
+            with open(atlas_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+        except Exception as e:
+            logger.error(f"Failed to download atlas: {e}")
+            raise RuntimeError(f"Could not download Schaefer atlas: {e}")
+    
+    # Download labels if not present
+    if not labels_path.exists():
+        logger.info(f"Downloading Schaefer 200 labels to {labels_path}")
+        try:
+            import requests
+            response = requests.get(SCHAEFER_200_LABELS_URL, stream=True)
+            response.raise_for_status()
+            with open(labels_path, 'w') as f:
+                f.write(response.text)
+        except Exception as e:
+            logger.error(f"Failed to download labels: {e}")
+            raise RuntimeError(f"Could not download Schaefer labels: {e}")
+    
+    # Load atlas image
+    atlas_img = nib.load(atlas_path)
+    
+    # Load labels
+    labels = []
+    with open(labels_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                # Format: "1\tDMN\t..." or "1\t1\t..."
+                parts = line.split('\t')
+                if len(parts) >= 2:
+                    # Take the network name or parcel name
+                    labels.append(parts[1] if parts[1] else f"Parcel_{parts[0]}")
+                else:
+                    labels.append(f"Parcel_{line}")
+    
+    if len(labels) != 200:
+        logger.warning(f"Expected 200 labels, got {len(labels)}. Using indices.")
+        labels = [f"Parcel_{i}" for i in range(200)]
+    
+    return atlas_img, labels
 
 def extract_time_series(
-    nifti_path: Path,
-    atlas_path: Path,
-    mask_path: Optional[Path] = None
-) -> Tuple[np.ndarray, List[int]]:
+    fmri_img_path: Path,
+    atlas_img: nib.Nifti1Image,
+    labels: List[str]
+) -> np.ndarray:
     """
-    Extract mean time series for each parcel in the Schaefer atlas.
+    Extracts mean time series from each parcel in the Schaefer atlas.
     
     Args:
-        nifti_path: Path to preprocessed 4D fMRI NIfTI file.
-        atlas_path: Path to Schaefer atlas NIfTI file.
-        mask_path: Optional path to a brain mask (if not provided, atlas is used as mask).
+        fmri_img_path: Path to preprocessed fMRI NIfTI file
+        atlas_img: Schaefer atlas image
+        labels: List of parcel labels
         
     Returns:
-        Tuple of (time_series, parcel_indices) where time_series is (timepoints, n_parcels).
+        2D array of shape (n_timepoints, 200)
     """
-    logger.info(f"Extracting time series from: {nifti_path}")
-    logger.info(f"Using atlas: {atlas_path}")
-
-    if not nifti_path.exists():
-        raise FileNotFoundError(f"Preprocessed fMRI file not found: {nifti_path}")
-    if not atlas_path.exists():
-        raise FileNotFoundError(f"Atlas file not found: {atlas_path}")
-
-    # Load images
-    fmri_img = image.load_img(nifti_path)
-    atlas_img = image.load_img(atlas_path)
-
-    # Use the atlas as the mask (parcels define the regions)
-    # nilearn's extract_roi can handle this if we treat the atlas as a label map
-    # However, for mean time series per label, masking with the atlas is the standard approach
-    # We use nilearn's signal extraction which handles label maps correctly
+    if not fmri_img_path.exists():
+        raise FileNotFoundError(f"fMRI image not found: {fmri_img_path}")
     
-    try:
-        # extract_labels_time_series handles label maps (integer values)
-        # It returns a list of arrays, one per label
-        time_series_list = masking.extract_labels_time_series(
-            fmri_img,
-            atlas_img,
-            label_names=None, # We want all labels
-            standardize=False,
-            detrend=False,
-            low_pass=None,
-            high_pass=None,
-            t_r=2.0 # Default TR, adjust if known from metadata
-        )
-    except Exception as e:
-        logger.error(f"Error extracting time series: {e}")
-        raise
-
-    # Convert list of arrays to a single 2D array (timepoints, n_parcels)
-    # The function returns a list where each element is (timepoints,)
-    if not time_series_list:
-        raise ValueError("No time series extracted. Check atlas and fMRI alignment.")
+    logger.info(f"Extracting time series from {fmri_img_path}")
     
-    n_timepoints = len(time_series_list[0])
-    n_parcels = len(time_series_list)
+    fmri_img = nib.load(fmri_img_path)
     
-    time_series = np.zeros((n_timepoints, n_parcels), dtype=np.float32)
-    for i, ts in enumerate(time_series_list):
-        time_series[:, i] = ts
-
-    # Return parcel indices (1-based in atlas, 0-based in list)
-    # The labels in the atlas are usually 1..N. We map them to indices.
-    # extract_labels_time_series returns them in the order of unique labels found.
-    # We need to be careful about the mapping if we need specific parcel IDs later.
-    # For now, we assume the order corresponds to the sorted unique labels in the atlas.
-    unique_labels = np.unique(atlas_img.get_fdata())
-    # Filter out background (0)
-    parcel_indices = [int(l) for l in unique_labels if l != 0]
+    # Ensure atlas and fMRI are in same space (resample atlas to fMRI if needed)
+    if atlas_img.shape != fmri_img.shape:
+        logger.info("Resampling atlas to fMRI space...")
+        from nilearn.image import resample_to_img
+        atlas_img = resample_to_img(atlas_img, fmri_img, interpolation='nearest')
     
-    logger.info(f"Extracted {n_parcels} time series of length {n_timepoints}.")
-    return time_series, parcel_indices
-
+    # Get mask of brain (non-zero in atlas)
+    atlas_data = atlas_img.get_fdata()
+    mask = atlas_data > 0
+    
+    # Extract time series using Nilearn's NiftiLabelsMasker
+    # We need to create a proper labels masker
+    from nilearn.input_data import NiftiLabelsMasker
+    
+    masker = NiftiLabelsMasker(
+        labels_img=atlas_img,
+        labels=range(1, 201),  # 1-indexed
+        standardize=True,
+        detrend=True,
+        memory='nilearn_cache',
+        memory_level=1,
+        verbose=0
+    )
+    
+    time_series = masker.fit_transform(fmri_img)
+    
+    logger.info(f"Extracted time series shape: {time_series.shape}")
+    return time_series
 
 def compute_correlation_matrix(time_series: np.ndarray) -> np.ndarray:
     """
-    Compute the Pearson correlation matrix from time series.
+    Computes Pearson correlation matrix from time series.
     
     Args:
-        time_series: 2D array of shape (timepoints, n_parcels).
+        time_series: 2D array of shape (n_timepoints, n_regions)
         
     Returns:
-        2D array of shape (n_parcels, n_parcels).
+        2D array of shape (n_regions, n_regions) correlation matrix
     """
     logger.info("Computing Pearson correlation matrix...")
-    n_parcels = time_series.shape[1]
     
-    # Use numpy's corrcoef which returns (n_parcels, n_parcels)
-    # It handles the normalization automatically
-    corr_matrix = np.corrcoef(time_series, rowvar=False)
+    if time_series.ndim != 2:
+        raise ValueError(f"Expected 2D time series, got {time_series.ndim}D")
     
-    if corr_matrix.shape != (n_parcels, n_parcels):
-        raise ValueError(f"Correlation matrix shape {corr_matrix.shape} "
-                         f"does not match expected ({n_parcels}, {n_parcels})")
-        
+    # Use numpy's corrcoef
+    corr_matrix = np.corrcoef(time_series.T)
+    
+    logger.info(f"Correlation matrix shape: {corr_matrix.shape}")
     return corr_matrix
 
-
 def validate_connectivity_matrix(
-    matrix: np.ndarray,
-    parcel_indices: List[int],
-    expected_n_parcels: int = 200
+    corr_matrix: np.ndarray,
+    labels: List[str]
 ) -> Dict[str, Any]:
     """
-    Validate the connectivity matrix against schema criteria.
+    Validates the connectivity matrix for symmetry, diagonal, and value range.
     
-    Checks:
-      1. Symmetry: matrix == matrix.T
-      2. Diagonal: all 1.0 (or close to 1.0)
-      3. Range: elements in [-1, 1]
-      4. Shape: (N, N)
-      
     Args:
-        matrix: The correlation matrix.
-        parcel_indices: List of parcel IDs corresponding to matrix rows/cols.
-        expected_n_parcels: Expected number of parcels (default 200).
+        corr_matrix: Correlation matrix
+        labels: Parcel labels
         
     Returns:
-        Dictionary with validation results and status.
+        Dict with validation results
     """
     logger.info("Validating connectivity matrix...")
-    issues = []
-    is_valid = True
-
-    # Check shape
-    if matrix.shape[0] != matrix.shape[1]:
-        issues.append(f"Matrix is not square: shape {matrix.shape}")
-        is_valid = False
-    elif matrix.shape[0] != expected_n_parcels:
-        issues.append(f"Matrix size {matrix.shape[0]} != expected {expected_n_parcels}")
-        # This might be a warning, but for strict validation we flag it
-        # Depending on strictness, we might allow it if the atlas was smaller
-        # For this task, we expect 200.
-        if matrix.shape[0] < expected_n_parcels:
-            is_valid = False
-            issues.append(f"Missing parcels: expected {expected_n_parcels}, got {matrix.shape[0]}")
-
-    n = matrix.shape[0]
-
-    # Check symmetry
-    if not np.allclose(matrix, matrix.T):
-        max_diff = np.max(np.abs(matrix - matrix.T))
-        issues.append(f"Matrix not symmetric (max diff: {max_diff:.2e})")
-        is_valid = False
-
-    # Check diagonal
-    diag = np.diag(matrix)
-    if not np.allclose(diag, 1.0, atol=1e-5):
-        min_diag = np.min(diag)
-        max_diag = np.max(diag)
-        issues.append(f"Diagonal not all 1.0 (min: {min_diag:.4f}, max: {max_diag:.4f})")
-        is_valid = False
-
-    # Check range
-    min_val = np.min(matrix)
-    max_val = np.max(matrix)
-    if min_val < -1.0 or max_val > 1.0:
-        issues.append(f"Values out of range [-1, 1]: min={min_val:.4f}, max={max_val:.4f}")
-        is_valid = False
-
-    # Check for NaNs or Infs
-    if np.any(np.isnan(matrix)):
-        issues.append("Matrix contains NaN values")
-        is_valid = False
-    if np.any(np.isinf(matrix)):
-        issues.append("Matrix contains Inf values")
-        is_valid = False
-
-    validation_result = {
-        "is_valid": is_valid,
-        "shape": list(matrix.shape),
-        "min_value": float(min_val),
-        "max_value": float(max_val),
-        "diag_min": float(np.min(diag)),
-        "diag_max": float(np.max(diag)),
-        "is_symmetric": bool(np.allclose(matrix, matrix.T)),
-        "issues": issues,
-        "parcel_count": len(parcel_indices)
+    
+    n_regions = corr_matrix.shape[0]
+    expected_shape = (len(labels), len(labels))
+    
+    validation = {
+        "is_valid": True,
+        "shape_correct": corr_matrix.shape == expected_shape,
+        "is_symmetric": True,
+        "diagonal_is_one": True,
+        "values_in_range": True,
+        "issues": []
     }
-
-    if is_valid:
-        logger.info("Connectivity matrix validation PASSED.")
+    
+    # Check shape
+    if not validation["shape_correct"]:
+        validation["is_valid"] = False
+        validation["issues"].append(f"Shape {corr_matrix.shape} != {expected_shape}")
+    
+    # Check symmetry
+    if not np.allclose(corr_matrix, corr_matrix.T):
+        validation["is_valid"] = False
+        validation["is_symmetric"] = False
+        max_diff = np.max(np.abs(corr_matrix - corr_matrix.T))
+        validation["issues"].append(f"Matrix not symmetric, max diff: {max_diff:.6f}")
+    
+    # Check diagonal (should be 1.0)
+    diagonal = np.diag(corr_matrix)
+    if not np.allclose(diagonal, 1.0):
+        validation["is_valid"] = False
+        validation["diagonal_is_one"] = False
+        mean_diag = np.mean(diagonal)
+        validation["issues"].append(f"Diagonal not 1.0, mean: {mean_diag:.6f}")
+    
+    # Check value range [-1, 1]
+    if np.any(corr_matrix < -1.0) or np.any(corr_matrix > 1.0):
+        validation["is_valid"] = False
+        validation["values_in_range"] = False
+        min_val = np.min(corr_matrix)
+        max_val = np.max(corr_matrix)
+        validation["issues"].append(f"Values out of range: [{min_val:.4f}, {max_val:.4f}]")
+    
+    if validation["is_valid"]:
+        logger.info("Connectivity matrix validation PASSED")
     else:
-        logger.error(f"Connectivity matrix validation FAILED: {issues}")
-
-    return validation_result
-
+        logger.warning(f"Connectivity matrix validation FAILED: {validation['issues']}")
+    
+    return validation
 
 def save_connectivity_results(
     output_dir: Path,
     subject_id: str,
-    matrix: np.ndarray,
-    parcel_indices: List[int],
-    validation_result: Dict[str, Any]
-) -> Path:
+    corr_matrix: np.ndarray,
+    labels: List[str],
+    validation: Dict[str, Any]
+) -> Dict[str, str]:
     """
-    Save the connectivity matrix and metadata to disk.
+    Saves connectivity matrix and metadata to disk.
     
     Args:
-        output_dir: Directory to save files.
-        subject_id: Subject identifier.
-        matrix: Correlation matrix.
-        parcel_indices: List of parcel IDs.
-        validation_result: Validation dictionary.
+        output_dir: Output directory
+        subject_id: Subject identifier
+        corr_matrix: Correlation matrix
+        labels: Parcel labels
+        validation: Validation results
         
     Returns:
-        Path to the saved JSON file.
+        Dict of output file paths
     """
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Save matrix as CSV
-    csv_path = output_dir / f"connectivity_{subject_id}.csv"
-    df = pd.DataFrame(matrix)
-    # Add parcel indices as column names and index
-    df.columns = [f"parcel_{p}" for p in parcel_indices]
-    df.index = [f"parcel_{p}" for p in parcel_indices]
-    df.to_csv(csv_path)
-    logger.info(f"Saved connectivity matrix to {csv_path}")
-
-    # Save metadata and validation as JSON
-    json_path = output_dir / f"connectivity_{subject_id}_meta.json"
-    meta = {
+    # Save matrix as numpy file
+    matrix_path = output_dir / f"{subject_id}_connectivity.npy"
+    np.save(matrix_path, corr_matrix)
+    
+    # Save labels
+    labels_path = output_dir / f"{subject_id}_labels.json"
+    with open(labels_path, 'w') as f:
+        json.dump({"labels": labels, "n_regions": len(labels)}, f, indent=2)
+    
+    # Save validation report
+    validation_path = output_dir / f"{subject_id}_validation.json"
+    with open(validation_path, 'w') as f:
+        json.dump(validation, f, indent=2)
+    
+    # Save full results
+    results_path = output_dir / f"{subject_id}_results.json"
+    results = {
         "subject_id": subject_id,
-        "n_parcels": len(parcel_indices),
-        "parcel_indices": parcel_indices,
-        "validation": validation_result
+        "matrix_shape": list(corr_matrix.shape),
+        "matrix_min": float(np.min(corr_matrix)),
+        "matrix_max": float(np.max(corr_matrix)),
+        "matrix_mean": float(np.mean(corr_matrix)),
+        "validation": validation,
+        "output_files": {
+            "matrix": str(matrix_path),
+            "labels": str(labels_path),
+            "validation": str(validation_path)
+        }
     }
-    with open(json_path, 'w') as f:
-        json.dump(meta, f, indent=2)
-    logger.info(f"Saved metadata to {json_path}")
-
-    return json_path
-
+    with open(results_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Saved connectivity results for {subject_id}")
+    return results["output_files"]
 
 def process_subject(
     subject_id: str,
     fmri_path: Path,
-    atlas_data: Dict[str, Any],
-    output_dir: Path
+    output_dir: Path,
+    cache_dir: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
-    Process a single subject: extract time series, compute correlation, validate, save.
+    Processes a single subject: loads atlas, extracts time series, computes correlation.
     
     Args:
-        subject_id: Subject identifier.
-        fmri_path: Path to preprocessed fMRI NIfTI.
-        atlas_data: Dictionary from load_schaefer_atlas.
-        output_dir: Output directory for results.
+        subject_id: Subject identifier
+        fmri_path: Path to preprocessed fMRI NIfTI
+        output_dir: Directory to save results
+        cache_dir: Directory for atlas cache
         
     Returns:
-        Dictionary with processing results and status.
+        Processing results dict
     """
     logger.info(f"Processing subject: {subject_id}")
     
-    try:
-        # Load atlas
-        atlas_img = image.load_img(atlas_data['maps_path'])
-        
-        # Extract time series
-        time_series, parcel_indices = extract_time_series(fmri_path, atlas_data['maps_path'])
-        
-        # Compute correlation
-        matrix = compute_correlation_matrix(time_series)
-        
-        # Validate
-        validation = validate_connectivity_matrix(matrix, parcel_indices)
-        
-        # Save
-        if validation['is_valid']:
-            save_connectivity_results(output_dir, subject_id, matrix, parcel_indices, validation)
-            return {
-                "subject_id": subject_id,
-                "status": "success",
-                "validation": validation,
-                "output_files": [
-                    str(output_dir / f"connectivity_{subject_id}.csv"),
-                    str(output_dir / f"connectivity_{subject_id}_meta.json")
-                ]
-            }
-        else:
-            # Even if invalid, we might want to log it, but task implies we only save valid ones?
-            # The task says "Validate symmetry and diagonal". If it fails, we should probably
-            # not produce the final artifact or mark it as failed.
-            logger.warning(f"Subject {subject_id} produced invalid matrix. Not saving.")
-            return {
-                "subject_id": subject_id,
-                "status": "failed",
-                "validation": validation,
-                "error": "Validation failed"
-            }
-            
-    except Exception as e:
-        logger.error(f"Error processing subject {subject_id}: {e}")
-        return {
-            "subject_id": subject_id,
-            "status": "error",
-            "error": str(e)
-        }
-
+    # Load atlas
+    atlas_img, labels = load_schaefer_atlas(cache_dir)
+    
+    # Extract time series
+    time_series = extract_time_series(fmri_path, atlas_img, labels)
+    
+    # Compute correlation matrix
+    corr_matrix = compute_correlation_matrix(time_series)
+    
+    # Validate
+    validation = validate_connectivity_matrix(corr_matrix, labels)
+    
+    if not validation["is_valid"]:
+        logger.error(f"Validation failed for {subject_id}: {validation['issues']}")
+        # Still save for debugging, but mark as invalid
+    
+    # Save results
+    output_files = save_connectivity_results(output_dir, subject_id, corr_matrix, labels, validation)
+    
+    return {
+        "subject_id": subject_id,
+        "success": validation["is_valid"],
+        "time_series_shape": list(time_series.shape),
+        "matrix_shape": list(corr_matrix.shape),
+        "validation": validation,
+        "output_files": output_files
+    }
 
 def main():
     """
-    Main entry point for connectivity analysis.
+    Main entry point for running connectivity analysis on all subjects.
     
-    Expects preprocessed data in data/preprocessed/ and outputs to data/connectivity/.
+    Reads subject list from data/preprocessing/run_log.json, processes each,
+    and writes a summary to data/analysis/connectivity_summary.json.
     """
-    project_root = Path(__file__).resolve().parents[2]
-    data_dir = project_root / "data"
-    preprocessed_dir = data_dir / "preprocessed"
-    output_dir = data_dir / "connectivity"
+    logger.info("Starting connectivity analysis pipeline")
     
-    # Setup logging
-    setup_experiment_logging("connectivity_analysis")
+    # Get paths
+    data_path = get_data_path()
+    preprocessing_log = Path(data_path) / "preprocessing" / "run_log.json"
+    output_dir = Path(data_path) / "connectivity"
     
-    logger.info("Starting connectivity analysis pipeline (T013).")
-    
-    # 1. Load Atlas
-    atlas_data = load_schaefer_atlas(resolution=2)
-    logger.info(f"Atlas loaded: {atlas_data['n_parcels']} parcels.")
-    
-    if atlas_data['n_parcels'] != 200:
-        logger.warning(f"Expected 200 parcels, got {atlas_data['n_parcels']}. "
-                       "Proceeding with available parcels.")
-    
-    # 2. Find preprocessed subjects
-    # Expected structure: data/preprocessed/<subject_id>/sub-<id>_desc-preproc_bold.nii.gz
-    # Or similar pattern defined in T012d
-    if not preprocessed_dir.exists():
-        logger.error(f"Preprocessed directory not found: {preprocessed_dir}")
+    if not preprocessing_log.exists():
+        logger.error(f"Preprocessing log not found: {preprocessing_log}")
         sys.exit(1)
-        
-    subjects = []
-    for item in preprocessed_dir.iterdir():
-        if item.is_dir():
-            # Look for fMRI files
-            # Pattern: sub-<id>_desc-preproc_bold.nii.gz or similar
-            fmri_files = list(item.glob("*_desc-preproc_bold.nii.gz"))
-            if not fmri_files:
-                # Try other common patterns
-                fmri_files = list(item.glob("func/*_space-MNI_desc-preproc_bold.nii.gz"))
-            
-            if fmri_files:
-                subjects.append({
-                    "id": item.name.replace("sub-", "").replace("_", ""), # Simple extraction
-                    "fmri_path": fmri_files[0]
-                })
-            else:
-                # Check for any nifti in func
-                func_dir = item / "func"
-                if func_dir.exists():
-                    niftis = list(func_dir.glob("*.nii.gz"))
-                    if niftis:
-                        subjects.append({
-                            "id": item.name.replace("sub-", "").replace("_", ""),
-                            "fmri_path": niftis[0]
-                        })
     
+    # Load preprocessing log
+    with open(preprocessing_log, 'r') as f:
+        log_data = json.load(f)
+    
+    subjects = log_data.get("subjects", [])
     if not subjects:
-        logger.error("No preprocessed subjects found in data/preprocessed/")
+        logger.error("No subjects found in preprocessing log")
         sys.exit(1)
-        
-    logger.info(f"Found {len(subjects)} subjects to process.")
     
-    # 3. Process each subject
     results = []
-    for sub in subjects:
-        res = process_subject(
-            sub["id"],
-            sub["fmri_path"],
-            atlas_data,
-            output_dir
-        )
-        results.append(res)
+    successful = 0
+    failed = 0
     
-    # 4. Summary
-    success_count = sum(1 for r in results if r["status"] == "success")
-    fail_count = sum(1 for r in results if r["status"] == "failed")
-    error_count = sum(1 for r in results if r["status"] == "error")
-    
-    logger.info(f"Processing complete. Success: {success_count}, Failed: {fail_count}, Errors: {error_count}")
-    
-    # Save run log
-    log_path = output_dir / "connectivity_run_log.json"
-    with open(log_path, 'w') as f:
-        json.dump({
-            "total_subjects": len(subjects),
-            "success": success_count,
-            "failed": fail_count,
-            "errors": error_count,
-            "results": results
-        }, f, indent=2)
-    
-    if error_count > 0 or fail_count > 0:
-        logger.warning("Some subjects failed processing. Check logs.")
-        # Do not exit with error unless ALL failed? The task implies we produce outputs for valid ones.
-        # But if the pipeline is meant to be robust, we might just log.
-        # For now, we assume partial success is acceptable as long as valid outputs exist.
+    for subject_info in subjects:
+        subject_id = subject_info.get("id")
+        fmri_path = Path(subject_info.get("preprocessed_nifti"))
         
-    logger.info("Connectivity analysis finished.")
-
+        if not subject_id or not fmri_path.exists():
+            logger.warning(f"Skipping invalid subject: {subject_info}")
+            failed += 1
+            continue
+        
+        try:
+            result = process_subject(
+                subject_id=subject_id,
+                fmri_path=fmri_path,
+                output_dir=output_dir
+            )
+            results.append(result)
+            if result["success"]:
+                successful += 1
+            else:
+                failed += 1
+        except Exception as e:
+            logger.error(f"Error processing {subject_id}: {e}")
+            results.append({
+                "subject_id": subject_id,
+                "success": False,
+                "error": str(e)
+            })
+            failed += 1
+    
+    # Write summary
+    summary = {
+        "total_subjects": len(subjects),
+        "successful": successful,
+        "failed": failed,
+        "results": results
+    }
+    
+    summary_path = output_dir / "connectivity_summary.json"
+    with open(summary_path, 'w') as f:
+        json.dump(summary, f, indent=2)
+    
+    logger.info(f"Connectivity analysis complete. Summary: {summary_path}")
+    
+    if failed > 0:
+        logger.warning(f"{failed} subjects failed processing")
+        sys.exit(1)
+    
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
