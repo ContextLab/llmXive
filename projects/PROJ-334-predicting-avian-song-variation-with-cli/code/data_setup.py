@@ -1,53 +1,61 @@
 import os
 import hashlib
 from pathlib import Path
-
-# Ensure these imports exist or are added to utils.py if missing
-# Based on API surface, we assume standard library and existing project structure
+import yaml
+import csv
 from utils import setup_logging
 
-def ensure_directory(path: Path) -> None:
-    """Ensure the directory exists, creating it if necessary."""
+def ensure_directory(dir_path: str) -> None:
+    """Create directory if it does not exist."""
+    path = Path(dir_path)
     if not path.exists():
         path.mkdir(parents=True, exist_ok=True)
-        logging = setup_logging()
-        logging.info(f"Created directory: {path}")
-    elif not path.is_dir():
-        raise NotADirectoryError(f"Path exists but is not a directory: {path}")
 
-def initialize_checksums_file(checksums_path: Path) -> None:
-    """Initialize the checksums.txt file if it doesn't exist."""
-    if not checksums_path.exists():
-        checksums_path.write_text("# Data Checksums for PROJ-334\n# Format: SHA256  filename\n")
-        logging = setup_logging()
-        logging.info(f"Initialized checksums file: {checksums_path}")
+def initialize_checksums_file(checksums_path: str) -> None:
+    """Initialize the checksums file with a CSV header if it doesn't exist."""
+    path = Path(checksums_path)
+    if not path.exists():
+        ensure_directory(path.parent)
+        with open(path, mode='w', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(['filename', 'hash'])
 
-def main() -> None:
-    """Main entry point for T004: Setup data directory structure."""
-    # Determine project root (assuming script is run from project root or code/ dir)
-    # We assume the project root is the parent of the 'code' directory
-    script_path = Path(__file__).resolve()
-    code_dir = script_path.parent
-    project_root = code_dir.parent if code_dir.name == 'code' else code_dir.parent.parent
+def initialize_state_file(state_path: str) -> None:
+    """Initialize the project state file with an empty artifact_hashes map."""
+    path = Path(state_path)
+    if not path.exists():
+        ensure_directory(path.parent)
+        state_data = {
+            "artifact_hashes": {}
+        }
+        with open(path, 'w') as f:
+            yaml.dump(state_data, f, default_flow_style=False)
 
+def main():
+    """Main entry point for data setup."""
+    logger = setup_logging("data_setup")
+    
     # Define paths relative to project root
-    data_root = project_root / "data"
-    raw_dir = data_root / "raw"
-    processed_dir = data_root / "processed"
-    checksums_file = data_root / "checksums.txt"
+    # Assuming the script is run from the project root or code directory
+    # We use a robust way to find the project root or assume relative structure
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    data_raw_dir = base_dir / "data" / "raw"
+    data_processed_dir = base_dir / "data" / "processed"
+    checksums_file = base_dir / "data" / "checksums.txt"
+    state_file = base_dir / "state" / "projects" / "PROJ-334-predicting-avian-song-variation-with-cli.yaml"
 
-    # Ensure directories exist
-    ensure_directory(data_root)
-    ensure_directory(raw_dir)
-    ensure_directory(processed_dir)
-
-    # Initialize checksums file
-    initialize_checksums_file(checksums_file)
-
-    print(f"Data directory structure setup complete at: {data_root}")
-    print(f"  - Raw data: {raw_dir}")
-    print(f"  - Processed data: {processed_dir}")
-    print(f"  - Checksums: {checksums_file}")
+    logger.info("Setting up data directory structure...")
+    ensure_directory(data_raw_dir)
+    ensure_directory(data_processed_dir)
+    
+    logger.info(f"Initializing checksums file at {checksums_file}")
+    initialize_checksums_file(str(checksums_file))
+    
+    logger.info(f"Initializing state file at {state_file}")
+    initialize_state_file(str(state_file))
+    
+    logger.info("Data setup complete.")
 
 if __name__ == "__main__":
     main()

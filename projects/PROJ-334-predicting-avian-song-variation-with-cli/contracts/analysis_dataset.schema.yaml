@@ -1,30 +1,20 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Analysis Dataset Schema
-description: Schema for the unified analysis dataset joining song records and climate snapshots.
+title: AnalysisDataset
+description: Unified schema merging SongRecord and ClimateSnapshot for analysis.
 type: object
 required:
-  - record_id
   - species_id
-  - species_name
   - lat
   - lon
-  - bio_01
-  - bio_12
-  - bio_15
+  - song_metric_1
+  - song_metric_2
+  - temperature
+  - precipitation
   - elevation
 properties:
-  record_id:
-    type: string
-    description: Unique identifier for the song recording.
-    minLength: 1
   species_id:
     type: string
-    description: Species identifier.
-    minLength: 1
-  species_name:
-    type: string
-    description: Scientific name of the species.
-    minLength: 1
+    description: Unique identifier for the bird species.
   lat:
     type: number
     description: Latitude in decimal degrees (WGS84).
@@ -35,38 +25,19 @@ properties:
     description: Longitude in decimal degrees (WGS84).
     minimum: -180
     maximum: 180
-  bio_01:
-    type: number
-    description: Annual Mean Temperature.
-  bio_12:
-    type: number
-    description: Annual Precipitation.
-  bio_15:
-    type: number
-    description: Precipitation Seasonality.
-  elevation:
-    type: number
-    description: Elevation in meters.
   song_metric_1:
     type: number
-    description: Primary song metric (e.g., frequency).
+    description: Primary song metric.
   song_metric_2:
     type: number
-    description: Secondary song metric (e.g., duration).
-  country:
-    type: string
-    description: Country of recording.
-  recording_date:
-    type: string
-    description: Date of recording.
-    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-  quality:
-    type: string
-    description: Quality rating.
-    enum:
-      - A
-      - B
-      - C
-      - D
-      - E
-additionalProperties: false
+    description: Secondary song metric.
+  temperature:
+    type: number
+    description: Mean annual temperature (°C).
+  precipitation:
+    type: number
+    description: Annual precipitation (mm).
+  elevation:
+    type: number
+    description: Elevation above sea level (meters).
+additionalProperties: true

@@ -1,11 +1,12 @@
-- artifact_hash: 19f8767388ec5bc911f3d96db4e05adde0e1b3265b9ba53d578a7a2d6120cbef
+- artifact_hash: 0678e57ee61fc7d7967e0d4c0d2f69687b7096802cc92eb8af4335aad5cb78ee
   artifact_path: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: implementing regulation - Wikidata
+  fetched_title: '[2607.12208] The Benjamini--Hochberg Procedure Can Fail to Control
+    the FDR for Correlated Two-Sided Gaussian Tests'
   kind: url
-  value: https://www.wikidata.org/wiki/Q2795484
+  value: https://arxiv.org/abs/2607.12208
   verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q2795484
-  verified_at: '2026-09-22T06:51:12.645647Z'
+  verified_against_url: https://arxiv.org/abs/2607.12208
+  verified_at: '2026-09-26T07:50:10.122996Z'

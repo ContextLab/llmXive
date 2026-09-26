@@ -1,166 +1,149 @@
 import os
 import json
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+import yaml
 
 class Config:
     """
     Base configuration loader for environment variables and paths.
     
-    Handles loading project root, data directories, and environment-specific
-    settings. Provides a centralized source of truth for file paths used
-    throughout the pipeline.
+    Handles:
+    - Loading configuration from a YAML file (defaults to `config.yaml` in project root)
+    - Overriding specific values via environment variables (e.g., XC_API_KEY)
+    - Providing a configurable `join_radius_km` parameter (default 10km based on WorldClim resolution)
+    - Resolving absolute paths for data, code, and logs directories
     """
-    
-    def __init__(self, env_prefix: str = "AVIAN_SONG"):
-        self.env_prefix = env_prefix
-        self._root: Optional[Path] = None
-        self._data_dir: Optional[Path] = None
-        self._data_raw: Optional[Path] = None
-        self._data_processed: Optional[Path] = None
-        self._contracts_dir: Optional[Path] = None
-        self._figures_dir: Optional[Path] = None
-        self._models_dir: Optional[Path] = None
-        
-        # Load configuration from environment or defaults
-        self._load_from_env()
-        self._resolve_paths()
-    
-    def _load_from_env(self) -> None:
-        """Load configuration from environment variables."""
-        # Project root (defaults to current working directory if not set)
-        root_env = os.getenv(f"{self.env_prefix}_ROOT")
-        if root_env:
-            self._root = Path(root_env).resolve()
+
+    DEFAULT_CONFIG_PATH = "config.yaml"
+    DEFAULT_JOIN_RADIUS_KM = 10.0  # Based on WorldClim v2.1 resolution (~1km) and spatial join tolerance
+
+    def __init__(self, config_path: Optional[str] = None):
+        self._config: Dict[str, Any] = {}
+        self._base_path = Path.cwd()
+        self._load_config(config_path)
+
+    def _load_config(self, config_path: Optional[str]) -> None:
+        """
+        Load configuration from YAML file and override with environment variables.
+        """
+        path_str = config_path or os.getenv("CONFIG_PATH", self.DEFAULT_CONFIG_PATH)
+        config_file = Path(path_str)
+
+        if not config_file.is_absolute():
+            config_file = self._base_path / config_file
+
+        if config_file.exists():
+            try:
+                with open(config_file, 'r', encoding='utf-8') as f:
+                    self._config = yaml.safe_load(f) or {}
+            except yaml.YAMLError as e:
+                raise RuntimeError(f"Failed to parse config file {config_file}: {e}")
         else:
-            # Default to project root based on file location
-            self._root = Path(__file__).resolve().parent.parent
-        
-        # Data directory
-        data_env = os.getenv(f"{self.env_prefix}_DATA_DIR")
-        if data_env:
-            self._data_dir = Path(data_env).resolve()
-        else:
-            self._data_dir = self._root / "data"
-        
-        # Data subdirectories
-        self._data_raw = self._data_dir / "raw"
-        self._data_processed = self._data_dir / "processed"
-        
-        # Contracts directory
-        contracts_env = os.getenv(f"{self.env_prefix}_CONTRACTS_DIR")
-        if contracts_env:
-            self._contracts_dir = Path(contracts_env).resolve()
-        else:
-            self._contracts_dir = self._root / "contracts"
-        
-        # Figures directory
-        figures_env = os.getenv(f"{self.env_prefix}_FIGURES_DIR")
-        if figures_env:
-            self._figures_dir = Path(figures_env).resolve()
-        else:
-            self._figures_dir = self._root / "figures"
-        
-        # Models directory
-        models_env = os.getenv(f"{self.env_prefix}_MODELS_DIR")
-        if models_env:
-            self._models_dir = Path(models_env).resolve()
-        else:
-            self._models_dir = self._root / "data" / "models"
-    
-    def _resolve_paths(self) -> None:
-        """Ensure all directories exist and paths are absolute."""
-        # Ensure data directories exist
-        self._data_raw.mkdir(parents=True, exist_ok=True)
-        self._data_processed.mkdir(parents=True, exist_ok=True)
-        self._figures_dir.mkdir(parents=True, exist_ok=True)
-        self._models_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Ensure contracts directory exists (for validation)
-        if not self._contracts_dir.exists():
-            self._contracts_dir.mkdir(parents=True, exist_ok=True)
-    
+            # Initialize with defaults if file doesn't exist
+            self._config = {}
+
+        # Apply environment variable overrides
+        self._apply_env_overrides()
+
+    def _apply_env_overrides(self) -> None:
+        """
+        Override config values with environment variables.
+        Convention: Uppercase keys in env vars map to config keys.
+        Example: XC_API_KEY -> config['xeno_canto']['api_key']
+        """
+        env_map = {
+            "JOIN_RADIUS_KM": ("spatial", "join_radius_km"),
+            "DATA_DIR": ("paths", "data_dir"),
+            "CODE_DIR": ("paths", "code_dir"),
+            "LOGS_DIR": ("paths", "logs_dir"),
+            "XC_API_KEY": ("xeno_canto", "api_key"),
+            "WC_URL_TEMPLATE": ("worldclim", "url_template"),
+        }
+
+        for env_key, config_path in env_map.items():
+            value = os.getenv(env_key)
+            if value is not None:
+                self._set_nested_value(self._config, config_path, value)
+
+    def _set_nested_value(self, config: Dict, path: List[str], value: Any) -> None:
+        """Helper to set a value in a nested dict based on a path."""
+        current = config
+        for key in path[:-1]:
+            if key not in current:
+                current[key] = {}
+            current = current[key]
+        current[path[-1]] = value
+
     @property
-    def root(self) -> Path:
-        """Return the project root directory."""
-        return self._root
-    
+    def join_radius_km(self) -> float:
+        """
+        Get the spatial join radius in kilometers.
+        Defaults to 10.0km if not specified in config or env.
+        """
+        return float(self._config.get("spatial", {}).get("join_radius_km", self.DEFAULT_JOIN_RADIUS_KM))
+
     @property
     def data_dir(self) -> Path:
-        """Return the main data directory."""
-        return self._data_dir
-    
+        """Get the absolute path to the data directory."""
+        raw = self._config.get("paths", {}).get("data_dir", "data")
+        path = Path(raw)
+        if not path.is_absolute():
+            path = self._base_path / path
+        return path
+
     @property
-    def data_raw(self) -> Path:
-        """Return the raw data directory."""
-        return self._data_raw
-    
+    def code_dir(self) -> Path:
+        """Get the absolute path to the code directory."""
+        raw = self._config.get("paths", {}).get("code_dir", "code")
+        path = Path(raw)
+        if not path.is_absolute():
+            path = self._base_path / path
+        return path
+
     @property
-    def data_processed(self) -> Path:
-        """Return the processed data directory."""
-        return self._data_processed
-    
+    def logs_dir(self) -> Path:
+        """Get the absolute path to the logs directory."""
+        raw = self._config.get("paths", {}).get("logs_dir", "data/logs")
+        path = Path(raw)
+        if not path.is_absolute():
+            path = self._base_path / path
+        return path
+
     @property
-    def contracts_dir(self) -> Path:
-        """Return the contracts directory."""
-        return self._contracts_dir
-    
+    def xeno_canto_config(self) -> Dict[str, Any]:
+        """Get Xeno-Canto specific configuration."""
+        return self._config.get("xeno_canto", {})
+
     @property
-    def figures_dir(self) -> Path:
-        """Return the figures directory."""
-        return self._figures_dir
-    
-    @property
-    def models_dir(self) -> Path:
-        """Return the models directory."""
-        return self._models_dir
-    
-    @property
-    def checksums_file(self) -> Path:
-        """Return the path to the checksums file."""
-        return self._data_dir / "checksums.txt"
-    
-    def get_path(self, relative_path: str) -> Path:
-        """
-        Get an absolute path relative to the project root.
-        
-        Args:
-            relative_path: Path relative to project root
-        
-        Returns:
-            Absolute Path object
-        """
-        return self._root / relative_path
-    
-    def get_data_path(self, relative_path: str) -> Path:
-        """
-        Get an absolute path relative to the data directory.
-        
-        Args:
-            relative_path: Path relative to data directory
-        
-        Returns:
-            Absolute Path object
-        """
-        return self._data_dir / relative_path
-    
+    def worldclim_config(self) -> Dict[str, Any]:
+        """Get WorldClim specific configuration."""
+        return self._config.get("worldclim", {})
+
+    def get(self, key: str, default: Any = None) -> Any:
+        """Generic getter for nested keys using dot notation (e.g., 'paths.data_dir')."""
+        keys = key.split('.')
+        value = self._config
+        for k in keys:
+            if isinstance(value, dict) and k in value:
+                value = value[k]
+            else:
+                return default
+        return value
+
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Convert configuration to a dictionary for logging/debugging.
-        
-        Returns:
-            Dictionary representation of configuration
-        """
-        return {
-            "root": str(self._root),
-            "data_dir": str(self._data_dir),
-            "data_raw": str(self._data_raw),
-            "data_processed": str(self._data_processed),
-            "contracts_dir": str(self._contracts_dir),
-            "figures_dir": str(self._figures_dir),
-            "models_dir": str(self._models_dir),
-            "checksums_file": str(self.checksums_file),
-        }
-    
-    def __repr__(self) -> str:
-        return f"Config(root={self._root}, data={self._data_dir})"
+        """Return the full configuration as a dictionary."""
+        return self._config.copy()
+
+# Global instance for convenience in scripts that don't need injection
+_global_config: Optional[Config] = None
+
+def load_config(config_path: Optional[str] = None) -> Config:
+    """
+    Load or retrieve the global configuration instance.
+    Useful for scripts that need a consistent config object without passing it around.
+    """
+    global _global_config
+    if _global_config is None or config_path is not None:
+        _global_config = Config(config_path)
+    return _global_config

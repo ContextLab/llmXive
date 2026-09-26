@@ -1,48 +1,49 @@
-"""
-Directory structure setup for the Avian Song Variation project.
-Creates the required directory hierarchy as per T001a.
-"""
 import os
 import sys
 from pathlib import Path
 
+def ensure_directory(path: Path) -> None:
+    """Ensure a directory exists, creating it if necessary."""
+    path.mkdir(parents=True, exist_ok=True)
+
+def initialize_checksums_file(path: Path) -> None:
+    """Initialize the checksums file with a header."""
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w') as f:
+            f.write("filename,hash\n")
+
+def initialize_state_file(path: Path) -> None:
+    """Initialize the state file with an empty artifact_hashes map."""
+    if not path.exists():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w') as f:
+            f.write("artifact_hashes: {}\n")
+
 def main():
-    """Create the project directory structure."""
-    # Define the base project root
-    # The task specifies creating directories at the project root relative to the repo
-    # We assume the script runs from the project root or we calculate it relative to this file
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
-
-    # Define the directories to create based on T001a
-    # The task asks for: projects/PROJ-334-predicting-avian-song-variation-with-cli/, data/, code/, tests/
-    # However, looking at the existing API surface, files like code/config.py exist at the root 'code/'
-    # and the task description for T001a says "Create directory structure at projects/..., data/, code/, tests/"
-    # This implies the project root IS the repo root, and we need to ensure these top-level dirs exist.
-    # The 'projects/PROJ-334...' part of the task description might be a template artifact or referring to a specific
-    # sub-project location. Given the existing file structure (code/config.py exists), the 'code' directory
-    # is already at the root. We will ensure the standard dirs (data, code, tests) exist at the root.
-    # We will also create the specific project folder if it doesn't exist to satisfy the literal task text.
+    """Main entry point for directory setup."""
+    project_root = Path(__file__).parent.parent
     
-    dirs_to_create = [
-        project_root / "data",
-        project_root / "code",
-        project_root / "tests",
-        # The task explicitly mentions this path, so we ensure it exists too
-        project_root / "projects" / "PROJ-334-predicting-avian-song-variation-with-cli"
-    ]
-
-    created_count = 0
-    for dir_path in dirs_to_create:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path.relative_to(project_root)}")
-            created_count += 1
-        else:
-            print(f"Directory exists: {dir_path.relative_to(project_root)}")
-
-    print(f"Setup complete. Created {created_count} new directories.")
-    return 0
+    # Define directories
+    data_dir = project_root / "data"
+    code_dir = project_root / "code"
+    tests_dir = project_root / "tests"
+    
+    # Ensure directories exist
+    ensure_directory(data_dir)
+    ensure_directory(code_dir)
+    ensure_directory(tests_dir)
+    
+    # Initialize checksums file
+    checksums_file = data_dir / "checksums.txt"
+    initialize_checksums_file(checksums_file)
+    
+    # Initialize state file
+    state_dir = project_root / "state" / "projects"
+    state_file = state_dir / "PROJ-334-predicting-avian-song-variation-with-cli.yaml"
+    initialize_state_file(state_file)
+    
+    print("Directory structure initialized successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

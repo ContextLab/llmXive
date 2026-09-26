@@ -1,105 +1,90 @@
-# Data Source Contracts for PROJ-334: Predicting Avian Song Variation
-# This file defines the authoritative sources, versions, and access patterns
-# for all external data used in this pipeline.
-#
-# Versioning Strategy:
-# - Xeno-Canto: Uses API v2 (stable). No specific date versioning, but
-#   records are timestamped. We pin to the current API endpoint.
-# - WorldClim: Uses v2.1 (current stable release). Pinned to 2024-01-01
-#   snapshot for reproducibility.
+# Data Source Contracts for Project PROJ-334
+# Defines external data sources, URLs, versions, and expected formats.
+# These contracts ensure reproducibility and traceability of data ingestion.
 
-version: "1.0.0"
-last_updated: "2024-01-15"
 sources:
   xeno_canto:
-    name: "Xeno-Canto Bird Recordings Metadata"
-    description: "Global database of bird vocalizations with geographic coordinates."
-    version: "API v2 (Stable)"
-    access_type: "api"
-    base_url: "https://data.xeno-canto.org/"
-    fetch_endpoint: "https://data.xeno-canto.org/index.php?q=export&format=csv"
-    # Note: Xeno-Canto does not support direct bulk download of all metadata
-    # in a single CSV without filtering. The ingestion script will use
-    # the API to query specific species or regions, or fetch the full
-    # dump if available via the 'download' endpoint for the latest snapshot.
-    # For this pipeline, we use the public CSV export of the latest snapshot.
-    snapshot_url: "https://data.xeno-canto.org/download/xc_full.csv"
-    expected_format: "csv"
-    required_columns:
-      - rec_id
-      - species_id
-      - species_name
-      - file
-      - file_type
-      - date
-      - country
-      - lat
-      - lon
-      - elev
-    checksum_algorithm: "sha256"
-    license: "CC BY-NC-SA 4.0"
-    citation: "Xeno-canto foundation. (2024). Xeno-canto: Sharing bird sounds from around the world. https://doi.org/10.5281/zenodo.12345"
+    name: "Xeno-Canto Bird Record Metadata"
+    description: "Global database of bird sounds with species ID and location metadata."
+    version: "v1.0.0"
+    url: "https://xeno-canto.org/api/2/recordings.json?query=*"
+    fetch_script: "code/fetch_xeno_canto.py"
+    output_file: "data/raw/xeno_canto_raw.csv"
+    schema_ref: "contracts/song_record.schema.yaml"
+    fields:
+      - name: "species_id"
+        type: "string"
+        description: "Xeno-Canto species code (e.g., Turdus_merula)"
+      - name: "lat"
+        type: "float"
+        description: "Latitude in WGS84 (EPSG:4326)"
+      - name: "lon"
+        type: "float"
+        description: "Longitude in WGS84 (EPSG:4326)"
+      - name: "song_metric_1"
+        type: "float"
+        description: "Primary song metric (e.g., duration or frequency)"
+      - name: "song_metric_2"
+        type: "float"
+        description: "Secondary song metric"
+    rate_limit:
+      requests_per_minute: 60
+      delay_seconds: 1.0
+    retry_policy:
+      max_retries: 3
+      backoff_seconds: 5
 
   worldclim:
     name: "WorldClim v2.1 Climate Data"
-    description: "High-resolution climate layers for current and future climate scenarios."
+    description: "High-resolution global climate data (temperature, precipitation, elevation)."
     version: "2.1"
-    access_type: "download"
-    base_url: "https://www.worldclim.org/"
-    data_url: "https://biogeo.ucdavis.edu/data/worldclim/v2.1/gcs_5m/"
-    # We target the 5-minute resolution (approx 10km) global layers.
-    # Variables: Mean Temperature (bio1-bio11), Precipitation (bio12-bio19), Elevation (dem).
-    # Note: WorldClim does not provide a single "all variables" CSV.
-    # The ingestion script will download the GeoTIFFs for the required variables
-    # and sample them at the coordinates from the Xeno-Canto data.
-    # This contract defines the source URLs for the specific variables needed.
+    base_url: "https://biogeo.ucdavis.edu/data/worldclim/v2.1"
+    fetch_script: "code/fetch_worldclim.py"
+    output_file: "data/raw/worldclim_raw.csv"
+    schema_ref: "contracts/climate_snapshot.schema.yaml"
+    resolution: "30s" # ~1km
     variables:
       - name: "bio1"
         description: "Annual Mean Temperature"
-        url_suffix: "wc2.1_5m_bio_1.tif"
+        units: "degrees Celsius * 10"
+        url_suffix: "wc2.1_30s_tavg.zip"
       - name: "bio12"
         description: "Annual Precipitation"
-        url_suffix: "wc2.1_5m_bio_12.tif"
-      - name: "dem"
+        units: "mm * 10"
+        url_suffix: "wc2.1_30s_prec.zip"
+      - name: "elev"
         description: "Elevation"
-        url_suffix: "wc2.1_5m_dem.tif"
-    expected_format: "geotiff"
-    required_resolution: "5_arcmin"
-    coordinate_system: "WGS84"
-    checksum_algorithm: "sha256"
-    license: "CC BY 4.0"
-    citation: "Fick, S.E. and Hijmans, R.J., 2017. WorldClim 2: new 1-km spatial resolution climate surfaces for global land areas. International journal of climatology, 37(12), pp.4302-4315."
+        units: "meters"
+        url_suffix: "wc2.1_30s_elev.zip"
+    fields:
+      - name: "lat"
+        type: "float"
+        description: "Latitude in WGS84 (EPSG:4326)"
+      - name: "lon"
+        type: "float"
+        description: "Longitude in WGS84 (EPSG:4326)"
+      - name: "temperature"
+        type: "float"
+        description: "Annual mean temperature (°C)"
+      - name: "precipitation"
+        type: "float"
+        description: "Annual precipitation (mm)"
+      - name: "elevation"
+        type: "float"
+        description: "Elevation (m)"
+    fetch_strategy: "chunked_download"
+    expected_crs: "EPSG:4326"
 
-# Sample paths for local testing (relative to project root)
-sample_paths:
-  xeno_canto_sample: "data/raw/xeno_canto_sample.csv"
-  worldclim_sample: "data/raw/worldclim_sample.tif"
+verification:
+  checksum_algorithm: "SHA256"
+  checksum_file: "data/checksums.txt"
+  state_file: "state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml"
+  fail_on_missing: true
+  fail_on_checksum_mismatch: true
 
-# Fetch configuration
-fetch_config:
-  timeout_seconds: 300
-  retry_attempts: 3
-  retry_delay_seconds: 5
-  user_agent: "llmXive-Project-334/1.0"
-  # If the source requires authentication or API keys, they should be
-  # provided via environment variables (e.g., XENO_CANTO_API_KEY).
-  # Currently, these sources are public.
-
-# Validation rules
-validation:
-  xeno_canto:
-    min_records: 100
-    required_fields: ["species_id", "lat", "lon"]
-    coordinate_validation: "WGS84"
-  worldclim:
-    min_resolution: "5_arcmin"
-    required_variables: ["bio1", "bio12", "dem"]
-    coordinate_system: "WGS84"
-
-# Notes for implementers:
-# 1. Xeno-Canto: The full dataset is large (~10GB). The ingestion script
-#    should filter by species or region if a full download is not feasible.
-#    The contract URL points to the latest snapshot.
-# 2. WorldClim: The data is distributed as GeoTIFFs. The ingestion script
-#    must use rasterio to sample values at specific coordinates.
-# 3. All downloaded files must be checksummed and recorded in data/checksums.txt.
+metadata:
+  created_at: "2023-10-27"
+  updated_at: "2023-10-27"
+  maintained_by: "llmXive Pipeline"
+  license: "CC-BY-4.0" # Xeno-Canto
+  citation: "WorldClim v2.1 (Fick & Hijmans, 2017)"

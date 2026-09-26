@@ -1,0 +1,25 @@
+# Ruff configuration for PROJ-334-predicting-avian-song-variation-with-cli
+target-version = "py39"
+line-length = 88
+src = ["code", "tests"]
+
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # Pyflakes
+  "I",   # isort
+  "B",   # flake8-bugbear
+  "C4",  # flake8-comprehensions
+  "UP",  # pyupgrade
+]
+ignore = [
+  "E501", # Line too long (handled by black)
+  "B008", # Do not perform function call in argument defaults (common in data loading)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assert in tests
+
+[lint.isort]
+known-first-party = ["config", "data_setup", "fetch_worldclim", "fetch_xeno_canto", "ingestion", "linting_config", "logging_config", "main", "schema_validator", "setup_dependencies", "setup_dirs", "state_manager", "utils"]

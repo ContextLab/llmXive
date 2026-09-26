@@ -1,27 +1,17 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Song Record Schema
-description: Schema for validating Xeno-Canto avian acoustic metadata records.
+title: SongRecord
+description: Schema for avian song recording metadata from Xeno-Canto.
 type: object
 required:
-  - record_id
   - species_id
-  - species_name
   - lat
   - lon
-  - file_url
+  - song_metric_1
+  - song_metric_2
 properties:
-  record_id:
-    type: string
-    description: Unique identifier for the recording (e.g., XC12345).
-    minLength: 1
   species_id:
     type: string
-    description: Species identifier (e.,g., Xeno-Canto species ID or Wikidata QID).
-    minLength: 1
-  species_name:
-    type: string
-    description: Scientific name of the species (e.,g., Turdus merula).
-    minLength: 1
+    description: Unique identifier for the bird species (e.g., XC species code or taxon ID).
   lat:
     type: number
     description: Latitude in decimal degrees (WGS84).
@@ -32,35 +22,10 @@ properties:
     description: Longitude in decimal degrees (WGS84).
     minimum: -180
     maximum: 180
-  file_url:
-    type: string
-    description: Direct URL to the audio file.
-    format: uri
-  species_common_name:
-    type: string
-    description: Common name of the species (optional).
-  recording_date:
-    type: string
-    description: Date of recording in ISO 8601 format (YYYY-MM-DD).
-    pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-  country:
-    type: string
-    description: Country where the recording was made.
-  latitude_error:
+  song_metric_1:
     type: number
-    description: Estimated error margin for latitude.
-    minimum: 0
-  longitude_error:
+    description: Primary song metric (e.g., frequency peak, duration, or entropy).
+  song_metric_2:
     type: number
-    description: Estimated error margin for longitude.
-    minimum: 0
-  quality:
-    type: string
-    description: Quality rating of the recording (e.g., A, B, C, D).
-    enum:
-      - A
-      - B
-      - C
-      - D
-      - E
-additionalProperties: false
+    description: Secondary song metric (e.g., amplitude, trill rate, or complexity score).
+additionalProperties: true

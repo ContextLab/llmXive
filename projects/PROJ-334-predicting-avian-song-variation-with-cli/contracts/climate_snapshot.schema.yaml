@@ -1,20 +1,14 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Climate Snapshot Schema
-description: Schema for validating WorldClim v2.1 climate variable records aligned with song locations.
+title: ClimateSnapshot
+description: Schema for climate variables at a specific location from WorldClim.
 type: object
 required:
-  - location_id
   - lat
   - lon
-  - bio_01
-  - bio_12
-  - bio_15
+  - temperature
+  - precipitation
   - elevation
 properties:
-  location_id:
-    type: string
-    description: Unique identifier for the location (e.g., hash of coords or record_id).
-    minLength: 1
   lat:
     type: number
     description: Latitude in decimal degrees (WGS84).
@@ -25,24 +19,13 @@ properties:
     description: Longitude in decimal degrees (WGS84).
     minimum: -180
     maximum: 180
-  bio_01:
+  temperature:
     type: number
-    description: Annual Mean Temperature (WorldClim variable).
-  bio_12:
+    description: Mean annual temperature (°C).
+  precipitation:
     type: number
-    description: Annual Precipitation (WorldClim variable).
-  bio_15:
-    type: number
-    description: Precipitation Seasonality (WorldClim variable).
+    description: Annual precipitation (mm).
   elevation:
     type: number
-    description: Elevation in meters.
-  source:
-    type: string
-    description: Data source identifier (e.g., WorldClim v2.1).
-    const: WorldClim_v2.1
-  resolution:
-    type: string
-    description: Spatial resolution of the data.
-    const: 30arcsec
-additionalProperties: false
+    description: Elevation above sea level (meters).
+additionalProperties: true

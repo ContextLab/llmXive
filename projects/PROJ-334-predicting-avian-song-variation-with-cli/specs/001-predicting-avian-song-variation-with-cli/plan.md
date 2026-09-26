@@ -19,7 +19,7 @@ This project implements a computational pipeline to investigate the associationa
 **Constraints**: No GPU; no causal claims (observational study); strict adherence to FR-001 through FR-006; FDR control mandatory.
 **Scale/Scope**: Single dataset alignment; ~k-50k rows (sampled if necessary to fit RAM); model re-runs for sensitivity.
 
-> **Dataset Variable Fit Note**: The spec requires `SongRecord` and `ClimateSnapshot` datasets. The implementation plan uses **real, verified datasets**: **Xeno-Canto** (avian acoustic metadata) and **WorldClim v2.1** (global climate). The pipeline fetches these directly. If fetch fails or required variables are missing, the pipeline aborts with a clear error rather than using synthetic data, ensuring compliance with the research question's validity.
+> **Dataset Variable Fit Note**: The spec requires `SongRecord` and `ClimateSnapshot` datasets. The implementation plan uses **real, verified datasets**: **Xeno-Canto** (avian acoustic metadata) and **WorldClim** (global climate). The pipeline fetches these directly. If fetch fails or required variables are missing, the pipeline aborts with a clear error rather than using synthetic data, ensuring compliance with the research question's validity.
 
 ## Constitution Check
 

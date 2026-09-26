@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-334-predicting-avian-song-variation-with-cli
-last_run_id: d6862612-833e-4e69-8741-32ea5a9f33c3
+last_run_id: 31c291dc-7405-48af-9e92-35232f91f603
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-334-predicting-avian-song-variation-with-cli/specs/001-predicting-avian-song-variation-with-cli
 title: Predicting Avian Song Variation with Climatic and Geographic Factors
-updated_at: '2026-09-22T06:51:14.010743Z'
+updated_at: '2026-09-26T07:50:10.221037Z'
