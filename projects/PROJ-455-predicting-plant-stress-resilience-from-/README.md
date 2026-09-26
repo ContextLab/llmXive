@@ -1,87 +1,94 @@
 # Predicting Plant Stress Resilience from Publicly Available Metabolomic Data
 
-This project implements a mechanism-guided pipeline to predict plant stress resilience using metabolomic data. It supports both synthetic data generation (for development and validation) and ingestion of real-world datasets from public repositories.
+This project implements an automated science pipeline to predict plant stress resilience using metabolomic data. It supports both synthetic data generation for testing and ingestion of real public datasets (NCBI GEO, Zenodo).
+
+## Project Structure
+
+- `code/`: Source code for data ingestion, preprocessing, modeling, and analysis.
+- `data/`: Raw and processed data artifacts.
+- `tests/`: Unit, integration, and contract tests.
+- `contracts/`: Schema definitions for data validation.
+- `state/`: Project state and checksums.
+
+## Prerequisites
+
+- Python 3.11 or higher
+- pip
 
 ## Installation
 
-1. **Clone the repository**:
+1. Clone the repository and navigate to the project root:
  ```bash
- git clone <repository-url>
- cd projects/PROJ-455-predicting-plant-stress-resilience
+ cd projects/PROJ-455-predicting-plant-stress-resilience-from-
  ```
 
-2. **Create a virtual environment** (Python 3.11 recommended):
+2. Create a virtual environment and activate it:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
 ## Data Generation (Synthetic)
 
-For development and testing, synthetic metabolomic data with embedded ground-truth pathways can be generated using the `code/data/generator.py` module.
+For initial testing and development, the pipeline can generate synthetic metabolomic data that mimics real plant stress responses. This data includes embedded biological pathways (proline, ABA, glutathione) and allows configuration of missing data rates to test rejection logic.
 
-**Generate a single synthetic dataset**:
-```bash
-python -c "from data.generator import generate_synthetic_data; generate_synthetic_data(n_samples=1000, stress_type='drought')"
-```
-This will create a Parquet file in `data/raw/synthetic_*.parquet`.
+To generate synthetic data directly, you can run the generator script:
 
-**Generate LODO (Leave-One-Dataset-Out) synthetic datasets**:
 ```bash
-python -c "from data.generator import generate_lodo_synthetic_datasets; generate_lodo_synthetic_datasets(n_datasets=5, stress_types=['drought', 'salt', 'heat'])"
+python code/data/generator.py --stress_type drought --seed 42 --samples 500
 ```
-This creates multiple distinct Parquet files in `data/raw/` simulating external datasets for cross-validation.
+
+However, the recommended way to run the full pipeline is via the main entry point (see below), which handles data generation automatically if no input data is found.
 
 ## Execution Command
 
-The full pipeline can be executed to ingest data, preprocess, train models, and validate results.
+The entire pipeline is orchestrated via `code/main.py`. It performs the following steps:
+1. Generates synthetic data (or loads existing data).
+2. Preprocesses data (filtering, normalization, imputation).
+3. Trains Random Forest and SVM models.
+4. Validates models using Leave-One-Dataset-Out (LODO) and cross-stress evaluation.
+5. Writes results to `data/results/model_metrics.json`.
 
-**Run the full pipeline** (uses synthetic data by default if no real data is configured):
+Run the pipeline:
+
 ```bash
-python -m code.analysis.pipeline
+python code/main.py --seed 42
 ```
 
-**Run specific stages**:
-- **Ingest & Preprocess**:
- ```bash
- python -c "from data.ingest import get_adapter; from data.preprocess import normalize_recovery, normalize_tic_and_log; adapter = get_adapter('mock'); df = adapter.fetch(); df = normalize_tic_and_log(df)"
- ```
-- **Train Models**:
- ```bash
- python -c "from models.train import train_random_forest, get_top_features; model, metrics = train_random_forest(X, y); print(get_top_features(model, n=20))"
- ```
-- **Validate (LODO & Cross-Stress)**:
- ```bash
- python -c "from models.validate import lodo_cv, cross_stress_eval; scores = lodo_cv(models, datasets)"
- ```
+Optional arguments:
+- `--seed`: Random seed for reproducibility (default: 42).
+- `--stress_type`: Type of stress for synthetic data (default: 'drought').
+- `--samples`: Number of samples for synthetic data (default: 500).
 
 ## Expected Output
 
-Upon successful execution, the pipeline produces the following artifacts:
+Upon successful execution, the pipeline produces:
 
-1. **Processed Data**:
- - `data/processed/normalized_profiles.parquet`: Cleaned and normalized metabolomic profiles.
- - `data/processed/recovery_indices.csv`: Mapped recovery metrics (0-1 scale).
+1. **Console Output**:
+ - Logs showing data generation, preprocessing steps, and model training metrics.
+ - A final message: "Pipeline completed successfully".
 
-2. **Model Artifacts**:
- - `data/results/model_rf.pkl`: Trained Random Forest model.
- - `data/results/model_svm.pkl`: Trained SVM model.
- - `data/results/metrics.json`: Performance metrics (R², Pearson r) and feature importance rankings.
+2. **Data Artifacts**:
+ - `data/raw/synthetic_[stress_type]_[seed].parquet`: Generated raw data.
+ - `data/processed/mapped_data.parquet`: Preprocessed and KEGG-mapped data.
+ - `data/results/model_metrics.json`: Aggregated metrics including R², feature importance, and validation results.
 
-3. **Validation Reports**:
- - `data/results/lodo_scores.json`: Leave-One-Dataset-Out cross-validation scores.
- - `data/results/pathway_enrichment.json`: KEGG pathway alignment and enrichment p-values.
+3. **Validation**:
+ - The `data/results/model_metrics.json` file will contain keys such as `rf_r2`, `svm_r2`, `top_features`, and `lodo_cv_results`.
 
-4. **Logs**:
- - `logs/pipeline.log`: Detailed execution logs including data rejection reasons and training progress.
+## Testing
 
-**Success Criteria**:
-- No `DataRejectionError` for missing thresholds >10%.
-- Model R² or Pearson r > 0.5 on held-out test sets.
-- Pathway enrichment p-value < 0.05 or Jaccard similarity ≥ 0.3.
-- Execution time < 6 hours (as per `tests/benchmark/test_pipeline_timing.py`).
+Run the test suite:
+
+```bash
+pytest tests/ -v
+```
+
+## License
+
+This project is part of the llmXive automated science pipeline.

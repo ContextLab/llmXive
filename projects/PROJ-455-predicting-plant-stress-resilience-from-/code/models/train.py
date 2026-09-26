@@ -66,10 +66,16 @@ def train_random_forest(X: pd.DataFrame, y: pd.Series, cv: int = 5, mode: str = 
 
     training_time = time.time() - start_time
 
+    # Construct metrics dictionary compliant with model_result.schema.yaml
+    # Includes 'mode' to fully describe the context of the r2 value
     metrics = {
         "r2": r2,
         "rmse": rmse,
-        "mean_absolute_error": mae
+        "mean_absolute_error": mae,
+        "model_type": "RandomForestRegressor",
+        "cv_folds": cv,
+        "training_time_seconds": training_time,
+        "mode": mode
     }
 
     logger.info(f"Random Forest training complete. R²: {r2:.4f}, RMSE: {rmse:.4f}, Time: {training_time:.2f}s")
@@ -111,7 +117,11 @@ def train_svm(X: pd.DataFrame, y: pd.Series, cv: int = 5, mode: str = 'individua
     metrics = {
         "r2": r2,
         "rmse": rmse,
-        "mean_absolute_error": mae
+        "mean_absolute_error": mae,
+        "model_type": "SVR",
+        "cv_folds": cv,
+        "training_time_seconds": training_time,
+        "mode": mode
     }
 
     logger.info(f"SVM training complete. R²: {r2:.4f}, RMSE: {rmse:.4f}, Time: {training_time:.2f}s")

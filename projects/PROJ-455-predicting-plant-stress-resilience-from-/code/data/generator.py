@@ -1,295 +1,167 @@
-"""
-Mechanism-Guided Synthetic Data Generator for Plant Stress Resilience.
-
-This module generates synthetic metabolomic datasets with embedded ground-truth
-pathways to simulate plant stress responses. The data is designed to be
-compatible with the project's data models and schemas.
-
-The generator creates:
-1. Pre-stress metabolomic profiles (random baseline)
-2. Stress-specific perturbations based on biological mechanisms
-3. Recovery trajectories (biomass/survival) correlated with specific pathways
-"""
-
 import os
 import random
+import hashlib
 from datetime import datetime
 from typing import List, Dict, Any, Tuple, Optional
-
 import numpy as np
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 
-from data.models import StressType
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Define ground-truth pathways for each stress type
-# These map stress types to the specific metabolites that drive recovery
-STRESS_PATHWAYS: Dict[StressType, List[str]] = {
-    StressType.DROUGHT: [
-        "Proline", "Glycine_Betaine", "Sucrose", "Glucose", "Fructose",
-        "ABA", "Jasmonic_Acid", "Salicylic_Acid"
-    ],
-    StressType.HEAT: [
-        "HSP70", "HSP90", "Glutathione", "Ascorbate", "Trehalose",
-        "Sucrose", "Fructose", "Glucose"
-    ],
-    StressType.COLD: [
-        "Proline", "Soluble_Sugars", "Unsaturated_Fatty_Acids",
-        "Antifreeze_Proteins", "ABA", "Sucrose", "Glucose"
-    ],
-    StressType.SALT: [
-        "Proline", "Glycine_Betaine", "Soluble_Sugars", "K+", "Na+",
-        "ABA", "Jasmonic_Acid"
-    ],
-    StressType.NUTRIENT: [
-        "Amino_Acids", "Organic_Acids", "Phytochelatins", "Flavonoids",
-        "Nitrate", "Ammonium", "Phosphate"
-    ]
-}
-
-# Metabolite list for baseline generation
-ALL_METABOLITES = [
-    "Glucose", "Fructose", "Sucrose", "Trehalose", "Starch",
-    "Proline", "Glycine_Betaine", "Glutathione", "Ascorbate",
-    "ABA", "Jasmonic_Acid", "Salicylic_Acid", "Ethylene",
-    "HSP70", "HSP90", "Antifreeze_Proteins", "Phytochelatins",
-    "Flavonoids", "Organic_Acids", "Amino_Acids",
-    "K+", "Na+", "Ca2+", "Mg2+", "Nitrate", "Ammonium", "Phosphate",
-    "Unsaturated_Fatty_Acids", "Soluble_Sugars"
-]
-
-def _generate_baseline_profile(n_metabolites: int) -> Dict[str, float]:
-    """Generate a random baseline metabolomic profile."""
-    profile = {}
-    for metabolite in ALL_METABOLITES[:n_metabolites]:
-        # Log-normal distribution for metabolite concentrations
-        base_value = np.random.lognormal(mean=2.0, sigma=1.0)
-        profile[metabolite] = round(float(base_value), 4)
-    return profile
-
-def _apply_stress_perturbation(
-    profile: Dict[str, float],
-    stress_type: StressType,
-    intensity: float
-) -> Dict[str, float]:
-    """
-    Apply stress-specific perturbations to the baseline profile.
-
-    This implements the 'mechanism-guided' aspect by selectively
-    increasing/decreasing metabolites associated with the specific stress.
-    """
-    perturbed = profile.copy()
-    pathway = STRESS_PATHWAYS.get(stress_type, [])
-
-    # Stress response: increase protective metabolites
-    for metabolite in pathway:
-        if metabolite in perturbed:
-            # Stronger increase for pathway metabolites
-            factor = 1.0 + (intensity * 0.5)
-            perturbed[metabolite] = round(perturbed[metabolite] * factor, 4)
-
-    # Some general stress response (increase ROS, etc.)
-    general_stress_metabolites = ["Glutathione", "Ascorbate", "ABA"]
-    for metabolite in general_stress_metabolites:
-        if metabolite in perturbed:
-            factor = 1.0 + (intensity * 0.3)
-            perturbed[metabolite] = round(perturbed[metabolite] * factor, 4)
-
-    return perturbed
-
-def _generate_recovery_metric(
-    profile: Dict[str, float],
-    stress_type: StressType,
-    time_days: int
-) -> Dict[str, float]:
-    """
-    Generate recovery metrics based on the metabolomic profile.
-
-    Recovery is correlated with the presence of specific pathway metabolites.
-    This creates a ground-truth relationship for the model to learn.
-    """
-    pathway = STRESS_PATHWAYS.get(stress_type, [])
-
-    # Calculate a 'resilience score' based on pathway metabolite levels
-    pathway_sum = sum(
-        profile.get(m, 0.0) for m in pathway if m in profile
-    )
-    total_sum = sum(profile.values())
-
-    if total_sum == 0:
-        resilience_ratio = 0.0
-    else:
-        resilience_ratio = pathway_sum / total_sum
-
-    # Recovery trajectory: higher resilience ratio -> faster recovery
-    # Biomass recovery (0-1 scale, 1 = full recovery)
-    base_recovery = 0.3 + (resilience_ratio * 0.6)
-    # Add time component: more time = more recovery (capped at 1.0)
-    time_factor = min(1.0, time_days / 14.0)  # 14 days = full recovery
-    biomass_recovery = min(1.0, base_recovery * (0.5 + 0.5 * time_factor))
-
-    # Survival rate (binary-like but continuous for regression)
-    # Higher resilience -> higher survival
-    survival_rate = min(1.0, 0.5 + (resilience_ratio * 0.5))
-
-    return {
-        "biomass_recovery": round(float(biomass_recovery), 4),
-        "survival_rate": round(float(survival_rate), 4),
-        "recovery_days": time_days,
-        "resilience_score": round(float(resilience_ratio), 4)
-    }
-
 def generate_synthetic_data(
     n_samples: int,
     stress_type: str,
-    output_path: Optional[str] = None
+    missing_rate: float = 0.05,
+    seed: int = 42
 ) -> str:
     """
-    Generate synthetic metabolomic data with ground-truth pathways.
-
+    Generate synthetic metabolomic data with ground-truth stress vectors.
+    
     Args:
         n_samples: Number of samples to generate.
-        stress_type: The type of stress (must match StressType enum).
-        output_path: Optional path to save the Parquet file. If None,
-                     generates a default path in data/raw/.
-
+        stress_type: Type of stress ('drought', 'salinity', 'heat', 'cold').
+        missing_rate: Proportion of values to set as NaN (must be < 0.1 for acceptance).
+        seed: Random seed for reproducibility.
+        
     Returns:
-        The path to the generated Parquet file.
-
-    Raises:
-        ValueError: If stress_type is not a valid StressType.
-        FileNotFoundError: If the output directory does not exist.
+        Path to the generated Parquet file.
     """
-    # Validate stress type
-    try:
-        stress = StressType(stress_type)
-    except ValueError:
-        raise ValueError(
-            f"Invalid stress_type: '{stress_type}'. "
-            f"Must be one of: {[s.value for s in StressType]}"
-        )
-
-    logger.info(f"Generating {n_samples} synthetic samples for stress: {stress.value}")
-
-    # Prepare output directory
-    if output_path is None:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_path = f"data/raw/synthetic_{stress.value}_{timestamp}.parquet"
-
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
-
-    # Generate data
-    records = []
+    # Set seeds for reproducibility
+    np.random.seed(seed)
+    random.seed(seed)
+    
+    logger.info(f"Generating {n_samples} synthetic samples for {stress_type} stress (seed={seed})")
+    
+    # Define metabolites relevant to plant stress responses
+    metabolites = [
+        "proline", "glutamate", "glycine_betaine", "ABA", "jasmonic_acid",
+        "salicylic_acid", "glutathione", "ascorbate", "sucrose", "glucose",
+        "fructose", "starch", "malate", "citrate", "alpha_ketoglutarate",
+        "GABA", "serine", "glycine", "threonine", "arginine"
+    ]
+    
+    # Define stress-specific response patterns (ground truth)
+    stress_patterns = {
+        "drought": {"proline": 2.5, "ABA": 3.0, "sucrose": 1.8, "glutathione": 1.5},
+        "salinity": {"proline": 2.2, "glycine_betaine": 2.8, "ABA": 1.5, "glutathione": 1.8},
+        "heat": {"HSP_related_metabolites": 2.0, "ABA": 1.2, "sucrose": 1.5},
+        "cold": {"sucrose": 2.0, "raffinose": 2.5, "ABA": 1.8}
+    }
+    
+    # Base concentrations (arbitrary units)
+    base_concentrations = {m: np.random.uniform(10, 100) for m in metabolites}
+    
+    # Generate samples
+    data = []
     for i in range(n_samples):
-        # Random baseline profile
-        baseline = _generate_baseline_profile(n_metabolites=len(ALL_METABOLITES))
-
-        # Random stress intensity (0.0 to 1.0)
-        intensity = random.uniform(0.3, 1.0)
-
-        # Apply stress perturbation
-        stress_profile = _apply_stress_perturbation(baseline, stress, intensity)
-
-        # Random recovery time (7 to 21 days)
-        recovery_days = random.randint(7, 21)
-
-        # Generate recovery metrics (ground truth)
-        recovery = _generate_recovery_metric(stress_profile, stress, recovery_days)
-
-        # Combine into a single record
-        record = {
-            "sample_id": f"{stress.value}_sample_{i:04d}",
-            "stress_type": stress.value,
-            "stress_intensity": round(intensity, 4),
-            **stress_profile,
-            **recovery,
-            "recovery_index": round(
-                0.6 * recovery["biomass_recovery"] + 0.4 * recovery["survival_rate"],
-                4
-            )
+        sample = {
+            "sample_id": f"sample_{i:04d}",
+            "stress_type": stress_type,
+            "stress_vector_seed": seed,
         }
-        records.append(record)
-
-    # Create DataFrame
-    df = pd.DataFrame(records)
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Write to Parquet
+        
+        # Apply stress-specific modifications
+        pattern = stress_patterns.get(stress_type, {})
+        for met, factor in pattern.items():
+            if met in base_concentrations:
+                sample[met] = base_concentrations[met] * factor
+            else:
+                # For metabolites not in base list, use random base
+                sample[met] = np.random.uniform(10, 100) * factor
+        
+        # Fill in remaining metabolites
+        for met in metabolites:
+            if met not in sample:
+                sample[met] = base_concentrations.get(met, np.random.uniform(10, 100))
+        
+        # Generate recovery metrics (correlated with stress response)
+        # Higher proline/ABA generally correlates with better recovery in drought
+        if stress_type == "drought":
+            recovery_score = (sample.get("proline", 0) * 0.3 + 
+                            sample.get("ABA", 0) * 0.3 + 
+                            sample.get("glutathione", 0) * 0.2 +
+                            np.random.normal(0, 10))
+        elif stress_type == "salinity":
+            recovery_score = (sample.get("glycine_betaine", 0) * 0.4 + 
+                            sample.get("proline", 0) * 0.2 +
+                            np.random.normal(0, 10))
+        else:
+            recovery_score = np.random.normal(50, 15)
+        
+        # Normalize recovery index to 0-1
+        sample["recovery_metric"] = max(0, min(100, recovery_score))
+        sample["recovery_index"] = (sample["recovery_metric"] - 20) / 80  # Rough normalization
+        sample["recovery_index"] = max(0.0, min(1.0, sample["recovery_index"]))
+        
+        data.append(sample)
+    
+    df = pd.DataFrame(data)
+    
+    # Introduce missing values
+    if missing_rate > 0:
+        mask = np.random.random(df.shape) < missing_rate
+        # Don't make sample_id, stress_type, or recovery metrics missing
+        for col in ["sample_id", "stress_type", "stress_vector_seed", "recovery_metric", "recovery_index"]:
+            if col in df.columns:
+                df.loc[:, col] = df[col].where(~mask[df.columns.get_loc(col)], np.nan)
+        
+        # Apply mask to metabolite columns
+        metabolite_cols = [col for col in df.columns if col not in 
+                         ["sample_id", "stress_type", "stress_vector_seed", "recovery_metric", "recovery_index"]]
+        for col in metabolite_cols:
+            df.loc[mask[df.columns.get_loc(col)], col] = np.nan
+    
+    # Save to Parquet
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = "data/raw"
+    os.makedirs(output_dir, exist_ok=True)
+    output_path = os.path.join(output_dir, f"synthetic_{stress_type}_{seed}_{timestamp}.parquet")
+    
     df.to_parquet(output_path, index=False)
-    logger.info(f"Successfully wrote {len(df)} samples to {output_path}")
-
+    logger.info(f"Synthetic data saved to {output_path}")
+    
     return output_path
 
 def generate_lodo_synthetic_datasets(
     n_datasets: int,
-    stress_types: List[str],
-    samples_per_dataset: int = 100,
-    base_path: str = "data/raw/lodo_synthetic"
+    stress_types: List[str]
 ) -> List[str]:
     """
     Generate multiple distinct synthetic datasets for LODO validation.
-
-    Each dataset will have:
-    - Different noise profiles
-    - Different stress vectors
-    - Varying sample sizes
-
+    
+    Each dataset has a unique stress_vector_seed to ensure independence.
+    
     Args:
         n_datasets: Number of datasets to generate.
         stress_types: List of stress types to include.
-        samples_per_dataset: Target samples per dataset.
-        base_path: Base directory for output files.
-
+        
     Returns:
         List of paths to generated Parquet files.
     """
-    os.makedirs(base_path, exist_ok=True)
-    generated_files = []
-
+    logger.info(f"Generating {n_datasets} LODO synthetic datasets")
+    
+    output_paths = []
+    base_seed = 42
+    
     for i in range(n_datasets):
-        # Select a random stress type for this dataset
-        stress_type = random.choice(stress_types)
-        # Vary sample size slightly
-        n_samples = samples_per_dataset + random.randint(-20, 20)
-        n_samples = max(50, n_samples)  # Ensure minimum sample size
-
-        output_path = os.path.join(
-            base_path,
-            f"dataset_{i+1}_{stress_type}_{n_samples}.parquet"
-        )
-
-        generate_synthetic_data(
+        # Ensure unique seed for each dataset
+        dataset_seed = base_seed + i * 1000
+        stress_type = stress_types[i % len(stress_types)]
+        
+        # Generate dataset with varying sample size
+        n_samples = np.random.randint(150, 300)
+        missing_rate = np.random.uniform(0.02, 0.08)
+        
+        output_path = generate_synthetic_data(
             n_samples=n_samples,
             stress_type=stress_type,
-            output_path=output_path
+            missing_rate=missing_rate,
+            seed=dataset_seed
         )
-        generated_files.append(output_path)
-        logger.info(f"Generated dataset {i+1}/{n_datasets}: {output_path}")
-
-    return generated_files
-
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Generate synthetic plant stress data")
-    parser.add_argument("--n-samples", type=int, default=200, help="Number of samples")
-    parser.add_argument("--stress-type", type=str, default="DROUGHT",
-                        help="Stress type (DROUGHT, HEAT, COLD, SALT, NUTRIENT)")
-    parser.add_argument("--output", type=str, default=None, help="Output file path")
-
-    args = parser.parse_args()
-
-    output_file = generate_synthetic_data(
-        n_samples=args.n_samples,
-        stress_type=args.stress_type,
-        output_path=args.output
-    )
-    print(f"Generated: {output_file}")
+        output_paths.append(output_path)
+        
+        logger.info(f"Generated dataset {i+1}/{n_datasets}: {stress_type}, seed={dataset_seed}")
+    
+    return output_paths

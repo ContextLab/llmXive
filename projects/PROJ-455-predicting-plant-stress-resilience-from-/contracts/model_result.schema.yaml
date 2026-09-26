@@ -3,53 +3,35 @@ title: ModelResult
 description: Schema for model training results and metrics.
 type: object
 required:
+  - r2
+  - rmse
+  - mean_absolute_error
   - model_type
   - cv_folds
-  - metrics
-  - top_features
   - training_time_seconds
 properties:
+  r2:
+    type: number
+    description: Coefficient of determination (R²) or Pearson correlation depending on mode.
+  rmse:
+    type: number
+    description: Root Mean Squared Error.
+  mean_absolute_error:
+    type: number
+    description: Mean Absolute Error.
   model_type:
     type: string
-    description: Type of model trained (e.g., 'RandomForest', 'SVM').
+    description: Name of the model class used (e.g., RandomForestRegressor).
   cv_folds:
     type: integer
     description: Number of cross-validation folds used.
-  metrics:
-    type: object
-    description: Dictionary of evaluation metrics.
-    required:
-      - r2
-      - rmse
-      - mean_absolute_error
-    properties:
-      r2:
-        type: number
-        description: R-squared value or Pearson correlation coefficient.
-      rmse:
-        type: number
-        description: Root Mean Squared Error.
-      mean_absolute_error:
-        type: number
-        description: Mean Absolute Error.
-  top_features:
-    type: array
-    description: List of top N features with importance scores.
-    items:
-      type: object
-      required:
-        - feature_name
-        - importance
-      properties:
-        feature_name:
-          type: string
-        importance:
-          type: number
   training_time_seconds:
     type: number
     description: Total time taken for training in seconds.
-  feature_names:
-    type: array
-    description: List of all feature names used in the model.
-    items:
-      type: string
+  mode:
+    type: string
+    description: Metric calculation mode ('individual' or 'population').
+    enum:
+      - individual
+      - population
+additionalProperties: false

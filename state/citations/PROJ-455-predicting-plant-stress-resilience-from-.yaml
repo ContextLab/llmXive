@@ -119,3 +119,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/lodosNova/datasets
   verified_at: '2026-07-04T10:09:17.812563Z'
+- artifact_hash: 61004caedcb24b43f942a0a8e79929b7493bd615c4b75ca31370aae45fd9dbae
+  artifact_path: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: ko00001
+  kind: url
+  value: https://rest.kegg.jp/link/compound/ko00001`
+  verification_status: pending
+  verified_against_url: https://rest.kegg.jp/link/compound/ko00001
+  verified_at: '2026-09-26T00:11:51.432780Z'
