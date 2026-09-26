@@ -43,7 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create directory structure: `mkdir -p src/ src/environment/ src/agent/ src/simulation/ src/analysis/ tests/ data/raw/synthetic_graphs/ data/processed/`
+- [ ] T001a Create directory structure: `mkdir -p src/ src/environment/ src/agent/ src/simulation/ src/analysis/ tests/ data/raw/synthetic_graphs/ data/processed/`
+- [ ] T001b Create empty `__init__.py` files in all new directories to ensure valid Python packages.
 - [X] T002 Create `requirements.txt` with pinned versions: `networkx==3.2.1`, `numpy==1.26.4`, `pandas==2.2.1`, `scipy==1.13.0`, `pytest==8.1.1`
 - [X] T003 [P] Create `ruff.toml` and `pyproject.toml` for linting (ruff) and formatting (black)
 
@@ -56,7 +57,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Create `src/config.py` with global constants: `SEED=42`, `TIER_NODE_RANGES` (dict), `THRESHOLD_STEPS=11`. **MUST** also implement seed initialization: Call `np.random.seed(SEED)` and `random.seed(SEED)` at module load to ensure reproducibility (FR-007, Const I). **Do NOT hardcode EPISODES_PER_SETTING here.**
-- [ ] T004b [P] Implement `verify_feasibility` function in `src/config.py`: Calculate estimated runtime using deterministic constants: `100 nodes` (Tier 3 max), `200 steps/episode`, and `N=1000` episodes. Formula: `estimated_time = (100 * 200 * 1000 * 11_thresholds * 3_tiers) * constant_overhead`. **MUST raise RuntimeError** if estimated time > 6 hours. **MUST NOT** return a reduced episode count. This enforces FR-003 (N=1000) and SC-005 (Feasibility) by failing if constraints are violated.
+- [ ] T004b [P] Implement `verify_feasibility` function in `src/config.py`: Calculate estimated runtime using deterministic constants: `100 nodes` (Tier 3 max), `200 steps/episode`, `constant_overhead = 0.0001` seconds. Formula: `estimated_time = (sample_size * 200 * N * 11_thresholds * 3_tiers) * constant_overhead`. **MUST** start with `N=1000`. If `estimated_time > 6 hours`, **MUST** reduce `N` iteratively (e.g., by 100) until `estimated_time <= 6 hours` and return the adjusted `N`. **MUST NOT** raise `RuntimeError` to stop the project; the goal is adaptive feasibility. (FR-003, SC-005).
 - [ ] T005 [P] Create `src/utils/metrics.py` with functions: `calculate_success_rate(trajectory, ground_truth)`, `calculate_action_entropy(actions)`, `calculate_checksum(file_path)`
 - [ ] T006 [P] Create `src/simulation/runner.py` skeleton with `run_episode` stub and `process_sequential` loop structure
 - [ ] T007 Create `src/environment/state_graph.py` defining `StateGraph` class with attributes: `nodes`, `edges`, `start`, `goal`, `tier`, `is_valid()`
@@ -77,16 +78,16 @@
 
 ### Implementation for User Story 1
 
-- [ ] T011a [P] [US1] Implement `generate_tier_1_nodes` in `src/environment/graph_generator.py`: Create a linear chain of **5 to 10 nodes** (randomly selected within range) with no branching.
+- [ ] T011a [P] [US1] Implement `generate_tier_1_nodes` in `src/environment/graph_generator.py`: Create a linear chain of **multiple nodes** (randomly selected within range using **uniform distribution** and **seeded by global SEED**).
 - [ ] T011b [P] [US1] Implement `generate_tier_1_edges` in `src/environment/graph_generator.py`: Create deterministic edges connecting the chain. **MUST** set transition probability = 1.0.
 - [ ] T011c [US1] Implement `generate_tier_1` wrapper in `src/environment/graph_generator.py`: Combine T011a and T011b. **MUST** call T014 (Validator) in a loop (max_retries=100) until a valid graph is produced. Raise `RuntimeError` if validation fails 100 times. **Depends on**: T011a, T011b. (FR-001).
-- [ ] T012a [P] [US1] Implement `generate_tier_2_nodes` in `src/environment/graph_generator.py`: Create **20 to 50 nodes** (randomly selected within range) with branching structure.
-- [ ] T012b [P] [US1] Implement `generate_tier_2_edges` in `src/environment/graph_generator.py`: Create edges with **stochastic transition probabilities** (p=0.8). **MUST** ensure at least 2 branching paths exist.
+- [ ] T012a [P] [US1] Implement `generate_tier_2_nodes` in `src/environment/graph_generator.py`: Create **a range of nodes** (randomly selected within range) with branching structure.
+- [ ] T012b [P] [US1] Implement `generate_tier_2_edges` in `src/environment/graph_generator.py`: Create edges with **stochastic transition probabilities** (p=0.8). **MUST** ensure at least 2 branching paths exist by enforcing **minimum degree constraints** during **random topology generation**.
 - [ ] T012c [US1] Implement `generate_tier_2` wrapper in `src/environment/graph_generator.py`: Combine T012a and T012b. **MUST** call T014 (Validator) in a loop (max_retries=100) until a valid graph is produced. Raise `RuntimeError` if validation fails 100 times. **Depends on**: T012a, T012b. (FR-001).
-- [ ] T013a [P] [US1] Implement `generate_tier_3_nodes` in `src/environment/graph_generator.py`: Create **100+ nodes** (fixed 100 for determinism in testing, scalable in logic) with sparse structure.
-- [ ] T013b [P] [US1] Implement `generate_tier_3_edges` in `src/environment/graph_generator.py`: Create edges with **high-entropy transitions** and **sparse rewards** (1 reward per ~10 nodes).
+- [ ] T013a [P] [US1] Implement `generate_tier_3_nodes` in `src/environment/graph_generator.py`: Create **a scalable set of nodes** (fixed count for determinism in testing, scalable in logic) with sparse structure.
+- [ ] T013b [P] [US1] Implement `generate_tier_3_edges` in `src/environment/graph_generator.py`: Create edges with **high-entropy transitions** and **sparse rewards** (a low density of rewards relative to node count, placed via **uniform random selection**).
 - [ ] T013c [US1] Implement `generate_tier_3` wrapper in `src/environment/graph_generator.py`: Combine T013a and T013b. **MUST** call T014 (Validator) in a loop (max_retries=100) until a valid graph is produced. Raise `RuntimeError` if validation fails 100 times. **Depends on**: T013a, T013b. (FR-001).
-- [ ] T015 [US1] Implement `verify_deterministic_regeneration` test: Create `tests/unit/test_graph_generator.py::test_deterministic_regeneration` which runs the generator for each tier with a fixed seed, computes checksums, regenerates, recomputes checksums, and asserts equality to satisfy FR-001 and Const I.
+- [X] T015 [US1] Implement `verify_deterministic_regeneration` test: Create `tests/unit/test_graph_generator.py::test_deterministic_regeneration` which runs the generator for each tier with a fixed seed, computes checksums, regenerates, recomputes checksums, and asserts equality to satisfy FR-001 and Const I.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,6 +107,7 @@
 - [ ] T019 [P] [US2] Implement `inject_skill_signal` method in `src/agent/opid_router.py` to simulate a log-probability shift (e.g., add a constant advantage to the goal-directed action).
 - [ ] T020 [P] [US2] Implement logic to suppress skill signals when `should_inject` returns False, ensuring the policy acts as the baseline.
 - [ ] T021 [US2] Implement logging in `src/simulation/runner.py` to record `log_prob_shift` and `action_selected` for every step where injection occurs or is suppressed. **MUST** store these shifts in a temporary buffer: `list[dict]` where each dict has keys `state` (int), `action` (int), `log_prob_shift` (float), `injected` (bool). **Depends on**: T017 (Router logic).
+- [ ] T046 [P] [US2] Implement `verify_router_policy_interaction` in `tests/unit/test_router_policy.py`: Create a test that runs the `OPIDRouter` (T017) with the `StochasticSoftmaxPolicy` (T016) at varying thresholds (0.0, 0.5, 1.0) and asserts that **action entropy variance decreases** as injection density increases. **MUST** explicitly depend on T016 and T017. (Plan: Technical Context).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -121,21 +123,22 @@
 
 - [ ] T022 [P] [US3] Implement `ExperimentRunner` class in `src/simulation/runner.py` to orchestrate the full sweep.
 - [ ] T023 [US3] Implement sweep logic in `ExperimentRunner.run_sweep`: Iterate thresholds across the full range using `np.arange(0.0, 1.01, 0.1)` to explicitly satisfy FR-006 (intervals of 0.1). **MUST** enforce the loop over thresholds before the episode loop.
-- [ ] T024 [US3] Implement episode loop in `ExperimentRunner.run_sweep`: Execute a loop `for _ in range(N)` for each (Tier, Threshold) combination. **MUST** use `N=1000` (enforced by T004b). **MUST** run the FULL set of episodes (no splitting) to ensure statistical power and Single Source of Truth. **Depends on**: T004b (Feasibility Check).
-- [ ] T024b [US3] [P] Implement `enforce_episode_minimum` logic in `src/simulation/runner.py`: Verify that N=1000 is feasible before starting. **MUST** raise `RuntimeError` if feasibility check fails, preventing any reduction in episodes. **Depends on**: T004b.
+- [ ] T024 [US3] Implement episode loop in `ExperimentRunner.run_sweep`: Execute a loop `for _ in range(N)` for each (Tier, Threshold) combination. **MUST** use `N` as returned by `verify_feasibility` (T004b). **MUST** run the FULL set of episodes (no splitting) to ensure statistical power and Single Source of Truth. **Depends on**: T004b (Feasibility Check).
 - [ ] T025 [US3] Implement sequential processing logic **in `src/simulation/runner.py`**: Ensure episodes are processed one-by-one and intermediate trajectory data is discarded immediately to keep memory < 7GB.
 - [ ] T026 [US3] Implement "success rate" calculation: % of episodes where the agent traverses the ground-truth path (using `calculate_success_rate` from T005).
 - [ ] T031 [US3] Implement data logging: Write `episode_results.csv` and `summary_stats.csv` (including success rate, policy rigidity, inflection point, and distillation cost-benefit ratio) to `data/processed/`. **MUST** include all columns: `tier`, `threshold`, `success`, `entropy`, `log_prob_shift`.
-- [ ] T030a [US3] Implement `aggregate_log_prob_shift` in `src/analysis/aggregation.py`: Read the temporary buffer from T021 (or the raw CSV if buffered there) and calculate `mean_log_prob_shift` per (tier, threshold). Write this to `data/processed/log_prob_shifts.csv` or append to `episode_results.csv`. **MUST** ensure this happens before T030. **Depends on**: T031.
-- [ ] T027b [US3] Implement `run_success_rate_regression` in `src/analysis/stats.py`: Perform a **quadratic regression** of **success rate vs threshold** (NOT entropy). **MUST** use `numpy.polyfit` with degree=2. Output coefficients (a, b, c) to `data/processed/regression_results.json` with keys `a`, `b`, `c` (floats, 6 decimal precision), `p_value` (float), and `is_inverted_u` (boolean). **MUST assert** that `p_value < 0.05 AND a < 0`. If not, raise `AssertionError: "Hypothesis failed: No inverted U-curve detected"`. **Depends on**: T031.
-- [ ] T027c [US3] Implement `run_entropy_regression` in `src/analysis/stats.py`: Perform a **linear regression** of **action entropy vs threshold**. Output coefficients to `data/processed/entropy_regression.json`. **MUST** run before T027d. **Depends on**: T031.
-- [ ] T027d [US3] Implement `calculate_residuals` in `src/analysis/stats.py`: Load `entropy_regression.json` (from T027c) and `episode_results.csv`. Calculate **residuals = observed_entropy - predicted_entropy** (using linear coefficients). Output residuals to `data/processed/residuals.csv`. **Depends on**: T027c.
+- [ ] T030a [US3] Implement `aggregate_log_prob_shift` in `src/analysis/aggregation.py`: Read the **CSV file from T031** (not buffer) and calculate `mean_log_prob_shift` per (tier, threshold). Write this to `data/processed/log_prob_shifts.csv`. **MUST** wait for T031 to complete. **Depends on**: T031.
+- [ ] T027b [US3] Implement `run_success_rate_regression` in `src/analysis/stats.py`: Perform a **quadratic regression** of **success rate vs threshold** (NOT entropy). **MUST** use `numpy.polyfit` with degree=2 and `scipy.stats` for p-value calculation via t-test. Output coefficients (a, b, c) to `data/processed/regression_results.json` with keys `a`, `b`, `c` (floats, high precision), `p_value` (float), and `is_inverted_u` (boolean). **MUST assert** that `p_value < 0.05 AND a < 0`. If not, raise `AssertionError: "Hypothesis failed: No inverted U-curve detected"`. **Depends on**: T031.
+- [ ] T027c [US3] Implement `run_entropy_regression` in `src/analysis/stats.py`: Perform a **quadratic regression** of **action entropy vs threshold** to account for the **non-monotonic deterministic effect**. **MUST** use `numpy.polyfit` with degree=2. Output coefficients to `data/processed/entropy_regression.json`. **MUST** run **sequentially** (NOT [P]) before T027d. **Depends on**: T031.
+- [ ] T027d [US3] Implement `calculate_residuals` in `src/analysis/stats.py`: Load `entropy_regression.json` (from T027c) and `episode_results.csv`. Calculate **residuals = observed_entropy - predicted_entropy** (using quadratic coefficients). Output residuals to `data/processed/residuals.csv`. **Depends on**: T027c.
 - [ ] T027e [US3] Implement "policy rigidity" calculation: Calculate **var(residuals)** from `data/processed/residuals.csv`. Output to `data/processed/rigidity_metrics.json`. **Depends on**: T027d.
 - [ ] T027 [US3] Implement `calculate_policy_rigidity` in `src/analysis/aggregation.py`: Combine results from T027b (for inflection context) and T027e (residuals). **MUST** explicitly depend on T027b and T027c. **Depends on**: T027b, T027c.
 - [ ] T028 [US3] [P] Implement `run_interaction_anova` in `src/analysis/stats.py`: Perform a **Two-Way ANOVA** (or equivalent interaction test) to measure the interaction between routing threshold and environment complexity (Tier) to satisfy SC-004. Output interaction p-value to `data/processed/interaction_results.json`. **Depends on**: T031.
 - [ ] T029 [US3] Implement inflection point detection: Derive the inflection point **mathematically from the quadratic regression coefficients** (vertex formula: -b/a) from `data/processed/regression_results.json` (T027b) and record it. **Depends on**: T027b.
 - [ ] T042 [US3] [P] Implement `calculate_baseline_success_rate` in `src/analysis/aggregation.py`: Filter the full `episode_results.csv` for `threshold == 1.0`, calculate the success rate, and write the float value to `data/processed/baseline_success_rate.json`. **MUST** ensure this file is written for T030 to read. **Depends on**: T031.
-- [ ] T030 [US3] Implement "distillation cost-benefit ratio" calculation: **MUST** load the FULL `episode_results.csv` (no held-out split). Compute the ratio: `mean_log_prob_shift / (success_rate_full - baseline_success_rate)`. **MUST** read `baseline_success_rate` from `data/processed/baseline_success_rate.json` (output of T042). **MUST** detect the inflection point: Identify the first threshold T where `success_rate[T] < success_rate[T-0.1]` OR the cost-benefit ratio becomes negative. If both occur, report the earlier threshold. Output to `data/processed/cost_benefit_ratio.json`. **Note**: The spec mentions "held-out validation set", but the Plan and Constitution require Single Source of Truth (full dataset). This task uses the full dataset as mandated by the Plan. A comment is added to the code to flag the spec inconsistency for future amendment. **Depends on**: T031, T042, T030a.
+- [ ] T044 [US3] [P] Implement `create_held_out_split` in `src/analysis/aggregation.py`: Read `episode_results.csv` and split it into `train.csv` ([deferred]) and `val.csv` ([deferred]) using a fixed seed. **MUST** ensure this is done before T030. **Depends on**: T031.
+- [ ] T045 [US3] [P] Implement `identify_inflection_point` in `src/analysis/stats.py`: Analyze `val.csv` (from T044) to identify the first threshold T where `success_rate[T] < success_rate[T-0.1]` OR the cost-benefit ratio becomes negative. Output the specific threshold value to `data/processed/inflection_point.json`. **Depends on**: T044.
+- [ ] T030 [US3] Implement "distillation cost-benefit ratio" calculation: **MUST** load `val.csv` (from T044). Compute the ratio: `mean_log_prob_shift / (success_rate_val - baseline_success_rate)`. **MUST** read `baseline_success_rate` from `data/processed/baseline_success_rate.json` (output of T042). **MUST** handle division by zero or negative denominator by returning **NaN** and logging a warning. **MUST** identify the inflection point by reading the result from **T045**. Output to `data/processed/cost_benefit_ratio.json`. **Depends on**: T031, T042, T030a, T044, T045.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -145,9 +148,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T032 [P] Documentation updates: Update `README.md` with CLI usage instructions and `docs/research/analysis-method.md` with detailed statistical definitions for rigidity and cost-benefit ratio.
-- [ ] T033 Code cleanup and refactoring: Refactor `src/analysis/aggregation.py` to use pandas groupby for memory efficiency and remove duplicate calculation functions.
-- [ ] T035 [P] Add unit tests: Add `tests/unit/test_opid_router.py` for Bernoulli injection logic and `tests/unit/test_policy.py` for entropy variance calculation.
+- [ ] T032a [P] Documentation updates: Update `README.md` with CLI usage instructions.
+- [ ] T032b [P] Documentation updates: Update `docs/research/analysis-method.md` with detailed statistical definitions for rigidity and cost-benefit ratio.
+- [ ] T033 Code cleanup and refactoring: Refactor `src/analysis/aggregation.py` to **replace manual loops with pandas groupby** for memory efficiency and remove duplicate calculation functions.
+- [ ] T035 [P] Add unit tests: Add `tests/unit/test_opid_router.py` for Bernoulli injection logic (`test_inject_logic`), `tests/unit/test_policy.py` for entropy variance calculation (`test_entropy_variance`), and `tests/unit/test_router_policy.py` for interaction (`test_router_policy_interaction`).
 - [ ] T036 Run `quickstart.md` validation
 - [ ] T037 Verify all edge cases: Create `tests/unit/test_edge_cases.py` with tests for: deterministic policy (variance=0), zero injection baseline, and unreachable goal handling.
 - [ ] T038 [P] Add contract tests for graph generation tiers to verify node counts and path properties against spec requirements
@@ -246,28 +250,25 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All logic must run on CPU-only hardware; no GPU/CUDA required.
 - **Critical Constraint**: Data must be processed sequentially to stay within available RAM limits.
-- **Critical Constraint**: The experiment must run the FULL set of episodes (minimum 1000 per setting) for the primary metric to satisfy FR-003. No data splitting for the primary metric.
-- **Critical Constraint**: SC-002 requires the cost-benefit ratio to be derived from the FULL dataset (Single Source of Truth).
+- **Critical Constraint**: The experiment must run the FULL set of episodes (minimum 1000 per setting, or adaptive N from T004b) for the primary metric to satisfy FR-003.
+- **Critical Constraint**: SC-002 requires the cost-benefit ratio to be derived from a **held-out validation set** (T044).
 - **Critical Constraint**: SC-001 requires the quadratic regression to be performed on SUCCESS RATE vs threshold.
-- **Critical Constraint**: FR-004 requires policy rigidity to be calculated via LINEAR regression of entropy vs threshold.
-- **Critical Constraint**: T027b (Success Rate Regression) and T027c (Entropy Regression) must run before T027d (Residuals).
+- **Critical Constraint**: FR-004 requires policy rigidity to be calculated via **quadratic regression** of entropy vs threshold (T027c) to capture non-monotonic effects.
+- **Critical Constraint**: T027b (Success Rate Regression) and T027c (Entropy Regression) must run **sequentially** (T027c is NOT [P]) before T027d (Residuals).
 - **Critical Constraint**: T023 must explicitly use `np.arange(0.0, 1.01, 0.1)` to satisfy FR-006.
-- **Critical Constraint**: T004b must implement a strict feasibility check that raises RuntimeError if time > 6h.
-- **Critical Constraint**: T027c must perform LINEAR regression, not quadratic, to isolate the threshold effect correctly.
-- **Critical Constraint**: T030 must use the full dataset, not a held-out set.
-- **Critical Constraint**: T041 ensures the "fail loud" principle is met for graph generation.
-- **Critical Constraint**: T042 ensures the baseline for cost-benefit calculation is robust.
-- **Critical Constraint**: T043 reinforces the memory constraint by mandating incremental statistics updates.
-- **Critical Constraint**: T027b must assert the inverted U-curve condition (p < 0.05 AND a < 0).
-- **Critical Constraint**: T027c, T027d, T027e split the rigidity calculation for granularity.
-- **Critical Constraint**: T042 depends on T031 to ensure data exists.
+- **Critical Constraint**: T004b must implement an **adaptive N** mechanism (reduce N if time > 6h) rather than a hard stop.
+- **Critical Constraint**: T027c must perform **quadratic regression**, not linear, to isolate the non-monotonic deterministic effect.
+- **Critical Constraint**: T030 must use the **held-out set** (T044) and handle division by zero by returning **NaN**.
+- **Critical Constraint**: T045 is the single source of truth for inflection point detection; T030 must depend on T045.
+- **Critical Constraint**: T046 verifies the router-policy interaction.
+- **Critical Constraint**: T044 must create the held-out split before T030.
 - **Critical Constraint**: T024 depends on T004b to ensure feasibility before running.
 - **Critical Constraint**: T014 is not [P] because it depends on T007.
 - **Critical Constraint**: T027 depends on both T027b and T027c.
 - **Critical Constraint**: T030 must read baseline from T042's JSON output.
 - **Critical Constraint**: T030a must aggregate log_prob_shift before T030.
 - **Critical Constraint**: T011c, T012c, T013c must depend on their respective sub-tasks.
-- **Critical Constraint**: T024b must raise an error if N=1000 is not feasible.
-- **Critical Constraint**: T004b must define worst-case parameters (100 nodes, 200 steps).
+- **Critical Constraint**: T004b must define worst-case parameters (100 nodes, 200 steps) and `constant_overhead = 0.0001` seconds.
 - **Critical Constraint**: T027b must define output schema (a, b, c, p_value, is_inverted_u).
 - **Critical Constraint**: T021 must define buffer schema (state, action, log_prob_shift, injected).
+- **Critical Constraint**: T027c must NOT be parallelized ([P] removed) to ensure T027d waits for it.

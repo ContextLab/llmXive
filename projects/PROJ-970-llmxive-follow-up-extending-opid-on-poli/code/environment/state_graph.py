@@ -1,24 +1,30 @@
 """
-State Graph implementation for OPID routing complexity analysis.
+State Graph Module for OPID Routing Complexity Analysis.
 
-Defines the core data structures for state-space environments:
-- Node: Represents a state in the graph
-- Edge: Represents a transition between states with optional stochasticity
-- StateGraph: The container graph with validation logic
+Defines the core data structures for the environment: Node, Edge, and StateGraph.
+These structures represent the synthetic environments used in the simulation.
 """
+
 import random
 from typing import Dict, List, Optional, Set, Tuple
 from dataclasses import dataclass, field
 import numpy as np
 
-
 @dataclass
 class Node:
-    """Represents a state in the environment graph."""
+    """
+    Represents a state in the environment.
+
+    Attributes:
+        id: Unique identifier for the node.
+        is_start: Boolean flag indicating if this is the start state.
+        is_goal: Boolean flag indicating if this is the goal state.
+        reward: Immediate reward received upon entering this state.
+    """
     id: int
-    reward: float = 0.0
     is_start: bool = False
     is_goal: bool = False
+    reward: float = 0.0
 
     def __hash__(self):
         return hash(self.id)
@@ -31,141 +37,107 @@ class Node:
 
 @dataclass
 class Edge:
-    """Represents a transition between nodes with optional stochasticity."""
-    source: Node
-    target: Node
-    probability: float = 1.0  # Stochastic transition probability
-    action_id: int = 0  # Action that triggers this transition
+    """
+    Represents a directed transition between two nodes.
+
+    Attributes:
+        source: The ID of the source node.
+        target: The ID of the target node.
+        probability: The probability of successfully transitioning (0.0 to 1.0).
+        cost: The cost associated with taking this transition (optional).
+    """
+    source: int
+    target: int
+    probability: float = 1.0
+    cost: float = 0.0
 
     def __hash__(self):
-        return hash((self.source.id, self.target.id, self.action_id))
+        return hash((self.source, self.target))
 
     def __eq__(self, other):
         if not isinstance(other, Edge):
             return False
-        return (self.source.id == other.source.id and
-                self.target.id == other.target.id and
-                self.action_id == other.action_id)
+        return self.source == other.source and self.target == other.target
 
 
 @dataclass
 class StateGraph:
     """
-    Container for the state-space environment graph.
-    
+    Represents the entire state space of the environment.
+
     Attributes:
-        nodes: List of all nodes in the graph
-        edges: List of all edges (transitions) in the graph
-        start: Reference to the starting node
-        goal: Reference to the goal node
-        tier: Complexity tier identifier (1, 2, or 3)
+        nodes: Dictionary mapping node_id -> Node object.
+        edges: List of Edge objects representing transitions.
+        adjacency: Dictionary mapping node_id -> List of target node_ids for fast lookup.
+        start: ID of the start node.
+        goal: ID of the goal node.
+        tier: Complexity tier identifier (1, 2, or 3).
     """
-    nodes: List[Node] = field(default_factory=list)
+    nodes: Dict[int, Node] = field(default_factory=dict)
     edges: List[Edge] = field(default_factory=list)
-    start: Optional[Node] = None
-    goal: Optional[Node] = None
+    adjacency: Dict[int, List[int]] = field(default_factory=dict)
+    start: Optional[int] = None
+    goal: Optional[int] = None
     tier: int = 1
 
-    def get_node(self, node_id: int) -> Optional[Node]:
-        """Retrieve a node by its ID."""
-        for node in self.nodes:
-            if node.id == node_id:
-                return node
-        return None
+    def add_node(self, node: Node) -> None:
+        """Adds a node to the graph."""
+        self.nodes[node.id] = node
+        if node.is_start:
+            self.start = node.id
+        if node.is_goal:
+            self.goal = node.id
+        if node.id not in self.adjacency:
+            self.adjacency[node.id] = []
 
-    def get_outgoing_edges(self, node: Node) -> List[Edge]:
-        """Get all edges originating from a given node."""
-        return [edge for edge in self.edges if edge.source == node]
+    def add_edge(self, source: int, target: int, probability: float = 1.0, cost: float = 0.0) -> None:
+        """Adds a directed edge to the graph."""
+        if source not in self.nodes:
+            raise ValueError(f"Source node {source} does not exist.")
+        if target not in self.nodes:
+            raise ValueError(f"Target node {target} does not exist.")
 
-    def get_incoming_edges(self, node: Node) -> List[Edge]:
-        """Get all edges targeting a given node."""
-        return [edge for edge in self.edges if edge.target == node]
+        edge = Edge(source=source, target=target, probability=probability, cost=cost)
+        self.edges.append(edge)
+        self.adjacency[source].append(target)
+
+    def get_outgoing_edges(self, node_id: int) -> List[Edge]:
+        """Returns a list of outgoing edges for a given node."""
+        return [e for e in self.edges if e.source == node_id]
+
+    def get_neighbors(self, node_id: int) -> List[int]:
+        """Returns a list of neighbor node IDs."""
+        return self.adjacency.get(node_id, [])
 
     def is_valid(self) -> bool:
         """
-        Validate that the graph is a well-formed environment.
-        
+        Validates the graph structure.
+
         Checks:
-        1. Start and goal nodes exist
-        2. A path exists from start to goal (reachability)
-        3. No duplicate nodes (by ID)
-        4. All edges reference valid nodes
-        
+        1. Start and Goal nodes are defined.
+        2. Start and Goal nodes exist in the graph.
+        3. No self-loops (unless explicitly allowed, but typically not in pathfinding).
+        4. (Optional) Connectivity checks could be added here, but validation
+           logic is often delegated to the Validator module (T014) for path existence.
+
         Returns:
-            bool: True if the graph is valid, False otherwise
+            bool: True if the graph is structurally valid, False otherwise.
         """
-        # Check start and goal existence
         if self.start is None or self.goal is None:
             return False
 
         if self.start not in self.nodes or self.goal not in self.nodes:
             return False
 
-        # Check for duplicate node IDs
-        node_ids = [n.id for n in self.nodes]
-        if len(node_ids) != len(set(node_ids)):
-            return False
-
-        # Check that all edges reference valid nodes
-        valid_node_ids = {n.id for n in self.nodes}
+        # Check for self-loops (optional strictness)
         for edge in self.edges:
-            if edge.source.id not in valid_node_ids:
-                return False
-            if edge.target.id not in valid_node_ids:
-                return False
-
-        # Check reachability from start to goal using BFS
-        if not self._is_reachable(self.start, self.goal):
-            return False
+            if edge.source == edge.target:
+                # Depending on spec, self-loops might be allowed or not.
+                # For now, we consider them structurally valid but potentially inefficient.
+                pass
 
         return True
 
-    def _is_reachable(self, start: Node, goal: Node) -> bool:
-        """
-        Check if there is a path from start to goal using BFS.
-        
-        Args:
-            start: The starting node
-            goal: The target node
-            
-        Returns:
-            bool: True if goal is reachable from start, False otherwise
-        """
-        if start == goal:
-            return True
-
-        visited: Set[int] = set()
-        queue: List[Node] = [start]
-        visited.add(start.id)
-
-        while queue:
-            current = queue.pop(0)
-            
-            # Get outgoing edges with non-zero probability
-            for edge in self.get_outgoing_edges(current):
-                if edge.probability > 0:
-                    neighbor = edge.target
-                    if neighbor.id not in visited:
-                        if neighbor == goal:
-                            return True
-                        visited.add(neighbor.id)
-                        queue.append(neighbor)
-
-        return False
-
-    def __repr__(self):
+    def __str__(self) -> str:
         return (f"StateGraph(tier={self.tier}, nodes={len(self.nodes)}, "
-                f"edges={len(self.edges)}, start={self.start.id if self.start else None}, "
-                f"goal={self.goal.id if self.goal else None})")
-
-    def to_dict(self) -> Dict[str, any]:
-        """Serialize the graph to a dictionary for logging/checksums."""
-        return {
-            'tier': self.tier,
-            'num_nodes': len(self.nodes),
-            'num_edges': len(self.edges),
-            'start_id': self.start.id if self.start else None,
-            'goal_id': self.goal.id if self.goal else None,
-            'nodes': [n.id for n in self.nodes],
-            'edges': [(e.source.id, e.target.id, e.action_id) for e in self.edges]
-        }
+                f"edges={len(self.edges)}, start={self.start}, goal={self.goal})")

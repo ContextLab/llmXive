@@ -1,18 +1,10 @@
-T012:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or documentation for a `generate_tier_2` method is present; the\
-    \ required implementation that creates a 20\u201150 node stochastic graph with\
-    \ internal retry logic (max_retries=100) and validates via `graph.is_valid()`\
-    \ is missing. The evidence does not contain any artifact that could be inspected\
-    \ to confirm the method exists or meets the specifications."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, test, or documentation for a `generate_tier_3` method is present; the\
-    \ repository provides no implementation, graph\u2011generation logic, retry loop,\
-    \ or validation checks required by the task. Consequently the required artifact\
-    \ is missing."
+  r: No directory listings or other proof were provided showing that the required
+    folders (`src/`, `src/environment/`, `src/agent/`, `src/simulation/`, `src/analysis/`,
+    `tests/`, `data/raw/synthetic_graphs/`, `data/processed/`) actually exist; without
+    such evidence the task cannot be confirmed as completed.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,13 +12,12 @@ T015:
     task is present; there is no artifact that runs the generator with a fixed seed,
     computes checksums, regenerates, recomputes, and asserts equality. Consequently
     the required functionality is missing.
-T018:
+T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code artifact showing the `OPIDRouter.should_inject` method was provided,\
-    \ nor any evidence (e.g., unit tests, documentation, or commit diff) that the\
-    \ Bernoulli\u2011trial logic with probability\u202F=\u202F1\u202F\u2212\u202F\
-    threshold has been added. The required implementation is missing."
+  r: No code, test, or documentation implementing the suppression of skill signals
+    based on `should_inject` is present; the artifact required by the task is missing.
+    The claim cannot be verified without concrete implementation files or evidence.
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
