@@ -5,85 +5,90 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Ensure parent directory is in path for imports if run directly
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+import yaml
 
-STATE_FILE_PATH = Path("state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml")
-ERA5_FULL_FILE_PATH = Path("data/raw/era5_full.parquet")
+# Ensure the path to config is available if needed, though we use relative paths here
+# The project root is assumed to be the parent of 'code'
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+STATE_FILE_PATH = PROJECT_ROOT / "state" / "projects" / "PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
+DATA_FILE_PATH = PROJECT_ROOT / "data" / "raw" / "era5_full.parquet"
+
+logger = logging.getLogger(__name__)
 
 def ensure_state_file_exists():
-    """Ensure the state YAML file exists, creating it with basic structure if not."""
+    """Ensures the state YAML file exists, creating it with defaults if necessary."""
     if not STATE_FILE_PATH.exists():
-        logging.info(f"State file {STATE_FILE_PATH} not found. Creating basic structure.")
         STATE_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
-        with open(STATE_FILE_PATH, 'w') as f:
-            f.write("project_id: PROJ-743-ambient-temperature-influence-on-moral-d\n")
-            f.write("artifact_hashes:\n")
-            f.write("  era5_full: null\n")
-            f.write("  era5_sample: null\n")
-            f.write("updated_at: null\n")
+        initial_data = {
+            "project_id": "PROJ-743-ambient-temperature-influence-on-moral-d",
+            "status": "active",
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+            "artifact_hashes": {}
+        }
+        with open(STATE_FILE_PATH, 'w', encoding='utf-8') as f:
+            yaml.dump(initial_data, f, default_flow_style=False)
+        logger.info(f"Created new state file at {STATE_FILE_PATH}")
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 checksum of a file."""
+def compute_sha256(file_path):
+    """Computes the SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found for checksum: {file_path}")
-    
-    with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found: {file_path}")
+        raise
+    except Exception as e:
+        logger.error(f"Error computing checksum for {file_path}: {e}")
+        raise
 
-def update_state_file(checksum: str):
-    """Update the state YAML file with the new checksum and timestamp."""
-    import yaml
+def update_state_file(checksum):
+    """Updates the state YAML file with the new checksum and timestamp."""
+    try:
+        with open(STATE_FILE_PATH, 'r', encoding='utf-8') as f:
+            state_data = yaml.safe_load(f)
 
-    if not STATE_FILE_PATH.exists():
-        ensure_state_file_exists()
+        if state_data is None:
+            state_data = {}
 
-    with open(STATE_FILE_PATH, 'r') as f:
-        data = yaml.safe_load(f)
+        if 'artifact_hashes' not in state_data:
+            state_data['artifact_hashes'] = {}
 
-    # Ensure structure exists
-    if 'artifact_hashes' not in data:
-        data['artifact_hashes'] = {}
-    
-    # Update checksum
-    data['artifact_hashes']['era5_full'] = checksum
-    
-    # Update timestamp
-    data['updated_at'] = datetime.now(timezone.utc).isoformat()
+        state_data['artifact_hashes']['era5_full'] = checksum
+        state_data['updated_at'] = datetime.now(timezone.utc).isoformat()
 
-    with open(STATE_FILE_PATH, 'w') as f:
-        yaml.dump(data, f, default_flow_style=False, sort_keys=False)
-    
-    logging.info(f"Updated state file with checksum: {checksum}")
+        with open(STATE_FILE_PATH, 'w', encoding='utf-8') as f:
+            yaml.dump(state_data, f, default_flow_style=False)
+
+        logger.info(f"Updated state file with checksum for era5_full: {checksum}")
+    except Exception as e:
+        logger.error(f"Error updating state file: {e}")
+        raise
 
 def main():
-    """Main execution for T002e."""
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logger = logging.getLogger(__name__)
+    """Main entry point for the task."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-    logger.info(f"Verifying existence of {ERA5_FULL_FILE_PATH}")
-    
-    if not ERA5_FULL_FILE_PATH.exists():
-        logger.error(f"Critical Error: {ERA5_FULL_FILE_PATH} does not exist. "
-                     "Task T002d must complete successfully before T002e can run.")
-        # Fail loudly as per constraints
+    logger.info("Starting checksum computation for ERA5 full dataset.")
+
+    if not DATA_FILE_PATH.exists():
+        logger.error(f"Data file not found: {DATA_FILE_PATH}. Aborting.")
         sys.exit(1)
 
-    logger.info(f"Computing SHA-256 checksum for {ERA5_FULL_FILE_PATH}")
-    checksum = compute_sha256(ERA5_FULL_FILE_PATH)
-    logger.info(f"Checksum computed: {checksum}")
+    ensure_state_file_exists()
 
-    logger.info(f"Updating {STATE_FILE_PATH}")
-    update_state_file(checksum)
-
-    logger.info("T002e Checksum Full ERA5 File task completed.")
+    try:
+        checksum = compute_sha256(DATA_FILE_PATH)
+        update_state_file(checksum)
+        logger.info("Checksum computation and state update completed successfully.")
+    except Exception as e:
+        logger.error(f"Failed to complete task: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

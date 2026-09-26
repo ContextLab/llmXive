@@ -1,6 +1,3 @@
-"""
-Task T003: Compute SHA-256 checksum of data/raw/era5_sample.h5 and update state file.
-"""
 import os
 import sys
 import hashlib
@@ -8,47 +5,63 @@ import logging
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Import shared utilities from the existing API surface
-from compute_checksum import compute_sha256, ensure_state_file_exists, update_state_file
-from setup_logging import setup_logging, get_data_quality_logger
+# Import shared utilities from existing API surface
+# compute_checksum.py exposes: ensure_state_file_exists, compute_sha256, update_state_file, main
+from compute_checksum import ensure_state_file_exists, compute_sha256, update_state_file
+
+# Setup basic logging for this script
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def main():
-    # Setup logging
-    logger = setup_logging()
-    data_quality_logger = get_data_quality_logger()
-
-    # Define paths
+    """
+    T003: Compute SHA-256 checksum of data/raw/era5_sample.h5
+    and record it in state/projects/PROJ-743-ambient-temperature-influence-on-moral-d.yaml
+    under artifact_hashes.era5_sample, updating updated_at.
+    """
+    # Define paths relative to project root
     project_root = Path(__file__).resolve().parent.parent
-    sample_path = project_root / "data" / "raw" / "era5_sample.h5"
-    state_path = project_root / "state" / "projects" / "PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
+    data_file_path = project_root / "data" / "raw" / "era5_sample.h5"
+    state_file_path = project_root / "state" / "projects" / "PROJ-743-ambient-temperature-influence-on-moral-d.yaml"
 
-    # Ensure directories exist
-    ensure_state_file_exists(state_path)
+    # Ensure the state file exists (creates empty structure if missing)
+    ensure_state_file_exists(state_file_path)
 
-    if not sample_path.exists():
-        msg = f"Error: Sample file not found at {sample_path}. T001b (validate_era5.py) must run first."
-        logger.error(msg)
-        data_quality_logger.error(msg)
+    # Check if the input data file exists
+    if not data_file_path.exists():
+        logger.error(f"Data file not found: {data_file_path}")
         sys.exit(1)
 
-    # Compute SHA-256
-    checksum = compute_sha256(sample_path)
-    logger.info(f"Computed SHA-256 for {sample_path}: {checksum}")
-    data_quality_logger.info(f"Checksum computed: {checksum}")
+    logger.info(f"Computing checksum for: {data_file_path}")
 
-    # Update state file
-    # Key: artifact_hashes.era5_sample
-    # Update updated_at timestamp
-    update_state_file(
-        state_path=state_path,
-        artifact_key="artifact_hashes.era5_sample",
-        value=checksum,
-        timestamp_key="updated_at"
+    # Compute SHA-256 checksum
+    checksum = compute_sha256(data_file_path)
+
+    if not checksum:
+        logger.error("Failed to compute checksum.")
+        sys.exit(1)
+
+    logger.info(f"Checksum computed: {checksum}")
+
+    # Update the state file with the new checksum and timestamp
+    # We pass the specific key 'artifact_hashes.era5_sample' to update_state_file
+    # to ensure it updates the correct nested path.
+    success = update_state_file(
+        state_file_path,
+        "artifact_hashes.era5_sample",
+        checksum,
+        "updated_at"
     )
-    logger.info(f"Updated state file at {state_path} with checksum for era5_sample.")
-    data_quality_logger.info("State file updated successfully.")
 
-    return 0
+    if success:
+        logger.info(f"Successfully updated state file: {state_file_path}")
+        logger.info(f"Recorded checksum for era5_sample: {checksum}")
+    else:
+        logger.error("Failed to update state file.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

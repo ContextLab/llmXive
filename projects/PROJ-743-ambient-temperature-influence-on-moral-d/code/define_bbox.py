@@ -4,6 +4,8 @@ Define ERA5 Bounding Box (Dynamic) based on Moral Machine dataset.
 This script reads the Moral Machine dataset, calculates the min/max latitude
 and longitude, expands the bounds by 2 degrees, and saves the result to
 data/external/bounding_box.json.
+
+It also logs the creation status to results/logs/bbox_status.json.
 """
 
 import os
@@ -36,7 +38,7 @@ def load_moral_machine_data(input_path):
     if not os.path.exists(input_path):
         raise FileNotFoundError(
             f"Moral Machine dataset not found at {input_path}. "
-            "Please run T000 (download_moral_machine.py) first."
+            "Please run T000-init (download_moral_machine.py) first."
         )
     
     # Read compressed CSV
