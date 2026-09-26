@@ -31,3 +31,14 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/llmxive/hils-model-v1
   verified_at: '2026-09-19T13:20:26.315311Z'
+- artifact_hash: a3c5f57b3a8497c500d77b238a7ca8c27a3640e57b313a9bc7bb738f4845e0d5
+  artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2301.12345'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-09-26T19:47:08.925291Z'

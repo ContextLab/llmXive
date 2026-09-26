@@ -1,212 +1,209 @@
-"""
-Data loading utilities for PG-19 dataset.
-Handles streaming, filtering, and sampling of long-context documents.
-"""
 import logging
 import itertools
 import os
 import json
 from typing import Iterator, List, Dict, Any, Optional
 from datasets import load_dataset, Dataset
-import pyarrow.parquet as pq
-import io
 
-# Configure logging
+# Configure logging for the module
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 class DataFetchError(Exception):
-    """Custom exception for data fetching failures."""
+    """Raised when real data fetching fails."""
     pass
 
-def load_pg19_streaming() -> Iterator[Dict[str, Any]]:
+def load_pg19_streaming(tokenizer_name: str = "lmsys/pg-19-test") -> Iterator[Dict[str, Any]]:
     """
-    Load PG-19 dataset in streaming mode to handle large contexts.
+    Loads the PG-19 dataset in streaming mode to handle large contexts.
     
+    Args:
+        tokenizer_name: The HuggingFace dataset identifier.
+        
     Returns:
-        Iterator over dataset rows containing 'text' field.
-    
+        An iterator yielding document dictionaries.
+        
     Raises:
-        DataFetchError: If the dataset cannot be fetched from the real source.
+        DataFetchError: If the dataset cannot be fetched.
     """
     try:
-        # Load from the verified real source: lmsys/pg-19-test
-        dataset = load_dataset("lmsys/pg-19-test", split="test", streaming=True)
+        dataset = load_dataset(tokenizer_name, split="train", streaming=True)
         return iter(dataset)
     except Exception as e:
-        error_msg = f"Failed to fetch real data from lmsys/pg-19-test: {str(e)}"
-        logger.error(error_msg)
-        raise DataFetchError(error_msg) from e
+        logger.error(f"Failed to load dataset {tokenizer_name}: {e}")
+        raise DataFetchError(f"Real data fetch failed: {e}")
 
-def estimate_token_count(text: str, tokens_per_char: float = 0.5) -> int:
+def estimate_token_count(text: str, tokenizer) -> int:
     """
-    Estimate token count based on character length.
-    This is a rough approximation for filtering purposes.
+    Estimates the token count for a given text using a tokenizer.
     
     Args:
-        text: Input text string.
-        tokens_per_char: Estimated tokens per character (default 0.5).
-    
+        text: The input text.
+        tokenizer: A HuggingFace tokenizer instance.
+        
     Returns:
-        Estimated number of tokens.
+        The estimated number of tokens.
     """
-    return int(len(text) * tokens_per_char)
+    if tokenizer is None:
+        # Fallback estimation: ~4 characters per token if no tokenizer provided
+        return len(text) // 4
+    return len(tokenizer.encode(text, truncation=False))
 
-def filter_long_documents(
-    dataset_iter: Iterator[Dict[str, Any]], 
-    min_tokens: int = 32000
-) -> Iterator[Dict[str, Any]]:
+def get_document_iterator(dataset_iter: Iterator[Dict[str, Any]], tokenizer) -> Iterator[Dict[str, Any]]:
     """
-    Filter dataset to retain only documents with token count >= min_tokens.
+    Wraps the dataset iterator to include token counts in each document.
     
     Args:
-        dataset_iter: Iterator over dataset rows.
-        min_tokens: Minimum token count threshold (default 32,000).
-    
+        dataset_iter: Iterator from load_pg19_streaming.
+        tokenizer: Tokenizer instance for counting.
+        
     Yields:
-        Documents meeting the token threshold.
+        Documents with an added 'token_count' field.
     """
-    included_count = 0
-    excluded_count = 0
-    
     for doc in dataset_iter:
+        # Handle potential missing 'text' key or None
         text = doc.get("text", "")
-        if not text:
-            excluded_count += 1
-            continue
-            
-        token_count = estimate_token_count(text)
-        if token_count >= min_tokens:
-            included_count += 1
+        if text is None:
+            text = ""
+        
+        token_count = estimate_token_count(text, tokenizer)
+        
+        yield {
+            "document_id": doc.get("id", "unknown"),
+            "text": text,
+            "token_count": token_count
+        }
+
+def filter_long_documents(doc_iterator: Iterator[Dict[str, Any]], min_tokens: int = 32000) -> Iterator[Dict[str, Any]]:
+    """
+    Filters documents to retain only those with token count >= min_tokens.
+    
+    Logs warnings for skipped documents to stdout as required.
+    
+    Args:
+        doc_iterator: Iterator of documents with 'token_count'.
+        min_tokens: Minimum token threshold (default 32000).
+        
+    Yields:
+        Documents meeting the threshold.
+    """
+    for doc in doc_iterator:
+        if doc["token_count"] >= min_tokens:
             yield doc
         else:
-            excluded_count += 1
-    
-    logger.info(f"Filtering complete: {included_count} documents included, {excluded_count} excluded (threshold: {min_tokens} tokens)")
+            # Log warning to stdout as specified
+            print(f"WARNING: Skipping document {doc['document_id']}: length {doc['token_count']} < {min_tokens}")
 
-def get_document_iterator() -> Iterator[Dict[str, Any]]:
+def save_filtered_dataset(doc_iterator: Iterator[Dict[str, Any]], output_path: str) -> int:
     """
-    Get the full pipeline iterator: load -> filter.
+    Saves the filtered documents to a JSON file.
     
+    Args:
+        doc_iterator: Iterator of filtered documents.
+        output_path: Path to the output JSON file.
+        
     Returns:
-        Iterator over filtered documents.
+        The number of documents saved.
     """
-    raw_iter = load_pg19_streaming()
-    return filter_long_documents(raw_iter)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    count = 0
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        # Write as a JSON list
+        f.write("[\n")
+        first = True
+        for doc in doc_iterator:
+            if not first:
+                f.write(",\n")
+            first = False
+            # Ensure keys are exactly as specified: document_id, text, token_count
+            record = {
+                "document_id": doc["document_id"],
+                "text": doc["text"],
+                "token_count": doc["token_count"]
+            }
+            json.dump(record, f, ensure_ascii=False)
+            count += 1
+            # Optional: flush periodically to avoid huge memory buffer for list
+            if count % 1000 == 0:
+                f.flush()
+        f.write("\n]")
+    
+    logger.info(f"Saved {count} documents to {output_path}")
+    return count
 
-def save_filtered_dataset(
-    output_path: str, 
-    doc_iterator: Optional[Iterator[Dict[str, Any]]] = None
-) -> None:
+def sample_dataset(doc_iterator: Iterator[Dict[str, Any]], sample_size: int) -> Iterator[Dict[str, Any]]:
     """
-    Save filtered documents to a Parquet file.
+    Takes a sample of documents from the iterator.
     
     Args:
-        output_path: Path to output Parquet file.
-        doc_iterator: Optional iterator of documents. If None, uses default pipeline.
+        doc_iterator: Input iterator.
+        sample_size: Number of documents to sample.
+        
+    Yields:
+        A subset of documents.
     """
-    if doc_iterator is None:
-        doc_iterator = get_document_iterator()
-    
-    # Convert iterator to list of dicts for Parquet
-    docs_list = list(doc_iterator)
-    
-    if not docs_list:
-        logger.warning("No documents to save. Output file may be empty.")
-    
-    # Create dataset and save
-    dataset = Dataset.from_list(docs_list)
-    dataset.to_parquet(output_path)
-    logger.info(f"Saved {len(docs_list)} documents to {output_path}")
+    return itertools.islice(doc_iterator, sample_size)
 
-def run_filter_pipeline(output_path: str) -> None:
+def save_filtered_sampled_dataset(doc_iterator: Iterator[Dict[str, Any]], output_path: str, sample_size: int) -> int:
     """
-    Run the full filtering pipeline and save results.
+    Samples and saves filtered documents.
+    """
+    sampled_iter = sample_dataset(doc_iterator, sample_size)
+    return save_filtered_dataset(sampled_iter, output_path)
+
+def run_filter_pipeline(tokenizer_name: str, output_path: str, min_tokens: int = 32000, sample_size: Optional[int] = None) -> int:
+    """
+    Orchestrates the full filtering pipeline: Load -> Count -> Filter -> Save.
     
     Args:
-        output_path: Path to output Parquet file.
-    """
-    logger.info("Starting filter pipeline...")
-    save_filtered_dataset(output_path)
-    logger.info("Filter pipeline completed.")
-
-def sample_dataset(
-    doc_iterator: Iterator[Dict[str, Any]], 
-    max_samples: Optional[int] = None,
-    seed: Optional[int] = None
-) -> List[Dict[str, Any]]:
-    """
-    Sample documents from an iterator.
-    
-    Args:
-        doc_iterator: Iterator over documents.
-        max_samples: Maximum number of samples to return. If None, returns all.
-        seed: Random seed for reproducibility (used if max_samples is not None).
-    
+        tokenizer_name: Dataset identifier.
+        output_path: Output JSON path.
+        min_tokens: Minimum token threshold.
+        sample_size: Optional limit on number of documents to process.
+        
     Returns:
-        List of sampled documents.
+        Number of saved documents.
     """
-    if max_samples is None:
-        return list(doc_iterator)
+    # We need a tokenizer to count tokens accurately. 
+    # For this specific task, if a tokenizer isn't passed, we might need to load one.
+    # However, the task description focuses on the logic. 
+    # Assuming a tokenizer is available or we use a simple estimator if not.
+    # To be robust, we try to load a small tokenizer if needed, or use the estimator.
+    from transformers import AutoTokenizer
     
-    if seed is not None:
-        import random
-        random.seed(seed)
-        # Convert to list to allow shuffling if needed, though islice is deterministic
-        docs = list(doc_iterator)
-        random.shuffle(docs)
-        return docs[:max_samples]
-    else:
-        # Use islice for deterministic sampling without shuffling
-        return list(itertools.islice(doc_iterator, max_samples))
+    try:
+        tokenizer = AutoTokenizer.from_pretrained("gpt2", trust_remote_code=True)
+    except Exception:
+        tokenizer = None
+        logger.warning("Could not load tokenizer, using character-based estimation.")
 
-def save_filtered_sampled_dataset(
-    output_path: str,
-    doc_iterator: Optional[Iterator[Dict[str, Any]]] = None,
-    max_samples: Optional[int] = None,
-    seed: Optional[int] = None
-) -> None:
-    """
-    Filter, sample, and save documents to a Parquet file.
+    logger.info(f"Starting filter pipeline: min_tokens={min_tokens}, output={output_path}")
     
-    This function implements T006b: sampling logic to handle memory limits.
-    It uses itertools.islice or random sampling if max_samples is provided.
+    dataset_iter = load_pg19_streaming(tokenizer_name)
+    doc_iter = get_document_iterator(dataset_iter, tokenizer)
     
-    Args:
-        output_path: Path to output Parquet file.
-        doc_iterator: Optional iterator of documents. If None, uses default pipeline.
-        max_samples: Maximum number of samples to return. If None, returns all filtered documents.
-        seed: Random seed for reproducibility.
-    """
-    if doc_iterator is None:
-        doc_iterator = get_document_iterator()
+    if sample_size:
+        doc_iter = sample_dataset(doc_iter, sample_size)
+        
+    filtered_iter = filter_long_documents(doc_iter, min_tokens)
     
-    logger.info(f"Sampling dataset: max_samples={max_samples}, seed={seed}")
-    sampled_docs = sample_dataset(doc_iterator, max_samples, seed)
-    
-    if not sampled_docs:
-        logger.warning("No sampled documents to save.")
-        return
-    
-    dataset = Dataset.from_list(sampled_docs)
-    dataset.to_parquet(output_path)
-    logger.info(f"Saved {len(sampled_docs)} sampled documents to {output_path}")
+    return save_filtered_dataset(filtered_iter, output_path)
 
 def main():
-    """Main entry point for running the filter and sample pipeline."""
-    logging.basicConfig(level=logging.INFO)
-    
-    # Example usage: save filtered dataset
-    filtered_output = "data/interim/filtered_pg19.parquet"
-    if not os.path.exists(os.path.dirname(filtered_output)):
-        os.makedirs(os.path.dirname(filtered_output))
-    
-    # Run filter pipeline (T005)
-    run_filter_pipeline(filtered_output)
-    
-    # Run sampling pipeline (T006b)
-    sampled_output = "data/interim/filtered_sampled_pg19.parquet"
-    # Sample 100 documents for demonstration (adjust max_samples as needed)
-    save_filtered_sampled_dataset(sampled_output, max_samples=100, seed=42)
+    """Entry point for running the filter pipeline."""
+    output_file = "data/interim/filtered_pg19.json"
+    # Run on a small sample first to verify logic if needed, 
+    # but the task implies processing the stream.
+    # We run the full pipeline.
+    run_filter_pipeline(
+        tokenizer_name="lmsys/pg-19-test",
+        output_path=output_file,
+        min_tokens=32000
+    )
 
 if __name__ == "__main__":
     main()

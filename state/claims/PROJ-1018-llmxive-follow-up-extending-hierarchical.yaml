@@ -1266,3 +1266,399 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T08:36:38Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Smith et al. 2023 arXiv 2301.12345
+  claim_id: c_d8f4b6a0
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.
+    (Depends on T022)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: Smith et al. (2023); arXiv:2301.12345.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T19:28:08Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345
+  claim_id: c_1af8a1ad
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.
+    (Depends on T022)'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: Smith et al. (2023); arXiv:2301.12345.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T19:33:47Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Computational architecture influences model training efficiency
+  claim_id: c_30ea5b2d
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Computational_architecture_influences_model_training_efficie
+  kind: entity_fact
+  raw_text: 'The research question remains: How does computational architecture influence
+    model training efficiency?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:35:35Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 0
+  canonical: Smith et al. (2023) and arXiv:2301.12345 referenced regarding computational
+    architecture influence on model training efficiency
+  claim_id: c_d5687463
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: Smith et al. (2023); arXiv:2301.12345.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T19:35:49Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Comparative performance analysis across varying hardware configurations
+    used to study computational architecture influence on model training efficiency
+  claim_id: c_813b3407
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparative_performance_analysis_across_varying_hardware_con
+  kind: entity_fact
+  raw_text: The method involves comparative performance analysis across varying hardware
+    configurations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:35:53Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: comparative performance analysis across varying hardware configurations
+    for training efficiency
+  claim_id: c_820d4a32
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparative_performance_analysis_across_varying_hardware_con
+  kind: entity_fact
+  raw_text: The method involves comparative performance analysis across varying hardware
+    configurations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:36:38Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Smith et al. (2023) research on computational architecture and model
+    training efficiency
+  claim_id: c_1ae8ddb7
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Smith et al. (2023) published research regarding computational architecture
+    and model training efficiency.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:37:03Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: arXiv:2301.12345 research on computational architecture and model training
+    efficiency
+  claim_id: c_d57295b8
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    asserted: '2301.12345'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: The research paper arXiv:2301.12345 covers the topic of computational
+    architecture influence on model training efficiency.
+  resolved_value: '3.14159'
+  resolver: approximate
+  source_hash: c47fb03536eac23e0e7d4f9966b475c73b4e28a1050a29bce57dfbdcd2731e1e
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T19:37:03Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 0
+  canonical: Smith et al. 2023 arXiv:2301.12345
+  claim_id: c_9d38e476
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'References: Smith et al. (2023); arXiv:2301.12345.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T19:38:15Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Comparative performance analysis of hardware configurations cites Smith
+    et al. 2023 and arXiv:2301.12345
+  claim_id: c_e0e72a3a
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'The method involves comparative performance analysis across varying hardware
+    configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:41:20Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: HotpotQA dataset with HF ID hotpotqa and split validation used as primary
+    dataset
+  claim_id: c_2195877c
+  context: 'Add function evaluate_qa(model, dataset) in src/evaluation.py. Primary
+    Dataset: hotpotqa (HF ID: hotpotqa, split: validation). Requirement: Verify hotpotqa
+    availability before execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HotpotQA_dataset_with_HF_ID_hotpotqa_and_split_validation_us
+  kind: entity_fact
+  raw_text: 'Primary Dataset: hotpotqa (HF ID: hotpotqa, split: validation).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:41:45Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 4
+  canonical: comparative performance analysis across varying hardware configurations
+  claim_id: c_d9cfc42b
+  context: 'The research question remains: How does computational architecture influence
+    model training efficiency? The method involves comparative performance analysis
+    across varying hardware configurations. References: Smith et al. (2023); arXiv:2301.12345.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparative_performance_analysis_across_varying_hardware_con
+  kind: entity_fact
+  raw_text: The method involves comparative performance analysis across varying hardware
+    configurations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:42:20Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: hotpotqa dataset validation split used as primary dataset
+  claim_id: c_0afb3b63
+  context: 'Implement downstream long-context QA evaluation: Add function evaluate_qa(model,
+    dataset) in src/evaluation.py. Primary Dataset: hotpotqa (HF ID: hotpotqa, split:
+    validation). Requirement: Verify hotpotqa availability before execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hotpotqa_dataset_validation_split_used_as_primary_dataset
+  kind: entity_fact
+  raw_text: 'Primary Dataset: hotpotqa (HF ID: hotpotqa, split: validation).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:44:58Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Static index lookup latency under 50ms on multi-core CPU
+  claim_id: c_be92b155
+  context: 'Add performance check: Add function benchmark_lookup(index: StaticIndex,
+    token_count: int) in src/clustering.py that returns True if latency < 50ms on
+    a multi-core CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Static_index_lookup_latency_under_50ms_on_multi-core_CPU
+  kind: entity_fact
+  raw_text: 'Add function benchmark_lookup(index: StaticIndex, token_count: int) in
+    src/clustering.py that returns True if latency < 50ms on a multi-core CPU.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:45:41Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: 'Latency measurement protocol: 32k token context, 10 runs, 2 warm-up,
+    2 cores'
+  claim_id: c_b1c66de7
+  context: 'Implement latency measurement protocol: Add function measure_latency(model,
+    dataset) in src/evaluation.py using time module on a multi-core CPU with specific
+    protocol: 32k token input context, 10 runs, 2 warm-up iterations, 2 cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add function measure_latency(model, dataset) in src/evaluation.py using
+    time module on a multi-core CPU with specific protocol: 32k token input context,
+    10 runs, 2 warm-up iterations, 2 cores.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:46:01Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis K values: 50, 100, 200'
+  claim_id: c_1c351519
+  context: 'Implement sensitivity analysis sweep: Add function sweep_k_values(k_values:
+    List[int] = [50, 100, 200]) in src/evaluation.py that iterates K, reads from the
+    original data/processed/static_index.json (T022), rebuilds the index for each
+    K, and writes unique output files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add function sweep_k_values(k_values: List[int] = [50, 100, 200]) in
+    src/evaluation.py that iterates K.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:46:24Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: K-Means retry count set to 3 for empty cluster convergence
+  claim_id: c_9f6d0930
+  context: 'Implement K-Means clustering algorithm: Add function run_kmeans(data:
+    np.ndarray, k: int, retry_count: int = 3) in src/clustering.py with retry logic
+    for empty cluster convergence (Depends on T019).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Add function run_kmeans(data: np.ndarray, k: int, retry_count: int =
+    3) in src/clustering.py with retry logic for empty cluster convergence.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:46:56Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: transformers 4.40.0, datasets 2.18.0, scikit-learn
+    1.3.0, pandas 2.0.0, numpy 1.24.0, torch 2.0.0, pytest 7.0.0, pyarrow 12.0.0'
+  claim_id: c_70f75c13
+  context: 'Create requirements.txt: Create requirements.txt in projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/code/
+    containing transformers>=4.40.0, datasets>=2.18.0, scikit-learn>=1.3.0, pandas>=2.0.0,
+    numpy>=1.24.0, torch>=2.0.0, pytest>=7.0.0, pyarrow>=12.0.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create requirements.txt in projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/code/
+    containing transformers>=4.40.0, datasets>=2.18.0, scikit-learn>=1.3.0, pandas>=2.0.0,
+    numpy>=1.24.0, torch>=2.0.0, pytest>=7.0.0, pyarrow>=12.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:47:08Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: Document filtering retains only documents with token count >= 32000
+  claim_id: c_99e0a16c
+  context: "Implement document filtering logic: Add function to retain only documents\
+    \ with token count \u2265 32,000, logging excluded counts to stdout in format\
+    \ WARNING: Skipping document <id>: length <N> < 32000, and output filtered dataset\
+    \ to data/interim/filtered_pg19.json in src/data_loader.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add function to retain only documents with token count \u2265 32,000,\
+    \ logging excluded counts to stdout in format WARNING: Skipping document <id>:\
+    \ length <N> < 32000."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:47:08Z'
+- artifact_path: projects/PROJ-1018-llmxive-follow-up-extending-hierarchical/specs/001-llmxive-follow-up-extending-hierarchical/tasks.md
+  attempts: 1
+  canonical: 'Chunking edge case: skip or pad documents with token count < 2048'
+  claim_id: c_ece9dd02
+  context: 'Implement chunking logic and edge case handling: Add function chunk_document(text:
+    str, chunk_size: int, tokenizer) in src/extraction.py; load tokenizer from model_path
+    (T007b) before execution. Edge Case Handling: If len(tokens) < 2048, skip the
+    document and log to stdout, OR pad to chunk_size if specified in config.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Edge Case Handling: If len(tokens) < 2048, skip the document and log
+    to stdout, OR pad to chunk_size if specified in config.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T19:47:08Z'

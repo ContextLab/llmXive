@@ -5,33 +5,18 @@ import numpy as np
 
 @dataclass
 class RelevanceProfile:
-    """
-    Represents the aggregated retrieval score matrix for a specific chunk.
-    """
     chunk_id: str
     scores: List[float]
     document_id: str
 
 @dataclass
 class StaticIndex:
-    """
-    Represents the static lookup table generated from clustering relevance profiles.
-    Contains centroids and the mapping from chunk IDs to cluster IDs.
-    
-    Fields:
-        centroids: np.ndarray of shape (k, feature_dim) representing cluster centers.
-        chunk_to_cluster: Dict mapping chunk_id (str) to cluster_id (int).
-        k: int, the number of clusters.
-    """
     centroids: np.ndarray
     chunk_to_cluster: Dict[str, int]
     k: int
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Serializes the StaticIndex to a dictionary compatible with JSON.
-        Note: numpy arrays are converted to lists.
-        """
+        """Convert the StaticIndex to a JSON-serializable dictionary."""
         return {
             "centroids": self.centroids.tolist(),
             "chunk_to_cluster": self.chunk_to_cluster,
@@ -40,9 +25,7 @@ class StaticIndex:
 
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "StaticIndex":
-        """
-        Deserializes a dictionary back into a StaticIndex instance.
-        """
+        """Reconstruct a StaticIndex from a JSON-serializable dictionary."""
         return cls(
             centroids=np.array(data["centroids"]),
             chunk_to_cluster=data["chunk_to_cluster"],
@@ -51,15 +34,12 @@ class StaticIndex:
 
 @dataclass
 class EvaluationReport:
-    """
-    Aggregates metrics from the comparative evaluation phase.
-    """
-    perplexity: Dict[str, float]  # e.g., {"dynamic": 12.3, "static": 12.5}
-    qa_accuracy: Dict[str, float]
+    perplexity: float
+    qa_accuracy: float
     p_value: float
     latency: Dict[str, float]
     memory_footprint: Dict[str, float]
-
+    
     def to_dict(self) -> Dict[str, Any]:
         return {
             "perplexity": self.perplexity,

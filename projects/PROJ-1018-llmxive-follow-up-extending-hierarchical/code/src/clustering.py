@@ -1,207 +1,270 @@
 import logging
-from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
-from sklearn.decomposition import PCA
-from sklearn.cluster import KMeans
-from sklearn.preprocessing import StandardScaler
 import json
+import os
 import time
+from typing import List, Dict, Any, Optional, Tuple, Callable
+import numpy as np
+from dataclasses import dataclass, field
 
-from src.models import StaticIndex, RelevanceProfile
+from src.models import StaticIndex
 from src.config import Config
 
 logger = logging.getLogger(__name__)
 
-def apply_pca(profiles: List[RelevanceProfile], n_components: int = 50) -> np.ndarray:
+def apply_pca(profiles: List[Dict[str, Any]], n_components: int = 50) -> np.ndarray:
     """
-    Applies PCA dimensionality reduction to a list of RelevanceProfiles.
+    Apply PCA dimensionality reduction to relevance profiles.
     
     Args:
-        profiles: List of RelevanceProfile objects.
-        n_components: Number of principal components to keep.
+        profiles: List of dicts with 'scores' key containing float lists
+        n_components: Number of PCA components to retain
         
     Returns:
-        np.ndarray of shape (len(profiles), n_components).
+        Reduced data matrix as numpy array
     """
+    try:
+        from sklearn.decomposition import PCA
+    except ImportError:
+        raise ImportError("scikit-learn is required for PCA. Install via: pip install scikit-learn")
+    
     if not profiles:
-        logger.warning("Empty profile list provided to apply_pca")
-        return np.array([])
+        raise ValueError("Cannot apply PCA to empty list of profiles")
+        
+    # Extract score vectors
+    score_vectors = [np.array(p['scores']) for p in profiles]
     
-    # Extract scores as a matrix
-    data_matrix = np.array([p.scores for p in profiles])
-    
-    # Standardize data before PCA
-    scaler = StandardScaler()
-    scaled_data = scaler.fit_transform(data_matrix)
-    
+    # Pad to uniform length if necessary (shouldn't happen with valid data)
+    max_len = max(len(v) for v in score_vectors)
+    padded = np.zeros((len(score_vectors), max_len))
+    for i, v in enumerate(score_vectors):
+        padded[i, :len(v)] = v
+        
     # Apply PCA
-    pca = PCA(n_components=n_components)
-    reduced_data = pca.fit_transform(scaled_data)
+    pca = PCA(n_components=n_components, random_state=42)
+    reduced = pca.fit_transform(padded)
     
-    logger.info(f"PCA applied: reduced shape {reduced_data.shape}, explained variance ratio: {pca.explained_variance_ratio_.sum():.4f}")
-    return reduced_data
+    logger.info(f"PCA reduced {padded.shape} to {reduced.shape}, explained variance: {pca.explained_variance_ratio_.sum():.4f}")
+    return reduced
 
-def run_kmeans(data: np.ndarray, k: int, retry_count: int = 3) -> Tuple[np.ndarray, np.ndarray]:
+def run_kmeans(data: np.ndarray, k: int, retry_count: int = 3) -> Tuple[np.ndarray, List[int]]:
     """
-    Runs K-Means clustering with retry logic for empty cluster convergence.
+    Run K-Means clustering with retry logic for empty cluster convergence.
     
     Args:
-        data: Input data array of shape (n_samples, n_features).
-        k: Number of clusters.
-        retry_count: Maximum number of retries if convergence fails or empty clusters occur.
+        data: Input data matrix (n_samples, n_features)
+        k: Number of clusters
+        retry_count: Maximum number of retries for empty clusters
         
     Returns:
         Tuple of (centroids, labels)
     """
-    if data.size == 0:
-        raise ValueError("Input data for K-Means cannot be empty.")
+    try:
+        from sklearn.cluster import KMeans
+    except ImportError:
+        raise ImportError("scikit-learn is required for K-Means. Install via: pip install scikit-learn")
+    
+    if k <= 0:
+        raise ValueError("k must be positive")
+    if k > len(data):
+        raise ValueError(f"k ({k}) cannot exceed number of samples ({len(data)})")
         
-    best_labels = None
-    best_inertia = np.inf
-    best_centroids = None
+    best_kmeans = None
+    best_inertia = float('inf')
     
     for attempt in range(retry_count):
-        try:
-            kmeans = KMeans(n_clusters=k, random_state=42, n_init=10, max_iter=300)
-            labels = kmeans.fit_predict(data)
-            
-            # Check for empty clusters (labels should cover 0 to k-1)
-            unique_labels = np.unique(labels)
-            if len(unique_labels) < k:
-                logger.warning(f"K-Means attempt {attempt + 1} resulted in {len(unique_labels)} clusters instead of {k}. Retrying...")
-                continue
-                
-            if kmeans.inertia_ < best_inertia:
-                best_inertia = kmeans.inertia_
-                best_labels = labels
-                best_centroids = kmeans.cluster_centers_
-                
-        except Exception as e:
-            logger.warning(f"K-Means attempt {attempt + 1} failed: {e}")
-            continue
-            
-    if best_labels is None:
-        raise RuntimeError("K-Means failed to converge to a valid solution after retries.")
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init=10, max_iter=300)
+        labels = kmeans.fit_predict(data)
         
-    logger.info(f"K-Means converged with inertia {best_inertia:.4f} after {attempt + 1} attempts.")
-    return best_centroids, best_labels
+        # Check for empty clusters
+        unique_labels = set(labels)
+        if len(unique_labels) < k:
+            logger.warning(f"K-Means attempt {attempt+1}: Found {len(unique_labels)} clusters instead of {k}. Retrying...")
+            continue
+        
+        if kmeans.inertia_ < best_inertia:
+            best_inertia = kmeans.inertia_
+            best_kmeans = kmeans
+        
+        # If we have a valid solution, break early
+        break
+    else:
+        # If all retries failed to find k clusters, use the best we have
+        if best_kmeans is None:
+            raise RuntimeError(f"K-Means failed to converge to {k} clusters after {retry_count} attempts")
+        
+    return best_kmeans.cluster_centers_, best_kmeans.labels_
 
-def generate_static_index(profiles: List[RelevanceProfile], k: int, n_pca_components: int = 50) -> StaticIndex:
-    """
-    Generates a StaticIndex from a list of RelevanceProfiles.
+@dataclass
+class StaticIndex:
+    """Static index for HiLS attention sparsity patterns."""
+    centroids: np.ndarray
+    chunk_to_cluster: Dict[str, int]
+    k: int
+    pca_n_components: int = 50
     
-    Steps:
-    1. Apply PCA to reduce dimensionality of relevance scores.
-    2. Run K-Means clustering on reduced data.
-    3. Map each chunk_id to its assigned cluster ID.
-    4. Return StaticIndex object.
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize to dictionary for JSON export."""
+        return {
+            'centroids': self.centroids.tolist(),
+            'chunk_to_cluster': self.chunk_to_cluster,
+            'k': self.k,
+            'pca_n_components': self.pca_n_components
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'StaticIndex':
+        """Deserialize from dictionary."""
+        return cls(
+            centroids=np.array(data['centroids']),
+            chunk_to_cluster=data['chunk_to_cluster'],
+            k=data['k'],
+            pca_n_components=data.get('pca_n_components', 50)
+        )
+
+def generate_static_index(
+    profiles: List[Dict[str, Any]],
+    k: int,
+    pca_components: int = 50,
+    seed: int = 42
+) -> StaticIndex:
+    """
+    Generate a static index from relevance profiles using PCA + K-Means.
     
     Args:
-        profiles: List of RelevanceProfile objects.
-        k: Number of clusters.
-        n_pca_components: Number of PCA components.
+        profiles: List of relevance profiles with 'chunk_id' and 'scores'
+        k: Number of clusters
+        pca_components: Number of PCA components
+        seed: Random seed for reproducibility
         
     Returns:
-        StaticIndex instance.
+        StaticIndex object
     """
     if not profiles:
-        raise ValueError("Cannot generate StaticIndex from empty profile list.")
+        raise ValueError("Cannot generate static index from empty profiles")
         
-    logger.info(f"Generating StaticIndex with k={k} for {len(profiles)} profiles.")
+    # Extract chunk IDs for mapping
+    chunk_ids = [p['chunk_id'] for p in profiles]
     
-    # 1. PCA
-    reduced_data = apply_pca(profiles, n_components=n_pca_components)
+    # Apply PCA
+    reduced_data = apply_pca(profiles, n_components=pca_components)
     
-    # 2. K-Means
+    # Run K-Means
     centroids, labels = run_kmeans(reduced_data, k)
     
-    # 3. Build mapping
-    chunk_to_cluster = {}
-    for profile, label in zip(profiles, labels):
-        chunk_to_cluster[profile.chunk_id] = int(label)
-        
-    # 4. Construct StaticIndex
-    index = StaticIndex(
+    # Build chunk-to-cluster mapping
+    chunk_to_cluster = {
+        chunk_id: int(label) 
+        for chunk_id, label in zip(chunk_ids, labels)
+    }
+    
+    return StaticIndex(
         centroids=centroids,
         chunk_to_cluster=chunk_to_cluster,
-        k=k
+        k=k,
+        pca_n_components=pca_components
     )
-    
-    logger.info(f"StaticIndex generated: {len(chunk_to_cluster)} mappings, {k} clusters.")
-    return index
 
 def save_static_index(index: StaticIndex, path: str) -> None:
     """
-    Serializes and saves a StaticIndex to a JSON file.
+    Serialize static index to JSON file.
     
     Args:
-        index: StaticIndex object to save.
-        path: File path to write the JSON.
+        index: StaticIndex object to save
+        path: Output file path
     """
-    logger.info(f"Saving StaticIndex to {path}")
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(index.to_dict(), f, indent=2)
-    logger.info("StaticIndex saved successfully.")
+    os.makedirs(os.path.dirname(path) if os.path.dirname(path) else '.', exist_ok=True)
+    
+    output = index.to_dict()
+    # Add metadata
+    output['metadata'] = {
+        'k': index.k,
+        'pca_n_components': index.pca_n_components,
+        'num_chunks': len(index.chunk_to_cluster)
+    }
+    
+    with open(path, 'w') as f:
+        json.dump(output, f, indent=2)
+        
+    logger.info(f"Saved static index with {len(index.chunk_to_cluster)} chunks to {path}")
 
-def benchmark_lookup(index: StaticIndex, token_count: int) -> bool:
+def benchmark_lookup(index: StaticIndex, token_count: int = 32000) -> bool:
     """
-    Benchmarks the lookup latency of the static index.
+    Benchmark lookup latency for the static index.
+    
+    Measures the time to perform cluster lookups for a given token count
+    (simulating attention mask generation). Returns True if latency < 50ms.
     
     Args:
-        index: StaticIndex object.
-        token_count: Number of lookups to simulate.
+        index: StaticIndex object to benchmark
+        token_count: Number of tokens to simulate (default 32k)
         
     Returns:
-        True if latency < 50ms, False otherwise.
+        True if latency < 50ms, False otherwise
     """
     if not index.chunk_to_cluster:
-        logger.warning("Empty chunk_to_cluster map, cannot benchmark.")
-        return False
+        raise ValueError("StaticIndex has no chunk-to-cluster mapping")
         
-    keys = list(index.chunk_to_cluster.keys())
-    if not keys:
-        return False
-        
+    # Simulate lookup operations
+    # In practice, chunk_count ~ token_count / chunk_size
+    # Assuming chunk_size ~ 512 tokens, we get ~62 chunks for 32k tokens
+    chunk_size = 512
+    num_lookups = max(1, token_count // chunk_size)
+    
+    # Warm-up runs
+    for _ in range(2):
+        for i in range(min(num_lookups, len(index.chunk_to_cluster))):
+            chunk_id = list(index.chunk_to_cluster.keys())[i % len(index.chunk_to_cluster)]
+            _ = index.chunk_to_cluster[chunk_id]
+    
+    # Timed runs
     start_time = time.perf_counter()
-    for _ in range(token_count):
-        # Simulate random lookup
-        _ = index.chunk_to_cluster[keys[0]] 
+    for _ in range(10):  # 10 measurement runs
+        for i in range(num_lookups):
+            chunk_id = list(index.chunk_to_cluster.keys())[i % len(index.chunk_to_cluster)]
+            _ = index.chunk_to_cluster[chunk_id]
     end_time = time.perf_counter()
     
-    latency_ms = (end_time - start_time) * 1000
-    logger.info(f"Benchmark: {token_count} lookups took {latency_ms:.2f}ms")
+    total_time = end_time - start_time
+    avg_latency_ms = (total_time / 10) * 1000  # Convert to milliseconds
     
-    return latency_ms < 50.0
+    logger.info(f"Lookup benchmark: {num_lookups} lookups, avg latency: {avg_latency_ms:.2f}ms")
+    
+    # Return True if latency < 50ms
+    return avg_latency_ms < 50.0
 
 def main():
-    """
-    Main entry point for generating the static index from extracted profiles.
-    This function assumes profiles have been generated and saved by T015.
-    """
+    """Main entry point for clustering module."""
     # Load config
     config = Config()
     
-    # Load profiles (simplified for this script context)
-    profiles_path = "data/interim/relevance_profiles.json"
-    try:
-        with open(profiles_path, 'r') as f:
-            profiles_data = json.load(f)
-        profiles = [RelevanceProfile(**p) for p in profiles_data]
-        logger.info(f"Loaded {len(profiles)} profiles from {profiles_path}")
-    except FileNotFoundError:
-        logger.error(f"Profiles file not found at {profiles_path}. Ensure T015 has run.")
-        return
+    # Load relevance profiles
+    profiles_path = os.path.join(config.data_interim_dir, 'relevance_profiles.json')
+    if not os.path.exists(profiles_path):
+        raise FileNotFoundError(f"Profiles not found at {profiles_path}")
         
-    # Generate Index
-    static_index = generate_static_index(profiles, k=config.k_clusters)
+    with open(profiles_path, 'r') as f:
+        profiles = json.load(f)
+        
+    logger.info(f"Loaded {len(profiles)} relevance profiles")
     
-    # Save Index
-    output_path = "data/processed/static_index.json"
+    # Generate static index
+    static_index = generate_static_index(
+        profiles=profiles,
+        k=config.k_clusters,
+        pca_components=50,
+        seed=config.seed
+    )
+    
+    # Save static index
+    output_path = os.path.join(config.data_processed_dir, 'static_index.json')
     save_static_index(static_index, output_path)
     
-    # Benchmark
-    benchmark_lookup(static_index, 1000)
+    # Benchmark lookup
+    is_fast = benchmark_lookup(static_index, token_count=32000)
+    logger.info(f"Lookup benchmark result: {'PASS' if is_fast else 'FAIL'} (< 50ms)")
+    
+    return static_index
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     main()

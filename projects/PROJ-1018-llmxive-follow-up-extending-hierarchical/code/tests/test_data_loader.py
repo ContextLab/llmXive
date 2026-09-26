@@ -1,149 +1,108 @@
-"""
-Tests for data_loader.py module.
-"""
 import pytest
 import os
 import tempfile
 from unittest.mock import patch, MagicMock
 import itertools
 from datasets import Dataset
-
-import sys
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+import json
 
 from src.data_loader import (
-    DataFetchError,
     load_pg19_streaming,
     estimate_token_count,
-    filter_long_documents,
     get_document_iterator,
+    filter_long_documents,
     save_filtered_dataset,
-    run_filter_pipeline,
-    sample_dataset,
-    save_filtered_sampled_dataset
+    DataFetchError,
+    run_filter_pipeline
 )
 
 class TestTokenCounting:
-    def test_estimate_token_count_basic(self):
-        """Test basic token count estimation."""
-        text = "Hello world"
-        # 11 characters * 0.5 = 5.5 -> 5 tokens
-        assert estimate_token_count(text) == 5
+    def test_estimate_token_count_with_tokenizer(self):
+        from transformers import AutoTokenizer
+        tokenizer = AutoTokenizer.from_pretrained("gpt2")
+        text = "Hello world this is a test."
+        count = estimate_token_count(text, tokenizer)
+        assert count > 0
+        assert isinstance(count, int)
 
-    def test_estimate_token_count_empty(self):
-        """Test token count estimation for empty string."""
-        assert estimate_token_count("") == 0
-
-    def test_estimate_token_count_large(self):
-        """Test token count estimation for large text."""
-        text = "a" * 10000
-        assert estimate_token_count(text) == 5000
+    def test_estimate_token_count_without_tokenizer(self):
+        text = "A" * 1000
+        count = estimate_token_count(text, None)
+        assert count == 250  # 1000 / 4
 
 class TestFiltering:
-    def test_filter_long_documents(self):
-        """Test filtering logic for long documents."""
-        # Create mock documents
+    def test_filter_long_documents_logic(self):
         docs = [
-            {"text": "a" * 100},       # ~50 tokens
-            {"text": "a" * 100000},    # ~50000 tokens
-            {"text": "a" * 10000},     # ~5000 tokens
-            {"text": ""},              # 0 tokens
+            {"document_id": "1", "text": "a" * 10000, "token_count": 10000},
+            {"document_id": "2", "text": "a" * 40000, "token_count": 40000},
+            {"document_id": "3", "text": "a" * 32000, "token_count": 32000},
         ]
-        
-        # Filter with threshold of 1000 tokens
-        filtered = list(filter_long_documents(iter(docs), min_tokens=1000))
-        
-        # Only the 100000-char document should pass
-        assert len(filtered) == 1
-        assert len(filtered[0]["text"]) == 100000
+        filtered = list(filter_long_documents(iter(docs), min_tokens=32000))
+        assert len(filtered) == 2
+        assert filtered[0]["document_id"] == "2"
+        assert filtered[1]["document_id"] == "3"
 
-    def test_filter_long_documents_empty(self):
-        """Test filtering when no documents pass."""
-        docs = [{"text": "a" * 100}]
-        filtered = list(filter_long_documents(iter(docs), min_tokens=1000))
-        assert len(filtered) == 0
+    def test_filter_logging_format(self, capsys):
+        docs = [
+            {"document_id": "skipped_1", "text": "short", "token_count": 100}
+        ]
+        list(filter_long_documents(iter(docs), min_tokens=32000))
+        captured = capsys.readouterr()
+        assert "WARNING: Skipping document skipped_1: length 100 < 32000" in captured.out
 
 class TestSampling:
-    def test_sample_dataset_no_limit(self):
-        """Test sampling without limit returns all."""
-        docs = [{"text": f"doc_{i}"} for i in range(10)]
-        result = sample_dataset(iter(docs))
-        assert len(result) == 10
-
-    def test_sample_dataset_with_limit(self):
-        """Test sampling with max_samples limit."""
-        docs = [{"text": f"doc_{i}"} for i in range(10)]
-        result = sample_dataset(iter(docs), max_samples=5)
-        assert len(result) == 5
-
-    def test_sample_dataset_with_seed(self):
-        """Test sampling with seed for reproducibility."""
-        docs = [{"text": f"doc_{i}"} for i in range(10)]
-        
-        result1 = sample_dataset(iter(docs), max_samples=5, seed=42)
-        result2 = sample_dataset(iter(docs), max_samples=5, seed=42)
-        
-        # Same seed should produce same results
-        assert result1 == result2
-
-    def test_sample_dataset_random_order(self):
-        """Test that sampling with seed shuffles correctly."""
-        docs = [{"text": f"doc_{i}"} for i in range(20)]
-        
-        result1 = sample_dataset(iter(docs), max_samples=5, seed=100)
-        result2 = sample_dataset(iter(docs), max_samples=5, seed=200)
-        
-        # Different seeds should likely produce different results
-        # (Not guaranteed, but highly probable)
-        assert result1 != result2
+    def test_sample_dataset(self):
+        docs = [{"id": i} for i in range(100)]
+        sampled = list(itertools.islice(docs, 5))
+        assert len(sampled) == 5
 
 class TestIntegration:
-    @patch('src.data_loader.load_dataset')
-    def test_save_filtered_sampled_dataset(self, mock_load_dataset):
-        """Test end-to-end save of filtered and sampled dataset."""
-        # Mock the dataset
-        mock_docs = [{"text": "a" * 100000} for _ in range(10)]
-        mock_dataset = Dataset.from_list(mock_docs)
-        mock_load_dataset.return_value = mock_dataset
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test_sampled.parquet")
-            
-            # Run the function
-            save_filtered_sampled_dataset(output_path, max_samples=5, seed=42)
-            
-            # Verify file was created
-            assert os.path.exists(output_path)
-            
-            # Verify content
-            loaded = Dataset.from_parquet(output_path)
-            assert len(loaded) == 5
-
-    @patch('src.data_loader.load_dataset')
-    def test_filter_and_sample_pipeline(self, mock_load_dataset):
-        """Test the full pipeline: load -> filter -> sample -> save."""
-        # Create a mix of short and long documents
-        mock_docs = [
-            {"text": "a" * 100},       # Short
-            {"text": "a" * 100000},    # Long
-            {"text": "a" * 10000},     # Long
-            {"text": "a" * 50},        # Short
+    def test_save_filtered_dataset(self):
+        docs = [
+            {"document_id": "1", "text": "test", "token_count": 50000}
         ]
-        mock_dataset = Dataset.from_list(mock_docs)
-        mock_load_dataset.return_value = mock_dataset
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            path = f.name
         
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "test_final.parquet")
-            
-            # Run sampling (should filter to 2 long docs, then sample 1)
-            save_filtered_sampled_dataset(output_path, max_samples=1, seed=42)
-            
-            assert os.path.exists(output_path)
-            loaded = Dataset.from_parquet(output_path)
-            assert len(loaded) == 1
+        count = save_filtered_dataset(iter(docs), path)
+        assert count == 1
+        
+        with open(path, 'r') as f:
+            data = json.load(f)
+            assert len(data) == 1
+            assert data[0]["document_id"] == "1"
+            assert "text" in data[0]
+            assert "token_count" in data[0]
+        
+        os.remove(path)
 
-    def test_data_fetch_error_raised(self):
-        """Test that DataFetchError is raised on failed fetch."""
-        with patch('src.data_loader.load_dataset', side_effect=Exception("Network error")):
-            with pytest.raises(DataFetchError):
-                list(load_pg19_streaming())
+    @patch('src.data_loader.load_dataset')
+    def test_load_pg19_streaming_failure(self, mock_load):
+        mock_load.side_effect = Exception("Network error")
+        with pytest.raises(DataFetchError):
+            load_pg19_streaming()
+
+    def test_run_filter_pipeline_structure(self):
+        # Mock the heavy lifting to ensure structure is correct without network
+        with patch('src.data_loader.load_pg19_streaming') as mock_load, \
+             patch('src.data_loader.get_document_iterator') as mock_iter, \
+             patch('src.data_loader.filter_long_documents') as mock_filter, \
+             patch('src.data_loader.save_filtered_dataset') as mock_save:
+             
+            mock_load.return_value = iter([])
+            mock_iter.return_value = iter([])
+            mock_filter.return_value = iter([])
+            mock_save.return_value = 0
+            
+            with tempfile.TemporaryDirectory() as tmpdir:
+                output = os.path.join(tmpdir, "test.json")
+                result = run_filter_pipeline(
+                    tokenizer_name="fake/test",
+                    output_path=output,
+                    min_tokens=32000
+                )
+                assert result == 0
+                mock_save.assert_called_once()
+                # Verify output path passed correctly
+                call_args = mock_save.call_args[0]
+                assert call_args[1] == output

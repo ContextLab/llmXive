@@ -13,7 +13,7 @@ This project implements a static distillation of the dynamic Hierarchical Sparse
 **Primary Dependencies**: `transformers`, `datasets` (HuggingFace), `scikit-learn` (K-Means, PCA), `pandas`, `numpy`, `torch` (CPU-only), `pytest`  
 **Storage**: Local `data/` directory for extracted profiles and static indexes; HuggingFace cache for model weights.  
 **Testing**: `pytest` for unit tests; `pytest` integration tests for end-to-end pipeline execution.  
-**Target Platform**: Linux (GitHub Actions free-tier: multiple CPUs, ~7GB RAM, ~14GB disk).  
+**Target Platform**: Linux (GitHub Actions free-tier: multiple CPUs, ~7GB RAM, Significant disk storage capacity).  
 **Project Type**: Research/CLI tool for model evaluation.  
 **Performance Goals**: Inference latency reduction factor (target %); static index lookup < 50ms on 2 cores.  
 **Constraints**: Must run on CPU-only environment; no GPU usage for training or inference (except optional offload if specified, but plan assumes CPU-first); memory usage < 7GB RAM during clustering.  
