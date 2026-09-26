@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for statistical analysis results (LMM, sensitivity)."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the metric (e.g., 'pass_rate', 'complexity_effect')."
+  value:
+    type: "number"
+    description: "The calculated value."
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval [lower, upper]."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the test."
+  method:
+    type: "string"
+    description: "Statistical method used (e.g., 'LMM', 'Tukey')."
+  covariates:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of covariates included in the model."
+  random_effects:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of random effects included."
+required:
+  - metric_name
+  - value
+  - method
+  - p_value

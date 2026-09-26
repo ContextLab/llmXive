@@ -93,7 +93,7 @@ System MUST check for collinearity between token count and structural element co
 - The LLM client supports CPU-based inference or API access.
 - The compute environment has sufficient memory for the dataset and model.
 - The analysis is associative; causality is not claimed.
-- {{claim:c_e963866e}} (Wikipedia: Language model benchmark, https://en.wikipedia.org/wiki/Language_model_benchmark)
+- (Wikipedia: Language model benchmark, https://en.wikipedia.org/wiki/Language_model_benchmark)
 
 ## 5. Data Model
 

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExecutionOutcome"
+description: "Schema for the result of executing generated code against unit tests."
+type: "object"
+properties:
+  outcome_id:
+    type: "string"
+    description: "Unique identifier for the outcome."
+  code_id:
+    type: "string"
+    description: "Reference to the generated code."
+  pass_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of passed unit tests."
+  fail_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of failed unit tests."
+  status:
+    type: "string"
+    enum:
+      - "pass"
+      - "fail"
+      - "timeout"
+      - "error"
+    description: "Overall execution status."
+  error_message:
+    type: "string"
+    description: "Error details if status is not 'pass'."
+  execution_time_ms:
+    type: "number"
+    minimum: 0
+    description: "Time taken to execute the tests."
+required:
+  - outcome_id
+  - code_id
+  - pass_count
+  - fail_count
+  - status
+  - execution_time_ms
