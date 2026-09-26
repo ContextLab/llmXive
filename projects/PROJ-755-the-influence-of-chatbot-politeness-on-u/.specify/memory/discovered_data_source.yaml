@@ -1,9 +1,15 @@
 status: none
-intent: pip install persona_chat empathetic_dialogues datasets python package dataset
+intent: download EmpatheticDialogues HCI_P2 Persona-Chat datasets python package dataset
 required_fields:
-- dialogue_text
-- quality_ratings
-- user_id
-cache_key: 032398f09d31d5e1e505202a58cb877e9de22c08c746330333771ceaf1a2868d
-searched_at: '2026-09-22T00:49:05.615787+00:00'
+- dialogue_id
+- utterance_id
+- speaker
+- text
+- context
+- emotion
+- quality_rating
+- politeness_score
+- trust_rating
+cache_key: d0ffa9836d8f948b6028e5c4698399279cf78ff1b96d83b28b722566915c2b7a
+searched_at: '2026-09-26T00:35:12.497302+00:00'
 retry_count: 1

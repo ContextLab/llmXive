@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CLMM Model Output Schema"
+description: "Schema for the CLMM model results (model_results.csv)"
+type: object
+properties:
+  term:
+    type: string
+    description: "Name of the predictor variable"
+  estimate:
+    type: number
+    description: "Coefficient estimate"
+  std_error:
+    type: number
+    description: "Standard error of the estimate"
+  p_value:
+    type: number
+    description: "P-value (adjusted if applicable)"
+  conf_low:
+    type: number
+    description: "Lower bound of 95% confidence interval"
+  conf_high:
+    type: number
+    description: "Upper bound of 95% confidence interval"
+  model_type:
+    type: string
+    description: "Type of model (e.g., 'primary', 'robustness', 'subgroup')"
+  subgroup:
+    type:
+      - string
+      - "null"
+    description: "Subgroup name if applicable, null otherwise"
+required:
+  - term
+  - estimate
+  - std_error
+  - p_value
+  - conf_low
+  - conf_high
+  - model_type
+additionalProperties: false

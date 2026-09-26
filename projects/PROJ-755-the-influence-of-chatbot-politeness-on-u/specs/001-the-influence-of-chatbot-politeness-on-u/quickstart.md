@@ -3,109 +3,88 @@
 ## Prerequisites
 
 - Python 3.11+
-- R 4.3+ (for CLMM)
+- R 4.3+ (with `lme4`, `ordinal`, `dplyr` packages)
 - Git
-- HuggingFace CLI (optional, for manual downloads)
-- `HF_TOKEN` (if datasets require authentication, though verified ones are public)
+- Access to Hugging Face Hub (optional, for datasets)
 
 ## Installation
 
-1. **Clone the Repository**
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-755-the-influence-of-chatbot-politeness-on-u
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd <project-dir>
+    ```
 
-2. **Set Up Python Environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
-   ```
+2.  **Create virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Set Up R Environment**
-   ```bash
-   # Install R packages (if not pre-installed in CI)
-   Rscript -e 'install.packages(c("ordinal", "lme4", "lmerTest", "car", "pryr"))'
-   ```
+3.  **Install Python dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-4. **Configure Environment Variables**
-   Create a `.env.template` file in the root (T010b):
-   ```bash
-   HF_TOKEN=your_token_here
-   ```
-   Copy to `.env` and fill in your token.
+4.  **Install R dependencies** (if not using system R):
+    ```r
+    install.packages(c("lme4", "ordinal", "dplyr", "tidyr"))
+    ```
 
-5. **Create Directory Structure** (T001a, T001b, T001c, T001d)
-   Ensure the following directories exist:
-   - `data/raw`, `data/processed`, `data/models`
-   - `code`, `code/utils`
-   - `tests`, `tests/contract`, `tests/unit`, `tests/integration`
-   - `docs`, `docs/reports`, `state`
-
-6. **Configure Linting** (T003)
-   Create `pyproject.toml` with Black and Ruff settings:
-   ```toml
-   [tool.black]
-   line-length = 88
-
-   [tool.ruff]
-   select = ["E", "F", "I"]
-   ```
+5.  **Set environment variables**:
+    Copy `.env.example` to `.env` and add your `HF_TOKEN` if required for private datasets (though we use public ones).
+    ```bash
+    cp .env.example .env
+    # Edit .env to add HF_TOKEN=your_token
+    ```
 
 ## Running the Pipeline
 
-### 1. Data Download and Scoring (US1)
+### 1. Download and Validate Data
 ```bash
-python code/download_and_score.py
-# Output: data/processed/dialogues_scored.parquet
+python code/data/download_datasets.py
+python code/data/validate_data.py
 ```
-*Note: This step may take 1-3 hours on CPU. It will automatically stream data to avoid OOM.*
+*Outputs: `data/raw/*.parquet`, `data/processed/validation_log.txt`*
 
-### 2. Primary Analysis (US2)
+### 2. Score Politeness
 ```bash
-Rscript code/analysis_clmm.R
-# Output: results/clmm_results.csv
+python code/data/score_politeness.py
 ```
+*Outputs: `data/processed/dialogues_scored.csv`*
 
-### 3. Robustness Analysis (US3)
+### 3. Run CLMM Analysis
 ```bash
-python code/robustness_analysis.py
-# Output: results/robustness_results.csv
+python code/analysis/run_clmm.py
 ```
+*Outputs: `data/processed/model_results.csv`, `data/processed/figures/`*
 
-### 4. Generate Report
+### 4. Robustness Check
 ```bash
-python code/generate_report.py
-# Output: docs/reports/final_report.md
+python code/analysis/robustness_check.py
 ```
+*Outputs: `data/processed/robustness_results.csv`*
+
+### 5. Subgroup Analysis (if applicable)
+```bash
+python code/analysis/subgroup_analysis.py
+```
+*Outputs: `data/processed/subgroup_results.csv`*
 
 ## Verification
 
-To verify the installation and data integrity:
+Run the test suite:
 ```bash
-pytest tests/unit/
-pytest tests/contract/
+pytest tests/
 ```
 
-## CI Configuration (T004, T004b)
-
-The `.github/workflows/ci.yml` file must include:
-- Python 3.11 installation.
-- R 4.3 installation.
-- Installation of R packages: `lme4`, `ordinal`.
-- Execution of `pytest` and `testthat`.
-- Memory and runtime checks.
-
-Example snippet:
-```yaml
-- name: Install R packages
-  run: |
-    Rscript -e 'install.packages(c("ordinal", "lme4", "lmerTest"))'
+Run schema validation:
+```bash
+python code/utils/schema_validator.py --input data/processed/dialogues_merged.csv --schema contracts/dataset.schema.yaml
 ```
 
 ## Troubleshooting
 
-- **OOM Error**: Ensure `streaming=True` is used in the data loader.
-- **CLMM Convergence Failure**: The script will automatically log the failure and attempt a simplified fixed-effects model.
-- **LIWC Missing**: The script will fall back to the `textstat` politeness lexicon and log the deviation.
+- **OOM Error**: If `score_politeness.py` fails due to memory, reduce `BATCH_SIZE` in `code/data/score_politeness.py` or enable the GPU escape hatch.
+- **R Package Missing**: Ensure R is installed and packages are in the library path.
+- **Dataset Not Found**: Check `code/data/download_datasets.py` for updated Hugging Face IDs.

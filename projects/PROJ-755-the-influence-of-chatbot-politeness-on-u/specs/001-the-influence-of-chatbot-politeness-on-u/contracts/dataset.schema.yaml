@@ -1,42 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Politeness Analysis Dataset Schema"
-description: "Schema for the processed dialogue dataset used in CLMM analysis."
+title: "Dialogue Dataset Schema"
+description: "Schema for the merged and processed dialogue dataset (dialogues_merged.csv)"
 type: object
 properties:
   dialogue_id:
     type: string
-    description: "Unique identifier for the dialogue."
-  annotator_id:
+    description: "Unique identifier for the dialogue"
+  user_id:
     type: string
-    description: "Anonymized annotator identifier."
-  quality_rating:
-    type: integer
-    description: "User-reported quality rating (1-5)."
-    minimum: 1
-    maximum: 5
+    description: "Unique identifier for the user"
   mean_politeness_score:
     type: number
-    description: "Z-scored mean politeness score of chatbot utterances (within-dataset)."
+    description: "Z-scored mean politeness score of chatbot utterances"
+  quality_rating:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "User-reported quality rating (1-5 Likert)"
   conversation_length:
     type: integer
-    description: "Word count of chatbot utterances in the dialogue."
-    minimum: 0
-  dataset_source:
+    description: "Total word count or utterance count"
+  age:
+    type:
+      - integer
+      - "null"
+    description: "User age (null if missing)"
+  gender:
+    type:
+      - string
+      - "null"
+    description: "User gender (null if missing)"
+  source_dataset:
     type: string
-    description: "Source dataset name."
-    enum:
-      - "EmpatheticDialogues"
-      - "HCI_P2"
-  utterance_count:
-    type: integer
-    description: "Number of chatbot utterances."
-    minimum: 1
+    description: "Source dataset name (e.g., 'EmpatheticDialogues')"
 required:
   - dialogue_id
-  - annotator_id
-  - quality_rating
+  - user_id
   - mean_politeness_score
+  - quality_rating
   - conversation_length
-  - dataset_source
-  - utterance_count
+  - source_dataset
 additionalProperties: false
