@@ -1,0 +1,16 @@
+status: none
+intent: TRY plant trait database download python package dataset NCBI RefSeq gene
+  annotations
+required_fields:
+- species_name
+- species_taxid
+- leaf_area
+- specific_leaf_area
+- seed_mass
+- plant_height
+- ABA_signaling_gene_presence
+- osmoprotectant_gene_presence
+- genome_assembly_accession
+cache_key: 780b0475793a15a7cc3b56c8d8f1af98fcd052ef35e9fe0c47886d01cf7fd8d8
+searched_at: '2026-09-26T20:27:04.718185+00:00'
+retry_count: 1

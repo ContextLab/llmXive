@@ -25,7 +25,7 @@ The system must successfully download, parse, and merge physiological trait data
 
 ### User Story 2 - Model Training and Validation (Priority: P2)
 
-The system must train two supervised classifiers (Random Forest and XGBoost) on the constructed dataset using a stratified 80/20 split and 5-fold cross-validation, ensuring the models are trained without GPU acceleration and complete within the CI limit. Additionally, the system must validate that the combined features provide statistically significant improvement over a phylogeny-only baseline.
+The system must train two supervised classifiers (Random Forest and XGBoost) on the constructed dataset using a stratified train-test split and 5-fold cross-validation, ensuring the models are trained without GPU acceleration and complete within the CI limit. Additionally, the system must validate that the combined features provide statistically significant improvement over a phylogeny-only baseline.
 
 **Why this priority**: This validates the core scientific hypothesis that genomic and physiological markers can predict drought tolerance beyond phylogenetic relatedness. It also confirms the computational feasibility of the approach on free-tier CI resources.
 

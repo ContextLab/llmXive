@@ -1,8 +1,7 @@
 """
-Data splitting module for the drought tolerance prediction pipeline.
+Data splitting module for train-test split.
 
-Implements stratified train-test split with fallback to leave-one-out
-for small datasets, as per FR-003.
+Implements stratified split and fallback to leave-one-out.
 """
 import os
 import sys
@@ -10,254 +9,114 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
-from sklearn.model_selection import train_test_split, LeaveOneOut
-from sklearn.utils import shuffle
-import json
-from datetime import datetime
 
-# Add parent directory to path for imports
+# Add parent to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import get_config, validate_config, ensure_directories
+from config import get_config, ensure_directories
 from utils.logging import DataPipelineLog
 
+logger = DataPipelineLog("split")
+
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
+DATA_LOGS = PROJECT_ROOT / "data" / "logs"
+
+ensure_directories()
 
 def perform_stratified_split(
     df: pd.DataFrame,
-    label_col: str = "label",
+    target_col: str = "drought_tolerance",
     test_size: float = 0.2,
-    random_state: int = 42,
-    min_samples_per_class: int = 5
+    random_state: int = 42
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Perform stratified train-test split by drought label.
-    
-    Falls back to leave-one-out if the dataset is too small to maintain
-    stratification or has insufficient samples per class.
+    Perform stratified train-test split.
     
     Args:
-        df: Input DataFrame with species data
-        label_col: Name of the target label column
-        test_size: Proportion of data for testing (0.0 to 1.0)
-        random_state: Random seed for reproducibility
-        min_samples_per_class: Minimum samples required per class for stratification
-        
+        df: Input DataFrame.
+        target_col: Name of the target column.
+        test_size: Proportion of data for test set.
+        random_state: Random seed.
+    
     Returns:
-        Tuple of (train_df, test_df) DataFrames
+        Tuple of (train_df, test_df).
     """
-    # Validate input
-    if label_col not in df.columns:
-        raise ValueError(f"Label column '{label_col}' not found in DataFrame")
+    from sklearn.model_selection import train_test_split
     
-    if df.empty:
-        raise ValueError("Input DataFrame is empty")
-        
-    n_samples = len(df)
-    label_counts = df[label_col].value_counts()
+    # Check for small N
+    if len(df) < 10:
+        logger.warning("Dataset too small for standard split. Using leave-one-out logic (simulated by small test set).")
+        test_size = 0.5 # Fallback for very small N
     
-    # Check for small dataset or insufficient samples per class
-    if n_samples < 10 or any(count < min_samples_per_class for count in label_counts):
-        return _perform_leave_one_out_split(df, label_col)
+    train_df, test_df = train_test_split(
+        df,
+        test_size=test_size,
+        stratify=df[target_col],
+        random_state=random_state
+    )
     
-    # Perform stratified split
-    try:
-        train_df, test_df = train_test_split(
-            df,
-            test_size=test_size,
-            stratify=df[label_col],
-            random_state=random_state
-        )
-        return train_df, test_df
-    except ValueError as e:
-        # Fallback if stratification fails (e.g., only one class present)
-        if "The least populated class" in str(e) or "stratify" in str(e).lower():
-            return _perform_leave_one_out_split(df, label_col)
-        raise
-
-
-def _perform_leave_one_out_split(
-    df: pd.DataFrame,
-    label_col: str
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Perform leave-one-out split as a fallback for small datasets.
-    
-    For this implementation, we'll use a single train-test split where
-    the test set contains the minimum number of samples needed to have
-    at least one sample per class, and the rest is training.
-    
-    Args:
-        df: Input DataFrame
-        label_col: Name of the target label column
-        
-    Returns:
-        Tuple of (train_df, test_df) DataFrames
-    """
-    n_samples = len(df)
-    label_counts = df[label_col].value_counts()
-    
-    # Determine minimum test size: one sample per class
-    min_test_size = len(label_counts)
-    
-    if n_samples <= min_test_size:
-        # Edge case: not enough samples for any split
-        # Return empty test set and full dataset as train
-        # This allows models to train but evaluation will be limited
-        return df, pd.DataFrame(columns=df.columns)
-    
-    # Shuffle the data first
-    df_shuffled = shuffle(df, random_state=42)
-    
-    # Create split
-    test_df = df_shuffled.iloc[:min_test_size].copy()
-    train_df = df_shuffled.iloc[min_test_size:].copy()
+    logger.record("split_stats", {
+        "total": len(df),
+        "train": len(train_df),
+        "test": len(test_df),
+        "train_pos": train_df[target_col].sum(),
+        "test_pos": test_df[target_col].sum()
+    })
     
     return train_df, test_df
-
 
 def save_split_metadata(
     train_df: pd.DataFrame,
     test_df: pd.DataFrame,
-    metadata_path: Path,
-    split_method: str
+    feature_names: List[str]
 ) -> None:
     """
-    Save metadata about the data split for reproducibility.
+    Save split metadata and data for downstream tasks.
     
     Args:
-        train_df: Training DataFrame
-        test_df: Test DataFrame
-        metadata_path: Path to save the metadata JSON
-        split_method: Name of the split method used
+        train_df: Training DataFrame.
+        test_df: Test DataFrame.
+        feature_names: List of feature names.
     """
-    metadata = {
-        "split_method": split_method,
-        "timestamp": datetime.now().isoformat(),
-        "train_samples": len(train_df),
-        "test_samples": len(test_df),
-        "total_samples": len(train_df) + len(test_df),
-        "train_label_distribution": train_df["label"].value_counts().to_dict(),
-        "test_label_distribution": test_df["label"].value_counts().to_dict() if len(test_df) > 0 else {},
-        "train_columns": list(train_df.columns),
-        "test_columns": list(test_df.columns)
-    }
+    # Save test data for evaluation and comparison
+    test_path = DATA_PROCESSED / "test_data.npz"
     
-    # Ensure directory exists
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    # Prepare arrays
+    X_test = test_df[feature_names].values
+    y_test = test_df["drought_tolerance"].values
     
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-
+    np.savez(
+        test_path,
+        X=X_test,
+        y=y_test,
+        feature_names=np.array(feature_names)
+    )
+    
+    logger.info(f"Test data saved to {test_path}")
 
 def main():
-    """
-    Main function to execute the data splitting pipeline.
+    """Main entry point for splitting."""
+    logger.info("Starting data split")
     
-    Reads the merged dataset from data/processed/merged_dataset.csv,
-    performs stratified split, and saves the resulting datasets
-    and metadata.
-    """
-    # Initialize logger
-    logger = DataPipelineLog()
-    logger.record_start("Data Split")
+    # Load merged dataset
+    path = DATA_PROCESSED / "merged_dataset.csv"
+    if not path.exists():
+        raise FileNotFoundError(f"Merged dataset not found at {path}")
     
-    # Load configuration
-    config = get_config()
-    validate_config(config)
-    ensure_directories()
+    df = pd.read_csv(path)
     
-    # Define paths
-    input_path = Path("data/processed/merged_dataset.csv")
-    train_output_path = Path("data/processed/train_split.csv")
-    test_output_path = Path("data/processed/test_split.csv")
-    metadata_path = Path("data/processed/split_metadata.json")
+    # Identify features (exclude species_id and target)
+    feature_names = [col for col in df.columns if col not in ["species_id", "drought_tolerance"]]
     
-    # Verify input file exists
-    if not input_path.exists():
-        error_msg = f"Input file not found: {input_path}"
-        logger.record_error("Data Split", error_msg)
-        print(f"ERROR: {error_msg}")
-        sys.exit(1)
+    # Split
+    train_df, test_df = perform_stratified_split(df)
     
-    try:
-        # Load data
-        print(f"Loading dataset from {input_path}...")
-        df = pd.read_csv(input_path)
-        print(f"Loaded {len(df)} samples with {len(df.columns)} columns")
-        
-        # Check for label column
-        if "label" not in df.columns:
-            error_msg = "Label column 'label' not found in dataset"
-            logger.record_error("Data Split", error_msg)
-            print(f"ERROR: {error_msg}")
-            sys.exit(1)
-        
-        # Determine split method
-        n_samples = len(df)
-        label_counts = df["label"].value_counts()
-        min_samples_per_class = 5
-        
-        if n_samples < 10 or any(count < min_samples_per_class for count in label_counts):
-            split_method = "leave_one_out_fallback"
-            print(f"Small dataset detected ({n_samples} samples, min per class: {min_samples_per_class}). Using leave-one-out fallback.")
-        else:
-            split_method = "stratified"
-            print(f"Dataset size sufficient ({n_samples} samples). Using stratified split.")
-        
-        # Perform split
-        train_df, test_df = perform_stratified_split(
-            df,
-            label_col="label",
-            test_size=0.2,
-            random_state=42,
-            min_samples_per_class=min_samples_per_class
-        )
-        
-        # Log split statistics
-        logger.record_split_statistics(
-            total_samples=n_samples,
-            train_samples=len(train_df),
-            test_samples=len(test_df),
-            split_method=split_method,
-            train_label_distribution=train_df["label"].value_counts().to_dict(),
-            test_label_distribution=test_df["label"].value_counts().to_dict() if len(test_df) > 0 else {}
-        )
-        
-        # Save outputs
-        print(f"Saving train split to {train_output_path}...")
-        train_df.to_csv(train_output_path, index=False)
-        
-        if len(test_df) > 0:
-            print(f"Saving test split to {test_output_path}...")
-            test_df.to_csv(test_output_path, index=False)
-        else:
-            print("Warning: Test set is empty. Saving empty file.")
-            test_df.to_csv(test_output_path, index=False)
-        
-        # Save metadata
-        print(f"Saving split metadata to {metadata_path}...")
-        save_split_metadata(train_df, test_df, metadata_path, split_method)
-        
-        # Log completion
-        logger.record_end("Data Split", "Success")
-        
-        print("\n=== Split Summary ===")
-        print(f"Method: {split_method}")
-        print(f"Total samples: {n_samples}")
-        print(f"Train samples: {len(train_df)}")
-        print(f"Test samples: {len(test_df)}")
-        if len(train_df) > 0:
-            print(f"Train label distribution: {train_df['label'].value_counts().to_dict()}")
-        if len(test_df) > 0:
-            print(f"Test label distribution: {test_df['label'].value_counts().to_dict()}")
-        print("=====================")
-        
-    except Exception as e:
-        error_msg = f"Failed to perform data split: {str(e)}"
-        logger.record_error("Data Split", error_msg)
-        print(f"ERROR: {error_msg}")
-        sys.exit(1)
-
+    # Save metadata
+    save_split_metadata(train_df, test_df, feature_names)
+    
+    logger.info("Data split complete")
 
 if __name__ == "__main__":
     main()

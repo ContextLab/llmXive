@@ -1,12 +1,33 @@
-T029:
+T012:
   c: false
-  h: c7d27bbecaca6138fe32a5b388f4332fc47ced3093515e25fabe971bf8563b82
-  r: "The repository contains a `code/models/compare.py` file, but it is truncated\
-    \ and does not show any logic that writes a report to `docs/reports/final_analysis.md`.\
-    \ Moreover, the required `docs/reports/final_analysis.md` file is missing entirely,\
-    \ and there is no evidence that the script checks the count of validation genes\
-    \ in the top\u201110 features. The task\u2019s core deliverables are therefore\
-    \ not present."
+  h: d674b2bbe2f51c4933b5feaa75f610aedf837efe64596d30895d530d3e7e1601
+  r: "The provided `generate.py` does not include the required trigger (check T011b\
+    \ status and `VALIDATION_MODE`) nor does it log when synthetic data is used. Moreover,\
+    \ the expected output file `data/processed/synthetic_genomics.csv` is absent,\
+    \ indicating the script either was not run or failed to produce the file. These\
+    \ gaps mean the task\u2019s specifications are not fully satisfied."
+T016a:
+  c: false
+  h: 84aa2bb17eb1c13f4c0dd24bd3204c9334b16a3315626f59f98c490aeb2d9723
+  r: "The `data/processed/synthetic_phylo_matrix.npy` file does not exist, and the\
+    \ `generate_synthetic_phylogenetic_matrix` function in `code/data/generate.py`\
+    \ is truncated and does not show a complete implementation of the required symmetric\
+    \ matrix generation and saving logic. The task\u2019s core output is therefore\
+    \ missing."
+T016b:
+  c: false
+  h: 9189f46055fb4f23b32c8a025ffb7e796573433e365064988efb63b97879d061
+  r: "The provided `code/data/generate.py` only contains synthetic data generation\
+    \ functions and is truncated before any logic for parsing `data/raw/phylo_tree.newick`\
+    \ or creating `data/processed/real_phylo_matrix.npy`. The required tree file and\
+    \ the resulting distance matrix are both absent, so the optional real\u2011phylogeny\
+    \ functionality is not implemented."
+T021:
+  c: false
+  h: b49d2262a0797b8405043de10a930febabf2dc2f062ff4d23b376e433fcf52db
+  r: The `train.py` file is truncated and does not contain a complete `train_knn_baseline`
+    implementation, and neither `data/processed/real_phylo_matrix.npy` nor `data/processed/synthetic_phylo_matrix.npy`
+    exist, so the required KNN baseline logic and necessary input data are missing.
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -1,11 +1,13 @@
 """
 Unit tests for the download module.
+Tests specifically cover retry logic for HTTP errors (404, 500) and network timeouts.
 """
 import os
 import tempfile
 import pytest
 from unittest.mock import patch, MagicMock
 import requests
+from io import BytesIO
 
 # Import the function to test
 from code.data.download import download_try_data, calculate_md5, exponential_backoff_retry
@@ -18,6 +20,8 @@ class MockLogger:
     def error(self, msg, **kwargs):
         pass
     def warning(self, msg, **kwargs):
+        pass
+    def critical(self, msg, **kwargs):
         pass
 
 def test_calculate_md5():
@@ -64,7 +68,7 @@ def test_download_checksum_mismatch(mock_get):
 
 @patch('code.data.download.requests.get')
 def test_download_retry_logic(mock_get):
-    """Test that download retries on failure."""
+    """Test that download retries on transient network failure."""
     mock_get.side_effect = [
         requests.exceptions.RequestException("Network Error"),
         requests.exceptions.RequestException("Network Error"),
@@ -93,7 +97,9 @@ def test_download_404_simulation(mock_get):
     """Test retry logic specifically for 404 Not Found errors."""
     # Simulate two 404 errors followed by a successful response
     mock_404_response = MagicMock()
-    mock_404_response.raise_for_status.side_effect = requests.exceptions.HTTPError(response=MagicMock(status_code=404))
+    # Configure raise_for_status to raise an HTTPError with 404 status
+    http_error_404 = requests.exceptions.HTTPError(response=MagicMock(status_code=404))
+    mock_404_response.raise_for_status.side_effect = http_error_404
     
     mock_success_response = MagicMock()
     mock_success_response.iter_content.return_value = [b"valid data"]
@@ -123,7 +129,8 @@ def test_download_404_simulation(mock_get):
 def test_download_404_max_retries(mock_get):
     """Test that 404 errors are retried and eventually fail if max retries exceeded."""
     mock_404_response = MagicMock()
-    mock_404_response.raise_for_status.side_effect = requests.exceptions.HTTPError(response=MagicMock(status_code=404))
+    http_error_404 = requests.exceptions.HTTPError(response=MagicMock(status_code=404))
+    mock_404_response.raise_for_status.side_effect = http_error_404
     
     # Always return 404
     mock_get.side_effect = mock_404_response
@@ -136,3 +143,28 @@ def test_download_404_max_retries(mock_get):
         
         # Verify we retried the expected number of times (default is 3)
         assert mock_get.call_count == 3
+
+@patch('code.data.download.requests.get')
+def test_download_500_server_error(mock_get):
+    """Test retry logic for 500 Internal Server Error."""
+    mock_500_response = MagicMock()
+    http_error_500 = requests.exceptions.HTTPError(response=MagicMock(status_code=500))
+    mock_500_response.raise_for_status.side_effect = http_error_500
+    
+    mock_success_response = MagicMock()
+    mock_success_response.iter_content.return_value = [b"server recovered"]
+    mock_success_response.raise_for_status = MagicMock()
+    
+    mock_get.side_effect = [
+        mock_500_response,
+        mock_success_response
+    ]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        logger = MockLogger()
+        path = download_try_data(logger, tmpdir)
+        
+        assert mock_get.call_count == 2
+        assert os.path.exists(path)
+        with open(path, 'rb') as f:
+            assert f.read() == b"server recovered"
