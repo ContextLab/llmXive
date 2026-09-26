@@ -1,134 +1,239 @@
+"""
+Counterbalance assignment module for the Implicit Bias experiment.
+Generates participant-to-stimulus-set mappings with proper randomization.
+"""
+
 import os
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 import logging
-import argparse
+
 from config import get_project_root, get_data_path
-from utils.logging import get_logger, log_counterbalance_strategy
+from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-def generate_counterbalance_assignments(
-    n_participants: int,
-    seed: int = 42,
-    split_ratio: float = 0.5
+# Constants
+RANDOM_SEED = 42
+
+
+def load_complexity_categories(
+    input_path: Optional[Path] = None
 ) -> pd.DataFrame:
     """
-    Generate counterbalance assignments for participants.
+    Load complexity categories from the processed scores file.
 
     Args:
-        n_participants: Total number of participants to assign.
-        seed: Random seed for reproducibility.
-        split_ratio: Ratio of participants starting with Low complexity (0.0 to 1.0).
-                    Default 0.5 means balanced allocation.
+        input_path: Optional path to complexity_scores.csv.
 
     Returns:
-        DataFrame with columns: participant_id, session_order, complexity_condition_order
+        DataFrame with filename and complexity_category.
     """
-    logger.info(f"Generating counterbalance assignments for {n_participants} participants (seed={seed})")
+    if input_path is None:
+        input_path = get_project_root() / "data" / "processed" / "complexity_scores.csv"
 
+    if not input_path.exists():
+        raise FileNotFoundError(f"Complexity scores file not found: {input_path}")
+
+    df = pd.read_csv(input_path)
+    required_cols = ['filename', 'complexity_category']
+    if not all(col in df.columns for col in required_cols):
+        raise ValueError(f"Missing required columns in {input_path}. Expected: {required_cols}")
+
+    logger.info(f"Loaded {len(df)} complexity categories from {input_path}")
+    return df[required_cols]
+
+
+def get_participant_ids(
+    data_root: Optional[Path] = None,
+    n_synthetic: int = 100
+) -> List[str]:
+    """
+    Get participant IDs from real data or generate synthetic ones.
+
+    Args:
+        data_root: Root directory for data.
+        n_synthetic: Number of synthetic IDs to generate if no real data.
+
+    Returns:
+        List of participant IDs.
+    """
+    if data_root is None:
+        data_root = get_project_root()
+
+    responses_dir = data_root / "data" / "raw" / "responses"
+
+    # Try to load real participant IDs
+    if responses_dir.exists():
+        csv_files = list(responses_dir.glob("*.csv"))
+        if csv_files:
+            # Load first CSV to get participant IDs
+            df = pd.read_csv(csv_files[0])
+            if 'participant_id' in df.columns:
+                participants = df['participant_id'].unique().tolist()
+                logger.info(f"Found {len(participants)} real participants.")
+                return participants
+
+    # Generate synthetic IDs if no real data
+    logger.info(f"Generating {n_synthetic} synthetic participant IDs.")
+    return [f"P{i:04d}" for i in range(n_synthetic)]
+
+
+def generate_counterbalance_assignments(
+    participant_ids: List[str],
+    complexity_df: pd.DataFrame,
+    seed: int = RANDOM_SEED
+) -> pd.DataFrame:
+    """
+    Generate counterbalance assignments mapping participants to stimulus sets.
+
+    Algorithm:
+    1. Randomly shuffle participants (seeded).
+    2. Assign half to "Low-High" order with SetA, half to "High-Low" with SetB.
+    3. Ensure SetA corresponds to 'Low' complexity and SetB to 'High'.
+
+    Args:
+        participant_ids: List of participant IDs.
+        complexity_df: DataFrame with complexity categories (filename, complexity_category).
+        seed: Random seed for reproducibility.
+
+    Returns:
+        DataFrame with counterbalance assignments.
+    """
     np.random.seed(seed)
+    logger.info(f"Generating counterbalance assignments for {len(participant_ids)} participants (seed={seed}).")
 
-    # Generate participant IDs
-    participant_ids = [f"P{str(i+1).zfill(3)}" for i in range(n_participants)]
+    # Shuffle participants
+    shuffled_ids = participant_ids.copy()
+    np.random.shuffle(shuffled_ids)
 
-    # Determine session orders based on split ratio
-    # Session order: 'Low-High' (starts with Low) or 'High-Low' (starts with High)
-    n_low_first = int(n_participants * split_ratio)
-    n_high_first = n_participants - n_low_first
+    n_participants = len(shuffled_ids)
+    n_low_high = n_participants // 2
+    n_high_low = n_participants - n_low_high
 
-    # Create the list of session orders
-    session_orders = (
-        ['Low-High'] * n_low_first + ['High-Low'] * n_high_first
-    )
+    # Create assignments
+    assignments = []
 
-    # Shuffle to randomize which participant gets which order
-    np.random.shuffle(session_orders)
+    # First half: Low-High order with SetA
+    for i in range(n_low_high):
+        assignments.append({
+            'participant_id': shuffled_ids[i],
+            'session_order': 'Low-High',
+            'stimulus_set_id': 'SetA'
+        })
 
-    # Create the DataFrame
-    df = pd.DataFrame({
-        'participant_id': participant_ids,
-        'session_order': session_orders,
-        'complexity_condition_order': session_orders  # Alias for clarity
-    })
+    # Second half: High-Low order with SetB
+    for i in range(n_low_high, n_participants):
+        assignments.append({
+            'participant_id': shuffled_ids[i],
+            'session_order': 'High-Low',
+            'stimulus_set_id': 'SetB'
+        })
+
+    df = pd.DataFrame(assignments)
+
+    # Log split ratio
+    split_ratio = n_low_high / n_participants
+    logger.info(f"Counterbalance split: {split_ratio:.2%} Low-High / {1-split_ratio:.2%} High-Low")
 
     return df
 
+
+def save_counterbalance_assignments(
+    df: pd.DataFrame,
+    output_path: Optional[Path] = None
+) -> Path:
+    """
+    Save counterbalance assignments to CSV.
+
+    Args:
+        df: DataFrame with assignments.
+        output_path: Optional output path.
+
+    Returns:
+        Path to saved file.
+    """
+    if output_path is None:
+        output_path = get_project_root() / "data" / "processed" / "counterbalance_assignment.csv"
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved counterbalance assignments to {output_path}")
+    return output_path
+
+
 def main():
-    """CLI entry point for counterbalance assignment generation."""
+    """
+    Main entry point for generating counterbalance assignments.
+    """
+    import argparse
+    from utils.logging import setup_logging
+
     parser = argparse.ArgumentParser(
-        description="Generate counterbalance assignments for experimental sessions."
+        description="Generate counterbalance assignments for participants."
     )
     parser.add_argument(
-        '--n-participants',
+        "--n-synthetic",
         type=int,
-        default=60,
-        help='Number of participants to assign (default: 60)'
+        default=100,
+        help="Number of synthetic participants if no real data."
     )
     parser.add_argument(
-        '--split-ratio',
-        type=float,
-        default=0.5,
-        help='Ratio of participants starting with Low complexity (default: 0.5 for balanced)'
-    )
-    parser.add_argument(
-        '--seed',
+        "--seed",
         type=int,
-        default=42,
-        help='Random seed for reproducibility (default: 42)'
+        default=RANDOM_SEED,
+        help=f"Random seed (default: {RANDOM_SEED})."
     )
     parser.add_argument(
-        '--output-path',
+        "--output",
         type=str,
         default=None,
-        help='Custom output path. If not provided, uses default project path.'
+        help="Output path for assignments."
     )
 
     args = parser.parse_args()
+    setup_logging()
 
-    # Validate split ratio
-    if not 0.0 <= args.split_ratio <= 1.0:
-        raise ValueError(f"split_ratio must be between 0.0 and 1.0, got {args.split_ratio}")
+    try:
+        # Load complexity categories
+        complexity_df = load_complexity_categories()
 
-    # Determine output path
-    project_root = get_project_root()
-    if args.output_path:
-        output_path = Path(args.output_path)
-    else:
-        output_path = get_data_path(project_root, "processed/counterbalance_assignment.csv")
+        # Get participant IDs
+        participant_ids = get_participant_ids(n_synthetic=args.n_synthetic)
 
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+        # Generate assignments
+        assignments_df = generate_counterbalance_assignments(
+            participant_ids,
+            complexity_df,
+            seed=args.seed
+        )
 
-    logger.info(f"Generating assignments: N={args.n_participants}, split_ratio={args.split_ratio}, seed={args.seed}")
+        # Save results
+        output_path = save_counterbalance_assignments(assignments_df, args.output)
 
-    # Generate assignments
-    df = generate_counterbalance_assignments(
-        n_participants=args.n_participants,
-        seed=args.seed,
-        split_ratio=args.split_ratio
-    )
+        # Log strategy
+        logs_dir = get_project_root() / "logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        log_path = logs_dir / "counterbalance_strategy.log"
+        with open(log_path, 'w') as f:
+            f.write(f"Counterbalance Strategy Log\n")
+            f.write(f"============================\n")
+            f.write(f"Seed: {args.seed}\n")
+            f.write(f"Total Participants: {len(participant_ids)}\n")
+            f.write(f"Low-High (SetA): {len(assignments_df[assignments_df['session_order'] == 'Low-High'])}\n")
+            f.write(f"High-Low (SetB): {len(assignments_df[assignments_df['session_order'] == 'High-Low'])}\n")
+            f.write(f"Split Ratio: {len(assignments_df[assignments_df['session_order'] == 'Low-High']) / len(assignments_df):.2%}\n")
+            f.write(f"Output: {output_path}\n")
 
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Counterbalance assignments saved to {output_path}")
+        logger.info(f"Strategy logged to {log_path}")
 
-    # Log the strategy for audit trail
-    log_path = get_data_path(project_root, "../logs/counterbalance_strategy.log")
-    log_counterbalance_strategy(
-        log_path,
-        seed=args.seed,
-        split_ratio=args.split_ratio,
-        n_participants=args.n_participants,
-        n_low_first=int(args.n_participants * args.split_ratio),
-        n_high_first=args.n_participants - int(args.n_participants * args.split_ratio)
-    )
+    except Exception as e:
+        logger.exception(f"Error generating counterbalance assignments: {e}")
+        import sys
+        sys.exit(1)
 
-    logger.info(f"Counterbalance strategy logged to {log_path}")
-
-    return df
 
 if __name__ == "__main__":
     main()

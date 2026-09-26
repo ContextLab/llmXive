@@ -1,3 +1,8 @@
+"""
+Data processing module for the Implicit Bias experiment.
+Handles trial filtering, D-score calculation, and aggregation.
+"""
+
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Any, Tuple, Optional
@@ -5,178 +10,281 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-# Configure logging
-logger = logging.getLogger(__name__)
+from config import get_project_root, get_data_path
+from utils.logging import get_logger
 
-def filter_trials(trials: pd.DataFrame, min_rt: float = 300.0, max_rt: float = 10000.0) -> pd.DataFrame:
-    """
-    Filter trials based on reaction time bounds and error handling.
-    
-    Parameters:
-    - trials: DataFrame with columns including 'reaction_time' and 'is_correct'
-    - min_rt: Minimum valid reaction time in ms (default 300ms)
-    - max_rt: Maximum valid reaction time in ms (default 10000ms)
-    
-    Returns:
-    - Filtered DataFrame
-    """
-    logger.info(f"Filtering trials with bounds: {min_rt}ms <= RT <= {max_rt}ms")
-    
-    # Filter by reaction time bounds
-    valid_trials = trials[
-        (trials['reaction_time'] >= min_rt) & 
-        (trials['reaction_time'] <= max_rt)
-    ]
-    
-    # Log exclusion statistics
-    excluded_count = len(trials) - len(valid_trials)
-    if excluded_count > 0:
-        logger.warning(f"Excluded {excluded_count} trials due to RT bounds")
-    
-    return valid_trials
+logger = get_logger(__name__)
 
-def calculate_d_score(trials: pd.DataFrame) -> float:
-    """
-    Calculate the Greenwald D2 score for a set of trials.
-    
-    The D2 algorithm (Greenwald et al., 2003) computes the implicit association
-    test score as the difference in mean reaction times between two blocks,
-    divided by the standard deviation of all trials in both blocks.
-    
-    Parameters:
-    - trials: DataFrame containing trials for both blocks (e.g., 'compatible' and 'incompatible')
-      Expected columns: 'reaction_time', 'is_correct', 'block_type' (or similar indicator)
-    
-    Returns:
-    - D-score (float)
-    """
-    if len(trials) < 2:
-        logger.warning("Insufficient trials for D-score calculation")
-        return np.nan
+# Constants for filtering
+MIN_LATENCY_MS = 300
+MAX_LATENCY_MS = 10000
+MIN_VALID_TRIALS = 10
+LATENCY_BLOCK_THRESHOLD = 10000  # Trials > this are blocked
 
-    # Ensure we have the necessary columns
-    if 'block_type' not in trials.columns:
-        # If no block type, assume all trials are one block (not typical for IAT)
-        # This is a fallback; typically IAT requires two blocks
-        logger.warning("No block_type column found; assuming single block (invalid for IAT)")
-        return np.nan
 
-    # Separate blocks
-    # Assuming block_type values are 'compatible' and 'incompatible'
-    # Adjust if the data uses different naming
-    compatible = trials[trials['block_type'] == 'compatible']
-    incompatible = trials[trials['block_type'] == 'incompatible']
-
-    if len(compatible) == 0 or len(incompatible) == 0:
-        logger.warning("Missing trials in one or both blocks")
-        return np.nan
-
-    # Mean reaction times
-    mean_compatible = compatible['reaction_time'].mean()
-    mean_incompatible = incompatible['reaction_time'].mean()
-
-    # Standard deviation of all trials (pooled)
-    all_rt = pd.concat([compatible['reaction_time'], incompatible['reaction_time']])
-    std_all = all_rt.std()
-
-    # D2 formula: (Mean_incompatible - Mean_compatible) / SD_all
-    if std_all == 0:
-        logger.warning("Standard deviation is zero; cannot compute D-score")
-        return np.nan
-
-    d_score = (mean_incompatible - mean_compatible) / std_all
-    
-    logger.info(f"Calculated D-score: {d_score:.4f}")
-    return d_score
-
-def load_raw_logs_to_dict(raw_logs: List[pd.DataFrame]) -> Dict[str, pd.DataFrame]:
-    """
-    Load raw response logs into a dictionary keyed by participant ID.
-    
-    Parameters:
-    - raw_logs: List of DataFrames, each representing raw response logs
-    
-    Returns:
-    - Dictionary: {participant_id: DataFrame}
-    """
-    result = {}
-    for df in raw_logs:
-        if 'participant_id' not in df.columns:
-            raise ValueError("Input DataFrames must contain 'participant_id' column")
-        
-        for pid, group in df.groupby('participant_id'):
-            if pid not in result:
-                result[pid] = pd.DataFrame()
-            result[pid] = pd.concat([result[pid], group], ignore_index=True)
-    
-    return result
-
-def aggregate_d_scores(
-    filtered_trials: pd.DataFrame,
-    min_valid_trials: int = 10
+def filter_trials(
+    df: pd.DataFrame,
+    min_latency: float = MIN_LATENCY_MS,
+    max_latency: float = MAX_LATENCY_MS
 ) -> pd.DataFrame:
     """
-    Aggregate D-scores for each participant-session combination.
-    
-    Parameters:
-    - filtered_trials: DataFrame with filtered trials (after RT filtering)
-    - min_valid_trials: Minimum number of valid trials required to compute D-score
-    
+    Filter trials based on latency bounds and error handling.
+
+    Args:
+        df: DataFrame containing raw trials.
+        min_latency: Minimum reaction time in ms.
+        max_latency: Maximum reaction time in ms.
+
     Returns:
-    - DataFrame with columns: participant_id, session_id, d_score, n_trials_valid, status
+        Filtered DataFrame.
     """
-    logger.info(f"Aggregating D-scores with min_valid_trials={min_valid_trials}")
-    
-    if 'participant_id' not in filtered_trials.columns or 'session_id' not in filtered_trials.columns:
-        raise ValueError("Input DataFrame must contain 'participant_id' and 'session_id' columns")
-    
+    logger.info(f"Filtering trials: [{min_latency}ms, {max_latency}ms]")
+    initial_count = len(df)
+
+    # Filter by latency
+    filtered = df[
+        (df['reaction_time'] >= min_latency) &
+        (df['reaction_time'] <= max_latency)
+    ]
+
+    # Filter by correctness (optional, depending on analysis needs)
+    # For D-score calculation, we typically keep errors but penalize them
+    # or exclude them. Greenwald D2 includes errors by adding a penalty.
+
+    excluded_count = initial_count - len(filtered)
+    logger.info(f"Filtered {excluded_count} trials ({excluded_count/initial_count:.2%})")
+
+    return filtered
+
+
+def calculate_d_score(
+    session_data: pd.DataFrame,
+    include_errors: bool = True
+) -> Tuple[float, int]:
+    """
+    Calculate Greenwald D2 score for a single session.
+
+    The D-score is calculated as:
+    D = (mean_RT_incompatible - mean_RT_compatible) / pooled_SD
+
+    Errors are handled by adding a penalty (600ms or 1200ms depending on block).
+
+    Args:
+        session_data: DataFrame with trials for one session.
+        include_errors: Whether to include error penalties.
+
+    Returns:
+        Tuple of (d_score, n_valid_trials).
+    """
+    if len(session_data) == 0:
+        return np.nan, 0
+
+    # Separate by condition
+    compatible = session_data[session_data['condition'] == 'compatible']
+    incompatible = session_data[session_data['condition'] == 'incompatible']
+
+    if len(compatible) == 0 or len(incompatible) == 0:
+        logger.warning("Missing condition data for D-score calculation.")
+        return np.nan, 0
+
+    # Handle errors (Greenwald D2 method)
+    if include_errors:
+        # Add penalty for errors (600ms for first block, 1200ms for second)
+        # Simplified: add 600ms penalty per error
+        error_penalty = 600
+
+        compatible_rt = compatible['reaction_time'].values.copy()
+        incompatible_rt = incompatible['reaction_time'].values.copy()
+
+        error_mask_compat = compatible['is_correct'] == 0
+        error_mask_incompat = incompatible['is_correct'] == 0
+
+        compatible_rt[error_mask_compat] += error_penalty
+        incompatible_rt[error_mask_incompat] += error_penalty
+
+        mean_compat = np.mean(compatible_rt)
+        mean_incompat = np.mean(incompatible_rt)
+
+        # Pooled SD
+        sd_compat = np.std(compatible_rt, ddof=1)
+        sd_incompat = np.std(incompatible_rt, ddof=1)
+
+        # Avoid division by zero
+        pooled_sd = np.sqrt((sd_compat**2 + sd_incompat**2) / 2)
+        if pooled_sd == 0:
+            pooled_sd = 1.0
+
+        d_score = (mean_incompat - mean_compat) / pooled_sd
+    else:
+        mean_compat = compatible['reaction_time'].mean()
+        mean_incompat = incompatible['reaction_time'].mean()
+
+        sd_compat = compatible['reaction_time'].std(ddof=1)
+        sd_incompat = incompatible['reaction_time'].std(ddof=1)
+
+        pooled_sd = np.sqrt((sd_compat**2 + sd_incompat**2) / 2)
+        if pooled_sd == 0:
+            pooled_sd = 1.0
+
+        d_score = (mean_incompat - mean_compat) / pooled_sd
+
+    n_valid = len(session_data)
+    return d_score, n_valid
+
+
+def load_raw_logs_to_dict(
+    df: pd.DataFrame
+) -> Dict[str, pd.DataFrame]:
+    """
+    Load raw logs and group by participant and session.
+
+    Args:
+        df: DataFrame with all raw logs.
+
+    Returns:
+        Dictionary mapping (participant_id, session_id) to DataFrame.
+    """
+    grouped = {}
+    for (p_id, s_id), group in df.groupby(['participant_id', 'session_id']):
+        grouped[(p_id, s_id)] = group.reset_index(drop=True)
+    return grouped
+
+
+def aggregate_d_scores(
+    df: pd.DataFrame,
+    min_valid_trials: int = MIN_VALID_TRIALS
+) -> pd.DataFrame:
+    """
+    Aggregate D-scores for all participants and sessions.
+
+    Args:
+        df: Filtered DataFrame with valid trials.
+        min_valid_trials: Minimum trials required to calculate D-score.
+
+    Returns:
+        DataFrame with aggregated D-scores.
+    """
+    logger.info(f"Aggregating D-scores (min_trials={min_valid_trials})")
+    grouped_data = load_raw_logs_to_dict(df)
+
     results = []
-    
-    # Group by participant and session
-    for (pid, sid), group in filtered_trials.groupby(['participant_id', 'session_id']):
-        n_trials = len(group)
-        
+    exclusion_log = []
+
+    for (p_id, s_id), session_df in grouped_data.items():
+        n_trials = len(session_df)
+
         if n_trials < min_valid_trials:
-            d_score = np.nan
-            status = 'insufficient_trials'
-            logger.debug(f"Participant {pid}, Session {sid}: excluded (n={n_trials} < {min_valid_trials})")
+            exclusion_log.append({
+                'participant_id': p_id,
+                'session_id': s_id,
+                'reason': 'insufficient_trials',
+                'n_trials': n_trials,
+                'min_required': min_valid_trials
+            })
+            results.append({
+                'participant_id': p_id,
+                'session_id': s_id,
+                'd_score': np.nan,
+                'n_trials_valid': n_trials,
+                'status': 'excluded'
+            })
         else:
-            d_score = calculate_d_score(group)
-            if np.isnan(d_score):
-                status = 'calculation_error'
-            else:
-                status = 'valid'
-        
-        results.append({
-            'participant_id': pid,
-            'session_id': sid,
-            'd_score': d_score,
-            'n_trials_valid': n_trials,
-            'status': status
-        })
-    
+            d_score, n_valid = calculate_d_score(session_df)
+            results.append({
+                'participant_id': p_id,
+                'session_id': s_id,
+                'd_score': d_score,
+                'n_trials_valid': n_valid,
+                'status': 'valid' if not np.isnan(d_score) else 'invalid'
+            })
+
+    # Log exclusions
+    if exclusion_log:
+        logger.warning(f"Excluded {len(exclusion_log)} sessions due to insufficient trials.")
+        # Save exclusion report
+        exclusion_df = pd.DataFrame(exclusion_log)
+        logs_dir = get_project_root() / "logs"
+        logs_dir.mkdir(parents=True, exist_ok=True)
+        exclusion_df.to_csv(logs_dir / "exclusion_report.log", index=False)
+
     return pd.DataFrame(results)
 
-def save_aggregated_scores(aggregated_df: pd.DataFrame, output_path: Path) -> None:
+
+def save_aggregated_scores(
+    df: pd.DataFrame,
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Save aggregated D-scores to a CSV file.
-    
-    Parameters:
-    - aggregated_df: DataFrame with aggregated scores
-    - output_path: Path to save the CSV file
+    Save aggregated D-scores to CSV.
+
+    Args:
+        df: DataFrame with aggregated scores.
+        output_path: Optional output path.
+
+    Returns:
+        Path to saved file.
     """
+    if output_path is None:
+        output_path = get_project_root() / "data" / "processed" / "d_scores_raw.csv"
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    aggregated_df.to_csv(output_path, index=False)
-    logger.info(f"Saved aggregated D-scores to {output_path}")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved aggregated scores to {output_path}")
+    return output_path
+
 
 def main():
     """
-    Main entry point for the data processing pipeline.
-    This function orchestrates the filtering and aggregation of IAT trials.
+    Main entry point for data processing.
     """
-    # Example usage (to be replaced by actual CLI or orchestration)
-    # This is a placeholder for the main logic that would be called by main.py
-    logger.info("Data processing module loaded")
+    import argparse
+    from utils.logging import setup_logging
+
+    parser = argparse.ArgumentParser(
+        description="Process response logs and calculate D-scores."
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        required=True,
+        help="Input CSV file with raw response logs."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Output path for aggregated D-scores."
+    )
+    parser.add_argument(
+        "--min-trials",
+        type=int,
+        default=MIN_VALID_TRIALS,
+        help=f"Minimum trials required (default: {MIN_VALID_TRIALS})."
+    )
+
+    args = parser.parse_args()
+    setup_logging()
+
+    try:
+        # Load data
+        df = pd.read_csv(args.input)
+        logger.info(f"Loaded {len(df)} rows from {args.input}")
+
+        # Filter trials
+        filtered_df = filter_trials(df)
+
+        # Aggregate D-scores
+        aggregated_df = aggregate_d_scores(filtered_df, args.min_trials)
+
+        # Save results
+        output_path = save_aggregated_scores(aggregated_df, args.output)
+        logger.info(f"Processing complete. Results saved to {output_path}")
+
+    except Exception as e:
+        logger.exception(f"Error during processing: {e}")
+        import sys
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

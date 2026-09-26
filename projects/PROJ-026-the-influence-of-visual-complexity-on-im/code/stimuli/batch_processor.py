@@ -1,102 +1,80 @@
+"""
+Batch processing utilities for stimuli.
+"""
 import os
 import logging
 import numpy as np
 import cv2
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional
-from ..config import get_project_root
-from ..utils.logging import get_logger
 
-logger = get_logger(__name__)
+from stimuli.metrics import process_image_vectorized
+from utils.logging import get_logger
 
-def load_images_batch(directory: Path, max_images: Optional[int] = None) -> List[np.ndarray]:
+logger: logging.Logger = get_logger(__name__)
+
+def load_images_batch(image_dir: str | Path) -> List[Path]:
     """
-    Load a batch of images from a directory.
-    
+    Load a list of image paths from a directory.
+
     Args:
-        directory: Path to the directory containing images
-        max_images: Maximum number of images to load (None for all)
-        
-    Returns:
-        List of loaded images as numpy arrays
-    """
-    images = []
-    image_extensions = {'.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.tif'}
-    
-    image_files = []
-    for ext in image_extensions:
-        image_files.extend(directory.glob(f'*{ext}'))
-        image_files.extend(directory.glob(f'*{ext.upper()}'))
-    
-    if max_images:
-        image_files = image_files[:max_images]
-    
-    for img_path in image_files:
-        img = cv2.imread(str(img_path))
-        if img is not None:
-            images.append(img)
-            logger.debug(f"Loaded image: {img_path.name}")
-        else:
-            logger.warning(f"Failed to load image: {img_path.name}")
-    
-    logger.info(f"Loaded {len(images)} images from {directory}")
-    return images
+        image_dir: Directory containing images.
 
-def process_stimuli_vectorized(images: List[np.ndarray]) -> List[Dict]:
+    Returns:
+        List[Path]: List of valid image file paths.
     """
-    Process a batch of images and return complexity metrics.
-    
+    dir_path = Path(image_dir)
+    if not dir_path.exists():
+        raise FileNotFoundError(f"Directory not found: {dir_path}")
+
+    valid_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff'}
+    image_files: List[Path] = []
+
+    for file_path in dir_path.iterdir():
+        if file_path.suffix.lower() in valid_extensions:
+            image_files.append(file_path)
+
+    logger.info(f"Found {len(image_files)} images in {dir_path}")
+    return image_files
+
+def process_stimuli_vectorized(image_paths: List[str | Path], output_csv: str | Path) -> None:
+    """
+    Process a batch of images and save metrics to a CSV file.
+
     Args:
-        images: List of images as numpy arrays
-        
-    Returns:
-        List of dictionaries containing complexity metrics
+        image_paths: List of image file paths.
+        output_csv: Path to the output CSV file.
     """
-    results = []
-    
-    for img in images:
-        # Convert to grayscale
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        
-        # Calculate edge density
-        blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-        edges = cv2.Canny(blurred, 50, 150)
-        edge_density = np.count_nonzero(edges) / edges.size
-        
-        # Calculate entropy
-        hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
-        hist = hist.flatten()
-        prob = hist / np.sum(hist)
-        prob = prob[prob > 0]
-        image_entropy = np.sum(-prob * np.log2(prob))
-        
-        results.append({
-            'edge_density': edge_density,
-            'entropy': image_entropy
-        })
-    
-    return results
+    import pandas as pd
 
-def main():
-    """Main entry point for batch processor."""
-    root = get_project_root()
-    stimuli_dir = root / "data" / "raw" / "stimuli"
-    
-    if not stimuli_dir.exists():
-        logger.error(f"Stimuli directory not found: {stimuli_dir}")
-        return
-    
-    images = load_images_batch(stimuli_dir)
-    if not images:
-        logger.warning("No images found to process")
-        return
-    
-    results = process_stimuli_vectorized(images)
-    logger.info(f"Processed {len(results)} images")
-    
-    # Output results
-    for i, result in enumerate(results):
-        logger.info(f"Image {i}: Edge Density = {result['edge_density']:.4f}, Entropy = {result['entropy']:.4f}")
+    results: List[Dict[str, float | str]] = []
+    failed_count = 0
 
-if __name__ == "__main__":
-    main()
+    for img_path in image_paths:
+        try:
+            logger.info(f"Processing {img_path}")
+            edge_density, entropy_val, fractal_dim = process_image_vectorized(img_path)
+            results.append({
+                "filename": Path(img_path).name,
+                "edge_density": edge_density,
+                "entropy": entropy_val,
+                "fractal_dim": fractal_dim
+            })
+        except Exception as e:
+            logger.error(f"Failed to process {img_path}: {e}")
+            failed_count += 1
+            # Append with NaN for failed metrics to maintain row structure if needed, 
+            # or skip. Here we skip to keep CSV clean, but log the error.
+            continue
+
+    if not results:
+        logger.warning("No images were successfully processed.")
+        # Create empty CSV with headers
+        df = pd.DataFrame(columns=["filename", "edge_density", "entropy", "fractal_dim"])
+    else:
+        df = pd.DataFrame(results)
+
+    output_path = Path(output_csv)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved metrics for {len(results)} images to {output_csv}")

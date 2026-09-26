@@ -1,1 +1,1 @@
-"""Test suite for the research pipeline."""
+"""Test suite initialization."""

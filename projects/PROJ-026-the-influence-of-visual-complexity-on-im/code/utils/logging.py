@@ -1,103 +1,77 @@
+"""
+Logging configuration and utilities.
+"""
+
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Optional
+
 from config import get_project_root, ensure_directories
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
 
-def get_log_path(filename: str) -> Path:
-    """Construct the full path for a log file under the logs directory."""
+def get_log_path(filename: str = "app.log") -> Path:
+    """Get the path to the log file."""
     project_root = get_project_root()
-    logs_dir = project_root / "logs"
-    ensure_directories([logs_dir])
-    return logs_dir / filename
+    log_dir = project_root / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir / filename
+
 
 def setup_logging(
-    log_level: str = "INFO",
-    log_file: Optional[str] = "app.log"
+    level: int = logging.INFO,
+    log_file: Optional[str] = None,
+    format_str: Optional[str] = None
 ) -> logging.Logger:
     """
-    Configure the global logger.
+    Configure logging for the project.
     
     Args:
-        log_level: Logging level (e.g., 'INFO', 'DEBUG').
-        log_file: Optional filename to write logs to (relative to logs/).
+        level: Logging level (default: INFO).
+        log_file: Name of the log file (default: app.log).
+        format_str: Log format string.
+        
+    Returns:
+        Configured logger.
     """
-    global _logger
-    if _logger is not None:
-        return _logger
-
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(getattr(logging, log_level.upper()))
-
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    # File handler (if specified)
-    if log_file:
-        log_path = get_log_path(log_file)
-        file_handler = logging.FileHandler(log_path)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    _logger = logger
-    return logger
-
-def get_logger() -> logging.Logger:
-    """Get the configured logger instance."""
-    if _logger is None:
-        # Default setup if not explicitly called
-        return setup_logging()
-    return _logger
-
-def log_counterbalance_strategy(seed: int, split_ratio: float, log_file: str = "counterbalance_strategy.log") -> None:
-    """
-    Log the counterbalancing assignment strategy details.
-    
-    Args:
-        seed: The random seed used for assignment generation.
-        split_ratio: The ratio of participants assigned to Low-High vs High-Low.
-        log_file: The filename for the log (relative to logs/).
-    """
-    logger = get_logger()
+    if format_str is None:
+        format_str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        
+    if log_file is None:
+        log_file = "app.log"
+        
     log_path = get_log_path(log_file)
     
-    # Ensure the logs directory exists
-    ensure_directories([log_path.parent])
+    # Create root logger
+    logger = logging.getLogger()
+    logger.setLevel(level)
     
-    # Create a dedicated handler for the strategy log to ensure it goes to the specific file
-    # We append a handler specifically for this file if it doesn't exist yet, 
-    # or just log to the main file if the main logger is configured to write there.
-    # However, to be precise about the requirement "logs/counterbalance_strategy.log",
-    # we will append a FileHandler specifically for this file.
+    # Clear existing handlers
+    logger.handlers = []
     
-    strategy_handler = logging.FileHandler(log_path)
-    strategy_handler.setFormatter(logging.Formatter('%(message)s'))
+    # File handler
+    fh = logging.FileHandler(log_path)
+    fh.setLevel(level)
+    formatter = logging.Formatter(format_str)
+    fh.setFormatter(formatter)
+    logger.addHandler(fh)
     
-    # Avoid adding duplicates if called multiple times
-    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == str(log_path) for h in logger.handlers):
-        logger.addHandler(strategy_handler)
+    # Console handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(level)
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
     
-    logger.info(f"Counterbalance Strategy Configuration:")
-    logger.info(f"  Random Seed: {seed}")
-    logger.info(f"  Split Ratio (Low-High vs High-Low): {split_ratio}")
-    logger.info(f"  Assignment Method: Seeded Random Shuffle (NumPy)")
-    logger.info(f"  Output File: data/processed/counterbalance_assignment.csv")
-    
-    # Remove the temporary handler to avoid cluttering the main logger for subsequent calls
-    # unless we want to keep it. The requirement is just to log it.
-    # We'll keep it simple: log the message and ensure the file is written.
-    # The FileHandler above will write the message.
-    
-    # To ensure the log file is created even if the logger wasn't fully set up with file handlers yet:
-    logger.info("--- End of Strategy Log ---")
+    return logger
+
+
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger with the specified name."""
+    return logging.getLogger(name)
+
+
+def log_counterbalance_strategy(seed: int, split_ratio: float) -> None:
+    """Log the counterbalance strategy used."""
+    logger = get_logger(__name__)
+    logger.info(f"Counterbalance Strategy: Seed={seed}, Split Ratio={split_ratio:.2f}")

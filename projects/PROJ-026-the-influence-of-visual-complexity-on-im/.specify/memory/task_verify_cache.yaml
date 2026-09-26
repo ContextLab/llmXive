@@ -1,17 +1,9 @@
-T000:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `specs/001-the-influence-of-visual-complexity-on-im/amendment-001.md`\
-    \ file or an updated `spec.md` that references the amendment or marks FR\u2011\
-    003 as \u201CAmended\u201D was provided. Both artifacts are missing, so the ratification\
-    \ task is not satisfied."
-T002:
-  c: false
-  h: e1a7119c02e536a741855ffe07f52e979a7354d6e54875afd1b6d9ae15e74bf8
-  r: "The required file `projects/PROJ-026-the-influence-of-visual-complexity-on-im/code/requirements.txt`\
-    \ does not exist, and the existing `code/requirements.txt` contains a different\
-    \ package list, not the specified specification excerpt. The task\u2019s core\
-    \ artifact is missing."
+  r: No directory tree or file listing was provided to confirm that the required folders
+    (`code/{data,stimuli,analysis,viz,tests}`, `data/{raw/stimuli,raw/responses,processed,results}`,
+    `docs`) actually exist; without such evidence the task cannot be verified as completed.
 T017a:
   c: false
   h: 7e1e183df78d29b2ab608c080446e2e530fd077c49a572bceb12c3443fcc153f
@@ -29,15 +21,21 @@ T026b:
     \ with the specified columns, nor any handling of paired Low/High sessions. Moreover,\
     \ the CSV file itself is missing from the project. The task\u2019s core output\
     \ is therefore not present."
-T032:
+T027a:
   c: false
-  h: 01496469bbbd9414a67ac5fcb2b5770ff86172e80680969b35209617ca97fbda
-  r: "The repository lacks the required `data/processed/complexity_scores.csv` and\
-    \ the resulting `data/results/pca_variance.json` files, so the script cannot actually\
-    \ read metrics or produce the expected output. Moreover, the `pca.py` implementation\
-    \ raises `FileNotFoundError` and `ValueError`, violating the \u201Cdo not raise\
-    \ ValueError or halt pipeline\u201D rule, and the `main` function is truncated,\
-    \ never writing the warning\u2011status JSON. The task therefore remains unfinished."
+  h: d0cb055e8eb58d1c398a4295a83ee5c0e9cf605f59916550d6a3fe3b7e9a59bd
+  r: "The generated `counterbalance_assignment.csv` exists, but it shows a deterministic\
+    \ block ordering (all Low\u2011High/SetA rows followed by all High\u2011Low/SetB\
+    \ rows) with no evidence that a seeded random shuffle (seed\u202F=\u202F42) was\
+    \ applied, nor that the stimulus\u2011set assignment was derived from the actual\
+    \ complexity categories computed in T017a\u20113. The artifact therefore does\
+    \ not satisfy the required algorithmic and category\u2011based constraints."
+T027b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `logs/counterbalance_strategy.log` file was presented, and there is no evidence\
+    \ that such a log exists or contains the required seed and split\u2011ratio information.\
+    \ The implementer must provide the actual log file with the specified contents."
 T034b:
   c: false
   h: 8c6f7c939b905fc8cabe68e706872e8847ec406449da88a64b41a1cfb1fbcc74
@@ -46,15 +44,47 @@ T034b:
     \ not read the observed Cohen\u2019s\u202Fd from a JSON file nor write the power\
     \ analysis results to the specified output file. Consequently the post\u2011hoc\
     \ power calculation is not fully implemented as described."
-T035:
+T036:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, or visualizations implementing the Threshold and LOIO sensitivity
-    analyses were provided; the claim lacks any concrete artifact demonstrating that
-    the required analysis was performed.
+  h: 6115805a6d2eb2f43d0fc1b5c8e43ec89b2bc63b078db885972ffa104e8f76cb
+  r: "The `data/results/permutation_results.json` file exists and includes the required\
+    \ keys, but `data/results/sensitivity_results.json` is missing entirely, so the\
+    \ task\u2019s requirement to save and verify both result files is not satisfied."
+T037:
+  c: false
+  h: 641c93aaeffc17ad9590d0052615531d593cf24576f91e14c2156854f53dca60
+  r: The `plot_boxplot` function is defined, but the visible code does not set the
+    viridis palette, does not specify `dpi=300` when saving, and the required output
+    file `data/results/d_score_comparison.png` is absent, indicating the implementation
+    does not fully meet the specified plotting requirements.
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No README or usage example files were provided in a `docs/` directory, nor any
     excerpt of updated documentation was shown. The claim only repeats the feature
     specification without delivering the required documentation artifacts.
+T040a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `ruff` or `mypy` runs is present\u2014no command\
+    \ output, logs, or exit\u2011code confirmation, and no cleaned/type\u2011hinted\
+    \ files in `code/data/` are provided. Without these artifacts, the task cannot\
+    \ be verified as completed."
+T040b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required commands being run is present \u2013 there are no\
+    \ logs, exit\u2011code reports, or updated files from `ruff check --fix code/stimuli/`\
+    \ or `mypy code/stimuli/ --strict`. Without these artifacts we cannot confirm\
+    \ that the code cleanup and type\u2011hint checks succeeded with exit code\u202F\
+    0. The implementer must provide the command output or proof that both tools ran\
+    \ successfully."
+T051:
+  c: false
+  h: 2be24bde253f2dd3a15117b9923222e9289c68608d171db3403ce875fcfcdacd
+  r: "The required input CSV (`data/processed/complexity_metrics_raw.csv`) is absent,\
+    \ and the expected output JSON (`data/results/pca_variance.json`) was not generated.\
+    \ Moreover, the provided `pca.py` snippet is truncated before the PCA computation\
+    \ and cumulative\u2011variance logic, so we cannot confirm it implements the required\
+    \ warning behavior. These missing artifacts prevent the task from being considered\
+    \ complete."

@@ -1,3 +1,6 @@
+"""
+Serialization utilities for complexity scores.
+"""
 import os
 import logging
 import pandas as pd
@@ -6,92 +9,55 @@ from typing import List, Dict, Any, Optional
 
 from config import get_project_root, get_data_path
 from utils.logging import get_logger
-from stimuli.process import categorize_complexity
 
-logger = get_logger(__name__)
+logger: logging.Logger = get_logger(__name__)
 
-
-def load_raw_complexity_scores(
-    raw_path: Optional[Path] = None
-) -> pd.DataFrame:
+def load_raw_complexity_scores(csv_path: str | Path) -> pd.DataFrame:
     """
-    Load raw complexity scores from CSV.
+    Load raw complexity scores from a CSV file.
 
     Args:
-        raw_path: Path to raw CSV file
+        csv_path: Path to the CSV file.
 
     Returns:
-        DataFrame with raw complexity scores
+        pd.DataFrame: DataFrame containing the scores.
     """
-    if raw_path is None:
-        root = get_project_root()
-        raw_path = root / "data" / "processed" / "complexity_scores_raw.csv"
+    return pd.read_csv(csv_path)
 
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw complexity scores not found: {raw_path}")
-
-    logger.info(f"Loading raw complexity scores from {raw_path}")
-    return pd.read_csv(raw_path)
-
-
-def apply_categorization(
-    df: pd.DataFrame
-) -> pd.DataFrame:
+def apply_categorization(df: pd.DataFrame, metric: str = "edge_density") -> pd.DataFrame:
     """
-    Apply complexity categorization to DataFrame.
+    Apply median split categorization to a DataFrame.
 
     Args:
-        df: DataFrame with complexity metrics
+        df: Input DataFrame.
+        metric: Metric column to use for splitting.
 
     Returns:
-        DataFrame with complexity_category column added
+        pd.DataFrame: DataFrame with added 'complexity_category' column.
     """
-    categorized_df, thresholds = categorize_complexity(df)
-    return categorized_df
+    if metric not in df.columns:
+        raise ValueError(f"Metric column '{metric}' not found in DataFrame")
 
+    median_val = df[metric].median()
+    
+    def assign_category(val: float) -> str:
+        if pd.isna(val):
+            return "Unknown"
+        return "Low" if val <= median_val else "High"
 
-def save_final_csv(
-    df: pd.DataFrame,
-    output_path: Optional[Path] = None
-) -> None:
+    df = df.copy()
+    df["complexity_category"] = df[metric].apply(assign_category)
+    return df
+
+def save_final_csv(df: pd.DataFrame, output_path: str | Path) -> None:
     """
-    Save final complexity scores to CSV.
+    Save the final categorized scores to a CSV file.
 
     Args:
-        df: DataFrame with categorized complexity scores
-        output_path: Path to save final CSV
+        df: DataFrame to save.
+        output_path: Path to the output CSV file.
     """
-    if output_path is None:
-        root = get_project_root()
-        output_path = root / "data" / "processed" / "complexity_scores.csv"
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path = Path(output_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved final complexity scores to {output_path}")
-
-
-def main() -> None:
-    """Main entry point for serialization."""
-    root = get_project_root()
-
-    raw_path = root / "data" / "processed" / "complexity_scores_raw.csv"
-    final_path = root / "data" / "processed" / "complexity_scores.csv"
-
-    if not raw_path.exists():
-        logger.error(f"Raw complexity scores not found: {raw_path}")
-        return
-
-    # Load raw scores
-    df_raw = load_raw_complexity_scores(raw_path)
-
-    # Apply categorization
-    df_final = apply_categorization(df_raw)
-
-    # Save final CSV
-    save_final_csv(df_final, final_path)
-
-    logger.info("Serialization complete.")
-
-
-if __name__ == "__main__":
-    main()
+    logger.info(f"Saved final scores to {output_path}")
