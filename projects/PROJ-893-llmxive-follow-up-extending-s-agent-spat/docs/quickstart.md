@@ -1,109 +1,67 @@
-# Quickstart Guide: llmXive - S-Agent Spatial Reasoning Extension
+# Quickstart Guide: llmXive Follow-up (S-Agent Spatial Reasoning)
 
-This guide describes how to run the full pipeline for the `PROJ-893` project, extending the S-Agent spatial reasoning capabilities with a symbolic CSP solver.
+This guide outlines the steps to execute the full research pipeline for the symbolic spatial reasoning extension of the S-Agent dataset.
 
 ## Prerequisites
 
 - Python 3.9+
-- Dependencies installed: `pip install -r code/requirements.txt`
-- Access to HuggingFace Hub (if downloading datasets)
+- `pip install -r code/requirements.txt`
 
 ## Execution Steps
 
-The pipeline is orchestrated by `code/main.py`, but individual steps can be run manually for debugging or partial execution.
+1. **Download and Prepare Data**
+ Download the S-Agent dataset (stratified sample of 1,000 scenes) and extract geometric constraints.
+ ```bash
+ python code/data/download.py --sample-size 1000
+ python code/data/verify_checksum.py
+ python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl
+ ```
 
-### 1. Download and Verify Data
+2. **Validate Data**
+ Ensure data integrity and absence of VLM traces.
+ ```bash
+ python code/validate/dry_run.py
+ python code/validate/vlm_trace_auditor.py
+ ```
 
-```bash
-# Download the S-Agent dataset (n=1000 sample)
-python code/data/download.py --sample-size 1000
+3. **Run Symbolic Solver**
+ Execute the CSP solver on the extracted constraints.
+ ```bash
+ python code/solver/run_solver.py --input data/derived/constraints.jsonl --output data/derived/predictions.jsonl --latency-log data/derived/latency_log.jsonl --exclusion-log data/derived/solver_failures.json
+ ```
 
-# Verify checksums
-python code/data/verify_checksum.py --manifest data/manifest.json --dir data/raw
-```
+4. **Generate Benchmark Results**
+ Compare symbolic predictions against VLM baseline and ground truth.
+ ```bash
+ python code/benchmark/generate_benchmark_results.py --predictions data/derived/predictions.jsonl --vlm data/derived/vlm_baseline.csv --ground_truth data/derived/ground_truth.csv --output data/results/benchmark_results.csv
+ ```
 
-### 2. Extract Geometry and Constraints
+5. **Run Statistical Analysis**
+ Compute McNemar's test for significance.
+ ```bash
+ python code/benchmark/metrics.py --input data/results/benchmark_results.csv
+ ```
 
-```bash
-python code/data/extract_geometry.py --input data/raw --output data/derived/constraints.jsonl
-```
+6. **Sensitivity Analysis**
+ Sweep accuracy thresholds to verify robustness (SC-005).
+ ```bash
+ python code/benchmark/sensitivity.py --input data/results/benchmark_results.csv --output data/results/sensitivity_analysis.csv
+ ```
 
-### 3. Validate Distribution (Gate)
+7. **Failure Analysis**
+ Classify failure modes (Geometric vs Semantic).
+ ```bash
+ python code/benchmark/analyze_failures.py --results data/results/benchmark_results.csv --output data/derived/failure_classification.json
+ ```
 
-```bash
-python code/data/validate_distribution.py
-```
-
-### 4. Run Symbolic Solver
-
-```bash
-python code/solver/run_solver.py \
- --input data/derived/constraints.jsonl \
- --output data/derived/predictions.jsonl \
- --latency-log data/derived/latency_log.jsonl \
- --exclusion-log data/results/exclusion_log.json
-```
-
-### 5. Load Baselines and Ground Truth
-
-```bash
-# Load VLM Baseline
-python code/data/load_vlm_baseline.py --output data/derived/vlm_baseline.csv
-
-# Load Ground Truth
-python code/data/load_ground_truth.py --output data/derived/ground_truth.csv
-```
-
-### 6. Generate Benchmark Results (T019b)
-
-This step generates the primary comparison file `data/results/benchmark_results.csv`.
-
-```bash
-python code/benchmark/generate_benchmark_results.py \
- --predictions data/derived/predictions.jsonl \
- --vlm-baseline data/derived/vlm_baseline.csv \
- --ground-truth data/derived/ground_truth.csv \
- --latency-log data/derived/latency_log.jsonl \
- --exclusion-log data/results/exclusion_log.json \
- --output data/results/benchmark_results.csv
-```
-
-### 7. Statistical Analysis (T017)
-
-```bash
-python code/benchmark/metrics.py \
- --input data/results/benchmark_results.csv \
- --output data/results/benchmark_results.csv \
- --add-mcnemar
-```
-
-### 8. Failure Analysis (T021)
-
-```bash
-python code/benchmark/analyze_failures.py \
- --results data/results/benchmark_results.csv \
- --solver-failures data/derived/solver_failures.json \
- --output data/derived/failure_classification.json
-```
-
-### 9. Sensitivity Analysis (T030)
-
-```bash
-python code/benchmark/sensitivity.py \
- --input data/results/benchmark_results.csv \
- --output data/results/sensitivity_analysis.csv
-```
-
-## Full Pipeline Execution
-
-To run the entire pipeline in one go (with gates):
-
-```bash
-python code/main.py
-```
+8. **Final Report Generation**
+ Aggregate all results into the final research report.
+ ```bash
+ python code/validate/final_report_generator.py
+ ```
 
 ## Output Artifacts
 
 - `data/results/benchmark_results.csv`: Primary comparison metrics.
-- `data/results/sensitivity_analysis.csv`: Threshold sensitivity sweep.
-- `data/results/final_research_report.md`: Aggregated research findings.
+- `data/results/sensitivity_analysis.csv`: Threshold sweep results.
+- `data/results/final_research_report.md`: Complete research findings.

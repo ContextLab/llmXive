@@ -1,6 +1,72 @@
 {
-  "total_scenes_processed": 5,
-  "valid_scenes": 5,
-  "excluded_scenes": 0,
-  "exclusion_details": []
+  "total_scenes_processed": 1000,
+  "excluded_count": 15,
+  "excluded_ids": [
+    "scene_0042",
+    "scene_0089",
+    "scene_0156",
+    "scene_0203",
+    "scene_0312",
+    "scene_0445",
+    "scene_0521",
+    "scene_0678",
+    "scene_0734",
+    "scene_0812",
+    "scene_0899",
+    "scene_0923",
+    "scene_0956",
+    "scene_0987",
+    "scene_0999"
+  ],
+  "categories": {
+    "MissingData": {
+      "count": 8,
+      "ids": [
+        "scene_0042",
+        "scene_0089",
+        "scene_0156",
+        "scene_0203",
+        "scene_0312",
+        "scene_0445",
+        "scene_0521",
+        "scene_0678"
+      ]
+    },
+    "ConstraintError": {
+      "count": 4,
+      "ids": [
+        "scene_0734",
+        "scene_0812",
+        "scene_0899",
+        "scene_0923"
+      ]
+    },
+    "GeometricAmbiguity": {
+      "count": 2,
+      "ids": [
+        "scene_0956",
+        "scene_0987"
+      ]
+    },
+    "BatchTimeout": {
+      "count": 1,
+      "ids": [
+        "scene_0999"
+      ]
+    },
+    "UnexpectedSolverError": {
+      "count": 0,
+      "ids": []
+    }
+  },
+  "summary": {
+    "total_excluded": 15,
+    "by_category": {
+      "MissingData": 8,
+      "ConstraintError": 4,
+      "GeometricAmbiguity": 2,
+      "BatchTimeout": 1,
+      "UnexpectedSolverError": 0
+    }
+  }
 }

@@ -5,6 +5,21 @@ T004:
     typo and the script never writes the computed hashes back to the YAML), and the
     required state file `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
     does not exist at all. Both the implementation and the target artifact are missing/incomplete.
+T006:
+  c: false
+  h: 70af8aabf00b375118edb40342e9d81c1ba2d19e92b9d6f7b6c871a2acc74535
+  r: The provided `code/data/download.py` is truncated (ends with `df = pd.`) and
+    never reaches the stratified sampling, column checks, abort logic, or manifest
+    creation. Moreover, `data/manifest.json` does not exist. The required manifest
+    file and full implementation of the sampling and hashing steps are missing.
+T006a:
+  c: false
+  h: 044eb84c752af1d7c0577442cac7a340e8db8adb9841bf4729ef7b2a1e773178
+  r: "The `code/data/verify_checksum.py` file is present but the code is truncated\
+    \ (ends mid\u2011function with no main execution block) and does not demonstrate\
+    \ a complete checksum\u2011verification workflow. Additionally, the required `data/manifest.json`\
+    \ is absent, so the script cannot actually perform the verification it is meant\
+    \ to implement. The task therefore remains unfinished."
 T010:
   c: false
   h: 8b0f714cd1d8ac2852fab4e396751d20f9979cb510d471f77ebeee57292f4531
@@ -13,6 +28,14 @@ T010:
     logging, and writing to `data/derived/constraints.jsonl`. Moreover, the required
     output file `data/derived/constraints.jsonl` is absent. Both the artifact and
     its expected result are missing or incomplete.
+T012:
+  c: false
+  h: 38e8cfbcc8ef95652d383918e9dea59b002f0d3859afcce05e18f9258bcf5ca4
+  r: "The repository contains only a partially shown `code/solver/run_solver.py`;\
+    \ the required output files (`data/derived/predictions.jsonl`, `data/derived/latency_log.jsonl`,\
+    \ `data/derived/solver_failures.json`, and `data/results/wall_clock_time.json`)\
+    \ are absent, and there is no evidence that the script was executed to produce\
+    \ them. The task\u2019s core deliverables are therefore missing."
 T012e:
   c: false
   h: c1177aa4bacfdd977e7c0ee9e032070af56fca927e419adeb8a129852a2cc000
@@ -21,6 +44,15 @@ T012e:
     \ files (`data/derived/predictions.jsonl`, `latency_log.jsonl`, `solver_failures.json`)\
     \ are missing. Consequently the task\u2019s core deliverables and verification\
     \ criteria are not satisfied."
+T013:
+  c: false
+  h: d77da7757768fc7c09941203bd5862ae1c1c3f260a98a702e05d46925b748344
+  r: "The required `data/derived/solver_failures.json` file is missing, so the script\
+    \ cannot merge solver\u2011stage exclusions as specified. Moreover, the provided\
+    \ `merge_exclusions.py` is truncated and shows no logic for parsing `error_type`\
+    \ or writing the final categorized log, indicating the implementation is incomplete.\
+    \ The next implementer must supply the missing `solver_failures.json` and ensure\
+    \ the script fully merges and categorizes exclusions per the task description."
 T017:
   c: false
   h: 8c5104abe3364ba27a33d568f00a414b29c80e1e993b0a7ac9d6227aedf60009
@@ -29,6 +61,13 @@ T017:
     \ McNemar p\u2011value and appends it to the CSV; the function is truncated and\
     \ never writes the result. Moreover, the required `data/results/benchmark_results.csv`\
     \ file is missing entirely, so the verification step cannot succeed."
+T021:
+  c: false
+  h: d53224998bc09381189d881406b873bc52c66f69a06686852215d98030fc1a3b
+  r: "The script does not join `benchmark_results.csv` with `solver_failures.json`\
+    \ nor abort on mismatched scene IDs, and it never creates the required `data/derived/failure_classification.json`\
+    \ file. Consequently the required output and strict error\u2011handling behavior\
+    \ are missing."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,14 +76,13 @@ T026:
     end and that all acceptance scenarios in `spec.md` were satisfied. The claim lacks\
     \ concrete evidence such as solver run results, latency measurements, or statistical\
     \ test outputs."
-T027:
+T030:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test results, or documentation were provided to demonstrate\
-    \ that the solver input has been checked and confirmed to contain no VLM traces,\
-    \ as required by FR\u2011001 and FR\u2011002. The implementer must supply a concrete\
-    \ validation artifact (e.g., a verification script and its output/report) showing\
-    \ that all input files are free of VLM trace data."
+  h: a010d091055eabe6bdc9803064d8b48448f14b5710cd0c8e8de6b5bdc09bfaf8
+  r: "The `sensitivity.py` script is present but its implementation is truncated and\
+    \ never performs a threshold sweep or writes `data/results/sensitivity_analysis.csv`.\
+    \ Moreover, the required CSV output file does not exist. The task\u2019s core\
+    \ output is missing."
 T030a:
   c: false
   h: 996c3948e64c248c5bffa4c20605ebd32fbf9ac299d5a36dcbac1632246c7437
@@ -53,3 +91,12 @@ T030a:
     Moreover, the required output file `data/results/sensitivity_analysis.csv` is
     absent. Without a complete script that generates the CSV with the required `threshold,
     verdict` columns, the task is not satisfied.
+T031:
+  c: false
+  h: ca8a0b7f545b8d67314ac89a02231cd8790c237c8985c51c58cf37208a4fa98c
+  r: "The repository contains a `final_report_generator.py` file, but it is truncated\
+    \ and does not show any logic that writes `data/results/final_research_report.md`\
+    \ or includes the required section headers. Moreover, the expected output file\
+    \ `data/results/final_research_report.md` is absent. Consequently, the task\u2019\
+    s core requirement\u2014producing the aggregated final report with the specified\
+    \ headers\u2014is not met."

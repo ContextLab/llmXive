@@ -27,7 +27,10 @@ else:
 # If not found, we look in data/raw as a fallback for legacy paths
 MANIFEST_PATH = Path("data/manifest.json")
 if not MANIFEST_PATH.exists():
-    MANIFEST_PATH = data_raw_path / "manifest.json"
+    # Check if it exists in data/raw as well
+    raw_manifest = data_raw_path / "manifest.json"
+    if raw_manifest.exists():
+        MANIFEST_PATH = raw_manifest
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
