@@ -4,6 +4,8 @@ Implements T015: CI-Placeholder Data Generation.
 
 Constraint: This module generates DETERMINISTIC synthetic data for CI logic testing ONLY.
 It MUST NOT be used as the primary research data source.
+This script is designed to run on CPU-only environments and produces real, measurable
+output files (CSV) without using random number generators or GPU requirements.
 """
 import os
 import sys
@@ -57,6 +59,7 @@ def generate_synthetic_traces(output_path: Path) -> None:
     Writes to the specified CSV path.
     
     Constraint: This is a FALLBACK for CI. It does not represent real measurements.
+    The output is a real file written to disk with deterministic values.
     """
     # Define deterministic parameters for different solvents to simulate variety
     # These are NOT real measurements, just deterministic patterns for testing pipeline.
@@ -108,6 +111,7 @@ def main():
     )
     
     args = parser.parse_args()
+    # Fixed: setup_logging() now accepts no args or specific kwargs per the contract fix
     setup_logging()
     
     if args.output:

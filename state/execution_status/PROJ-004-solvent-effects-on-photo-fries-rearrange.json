@@ -1,20 +1,20 @@
 {
   "project_id": "PROJ-004-solvent-effects-on-photo-fries-rearrange",
   "ok": false,
-  "reason": "23 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/ground_state.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026t     silent fallback to synthetic data.      Returns:         D\u2026\u201d; code/data/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ion Traces.  This module generates deterministic synthetic transient-absorption tra\u2026\u201d; code/data/generate_synthetic.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026np.ndarray:     \"\"\"     Generate a synthetic exponential decay curve\u2026\u201d; 2 command(s) failed: python code/main.py --mode simulate (rc=1); python code/main.py --mode real --data-path data/raw/ (rc=1); 4 declared deliverable(s) absent: data/compute/solvent_solvation.csv; data/processed/environment_logs.json; data/processed/kinetic_metrics.csv",
+  "reason": "26 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/power.py: self-declared fabricated metric \u2014 \u201c\u2026pproximation formula     # or hard-coded values for the specific n=3 case wh\u2026\u201d; code/data/generate_synthetic.py: self-declared fabricated metric \u2014 \u201c\u2026ulate variety     # These are NOT real measurements, just deterministic patterns\u2026\u201d; code/analysis/ground_state.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026t     silent fallback to synthetic data.      Returns:         D\u2026\u201d; 2 command(s) failed: python code/main.py --mode simulate (rc=1); python code/main.py --mode real --data-path data/raw/ (rc=1); 8 declared deliverable(s) absent: data/compute/solvent_solvation.csv; data/processed/calibrated_traces.csv; data/processed/environment_logs.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --mode simulate -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py\", line 36, in <module>\n    from data.loaders import get_solvent_properties, get_all_solvents, get_dielectric_constant_range, SolventDataError\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/data/loaders.py\", line 10, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
-    "python code/main.py --mode real --data-path data/raw/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/main.py\", line 36, in <module>\n    from data.loaders import get_solvent_properties, get_all_solvents, get_dielectric_constant_range, SolventDataError\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-004-solvent-effects-on-photo-fries-rearrange/code/data/loaders.py\", line 10, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+    "python code/main.py --mode simulate -> rc=1\n    2_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1790424151.990976    2400 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\nI0000 00:00:1790424151.991353    2400 cudart_stub.cc:31] Could not find cuda drivers on your ma",
+    "python code/main.py --mode real --data-path data/raw/ -> rc=1\n    2_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1790424156.525006    2410 port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.\nI0000 00:00:1790424156.525409    2410 cudart_stub.cc:31] Could not find cuda "
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "offload": {
-    "status": "running",
-    "kernel_ref": "jeremy9/llmxive-proj-004-solvent-effects-on-photo-fries-re",
-    "submitted_at": "2026-09-26T11:41:15Z",
-    "reason": "",
-    "evidence": []
-  },
-  "updated_at": "2026-09-26T11:41:20Z"
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "compute_env",
+  "evidence": [
+    "python code/main.py --mode simulate",
+    "python code/main.py --mode real --data-path data/raw/"
+  ],
+  "updated_at": "2026-09-26T12:02:44Z"
 }

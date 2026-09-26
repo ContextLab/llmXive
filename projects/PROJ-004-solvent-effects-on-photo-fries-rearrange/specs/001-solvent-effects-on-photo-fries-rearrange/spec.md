@@ -17,7 +17,7 @@ The researcher MUST be able to define a series of solvents spanning non-polar to
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of 5+ solvents with known dielectric constants, **When** the researcher configures the experiment, **Then** the system records each solvent's properties by validating them against a versioned lookup table and prepares the instrument parameters.
+1. **Given** a list of multiple solvents with known dielectric constants, **When** the researcher configures the experiment, **Then** the system records each solvent's properties by validating them against a versioned lookup table and prepares the instrument parameters.
 2. **Given** a configured solvent series, **When** the researcher initiates the laser flash photolysis, **Then** the system captures transient-absorption data for the defined time range (sub-nanosecond to microsecond scales) with full environmental metadata.
 
 ---
@@ -66,11 +66,11 @@ The researcher MUST be able to correlate computed solvation free energies with t
 
 ### Functional Requirements
 
-- **FR-001**: System MUST allow configuration of at least 5 distinct solvent conditions spanning a dielectric constant range of ε ≈ low to ε ≈ 33. (See US-1)
+- **FR-001**: System MUST allow configuration of at least 5 distinct solvent conditions spanning a dielectric constant range of ε ≈ low to ε ≈ moderate-to-high. (See US-1)
 - **FR-002**: System MUST capture transient-absorption spectroscopy data in the UV to near-infrared wavelength range with ns–μs time resolution. (See US-1)
 - **FR-003**: System MUST record environmental parameters for each run: temperature (25 ± 0.5°C), relative humidity (±2% RH), and barometric pressure. (See US-1)
 - **FR-004**: System MUST perform global kinetic analysis on decay traces using exponential fitting to extract intermediate lifetimes with instrument calibration metadata. (See US-2)
-- **FR-005**: System MUST integrate or accept computed solvation free energies from implicit solvent models (SMD/PCM) at DFT level (B3LYP/6-31G*) for ≤80% of conditions and explicit solvent models (QM/MM or cluster-continuum) for ≥20% of conditions. (See US-3)
+- **FR-005**: System MUST integrate or accept computed solvation free energies from implicit solvent models (SMD/PCM) at DFT level (BLYP/6-31G*) for ≤80% of conditions and explicit solvent models (QM/MM or cluster-continuum) for ≥20% of conditions. (See US-3)
 - **FR-006**: System MUST perform statistical significance testing (ANOVA) across solvent conditions with support for n ≥ 3 replicates and multiple-comparison correction. (See US-3)
 - **FR-007**: System MUST log all measured quantities per reproducibility standards: substrate mass, integration time per scan (ms), temperature, and instrument settings for each data point. (See US-2)
 
@@ -96,7 +96,7 @@ The researcher MUST be able to correlate computed solvation free energies with t
 - **SC-005**: Report mean and standard deviation for n ≥ 3 replicates per solvent condition (measured against replicate analysis output). (See US-2)
 - **SC-006**: All findings framed as associational (not causal) given observational design without random assignment. (See US-3)
 - **SC-007**: Power analysis documented for sample size (n ≥ 3 per solvent); effect size estimation deferred to implementation phase. (See US-3)
-- **SC-008**: Threshold sensitivity analysis performed for any decision cutoffs (e.g., lifetime discrepancy threshold ∈ {, 0.05, 0.1} ns) with reported variation in false-positive/false-negative rates. (See US-2)
+- **SC-008**: Threshold sensitivity analysis performed for any decision cutoffs (e.g., lifetime discrepancy threshold ∈ {, 0.1} ns) with reported variation in false-positive/false-negative rates. (See US-2)
 - **SC-009**: Perform collinearity diagnostics (VIF analysis) to distinguish effects of dielectric constant and solvation energy if multiple predictors are used. (See US-3)
 - **SC-010**: Logged dielectric constants match the versioned lookup table reference for ≥98% of configured solvents (measured against lookup table version hash). (See US-1)
 

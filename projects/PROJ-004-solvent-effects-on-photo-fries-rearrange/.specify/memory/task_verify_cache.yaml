@@ -1,3 +1,19 @@
+T014:
+  c: false
+  h: cef6517d460f1509e6ab5917cbaf430dac1513e8e346f395055d0c3a246ff333
+  r: "The `environment.py` file is truncated and does not show any logic that writes\
+    \ a JSON log or raises `ConfigurationError` when `barometric_pressure` is absent.\
+    \ Moreover, the required output file `data/processed/environment_logs.json` is\
+    \ missing from the repository. Both the artifact and its behavior fail to meet\
+    \ the task\u2019s specifications."
+T015:
+  c: false
+  h: 92101db885ae7a1330249351346091ed30b6eae7819b06b0509259a64d5433f7
+  r: "The repository contains `code/data/generate_synthetic.py`, but the required\
+    \ output file `data/raw/synthetic_traces.csv` is absent, and the provided script\
+    \ snippet is incomplete (truncated) with no evidence that it actually writes the\
+    \ CSV to the specified location. The task\u2019s core deliverable \u2013 a deterministic\
+    \ synthetic trace CSV file \u2013 is therefore not present."
 T015b:
   c: true
   h: c88346e8b887770fcfa0d0c79444c4284b763ee846555f7470860340b3a985e7
@@ -49,10 +65,3 @@ T048:
     \ solvent reference loading and dielectric checks; it does not implement the trend\u2011\
     verification logic that reads the correlation and kinetic files and writes the\
     \ report. The task therefore remains unfinished."
-T059:
-  c: false
-  h: 8cde5c22cd6c8fe18e4b40128ea6a8567bae63346700cd0e35f618e3f5fbc40b
-  r: "The repository contains `code/analysis/power.py`, but the required output file\
-    \ `data/processed/study_power_analysis.json` is absent; no evidence that the script\
-    \ has been executed to produce the JSON documenting effect sizes and study limitations.\
-    \ The missing artifact means the task\u2019s core deliverable is not satisfied."

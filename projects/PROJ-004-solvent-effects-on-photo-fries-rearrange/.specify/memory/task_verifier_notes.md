@@ -1,0 +1,7 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T015** — The repository contains `code/data/generate_synthetic.py`, but the required output file `data/raw/synthetic_traces.csv` is absent, and the provided script snippet is incomplete (truncated) with no evidence that it actually writes the CSV to the specified location. The task’s core deliverable – a deterministic synthetic trace CSV file – is therefore not present.
+- **T059** — The required output file `data/processed/study_power_analysis.json` does not exist, and the provided `code/analysis/power.py` is incomplete (truncated) with no evidence that it generates the JSON documenting effect sizes and study limitations. Consequently the task’s core deliverable is missing.
+- **T014** — The `environment.py` file is truncated and does not show any logic that writes a JSON log or raises `ConfigurationError` when `barometric_pressure` is absent. Moreover, the required output file `data/processed/environment_logs.json` is missing from the repository. Both the artifact and its behavior fail to meet the task’s specifications.
