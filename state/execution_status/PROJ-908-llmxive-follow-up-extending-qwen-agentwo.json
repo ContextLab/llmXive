@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-908-llmxive-follow-up-extending-qwen-agentwo",
+  "ok": false,
+  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis/diverge.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026on batch JSON (optional, generates synthetic if missing)\")     parser\u2026\u201d; code/analysis/diverge.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026transitions}. Generating synthetic sample for demonstration.\")\u2026\u201d; code/analysis/diverge.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026monstration.\")         # Generate a small synthetic sample for demonstration\u2026\u201d; 1 command(s) failed: python -m code.main --seed 42 (rc=1); 6 declared deliverable(s) absent: data/processed/divergence_report.json; data/processed/extracted_rules.json; data/processed/oracle_graph.json",
+  "artifacts": [],
+  "failures": [
+    "python -m code.main --seed 42 -> rc=1\n    2026-09-26 06:16:40,308 - main - INFO - Starting llmXive pipeline execution...\n\nTraceback (most recent call last):\n  File \"<frozen runpy>\", line 198, in _run_module_as_main\n  File \"<frozen runpy>\", line 88, in _run_code\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/code/main.py\", line 44, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/code/main.py\", line 21, in main\n    if not check_code_drift(code_dir):\n           ^^^^^^^"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-26T06:16:40Z"
+}

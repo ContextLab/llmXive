@@ -1,9 +1,11 @@
-datasets
-scikit-learn
-prolog
-networkx
-pandas
-pytest
-pytest-randomly
-# T019 dependencies
-# (No new external dependencies required; uses standard library)
+datasets>=2.14.0
+jsonschema>=4.19.0
+pyyaml>=6.0.1
+pytest>=7.4.0
+pytest-random-seed>=0.2.0
+ilpy>=0.1.0
+scipy>=1.11.0
+pdoc3>=0.10.0
+ruff>=0.1.0
+black>=23.0.0
+pytest-cov>=4.1.0

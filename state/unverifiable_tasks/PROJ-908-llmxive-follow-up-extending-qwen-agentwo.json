@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-908-llmxive-follow-up-extending-qwen-agentwo",
+  "tasks": [
+    {
+      "task_key": "T027",
+      "reject_count": 1,
+      "last_reason": "The repository contains a `code/rules/metrics.py` implementation, but the required input files (`data/processed/extracted_rules.json`, `data/processed/oracle_graph.json`) are absent, so the script cannot run or produce `data/processed/rule_precision.json`. Moreover, the returned JSON schema uses a `correct_rules` field instead of the required `matching_rules`. The task\u2019s output artifact is therefore missing and does not meet the specified schema.",
+      "first_seen": "2026-09-26T06:53:33.558711+00:00",
+      "last_seen": "2026-09-26T06:53:33.558711+00:00"
+    }
+  ],
+  "updated_at": "2026-09-26T06:53:33.558711+00:00"
+}

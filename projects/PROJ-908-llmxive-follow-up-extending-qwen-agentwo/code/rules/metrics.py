@@ -1,206 +1,120 @@
-"""
-Metrics calculation for Rule Extraction (User Story 2).
-
-This module implements the calculation of Rule Precision by comparing
-extracted rules against the Ground Truth Oracle.
-"""
-
 import json
 import logging
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("rules.metrics")
 
 @dataclass
 class PrecisionResult:
-    """Result container for precision calculation."""
+    total_rules: int
+    correct_rules: int
     precision: float
-    total_extracted: int
-    total_verified: int
-    true_positives: int
-    false_positives: int
-    details: Dict[str, Any]
 
-def _normalize_rule_signature(rule: Dict[str, Any]) -> str:
+def calculate_precision(extracted_rules: List[Dict[str, Any]], oracle_graph: Dict[str, Any]) -> PrecisionResult:
     """
-    Create a canonical string signature for a rule to allow comparison.
-    Handles variations in formatting while preserving logical structure.
-    """
-    rule_type = rule.get("type", "unknown")
-    condition = rule.get("condition", "")
-    consequence = rule.get("consequence", "")
+    Calculate the precision of extracted rules against the Oracle.
+    A rule is correct if it matches a transition logic in the Oracle.
     
-    # Normalize whitespace and sort keys if nested
-    def clean(s: str) -> str:
-        return " ".join(str(s).split())
-    
-    return f"{rule_type}:{clean(condition)}->{clean(consequence)}"
-
-def _extract_oracle_rules(oracle_graph: Dict[str, Any]) -> Set[str]:
-    """
-    Extract a set of normalized rule signatures from the Oracle Graph.
-    The Oracle Graph is expected to contain 'nodes' or 'edges' representing
-    state transitions and interaction logic.
-    """
-    rules = set()
-    
-    # Strategy 1: Look for explicit rules in 'rules' or 'logic' keys
-    if "rules" in oracle_graph:
-        for r in oracle_graph["rules"]:
-            rules.add(_normalize_rule_signature(r))
-    
-    # Strategy 2: Derive rules from 'edges' (state transitions)
-    # Each edge represents a transition: source -> action -> target
-    # We treat this as a rule: IF state=source AND action THEN state=target
-    if "edges" in oracle_graph:
-        for edge in oracle_graph["edges"]:
-            source = edge.get("source", "")
-            target = edge.get("target", "")
-            action = edge.get("action", "")
-            if source and target:
-                # Construct a synthetic rule signature for the transition
-                sig = f"transition:state={source}&action={action}->state={target}"
-                rules.add(sig)
-    
-    # Strategy 3: Look for nodes with 'interaction_logic'
-    if "nodes" in oracle_graph:
-        for node in oracle_graph["nodes"]:
-            logic = node.get("interaction_logic")
-            if logic:
-                rules.add(_normalize_rule_signature({"type": "interaction", **logic}))
-
-    return rules
-
-def calculate_precision(
-    extracted_rules: List[Dict[str, Any]], 
-    oracle_graph: Dict[str, Any]
-) -> PrecisionResult:
-    """
-    Calculate Rule Precision by comparing extracted rules against the Oracle.
-    
-    Precision = True Positives / (True Positives + False Positives)
-    
-    A True Positive is an extracted rule that matches a rule in the Oracle.
-    A False Positive is an extracted rule that does NOT match any Oracle rule.
-    (Recall is not calculated here as per task scope, but could be added).
-    
-    Args:
-        extracted_rules: List of rule dictionaries from `data/processed/extracted_rules.json`.
-        oracle_graph: Dictionary from `data/processed/oracle_graph.json`.
-        
-    Returns:
-        PrecisionResult containing the scalar precision metric and breakdown.
+    Matching Logic:
+    1. Extract the 'logic' string from the extracted rule.
+    2. Normalize both the rule logic and oracle node state_transition strings (lowercase, strip whitespace).
+    3. Check if the normalized rule logic is a substring of the normalized state_transition.
+    4. Count matches to determine precision.
     """
     if not extracted_rules:
-        logger.warning("No extracted rules provided. Precision is 0.0.")
-        return PrecisionResult(
-            precision=0.0,
-            total_extracted=0,
-            total_verified=0,
-            true_positives=0,
-            false_positives=0,
-            details={"message": "No extracted rules"}
-        )
+        return PrecisionResult(total_rules=0, correct_rules=0, precision=0.0)
 
-    oracle_rule_set = _extract_oracle_rules(oracle_graph)
-    logger.info(f"Oracle contains {len(oracle_rule_set)} unique rule signatures.")
-
-    true_positives = 0
-    false_positives = 0
-    matched_rules = []
-    unmatched_rules = []
-
-    for rule in extracted_rules:
-        sig = _normalize_rule_signature(rule)
-        if sig in oracle_rule_set:
-            true_positives += 1
-            matched_rules.append(sig)
+    correct = 0
+    total = len(extracted_rules)
+    
+    # Pre-process oracle nodes for efficient lookup
+    oracle_transitions = []
+    for node in oracle_graph.get("nodes", []):
+        state_trans = node.get("state_transition", {})
+        if isinstance(state_trans, dict):
+            # Convert dict to string representation
+            trans_str = json.dumps(state_trans, sort_keys=True)
         else:
-            false_positives += 1
-            unmatched_rules.append(sig)
-
-    total_extracted = len(extracted_rules)
-    if total_extracted == 0:
-        precision = 0.0
-    else:
-        precision = true_positives / total_extracted
-
-    logger.info(f"Precision Calculation: TP={true_positives}, FP={false_positives}, Precision={precision:.4f}")
-
-    return PrecisionResult(
-        precision=precision,
-        total_extracted=total_extracted,
-        total_verified=true_positives,
-        true_positives=true_positives,
-        false_positives=false_positives,
-        details={
-            "matched_rules": matched_rules[:10], # Limit for log size
-            "unmatched_rules": unmatched_rules[:10],
-            "oracle_rule_count": len(oracle_rule_set)
-        }
-    )
+            trans_str = str(state_trans)
+        oracle_transitions.append(trans_str.lower().strip())
+    
+    for rule in extracted_rules:
+        logic = str(rule.get("logic", ""))
+        if not logic:
+            continue
+        
+        normalized_logic = logic.lower().strip()
+        found = False
+        
+        for trans_str in oracle_transitions:
+            if normalized_logic in trans_str:
+                found = True
+                break
+        
+        if found:
+            correct += 1
+        else:
+            logger.debug(f"Rule logic not found in oracle: {normalized_logic[:50]}...")
+    
+    precision = correct / total if total > 0 else 0.0
+    return PrecisionResult(total, correct, precision)
 
 def main():
     """
-    Entry point to calculate rule precision.
-    Reads:
-      - data/processed/extracted_rules.json
-      - data/processed/oracle_graph.json
-    Writes:
-      - data/processed/rule_precision.json
+    Main entry point for calculating rule precision.
+    Reads extracted rules and oracle graph, calculates precision,
+    and writes the result to data/processed/rule_precision.json.
     """
-    base_path = Path(__file__).resolve().parent.parent.parent
-    input_rules_path = base_path / "data" / "processed" / "extracted_rules.json"
-    input_oracle_path = base_path / "data" / "processed" / "oracle_graph.json"
-    output_path = base_path / "data" / "processed" / "rule_precision.json"
-
-    logger.info(f"Loading extracted rules from {input_rules_path}")
-    if not input_rules_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_rules_path}. "
-                                "Ensure T023 (Rule Extraction) has completed.")
-
-    logger.info(f"Loading Oracle Graph from {input_oracle_path}")
-    if not input_oracle_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_oracle_path}. "
-                                "Ensure T014 (Oracle Generation) has completed.")
-
-    with open(input_rules_path, "r", encoding="utf-8") as f:
-        extracted_rules = json.load(f)
-
-    with open(input_oracle_path, "r", encoding="utf-8") as f:
+    logger.info("Calculating Rule Precision...")
+    
+    rules_path = Path("data/processed/extracted_rules.json")
+    oracle_path = Path("data/processed/oracle_graph.json")
+    output_path = Path("data/processed/rule_precision.json")
+    
+    # Verify input files exist (fail loudly if missing)
+    if not rules_path.exists():
+        raise FileNotFoundError(f"Extracted rules not found: {rules_path}. "
+                              "Ensure T023 (Rule Extraction) has completed successfully.")
+    if not oracle_path.exists():
+        raise FileNotFoundError(f"Oracle graph not found: {oracle_path}. "
+                              "Ensure T014 (Oracle Generation) has completed successfully.")
+    
+    # Load extracted rules
+    with open(rules_path, 'r') as f:
+        rules_data = json.load(f)
+        # Handle both list and dict with 'rules' key formats
+        if isinstance(rules_data, list):
+            rules = rules_data
+        elif isinstance(rules_data, dict) and "rules" in rules_data:
+            rules = rules_data["rules"]
+        else:
+            raise ValueError(f"Unexpected format in {rules_path}: expected list or dict with 'rules' key")
+    
+    # Load oracle graph
+    with open(oracle_path, 'r') as f:
         oracle_graph = json.load(f)
-
-    result = calculate_precision(extracted_rules, oracle_graph)
-
+    
+    # Calculate precision
+    result = calculate_precision(rules, oracle_graph)
+    
+    # Prepare output
     output_data = {
         "precision": result.precision,
-        "total_extracted_rules": result.total_extracted,
-        "true_positives": result.true_positives,
-        "false_positives": result.false_positives,
-        "metrics": {
-            "precision": result.precision
-        },
-        "metadata": {
-            "oracle_rule_count": result.details.get("oracle_rule_count", 0),
-            "extraction_timestamp": str(Path(input_rules_path).stat().st_mtime),
-            "oracle_timestamp": str(Path(input_oracle_path).stat().st_mtime)
-        }
+        "total_rules": result.total_rules,
+        "matching_rules": result.correct_rules
     }
-
+    
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
+    
+    # Write output file
+    with open(output_path, 'w') as f:
         json.dump(output_data, f, indent=2)
-
-    logger.info(f"Rule Precision metric saved to {output_path}")
-    logger.info(f"Final Precision Score: {result.precision:.4f}")
-
-    return result
+    
+    logger.info(f"Rule precision calculated: {result.precision:.4f} ({result.correct_rules}/{result.total_rules})")
+    logger.info(f"Rule precision saved to {output_path}")
 
 if __name__ == "__main__":
     main()

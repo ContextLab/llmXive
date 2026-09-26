@@ -801,24 +801,6 @@
   status: not_enough_info
   updated_at: '2026-09-23T20:37:20Z'
 - artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
-  attempts: 4
-  canonical: Error classification matches human annotation with Cohen's Kappa of 0.8
-  claim_id: c_9b4ed642
-  context: "Independent Test: Run on small manually verified dataset; Confirm error\
-    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
-    \ Kappa \u2265 0.8)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Confirm error classification (Hallucination vs Rule Gap) matches human\
-    \ annotation (Cohen's Kappa \u2265 0.8)."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-23T20:37:20Z'
-- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
   attempts: 2
   canonical: ILP induction runtime is under 6 hours on CPU
   claim_id: c_f8fa53de
@@ -837,24 +819,6 @@
   status: not_enough_info
   updated_at: '2026-09-23T20:37:20Z'
 - artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
-  attempts: 4
-  canonical: Oracle matches simulator trajectories for 1000 inputs with 99.9% accuracy
-  claim_id: c_859ae0c9
-  context: "Independent Test: Verify generated oracle matches original environment\
-    \ simulator trajectories for N=1,000 random inputs (seed=42) with \u226599.9%\
-    \ accuracy."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify generated oracle matches original environment simulator trajectories\
-    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-23T20:39:22Z'
-- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
   attempts: 2
   canonical: Synthetic control traces dataset contains 500 traces
   claim_id: c_9b1bf873
@@ -872,40 +836,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-23T20:39:22Z'
-- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
-  attempts: 6
-  canonical: Extracted rules reproduce patterns with 95% precision
-  claim_id: c_0d9d948c
-  context: "Independent Test: Feed synthetic traces with known patterns; Verify extracted\
-    \ rules reproduce patterns with \u226595% precision."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Verify extracted rules reproduce patterns with \u226595% precision."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-23T20:39:23Z'
-- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
-  attempts: 2
-  canonical: Error classification matches human annotation with Cohen's Kappa 0.8
-  claim_id: c_2e905686
-  context: "Independent Test: Run on small manually verified dataset; Confirm error\
-    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
-    \ Kappa \u2265 0.8)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "Confirm error classification (Hallucination vs Rule Gap) matches human\
-    \ annotation (Cohen's Kappa \u2265 0.8)."
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-23T20:39:23Z'
 - artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
   attempts: 1
   canonical: Adherence drops below 95% threshold at specific boundary
@@ -979,3 +909,799 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-23T20:40:20Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 5
+  canonical: Error classification matches human annotation with Cohen's Kappa of 0.8
+  claim_id: c_9b4ed642
+  context: "Independent Test: Run on small manually verified dataset; Confirm error\
+    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
+    \ Kappa \u2265 0.8)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm error classification (Hallucination vs Rule Gap) matches human\
+    \ annotation (Cohen's Kappa \u2265 0.8)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:18:45Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Generate 500 synthetic control traces with pre-determined logical patterns
+  claim_id: c_40158022
+  context: 'T019a [US2] Generate Synthetic Control Traces: Create code/rules/synthetic_generator.py
+    to generate data/raw/synthetic_control_traces.json containing N=500 traces with
+    pre-determined logical patterns (simple conjunctions of state predicates).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/raw/synthetic_control_traces.json containing N=500 traces
+    with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:19:15Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Run inference with temperature 0.7 and max tokens 1024
+  claim_id: c_eb1dcd51
+  context: 'T017 [US2] Implement code/inference/runner.py to generate CoT traces for
+    the Standardized Benchmark: Implement a CPU-quantized inference pipeline using
+    Qwen/Qwen-1.8B-Instruct (open source) with temperature=0.7, max_tokens=1024.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `python code/inference/runner.py` with `temperature=0.7` and `max_tokens=1024`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:19:32Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Perform bootstrapped permutation test with 1000 iterations
+  claim_id: c_be9d7a80
+  context: 'T033 [US3] Perform Bootstrapped Permutation Test: Implement run_permutation_test(trajectories,
+    interaction_classes, N=1000) to calculate p-values for divergence differences
+    between classes (FR-005/SC-003), accounting for Markovian dependencies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Bootstrapped Permutation Test with N=1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:20:00Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Execution completes within 6 hours on 2-core CPU
+  claim_id: c_591c1067
+  context: 'T038 [P] Performance optimization for ILP induction on CPU: Refactor code/rules/extractor.py
+    to use optimized algorithms (pruning and parallelization) to ensure execution
+    completes within standard CI limits (target <6h on GitHub Actions 2-core CPU).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure execution completes within standard CI limits (target <6h on GitHub
+    Actions 2-core CPU).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:20:00Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Derive rules using ilpy with max depth 3 and min support 5
+  claim_id: c_e31f0b0d
+  context: 'T021 [US2] Implement code/rules/extractor.py using FOL/ILP (library: ilpy,
+    params: max_depth=3, min_support=5) to derive rules from CoT traces'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use `ilpy` library with params: max_depth=3, min_support=5 to derive
+    rules from CoT traces.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:20:18Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: CoT traces saved to cot_traces.json with task_id and interaction_type
+    metadata
+  claim_id: c_4906002c
+  context: 'Output must be saved to `data/raw/cot_traces.json` with metadata including
+    `task_id` and `interaction_type`. Verification: Run `python code/inference/runner.py
+    --input=data/raw/standardized_benchmark.json --output=data/raw/cot_traces.json`
+    and confirm file exists with valid JSON structure.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CoT_traces_saved_to_cot_traces.json_with_task_id_and_interac
+  kind: entity_fact
+  raw_text: Output must be saved to `data/raw/cot_traces.json` with metadata including
+    `task_id` and `interaction_type`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:21:04Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Synthetic control traces generated containing 500 traces
+  claim_id: c_1ba35292
+  context: 'Generate Synthetic Control Traces: Create `code/rules/synthetic_generator.py`
+    to generate `data/raw/synthetic_control_traces.json` containing N=500 traces with
+    pre-determined logical patterns (simple conjunctions of state predicates).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create `code/rules/synthetic_generator.py` to generate `data/raw/synthetic_control_traces.json`
+    containing N=500 traces with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:21:30Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Rule extraction uses ilpy with max_depth 3 and min_support 5
+  claim_id: c_37341868
+  context: 'Implement `code/rules/extractor.py` using FOL/ILP (library: `ilpy`, params:
+    `max_depth=3`, `min_support=5`) to derive rules from CoT traces.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/rules/extractor.py` using FOL/ILP (library: `ilpy`, params:
+    `max_depth=3`, `min_support=5`) to derive rules from CoT traces.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:21:44Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Trace loading uses streaming with chunk size 1000
+  claim_id: c_a1c21d1c
+  context: 'Refactor the trace loading logic to use `datasets.load_dataset(..., streaming=True)`
+    and iterate via `itertools.islice` with `chunk_size=1000`. Explicitly log `INFO:
+    Streaming chunk {i}/{total}, sample_size={n}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor the trace loading logic to use `datasets.load_dataset(..., streaming=True)`
+    and iterate via `itertools.islice` with `chunk_size=1000`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:22:06Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Permutation test runs with 1000 iterations
+  claim_id: c_ccb0c871
+  context: Implement `run_permutation_test(trajectories, interaction_classes, N=1000)`
+    to calculate p-values for divergence differences between classes (FR-005/SC-003),
+    accounting for Markovian dependencies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_permutation_test(trajectories, interaction_classes, N=1000)`
+    to calculate p-values for divergence differences between classes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:23:16Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Adherence boundary threshold is 0.95
+  claim_id: c_62472f4b
+  context: 'Implement logic in `code/analysis/stats.py` to identify the specific step
+    count or state complexity boundary where measured adherence drops below the adherence
+    threshold (read from `config.yaml`, default 0.95) (per FR-006/SC-004): Implement
+    `find_adherence_boundary(trajectories, threshold=0.95)` using binary search.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `find_adherence_boundary(trajectories, threshold=0.95)` using
+    binary search.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:23:41Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction execution target is under 6 hours on 2-core CPU
+  claim_id: c_cd48944b
+  context: Refactor `code/rules/extractor.py` to use optimized algorithms (pruning
+    and parallelization) to ensure execution completes within standard CI limits (target
+    <6h on GitHub Actions 2-core CPU).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor `code/rules/extractor.py` to use optimized algorithms to ensure
+    execution completes within standard CI limits (target <6h on GitHub Actions 2-core
+    CPU).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:23:41Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Benchmark generator outputs tasks with spatial, temporal, and causal
+    interaction types
+  claim_id: c_07140004
+  context: 'Define the Standardized Benchmark: Create `code/utils/benchmark_generator.py`
+    to generate `data/raw/standardized_benchmark.json` using a fixed seed (42) and
+    verified HF dataset IDs. The script must output a curated list of long-horizon
+    planning tasks with metadata including `interaction_type` (spatial, temporal,
+    causal) and `task_id`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_generator_outputs_tasks_with_spatial,_temporal,_an
+  kind: entity_fact
+  raw_text: The script must output a curated list of long-horizon planning tasks with
+    metadata including `interaction_type` (spatial, temporal, causal) and `task_id`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:24:09Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Inference uses Qwen-1.8B-Instruct with temperature 0.7 and max tokens
+    1024
+  claim_id: c_e6ce244a
+  context: 'Implement `code/inference/runner.py` to generate CoT traces for the Standardized
+    Benchmark: Implement a CPU-quantized inference pipeline using `Qwen/Qwen-1.8B-Instruct`
+    (open source) with `temperature=0.7`, `max_tokens=1024`.'
+  evidence:
+    asserted: '-1.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement a CPU-quantized inference pipeline using `Qwen/Qwen-1.8B-Instruct`
+    (open source) with `temperature=0.7`, `max_tokens=1024`.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T06:24:09Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11 and specific library versions
+  claim_id: c_5f5cf948
+  context: 'Initialize a Python 3.11 project with `requirements.txt` pinning specific
+    versions: `datasets>=2.14.0`, `scikit-learn>=1.3.0`, `ilpy>=0.1.0`, `networkx>=3.1`,
+    `pandas>=2.0.0`, `pytest>=7.4.0`, `pytest-cov>=4.1.0`, `ruff>=0.1.0`.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize a Python 3.11 project with `requirements.txt` pinning specific
+    versions: `datasets>=2.14.0`, `scikit-learn>=1.3.0`, `ilpy>=0.1.0`, `networkx>=3.1`,
+    `pandas>=2.0.0`, `pytest>=7.4.0`, `pytest-cov>=4.1.0`, `ruff>=0.1.0`.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T06:24:09Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Generate 500 synthetic control traces
+  claim_id: c_c5a7991b
+  context: 'T019a [US2] Generate Synthetic Control Traces: Create code/rules/synthetic_generator.py
+    to generate data/raw/synthetic_control_traces.json containing N=500 traces with
+    pre-determined logical patterns (simple conjunctions of state predicates).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/raw/synthetic_control_traces.json containing N=500 traces
+    with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:26:33Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction execution target is 6 hours on 2-core CPU
+  claim_id: c_e2d6789a
+  context: 'T038 [P] Performance optimization for ILP induction on CPU: Refactor code/rules/extractor.py
+    to use optimized algorithms (pruning and parallelization) to ensure execution
+    completes within standard CI limits (target <6h on GitHub Actions 2-core CPU).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure execution completes within standard CI limits (target <6h on GitHub
+    Actions 2-core CPU).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:26:34Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 8
+  canonical: Oracle matches simulator trajectories for 1000 inputs with 99.9% accuracy
+  claim_id: c_859ae0c9
+  context: "Independent Test: Verify generated oracle matches original environment\
+    \ simulator trajectories for N=1,000 random inputs (seed=42) with \u226599.9%\
+    \ accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify generated oracle matches original environment simulator trajectories\
+    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:28:10Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Extracted rules reproduce synthetic patterns with 95% precision
+  claim_id: c_555a71e0
+  context: "Independent Test: Feed synthetic traces with known patterns; Verify extracted\
+    \ rules reproduce patterns with \u226595% precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify extracted rules reproduce patterns with \u226595% precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:28:10Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Standardized benchmark generated using fixed seed 42
+  claim_id: c_4edbda9f
+  context: 'T016a [P] [Shared] Define the Standardized Benchmark: Create code/utils/benchmark_generator.py
+    to generate data/raw/standardized_benchmark.json using a fixed seed (42) and verified
+    HF dataset IDs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create code/utils/benchmark_generator.py to generate data/raw/standardized_benchmark.json
+    using a fixed seed (42) and verified HF dataset IDs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:28:33Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Synthetic control traces generated containing 500 traces
+  claim_id: c_e1d1d29e
+  context: 'T019a [US2] Generate Synthetic Control Traces: Create code/rules/synthetic_generator.py
+    to generate data/raw/synthetic_control_traces.json containing N=500 traces with
+    pre-determined logical patterns (simple conjunctions of state predicates).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/rules/synthetic_generator.py to generate data/raw/synthetic_control_traces.json
+    containing N=500 traces with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:29:00Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Rule extraction uses ilpy with max_depth 3 and min_support 5
+  claim_id: c_4bbb595d
+  context: 'T021 [US2] Implement code/rules/extractor.py using FOL/ILP (library: ilpy,
+    params: max_depth=3, min_support=5) to derive rules from CoT traces.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/rules/extractor.py using FOL/ILP (library: ilpy, params:
+    max_depth=3, min_support=5) to derive rules from CoT traces.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:29:00Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Trace loading uses streaming with chunk_size 1000
+  claim_id: c_8878587f
+  context: 'T042 [US2] Implement streaming logic for large CoT trace datasets in code/rules/extractor.py:
+    Refactor the trace loading logic to use datasets.load_dataset(..., streaming=True)
+    and iterate via itertools.islice with chunk_size=1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor the trace loading logic to use datasets.load_dataset(..., streaming=True)
+    and iterate via itertools.islice with chunk_size=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:29:00Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Permutation test runs with 1000 iterations
+  claim_id: c_f54de64e
+  context: 'T033 [US3] Perform Bootstrapped Permutation Test: Implement run_permutation_test(trajectories,
+    interaction_classes, N=1000) to calculate p-values for divergence differences
+    between classes (FR-005/SC-003), accounting for Markovian dependencies.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_permutation_test(trajectories, interaction_classes, N=1000)
+    to calculate p-values for divergence differences between classes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:29:01Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction execution target under 6 hours on 2-core CPU
+  claim_id: c_0d985c28
+  context: 'T038 [P] Performance optimization for ILP induction on CPU: Refactor code/rules/extractor.py
+    to use optimized algorithms (pruning and parallelization) to ensure execution
+    completes within standard CI limits (target <6h on GitHub Actions 2-core CPU).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure execution completes within standard CI limits (target <6h on GitHub
+    Actions 2-core CPU).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:29:01Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Oracle matches simulator on 1000 inputs with 99.9% accuracy
+  claim_id: c_6d1548e1
+  context: "Independent Test: Verify generated oracle matches original environment\
+    \ simulator trajectories for N=1,000 random inputs (seed=42) with \u226599.9%\
+    \ accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify generated oracle matches original environment simulator trajectories\
+    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:44:48Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Synthetic control traces contain 500 traces
+  claim_id: c_41d435ec
+  context: 'T019a [US2] Generate Synthetic Control Traces (Unit Test Only): Create
+    `code/rules/synthetic_generator.py` to generate `data/raw/synthetic_control_traces.json`
+    containing N=500 traces with pre-determined logical patterns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create `code/rules/synthetic_generator.py` to generate `data/raw/synthetic_control_traces.json`
+    containing N=500 traces with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:44:48Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: ILP induction completes in 6 hours on 2-core CPU
+  claim_id: c_fb79d22f
+  context: 'T038 [P] Performance optimization for ILP induction on CPU: Refactor `code/rules/extractor.py`
+    to use optimized algorithms (pruning and parallelization) to ensure execution
+    completes within standard CI limits (target <6h on GitHub Actions 2-core CPU).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure execution completes within standard CI limits (target <6h on GitHub
+    Actions 2-core CPU).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:44:49Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Achieve 80% line coverage on core modules
+  claim_id: c_8b4b8b29
+  context: "T039 [P] Additional unit tests coverage: Achieve \u226580% line coverage\
+    \ on `code/oracle`, `code/rules`, `code/analysis` using `pytest-cov`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Achieve \u226580% line coverage on `code/oracle`, `code/rules`, `code/analysis`\
+    \ using `pytest-cov`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:44:49Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Permutation test runs with 1000 iterations
+  claim_id: c_f5b16ec5
+  context: 'T033 [US3] Perform Bootstrapped Permutation Test: Implement `run_permutation_test(trajectories,
+    interaction_classes, N=1000)` to calculate p-values for divergence differences
+    between classes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_permutation_test(trajectories, interaction_classes, N=1000)`
+    to calculate p-values for divergence differences.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:45:21Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Generate 500 synthetic control traces
+  claim_id: c_8754e0c9
+  context: 'T019a [US2] Generate Synthetic Control Traces (Unit Test Only): Create
+    `code/rules/synthetic_generator.py` to generate `data/raw/synthetic_control_traces.json`
+    containing N=500 traces with pre-determined logical patterns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate `data/raw/synthetic_control_traces.json` containing N=500 traces
+    with pre-determined logical patterns
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:50:24Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Assert extracted rules reproduce patterns with 95% precision
+  claim_id: c_d64094f1
+  context: "T019b [US2] Validate Extraction on Synthetic Data: Run the extraction\
+    \ algorithm (T023) on `data/raw/synthetic_control_traces.json` and assert that\
+    \ the extracted rules reproduce the known patterns with \u226595% precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Assert that the extracted rules reproduce the known patterns with \u2265\
+    95% precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:50:25Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Run permutation test with 1000 iterations
+  claim_id: c_324f0589
+  context: 'T033 [US3] Perform Bootstrapped Permutation Test: Implement `run_permutation_test(trajectories,
+    interaction_classes, N=1000)` to calculate p-values for divergence differences
+    between classes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `run_permutation_test(trajectories, interaction_classes, N=1000)`
+    to calculate p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:50:56Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Achieve 80% line coverage on code modules
+  claim_id: c_36f41d64
+  context: "T039 [P] Additional unit tests coverage: Achieve \u226580% line coverage\
+    \ on `code/oracle`, `code/rules`, `code/analysis` using `pytest-cov`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Achieve \u226580% line coverage on `code/oracle`, `code/rules`, `code/analysis`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:50:56Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Execution target is less than 6 hours on 2-core CPU
+  claim_id: c_c68fe550
+  context: 'T038 [P] Performance optimization for ILP induction on CPU: Refactor `code/rules/extractor.py`
+    to use optimized algorithms... to ensure execution completes within standard CI
+    limits (target <6h on GitHub Actions 2-core CPU).'
+  evidence:
+    candidates:
+    - - Log in Execution target is less than
+      - 6.0
+    - - Execution target is less than 6 hours on
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Execution_target_is_less_than_6_hours_on_2-core_CPU
+  kind: magnitude
+  raw_text: Ensure execution completes within standard CI limits (target <6h on GitHub
+    Actions 2-core CPU).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-26T06:51:25Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 2
+  canonical: Oracle matches simulator on 1000 samples with 99.9% accuracy
+  claim_id: c_9a90d514
+  context: "Independent Test: Verify generated oracle matches original environment\
+    \ simulator trajectories for N=1,000 random inputs (seed=42) with \u226599.9%\
+    \ accuracy."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify generated oracle matches original environment simulator trajectories\
+    \ for N=1,000 random inputs (seed=42) with \u226599.9% accuracy."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:52:21Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 11
+  canonical: Extracted rules reproduce patterns with 95% precision
+  claim_id: c_0d9d948c
+  context: "Independent Test: Feed synthetic traces with known patterns; Verify extracted\
+    \ rules reproduce patterns with \u226595% precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify extracted rules reproduce patterns with \u226595% precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:52:21Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Synthetic control traces contain 500 traces
+  claim_id: c_986167ac
+  context: 'T019a [US2] Generate Synthetic Control Traces (Unit Test Only): Create
+    code/rules/synthetic_generator.py to generate data/raw/synthetic_control_traces.json
+    containing N=500 traces with pre-determined logical patterns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/raw/synthetic_control_traces.json containing N=500 traces
+    with pre-determined logical patterns.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:52:22Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Permutation test runs with 1000 iterations
+  claim_id: c_6ba0f324
+  context: 'T033 [US3] Perform Bootstrapped Permutation Test: Implement run_permutation_test(trajectories,
+    interaction_classes, N=1000) to calculate p-values for divergence differences
+    between classes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run run_permutation_test(trajectories, interaction_classes, N=1000) to
+    calculate p-values for divergence differences.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:53:03Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 8
+  canonical: Error classification matches human annotation with Cohen's Kappa 0.8
+  claim_id: c_2e905686
+  context: "Independent Test: Run on small manually verified dataset; Confirm error\
+    \ classification (Hallucination vs Rule Gap) matches human annotation (Cohen's\
+    \ Kappa \u2265 0.8)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm error classification (Hallucination vs Rule Gap) matches human\
+    \ annotation (Cohen's Kappa \u2265 0.8)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:53:03Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Line coverage is greater than or equal to 80 percent
+  claim_id: c_def67d23
+  context: "T039 [P] Additional unit tests coverage: Achieve \u226580% line coverage\
+    \ on code/oracle, code/rules, code/analysis using pytest-cov."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Line_coverage_is_greater_than_or_equal_to_80_percent
+  kind: magnitude
+  raw_text: "Achieve \u226580% line coverage on code/oracle, code/rules, code/analysis\
+    \ using pytest-cov."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:53:25Z'
+- artifact_path: projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/specs/001-llmxive-follow-up-extending-qwen-agentwo/tasks.md
+  attempts: 1
+  canonical: Execution completes in less than 6 hours on 2-core CPU
+  claim_id: c_8dc8f536
+  context: 'T038 [P] Performance optimization for ILP induction on CPU: Refactor code/rules/extractor.py
+    ... to ensure execution completes within standard CI limits (target <6h on GitHub
+    Actions 2-core CPU).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Execution_completes_in_less_than_6_hours_on_2-core_CPU
+  kind: magnitude
+  raw_text: Ensure execution completes within standard CI limits (target <6h on GitHub
+    Actions 2-core CPU).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:53:27Z'

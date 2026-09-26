@@ -1,3 +1,12 @@
+T014:
+  c: false
+  h: efb6a59dea56f359c9c485527f3d946cf2990f356c047804fad11d6c7845e821
+  r: "The required artifact `data/processed/oracle_graph.json` does not exist, and\
+    \ there is no evidence of the semantic verification step (accuracy check, exit\
+    \ code, checksum) being performed. The implementer must generate the oracle file,\
+    \ run the 1,000\u2011sample comparison with \u226599.9\u202F% accuracy, and provide\
+    \ the resulting file (non\u2011empty) along with verification logs or checksum\
+    \ confirmation."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,6 +14,24 @@ T016:
     \ statements were added to the Oracle generation and validation steps. The required\
     \ artifact\u2014a modified codebase (or diff) with concrete logging implementation\u2014\
     is missing, so the task is not satisfied."
+T017:
+  c: false
+  h: 6cf6204e167541370e1990018fa074be2d6b8b1ad0623febdd5cfc97196d0585
+  r: "The repository contains a partially\u2011implemented `code/inference/runner.py`\
+    \ (the file is truncated and does not include the full generation logic or a main\
+    \ entry point). Moreover, the required input file `data/raw/standardized_benchmark.json`\
+    \ and the expected output `data/raw/cot_traces.json` are absent, so the verification\
+    \ command cannot be run and no JSON trace file is produced. The task therefore\
+    \ remains unfinished."
+T023:
+  c: false
+  h: cb304781208b6d4101740b91d09605db69130a348409bb50e93888fcd2afeaa1
+  r: "The repository contains `code/rules/extractor.py`, but the implementation is\
+    \ incomplete (truncated and only performs simple pattern counting, not full FOL\
+    \ rule induction) and the required output file `data/processed/extracted_rules.json`\
+    \ is absent. Additionally, the validation dataset `data/raw/synthetic_control_traces.json`\
+    \ is missing, so the script cannot be run nor the \u226595\u202F% precision check\
+    \ performed."
 T026:
   c: false
   h: a61f43fa3ae9b5e56ef9908d5ca588a5d33dee74743813a60ee6f7e0dc3f4a88
@@ -13,15 +40,6 @@ T026:
     \ (e.g., no function that computes the precision and writes the JSON result).\
     \ Consequently the task\u2019s core requirement\u2014to calculate and store the\
     \ Pattern Reproduction Precision metric\u2014is not satisfied."
-T027:
-  c: false
-  h: 685842248605c0573113087d21ee78958cc64edba1de2d1f10687d2af240c9ba
-  r: "The provided `code/rules/metrics.py` is incomplete (the `calculate_precision`\
-    \ function is truncated and does not contain a full implementation or any code\
-    \ that writes `data/processed/rule_precision.json`). Moreover, the required output\
-    \ file `data/processed/rule_precision.json` is missing from the repository. The\
-    \ task\u2019s core requirement\u2014to compute and persist the precision metric\u2014\
-    is therefore not satisfied."
 T031:
   c: false
   h: d7746255b78ebbae2dff67b4dce53ed8ba6dcba9ad82cc0cfa17f7405221f5ff
