@@ -1,4 +1,3 @@
-# Existing dependencies
 rdkit
 gudhi
 dionysus2
@@ -12,4 +11,5 @@ requests
 networkx
 scipy
 pytest
-# New dependencies if any (none added for T016, using existing)
+ruff
+black

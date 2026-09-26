@@ -1,10 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-444-predicting-molecular-properties-from-top/`
-    directory (or any files within it) is present; without a visible project structure
-    we cannot confirm the task was fulfilled. The implementer must provide the actual
-    folder and its contents.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -20,24 +13,6 @@ T004:
     \ a `state/` tracking component or script that checks their existence on exit,\
     \ was presented. Without these artifacts the task\u2019s requirement cannot be\
     \ confirmed."
-T007:
-  c: false
-  h: 0500daa97a6c934931a8bdc046107d3397d82bf0bebb1533897801d4e944a436
-  r: "The repository contains a partially\u2011implemented `code/00_checksum_verify.py`\
-    \ (the file ends abruptly and never calls `write_checksums` or computes hashes\
-    \ for the raw files). Moreover, the required output `data/checksums.txt` is absent,\
-    \ so the script cannot be run to produce or verify the SHA256 list. The task\u2019\
-    s core deliverable \u2013 a non\u2011empty checksum file covering all files in\
-    \ `data/raw/` \u2013 is missing."
-T008b:
-  c: false
-  h: 589516936ad7f5c4bbd94c13816cbf2a7ecae9270201d909f876e04861437bc2
-  r: "The provided `code/01_data_ingestion.py` stops after a partially\u2011implemented\
-    \ `perform_power_analysis` function and never shows any logic for counting unique\
-    \ Bemis\u2011Murcko scaffolds, performing a `ScaffoldSplitter` with multiple folds,\
-    \ or writing split indices to `data/processed/splits.json`. Moreover, the expected\
-    \ `splits.json` file does not exist in the repository. Consequently, the script\
-    \ does not satisfy the task\u2019s requirements."
 T010:
   c: true
   h: e256dbae72d04eb13de3302bb174f0cc20d3b4d17033eefa0688c368494b181b
@@ -45,15 +20,21 @@ T010:
     \ defines contract tests that verify the existence, column set, data types, null\u2011\
     value absence, and feature vector length of `data/processed/tda_features.csv`\
     \ as required. No further artifacts are needed for this task."
-T013:
+T015a:
   c: false
-  h: a261f84c2283b1e5aca106ca496315f4f21bcc9d97dc46654e502439f3329208
-  r: "The required output file `data/processed/persistence_images_10x10.csv` is absent,\
-    \ so the deliverable is not produced. Additionally, the provided `code/02_tda_computation.py`\
-    \ is truncated and does not show a complete implementation (e.g., the `vectorize_diagram_to_image`\
-    \ function is cut off), leaving doubt that the 10\xD710 vectorization and zero\u2011\
-    vector fallback are correctly handled. The task must generate the CSV with the\
-    \ correct schema and no NaNs."
+  h: 3d0ffa27a51f7380cee4bc04a0ea2f339158f36380e708e353eeaa1a749ccce3
+  r: "The required artifacts `data/logs/invalid_smiles.log` and `data/excluded_smiles_manifest.csv`\
+    \ do not exist, and there is no evidence that the state file `state/projects/PROJ-444...yaml`\
+    \ was updated with a hash of the manifest. Consequently the error\u2011handling,\
+    \ logging, manifest creation, and state\u2011tracking steps are not fulfilled."
+T018:
+  c: false
+  h: d556d3d4b85574f36c389eeb4fd3329817d8c05ba9b957e33bffac17049c1208
+  r: The required `data/processed/splits.json` file is absent, so the script cannot
+    actually load split indices as the task demands. Additionally, the provided `code/04_model_training.py`
+    is truncated and does not show the loading/application logic, leaving the core
+    requirement unverified. The missing splits file must be added (and the script
+    confirmed to use it) for the task to be complete.
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

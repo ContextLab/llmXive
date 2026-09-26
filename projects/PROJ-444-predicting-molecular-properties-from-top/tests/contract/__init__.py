@@ -1,3 +1,1 @@
-"""
-Contract tests for data schemas.
-"""
+# Contract tests package

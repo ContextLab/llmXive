@@ -1,77 +1,93 @@
+"""
+code/04_model_training.py
+
+Implements User Story 2: Train and Compare Predictive Models.
+
+This module loads split indices from T008b (data/processed/splits.json),
+applies them to the combined feature matrix, and trains Linear Regression
+(L2) and Random Forest models on Traditional, Topological, and Combined
+feature sets using scaffold splits.
+
+Dependencies:
+- T008b: Requires data/processed/splits.json
+- T017: Requires data/processed/combined_features.csv (or similar from feature engineering)
+"""
+
 import os
 import sys
 import json
 import logging
 import time
 from pathlib import Path
-from typing import List, Tuple, Dict, Any, Optional
+from typing import Dict, List, Any, Tuple, Optional
 
 import numpy as np
 import pandas as pd
-from rdkit import Chem
-from rdkit.Chem.Scaffolds import MurckoScaffold
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import cross_validate
+from rdkit import Chem
+from rdkit.Chem.Scaffolds import MurckoScaffold
 
 # Configure logging
+LOG_DIR = Path("data/logs")
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('data/logs/model_training.log'),
+        logging.FileHandler(LOG_DIR / "model_training.log"),
         logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
-# FR-008: Runtime GPU check (Generic CUDA detection)
-# This function checks for GPU acceleration without relying on torch.
-# It raises SystemExit(1) if any GPU environment is detected to ensure CPU-only execution.
-def check_gpu_disabled():
-    """
-    Checks for GPU acceleration indicators in the environment.
-    Raises SystemExit(1) if GPU is detected.
-    """
-    # Check environment variable CUDA_VISIBLE_DEVICES
-    cuda_visible = os.environ.get('CUDA_VISIBLE_DEVICES', '')
-    if cuda_visible and cuda_visible.strip() != '':
-        logger.error("GPU acceleration detected via CUDA_VISIBLE_DEVICES environment variable.")
-        logger.error("This pipeline is configured to run on CPU only. Please unset CUDA_VISIBLE_DEVICES.")
-        raise SystemExit(1)
+# Constants
+SEED = 42
+N_FOLDS = 5
+RANDOM_STATE = 42
+RAM_LIMIT_GB = 6.3
+CPU_TIME_LIMIT_HOURS = 5.4
 
-    # Check for NVIDIA CUDA libraries in loaded modules (generic check)
-    # We iterate through loaded modules to see if any CUDA-related libraries are present
-    # This is a heuristic check for generic CUDA presence
-    import importlib.util
-    cuda_lib_names = ['libcuda.so', 'cudart', 'nvrtc']
-    for mod_name in sys.modules:
-        mod = sys.modules[mod_name]
-        if hasattr(mod, '__file__') and mod.__file__:
-            try:
-                file_path = mod.__file__
-                if any(lib in file_path for lib in cuda_lib_names):
-                    logger.error(f"GPU acceleration detected via loaded module: {mod_name}")
-                    raise SystemExit(1)
-            except (AttributeError, TypeError):
-                continue
-
-    # Check for specific environment variables often set by CUDA runtimes
-    # NCCL, NCCL_DEBUG, etc. can indicate GPU usage intent
-    gpu_indicators = ['NCCL_DEBUG', 'CUDA_HOME', 'NVIDIA_DRIVER_CAPABILITIES']
-    for var in gpu_indicators:
+def check_gpu_disabled() -> bool:
+    """
+    Check if GPU acceleration is detected.
+    Raises SystemExit(1) if GPU is detected (FR-008).
+    """
+    gpu_vars = ['CUDA_VISIBLE_DEVICES', 'CUDA_DEVICE_ORDER', 'GPU_DEVICE_ORDINAL']
+    for var in gpu_vars:
         if os.environ.get(var):
-            logger.warning(f"Potential GPU environment variable detected: {var}. "
-                           "Proceeding with caution, but if GPU usage is detected later, execution will halt.")
-            # We do not exit on warning for optional vars, only hard checks above
-
-    logger.info("GPU check passed. Running in CPU-only mode.")
+            logger.error(f"GPU acceleration detected via environment variable {var}. "
+                         "Raising SystemExit(1) as per FR-008.")
+            raise SystemExit(1)
+    
+    # Check for common GPU libraries if available
+    try:
+        import torch
+        if torch.cuda.is_available():
+            logger.error("GPU acceleration detected via PyTorch. "
+                         "Raising SystemExit(1) as per FR-008.")
+            raise SystemExit(1)
+    except ImportError:
+        pass
+        
+    try:
+        import tensorflow as tf
+        if tf.config.list_physical_devices('GPU'):
+            logger.error("GPU acceleration detected via TensorFlow. "
+                         "Raising SystemExit(1) as per FR-008.")
+            raise SystemExit(1)
+    except ImportError:
+        pass
+        
+    logger.info("No GPU acceleration detected. Proceeding with CPU-only execution.")
+    return True
 
 def get_bemis_murcko_scaffold(smiles: str) -> Optional[str]:
     """
-    Extracts the Bemis-Murcko scaffold from a SMILES string.
-    Returns None if the molecule is invalid or has no scaffold.
+    Extract Bemis-Murcko scaffold from a SMILES string.
     """
     try:
         mol = Chem.MolFromSmiles(smiles)
@@ -80,66 +96,93 @@ def get_bemis_murcko_scaffold(smiles: str) -> Optional[str]:
         scaffold = MurckoScaffold.GetScaffoldForMol(mol)
         return Chem.MolToSmiles(scaffold)
     except Exception as e:
-        logger.warning(f"Failed to extract scaffold from SMILES: {smiles}, Error: {e}")
+        logger.warning(f"Failed to extract scaffold from SMILES: {smiles}. Error: {e}")
         return None
 
 def stratified_scaffold_split(
-    df: pd.DataFrame,
-    n_splits: int = 5,
-    random_state: int = 42
+    df: pd.DataFrame, 
+    scaffold_col: str, 
+    n_splits: int = N_FOLDS, 
+    seed: int = SEED
 ) -> List[Tuple[np.ndarray, np.ndarray]]:
     """
-    Performs a stratified scaffold split.
-    Returns a list of (train_indices, test_indices) tuples.
+    Perform a scaffold-based split ensuring molecules with the same scaffold
+    stay in the same fold.
+    
+    Returns:
+        List of (train_indices, test_indices) tuples.
     """
-    # Generate scaffolds
-    scaffolds = df['smiles'].apply(get_bemis_murcko_scaffold)
-    # Drop rows with invalid scaffolds for splitting purposes, but keep track of indices
-    valid_mask = scaffolds.notna()
-    if not valid_mask.all():
-        logger.warning(f"Dropping { (~valid_mask).sum()} rows with invalid scaffolds for split generation.")
+    logger.info(f"Performing scaffold split with {n_splits} folds and seed {seed}.")
     
-    scaffold_series = scaffolds[valid_mask]
+    # Group by scaffold
+    scaffold_groups = df.groupby(scaffold_col).indices
+    scaffold_list = list(scaffold_groups.keys())
     
-    # Use StratifiedKFold on the scaffold labels
-    skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+    # Shuffle scaffolds
+    np.random.seed(seed)
+    np.random.shuffle(scaffold_list)
     
-    # Get indices for the valid subset
-    valid_indices = df.index[valid_mask].values
-    scaffold_labels = scaffold_series.values
+    # Assign scaffolds to folds
+    n_scaffolds = len(scaffold_list)
+    fold_assignments = np.array_split(np.arange(n_scaffolds), n_splits)
     
     splits = []
-    for train_idx, test_idx in skf.split(valid_indices, scaffold_labels):
-        # Map back to original dataframe indices
-        train_indices = valid_indices[train_idx]
-        test_indices = valid_indices[test_idx]
-        splits.append((train_indices, test_indices))
-    
+    for i in range(n_splits):
+        test_scaffolds = [scaffold_list[idx] for idx in fold_assignments[i]]
+        train_scaffolds = [s for j, s in enumerate(scaffold_list) if j not in fold_assignments[i]]
+        
+        test_indices = []
+        train_indices = []
+        
+        for scaffold in test_scaffolds:
+            test_indices.extend(scaffold_groups[scaffold])
+            
+        for scaffold in train_scaffolds:
+            train_indices.extend(scaffold_groups[scaffold])
+            
+        splits.append((np.array(train_indices), np.array(test_indices)))
+        
+    logger.info(f"Generated {n_splits} scaffold splits.")
     return splits
 
 def train_and_evaluate_fold(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-    model_type: str,
+    X_train: np.ndarray, 
+    y_train: np.ndarray, 
+    X_test: np.ndarray, 
+    y_test: np.ndarray, 
+    model_name: str, 
     model_params: Dict[str, Any]
 ) -> Dict[str, float]:
     """
-    Trains a model and returns evaluation metrics.
+    Train a model on a single fold and evaluate performance.
+    
+    Args:
+        X_train: Training features
+        y_train: Training targets
+        X_test: Test features
+        y_test: Test targets
+        model_name: Name of the model ('LinearRegression' or 'RandomForest')
+        model_params: Parameters for the model
+        
+    Returns:
+        Dictionary with R² and RMSE scores
     """
-    if model_type == 'linear':
+    logger.info(f"Training {model_name} on fold...")
+    
+    if model_name == 'LinearRegression':
         model = LinearRegression(**model_params)
-    elif model_type == 'rf':
-        model = RandomForestRegressor(**model_params)
+    elif model_name == 'RandomForest':
+        model = RandomForestRegressor(**model_params, random_state=RANDOM_STATE)
     else:
-        raise ValueError(f"Unknown model type: {model_type}")
-    
+        raise ValueError(f"Unsupported model: {model_name}")
+        
     model.fit(X_train, y_train)
-    y_pred = model.predict(X_test)
     
+    y_pred = model.predict(X_test)
     r2 = r2_score(y_test, y_pred)
     rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    
+    logger.info(f"Fold complete - R²: {r2:.4f}, RMSE: {rmse:.4f}")
     
     return {
         'r2': r2,
@@ -147,117 +190,176 @@ def train_and_evaluate_fold(
     }
 
 def run_model_training(
-    features_path: str,
-    target_column: str = 'logP',
-    model_types: List[str] = ['linear', 'rf'],
-    n_splits: int = 5,
-    random_state: int = 42
+    feature_matrix: pd.DataFrame,
+    target_column: str,
+    splits: List[Tuple[np.ndarray, np.ndarray]],
+    feature_sets: Dict[str, List[str]]
 ) -> Dict[str, Any]:
     """
-    Main function to run model training and evaluation.
+    Train and evaluate models across all feature sets and folds.
+    
+    Args:
+        feature_matrix: Combined feature DataFrame
+        target_column: Name of the target column
+        splits: List of (train_indices, test_indices) from scaffold_split
+        feature_sets: Dictionary mapping feature set names to column lists
+        
+    Returns:
+        Dictionary containing metrics for each feature set and model
     """
-    # FR-008: Check for GPU before starting
-    check_gpu_disabled()
-
-    logger.info(f"Loading features from {features_path}")
-    df = pd.read_csv(features_path)
-    
-    if target_column not in df.columns:
-        raise ValueError(f"Target column '{target_column}' not found in dataset.")
-    
-    # Prepare data
-    feature_cols = [col for col in df.columns if col != target_column and col != 'smiles']
-    X = df[feature_cols].values
-    y = df[target_column].values
-    
-    # Handle any NaNs in features
-    if np.isnan(X).any() or np.isnan(y).any():
-        logger.warning("NaN values detected in data. Dropping rows with NaNs.")
-        mask = ~(np.isnan(X).any(axis=1) | np.isnan(y))
-        X = X[mask]
-        y = y[mask]
-        df = df[mask]
-    
-    # Generate scaffold splits
-    splits = stratified_scaffold_split(df, n_splits=n_splits, random_state=random_state)
+    y = feature_matrix[target_column].values
     
     results = {}
     
-    for model_type in model_types:
-        logger.info(f"Training model: {model_type}")
-        
-        if model_type == 'linear':
-            params = {'alpha': 1.0}
-        elif model_type == 'rf':
-            params = {'n_estimators': 100, 'max_depth': 10, 'random_state': random_state}
-        else:
-            continue
-        
-        fold_metrics = []
-        
-        for fold_idx, (train_idx, test_idx) in enumerate(splits):
-            X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y[train_idx], y[test_idx]
-            
-            metrics = train_and_evaluate_fold(X_train, y_train, X_test, y_test, model_type, params)
-            metrics['fold'] = fold_idx + 1
-            fold_metrics.append(metrics)
-            logger.info(f"  Fold {fold_idx + 1}: R²={metrics['r2']:.4f}, RMSE={metrics['rmse']:.4f}")
-        
-        # Aggregate metrics
-        avg_r2 = np.mean([m['r2'] for m in fold_metrics])
-        std_r2 = np.std([m['r2'] for m in fold_metrics])
-        avg_rmse = np.mean([m['rmse'] for m in fold_metrics])
-        std_rmse = np.std([m['rmse'] for m in fold_metrics])
-        
-        results[model_type] = {
-            'avg_r2': avg_r2,
-            'std_r2': std_r2,
-            'avg_rmse': avg_rmse,
-            'std_rmse': std_rmse,
-            'fold_results': fold_metrics
+    # Define models
+    models = {
+        'LinearRegression': {
+            'alpha': 1.0  # L2 regularization
+        },
+        'RandomForest': {
+            'n_estimators': 100,
+            'max_depth': 10
         }
+    }
+    
+    for set_name, feature_cols in feature_sets.items():
+        logger.info(f"Processing feature set: {set_name}")
+        X = feature_matrix[feature_cols].values
+        
+        set_results = {
+            'r2_per_fold': [],
+            'rmse_per_fold': [],
+            'r2_mean': 0.0,
+            'rmse_mean': 0.0,
+            'r2_std': 0.0,
+            'rmse_std': 0.0,
+            'model_metrics': {}
+        }
+        
+        for model_name, model_params in models.items():
+            fold_results = []
+            
+            for fold_idx, (train_idx, test_idx) in enumerate(splits):
+                X_train, X_test = X[train_idx], X[test_idx]
+                y_train, y_test = y[train_idx], y[test_idx]
+                
+                metrics = train_and_evaluate_fold(
+                    X_train, y_train, X_test, y_test, 
+                    model_name, model_params
+                )
+                fold_results.append(metrics)
+                
+                logger.info(f"{model_name} Fold {fold_idx + 1}/{len(splits)}: "
+                            f"R²={metrics['r2']:.4f}, RMSE={metrics['rmse']:.4f}")
+            
+            # Aggregate metrics for this model
+            r2_scores = [r['r2'] for r in fold_results]
+            rmse_scores = [r['rmse'] for r in fold_results]
+            
+            set_results['model_metrics'][model_name] = {
+                'r2_per_fold': r2_scores,
+                'rmse_per_fold': rmse_scores,
+                'r2_mean': float(np.mean(r2_scores)),
+                'rmse_mean': float(np.mean(rmse_scores)),
+                'r2_std': float(np.std(r2_scores)),
+                'rmse_std': float(np.std(rmse_scores))
+            }
+            
+            # Also track overall fold metrics (average across models)
+            set_results['r2_per_fold'].append(np.mean(r2_scores))
+            set_results['rmse_per_fold'].append(np.mean(rmse_scores))
+        
+        # Calculate overall statistics for the feature set
+        set_results['r2_mean'] = float(np.mean(set_results['r2_per_fold']))
+        set_results['rmse_mean'] = float(np.mean(set_results['rmse_per_fold']))
+        set_results['r2_std'] = float(np.std(set_results['r2_per_fold']))
+        set_results['rmse_std'] = float(np.std(set_results['rmse_per_fold']))
+        
+        results[set_name] = set_results
+        
+        logger.info(f"Feature set {set_name} complete - Mean R²: {set_results['r2_mean']:.4f}, "
+                    f"Mean RMSE: {set_results['rmse_mean']:.4f}")
     
     return results
 
 def main():
     """
-    Entry point for the model training script.
+    Main entry point for model training pipeline.
     """
-    # Default paths
-    features_path = 'data/processed/combined_features.csv'
-    if not os.path.exists(features_path):
-        # Fallback if combined features not yet generated, try loading separately
-        # This is a simple fallback logic; ideally, the pipeline ensures this file exists
-        logger.warning(f"Combined features file not found at {features_path}. "
-                       "Attempting to load from traditional and TDA files if available.")
-        # In a real pipeline, we would call 03_feature_engineering here or assume it ran.
-        # For this script to be standalone, we expect the combined file to exist.
-        raise FileNotFoundError(f"Required features file not found: {features_path}")
+    logger.info("Starting model training pipeline (T018).")
     
-    try:
-        results = run_model_training(features_path)
-        
-        # Save results
-        output_path = 'reports/metrics/model_performance.json'
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        logger.info(f"Model training complete. Results saved to {output_path}")
-        
-        # Print summary
-        for model_type, metrics in results.items():
-            print(f"{model_type.upper()}: R²={metrics['avg_r2']:.4f} (+/- {metrics['std_r2']:.4f}), "
-                  f"RMSE={metrics['avg_rmse']:.4f} (+/- {metrics['std_rmse']:.4f})")
-            
-    except SystemExit as e:
-        # Re-raise SystemExit from GPU check
-        raise
-    except Exception as e:
-        logger.error(f"Error during model training: {e}")
-        sys.exit(1)
+    # Check GPU status
+    check_gpu_disabled()
+    
+    # Load split indices from T008b
+    splits_path = Path("data/processed/splits.json")
+    if not splits_path.exists():
+        logger.error(f"Splits file not found at {splits_path}. "
+                     "Ensure T008b has been completed successfully.")
+        raise FileNotFoundError(f"Splits file not found: {splits_path}")
+    
+    with open(splits_path, 'r') as f:
+        splits_data = json.load(f)
+    
+    logger.info(f"Loaded splits from {splits_path}")
+    
+    # Convert splits back to numpy arrays
+    splits = []
+    for fold in splits_data['splits']:
+        train_idx = np.array(fold['train'])
+        test_idx = np.array(fold['test'])
+        splits.append((train_idx, test_idx))
+    
+    logger.info(f"Loaded {len(splits)} scaffold splits.")
+    
+    # Load combined features from T017
+    features_path = Path("data/processed/combined_features.csv")
+    if not features_path.exists():
+        logger.error(f"Combined features file not found at {features_path}. "
+                     "Ensure T017 has been completed successfully.")
+        raise FileNotFoundError(f"Combined features file not found: {features_path}")
+    
+    feature_df = pd.read_csv(features_path)
+    logger.info(f"Loaded {len(feature_df)} molecules with {len(feature_df.columns)-1} features.")
+    
+    # Define feature sets
+    # Assuming columns are prefixed appropriately
+    traditional_cols = [col for col in feature_df.columns if col.startswith('traditional_')]
+    topological_cols = [col for col in feature_df.columns if col.startswith('tda_') or col.startswith('persistence_')]
+    combined_cols = traditional_cols + topological_cols
+    
+    feature_sets = {
+        'traditional': traditional_cols,
+        'topological': topological_cols,
+        'combined': combined_cols
+    }
+    
+    logger.info(f"Feature sets: Traditional={len(traditional_cols)}, "
+                f"Topological={len(topological_cols)}, Combined={len(combined_cols)}")
+    
+    # Run model training
+    target_col = 'logP'  # Assuming this is the target from ESOL
+    if target_col not in feature_df.columns:
+        logger.error(f"Target column '{target_col}' not found in feature DataFrame.")
+        raise ValueError(f"Target column '{target_col}' not found in feature DataFrame.")
+    
+    results = run_model_training(feature_df, target_col, splits, feature_sets)
+    
+    # Save results
+    output_path = Path("reports/metrics/model_performance.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Model training complete. Results saved to {output_path}")
+    
+    # Log final summary
+    for set_name, metrics in results.items():
+        logger.info(f"{set_name} - Mean R²: {metrics['r2_mean']:.4f} ± {metrics['r2_std']:.4f}, "
+                    f"Mean RMSE: {metrics['rmse_mean']:.4f} ± {metrics['rmse_std']:.4f}")
+    
+    return results
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

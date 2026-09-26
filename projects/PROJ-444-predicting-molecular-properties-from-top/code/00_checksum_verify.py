@@ -11,7 +11,11 @@ except ImportError:
     from setup_data_structure import ensure_directory
 
 def compute_sha256(file_path: str) -> str:
-    """Compute SHA256 hash of a file in chunks to handle large files."""
+    """Compute SHA256 hash of a file in chunks to handle large files.
+    
+    Reads the file in binary mode to ensure content-based hashing,
+    ignoring file metadata like modification timestamps.
+    """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -19,7 +23,11 @@ def compute_sha256(file_path: str) -> str:
     return sha256_hash.hexdigest()
 
 def get_raw_data_files(data_dir: str) -> List[str]:
-    """Get list of all non-placeholder files in data/raw directory."""
+    """Get list of all non-placeholder files in data/raw directory.
+    
+    Returns full paths to all files in data/raw/ excluding .gitkeep files.
+    If the directory does not exist, returns an empty list.
+    """
     raw_dir = Path(data_dir) / "raw"
     if not raw_dir.exists():
         return []
@@ -33,7 +41,11 @@ def get_raw_data_files(data_dir: str) -> List[str]:
     return files
 
 def write_checksums(checksums: dict, output_path: str) -> None:
-    """Write checksums to a text file in standard checksum format."""
+    """Write checksums to a text file in standard checksum format.
+    
+    Format: <sha256_hash>  <file_path>
+    Uses two spaces between hash and path to match standard tools like sha256sum.
+    """
     ensure_directory(os.path.dirname(output_path))
     with open(output_path, 'w', encoding='utf-8') as f:
         for file_path, checksum in checksums.items():
@@ -41,7 +53,11 @@ def write_checksums(checksums: dict, output_path: str) -> None:
             f.write(f"{checksum}  {file_path}\n")
 
 def verify_checksums(checksum_file: str, data_dir: str) -> bool:
-    """Verify file checksums against recorded values."""
+    """Verify file checksums against recorded values.
+    
+    Compares the content hash of files in data/raw/ against the recorded
+    hashes in checksum_file. Returns True if all files match, False otherwise.
+    """
     if not os.path.exists(checksum_file):
         print(f"Checksum file not found: {checksum_file}")
         return False
@@ -77,7 +93,14 @@ def verify_checksums(checksum_file: str, data_dir: str) -> bool:
     return all_valid
 
 def main():
-    """Main entry point for checksum verification."""
+    """Main entry point for checksum verification.
+    
+    If run without arguments: computes SHA256 hashes for all files in data/raw/
+    and writes them to data/checksums.txt.
+    
+    If run with 'verify' argument: compares current file hashes against
+    recorded values in data/checksums.txt.
+    """
     # Determine project root based on execution context
     # If running from code/, go up one level
     if Path.cwd().name == "code":

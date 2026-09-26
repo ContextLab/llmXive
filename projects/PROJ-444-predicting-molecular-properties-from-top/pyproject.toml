@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,55 +7,43 @@ name = "llmxive-proj-444"
 version = "0.1.0"
 description = "Predicting Molecular Properties from Topological Data Analysis"
 requires-python = ">=3.11"
-dependencies = [
-    "rdkit",
-    "gudhi",
-    "dionysus2",
-    "scikit-learn",
-    "pandas",
-    "numpy",
-    "matplotlib",
-    "seaborn",
-    "pyyaml",
-    "requests",
-    "networkx",
-    "scipy",
-]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
-]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
-  | \.git
-  | \.mypy_cache
-  | \.venv
-  | build
-  | dist
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py311"
-exclude = [
-  ".git",
-  ".mypy_cache",
-  ".venv",
-  "build",
-  "dist",
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
 ]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["code"]
-addopts = "-v --tb=short"
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"

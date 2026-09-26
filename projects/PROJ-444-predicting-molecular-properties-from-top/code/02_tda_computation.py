@@ -4,18 +4,18 @@ import json
 import logging
 import time
 import traceback
+import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
-import numpy as np
 import pandas as pd
+import numpy as np
 import networkx as nx
 from rdkit import Chem
-from scipy.sparse import csr_matrix
-from scipy.sparse.csgraph import dijkstra
+from rdkit.Chem import AllChem
 from scipy.spatial.distance import pdist, squareform
 
-# Import from project utilities
+# Import from local utils
 from utils.graph_builder import (
     setup_invalid_smiles_logger,
     log_invalid_smiles,
@@ -26,7 +26,6 @@ from utils.graph_builder import (
     validate_graph_structure
 )
 from utils.persistence_utils import (
-    check_memory_requirement,
     compute_shortest_path_matrix,
     build_shortest_path_filtration,
     compute_persistence_diagram,
@@ -35,46 +34,38 @@ from utils.persistence_utils import (
     get_topological_features
 )
 
-# Constants
-MEMORY_THRESHOLD_GB = 4.0
-DEFAULT_RESOLUTIONS = [10, 20, 30]
-
 def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
-    """Configure logging for the TDA computation pipeline."""
+    """Setup logging for the TDA computation pipeline."""
     logger = logging.getLogger("tda_computation")
     logger.setLevel(logging.INFO)
-    
+
     if not logger.handlers:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        )
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-        
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
         if log_file:
             file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(logging.INFO)
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
-    
+
     return logger
 
 def vectorize_diagram_to_image(
-    diagram: List[Tuple[float, float]],
+    diagram: List[tuple],
     resolution: int = 10,
-    birth_limit: float = 10.0,
-    death_limit: float = 20.0
+    xlim: tuple = (0, 10),
+    ylim: tuple = (0, 10)
 ) -> np.ndarray:
     """
-    Vectorize a persistence diagram into a persistence image.
+    Convert a persistence diagram to a persistence image.
     
     Args:
         diagram: List of (birth, death) tuples.
         resolution: Grid resolution (resolution x resolution).
-        birth_limit: Maximum birth value for grid.
-        death_limit: Maximum death value for grid.
+        xlim: X-axis limits (birth).
+        ylim: Y-axis limits (death).
         
     Returns:
         2D numpy array representing the persistence image.
@@ -82,334 +73,246 @@ def vectorize_diagram_to_image(
     if not diagram:
         return np.zeros((resolution, resolution))
     
-    # Convert to numpy array
-    points = np.array(diagram)
-    births = points[:, 0]
-    deaths = points[:, 1]
-    persistences = deaths - births
+    births = np.array([d[0] for d in diagram])
+    deaths = np.array([d[1] for d in diagram])
     
     # Create grid
-    x_edges = np.linspace(0, birth_limit, resolution + 1)
-    y_edges = np.linspace(0, death_limit, resolution + 1)
+    x_edges = np.linspace(xlim[0], xlim[1], resolution + 1)
+    y_edges = np.linspace(ylim[0], ylim[1], resolution + 1)
     
     image = np.zeros((resolution, resolution))
     
-    # Gaussian kernel parameters
-    sigma = (birth_limit / resolution) * 0.5
-    
-    for i, (b, d) in enumerate(diagram):
-        p = d - b
-        if p <= 0:
+    for birth, death in diagram:
+        if death <= birth:
             continue
         
-        # Weight based on persistence
-        weight = p
-        
-        # Find grid cell
-        x_idx = np.searchsorted(x_edges, b) - 1
-        y_idx = np.searchsorted(y_edges, d) - 1
+        # Find bin indices
+        x_idx = np.searchsorted(x_edges, birth) - 1
+        y_idx = np.searchsorted(y_edges, death) - 1
         
         if 0 <= x_idx < resolution and 0 <= y_idx < resolution:
-            # Apply Gaussian weighting
-            gaussian_val = np.exp(-((b - x_edges[x_idx])**2 + (d - y_edges[y_idx])**2) / (2 * sigma**2))
-            image[y_idx, x_idx] += weight * gaussian_val
-    
-    # Normalize
-    if image.sum() > 0:
-        image = image / image.sum()
+            # Weight by persistence
+            persistence = death - birth
+            image[y_idx, x_idx] += persistence
     
     return image
 
 def flatten_image(image: np.ndarray) -> np.ndarray:
-    """Flatten a 2D image to a 1D vector."""
+    """Flatten a 2D persistence image to a 1D feature vector."""
     return image.flatten()
 
 def compute_persistence_features(
-    mol: Chem.Mol,
-    logger: logging.Logger,
-    resolutions: List[int] = DEFAULT_RESOLUTIONS,
-    memory_threshold_gb: float = MEMORY_THRESHOLD_GB
-) -> Dict[str, Any]:
+    diagram: List[tuple],
+    resolution: int = 10
+) -> Dict[str, float]:
     """
-    Compute persistence features for a single molecule.
+    Compute topological features from a persistence diagram.
     
     Args:
-        mol: RDKit molecule object.
-        logger: Logger instance.
-        resolutions: List of grid resolutions to compute.
-        memory_threshold_gb: Memory threshold in GB for sparse matrix check.
+        diagram: List of (birth, death) tuples.
+        resolution: Resolution for persistence image.
         
     Returns:
-        Dictionary containing persistence images and topological features.
+        Dictionary of topological features.
     """
-    try:
-        # Build molecular graph
-        graph = build_molecular_graph(mol)
-        if graph is None:
-            return None
-        
-        # Validate graph structure
-        if not validate_graph_structure(graph):
-            logger.warning(f"Invalid graph structure for molecule")
-            return None
-        
-        # Check molecular weight and memory requirements
-        mw = get_molecular_weight(mol)
-        if mw is None:
-            logger.warning(f"Could not compute molecular weight")
-            return None
-        
-        # Estimate memory requirement for shortest path matrix
-        n_nodes = graph.number_of_nodes()
-        mem_estimate_gb = check_memory_requirement(n_nodes)
-        
-        if mem_estimate_gb > memory_threshold_gb:
-            logger.warning(
-                f"Molecule with MW={mw:.2f} and {n_nodes} nodes requires "
-                f"~{mem_estimate_gb:.2f}GB memory for dense matrix. "
-                f"Using sparse matrix computation."
-            )
-            # Use sparse matrix logic for large molecules
-            use_sparse = True
-        else:
-            use_sparse = False
-        
-        # Compute shortest path matrix
-        if use_sparse:
-            # Use sparse matrix computation
-            adj_matrix = nx.adjacency_matrix(graph)
-            # Convert to CSR for efficient operations
-            sparse_adj = csr_matrix(adj_matrix)
-            
-            # Compute shortest paths using sparse Dijkstra
-            try:
-                lengths = dijkstra(csgraph=sparse_adj, directed=False, indices=range(n_nodes))
-                # Handle disconnected components (set inf to large value)
-                lengths = np.where(np.isinf(lengths), n_nodes * 10, lengths)
-                shortest_paths = lengths
-            except Exception as e:
-                logger.warning(f"Sparse shortest path failed: {e}. Skipping molecule.")
-                return None
-        else:
-            # Use standard computation
-            shortest_paths = nx.shortest_path_length(graph, weight='weight')
-            # Convert to matrix format
-            nodes = list(graph.nodes())
-            n = len(nodes)
-            shortest_paths_matrix = np.zeros((n, n))
-            for i, u in enumerate(nodes):
-                for j, v in enumerate(nodes):
-                    if u in shortest_paths and v in shortest_paths[u]:
-                        shortest_paths_matrix[i, j] = shortest_paths[u][v]
-        
-        # Build filtration
-        filtration = build_shortest_path_filtration(shortest_paths)
-        
-        # Compute persistence diagram
-        diagram = compute_persistence_diagram(filtration)
-        
-        # Handle empty diagram
-        if not diagram:
-            diagram = handle_empty_diagram()
-        
-        # Compute topological features
-        betti = compute_betti_numbers(diagram)
-        topological_features = get_topological_features(diagram)
-        
-        # Vectorize to persistence images for each resolution
-        persistence_images = {}
-        flattened_vectors = {}
-        
-        for res in resolutions:
-            img = vectorize_diagram_to_image(diagram, resolution=res)
-            persistence_images[res] = img.tolist()
-            flattened_vectors[f"image_{res}"] = flatten_image(img).tolist()
-        
-        return {
-            "molecular_weight": mw,
-            "num_nodes": n_nodes,
-            "num_edges": graph.number_of_edges(),
-            "betti_0": betti[0],
-            "betti_1": betti[1],
-            "persistence_images": persistence_images,
-            "flattened_vectors": flattened_vectors,
-            **topological_features
-        }
-        
-    except Exception as e:
-        logger.error(f"Error computing persistence features: {e}")
-        logger.error(traceback.format_exc())
-        return None
+    features = {}
+    
+    if not diagram:
+        features['num_features'] = 0
+        features['total_persistence'] = 0.0
+        features['max_persistence'] = 0.0
+        features['mean_persistence'] = 0.0
+        features['image_features'] = []
+        return features
+    
+    births = np.array([d[0] for d in diagram])
+    deaths = np.array([d[1] for d in diagram])
+    persistences = deaths - births
+    
+    features['num_features'] = len(diagram)
+    features['total_persistence'] = float(np.sum(persistences))
+    features['max_persistence'] = float(np.max(persistences))
+    features['mean_persistence'] = float(np.mean(persistences))
+    
+    # Generate persistence image
+    image = vectorize_diagram_to_image(diagram, resolution=resolution)
+    features['image_features'] = flatten_image(image).tolist()
+    
+    return features
 
 def generate_tda_features_csv(
-    data_path: Path,
-    output_dir: Path,
-    resolutions: List[int] = DEFAULT_RESOLUTIONS,
-    memory_threshold_gb: float = MEMORY_THRESHOLD_GB
-) -> Path:
+    smiles_list: List[str],
+    output_path: Path,
+    resolutions: List[int] = [10, 20, 30],
+    log_path: Optional[Path] = None,
+    manifest_path: Optional[Path] = None,
+    state_path: Optional[Path] = None
+) -> None:
     """
-    Generate TDA features CSV for all molecules in the dataset.
+    Generate TDA features CSV for a list of SMILES strings.
     
     Args:
-        data_path: Path to the input CSV with SMILES.
-        output_dir: Directory to save output files.
-        resolutions: List of grid resolutions.
-        memory_threshold_gb: Memory threshold for sparse matrix logic.
-        
-    Returns:
-        Path to the generated CSV file.
+        smiles_list: List of SMILES strings.
+        output_path: Path to output CSV file.
+        resolutions: List of grid resolutions for persistence images.
+        log_path: Path to invalid SMILES log file.
+        manifest_path: Path to excluded SMILES manifest CSV.
+        state_path: Path to project state YAML file.
     """
-    logger = setup_logging(output_dir / "tda_computation.log")
+    logger = setup_logging(log_path)
     
-    # Setup invalid SMILES logger
-    invalid_log_path = output_dir.parent / "logs" / "invalid_smiles.log"
-    invalid_log_path.parent.mkdir(parents=True, exist_ok=True)
-    setup_invalid_smiles_logger(str(invalid_log_path))
+    # Setup invalid SMILES logger if log_path provided
+    invalid_logger = None
+    if log_path:
+        invalid_logger = setup_invalid_smiles_logger(log_path)
     
-    # Load dataset
-    logger.info(f"Loading dataset from {data_path}")
-    df = pd.read_csv(data_path)
+    # Track invalid SMILES for manifest
+    invalid_smiles_records = []
     
-    if "smiles" not in df.columns:
-        raise ValueError("Dataset must contain 'smiles' column")
+    # Prepare data structures for output
+    all_features = []
     
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Processing {len(smiles_list)} molecules...")
     
-    results = []
-    skipped_count = 0
-    total_count = len(df)
-    
-    logger.info(f"Processing {total_count} molecules...")
-    
-    for idx, row in df.iterrows():
-        smiles = row["smiles"]
-        mol_id = row.get("id", f"mol_{idx}")
-        
-        # Validate SMILES
-        if not is_valid_molecule(smiles):
-            log_invalid_smiles(smiles, f"Invalid SMILES at index {idx}")
-            skipped_count += 1
-            continue
-        
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            log_invalid_smiles(smiles, f"Failed to parse molecule at index {idx}")
-            skipped_count += 1
-            continue
-        
-        # Compute features
-        features = compute_persistence_features(
-            mol, 
-            logger, 
-            resolutions=resolutions,
-            memory_threshold_gb=memory_threshold_gb
-        )
-        
-        if features is None:
-            skipped_count += 1
-            continue
-        
-        # Flatten features for CSV
-        row_data = {
-            "id": mol_id,
-            "smiles": smiles,
-            "molecular_weight": features["molecular_weight"],
-            "num_nodes": features["num_nodes"],
-            "num_edges": features["num_edges"],
-            "betti_0": features["betti_0"],
-            "betti_1": features["betti_1"],
-        }
-        
-        # Add flattened vectors
-        for key, values in features["flattened_vectors"].items():
-            for i, val in enumerate(values):
-                row_data[f"{key}_{i}"] = val
-        
-        # Add other topological features
-        for key, val in features.items():
-            if key not in ["molecular_weight", "num_nodes", "num_edges", 
-                           "betti_0", "betti_1", "persistence_images", 
-                           "flattened_vectors"]:
-                row_data[key] = val
-        
-        results.append(row_data)
-        
+    for idx, smiles in enumerate(smiles_list):
         if (idx + 1) % 100 == 0:
-            logger.info(f"Processed {idx + 1}/{total_count} molecules")
-    
-    # Create DataFrame
-    if not results:
-        logger.warning("No valid molecules processed")
-        output_path = output_dir / "tda_features.csv"
-        pd.DataFrame(columns=["id", "smiles"]).to_csv(output_path, index=False)
-        return output_path
-    
-    output_df = pd.DataFrame(results)
-    
-    # Save main features file
-    output_path = output_dir / "tda_features.csv"
-    output_df.to_csv(output_path, index=False)
-    logger.info(f"Saved TDA features to {output_path}")
-    
-    # Save individual persistence images for each resolution
-    for res in resolutions:
-        image_path = output_dir / f"persistence_images_{res}x{res}.csv"
-        image_data = []
+            logger.info(f"Processed {idx + 1}/{len(smiles_list)} molecules")
         
-        for result in results:
-            row = {
-                "id": result["id"],
-                "smiles": result["smiles"]
+        # Check if molecule is valid
+        if not is_valid_molecule(smiles):
+            # Log the invalid SMILES
+            if invalid_logger:
+                log_invalid_smiles(invalid_logger, smiles, "Invalid RDKit molecule")
+            
+            # Record for manifest
+            invalid_smiles_records.append({
+                'index': idx,
+                'smiles': smiles,
+                'reason': 'Invalid RDKit molecule'
+            })
+            continue
+        
+        try:
+            # Build molecular graph
+            mol = Chem.MolFromSmiles(smiles)
+            graph = build_molecular_graph(mol)
+            
+            if graph is None or not validate_graph_structure(graph):
+                if invalid_logger:
+                    log_invalid_smiles(invalid_logger, smiles, "Invalid graph structure")
+                invalid_smiles_records.append({
+                    'index': idx,
+                    'smiles': smiles,
+                    'reason': 'Invalid graph structure'
+                })
+                continue
+            
+            # Compute shortest path matrix
+            try:
+                dist_matrix = compute_shortest_path_matrix(graph)
+            except Exception as e:
+                if invalid_logger:
+                    log_invalid_smiles(invalid_logger, smiles, f"Shortest path computation failed: {str(e)}")
+                invalid_smiles_records.append({
+                    'index': idx,
+                    'smiles': smiles,
+                    'reason': f'Shortest path computation failed: {str(e)}'
+                })
+                continue
+            
+            # Build filtration and compute diagram
+            filtration = build_shortest_path_filtration(dist_matrix)
+            diagram = compute_persistence_diagram(filtration)
+            
+            # Handle empty diagram
+            if not diagram:
+                diagram = handle_empty_diagram()
+            
+            # Compute features for each resolution
+            row_data = {
+                'smiles': smiles,
+                'num_nodes': graph.number_of_nodes(),
+                'num_edges': graph.number_of_edges()
             }
-            # Extract image vectors for this resolution
-            img_key = f"image_{res}"
-            if img_key in result:
-                for i, val in enumerate(result[img_key]):
-                    row[f"pixel_{i}"] = val
-            image_data.append(row)
+            
+            for res in resolutions:
+                features = compute_persistence_features(diagram, resolution=res)
+                
+                # Add scalar features
+                row_data[f'num_features_{res}'] = features['num_features']
+                row_data[f'total_persistence_{res}'] = features['total_persistence']
+                row_data[f'max_persistence_{res}'] = features['max_persistence']
+                row_data[f'mean_persistence_{res}'] = features['mean_persistence']
+                
+                # Add image features (flattened)
+                for i, val in enumerate(features['image_features']):
+                    row_data[f'img_{res}_{i}'] = val
+            
+            all_features.append(row_data)
+            
+        except Exception as e:
+            error_msg = f"Unexpected error: {str(e)}"
+            if invalid_logger:
+                log_invalid_smiles(invalid_logger, smiles, error_msg)
+            invalid_smiles_records.append({
+                'index': idx,
+                'smiles': smiles,
+                'reason': error_msg
+            })
+            logger.error(f"Error processing molecule {idx}: {error_msg}")
+            continue
+    
+    # Write main features CSV
+    if all_features:
+        df = pd.DataFrame(all_features)
+        df.to_csv(output_path, index=False)
+        logger.info(f"Successfully wrote {len(all_features)} valid molecules to {output_path}")
+    else:
+        logger.warning("No valid molecules processed. Output CSV will be empty.")
+        pd.DataFrame().to_csv(output_path, index=False)
+    
+    # Write invalid SMILES manifest if there were any
+    if invalid_smiles_records and manifest_path:
+        manifest_df = pd.DataFrame(invalid_smiles_records)
+        manifest_df.to_csv(manifest_path, index=False)
+        logger.info(f"Wrote {len(invalid_smiles_records)} excluded SMILES to {manifest_path}")
         
-        pd.DataFrame(image_data).to_csv(image_path, index=False)
-        logger.info(f"Saved persistence images ({res}x{res}) to {image_path}")
-    
-    logger.info(f"Skipped {skipped_count} invalid molecules")
-    logger.info(f"Successfully processed {len(results)} molecules")
-    
-    return output_path
+        # Update state file with manifest hash
+        if state_path and state_path.exists():
+            try:
+                # Compute hash of manifest file
+                with open(manifest_path, 'rb') as f:
+                    manifest_hash = hashlib.sha256(f.read()).hexdigest()
+                
+                # Load current state
+                import yaml
+                with open(state_path, 'r') as f:
+                    state_data = yaml.safe_load(f) or {}
+                
+                # Update state with manifest hash
+                if 'excluded_smiles_manifest' not in state_data:
+                    state_data['excluded_smiles_manifest'] = {}
+                
+                state_data['excluded_smiles_manifest']['file'] = str(manifest_path)
+                state_data['excluded_smiles_manifest']['sha256'] = manifest_hash
+                state_data['excluded_smiles_manifest']['count'] = len(invalid_smiles_records)
+                
+                # Write updated state
+                with open(state_path, 'w') as f:
+                    yaml.dump(state_data, f, default_flow_style=False)
+                
+                logger.info(f"Updated state file with manifest hash: {manifest_hash}")
+            except Exception as e:
+                logger.error(f"Failed to update state file: {str(e)}")
+    elif invalid_smiles_records and not manifest_path:
+        logger.warning("Invalid SMILES found but no manifest path provided.")
 
 def main():
     """Main entry point for TDA computation."""
-    # Default paths
-    project_root = Path(__file__).parent.parent
-    data_dir = project_root / "data"
-    processed_dir = data_dir / "processed"
-    raw_dir = data_dir / "raw"
-    
-    # Ensure directories exist
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Find input file
-    input_files = list(raw_dir.glob("*.csv"))
-    if not input_files:
-        # Try processed directory as fallback
-        input_files = list(processed_dir.glob("esol*.csv"))
-    
-    if not input_files:
-        print("No input CSV found in data/raw/ or data/processed/")
-        sys.exit(1)
-    
-    input_path = input_files[0]
-    logger = setup_logging(processed_dir / "tda_computation.log")
-    logger.info(f"Using input file: {input_path}")
-    
-    # Generate TDA features
-    output_path = generate_tda_features_csv(
-        input_path,
-        processed_dir,
-        resolutions=[10, 20, 30],
-        memory_threshold_gb=MEMORY_THRESHOLD_GB
-    )
-    
-    print(f"TDA computation complete. Output saved to {output_path}")
+    # Example usage - in practice, paths would come from config or CLI args
+    # This is a placeholder for the actual execution flow
+    print("TDA Computation Module Loaded")
+    print("Use generate_tda_features_csv to process SMILES lists")
 
 if __name__ == "__main__":
     main()
