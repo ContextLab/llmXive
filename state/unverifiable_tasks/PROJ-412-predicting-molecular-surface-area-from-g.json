@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-412-predicting-molecular-surface-area-from-g",
+  "tasks": [
+    {
+      "task_key": "T003a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: ruff.toml",
+      "first_seen": "2026-09-26T12:50:30.513915+00:00",
+      "last_seen": "2026-09-26T12:50:30.513915+00:00"
+    },
+    {
+      "task_key": "T015a",
+      "reject_count": 1,
+      "last_reason": "The required output files `data/processed/conformer_params.json`, `data/processed/failure_report.csv`, `data/processed/conformers.parquet` (and the state file `conformer_state.json`) are absent from the repository, so the conformer generation and logging steps have not been realized. The implementation in `code/data/preprocess.py` does not contain code that creates these artifacts.",
+      "first_seen": "2026-09-26T12:50:32.233080+00:00",
+      "last_seen": "2026-09-26T12:50:32.233080+00:00"
+    }
+  ],
+  "updated_at": "2026-09-26T12:50:32.233080+00:00"
+}

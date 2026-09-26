@@ -169,7 +169,7 @@ logs/
 2.  **Metrics**: Calculate MAE, RMSE, R² for both.
 3.  **Stat Test**: Paired t-test on errors (GCN vs. Baseline). Report p-value, Cohen's d.
 4.  **Sensitivity**:
-    -   Sweep thresholds: **{1.0, 5.0, 10.0} Å²** (physically realistic, > conformer noise).
+    -   Sweep thresholds: **{, 5.0, 10.0} Å²** (physically realistic, > conformer noise).
     -   Calculate success rates (error < threshold) for both models.
     -   Perform **McNemar's test** for paired proportions at each threshold.
     -   Apply **Bonferroni correction** to the resulting p-values and record in `adjusted_p_value` field of `contracts/sensitivity.schema.yaml`.

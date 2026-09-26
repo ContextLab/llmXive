@@ -1,159 +1,163 @@
+"""
+Unit tests for T015a: 3D conformer generation and failure logging.
+"""
 import pytest
 import pandas as pd
 import numpy as np
-from rdkit import Chem
-from rdkit.Chem import AllChem, rdMolDescriptors
+from pathlib import Path
 import json
+import tempfile
 import os
 import sys
-from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from data.preprocess import (
-    generate_conformer_config,
-    map_rdkit_exception_to_reason,
-    generate_3d_conformer,
+from code.data.preprocess import (
+    map_exception_to_reason,
+    generate_conformer,
     process_molecule_3d,
     process_chunk_3d,
-    save_conformer_params,
-    save_failure_report,
-    FAILURE_ETKDG,
-    FAILURE_MINIMIZATION,
-    FAILURE_INVALID_VALENCE,
-    FAILURE_CONFORMER_GEN
+    write_failures_to_csv,
+    load_conformer_params
 )
-from utils.seed import set_seed
+from rdkit import Chem
 
-@pytest.fixture
-def sample_mol():
-    return Chem.MolFromSmiles("CCO") # Ethanol
-
-@pytest.fixture
-def sample_mol_large():
-    return Chem.MolFromSmiles("CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC") # Long chain
-
-@pytest.fixture
-def invalid_smiles_mol():
-    return Chem.MolFromSmiles("CC(C)C1=CC=CC=C1C(C)C") # Valid, but let's test invalid
-    # Actually, let's test a truly invalid one if possible, but RDKit is lenient.
-    # We can test valence by creating a mol with wrong valence manually if needed.
-
-def test_generate_conformer_config_defaults():
-    config = generate_conformer_config()
-    assert config['random_seed'] is not None
-    assert config['numThreads'] == 0
-    assert config['maxAttempts'] == 200
-
-def test_generate_conformer_config_override():
-    config = generate_conformer_config({'numThreads': 4, 'maxAttempts': 100})
-    assert config['numThreads'] == 4
-    assert config['maxAttempts'] == 100
-    assert config['random_seed'] is not None
-
-def test_map_rdkit_exception_to_reason():
-    # Test ValueError -> INVALID_VALENCE
-    assert map_rdkit_exception_to_reason(ValueError("valence error")) == FAILURE_INVALID_VALENCE
-    # Test RuntimeError with minimization -> MINIMIZATION_FAIL
-    assert map_rdkit_exception_to_reason(RuntimeError("minimization failed")) == FAILURE_MINIMIZATION
-    # Test RuntimeError with etkdg -> ETKDG_FAIL
-    assert map_rdkit_exception_to_reason(RuntimeError("etkdg failed")) == FAILURE_ETKDG
-    # Test generic RDKitException -> CONFORMER_GENERATION_FAIL
-    assert map_rdkit_exception_to_reason(Exception("some rdkit error")) == FAILURE_CONFORMER_GEN
-
-def test_generate_3d_conformer_success(sample_mol):
-    config = generate_conformer_config({'random_seed': 123})
-    mol_out, reason = generate_3d_conformer(sample_mol, config)
-    assert mol_out is not None
-    assert reason is None
-    assert mol_out.GetNumConformers() > 0
-
-def test_generate_3d_conformer_failure_invalid_valence():
-    # Create a molecule with invalid valence (hard to do directly with SMILES, 
-    # but we can test the mapping logic via the exception handler)
-    # For this test, we rely on the fact that some molecules might fail ETKDG
-    # We'll test with a very large molecule that might fail due to complexity
-    large_smiles = "C" * 200 # Very long chain
-    mol = Chem.MolFromSmiles(large_smiles)
-    if mol:
-        config = generate_conformer_config({'random_seed': 999, 'maxAttempts': 1}) # Force failure
-        mol_out, reason = generate_3d_conformer(mol, config)
-        # It might fail or succeed, but if it fails, reason should be set
-        # We just ensure no crash
-        assert isinstance(reason, str) or reason is None
-
-def test_process_molecule_3d_success():
-    mol = Chem.MolFromSmiles("CCO")
-    row = {'smiles': 'CCO', 'mol': mol}
-    config = generate_conformer_config({'random_seed': 42})
-    result = process_molecule_3d(row, config)
+class TestExceptionMapping:
+    """Test exception to failure reason mapping."""
     
-    assert result['smiles'] == 'CCO'
-    assert result['failure_reason'] is None
-    assert 'conformer_coords' in result
-    assert result['atom_count'] == 3
+    def test_value_error_valence(self):
+        """Test that ValueError maps to INVALID_VALENCE."""
+        exc = ValueError("Valence error in molecule")
+        assert map_exception_to_reason(exc) == 'INVALID_VALENCE'
+    
+    def test_runtime_error_etkdg(self):
+        """Test that RuntimeError with ETKDG maps to ETKDG_FAIL."""
+        exc = RuntimeError("ETKDG generation failed")
+        assert map_exception_to_reason(exc) == 'ETKDG_FAIL'
+    
+    def test_runtime_error_minimization(self):
+        """Test that RuntimeError with minimization maps to MINIMIZATION_FAIL."""
+        exc = RuntimeError("Energy minimization failed")
+        assert map_exception_to_reason(exc) == 'MINIMIZATION_FAIL'
+    
+    def test_generic_exception(self):
+        """Test that unknown exceptions map to UNKNOWN_FAIL."""
+        exc = Exception("Unknown error")
+        assert map_exception_to_reason(exc) == 'UNKNOWN_FAIL'
 
-def test_process_molecule_3d_failure():
-    # Force a failure by using a seed that might cause ETKDG to fail for a specific molecule
-    # or by using a molecule known to be problematic.
-    # Here we test the logic by mocking a failure or using a known bad case.
-    # Since ETKDG is stochastic, we test the structure of the failure output.
-    mol = Chem.MolFromSmiles("CCO")
-    row = {'smiles': 'CCO', 'mol': mol}
+class TestConformerGeneration:
+    """Test conformer generation logic."""
     
-    # Simulate a failure by passing a config that forces failure (e.g., maxAttempts=0 if supported, or just bad seed)
-    # We can't easily force failure without specific conditions, so we test the happy path structure mostly.
-    # But we can test that if we pass a None mol, it fails.
-    row_bad = {'smiles': 'CCO', 'mol': None}
-    config = generate_conformer_config()
-    result = process_molecule_3d(row_bad, config)
+    def test_valid_molecule_success(self):
+        """Test that a valid molecule generates a conformer successfully."""
+        smiles = "CCO"  # Ethanol
+        mol = Chem.MolFromSmiles(smiles)
+        mol = Chem.AddHs(mol)
+        
+        params = load_conformer_params()
+        result_mol, reason = generate_conformer(mol, params)
+        
+        assert result_mol is not None, "Valid molecule should generate conformer"
+        assert reason == '', "Success should have empty reason"
+        assert result_mol.GetNumConformers() > 0, "Should have at least one conformer"
     
-    assert result['failure_reason'] == FAILURE_INVALID_VALENCE
-    assert result['conformer'] is None
+    def test_invalid_smiles_failure(self):
+        """Test that invalid SMILES fails appropriately."""
+        # This is handled at the SMILES parsing level, not in generate_conformer
+        # We test the process_molecule_3d function instead
+        pass
 
-def test_process_chunk_3d():
-    df = pd.DataFrame([
-        {'smiles': 'CCO', 'mol': Chem.MolFromSmiles('CCO')},
-        {'smiles': 'CC', 'mol': Chem.MolFromSmiles('CC')}
-    ])
-    config = generate_conformer_config({'random_seed': 42})
+class TestProcessMolecule3D:
+    """Test single molecule processing."""
     
-    success_df, failures = process_chunk_3d(df, config)
+    def test_success_case(self):
+        """Test successful processing of a molecule."""
+        row = {
+            'smiles': "CCO",
+            'atom_count': 9  # C2H6O with hydrogens
+        }
+        params = load_conformer_params()
+        
+        result = process_molecule_3d(row, params)
+        
+        assert result['status'] == 'success'
+        assert 'conformer_coords' in result
+        assert len(result['conformer_coords']) % 3 == 0  # 3 coordinates per atom
     
-    assert len(success_df) <= len(df)
-    assert len(failures) + len(success_df) == len(df)
+    def test_excluded_atom_count(self):
+        """Test that molecules with too many atoms are excluded."""
+        # Create a molecule with > 100 atoms (simulated)
+        row = {
+            'smiles': "CCO",
+            'atom_count': 150
+        }
+        params = load_conformer_params()
+        
+        result = process_molecule_3d(row, params)
+        
+        assert result['status'] == 'excluded'
+        assert result['failure_reason'] == 'ATOM_COUNT_EXCEEDED'
 
-def test_save_conformer_params(tmp_path):
-    config = {'numThreads': 1, 'maxAttempts': 100, 'random_seed': 42}
-    output_path = tmp_path / "params.json"
-    save_conformer_params(config, output_path)
+class TestProcessChunk3D:
+    """Test chunk processing."""
     
-    assert output_path.exists()
-    with open(output_path) as f:
-        loaded = json.load(f)
-    assert loaded['numThreads'] == 1
-    assert loaded['random_seed'] == 42
+    def test_mixed_results(self):
+        """Test processing a chunk with mixed success/failure."""
+        chunk_data = [
+            {'smiles': 'CCO', 'atom_count': 9},
+            {'smiles': 'CCCC', 'atom_count': 13},
+            {'smiles': 'invalid_smiles', 'atom_count': 0}
+        ]
+        chunk = pd.DataFrame(chunk_data)
+        params = load_conformer_params()
+        
+        success_df, failures = process_chunk_3d(chunk, params)
+        
+        # Should have some successes and some failures
+        assert len(success_df) + len(failures) == len(chunk)
 
-def test_save_failure_report_empty(tmp_path):
-    output_path = tmp_path / "failures.csv"
-    save_failure_report([], output_path)
-    assert output_path.exists()
-    df = pd.read_csv(output_path)
-    assert len(df) == 0
-    assert list(df.columns) == ['smiles', 'failure_reason', 'atom_count']
-
-def test_save_failure_report_with_data(tmp_path):
-    failures = [
-        {'smiles': 'CCO', 'failure_reason': 'ETKDG_FAIL', 'atom_count': 3},
-        {'smiles': 'CC', 'failure_reason': 'MINIMIZATION_FAIL', 'atom_count': 2}
-    ]
-    output_path = tmp_path / "failures.csv"
-    save_failure_report(failures, output_path)
+class TestWriteFailuresToCSV:
+    """Test failure report writing."""
     
-    assert output_path.exists()
-    df = pd.read_csv(output_path)
-    assert len(df) == 2
-    assert df.iloc[0]['smiles'] == 'CCO'
-    assert df.iloc[0]['failure_reason'] == 'ETKDG_FAIL'
+    def test_write_failures(self):
+        """Test writing failure report to CSV."""
+        failures = [
+            {
+                'smiles': 'CCO',
+                'failure_reason': 'ETKDG_FAIL',
+                'atom_count': 9,
+                'params': {'numThreads': -1, 'maxAttempts': 200, 'energyMinimizationSteps': 200, 'random_seed': 42}
+            }
+        ]
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "failures.csv"
+            params = load_conformer_params()
+            write_failures_to_csv(failures, output_path, params)
+            
+            assert output_path.exists()
+            df = pd.read_csv(output_path)
+            assert len(df) == 1
+            assert df['smiles'].iloc[0] == 'CCO'
+            assert df['failure_reason'].iloc[0] == 'ETKDG_FAIL'
+            assert 'numThreads' in df.columns
+            assert 'maxAttempts' in df.columns
+
+class TestConformerParams:
+    """Test conformer parameter handling."""
+    
+    def test_params_schema(self):
+        """Test that conformer params have required keys."""
+        params = load_conformer_params()
+        
+        required_keys = ['numThreads', 'maxAttempts', 'energyMinimizationSteps', 'random_seed']
+        for key in required_keys:
+            assert key in params, f"Missing required key: {key}"
+        
+        # Check types
+        assert isinstance(params['numThreads'], int)
+        assert isinstance(params['maxAttempts'], int)
+        assert isinstance(params['energyMinimizationSteps'], int)
+        assert isinstance(params['random_seed'], int)

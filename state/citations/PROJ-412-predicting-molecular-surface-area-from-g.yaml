@@ -64,20 +64,9 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-08-10T11:29:14.239047Z'
-- artifact_hash: 3e491d96b510bdec79b7eac1bd5c8bd98b445ff77120870b053f857fc90a25e8
+- artifact_hash: 48e08d84d9c3e5c94ef1caf37034eb31dda3878467ad92f414209f7dde26bf1c
   artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Pi - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Pi
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Pi
-  verified_at: '2026-09-22T09:58:08.599910Z'
-- artifact_hash: 3e491d96b510bdec79b7eac1bd5c8bd98b445ff77120870b053f857fc90a25e8
-  artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: cpu
@@ -85,15 +74,4 @@
   value: https://download.pytorch.org/whl/cpu`
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-09-22T09:58:08.599910Z'
-- artifact_hash: 3e491d96b510bdec79b7eac1bd5c8bd98b445ff77120870b053f857fc90a25e8
-  artifact_path: projects/PROJ-412-predicting-molecular-surface-area-from-g/specs/001-predicting-molecular-surface-area-from-g/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: "Hercules\u2013Corona Borealis Great Wall - Wikipedia"
-  kind: url
-  value: "https://en.wikipedia.org/wiki/Hercules\u2013Corona_Borealis_Great_Wall"
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Hercules%E2%80%93Corona_Borealis_Great_Wall
-  verified_at: '2026-09-22T09:58:08.599910Z'
+  verified_at: '2026-09-26T12:50:27.893280Z'

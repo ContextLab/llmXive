@@ -1,59 +1,51 @@
 [lint]
-# Enable a comprehensive set of rules for scientific code quality
+# Select specific rules relevant to scientific Python code
 select = [
-  "E",   # pycodestyle errors
-  "W",   # pycodestyle warnings
-  "F",   # Pyflakes
-  "I",   # isort (sorting imports)
-  "B",   # flake8-bugbear
-  "C4",  # flake8-comprehensions
-  "UP",  # pyupgrade (modern syntax)
-  "N",   # pep8-naming
-  "ARG", # flake8-unused-arguments
-  "SIM", # flake8-simplify
-  "TCH", # flake8-type-checking
-  "RUF", # Ruff-specific rules
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # pyflakes
+    "I",      # isort (sorting imports)
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade (modernize syntax)
+    "RUF",    # Ruff-specific rules
+    "NPY",    # NumPy specific rules
+    "PT",     # Pytest style
+    "SIM",    # flake8-simplify
 ]
 
-# Ignore specific rules that are too strict for this project
+# Ignore specific rules that are too strict for this project context
 ignore = [
-  "E501", # Line too long (handled by Black)
-  "B008", # Do not perform function call in argument defaults (common in ML)
-  "B905", # `zip()` without an explicit `strict=` parameter (Python 3.10+ only)
+    "E501",   # Line too long (handled by Black)
+    "B008",   # Do not perform function call in argument defaults (common in ML models)
+    "SIM105", # Use `contextlib.suppress` instead of `try`/`except` (verbose for quick checks)
 ]
 
-# Allow long lines for data paths and complex expressions
-line-length = 120
-
-# Target Python 3.9+ (compatible with most scientific stacks)
-target-version = "py39"
-
-# Allow unused variables in function signatures for protocol compatibility
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+))$"
+# Allow specific patterns
+allowed-confusables = ["×"] # Allow multiplication sign in math contexts
 
 [lint.per-file-ignores]
-# Ignore unused imports in __init__.py (re-export pattern)
-"code/__init__.py" = ["F401"]
-"code/utils/__init__.py" = ["F401"]
-"code/data/__init__.py" = ["F401"]
-"code/models/__init__.py" = ["F401"]
-"code/eval/__init__.py" = ["F401"]
-
-# Allow print statements in scripts for quick debugging
-"scripts/*.py" = ["T201"]
-
-# Ignore complexity in main entry points
-"code/main.py" = ["C901", "PLR0912"]
+# Ignore specific rules in test files
+"tests/**/*.py" = [
+    "S101",   # Allow assert in tests
+    "PT011",  # Allow pytest.raises without match
+]
+# Ignore specific rules in scripts that might have unused imports for setup
+"scripts/**/*.py" = [
+    "F401",   # Unused imports
+]
 
 [lint.isort]
-known-first-party = ["code", "data", "models", "eval", "utils"]
+known-first-party = ["code", "data", "models", "eval", "utils", "data_models"]
 force-sort-within-sections = true
 combine-as-imports = true
-split-on-trailing-comma = true
 
 [format]
-# Ensure consistent formatting (compatible with Black)
+# Ruff format settings (compatible with Black)
 quote-style = "double"
 indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
+
+[lint.pydocstyle]
+convention = "google"
