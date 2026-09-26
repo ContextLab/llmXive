@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-930-llmxive-follow-up-extending-mobileforge
-last_run_id: e4673cba-e829-4b7e-a467-dfa549648281
+last_run_id: 012a2ac6-6701-4913-80fc-44533da49667
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge
 title: 'llmXive follow-up: extending "MobileForge: Annotation-Free Adaptation for
   Mobile GUI Agents with Hie"'
-updated_at: '2026-09-22T13:56:56.881465Z'
+updated_at: '2026-09-26T16:54:51.393113Z'

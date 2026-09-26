@@ -1,0 +1,1467 @@
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Fetch mobileforge dataset from HuggingFace
+  claim_id: c_ee364892
+  context: 'T012 [US1] Implement code/data/raw/download_mobileforge.py: Fetch real
+    data from verified HuggingFace source (datasets.load_dataset("mobileforge")).
+    Must fail loudly on network error (no synthetic fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_mobileforge_dataset_from_HuggingFace
+  kind: entity_fact
+  raw_text: Fetch real data from verified HuggingFace source (datasets.load_dataset("mobileforge")).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:23:55Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Final training loss 0.5
+  claim_id: c_c57a803e
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final loss \u22640.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:24:11Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Memory constraint 7GB RAM
+  claim_id: c_218cc59e
+  context: "T021 [US2] Implement code/models/train_distilled.py: Data loading with\
+    \ streaming/chunking to fit \u22647GB RAM constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_constraint_7GB_RAM
+  kind: entity_fact
+  raw_text: "Memory constraint \u22647GB RAM."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:24:38Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Load AndroidWorld tasks from arXiv.2405.14793
+  claim_id: c_7d869d18
+  context: 'T026 [US3] Implement code/data/evaluation/: Load unseen, logically disjoint
+    AndroidWorld tasks (streaming if large) from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset("androidworld").'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks from androidworld dataset
+    (DOI:10.48550/arXiv.2405.14793).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:24:42Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: McNemar's test p-value 0.05 with power 0.8
+  claim_id: c_3a4330ac
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a p-value < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Evaluation script produces a p-value < 0.05 from McNemar's test with\
+    \ power \u2265 0.8."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:24:42Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Success rate variance 5% across thresholds 0.01, 0.05, 0.1
+  claim_id: c_236a5f1b
+  context: "Independent Test: Sweeping threshold across {0.01, 0.05, 0.1} results\
+    \ in success rate variance \u2264 5%."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: causal
+  raw_text: "Sweeping threshold across {0.01, 0.05, 0.1} results in success rate variance\
+    \ \u2264 5%."
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T16:24:42Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Fetch real data from HuggingFace source mobileforge
+  claim_id: c_2e33d49e
+  context: 'Implement code/data/raw/download_mobileforge.py: Fetch real data from
+    verified HuggingFace source (datasets.load_dataset(''mobileforge'')). Must fail
+    loudly on network error (no synthetic fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_real_data_from_HuggingFace_source_mobileforge
+  kind: entity_fact
+  raw_text: Fetch real data from verified HuggingFace source (datasets.load_dataset('mobileforge')).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:25:50Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Verify 5000 valid triples
+  claim_id: c_6ded030d
+  context: "Generate ExtractionDataset (CSV/Parquet) at code/data/processed/triples_v1.parquet.\
+    \ Verify \u2265 5,000 valid triples. If <5,000, trigger T016a."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u2265 5,000 valid triples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:25:50Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 2
+  canonical: Training job completes in 6 hours on ubuntu-22.04
+  claim_id: c_afb69bc8
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:25:50Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Final loss 0.5
+  claim_id: c_e17c6211
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final loss \u22640.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:25:50Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Load AndroidWorld tasks from dataset DOI 10.48550/arXiv.2405.14793
+  claim_id: c_ab53ddce
+  context: 'Implement code/data/evaluation/: Load unseen, logically disjoint AndroidWorld
+    tasks (streaming if large) from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset(''androidworld'').'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks from androidworld dataset
+    (DOI:10.48550/arXiv.2405.14793).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:25:52Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: androidworld dataset DOI 10.48550/arXiv.2405.14793
+  claim_id: c_095cc24e
+  context: Load unseen, logically disjoint AndroidWorld tasks (streaming if large)
+    from androidworld dataset (DOI:10.48550/arXiv.2405.14793) using datasets.load_dataset('androidworld').
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The androidworld dataset is available at DOI:10.48550/arXiv.2405.14793
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:27:13Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: mobileforge dataset on huggingface
+  claim_id: c_4f2ddeb8
+  context: Fetch real data from verified HuggingFace source (datasets.load_dataset('mobileforge')).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mobileforge_dataset_on_huggingface
+  kind: entity_fact
+  raw_text: The MobileForge dataset is available on HuggingFace under the name 'mobileforge'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:27:40Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Extract at least 5000 valid triples from MobileForge logs
+  claim_id: c_48858360
+  context: "T016 [US1] Generate ExtractionDataset (CSV/Parquet) at code/data/processed/triples_v1.parquet.\
+    \ Verify \u2265 5,000 valid triples. If <5,000, trigger T016a."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Extract_at_least_5000_valid_triples_from_MobileForge_logs
+  kind: magnitude
+  raw_text: "Verify \u2265 5,000 valid triples."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:30:35Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: AndroidWorld dataset DOI is 10.48550/arXiv.2405.14793
+  claim_id: c_d6d22778
+  context: 'T026 [US3] Implement code/data/evaluation/: Load unseen, logically disjoint
+    AndroidWorld tasks (streaming if large) from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset(''androidworld'').'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks (streaming if large)
+    from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:30:36Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Training job completes in 6 hours or less with final loss 0.5 or lower
+  claim_id: c_333bcece
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours, final\
+    \ loss \u22640.5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:30:49Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Data loading fits within 7GB RAM constraint
+  claim_id: c_1d2d6553
+  context: "T021 [US2] Implement code/models/train_distilled.py: Data loading with\
+    \ streaming/chunking to fit \u22647GB RAM constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loading_fits_within_7GB_RAM_constraint
+  kind: entity_fact
+  raw_text: "Data loading with streaming/chunking to fit \u22647GB RAM constraint"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:32:15Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Project uses ruff for linting and black for formatting
+  claim_id: c_e16c035d
+  context: T003 [P] Configure linting (ruff) and formatting (black) tools
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_ruff_for_linting_and_black_for_formatting
+  kind: entity_fact
+  raw_text: Configure linting (ruff) and formatting (black) tools
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:32:52Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11 and specific pinned dependencies
+  claim_id: c_d34fbee4
+  context: T002 Initialize Python 3.11 project with requirements.txt (pinned torch,
+    transformers, datasets, pandas, scikit-learn, pytest, statsmodels)
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt (pinned torch, transformers,
+    datasets, pandas, scikit-learn, pytest, statsmodels)
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T16:32:52Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: MobileForge dataset available via HuggingFace datasets.load_dataset('mobileforge')
+  claim_id: c_5d01264a
+  context: 'T012 [US1] Implement code/data/raw/download_mobileforge.py: Fetch real
+    data from verified HuggingFace source...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileForge_dataset_available_via_HuggingFace_datasets.load
+  kind: entity_fact
+  raw_text: Fetch real data from verified HuggingFace source (datasets.load_dataset('mobileforge')).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:34:00Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: ExtractionDataset must contain at least 5000 valid triples
+  claim_id: c_e718a0a5
+  context: "T016 [US1] Generate ExtractionDataset (CSV/Parquet) at code/data/processed/triples_v1.parquet.\
+    \ Verify \u2265 5,000 valid triples."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ExtractionDataset_must_contain_at_least_5000_valid_triples
+  kind: magnitude
+  raw_text: "Verify \u2265 5,000 valid triples."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:34:02Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Model training on ubuntu-22.04 completes within 6 hours
+  claim_id: c_ea0a8cda
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:34:02Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Model training achieves final loss of 0.5 or less
+  claim_id: c_b032ef05
+  context: "...final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final loss \u22640.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:34:02Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Evaluation uses paired design for statistical significance testing
+  claim_id: c_c971cfc0
+  context: 'Goal: Evaluate the distilled model against a TinyLlama baseline on a representative
+    set of unseen AndroidWorld tasks, performing statistical significance testing
+    with a paired design.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_uses_paired_design_for_statistical_significance_t
+  kind: entity_fact
+  raw_text: Perform statistical significance testing with a paired design.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:34:56Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: McNemar's test used for binary paired outcomes comparison
+  claim_id: c_0151d9aa
+  context: 'T031 [US3] Implement code/utils/metrics.py: Perform McNemar''s test (for
+    binary outcomes) comparing Distilled vs. TinyLlama baseline...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_used_for_binary_paired_outcomes_comparison
+  kind: entity_fact
+  raw_text: Perform McNemar's test (for binary outcomes) comparing Distilled vs. TinyLlama
+    baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:35:18Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Power analysis confirms observed effect size with 0.8 power
+  claim_id: c_db8baf94
+  context: "T032 [US3] Implement code/utils/power_analysis.py: Conduct A priori power\
+    \ analysis... to determine required N and confirm observed effect size with \u2265\
+    0.8 power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm observed effect size with \u22650.8 power."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:35:18Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Model training on Ubuntu 22.04 completes within 6 hours
+  claim_id: c_5929df72
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:35:36Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Data loading fits within 7GB RAM
+  claim_id: c_7510f00b
+  context: "Implement code/models/train_distilled.py: Data loading with streaming/chunking\
+    \ to fit \u22647GB RAM constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loading_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: "Fit \u22647GB RAM constraint"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:36:02Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 2
+  canonical: McNemar's test yields p-value less than 0.05 with statistical power of
+    0.8 or higher
+  claim_id: c_143ccc1a
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a p-value < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_yields_p-value_less_than_0.05_with_statistica
+  kind: magnitude
+  raw_text: "Evaluation script produces success rate, step efficiency, and a p-value\
+    \ < 0.05 from McNemar's test with power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-26T16:36:04Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Use AndroidWorld dataset with DOI 10.48550/arXiv.2405.14793 for evaluation
+  claim_id: c_ab1231b8
+  context: 'Implement code/data/evaluation/: Load unseen, logically disjoint AndroidWorld
+    tasks (streaming if large) from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset("androidworld").'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks from androidworld dataset
+    (DOI:10.48550/arXiv.2405.14793)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:36:05Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: A priori power analysis confirms effect size with 0.8 or higher power
+  claim_id: c_560070a0
+  context: "Implement code/utils/power_analysis.py: Conduct A priori power analysis\
+    \ (per amended FR-007) to determine required N and confirm observed effect size\
+    \ with \u22650.8 power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm observed effect size with \u22650.8 power"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:36:05Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: MobileForge dataset available on HuggingFace
+  claim_id: c_26e2a82d
+  context: 'Implement code/data/raw/download_mobileforge.py: Fetch real data from
+    verified HuggingFace source...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileForge_dataset_available_on_HuggingFace
+  kind: entity_fact
+  raw_text: Fetch real data from verified HuggingFace source (datasets.load_dataset("mobileforge"))
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:38:11Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Target of 5,000 valid triples for ExtractionDataset
+  claim_id: c_a3d85d34
+  context: "Generate ExtractionDataset (CSV/Parquet) at code/data/processed/triples_v1.parquet.\
+    \ Verify \u2265 5,000 valid triples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify \u2265 5,000 valid triples"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:38:11Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: "Training completion time \u22646 hours on ubuntu-22.04"
+  claim_id: c_ba68ea08
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:38:11Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: "Training target final loss \u22640.5"
+  claim_id: c_d67fb553
+  context: "...final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final loss \u22640.5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:38:11Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: AndroidWorld dataset DOI:10.48550/arXiv.2405.14793
+  claim_id: c_cccf2ca0
+  context: Load unseen, logically disjoint AndroidWorld tasks... from androidworld
+    dataset (DOI:10.48550/arXiv.2405.14793)...
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks (streaming if large)
+    from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:38:13Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: "McNemar's test p-value < 0.05 with power \u2265 0.8"
+  claim_id: c_8c7ebf79
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a p-value < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Evaluation script produces... a p-value < 0.05 from McNemar's test with\
+    \ power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:38:13Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: "Data loading memory constraint \u22647GB RAM"
+  claim_id: c_9e236f2b
+  context: "Implement code/models/train_distilled.py: Data loading with streaming/chunking\
+    \ to fit \u22647GB RAM constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loading_memory_constraint_%E2%89%A47GB_RAM
+  kind: entity_fact
+  raw_text: "Fit \u22647GB RAM constraint"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:38:15Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: MobileForge dataset available via HuggingFace datasets.load_dataset
+  claim_id: c_0091ed3a
+  context: 'T012 [US1] Implement code/data/raw/download_mobileforge.py: Fetch real
+    data from verified HuggingFace source...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileForge_dataset_available_via_HuggingFace_datasets.load
+  kind: entity_fact
+  raw_text: Fetch real data from verified HuggingFace source (datasets.load_dataset('mobileforge')).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:41:17Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: T5-small training on Ubuntu 22.04 completes in 6 hours or less with loss
+    0.5 or less
+  claim_id: c_329a464e
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours, final\
+    \ loss \u22640.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:41:17Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: ExtractionDataset target contains 5000 valid triples
+  claim_id: c_b6cec9a4
+  context: "T016 [US1] Generate ExtractionDataset (CSV/Parquet) at code/data/processed/triples_v1.parquet.\
+    \ Verify \u2265 5,000 valid triples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verification of \u2265 5,000 valid triples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:41:18Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Model training target final loss is 0.5 or less
+  claim_id: c_9862b5c2
+  context: "T020 [US2] Implement code/models/train_distilled.py: Training loop with\
+    \ loss monitoring and convergence check (target final loss \u22640.5)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training loop with loss monitoring and convergence check (target final\
+    \ loss \u22640.5)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:41:18Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Data loading constrained to 7GB RAM or less
+  claim_id: c_59804279
+  context: "T021 [US2] Implement code/models/train_distilled.py: Data loading with\
+    \ streaming/chunking to fit \u22647GB RAM constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loading_constrained_to_7GB_RAM_or_less
+  kind: entity_fact
+  raw_text: "Data loading with streaming/chunking to fit \u22647GB RAM constraint."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:41:20Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: McNemar's test result requires p-value less than 0.05 and power 0.8 or
+    greater
+  claim_id: c_ce71751e
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a p-value < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_result_requires_p-value_less_than_0.05_and_po
+  kind: magnitude
+  raw_text: "Evaluation script produces p-value < 0.05 from McNemar's test with power\
+    \ \u2265 0.8."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-26T16:42:01Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Code line length limit is 88 characters
+  claim_id: c_135ff635
+  context: 'T041b [P] Code cleanup: Enforce line length < 88 and formatting consistency
+    (black).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce line length < 88 and formatting consistency (black).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:42:01Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: MobileForge dataset available on HuggingFace
+  claim_id: c_64556ebd
+  context: 'T012 [US1] Implement code/data/raw/download_mobileforge.py: Fetch real
+    data from verified HuggingFace source (datasets.load_dataset(''mobileforge'')).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileForge_dataset_available_on_HuggingFace
+  kind: entity_fact
+  raw_text: Fetch real data from verified HuggingFace source (datasets.load_dataset('mobileforge')).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:42:56Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: MobileForge extraction yields at least 5000 valid triples
+  claim_id: c_6dab0ba1
+  context: "T016 [US1] Generate ExtractionDataset (CSV/Parquet) at code/data/processed/triples_v1.parquet.\
+    \ Verify \u2265 5,000 valid triples. If <5,000, trigger T016a."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MobileForge_extraction_yields_at_least_5000_valid_triples
+  kind: magnitude
+  raw_text: "Verify \u2265 5,000 valid triples."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:42:58Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: T5-small training on CPU completes within 6 hours with loss under 0.5
+  claim_id: c_0f1e9804
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours, final\
+    \ loss \u22640.5, with no GPU/CUDA errors."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:43:13Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: AndroidWorld dataset available at DOI 10.48550/arXiv.2405.14793
+  claim_id: c_ae32b4b5
+  context: 'T026 [US3] Implement code/data/evaluation/: Load unseen, logically disjoint
+    AndroidWorld tasks (streaming if large) from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset(''androidworld'').'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks (streaming if large)
+    from androidworld dataset (DOI:10.48550/arXiv.2405.14793) using datasets.load_dataset('androidworld').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:43:15Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Extract at least 5000 valid triples from MobileForge logs
+  claim_id: c_86b4390b
+  context: "T016 [US1] Generate `ExtractionDataset` (CSV/Parquet) at `code/data/processed/triples_v1.parquet`.\
+    \ Verify \u2265 5,000 valid triples. If <5,000, trigger T016a."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Extract_at_least_5000_valid_triples_from_MobileForge_logs
+  kind: magnitude
+  raw_text: "Verify \u2265 5,000 valid triples."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:43:54Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Load AndroidWorld tasks from dataset with DOI 10.48550/arXiv.2405.14793
+  claim_id: c_651c7d0e
+  context: 'T026 [US3] Implement `code/data/evaluation/`: Load unseen, logically disjoint
+    AndroidWorld tasks (streaming if large) from `androidworld` dataset (DOI:10.48550/arXiv.2405.14793)
+    using `datasets.load_dataset("androidworld").'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks (streaming if large)
+    from `androidworld` dataset (DOI:10.48550/arXiv.2405.14793)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:43:58Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Training completes in 6 hours on ubuntu-22.04
+  claim_id: c_96a2aff8
+  context: "Independent Test: Training job on `ubuntu-22.04` runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on `ubuntu-22.04` runner completes in \u22646 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:43:59Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Final training loss is 0.5 or less
+  claim_id: c_47e8e6db
+  context: "Independent Test: Training job on `ubuntu-22.04` runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "final loss \u22640.5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:43:59Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: McNemar's test yields p-value less than 0.05
+  claim_id: c_1599b78b
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a Evaluation script produces success rate, step efficiency, and a p-value\
+    \ < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_yields_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: p-value < 0.05 from McNemar's test
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-26T16:44:27Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Statistical power is 0.8 or greater
+  claim_id: c_d26ef957
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a Evaluation script produces success rate, step efficiency, and a p-value\
+    \ < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:44:27Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Data loading fits within 7GB RAM
+  claim_id: c_d4724024
+  context: "T021 [US2] Implement `code/models/train_distilled.py`: Data loading with\
+    \ streaming/chunking to fit \u22647GB RAM constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loading_fits_within_7GB_RAM
+  kind: entity_fact
+  raw_text: "fit \u22647GB RAM constraint"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:44:28Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Fetch MobileForge dataset from HuggingFace
+  claim_id: c_7d5dd952
+  context: 'Implement code/data/raw/download_mobileforge.py: Fetch real data from
+    verified HuggingFace source (datasets.load_dataset(''mobileforge'')). Must fail
+    loudly on network error (no synthetic fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_MobileForge_dataset_from_HuggingFace
+  kind: entity_fact
+  raw_text: Fetch real data from verified HuggingFace source (datasets.load_dataset('mobileforge')).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:44:48Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Verify at least 5000 valid triples
+  claim_id: c_4994a507
+  context: "Generate ExtractionDataset (CSV/Parquet) at code/data/processed/triples_v1.parquet.\
+    \ Verify \u2265 5,000 valid triples. If <5,000, trigger T016a."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_5000_valid_triples
+  kind: magnitude
+  raw_text: "Verify \u2265 5,000 valid triples."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:44:50Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Training completes in 6 hours or less on Ubuntu 22.04
+  claim_id: c_41f2149b
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:44:51Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Final training loss is 0.5 or less
+  claim_id: c_0cab1cb9
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final loss \u22640.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:44:51Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Load AndroidWorld tasks from arXiv 2405.14793
+  claim_id: c_60c25dc3
+  context: 'Implement code/data/evaluation/: Load unseen, logically disjoint AndroidWorld
+    tasks (streaming if large) from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset(''androidworld'').'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks (streaming if large)
+    from androidworld dataset (DOI:10.48550/arXiv.2405.14793).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:44:53Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: McNemar's test yields p-value under 0.05 with power at least 0.8
+  claim_id: c_1d8183ec
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a Evaluation script produces success rate, step efficiency, and a p-value\
+    \ < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_yields_p-value_under_0.05_with_power_at_least
+  kind: magnitude
+  raw_text: "Evaluation script produces a p-value < 0.05 from McNemar's test with\
+    \ power \u2265 0.8."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-26T16:44:54Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: A priori power analysis confirms effect size with power at least 0.8
+  claim_id: c_d9f4f872
+  context: "Implement code/utils/power_analysis.py: Conduct A priori power analysis\
+    \ (per amended FR-007) to determine required N and confirm observed effect size\
+    \ with \u22650.8 power. Output validated_n to state/validated_n.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/A_priori_power_analysis_confirms_effect_size_with_power_at_l
+  kind: magnitude
+  raw_text: "Conduct A priori power analysis to determine required N and confirm observed\
+    \ effect size with \u22650.8 power."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:45:56Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: MobileForge dataset available on HuggingFace
+  claim_id: c_92598e95
+  context: 'T012 [US1] Implement code/data/raw/download_mobileforge.py: Fetch real
+    data from verified HuggingFace source...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MobileForge_dataset_available_on_HuggingFace
+  kind: entity_fact
+  raw_text: Fetch real data from verified HuggingFace source (datasets.load_dataset('mobileforge')).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:47:55Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: "Training job on ubuntu-22.04 completes in \u22646 hours"
+  claim_id: c_7089fb94
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:47:55Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: "Final training loss target is \u22640.5"
+  claim_id: c_6d42204b
+  context: "...final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final loss \u22640.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:47:55Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 3
+  canonical: AndroidWorld dataset DOI is 10.48550/arXiv.2405.14793
+  claim_id: c_03af379e
+  context: 'T026 [US3] Implement code/data/evaluation/: Load unseen, logically disjoint
+    AndroidWorld tasks... from androidworld dataset (DOI:10.48550/arXiv.2405.14793)...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks (streaming if large)
+    from androidworld dataset (DOI:10.48550/arXiv.2405.14793).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:47:56Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: McNemar's test used for binary outcome comparison between Distilled and
+    TinyLlama
+  claim_id: c_f7bcd645
+  context: 'T031 [US3] Implement code/utils/metrics.py: Perform McNemar''s test (for
+    binary outcomes) comparing Distilled vs. TinyLlama baseline...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_used_for_binary_outcome_comparison_between_Di
+  kind: entity_fact
+  raw_text: Perform McNemar's test (for binary outcomes) comparing Distilled vs. TinyLlama
+    baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:47:58Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: "A priori power analysis targets \u22650.8 power"
+  claim_id: c_143730b0
+  context: "T032 [US3] Implement code/utils/power_analysis.py: Conduct A priori power\
+    \ analysis... to confirm observed effect size with \u22650.8 power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Conduct A priori power analysis... to confirm observed effect size with\
+    \ \u22650.8 power."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:47:58Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Training job completes within 6 hours on Ubuntu 22.04
+  claim_id: c_1309deab
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:50:10Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 2
+  canonical: Model training achieves final loss of 0.5 or less
+  claim_id: c_48dbeebe
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Final loss \u22640.5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:50:10Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Data loading fits within 7GB RAM constraint
+  claim_id: c_5a3b0599
+  context: "Implement code/models/train_distilled.py: Data loading with streaming/chunking\
+    \ to fit \u22647GB RAM constraint."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loading_fits_within_7GB_RAM_constraint
+  kind: entity_fact
+  raw_text: "Data loading with streaming/chunking to fit \u22647GB RAM constraint"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:50:12Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: McNemar's test yields p-value less than 0.05 with power 0.8 or higher
+  claim_id: c_680a83dd
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a Evaluation script produces success rate, step efficiency, and a p-value\
+    \ < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.8
+    - - ''
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/McNemar%27s_test_yields_p-value_less_than_0.05_with_power_0.8
+  kind: magnitude
+  raw_text: "p-value < 0.05 from McNemar's test with power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-26T16:50:45Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Statistical power is 0.8 or higher
+  claim_id: c_fdba7f82
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a Evaluation script produces success rate, step efficiency, and a p-value\
+    \ < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:50:46Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: AndroidWorld dataset has DOI 10.48550/arXiv.2405.14793
+  claim_id: c_f8ca435a
+  context: 'Implement code/data/evaluation/: Load unseen, logically disjoint AndroidWorld
+    tasks (streaming if large) from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset("androidworld").'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: load unseen, logically disjoint AndroidWorld tasks from androidworld dataset
+    (DOI:10.48550/arXiv.2405.14793)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:50:48Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 3
+  canonical: Extract at least 5000 valid triples from MobileForge logs
+  claim_id: c_808bf626
+  context: "Generate ExtractionDataset (CSV/Parquet) at code/data/processed/triples_v1.parquet.\
+    \ Verify \u2265 5,000 valid triples. If <5,000, trigger T016a."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Extract_at_least_5000_valid_triples_from_MobileForge_logs
+  kind: magnitude
+  raw_text: "Verify \u2265 5,000 valid triples."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:53:32Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Model training completes within 6 hours on ubuntu-22.04
+  claim_id: c_63839f96
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, Final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Training job on ubuntu-22.04 runner completes in \u22646 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:53:32Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Model training final loss is less than or equal to 0.5
+  claim_id: c_7ff1c9f1
+  context: "Independent Test: Training job on ubuntu-22.04 runner completes in \u2264\
+    6 hours, Final loss \u22640.5, with no GPU/CUDA errors."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_training_final_loss_is_less_than_or_equal_to_0.5
+  kind: magnitude
+  raw_text: "Final loss \u22640.5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:54:00Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: AndroidWorld dataset DOI is 10.48550/arXiv.2405.14793
+  claim_id: c_afd80c46
+  context: 'Implement code/data/evaluation/: Load unseen, logically disjoint AndroidWorld
+    tasks (streaming if large) from androidworld dataset (DOI:10.48550/arXiv.2405.14793)
+    using datasets.load_dataset("androidworld").'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: Load unseen, logically disjoint AndroidWorld tasks from androidworld dataset
+    (DOI:10.48550/arXiv.2405.14793)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:54:00Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: McNemar's test yields p-value less than 0.05 and power at least 0.8
+  claim_id: c_1b045ee1
+  context: "Independent Test: Evaluation script produces success rate, step efficiency,\
+    \ and a Evaluation script produces success rate, step efficiency, and a p-value\
+    \ < 0.05 from McNemar's test with power \u2265 0.8."
+  evidence:
+    candidates:
+    - - ''
+      - 27.0
+    - - ''
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_yields_p-value_less_than_0.05_and_power_at_le
+  kind: magnitude
+  raw_text: "p-value < 0.05 from McNemar's test with power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-26T16:54:02Z'
+- artifact_path: projects/PROJ-930-llmxive-follow-up-extending-mobileforge/specs/001-llmxive-follow-up-extending-mobileforge/tasks.md
+  attempts: 1
+  canonical: Power analysis confirms observed effect size with at least 0.8 power
+  claim_id: c_e79b60f9
+  context: "Implement code/utils/power_analysis.py: Conduct A priori power analysis\
+    \ (per amended FR-007) to determine required N and confirm observed effect size\
+    \ with \u22650.8 power."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_confirms_observed_effect_size_with_at_least_0
+  kind: magnitude
+  raw_text: "Conduct A priori power analysis to confirm observed effect size with\
+    \ \u22650.8 power"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T16:54:51Z'

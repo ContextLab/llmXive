@@ -1,0 +1,27 @@
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/power_analysis.py` file or `calculate_required_n` function was presented,
+    and there is no `state/validated_n.json` output shown. Without these artifacts,
+    the task requirements are not satisfied.
+T019a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided, nor any excerpt showing that FR-005 now\
+    \ reads \u201CMcNemar's test (for binary paired outcomes)\u201D instead of \u201C\
+    paired t-test\u201D. Without the actual document change, the requirement cannot\
+    \ be confirmed as satisfied."
+T019b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided showing the replacement of \u201Cpost-hoc\
+    \ power analysis\u201D with \u201CA priori power analysis\u201D in FR\u2011007,\
+    \ nor any evidence that the specification was amended. The required artifact is\
+    \ missing."
+T019c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file was provided, so we cannot verify that FR-002 was\
+    \ edited to replace \u201Cencoder\u2011only model (e.g., DistilBERT)\u201D with\
+    \ \u201CEncoder\u2011Decoder model (e.g., T5\u2011small)\u201D. The required artifact\
+    \ is missing."
