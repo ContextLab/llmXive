@@ -1,53 +1,93 @@
 # Project Plan: Identifying Genetic Markers Associated with Honeybee Colony Collapse Disorder
 
-## Overview
-This project aims to identify genetic markers (SNPs) associated with susceptibility to Colony Collapse Disorder (CCD) in honeybees (*Apis mellifera*) using a Genome-Wide Association Study (GWAS) pipeline. The analysis leverages genomic data from public repositories (NCBI BioProject PRJNA566029) and applies rigorous statistical methods to distinguish true associations from false positives.
+## Executive Summary
+
+This project implements a Genome-Wide Association Study (GWAS) pipeline to identify Single Nucleotide Polymorphisms (SNPs) associated with susceptibility to Colony Collapse Disorder (CCD) in honeybees (*Apis mellifera*). The pipeline adheres to strict data integrity, statistical rigor, and reproducibility standards defined in the project specification.
 
 ## Objectives
-1. **Data Acquisition**: Retrieve high-quality genomic and phenotypic data for honeybee colonies with confirmed CCD status.
-2. **Quality Control**: Implement strict filtering for variant quality, missingness, and population stratification.
-3. **Association Testing**: Perform logistic regression GWAS with Benjamini-Hochberg FDR correction.
-4. **Validation**: Validate findings using LASSO regression and Polygenic Risk Scores (PRS).
-5. **Annotation**: Map significant SNPs to genes and functional pathways.
 
-## Methodology
+1. **Primary Goal**: Identify genetic markers (SNPs) significantly associated with CCD status using a logistic regression GWAS approach.
+2. **Statistical Rigor**: Apply Benjamini-Hochberg (BH) False Discovery Rate (FDR) correction to control for multiple testing across the entire set of high-quality SNPs.
+3. **Validation**: Validate findings using LASSO logistic regression and Polygenic Risk Scores (PRS).
+4. **Annotation**: Map significant SNPs to genes and Gene Ontology (GO) terms using the Ensembl Bees API.
+5. **Reproducibility**: Ensure all steps are documented, automated, and reproducible via a defined run-book.
 
-### 1. Data Sources
-- **Genomic Data**: NCBI BioProject PRJNA566029 (Honeybee Genome Variants).
-- **Phenotypic Data**: Colony health records including CCD diagnosis, Varroa mite counts, and geographic metadata.
-- **Reference Genome**: *Apis mellifera* HAv3.1.
+## Scope
 
-### 2. Statistical Analysis
-- **Primary Test**: Logistic regression (PLINK) with covariates (geographic region, sampling year, Varroa count).
-- **Multiple Testing Correction**: Benjamini-Hochberg (BH) FDR procedure on the full set of high-quality SNPs (FR-004).
-- **Validation**: LASSO logistic regression for feature selection and predictive modeling.
+### In Scope
+- Data acquisition from verified public repositories (Hugging Face/NCBI).
+- Data preprocessing (alignment, variant calling, QC, LD pruning).
+- GWAS execution (logistic regression with covariates).
+- Multiple testing correction (BH FDR).
+- Functional annotation of significant SNPs.
+- Machine learning validation (LASSO, PRS).
+- Generation of final reports and visualizations.
 
-### 3. Complexity Tracking
-- **Genome Size**: ~236 Mb.
-- **Expected SNPs**: ~1.5 million high-quality variants after QC.
-- **Sample Size**: ~200-300 colonies (Power analysis required).
-- **Computational Requirements**: CPU-tractable; no GPU required.
-- **Runtime Estimate**: < 6 hours on standard HPC node.
+### Out of Scope
+- Wet-lab data generation (sequencing, phenotyping).
+- Causal inference (findings are associational).
+- Real-time monitoring of beehives.
 
-**Note on Candidate-Gene Approach**: The primary GWAS (FR-004) is performed on **all** high-quality SNPs without pre-filtering to ensure comprehensive discovery. A Candidate-Gene filtering step (immune pathway genes) is applied **only** for downstream functional annotation (T032) to manage API load and focus biological interpretation, not for the statistical significance testing.
+## Architecture & Workflow
 
-## Constraints & Assumptions
-- **Spec Priority**: The Feature Specification (FR-004, FR-005) governs the statistical methodology. Any conflict with the Plan is resolved in favor of the Spec.
-- **Data Integrity**: Raw data is immutable; all processing steps are reproducible.
-- **No Fabrication**: All results must be derived from real data or clearly labeled synthetic test data.
-- **API Limits**: Ensembl API calls are rate-limited; caching and retries are implemented.
+The pipeline follows a linear, stage-gated workflow:
+
+1. **Setup & Validation**: Environment setup, dependency installation, and power analysis.
+2. **Data Ingestion**: Downloading raw FASTQ/VCF data and phenotype metadata.
+3. **Preprocessing**: Alignment, variant calling, VCF to PLINK conversion, LD pruning, and phenotype harmonization.
+4. **GWAS Execution**: Running PLINK logistic regression with mandatory covariates.
+5. **Statistical Correction**: Applying BH FDR correction and sensitivity analysis.
+6. **Validation & Annotation**: LASSO/PRS validation and Ensembl gene mapping.
+7. **Reporting**: Generating final artifacts and documentation.
+
+## Data Management
+
+- **Raw Data**: Stored in `data/raw/`. Immutable. Verified via checksums.
+- **Interim Data**: Stored in `data/interim/`. Intermediate files (BAM, VCF, PLINK binary).
+- **Processed Data**: Stored in `data/processed/`. Final analysis results (GWAS stats, PRS, annotations).
+- **Sources**:
+ - Genomic Data: `bee_genome_variants` (Hugging Face, derived from NCBI BioProject PRJNA/566029).
+ - Reference Genome: `Amel_HAv3.1`.
+ - Annotation: Ensembl Bees API.
+
+## Statistical Methodology
+
+- **Association Test**: Logistic Regression (PLINK `--logistic`).
+- **Covariates**: Geographic region, sampling year, Varroa mite count.
+- **Multiple Testing**: Benjamini-Hochberg FDR (q-value < 0.05 threshold).
+- **Power Analysis**: Non-central chi-squared distribution (Target Power > 0.8).
+- **Validation**: 5-fold Cross-Validation for LASSO; Likelihood Ratio Test for PRS.
+
+## Complexity Tracking
+
+| Component | Complexity | Mitigation Strategy |
+|:--- |:--- |:--- |
+| **GWAS Scale** | High (Millions of SNPs) | **Primary GWAS is performed on ALL high-quality SNPs.** Candidate-Gene filtering is applied *only* for downstream functional annotation (T032) to manage API load and focus interpretation, NOT for the statistical test. |
+| **API Load** | Medium | Rate limiting and retry logic in annotation scripts. |
+| **Compute** | Medium | CPU-tractable. No GPU required. |
+| **Data Size** | Medium | Streaming/Chunked processing for large datasets. |
+
+## Risks & Mitigations
+
+- **Risk**: Insufficient statistical power.
+ - **Mitigation**: Gate T005 halts pipeline if power < 0.8.
+- **Risk**: Missing Varroa data.
+ - **Mitigation**: T062 halts pipeline if Varroa coverage < 80%.
+- **Risk**: API unavailability.
+ - **Mitigation**: Retry logic and fallback to 'UNAVAILABLE' status in annotations.
+- **Risk**: Data fabrication.
+ - **Mitigation**: Strict enforcement of real data sources; synthetic data only for pipeline validation (T009) with explicit flags.
 
 ## Deliverables
-1. `data/processed/gwas_results_fdr.tsv`: Final association results with FDR-corrected q-values.
-2. `data/processed/lasso_auc_report.json`: Predictive performance metrics.
-3. `data/processed/annotation_results.tsv`: Gene and pathway annotations for significant SNPs.
-4. `docs/report_template.md`: Final report structure with mandatory disclaimers.
 
-## Risk Management
-- **Low Power**: If sample size < 80, the pipeline halts with an error (T005).
-- **Data Quality**: If Varroa data coverage < 80%, the pipeline halts (T062).
-- **API Failures**: Retry logic with exponential backoff for external API calls.
+1. `data/processed/gwas_results_fdr.tsv`: Final GWAS results with FDR correction.
+2. `data/processed/annotation_results.tsv`: Gene mappings for significant SNPs.
+3. `data/processed/lasso_auc_report.json`: LASSO validation metrics.
+4. `data/processed/prs_scores.tsv`: Polygenic Risk Scores.
+5. `docs/report_template.md`: Final report structure with mandatory disclaimers.
 
-## Revision History
-- **v1.0**: Initial plan.
-- **v1.1**: Updated to align with Spec FR-004 regarding BH FDR on all SNPs. Removed "Candidate-Gene Pre-filtering" as a justification for reducing GWAS burden. Candidate-Gene logic is now strictly for annotation (T063/T032).
+## References
+
+- **Spec**: `specs/001-gene-regulation/`
+- **Contracts**: `specs/001-gene-regulation/contracts/`
+- **API Surface**: `code/` directory modules.

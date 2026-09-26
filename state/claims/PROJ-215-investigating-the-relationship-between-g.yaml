@@ -819,3 +819,108 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-23T10:54:29Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP Study ID 10317 contains both 16S rRNA and PHQ-9/GAD-7 metadata for
+    overlapping samples
+  claim_id: c_56c600de
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror. Feasibility Check: Verify the dataset
+    contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:41:15Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data ingestion pipeline outputs at least 100 valid rows with non-missing
+    microbiome and mental health scores
+  claim_id: c_98bd06ca
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present, with\
+    \ no missing values in the key predictor/outcome columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_pipeline_outputs_at_least_100_valid_rows_with
+  kind: magnitude
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present, with no missing values in the\
+    \ key predictor/outcome columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:41:59Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data cleaning process retains at least 80% of samples and produces at
+    least 100 valid rows
+  claim_id: c_1ad78f1b
+  context: "Output data/processed/cleaned_dataset.csv (with alpha metrics) and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_cleaning_process_retains_at_least_80%25_of_samples_and_pr
+  kind: magnitude
+  raw_text: "Output data/processed/cleaned_dataset.csv with alpha metrics and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:42:20Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High depression group defined as PHQ-9 score greater than or equal to
+    10
+  claim_id: c_8f141316
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_depression_group_defined_as_PHQ-9_score_greater_than_or
+  kind: magnitude
+  raw_text: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:42:47Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test applied to p-value distribution when no taxa
+    have q-value less than 0.05
+  claim_id: c_47d0e7d2
+  context: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on p-value
+    distribution.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_applied_to_p-value_distribution_when
+  kind: magnitude
+  raw_text: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on
+    p-value distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:43:32Z'

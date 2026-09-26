@@ -1,11 +1,9 @@
 T006:
   c: false
-  h: 37d9751f35d8563a7f3a80e8d7714d500e5579bf7d129d6f35cfe217945f91a7
-  r: 'The `schema_validator.py` file ends with an unfinished `except FileNotFoundError
-    as fnf: log` line, which is a syntax error and prevents the module from running.
-    Additionally, the required `contracts/dataset.schema.yaml` file is missing, so
-    the validator cannot actually load a schema. These issues must be fixed for the
-    task to be considered complete.'
+  h: 0f0af30676194490f23836a4f9a0ec87697bba1d6f11c11ce7669ac4a6eea1ab
+  r: The `schema_validator.py` file is truncated (e.g., `if not os.path.exist` line
+    is incomplete) and would raise a syntax error, and the required `contracts/dataset.schema.yaml`
+    file is missing, so the validator cannot actually perform the specified validation.
 T022:
   c: false
   h: f2075164f7ebdae0f2b4511124f9bff4fe77365d6ab88b9af9e5e3997f649854

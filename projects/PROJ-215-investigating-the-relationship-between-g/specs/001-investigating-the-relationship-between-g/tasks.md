@@ -81,13 +81,13 @@ could not find expected ':'
 
 **Goal**: Download, merge, and preprocess AGP data to create a clean, analysis-ready dataset with valid samples and no missing key values.
 
-**Independent Test**: The pipeline can be tested by running the data ingestion script and verifying that the output CSV contains ≥ 100 valid rows where both microbiome diversity metrics and mental health scores are present, with no missing values in the key predictor/outcome columns. [UNRESOLVED-CLAIM: c_773399f4 — status=not_enough_info]
+**Independent Test**: The pipeline can be tested by running the data ingestion script and verifying that the output CSV contains ≥ 100 valid rows where both microbiome diversity metrics and mental health scores are present, with no missing values in the key predictor/outcome columns. [UNRESOLVED-CLAIM: c_98bd06ca — status=not_enough_info]
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/data_ingestion.py`: Download AGP data (Study ID 10317) via Qiita API or verified HuggingFace mirror (handle rate-limiting with exponential backoff). **Feasibility Check**: Verify the dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping samples. Merge OTU table and metadata on `sample_id`. If no linked data is found, log "Data Gap" and halt analysis (per Plan Phase 0).
+- [X] T012 [US1] Implement `code/data_ingestion.py`: Download AGP data (Study ID 10317) via Qiita API or verified HuggingFace mirror (handle rate-limiting with exponential backoff). **Feasibility Check**: Verify the dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping samples. [UNRESOLVED-CLAIM: c_56c600de — status=not_enough_info] Merge OTU table and metadata on `sample_id`. If no linked data is found, log "Data Gap" and halt analysis (per Plan Phase 0).
 - [X] T013 [US1] Implement `code/data_ingestion.py`: Filter samples with missing PHQ-9/GAD-7 scores and log exclusion rate.
-- [X] T014 [US1] Implement `code/preprocessing.py`: **Step 1**: Calculate median sequencing depth (median of non-zero column sums). **Step 2**: Estimate sample loss if rarefying to this depth. **Step 3**: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation (VST) and log fallback; otherwise, apply rarefaction. [UNRESOLVED-CLAIM: c_3cb21d29 — status=not_enough_info]
+- [X] T014 [US1] Implement `code/preprocessing.py`: **Step 1**: Calculate median sequencing depth (median of non-zero column sums). **Step 2**: Estimate sample loss if rarefying to this depth. **Step 3**: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation (VST) and log fallback; otherwise, apply rarefaction.
 - [X] T015 [US1] Implement `code/preprocessing.py`: Filter taxa with <0.1% prevalence on the preprocessed table.
 - [X] T016 [US1] Implement `code/preprocessing.py`: Calculate Alpha diversity metrics (Shannon, Simpson) on the **preprocessed** table (after rarefaction/VST and filtering).
 - [ ] T016b [US1] Implement `code/preprocessing.py`: Generate Beta diversity distance matrices (Bray-Curtis, UniFrac weighted, UniFrac unweighted) on the **preprocessed** table using `skbio`. Output as `data/processed/beta_distance_matrices.npz` or similar.
@@ -109,10 +109,10 @@ could not find expected ':'
 
 - [ ] T020 [US2] Implement `code/analysis.py`: Calculate partial Spearman rank correlation between alpha diversity (Shannon/Simpson) and PHQ-9/GAD-7 scores. **Implementation**: Regress diversity and scores against covariates (age, BMI) to obtain residuals, then calculate Spearman correlation on residuals using `scipy.stats.spearmanr`. Save unadjusted p-values to `data/interim/unadjusted_alpha_pvals.csv`.
 - [ ] T020a [US2] Implement `code/analysis.py`: Perform partial Spearman correlation for taxa abundance vs PHQ-9/GAD-7. **Implementation**: Regress taxa and scores against covariates (age, BMI) to obtain residuals, then calculate Spearman correlation on residuals using `scipy.stats.spearmanr`. **Constraint**: Do NOT use linear modeling (MaAsLin2) here; strictly follow the partial Spearman requirement. Save unadjusted p-values to `data/interim/unadjusted_taxa_pvals.csv`.
-- [X] T021 [US2] Implement `code/analysis.py`: Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression (PHQ-9 ≥ 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression groups, AND high-anxiety (GAD-7 ≥ 10) and low-anxiety groups. [UNRESOLVED-CLAIM: c_195f72d0 — status=not_enough_info] Use `skbio.stats.distance.permanova` for the permutation-based test, adjusting for covariates via distance matrix residualization.
+- [X] T021 [US2] Implement `code/analysis.py`: Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression (PHQ-9 ≥ 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression groups, AND high-anxiety (GAD-7 ≥ 10) and low-anxiety groups. Use `skbio.stats.distance.permanova` for the permutation-based test, adjusting for covariates via distance matrix residualization.
 - [X] T022 [US2] Implement `code/analysis.py`: Apply Benjamini-Hochberg correction to all unadjusted p-values (from T020, T020a, T021) and report adjusted p-values (q-values).
-- [ ] T023 [US2] **SC-005 Check**: Calculate `|p_adjusted - p_unadjusted|` for each taxon. Identify the maximum delta. Report in `results/temp_covariate_check.txt`: "Max Delta: X.XX. Threshold Met: [True/False]". Do not log a binary 'FAIL' if the threshold is not met; report the actual finding.
-- [ ] T024 [US2] **SC-002 Check**: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on p-value distribution. [UNRESOLVED-CLAIM: c_0084bbb9 — status=not_enough_info]
+- [X] T023 [US2] **SC-005 Check**: Calculate `|p_adjusted - p_unadjusted|` for each taxon. Identify the maximum delta. Report in `results/temp_covariate_check.txt`: "Max Delta: X.XX. Threshold Met: [True/False]". Do not log a binary 'FAIL' if the threshold is not met; report the actual finding.
+- [ ] T024 [US2] **SC-002 Check**: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on p-value distribution. [UNRESOLVED-CLAIM: c_47d0e7d2 — status=not_enough_info]
 - [ ] T025 [US2] Output `data/processed/association_results.csv` with correlation coefficients, unadjusted p-values, adjusted p-values (q-values), and effect directions.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -127,10 +127,10 @@ could not find expected ':'
 
 ### Implementation for User Story 3
 
-- [ ] T026 [Write] [US3] Write unit test cases for plot generation (mock data) in `tests/unit/test_visualization.py`.
+- [X] T026 [Write] [US3] Write unit test cases for plot generation (mock data) in `tests/unit/test_visualization.py`.
 - [ ] T027 [US3] Implement `code/visualization.py`: Generate PCoA plot colored by mental health status (High vs. Low PHQ-9 and GAD-7) with group centroids.
 - [ ] T028 [US3] Implement `code/visualization.py`: Generate heatmap of top associated taxa with color intensity proportional to correlation coefficient.
-- [ ] T029 [US3] Implement `code/report.py`: Generate summary report listing all significant associations (q < 0.05) with direction and magnitude. [UNRESOLVED-CLAIM: c_e3152a37 — status=not_enough_info] Include results from T023 (covariate check) and T024 (KS test) in the report.
+- [ ] T029 [US3] Implement `code/report.py`: Generate summary report listing all significant associations (q < 0.05) with direction and magnitude. Include results from T023 (covariate check) and T024 (KS test) in the report.
 - [ ] T030 [US3] Output `results/plots/pcoa_plot.png`, `results/plots/taxa_heatmap.png`, and `results/summary_report.txt`.
 
 **Checkpoint**: All user stories should now be independently functional

@@ -1,138 +1,121 @@
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
+from code.config import ensure_directories, get_output_path
+from utils.logging import get_logger
 
-# Try to import dotenv; if not present, the functions will raise ImportError
-# when called, forcing the user to install python-dotenv if .env support is needed.
 try:
     from dotenv import load_dotenv
     DOTENV_AVAILABLE = True
 except ImportError:
     DOTENV_AVAILABLE = False
+    load_dotenv = None
 
-from code.config import ensure_directories, get_output_path
-
-
-def load_environment_variables(env_path: Optional[str] = None) -> bool:
+def load_environment_variables(env_path: Optional[str] = None) -> None:
     """
-    Load environment variables from a .env file into os.environ.
-
-    Args:
-        env_path: Path to the .env file. If None, looks for .env in the
-                  project root (parent of 'code' directory).
-
-    Returns:
-        True if loading was successful (or dotenv not available and no path
-        was specified), False if the file was not found or dotenv is missing.
-
-    Raises:
-        ImportError: If a .env file path is provided but python-dotenv is not installed.
-        FileNotFoundError: If the specified .env file does not exist.
+    Load environment variables from a .env file if it exists.
+    If the file is not found, the function simply does nothing (no error raised).
     """
-    if env_path:
-        if not DOTENV_AVAILABLE:
-            raise ImportError(
-                "python-dotenv is required to load a specific .env file. "
-                "Install it via 'pip install python-dotenv'."
-            )
-        env_file = Path(env_path)
-        if not env_file.exists():
-            raise FileNotFoundError(f"Environment file not found: {env_file}")
-        return load_dotenv(str(env_file))
+    if not DOTENV_AVAILABLE:
+        logger = get_logger()
+        logger.warning("python-dotenv is not installed. Environment variables from .env will not be loaded.")
+        return
+
+    if env_path is None:
+        # Look for .env in the project root
+        project_root = Path(__file__).resolve().parent.parent
+        env_file = project_root / ".env"
     else:
-        # Default behavior: look for .env in project root
-        if DOTENV_AVAILABLE:
-            project_root = Path(__file__).resolve().parent.parent
-            env_file = project_root / ".env"
-            if env_file.exists():
-                return load_dotenv(str(env_file))
-        return True
+        env_file = Path(env_path)
 
+    if env_file.exists():
+        load_dotenv(dotenv_path=env_file)
+        logger = get_logger()
+        logger.info(f"Loaded environment variables from {env_file}")
+    else:
+        logger = get_logger()
+        logger.info(f"No .env file found at {env_file}. Using system environment variables.")
 
 def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
     """
     Retrieve a configuration value from environment variables.
-
-    Args:
-        key: The environment variable name.
-        default: Default value if the key is not found.
-
-    Returns:
-        The value as a string, or the default if not found.
+    Falls back to the provided default if the key is not set.
     """
     return os.getenv(key, default)
-
 
 def get_int_config(key: str, default: Optional[int] = None) -> Optional[int]:
     """
     Retrieve an integer configuration value from environment variables.
-
-    Args:
-        key: The environment variable name.
-        default: Default value if the key is not found or cannot be parsed.
-
-    Returns:
-        The value as an integer, or the default.
+    Raises ValueError if the value cannot be converted to int.
     """
-    val = os.getenv(key)
-    if val is None:
+    value = os.getenv(key)
+    if value is None:
         return default
     try:
-        return int(val)
+        return int(value)
     except ValueError:
-        return default
-
+        raise ValueError(f"Environment variable '{key}' must be an integer, got '{value}'")
 
 def get_float_config(key: str, default: Optional[float] = None) -> Optional[float]:
     """
     Retrieve a float configuration value from environment variables.
-
-    Args:
-        key: The environment variable name.
-        default: Default value if the key is not found or cannot be parsed.
-
-    Returns:
-        The value as a float, or the default.
+    Raises ValueError if the value cannot be converted to float.
     """
-    val = os.getenv(key)
-    if val is None:
+    value = os.getenv(key)
+    if value is None:
         return default
     try:
-        return float(val)
+        return float(value)
     except ValueError:
-        return default
-
+        raise ValueError(f"Environment variable '{key}' must be a float, got '{value}'")
 
 def get_bool_config(key: str, default: bool = False) -> bool:
     """
     Retrieve a boolean configuration value from environment variables.
-
-    Args:
-        key: The environment variable name.
-        default: Default value if the key is not found.
-
-    Returns:
-        True if the value is 'true', '1', 'yes', 'on' (case-insensitive).
-        False otherwise.
+    Accepts common boolean string representations: 'true', '1', 'yes', 'on' -> True
+    'false', '0', 'no', 'off' -> False
     """
-    val = os.getenv(key)
-    if val is None:
+    value = os.getenv(key)
+    if value is None:
         return default
-    return val.lower() in ('true', '1', 'yes', 'on')
+    
+    if isinstance(value, bool):
+        return value
 
+    true_values = {'true', '1', 'yes', 'on', 'enabled'}
+    false_values = {'false', '0', 'no', 'off', 'disabled'}
+
+    val_lower = value.lower().strip()
+    
+    if val_lower in true_values:
+        return True
+    elif val_lower in false_values:
+        return False
+    else:
+        raise ValueError(f"Environment variable '{key}' has an invalid boolean value: '{value}'")
 
 def initialize_config() -> Dict[str, Any]:
     """
-    Initialize the configuration by loading .env and ensuring directories exist.
-
-    Returns:
-        A dictionary containing configuration status and paths.
+    Main entry point to initialize the configuration system.
+    1. Loads environment variables from .env if available.
+    2. Ensures necessary directories exist.
+    3. Returns a dictionary of key configuration values.
     """
+    # Load environment variables
     load_environment_variables()
+
+    # Ensure directories
     ensure_directories()
-    
-    return {
-        "dotenv_available": DOTENV_AVAILABLE,
-        "project_root": str(Path(__file__).resolve().parent.parent),
-        "output_path": str(get_output_path()),
+
+    logger = get_logger()
+    logger.info("Configuration initialized successfully.")
+
+    # Return a sample config dict that can be extended
+    config = {
+        "data_dir": get_output_path("data"),
+        "results_dir": get_output_path("results"),
+        "random_seed": get_int_config("RANDOM_SEEED", 42),
+        "verbose": get_bool_config("VERBOSE", False),
     }
+
+    return config
