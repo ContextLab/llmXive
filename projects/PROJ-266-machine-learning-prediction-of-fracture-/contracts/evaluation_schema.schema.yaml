@@ -1,43 +1,74 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Evaluation Schema
-description: Schema for validating model evaluation metrics and configuration.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Schema for Fracture Toughness Prediction Models"
+description: >
+  Contract defining the structure of evaluation results for models predicting
+  fracture toughness (K_IC) from microstructure images. This schema ensures
+  consistent reporting of model performance metrics across different architectures.
 type: object
 required:
   - model_type
   - r_squared
-  - mae
-  - rmse
+  - mean_absolute_error
+  - root_mean_squared_error
 properties:
   model_type:
     type: string
+    description: "Type of model architecture used for evaluation"
     enum:
       - cnn
       - linear
       - random_forest
-    description: Type of model used for evaluation.
   r_squared:
     type: number
-    description: Coefficient of determination (R²).
-  mae:
+    description: "Coefficient of determination (R²) measuring the proportion of variance explained by the model"
+    minimum: -Infinity
+  mean_absolute_error:
     type: number
-    description: Mean Absolute Error.
-  rmse:
+    description: "Mean Absolute Error (MAE) in units of K_IC (MPa√m)"
+    minimum: 0
+  root_mean_squared_error:
     type: number
-    description: Root Mean Square Error.
-  sample_count:
-    type: integer
-    description: Number of samples in the evaluation set.
-  split:
+    description: "Root Mean Squared Error (RMSE) in units of K_IC (MPa√m)"
+    minimum: 0
+  dataset_split:
     type: string
+    description: "The dataset split used for this evaluation (train, val, or test)"
     enum:
       - train
       - val
       - test
-    description: Data split used for evaluation.
-  seed:
+  sample_size:
     type: integer
-    description: Random seed used for reproducibility.
+    description: "Number of samples used in this evaluation"
+    minimum: 1
   timestamp:
     type: string
     format: date-time
-    description: Timestamp of the evaluation run.
+    description: "ISO 8601 timestamp when the evaluation was performed"
+  seeds_used:
+    type: array
+    items:
+      type: integer
+    description: "List of random seeds used for this evaluation run"
+  wilcoxon_p_value:
+    type: number
+    description: "P-value from Wilcoxon signed-rank test comparing against baseline (if applicable)"
+    minimum: 0
+    maximum: 1
+  mae_distribution:
+    type: object
+    description: "Distribution of MAE values across multiple independent runs (for statistical testing)"
+    properties:
+      cnn:
+        type: array
+        items:
+          type: number
+      linear:
+        type: array
+        items:
+          type: number
+      random_forest:
+        type: array
+        items:
+          type: number
+additionalProperties: false

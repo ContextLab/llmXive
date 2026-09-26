@@ -1,228 +1,222 @@
-"""
-Data ingestion and checksum validation infrastructure.
-
-This module provides utilities for validating data integrity using checksums
-(SHA-256) for raw images and metadata files. It ensures that data has not
-been corrupted during transfer or storage.
-
-Dependencies:
-    - hashlib (standard library)
-    - os (standard library)
-    - json (standard library)
-    - pandas (from requirements.txt)
-"""
-
 import os
 import hashlib
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-
 import pandas as pd
+import argparse
+import sys
+
+from code.utils.logger import get_logger
+
+logger = get_logger("ingest")
+
+
+def load_csv(csv_path: str) -> pd.DataFrame:
+    """Load a CSV file into a pandas DataFrame."""
+    path = Path(csv_path)
+    if not path.exists():
+        logger.error(f"CSV file not found: {csv_path}")
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+    
+    logger.info(f"Loading CSV from {csv_path}")
+    df = pd.read_csv(csv_path)
+    logger.info(f"Loaded {len(df)} rows")
+    return df
+
+
+def load_metadata(metadata_path: str) -> List[Dict[str, Any]]:
+    """Load metadata from a JSON file."""
+    path = Path(metadata_path)
+    if not path.exists():
+        logger.error(f"Metadata file not found: {metadata_path}")
+        raise FileNotFoundError(f"Metadata file not found: {metadata_path}")
+    
+    logger.info(f"Loading metadata from {metadata_path}")
+    with open(path, 'r') as f:
+        data = json.load(f)
+    logger.info(f"Loaded {len(data)} metadata entries")
+    return data
+
+
+def validate_kic_values(df: pd.DataFrame) -> Tuple[bool, List[str]]:
+    """
+    Validate that all K_IC values are present and numeric.
+    Returns (is_valid, list_of_errors).
+    """
+    errors = []
+    if 'k_ic' not in df.columns:
+        errors.append("Column 'k_ic' is missing from the dataset.")
+        return False, errors
+    
+    missing_count = df['k_ic'].isna().sum()
+    if missing_count > 0:
+        missing_indices = df[df['k_ic'].isna()].index.tolist()
+        errors.append(f"Found {missing_count} missing K_IC values at indices: {missing_indices}")
+    
+    # Check for non-numeric values
+    non_numeric = df[~df['k_ic'].apply(lambda x: isinstance(x, (int, float)) or (isinstance(x, str) and x.replace('.', '', 1).replace('-', '', 1).isdigit()))]
+    if not non_numeric.empty:
+        errors.append(f"Found {len(non_numeric)} non-numeric K_IC values.")
+    
+    is_valid = len(errors) == 0
+    if not is_valid:
+        for err in errors:
+            logger.error(err)
+    else:
+        logger.info("K_IC validation passed.")
+    
+    return is_valid, errors
+
+
+def validate_image_paths(df: pd.DataFrame, base_dir: Optional[str] = None) -> Tuple[bool, List[str]]:
+    """Validate that image paths exist."""
+    errors = []
+    if 'image_path' not in df.columns:
+        errors.append("Column 'image_path' is missing.")
+        return False, errors
+    
+    missing_paths = []
+    for idx, row in df.iterrows():
+        path_str = row['image_path']
+        full_path = Path(base_dir) / path_str if base_dir else Path(path_str)
+        if not full_path.exists():
+            missing_paths.append(str(full_path))
+    
+    if missing_paths:
+        errors.append(f"Found {len(missing_paths)} missing image files.")
+        logger.warning(f"Missing images: {missing_paths[:5]}...") # Log first 5
+    
+    return len(errors) == 0, errors
+
+
+def validate_metadata_structure(metadata: List[Dict]) -> Tuple[bool, List[str]]:
+    """Validate the structure of the metadata list."""
+    errors = []
+    required_keys = {'image_id', 'image_path', 'alloy_family', 'k_ic'}
+    
+    for i, entry in enumerate(metadata):
+        if not isinstance(entry, dict):
+            errors.append(f"Entry {i} is not a dictionary.")
+            continue
+        
+        missing = required_keys - set(entry.keys())
+        if missing:
+            errors.append(f"Entry {i} missing keys: {missing}")
+    
+    return len(errors) == 0, errors
 
 
 def compute_file_checksum(file_path: str) -> str:
-    """
-    Compute the SHA-256 checksum of a file.
-
-    Reads the file in chunks to handle large files efficiently without
-    loading the entire file into memory.
-
-    Args:
-        file_path: Absolute or relative path to the file.
-
-    Returns:
-        Hexadecimal string representation of the SHA-256 hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
-    """
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    path = Path(file_path)
-
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    try:
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        raise IOError(f"Error reading file {file_path}: {e}")
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 
-def validate_checksum(file_path: str, expected_checksum: str) -> bool:
-    """
-    Validate a file against an expected checksum.
-
-    Args:
-        file_path: Path to the file to validate.
-        expected_checksum: Expected SHA-256 hex string.
-
-    Returns:
-        True if the computed checksum matches the expected one.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
-    """
-    computed = compute_file_checksum(file_path)
-    return computed == expected_checksum
-
-
-def generate_checksum_manifest(directory: str, extensions: Optional[List[str]] = None) -> Dict[str, str]:
-    """
-    Generate a manifest of checksums for all files in a directory.
-
-    Args:
-        directory: Path to the directory to scan.
-        extensions: Optional list of file extensions to include (e.g., ['.png', '.jpg']).
-                   If None, all files are included.
-
-    Returns:
-        Dictionary mapping relative file paths to their SHA-256 checksums.
-    """
-    manifest = {}
-    base_path = Path(directory)
-
-    if not base_path.exists():
-        raise FileNotFoundError(f"Directory not found: {directory}")
-
-    for file_path in base_path.rglob("*"):
-        if file_path.is_file():
-            if extensions is None or file_path.suffix.lower() in [ext.lower() for ext in extensions]:
-                rel_path = str(file_path.relative_to(base_path))
-                manifest[rel_path] = compute_file_checksum(str(file_path))
-
-    return manifest
+def validate_checksum(metadata_file: str, checksum_file: str) -> Tuple[bool, str]:
+    """Validate the checksum of a metadata file against a stored checksum."""
+    if not os.path.exists(metadata_file):
+        return False, f"Metadata file not found: {metadata_file}"
+    if not os.path.exists(checksum_file):
+        return False, f"Checksum file not found: {checksum_file}"
+    
+    with open(checksum_file, 'r') as f:
+        checksum_data = json.load(f)
+    
+    expected_hash = checksum_data.get('sha256')
+    if not expected_hash:
+        return False, "Invalid checksum file format."
+    
+    actual_hash = compute_file_checksum(metadata_file)
+    
+    if actual_hash == expected_hash:
+        logger.info("Checksum validation passed.")
+        return True, "Checksum matches."
+    else:
+        error_msg = f"Checksum mismatch. Expected: {expected_hash}, Got: {actual_hash}"
+        logger.error(error_msg)
+        return False, error_msg
 
 
-def save_checksum_manifest(manifest: Dict[str, str], output_path: str) -> None:
-    """
-    Save a checksum manifest to a JSON file.
-
-    Args:
-        manifest: Dictionary of file paths to checksums.
-        output_path: Path where the JSON manifest should be saved.
-    """
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
+def generate_checksum_manifest(metadata_file: str, output_file: str) -> None:
+    """Generate a manifest file with the checksum of the metadata file."""
+    checksum = compute_file_checksum(metadata_file)
+    manifest = {
+        "metadata_file": metadata_file,
+        "sha256": checksum,
+        "generated_at": str(pd.Timestamp.now())
+    }
+    
+    with open(output_file, 'w') as f:
         json.dump(manifest, f, indent=2)
+    logger.info(f"Checksum manifest written to {output_file}")
 
 
-def load_checksum_manifest(manifest_path: str) -> Dict[str, str]:
-    """
-    Load a checksum manifest from a JSON file.
+def save_checksum_manifest(checksum_data: Dict, output_file: str) -> None:
+    """Save a checksum manifest to a file."""
+    with open(output_file, 'w') as f:
+        json.dump(checksum_data, f, indent=2)
+    logger.info(f"Saved checksum manifest to {output_file}")
 
-    Args:
-        manifest_path: Path to the JSON manifest file.
 
-    Returns:
-        Dictionary of file paths to checksums.
-    """
-    if not Path(manifest_path).exists():
-        return {}
-
-    with open(manifest_path, "r", encoding="utf-8") as f:
+def load_checksum_manifest(manifest_file: str) -> Dict:
+    """Load a checksum manifest from a file."""
+    with open(manifest_file, 'r') as f:
         return json.load(f)
 
 
-def validate_dataset_integrity(
-    data_dir: str,
-    manifest_path: Optional[str] = None
-) -> Tuple[bool, List[str]]:
-    """
-    Validate the integrity of a dataset against a stored manifest.
-
-    If no manifest is provided, one is generated and saved.
-
-    Args:
-        data_dir: Path to the dataset directory.
-        manifest_path: Optional path to an existing manifest. If None,
-                       a new one is generated at `data_dir/.checksum_manifest.json`.
-
-    Returns:
-        Tuple of (is_valid, list_of_failed_files).
-        is_valid is True if all files match their checksums.
-    """
-    if manifest_path is None:
-        manifest_path = os.path.join(data_dir, ".checksum_manifest.json")
-
-    # Check if manifest exists
-    if not os.path.exists(manifest_path):
-        # Generate new manifest
-        manifest = generate_checksum_manifest(data_dir)
-        save_checksum_manifest(manifest, manifest_path)
-        return True, []
-
-    # Load existing manifest
-    manifest = load_checksum_manifest(manifest_path)
-    if not manifest:
-        return True, []
-
-    failed_files = []
-    base_path = Path(data_dir)
-
-    for rel_path, expected_checksum in manifest.items():
-        full_path = base_path / rel_path
-        if not full_path.exists():
-            failed_files.append(f"{rel_path} (MISSING)")
-            continue
-
-        try:
-            computed = compute_file_checksum(str(full_path))
-            if computed != expected_checksum:
-                failed_files.append(f"{rel_path} (MISMATCH: expected {expected_checksum}, got {computed})")
-        except (FileNotFoundError, IOError) as e:
-            failed_files.append(f"{rel_path} (ERROR: {str(e)})")
-
-    return len(failed_files) == 0, failed_files
+def validate_dataset_integrity(metadata_file: str, checksum_file: str) -> bool:
+    """Perform full dataset integrity check."""
+    valid, msg = validate_checksum(metadata_file, checksum_file)
+    if not valid:
+        logger.error(f"Integrity check failed: {msg}")
+        return False
+    
+    try:
+        df = load_csv(metadata_file) # Assuming metadata is CSV or JSON converted
+        # If metadata is JSON, load_metadata would be used instead
+        is_valid_kic, kic_errors = validate_kic_values(df)
+        if not is_valid_kic:
+            logger.error(f"K_IC validation failed: {kic_errors}")
+            return False
+        
+        logger.info("Dataset integrity check passed.")
+        return True
+    except Exception as e:
+        logger.error(f"Error during integrity check: {e}")
+        return False
 
 
 def main():
     """
-    CLI entry point for checksum validation.
-
-    Usage:
-        python code/data/ingest.py validate <data_dir>
-        python code/data/ingest.py generate <data_dir>
+    Main entry point for validation scripts.
+    Usage: python code/data/ingest.py --csv <path_to_csv>
     """
-    import sys
-
-    if len(sys.argv) < 3:
-        print("Usage: python code/data/ingest.py <command> <data_dir>")
-        print("Commands: validate, generate")
-        sys.exit(1)
-
-    command = sys.argv[1]
-    data_dir = sys.argv[2]
-
+    parser = argparse.ArgumentParser(description="Validate dataset ingestion")
+    parser.add_argument('--csv', type=str, required=True, help='Path to the CSV file to validate')
+    args = parser.parse_args()
+    
+    logger.info(f"Starting validation for {args.csv}")
+    
     try:
-        if command == "validate":
-            is_valid, failures = validate_dataset_integrity(data_dir)
-            if is_valid:
-                print(f"Validation passed for {data_dir}")
-            else:
-                print(f"Validation failed for {data_dir}:")
-                for f in failures:
-                    print(f"  - {f}")
-                sys.exit(1)
-
-        elif command == "generate":
-            manifest = generate_checksum_manifest(data_dir)
-            manifest_path = os.path.join(data_dir, ".checksum_manifest.json")
-            save_checksum_manifest(manifest, manifest_path)
-            print(f"Generated checksum manifest: {manifest_path}")
-            print(f"Total files: {len(manifest)}")
-
-        else:
-            print(f"Unknown command: {command}")
+        df = load_csv(args.csv)
+        is_valid, errors = validate_kic_values(df)
+        
+        if not is_valid:
+            logger.error("Validation failed due to missing or invalid K_IC values.")
             sys.exit(1)
-
+        
+        logger.info("Validation successful.")
+        sys.exit(0)
+        
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
     except Exception as e:
-        print(f"Error: {e}")
+        logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 

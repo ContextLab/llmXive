@@ -5,27 +5,66 @@ T003:
     \ or pre\u2011commit hooks) or any other evidence of ruff/black being set up are\
     \ present. The required artifacts to demonstrate that linting and formatting tools\
     \ are configured are missing."
-T005d:
+T005b:
+  c: false
+  h: 085a83ef8cbf40c463322670eb206168937c13a73a6442da59f248b068743821
+  r: "The script `code/utils/benchmark_gen.py` exists, but running it does not create\
+    \ the required `data/benchmarks/generator_runtime_raw.json` file (the file is\
+    \ missing). Consequently the verification command fails, indicating the benchmark\
+    \ script is not fully functional or lacks a proper entry\u2011point to generate\
+    \ the JSON output. The next implementer should ensure the script executes (e.g.,\
+    \ add a `if __name__ == \"__main__\":` block that calls `run_benchmark`) and that\
+    \ the JSON file is written to `data/benchmarks/`."
+T006c#1:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `contracts/dataset_schema.schema.yaml` is missing entirely,
+    so the schema cannot be verified for the new `magnification_calibration` and `section_thickness`
+    fields. The implementer must add the file with the appropriate properties.
+T013:
+  c: false
+  h: 2e9eae0939d55f833da64d39ea746484b20760ead1102e231613253fac1d5b3c
+  r: "The `preprocess.py` file is present but appears truncated (e.g., `normalize_intensity`\
+    \ ends abruptly and there is no visible CLI entry\u2011point that writes images\
+    \ to `data/processed`). Moreover, the expected output file `data/processed/train/sample_001.png`\
+    \ does not exist, so the verification command would fail and the required warning\
+    \ log cannot be confirmed. The pipeline therefore does not meet the task\u2019\
+    s specifications."
+T014:
+  c: false
+  h: 4e26d6f9c9c46d48e9596fee7d8256cbc839fcf6dadacaa54e751671cb8526b5
+  r: The required output file `data/processed/split_metadata.csv` does not exist,
+    and the provided `code/data/preprocess.py` (as shown) contains no implementation
+    of stratified splitting or saving of such metadata. Consequently the verification
+    command would fail.
+T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `research.md` file or its contents were provided, and there is no evidence\
-    \ that it contains the required line \u201CSpec assumed \u2265500; generated \u2265\
-    2000 images\u201D. The task\u2019s verification step cannot be satisfied without\
-    \ the actual file."
-T009:
+  r: "No execution logs, script output, or error messages were provided to demonstrate\
+    \ that running the preprocessing on a dataset containing only \u201Csteel\u201D\
+    \ exits with code\u202F1 and prints the required error text. The required artifact\
+    \ (proof of the validation behavior) is missing."
+T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `projects/PROJ-266-machine-learning-prediction-of-fracture-/research.md`\
-    \ file was presented, nor any content showing the required headings (\u201CIntroduction\u201D\
-    , \u201CMethodology\u201D, \u201CResolution Limits\u201D, \u201CResults\u201D\
-    , \u201CDiscussion\u201D). Without the file or its contents, the task requirement\
-    \ cannot be confirmed. The implementer must provide the actual `research.md` file\
-    \ with the specified sections."
-T053:
+  r: "No `logs/preprocess.log` file or logging configuration/code was provided, and\
+    \ there is no evidence (e.g., grep output) showing lines containing \u201CPREPROCESS\u201D\
+    . The required artifact \u2013 a log file populated with entries formatted as\
+    \ `%(asctime)s - PREPROCESS - %(message)s` after running the preprocessing script\
+    \ \u2013 is missing."
+T021b:
   c: false
-  h: 1ec9e7dc72b4463ac193311984c5bdd04e72b5af1bc1dad96b6c40f3fb9899b1
-  r: "The `synthetic_gen.py` file now includes `magnification_calibration` and `section_thickness`\
-    \ in the per\u2011sample metadata, but no code creates or writes a `data/raw/metadata.json`\
-    \ file, and that file is absent from the repository. Consequently the verification\
-    \ command cannot succeed. The missing JSON output must be generated (e.g., by\
-    \ collecting the metadata from all samples and saving it to `data/raw/metadata.json`)."
+  h: bd7c2db25fa0560aaa8335f13ea2afe7366235f2685d96ab6d5a5dd5f094f877
+  r: The required input file `data/features.json` does not exist, so the script cannot
+    be executed as specified, and the verification command will fail (raising a FileNotFoundError).
+    Without this file the training loop cannot run nor create `models/baselines/linear`.
+    The missing features JSON must be provided (or generated) for the task to be considered
+    complete.
+T022:
+  c: false
+  h: f028605671a73e8ee2c0ede00f9f3b12a9e9594852b12338122a27642dcbcf13
+  r: The `data/features.json` file does not exist, so the verification script cannot
+    load the required `band_pass_spectrum` key. Moreover, the provided `code/data/features.py`
+    is truncated and shows no implementation that writes a JSON file with a `band_pass_spectrum`
+    list, indicating the feature extraction and output steps are missing. The task
+    therefore remains unfinished.

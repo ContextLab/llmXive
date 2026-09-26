@@ -1,8 +1,8 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: Attribution Schema
 description: >
-  Schema for validating Grad-CAM attribution artifacts, including heatmap paths,
-  IoU stability scores, and stability threshold validation results.
+  Schema for storing and validating feature attribution results (Grad-CAM heatmaps)
+  and their stability metrics (IoU scores) across augmented views.
 type: object
 required:
   - image_id
@@ -12,21 +12,23 @@ required:
 properties:
   image_id:
     type: string
-    description: Unique identifier for the source image used for attribution.
+    description: Unique identifier for the source image (matches metadata.json image path base name).
     minLength: 1
   heatmap_paths:
-    type: array
-    description: List of file paths to generated Grad-CAM heatmaps (original and augmented views).
-    items:
-      type: string
-      description: Relative path to a heatmap image file (e.g., PNG).
-      minLength: 1
-    minItems: 1
+    type: object
+    description: Map of attribution method names to file paths of generated heatmaps.
+    properties:
+      gradcam:
+        type: string
+        description: File path to the Grad-CAM heatmap image (PNG).
+        minLength: 1
+    required:
+      - gradcam
   iou_scores:
     type: array
     description: >
-      List of Intersection-over-Union (IoU) scores calculated between the original
-      heatmap and heatmaps from augmented views. Used to measure attribution stability.
+      List of Intersection-over-Union (IoU) scores calculated between the baseline
+      Grad-CAM and heatmaps generated from augmented views of the same image.
     items:
       type: number
       minimum: 0.0
@@ -35,35 +37,30 @@ properties:
   stability_threshold_met:
     type: boolean
     description: >
-      Indicates whether the mean IoU score meets the predefined stability threshold.
-      True if stable, False otherwise.
+      Boolean flag indicating whether the mean IoU score meets or exceeds the
+      configured stability threshold (default 0.75 from CONFIG).
   mean_iou:
     type: number
-    description: The arithmetic mean of the iou_scores list.
+    description: Mean of the iou_scores array.
     minimum: 0.0
     maximum: 1.0
   std_iou:
     type: number
-    description: The standard deviation of the iou_scores list.
+    description: Standard deviation of the iou_scores array.
     minimum: 0.0
-  analysis_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp when the attribution analysis was completed.
-  model_version:
-    type: string
-    description: Version identifier of the model used for generating attributions.
-  augmentation_config:
+  augmentation_params:
     type: object
-    description: Configuration parameters used for the augmentation pipeline.
+    description: Parameters used for the augmentations that generated the IoU scores.
     properties:
       rotation_degrees:
-        type: number
+        type: array
+        items:
+          type: number
+        description: List of rotation angles applied.
       noise_sigma:
         type: number
+        description: Standard deviation of Gaussian noise applied.
       brightness_jitter:
         type: number
-    required:
-      - rotation_degrees
-      - noise_sigma
-      - brightness_jitter
+        description: Brightness jitter factor applied.
+additionalProperties: false

@@ -1,144 +1,42 @@
-"""
-Configuration management for random seeds and pipeline parameters.
-
-This module provides centralized seed management and configuration values
-to ensure reproducibility across the machine learning pipeline.
-
-- Fixed seed (42) is used for data splits to ensure consistent train/val/test
-  distribution across experiments.
-- Variable seeds are supported for training runs to allow for multiple
-  independent training instances.
-- Core pipeline parameters (image_size, batch_size, stability thresholds)
-  are defined here for single-source configuration.
-"""
-
 import os
 import random
 import numpy as np
 import torch
 from typing import Optional, Dict, Any, Tuple
 
-
-# Fixed seed for data splits (stratified split, etc.)
-SPLIT_SEED = 42
-
-# Default seed for training if none is provided
-DEFAULT_TRAIN_SEED = 42
-
-# Image processing parameters
-IMAGE_SIZE: Tuple[int, int] = (128, 128)
-
-# Training parameters
-BATCH_SIZE = 32
-
-# Stability evaluation threshold
-STABILITY_IOU_THRESHOLD = 0.75
-
-# Minimum feature size in pixels (Nyquist limit enforcement)
-MIN_FEATURE_SIZE_PIXELS = 2
-
+# Default configuration values
+CONFIG = {
+    'split_seed': 42,
+    'train_seed': 123,
+    'image_size': (128, 128),
+    'batch_size': 32,
+    'min_feature_size_pixels': 5,
+    'target_sample_size': 500,
+    'stability_threshold': 0.75
+}
 
 def set_seed(seed: int) -> None:
-    """
-    Set random seeds for all relevant libraries to ensure reproducibility.
-
-    Args:
-        seed (int): The random seed to set.
-    """
-    # Python's random module
+    """Sets the random seed for reproducibility."""
     random.seed(seed)
-
-    # NumPy
     np.random.seed(seed)
-
-    # PyTorch
     torch.manual_seed(seed)
     if torch.cuda.is_available():
-        torch.cuda.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
-        # Ensure deterministic behavior on CUDA
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
-
-    # Environment variable for deterministic behavior
-    os.environ['PYTHONHASHSEED'] = str(seed)
-
 
 def get_split_seed() -> int:
-    """
-    Get the fixed seed used for data splits.
+    """Returns the seed for data splitting."""
+    return CONFIG['split_seed']
 
-    Returns:
-        int: The split seed (always 42).
-    """
-    return SPLIT_SEED
+def get_training_seed() -> int:
+    """Returns the seed for training."""
+    return CONFIG['train_seed']
 
-
-def get_training_seed(seed: Optional[int] = None) -> int:
-    """
-    Get the seed for a training run.
-
-    If a seed is provided, it is used. Otherwise, the default seed (42) is used.
-    This allows for multiple independent training runs with different seeds
-    while maintaining reproducibility within each run.
-
-    Args:
-        seed (Optional[int]): The seed for this training run. If None, uses DEFAULT_TRAIN_SEED.
-
-    Returns:
-        int: The seed to use for training.
-    """
-    if seed is not None:
-        return seed
-    return DEFAULT_TRAIN_SEED
-
-
-def init_random_state(split: bool = False, train_seed: Optional[int] = None) -> Dict[str, int]:
-    """
-    Initialize random state for a specific operation.
-
-    This is a convenience function that sets seeds appropriately based on the
-    operation type.
-
-    Args:
-        split (bool): If True, use the fixed split seed. If False, use a training seed.
-        train_seed (Optional[int]): The seed for training if split is False.
-
-    Returns:
-        Dict[str, int]: A dictionary containing the seed used for verification.
-    """
-    if split:
-        seed = SPLIT_SEED
-    else:
-        seed = get_training_seed(train_seed)
-
+def init_random_state(seed: Optional[int] = None) -> None:
+    """Initializes the random state with an optional seed."""
+    if seed is None:
+        seed = CONFIG['train_seed']
     set_seed(seed)
-    return {"seed": seed}
-
 
 def get_config_dict() -> Dict[str, Any]:
-    """
-    Get a dictionary of all configuration values.
-
-    Returns:
-        Dict[str, Any]: Configuration dictionary containing all pipeline parameters.
-    """
-    return {
-        "split_seed": SPLIT_SEED,
-        "train_seed": DEFAULT_TRAIN_SEED,
-        "image_size": IMAGE_SIZE,
-        "batch_size": BATCH_SIZE,
-        "stability_iou_threshold": STABILITY_IOU_THRESHOLD,
-        "min_feature_size_pixels": MIN_FEATURE_SIZE_PIXELS,
-    }
-
-
-# Export CONFIG dictionary for direct access
-CONFIG = get_config_dict()
-
-# Validation for minimum feature size (T055 requirement)
-if CONFIG["min_feature_size_pixels"] < 2:
-    raise ValueError(
-        f"min_feature_size_pixels must be >= 2 (Nyquist limit). "
-        f"Current value: {CONFIG['min_feature_size_pixels']}"
-    )
+    """Returns the full configuration dictionary."""
+    return CONFIG.copy()

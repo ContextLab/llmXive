@@ -1,0 +1,4 @@
+image_id,image_path,alloy_family,k_ic
+sample_001,data/raw/sample_001.png,steel,
+sample_002,data/raw/sample_002.png,Al,120.5
+sample_003,data/raw/sample_003.png,Ti,135.2

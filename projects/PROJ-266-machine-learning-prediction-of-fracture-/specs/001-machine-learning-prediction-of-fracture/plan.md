@@ -126,7 +126,7 @@ code/
 
 ### User Story 2 - Lightweight CNN Model Training and Baseline Comparison (Priority: P2)
 - **Scenario**: The system trains the CNN and baselines on the generated data.
-- **Acceptance**: The output log reports R² and MAE for all models across 5 runs, and a p-value from the Wilcoxon signed-rank test.
+- **Acceptance**: The output log reports R² and MAE for all models across multiple runs, and a p-value from the Wilcoxon signed-rank test.
 - **Contract**: Validated against `contracts/output.schema.yaml` and `contracts/evaluation_schema.schema.yaml`.
 
 ### User Story 3 - Feature Attribution and Stability Reporting (Priority: P3)

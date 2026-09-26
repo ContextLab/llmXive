@@ -1,42 +1,39 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Microstructure Dataset Schema
-description: Schema for validating microstructure image dataset metadata and properties.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fracture Toughness Dataset Schema"
+description: "Schema for the microstructure image dataset used to predict fracture toughness (K_IC)."
+type: "object"
 required:
   - image_id
+  - image_path
   - alloy_family
   - k_ic
   - magnification_calibration
   - section_thickness
 properties:
   image_id:
-    type: string
-    description: Unique identifier for the microstructure image.
+    type: "string"
+    description: "Unique identifier for the image sample."
+  image_path:
+    type: "string"
+    description: "Relative path to the image file within the data/raw directory."
   alloy_family:
-    type: string
+    type: "string"
     enum:
-      - steel
-      - Al
-      - Ti
-    description: The alloy family classification of the sample.
+      - "steel"
+      - "Al"
+      - "Ti"
+    description: "The metallic alloy family of the sample."
   k_ic:
-    type: number
-    description: Fracture toughness value in MPa√m.
+    type: "number"
+    description: "Fracture toughness value (MPa√m). Synthetic ground truth derived from physics-informed logic."
   magnification_calibration:
-    type: number
-    description: Calibration factor in pixels per micron.
+    type: "number"
+    description: "Pixels per micron calibration factor for the image."
   section_thickness:
-    type: number
-    description: Estimated section thickness in nanometers.
-  grain_size:
-    type: number
-    description: Average grain size in microns.
-  precipitate_density:
-    type: number
-    description: Density of precipitates per square micron.
-  file_path:
-    type: string
-    description: Relative path to the image file.
-  checksum:
-    type: string
-    description: SHA256 checksum of the image file.
+    type: "number"
+    description: "Sample thickness in nanometers (proxy for TEM/sectioning preparation)."
+  metadata_version:
+    type: "string"
+    description: "Version of the schema used to generate this record."
+    default: "1.0.0"
+additionalProperties: false

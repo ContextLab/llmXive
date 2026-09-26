@@ -1,1 +1,1 @@
-"""Data module for synthetic microstructure generation and ingestion."""
+"""Data processing modules."""

@@ -6,9 +6,11 @@ import argparse
 from datetime import datetime
 from pathlib import Path
 import logging
+import shutil
 
 from code.data.synthetic_gen import generate_dataset
 from code.utils.logger import get_logger
+from code.utils.config import CONFIG
 
 logger = get_logger(__name__)
 
@@ -19,7 +21,18 @@ def estimate_total_time(num_images: int, sample_time: float) -> float:
     return num_images * sample_time
 
 def run_benchmark(num_images: int = 100, output_dir: str = 'data/benchmarks') -> dict:
-    """Run benchmark for synthetic dataset generation."""
+    """Run benchmark for synthetic dataset generation.
+    
+    Measures the runtime of the synthetic dataset generator by running it
+    on a temporary directory and recording performance metrics.
+    
+    Args:
+        num_images: Number of images to generate for the benchmark run.
+        output_dir: Directory where benchmark results will be saved.
+        
+    Returns:
+        Dictionary containing benchmark results.
+    """
     logger.info(f"Starting benchmark for {num_images} images")
     
     # Create output directory
@@ -27,19 +40,30 @@ def run_benchmark(num_images: int = 100, output_dir: str = 'data/benchmarks') ->
     
     # Warm up
     logger.info("Warming up generator...")
+    warmup_dir = '/tmp/benchmark_warmup'
     try:
-        generate_dataset(output_dir='/tmp/benchmark_warmup', num_images=5, image_size=64)
+        # Ensure temp directory exists and is clean
+        if os.path.exists(warmup_dir):
+            shutil.rmtree(warmup_dir)
+        os.makedirs(warmup_dir, exist_ok=True)
+        generate_dataset(output_dir=warmup_dir, num_images=5, image_size=64)
     except Exception as e:
         logger.warning(f"Warmup failed (ignoring): {e}")
     
-    # Benchmark
-    start_time = time.time()
+    # Benchmark run
+    benchmark_dir = '/tmp/benchmark_run'
     try:
-        generate_dataset(output_dir='/tmp/benchmark_run', num_images=num_images, image_size=128)
+        # Clean up if exists
+        if os.path.exists(benchmark_dir):
+            shutil.rmtree(benchmark_dir)
+        os.makedirs(benchmark_dir, exist_ok=True)
+        
+        start_time = time.time()
+        generate_dataset(output_dir=benchmark_dir, num_images=num_images, image_size=128)
+        end_time = time.time()
     except Exception as e:
         logger.error(f"Benchmark generation failed: {e}")
         raise
-    end_time = time.time()
     
     total_time = end_time - start_time
     images_per_second = num_images / total_time if total_time > 0 else 0.0
@@ -52,14 +76,14 @@ def run_benchmark(num_images: int = 100, output_dir: str = 'data/benchmarks') ->
         'image_size': 128
     }
     
-    # Save results
-    output_path = os.path.join(output_dir, 'generator_runtime.json')
-    with open(output_path, 'w') as f:
+    # Save raw results
+    raw_output_path = os.path.join(output_dir, 'generator_runtime_raw.json')
+    with open(raw_output_path, 'w') as f:
         json.dump(results, f, indent=2)
     
     logger.info(f"Benchmark complete: {total_time:.2f}s for {num_images} images")
     logger.info(f"Performance: {images_per_second:.2f} images/second")
-    logger.info(f"Results saved to {output_path}")
+    logger.info(f"Raw results saved to {raw_output_path}")
     
     return results
 
