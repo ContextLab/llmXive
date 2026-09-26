@@ -1,22 +1,33 @@
 """
-Project Structure Setup Script
+Project Structure Setup Script for llmXive.
 
-This script creates the foundational directory structure required for the
-llmXive automated science pipeline project.
+Creates the required directory hierarchy for the ArcANE gene regulation project.
+Ensures all top-level and nested directories exist before data processing begins.
 """
 import os
 import sys
 from pathlib import Path
+import logging
 
+# Configure logging for the setup script
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Define the directory structure relative to the project root
+# Define the project root relative to this script's location or current working directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent if '__file__' in globals() else Path.cwd()
+
+# Define the required directory structure relative to the project root
+# This matches the specification: src/, tests/, data/, specs/001-gene-regulation/
 DIRECTORIES = [
     "src",
-    "src/analysis",
-    "src/cli",
     "src/lib",
-    "src/models",
     "src/services",
+    "src/analysis",
+    "src/models",
+    "src/cli",
     "src/scripts",
     "tests",
     "tests/unit",
@@ -29,45 +40,69 @@ DIRECTORIES = [
     "specs",
     "specs/001-gene-regulation",
     "specs/001-gene-regulation/contracts",
+    "code", 
+    "scripts"
 ]
 
-PROJECT_ROOT = Path(__file__).parent.resolve()
-
-
-def setup_directories():
+def setup_directories(root_path: Path = None) -> dict:
     """
-    Creates all necessary directories for the project structure.
-    Ensures idempotency by checking existence before creation.
-    """
-    created_count = 0
-    skipped_count = 0
-
-    for dir_path in DIRECTORIES:
-        full_path = PROJECT_ROOT / dir_path
-        if full_path.exists():
-            skipped_count += 1
-            continue
+    Creates all required directories for the project structure.
+    
+    Args:
+        root_path: The base path for the project. Defaults to current working directory.
         
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_count += 1
-        # Create __init__.py in Python package directories
-        if dir_path.startswith("src") or dir_path.startswith("tests"):
-            init_file = full_path / "__init__.py"
-            if not init_file.exists():
-                init_file.touch()
-
-    return created_count, skipped_count
-
+    Returns:
+        dict: A summary of created directories and any errors encountered.
+    """
+    if root_path is None:
+        root_path = PROJECT_ROOT
+    
+    created_dirs = []
+    errors = []
+    
+    logger.info(f"Setting up project structure at: {root_path}")
+    
+    for dir_path in DIRECTORIES:
+        full_path = root_path / dir_path
+        try:
+            if not full_path.exists():
+                full_path.mkdir(parents=True, exist_ok=True)
+                created_dirs.append(str(full_path))
+                logger.debug(f"Created directory: {full_path}")
+            else:
+                logger.debug(f"Directory already exists: {full_path}")
+        except OSError as e:
+            error_msg = f"Failed to create {full_path}: {e}"
+            errors.append(error_msg)
+            logger.error(error_msg)
+    
+    summary = {
+        "root": str(root_path),
+        "directories_created": created_dirs,
+        "directories_skipped": len(DIRECTORIES) - len(created_dirs),
+        "errors": errors,
+        "total_directories": len(DIRECTORIES)
+    }
+    
+    return summary
 
 def main():
-    """Entry point for the setup script."""
-    print(f"Setting up project structure at: {PROJECT_ROOT}")
-    created, skipped = setup_directories()
-    print(f"Directories created: {created}")
-    print(f"Directories skipped (already exist): {skipped}")
-    print("Project structure setup complete.")
-    return 0
-
+    """
+    Main entry point for the setup script.
+    """
+    summary = setup_directories()
+    
+    if summary["errors"]:
+        logger.error(f"Setup completed with {len(summary['errors'])} errors.")
+        for err in summary["errors"]:
+            print(f"ERROR: {err}", file=sys.stderr)
+        sys.exit(1)
+    else:
+        logger.info(f"Successfully created {len(summary['directories_created'])} directories.")
+        logger.info("Project structure is ready.")
+        print(f"Project structure created at: {summary['root']}")
+        print(f"Directories created: {len(summary['directories_created'])}")
+        return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main() or 0)

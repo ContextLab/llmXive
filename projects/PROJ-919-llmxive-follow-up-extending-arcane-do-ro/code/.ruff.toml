@@ -1,47 +1,32 @@
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) by default
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM", "ARG"]
-ignore = []
-
-# Allow autofix for all enabled rules (when `--fix` is provided)
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few files/directories
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "S",   # flake8-bandit (security)
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "S101", # use of assert (acceptable in tests)
 ]
 
-# Same as `per-file-ignores` but for a specific file pattern
-per-file-ignores = {}
-
-# Allow unused variables when they start with an underscore
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-# Target version
-target-version = "py310"
+[lint.per-file-ignores]
+"tests/*" = ["S101", "T201"] # Allow asserts and print in tests
+"scripts/*" = ["T201"]       # Allow print in scripts
 
 [lint.isort]
-known-first-party = ["src", "scripts", "tests", "setup_project_structure", "setup_data_dirs"]
-force-single-line = false
+known-first-party = ["src", "tests", "scripts", "setup_data_dirs", "setup_project_structure"]
+force-single-line = true
 lines-after-imports = 2
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

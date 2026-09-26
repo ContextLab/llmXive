@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,7 +7,7 @@ name = "llmxive-arcane"
 version = "0.1.0"
 description = "Automated science pipeline for character arc analysis"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
     "transformers",
     "llama-cpp-python",
@@ -21,42 +21,43 @@ dependencies = [
     "pytest",
     "sentence-transformers",
     "vaderSentiment",
+    "networkx",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
-    "black",
-    "pytest-cov",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "mypy>=1.0.0",
 ]
+
+[tool.ruff]
+# This file is also referenced by .ruff.toml, but we keep basic project metadata here
+line-length = 88
+target-version = "py39"
+src = ["src", "tests", "scripts"]
 
 [tool.black]
 line-length = 88
-target-version = ['py310']
+target-version = ["py39", "py310", "py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
-[tool.ruff]
-# Same as .ruff.toml but inline for convenience if needed, though .ruff.toml takes precedence
-line-length = 88
-target-version = "py310"
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
-
-[tool.setuptools.packages.find]
-where = ["code"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --tb=short"

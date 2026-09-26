@@ -1,1 +1,22 @@
-[]
+- artifact_hash: aa16759ec63b55c49172e9c3cd8121837bc6c9506217c685a53458f98d5c3371
+  artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-09-26T05:01:27.326862Z'
+- artifact_hash: aa16759ec63b55c49172e9c3cd8121837bc6c9506217c685a53458f98d5c3371
+  artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://example.com/axis.schema.yaml
+  verification_status: mismatch
+  verified_against_url: https://example.com/axis.schema.yaml
+  verified_at: '2026-09-26T05:01:27.326862Z'

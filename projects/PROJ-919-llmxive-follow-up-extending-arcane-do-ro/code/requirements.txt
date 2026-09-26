@@ -8,6 +8,6 @@ numpy
 tiktoken
 hypothesis
 pytest
+sentence-transformers
 ruff
 black
-sentence-transformers

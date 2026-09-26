@@ -1,18 +1,18 @@
-T004:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was provided that the required directories (`data/raw/`, `data/derived/`,\
-    \ `data/gold_standard/`, `artifacts/`) actually exist in the project repository,\
-    \ nor that they contain any files. The implementer\u2019s claim cannot be verified\
-    \ without these concrete artifacts."
-T011:
+  r: No directory listings or file listings were provided showing the required `src/`,
+    `tests/`, `data/`, and `specs/001-gene-regulation/` folders. Without concrete
+    evidence that these folders exist and contain any content, the claim that the
+    project structure was created cannot be verified. The implementer must supply
+    a directory tree or file list confirming the presence of the specified folders.
+T003:
   c: false
-  h: 5243e016ab74a6a68cba2dad07d254602c98c4d26d26c0dcb102c54266c30ecf
-  r: "The `display_axis_output` function is present, but `src/services/axis_generator.py`\
-    \ does not provide the required manual\u2011input interface nor any logic that\
-    \ writes the axes to `data/derived/axes.jsonl` (the file is absent). Consequently\
-    \ the core part of the task\u2014defining axes via interactive/CI modes and serializing\
-    \ them to the expected JSONL file\u2014is not fulfilled."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
+    settings, `.ruff.toml`, or a `requirements-dev.txt` including these tools) or
+    setup scripts are present in the provided evidence. Without such artifacts, the
+    task of configuring ruff and black cannot be verified as completed.
 T021:
   c: false
   h: fdd80b2531e217677d26adb7c3174974b373d4471686af25e7b42bcffcdadb08
