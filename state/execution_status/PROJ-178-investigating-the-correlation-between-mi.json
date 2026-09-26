@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-178-investigating-the-correlation-between-mi",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/run_analysis.py (rc=1); 2 declared deliverable(s) absent: data/processed/mito_aging_dataset.csv; data/validation/log_age_column.json",
+  "artifacts": [],
+  "failures": [
+    "python code/run_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-178-investigating-the-correlation-between-mi/code/run_analysis.py\", line 78, in <module>\n    run_pipeline()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-178-investigating-the-correlation-between-mi/code/run_analysis.py\", line 52, in run_pipeline\n    logger = setup_logging()\n             ^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-178-investigating-the-correlation-between-mi/code/run_analysis.py\", line 11, in setup_logging\n    "
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-26T01:53:44Z"
+}

@@ -2,16 +2,29 @@ import logging
 import os
 import sys
 import time
+import json
 from datetime import datetime
 from pathlib import Path
-from config.environment import get_local_paths
+
+# Add project root to path if running from subdirectory
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from config.environment import get_local_paths, ensure_directories
+from analysis.load_data import main as load_data_main
+from analysis.preprocess import main as preprocess_main
+from analysis.merge_metadata import main as merge_metadata_main
+from analysis.model import main as model_main
+from analysis.sensitivity import main as sensitivity_main
+from analysis.plot_final_figures import main as plot_main
+from analysis.write_dataset import main as write_dataset_main
 
 def setup_logging():
-    """Setup logging configuration for the analysis pipeline."""
-    log_dir = get_local_paths()['logs']
-    os.makedirs(log_dir, exist_ok=True)
+    """Configure logging to file and console."""
+    paths = get_local_paths()
+    ensure_directories([paths['logs']])
     
-    log_file = os.path.join(log_dir, f'analysis_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+    log_file = paths['logs'] / 'pipeline.log'
     
     logging.basicConfig(
         level=logging.INFO,
@@ -21,57 +34,55 @@ def setup_logging():
             logging.StreamHandler(sys.stdout)
         ]
     )
-    return logging.getLogger(__name__)
+    return logging.getLogger('pipeline')
 
 class AnalysisTimer:
-    """Timer to track execution time of analysis stages."""
-    
-    def __init__(self, name: str):
-        self.name = name
+    def __init__(self, logger):
+        self.logger = logger
         self.start_time = None
-        self.end_time = None
-    
-    def __enter__(self):
+        self.total_time = 0
+
+    def start(self):
         self.start_time = time.time()
-        logger = logging.getLogger(__name__)
-        logger.info(f"Starting {self.name}")
-        return self
-    
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.end_time = time.time()
-        elapsed = self.end_time - self.start_time
-        logger = logging.getLogger(__name__)
-        logger.info(f"Completed {self.name} in {elapsed:.2f} seconds")
-        return False
+        self.logger.info("Pipeline started.")
+
+    def stop(self):
+        self.total_time = time.time() - self.start_time
+        self.logger.info(f"Pipeline completed in {self.total_time:.2f} seconds.")
+        return self.total_time
 
 def run_pipeline():
-    """
-    Run the complete analysis pipeline.
-    This orchestrates all tasks from T018 to T020.
-    """
+    """Execute the full analysis pipeline."""
     logger = setup_logging()
-    logger.info("Starting mito-aging correlation analysis pipeline")
+    timer = AnalysisTimer(logger)
     
     try:
-        # Step 1: Merge metadata (T018)
-        with AnalysisTimer("Metadata Merge (T018)"):
-            from analysis.merge_metadata import main as merge_main
-            merge_main()
+        timer.start()
         
-        # Step 2: Clean dataset - apply exclusion logic (T019)
-        with AnalysisTimer("Dataset Cleaning (T019)"):
-            from analysis.clean_dataset import main as clean_main
-            clean_main()
+        # Phase 0: Data Availability Gate (Implicitly handled in load_data/validation)
+        # Note: T007A logic is embedded in load_data.py or run before this if needed.
         
-        # Step 3: Write processed dataset with checksum (T020)
-        with AnalysisTimer("Dataset Writing (T020)"):
-            from analysis.write_dataset import main as write_main
-            write_main()
+        # Phase 3: User Story 1 - Data Acquisition & Preprocessing
+        logger.info("--- Phase 3: Data Acquisition & Preprocessing ---")
+        load_data_main()
+        preprocess_main()
+        merge_metadata_main() # T018: Merge metadata
+        write_dataset_main() # T020: Write final dataset (ensures checksum)
         
-        logger.info("Pipeline completed successfully")
+        # Phase 4: User Story 2 - Statistical Modeling
+        logger.info("--- Phase 4: Statistical Modeling ---")
+        model_main()
+        
+        # Phase 5: User Story 3 - Sensitivity Analysis
+        logger.info("--- Phase 5: Sensitivity Analysis ---")
+        sensitivity_main()
+        plot_main()
+        
+        timer.stop()
+        logger.info("Pipeline finished successfully.")
         
     except Exception as e:
-        logger.error(f"Pipeline failed: {str(e)}")
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
         raise
 
 if __name__ == '__main__':
