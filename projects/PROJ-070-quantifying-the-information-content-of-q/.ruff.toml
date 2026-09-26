@@ -1,3 +1,16 @@
-# Explicit ruff configuration for linting
+# Ruff configuration for llmXive project
+# This file extends the settings in pyproject.toml for IDE compatibility
+# and provides a dedicated entry point for CLI invocations.
+
 extend = "pyproject.toml"
-output-format = "concise"
+
+[lint]
+# Ensure we check for unused imports and variables
+extend-select = ["SIM", "RET", "ARG"]
+ignore = ["SIM108"] # If-else blocks that can be simplified
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

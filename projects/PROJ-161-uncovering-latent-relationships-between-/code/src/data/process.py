@@ -1,294 +1,341 @@
+"""
+Data processing module for molecular descriptor computation and SMILES canonicalization.
+
+This module handles:
+- SMILES canonicalization using RDKit
+- Calculation of standardized RDKit descriptors
+- Filtering of invalid compounds
+- Merging structure and resistance data on InChIKey
+"""
+
 import logging
 import os
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+
 import pandas as pd
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Descriptors
+from rdkit.Chem import Descriptors, rdMolDescriptors
 from rdkit import RDLogger
 
-from src.config import get_project_root, get_data_raw_path, get_data_processed_path
-from src.data.schema import load_data_version_from_file
+from src.config import get_project_root, get_data_processed_path
+from src.data.schema import load_data_version_from_file, save_data_version_to_file
 
-# Disable RDKit warnings for cleaner logs
+# Disable RDKit warnings to keep logs clean
 RDLogger.DisableLog('rdApp.*')
 
 logger = logging.getLogger(__name__)
 
-
-def canonicalize_smiles(smiles: str) -> Optional[str]:
-    """
-    Canonicalize a SMILES string.
-    Returns None if the SMILES is invalid.
-    """
-    if not isinstance(smiles, str) or pd.isna(smiles):
-        return None
-    try:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            return None
-        return Chem.MolToSmiles(mol, isomericSmiles=True)
-    except Exception:
-        return None
+# Standardized set of RDKit descriptors from descList
+# These are the standard descriptors available in rdkit.Chem.Descriptors.descList
+DESCRIPTOR_NAMES = [name for name, _ in Descriptors.descList]
 
 
-def calculate_descriptors(smiles: str) -> Dict[str, float]:
+def canonicalize_smiles(smiles_list: List[str]) -> Tuple[List[Optional[str]], List[int]]:
     """
-    Calculate a standard set of RDKit descriptors for a valid SMILES.
-    Returns a dictionary of descriptor_name: value.
+    Canonicalize a list of SMILES strings.
+
+    Args:
+        smiles_list: List of SMILES strings to canonicalize
+
+    Returns:
+        Tuple of (canonicalized_list, invalid_indices)
+        - canonicalized_list: List where valid SMILES are canonicalized, invalid are None
+        - invalid_indices: List of indices where SMILES were invalid
     """
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        return {}
-    
+    canonicalized = []
+    invalid_indices = []
+
+    for i, smiles in enumerate(smiles_list):
+        if pd.isna(smiles) or not isinstance(smiles, str) or not smiles.strip():
+            canonicalized.append(None)
+            invalid_indices.append(i)
+            continue
+
+        try:
+            mol = Chem.MolFromSmiles(smiles)
+            if mol is None:
+                canonicalized.append(None)
+                invalid_indices.append(i)
+            else:
+                canonical_smiles = Chem.MolToSmiles(mol, canonical=True)
+                canonicalized.append(canonical_smiles)
+        except Exception as e:
+            logger.warning(f"Failed to canonicalize SMILES at index {i}: {e}")
+            canonicalized.append(None)
+            invalid_indices.append(i)
+
+    return canonicalized, invalid_indices
+
+
+def calculate_descriptors(mol: Chem.Mol) -> Dict[str, float]:
+    """
+    Calculate all standard RDKit descriptors for a molecule.
+
+    Args:
+        mol: RDKit Mol object
+
+    Returns:
+        Dictionary mapping descriptor names to values
+    """
     descriptors = {}
     for name, func in Descriptors.descList:
         try:
-            val = func(mol)
-            # Ensure numeric, handle potential NaNs from RDKit
-            if isinstance(val, (int, float)) and not np.isnan(val):
-                descriptors[name] = float(val)
-            else:
-                descriptors[name] = 0.0
-        except Exception:
-            # If a descriptor calculation fails, skip it or set to 0
-            descriptors[name] = 0.0
+            descriptors[name] = func(mol)
+        except Exception as e:
+            # If a descriptor fails, set to NaN and log
+            descriptors[name] = np.nan
+            logger.debug(f"Descriptor {name} failed: {e}")
+
     return descriptors
 
 
-def process_compounds(smiles_df: pd.DataFrame) -> pd.DataFrame:
+def process_compounds(smiles_list: List[str]) -> pd.DataFrame:
     """
-    Process a DataFrame of SMILES: canonicalize, calculate descriptors, and add InChIKey.
-    Excludes invalid compounds.
+    Process a list of SMILES: canonicalize and calculate descriptors.
+
+    Args:
+        smiles_list: List of SMILES strings
+
+    Returns:
+        DataFrame with columns: 'InChIKey', canonicalized SMILES, and all descriptors
     """
-    logger.info(f"Processing {len(smiles_df)} compounds...")
-    
-    # Apply canonicalization
-    smiles_df = smiles_df.copy()
-    smiles_df['canonical_smiles'] = smiles_df['smiles'].apply(canonicalize_smiles)
-    
-    # Filter out invalid SMILES
-    valid_mask = smiles_df['canonical_smiles'].notna()
-    valid_df = smiles_df[valid_mask].reset_index(drop=True)
-    logger.info(f"Valid compounds: {len(valid_df)} (excluded {len(smiles_df) - len(valid_df)})")
-    
-    if valid_df.empty:
+    logger.info(f"Processing {len(smiles_list)} compounds...")
+
+    # Canonicalize SMILES
+    canonicalized, invalid_indices = canonicalize_smiles(smiles_list)
+    logger.info(f"Canonicalized {len(canonicalized) - len(invalid_indices)} compounds, "
+                f"excluded {len(invalid_indices)} invalid")
+
+    # Filter out invalid compounds
+    valid_indices = [i for i in range(len(canonicalized)) if canonicalized[i] is not None]
+    valid_smiles = [canonicalized[i] for i in valid_indices]
+
+    if not valid_smiles:
+        logger.warning("No valid compounds found!")
         return pd.DataFrame()
-    
-    # Calculate InChIKey for merging
-    def get_inchi_key(smiles):
+
+    # Calculate descriptors for valid compounds
+    logger.info("Calculating RDKit descriptors...")
+    data_rows = []
+    for i, smiles in enumerate(valid_smiles):
         mol = Chem.MolFromSmiles(smiles)
-        if mol:
-            return Chem.MolToInchiKey(mol)
-        return None
-    
-    valid_df['inchi_key'] = valid_df['canonical_smiles'].apply(get_inchi_key)
-    valid_df = valid_df[valid_df['inchi_key'].notna()].reset_index(drop=True)
-    logger.info(f"Compounds with valid InChIKey: {len(valid_df)}")
-    
-    # Calculate descriptors
-    logger.info("Calculating descriptors...")
-    descriptor_records = []
-    for idx, row in valid_df.iterrows():
-        if idx % 1000 == 0:
-            logger.info(f"Processed {idx}/{len(valid_df)} compounds for descriptors")
-        descs = calculate_descriptors(row['canonical_smiles'])
-        if descs:
-            record = {
-                'inchi_key': row['inchi_key'],
-                'canonical_smiles': row['canonical_smiles']
-            }
-            record.update(descs)
-            descriptor_records.append(record)
-    
-    if not descriptor_records:
-        logger.warning("No descriptors calculated.")
+        if mol is None:
+            continue
+
+        # Generate InChIKey for merging
+        try:
+            inchi = Chem.MolToInchi(mol)
+            inchikey = Chem.InchiToInchiKey(inchi)
+        except Exception as e:
+            logger.warning(f"Failed to generate InChIKey for {smiles}: {e}")
+            continue
+
+        # Calculate descriptors
+        desc_dict = calculate_descriptors(mol)
+        desc_dict['InChIKey'] = inchikey
+        desc_dict['SMILES'] = smiles
+        data_rows.append(desc_dict)
+
+    if not data_rows:
+        logger.warning("No compounds could be processed after descriptor calculation!")
         return pd.DataFrame()
-    
-    descriptors_df = pd.DataFrame(descriptor_records)
-    logger.info(f"Descriptor matrix shape: {descriptors_df.shape}")
-    return descriptors_df
+
+    # Create DataFrame
+    df = pd.DataFrame(data_rows)
+
+    # Ensure InChIKey is first column
+    cols = ['InChIKey', 'SMILES'] + [c for c in df.columns if c not in ['InChIKey', 'SMILES']]
+    df = df[cols]
+
+    logger.info(f"Processed {len(df)} compounds with {len(DESCRIPTOR_NAMES)} descriptors")
+    return df
 
 
-def merge_structure_and_resistance(structure_df: pd.DataFrame, 
+def merge_structure_and_resistance(structure_df: pd.DataFrame,
                                    resistance_df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Join structure data (descriptors) and resistance data on InChIKey.
-    Flags missing resistance as NaN.
-    
-    Args:
-        structure_df: DataFrame with 'inchi_key' and descriptor columns.
-        resistance_df: DataFrame with 'inchi_key' and resistance metrics.
-        
-    Returns:
-        merged_df: The merged DataFrame.
-        metrics: Dictionary with merge statistics.
-    """
-    if structure_df.empty:
-        logger.warning("Structure DataFrame is empty. Returning empty result.")
-        return pd.DataFrame(), {'total_requested': 0, 'matches': 0, 'fraction': 0.0}
-    
-    if resistance_df.empty:
-        logger.warning("Resistance DataFrame is empty. Returning empty result.")
-        return pd.DataFrame(), {'total_requested': len(structure_df), 'matches': 0, 'fraction': 0.0}
+    Merge structure data with resistance data on InChIKey.
 
-    # Ensure InChIKey is string for consistent merging
+    Args:
+        structure_df: DataFrame with molecular descriptors and InChIKey
+        resistance_df: DataFrame with resistance frequencies and InChIKey
+
+    Returns:
+        Tuple of (merged_df, metrics_dict)
+        - merged_df: Merged DataFrame with NaN for missing resistance data
+        - metrics_dict: Dictionary with merge statistics
+    """
+    logger.info(f"Merging structure data ({len(structure_df)} rows) with "
+                f"resistance data ({len(resistance_df)} rows)")
+
+    # Ensure InChIKey is string for merging
     structure_df = structure_df.copy()
     resistance_df = resistance_df.copy()
-    structure_df['inchi_key'] = structure_df['inchi_key'].astype(str)
-    resistance_df['inchi_key'] = resistance_df['inchi_key'].astype(str)
+    structure_df['InChIKey'] = structure_df['InChIKey'].astype(str)
+    resistance_df['InChIKey'] = resistance_df['InChIKey'].astype(str)
 
-    total_requested = len(structure_df)
-    
-    # Perform left join to keep all structures, flagging missing resistance
+    # Perform left join to keep all structures
     merged_df = pd.merge(
         structure_df,
         resistance_df,
-        on='inchi_key',
+        on='InChIKey',
         how='left'
     )
-    
-    matches = merged_df['inchi_key'].nunique()
-    # Since it's a left join, matches in the context of "having resistance" 
-    # is the count of non-NaN resistance entries. 
-    # However, the task says "flagging missing resistance as NaN", implying
-    # we keep the structure even if resistance is missing.
-    # Let's count how many rows have valid resistance data.
-    # Assuming resistance data columns are not 'inchi_key' and 'canonical_smiles'
-    resistance_cols = [c for c in merged_df.columns if c not in structure_df.columns and c != 'inchi_key']
-    
-    if resistance_cols:
-        has_resistance = merged_df[resistance_cols[0]].notna().sum()
-    else:
-        has_resistance = 0
 
-    fraction = has_resistance / total_requested if total_requested > 0 else 0.0
-    
+    # Calculate metrics
+    total_requested = len(structure_df)
+    matches = merged_df['InChIKey'].notna().sum()  # All should have InChIKey
+    matched_resistance = merged_df[merged_df.columns[~merged_df.columns.isin(['InChIKey', 'SMILES'] + DESCRIPTOR_NAMES)]]
+    resistance_non_null = merged_df[~merged_df[merged_df.columns[~merged_df.columns.isin(['InChIKey', 'SMILES'] + DESCRIPTOR_NAMES)]].isna().all(axis=1)]
+
     metrics = {
         'total_requested': total_requested,
-        'matches': has_resistance,
-        'fraction': fraction,
-        'total_merged_rows': len(merged_df)
+        'matches': len(merged_df),
+        'with_resistance_data': len(resistance_non_null),
+        'fraction_with_resistance': len(resistance_non_null) / total_requested if total_requested > 0 else 0.0
     }
-    
-    logger.info(f"Merge complete: {has_resistance}/{total_requested} matches ({fraction:.2%})")
+
+    logger.info(f"Merge complete: {metrics['with_resistance_data']} of {total_requested} "
+                f"compounds have resistance data ({metrics['fraction_with_resistance']:.2%})")
+
     return merged_df, metrics
 
 
-def run_process_pipeline() -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def run_process_pipeline(chembl_path: Optional[str] = None,
+                         zinc_path: Optional[str] = None,
+                         ncbi_path: Optional[str] = None,
+                         output_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Main pipeline function:
-    1. Load downloaded raw data (SMILES and Resistance).
-    2. Process compounds (canonicalize, descriptors, InChIKey).
-    3. Merge on InChIKey.
-    4. Save intermediate and final outputs.
-    
+    Run the full processing pipeline: load, canonicalize, calculate descriptors, merge.
+
+    Args:
+        chembl_path: Path to ChEMBL SMILES file (optional)
+        zinc_path: Path to ZINC15 SMILES file (optional)
+        ncbi_path: Path to NCBI resistance data file (optional)
+        output_path: Path to save processed data (optional, defaults to config)
+
     Returns:
-        merged_df: The final merged DataFrame.
-        metrics: Merge metrics.
+        Processed DataFrame
     """
-    root = get_project_root()
-    raw_path = get_data_raw_path()
-    processed_path = get_data_processed_path()
-    
-    # Ensure directories exist
-    processed_path.mkdir(parents=True, exist_ok=True)
-    
-    # Load raw SMILES data (assumed to be downloaded by T013)
-    # Expected file: data/raw/chembl_smiles.csv or similar
-    # We need to identify the specific file name from the download step.
-    # Assuming standard naming based on T013:
-    chembl_file = raw_path / "chembl_smiles.csv"
-    zinc_file = raw_path / "zinc15_smiles.csv"
-    ncbi_file = raw_path / "ncbi_resistance_frequencies.csv"
-    
-    if not chembl_file.exists() and not zinc_file.exists():
-        raise FileNotFoundError(f"Raw SMILES files not found in {raw_path}. "
-                                f"Run download pipeline first.")
-    
-    # Load and combine SMILES sources
-    smiles_dfs = []
-    if chembl_file.exists():
-        df = pd.read_csv(chembl_file)
-        if 'smiles' in df.columns:
-            smiles_dfs.append(df)
-        else:
-            logger.warning(f"{chembl_file} does not contain 'smiles' column.")
-    
-    if zinc_file.exists():
-        df = pd.read_csv(zinc_file)
-        if 'smiles' in df.columns:
-            smiles_dfs.append(df)
-        else:
-            logger.warning(f"{zinc_file} does not contain 'smiles' column.")
-    
-    if not smiles_dfs:
-        raise ValueError("No valid SMILES data found.")
-    
-    all_smiles_df = pd.concat(smiles_dfs, ignore_index=True)
-    logger.info(f"Loaded {len(all_smiles_df)} total SMILES entries.")
-    
-    # Process compounds (T014 logic)
-    processed_df = process_compounds(all_smiles_df)
-    
-    if processed_df.empty:
-        logger.error("No valid compounds processed. Stopping.")
-        return pd.DataFrame(), {}
-    
-    # Save processed descriptors (intermediate)
-    descriptors_path = processed_path / "descriptors.csv"
-    processed_df.to_csv(descriptors_path, index=False)
-    logger.info(f"Saved descriptors to {descriptors_path}")
-    
-    # Load resistance data
-    if not ncbi_file.exists():
-        raise FileNotFoundError(f"Resistance data file not found: {ncbi_file}. "
-                                f"Run download pipeline first.")
-    
-    resistance_df = pd.read_csv(ncbi_file)
-    logger.info(f"Loaded {len(resistance_df)} resistance entries.")
-    
-    # Merge (T015 logic)
-    merged_df, metrics = merge_structure_and_resistance(processed_df, resistance_df)
-    
-    if merged_df.empty:
-        logger.warning("Merge resulted in empty DataFrame.")
-        return pd.DataFrame(), metrics
-    
-    # Save merged data
-    merged_path = processed_path / "merged_data.csv"
-    merged_df.to_csv(merged_path, index=False)
-    logger.info(f"Saved merged data to {merged_path}")
-    
-    # Save metrics (T016 logic - generating the metrics file)
-    metrics_path = processed_path / "merge_metrics.json"
-    import json
-    with open(metrics_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    logger.info(f"Saved merge metrics to {metrics_path}")
-    
-    return merged_df, metrics
+    project_root = get_project_root()
+    processed_dir = get_data_processed_path()
+
+    # Load structure data (ChEMBL and/or ZINC15)
+    all_structures = []
+
+    if chembl_path:
+        chembl_path = Path(chembl_path)
+        if chembl_path.exists():
+            logger.info(f"Loading ChEMBL data from {chembl_path}")
+            df_chembl = pd.read_csv(chembl_path)
+            if 'SMILES' in df_chembl.columns:
+                all_structures.append(df_chembl['SMILES'].tolist())
+            else:
+                logger.warning(f"ChEMBL file {chembl_path} has no SMILES column")
+
+    if zinc_path:
+        zinc_path = Path(zinc_path)
+        if zinc_path.exists():
+            logger.info(f"Loading ZINC15 data from {zinc_path}")
+            df_zinc = pd.read_csv(zinc_path)
+            if 'SMILES' in df_zinc.columns:
+                all_structures.append(df_zinc['SMILES'].tolist())
+            else:
+                logger.warning(f"ZINC15 file {zinc_path} has no SMILES column")
+
+    if not all_structures:
+        raise ValueError("No structure data files provided or found")
+
+    # Combine all SMILES
+    all_smiles = []
+    for structure_list in all_structures:
+        all_smiles.extend(structure_list)
+
+    logger.info(f"Total SMILES to process: {len(all_smiles)}")
+
+    # Process compounds
+    structure_df = process_compounds(all_smiles)
+
+    if structure_df.empty:
+        raise ValueError("No valid compounds could be processed")
+
+    # Merge with resistance data if provided
+    if ncbi_path:
+        ncbi_path = Path(ncbi_path)
+        if ncbi_path.exists():
+            logger.info(f"Loading NCBI resistance data from {ncbi_path}")
+            resistance_df = pd.read_csv(ncbi_path)
+
+            # Standardize column names if needed
+            if 'InChIKey' not in resistance_df.columns:
+                # Try to find a similar column
+                for col in resistance_df.columns:
+                    if 'inchi' in col.lower() or 'key' in col.lower():
+                        resistance_df = resistance_df.rename(columns={col: 'InChIKey'})
+                        break
+
+            if 'InChIKey' in resistance_df.columns:
+                structure_df, metrics = merge_structure_and_resistance(structure_df, resistance_df)
+
+                # Save merge metrics
+                metrics_path = processed_dir / 'merge_metrics.json'
+                import json
+                with open(metrics_path, 'w') as f:
+                    json.dump(metrics, f, indent=2)
+                logger.info(f"Saved merge metrics to {metrics_path}")
+            else:
+                logger.warning("NCBI file has no InChIKey column, skipping merge")
+    else:
+        logger.info("No NCBI path provided, skipping resistance merge")
+
+    # Save processed data
+    if output_path is None:
+        output_path = processed_dir / 'descriptors.csv'
+    else:
+        output_path = Path(output_path)
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    structure_df.to_csv(output_path, index=False)
+    logger.info(f"Saved processed data to {output_path}")
+
+    return structure_df
 
 
 def main():
-    """Entry point for running the process pipeline."""
+    """Main entry point for the processing pipeline."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    
+
+    project_root = get_project_root()
+    processed_dir = get_data_processed_path()
+
+    # Default paths based on download.py outputs
+    chembl_path = project_root / 'data' / 'raw' / 'chembl_smiles.csv'
+    zinc_path = project_root / 'data' / 'raw' / 'zinc15_smiles.csv'
+    ncbi_path = project_root / 'data' / 'raw' / 'ncbi_resistance.csv'
+    output_path = processed_dir / 'descriptors.csv'
+
+    # Check if any structure data exists
+    if not chembl_path.exists() and not zinc_path.exists():
+        logger.error("No structure data found. Please run download.py first.")
+        return
+
     try:
-        merged_df, metrics = run_process_pipeline()
-        if not merged_df.empty:
-            logger.info("Pipeline completed successfully.")
-            logger.info(f"Final dataset shape: {merged_df.shape}")
-            logger.info(f"Merge fraction: {metrics.get('fraction', 0):.2%}")
-        else:
-            logger.error("Pipeline finished but no data was merged.")
+        df = run_process_pipeline(
+            chembl_path=str(chembl_path) if chembl_path.exists() else None,
+            zinc_path=str(zinc_path) if zinc_path.exists() else None,
+            ncbi_path=str(ncbi_path) if ncbi_path.exists() else None,
+            output_path=str(output_path)
+        )
+        logger.info(f"Pipeline completed successfully. Processed {len(df)} compounds.")
     except Exception as e:
-        logger.exception(f"Pipeline failed: {e}")
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
         raise
 
-if __name__ == "__main__":
+
+if __name__ == '__main__':
     main()

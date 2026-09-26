@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Data Version Metadata",
+  "description": "Schema for tracking data provenance, integrity, and versioning in the llmXive pipeline.",
+  "type": "object",
+  "properties": {
+    "source_url": {
+      "type": "string",
+      "format": "uri",
+      "description": "The exact URL or identifier from which the data was retrieved.",
+      "examples": [
+        "https://ftp.ncbi.nlm.nih.gov/pathogen/antimicrobial_resistance/",
+        "https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/chembl_33_molstandardize.sdf.gz"
+      ]
+    },
+    "checksum_sha256": {
+      "type": "string",
+      "pattern": "^[a-fA-F0-9]{64}$",
+      "description": "The SHA-256 hexadecimal checksum of the downloaded raw file to ensure integrity."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp (UTC) indicating when the data was fetched or verified.",
+      "examples": [
+        "2023-10-27T14:30:00Z"
+      ]
+    }
+  },
+  "required": [
+    "source_url",
+    "checksum_sha256",
+    "timestamp"
+  ],
+  "additionalProperties": false
+}

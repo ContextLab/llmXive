@@ -79,7 +79,7 @@
 
 - [X] T010 [P] [US1] Unit test for SMILES canonicalization and invalid SMILES exclusion in `tests/unit/test_data.py`
 - [X] T011 [P] [US1] Unit test for merge logic on InChIKey (handling missing data/NaNs) in `tests/unit/test_data.py`
-- [ ] T012 [P] [US1] Integration test for end-to-end fetch and descriptor calculation on a small sample of compounds in `tests/integration/test_data.py`
+- [ ] T012 [P] [US1] Integration test for end-to-end fetch and descriptor calculation on a small sample of compounds in `tests/integration/test_data.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 

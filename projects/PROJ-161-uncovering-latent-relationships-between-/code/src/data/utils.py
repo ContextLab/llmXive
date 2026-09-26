@@ -1,8 +1,8 @@
 """
 Utility functions for data fetching with robust error handling.
 
-This module provides retry logic with exponential backoff for network requests,
-ensuring resilience against transient failures during API/FTP fetches.
+This module provides exponential backoff wrappers for API/FTP fetches
+to handle transient network failures gracefully.
 """
 import time
 import logging
@@ -10,28 +10,14 @@ import urllib.request
 import urllib.error
 from typing import Callable, Any, Optional, Union
 from pathlib import Path
+import socket
 
 logger = logging.getLogger(__name__)
 
 
 class FetchError(Exception):
-    """
-    Custom exception for fetch failures after all retries are exhausted.
-    
-    Attributes:
-        message (str): Human-readable error message.
-        last_exception (Exception): The underlying exception that caused the final failure.
-        attempts (int): Number of attempts made before giving up.
-    """
-    def __init__(self, message: str, last_exception: Exception, attempts: int):
-        super().__init__(message)
-        self.message = message
-        self.last_exception = last_exception
-        self.attempts = attempts
-
-    def __str__(self) -> str:
-        return (f"{self.message} (Last error: {self.last_exception}, "
-                f"Attempts: {self.attempts})")
+    """Custom exception for data fetching failures."""
+    pass
 
 
 def fetch_with_backoff(
@@ -39,92 +25,104 @@ def fetch_with_backoff(
     max_retries: int = 5,
     base_delay: float = 1.0,
     max_delay: float = 60.0,
-    exponential_base: float = 2.0,
-    jitter: bool = True,
-    timeout: float = 30.0
+    timeout: float = 30.0,
+    extra_retry_codes: Optional[list] = None
 ) -> str:
     """
     Fetch content from a URL with exponential backoff retry logic.
     
-    This function attempts to fetch text content from the given URL. If a transient
-    network error occurs (e.g., connection timeout, 5xx server error), it retries
-    with an exponentially increasing delay until max_retries is reached.
+    This function attempts to fetch text content from a URL, retrying on
+    transient failures (network timeouts, HTTP 5xx, HTTP 429) with
+    exponentially increasing delays between attempts.
     
     Args:
-        url (str): The URL to fetch.
-        max_retries (int): Maximum number of retry attempts.
-        base_delay (float): Initial delay in seconds before the first retry.
-        max_delay (float): Maximum delay cap in seconds.
-        exponential_base (float): Base for exponential delay calculation.
-        jitter (bool): If True, adds random jitter to delay to prevent thundering herd.
-        timeout (float): Request timeout in seconds.
-    
+        url: The URL to fetch content from.
+        max_retries: Maximum number of retry attempts (default: 5).
+        base_delay: Initial delay in seconds between retries (default: 1.0).
+        max_delay: Maximum delay cap in seconds (default: 60.0).
+        timeout: Request timeout in seconds (default: 30.0).
+        extra_retry_codes: Additional HTTP status codes to retry on.
+        
     Returns:
-        str: The decoded text content of the response.
-    
+        The fetched content as a string.
+        
     Raises:
-        FetchError: If all retries are exhausted or a non-retryable error occurs.
-        ValueError: If the URL is invalid or empty.
+        FetchError: If all retry attempts fail or a non-retryable error occurs.
+        urllib.error.URLError: If the URL is invalid or unreachable.
+        urllib.error.HTTPError: If an HTTP error occurs that is not retryable.
     """
-    if not url or not isinstance(url, str):
-        raise ValueError("URL must be a non-empty string")
-
-    attempt = 0
-    last_exception: Optional[Exception] = None
-
-    while attempt <= max_retries:
+    retry_codes = {429, 500, 502, 503, 504}
+    if extra_retry_codes:
+        retry_codes.update(extra_retry_codes)
+    
+    last_exception = None
+    
+    for attempt in range(max_retries + 1):
         try:
-            logger.info(f"Fetching {url} (Attempt {attempt + 1}/{max_retries + 1})")
+            logger.info(f"Fetching {url} (attempt {attempt + 1}/{max_retries + 1})")
             
-            with urllib.request.urlopen(url, timeout=timeout) as response:
-                # Check for HTTP errors
-                if response.status >= 400:
-                    # 4xx are client errors, usually not retryable unless 429
-                    if response.status == 429:  # Too Many Requests
-                        pass  # Treat as retryable
-                    elif response.status >= 500:
-                        pass  # Retryable server error
-                    else:
-                        raise FetchError(
-                            f"Non-retryable HTTP error {response.status}",
-                            urllib.error.HTTPError(url, response.status, response.reason, None, None),
-                            attempt + 1
-                        )
+            req = urllib.request.Request(url, headers={'User-Agent': 'llmXive-Research/1.0'})
+            
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                # Check HTTP status code
+                status_code = response.getcode()
+                if status_code in retry_codes and attempt < max_retries:
+                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    logger.warning(
+                        f"HTTP {status_code} received. Retrying in {delay:.1f}s..."
+                    )
+                    time.sleep(delay)
+                    continue
                 
-                content = response.read().decode('utf-8')
-                logger.info(f"Successfully fetched {url}")
-                return content
-
-        except (urllib.error.URLError, urllib.error.HTTPError, OSError, TimeoutError) as e:
+                if status_code != 200:
+                    raise FetchError(
+                        f"HTTP {status_code} for {url} - not retryable"
+                    )
+                
+                return response.read().decode('utf-8')
+                
+        except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout, 
+               ConnectionResetError, TimeoutError) as e:
             last_exception = e
-            attempt += 1
             
-            if attempt > max_retries:
-                logger.error(f"Failed to fetch {url} after {max_retries} retries")
-                raise FetchError(
-                    f"Failed to fetch {url} after {max_retries} retries",
-                    last_exception,
-                    attempt
-                ) from last_exception
-
-            # Calculate delay with exponential backoff
-            delay = min(base_delay * (exponential_base ** (attempt - 1)), max_delay)
+            # Check if this is a retryable error
+            if isinstance(e, urllib.error.HTTPError) and e.code in retry_codes:
+                if attempt < max_retries:
+                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    logger.warning(
+                        f"HTTP {e.code} received. Retrying in {delay:.1f}s..."
+                    )
+                    time.sleep(delay)
+                    continue
+                else:
+                    raise FetchError(
+                        f"Failed after {max_retries + 1} attempts: HTTP {e.code} - {str(e)}"
+                    ) from e
             
-            if jitter:
-                import random
-                delay = delay * (0.5 + random.random())  # Add +/- 50% jitter
+            elif isinstance(e, (urllib.error.URLError, socket.timeout, 
+                               ConnectionResetError, TimeoutError)):
+                if attempt < max_retries:
+                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    logger.warning(
+                        f"Network error: {type(e).__name__}. Retrying in {delay:.1f}s..."
+                    )
+                    time.sleep(delay)
+                    continue
+                else:
+                    raise FetchError(
+                        f"Failed after {max_retries + 1} attempts: {type(e).__name__} - {str(e)}"
+                    ) from e
             
-            logger.warning(
-                f"Transient error fetching {url}: {e}. "
-                f"Retrying in {delay:.2f}s (Attempt {attempt}/{max_retries})"
-            )
-            time.sleep(delay)
-
-    # Should not reach here, but safe fallback
+            else:
+                # Non-retryable error
+                raise FetchError(f"Fatal error fetching {url}: {str(e)}") from e
+                
+        except Exception as e:
+            raise FetchError(f"Unexpected error fetching {url}: {str(e)}") from e
+    
+    # Should not reach here, but just in case
     raise FetchError(
-        f"Unexpected termination of fetch loop for {url}",
-        last_exception or Exception("Unknown error"),
-        attempt
+        f"Exhausted all retry attempts for {url}. Last error: {str(last_exception)}"
     )
 
 
@@ -133,84 +131,98 @@ def fetch_with_backoff_bytes(
     max_retries: int = 5,
     base_delay: float = 1.0,
     max_delay: float = 60.0,
-    exponential_base: float = 2.0,
-    jitter: bool = True,
-    timeout: float = 30.0
+    timeout: float = 30.0,
+    extra_retry_codes: Optional[list] = None
 ) -> bytes:
     """
     Fetch binary content from a URL with exponential backoff retry logic.
     
-    Similar to `fetch_with_backoff`, but returns raw bytes instead of decoded text.
-    Useful for downloading files like images, archives, or binary data formats.
+    This function is similar to fetch_with_backoff but returns raw bytes
+    instead of decoding to string. Useful for downloading files, images,
+    or other binary data.
     
     Args:
-        url (str): The URL to fetch.
-        max_retries (int): Maximum number of retry attempts.
-        base_delay (float): Initial delay in seconds before the first retry.
-        max_delay (float): Maximum delay cap in seconds.
-        exponential_base (float): Base for exponential delay calculation.
-        jitter (bool): If True, adds random jitter to delay to prevent thundering herd.
-        timeout (float): Request timeout in seconds.
-    
+        url: The URL to fetch content from.
+        max_retries: Maximum number of retry attempts (default: 5).
+        base_delay: Initial delay in seconds between retries (default: 1.0).
+        max_delay: Maximum delay cap in seconds (default: 60.0).
+        timeout: Request timeout in seconds (default: 30.0).
+        extra_retry_codes: Additional HTTP status codes to retry on.
+        
     Returns:
-        bytes: The raw binary content of the response.
-    
+        The fetched content as bytes.
+        
     Raises:
-        FetchError: If all retries are exhausted or a non-retryable error occurs.
-        ValueError: If the URL is invalid or empty.
+        FetchError: If all retry attempts fail or a non-retryable error occurs.
+        urllib.error.URLError: If the URL is invalid or unreachable.
+        urllib.error.HTTPError: If an HTTP error occurs that is not retryable.
     """
-    if not url or not isinstance(url, str):
-        raise ValueError("URL must be a non-empty string")
-
-    attempt = 0
-    last_exception: Optional[Exception] = None
-
-    while attempt <= max_retries:
+    retry_codes = {429, 500, 502, 503, 504}
+    if extra_retry_codes:
+        retry_codes.update(extra_retry_codes)
+    
+    last_exception = None
+    
+    for attempt in range(max_retries + 1):
         try:
-            logger.info(f"Fetching binary data from {url} (Attempt {attempt + 1}/{max_retries + 1})")
+            logger.info(f"Fetching {url} (attempt {attempt + 1}/{max_retries + 1})")
             
-            with urllib.request.urlopen(url, timeout=timeout) as response:
-                if response.status >= 400:
-                    if response.status == 429 or response.status >= 500:
-                        pass  # Retryable
-                    else:
-                        raise FetchError(
-                            f"Non-retryable HTTP error {response.status}",
-                            urllib.error.HTTPError(url, response.status, response.reason, None, None),
-                            attempt + 1
-                        )
+            req = urllib.request.Request(url, headers={'User-Agent': 'llmXive-Research/1.0'})
+            
+            with urllib.request.urlopen(req, timeout=timeout) as response:
+                status_code = response.getcode()
+                if status_code in retry_codes and attempt < max_retries:
+                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    logger.warning(
+                        f"HTTP {status_code} received. Retrying in {delay:.1f}s..."
+                    )
+                    time.sleep(delay)
+                    continue
                 
-                content = response.read()
-                logger.info(f"Successfully fetched binary data from {url} ({len(content)} bytes)")
-                return content
-
-        except (urllib.error.URLError, urllib.error.HTTPError, OSError, TimeoutError) as e:
+                if status_code != 200:
+                    raise FetchError(
+                        f"HTTP {status_code} for {url} - not retryable"
+                    )
+                
+                return response.read()
+                
+        except (urllib.error.HTTPError, urllib.error.URLError, socket.timeout, 
+               ConnectionResetError, TimeoutError) as e:
             last_exception = e
-            attempt += 1
             
-            if attempt > max_retries:
-                logger.error(f"Failed to fetch {url} after {max_retries} retries")
-                raise FetchError(
-                    f"Failed to fetch {url} after {max_retries} retries",
-                    last_exception,
-                    attempt
-                ) from last_exception
-
-            # Calculate delay with exponential backoff
-            delay = min(base_delay * (exponential_base ** (attempt - 1)), max_delay)
+            if isinstance(e, urllib.error.HTTPError) and e.code in retry_codes:
+                if attempt < max_retries:
+                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    logger.warning(
+                        f"HTTP {e.code} received. Retrying in {delay:.1f}s..."
+                    )
+                    time.sleep(delay)
+                    continue
+                else:
+                    raise FetchError(
+                        f"Failed after {max_retries + 1} attempts: HTTP {e.code} - {str(e)}"
+                    ) from e
             
-            if jitter:
-                import random
-                delay = delay * (0.5 + random.random())
+            elif isinstance(e, (urllib.error.URLError, socket.timeout, 
+                               ConnectionResetError, TimeoutError)):
+                if attempt < max_retries:
+                    delay = min(base_delay * (2 ** attempt), max_delay)
+                    logger.warning(
+                        f"Network error: {type(e).__name__}. Retrying in {delay:.1f}s..."
+                    )
+                    time.sleep(delay)
+                    continue
+                else:
+                    raise FetchError(
+                        f"Failed after {max_retries + 1} attempts: {type(e).__name__} - {str(e)}"
+                    ) from e
             
-            logger.warning(
-                f"Transient error fetching {url}: {e}. "
-                f"Retrying in {delay:.2f}s (Attempt {attempt}/{max_retries})"
-            )
-            time.sleep(delay)
-
+            else:
+                raise FetchError(f"Fatal error fetching {url}: {str(e)}") from e
+                
+        except Exception as e:
+            raise FetchError(f"Unexpected error fetching {url}: {str(e)}") from e
+    
     raise FetchError(
-        f"Unexpected termination of fetch loop for {url}",
-        last_exception or Exception("Unknown error"),
-        attempt
+        f"Exhausted all retry attempts for {url}. Last error: {str(last_exception)}"
     )

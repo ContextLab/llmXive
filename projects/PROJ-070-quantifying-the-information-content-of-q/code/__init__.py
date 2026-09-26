@@ -1,3 +1,1 @@
-"""
-Main package for the Quantum Entanglement Information Content project.
-"""
+# llmXive Project: Quantifying the Information Content of Quantum Entanglement

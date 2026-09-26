@@ -85,7 +85,7 @@
 
 - [X] T013 [US1] Implement Exact Diagonalization (ED) generator in `code/data_loader.py` for N <= 20 using `scipy.sparse.linalg.eigsh` (Output: raw wavefunction coefficients in HDF5). Depends on T005b.
 - [X] T014 [US1] Implement DMRG generator in `code/data_loader.py` for N > 20 using `tenpy` with streaming/chunked processing to stay within RAM (Output: raw wavefunction coefficients in HDF5). Depends on T005b.
-- [ ] T015 [US1] Implement bipartite entanglement entropy calculation in `code/metrics.py` using sparse SVD (`scipy.sparse.linalg.svds` with ARPACK). **MUST convert reduced density matrix to CSR/CSC format before calling svds**. Input: T013/T014 output. Output: Entanglement entropy and entropy per spin written to `data/processed/entanglement_metrics.csv`.
+- [X] T015 [US1] Implement bipartite entanglement entropy calculation in `code/metrics.py` using sparse SVD (`scipy.sparse.linalg.svds` with ARPACK). **MUST convert reduced density matrix to CSR/CSC format before calling svds**. Input: T013/T014 output. Output: Entanglement entropy and entropy per spin written to `data/processed/entanglement_metrics.csv`.
 - [X] T016 [US1] Implement complexity estimation in `code/metrics.py`: 1) **Quantize raw wavefunction coefficients to fixed-point signed integers** (16-bit) per FR-003a; 2) **Generate an internal size-matched random baseline** (random phases on product basis) locally for the NCD calculation; 3) Calculate **Normalized Compression Distance (NCD)** using gzip/lzma/bzip2 on the **quantized full wavefunction coefficients** relative to the internal baseline; 4) Output NCD as the primary complexity metric. **Self-contained: does not depend on T023**.
 - [X] T017 [US1] Implement correlation analysis in `code/statistics.py` using **partial correlation controlling for system size N** and **stratified analysis** (entropy per spin) to decouple system size from entanglement structure.
 - [X] T018 [US1] Implement scatter plot generation with regression line and annotations in `code/viz.py`
@@ -105,15 +105,15 @@
 
 - [X] T020 [P] [US2] Unit test for random product state generation in `tests/unit/test_null_models.py`
 - [X] T021 [P] [US2] Unit test for Haar-random ensemble generation in `tests/unit/test_null_models.py`
-- [ ] T022 [P] [US2] Integration test for null model comparison statistics in `tests/integration/test_us2_null_models.py`
+- [X] T022 [P] [US2] Integration test for null model comparison statistics in `tests/integration/test_us2_null_models.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement random product state generator in `code/null_models.py` (random phases on product basis). **Generates the full set of random product states for comparative analysis (FR-010), distinct from the internal baseline used in T016**.
-- [ ] T024 [US2] Implement Haar-random pure state ensemble generator in `code/null_models.py` (a sample set of states) to approximate maximally mixed states.
-- [ ] T025 [US2] Implement metric calculation for null models in `code/metrics.py` (reusing US1 logic for Entanglement and NCD)
-- [ ] T026 [US2] Implement statistical comparison (Welch's t-test/ANOVA) between physical states and null models in `code/statistics.py`
-- [ ] T027 [US2] Add visualization logic to plot null model clusters alongside physical states in `code/viz.py`
+- [X] T023 [US2] Implement random product state generator in `code/null_models.py` (random phases on product basis). **Generates the full set of random product states for comparative analysis (FR-010), distinct from the internal baseline used in T016**.
+- [X] T024 [US2] Implement Haar-random pure state ensemble generator in `code/null_models.py` (a sample set of states) to approximate maximally mixed states.
+- [X] T025 [US2] Implement metric calculation for null models in `code/metrics.py` (reusing US1 logic for Entanglement and NCD)
+- [X] T026 [US2] Implement statistical comparison (Welch's t-test/ANOVA) between physical states and null models in `code/statistics.py`
+- [X] T027 [US2] Add visualization logic to plot null model clusters alongside physical states in `code/viz.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,12 +127,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_statistics.py`
-- [ ] T029 [P] [US3] Unit test for bias-corrected percentile method selection in `tests/unit/test_statistics.py`
+- [X] T028 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_statistics.py`
+- [X] T029 [P] [US3] Unit test for bias-corrected percentile method selection in `tests/unit/test_statistics.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement bootstrap resampling engine with a sufficient number of iterations in `code/statistics.py` using **partial correlation controlling for system size N** and **stratified analysis** logic from T017. **Output: 95% confidence interval for the correlation coefficient**.
+- [X] T030 [US3] Implement bootstrap resampling engine with a sufficient number of iterations in `code/statistics.py` using **partial correlation controlling for system size N** and **stratified analysis** logic from T017. **Output: 95% confidence interval for the correlation coefficient**.
 - [ ] T031 [US3] Implement confidence interval calculation (standard vs. bias-corrected based on skewness) in `code/statistics.py`.
 - [ ] T032 [US3] Integrate bootstrap results into final correlation output structure in `code/statistics.py`
 
