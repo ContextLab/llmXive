@@ -1,9 +1,3 @@
-"""
-Metadata utilities for adding the associational_only flag to output datasets.
-
-This module provides functions to load, modify, and save metadata files
-with the associational_only=true flag for all output datasets.
-"""
 import os
 import yaml
 from pathlib import Path
@@ -11,201 +5,159 @@ from typing import Dict, Any, List, Optional
 import logging
 import csv
 
-# Configure logging
+from utils.config import get_project_root, get_data_processed_path, get_output_path
+
 logger = logging.getLogger(__name__)
 
-def load_metadata(metadata_path: str) -> Dict[str, Any]:
-    """
-    Load metadata from a YAML file.
+def load_metadata(metadata_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load metadata.yaml from the data directory."""
+    if metadata_path is None:
+        project_root = get_project_root()
+        metadata_path = str(project_root / "data" / "metadata.yaml")
     
-    Args:
-        metadata_path: Path to the metadata.yaml file
-        
-    Returns:
-        Dictionary containing metadata
-    """
     path = Path(metadata_path)
     if not path.exists():
-        logger.warning(f"Metadata file not found: {metadata_path}. Creating new metadata.")
-        return {
-            "version": "1.0.0",
-            "datasets": {},
-            "pipeline_info": {
-                "associational_only": False
-            }
-        }
+        logger.warning(f"Metadata file not found at {metadata_path}, creating new structure.")
+        return {"datasets": {}, "version": "1.0", "flags": {}}
     
-    with open(path, 'r', encoding='utf-8') as f:
+    with open(path, 'r') as f:
         return yaml.safe_load(f)
 
-def save_metadata(metadata: Dict[str, Any], metadata_path: str) -> None:
-    """
-    Save metadata to a YAML file.
+def save_metadata(metadata: Dict[str, Any], metadata_path: Optional[str] = None) -> None:
+    """Save metadata.yaml to the data directory."""
+    if metadata_path is None:
+        project_root = get_project_root()
+        metadata_path = str(project_root / "data" / "metadata.yaml")
     
-    Args:
-        metadata: Dictionary containing metadata
-        metadata_path: Path to save the metadata.yaml file
-    """
     path = Path(metadata_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(path, 'w', encoding='utf-8') as f:
-        yaml.dump(metadata, f, default_flow_style=False, sort_keys=False)
-    logger.info(f"Metadata saved to {metadata_path}")
+    with open(path, 'w') as f:
+        yaml.dump(metadata, f, default_flow_style=False)
 
-def add_associational_only_flag_to_dataset(
-    metadata: Dict[str, Any],
-    dataset_name: str,
-    file_path: str
-) -> Dict[str, Any]:
+def add_associational_only_flag_to_dataset(metadata: Dict[str, Any], dataset_name: str) -> Dict[str, Any]:
     """
-    Add or update the associational_only=true flag for a specific dataset.
+    Add or update the 'associational_only' flag for a specific dataset in metadata.
     
     Args:
-        metadata: Current metadata dictionary
-        dataset_name: Name of the dataset
-        file_path: Path to the dataset file
-        
+        metadata: The metadata dictionary.
+        dataset_name: The name/key of the dataset (e.g., 'halo_shapes').
+    
     Returns:
-        Updated metadata dictionary
+        The updated metadata dictionary.
     """
     if "datasets" not in metadata:
         metadata["datasets"] = {}
     
-    # Ensure pipeline_info exists
-    if "pipeline_info" not in metadata:
-        metadata["pipeline_info"] = {}
+    if dataset_name not in metadata["datasets"]:
+        metadata["datasets"][dataset_name] = {}
     
-    # Set the global flag
-    metadata["pipeline_info"]["associational_only"] = True
-    
-    # Add/update dataset entry
-    metadata["datasets"][dataset_name] = {
-        "path": file_path,
-        "associational_only": True,
-        "description": "Output dataset with associational-only flag (correlation does not imply causation)"
-    }
-    
+    metadata["datasets"][dataset_name]["associational_only"] = True
     logger.info(f"Added associational_only=true flag to dataset: {dataset_name}")
     return metadata
 
-def add_associational_only_flag_to_csv(
-    csv_path: str,
-    flag_name: str = "associational_only",
-    flag_value: str = "true"
-) -> None:
+def add_associational_only_flag_to_csv(csv_path: str) -> None:
     """
-    Add a metadata flag column to a CSV file.
+    Append 'associational_only' metadata to the CSV file itself as a comment or header extension.
+    Since CSV doesn't support headers for metadata, we append a row at the end or modify the file.
+    However, the task asks for the flag in the OUTPUT DATASETS. 
+    Standard practice for CSV metadata is often a header comment or a separate sidecar file.
+    Given the constraint to modify the artifact, we will add a comment row at the top if not present,
+    or ensure the metadata.yaml reflects it. 
     
-    This function reads a CSV file, adds a new column with the associational_only flag,
-    and writes the updated CSV back to disk.
+    To strictly follow "Add metadata flag ... to ALL output datasets", we will:
+    1. Update the YAML metadata (primary source of truth).
+    2. If the CSV is expected to carry the flag inline, we can prepend a comment line.
     
-    Args:
-        csv_path: Path to the CSV file
-        flag_name: Name of the flag column
-        flag_value: Value to set for the flag
+    Let's implement a robust approach: Update the metadata.yaml (done via flag_all_output_datasets)
+    and ensure the CSV file has a header comment or a specific row indicating the flag.
+    
+    We will add a comment row at the very top of the CSV file: "# associational_only: true"
     """
     path = Path(csv_path)
     if not path.exists():
-        logger.warning(f"CSV file not found: {csv_path}. Skipping flag addition.")
+        logger.warning(f"Cannot add flag to non-existent CSV: {csv_path}")
         return
-    
-    # Read the CSV
-    df = pd.read_csv(csv_path)
-    
-    # Add the flag column
-    df[flag_name] = flag_value
-    
-    # Write back to CSV
-    df.to_csv(csv_path, index=False)
-    logger.info(f"Added {flag_name}={flag_value} column to {csv_path}")
 
-def flag_all_output_datasets(
-    metadata_path: str,
-    output_files: List[str]
-) -> Dict[str, Any]:
-    """
-    Add associational_only=true flag to all output datasets.
+    # Read existing content
+    with open(path, 'r') as f:
+        lines = f.readlines()
+
+    # Check if flag comment already exists at the top
+    if lines and lines[0].strip().startswith("# associational_only"):
+        logger.info(f"Flag already present in {csv_path}")
+        return
+
+    # Prepend the flag comment
+    new_lines = ["# associational_only: true\n"] + lines
     
-    Args:
-        metadata_path: Path to the metadata.yaml file
-        output_files: List of output file paths to flag
-        
-    Returns:
-        Updated metadata dictionary
-    """
-    metadata = load_metadata(metadata_path)
+    with open(path, 'w') as f:
+        f.writelines(new_lines)
     
-    for file_path in output_files:
-        if not Path(file_path).exists():
-            logger.warning(f"Output file not found: {file_path}. Skipping.")
-            continue
+    logger.info(f"Added associational_only flag comment to {csv_path}")
+
+def flag_all_output_datasets() -> Dict[str, Any]:
+    """
+    Apply the associational_only=true flag to all required output datasets:
+    - data/processed/halo_shapes.csv
+    - data/processed/statistical_results.csv
+    - data/processed/sensitivity_report.csv
+    - data/processed/millennium_results.csv
+    - data/processed/alignment_angles.csv
+    
+    Updates both the CSV files (inline comment) and the metadata.yaml.
+    """
+    project_root = get_project_root()
+    processed_dir = get_data_processed_path()
+    processed_path = Path(project_root) / processed_dir
+    
+    required_files = [
+        "halo_shapes.csv",
+        "statistical_results.csv",
+        "sensitivity_report.csv",
+        "millennium_results.csv",
+        "alignment_angles.csv"
+    ]
+    
+    metadata = load_metadata()
+    dataset_keys = [
+        "halo_shapes",
+        "statistical_results",
+        "sensitivity_report",
+        "millennium_results",
+        "alignment_angles"
+    ]
+    
+    for i, filename in enumerate(required_files):
+        file_path = processed_path / filename
+        key = dataset_keys[i]
         
-        # Extract dataset name from file path
-        dataset_name = Path(file_path).stem
-        
-        # Add flag to metadata
-        metadata = add_associational_only_flag_to_dataset(
-            metadata,
-            dataset_name,
-            file_path
-        )
-        
-        # Add flag column to CSV if applicable
-        if file_path.endswith('.csv'):
-            add_associational_only_flag_to_csv(file_path)
+        if file_path.exists():
+            # 1. Update CSV with comment
+            add_associational_only_flag_to_csv(str(file_path))
+            # 2. Update metadata
+            metadata = add_associational_only_flag_to_dataset(metadata, key)
+        else:
+            logger.warning(f"Output file not found: {file_path}. Skipping inline flag.")
+            # Still update metadata to indicate intent/requirement
+            metadata = add_associational_only_flag_to_dataset(metadata, key)
     
     # Save updated metadata
-    save_metadata(metadata, metadata_path)
-    
+    save_metadata(metadata)
+    logger.info("Successfully flagged all output datasets as associational_only=true")
     return metadata
 
 def main():
-    """
-    Main function to add associational_only flag to all output datasets.
-    
-    This function is designed to be run after T017, T025, T030, and T038
-    generate their respective output files.
-    """
-    # Define output files that need the flag
-    output_files = [
-        "data/processed/halo_shapes.csv",
-        "data/processed/statistical_results.csv",
-        "data/processed/sensitivity_report.csv",
-        "data/processed/millennium_results.csv",
-        "data/processed/alignment_angles.csv"
-    ]
-    
-    # Metadata path
-    metadata_path = "data/metadata.yaml"
-    
-    # Get project root
-    project_root = Path(__file__).parent.parent.parent
-    
-    # Resolve full paths
-    output_files = [str(project_root / f) for f in output_files]
-    metadata_path = str(project_root / metadata_path)
-    
-    logger.info(f"Adding associational_only=true flag to {len(output_files)} output datasets")
-    logger.info(f"Metadata will be updated at: {metadata_path}")
+    """Entry point for running the flagging process."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger.info("Starting associational_only flagging for all output datasets...")
     
     try:
-        metadata = flag_all_output_datasets(metadata_path, output_files)
-        logger.info("Successfully added associational_only=true flag to all output datasets")
-        
-        # Log the updated metadata
-        logger.info(f"Global flag set: {metadata.get('pipeline_info', {}).get('associational_only', False)}")
-        logger.info(f"Number of flagged datasets: {len(metadata.get('datasets', {}))}")
-        
+        flag_all_output_datasets()
+        logger.info("Flagging completed successfully.")
     except Exception as e:
-        logger.error(f"Error adding associational_only flag: {str(e)}")
+        logger.error(f"Failed to flag datasets: {e}")
         raise
 
 if __name__ == "__main__":
-    import sys
-    import logging as basic_logging
-    basic_logging.basicConfig(
-        level=basic_logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
     main()

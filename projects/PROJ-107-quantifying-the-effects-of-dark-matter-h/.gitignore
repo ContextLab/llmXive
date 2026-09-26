@@ -30,29 +30,24 @@ env/
 .vscode/
 *.swp
 *.swo
-*~
 
-# Data (Do not commit large data files)
-data/raw/
-data/processed/*.csv
-data/processed/*.h5
-data/raw/*.h5
-data/raw/*.zip
-figures/
+# Data (Large files)
+data/raw/**/*
+!data/raw/.gitkeep
+data/processed/**/*
+!data/processed/.gitkeep
+data/metadata.yaml
+
+# Outputs
+outputs/**/*
+!outputs/.gitkeep
+!outputs/figures/.gitkeep
+!outputs/reports/.gitkeep
 
 # Logs
-*.log
 logs/
-
-# Environment variables
-.env
-.env.local
+*.log
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/

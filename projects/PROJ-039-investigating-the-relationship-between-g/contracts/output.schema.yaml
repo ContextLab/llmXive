@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Ecological Aggregation Output Schema"
-description: "Schema for the stratum-level aggregation report."
+title: "Stratum Aggregation Output Schema"
+description: "Schema for the output of ecological aggregation (stratum-level means)."
 type: object
 required:
   - stratum_id
@@ -10,16 +10,17 @@ required:
 properties:
   stratum_id:
     type: string
-    description: "Unique identifier for the demographic stratum"
+    description: "Canonical stratum identifier: Age{bin}_Sex{sex}_BMI{bin}_Diet{diet}"
   stratum_mean_alpha_power:
     type: number
-    description: "Mean alpha power for subjects in this stratum"
+    description: "Mean alpha power for subjects in this stratum."
   stratum_taxa_means:
     type: object
-    description: "Dictionary mapping genus names to mean relative abundances for this stratum"
+    description: "Mean relative abundances of taxa for this stratum."
     additionalProperties:
       type: number
   valid_strata_count:
     type: integer
+    description: "Total number of valid strata (>=5 subjects in both cohorts) found in the dataset."
     minimum: 0
-    description: "Total number of valid strata identified (used for exit logic)"
+additionalProperties: false

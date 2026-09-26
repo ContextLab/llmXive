@@ -142,3 +142,17 @@ T103:
   r: "No `research.md` file content was provided, and there is no evidence that it\
     \ contains a \u201CScaling Law Analysis\u201D section or the required \u201CScaling\
     \ Law\u201D string. Without the artifact, the task cannot be verified as completed."
+T104:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No content from `research.md` was supplied, so we cannot confirm that the file\
+    \ contains the phrase \u201CComputational Irreducibility\u201D together with the\
+    \ required explicit statement about the lack of closed\u2011form prediction and\
+    \ reliance on empirical mining. The artifact is missing or unverified."
+T105:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide an updated `research.md`; the required phrase\
+    \ \u201CRecursive Adaptation\u201D is not present, and no metric for \u201Cstupidity\u201D\
+    \ or error cost is defined. Consequently the task\u2019s documentation requirement\
+    \ is unmet."

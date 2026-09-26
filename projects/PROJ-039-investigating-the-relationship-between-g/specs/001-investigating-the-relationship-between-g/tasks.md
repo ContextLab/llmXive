@@ -90,20 +90,20 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/preprocess_microbiome.py` to download AGP data from the **American Gut Project release**.
+- [X] T012 [US1] Implement `code/preprocess_microbiome.py` to download AGP data from the **American Gut Project release**. <!-- FAILED: unspecified -->
  **Download Instruction**: Fetch the specific release file `agp_v2.0_genus_abundance.tsv.gz` from the official AGP mirror URL ` (or exact local path if manual). **Explicitly state the exact URL is the only source or the exact local path is the only fallback.** Verify SHA256 hash against the recorded hash in `artifacts/checksums.txt`.
  **Feasibility Check**: Remove any pre-check logic. The Spec mandates a hard exit *after* aggregation if valid strata < 5.
- **Fallback Logic**: If download fails or checksum mismatch, raise `FileNotFoundError`. **NO SYNTHETIC FALLBACK**. Run a recent version of QIIME to generate genus-level abundances. Apply pseudocount=0.5. Output `data/processed/microbiome_features.csv`.
+ **Fallback Logic**: If download fails or checksum mismatch, raise `FileNotFoundError`. **NO SYNTHETIC FALLBACK**. Run a recent version of QIIME to generate genus-level abundances. Apply pseudocount=0.5. [UNRESOLVED-CLAIM: c_45f8968f — status=not_enough_info] Output `data/processed/microbiome_features.csv`.
  **Strategy Rejection**: Explicitly reject the Plan's 'Virtual Cohort Matching' strategy. This task implements the Spec's 'Ecological Correlation' approach.
  **(Depends on T009a, T006, T004)**. (US-1)
-- [ ] T013 [US1] Implement `code/preprocess_eeg.py` to download an OpenNeuro dataset (Spec/Constitution mandate).
+- [X] T013 [US1] Implement `code/preprocess_eeg.py` to download an OpenNeuro dataset (Spec/Constitution mandate). <!-- FAILED: unspecified -->
  **Download Command**: Run `datalad get ds` OR fallback to `curl -O https://openneuro.org/datasets/ds000248/download` (extract specific subject folders). **Explicitly state it is overriding the Plan's dataset ID (ds000246) to align with the Spec (ds000248).** **Verify SHA256 hash** for extracted files against `artifacts/checksums.txt`. **Explicitly state the exact extraction path (e.g., `data/raw/openneuro_eeg/ds000248/`) and the specific file hash to verify against.**
  **Feasibility Check**: Remove any pre-check logic. The Spec mandates a hard exit *after* aggregation if valid strata < 5.
- **Filter**: Bandpass filter (low-pass to high-pass range), run FastICA, epoch, compute alpha power (Welch's method). Filter subjects with <80% valid epochs. Output `data/processed/eeg_features.csv`.
+ **Filter**: Bandpass filter (low-pass to high-pass range), run FastICA, epoch, compute alpha power (Welch's method). Filter subjects with <80% valid epochs. [UNRESOLVED-CLAIM: c_5f37815f — status=not_enough_info] Output `data/processed/eeg_features.csv`.
  **Fallback Logic**: If URL fails, check for local file in `data/raw/openneuro_eeg/`; if found, verify SHA256; if not, raise `FileNotFoundError`.
  **Strategy Rejection**: Explicitly reject the Plan's 'Virtual Cohort Matching' strategy. This task implements the Spec's 'Ecological Correlation' approach.
  **(Depends on T009b, T006, T004)**. (US-1)
-- [ ] T014 [US1] Implement `code/ecological_aggregation.py` to perform **Ecological Aggregation** (FR-003):
+- [X] T014 [US1] Implement `code/ecological_aggregation.py` to perform **Ecological Aggregation** (FR-003): <!-- FAILED: unspecified -->
  1. Load `microbiome_features.csv` and `eeg_features.csv`.
  2. **Handle Missing Data**: For subjects with missing demographics (Age, Sex, BMI, Diet), apply **Exclusion** OR **Impute using median value with a documented flag** (as per Spec Edge Cases). **Requirement**: If imputing, add a flag column `imputed_flag=True` in the output.
  3. **Aggregate**: Group subjects into demographic strata using **exact binning**:
@@ -116,7 +116,7 @@
  6. **Output**: **Mandate the creation of `artifacts/strata_report.json` containing the `valid_strata_count` field.** Write `data/processed/raw_stratum_agg.csv` and `artifacts/strata_report.json` (containing `valid_strata_count`).
  7. **Exit Logic**: **MUST enforce FR-003**: If `valid_strata_count` < 5, log **EXACT ERROR STRING**: "ERROR: Insufficient valid strata (<5) for ecological analysis", and exit with code 1. Otherwise, exit with code 0. **(Depends on T012, T013)**.
  **CRITICAL: Implements Spec FR-003 (Ecological Correlation). The Plan's 'Virtual Cohort' strategy is explicitly ignored here. The Plan.md MUST be updated by a human to align with this Spec.** (US-1)
-- [ ] T015 [US1] Implement `code/compute_stratum_means.py` to compute final stratum features (**Conditional on T014 exit code 0**):
+- [X] T015 [US1] Implement `code/compute_stratum_means.py` to compute final stratum features (**Conditional on T014 exit code 0**):
  1. Load `data/processed/raw_stratum_agg.csv`.
  2. **Compute Means**: Calculate mean alpha power (Welch's method result) per stratum. Calculate mean taxa abundance per stratum.
  3. **CLR Transformation**: **Apply pseudocount=0.5 to the mean taxa abundances BEFORE applying the log transformation** to handle zeros. Explicit Formula: `clr = log((mean_abundance + 0.5) / geometric_mean(mean_abundance + 0.5))`. (FR-004).
@@ -141,13 +141,13 @@
 
 - [X] T020 [P] [US2] Implement CLR transformation utility in `code/utils.py` (pseudocount=0.5). (US-2)
 - [X] T021 [US2] Implement alpha power aggregation utility in `code/utils.py` using Welch's method results. (US-2)
-- [ ] T022 [US2] Implement Spearman correlation analysis (**Depends on T012, T015**):
+- [ ] T022 [US2] Implement Spearman correlation analysis (**Depends on T012, T015**): <!-- FAILED: unspecified -->
  - **Step 1: Taxon Selection**: Load `data/processed/microbiome_features.csv` (T012 output). **Explicitly clarify that T012 must be processed fully before T022 starts for the global mean calculation.** Compute the mean relative abundance of each taxon across *all subjects*. **Explicitly instruct to select the '20 taxa with the highest mean relative abundance' as mandated by FR-006.** **Sorting Rule**: Sort taxa by mean relative abundance descending; if tied, sort alphabetically by genus name. **Column**: Use `relative_abundance` column. **Explicitly define the calculation step to derive the column name if it does not exist (e.g., sum of genus abundances / total reads).** **(Depends on T012)**.
  - **Step 2: Correlation**: Load `data/processed/stratum_features.csv` (T015 output). **Input to Correlation**: Use the `clr_taxa_abundances` (CLR-transformed stratum-level means) from T015, NOT raw means. Perform Spearman correlation between the CLR-transformed abundances of the selected taxa and `mean_alpha_power` per stratum. **(Depends on T015)**.
  - **Step 3: FDR**: Apply **Benjamini-Hochberg FDR correction** explicitly to the p-values. **Threshold**: q < 0.1.
  - **Output**: **Explicitly mandate the output of `artifacts/top_taxa.txt`.** Write `artifacts/correlation_results.json` (rho, p-value, q-value, significance flag) and `artifacts/top_taxa.txt`. (US-2)
  **Note**: This task follows the Spec's 'Top 20 Taxa' requirement. The Plan's PCoA suggestion is noted as an alternative for future analysis but is not implemented here per Spec priority. (US-2)
-- [ ] T023 [US2] Implement collinearity diagnostics (**Depends on T022**):
+- [ ] T023 [US2] Implement collinearity diagnostics (**Depends on T022**): <!-- FAILED: unspecified -->
  - Calculate **Variance Inflation Factor (VIF)** specifically for the **20 taxa selected in T022**.
  - **Context**: **Explicitly state that this is a diagnostic for a future multivariate model and not part of the current univariate Spearman analysis.** Calculate VIF for these taxa **as predictors in a multiple regression model** (as required by FR-009 for simultaneous testing). This diagnostic validates the assumption of low collinearity before any multivariate extension, even if the primary analysis is univariate Spearman.
  - **Report VIF values in `artifacts/analysis_results.json` as required by FR-009.** (US-2)

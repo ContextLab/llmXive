@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/google-research-datasets/boolq/resolve/main/boolq-test.jsonl
   verified_at: '2026-08-12T07:04:31.724792Z'
-- artifact_hash: 95b88a85f7f53445701fb39888a2d3d6aaa690edac75331da41e869c259543f6
+- artifact_hash: 5e9eac8e0d31c1d6d118225771c38755ff901e9795153f8841b446dbf436f6e0
   artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://arxiv.org/abs/1409.4317
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1409.4317
-  verified_at: '2026-09-25T02:10:26.040556Z'
+  verified_at: '2026-09-26T06:47:32.672565Z'

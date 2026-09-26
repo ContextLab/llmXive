@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-039-investigating-the-relationship-between-g",
+  "tasks": [
+    {
+      "task_key": "T022",
+      "reject_count": 1,
+      "last_reason": "No code, data files, or result outputs (e.g., CLR\u2011transformed abundances, Spearman rho/p\u2011values, FDR\u2011corrected q\u2011values, or permutation null distribution) were supplied, so the required Spearman correlation analysis cannot be verified. The implementer must provide the pipeline implementation and its generated results.",
+      "first_seen": "2026-09-26T07:25:03.817161+00:00",
+      "last_seen": "2026-09-26T07:25:03.817161+00:00"
+    }
+  ],
+  "updated_at": "2026-09-26T07:25:03.817161+00:00"
+}

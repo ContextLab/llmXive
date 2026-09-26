@@ -1,3 +1,9 @@
+"""
+Base logging infrastructure for pipeline tracking.
+
+Provides centralized logging configuration, logger instances, and
+utility functions for tracking pipeline execution, metrics, and errors.
+"""
 import logging
 import sys
 import os
@@ -5,145 +11,211 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 from datetime import datetime
 
-# Constants
-_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-_LOG_LEVEL = logging.INFO
+from utils.config import get_project_root, get_output_path
 
-# Cache for logger instances to avoid re-initialization
-_logger_cache: Dict[str, logging.Logger] = {}
 
-def get_pipeline_logger(name: str = "halo_pipeline") -> logging.Logger:
+# Global logger instance cache
+_loggers: Dict[str, logging.Logger] = {}
+_log_file_path: Optional[Path] = None
+
+
+def _ensure_log_directory() -> Path:
+    """Ensure the log directory exists."""
+    log_dir = get_output_path() / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir
+
+
+def _get_log_file_path() -> Path:
+    """Get or create the main pipeline log file path."""
+    global _log_file_path
+    if _log_file_path is None:
+        log_dir = _ensure_log_directory()
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        _log_file_path = log_dir / f"pipeline_{timestamp}.log"
+    return _log_file_path
+
+
+def get_pipeline_logger(name: str = "pipeline") -> logging.Logger:
     """
-    Get or create a configured logger for the pipeline.
-    
+    Get a configured logger instance for pipeline tracking.
+
     Args:
-        name: The name of the logger (usually the module name).
-        
+        name: Logger name, typically "pipeline" or a module-specific name.
+
     Returns:
         A configured logging.Logger instance.
     """
-    if name in _logger_cache:
-        return _logger_cache[name]
+    if name in _loggers:
+        return _loggers[name]
 
     logger = logging.getLogger(name)
-    logger.setLevel(_LOG_LEVEL)
+    logger.setLevel(logging.DEBUG)
 
-    # Avoid adding handlers multiple times if called repeatedly
-    if not logger.handlers:
-        # Console Handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(_LOG_LEVEL)
-        console_formatter = logging.Formatter(_LOG_FORMAT, datefmt=_DATE_FORMAT)
-        console_handler.setFormatter(console_formatter)
-        logger.addHandler(console_handler)
+    # Prevent duplicate handlers if called multiple times
+    if logger.handlers:
+        _loggers[name] = logger
+        return logger
 
-        # File Handler (Optional, based on environment)
-        # We try to log to a file in the project root if possible
-        try:
-            log_dir = Path("logs")
-            log_dir.mkdir(exist_ok=True)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            log_file = log_dir / f"pipeline_{timestamp}.log"
-            
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setLevel(_LOG_LEVEL)
-            file_handler.setFormatter(console_formatter)
-            logger.addHandler(file_handler)
-            
-            # Store the log file path in the logger for later retrieval
-            logger.log_file_path = str(log_file)
-        except Exception:
-            # If we can't write to disk, just use console
-            pass
+    # Create file handler
+    log_file = _get_log_file_path()
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.DEBUG)
 
-    _logger_cache[name] = logger
+    # Create console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+
+    # Create formatter
+    formatter = logging.Formatter(
+        fmt="%(asctime)s | %(name)s | %(levelname)-8s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    _loggers[name] = logger
     return logger
 
-def get_log_file_path(logger: logging.Logger) -> Optional[str]:
-    """
-    Retrieve the file path of the log file attached to the logger, if any.
-    
-    Args:
-        logger: The logger instance.
-        
-    Returns:
-        The path to the log file or None if logging to console only.
-    """
-    return getattr(logger, 'log_file_path', None)
 
-def log_pipeline_start(logger: logging.Logger, config: Optional[Dict[str, Any]] = None) -> None:
+def get_log_file_path() -> Path:
     """
-    Log the start of the pipeline execution.
-    
+    Get the path to the current pipeline log file.
+
+    Returns:
+        Path to the log file.
+    """
+    return _get_log_file_path()
+
+
+def log_pipeline_start(pipeline_name: str, config: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Log the start of a pipeline execution.
+
     Args:
-        logger: The logger instance.
+        pipeline_name: Name of the pipeline being executed.
         config: Optional configuration dictionary to log.
     """
-    logger.info("=" * 60)
-    logger.info("PIPELINE START")
+    logger = get_pipeline_logger()
+    logger.info("=" * 80)
+    logger.info(f"PIPELINE START: {pipeline_name}")
     logger.info(f"Timestamp: {datetime.now().isoformat()}")
     if config:
         logger.info(f"Configuration: {config}")
-    logger.info("=" * 60)
+    logger.info("=" * 80)
 
-def log_pipeline_end(logger: logging.Logger, success: bool = True, duration: Optional[float] = None) -> None:
+
+def log_pipeline_end(pipeline_name: str, success: bool, duration_seconds: Optional[float] = None) -> None:
     """
-    Log the end of the pipeline execution.
-    
+    Log the end of a pipeline execution.
+
     Args:
-        logger: The logger instance.
+        pipeline_name: Name of the pipeline that finished.
         success: Whether the pipeline completed successfully.
-        duration: Optional duration of the run in seconds.
+        duration_seconds: Optional execution duration in seconds.
     """
-    logger.info("=" * 60)
-    if success:
-        logger.info("PIPELINE COMPLETED SUCCESSFULLY")
+    logger = get_pipeline_logger()
+    status = "SUCCESS" if success else "FAILED"
+    logger.info("=" * 80)
+    logger.info(f"PIPELINE END: {pipeline_name} - {status}")
+    if duration_seconds is not None:
+        logger.info(f"Duration: {duration_seconds:.2f} seconds")
+    logger.info(f"Timestamp: {datetime.now().isoformat()}")
+    logger.info(f"Log file: {_get_log_file_path()}")
+    logger.info("=" * 80)
+
+
+def log_error(error: Exception, context: Optional[str] = None) -> None:
+    """
+    Log an error with optional context.
+
+    Args:
+        error: The exception that occurred.
+        context: Optional context string describing where the error occurred.
+    """
+    logger = get_pipeline_logger()
+    error_msg = f"{type(error).__name__}: {str(error)}"
+    if context:
+        logger.error(f"[{context}] {error_msg}")
     else:
-        logger.error("PIPELINE FAILED")
-    if duration is not None:
-        logger.info(f"Total Duration: {duration:.2f} seconds")
-    logger.info("=" * 60)
+        logger.error(error_msg)
+    logger.exception("Full traceback:")
 
-def log_error(logger: logging.Logger, message: str, exception: Optional[Exception] = None) -> None:
+
+def log_metric(metric_name: str, value: Any, stage: Optional[str] = None) -> None:
     """
-    Log an error message, optionally with exception details.
-    
+    Log a pipeline metric.
+
     Args:
-        logger: The logger instance.
-        message: The error message.
-        exception: Optional exception object to include in the log.
+        metric_name: Name of the metric.
+        value: Value of the metric.
+        stage: Optional stage name where the metric was recorded.
     """
-    if exception:
-        logger.error(f"{message}: {str(exception)}", exc_info=True)
+    logger = get_pipeline_logger()
+    if stage:
+        logger.info(f"METRIC [{stage}]: {metric_name} = {value}")
     else:
-        logger.error(message)
+        logger.info(f"METRIC: {metric_name} = {value}")
 
-def log_metric(logger: logging.Logger, name: str, value: Any, stage: Optional[str] = None) -> None:
-    """
-    Log a metric value at a specific stage.
-    
-    Args:
-        logger: The logger instance.
-        name: The name of the metric.
-        value: The value of the metric.
-        stage: Optional stage name (e.g., "ingestion", "processing").
-    """
-    stage_prefix = f"[{stage}] " if stage else ""
-    logger.info(f"{stage_prefix}Metric: {name} = {value}")
 
-def log_chunk_info(logger: logging.Logger, chunk_id: int, total_chunks: int, 
-                   records_processed: int, elapsed_seconds: float) -> None:
+def log_chunk_info(chunk_id: int, total_chunks: int, items_processed: int, stage: str) -> None:
     """
-    Log progress for a specific chunk processing step.
-    
+    Log information about chunk processing progress.
+
     Args:
-        logger: The logger instance.
-        chunk_id: Current chunk ID.
+        chunk_id: Current chunk identifier.
         total_chunks: Total number of chunks.
-        records_processed: Number of records processed in this chunk.
-        elapsed_seconds: Time taken for this chunk.
+        items_processed: Number of items processed so far.
+        stage: Name of the processing stage.
     """
-    progress = (chunk_id / total_chunks) * 100 if total_chunks > 0 else 0
-    logger.info(f"Chunk {chunk_id}/{total_chunks} ({progress:.1f}%): "
-                f"Processed {records_processed} records in {elapsed_seconds:.2f}s")
+    logger = get_pipeline_logger()
+    progress = (chunk_id / total_chunks * 100) if total_chunks > 0 else 0
+    logger.info(f"CHUNK [{stage}] {chunk_id}/{total_chunks} ({progress:.1f}%) - Items processed: {items_processed}")
+
+
+def log_task_start(task_id: str, task_name: str) -> None:
+    """
+    Log the start of a specific task.
+
+    Args:
+        task_id: Task identifier (e.g., "T006").
+        task_name: Human-readable task name.
+    """
+    logger = get_pipeline_logger()
+    logger.info(f"TASK START: {task_id} - {task_name}")
+
+
+def log_task_end(task_id: str, task_name: str, success: bool, duration_seconds: float) -> None:
+    """
+    Log the end of a specific task.
+
+    Args:
+        task_id: Task identifier.
+        task_name: Human-readable task name.
+        success: Whether the task completed successfully.
+        duration_seconds: Execution duration in seconds.
+    """
+    logger = get_pipeline_logger()
+    status = "SUCCESS" if success else "FAILED"
+    logger.info(f"TASK END: {task_id} - {task_name} - {status} ({duration_seconds:.2f}s)")
+
+
+def log_data_file_created(filepath: Path, size_bytes: int, record_count: Optional[int] = None) -> None:
+    """
+    Log the creation of a data file.
+
+    Args:
+        filepath: Path to the created file.
+        size_bytes: Size of the file in bytes.
+        record_count: Optional number of records in the file.
+    """
+    logger = get_pipeline_logger()
+    size_mb = size_bytes / (1024 * 1024)
+    msg = f"DATA FILE CREATED: {filepath} ({size_mb:.2f} MB)"
+    if record_count is not None:
+        msg += f" - {record_count} records"
+    logger.info(msg)

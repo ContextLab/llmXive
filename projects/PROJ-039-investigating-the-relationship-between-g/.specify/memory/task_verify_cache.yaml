@@ -1,3 +1,9 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/checksums.txt` file or corresponding checksum utility code is presented;
+    the claim provides no evidence that SHA256 checksums were generated for the files
+    in `data/`. The required artifact is missing, so the task is not satisfied.
 T011b:
   c: false
   h: 433ddc54698537f3beba25064ff68f458404d71f86b9d9d03ae94ed094198525
@@ -18,14 +24,6 @@ T019:
   r: "The required artifact `tests/unit/test_statistics.py` does not exist in the\
     \ repository, so no unit test for the FDR correction (Benjamini\u2011Hochberg\
     \ logic) is present. The task therefore remains unfinished."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data files, or result outputs (e.g., CLR\u2011transformed abundances,\
-    \ Spearman rho/p\u2011values, FDR\u2011corrected q\u2011values, or permutation\
-    \ null distribution) were supplied, so the required Spearman correlation analysis\
-    \ cannot be verified. The implementer must provide the pipeline implementation\
-    \ and its generated results."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

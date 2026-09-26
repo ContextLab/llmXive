@@ -142,7 +142,7 @@
 - [ ] T031-WDM-Analyze [US3] Run full statistical analysis on WDM data (if fetched) and output `data/processed/wdm_results.csv`. **Depends on T031-WDM-Fetch**.
 - [ ] T032 [US3] Generate sensitivity report comparing significance rates and p-value variance across thresholds. **Depends on T030**.
 - [ ] T033 [US3] Implement cross-dataset comparison logic (TNG-100 vs Millennium-II vs WDM). **Depends on T031-Analyze and T031-WDM-Analyze**. <!-- FAILED: unspecified -->
-- [~] T034 [US3] Update final report generation to include robustness conclusions.
+- [ ] T034 [US3] Update final report generation to include robustness conclusions.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -165,8 +165,8 @@
 - [X] T036 [US4] Implement spin vector and major axis calculation in `code/processing/alignment.py`. **Depends on T017**.
 - [X] T037 [US4] Implement misalignment angle computation (halo-galaxy pairs) in `code/processing/alignment.py`.
 - [ ] T038 [US4] Create script to generate `data/processed/alignment_angles.csv`. **Must apply `associational_only=true` flag to this file (integrate T026 logic)**. **Depends on T026**.
-- [~] T039 [US4] Implement correlation analysis for misalignment angles vs galaxy properties (SFR, radius).
-- [~] T040 [US4] Integrate misalignment results into final statistical report.
+- [ ] T039 [US4] Implement correlation analysis for misalignment angles vs galaxy properties (SFR, radius).
+- [ ] T040 [US4] Integrate misalignment results into final statistical report.
 
 **Checkpoint**: All user stories should now be independently functional
 

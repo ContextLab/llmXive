@@ -42,20 +42,9 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-02T08:38:38.678492Z'
-- artifact_hash: e2bf85e7b4ccc287e2e267a6e88a5445b0a6765bba2f01cf4ac1c5c69d6d307c
+- artifact_hash: 6f231d9a05557bfebcf17ed3389ccb70fbd3395b062fb78559c9ca6ad3e935a8
   artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
   cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/American-Gut-Project/agp-data/releases/download/v2.0/agp_v2.0_genus_abundance.tsv.gz`
-  verification_status: mismatch
-  verified_against_url: https://github.com/American-Gut-Project/agp-data/releases/download/v2.0/agp_v2.0_genus_abundance.tsv.gz
-  verified_at: '2026-09-26T05:58:01.997517Z'
-- artifact_hash: e2bf85e7b4ccc287e2e267a6e88a5445b0a6765bba2f01cf4ac1c5c69d6d307c
-  artifact_path: projects/PROJ-039-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
-  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: OpenNeuro
@@ -63,4 +52,4 @@
   value: https://openneuro.org/datasets/ds000248/download`
   verification_status: pending
   verified_against_url: https://openneuro.org/datasets/ds000248/download
-  verified_at: '2026-09-26T05:58:01.997517Z'
+  verified_at: '2026-09-26T07:25:01.807046Z'

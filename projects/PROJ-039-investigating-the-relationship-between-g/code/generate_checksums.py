@@ -5,26 +5,31 @@ from checksum_utils import generate_checksums, logger
 
 def main():
     """
-    CLI wrapper to generate checksums for the data directory.
-    Ensures artifacts directory exists and writes checksums.txt.
+    Generate checksums for all files in the data directory.
+    This script is the entry point for T006.
     """
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Define paths relative to project root
     project_root = Path(__file__).parent.parent
     data_dir = project_root / 'data'
-    output_path = project_root / 'artifacts' / 'checksums.txt'
-
+    checksum_file = project_root / 'artifacts' / 'checksums.txt'
+    
     # Ensure artifacts directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
+    checksum_file.parent.mkdir(parents=True, exist_ok=True)
+    
     logger.info(f"Starting checksum generation for {data_dir}")
+    logger.info(f"Output will be written to {checksum_file}")
     
     try:
-        generate_checksums(data_dir, output_path)
-        logger.info(f"Checksums successfully written to {output_path}")
-    except FileNotFoundError as e:
-        logger.error(f"Data directory not found: {e}")
-        sys.exit(1)
+        generate_checksums(str(data_dir), str(checksum_file))
+        logger.info("Checksum generation completed successfully.")
     except Exception as e:
-        logger.error(f"Unexpected error during checksum generation: {e}")
+        logger.error(f"Checksum generation failed: {e}")
         sys.exit(1)
 
 if __name__ == '__main__':

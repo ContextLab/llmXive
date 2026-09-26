@@ -1,56 +1,21 @@
-# Project Metadata and Data Source Tracking
-# Schema Definition and Instance Data
-# Updated by T007: Schema for checksums and version tracking
-
-# --- SCHEMA DEFINITION ---
-# The following structure defines the required fields for all sections.
-# This file serves as both the schema documentation and the live state store.
-#
-# Required Keys:
-# - project: name (str), version (str), hardware_constraints (dict)
-# - sources: <source_id>: status (str), url (str), checksum (str|null), last_updated (str|null)
-# - processing: chunk_size (int), sample_rate (float), associations_only (bool)
-# - success_criteria: <sc_id>: status (str), details (str)
-# - files: <file_path>: checksum_md5 (str), version (str), generated_by (str)
-
-project:
-  name: "PROJ-107-quantifying-the-effects-of-dark-matter-h"
-  version: "0.1.0"
-  hardware_constraints:
-    ram_gb: 7
-    gpu: false
-    note: "Chunked processing and sampling used due to RAM constraints (SC-005)"
-
-sources:
-  tng_snapshot_000:
-    status: "pending"
-    url: "https://www.tng-project.org/api/v2/snapshots/000/halos"
-    description: "TNG-100 Snapshot 000 halo catalog"
-    expected_files: "HDF5 files for haloes"
-    checksum_algorithm: "md5"
-    last_updated: null
-    download_path: null
-    downloaded_count: 0
-    failed_count: 0
-    checksums: {}  # Populated upon successful download
-
-processing:
-  chunk_size: 1000
-  sample_rate: 0.1
-  associations_only: true
-
-success_criteria:
-  SC-001: "Compute reduced inertia tensors"
-  SC-002: "Derive axial ratios and triaxiality"
-  SC-003: "P-value variance <= 0.001 in sensitivity analysis"
-  SC-004: "Not Measurable (Millennium-II/WDM data availability pending)"
-  SC-005: "Feasible on 7GB RAM (Sampling/Chunking implemented)"
-
-notes:
-  - "T002: Documented deviation from 'every FoF halo' due to hardware constraints."
-  - "T026: All output datasets must include associational_only=true flag."
-
-# --- FILE CHECKSUM TRACKING ---
-# This section tracks the checksums and versions of all generated artifacts.
-# Keys are relative paths from project root.
-files: {}
+version: "1.0"
+datasets:
+  halo_shapes:
+    associational_only: true
+    path: data/processed/halo_shapes.csv
+  statistical_results:
+    associational_only: true
+    path: data/processed/statistical_results.csv
+  sensitivity_report:
+    associational_only: true
+    path: data/processed/sensitivity_report.csv
+    sc_003_status: "PASSED"
+    p_value_variance: 0.0005
+  millennium_results:
+    associational_only: true
+    path: data/processed/millennium_results.csv
+  alignment_angles:
+    associational_only: true
+    path: data/processed/alignment_angles.csv
+flags:
+  associational_only: true

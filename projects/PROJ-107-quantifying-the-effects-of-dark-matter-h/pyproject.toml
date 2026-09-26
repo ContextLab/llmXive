@@ -3,26 +3,52 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "halo-shape-analysis"
+name = "llmxive-proj-107"
 version = "0.1.0"
-description = "Quantifying the effects of dark matter halo shapes on galaxy formation"
+description = "Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation"
 requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.24.0",
     "pandas>=2.0.0",
-    "scipy>=1.11.0",
-    "scikit-learn>=1.3.0",
-    "h5py>=3.9.0",
-    "requests>=2.31.0",
-    "pyyaml>=6.0.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.2.0",
+    "h5py>=3.8.0",
+    "requests>=2.28.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.3.0",
+    "ruff>=0.0.280",
+    "black>=23.3.0",
 ]
 
 [tool.black]
 line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
-python_files = "test_*.py"
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["code"]
+package-dir = {"" = "code"}

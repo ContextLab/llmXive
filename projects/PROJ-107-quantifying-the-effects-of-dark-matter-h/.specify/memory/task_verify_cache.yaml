@@ -1,25 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required project directories (`code/`, `data/`, `outputs/`)\
-    \ is present; the provided material only contains a feature specification and\
-    \ no filesystem artifacts. The implementer must create the three top\u2011level\
-    \ folders (and populate them as appropriate) to satisfy the task."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
-    settings, `.ruff.toml` or `ruff.toml`, `.flake8`, or related CI setup) are present
-    in the provided evidence. Consequently, the task of configuring ruff/flake8 and
-    Black has not been demonstrated. The implementer must add the appropriate configuration
-    files and, optionally, show they are active (e.g., a sample run output).
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, configuration files, or documentation for a base logging infrastructure
-    were provided; the only artifacts shown relate to data ingestion and analysis,
-    not to pipeline tracking logs. Consequently, the required logging component is
-    missing.
 T009:
   c: false
   h: 84779e7c89ac99752d3b18952dc52b70a4afa2f9abc3ea101c93b008f8a43849
@@ -32,21 +10,14 @@ T010:
   r: "The required artifact `code/tests/test_pipeline.py` does not exist on the repository,\
     \ so the integration test for TNG-100 download and chunk processing is missing.\
     \ Without this file, the task\u2019s core requirement is not satisfied."
-T017:
-  c: false
-  h: 1a9d90cfbeaead29fb7281b53d39611293e7b82b10763716ed3f5b7b98897fea
-  r: The provided `pipeline_runner.py` is truncated and does not show the required
-    aggregation of chunk results, validation of axial ratios, logging of excluded
-    haloes, or writing of `data/processed/halo_shapes.csv`. Moreover, the expected
-    output CSV file is absent from the repository. Both the implementation and the
-    required output artifact are missing.
 T023:
   c: false
-  h: fe740545a96e1255562c14ff1c735b28d4a1f67dd05444502e5eadd2a16242fc
-  r: The required `data/processed/halo_shapes.csv` file is absent, and the provided
-    `code/analysis/stats.py` (shown excerpt) contains no implementation of a linear
-    regression that uses `triaxiality`, `b_a_ratio`, and controls for halo mass. Both
-    the data input and the specific regression functionality are missing.
+  h: da4a6b0556927847d8014c5f5fc1c94788dabd9ccd5570b25ff7902cac253eae
+  r: "The repository lacks the required `data/processed/halo_shapes.csv` file, so\
+    \ the regression cannot be run on the specified columns. Moreover, the shown portion\
+    \ of `code/analysis/stats.py` contains only statistical\u2011test utilities and\
+    \ does not include any implementation of a linear regression that controls for\
+    \ halo mass. Both the data source and the regression functionality are missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -57,12 +28,13 @@ T027:
     \ was actually implemented."
 T030:
   c: false
-  h: fdb1717ae93d7fd8c75c8e4383060c3edc15b1296c7c9a9572e63e3018650242
-  r: "The repository contains `code/analysis/sensitivity.py`, but the provided excerpt\
-    \ is truncated and does not show the full sweep, p\u2011value variance calculation,\
-    \ CSV output, or metadata update. Moreover, `data/processed/sensitivity_report.csv`\
-    \ is absent, and `data/metadata.yaml` shows no flag or status change for SC\u2011\
-    003. These missing artifacts mean the task\u2019s requirements are not satisfied."
+  h: 1ed7349b44f4d4ebdf72f96fa5ca2197937276cea9abe78bcbcbc7ba3ebcb3aa
+  r: "The `data/processed/sensitivity_report.csv` file, which the task explicitly\
+    \ requires, does not exist, and the provided `sensitivity.py` code is truncated\
+    \ so it\u2019s unclear whether it actually performs the threshold sweep, computes\
+    \ the p\u2011value variance, writes the report, and updates `metadata.yaml`. The\
+    \ missing CSV output must be generated (and the script verified to perform the\
+    \ full analysis) for the task to be considered complete."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -80,3 +52,25 @@ T033:
     \ produces cross\u2011dataset comparison metrics or visualizations, but no such\
     \ artifact is provided. The implementer must supply the actual implementation\
     \ and its results."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., updated report generation code, template, or generated report
+    containing the new robustness conclusions) is present; the evidence provided consists
+    only of the original specification, so the required update cannot be verified.
+    The implementer must supply the modified report generation output showing the
+    added robustness conclusions.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, figures, or output files implementing the correlation analysis
+    between misalignment angles and galaxy properties (SFR, radius) were provided.
+    The evidence consists only of the task description and project specifications,
+    without any actual artifact (e.g., analysis script, CSV of results, statistical
+    summary, or plots). The required deliverable is therefore missing.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, figures, or written report were supplied that demonstrate the
+    misalignment results have been incorporated into a final statistical report. The
+    required artifact (the integrated report) is missing, so the task is not satisfied.

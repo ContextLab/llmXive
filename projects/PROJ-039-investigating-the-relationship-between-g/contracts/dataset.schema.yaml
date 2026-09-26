@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Gut Microbiome and EEG Dataset Schema"
-description: "Schema for the combined dataset containing microbiome abundances, EEG alpha power, and demographics."
+description: "Schema for raw and processed subject-level data combining AGP microbiome and OpenNeuro EEG features."
 type: object
 required:
   - age
@@ -11,29 +11,30 @@ required:
 properties:
   age:
     type: integer
+    description: "Subject age in years."
     minimum: 0
     maximum: 120
-    description: "Subject age in years"
   sex:
     type: string
+    description: "Biological sex of the subject."
     enum: ["M", "F"]
-    description: "Biological sex of the subject"
   bmi:
     type: number
+    description: "Body Mass Index."
     minimum: 0.0
-    description: "Body Mass Index"
   alpha_power:
     type: number
+    description: "Resting-state EEG alpha power (µV^2/Hz) calculated via Welch's method."
     minimum: 0.0
-    description: "Resting-state EEG alpha power (log-transformed or raw, depending on preprocessing)"
   taxon_abundances:
     type: object
-    description: "Dictionary mapping genus names to relative abundances (0.0 to 1.0)"
+    description: "Relative abundances of genera (keys) as floats between 0.0 and 1.0."
     additionalProperties:
       type: number
       minimum: 0.0
       maximum: 1.0
   diet:
     type: ["string", "null"]
-    enum: ["Vegan", "Vegetarian", "Omnivore", "Other", null]
-    description: "Dietary preference (optional, nullable)"
+    description: "Self-reported diet category. Null values are allowed in the schema but must be treated as 'Unknown' in downstream aggregation logic."
+    enum: ["Vegan", "Vegetarian", "Omnivore", "Other", "Unknown", null]
+additionalProperties: false

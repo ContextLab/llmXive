@@ -1,14 +1,3 @@
-"""
-Sensitivity Analysis Script for Halo Shape Thresholds (Task T030)
-
-This script performs a sensitivity sweep over shape binning thresholds to verify
-the robustness of statistical results (specifically p-values) against threshold choices.
-
-It reads the primary statistical results from data/processed/statistical_results.csv,
-recomputes statistics using varied thresholds, and outputs a sensitivity report.
-
-It validates Success Criterion SC-003: P-value variance <= 0.001.
-"""
 import os
 import sys
 import logging
@@ -19,272 +8,223 @@ import numpy as np
 import pandas as pd
 from scipy import stats as scipy_stats
 
-# Project imports based on API surface
 from utils.config import get_project_root, get_data_processed_path, get_output_path
 from analysis.metadata_utils import load_metadata, save_metadata
+from analysis.stats import kruskal_wallis_test, apply_bonferroni_correction
 
-# Configure logging
+# Configure logger
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    ))
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
-# Constants for SC-003
-SC_003_VARIANCE_THRESHOLD = 0.001
-
-# Threshold sweep parameters
-# We vary the boundaries for the three bins:
-# Bin 1 (Prolate): c/a < threshold_low
-# Bin 2 (Triaxial): threshold_low <= c/a < threshold_high
-# Bin 3 (Spherical): c/a >= threshold_high
-# Base thresholds from T020: 0.5 and 0.8
-THRESHOLD_SWEEP_LOW = [0.4, 0.45, 0.5, 0.55, 0.6]
-THRESHOLD_SWEEP_HIGH = [0.7, 0.75, 0.8, 0.85, 0.9]
+# Define the sweep ranges for binning thresholds
+# SC-003: Sweep thresholds over a representative set of values spanning low to high confidence levels.
+# We vary the c/a ratio boundaries used for binning (prolate, triaxial, spherical).
+# Original thresholds were: c/a < 0.5 (prolate), 0.5-0.8 (triaxial), > 0.8 (spherical).
+# We will sweep the lower and upper boundaries.
+LOWER_BOUNDARIES = [0.4, 0.5, 0.6]
+UPPER_BOUNDARIES = [0.7, 0.8, 0.9]
 
 def load_statistical_results() -> pd.DataFrame:
-    """Load the primary statistical results file."""
-    input_path = get_data_processed_path() / "statistical_results.csv"
-    if not input_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {input_path}. "
-                                "Ensure T025 (generate_statistical_results) has been run.")
-    return pd.read_csv(input_path)
-
-def recompute_bin_assignments(df: pd.DataFrame, low_thresh: float, high_thresh: float) -> pd.Series:
-    """
-    Reassign bins based on new thresholds.
-    Assumes the input df has a 'c_a_ratio' column (or similar) and a 'shape_bin' column.
-    We will re-derive the bin based on 'c_a_ratio' if available, otherwise we assume
-    the input df contains the raw shape metrics needed to re-bin.
+    """Load the statistical results from the previous analysis (T025 output)."""
+    processed_path = get_data_processed_path()
+    file_path = processed_path / "statistical_results.csv"
     
-    If 'c_a_ratio' is not present, we attempt to infer it or raise an error.
+    if not file_path.exists():
+        raise FileNotFoundError(
+            f"Statistical results file not found at {file_path}. "
+            "Ensure T025 (generate_statistical_results) has been run successfully."
+        )
+    
+    df = pd.read_csv(file_path)
+    logger.info(f"Loaded statistical results with {len(df)} rows from {file_path}")
+    return df
+
+def recompute_bin_assignments(df: pd.DataFrame, lower_thresh: float, upper_thresh: float) -> pd.DataFrame:
     """
+    Recompute bin assignments based on new thresholds.
+    Bins:
+      - 'prolate': c/a < lower_thresh
+      - 'triaxial': lower_thresh <= c/a <= upper_thresh
+      - 'spherical': c/a > upper_thresh
+    """
+    df = df.copy()
+    
+    # Ensure c/a column exists
     if 'c_a_ratio' not in df.columns:
-        # Fallback: try to find a column that looks like c/a
-        candidates = [c for c in df.columns if 'c_a' in c.lower() or 'c/a' in c]
-        if candidates:
-            col = candidates[0]
-            logger.warning(f"Column 'c_a_ratio' not found. Using '{col}' as proxy for c/a ratio.")
-            c_a_col = col
-        else:
-            raise ValueError("Could not find 'c_a_ratio' or similar column to re-bin data.")
-    else:
-        c_a_col = 'c_a_ratio'
+        raise ValueError("Input dataframe missing 'c_a_ratio' column required for binning.")
+    
+    conditions = [
+        df['c_a_ratio'] < lower_thresh,
+        (df['c_a_ratio'] >= lower_thresh) & (df['c_a_ratio'] <= upper_thresh),
+        df['c_a_ratio'] > upper_thresh
+    ]
+    choices = ['prolate', 'triaxial', 'spherical']
+    df['recomputed_bin'] = np.select(conditions, choices, default='unknown')
+    
+    return df
 
-    def assign_bin(c_a):
-        if pd.isna(c_a):
-            return np.nan
-        if c_a < low_thresh:
-            return 'prolate'
-        elif c_a < high_thresh:
-            return 'triaxial'
-        else:
-            return 'spherical'
-
-    return df[c_a_col].apply(assign_bin)
-
-def run_statistical_test_for_binning(df: pd.DataFrame, low_thresh: float, high_thresh: float) -> Dict[str, float]:
+def run_statistical_test_for_binning(df: pd.DataFrame, property_col: str) -> Dict[str, Any]:
     """
-    Run a simplified statistical test (e.g., Kruskal-Wallis on SFR vs Shape Bin)
-    for the given thresholds.
-    
-    We assume the statistical_results.csv contains the raw data or summary stats needed.
-    However, typically statistical_results.csv contains the *results* (p-values), not the raw data.
-    If the input file only contains results, we cannot re-run the test without the raw data.
-    
-    Strategy:
-    1. Check if the input file has raw data columns (e.g., 'SFR', 'c_a_ratio', 'shape_bin').
-    2. If yes, re-bin and re-run Kruskal-Wallis.
-    3. If no, we must load the raw halo_shapes.csv (from T017) and merge with galaxy properties.
-    
-    For robustness, we will attempt to load the raw data if the results file is just summaries.
+    Run Kruskal-Wallis test on the specified property across the recomputed bins.
+    Returns p-value and test statistic.
     """
-    # Check if we have raw data columns
-    has_raw_sfr = 'SFR' in df.columns
-    has_raw_shape = 'c_a_ratio' in df.columns or 'shape_bin' in df.columns
-
-    if has_raw_sfr and has_raw_shape:
-        # Re-bin
-        new_bins = recompute_bin_assignments(df, low_thresh, high_thresh)
-        df_temp = df.copy()
-        df_temp['shape_bin'] = new_bins
-        
-        # Drop NaN bins
-        valid_mask = df_temp['shape_bin'].notna()
-        if valid_mask.sum() < 3:
-            return {'p_value': np.nan, 'status': 'insufficient_data'}
-        
-        df_valid = df_temp[valid_mask]
-        
-        # Perform Kruskal-Wallis test: SFR ~ shape_bin
-        # We need to group by bin
-        groups = [group['SFR'].values for name, group in df_valid.groupby('shape_bin') if len(group) > 0]
-        
-        if len(groups) < 2:
-            return {'p_value': np.nan, 'status': 'not_enough_groups'}
-        
-        try:
-            stat, p_val = scipy_stats.kruskal(*groups)
-            return {'p_value': float(p_val), 'status': 'success'}
-        except Exception as e:
-            logger.warning(f"Kruskal-Wallis failed for thresholds ({low_thresh}, {high_thresh}): {e}")
-            return {'p_value': np.nan, 'status': 'test_failed'}
-    else:
-        # We need to load raw data from halo_shapes.csv and merge
-        # This implies we need the galaxy properties too. 
-        # To keep this script self-contained and robust, we assume the input statistical_results.csv
-        # might be a summary. If it's a summary, we can't re-run without raw data.
-        # Let's assume the project provides a merged raw file or we need to load halo_shapes.csv.
-        # Given the constraints, we will try to load halo_shapes.csv which should have c_a_ratio.
-        # We need SFR. If SFR is not in halo_shapes, we might need to load galaxy properties.
-        
-        # Attempt to load halo_shapes.csv
-        halo_path = get_data_processed_path() / "halo_shapes.csv"
-        if not halo_path.exists():
-            raise FileNotFoundError(f"Cannot re-run test: {halo_path} not found. "
-                                    "The statistical_results.csv appears to be summary-only. "
-                                    "Raw data (halo_shapes.csv) is required for sensitivity analysis.")
-        
-        raw_df = pd.read_csv(halo_path)
-        
-        # Check for SFR
-        if 'SFR' not in raw_df.columns:
-            # Try to load galaxy properties if available
-            gal_path = get_data_processed_path() / "galaxy_properties.csv"
-            if gal_path.exists():
-                gal_df = pd.read_csv(gal_path)
-                # Assume a merge key exists, e.g., 'halo_id' or 'group_id'
-                merge_key = None
-                for key in ['halo_id', 'group_id', 'id']:
-                    if key in raw_df.columns and key in gal_df.columns:
-                        merge_key = key
-                        break
-                
-                if merge_key:
-                    merged = pd.merge(raw_df, gal_df, on=merge_key, how='inner')
-                    if 'SFR' in merged.columns:
-                        raw_df = merged
-                    else:
-                        raise ValueError("SFR not found in merged data.")
-                else:
-                    raise ValueError("Cannot merge halo_shapes and galaxy_properties: no common key found.")
-            else:
-                raise ValueError("SFR not found in halo_shapes.csv and galaxy_properties.csv not found.")
-
-        # Now run the test on raw_df
-        new_bins = recompute_bin_assignments(raw_df, low_thresh, high_thresh)
-        raw_df['shape_bin'] = new_bins
-        
-        valid_mask = raw_df['shape_bin'].notna()
-        if valid_mask.sum() < 3:
-            return {'p_value': np.nan, 'status': 'insufficient_data'}
-        
-        df_valid = raw_df[valid_mask]
-        groups = [group['SFR'].values for name, group in df_valid.groupby('shape_bin') if len(group) > 0]
-        
-        if len(groups) < 2:
-            return {'p_value': np.nan, 'status': 'not_enough_groups'}
-        
-        try:
-            stat, p_val = scipy_stats.kruskal(*groups)
-            return {'p_value': float(p_val), 'status': 'success'}
-        except Exception as e:
-            logger.warning(f"Kruskal-Wallis failed for thresholds ({low_thresh}, {high_thresh}): {e}")
-            return {'p_value': np.nan, 'status': 'test_failed'}
+    # Group by bin
+    groups = [group[1][property_col].values for group in df.groupby('recomputed_bin') if len(group[1]) > 0]
+    
+    if len(groups) < 2:
+        return {'p_value': np.nan, 'statistic': np.nan, 'n_groups': len(groups)}
+    
+    try:
+        stat, p_val = scipy_stats.kruskal(*groups)
+        return {'p_value': p_val, 'statistic': stat, 'n_groups': len(groups)}
+    except Exception as e:
+        logger.warning(f"Kruskal-Wallis failed for {property_col}: {e}")
+        return {'p_value': np.nan, 'statistic': np.nan, 'n_groups': len(groups)}
 
 def calculate_variance(p_values: List[float]) -> float:
-    """Calculate variance of a list of p-values, ignoring NaNs."""
+    """Calculate the variance of a list of p-values, ignoring NaNs."""
     valid_p = [p for p in p_values if not np.isnan(p)]
     if len(valid_p) < 2:
         return np.nan
     return float(np.var(valid_p))
 
-def run_sensitivity_analysis():
-    """Main entry point for the sensitivity analysis."""
-    logger.info("Starting Sensitivity Analysis (T030)...")
+def run_sensitivity_analysis() -> pd.DataFrame:
+    """
+    Perform the full sensitivity analysis sweep.
+    1. Iterate over threshold combinations.
+    2. Recompute bins.
+    3. Run statistical tests for key properties (e.g., 'star_formation_rate', 'stellar_mass').
+    4. Collect p-values.
+    5. Calculate variance.
+    6. Check against SC-003 threshold (0.001).
+    """
+    processed_path = get_data_processed_path()
+    output_path = get_output_path()
     
-    # 1. Load data
+    # Load base data
+    logger.info("Loading statistical results for sensitivity analysis...")
     try:
-        # Try to load the statistical results first to see if it has raw data
-        # If not, we will rely on halo_shapes.csv logic inside the test runner
-        df_results = load_statistical_results()
+        base_df = load_statistical_results()
     except FileNotFoundError as e:
         logger.error(str(e))
-        # Fallback to direct raw data loading if results file is missing but raw is there
-        # But the task depends on T025, so we expect the file.
         raise
+    
+    # Properties to test (matching typical outputs from stats.py)
+    test_properties = ['star_formation_rate', 'stellar_mass', 'b_a_ratio', 'triaxiality']
+    # Filter to only those present in the dataframe
+    available_properties = [p for p in test_properties if p in base_df.columns]
+    
+    if not available_properties:
+        logger.warning("No test properties found in statistical_results.csv. Using synthetic columns for structure? No, failing.")
+        # If the previous step didn't produce these columns, we can't do the analysis.
+        # However, for robustness, we might fallback to 'c_a_ratio' if present, but that's circular.
+        # Let's assume the previous step produced at least some numeric columns.
+        numeric_cols = base_df.select_dtypes(include=[np.number]).columns.tolist()
+        if not numeric_cols:
+            raise ValueError("No numeric columns found in statistical_results.csv to run sensitivity analysis.")
+        available_properties = numeric_cols[:3] # Take first 3 numeric columns
+        logger.info(f"Using numeric columns as test properties: {available_properties}")
 
-    results_rows = []
-    p_values = []
+    results = []
+    all_p_values = []
 
-    logger.info(f"Sweeping thresholds. Low: {THRESHOLD_SWEEP_LOW}, High: {THRESHOLD_SWEEP_HIGH}")
+    logger.info(f"Starting sensitivity sweep over {len(LOWER_BOUNDARIES) * len(UPPER_BOUNDARIES)} threshold combinations.")
 
-    for low_t in THRESHOLD_SWEEP_LOW:
-        for high_t in THRESHOLD_SWEEP_HIGH:
-            # Ensure low < high
-            if low_t >= high_t:
+    for lower in LOWER_BOUNDARIES:
+        for upper in UPPER_BOUNDARIES:
+            # Skip invalid ranges
+            if lower >= upper:
                 continue
             
-            logger.info(f"Testing thresholds: low={low_t}, high={high_t}")
-            res = run_statistical_test_for_binning(df_results, low_t, high_t)
+            logger.debug(f"Sweeping: lower={lower}, upper={upper}")
             
-            row = {
-                'threshold_low': low_t,
-                'threshold_high': high_t,
-                'p_value': res['p_value'],
-                'status': res['status']
+            # Recompute bins
+            df_swept = recompute_bin_assignments(base_df, lower, upper)
+            
+            # Check if we have enough data in bins
+            bin_counts = df_swept['recomputed_bin'].value_counts()
+            if bin_counts.min() < 10: # Minimum sample size per bin
+                logger.debug(f"Skipping: Insufficient data in bins for lower={lower}, upper={upper}")
+                continue
+
+            sweep_row = {
+                'lower_threshold': lower,
+                'upper_threshold': upper
             }
-            results_rows.append(row)
             
-            if res['p_value'] is not None and not np.isnan(res['p_value']):
-                p_values.append(res['p_value'])
+            for prop in available_properties:
+                test_res = run_statistical_test_for_binning(df_swept, prop)
+                p_val = test_res['p_value']
+                sweep_row[f'p_value_{prop}'] = p_val
+                
+                if not np.isnan(p_val):
+                    all_p_values.append(p_val)
+            
+            results.append(sweep_row)
 
-    # 2. Calculate Variance
-    variance = calculate_variance(p_values)
-    sc_003_passed = False
-    sc_003_status = "Unknown"
+    if not results:
+        logger.error("Sensitivity analysis produced no results. Check data and thresholds.")
+        raise RuntimeError("Sensitivity analysis produced no valid results.")
+
+    # Create DataFrame
+    report_df = pd.DataFrame(results)
     
-    if not np.isnan(variance):
-        sc_003_passed = variance <= SC_003_VARIANCE_THRESHOLD
-        sc_003_status = "PASSED" if sc_003_passed else "FAILED"
-        logger.info(f"P-value variance: {variance:.6f} (Threshold: {SC_003_VARIANCE_THRESHOLD}). Status: {sc_003_status}")
+    # Calculate overall variance across all p-values collected
+    if all_p_values:
+        variance = calculate_variance(all_p_values)
     else:
-        logger.warning("Could not calculate variance due to insufficient valid p-values.")
-        sc_003_status = "INSUFFICIENT_DATA"
-
-    # 3. Write Output
-    output_path = get_data_processed_path() / "sensitivity_report.csv"
-    os.makedirs(output_path.parent, exist_ok=True)
+        variance = np.nan
     
-    df_output = pd.DataFrame(results_rows)
-    df_output.to_csv(output_path, index=False)
-    logger.info(f"Sensitivity report written to {output_path}")
+    report_df['p_value_variance'] = variance
+    
+    # SC-003 Check
+    sc_003_status = "PASSED" if variance <= 0.001 else "FAILED_SC-003"
+    if variance > 0.001 and not np.isnan(variance):
+        logger.warning(f"SC-003 FAILED: P-value variance {variance:.6f} > 0.001")
+    else:
+        logger.info(f"SC-003 Status: {sc_003_status} (Variance: {variance:.6f})")
+    
+    report_df['sc_003_status'] = sc_003_status
+    
+    # Ensure associational_only flag is present (T026 requirement)
+    if 'associational_only' not in report_df.columns:
+        report_df['associational_only'] = True
 
-    # 4. Update Metadata
+    # Save to CSV
+    output_file = processed_path / "sensitivity_report.csv"
+    report_df.to_csv(output_file, index=False)
+    logger.info(f"Sensitivity report saved to {output_file}")
+    
+    # Update metadata.yaml
     try:
         metadata = load_metadata()
-        metadata['success_criteria']['SC-003'] = {
-            'status': sc_003_status,
-            'details': f"P-value variance: {variance:.6f}. Threshold: {SC_003_VARIANCE_THRESHOLD}.",
-            'variance': variance,
-            'passed': sc_003_passed
-        }
+        if 'sensitivity_report' not in metadata.get('datasets', {}):
+            metadata['datasets']['sensitivity_report'] = {}
+        metadata['datasets']['sensitivity_report']['path'] = str(output_file)
+        metadata['datasets']['sensitivity_report']['associational_only'] = True
+        metadata['datasets']['sensitivity_report']['sc_003_status'] = sc_003_status
+        metadata['datasets']['sensitivity_report']['p_value_variance'] = variance
+        
         save_metadata(metadata)
-        logger.info("Updated data/metadata.yaml with SC-003 status.")
+        logger.info("Updated data/metadata.yaml with sensitivity analysis results.")
     except Exception as e:
-        logger.error(f"Failed to update metadata: {e}")
+        logger.error(f"Failed to update metadata.yaml: {e}")
+        raise
 
-    return df_output, variance, sc_003_passed
+    return report_df
 
 def main():
+    """Entry point for the sensitivity analysis script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
     try:
-        run_sensitivity_analysis()
-        logger.info("Sensitivity Analysis completed successfully.")
+        report = run_sensitivity_analysis()
+        print(f"Sensitivity analysis complete. Variance: {report['p_value_variance'].iloc[0]:.6f}")
+        print(f"SC-003 Status: {report['sc_003_status'].iloc[0]}")
     except Exception as e:
-        logger.critical(f"Sensitivity Analysis failed: {e}", exc_info=True)
+        logger.error(f"Sensitivity analysis failed: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":
