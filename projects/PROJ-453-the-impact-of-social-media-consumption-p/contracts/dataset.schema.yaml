@@ -1,8 +1,8 @@
 columns:
-  - switching_index
-  - cognitive_flexibility_score
-  - age
-  - total_screen_time
-  - num_platforms
-  - switching_frequency
-description: Expected columns for social media consumption analysis
+  switching_index: float
+  cognitive_flexibility_score: float
+  age: float
+  total_screen_time: float
+  num_platforms: int
+  switching_frequency: float
+  participant_id: int

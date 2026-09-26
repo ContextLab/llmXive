@@ -1,49 +1,22 @@
 """
-Core package initialization for the llmXive research pipeline.
-
-This module exports the primary utility classes, functions, and configuration
-constants used across the project.
+Project package initialization.
+Exports core utilities and error handling.
 """
 from utils import log_setup, checksum_file, causal_language_scanner
-from config import (
-    RANDOM_SEED,
-    DATA_ROOT,
-    RESULTS_ROOT,
-    CONTRACTS_ROOT,
-    LOGS_ROOT,
-    ensure_directories
-)
+from logging_config import setup_logging, get_logger
 
-# Explicitly define the public API
 __all__ = [
-    # Utilities
-    "log_setup",
-    "checksum_file",
-    "causal_language_scanner",
-    # Configuration
-    "RANDOM_SEED",
-    "DATA_ROOT",
-    "RESULTS_ROOT",
-    "CONTRACTS_ROOT",
-    "LOGS_ROOT",
-    "ensure_directories",
+    'log_setup',
+    'checksum_file',
+    'causal_language_scanner',
+    'setup_logging',
+    'get_logger'
 ]
 
-# Custom Exception Classes for the pipeline
-class PipelineError(Exception):
-    """Base exception for pipeline errors."""
+class DataGapError(Exception):
+    """Custom exception for data gaps."""
     pass
 
-class DataGapError(PipelineError):
-    """Raised when a required variable or dataset is missing."""
+class SchemaValidationError(Exception):
+    """Custom exception for schema validation errors."""
     pass
-
-class RobustnessError(PipelineError):
-    """Raised when robustness checks (e.g., SC-003) fail."""
-    pass
-
-class CausalLanguageError(PipelineError):
-    """Raised when forbidden causal language is detected."""
-    pass
-
-__version__ = "0.1.0"

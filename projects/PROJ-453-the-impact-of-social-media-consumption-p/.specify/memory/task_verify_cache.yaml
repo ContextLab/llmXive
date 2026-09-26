@@ -1,16 +1,17 @@
 T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project directories or configuration files were provided; the only artifacts\
-    \ mentioned are high\u2011level user stories, and there is no concrete file structure,\
-    \ README, .gitignore, or config files on disk to verify the claimed setup. The\
-    \ required setup artifacts are missing."
+  r: No project directories or configuration files were provided; the only content
+    shown is a feature specification and user stories, with no actual filesystem artifacts
+    or code establishing the required project structure. The implementer did not supply
+    the requested setup files.
 T010:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No utility files, scripts, or other artifacts are present; the claim provides
-    only a description of user stories without any actual code, CSV output, or analysis
-    results, so the required foundational utilities have not been delivered.
+  r: No core utility modules or logging configuration files are present in the provided
+    evidence; the artifacts required for task T010 (foundational utilities & logging)
+    are missing entirely. The only artifacts described relate to data ingestion and
+    analysis, not to the requested utility or logging code.
 T013:
   c: true
   h: e666c11651b829aa8f6719c328efc31128a16267a6c6521e3e1b29f94e9642ff
@@ -28,7 +29,7 @@ T016a:
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, or output artifacts (e.g., ingestion script, cleaned CSV,
-    regression JSON report, or visualizations) were provided, so none of the required
-    user stories can be verified as completed. The implementer must supply the actual
-    pipeline scripts and resulting outputs.
+  r: No documentation files (e.g., README, user guide, API docs, or final report)
+    were provided; the only evidence is the task description itself, which does not
+    include any actual documentation artifact. The required final documentation is
+    missing.

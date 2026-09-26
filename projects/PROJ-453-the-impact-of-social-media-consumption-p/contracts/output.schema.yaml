@@ -1,8 +1,9 @@
-coefficients: {}
-p_values: {}
-vif_scores: {}
-diagnostics:
-  vif_scores: {}
-  correlation_matrix: {}
-interpretation: ""
-description: Expected structure for model output
+required:
+  - coefficients
+  - p_values
+  - vif_scores
+  - diagnostics
+  - interpretation
+types:
+  vif_scores: dict
+  interpretation: string

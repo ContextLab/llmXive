@@ -1,22 +1,27 @@
+"""
+Configuration constants for the project.
+"""
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 RANDOM_SEED = 42
 DATA_ROOT = "data"
 RESULTS_ROOT = "results"
 
-def ensure_directories():
-    """Ensure required directories exist."""
+def ensure_directories() -> None:
+    """
+    Ensure all required project directories exist.
+    """
     dirs = [
-        "data/raw",
-        "data/processed",
-        "results/models",
-        "results/figures",
-        "tests",
-        "contracts",
-        "research",
-        "logs"
+        Path(DATA_ROOT),
+        Path(DATA_ROOT) / "raw",
+        Path(DATA_ROOT) / "processed",
+        Path(RESULTS_ROOT),
+        Path(RESULTS_ROOT) / "models",
+        Path(RESULTS_ROOT) / "figures",
+        Path("contracts"),
+        Path("tests")
     ]
     for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
+        d.mkdir(parents=True, exist_ok=True)

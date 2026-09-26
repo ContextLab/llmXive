@@ -1,4 +1,4 @@
 """
-Test suite initialization.
+Test package initialization.
 """
 pass

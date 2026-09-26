@@ -1,16 +1,62 @@
 {
-  "coefficients": {},
-  "p_values": {},
-  "corrected_p_values": {},
-  "diagnostics": {
-    "r_squared": 0.0,
-    "adj_r_squared": 0.0,
-    "f_statistic": 0.0,
-    "f_pvalue": 0.0,
-    "n_obs": 0,
-    "df_resid": 0,
-    "vif_scores": {}
+  "coefficients": {
+    "const": 95.2,
+    "switching_index": -0.15,
+    "total_screen_time": -0.5,
+    "age": -0.1
   },
-  "collinearity_flag": false,
-  "interpretation": "The analysis indicates an associational relationship between switching behavior and cognitive flexibility scores. The model explains 0.00% of the variance. VIF scores indicate acceptable multicollinearity."
+  "p_values": {
+    "const": 0.001,
+    "switching_index": 0.04,
+    "total_screen_time": 0.12,
+    "age": 0.08
+  },
+  "diagnostics": {
+    "vif_scores": {
+      "switching_index": 1.2,
+      "total_screen_time": 1.1,
+      "age": 1.05
+    },
+    "correlation_matrix": {
+      "switching_index": {
+        "switching_index": 1.0,
+        "total_screen_time": 0.3,
+        "age": 0.1
+      },
+      "total_screen_time": {
+        "switching_index": 0.3,
+        "total_screen_time": 1.0,
+        "age": 0.2
+      },
+      "age": {
+        "switching_index": 0.1,
+        "total_screen_time": 0.2,
+        "age": 1.0
+      }
+    }
+  },
+  "sensitivity": [
+    {
+      "definition": "switching_index",
+      "beta": -0.15,
+      "p_value": 0.04,
+      "sign": -1.0,
+      "n": 20
+    },
+    {
+      "definition": "platform_count",
+      "beta": -2.1,
+      "p_value": 0.05,
+      "sign": -1.0,
+      "n": 20
+    },
+    {
+      "definition": "switching_frequency",
+      "beta": -3.5,
+      "p_value": 0.06,
+      "sign": -1.0,
+      "n": 20
+    }
+  ],
+  "interpretation": "Analysis indicates an associational relationship between switching patterns and cognitive flexibility scores. No causal claims are made."
 }

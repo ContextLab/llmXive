@@ -1,52 +1,48 @@
-import pytest
+"""
+Unit tests for logging configuration.
+"""
+
 import logging
 import sys
-from io import StringIO
-from code.utils import log_setup
+from pathlib import Path
 
-def test_log_setup_format():
-    """Test that log_setup produces the correct format."""
-    # Capture stdout
-    old_stdout = sys.stdout
-    sys.stdout = captured_output = StringIO()
-    
-    try:
-        logger = log_setup(level=logging.INFO, destination='stdout')
-        logger.info("Test message")
-        
-        output = captured_output.getvalue()
-        
-        # Check format: [%(asctime)s] %(levelname)s: %(message)s
-        # The exact timestamp will vary, but structure must match
-        assert "[INFO]" in output or "INFO" in output
-        assert "Test message" in output
-        assert output.startswith("[")
-        assert "]" in output
-    finally:
-        sys.stdout = old_stdout
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-def test_log_setup_level():
-    """Test that log_setup respects the logging level."""
-    logger = log_setup(level=logging.WARNING, destination='stdout')
-    
-    # This should not appear if level is WARNING
-    # We can't easily capture this without redirecting, 
-    # but we can verify the logger's level
-    assert logger.level == logging.WARNING
+from logging_config import setup_logging, get_logger
+from utils import log_setup
 
-def test_log_setup_destination_file():
-    """Test that log_setup can write to a file."""
-    import os
-    from pathlib import Path
+def test_setup_logging_creates_handler():
+    """Test that setup_logging adds a handler to the root logger."""
+    logger = logging.getLogger()
+    initial_count = len(logger.handlers)
     
-    logger = log_setup(level=logging.INFO, destination='file')
-    logger.info("File test message")
+    setup_logging()
     
-    # Verify log file exists
-    log_path = Path("logs/app.log")
-    assert log_path.exists()
+    assert len(logger.handlers) > initial_count
+    assert isinstance(logger.handlers[-1], logging.StreamHandler)
+
+def test_get_logger_returns_instance():
+    """Test that get_logger returns a valid logger instance."""
+    logger = get_logger()
+    assert isinstance(logger, logging.Logger)
     
-    # Clean up
-    log_path.unlink()
-    if not list(Path("logs").glob("*")):
-        Path("logs").rmdir()
+    named_logger = get_logger("test_module")
+    assert isinstance(named_logger, logging.Logger)
+    assert named_logger.name == "test_module"
+
+def test_log_setup_function():
+    """Test the log_setup helper function."""
+    logger = log_setup()
+    assert isinstance(logger, logging.Logger)
+    assert logger.level == logging.INFO
+
+def test_log_formatting():
+    """Test that log messages are formatted correctly."""
+    logger = get_logger()
+    # We can't easily assert the exact format string, but we can ensure
+    # the handler exists and is configured
+    assert len(logger.handlers) > 0
+    handler = logger.handlers[0]
+    assert handler.formatter is not None
+    assert '%(asctime)s' in handler.formatter._fmt
