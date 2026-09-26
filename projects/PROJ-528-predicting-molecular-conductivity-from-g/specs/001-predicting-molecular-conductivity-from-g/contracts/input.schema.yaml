@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Conductivity Input Schema"
+description: "Schema for raw input CSV containing SMILES and conductivity values."
+type: "object"
+properties:
+  smiles:
+    type: "array"
+    items:
+      type: "string"
+      description: "SMILES string representation of the molecule."
+    minItems: 1
+  conductivity:
+    type: "array"
+    items:
+      type: "number"
+      description: "Conductivity value (cm²/V·s). Must be positive."
+    minItems: 1
+required:
+  - "smiles"
+  - "conductivity"
+additionalProperties: false

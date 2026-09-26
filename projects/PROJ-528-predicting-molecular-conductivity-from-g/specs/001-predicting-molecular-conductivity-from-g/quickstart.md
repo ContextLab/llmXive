@@ -1,91 +1,74 @@
 # Quickstart: Predicting Molecular Conductivity from Graph-Based Features
 
 ## Prerequisites
-*   Python 3.11+
-*   Git
-*   Access to Hugging Face (for dataset download)
+
+-   Python 3.11+
+-   Git
+-   Access to GitHub Actions (for CI) or a local Linux environment with 7 GB+ RAM.
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone the repository** and navigate to the project directory:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-528-predicting-molecular-conductivity-from-g
     ```
 
-2.  **Create and activate virtual environment**:
+2.  **Create a virtual environment** and install dependencies:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
     pip install -r code/requirements.txt
     ```
 
+## Data Preparation
+
+### Option A: Use Your Own Data (Recommended)
+Create a CSV file named `input.csv` with at least two columns: `smiles` and `conductivity`.
+```csv
+smiles,conductivity
+c1ccccc1,1.5e-4
+CCO,2.3e-5
+...
+```
+Place this file in `data/raw/input.csv`.
+
+### Option B: Download Default Dataset
+If no input is provided, the pipeline attempts to load from Hugging Face.
+```bash
+# The pipeline will automatically attempt to load from verified URLs if data/raw/input.csv is missing.
+```
+
 ## Running the Pipeline
 
-The pipeline is designed to run sequentially. Execute the following commands in order:
+Execute the main orchestration script:
+```bash
+python code/main.py
+```
 
-1.  **Download Data**:
-    ```bash
-    python code/01_download_data.py
-    # Output: data/raw/*.parquet
-    ```
+This will:
+1.  Load and validate data.
+2.  Compute graph descriptors.
+3.  Perform VIF filtering and scaffold splitting.
+4.  Train Random Forest and Gradient Boosting models.
+5.  Run sensitivity analysis and FDR correction.
+6.  Generate plots and reports.
 
-2.  **Compute Descriptors**:
-    ```bash
-    python code/02_compute_descriptors.py
-    # Output: data/processed/descriptors_base.csv, data/processed/descriptors.csv
-    ```
+## Expected Outputs
 
-3.  **Preprocess & Split**:
-    ```bash
-    python code/03_preprocess.py
-    # Output: data/processed/cleaned.csv
-    ```
+-   `data/processed/descriptors.csv`: Computed features.
+-   `data/processed/metrics.json`: R², MAE, CV scores.
+-   `data/processed/plots/`: Feature importance and correlation plots.
+-   `data/processed/reports/sensitivity_analysis.json`: R² variance across outlier thresholds.
 
-4.  **Train Models**:
-    ```bash
-    python code/04_train_models.py
-    # Output: data/processed/model_results.json
-    ```
+## Testing
 
-5.  **VIF Analysis & Retraining**:
-    ```bash
-    python code/05_vif_analysis.py
-    # Output: data/processed/vif_iteration_log.json
-    ```
+Run unit tests:
+```bash
+pytest tests/unit/
+```
 
-6.  **Feature Importance**:
-    ```bash
-    python code/06_feature_importance.py
-    # Output: data/processed/feature_importance.csv
-    ```
-
-7.  **Sensitivity Analysis**:
-    ```bash
-    python code/07_sensitivity_analysis.py
-    # Output: data/processed/sensitivity_results.json
-    ```
-
-8.  **Generate Visualizations**:
-    ```bash
-    python code/08_visualization.py
-    # Output: figures/*.png
-    ```
-
-## Verification
-
-To verify the pipeline completed successfully:
-*   Check that `data/processed/descriptors_base.csv` exists and has > 0 rows.
-*   Check that `data/processed/vif_iteration_log.json` contains the final VIF scores.
-*   Check that `figures/` contains correlation plots.
-*   Run `pytest tests/` to execute unit and integration tests.
-
-## Troubleshooting
-
-*   **RDKit Import Error**: Ensure `rdkit` is installed via `conda` or `pip` (check `requirements.txt`).
-*   **Dataset Download Failed**: Verify internet connectivity and Hugging Face access. The script uses `streaming=True` to handle large files.
-*   **Memory Error**: If running out of RAM, reduce the `batch_size` in `01_download_data.py` or `02_compute_descriptors.py`.
+Run integration tests:
+```bash
+pytest tests/integration/
+```

@@ -1,14 +1,3 @@
-- artifact_hash: 9a3a1683b75499e3e8dc5ba0d419535ae94c5a923edd581c89767bbc1059ae86
-  artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: qm9 (qm9)
-  kind: url
-  value: https://huggingface.co/datasets/qm9`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/qm9/datasets
-  verified_at: '2026-09-18T09:54:01.206666Z'
 - artifact_hash: 41b41200cb43b2a5ea5da0ecb9f3a1a70f0c9f5ae48ca805f0c9413c92b426ac
   artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
   cite_id: c-001
@@ -43,3 +32,14 @@
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Bond_order
   verified_at: '2026-09-22T06:53:29.190937Z'
+- artifact_hash: 9683eb3e08738288c8c5de7570da9027de48b73743b16f95f8755003ddfb7b4c
+  artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-e9b227f8c7259c8b.parquet
+  kind: url
+  value: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6312e7b5bbaa385279d3e10b/06521683174da62c0d7a38ec22d401a0ddc1b06fa0bb9dab63b4ad55428703db?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-e9b227f8c7259c8b.parquet%3B+filename%3D%22train-00000-of-00001-e9b227f8c7259c8b.parquet%22%3B&user_id=public&xip=71yjcP7wfsc&X-Xet-Cas-Uid=public&Expires=1790416813&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMxMmU3YjViYmFhMzg1Mjc5ZDNlMTBiLzA2NTIxNjgzMTc0ZGE2MmMwZDdhMzhlYzIyZDQwMWEwZGRjMWIwNmZhMGJiOWRhYjYzYjRhZDU1NDI4NzAzZGJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZTliMjI3ZjhjNzI1OWM4Yi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZTliMjI3ZjhjNzI1OWM4Yi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD03MXlqY1A3d2ZzYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkwNDE2ODEzfX19XX0_&Signature=MEQCIDnB1bIMSGqoyHlUTTy3ZLHNdYtBq-MMePIoPga6%7EMMjAiAcZiMm-RDmdycEGWiD1aRl%7Edudkz9kYDsbLEsW5ECkjw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-26T09:00:13.374950Z'

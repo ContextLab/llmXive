@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Descriptor Schema"
+description: "Schema for computed graph-based descriptors."
+type: "object"
+properties:
+  smiles:
+    type: "string"
+  molecular_weight:
+    type: "number"
+  aromaticity_index:
+    type: "number"
+  conjugation_length:
+    type: "number"
+  ring_count:
+    type: "integer"
+  average_path_length:
+    type: "number"
+  degree_std:
+    type: "number"
+  log_conductivity:
+    type: "number"
+    description: "Log10 transformed conductivity."
+  vif_score:
+    type: "number"
+    description: "Variance Inflation Factor for the row's feature set (aggregated)."
+  is_excluded:
+    type: "boolean"
+    description: "True if VIF > 10."
+required:
+  - "smiles"
+  - "aromaticity_index"
+  - "conjugation_length"
+  - "ring_count"
+  - "average_path_length"
+  - "log_conductivity"
+additionalProperties: false
