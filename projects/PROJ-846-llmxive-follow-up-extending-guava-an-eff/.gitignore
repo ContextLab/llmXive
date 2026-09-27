@@ -1,57 +1,32 @@
 # Byte-compiled / optimized / DLL files
 *.pyc
-*.pyo
-*.pyd
 __pycache__/
-*.so
-*.dll
-*.dylib
+*.py[cod]
+*$py.class
 
 # Environment variables
 .env
-.env.local
-.env.*.local
 
 # Data directories (raw and artifacts)
 data/raw/*
 !data/raw/.gitkeep
 data/artifacts/*
 !data/artifacts/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
 
 # Logs
 *.log
-logs/
-.log
 
-# Model weights (large binary files)
+# Model weights
 *.pth
 *.pt
-*.bin
-*.h5
-*.safetensors
-models/
+*.onnx
 
-# IDE and editor files
+# IDE / Editor
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
+
+# OS
 .DS_Store
-
-# Testing and coverage
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
-
-# Build artifacts
-build/
-dist/
-*.egg-info/
-*.egg
-
-# Jupyter Notebook checkpoints
-.ipynb_checkpoints/
+Thumbs.db

@@ -1,2 +1,3 @@
-# This file is a placeholder to ensure the directory is tracked by Git.
-# Raw data files for the Guava dataset will be stored here.
+# This directory stores raw, unprocessed dataset files.
+# Do not modify files here; they are ingested from external sources.
+# Git keeps this directory tracked even when empty.

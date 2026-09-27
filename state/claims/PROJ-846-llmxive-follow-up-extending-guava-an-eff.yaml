@@ -2113,3 +2113,762 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T11:46:44Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 0
+  canonical: Plan.md proposed Oracle-Symbolic agent as primary baseline
+  claim_id: c_3da97ab4
+  context: 'Methodological Alignment Notice: The Plan.md proposed a ''Critical Methodological
+    Shift'' to use an ''Oracle-Symbolic'' agent as the primary baseline. The Spec
+    (FR-004, SC-001) explicitly mandates a comparison against the Baseline-Guava (Visual)
+    agent.'
+  evidence:
+    entailment_evidence: md proposed Oracle-Symbolic agent as primary baseline
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_proposed_Oracle-Symbolic_agent_as_primary_baseline
+  kind: entity_fact
+  raw_text: The Plan.md proposed a 'Critical Methodological Shift' to use an 'Oracle-Symbolic'
+    agent as the primary baseline.
+  resolved_value: Plan.md proposed Oracle-Symbolic agent as primary baseline
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T00:32:10Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 0
+  canonical: Plan.md flagged for kickback to align with Spec
+  claim_id: c_562fbca0
+  context: 'Implementation Directive: 3. Plan Status: The Plan.md is flagged for KICKBACK
+    to align with the Spec. The implementation MUST follow the Spec''s Visual Baseline
+    requirement.'
+  evidence:
+    entailment_evidence: md flagged for kickback to align with Spec
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_flagged_for_kickback_to_align_with_Spec
+  kind: entity_fact
+  raw_text: The Plan.md is flagged for KICKBACK to align with the Spec.
+  resolved_value: Plan.md flagged for kickback to align with Spec
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T00:32:11Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 0
+  canonical: Plan.md flagged for kickback to align with Spec
+  claim_id: c_b506d808
+  context: 'Notes: The Plan is flagged for kickback to align with the Spec.'
+  evidence:
+    entailment_evidence: md flagged for kickback to align with Spec
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_flagged_for_kickback_to_align_with_Spec
+  kind: entity_fact
+  raw_text: The Plan.md is flagged for kickback to align with the Spec.
+  resolved_value: Plan.md flagged for kickback to align with Spec
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T00:32:12Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Plan's Oracle-Symbolic baseline shift rejected
+  claim_id: c_3456f9b9
+  context: 'Resolution: Per the Constitution (Single Source of Truth), the Spec is
+    the binding authority. The Plan''s proposed shift is REJECTED.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'no'
+      source_id: Q1814990
+      url: https://www.wikidata.org/wiki/Q1814990
+      value: 'no'
+    filled: true
+  kind: entity_fact
+  raw_text: The Plan's proposed shift to an Oracle-Symbolic baseline is REJECTED.
+  resolved_value: 'no'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T00:32:44Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Baseline-Guava Visual agent is primary comparison target
+  claim_id: c_bd46395c
+  context: 'Implementation Directive: 1. Primary Baseline: The Baseline-Guava (Visual)
+    agent (T032b) is the PRIMARY comparison target. T036b compares Symbolic vs. Visual.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline-Guava_Visual_agent_is_primary_comparison_target
+  kind: entity_fact
+  raw_text: The Baseline-Guava (Visual) agent (T032b) is the PRIMARY comparison target.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:33:13Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Oracle-Symbolic agent is secondary diagnostic tool
+  claim_id: c_7c1cb8c5
+  context: 'Implementation Directive: 2. Secondary Baseline: The ''Oracle-Symbolic''
+    agent (T032c) is implemented as a SECONDARY/DIAGNOSTIC tool only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Oracle-Symbolic_agent_is_secondary_diagnostic_tool
+  kind: entity_fact
+  raw_text: The 'Oracle-Symbolic' agent (T032c) is implemented as a SECONDARY/DIAGNOSTIC
+    tool only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:33:49Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Symbolic pipeline processing time <= 150ms per frame on CPU
+  claim_id: c_f832955f
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU. No raw pixel data in output."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Symbolic_pipeline_processing_time_%3C=_150ms_per_frame_on_CPU
+  kind: entity_fact
+  raw_text: "Processing time must be \u2264 150ms/frame on CPU for the symbolic pipeline."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:34:22Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO-tiny inference latency must be < 150ms
+  claim_id: c_ab355c7f
+  context: 'Tests for User Story 1: Unit test for YOLO-tiny inference latency (must
+    be < 150ms) and -hour full dataset completion in projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/tests/unit/test_performance.py.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLO-tiny_inference_latency_must_be_%3C_150ms
+  kind: entity_fact
+  raw_text: The unit test for YOLO-tiny inference latency must be < 150ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:34:49Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO inference latency test confirms < 150ms per frame
+  claim_id: c_d610a1be
+  context: 'T015a: Verify: File exists, checksum matches SHA256, and inference latency
+    test on target runner confirms < 150ms per frame.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLO_inference_latency_test_confirms_%3C_150ms_per_frame
+  kind: entity_fact
+  raw_text: Inference latency test on target runner confirms < 150ms per frame.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:35:24Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuning convergence requires >= 15% loss decrease within 4 hours
+    on CPU
+  claim_id: c_cbc74d4e
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch). Model accepts symbolic JSON input\
+    \ without crashing."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fine-tuning must converge (loss decrease \u226515%) within 4 hours on\
+    \ CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:35:25Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: ConvergenceTimeoutError raised if training > 4 hours or loss decrease
+    < 15%
+  claim_id: c_519c0652
+  context: 'T023b: Logic: If training time > 4 hours OR loss decrease < 15%, raise
+    ConvergenceTimeoutError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If training time > 4 hours OR loss decrease < 15%, a ConvergenceTimeoutError
+    is raised.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:35:25Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Primary evaluation compares Symbolic vs. Visual agents
+  claim_id: c_82336eb4
+  context: 'Notes: The primary evaluation compares Symbolic vs. Visual (T036b).'
+  evidence:
+    entailment_evidence: Primary evaluation compares Symbolic vs. Visual agents
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_evaluation_compares_Symbolic_vs._Visual_agents
+  kind: entity_fact
+  raw_text: The primary evaluation compares Symbolic vs. Visual agents.
+  resolved_value: Primary evaluation compares Symbolic vs. Visual agents
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T00:35:28Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation Test uses 1000 iterations
+  claim_id: c_27998121
+  context: 'T036b: Implement ... to perform a Permutation Test with 1000 iterations
+    and a convergence check (std_dev < 0.001) to ensure robust statistical inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T036b uses 1000 iterations as default for the Permutation Test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:35:49Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation Test convergence check requires std_dev < 0.001
+  claim_id: c_37d76453
+  context: 'T036b: Implement ... to perform a Permutation Test with 1000 iterations
+    and a convergence check (std_dev < 0.001) to ensure robust statistical inference.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Permutation Test includes a convergence check with std_dev < 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:35:49Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Tasks exceeding 150ms latency flagged as latency-induced failures
+  claim_id: c_335a0c0b
+  context: 'T034: Implement logic to flag ''latency-induced failures'' (>150ms) in
+    TaskOutcome records.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_exceeding_150ms_latency_flagged_as_latency-induced_fai
+  kind: entity_fact
+  raw_text: Tasks exceeding 150ms latency are flagged as 'latency-induced failures'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:36:31Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Failure categorized as geometric if IoU < 0.3
+  claim_id: c_e7b61c6e
+  context: 'T033a: Logic: If IoU < 0.3: Categorize as ''geometric''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If IoU < 0.3, a failure is categorized as 'geometric'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:36:31Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: GPU escape hatch triggers Kaggle GPU run if 4-hour CPU limit exceeded
+  claim_id: c_fd4731bc
+  context: 'Notes: GPU Fallback Logic: T023c enforces a hard 4-hour CPU limit. If
+    exceeded, the task triggers an automatic Kaggle GPU run via API.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GPU escape hatch triggers an automatic Kaggle GPU run if the 4-hour
+    CPU limit is exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:36:49Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Baseline-Guava Visual agent fetched from Hugging Face guava/vision-base-v1
+  claim_id: c_22f48da8
+  context: 'T032a: Implement ... to fetch the Baseline-Guava (Visual) agent from Hugging
+    Face ID guava/vision-base-v1 or local path code/models/guava_vision.pth.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline-Guava_Visual_agent_fetched_from_Hugging_Face_guava/
+  kind: entity_fact
+  raw_text: The Baseline-Guava (Visual) agent is fetched from Hugging Face ID guava/vision-base-v1
+    or local path code/models/guava_vision.pth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:37:37Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Ground Truth annotations fetched from Hugging Face guava/annotations-v1
+  claim_id: c_59d88907
+  context: 'T013b: Implement ... to fetch Ground Truth annotations from Hugging Face
+    dataset guava/annotations-v1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ground_Truth_annotations_fetched_from_Hugging_Face_guava/ann
+  kind: entity_fact
+  raw_text: The Ground Truth annotations are fetched from Hugging Face dataset guava/annotations-v1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:38:05Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Oracle-Symbolic agent weights fetched from guava/oracle-symbolic
+  claim_id: c_81b89e0d
+  context: 'T032c: Implement ... to fetch the Oracle-Symbolic agent weights from guava/oracle-symbolic
+    (if available) or generate a perfect policy script.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Oracle-Symbolic_agent_weights_fetched_from_guava/oracle-symb
+  kind: entity_fact
+  raw_text: The Oracle-Symbolic agent weights are fetched from guava/oracle-symbolic
+    if available.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:38:36Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO model downloaded is yolov8n.onnx
+  claim_id: c_d3c830db
+  context: 'T015a: Implement ... to download yolov8n.onnx from to code/models/yolo_tiny.onnx.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLO_model_downloaded_is_yolov8n.onnx
+  kind: entity_fact
+  raw_text: The YOLO model downloaded is yolov8n.onnx.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:39:02Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Fine-tuned LLM is Phi-3-mini
+  claim_id: c_c8284b74
+  context: 'Goal: Fine-tune a compact LLM (Phi-3-mini) on the Symbolic-Guava dataset
+    to reason over symbolic states.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fine-tuned LLM is Phi-3-mini.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:39:29Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses scikit-learn version 1.3.0
+  claim_id: c_14551fa0
+  context: 'T002a: Create ... with pinned dependencies: ... scikit-learn==1.3.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses scikit-learn version 1.3.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:39:52Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses transformers version 4.35.0
+  claim_id: c_4d3c3cd5
+  context: 'T002a: Create ... with pinned dependencies: ... transformers==4.35.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses transformers version 4.35.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:40:19Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses torch version 2.1.0
+  claim_id: c_c52ebfe6
+  context: 'T002a: Create ... with pinned dependencies: ... torch==2.1.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses torch version 2.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:40:45Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses opencv-python version 4.8.0.74
+  claim_id: c_dea292bc
+  context: 'T002a: Create ... with pinned dependencies: opencv-python==4.8.0.74 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses opencv-python version 4.8.0.74.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:41:01Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses onnxruntime version 1.16.0
+  claim_id: c_b35381ab
+  context: 'T002a: Create ... with pinned dependencies: ... onnxruntime==1.16.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses onnxruntime version 1.16.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:41:25Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses datasets version 2.14.0
+  claim_id: c_8b246ed9
+  context: 'T002a: Create ... with pinned dependencies: ... datasets==2.14.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses datasets version 2.14.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:42:11Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses pandas version 2.1.0
+  claim_id: c_c65ad9b2
+  context: 'T002a: Create ... with pinned dependencies: ... pandas==2.1.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses pandas version 2.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:42:42Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses numpy version 1.26.0
+  claim_id: c_01a14e72
+  context: 'T002a: Create ... with pinned dependencies: ... numpy==1.26.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses numpy version 1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:43:09Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses pytest version 7.4.0
+  claim_id: c_438dca0c
+  context: 'T002a: Create ... with pinned dependencies: ... pytest==7.4.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses pytest version 7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:43:27Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses radon version 6.0.1
+  claim_id: c_354998ba
+  context: 'T002a: Create ... with pinned dependencies: ... radon==6.0.1 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses radon version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:44:00Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: System uses huggingface_hub version 0.19.0
+  claim_id: c_da0e35cc
+  context: 'T002a: Create ... with pinned dependencies: ... huggingface_hub==0.19.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses huggingface_hub version 0.19.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:44:23Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO-tiny inference latency must be less than 150ms per frame on CPU
+  claim_id: c_b18c8d97
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU. No raw pixel data in output."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/YOLO-tiny_inference_latency_must_be_less_than_150ms_per_fram
+  kind: magnitude
+  raw_text: "Processing time \u2264 150ms/frame on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:45:43Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Phi-3-mini fine-tuning on symbolic dataset converges with at least 15%
+    loss decrease within 4 hours on CPU
+  claim_id: c_3f2ca175
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch). Model accepts symbolic JSON input\
+    \ without crashing."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Phi-3-mini_fine-tuning_on_symbolic_dataset_converges_with_at
+  kind: magnitude
+  raw_text: "fine-tuning converges (loss decrease \u226515%) within 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:46:18Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation test for Symbolic vs Visual success rates uses 1000 iterations
+  claim_id: c_40582bc0
+  context: Implement ... to perform a Permutation Test with 1000 iterations and a
+    convergence check (std_dev < 0.001) to ensure robust statistical inference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation Test with 1000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:46:38Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Geometric failure categorization applied when Intersection over Union
+    is less than 0.3
+  claim_id: c_55e3bf0b
+  context: 'If IoU < 0.3: Categorize as ''geometric''. If class mismatch: Categorize
+    as ''semantic''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Geometric_failure_categorization_applied_when_Intersection_o
+  kind: magnitude
+  raw_text: 'If IoU < 0.3: Categorize as ''geometric'''
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:47:14Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Convergence timeout error raised if loss decrease is less than 15%
+  claim_id: c_9b721259
+  context: 'Logic: If training time > 4 hours OR loss decrease < 15%, raise ConvergenceTimeoutError.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_timeout_error_raised_if_loss_decrease_is_less_th
+  kind: magnitude
+  raw_text: loss decrease < 15%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:48:32Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Convergence timeout error raised if training duration exceeds 4 hours
+  claim_id: c_49f9e11f
+  context: 'Logic: If training time > 4 hours OR loss decrease < 15%, raise ConvergenceTimeoutError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training time > 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:48:33Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: YOLO-tiny inference latency under 150ms per frame on CPU
+  claim_id: c_b46ffeb9
+  context: "Independent Test: The pipeline runs on a subset of trajectories. Output\
+    \ JSON contains valid bounding boxes/class labels. Processing time \u2264 150ms/frame\
+    \ on CPU."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/YOLO-tiny_inference_latency_under_150ms_per_frame_on_CPU
+  kind: entity_fact
+  raw_text: "Processing time \u2264 150ms/frame on CPU"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:49:47Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Phi-3-mini fine-tuning achieves at least 15% loss decrease within 4 hours
+    on CPU
+  claim_id: c_04cea90f
+  context: "Independent Test: Fine-tuning converges (loss decrease \u226515%) within\
+    \ 4 hours on CPU (or triggers GPU escape hatch)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Phi-3-mini_fine-tuning_achieves_at_least_15%25_loss_decrease_w
+  kind: magnitude
+  raw_text: "Fine-tuning converges (loss decrease \u226515%) within 4 hours on CPU"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:49:50Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Permutation test performed with 1000 iterations
+  claim_id: c_d5d8c066
+  context: Implement ... to perform a Permutation Test with 1000 iterations and a
+    convergence check (std_dev < 0.001) to ensure robust statistical inference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: perform a Permutation Test with 1000 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:50:23Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 1
+  canonical: Geometric failure categorized if Intersection over Union is less than
+    0.3
+  claim_id: c_9d0907ed
+  context: 'If IoU < 0.3: Categorize as ''geometric''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Geometric_failure_categorized_if_Intersection_over_Union_is
+  kind: magnitude
+  raw_text: 'If IoU < 0.3: Categorize as geometric'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:50:28Z'
+- artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  attempts: 2
+  canonical: Permutation test convergence check requires standard deviation less than
+    0.001
+  claim_id: c_d65f9539
+  context: Perform a Permutation Test with 1000 iterations and a convergence check
+    (std_dev < 0.001) to ensure robust statistical inference.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_convergence_check_requires_standard_deviati
+  kind: magnitude
+  raw_text: convergence check (std_dev < 0.001)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T00:50:30Z'

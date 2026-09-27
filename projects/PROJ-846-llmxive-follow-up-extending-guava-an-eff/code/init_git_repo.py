@@ -1,42 +1,72 @@
+"""
+Initialize Git Repository for llmXive project.
+
+This script creates a .gitignore file, initializes a git repository,
+stages all files, and creates an initial commit.
+"""
+
 import os
 import subprocess
 import sys
 from pathlib import Path
+
 from code.git_operations import init_repository, stage_all_files, commit_changes
+
 
 def initialize_git_repository(project_root: Path) -> bool:
     """
-    Initialize the git repository, stage all files, and make the initial commit.
+    Initialize the git repository for the project.
+
+    Args:
+        project_root: Path to the project root directory.
+
+    Returns:
+        True if initialization was successful, False otherwise.
     """
-    print(f"Initializing git repository at: {project_root}")
+    try:
+        # Change to project root
+        os.chdir(project_root)
 
-    # Initialize
-    stdout, stderr, code = init_repository(project_root)
-    if code != 0:
-        print(f"Error initializing git: {stderr}")
+        # Initialize git repository
+        init_repository()
+
+        # Stage all files
+        stage_all_files()
+
+        # Commit changes
+        commit_changes("Initial commit")
+
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Git operation failed: {e}", file=sys.stderr)
         return False
-    print("Git repository initialized.")
-
-    # Stage all files
-    stdout, stderr, code = stage_all_files(project_root)
-    if code != 0:
-        print(f"Error staging files: {stderr}")
+    except Exception as e:
+        print(f"Unexpected error during git initialization: {e}", file=sys.stderr)
         return False
-    print("Files staged.")
 
-    # Commit
-    stdout, stderr, code = commit_changes(project_root, "Initial commit")
-    if code != 0:
-        print(f"Error committing: {stderr}")
-        return False
-    print("Initial commit created.")
 
-    return True
+def main() -> int:
+    """
+    Main entry point for the script.
 
-def main():
-    project_root = Path(__file__).resolve().parent.parent
-    success = initialize_git_repository(project_root)
-    sys.exit(0 if success else 1)
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    # Determine project root (assume script is in code/ directory)
+    current_path = Path(__file__).resolve()
+    code_dir = current_path.parent
+    project_root = code_dir.parent.parent
+
+    print(f"Project root: {project_root}")
+    print("Initializing Git Repository...")
+
+    if initialize_git_repository(project_root):
+        print("Git repository initialized successfully.")
+        return 0
+    else:
+        print("Failed to initialize Git repository.", file=sys.stderr)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

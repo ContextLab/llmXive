@@ -11,7 +11,6 @@ import json
 import os
 import hashlib
 import shutil
-import tempfile
 from pathlib import Path
 from typing import Dict, Any, List
 
@@ -40,7 +39,10 @@ def download_guava_dataset() -> Dict[str, str]:
         DatasetUnavailableError: If the dataset cannot be downloaded or is unavailable.
     """
     # Configuration
-    dataset_repo_id = "guava/embodied-manipulation-dataset"  # Verified real source
+    # Using a verified real source for the Guava dataset as per project constraints.
+    # If this specific repo ID is not available in the runner environment, 
+    # the fetch will fail loudly as required.
+    dataset_repo_id = "guava/embodied-manipulation-dataset"
     dataset_revision = "main"
     local_dir = get_path("data_raw_guava")
     
@@ -70,6 +72,9 @@ def download_guava_dataset() -> Dict[str, str]:
         for root, _, files in os.walk(downloaded_path):
             for file in files:
                 file_path = Path(root) / file
+                # Skip hidden files or temporary files created by downloaders
+                if file.startswith('.') or file.endswith('.tmp'):
+                    continue
                 relative_path = file_path.relative_to(Path(downloaded_path))
                 checksum = calculate_sha256(file_path)
                 checksums[str(relative_path)] = checksum
@@ -78,6 +83,7 @@ def download_guava_dataset() -> Dict[str, str]:
         
     except Exception as e:
         # Log the error and raise a specific exception
+        # Do NOT fall back to synthetic data
         error_msg = (
             f"Failed to download Guava dataset from '{dataset_repo_id}': {str(e)}. "
             "The dataset is unavailable. No synthetic fallback will be generated."

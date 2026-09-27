@@ -1,155 +1,239 @@
 import json
 import os
+import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Union, Tuple
+from typing import List, Dict, Any, Optional, Union
 
 from utils.config import get_path, get_hyperparameter
-from utils.exceptions import DatasetUnavailableError
+from utils.errors import DatasetUnavailableError, GroundTruthSchemaMissingError
+from data.models import PerceptionLog, SymbolicObservation, serialize_perception_log
 
-# Constants
-PERCEPTION_LOG_PATH = "data/artifacts/perception_log.json"
-LATENCY_LOG_PATH = "data/artifacts/latency_log.json"
 
-def _ensure_log_file(log_path: str) -> Path:
-    """Ensure the log file and its parent directory exist."""
-    path = get_path(log_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if not path.exists():
-        with open(path, 'w') as f:
-            json.dump([], f)
-    return path
+def compare_with_gt(
+    detected_objects: List[Dict[str, Any]],
+    ground_truth_objects: List[Dict[str, Any]],
+    iou_threshold: float = 0.5
+) -> Dict[str, Any]:
+    """
+    Compare detected objects against ground truth using IoU and greedy matching.
 
-def _load_log_entries(log_path: str) -> List[Dict[str, Any]]:
-    """Load existing entries from the log file."""
-    path = _ensure_log_file(log_path)
-    try:
-        with open(path, 'r') as f:
-            content = f.read().strip()
-            if not content:
-                return []
-            return json.loads(content)
-    except (json.JSONDecodeError, FileNotFoundError):
-        return []
+    Args:
+        detected_objects: List of dicts with 'bbox' (x_min, y_min, x_max, y_max) and 'class'.
+        ground_truth_objects: List of dicts with 'bbox' and 'class'.
+        iou_threshold: Minimum IoU to consider a match.
 
-def _append_to_log(log_path: str, new_entry: Dict[str, Any]) -> None:
-    """Append a new entry to the log file atomically."""
-    path = _ensure_log_file(log_path)
-    entries = _load_log_entries(log_path)
-    entries.append(new_entry)
-    
-    # Atomic write
-    temp_path = path.with_suffix('.tmp')
-    with open(temp_path, 'w') as f:
-        json.dump(entries, f, indent=2)
-    os.replace(temp_path, path)
+    Returns:
+        Dict containing:
+            - object_missing_if_visible: True if a GT object has no match.
+            - gt_missing: True if GT was not available/verified.
+            - matches: List of (det_idx, gt_idx) tuples.
+    """
+    if not ground_truth_objects:
+        # If GT list is empty, we don't know if it's missing or just empty scene.
+        # Per task T016a logic: if status "missing" -> object_missing_if_visible="unknown", gt_missing=true.
+        # If status "valid" but empty list -> object_missing_if_visible=false (no objects to miss).
+        # We assume this function is called only after verifying GT status.
+        # Default assumption: if list is empty, no objects to miss.
+        return {
+            "object_missing_if_visible": False,
+            "gt_missing": False,
+            "matches": []
+        }
+
+    def calculate_iou(box1: List[float], box2: List[float]) -> float:
+        x1 = max(box1[0], box2[0])
+        y1 = max(box1[1], box2[1])
+        x2 = min(box1[2], box2[2])
+        y2 = min(box1[3], box2[3])
+        intersection = max(0, x2 - x1) * max(0, y2 - y1)
+        area1 = (box1[2] - box1[0]) * (box1[3] - box1[1])
+        area2 = (box2[2] - box2[0]) * (box2[3] - box2[1])
+        union = area1 + area2 - intersection
+        if union == 0:
+            return 0.0
+        return intersection / union
+
+    matches = []
+    matched_gt_indices = set()
+
+    # Greedy matching: iterate detected, find best GT match
+    for d_idx, det_obj in enumerate(detected_objects):
+        best_iou = -1
+        best_gt_idx = -1
+        for g_idx, gt_obj in enumerate(ground_truth_objects):
+            if g_idx in matched_gt_indices:
+                continue
+            iou = calculate_iou(det_obj['bbox'], gt_obj['bbox'])
+            if iou > best_iou:
+                best_iou = iou
+                best_gt_idx = g_idx
+
+        if best_iou >= iou_threshold:
+            matches.append((d_idx, best_gt_idx))
+            matched_gt_indices.add(best_gt_idx)
+
+    # Check for missing GT objects
+    missing_gt = len(ground_truth_objects) - len(matched_gt_indices) > 0
+    return {
+        "object_missing_if_visible": missing_gt,
+        "gt_missing": False,
+        "matches": matches
+    }
+
 
 def log_perception_ground_truth(
     timestamp: float,
     detected_objects: List[Dict[str, Any]],
     confidence_scores: List[float],
+    ground_truth_status: str,  # "valid" or "missing"
     ground_truth_objects: Optional[List[Dict[str, Any]]] = None,
-    object_missing_if_visible: bool = False
-) -> None:
+    iou_threshold: float = 0.5
+) -> Dict[str, Any]:
     """
-    Log perception ground truth data to the perception log.
-    
+    Generate the perception ground truth log entry.
+
     Args:
-        timestamp: Unix timestamp of the perception event.
-        detected_objects: List of detected objects with class, bbox, centroid, color_hist.
-        confidence_scores: List of confidence scores for each detection.
-        ground_truth_objects: Optional list of ground truth objects for comparison.
-        object_missing_if_visible: Boolean indicating if a visible object was missed.
+        timestamp: Unix timestamp of the frame.
+        detected_objects: List of detected object dicts (bbox, class, etc.).
+        confidence_scores: List of confidence scores corresponding to detected_objects.
+        ground_truth_status: "valid" if GT file verified, "missing" otherwise.
+        ground_truth_objects: List of GT object dicts if status is "valid", else None.
+        iou_threshold: IoU threshold for matching (default 0.5).
+
+    Returns:
+        Dict with keys:
+            - timestamp: float
+            - detected_objects: list
+            - confidence_scores: list
+            - object_missing_if_visible: bool | "unknown"
+            - gt_missing: bool
     """
-    entry = {
+    log_entry = {
         "timestamp": timestamp,
         "detected_objects": detected_objects,
         "confidence_scores": confidence_scores,
-        "object_missing_if_visible": object_missing_if_visible,
-        "ground_truth_objects": ground_truth_objects or []
+        "object_missing_if_visible": "unknown",
+        "gt_missing": False
     }
-    
-    _append_to_log(PERCEPTION_LOG_PATH, entry)
+
+    if ground_truth_status == "missing":
+        log_entry["object_missing_if_visible"] = "unknown"
+        log_entry["gt_missing"] = True
+    elif ground_truth_status == "valid":
+        if ground_truth_objects is None:
+            # Valid status but no objects provided -> treat as empty scene
+            log_entry["object_missing_if_visible"] = False
+            log_entry["gt_missing"] = False
+        else:
+            comparison = compare_with_gt(detected_objects, ground_truth_objects, iou_threshold)
+            log_entry["object_missing_if_visible"] = comparison["object_missing_if_visible"]
+            log_entry["gt_missing"] = False
+    else:
+        raise ValueError(f"Invalid ground_truth_status: {ground_truth_status}")
+
+    return log_entry
+
 
 def log_latency(
     task_id: str,
     frame_index: int,
-    latency_ms: float,
-    threshold_ms: float = 150.0,
-    success: bool = True,
-    error_message: Optional[str] = None
-) -> None:
+    inference_time_ms: float,
+    total_frame_time_ms: float,
+    log_path: Optional[Path] = None
+) -> PerceptionLog:
     """
-    Log latency measurement for a specific frame in a task.
-    
-    Args:
-        task_id: Identifier for the task.
-        frame_index: Index of the frame being processed.
-        latency_ms: Measured latency in milliseconds.
-        threshold_ms: Latency threshold for failure classification.
-        success: Whether the perception step succeeded.
-        error_message: Optional error message if success is False.
-    """
-    entry = {
-        "task_id": task_id,
-        "frame_index": frame_index,
-        "latency_ms": latency_ms,
-        "threshold_ms": threshold_ms,
-        "exceeds_threshold": latency_ms > threshold_ms,
-        "success": success,
-        "timestamp": time.time()
-    }
-    
-    if not success and error_message:
-        entry["error_message"] = error_message
-    
-    _append_to_log(LATENCY_LOG_PATH, entry)
+    Create and optionally write a PerceptionLog entry for latency tracking.
 
-def get_current_log_stats(log_path: str) -> Dict[str, Any]:
+    Args:
+        task_id: Identifier for the task/trajectory.
+        frame_index: Index of the frame within the trajectory.
+        inference_time_ms: Time spent in YOLO inference (ms).
+        total_frame_time_ms: Total time for frame processing (ms).
+        log_path: Optional path to append the log entry.
+
+    Returns:
+        PerceptionLog dataclass instance.
     """
-    Get statistics about the current log file.
-    
+    log_entry = PerceptionLog(
+        task_id=task_id,
+        frame_index=frame_index,
+        timestamp=datetime.utcnow().isoformat(),
+        inference_time_ms=inference_time_ms,
+        total_frame_time_ms=total_frame_time_ms,
+        latency_threshold_ms=get_hyperparameter("perception_latency_threshold", 150.0)
+    )
+
+    if log_path:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(log_path, 'a', encoding='utf-8') as f:
+            f.write(serialize_perception_log(log_entry) + '\n')
+
+    return log_entry
+
+
+def get_current_log_stats(log_path: Path) -> Dict[str, Any]:
+    """
+    Aggregate statistics from the perception log file.
+
+    Args:
+        log_path: Path to the perception log file.
+
+    Returns:
+        Dict with keys:
+            - total_frames: int
+            - avg_inference_time_ms: float
+            - max_inference_time_ms: float
+            - latency_violations: int (frames exceeding threshold)
+    """
+    if not log_path.exists():
+        return {
+            "total_frames": 0,
+            "avg_inference_time_ms": 0.0,
+            "max_inference_time_ms": 0.0,
+            "latency_violations": 0
+        }
+
+    inference_times = []
+    latency_threshold = get_hyperparameter("perception_latency_threshold", 150.0)
+    violations = 0
+
+    with open(log_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                entry = json.loads(line)
+                inference_times.append(entry['inference_time_ms'])
+                if entry['inference_time_ms'] > latency_threshold:
+                    violations += 1
+            except (json.JSONDecodeError, KeyError):
+                continue
+
+    if not inference_times:
+        return {
+            "total_frames": 0,
+            "avg_inference_time_ms": 0.0,
+            "max_inference_time_ms": 0.0,
+            "latency_violations": 0
+        }
+
+    return {
+        "total_frames": len(inference_times),
+        "avg_inference_time_ms": sum(inference_times) / len(inference_times),
+        "max_inference_time_ms": max(inference_times),
+        "latency_violations": violations
+    }
+
+
+def clear_log(log_path: Path) -> None:
+    """
+    Clear the perception log file.
+
     Args:
         log_path: Path to the log file.
-        
-    Returns:
-        Dictionary containing count, average latency (if applicable), 
-        and latest timestamp.
     """
-    entries = _load_log_entries(log_path)
-    
-    if not entries:
-        return {
-            "entry_count": 0,
-            "average_latency_ms": None,
-            "latest_timestamp": None,
-            "exceeds_threshold_count": 0
-        }
-    
-    # Calculate stats based on log type
-    if "latency" in log_path:
-        latencies = [e.get("latency_ms", 0) for e in entries if "latency_ms" in e]
-        avg_latency = sum(latencies) / len(latencies) if latencies else 0.0
-        exceeds_count = sum(1 for e in entries if e.get("exceeds_threshold", False))
-        
-        return {
-            "entry_count": len(entries),
-            "average_latency_ms": avg_latency,
-            "latest_timestamp": max(e.get("timestamp", 0) for e in entries) if entries else None,
-            "exceeds_threshold_count": exceeds_count
-        }
-    else:
-        # Perception log stats
-        return {
-            "entry_count": len(entries),
-            "latest_timestamp": max(e.get("timestamp", 0) for e in entries) if entries else None,
-            "missing_object_count": sum(1 for e in entries if e.get("object_missing_if_visible", False))
-        }
-
-def clear_log(log_path: str) -> None:
-    """Clear all entries from a log file."""
-    path = get_path(log_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, 'w') as f:
-        json.dump([], f)
+    if log_path.exists():
+        log_path.unlink()

@@ -1,2 +1,2 @@
-# This directory holds generated research artifacts (JSON logs, evaluation results, etc.)
-# It is tracked in git to preserve the directory structure.
+# This directory stores generated artifacts such as training metrics, evaluation results, and logs.
+# It is tracked in git to ensure the directory structure exists, even when empty.
