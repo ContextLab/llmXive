@@ -1,65 +1,112 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Unified Analysis Dataset Schema"
-description: "Schema for the unified dataset combining visual features and weather context."
-type: "object"
-properties:
-  image_id:
-    type: "string"
-    description: "Unique identifier for the image record."
-  file_path:
-    type: "string"
-    description: "Relative path to the source image file."
-  disease_label:
-    type: "string"
-    description: "Class label from the PlantVillage dataset."
-  lesion_area_ratio:
-    type: "number"
-    description: "Ratio of lesion area to total leaf area (0.0 to 1.0)."
-    minimum: 0.0
-    maximum: 1.0
-  necrosis_color_index:
-    type: "number"
-    description: "Calculated color index for necrosis."
-  texture_entropy:
-    type: "number"
-    description: "Texture entropy derived from the lesion region."
-  location_lat:
-    type: "number"
-    description: "Latitude of the image capture location."
-    minimum: -90.0
-    maximum: 90.0
-  location_lon:
-    type: "number"
-    description: "Longitude of the image capture location."
-    minimum: -180.0
-    maximum: 180.0
-  capture_date:
-    type: "string"
-    format: "date"
-    description: "Date of image capture (YYYY-MM-DD)."
-  mean_temp_7d:
-    type: "number"
-    description: "Mean temperature (°C) over the 7 days preceding capture."
-  mean_humidity_7d:
-    type: "number"
-    description: "Mean relative humidity (%) over the 7 days preceding capture."
-  total_precip_7d:
-    type: "number"
-    description: "Total precipitation (mm) over the 7 days preceding capture."
-  visual_severity:
-    type: "number"
-    description: "The target variable for the baseline model (e.g., lesion_area_ratio)."
-  baseline_pred:
-    type: "number"
-    description: "Prediction from the baseline image-only Random Forest model."
-  residual:
-    type: "number"
-    description: "The difference between visual_severity and baseline_pred."
+$schema: http://json-schema.org/draft-07/schema#
+title: Plant Disease Severity Dataset Schema
+description: >
+  Schema for the unified analysis-ready dataset combining PlantVillage image features
+  with historical meteorological records. This dataset is used for training and
+  evaluating the environmental modulation hypothesis models.
+type: object
 required:
-  - image_id
+  - image_path
   - disease_label
   - lesion_area_ratio
-  - capture_date
-  - visual_severity
-  - residual
+  - necrosis_color_index
+  - texture_entropy
+  - location_lat
+  - location_lon
+  - image_date
+properties:
+  image_path:
+    type: string
+    description: Absolute or relative path to the source image file.
+    pattern: "^data/.*\\.(jpg|jpeg|png|JPG|JPEG|PNG)$"
+    examples:
+      - "data/raw/plantvillage/Potato___Early_blight/0001.jpg"
+      - "data/raw/plantvillage/Tomato___Late_blight/0023.png"
+
+  disease_label:
+    type: string
+    description: >
+      The specific disease class identified in the image.
+      Format: "{Crop}___{Disease}" (e.g., "Tomato___Early_blight").
+    examples:
+      - "Tomato___Early_blight"
+      - "Potato___Late_blight"
+      - "Apple___Scab"
+
+  lesion_area_ratio:
+    type: number
+    description: >
+      Ratio of the detected lesion area to the total leaf area in the image.
+      Calculated via OpenCV thresholding and contour analysis.
+      Range: [0.0, 1.0]
+    minimum: 0.0
+    maximum: 1.0
+    examples:
+      - 0.125
+      - 0.450
+      - 0.005
+
+  necrosis_color_index:
+    type: number
+    description: >
+      A quantitative index representing the severity of necrotic (dead) tissue
+      based on color analysis (typically low RGB values or specific HSV ranges).
+      Normalized score where higher values indicate more severe necrosis.
+    minimum: 0.0
+    maximum: 1.0
+    examples:
+      - 0.23
+      - 0.88
+      - 0.05
+
+  texture_entropy:
+    type: number
+    description: >
+      Shannon entropy calculated from the grayscale texture of the lesion region.
+      Higher entropy indicates more complex or irregular lesion borders.
+    minimum: 0.0
+    examples:
+      - 4.52
+      - 7.89
+      - 2.10
+
+  location_lat:
+    type: number
+    description: Latitude coordinate of the location where the image was taken (or inferred).
+    minimum: -90.0
+    maximum: 90.0
+    examples:
+      - 40.7128
+      - -33.8688
+      - 35.6762
+
+  location_lon:
+    type: number
+    description: Longitude coordinate of the location where the image was taken (or inferred).
+    minimum: -180.0
+    maximum: 180.0
+    examples:
+      - -74.0060
+      - 151.2093
+      - 139.6503
+
+  image_date:
+    type: string
+    format: date
+    description: >
+      The date the image was captured, extracted from filename metadata or EXIF data.
+      Format: YYYY-MM-DD
+    examples:
+      - "2023-07-15"
+      - "2023-08-02"
+      - "2023-09-10"
 additionalProperties: false
+
+# Notes for implementation (T016):
+# - Ensure 'image_date' is parsed from the filename (e.g., '2023-07-15_...jpg')
+#   or EXIF if available. If extraction fails, the record must be excluded (T018).
+# - 'lesion_area_ratio', 'necrosis_color_index', and 'texture_entropy' are computed
+#   by code/utils/feature_extraction.py.
+# - 'location_lat' and 'location_lon' are derived from metadata or inferred from
+#   the dataset's known collection sites if not explicitly in the filename.
+# - All numeric fields should be stored as float64 in the final CSV.

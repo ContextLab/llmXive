@@ -1,0 +1,9 @@
+opencv-python
+scikit-learn
+pandas
+numpy
+requests
+datasets
+matplotlib
+seaborn
+pyyaml

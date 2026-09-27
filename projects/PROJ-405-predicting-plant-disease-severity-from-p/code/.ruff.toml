@@ -1,0 +1,48 @@
+# Ruff configuration for PROJ-405
+# Enforces PEP 8 compliance, common error codes, and project-specific rules
+
+[lint]
+# Enable a wide range of useful rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade (modern Python syntax)
+    "N",   # pep8-naming
+    "ARG", # flake8-unused-arguments
+]
+
+# Ignore specific rules that are too noisy or conflict with project style
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "B008",  # Do not perform function call in argument defaults (common in ML)
+    "ARG001",# Unused function argument (often needed for protocol compliance)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files/directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "build",
+    "dist",
+    "venv",
+    "data", # Exclude data directories
+]
+
+# Per-file ignores (if needed)
+# [lint.per-file-ignores]
+# "tests/*" = ["ARG001"]
+
+[lint.isort]
+# Configuration for import sorting
+known-first-party = ["config", "data_ingestion", "weather_linker", "main", "utils"]
+force-sort-within-sections = true
+lines-after-imports = 2

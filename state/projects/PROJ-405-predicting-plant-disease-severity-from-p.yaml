@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-405-predicting-plant-disease-severity-from-p
-last_run_id: cabdd0ea-5e57-44b2-976c-dcf936c5bfc0
+last_run_id: 1d5df474-d672-4e84-835e-ac927d796642
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-405-predicting-plant-disease-severity-from-p/specs/001-predicting-plant-disease-severity-from-p
 title: Predicting Plant Disease Severity from Publicly Available Image Data and Meteorological
   Records
-updated_at: '2026-09-23T09:41:16.392971Z'
+updated_at: '2026-09-27T07:51:27.477524Z'

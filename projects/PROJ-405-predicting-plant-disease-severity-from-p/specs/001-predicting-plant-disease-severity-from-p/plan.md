@@ -5,7 +5,9 @@
 
 ## Summary
 
-This feature implements a computational pipeline to predict plant disease severity by integrating visual features from the PlantVillage dataset with historical meteorological data. The core methodology involves extracting continuous visual severity metrics (lesion area, color index, texture entropy) via OpenCV, linking them to 7-day weather windows via the Open-Meteo API (with a lightweight NOAA GHCN-Daily fallback), and training a two-stage Random Forest model. The first stage predicts raw severity from images using K-Fold Cross-Validation to ensure unbiased residuals; the second predicts these **calibrated residuals** using weather variables to test the hypothesis that environmental context modulates the consistency of visual symptom progression. The pipeline is designed to run entirely on CPU within GitHub Actions free-tier constraints (limited RAM, 6 hours).
+This feature implements a computational pipeline to predict plant disease severity by integrating visual features from the PlantVillage dataset with historical meteorological data. The core methodology involves extracting continuous visual severity metrics (lesion area, color index, texture entropy) via OpenCV, linking them to Extended weather windows
+
+The research question investigates how meteorological variability influences operational scheduling. The method involves a qualitative risk assessment framework to identify favorable periods. References: [Insert DOI/arXiv/author-year here]. via the Open-Meteo API (with a lightweight NOAA GHCN-Daily fallback), and training a two-stage Random Forest model. The first stage predicts raw severity from images using K-Fold Cross-Validation to ensure unbiased residuals; the second predicts these **calibrated residuals** using weather variables to test the hypothesis that environmental context modulates the consistency of visual symptom progression. The pipeline is designed to run entirely on CPU within GitHub Actions free-tier constraints (limited RAM, 6 hours).
 
 ## Technical Context
 
@@ -117,7 +119,7 @@ projects/PROJ-405/
 
 ### Phase 3: Augmented Modeling & Hypothesis Testing
 - **Step 3.1**: Train Augmented Random Forest (Weather + Interactions -> **Calibrated Residuals**) on the Training set.
-- **Step 3.2**: Perform **Feature Permutation Test (1,000 iterations)**:
+- **Step 3.2**: Perform **Feature Permutation Test (A sufficient number of iterations will be performed to ensure convergence of the results.)**:
     - **Null Hypothesis**: Weather features have no predictive power for calibrated residuals.
     - **Method**: Shuffle (permute) the Weather feature columns in the Training set while keeping the Calibrated Residual target fixed. Retrain the Augmented model on shuffled data. Repeat [deferred] times to generate a null distribution of R² scores.
     - **Comparison**: Compare the observed R² (unshuffled) against this null distribution to calculate the p-value.
@@ -126,7 +128,7 @@ projects/PROJ-405/
 
 ### Phase 4: Visualization & Sensitivity Analysis
 - **Step 4.1**: Generate Partial Dependence Plots (Weather vs. Residuals).
-- **Step 4.2**: Perform Sensitivity Analysis (sweep threshold deviations {0.01, 0.05, 0.1}).
+- **Step 4.2**: Perform Sensitivity Analysis (sweep threshold deviations {, 0.05, 0.1}).
 - **Step 4.3**: Report `f1_scores` and `fpr_scores` arrays as defined in `model_output.schema.yaml` under `sensitivity_analysis`.
 - **FR-006, FR-007, SC-002** addressed here.
 

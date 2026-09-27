@@ -1,0 +1,64 @@
+schema: weather
+version: 1.0.0
+description: |
+  Schema for meteorological data linked to plant disease observations.
+  Contains 7-day historical weather aggregates derived from Open-Meteo or NOAA APIs.
+  Used to test the hypothesis that environmental conditions modulate disease severity.
+
+fields:
+  - name: location_lat
+    type: float
+    description: Latitude of the observation location (WGS84).
+    constraints:
+      min: -90.0
+      max: 90.0
+    nullable: false
+    
+  - name: location_lon
+    type: float
+    description: Longitude of the observation location (WGS84).
+    constraints:
+      min: -180.0
+      max: 180.0
+    nullable: false
+    
+  - name: date_start
+    type: date
+    description: Start date of the 7-day weather aggregation window (YYYY-MM-DD).
+    format: ISO8601
+    nullable: false
+    
+  - name: date_end
+    type: date
+    description: End date of the 7-day weather aggregation window (YYYY-MM-DD).
+    format: ISO8601
+    nullable: false
+    
+  - name: mean_temp
+    type: float
+    description: Mean daily temperature (°C) over the aggregation window.
+    unit: celsius
+    nullable: false
+    
+  - name: mean_humidity
+    type: float
+    description: Mean relative humidity (%) over the aggregation window.
+    unit: percent
+    constraints:
+      min: 0.0
+      max: 100.0
+    nullable: false
+    
+  - name: total_precipitation
+    type: float
+    description: Total accumulated precipitation (mm) over the aggregation window.
+    unit: millimeters
+    constraints:
+      min: 0.0
+    nullable: false
+    
+metadata:
+  source: "Open-Meteo API / NOAA"
+  aggregation_window_days: 7
+  timestamp_field: created_at
+  generated_by: code/weather_linker.py

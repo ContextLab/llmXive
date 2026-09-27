@@ -1,0 +1,16 @@
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, CSV outputs, model artifacts, or test results were provided;\
+    \ therefore the required ingestion script, visual feature calculations, weather\
+    \ linking, baseline and augmented models, or permutation\u2011test results cannot\
+    \ be verified. The implementer must supply the actual pipeline scripts and resulting\
+    \ output artifacts (e.g., the unified dataset CSV, model performance metrics,\
+    \ and p\u2011value from the permutation test)."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/results.json` file was provided; there is no evidence of a non\u2011\
+    empty JSON containing the required metrics (R\xB2, MAE, p\u2011value, sensitivity\
+    \ data). The implementer\u2019s claim consists only of task description, not the\
+    \ actual artifact."
