@@ -1,56 +1,51 @@
-"""
-Project setup and directory structure creation.
-
-This script initializes the project directory structure required for the
-EvoMem-Conflict filtering project.
-"""
 import os
 from pathlib import Path
-from src.utils.seeding import set_deterministic_seed
+import sys
 
+# Ensure the project root is in the path
+sys.path.insert(0, str(Path(__file__).parent))
 
-def create_directories(seed: int = 42):
+from src.utils.seencing import set_deterministic_seed
+
+def create_directories():
     """
-    Create the required project directory structure.
-    
-    Args:
-        seed (int): Random seed for reproducibility (used for logging).
+    Initialize project directory structure.
+    Sets deterministic seed before creating directories to ensure
+    consistent behavior if any random operations are involved.
     """
     # Set deterministic seed
-    set_deterministic_seed(seed)
-    
-    # Define directory structure
-    directories = [
-        'src',
-        'src/agents',
-        'src/heuristics',
-        'src/data/generators',
-        'src/data/benchmarks',
-        'src/analysis',
-        'src/utils',
-        'src/cli',
-        'tests',
-        'tests/unit',
-        'tests/integration',
-        'tests/contract',
-        'specs',
-        'specs/001-evoconflict-filtering',
-        'specs/001-evoconflict-filtering/contracts',
-        'data',
-        'data/raw',
-        'data/processed',
-        'data/logs',
-        'docs',
-        'figures'
+    set_deterministic_seed()
+
+    # Define directories
+    base_dirs = [
+        "src",
+        "tests",
+        "specs",
+        "data",
+        "docs",
+        "data/raw",
+        "data/processed",
+        "data/logs",
+        "figures",
+        "src/agents",
+        "src/heuristics",
+        "src/data/generators",
+        "src/data/benchmarks",
+        "src/analysis",
+        "src/utils",
+        "src/cli",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "specs/001-evoconflict-filtering/contracts",
     ]
-    
-    # Create directories
-    for dir_path in directories:
-        Path(dir_path).mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {dir_path}")
-    
-    print("Project directory structure created successfully.")
 
+    for dir_path in base_dirs:
+        path = Path(dir_path)
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {path}")
 
-if __name__ == '__main__':
+    print("Project directory structure initialized successfully.")
+
+if __name__ == "__main__":
     create_directories()

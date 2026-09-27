@@ -1,22 +1,3 @@
-T006:
-  c: false
-  h: bd097cb67e37e42b87ca5234db19e3143a1aa95d7e9219c417c88743ce25536e
-  r: "The provided `terminal_bench_evo.py` file is present but the visible code stops\
-    \ before any logic that actually attempts to download the real dataset, decides\
-    \ on fallback, or writes the resulting JSONL to `data/raw/terminal_bench_evo.jsonl`.\
-    \ Moreover, the expected output file is missing, and there is no evidence that\
-    \ the script implements the required download\u2011fallback flow. The next implementer\
-    \ must add the download verification, fallback generation, and file\u2011writing\
-    \ code, and ensure the script creates `data/raw/terminal_bench_evo.jsonl`."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No scripts, configuration files, or code snippets were presented showing that\
-    \ random seeds have been set deterministically across the project. Without concrete\
-    \ evidence of seed initialization (e.g., `random.seed`, `np.random.seed`, `torch.manual_seed`,\
-    \ etc.) in every relevant script, the requirement is not satisfied. The next implementer\
-    \ must add and commit the seed\u2011setting code and provide the updated files\
-    \ as proof."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -37,9 +18,21 @@ T023:
   r: "The required file `src/analysis/runner.py` does not exist in the repository,\
     \ so no logging functionality can be verified. The task\u2019s core artifact is\
     \ missing entirely."
+T024:
+  c: false
+  h: b2ea00f1e0046dd0b36558021a014377c7274b0695f42fc58d43a113960bca82
+  r: The required artifact `data/logs/full_run.csv` does not exist, so the existence,
+    content, column, and timing checks cannot be performed. The task therefore remains
+    unfinished.
 T024a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No `config.json` file containing the runner time limit was provided, nor any
     evidence that the implementer extracted the limit from a `plan.md` constraints
     section. The required artifact is missing, so the task is not satisfied.
+T025:
+  c: false
+  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
+  r: The required file `tests/unit/test_stats.py` does not exist in the repository,
+    so no unit test code or mock data was provided to verify the statistical test
+    logic and metric calculations. The task remains undone.

@@ -12,7 +12,5 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T015** — declared artifact(s) missing/empty/invalid: src/heuristics/conflict_detector.py
 - **T016** — No validation script output, result logs, or precision/recall metrics are present; the claim provides no evidence that the synthetic dataset was run or that the ≥80% baseline was achieved. The required artifact—a report or data confirming the precision/recall performance—is missing.
 - **T018** — No test code, data, or results were supplied to demonstrate that `EvoMem-Conflict` filters non‑conflict patches using the US1 heuristic, nor any indication that the required dependencies (T012, T020) were satisfied. The claim lacks any concrete artifact, so the task is not genuinely completed.
-- **T020** — declared artifact(s) missing/empty/invalid: src/agents/evomem_conflict.py
-- **T021** — declared artifact(s) missing/empty/invalid: src/agents/evomem_conflict.py
-- **T023** — The required file `src/analysis/runner.py` does not exist in the repository, so no logging functionality can be verified. The task’s core artifact is missing entirely.
-- **T024a** — No `config.json` file containing the runner time limit was provided, nor any evidence that the implementer extracted the limit from a `plan.md` constraints section. The required artifact is missing, so the task is not satisfied.
+- **T024** — The required artifact `data/logs/full_run.csv` does not exist, so the existence, content, column, and timing checks cannot be performed. The task therefore remains unfinished.
+- **T025** — The required file `tests/unit/test_stats.py` does not exist in the repository, so no unit test code or mock data was provided to verify the statistical test logic and metric calculations. The task remains undone.

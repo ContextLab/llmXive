@@ -1,169 +1,161 @@
-"""
-Experiment runner for executing tasks on agent variants.
-
-This module orchestrates the execution of tasks on different agent variants
-and logs the results.
-"""
 import json
 import time
 import csv
 import sys
 import os
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-from src.utils.seeding import set_deterministic_seed
+from typing import List, Dict, Any, Optional, Tuple
+
+# Project root handling
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from src.agents.evomem_all import EvoMemAll
 from src.agents.evomem_conflict import EvoMemConflict
+from src.data.benchmarks.terminal_bench_evo import load_real_dataset_sample
+from src.utils.logging import get_logger, ExecutionTimer
+from src.utils.seeding import set_deterministic_seed
 
+logger = get_logger(__name__)
 
-def load_tasks(tasks_path: str = 'data/raw/terminal_bench_evo.jsonl') -> List[Dict[str, Any]]:
+AGENT_VARIANTS = ["EvoMem-All", "EvoMem-Conflict"]
+RESULTS_FILE = PROJECT_ROOT / "data" / "logs" / "full_run.csv"
+
+def load_tasks() -> List[Dict[str, Any]]:
     """
-    Load tasks from a JSONL file.
-    
-    Args:
-        tasks_path (str): Path to the tasks file.
-    
-    Returns:
-        List[Dict[str, Any]]: List of loaded tasks.
+    Loads tasks from the Terminal-Bench-Evo dataset.
+    Returns a list of task dictionaries.
     """
-    tasks = []
-    
-    if not Path(tasks_path).exists():
-        print(f"Warning: Tasks file not found at {tasks_path}")
+    logger.info("Loading tasks from Terminal-Bench-Evo dataset...")
+    try:
+        # Attempt to load real data first.
+        # This function handles the fallback to synthetic if real is unavailable,
+        # but per constraints, we let it fail loudly if the real source is unreachable
+        # and the fallback logic in the benchmark script doesn't cover it.
+        tasks = load_real_dataset_sample()
+        if not tasks:
+            raise FileNotFoundError("No tasks loaded from dataset.")
+        logger.info(f"Loaded {len(tasks)} tasks.")
         return tasks
-    
-    with open(tasks_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                tasks.append(json.loads(line))
-    
-    return tasks
+    except Exception as e:
+        logger.error(f"Failed to load tasks: {e}")
+        raise
 
+def execute_task_on_agent(
+    task: Dict[str, Any],
+    agent: Any,
+    task_id: str,
+    agent_name: str
+) -> Dict[str, Any]:
+    """
+    Executes a single task on the provided agent instance.
+    Returns a dictionary with metrics: task_id, agent_variant, context_tokens,
+    inference_time, success_status.
+    """
+    logger.info(f"Executing task {task_id} on {agent_name}...")
+    
+    # Initialize timer
+    with ExecutionTimer() as timer:
+        try:
+            # Execute the task. 
+            # The agent's execute method is expected to return a result dict 
+            # containing 'success' (bool) and potentially 'context_tokens'.
+            result = agent.execute(task)
+            success = result.get("success", False)
+            context_tokens = result.get("context_tokens", 0)
+        except Exception as e:
+            logger.error(f"Task {task_id} failed with exception: {e}")
+            success = False
+            context_tokens = 0
+    
+    inference_time = timer.elapsed_seconds
+    
+    return {
+        "task_id": task_id,
+        "agent_variant": agent_name,
+        "context_tokens": context_tokens,
+        "inference_time": inference_time,
+        "success_status": success
+    }
 
-def execute_task_on_agent(task: Dict[str, Any], agent, variant_name: str) -> Dict[str, Any]:
+def run_experiment(
+    tasks: List[Dict[str, Any]],
+    sample_size: Optional[int] = None
+) -> List[Dict[str, Any]]:
     """
-    Execute a single task on an agent.
-    
-    Args:
-        task (Dict[str, Any]): The task to execute.
-        agent: The agent to use for execution.
-        variant_name (str): Name of the agent variant.
-    
-    Returns:
-        Dict[str, Any]: Execution results.
+    Runs the experiment on all tasks for both agent variants.
+    Returns a list of result dictionaries.
     """
-    # Reset agent metrics
-    agent.reset_metrics()
+    set_deterministic_seed()
     
-    # Build task context
-    task_context = {
-        'patches': task.get('state_patches', [])
-    }
+    # Limit sample size if specified
+    if sample_size:
+        tasks = tasks[:sample_size]
+        logger.info(f"Limiting experiment to {sample_size} tasks.")
+
+    results = []
     
-    # Retrieve patches
-    start_time = time.time()
-    patches = agent.retrieve_patches(task_context)
-    retrieval_time = time.time() - start_time
+    # Initialize agents
+    logger.info("Initializing EvoMem-All agent...")
+    agent_all = EvoMemAll()
     
-    # Execute task
-    start_time = time.time()
-    result = agent.execute_task(task, patches)
-    execution_time = time.time() - start_time
+    logger.info("Initializing EvoMem-Conflict agent...")
+    agent_conflict = EvoMemConflict()
     
-    # Compile results
-    results = {
-        'task_id': task.get('task_id', 'unknown'),
-        'agent_variant': variant_name,
-        'context_tokens': result.get('context_tokens', 0),
-        'inference_time': execution_time,
-        'success_status': result.get('success_status', False),
-        'retrieval_time': retrieval_time,
-        'output': result.get('output', '')
-    }
-    
+    for idx, task in enumerate(tasks):
+        task_id = task.get("task_id", f"task_{idx}")
+        
+        # Run on EvoMem-All
+        logger.info(f"--- Processing {task_id} with EvoMem-All ---")
+        result_all = execute_task_on_agent(task, agent_all, task_id, AGENT_VARIANTS[0])
+        results.append(result_all)
+        
+        # Run on EvoMem-Conflict
+        logger.info(f"--- Processing {task_id} with EvoMem-Conflict ---")
+        result_conflict = execute_task_on_agent(task, agent_conflict, task_id, AGENT_VARIANTS[1])
+        results.append(result_conflict)
+        
+        logger.info(f"Completed task {idx+1}/{len(tasks)}")
+
     return results
 
+def write_results_to_csv(results: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Writes the experiment results to a CSV file.
+    """
+    if not results:
+        logger.warning("No results to write.")
+        return
 
-def run_experiment(config: str = 'full'):
-    """
-    Run the full experiment on all agent variants.
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    fieldnames = ["task_id", "agent_variant", "context_tokens", "inference_time", "success_status"]
     
-    Args:
-        config (str): Configuration to use ('quick' or 'full').
+    with open(output_path, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.DictWriter(file, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
+    
+    logger.info(f"Results written to {output_path}")
+
+def main():
     """
-    # Set deterministic seed
-    set_deterministic_seed(42)
+    Main entry point for the experiment runner.
+    """
+    logger.info("Starting Experiment Runner...")
     
     # Load tasks
     tasks = load_tasks()
     
-    if not tasks:
-        print("No tasks found. Exiting.")
-        return
+    # Run experiment (process all tasks for now, sample size can be added via CLI if needed)
+    results = run_experiment(tasks)
     
-    # Limit tasks for quick config
-    if config == 'quick':
-        tasks = tasks[:5]
+    # Write results
+    write_results_to_csv(results, RESULTS_FILE)
     
-    # Initialize agents
-    agents = {
-        'EvoMem-All': EvoMemAll(n_patches=10),
-        'EvoMem-Conflict': EvoMemConflict(n_patches=10)
-    }
-    
-    # Execute tasks on each agent
-    all_results = []
-    
-    for variant_name, agent in agents.items():
-        print(f"Running {variant_name} on {len(tasks)} tasks...")
-        
-        for task in tasks:
-            result = execute_task_on_agent(task, agent, variant_name)
-            all_results.append(result)
-            print(f"  Completed task {result['task_id']}")
-    
-    # Write results to CSV
-    write_results_to_csv(all_results)
-    
-    print(f"Experiment completed. Results saved to data/logs/full_run.csv")
+    logger.info("Experiment Runner completed successfully.")
 
-
-def write_results_to_csv(results: List[Dict[str, Any]], output_path: str = 'data/logs/full_run.csv'):
-    """
-    Write experiment results to a CSV file.
-    
-    Args:
-        results (List[Dict[str, Any]]): List of result dictionaries.
-        output_path (str): Path to the output CSV file.
-    """
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    if not results:
-        print("No results to write.")
-        return
-    
-    # Get fieldnames from first result
-    fieldnames = list(results[0].keys())
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
-
-
-def main(config: str = 'full'):
-    """Main entry point for the experiment runner."""
-    run_experiment(config)
-
-
-if __name__ == '__main__':
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Run EvoMem experiments')
-    parser.add_argument('--config', type=str, default='full',
-                      choices=['quick', 'full'],
-                      help='Configuration to use for the experiment')
-    
-    args = parser.parse_args()
-    main(args.config)
+if __name__ == "__main__":
+    main()

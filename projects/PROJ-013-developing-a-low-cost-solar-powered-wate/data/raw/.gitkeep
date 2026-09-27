@@ -1,2 +1,1 @@
-# This directory stores raw data files.
-# Files here are typically large or from external sources.
+# This directory contains raw, unprocessed data (e.g., API downloads).

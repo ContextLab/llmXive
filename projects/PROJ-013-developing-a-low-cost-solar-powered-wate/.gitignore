@@ -30,20 +30,17 @@ env/
 .vscode/
 *.swp
 *.swo
-*~
 
-# Environment Variables (SECRETS)
+# Environment Variables (Store secrets here, never commit)
 .env
 .env.local
-.env.*.local
 
 # Data
-data/raw/*.json
-data/raw/*.csv
-data/processed/*
-data/plots/*
+data/raw/*
 !data/raw/.gitkeep
+data/processed/*
 !data/processed/.gitkeep
+data/plots/*
 !data/plots/.gitkeep
 
 # Logs
@@ -55,10 +52,7 @@ logs/
 Thumbs.db
 
 # Testing
+.pytest_cache/
 .coverage
 htmlcov/
-.pytest_cache/
 .mypy_cache/
-
-# Jupyter
-.ipynb_checkpoints

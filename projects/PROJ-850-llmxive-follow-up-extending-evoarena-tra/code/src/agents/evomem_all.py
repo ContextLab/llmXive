@@ -1,9 +1,3 @@
-"""
-EvoMem-All Agent implementation.
-
-This agent retrieves the last N patches without any conflict filtering,
-serving as a baseline for comparison with the conflict-filtering variant.
-"""
 from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
 import random
@@ -12,78 +6,59 @@ import torch
 from src.agents.base_agent import BaseAgent
 from src.utils.seeding import set_deterministic_seed
 
-
 class EvoMemAll(BaseAgent):
     """
-    EvoMem-All agent that retrieves the last N patches without filtering.
-    
-    This serves as the baseline agent that retrieves all recent patches
-    without any conflict detection or filtering logic.
+    Agent variant that retrieves the last N patches without filtering.
+    This serves as the baseline for comparison.
     """
-    
-    def __init__(self, n_patches: int = 10, seed: int = 42):
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
-        Initialize the EvoMem-All agent.
-        
+        Initialize EvoMemAll agent.
+
         Args:
-            n_patches (int): Number of most recent patches to retrieve.
-            seed (int): Random seed for reproducibility.
+            config: Configuration dictionary. Expected keys:
+                    - 'max_context_size': Maximum number of patches to retrieve.
         """
-        super().__init__(name="EvoMem-All", seed=seed)
-        self.n_patches = n_patches
-        set_deterministic_seed(seed)
-    
-    def retrieve_patches(self, task_context: Dict[str, Any]) -> List[Dict[str, Any]]:
+        super().__init__(config)
+        self.max_context_size = self.config.get('max_context_size', 10)
+        set_deterministic_seed(self.seed)
+
+    def retrieve_context(self, task_id: str, history: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Retrieve the last N patches from the available patches.
-        
+        Retrieve the last N patches from history.
+
         Args:
-            task_context (Dict[str, Any]): Task context containing available patches.
-        
+            task_id: The identifier of the current task.
+            history: The history of previous states/patches.
+
         Returns:
-            List[Dict[str, Any]]: List of the last N patches.
+            A list of the last N patches.
         """
-        available_patches = task_context.get('patches', [])
-        
-        if not available_patches:
-            return []
-        
+        set_deterministic_seed(self.seed)
         # Retrieve the last N patches
-        start_index = max(0, len(available_patches) - self.n_patches)
-        selected_patches = available_patches[start_index:]
-        
-        # Update metrics
-        context_text = self.build_context(selected_patches)
-        self.metrics['context_tokens'] = self.count_tokens(context_text)
-        
-        return selected_patches
-    
-    def execute_task(self, task: Dict[str, Any], patches: List[Dict[str, Any]]) -> Dict[str, Any]:
+        if len(history) <= self.max_context_size:
+            return history
+        return history[-self.max_context_size:]
+
+    def execute(self, task_id: str, context: List[Dict[str, Any]]) -> Tuple[str, float]:
         """
-        Execute a task using the retrieved patches.
-        
+        Execute the task using the full context.
+
         Args:
-            task (Dict[str, Any]): The task to execute.
-            patches (List[Dict[str, Any]]): Retrieved patches to use.
-        
+            task_id: The identifier of the current task.
+            context: The context (patches) retrieved for this task.
+
         Returns:
-            Dict[str, Any]: Execution results.
+            A tuple containing (result_description, inference_time).
         """
-        # Build context from patches
-        context = self.build_context(patches)
-        
-        # Update metrics
-        self.metrics['context_tokens'] = self.count_tokens(context)
-        
-        # Simulate task execution (in a real implementation, this would call an LLM)
-        # For now, we return a placeholder result
-        result = {
-            'task_id': task.get('task_id', 'unknown'),
-            'agent_variant': self.name,
-            'context_tokens': self.metrics['context_tokens'],
-            'success_status': True,  # Placeholder
-            'output': f"Executed task {task.get('task_id')} with {len(patches)} patches"
-        }
-        
-        self.metrics['success_status'] = result['success_status']
-        return result
+        # Placeholder implementation - actual execution logic would go here
+        # This ensures the agent is functional for testing
+        import time
+        start_time = time.time()
+
+        # Simulate processing (in a real implementation, this would call an LLM)
+        result = f"Executed task {task_id} with {len(context)} context patches."
+
+        inference_time = time.time() - start_time
+        return result, inference_time

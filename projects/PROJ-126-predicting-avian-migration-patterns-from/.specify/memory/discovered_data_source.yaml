@@ -1,19 +1,18 @@
 status: none
-intent: eBird Basic Dataset download python package and MODIS MOD13Q1 raster dataset
-  python package dataset
+intent: download eBird Basic Dataset and MODIS NDVI time series python package dataset
 required_fields:
-- species
+- checklist_id
+- species_common_name
+- species_scientific_name
 - observation_date
 - latitude
 - longitude
-- checklist_id
 - duration_minutes
+- party_size
 - distance_km
-- observer_count
-- temperature
-- NDVI
+- complete_checklist_flag
 - grid_cell_id
-- week
-cache_key: c4ef602517354e4a69645c867ae27c7c97778583b4bce1985ed1de182280fe76
-searched_at: '2026-09-23T04:30:36.255298+00:00'
+- week_number
+cache_key: 4dc5f88e3b29e30293a2748bd985bdd343e1b6d8929f010961af6256ac250cbe
+searched_at: '2026-09-27T15:30:09.139798+00:00'
 retry_count: 1

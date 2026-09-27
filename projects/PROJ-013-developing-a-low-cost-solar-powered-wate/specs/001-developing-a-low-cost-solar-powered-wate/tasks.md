@@ -81,10 +81,10 @@
 ### Implementation for User Story 1
 
 - [X] T011 [US1] Implement `code/data_ingestion.py`: Load thermal properties (conductivity, emissivity, specific heat, density) for Aluminum, Copper, Black-painted Steel, and Plastic from the **hardcoded JSON file** `data/raw/nist_materials.json`. Ensure keys match `data-model.md` (MaterialProfile): `thermal_conductivity`, `emissivity`, `specific_heat`, `density`. **Do NOT fetch live from NIST API.**
-- [ ] T012 [US1] Implement `code/data_ingestion.py`: Fetch raw NIST data from the canonical source ONCE (if available) or use the hardcoded JSON, save to `data/raw/nist_materials.json`, and compute a SHA256 checksum of the resulting file. Save the checksum to `data/raw/nist_materials.json.sha256`. This ensures reproducibility for subsequent runs.
+- [X] T012 [US1] Implement `code/data_ingestion.py`: Fetch raw NIST data from the canonical source ONCE (if available) or use the hardcoded JSON, save to `data/raw/nist_materials.json`, and compute a SHA256 checksum of the resulting file. Save the checksum to `data/raw/nist_materials.json.sha256`. This ensures reproducibility for subsequent runs.
 - [X] T013 [US1] Implement `code/data_ingestion.py`: Scrape current market prices for the 4 materials from ` Name or service not known)"))]. **Fallback**: If this fails, attempt to fetch a verified CSV from `. **Edge Case Handling**: If a price is unavailable after all attempts, **exclude** that material from the simulation, log a warning, and **add a `status` field** (e.g., "invalid_price") to the output CSV for that material to ensure traceability. **DO NOT** fallback to synthetic data.
 - [X] T014 [US1] Implement cost function logic in `code/data_ingestion.py`: Calculate total cost $C$ for a specific geometry by summing (mass × price) for all components, ensuring all costs are strictly positive. **Strictly follow spec: $C = \sum (mass_i \times price_i)$ without additional complexity factors.**
-- [ ] T015 [US1] Generate `data/processed/materials.csv` containing material_id, thermal properties, density, unit price, calculated cost, and a `status` field (e.g., "valid", "invalid_price").
+- [X] T015 [US1] Generate `data/processed/materials.csv` containing material_id, thermal properties, density, unit price, calculated cost, and a `status` field (e.g., "valid", "invalid_price").
 - [ ] T016 [US1] Validate that the output CSV contains no missing values for valid materials and that all costs are positive scalars.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -107,10 +107,10 @@
 
 - [X] T020 [US2] Implement `code/simulation.py`: Define `GeometryConfig` class supporting flat-plate, single-slope, and double-slope. **Model slope variations via "view factors" and "convective heat transfer coefficients"** (as per Plan Summary). Reference `data-model.md` for exact attributes (inclination_angle, surface_area). Calculate effective projected area using view factors, not simple cosine projection.
 - [X] T021 [US2] Implement `code/simulation.py`: Create the 1D transient heat transfer ODE system using `scipy.integrate.solve_ivp`, incorporating solar irradiance boundary conditions from the data fetched in **T008**.
-- [ ] T022 [US2] Implement `code/simulation.py`: Calculate time-averaged thermal efficiency $\eta$ over the final 30 minutes of the transient simulation for every valid material-geometry combination.
-- [ ] T023 [US2] Implement `code/validation.py`: Perform **Primary Validation**: Check **Energy Balance Closure** (Input Energy = Output Energy + Losses). **If this check fails, exclude the data point from results.** This is the hard gate per the Plan.
-- [ ] T024 [US2] Implement `code/validation.py`: Perform **Secondary Check**: Log if calculated efficiency $\eta$ falls within ±10% of the mean efficiency (0.45) from Duffie & Beckman as a warning, but **DO NOT** exclude the data point based on this check alone.
-- [ ] T025 [US2] Generate `data/processed/simulation_results.csv` containing material_id, geometry_id, steady_state_efficiency, total_cost, and convergence_status. **Conditional: Only generate this file if T023 validation passes.**
+- [X] T022 [US2] Implement `code/simulation.py`: Calculate time-averaged thermal efficiency $\eta$ over the final 30 minutes of the transient simulation for every valid material-geometry combination.
+- [X] T023 [US2] Implement `code/validation.py`: Perform **Primary Validation**: Check **Energy Balance Closure** (Input Energy = Output Energy + Losses). **If this check fails, exclude the data point from results.** This is the hard gate per the Plan.
+- [X] T024 [US2] Implement `code/validation.py`: Perform **Secondary Check**: Log if calculated efficiency $\eta$ falls within ±10% of the mean efficiency (0.45) from Duffie & Beckman as a warning, but **DO NOT** exclude the data point based on this check alone.
+- [X] T025 [US2] Generate `data/processed/simulation_results.csv` containing material_id, geometry_id, steady_state_efficiency, total_cost, and convergence_status. **Conditional: Only generate this file if T023 validation passes.**
 - [ ] T026 [US2] Run batch simulation for all material-geometry combinations (3 geometries × 4 materials = 12 combinations); ensure total runtime < 180 seconds on CPU. **Note: Angle sweep (0-80°) is removed to respect Spec scope. **
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -125,13 +125,13 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Unit test for Pareto frontier identification algorithm in `tests/unit/test_optimization.py`: Verify `find_pareto_frontier` exists with signature `(points: List[Tuple[float, float]]) -> List[Tuple[float, float]]` and asserts the returned list contains only non-dominated points.
-- [ ] T028 [P] [US3] Unit test for knee point calculation (distance to ideal point) in `tests/unit/test_optimization.py`: Verify `calculate_knee_point` exists with signature `(frontier: List[Tuple[float, float]]) -> Tuple[float, float]` and asserts the result is one of the frontier points.
+- [X] T027 [P] [US3] Unit test for Pareto frontier identification algorithm in `tests/unit/test_optimization.py`: Verify `find_pareto_frontier` exists with signature `(points: List[Tuple[float, float]]) -> List[Tuple[float, float]]` and asserts the returned list contains only non-dominated points.
+- [X] T028 [P] [US3] Unit test for knee point calculation (distance to ideal point) in `tests/unit/test_optimization.py`: Verify `calculate_knee_point` exists with signature `(frontier: List[Tuple[float, float]]) -> Tuple[float, float]` and asserts the result is one of the frontier points.
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `code/optimization.py`: Load `data/processed/simulation_results.csv` (Prerequisite: **T025**) and filter for valid (non-dominated) solutions.
-- [ ] T030 [US3] Implement `code/optimization.py`: Calculate the Pareto frontier of $\eta$ vs. $C$ using `scipy.optimize` or a standard non-dominated sorting algorithm.
+- [X] T029 [US3] Implement `code/optimization.py`: Load `data/processed/simulation_results.csv` (Prerequisite: **T025**) and filter for valid (non-dominated) solutions.
+- [X] T030 [US3] Implement `code/optimization.py`: Calculate the Pareto frontier of $\eta$ vs. $C$ using `scipy.optimize` or a standard non-dominated sorting algorithm.
 - [ ] T031 [US3] Implement `code/optimization.py`: Calculate the "knee point" as the point on the frontier minimizing Euclidean distance to the ideal point (max $\eta$, min $C$).
 - [ ] T032 [US3] Implement `code/optimization.py`: Calculate the coefficient of determination ($R^2$) of a linear fit to the Pareto frontier points. **Report this metric** to confirm the trade-off nature (SC-003).
 - [ ] T032b [US3] Validate the trade-off nature: Ensure the $R^2$ metric is < 0.95 to confirm a non-linear trade-off. If $R^2 \ge 0.95$, log a warning that the frontier appears linear, but **DO NOT** fail the pipeline.

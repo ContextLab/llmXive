@@ -1,7 +1,7 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 type: object
 title: GridCellObservation Schema
-description: "Schema for the processed spatiotemporal grid data used in migration modeling."
+description: "Canonical Schema for the processed spatiotemporal grid data used in migration modeling. All pipeline outputs must conform to this structure."
 required:
   - grid_cell_id
   - year
@@ -55,32 +55,33 @@ properties:
       - number
       - "null"
     description: "Mean Land Surface Temperature 4 weeks prior."
-  ndvi_lag_1:
+  evi_lag_1:
     type:
       - number
       - "null"
-    description: "Mean NDVI 1 week prior."
-  ndvi_lag_2:
+    description: "Mean EVI (Enhanced Vegetation Index) 1 week prior."
+  evi_lag_2:
     type:
       - number
       - "null"
-    description: "Mean NDVI 2 weeks prior."
-  ndvi_lag_3:
+    description: "Mean EVI 2 weeks prior."
+  evi_lag_3:
     type:
       - number
       - "null"
-    description: "Mean NDVI 3 weeks prior."
-  ndvi_lag_4:
+    description: "Mean EVI 3 weeks prior."
+  evi_lag_4:
     type:
       - number
       - "null"
-    description: "Mean NDVI 4 weeks prior."
+    description: "Mean EVI 4 weeks prior."
   data_quality_flag:
     type: string
     enum:
       - "valid"
       - "missing_env"
       - "insufficient_data"
+      - "low_effort"
     description: "Flag indicating data quality status."
   threshold_used:
     type: integer

@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformanceMetric"
+description: "Schema for model evaluation metrics and statistical test results."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'combined', 'temp_only')."
+  metric_type:
+    type: "string"
+    enum:
+      - "RMSE"
+      - "MAE"
+      - "Pearson_R"
+      - "Diebold_Mariano_P"
+  value:
+    type: "number"
+    description: "The metric value."
+  p_value_dm:
+    type: ["number", "null"]
+    description: "P-value from Diebold-Mariano test (only for combined vs baseline)."
+  confidence_interval_lower:
+    type: ["number", "null"]
+  confidence_interval_upper:
+    type: ["number", "null"]
+  threshold_sweep:
+    type: "object"
+    description: "Results from the sensitivity analysis (3, 5, 10)."
+    properties:
+      threshold_3:
+        type: "number"
+      threshold_5:
+        type: "number"
+      threshold_10:
+        type: "number"
+    required:
+      - threshold_3
+      - threshold_5
+      - threshold_10
+  feasibility:
+    type: "object"
+    description: "Compute feasibility metrics."
+    properties:
+      elapsed_time_hours:
+        type: "number"
+      peak_ram_gb:
+        type: "number"
+    required:
+      - elapsed_time_hours
+      - peak_ram_gb
+required:
+  - model_name
+  - metric_type
+  - value

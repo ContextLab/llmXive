@@ -1,251 +1,180 @@
-"""
-Unit tests for EvoMemConflict fallback logic.
-
-Tests the specific requirement (FR-002, FR-007) that when no conflicts
-are detected, the agent retrieves the latest state plus the 2 most
-recent non-conflict patches.
-"""
 import pytest
 import sys
 import os
 from pathlib import Path
 from typing import List, Dict, Any
-
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
 from src.agents.evomem_conflict import EvoMemConflict
-from src.heuristics.conflict_detector import ConflictDetector
-
+from unittest.mock import patch, MagicMock
 
 class MockConflictDetector:
-    """Mock detector that simulates various conflict detection scenarios."""
-
-    def __init__(self, conflict_indices: List[int] = None, fail: bool = False):
-        """
-        Args:
-            conflict_indices: List of indices to mark as conflicts.
-            fail: If True, simulate detection failure.
-        """
-        self.conflict_indices = conflict_indices or []
-        self.fail = fail
-        self.model_name = "mock-model"
+    """Mock detector for testing fallback logic without loading real models."""
+    
+    def __init__(self, return_conflicts: bool = False, return_error: bool = False):
+        self.return_conflicts = return_conflicts
+        self.return_error = return_error
         self.threshold = 0.90
-        self.device = "cpu"
 
-    def is_conflict(self, state_text: str, patch_text: str) -> bool:
-        """Mock conflict detection."""
-        if self.fail:
-            raise RuntimeError("Simulated detection failure")
-        # This is a simplified mock - actual logic would be in the real detector
-        return False  # By default, no conflicts
+    def detect_conflicts(self, texts: List[str]):
+        if self.return_error:
+            raise RuntimeError("Simulated detector failure")
+        
+        results = []
+        for i, text in enumerate(texts):
+            # Create a mock result object with a score attribute
+            mock_result = MagicMock()
+            if self.return_conflicts:
+                # Make every other text a conflict for testing
+                mock_result.score = 0.95 if i % 2 == 0 else 0.5
+            else:
+                mock_result.score = 0.5
+            results.append(mock_result)
+        return results
 
-    def run_sensitivity_analysis_thresholds(self, thresholds: List[float]):
-        """Mock implementation."""
-        return []
-
+@pytest.fixture
+def mock_patches():
+    """Generate a list of mock patches."""
+    return [
+        {"id": 1, "state": "Patch A", "timestamp": "t1"},
+        {"id": 2, "state": "Patch B", "timestamp": "t2"},
+        {"id": 3, "state": "Patch C", "timestamp": "t3"},
+        {"id": 4, "state": "Patch D", "timestamp": "t4"},
+        {"id": 5, "state": "Latest State", "timestamp": "t5"} # Last one is latest
+    ]
 
 class TestEvoMemConflictFallback:
-    """Test cases for the fallback retrieval logic."""
+    """Tests for FR-002 and FR-007 fallback logic in EvoMemConflict."""
 
-    @pytest.fixture
-    def sample_patches(self):
-        """Create a sample set of patches for testing."""
-        return [
-            {
-                "id": "patch_0",
-                "content": "Initial state",
-                "is_state": False
-            },
-            {
-                "id": "patch_1",
-                "content": "Update 1",
-                "is_state": False
-            },
-            {
-                "id": "patch_2",
-                "content": "Update 2",
-                "is_state": False
-            },
-            {
-                "id": "patch_3",
-                "content": "Current state",
-                "is_state": True
-            },
-            {
-                "id": "patch_4",
-                "content": "Update 3",
-                "is_state": False
-            },
-            {
-                "id": "patch_5",
-                "content": "Update 4",
-                "is_state": False
-            }
+    @patch('src.agents.evomem_conflict.ConflictDetector')
+    def test_fallback_no_conflicts(self, MockDetectorClass, mock_patches):
+        """
+        Test that if no conflicts are detected, the agent retrieves:
+        Latest State + 2 most recent non-conflict patches.
+        """
+        # Setup mock to return NO conflicts
+        mock_detector_instance = MagicMock()
+        mock_detector_instance.detect_conflicts.return_value = [
+            MagicMock(score=0.1), MagicMock(score=0.2), MagicMock(score=0.3), 
+            MagicMock(score=0.4), MagicMock(score=0.5) # All below threshold
         ]
+        MockDetectorClass.return_value = mock_detector_instance
 
-    def test_fallback_no_conflicts_retrieves_latest_and_two_recent(
-        self,
-        sample_patches: List[Dict[str, Any]]
-    ):
-        """
-        Verify that when no conflicts are detected, the agent retrieves:
-        - The latest state (patch_3)
-        - The 2 most recent non-conflict patches (patch_5, patch_4)
-        """
-        # Create agent with mock detector that returns no conflicts
-        agent = EvoMemConflict(model_name="mock", threshold=0.90)
-        agent.detector = MockConflictDetector(conflict_indices=[])
-
-        result = agent.retrieve_patches(sample_patches)
-
-        # Should return 3 patches: state + 2 recent non-conflicts
-        assert len(result) == 3
-
-        # First should be the latest state
-        assert result[0]["id"] == "patch_3"
-
-        # Next two should be the most recent non-conflicts (patch_5, patch_4)
-        # Note: The implementation sorts by index descending, so patch_5 comes first
-        assert result[1]["id"] == "patch_5"
-        assert result[2]["id"] == "patch_4"
-
-    def test_fallback_on_detection_failure(
-        self,
-        sample_patches: List[Dict[str, Any]]
-    ):
-        """
-        Verify that when detection fails, the agent falls back to
-        latest state + 2 most recent non-conflicts.
-        """
-        agent = EvoMemConflict(model_name="mock", threshold=0.90)
-        agent.detector = MockConflictDetector(fail=True)
-
-        result = agent.retrieve_patches(sample_patches)
-
-        # Should still return 3 patches (fallback behavior)
-        assert len(result) == 3
-
-        # First should be the latest state
-        assert result[0]["id"] == "patch_3"
-
-        # Next two should be the most recent non-conflicts
-        assert result[1]["id"] == "patch_5"
-        assert result[2]["id"] == "patch_4"
-
-    def test_normal_mode_with_conflicts(
-        self,
-        sample_patches: List[Dict[str, Any]]
-    ):
-        """
-        Verify that when conflicts are detected, the agent retrieves
-        the latest state plus the conflict patches (not the fallback).
-        """
-        # Create mock that marks patch_1 and patch_5 as conflicts
-        agent = EvoMemConflict(model_name="mock", threshold=0.90)
-        agent.detector = MockConflictDetector(conflict_indices=[1, 5])
-
-        result = agent.retrieve_patches(sample_patches)
-
-        # Should return state + conflict patches
-        assert len(result) == 3  # state + 2 conflicts
-
-        # First should be the latest state
-        assert result[0]["id"] == "patch_3"
-
-        # Should include the conflict patches
+        agent = EvoMemConflict(threshold=0.90)
+        
+        # Execute retrieval
+        result = agent.retrieve_patches(mock_patches)
+        
+        # Assertions
+        # 1. Latest state must be present
+        assert len(result) > 0
+        assert result[0]["id"] == 5 # Latest State
+        
+        # 2. Should have exactly 3 items: Latest + 2 most recent non-conflicts
+        #    Non-conflicts are IDs 1, 2, 3, 4. Most recent are 4 and 3.
+        assert len(result) == 3, f"Expected 3 patches (1 latest + 2 recent), got {len(result)}: {result}"
+        
+        # 3. Check IDs: Latest (5) + 4 + 3
         ids = [p["id"] for p in result]
-        assert "patch_1" in ids
-        assert "patch_5" in ids
+        assert 5 in ids
+        assert 4 in ids
+        assert 3 in ids
+        assert 1 not in ids and 2 not in ids # Older ones should be excluded
 
-    def test_fallback_with_fewer_than_two_non_conflicts(
-        self,
-        sample_patches: List[str]
-    ):
+    @patch('src.agents.evomem_conflict.ConflictDetector')
+    def test_fallback_detector_failure(self, MockDetectorClass, mock_patches):
         """
-        Verify behavior when there are fewer than 2 non-conflict patches
-        available besides the state.
+        Test that if the detector fails (exception), the agent falls back to:
+        Latest State + 2 most recent non-conflict patches.
         """
-        # Create a minimal patch set: only state and 1 other patch
-        minimal_patches = [
-            {
-                "id": "patch_0",
-                "content": "Only non-state patch",
-                "is_state": False
-            },
-            {
-                "id": "patch_1",
-                "content": "State",
-                "is_state": True
-            }
+        # Setup mock to raise an error
+        mock_detector_instance = MagicMock()
+        mock_detector_instance.detect_conflicts.side_effect = RuntimeError("Timeout")
+        MockDetectorClass.return_value = mock_detector_instance
+
+        agent = EvoMemConflict(threshold=0.90)
+        
+        # Execute retrieval
+        result = agent.retrieve_patches(mock_patches)
+        
+        # Assertions
+        # Should fall back to same logic as "no conflicts"
+        assert len(result) == 3, f"Expected 3 patches on failure, got {len(result)}"
+        assert result[0]["id"] == 5 # Latest
+        
+        # Most recent non-conflicts (since all are treated as non-conflict on failure)
+        ids = [p["id"] for p in result]
+        assert 5 in ids
+        assert 4 in ids
+        assert 3 in ids
+
+    @patch('src.agents.evomem_conflict.ConflictDetector')
+    def test_no_fallback_when_conflicts_found(self, MockDetectorClass, mock_patches):
+        """
+        Test that if conflicts ARE found, the fallback logic is NOT triggered.
+        Instead, it returns Latest + Conflicts.
+        """
+        # Setup mock to return conflicts
+        mock_detector_instance = MagicMock()
+        # Make ID 2 and 4 conflicts (indices 1 and 3)
+        mock_detector_instance.detect_conflicts.return_value = [
+            MagicMock(score=0.1), # ID 1: No
+            MagicMock(score=0.95), # ID 2: Yes
+            MagicMock(score=0.2), # ID 3: No
+            MagicMock(score=0.95), # ID 4: Yes
+            MagicMock(score=0.3)  # ID 5: No
         ]
+        MockDetectorClass.return_value = mock_detector_instance
 
-        agent = EvoMemConflict(model_name="mock", threshold=0.90)
-        agent.detector = MockConflictDetector(conflict_indices=[])
+        agent = EvoMemConflict(threshold=0.90)
+        
+        result = agent.retrieve_patches(mock_patches)
+        
+        # Assertions
+        # Should contain Latest (5) + Conflicts (2, 4)
+        # Total 3 items
+        assert len(result) == 3
+        
+        ids = [p["id"] for p in result]
+        assert 5 in ids
+        assert 2 in ids
+        assert 4 in ids
+        assert 1 not in ids and 3 not in ids
 
-        result = agent.retrieve_patches(minimal_patches)
+    @patch('src.agents.evomem_conflict.ConflictDetector')
+    def test_fallback_with_fewer_than_2_non_conflicts(self, MockDetectorClass):
+        """
+        Test edge case: If there are fewer than 2 non-conflict patches available,
+        return whatever is available (Latest + available non-conflicts).
+        """
+        # Only 2 patches total: Latest and one other
+        few_patches = [
+            {"id": 1, "state": "Old", "timestamp": "t1"},
+            {"id": 2, "state": "Latest", "timestamp": "t2"}
+        ]
+        
+        mock_detector_instance = MagicMock()
+        mock_detector_instance.detect_conflicts.return_value = [
+            MagicMock(score=0.1), MagicMock(score=0.1) # No conflicts
+        ]
+        MockDetectorClass.return_value = mock_detector_instance
 
-        # Should return state + 1 non-conflict (only 1 available)
+        agent = EvoMemConflict(threshold=0.90)
+        result = agent.retrieve_patches(few_patches)
+        
+        # Should return Latest + 1 non-conflict (since only 1 exists)
         assert len(result) == 2
-        assert result[0]["id"] == "patch_1"
-        assert result[1]["id"] == "patch_0"
+        ids = [p["id"] for p in result]
+        assert 2 in ids
+        assert 1 in ids
 
-    def test_fallback_with_no_non_conflicts(
-        self,
-        sample_patches: List[str]
-    ):
+    @patch('src.agents.evomem_conflict.ConflictDetector')
+    def test_fallback_with_empty_patches(self, MockDetectorClass):
         """
-        Verify behavior when there are no non-conflict patches besides the state.
+        Test behavior when input patches list is empty.
         """
-        # Create a patch set where all non-state patches are conflicts
-        conflict_patches = [
-            {
-                "id": "patch_0",
-                "content": "Conflict 1",
-                "is_state": False
-            },
-            {
-                "id": "patch_1",
-                "content": "State",
-                "is_state": True
-            }
-        ]
+        mock_detector_instance = MagicMock()
+        MockDetectorClass.return_value = mock_detector_instance
 
-        agent = EvoMemConflict(model_name="mock", threshold=0.90)
-        agent.detector = MockConflictDetector(conflict_indices=[0])
-
-        result = agent.retrieve_patches(conflict_patches)
-
-        # Should return only the state (no non-conflicts to add)
-        assert len(result) == 1
-        assert result[0]["id"] == "patch_1"
-
-    def test_empty_patches_list(self):
-        """Verify behavior with empty patches list."""
-        agent = EvoMemConflict(model_name="mock", threshold=0.90)
-
+        agent = EvoMemConflict(threshold=0.90)
         result = agent.retrieve_patches([])
-
+        
         assert result == []
-
-    def test_single_patch(self):
-        """Verify behavior with only the state patch."""
-        single_patch = [
-            {
-                "id": "state_only",
-                "content": "Only state",
-                "is_state": True
-            }
-        ]
-
-        agent = EvoMemConflict(model_name="mock", threshold=0.90)
-        agent.detector = MockConflictDetector(conflict_indices=[])
-
-        result = agent.retrieve_patches(single_patch)
-
-        # Should return just the state
-        assert len(result) == 1
-        assert result[0]["id"] == "state_only"
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])

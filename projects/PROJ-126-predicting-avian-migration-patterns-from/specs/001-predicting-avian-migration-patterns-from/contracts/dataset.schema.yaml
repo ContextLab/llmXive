@@ -1,84 +1,47 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "GridCellObservation"
-description: "Schema for the aggregated spatiotemporal grid cell data derived from eBird and MODIS."
+description: "Schema for the aggregated spatiotemporal grid cell data."
 type: "object"
 properties:
   grid_cell_id:
     type: "string"
-    description: "Unique identifier for the 0.5° grid cell (e.g., 'lat_40.5_lon_-75.5')."
+    description: "Unique identifier for the grid cell (e.g., '45.5_-122.5')."
   year:
     type: "integer"
     minimum: 2015
     maximum: 2023
-    description: "Year of observation."
-  week:
+  week_number:
     type: "integer"
     minimum: 1
     maximum: 52
-    description: "ISO week number of the year."
-  observation_count:
+  total_observations:
     type: "integer"
     minimum: 0
-    description: "Total count of Setophaga ruticilla in this cell/week."
-  cumulative_count:
-    type: "integer"
-    minimum: 0
-    description: "Running sum of observations from the start of the year."
-  first_arrival_week:
-    type:
-      - "integer"
-      - "null"
-    minimum: 1
-    maximum: 52
-    description: "Week where cumulative count reached the threshold (default 5). Null if threshold not met."
-  is_valid:
-    type: "boolean"
-    description: "True if total annual count >= 10, otherwise False."
-  temp_lag_1:
-    type:
-      - "number"
-      - "null"
-    description: "Mean Land Surface Temperature 1 week prior."
-  temp_lag_2:
-    type:
-      - "number"
-      - "null"
-    description: "Mean Land Surface Temperature 2 weeks prior."
-  temp_lag_3:
-    type:
-      - "number"
-      - "null"
-    description: "Mean Land Surface Temperature 3 weeks prior."
-  temp_lag_4:
-    type:
-      - "number"
-      - "null"
-    description: "Mean Land Surface Temperature 4 weeks prior."
-  ndvi_lag_1:
-    type:
-      - "number"
-      - "null"
+  first_arrival_date:
+    type: ["string", "null"]
+    description: "ISO 8601 date string or null if threshold not met."
+    format: "date"
+  mean_temp_lag_1:
+    type: ["number", "null"]
+    description: "Mean temperature 1 week prior."
+  mean_temp_lag_2:
+    type: ["number", "null"]
+    description: "Mean temperature 2 weeks prior."
+  mean_ndvi_lag_1:
+    type: ["number", "null"]
     description: "Mean NDVI 1 week prior."
-  ndvi_lag_2:
-    type:
-      - "number"
-      - "null"
+  mean_ndvi_lag_2:
+    type: ["number", "null"]
     description: "Mean NDVI 2 weeks prior."
-  ndvi_lag_3:
-    type:
-      - "number"
-      - "null"
-    description: "Mean NDVI 3 weeks prior."
-  ndvi_lag_4:
-    type:
-      - "number"
-      - "null"
-    description: "Mean NDVI 4 weeks prior."
+  data_quality_flag:
+    type: "string"
+    enum:
+      - "valid"
+      - "insufficient_data"
+      - "missing_env"
 required:
-  - "grid_cell_id"
-  - "year"
-  - "week"
-  - "observation_count"
-  - "cumulative_count"
-  - "is_valid"
-additionalProperties: false
+  - grid_cell_id
+  - year
+  - week_number
+  - total_observations
+  - data_quality_flag
