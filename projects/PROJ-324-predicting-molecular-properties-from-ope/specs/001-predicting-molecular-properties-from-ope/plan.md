@@ -17,7 +17,7 @@ The pipeline adheres to strict data hygiene and compute constraints (CPU-first, 
 **Primary Dependencies**: `pubchempy`, `rdkit` (for SMILES parsing and SMARTS matching), `scikit-learn`, `shap`, `openbabel` (CLI), `matplotlib`, `pandas`, `pyyaml`, `ruff`, `black`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/derived`)  
 **Testing**: `pytest` (unit tests for data loaders, integration tests for pipeline steps)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: limited CPU resources, 7GB RAM)  
 **Project Type**: CLI/Data Pipeline  
 **Performance Goals**: Complete full pipeline (~5k molecules, 3 fingerprints, nested CV) within 4 hours on CPU.  
 **Constraints**: No external GPU required (RF and SHAP on CPU); Open Babel must be available in PATH; strict memory limits (streaming data loading if >1GB).  
