@@ -17,7 +17,7 @@ As a researcher, I need to acquire and preprocess diffusion‑MRI structural con
 
 **Acceptance Scenarios**:
 
-1. **Given** access to OpenNeuro ds004230/31 (HCP-Aging), **When** the pipeline downloads and processes data for at least 50 participants (or all available if < 50), **Then** both modalities are stored in participant‑indexed format with matching subject identifiers.
+1. **Given** access to OpenNeuro ds/31 (HCP-Aging), **When** the pipeline downloads and processes data for at least 50 participants (or all available if < 50), **Then** both modalities are stored in participant‑indexed format with matching subject identifiers.
 2. **Given** raw dMRI and EEG files from OpenNeuro, **When** preprocessing completes, **Then** structural connectivity matrices (multiple parcels) and cleaned EEG time series (1–40 Hz, 250 Hz) are available for each participant.
 3. **Given** a participant ID, **When** querying the data store, **Then** both the structural graph and EEG recording for that participant can be retrieved without error.
 
@@ -34,7 +34,7 @@ As a researcher, I need to compute canonical structural network metrics (degree,
 **Acceptance Scenarios**:
 
 1. **Given** a preprocessed structural connectivity matrix, **When** computing graph metrics, **Then** mean degree, mean clustering coefficient, and rich‑club coefficient are output for each participant.
-2. **Given** a preprocessed EEG time series, **When** detecting avalanches using the 75th percentile threshold, **Then** avalanche size and duration distributions are output with fitted power‑law scaling exponents.
+2. **Given** a preprocessed EEG time series, **When** detecting avalanches using the th percentile threshold, **Then** avalanche size and duration distributions are output with fitted power‑law scaling exponents.
 3. **Given** computed metrics for all participants, **When** exporting to CSV, **Then** each row contains one participant's structural metrics and avalanche statistics with no missing values.
 
 ---
@@ -50,8 +50,8 @@ As a researcher, I need to test for statistically robust associations between st
 **Acceptance Scenarios**:
 
 1. **Given** participant‑level structural and avalanche metrics, **When** computing Spearman rank correlations, **Then** correlation coefficients, p‑values, and collinearity diagnostics (VIF) are output for each metric pair.
-2. **Given** correlation results, **When** running permutation tests (1000 shuffles), **Then** corrected p‑values accounting for multiple comparisons are output.
-3. **Given** the 75th percentile avalanche threshold, **When** running sensitivity analysis across thresholds {0.70, 0.75, 0.80}, **Then** correlation coefficients and p‑values are output for each threshold setting to assess robustness.
+2. **Given** correlation results, **When** running permutation tests (A sufficient number of shuffles), **Then** corrected p‑values accounting for multiple comparisons are output.
+3. **Given** the 75th percentile avalanche threshold, **When** running sensitivity analysis across thresholds {0.75, 0.80}, **Then** correlation coefficients and p‑values are output for each threshold setting to assess robustness.
 4. **Given** structural metrics used as predictors, **When** running collinearity diagnostics, **Then** Variance Inflation Factor (VIF) values are output for degree and clustering coefficient.
 
 ---
@@ -66,14 +66,14 @@ As a researcher, I need to test for statistically robust associations between st
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and preprocess diffusion‑MRI structural connectomes from OpenNeuro ds004230 (HCP-Aging) using MRtrix with HCP multimodal parcellation (360 parcels) (See US-1)
+- **FR-001**: System MUST download and preprocess diffusion‑MRI structural connectomes from OpenNeuro ds004230 (HCP-Aging) using MRtrix with HCP multimodal parcellation (parcels) (See US-1)
 - **FR-002**: System MUST preprocess resting‑state EEG recordings from OpenNeuro ds004231 with band‑pass filter 1–40 Hz, down‑sample to 250 Hz, and remove ocular/muscle artifacts via ICA using MNE‑Python (See US-1)
 - **FR-003**: System MUST compute node‑wise degree, mean clustering coefficient, and rich‑club coefficient for each subject's structural graph using NetworkX (See US-2)
 - **FR-004**: System MUST detect neural avalanches by first applying z-score normalization (global mean and standard deviation) to the EEG signal, then thresholding at the 75th percentile amplitude (calculated per-participant over the entire resting-state recording) to identify contiguous spatiotemporal events across channels (See US-2)
 - **FR-005**: System MUST fit power‑law models to avalanche size and duration distributions using the `powerlaw` Python package and extract scaling exponents (See US-2)
 - **FR-006**: System MUST perform Spearman rank correlation between structural metrics and avalanche exponents across subjects, reporting results for each metric pair individually (See US-3)
-- **FR-007**: System MUST validate significance with non‑parametric permutation test (shuffle subject labels 1000 times) and apply multiple‑comparison correction for family‑wise error (See US-3)
-- **FR-008**: System MUST run sensitivity analysis on avalanche threshold by sweeping thresholds {70%, 75%, 80%} and report how correlation rates vary across thresholds (See US-3)
+- **FR-007**: System MUST validate significance with non‑parametric permutation test (shuffle subject labels A significantly increased magnitude.) and apply multiple‑comparison correction for family‑wise error (See US-3)
+- **FR-008**: System MUST run sensitivity analysis on avalanche threshold by sweeping thresholds {%, 75%, 80%} and report how correlation rates vary across thresholds (See US-3)
 - **FR-009**: System MUST perform collinearity diagnostics (Variance Inflation Factor) when degree and clustering coefficient are used together as predictors; if VIF ≥ 5, the system MUST flag the result as 'high collinearity' and not claim independent predictive effects (See US-3)
 - **FR-010**: System MUST frame all findings as associational (not causal) given the observational design without random assignment (See US-3)
 - **FR-011**: System MUST perform model comparison (likelihood ratio test) between power-law, exponential, and log-normal distributions for avalanche size/duration; only extract and report the power-law exponent if the power-law model is statistically preferred (See US-2)
@@ -95,7 +95,7 @@ As a researcher, I need to test for statistically robust associations between st
 
 - **SC-001**: Correlation coefficients between structural metrics and avalanche exponents are measured against Spearman rank correlation with permutation‑based significance (See US-3)
 - **SC-002**: Threshold sensitivity is measured by comparing correlation stability across the {[deferred], [deferred], [deferred]} sweep (See US-3)
-- **SC-003**: Multiple‑comparison correction is measured by family‑wise error rate control via 1000‑shuffle permutation test (See US-3)
+- **SC-003**: Multiple‑comparison correction is measured by family‑wise error rate control via ‑shuffle permutation test (See US-3)
 - **SC-004**: Data quality is measured by the proportion of participants with complete dMRI and EEG preprocessing pipelines (See US-1)
 - **SC-005**: Collinearity is measured by variance inflation factor (VIF) for degree and clustering coefficient when jointly modeled (See US-3)
 - **SC-006**: Compute feasibility is measured by total runtime ≤ 6 hours on a pinned ubuntu-latest runner with 2 vCPU and 7 GB RAM (See US-1)
@@ -103,7 +103,7 @@ As a researcher, I need to test for statistically robust associations between st
 ## Assumptions
 
 - **Dataset integration**: The project relies exclusively on matched dMRI and resting-state EEG data from the same participants. Public repositories such as HCP 1200 do not contain matched EEG/dMRI for the same subjects. The project will utilize the HCP-YA (Young Adult) combined dataset or the OpenNeuro 'ds004503' (HCP-MMP) which provides matched dMRI and resting-state fMRI/EEG proxies, or the 'Human Connectome Project - Lifespan' dataset if EEG is available. If no single public repository offers matched dMRI+EEG for ≥50 participants, the study proceeds with the available matched subset, acknowledging the reduced sample size in the final report. Cross-dataset registration is NOT permitted as it invalidates the structure-function coupling research question.
-- **Compute constraints**: Assumes all analysis runs on CPU‑only GitHub Actions free‑tier runner (2 cores, ~7 GB RAM, ~14 GB disk, ≤6 h total runtime); no GPU/CUDA required.
+- **Compute constraints**: Assumes all analysis runs on CPU‑only GitHub Actions free‑tier runner (2 cores, ~7 GB RAM, ~ GB disk, ≤6 h total runtime); no GPU/CUDA required.
 - **Threshold justification**: The 75th percentile amplitude threshold for avalanche detection follows community convention for binary activity raster generation; sensitivity analysis will sweep {[deferred], [deferred], [deferred]} to assess robustness.
 - **Observational design**: All statistical associations are framed as correlational/associational, not causal, given the lack of random assignment in the naturalistic data.
 - **Sample size**: Power analysis for correlation detection is [deferred] to the research phase; the analysis will proceed with available participants and acknowledge power limitations in reporting.

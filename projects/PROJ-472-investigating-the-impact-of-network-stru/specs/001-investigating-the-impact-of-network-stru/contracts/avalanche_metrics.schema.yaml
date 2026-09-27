@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Avalanche Metrics Schema"
+description: "Schema for participant-level avalanche and network metrics"
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the participant"
+  dataset_source:
+    type: string
+    enum:
+      - "OpenNeuro"
+      - "Neurofusion"
+      - "Synthetic"
+    description: "Source of the data"
+  quality_flag:
+    type: boolean
+    description: "True if data passed QC"
+  structural_metrics:
+    type: object
+    properties:
+      mean_degree:
+        type: number
+        description: "Average node degree"
+      mean_clustering:
+        type: number
+        description: "Average clustering coefficient"
+      rich_club:
+        type: number
+        description: "Rich-club coefficient"
+    required:
+      - mean_degree
+      - mean_clustering
+      - rich_club
+  avalanche_metrics:
+    type: object
+    properties:
+      exponent_size:
+        type: number
+        description: "Power-law exponent for avalanche size"
+      exponent_duration:
+        type: number
+        description: "Power-law exponent for avalanche duration"
+      model_fit_status:
+        type: string
+        enum:
+          - "power_law_preferred"
+          - "exponential_preferred"
+          - "log_normal_preferred"
+          - "fit_failed"
+        description: "Result of the model comparison test"
+    required:
+      - exponent_size
+      - exponent_duration
+      - model_fit_status
+required:
+  - subject_id
+  - dataset_source
+  - quality_flag
+  - structural_metrics
+  - avalanche_metrics
+additionalProperties: false

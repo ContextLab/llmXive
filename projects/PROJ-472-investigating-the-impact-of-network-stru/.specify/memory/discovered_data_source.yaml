@@ -1,18 +1,15 @@
 status: none
-intent: OpenNeuro HCP-Aging ds004230 diffusion MRI EEG structural connectomes MMP
-  360 parcels python package dataset
+intent: OpenNeuro HCP-Aging diffusion MRI connectome and EEG dataset python package
 required_fields:
 - participant_id
-- dwi_nifti
-- dwi_bvec
-- dwi_bval
-- eeg_raw
-- eeg_sampling_rate
-- eeg_frequency_band
 - structural_connectivity_matrix
-- parcelation_scheme
-- mrtrix_version
-- preprocessing_timestamp
-cache_key: a5909e0b7ceee7af6ef606bef44c31b7d815a5fb526311517fa33e9b32d06b97
-searched_at: '2026-07-20T15:10:11.834474+00:00'
+- parcellation_scheme
+- dwi_preprocessed_path
+- eeg_time_series
+- eeg_sampling_rate
+- eeg_bandpass_range
+- age
+- sex
+cache_key: 51a92c337b5e50492a77505238f2174ec0a7bae0c8dfe2488854ec15d3060b87
+searched_at: '2026-09-27T05:34:16.556505+00:00'
 retry_count: 1

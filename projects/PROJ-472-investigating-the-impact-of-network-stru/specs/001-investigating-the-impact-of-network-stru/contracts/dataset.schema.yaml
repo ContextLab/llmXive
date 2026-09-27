@@ -49,6 +49,10 @@ properties:
       preferred_model:
         type: string
         description: "Name of the preferred model."
+      ground_truth_rho:
+        type: number
+        nullable: true
+        description: "Known ground truth correlation for synthetic data validation."
     required:
       - size_exponent
       - duration_exponent

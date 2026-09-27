@@ -1,63 +1,60 @@
-# Quickstart Guide: Network Structure & Avalanche Dynamics
+# Quickstart: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
 
-## 1. Prerequisites
-- Python 3.9+
-- MRtrix3 (for dMRI processing, installed separately)
-- MNE-Python
-- NetworkX, BCTpy, powerlaw, pandas, numpy, scipy
+## Prerequisites
 
-## 2. Installation
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-3. Set up environment variables (optional, defaults are in `code/config.py`):
- ```bash
- cp code/.env.example code/.env
- # Edit.env if custom paths are needed
- ```
+*   Python 3.11+
+*   MRtrix3 (for dMRI processing) - *Note: May need system install or Docker if not available on runner.*
+*   MNE-Python
+*   NetworkX, powerlaw, pandas, numpy, scipy, pytest
 
-## 3. Data Acquisition
-The pipeline automatically downloads data from OpenNeuro `ds004231` upon first run.
-- **Note**: Ensure sufficient disk space (~10GB+).
-- **Constraint**: If `ds004231` is unreachable, the pipeline will halt with a clear error.
+## Installation
 
-## 4. Running the Pipeline
-Execute the main entry point:
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-472-investigating-the-impact-of-network-stru
+    ```
+
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+4.  **Install System Dependencies (if running locally)**:
+    *   Ensure `mrconvert`, `tckgen`, `tck2connectome` (MRtrix3) are in PATH.
+    *   Ensure `mne` is installed.
+
+## Running the Pipeline
+
+The pipeline is executed via the CLI entry point.
+
 ```bash
-python code/main.py
+python -m src.cli.run_pipeline
 ```
-This will:
-1. Download and verify data.
-2. Preprocess dMRI and EEG.
-3. Compute structural and avalanche metrics.
-4. Run statistical analysis (if N >= 10).
-5. Generate reports.
 
-## 5. Output Location
-- **Processed Data**: `data/processed/`
-- **Results & Reports**: `data/results/`
-- **Logs**: `data/logs/`
+### Configuration
 
-## 6. Validation
-To verify the pipeline integrity:
-```bash
-python code/main.py --validate
-```
-This checks for:
-- Presence of required files.
-- Valid checksums.
-- Correct routing state (`routing_state.json`).
+*   **Data Sources**: Configured in `config.yaml` to point to the verified HuggingFace URLs.
+*   **Thresholds**: Default 75% (configurable via CLI args).
+*   **Seeds**: Pinned in `src/utils/seed.py`.
 
-## 7. Troubleshooting
-- **Data Download Failed**: Check internet connection and OpenNeuro status. The pipeline does not support offline/fallback modes for the primary source.
-- **Insufficient Subjects**: If fewer than 10 subjects pass QC, a `insufficient_sample_report.md` will be generated in `data/results/`.
-- **Power-Law Convergence**: If fitting fails for a subject, they are excluded from the correlation matrix (logged in `fitting_report.json`).
+### Expected Output
 
-## 8. Documentation Path
-All project documentation resides in `specs/001-network-structure-avalanche-dynamics/`.
-- `research.md`: Research protocol.
-- `data-model.md`: Data structures.
-- `quickstart.md`: This guide.
-- **Deprecated**: The `docs/` directory is no longer used.
+1.  `data/processed/`: Contains preprocessed matrices and EEG.
+2.  `data/results/metrics.csv`: Participant-level metrics.
+3.  `data/results/correlations.csv`: Statistical associations (from synthetic validation).
+4.  `data/results/collinearity_status.json`: VIF diagnostics (from synthetic validation).
+5.  `report.md`: Final summary (including data availability disclaimer).
+
+## Troubleshooting
+
+*   **MRtrix3 not found**: The runner may not have MRtrix3 installed. If so, the pipeline will skip the dMRI processing and use a pre-computed matrix (if available) or fail gracefully with a clear error message.
+*   **Memory Error**: The pipeline streams data. If OOM occurs, reduce the number of subjects in `config.yaml`.
+*   **Power-law Convergence**: If `powerlaw` fails to converge, the participant is excluded from the correlation analysis (FR-005).
+*   **No Matched Data**: The pipeline will explicitly state in the report that no matched data exists and that biological association analysis is suspended.
