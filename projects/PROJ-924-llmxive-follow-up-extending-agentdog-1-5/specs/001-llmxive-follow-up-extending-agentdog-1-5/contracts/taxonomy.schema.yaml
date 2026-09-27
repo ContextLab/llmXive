@@ -16,8 +16,12 @@ properties:
     description: "high-dimensional embedding vector (all-MiniLM-L6-v2)"
     minItems: 384
     maxItems: 384
+  source_version:
+    type: "string"
+    description: "Version of the taxonomy source used."
 required:
   - category
   - description
   - centroid_embedding
+  - source_version
 additionalProperties: false

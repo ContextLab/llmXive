@@ -5,7 +5,7 @@ type: "object"
 properties:
   log_id:
     type: "string"
-    description: "UUID generated from dataset ID"
+    description: "Unique identifier for the log."
   text:
     type: "string"
     description: "The raw log content (e.g., 'contents' field)"

@@ -1,71 +1,90 @@
-# Quickstart: Zero-Shot Drift Detection for AgentDoG 1.5
+# Quickstart: Zero-Shot Drift Detection
 
 ## Prerequisites
 
--   Python 3.11+
--   `pip`
--   Access to Hugging Face (for `datasets` library)
+- Python 3.11+
+- Git
+- Access to Hugging Face (free account)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5
+   ```
 
-2.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Dependencies*: `datasets`, `sentence-transformers`, `scikit-learn`, `pandas`, `numpy`, `torch`, `statsmodels`, `openai`, `pytest`.
+2. **Create virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Verify environment**:
-    ```bash
-    python code/config.py --verify
-    # Expected: RANDOM_SEED=42, MAX_RAM_GB=7, BATCH_SIZE=64
-    ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+
+4. **Verify configuration**:
+   ```bash
+   pytest tests/unit/test_config.py
+   pytest tests/unit/test_ruff.py
+   ```
 
 ## Running the Pipeline
 
-The pipeline consists of three main stages: Data Fetching, Drift Scoring, and Validation.
-
-### Step 1: Fetch & Prepare Data
-Downloads the `AI45Research/ATBench` dataset and computes taxonomy centroids from the *AgentDoG 1.5* paper.
+### Step 1: Data Loading
+Download the dataset (streaming enabled):
 ```bash
-python -m code.data_loader --streaming --output data/raw/atbench.parquet
-python -m code.taxonomy_builder --source "agentdog_1_5_paper" --output data/processed/taxonomy_centroids.json
+python code/data_loader.py --download
 ```
-*Note*: This step streams the data to avoid memory overflow. The taxonomy is derived from external definitions.
 
-### Step 2: Compute Drift Scores
-Calculates the drift score for every log entry.
+### Step 2: Centroid Generation
+Generate safety category centroids:
 ```bash
-python -m code.drift_scoring --input data/raw/atbench.parquet --taxonomy data/processed/taxonomy_centroids.json --output data/processed/drift_results.csv
+python code/embeddings.py --generate-centroids
 ```
-*Output*: `drift_results.csv` containing `log_id`, `drift_score`, `review_flag`.
 
-### Step 3: Validate & Compare
-Performs statistical validation and baseline comparison.
+### Step 3: Drift Scoring
+Compute drift scores for all logs:
 ```bash
-# For CI (using Gold-Standard Proxy)
-python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/gold_standard_proxy.csv --output data/processed/validation_report.json
-
-# For Production (using real human annotations)
-python -m code.validation --drift data/processed/drift_results.csv --ground_truth data/raw/atbench.parquet --annotations data/processed/human_annotations.csv --output data/processed/validation_report.json
+python code/embeddings.py --score
 ```
-*Output*: `validation_report.json` with p-values, Cohen's d, Kappa scores, AUC-ROC, and inference time.
 
-## Verification
-
-Run the test suite to ensure contract compliance:
+### Step 4: Baseline Comparison (CPU)
+Run the Flan-T5 baseline:
 ```bash
-pytest tests/ -v
+python code/baseline_llm.py --baseline
+```
+
+### Step 5: Statistical Validation
+Run validation metrics (requires human data if available):
+```bash
+python code/validation.py --validate
+```
+
+## Configuration
+
+Edit `code/config.py` to adjust parameters:
+- `RANDOM_SEED = 42`
+- `MAX_RAM_GB = 7`
+- `BATCH_SIZE = 64`
+- `DRIFT_THRESHOLD = 1.5`
+
+**Note**: The `config.py` file must contain these exact constants. If missing, the pipeline will fail.
+
+```python
+# code/config.py
+import os
+
+RANDOM_SEED = 42
+MAX_RAM_GB = 7
+BATCH_SIZE = 64
+DRIFT_THRESHOLD = 1.5
 ```
 
 ## Troubleshooting
 
--   **Memory Error**: Ensure `--streaming` is used in `data_loader`.
--   **Missing Taxonomy**: If `taxonomy_centroids.json` is missing, run `taxonomy_builder` first.
--   **Reproducibility**: Delete `data/` and re-run to verify checksums match.
--   **Timestamps**: If timestamps are missing in source, they are derived deterministically from `log_id`.
+- **Memory Error**: Ensure `BATCH_SIZE` is set to 64 and data is streamed. If OOM occurs, reduce `BATCH_SIZE` to 32 or 16.
+- **Model Not Found**: Verify Hugging Face login (`huggingface-cli login`).
+- **Validation Failed**: Ensure `data/human_annotations.json` exists and is formatted correctly.
