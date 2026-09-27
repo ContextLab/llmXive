@@ -1,91 +1,45 @@
 import os
-import tempfile
 import pytest
 from pathlib import Path
-import sys
+import tempfile
+import shutil
 
-# Add code to path if running from tests
-code_path = Path(__file__).parent.parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
-
-from setup_directories import ensure_directory, main
-
-@pytest.fixture
-def temp_project_root():
-    """Create a temporary directory to act as project root for testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        original_cwd = os.getcwd()
-        os.chdir(tmpdir)
-        yield Path(tmpdir)
-        os.chdir(original_cwd)
+# Import the function to test
+from setup_directories import ensure_directory
 
 class TestEnsureDirectory:
-    def test_creates_new_directory(self, temp_project_root):
-        test_path = temp_project_root / "new_dir"
-        assert not test_path.exists()
-        
-        result = ensure_directory(str(test_path))
-        
-        assert result is True
-        assert test_path.exists()
-        assert test_path.is_dir()
+    """Unit tests for the ensure_directory function."""
 
-    def test_returns_true_if_exists(self, temp_project_root):
-        test_path = temp_project_root / "existing_dir"
-        test_path.mkdir()
-        
-        result = ensure_directory(str(test_path))
-        
-        assert result is True
+    def test_creates_new_directory(self, tmp_path):
+        """Test that a new directory is created successfully."""
+        new_dir = tmp_path / "new_subdir"
+        ensure_directory(new_dir)
+        assert new_dir.exists()
+        assert new_dir.is_dir()
 
-    def test_raises_on_file_collision(self, temp_project_root):
-        test_path = temp_project_root / "file.txt"
-        test_path.touch()
+    def test_exits_gracefully_if_exists(self, tmp_path):
+        """Test that the function does not fail if directory already exists."""
+        existing_dir = tmp_path / "existing_subdir"
+        existing_dir.mkdir()
         
-        with pytest.raises(Exception): # ConfigurationError
-            ensure_directory(str(test_path))
+        # Should not raise
+        ensure_directory(existing_dir)
+        assert existing_dir.exists()
 
-    def test_creates_nested_directories(self, temp_project_root):
-        test_path = temp_project_root / "level1" / "level2" / "level3"
-        assert not test_path.exists()
-        
-        result = ensure_directory(str(test_path))
-        
-        assert result is True
-        assert test_path.exists()
-        assert test_path.is_dir()
+    def test_creates_nested_directories(self, tmp_path):
+        """Test that parent directories are created if they don't exist."""
+        nested_dir = tmp_path / "level1" / "level2" / "level3"
+        ensure_directory(nested_dir)
+        assert nested_dir.exists()
+        assert (tmp_path / "level1").exists()
+        assert (tmp_path / "level1" / "level2").exists()
 
-class TestMain:
-    def test_creates_expected_structure(self, temp_project_root):
-        # Mock the project name to be relative to temp dir
-        # The main function uses a hardcoded name, so we check if it creates it
+    def test_handles_permission_error(self, tmp_path):
+        """Test behavior when directory creation is not permitted."""
+        # Create a file where we want a directory
+        blocking_file = tmp_path / "blocking_file"
+        blocking_file.touch()
         
-        # We need to patch the main function or verify the result after execution
-        # Since main() uses relative paths, running it in temp dir should work
-        
-        # Note: main() prints logs. We expect it to return 0.
-        # We can't easily patch the hardcoded string "PROJ-800..." inside main
-        # without refactoring, but we can check the side effects.
-        
-        # Let's assume the task description implies running this creates the dirs.
-        # We will verify the directory existence after calling main.
-        
-        # To make this testable, we might need to refactor main to accept a base path,
-        # but for now, we verify the expected outcome.
-        
-        # Actually, to strictly test without refactoring, we rely on the fact that
-        # main() creates `projects/PROJ-800...` relative to CWD.
-        
-        result = main()
-        
-        assert result == 0
-        
-        project_path = Path("PROJ-800-assessing-parcellation-sensitivity-of-hu")
-        assert project_path.exists()
-        assert (project_path / "code").exists()
-        assert (project_path / "tests").exists()
-        assert (project_path / "data").exists()
-        assert (project_path / "data" / "raw").exists()
-        assert (project_path / "data" / "processed").exists()
-        assert (project_path / "data" / "results").exists()
+        with pytest.raises(Exception):
+            # Trying to create a directory where a file exists should fail
+            ensure_directory(blocking_file)

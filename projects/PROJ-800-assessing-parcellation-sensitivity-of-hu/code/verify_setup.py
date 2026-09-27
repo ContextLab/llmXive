@@ -1,7 +1,3 @@
-"""
-Verification script for T001.
-Executes ls -R on the project root and saves the output to state/setup_verification.log.
-"""
 import os
 import subprocess
 import sys
@@ -10,44 +6,72 @@ from utils.logger import get_logger, ConfigurationError
 
 logger = get_logger(__name__)
 
-PROJECT_ROOT = Path("projects/PROJ-800-assessing-parcellation-sensitivity-of-hu")
-STATE_DIR = Path("state")
-VERIFICATION_LOG = STATE_DIR / "setup_verification.log"
-
 def main() -> None:
     """
-    Runs the verification command and logs the output.
+    Verifies the project directory structure was created correctly.
+    Executes the equivalent of `ls -R` on the project root and logs the output.
     """
-    # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+    project_root = Path("projects/PROJ-800-assessing-parcellation-sensitivity-of-hu")
+    
+    if not project_root.exists():
+        error_msg = f"Project root does not exist: {project_root}"
+        logger.error(error_msg)
+        raise ConfigurationError(error_msg)
 
-    if not PROJECT_ROOT.exists():
-        msg = f"Project root does not exist: {PROJECT_ROOT}"
-        logger.error(msg)
-        raise ConfigurationError(msg)
-
-    logger.info(f"Running verification command: ls -R {PROJECT_ROOT}")
+    logger.info(f"Verifying directory structure at: {project_root}")
     
     try:
-        result = subprocess.run(
-            ["ls", "-R", str(PROJECT_ROOT)],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        output = result.stdout
+        # Execute ls -R (or dir /S on Windows) to list contents
+        if sys.platform == "win32":
+            # Windows command
+            result = subprocess.run(
+                ["dir", "/S", str(project_root)],
+                shell=True,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            output = result.stdout
+        else:
+            # Unix/Linux/macOS command
+            result = subprocess.run(
+                ["ls", "-R", str(project_root)],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            output = result.stdout
+
+        # Write output to state log (create state dir if needed, though task T001 only asks for basic structure)
+        # We'll write to the project root's data/results for now as per standard convention, 
+        # or just print if state isn't strictly defined yet. 
+        # The task asks to capture to state/setup_verification.log.
+        # We will assume 'state' is a sibling to 'projects' or inside project. 
+        # Given T001 only creates specific dirs, we might need to create 'state' or use a default.
+        # Let's create the state directory if it doesn't exist to be safe, or write to project root.
+        # Re-reading T001: it only creates specific dirs. T002 asks to capture to state/setup_verification.log.
+        # We will create the state directory here to satisfy T002's requirement.
         
-        # Write to log file
-        with open(VERIFICATION_LOG, "w", encoding="utf-8") as f:
+        state_dir = project_root / "state"
+        state_dir.mkdir(parents=True, exist_ok=True)
+        log_path = state_dir / "setup_verification.log"
+        
+        with open(log_path, "w") as f:
             f.write(output)
         
-        logger.info(f"Verification complete. Output saved to {VERIFICATION_LOG}")
-        print(output) # Print to stdout for immediate feedback
+        logger.info(f"Verification output written to: {log_path}")
+        print(f"Directory structure verified. Log saved to: {log_path}")
+        print("-" * 40)
+        print(output)
 
     except subprocess.CalledProcessError as e:
-        msg = f"Verification command failed: {e.stderr}"
-        logger.error(msg)
-        raise ConfigurationError(msg) from e
+        error_msg = f"Failed to list directory contents: {e}"
+        logger.error(error_msg)
+        raise ConfigurationError(error_msg) from e
+    except FileNotFoundError as e:
+        error_msg = f"Command not found (ls/dir): {e}"
+        logger.error(error_msg)
+        raise ConfigurationError(error_msg) from e
 
 if __name__ == "__main__":
     main()

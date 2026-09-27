@@ -1,15 +1,22 @@
-T002:
-  c: false
-  h: a6a0611d611a0b80a36270d0b1363a7cf7eb401d35fdf1016c14052f26cc9f40
-  r: The required file `projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/code/requirements.txt`
-    is missing; only a different `code/requirements.txt` exists, which does not satisfy
-    the specified path requirement. The task therefore remains incomplete.
-T003:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md file was presented at the required path, nor any content showing\
-    \ a project title, branch name, and brief description. The implementer\u2019s\
-    \ claim cannot be verified without the actual artifact."
+  r: "No directory tree or file listing was provided to confirm that the required\
+    \ `projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/...` folders (raw,\
+    \ processed, results, code, tests) actually exist. The implementer\u2019s claim\
+    \ cannot be verified without concrete evidence of the created directories."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/setup_verification.log` file or its contents were provided, so there
+    is no evidence that `ls -R projects/PROJ-800-assessing-parcellation-sensitivity-of-hu`
+    was run and captured. The required verification artifact is missing.
+T003:
+  c: false
+  h: a6a0611d611a0b80a36270d0b1363a7cf7eb401d35fdf1016c14052f26cc9f40
+  r: "The required file `projects/PROJ-800-assessing-parcellation-sensitivity-of-hu/code/requirements.txt`\
+    \ does not exist; only a `code/requirements.txt` at a different location is present.\
+    \ The task\u2019s specified path and artifact are missing."
 T024:
   c: false
   h: b4f14c78cb8b1da4b7c32b60d0bb6c70cf7b693ef6c516dac27d73a57fb7ad67
