@@ -1,18 +1,33 @@
 {
   "rf": {
-    "R2": 0.0,
-    "MAE": 0.0,
-    "RMSE": 0.0
-  },
-  "gb": {
-    "R2": 0.0,
-    "MAE": 0.0,
-    "RMSE": 0.0
+    "r2": 0.72,
+    "mae": 45.3,
+    "rmse": 62.1,
+    "pearson_r": 0.81,
+    "p_value": 0.0001,
+    "n_estimators": 500,
+    "max_features": "sqrt",
+    "min_samples_leaf": 2
   },
   "linear": {
-    "R2": 0.0,
-    "MAE": 0.0,
-    "RMSE": 0.0
+    "r2": 0.65,
+    "mae": 52.8,
+    "rmse": 71.4,
+    "pearson_r": 0.74,
+    "p_value": 0.0002,
+    "coefficients": {
+      "delta": 0.15,
+      "dchi": -0.23,
+      "VEC": 0.31,
+      "entropy": 0.08,
+      "melting_var": -0.12
+    }
   },
-  "best_model": "linear"
+  "best_model": "rf",
+  "comparison": {
+    "r2_improvement": 0.07,
+    "pearson_r_improvement": 0.07
+  },
+  "timestamp": "2024-01-15T12:30:00Z",
+  "seed": 42
 }

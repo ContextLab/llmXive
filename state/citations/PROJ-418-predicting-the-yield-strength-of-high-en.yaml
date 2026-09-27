@@ -152,7 +152,7 @@
   verification_status: mismatch
   verified_against_url: https://zenodo.org/records/YYYYYY/files/hea_external.csv
   verified_at: '2026-09-24T22:41:15.650578Z'
-- artifact_hash: f79f5293e15fa69b8c9b9b40f20ea47b88e5aadab42798c0c117d9bbe04c568a
+- artifact_hash: 2e03d01de2dcd742aff65e998f0f675de418fc43f2874c3c79923fc3df5a786f
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -162,15 +162,15 @@
   value: https://huggingface.co/datasets/MaterialsProject/elemental_properties`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/MaterialsProject/elemental_properties
-  verified_at: '2026-09-24T22:54:43.840966Z'
-- artifact_hash: f79f5293e15fa69b8c9b9b40f20ea47b88e5aadab42798c0c117d9bbe04c568a
+  verified_at: '2026-09-27T10:57:14.667004Z'
+- artifact_hash: 2e03d01de2dcd742aff65e998f0f675de418fc43f2874c3c79923fc3df5a786f
   artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: doi
-  value: 10.5281/zenodo.1100000
+  value: 10.5281/zenodo.1040154
   verification_status: mismatch
-  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1100000
-  verified_at: '2026-09-24T22:54:43.840966Z'
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1040154
+  verified_at: '2026-09-27T10:57:14.667004Z'

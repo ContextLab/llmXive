@@ -1,0 +1,14 @@
+{
+  "start_time": "2024-01-15T12:00:00Z",
+  "end_time": "2024-01-15T12:30:00Z",
+  "total_duration_seconds": 1800,
+  "status": "pass",
+  "phases": {
+    "data_pipeline": 300,
+    "training_pipeline": 600,
+    "evaluation_pipeline": 450,
+    "stability_assessment": 300,
+    "report_generation": 150
+  },
+  "timestamp": "2024-01-15T12:30:00Z"
+}

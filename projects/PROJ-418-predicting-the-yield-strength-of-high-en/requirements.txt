@@ -1,17 +1,13 @@
-# Core dependencies
+# Project dependencies
 pandas
 numpy
-scikit-learn
 matplotlib
-seaborn
+scikit-learn
+datasets
+statsmodels
+# Linting / formatting tools
+ruff
+black
+# Other utilities used throughout the codebase
 tqdm
-pyyaml
-jsonschema
-
-# Formatting and linting tools
-black==24.3.0
-ruff==0.4.2
-
-# Other utilities used elsewhere in the project
-tqdm
-# (additional dependencies may be added as the project evolves)
+# (additional dependencies may be listed here)

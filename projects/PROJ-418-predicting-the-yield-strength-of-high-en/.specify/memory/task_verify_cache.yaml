@@ -25,25 +25,48 @@ T032a:
   r: "No evidence of a `ruff` linting run, its output, or any modifications to files\
     \ in the `code/` directory is provided; the required artifact (lint\u2011error\u2011\
     free code) is missing."
-T032b:
+T117:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `black` run or of Python files in a `code/` directory being
-    formatted is present; the provided information contains only the task description
-    and feature specification, with no formatted files, logs, or diff showing that
-    `black` was applied. The required artifact (formatted Python code) is missing.
-T123:
+  r: "No `manifest.json`, `report.md`, `metrics.json`, `stability_rankings.json`,\
+    \ or `external_metrics.json` files are presented, nor any logs or screenshots\
+    \ showing the pipeline run on a sample CSV. The required end\u2011to\u2011end\
+    \ execution evidence is missing, so the task is not satisfied."
+T118:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No ruff check output, log, or summary report is present to demonstrate that\
-    \ the codebase was linted and that the number of warnings is \u2264\u202F5. The\
-    \ required artifact proving the linting result is missing."
-T124:
+  r: "No `report.md` file or its contents are provided; without the actual markdown\
+    \ report we cannot verify that it contains the required sections (dataset stats,\
+    \ VIF summary, model performance metrics, permutation importance with corrected\
+    \ p\u2011values, bootstrap CI, and disclaimers). The implementer must supply the\
+    \ generated `report.md` for inspection."
+T119#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `black --check` run (e.g., command output, log file, or report)
-    is present, nor any indication that the codebase was verified to be correctly
-    formatted. The required artifact confirming the formatting check is missing.
+  r: "No `output/stability_rankings.json` file or its contents were provided, so we\
+    \ cannot confirm that it exists, is non\u2011empty, or that it shows rank\u2011\
+    differences \u2264\u202F1 for the top\u2011k features across the three runs. The\
+    \ required artifact is missing."
+T120:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/pipeline_runtime.json` file or its contents were provided; therefore\
+    \ we cannot confirm that it exists, is non\u2011empty, and contains a `\"status\"\
+    : \"pass\"` with a total runtime \u2264\u202F7200\u202Fseconds. The required artifact\
+    \ must be supplied and inspected."
+T121:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation logs, reports, or any other artifacts demonstrating that schema\u2011\
+    validation tasks T098\u2011T101 all passed and that no missing\u2011field errors\
+    \ occurred were provided. The implementer\u2019s claim lacks concrete evidence,\
+    \ so the requirement is not satisfied."
+T122:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `manifest.json` file or its contents were supplied, so we cannot confirm that
+    it includes the required provenance fields (seeds, versions, checksums, etc.).
+    The necessary artifact is missing, preventing verification of the task.
 T126:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

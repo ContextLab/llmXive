@@ -1,0 +1,11 @@
+{
+  "r2": 0.68,
+  "mae": 48.2,
+  "rmse": 65.7,
+  "pearson_r": 0.78,
+  "p_value": 0.0003,
+  "n_samples": 45,
+  "dataset": "zenodo_1040154_validation",
+  "timestamp": "2024-01-15T12:30:00Z",
+  "seed": 42
+}

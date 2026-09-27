@@ -1,64 +1,52 @@
-"""
-Run black in check mode over the entire codebase.
-
-This script executes ``black --check`` on the ``code/`` directory,
-captures the output, and writes a concise report to
-``output/black_check_report.txt``. If any files are not properly
-formatted, the script exits with a non‑zero status so that CI can
-fail the task.
-
-The implementation deliberately avoids any side effects other than
-the report file, adhering to the project’s “run‑check‑only” policy.
-"""
 import subprocess
 import sys
 from pathlib import Path
+from utils.logging import get_logger
 
-def run_black_check() -> int:
+def run_black_check(target_dir: Path = Path("code")) -> None:
     """
-    Execute ``black --check`` on the ``code/`` directory.
+    Run ``black --check`` on the given directory and write the full output
+    (stdout and stderr) to ``output/format_report.txt``.
 
-    Returns
-    -------
-    int
-        The exit code from the ``black`` command (0 if all files are
-        correctly formatted, non‑zero otherwise).
+    Parameters
+    ----------
+    target_dir: Path
+        Directory to run the black check on. Defaults to the ``code`` directory.
+
+    Raises
+    ------
+    RuntimeError
+        If black reports any formatting violations (i.e. returns a non‑zero exit code).
     """
-    # Ensure the output directory exists
-    output_dir = Path("output")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger = get_logger(__name__)
+    logger.info(f"Running black --check on {target_dir}")
 
-    report_path = output_dir / "black_check_report.txt"
+    # Use the same interpreter that is executing this script to invoke black as a module.
+    result = subprocess.run(
+        [sys.executable, "-m", "black", "--check", str(target_dir)],
+        capture_output=True,
+        text=True,
+    )
 
-    # Run black in check mode; capture both stdout and stderr
-    try:
-        result = subprocess.run(
-            [sys.executable, "-m", "black", "--check", "code/"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            check=False,
-        )
-    except FileNotFoundError as exc:
-        # ``black`` is not installed – raise so the failure is loud
-        raise RuntimeError("Black formatter is not installed.") from exc
+    # Ensure the output directory exists.
+    report_path = Path("output/format_report.txt")
+    report_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Write the full output to the report file
-    report_path.write_text(result.stdout)
+    # Write both stdout and stderr to the report for full diagnostics.
+    report_path.write_text(result.stdout + "\n" + result.stderr)
 
-    # Print a short message to the console for user feedback
-    print(f"Black check completed with exit code {result.returncode}.")
-    print(f"Report written to {report_path}")
-
-    return result.returncode
+    if result.returncode != 0:
+        # Black found formatting issues – raise to make the pipeline fail loudly.
+        logger.error("Black formatting check failed")
+        raise RuntimeError("Code formatting does not comply with Black")
+    else:
+        logger.info("Black formatting check passed")
+        # Black prints a line containing 'All done!' when everything is fine.
+        # No further action is required.
 
 def main() -> None:
     """
-    Entry point for ``python code/run_black_check.py``.
+    Entry‑point used by the task runner. Executes the black check on the
+    project's ``code`` directory.
     """
-    exit_code = run_black_check()
-    # Propagate the exit code to the shell
-    sys.exit(exit_code)
-
-if __name__ == "__main__":
-    main()
+    run_black_check()
