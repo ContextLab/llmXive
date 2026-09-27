@@ -1,96 +1,50 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ModelResultsSchema"
-description: "Schema for the JSON output containing model performance metrics."
-type: object
+title: "ModelResults"
+description: "Schema for the output of the LMM and Random Forest modeling phase."
+type: "object"
 properties:
-  lmm:
-    type: object
-    description: "Linear Mixed-Effects Model results."
+  lmm_results:
+    type: "object"
     properties:
       adjusted_r_squared:
-        type: number
-        description: "Adjusted R-squared value."
+        type: "number"
+        description: "Adjusted R-squared value for the LMM."
       rmse:
-        type: number
-        description: "Root Mean Square Error."
-      p_values:
-        type: object
-        description: "P-values for predictors."
-        properties:
-          phosphorus:
-            type: number
-          nitrogen:
-            type: number
-        required:
-          - phosphorus
-          - nitrogen
+        type: "number"
+        description: "Root Mean Squared Error."
       coefficients:
-        type: object
-        description: "Fixed effect coefficients."
-        properties:
-          phosphorus:
-            type: number
-          nitrogen:
-            type: number
-        required:
-          - phosphorus
-          - nitrogen
-    required:
-      - adjusted_r_squared
-      - rmse
-      - p_values
-      - coefficients
-  random_forest:
-    type: object
-    description: "Random Forest baseline results."
+        type: "object"
+        description: "Map of predictor names to their coefficients and p-values."
+      p_values:
+        type: "object"
+        description: "Map of predictor names to their p-values."
+  rf_results:
+    type: "object"
     properties:
       r_squared:
-        type: number
-        description: "R-squared value."
+        type: "number"
+        description: "R-squared value for the Random Forest."
       rmse:
-        type: number
-        description: "Root Mean Square Error."
-    required:
-      - r_squared
-      - rmse
-  cross_validation:
-    type: object
-    description: "Cross-species cross-validation results."
+        type: "number"
+        description: "Root Mean Squared Error."
+  cv_metrics:
+    type: "object"
     properties:
-      lmm_mean_r2:
-        type: number
-        description: "Mean out-of-sample R-squared for LMM."
-      rf_mean_r2:
-        type: number
-        description: "Mean out-of-sample R-squared for RF."
-    required:
-      - lmm_mean_r2
-      - rf_mean_r2
-  literature_comparison:
-    type: object
-    description: "Comparison of coefficients to literature ranges."
+      mean_out_of_sample_r2:
+        type: "number"
+        description: "Mean R-squared from species-stratified CV."
+  success_criteria:
+    type: "object"
     properties:
-      phosphorus_overlap:
-        type: boolean
-        description: "True if 95% CI overlaps with literature range for phosphorus."
-      nitrogen_overlap:
-        type: boolean
-        description: "True if 95% CI overlaps with literature range for nitrogen."
-    required:
-      - phosphorus_overlap
-      - nitrogen_overlap
-  spec_deviations:
-    type: array
-    description: "List of deviations from the original specification."
-    items:
-      type: string
-    example:
-      - "FR-002: ISRIC merge not possible (no verified source). Observations excluded."
-      - "FR-003: KNN imputation skipped (scientific validity). Missing nutrients excluded."
+      sc_002_met:
+        type: "boolean"
+        description: "True if LMM R2 is within 5% of RF R2."
+      sc_003_met:
+        type: "boolean"
+        description: "True if p-values < 0.05."
 required:
-  - lmm
-  - random_forest
-  - cross_validation
-  - literature_comparison
-  - spec_deviations
+  - lmm_results
+  - rf_results
+  - cv_metrics
+  - success_criteria
 additionalProperties: false

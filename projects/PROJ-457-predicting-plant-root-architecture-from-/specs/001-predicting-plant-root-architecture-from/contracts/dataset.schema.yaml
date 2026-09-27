@@ -1,41 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "MergedDatasetSchema"
-description: "Schema for the cleaned, merged dataset used in root architecture analysis."
-type: object
+title: "MergedDataset"
+description: "Schema for the cleaned and merged root phenotype and soil nutrient dataset."
+type: "object"
 properties:
   species:
-    type: string
-    description: "Taxonomic name of the plant species."
-  root_length_log:
-    type: number
+    type: "string"
+    description: "Scientific name of the plant species."
+  root_length:
+    type: "number"
     description: "Log-transformed total root length."
-  branching_density_log:
-    type: number
+  branching_density:
+    type: "number"
     description: "Log-transformed branching density."
-  surface_area_log:
-    type: number
+  surface_area:
+    type: "number"
     description: "Log-transformed root surface area."
-  phosphorus_z:
-    type: number
-    description: "Z-score normalized phosphorus concentration."
-  nitrogen_z:
-    type: number
-    description: "Z-score normalized nitrogen concentration."
-  species_id:
-    type: integer
-    description: "Integer encoding of species for random effects."
+  phosphorus:
+    type: "number"
+    description: "Z-scored phosphorus concentration. May be null if data unavailable."
+  nitrogen:
+    type: "number"
+    description: "Z-scored nitrogen concentration. May be null if data unavailable."
   data_source_type:
-    type: string
-    enum:
-      - "observational"
-    description: "Must be 'observational' after filtering."
+    type: "string"
+    description: "Type of data source (observational/experimental)."
 required:
   - species
-  - root_length_log
-  - branching_density_log
-  - surface_area_log
-  - phosphorus_z
-  - nitrogen_z
-  - species_id
+  - root_length
+  - branching_density
+  - surface_area
   - data_source_type
 additionalProperties: false
