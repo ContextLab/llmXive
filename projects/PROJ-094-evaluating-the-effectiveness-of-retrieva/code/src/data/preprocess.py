@@ -2,242 +2,228 @@
 Preprocessing module for CodeSearchNet data.
 
 This module handles loading raw data, stripping non-ASCII characters,
-tokenizing and truncating to 256 tokens, and saving the processed
-data to JSONL and CSV formats in the data/processed/ directory.
+truncating text to a fixed token count, and saving the processed data
+to JSONL and CSV formats.
 """
+
 import os
 import json
 import csv
 import re
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Import from existing modules to ensure API consistency
+# Import from local project modules
 from src.data.download import load_dataset_subset
-from src.data.checksum import register_file, save_state, calculate_sha256
+from src.data.checksum import register_file, calculate_sha256
 from src.data.models import CodeSnippet
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Tokenization configuration
+MAX_TOKENS = 256
+# Simple whitespace-based tokenizer for counting (approximate)
+# In a real scenario, we might use a specific tokenizer from transformers
+# but for this task, we assume whitespace splitting as a proxy for tokenization
+# unless a specific tokenizer is mandated by the spec.
+# Given the constraint to use existing APIs, we implement a robust whitespace splitter.
 
 def strip_non_ascii(text: str) -> str:
     """
-    Remove all non-ASCII characters from the input text.
+    Remove non-ASCII characters from the input text.
 
     Args:
-        text: Input string potentially containing non-ASCII characters.
+        text: The input string.
 
     Returns:
-        String with only ASCII characters preserved.
+        A string containing only ASCII characters.
     """
     if not isinstance(text, str):
         return str(text) if text is not None else ""
+    # Replace non-ASCII characters with empty string
     return text.encode('ascii', 'ignore').decode('ascii')
 
-
-def tokenize_and_truncate(text: str, max_tokens: int = 256) -> str:
+def tokenize_and_truncate(text: str, max_tokens: int = MAX_TOKENS) -> str:
     """
-    Simple tokenization and truncation.
-
-    For this implementation, we use a whitespace-based tokenization
-    which is sufficient for code snippets. More sophisticated
-    tokenizers can be substituted if needed.
+    Tokenize text by splitting on whitespace and truncate to max_tokens.
 
     Args:
-        text: Input text to tokenize and truncate.
-        max_tokens: Maximum number of tokens to keep (default 256).
+        text: The input string.
+        max_tokens: Maximum number of tokens to keep.
 
     Returns:
-        Truncated text with at most max_tokens.
+        The truncated string.
     """
     if not text:
         return ""
 
-    # Simple whitespace tokenization
+    # Split by whitespace to simulate tokenization
     tokens = text.split()
 
     if len(tokens) <= max_tokens:
         return text
 
-    # Truncate to max_tokens
+    # Truncate
     truncated_tokens = tokens[:max_tokens]
-    return ' '.join(truncated_tokens)
+    return " ".join(truncated_tokens)
 
-
-def process_snippet(snippet: Dict[str, Any]) -> CodeSnippet:
+def process_snippet(raw_item: Dict[str, Any]) -> CodeSnippet:
     """
-    Process a single code snippet from the raw dataset.
+    Process a raw data item into a CodeSnippet object.
 
     Args:
-        snippet: Raw snippet dictionary from the dataset.
+        raw_item: A dictionary containing raw data fields (e.g., from ir_datasets).
 
     Returns:
-        Processed CodeSnippet object with cleaned and truncated fields.
+        A CodeSnippet object with processed fields.
     """
-    # Extract fields with defaults
-    code = snippet.get('code', '')
-    language = snippet.get('language', 'unknown')
-    repo = snippet.get('repo', 'unknown')
-    path = snippet.get('path', 'unknown')
-    commit_hash = snippet.get('commit_hash', 'unknown')
+    # Extract fields based on typical CodeSearchNet structure
+    # Adjust keys if the dataset structure differs, but this matches the spec's expectation
+    code = raw_item.get('code', '')
+    code_language = raw_item.get('language', 'unknown')
+    docstring = raw_item.get('docstring', '')
+    repo = raw_item.get('repo', '')
+    function_name = raw_item.get('function_name', '')
 
-    # Strip non-ASCII
-    code = strip_non_ascii(code)
+    # Preprocessing steps
+    clean_code = strip_non_ascii(code)
+    clean_docstring = strip_non_ascii(docstring)
 
-    # Tokenize and truncate
-    code = tokenize_and_truncate(code, max_tokens=256)
+    truncated_code = tokenize_and_truncate(clean_code)
+    truncated_docstring = tokenize_and_truncate(clean_docstring)
 
-    # Create CodeSnippet object
     return CodeSnippet(
-        code=code,
-        language=language,
+        code=truncated_code,
+        language=code_language,
+        docstring=truncated_docstring,
         repo=repo,
-        path=path,
-        commit_hash=commit_hash,
-        original_length=len(code.split()),
-        processed_length=len(code.split())
+        function_name=function_name,
+        raw_id=raw_item.get('id', 'unknown')
     )
-
 
 def load_and_process_subset(
     language: str = 'python',
-    split: str = 'test',
-    max_samples: Optional[int] = None
+    split: str = 'train',
+    limit: Optional[int] = None
 ) -> List[CodeSnippet]:
     """
-    Load a subset of the dataset and process all snippets.
+    Load a subset of the dataset, process it, and return a list of CodeSnippets.
 
     Args:
-        language: Language subset to load ('python', 'java', etc.).
-        split: Dataset split to use ('train', 'test', 'validation').
-        max_samples: Maximum number of samples to process (None for all).
+        language: The programming language subset (e., 'python', 'java').
+        split: The dataset split (e.g., 'train', 'test').
+        limit: Optional limit on the number of items to process.
 
     Returns:
-        List of processed CodeSnippet objects.
+        A list of processed CodeSnippet objects.
     """
-    # Load raw data using the download module
-    raw_data = load_dataset_subset(language, split)
+    logger.info(f"Loading and processing {language}/{split} subset...")
+
+    # Use the download module to fetch data
+    # The download module handles the actual fetching from ir_datasets
+    raw_data = load_dataset_subset(language, split, limit)
 
     processed_snippets = []
-
-    for i, item in enumerate(raw_data):
-        if max_samples is not None and i >= max_samples:
-            break
-
+    for item in raw_data:
         try:
             snippet = process_snippet(item)
             processed_snippets.append(snippet)
         except Exception as e:
-            # Log error but continue processing
-            print(f"Warning: Failed to process item {i}: {e}")
+            logger.warning(f"Failed to process item: {e}")
             continue
 
+    logger.info(f"Processed {len(processed_snippets)} snippets.")
     return processed_snippets
 
-
-def save_to_jsonl(snippets: List[CodeSnippet], output_path: Path) -> None:
+def save_to_jsonl(snippets: List[CodeSnippet], output_path: str) -> None:
     """
-    Save processed snippets to a JSONL file.
+    Save a list of CodeSnippets to a JSONL file.
 
     Args:
-        snippets: List of CodeSnippet objects to save.
-        output_path: Path to the output JSONL file.
+        snippets: List of CodeSnippet objects.
+        output_path: Path to the output file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, 'w', encoding='utf-8') as f:
+    with open(path, 'w', encoding='utf-8') as f:
         for snippet in snippets:
-            # Convert dataclass to dict
-            data = {
-                'code': snippet.code,
-                'language': snippet.language,
-                'repo': snippet.repo,
-                'path': snippet.path,
-                'commit_hash': snippet.commit_hash,
-                'original_length': snippet.original_length,
-                'processed_length': snippet.processed_length
-            }
-            f.write(json.dumps(data) + '\n')
+            # Convert dataclass to dict for JSON serialization
+            # Assuming CodeSnippet has a to_dict method or we use vars/fields
+            # Since CodeSnippet is a dataclass, we can use dataclasses.asdict
+            import dataclasses
+            record = dataclasses.asdict(snippet)
+            f.write(json.dumps(record) + '\n')
 
+    logger.info(f"Saved {len(snippets)} snippets to {output_path}")
 
-def save_to_csv(snippets: List[CodeSnippet], output_path: Path) -> None:
+    # Register file for checksum tracking
+    register_file(output_path)
+
+def save_to_csv(snippets: List[CodeSnippet], output_path: str) -> None:
     """
-    Save processed snippets to a CSV file.
+    Save a list of CodeSnippets to a CSV file.
 
     Args:
-        snippets: List of CodeSnippet objects to save.
-        output_path: Path to the output CSV file.
+        snippets: List of CodeSnippet objects.
+        output_path: Path to the output file.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
 
-    fieldnames = [
-        'code', 'language', 'repo', 'path', 'commit_hash',
-        'original_length', 'processed_length'
-    ]
+    if not snippets:
+        logger.warning("No snippets to save to CSV.")
+        return
 
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    # Get field names from the first snippet (assuming all are same type)
+    import dataclasses
+    field_names = [f.name for f in dataclasses.fields(snippets[0])]
+
+    with open(path, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=field_names)
         writer.writeheader()
-
         for snippet in snippets:
-            row = {
-                'code': snippet.code,
-                'language': snippet.language,
-                'repo': snippet.repo,
-                'path': snippet.path,
-                'commit_hash': snippet.commit_hash,
-                'original_length': snippet.original_length,
-                'processed_length': snippet.processed_length
-            }
-            writer.writerow(row)
+            writer.writerow(dataclasses.asdict(snippet))
 
+    logger.info(f"Saved {len(snippets)} snippets to {output_path}")
+
+    # Register file for checksum tracking
+    register_file(output_path)
 
 def main():
     """
-    Main function to run the preprocessing pipeline.
-
-    This function:
-    1. Loads raw data from CodeSearchNet (Python test set by default)
-    2. Strips non-ASCII characters
-    3. Truncates to 256 tokens
-    4. Saves to both JSONL and CSV formats in data/processed/
-    5. Registers the output files for checksum verification
+    Main entry point for the preprocessing pipeline.
+    Loads raw data, processes it, and saves to data/processed/.
     """
     # Configuration
-    language = 'python'
-    split = 'test'
-    output_dir = Path('data/processed')
+    DATA_LANG = 'python'  # Default language
+    DATA_SPLIT = 'train'  # Default split
+    OUTPUT_DIR = Path('data/processed')
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting preprocessing for {DATA_LANG}/{DATA_SPLIT}...")
 
-    print(f"Loading and processing {language}/{split} subset...")
-    snippets = load_and_process_subset(language, split)
+    # Load and process
+    snippets = load_and_process_subset(language=DATA_LANG, split=DATA_SPLIT)
 
     if not snippets:
-        print("Warning: No snippets were processed. Check if the dataset is available.")
+        logger.error("No data processed. Exiting.")
         return
 
-    print(f"Processed {len(snippets)} snippets.")
+    # Save outputs
+    jsonl_path = OUTPUT_DIR / f"{DATA_LANG}_{DATA_SPLIT}_processed.jsonl"
+    csv_path = OUTPUT_DIR / f"{DATA_LANG}_{DATA_SPLIT}_processed.csv"
 
-    # Define output paths
-    jsonl_path = output_dir / f"{language}_{split}_processed.jsonl"
-    csv_path = output_dir / f"{language}_{split}_processed.csv"
+    save_to_jsonl(snippets, str(jsonl_path))
+    save_to_csv(snippets, str(csv_path))
 
-    # Save to JSONL
-    print(f"Saving to JSONL: {jsonl_path}")
-    save_to_jsonl(snippets, jsonl_path)
-
-    # Save to CSV
-    print(f"Saving to CSV: {csv_path}")
-    save_to_csv(snippets, csv_path)
-
-    # Register output files for checksum verification
-    register_file(jsonl_path)
-    register_file(csv_path)
-
-    print("Preprocessing complete!")
-    print(f"  - JSONL: {jsonl_path}")
-    print(f"  - CSV: {csv_path}")
-
+    logger.info("Preprocessing complete.")
 
 if __name__ == '__main__':
     main()

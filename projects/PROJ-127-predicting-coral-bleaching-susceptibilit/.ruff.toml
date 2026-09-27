@@ -1,0 +1,4 @@
+# This file is a duplicate of the configuration in pyproject.toml
+# kept for tools that prefer a dedicated config file.
+# See [tool.ruff] in pyproject.toml for the active configuration.
+extend = "pyproject.toml"

@@ -1,18 +1,3 @@
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides no tangible evidence (e.g., directory listings, screenshots,\
-    \ or created files) that the `code/`, `tests/`, and `data/` folders actually exist.\
-    \ Without such artifacts, we cannot verify that the required `os.makedirs` calls\
-    \ were executed. The implementer must supply proof that the three directories\
-    \ were created and are non\u2011empty."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`
-    with Black settings, or equivalent) are present in the provided evidence, so the
-    requirement to configure flake8/black is not satisfied. The task lacks the necessary
-    artifact demonstrating that linting and formatting tools have been set up.
 T006:
   c: false
   h: 9914aae3ece5fb48343f57249c7f1395fe8fe5d86fea31a1482bcaab2398bc8b
@@ -21,20 +6,6 @@ T006:
     \ section to `research.md`, and the shown code contains a typo (`DEFAULT_DEVIA`)\
     \ that would raise a `NameError` if a YAML parse error occurs. Consequently the\
     \ script does not fully meet the task\u2019s functional requirement."
-T008a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., script output, log, or file system listing) was provided showing
-    that the four directories were created and the assertions passed; thus the requirement
-    cannot be confirmed.
-T008b:
-  c: false
-  h: 3ce19ea0ddb23f61ab3842d23ac7f244b4ee58fcd9c34d96ddffcefc295597f4
-  r: The `code/utils/checksum.py` file is truncated (it ends abruptly after `if` in
-    `scan_and_register_data_files`) and does not contain the full logic to compute
-    checksums for files in `data/` and write them to `state/pending/checksums.yaml`.
-    Consequently, the required pending YAML file is also absent. The implementation
-    must be completed and verified to produce the pending checksums file.
 T008d:
   c: true
   h: d974da252bf6da54549fe47a2bff38b765fc42114be092df21dff90595ff0687
@@ -42,36 +13,14 @@ T008d:
     required file `state/projects/PROJ-266-exploring-the-correlation-between-molecu.yaml`
     is present with the exact content `artifact_hashes: {}` as specified. No missing
     or placeholder artifacts remain.'
-T009:
-  c: false
-  h: 50024b01ebd86ef8f87a02c2d8760789218e7c119c82da37d6cf9bd472435ee6
-  r: The repository lacks the required output CSV (`data/raw/chembl_raw.csv`), the
-    schema file, and the generated checksum file. Moreover, `code/data/retrieval.py`
-    is truncated and does not contain code to write the CSV, enforce the schema, serialize
-    `protocol_metadata`, or invoke the checksum utility. These essential components
-    are missing, so the task is not fulfilled.
-T010:
-  c: false
-  h: 7a06a0e5ef670843774f839a5436189a86158910c3abbe5172ef9558c73bccf7
-  r: "The required input file `data/raw/chembl_raw.csv` does not exist, nor does the\
-    \ expected output `data/processed/filtered_data.csv` or the checksum file `state/pending/checksums.yaml`.\
-    \ Moreover, the provided `code/data/preprocessing.py` is truncated and never reaches\
-    \ the filtering, saving, or checksum\u2011generation steps required by the task.\
-    \ The implementation is therefore incomplete."
-T012:
-  c: false
-  h: 500bfa176ec261c86fefe9947aa3fcb47ad2826c2d5a3952a7ccba09ba0b0c76
-  r: The `tests/contract/test_dataset.py` file is present but does not show the required
-    `test_schema_compliance` function, and the referenced schema file `specs/.../contracts/dataset.schema.yaml`
-    is missing from the repository. Both the test implementation and the schema file
-    are required to satisfy the task.
 T013:
   c: false
-  h: 99ed5585108923d9fba67bab4b6be1962f694d0c08b2e285a406b62896a9b2a0
-  r: The `generate_conformers` function is implemented, but the script never writes
-    the resulting data to `data/processed/conformers.pkl` (the file is missing), and
-    the provided code excerpt does not contain any saving logic. The required output
-    artifact is therefore absent.
+  h: 2ed3643d866df72c1121f09b4e40a45098ba68e12eeae95977e2556b1816cb93
+  r: "The `generate_conformers` function in `code/data/conformer_gen.py` is truncated\
+    \ (ends with \u201Cfailed\u201D and lacks the full RDKit conformer generation\
+    \ logic and the code to write the results to `data/processed/conformers.pkl`).\
+    \ Moreover, the required `conformers.pkl` file does not exist. The task\u2019\
+    s core output and complete implementation are missing."
 T014:
   c: false
   h: 29957688750a2a54a83e0c16e10f06db4b6a2accd996de22cb67adc52b2f3ea4
@@ -82,9 +31,22 @@ T014:
     These essential artifacts are missing, so the task is not genuinely completed.
 T015:
   c: false
-  h: d804ef7262f4ba72864d20f135b6864516e60c3111859f1b6137e17f4b918990
-  r: "The repository lacks the required `data/processed/correlation_results.csv` file,\
-    \ and the provided `code/data/analysis.py` does not contain implementations for\
-    \ Spearman correlation, confounder\u2011controlled analysis, or saving results\
-    \ to the specified CSV. The script is incomplete/truncated and does not fulfill\
-    \ the task\u2019s specifications."
+  h: b5b66e20dde713d494ce6477a6aa5f4d8a0c84c505486b736e910c894aa75620
+  r: "The `analysis.py` file is truncated and does not implement confounder\u2011\
+    controlled correlations nor write results to `data/processed/correlation_results.csv`\
+    \ (the CSV file is missing). Consequently the required output artifact is absent\
+    \ and the core analysis requirements are not met."
+T016:
+  c: false
+  h: b5b66e20dde713d494ce6477a6aa5f4d8a0c84c505486b736e910c894aa75620
+  r: "The `analysis.py` file contains a partially\u2011implemented `compute_correlations_with_fdr`\
+    \ function that is truncated and never writes results to `data/processed/correlation_results.csv`.\
+    \ Moreover, the required `correlation_results.csv` file does not exist. The FDR\u2011\
+    corrected q\u2011values are therefore not persisted as the task specifies."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the AIC/BIC comparison between the power\u2011law (scaling\
+    \ law) model and the linear model is present; the implementer provided only the\
+    \ task description without any code, results, or figures demonstrating the required\
+    \ model performance validation."

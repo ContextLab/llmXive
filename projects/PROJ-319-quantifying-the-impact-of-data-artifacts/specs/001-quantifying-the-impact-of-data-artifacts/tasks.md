@@ -185,7 +185,7 @@
 - [X] T056 [S] [US3] **Generate Final Report**: Create `docs/reports/001-final-bias-analysis.md` synthesizing results from US1, US2, and US3. **Content**: Include plots of bias vs. artifact intensity, tables of regression coefficients, p-values, and the final calibration functions. **Requirement**: Must explicitly state the limitations found in the power analysis (T030) and the qualitative validation results from T009. (SC-001, SC-002, SC-003, SC-004)
 - [ ] T057 [P] [Polish] **Final Code Audit**: Run `ruff check.` and `black --check.` across the entire `code/` directory. Fix any remaining linting or formatting issues to ensure code quality standards are met. (Constitution Principle I)
 - [ ] T058 [P] [Polish] **Documentation Completeness**: Verify that `README.md`, `quickstart.md`, and `research.md` are fully up-to-date with the latest implementation details and that all code references are accurate. (Constitution Principle IV)
-- [ ] T059 [P] [Polish] **Reproducibility Verification**: Execute the full pipeline (`python code/main.py --run-all`) on a clean virtual environment to ensure all steps complete successfully without manual intervention. (Constitution Principle I)
+- [X] T059 [P] [Polish] **Reproducibility Verification**: Execute the full pipeline (`python code/main.py --run-all`) on a clean virtual environment to ensure all steps complete successfully without manual intervention. (Constitution Principle I)
 
 ---
 

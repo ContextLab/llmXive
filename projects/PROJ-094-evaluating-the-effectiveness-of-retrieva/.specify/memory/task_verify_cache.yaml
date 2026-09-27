@@ -1,11 +1,18 @@
-T001:
+T001a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`src/`, `tests/`, `data/`, `specs/`)\
-    \ is provided; the response contains no file listings, screenshots, or other artifacts\
-    \ confirming that the project structure exists. The implementer must supply concrete\
-    \ proof (e.g., a directory tree listing) showing these folders are present and\
-    \ non\u2011empty."
+  r: No evidence was provided that the listed directories (`src/data`, `src/models`,
+    `src/analysis`, `src/cli`, `src/lib`, `data/raw`, `data/processed`, `results`,
+    `tests/unit`, `tests/integration`, `tests/contract`) actually exist in the project;
+    the claim is unsubstantiated. The implementer must supply a directory listing
+    or screenshots showing the created structure.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml`, or scripts invoking `ruff` and `black`) were provided,
+    nor any documentation showing they are set up and functional. The required artifacts
+    to demonstrate that linting and formatting are configured are missing.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

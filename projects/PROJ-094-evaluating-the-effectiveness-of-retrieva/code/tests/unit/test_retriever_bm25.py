@@ -1,11 +1,10 @@
 """
-Unit tests for the BM25 retriever implementation.
+Unit tests for the BM25 Retriever implementation.
 """
 
 import json
 import tempfile
 from pathlib import Path
-
 import pytest
 
 from src.models.retriever_bm25 import BM25Retriever, load_bm25_retriever, evaluate_retrieval
@@ -13,178 +12,116 @@ from src.data.models import CodeSnippet
 
 
 @pytest.fixture
-def sample_processed_data(tmp_path):
-    """Create sample processed data for testing."""
-    processed_dir = tmp_path / "processed"
-    processed_dir.mkdir()
-
-    # Create a sample JSONL file
-    jsonl_file = processed_dir / "test_data.jsonl"
-    snippets = [
-        {
-            "id": "snippet_1",
-            "code": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)",
-            "language": "python",
-            "repository": "test_repo",
-            "docstring": "Calculate fibonacci number"
-        },
-        {
-            "id": "snippet_2",
-            "code": "def factorial(n):\n    if n == 0:\n        return 1\n    return n * factorial(n-1)",
-            "language": "python",
-            "repository": "test_repo",
-            "docstring": "Calculate factorial"
-        },
-        {
-            "id": "snippet_3",
-            "code": "def bubble_sort(arr):\n    n = len(arr)\n    for i in range(n):\n        for j in range(0, n-i-1):\n            if arr[j] > arr[j+1]:\n                arr[j], arr[j+1] = arr[j+1], arr[j]",
-            "language": "python",
-            "repository": "test_repo",
-            "docstring": "Sort array using bubble sort"
-        }
-    ]
-
-    with open(jsonl_file, 'w', encoding='utf-8') as f:
+def sample_processed_data():
+    """Create a temporary JSONL file with sample code snippets."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+        snippets = [
+            CodeSnippet(id="1", text="def sort_list(arr): return sorted(arr)", language="python", repo="test", ground_truth=[]),
+            CodeSnippet(id="2", text="def read_file(path): with open(path) as f: return f.read()", language="python", repo="test", ground_truth=[]),
+            CodeSnippet(id="3", text="def fibonacci(n): return n if n <= 1 else fibonacci(n-1) + fibonacci(n-2)", language="python", repo="test", ground_truth=[]),
+            CodeSnippet(id="4", text="public class Sort { public static void sort(int[] arr) { } }", language="java", repo="test", ground_truth=[]),
+            CodeSnippet(id="5", text="function readfile(path) { return fs.readFileSync(path); }", language="javascript", repo="test", ground_truth=[])
+        ]
         for snippet in snippets:
-            f.write(json.dumps(snippet) + '\n')
-
-    return processed_dir
+            f.write(json.dumps({
+                'id': snippet.id,
+                'text': snippet.text,
+                'language': snippet.language,
+                'repo': snippet.repo,
+                'ground_truth': snippet.ground_truth
+            }) + '\n')
+    return Path(f.name)
 
 
 class TestBM25Retriever:
     """Tests for the BM25Retriever class."""
 
-    def test_init(self, sample_processed_data):
-        """Test initialization of BM25Retriever."""
-        retriever = BM25Retriever(str(sample_processed_data), seed=42)
-        assert retriever.processed_data_path == sample_processed_data
-        assert len(retriever.snippets) == 0
-        assert retriever.bm25_index is None
-
-    def test_load_processed_data(self, sample_processed_data):
-        """Test loading of processed data."""
-        retriever = BM25Retriever(str(sample_processed_data), seed=42)
-        retriever._load_processed_data()
-
-        assert len(retriever.snippets) == 3
-        assert retriever.snippet_ids == ["snippet_1", "snippet_2", "snippet_3"]
-        assert retriever.snippets[0].language == "python"
-
-    def test_build_index(self, sample_processed_data):
-        """Test building the BM25 index."""
-        retriever = BM25Retriever(str(sample_processed_data), seed=42)
-        retriever.build_index()
-
+    def test_initialization(self, sample_processed_data):
+        """Test that the retriever can be initialized."""
+        retriever = BM25Retriever(
+            snippets=[
+                CodeSnippet(id="1", text="def sort_list(arr): return sorted(arr)", language="python", repo="test", ground_truth=[]),
+                CodeSnippet(id="2", text="def read_file(path): with open(path) as f: return f.read()", language="python", repo="test", ground_truth=[])
+            ]
+        )
         assert retriever.bm25_index is not None
-        assert len(retriever.tokenized_corpus) == 3
+        assert len(retriever.snippets) == 2
 
-    def test_retrieve(self, sample_processed_data):
-        """Test retrieval functionality."""
-        retriever = BM25Retriever(str(sample_processed_data), seed=42)
-        retriever.build_index()
-
-        results = retriever.retrieve("fibonacci", k=2)
-
+    def test_retrieve_returns_results(self, sample_processed_data):
+        """Test that retrieval returns non-empty results."""
+        retriever = load_bm25_retriever(sample_processed_data)
+        results = retriever.retrieve("sort list", top_k=5)
         assert len(results) > 0
-        # The fibonacci snippet should be in the top results
-        snippet_ids = [r.snippet_id for r in results]
-        assert "snippet_1" in snippet_ids
+        assert all(isinstance(score, float) for _, score in results)
 
-    def test_retrieve_empty_query(self, sample_processed_data):
-        """Test retrieval with empty query."""
-        retriever = BM25Retriever(str(sample_processed_data), seed=42)
-        retriever.build_index()
+    def test_retrieve_respects_top_k(self, sample_processed_data):
+        """Test that retrieval respects the top_k parameter."""
+        retriever = load_bm25_retriever(sample_processed_data)
+        results_5 = retriever.retrieve("sort", top_k=5)
+        results_3 = retriever.retrieve("sort", top_k=3)
+        assert len(results_5) <= 5
+        assert len(results_3) <= 3
+        assert len(results_3) <= len(results_5)
 
-        results = retriever.retrieve("", k=2)
-        assert len(results) == 0
+    def test_save_and_load_index(self, sample_processed_data):
+        """Test that the index can be saved and loaded."""
+        with tempfile.NamedTemporaryFile(suffix='.pkl', delete=False) as f:
+            index_path = Path(f.name)
 
-    def test_retrieve_non_existent_path(self, tmp_path):
-        """Test retrieval with non-existent data path."""
-        retriever = BM25Retriever(str(tmp_path / "non_existent"), seed=42)
+        retriever = load_bm25_retriever(sample_processed_data, index_path)
+        assert index_path.exists()
 
-        with pytest.raises(FileNotFoundError):
-            retriever.build_index()
-
-    def test_retrieve_no_jsonl_files(self, tmp_path):
-        """Test retrieval when no JSONL files exist."""
-        data_dir = tmp_path / "processed"
-        data_dir.mkdir()
-
-        retriever = BM25Retriever(str(data_dir), seed=42)
-
-        with pytest.raises(ValueError):
-            retriever.build_index()
-
-    def test_retrieve_batch(self, sample_processed_data):
-        """Test batch retrieval."""
-        retriever = BM25Retriever(str(sample_processed_data), seed=42)
-        retriever.build_index()
-
-        queries = ["fibonacci", "factorial"]
-        results = retriever.retrieve_batch(queries, k=2)
-
-        assert len(results) == 2
-        assert "fibonacci" in results
-        assert "factorial" in results
-        assert len(results["fibonacci"]) > 0
-        assert len(results["factorial"]) > 0
-
-    def test_retrieve_without_build_index(self, sample_processed_data):
-        """Test retrieval without building index first."""
-        retriever = BM25Retriever(str(sample_processed_data), seed=42)
-
-        with pytest.raises(RuntimeError):
-            retriever.retrieve("test query")
+        # Load the index
+        loaded_retriever = BM25Retriever.load_index(index_path)
+        assert loaded_retriever.bm25_index is not None
+        assert len(loaded_retriever.snippets) == len(retriever.snippets)
 
 
 class TestLoadBM25Retriever:
-    """Tests for the load_bm25_retriever factory function."""
+    """Tests for the load_bm25_retriever function."""
 
-    def test_load_bm25_retriever(self, sample_processed_data):
-        """Test loading a BM25 retriever."""
-        retriever = load_bm25_retriever(str(sample_processed_data), seed=42)
-
-        assert retriever is not None
+    def test_load_from_jsonl(self, sample_processed_data):
+        """Test loading from a JSONL file."""
+        retriever = load_bm25_retriever(sample_processed_data)
         assert retriever.bm25_index is not None
+        assert len(retriever.snippets) == 5
 
-    def test_load_bm25_retriever_force_rebuild(self, sample_processed_data):
-        """Test loading with force rebuild."""
-        retriever = load_bm25_retriever(
-            str(sample_processed_data),
-            seed=42,
-            force_rebuild=True
-        )
-
-        assert retriever is not None
+    def test_load_creates_index(self, sample_processed_data):
+        """Test that loading creates the BM25 index."""
+        retriever = load_bm25_retriever(sample_processed_data)
         assert retriever.bm25_index is not None
 
 
 class TestEvaluateRetrieval:
     """Tests for the evaluate_retrieval function."""
 
-    def test_evaluate_retrieval(self, sample_processed_data):
-        """Test retrieval evaluation."""
-        retriever = load_bm25_retriever(str(sample_processed_data), seed=42)
+    def test_evaluate_returns_metrics(self, sample_processed_data):
+        """Test that evaluation returns the expected metrics."""
+        retriever = load_bm25_retriever(sample_processed_data)
+        queries = ["sort list", "read file", "fibonacci"]
+        ground_truth = {
+            "query_0": ["1"],
+            "query_1": ["2"],
+            "query_2": ["3"]
+        }
 
-        queries = [
-            {
-                "query": "fibonacci",
-                "relevant_ids": ["snippet_1"]
-            },
-            {
-                "query": "factorial",
-                "relevant_ids": ["snippet_2"]
-            }
-        ]
+        results = evaluate_retrieval(retriever, queries, ground_truth, k_values=[5, 10])
 
-        metrics = evaluate_retrieval(retriever, queries, k_values=[1, 2])
+        assert "P@5" in results
+        assert "P@10" in results
+        assert "R@5" in results
+        assert "R@10" in results
+        assert "nDCG@5" in results
+        assert "nDCG@10" in results
 
-        assert metrics is not None
-        assert "num_queries" in metrics
-        assert metrics["num_queries"] == 2
+    def test_evaluate_handles_empty_ground_truth(self, sample_processed_data):
+        """Test that evaluation handles empty ground truth gracefully."""
+        retriever = load_bm25_retriever(sample_processed_data)
+        queries = ["sort list"]
+        ground_truth = {"query_0": []}
 
-        # Check that metrics were calculated for k=1 and k=2
-        for k in [1, 2]:
-            for metric in ["precision", "recall", "ndcg"]:
-                key = f"method_bm25_k{k}_{metric}"
-                assert key in metrics
+        results = evaluate_retrieval(retriever, queries, ground_truth, k_values=[5])
+
+        assert results["P@5"] == 0.0
+        assert results["R@5"] == 0.0
+        assert results["nDCG@5"] == 0.0

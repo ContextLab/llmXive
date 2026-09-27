@@ -84,8 +84,8 @@
 - [X] T015 [US1] Implement `code/ingest.py`: Handle missing values by imputing with nearest valid temporal neighbor or excluding rows if gaps exceed thresholds. (Requires: T014)
 - [X] T016 [US1] Implement `code/ingest.py`: Flag rows where species trait data is missing (exclude or mark as "unknown" per edge case). (Requires: T015)
 - [X] T017 [US1] Implement `code/features.py`: Compute lagged environmental variables (30-day rolling mean SST) and the specific interaction term: **DHW * thermal_tolerance**. (Requires: T016)
-- [ ] T018 [US1] Implement `code/features.py`: Perform Definitional Circularity Check (verify if DHW is derived from SST). **Action**: If derived, drop DHW or use residuals; otherwise, proceed. **Artifact**: Log the decision and flag in `data/processed/features.csv`. (Requires: T017)
-- [ ] T019 [US1] Implement `code/features.py`: Calculate Variance Inflation Factor (VIF) for all predictors; drop features with VIF > 5. **Output**: Save filtered feature list to `data/processed/filtered_features.csv`. (Requires: T018)
+- [X] T018 [US1] Implement `code/features.py`: Perform Definitional Circularity Check (verify if DHW is derived from SST). **Action**: If derived, drop DHW or use residuals; otherwise, proceed. **Artifact**: Log the decision and flag in `data/processed/features.csv`. (Requires: T017)
+- [X] T019 [US1] Implement `code/features.py`: Calculate Variance Inflation Factor (VIF) for all predictors; drop features with VIF > 5. **Output**: Save filtered feature list to `data/processed/filtered_features.csv`. (Requires: T018)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

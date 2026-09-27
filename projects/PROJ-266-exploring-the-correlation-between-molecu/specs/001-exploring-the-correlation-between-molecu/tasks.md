@@ -86,9 +86,9 @@
 ### Implementation for User Story 2
 
 - [ ] T013 [US2] [Depends on T010] Implement conformer generation in `code/data/conformer_gen.py`. **Requirement**: Implement `generate_conformers(smiles_list)` using RDKit to generate 3D conformer ensembles (size = 50, energy window ≤ 10 kcal/mol). **Output**: Save the generated conformer ensembles to `data/processed/conformers.pkl`. **Traceability**: Explicitly reference FR-003 in code comments. **Dependency**: T010.
-- [ ] T014 [US2] [Depends on T010, T013] Implement descriptor calculation and NMA in `code/data/descriptors.py`. **Requirement**: Read `data/processed/conformers.pkl` and verify the presence of the `lowest_energy_conformer_id` column from the previous step. Compute torsional variance (dihedral) in rad² derived from PyVib vibrational frequencies (primary metric). Bond and angle variances are computed for diagnostic purposes only and MUST NOT be included in the primary correlation analysis. **Output**: Save all three to `data/processed/descriptors_raw.csv` with columns: `smiles`, `bond_variance`, `angle_variance`, `dihedral_variance`. **Traceability**: Explicitly reference FR-004 and Plan Constitution Check VI. **Dependency**: T013, T010.
+- [ ] T014 [US2] [Depends on T010, T013] Implement descriptor calculation and NMA in `code/data/descriptors.py`. **Requirement**: Read `data/processed/conformers.pkl` and verify the presence of the `lowest_energy_conformer_id` column from the previous step. Compute torsional variance (dihedral) in rad² derived from PyVib vibrational frequencies (primary metric). Bond and angle variances are computed for diagnostic purposes only and MUST NOT be included in the primary correlation analysis. **Output**: Save all three to `data/processed/descriptors_raw.csv` with columns: `smiles`, `bond_variance`, `angle_variance`, `dihedral_variance`. **Traceability**: Explicitly reference FR-004 and Plan Constitution Check VI. **Dependency**: T013, T010. <!-- FAILED: unspecified -->
 - [ ] T015 [US2] [Depends on T014] Implement correlation analysis in `code/data/analysis.py`. **Requirement**: Compute Pearson and Spearman correlations between **dihedral_variance** (primary) and logPapp with p-values, while controlling for confounders (logP, MW, PSA). **Output**: Save correlation results to `data/processed/correlation_results.csv`. **Dependency**: T014.
-- [~] T016 [US2] [Depends on T015] Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py` for multiple hypothesis testing (q < 0.05). **Requirement**: Apply FDR correction to the correlation results with dihedral variance. **Output**: Update `data/processed/correlation_results.csv` with FDR-corrected q-values. **Dependency**: T015.
+- [ ] T016 [US2] [Depends on T015] Implement Benjamini-Hochberg FDR correction in `code/data/analysis.py` for multiple hypothesis testing (q < 0.05). **Requirement**: Apply FDR correction to the correlation results with dihedral variance. **Output**: Update `data/processed/correlation_results.csv` with FDR-corrected q-values. **Dependency**: T015.
 - [X] T017 [US2] Write unit tests for conformer generation and NMA in `tests/test_descriptors.py`. **Dependency**: T013.
 - [X] T018 [US2] Write unit tests for correlation and FDR logic in `tests/test_analysis.py`. **Dependency**: T016.
 
@@ -103,7 +103,7 @@
 - [X] T026 [US2] [Depends on T016] Implement scaling law analysis logic in `code/data/analysis.py`. **Requirement**: If linear correlation (R² < 0.3) is observed, initiate scaling law analysis. Compute a `complexity_index` based on molecular size and flexibility. **Dependency**: T016.
 - [X] T027 [US2] [Depends on T026] Implement power-law regression model in `code/data/analysis.py`. **Requirement**: Fit a model `log(Permeability) ~ log(Flexibility) + log(Complexity)` using `scipy.optimize.curve_fit`. **Dependency**: T026.
 - [ ] T028 [US2] [Depends on T027] Perform statistical power analysis and hypothesis testing for scaling exponents. **Requirement**: Use `statsmodels.stats.power` to calculate the detectable effect size for exponents 0.25, 0.5, and 1.0 given the current sample size. Test if the estimated scaling exponent is statistically distinguishable from these null hypotheses (p < 0.05 after FDR correction). **Output**: Save power analysis results and hypothesis test outcomes to `data/processed/scaling_analysis_results.json`. **Dependency**: T027.
-- [~] T029 [US2] [Depends on T028] Validate scaling law model performance against linear model. **Requirement**: Compare AIC/BIC of the power-law model vs. the linear model. **Dependency**: T028.
+- [ ] T029 [US2] [Depends on T028] Validate scaling law model performance against linear model. **Requirement**: Compare AIC/BIC of the power-law model vs. the linear model. **Dependency**: T028.
 - [~] T030 [US2] [Depends on T029] Update `research.md` with scaling law findings. **Requirement**: If the power-law model is statistically superior, update `research.md` to reflect the scaling law hypothesis. **Dependency**: T029. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Scaling law analysis complete; results stored in `data/processed/`.
@@ -133,7 +133,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T006 [P] Implement `code/utils/generate_transparency_report.py`. **Requirement**: Create a script that reads execution logs and deviation records to generate the "Computational Method Transparency" section dynamically. **Dependency**: None.
-- [ ] T036 [P] Execute the script created in T006 (`code/utils/generate_transparency_report.py`) to generate the narrative section dynamically. **Requirement**: This task MUST also generate `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and the "Computational Method Transparency" section as required by Constitution Principle VI and Plan constraints. **Content Template**:
+- [X] T036 [P] Execute the script created in T006 (`code/utils/generate_transparency_report.py`) to generate the narrative section dynamically. **Requirement**: This task MUST also generate `specs/001-molecular-flexibility-permeability/research.md` with final results, methodology justification, and the "Computational Method Transparency" section as required by Constitution Principle VI and Plan constraints. **Content Template**:
 ```markdown
 ## Computational Method Transparency
 - **Conformer Generation**: RDKit `EmbedMultipleConfs` with [count] conformers per molecule.
@@ -144,11 +144,11 @@
 ```
 **Dependency**: T015, T020, T022a, T028.
 
-- [ ] T038 [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints. **Dependency**: None.
-- [ ] T039 Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10. **Dependency**: T020.
-- [ ] T040a [P] [US3] Execute benchmark on a representative sample of molecules to verify total runtime estimate. **Requirement**: Execute the full pipeline on a **representative subset of the initial molecules**. Measure `sample_time`. Calculate `estimated_runtime` = `sample_time` * (total_molecules / 50). **Dependency**: T020.
-- [ ] T040b [P] [US3] [Depends on T040a] Implement governance review logic. **Requirement**: If `estimated_runtime` > 6 hours, reduce sample size by [deferred]. Log a "Manual Governance Review Required" if runtime still exceeds the limit. Do NOT modify `plan.md` automatically. **Pass Criteria**: Estimated runtime ≤ 6 hours or a documented flag for governance review. **Traceability**: SC-005. **Dependency**: T040a.
-- [ ] T041 Execute `quickstart.md` instructions end-to-end. **Requirement**: Verify `data/processed/descriptors_final.csv` exists with ≥450 rows. **Pass Criteria**: Script runs without errors and produces the expected output file. **Dependency**: T040a.
+- [~] T038 [P] Update `specs/001-molecular-flexibility-permeability/plan.md` to reflect any deviations or confirmed constraints. **Dependency**: None.
+- [X] T039 Refactor `code/data/analysis.py` to reduce cyclomatic complexity < 10. **Dependency**: T020.
+- [~] T040a [P] [US3] Execute benchmark on a representative sample of molecules to verify total runtime estimate. **Requirement**: Execute the full pipeline on a **representative subset of the initial molecules**. Measure `sample_time`. Calculate `estimated_runtime` = `sample_time` * (total_molecules / 50). **Dependency**: T020.
+- [~] T040b [P] [US3] [Depends on T040a] Implement governance review logic. **Requirement**: If `estimated_runtime` > 6 hours, reduce sample size by [deferred]. Log a "Manual Governance Review Required" if runtime still exceeds the limit. Do NOT modify `plan.md` automatically. **Pass Criteria**: Estimated runtime ≤ 6 hours or a documented flag for governance review. **Traceability**: SC-005. **Dependency**: T040a.
+- [ ] T041 Execute `quickstart.md` instructions end-to-end. **Requirement**: Verify `data/processed/descriptors_final.csv` exists with ≥450 rows. **Pass Criteria**: Script runs without errors and produces the expected output file. **Dependency**: T040a. <!-- FAILED: unspecified -->
 
 ---
 

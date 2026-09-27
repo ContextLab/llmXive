@@ -1,96 +1,80 @@
 """
-Task T008a: Create and verify directory structure for data and state directories.
-
-This script creates the required directory structure for the project:
-- data/raw/
-- data/processed/
-- state/projects/
-- state/pending/
-
-It also verifies that the directories were created successfully.
+Script to create and verify the required directory structure for the project.
+Implements T008a: Create and verify directory structure for data/raw/, data/processed/,
+state/projects/, and state/pending/.
 """
 import logging
 import sys
 from pathlib import Path
+
+# Add the project root to the path to allow imports of utils
+# This assumes the script is run from the project root as `python code/data/setup_directories.py`
+# or via `python -m code.data.setup_directories`
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
 from utils.logging import get_logger, configure_root_logger
 from utils.config import get_project_root
 
-def create_directories():
+def create_directories(logger: logging.Logger) -> None:
     """
-    Create the required directory structure for the project.
-    
-    Returns:
-        Path: The project root path.
+    Create the required directory structure.
+    Requirement: Execute os.makedirs for data/raw, data/processed, state/projects, state/pending.
     """
-    logger = get_logger(__name__)
-    project_root = get_project_root()
+    base_path = get_project_root()
     
-    # Define the directories to create
-    directories = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "state" / "projects",
-        project_root / "state" / "pending",
+    dirs_to_create = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "state" / "projects",
+        base_path / "state" / "pending",
     ]
-    
-    logger.info("Creating directory structure...")
-    
-    for directory in directories:
-        logger.info(f"Creating directory: {directory}")
-        directory.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Successfully created directory: {directory}")
-    
-    return project_root
 
-def verify_directories(project_root: Path):
+    for dir_path in dirs_to_create:
+        logger.info(f"Creating directory: {dir_path}")
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+def verify_directories(logger: logging.Logger) -> None:
     """
-    Verify that the required directories exist.
+    Verify that the directories were created successfully.
+    Requirement: Immediately verify creation by executing assertions.
+    """
+    base_path = get_project_root()
     
-    Args:
-        project_root: The project root path.
+    dirs_to_verify = [
+        "data/raw",
+        "data/processed",
+        "state/projects",
+        "state/pending",
+    ]
+
+    for rel_dir in dirs_to_verify:
+        dir_path = base_path / rel_dir
+        if not dir_path.is_dir():
+            error_msg = f"Verification failed: Directory {dir_path} does not exist."
+            logger.error(error_msg)
+            raise AssertionError(error_msg)
         
-    Raises:
-        AssertionError: If any required directory does not exist.
-    """
-    logger = get_logger(__name__)
-    
-    # Define the directories to verify
-    directories = {
-        "data/raw": project_root / "data" / "raw",
-        "data/processed": project_root / "data" / "processed",
-        "state/projects": project_root / "state" / "projects",
-        "state/pending": project_root / "state" / "pending",
-    }
-    
-    logger.info("Verifying directory structure...")
-    
-    for name, directory in directories.items():
-        logger.info(f"Verifying directory: {name}")
-        assert directory.is_dir(), f"Directory {name} does not exist: {directory}"
-        logger.info(f"Successfully verified directory: {name}")
-    
-    logger.info("All directories verified successfully.")
+        logger.info(f"Verified directory exists: {dir_path}")
 
 def main():
-    """Main entry point for the script."""
+    """
+    Main entry point for the script.
+    Creates directories and verifies them.
+    """
     configure_root_logger()
-    logger = get_logger(__name__)
+    logger = get_logger("setup_directories")
+    
+    logger.info("Starting directory setup (Task T008a)...")
     
     try:
-        # Create directories
-        project_root = create_directories()
-        
-        # Verify directories
-        verify_directories(project_root)
-        
-        logger.info("Task T008a completed successfully.")
-        return 0
-    except AssertionError as e:
-        logger.error(f"Verification failed: {e}")
-        return 1
+        create_directories(logger)
+        verify_directories(logger)
+        logger.info("Directory setup and verification completed successfully.")
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        return 1
+        logger.error(f"Directory setup failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

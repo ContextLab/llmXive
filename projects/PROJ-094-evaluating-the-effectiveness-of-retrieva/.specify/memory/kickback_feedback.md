@@ -4,9 +4,8 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001a` (rejected 1x): No directory tree or file list is provided showing that the required folders (`src/data`, `src/models`, `src/analysis`, `src/cli`, `src/lib`, `data/raw`, `data/processed`, `results`, `tests/unit`, `tests/integration`, `tests/contract`) actually exist. The implementer’s claim lacks concrete evidence, so the task is not verified as completed.
-- `T002` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with `[tool.black]` and `[tool.ruff]`, `.ruff.toml`, or similar) were presented. Without concrete artifacts showing that `ruff` and `black` are configured, the claim that the task is completed cannot be verified. The implementer must add the appropriate configuration files to the repository.
-- `T004` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/checksum.py
+- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/models.py
+- `T007` (rejected 1x): declared artifact(s) missing/empty/invalid: src/data/preprocess.py
 
 ## Required change
 

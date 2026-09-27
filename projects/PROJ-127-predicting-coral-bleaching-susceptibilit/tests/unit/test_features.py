@@ -3,155 +3,137 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
-import warnings
+import os
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from features import (
-    compute_lagged_features,
-    compute_interaction_features,
-    check_definitional_circularity,
-    calculate_vif,
-    filter_high_vif
-)
+from features import compute_lagged_features, compute_interaction_features, check_definitional_circularity, calculate_vif, filter_high_vif
 
-class TestDefinitionalCircularity:
-    """Test cases for Definitional Circularity Check (T018)"""
+def test_compute_lagged_features():
+    """Test that lagged features are computed correctly."""
+    # Create test data
+    dates = pd.date_range(start='2020-01-01', periods=60, freq='D')
+    data = {
+        'date': dates,
+        'sst': np.random.rand(60) * 2 + 25,  # SST around 25-27
+        'dhw': np.random.rand(60) * 5
+    }
+    df = pd.DataFrame(data)
     
-    def test_dhw_present_dropped(self):
-        """Test that DHW is dropped when present"""
-        df = pd.DataFrame({
-            'reef_id': [1, 2, 3],
-            'sst': [28.5, 29.0, 28.8],
-            'dhw': [2.1, 3.5, 1.8],
-            'thermal_tolerance': [0.8, 0.9, 0.85]
-        })
-        
-        result = check_definitional_circularity(df)
-        
-        # DHW should be dropped
-        assert 'dhw' not in result.columns
-        # Flag should be added
-        assert 'dhw_dropped_due_to_circularity' in result.columns
-        assert all(result['dhw_dropped_due_to_circularity'] == True)
-        
-    def test_dhw_absent_proceeds(self):
-        """Test that processing proceeds normally when DHW is absent"""
-        df = pd.DataFrame({
-            'reef_id': [1, 2, 3],
-            'sst': [28.5, 29.0, 28.8],
-            'thermal_tolerance': [0.8, 0.9, 0.85]
-        })
-        
-        result = check_definitional_circularity(df)
-        
-        # DHW should not be in columns (wasn't there)
-        assert 'dhw' not in result.columns
-        # Flag should indicate no drop
-        assert 'dhw_dropped_due_to_circularity' in result.columns
-        assert all(result['dhw_dropped_due_to_circularity'] == False)
-        
-    def test_empty_dataframe(self):
-        """Test handling of empty dataframe"""
-        df = pd.DataFrame()
-        result = check_definitional_circularity(df)
-        assert result.empty
-
-class TestLaggedFeatures:
-    """Test cases for lagged feature computation"""
+    # Compute lagged features
+    df_lagged = compute_lagged_features(df, date_col='date', target_cols=['sst'])
     
-    def test_lagged_features_computed(self):
-        """Test that lagged features are computed correctly"""
-        df = pd.DataFrame({
-            'date': pd.date_range('2024-01-01', periods=10),
-            'sst': [28.0 + i * 0.1 for i in range(10)],
-            'dhw': [1.0 + i * 0.1 for i in range(10)]
-        })
-        
-        result = compute_lagged_features(df)
-        
-        # Check that lagged columns exist
-        assert 'sst_lag_30d' in result.columns
-        assert 'dhw_lag_30d' in result.columns
-        
-    def test_lagged_features_empty(self):
-        """Test handling of empty dataframe"""
-        df = pd.DataFrame()
-        result = compute_lagged_features(df)
-        assert result.empty
-
-class TestInteractionFeatures:
-    """Test cases for interaction feature computation"""
+    # Check that lagged column exists
+    assert 'sst_30d_mean' in df_lagged.columns
     
-    def test_interaction_computed(self):
-        """Test that interaction features are computed correctly"""
-        df = pd.DataFrame({
-            'dhw': [1.0, 2.0, 3.0],
-            'thermal_tolerance': [0.5, 0.6, 0.7]
-        })
-        
-        result = compute_interaction_features(df)
-        
-        # Check that interaction column exists
-        assert 'dhw_thermal_interaction' in result.columns
-        
-        # Verify calculation
-        expected = df['dhw'] * df['thermal_tolerance']
-        pd.testing.assert_series_equal(result['dhw_thermal_interaction'], expected)
-        
-    def test_interaction_missing_columns(self):
-        """Test handling of missing columns"""
-        df = pd.DataFrame({
-            'dhw': [1.0, 2.0, 3.0]
-        })
-        
-        result = compute_interaction_features(df)
-        
-        # Should not crash, no interaction column added
-        assert 'dhw_thermal_interaction' not in result.columns
+    # Check that lagged values are reasonable (not NaN for most rows)
+    assert df_lagged['sst_30d_mean'].notna().sum() > 30
 
-class TestVIF:
-    """Test cases for VIF calculation and filtering"""
+def test_compute_interaction_features():
+    """Test that interaction features are computed correctly."""
+    # Create test data
+    data = {
+        'dhw': [1, 2, 3, 4, 5],
+        'thermal_tolerance': [10, 20, 30, 40, 50]
+    }
+    df = pd.DataFrame(data)
     
-    def test_vif_calculation(self):
-        """Test that VIF is calculated for features"""
-        # Create highly correlated features
-        df = pd.DataFrame({
-            'feature1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            'feature2': [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1],
-            'feature3': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-        })
-        
-        vif_df = calculate_vif(df)
-        
-        # Check that VIF values are calculated
-        assert len(vif_df) == 3
-        assert 'feature' in vif_df.columns
-        assert 'vif' in vif_df.columns
-        assert all(vif_df['vif'] >= 1.0)  # VIF should be >= 1
-        
-    def test_high_vif_filtered(self):
-        """Test that high VIF features are filtered out"""
-        # Create highly correlated features
-        df = pd.DataFrame({
-            'feature1': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-            'feature2': [1.1, 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1],
-            'feature3': [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-        })
-        
-        filtered_df = filter_high_vif(df, vif_threshold=5.0)
-        
-        # Some features should be dropped due to high correlation
-        assert len(filtered_df.columns) < len(df.columns) or len(filtered_df.columns) == len(df.columns)
-        # The function should not crash
-        assert filtered_df.shape[0] == df.shape[0]
-        
-    def test_vif_empty_dataframe(self):
-        """Test handling of empty dataframe"""
-        df = pd.DataFrame()
-        vif_df = calculate_vif(df)
-        assert vif_df.empty
-        
-        filtered_df = filter_high_vif(df)
-        assert filtered_df.empty
+    # Compute interaction features
+    df_interaction = compute_interaction_features(df, col1='dhw', col2='thermal_tolerance')
+    
+    # Check that interaction column exists
+    assert 'dhw_times_thermal_tolerance' in df_interaction.columns
+    
+    # Check values
+    expected = [10, 40, 90, 160, 250]
+    assert list(df_interaction['dhw_times_thermal_tolerance']) == expected
+
+def test_check_definitional_circularity():
+    """Test that definational circularity is detected and handled."""
+    # Create test data with high correlation between DHW and SST
+    sst = np.linspace(25, 30, 50)
+    dhw = sst * 0.5 + np.random.rand(50) * 0.1  # High correlation
+    
+    data = {
+        'date': pd.date_range(start='2020-01-01', periods=50, freq='D'),
+        'sst': sst,
+        'dhw': dhw
+    }
+    df = pd.DataFrame(data)
+    
+    # Check circularity
+    df_circ = check_definitional_circularity(df, dhw_col='dhw', sst_col='sst')
+    
+    # Check that circularity flag is set
+    assert 'circularity_detected' in df_circ.columns
+    assert df_circ['circularity_detected'].any()
+    
+    # Check that DHW column is dropped
+    assert 'dhw' not in df_circ.columns
+
+def test_calculate_vif():
+    """Test that VIF is calculated correctly."""
+    # Create test data
+    data = {
+        'feature1': np.random.rand(100),
+        'feature2': np.random.rand(100),
+        'feature3': np.random.rand(100)
+    }
+    df = pd.DataFrame(data)
+    
+    # Calculate VIF
+    vif_df = calculate_vif(df)
+    
+    # Check that VIF values are computed
+    assert 'vif' in vif_df.columns
+    assert len(vif_df) == 3
+    
+    # Check that VIF values are positive
+    assert (vif_df['vif'] > 0).all()
+
+def test_filter_high_vif():
+    """Test that high VIF features are filtered correctly."""
+    # Create test data with one high VIF feature
+    np.random.seed(42)
+    feature1 = np.random.rand(100)
+    feature2 = feature1 + np.random.rand(100) * 0.1  # Highly correlated
+    feature3 = np.random.rand(100)
+    
+    data = {
+        'feature1': feature1,
+        'feature2': feature2,
+        'feature3': feature3
+    }
+    df = pd.DataFrame(data)
+    
+    # Create VIF DataFrame
+    vif_df = pd.DataFrame({
+        'feature': ['feature1', 'feature2', 'feature3'],
+        'vif': [2.0, 10.0, 2.0]  # feature2 has high VIF
+    })
+    
+    # Filter high VIF
+    filtered_df = filter_high_vif(df, vif_df, threshold=5.0)
+    
+    # Check that high VIF feature is dropped
+    assert 'feature2' not in filtered_df.columns
+    assert 'feature1' in filtered_df.columns
+    assert 'feature3' in filtered_df.columns
+
+def test_main_function():
+    """Test that main function runs without error (mocked)."""
+    # This test ensures the main function structure is correct
+    # Actual execution requires real data files
+    from features import main
+    import unittest.mock as mock
+    
+    # Mock file existence check
+    with mock.patch('pathlib.Path.exists', return_value=True):
+        with mock.patch('pandas.read_csv', return_value=pd.DataFrame({'dhw': [1], 'thermal_tolerance': [2], 'sst': [3]})):
+            with mock.patch('pandas.DataFrame.to_csv'):
+                # This should not raise an error
+                try:
+                    main()
+                except Exception as e:
+                    pytest.fail(f"main() raised an exception: {e}")

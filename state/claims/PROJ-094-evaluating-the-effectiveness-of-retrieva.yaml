@@ -215,27 +215,6 @@
   updated_at: '2026-07-28T17:07:25Z'
 - artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
   attempts: 1
-  canonical: method computes normalized discounted cumulative gain at standard cutoff
-    depth
-  claim_id: c_104cc7ac
-  context: The research question is to evaluate the ranking effectiveness of the proposed
-    algorithm. The method involves computing the normalized discounted cumulative
-    gain at a standard cutoff depth.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Method_computes_normalized_discounted_cumulative_gain_at_sta
-  kind: entity_fact
-  raw_text: The method involves computing the normalized discounted cumulative gain
-    at a standard cutoff depth.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-28T17:07:50Z'
-- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
-  attempts: 1
   canonical: pipeline orchestrates multiple methods on 50 queries
   claim_id: c_c34c99fd
   context: Implement src/cli/main.py to orchestrate the multiple methods on 50 queries,
@@ -599,7 +578,29 @@
   status: not_enough_info
   updated_at: '2026-07-28T17:24:34Z'
 - artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
-  attempts: 3
+  attempts: 1
+  canonical: nDCG evaluation aligns with established retrieval evaluation protocols
+    (DOI:10.1145/1321440.1321442)
+  claim_id: c_c1d14a4d
+  context: The research question is to evaluate the ranking effectiveness of the proposed
+    algorithm. The method involves computing the normalized discounted cumulative
+    gain at a standard cutoff depth.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The method involves computing the normalized discounted cumulative gain
+    at a standard cutoff depth. This approach aligns with established retrieval evaluation
+    protocols [DOI:10.1145/1321440.1321442].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:39:32Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 5
   canonical: method computes normalized discounted cumulative gain at standard cutoff
     depth
   claim_id: c_d9125164
@@ -619,4 +620,866 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-28T17:25:33Z'
+  updated_at: '2026-09-27T09:41:40Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: pipeline outputs CSV with three rows and valid nDCG@K scores on CodeSearchNet
+    subset
+  claim_id: c_1bafb5ce
+  context: 'Independent Test: The system can be tested by executing the pipeline on
+    a subset of CodeSearchNet queries and verifying that it outputs a CSV file containing
+    three distinct rows (one per method) with valid nDCG@K scores, without requiring
+    any external API calls or GPU resources.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_CSV_with_three_rows_and_valid_nDCG@K_scores
+  kind: entity_fact
+  raw_text: The pipeline can be tested by executing the pipeline on a subset of CodeSearchNet
+    queries and verifying that it outputs a CSV file containing three distinct rows
+    (one per method) with valid nDCG@K scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:42:05Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: system outputs JSON with Spearman correlation coefficients and p-values
+    for descriptors against performance delta
+  claim_id: c_e0e853c0
+  context: 'Independent Test: The system can be tested by feeding it a pre-computed
+    CSV of performance deltas and code descriptors, verifying that it outputs a JSON
+    report containing Spearman correlation coefficients and p-values for each descriptor
+    against the performance delta.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputs_JSON_with_Spearman_correlation_coefficients_a
+  kind: entity_fact
+  raw_text: The system can be tested by feeding it a pre-computed CSV of performance
+    deltas and code descriptors, verifying that it outputs a JSON report containing
+    Spearman correlation coefficients and p-values for each descriptor against the
+    performance delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:42:25Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: strict resource mode keeps FAISS index below 1GB and reduces model parameters
+    while producing valid nDCG scores
+  claim_id: c_18fd0887
+  context: 'Independent Test: The system can be tested by running the pipeline with
+    the ''strict resource'' flags enabled, verifying that the FAISS index size stays
+    below 1GB and the model parameter count is reduced, while still producing valid
+    (though potentially lower) nDCG scores.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strict_resource_mode_keeps_FAISS_index_below_1GB_and_reduces
+  kind: entity_fact
+  raw_text: The system can be tested by running the pipeline with the 'strict resource'
+    flags enabled, verifying that the FAISS index size stays below 1GB and the model
+    parameter count is reduced, while still producing valid (though potentially lower)
+    nDCG scores.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:43:08Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: programmatic check verifies loaded model has approximately 150M parameters
+    with 20% tolerance
+  claim_id: c_4c07e0bf
+  context: "Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer\
+    \ transformer variant... MUST include a programmatic check to verify the loaded\
+    \ model has approximately 150M parameters (\xB120%) before proceeding."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The implementation must include a programmatic check to verify the loaded\
+    \ model has approximately 150M parameters (\xB120%) before proceeding."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:43:30Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: batched inference implemented to meet 33 queries per hour throughput
+    target
+  claim_id: c_aef08a3a
+  context: "Implement batched inference in `src/models/retriever_neural.py` and `src/models/rag_pipeline.py`\
+    \ to meet \u226533 queries/hour throughput target."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must implement batched inference to meet \u226533 queries/hour\
+    \ throughput target."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:43:30Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: nDCG evaluation aligns with retrieval evaluation protocols DOI:10.1145/1321440.1321442
+  claim_id: c_5e6ed6b4
+  context: The research question is to evaluate the ranking effectiveness of the proposed
+    algorithm. The method involves computing the normalized discounted cumulative
+    gain at a standard cutoff depth. This approach aligns with established retrieval
+    evaluation protocols [DOI:10.1145/1321440.1321442].
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The method involves computing the normalized discounted cumulative gain
+    at a standard cutoff depth. This approach aligns with established retrieval evaluation
+    protocols [DOI:10.1145/1321440.1321442].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:45:18Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: method computes normalized discounted cumulative gain at standard cutoff
+    depth
+  claim_id: c_104cc7ac
+  context: The research question is to evaluate the ranking effectiveness of the proposed
+    algorithm. The method involves computing the normalized discounted cumulative
+    gain at a standard cutoff depth.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_computes_normalized_discounted_cumulative_gain_at_sta
+  kind: entity_fact
+  raw_text: The method involves computing the normalized discounted cumulative gain
+    at a standard cutoff depth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:47:37Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Retrieval evaluation protocol aligns with DOI 10.1145/1321440.1321442
+  claim_id: c_cdf9b24f
+  context: The research question is to evaluate the ranking effectiveness of the proposed
+    algorithm. The method involves computing the normalized discounted cumulative
+    gain at a standard cutoff depth. This approach aligns with established retrieval
+    evaluation protocols [DOI:10.1145/1321440.1321442].
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The approach aligns with established retrieval evaluation protocols [DOI:10.1145/1321440.1321442].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:50:34Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: "Loaded model parameter count verified at approximately 150 million (\xB1\
+    20%)"
+  claim_id: c_8a32550e
+  context: "Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer\
+    \ transformer variant... MUST include a programmatic check to verify the loaded\
+    \ model has approximately 150M parameters (\xB120%) before proceeding."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "MUST include a programmatic check to verify the loaded model has approximately\
+    \ 150M parameters (\xB120%) before proceeding."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:51:02Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: FAISS index size stays below 1 GB under strict resource flags
+  claim_id: c_8fb4859d
+  context: 'Independent Test: The system can be tested by running the pipeline with
+    the ''strict resource'' flags enabled, verifying that the FAISS index size stays
+    below 1GB and the model parameter count is reduced...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by running the pipeline with the 'strict resource'
+    flags enabled, verifying that the FAISS index size stays below 1GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:51:28Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Throughput target is at least 33 queries per hour
+  claim_id: c_d61c5a82
+  context: "Implement batched inference in `src/models/retriever_neural.py` and `src/models/rag_pipeline.py`\
+    \ to meet \u226533 queries/hour throughput target."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Throughput_target_is_at_least_33_queries_per_hour
+  kind: magnitude
+  raw_text: "Implement batched inference... to meet \u226533 queries/hour throughput\
+    \ target."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:52:07Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: RAG pipeline uses Salesforce codegen-350M-mono model in CPU mode
+  claim_id: c_2c3de7f4
+  context: Implement `src/models/rag_pipeline.py` using `Salesforce/codegen-350M-mono`
+    (CPU mode) with fixed prompt template, temp=0.0, top-k retrieval.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAG_pipeline_uses_Salesforce_codegen-350M-mono_model_in_CPU
+  kind: entity_fact
+  raw_text: Implement `src/models/rag_pipeline.py` using `Salesforce/codegen-350M-mono`
+    (CPU mode)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:52:36Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Neural retriever uses sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_57f9d3b5
+  context: Implement `src/models/retriever_neural.py` using `sentence-transformers/all-MiniLM-L6-v2`
+    for dual-encoder retrieval
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Neural_retriever_uses_sentence-transformers/all-MiniLM-L6-v2
+  kind: entity_fact
+  raw_text: Implement `src/models/retriever_neural.py` using `sentence-transformers/all-MiniLM-L6-v2`
+    for dual-encoder retrieval
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:52:55Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11 and specific library dependencies
+  claim_id: c_1d1b248f
+  context: Initialize Python 3.11 project with `requirements.txt` pinning `ir-datasets`,
+    `sentence-transformers`, `faiss-cpu`, `rank_bm25`, `scikit-learn`, `pandas`, `numpy`,
+    `psutil`, `transformers`, `torch`, `accelerate`, `pytest`
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with `requirements.txt` pinning `ir-datasets`,
+    `sentence-transformers`, `faiss-cpu`, `rank_bm25`, `scikit-learn`, `pandas`, `numpy`,
+    `psutil`, `transformers`, `torch`, `accelerate`, `pytest`
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T09:52:56Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs CSV with three distinct rows for BM25, Dual-Encoder,
+    and RAG methods
+  claim_id: c_0e85bf6f
+  context: The system can be tested by executing the pipeline on a subset of CodeSearchNet
+    queries and verifying that it outputs a CSV file containing three distinct rows
+    (one per method) with valid nDCG@K scores, without requiring any external API
+    calls or GPU resources.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_CSV_with_three_distinct_rows_for_BM25,_Dual
+  kind: entity_fact
+  raw_text: The pipeline can be tested by executing the pipeline on a subset of CodeSearchNet
+    queries and verifying that it outputs a CSV file containing three distinct rows
+    (one per method) with valid nDCG@K scores
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:53:00Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: CLI orchestrates methods on 50 queries
+  claim_id: c_8eb4c3d7
+  context: Implement `src/cli/main.py` to orchestrate the multiple methods on 50 queries,
+    handle edge cases (zero matches, truncation warnings), and output `results.csv`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/cli/main.py` to orchestrate the multiple methods on 50
+    queries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:53:32Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: RAG pipeline fallback to microsoft/phi-1.5 if load fails within 7 GB
+    RAM
+  claim_id: c_1426cfa5
+  context: MUST include fallback logic to `microsoft/phi-1.5` if the primary model
+    fails to load within 7GB RAM, using 4-bit quantization and `device_map="cpu"`
+    for the fallback to ensure deterministic behavior.
+  evidence:
+    asserted: '-350.0'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: Implement `src/models/rag_pipeline.py` using `Salesforce/codegen-350M-mono`...
+    with fallback logic to `microsoft/phi-1.5` if the primary model fails to load
+    within 7GB RAM
+  resolved_value: '2'
+  resolver: approximate
+  source_hash: 290a41cc5fb1b98dcc344e1c80bbc36f6fae8c957aab54f9535e67f96da14e06
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T09:53:32Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Memory monitoring ensures RAM usage below 7 GB
+  claim_id: c_8573d7ad
+  context: Implement memory monitoring in `src/models/rag_pipeline.py` using `psutil`
+    to ensure <7GB RAM usage
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement memory monitoring in `src/models/rag_pipeline.py` using `psutil`
+    to ensure <7GB RAM usage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:53:32Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Download script fetches Python and Java subsets from CodeSearchNet
+  claim_id: c_700007ca
+  context: Implement `src/data/download.py` using `ir_datasets.load("codesearchnet")`
+    to fetch Python/Java subsets; MUST raise on failure, NO synthetic fallback
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_script_fetches_Python_and_Java_subsets_from_CodeSea
+  kind: entity_fact
+  raw_text: Implement `src/data/download.py` using `ir_datasets.load("codesearchnet")`
+    to fetch Python/Java subsets
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:53:56Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Descriptors calculated using CodeBERT-base embeddings
+  claim_id: c_4484cb09
+  context: Implement `src/data/descriptors.py` to calculate API density, doc density,
+    and Naming-consistency score (using `CodeBERT-base` embeddings) ONLY for test
+    set queries and their ground truth snippets
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Descriptors_calculated_using_CodeBERT-base_embeddings
+  kind: entity_fact
+  raw_text: Implement `src/data/descriptors.py` to calculate API density, doc density,
+    and Naming-consistency score (using `CodeBERT-base` embeddings)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:54:30Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Strict resource limits include 1 GB FAISS index and 2-layer model
+  claim_id: c_cf68acc4
+  context: Run the pipeline with strict resource limits (1GB FAISS index, 2-layer
+    model) and generate a degradation report comparing results to the standard run.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the pipeline with strict resource limits (1GB FAISS index, 2-layer
+    model)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:55:00Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Strict resource mode loads Google Flan-T5-small or equivalent
+  claim_id: c_1d81e9df
+  context: Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer
+    transformer variant (e.g., `google/flan-t5-small` or equivalent verified a large-scale
+    parameter model... when `--strict-resources` flag is set.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strict_resource_mode_loads_Google_Flan-T5-small_or_equivalen
+  kind: entity_fact
+  raw_text: Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer
+    transformer variant (e.g., `google/flan-t5-small` or equivalent verified a large-scale
+    parameter model... when `--strict-resources` flag is set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:55:25Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Normality test Shapiro-Wilk used to select statistical test
+  claim_id: c_b17840f7
+  context: MUST perform a normality test (Shapiro-Wilk) to select between paired t-test
+    and Wilcoxon signed-rank test.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Normality_test_Shapiro-Wilk_used_to_select_statistical_test
+  kind: entity_fact
+  raw_text: MUST perform a normality test (Shapiro-Wilk) to select between paired
+    t-test and Wilcoxon signed-rank test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:55:55Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Preprocessing truncates data to 256 tokens
+  claim_id: c_96036eaa
+  context: Implement `src/data/preprocess.py` to load raw data, strip non-ASCII, truncate
+    to 256 tokens, and save processed JSONL/CSV to `data/processed/`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/data/preprocess.py` to load raw data, strip non-ASCII,
+    truncate to 256 tokens, and save processed JSONL/CSV to `data/processed/`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:56:40Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Tokenization logic uses 256-token truncation
+  claim_id: c_1696e6bf
+  context: 'Implement `src/lib/utils.py` with functions for: fixed random seed setting,
+    tokenization logic (256-token truncation), ASCII stripping, and logging setup'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `src/lib/utils.py` with functions for: fixed random seed setting,
+    tokenization logic (256-token truncation)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:57:05Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Resource study configures FAISS IndexFlatIP with memory cap
+  claim_id: c_54edb23f
+  context: Implement `src/analysis/resource_study.py` to configure FAISS with `IndexFlatIP`
+    and memory cap (limited capacity) via `psutil` monitoring
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_study_configures_FAISS_IndexFlatIP_with_memory_cap
+  kind: entity_fact
+  raw_text: Implement `src/analysis/resource_study.py` to configure FAISS with `IndexFlatIP`
+    and memory cap (limited capacity) via `psutil` monitoring
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:57:43Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Logic enforces GB RAM limit by subsampling or quantized index
+  claim_id: c_f9688f2d
+  context: Implement logic to enforce GB RAM limit by subsampling dataset or using
+    a quantized index type if memory cap is approached (PREREQUISITE for T030).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logic_enforces_GB_RAM_limit_by_subsampling_or_quantized_inde
+  kind: entity_fact
+  raw_text: Implement logic to enforce GB RAM limit by subsampling dataset or using
+    a quantized index type if memory cap is approached
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:58:17Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: CLI outputs degradation report with absolute percentage point drops
+  claim_id: c_bb3560fb
+  context: Update `src/cli/main.py` to support `--strict-resources` mode, run both
+    standard and constrained pipelines, and output `degradation_report.json` with
+    absolute percentage point drops
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CLI_outputs_degradation_report_with_absolute_percentage_poin
+  kind: entity_fact
+  raw_text: Update `src/cli/main.py` to support `--strict-resources` mode, run both
+    standard and constrained pipelines, and output `degradation_report.json` with
+    absolute percentage point drops
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:58:56Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: BM25 retriever uses rank_bm25 on preprocessed data
+  claim_id: c_09236a1b
+  context: Implement `src/models/retriever_bm25.py` using `rank_bm25` on preprocessed
+    data
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/BM25_retriever_uses_rank_bm25_on_preprocessed_data
+  kind: entity_fact
+  raw_text: Implement `src/models/retriever_bm25.py` using `rank_bm25` on preprocessed
+    data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:59:32Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Metrics module calculates Precision@K, Recall@K, and nDCG@K
+  claim_id: c_95c2a0da
+  context: Implement `src/models/metrics.py` to calculate Precision@K, Recall@K, and
+    nDCG@K against ground truth labels
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Metrics_module_calculates_Precision@K,_Recall@K,_and_nDCG@K
+  kind: entity_fact
+  raw_text: Implement `src/models/metrics.py` to calculate Precision@K, Recall@K,
+    and nDCG@K against ground truth labels
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:00:01Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Correlation analysis computes Spearman's rho and Pearson's r
+  claim_id: c_9c49f7b2
+  context: Implement `src/analysis/correlation.py` to compute Spearman's rho and Pearson's
+    r.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_analysis_computes_Spearman's_rho_and_Pearson's_r
+  kind: entity_fact
+  raw_text: Implement `src/analysis/correlation.py` to compute Spearman's rho and
+    Pearson's r.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:01:26Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: CLI triggers descriptor calculation and correlation analysis outputting
+    correlation_results.json
+  claim_id: c_f014c18b
+  context: Update `src/cli/main.py` to trigger descriptor calculation and correlation
+    analysis after retrieval, outputting `correlation_results.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CLI_triggers_descriptor_calculation_and_correlation_analysis
+  kind: entity_fact
+  raw_text: Update `src/cli/main.py` to trigger descriptor calculation and correlation
+    analysis after retrieval, outputting `correlation_results.json`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:02:01Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: Descriptors module handles NaN gracefully excluding invalid points from
+    correlation
+  claim_id: c_c65edd4d
+  context: Ensure `src/data/descriptors.py` handles `NaN` gracefully and excludes
+    invalid points from correlation while retaining them for retrieval metrics
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Descriptors_module_handles_NaN_gracefully_excluding_invalid
+  kind: entity_fact
+  raw_text: Ensure `src/data/descriptors.py` handles `NaN` gracefully and excludes
+    invalid points from correlation while retaining them for retrieval metrics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:02:24Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 1
+  canonical: "Strict resource mode loads model with approximately 150 million parameters\
+    \ (\xB120%)"
+  claim_id: c_dcaaa967
+  context: "Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer\
+    \ transformer variant (e.g., `google/flan-t5-small` or equivalent verified a large-scale\
+    \ parameter model... when `--strict-resources` flag is set. MUST include a programmatic\
+    \ check to verify the loaded model has approximately 150M parameters (\xB120%)\
+    \ before proceeding."
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer\
+    \ transformer variant (e.g., `google/flan-t5-small` or equivalent verified a large-scale\
+    \ parameter model... when `--strict-resources` flag is set. MUST include a programmatic\
+    \ check to verify the loaded model has approximately 150M parameters (\xB120%)\
+    \ before proceeding."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T10:05:39Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: Batched inference meets at least 33 queries per hour throughput target
+  claim_id: c_00b2f97b
+  context: "Implement batched inference in `src/models/retriever_neural.py` and `src/models/rag_pipeline.py`\
+    \ to meet \u226533 queries/hour throughput target."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batched_inference_meets_at_least_33_queries_per_hour_through
+  kind: magnitude
+  raw_text: "Implement batched inference in `src/models/retriever_neural.py` and `src/models/rag_pipeline.py`\
+    \ to meet \u226533 queries/hour throughput target."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:05:43Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: Streaming logic processes large datasets in chunks verifying throughput
+    targets
+  claim_id: c_bd9ce153
+  context: Implement streaming logic in `src/data/download.py` and `src/data/preprocess.py`
+    to process large datasets in chunks, verifying throughput targets with benchmarks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_logic_processes_large_datasets_in_chunks_verifying
+  kind: entity_fact
+  raw_text: Implement streaming logic in `src/data/download.py` and `src/data/preprocess.py`
+    to process large datasets in chunks, verifying throughput targets with benchmarks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:05:45Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: Quickstart.md validation ensures end-to-end reproducibility
+  claim_id: c_8f4b53ae
+  context: Run `quickstart.md` validation to ensure end-to-end reproducibility
+  evidence:
+    entailment_evidence: md validation ensures end-to-end reproducibility
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Quickstart.md_validation_ensures_end-to-end_reproducibility
+  kind: entity_fact
+  raw_text: Run `quickstart.md` validation to ensure end-to-end reproducibility
+  resolved_value: Quickstart.md validation ensures end-to-end reproducibility
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T10:05:47Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: Checksum module implements raw data hash verification and state file
+    management
+  claim_id: c_72d735a2
+  context: Implement `src/data/checksum.py` for raw data hash verification and state
+    file management
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Checksum_module_implements_raw_data_hash_verification_and_st
+  kind: entity_fact
+  raw_text: Implement `src/data/checksum.py` for raw data hash verification and state
+    file management
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:05:49Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: Dataclasses CodeSnippet, QueryResult, and PerformanceDelta defined with
+    schema alignment
+  claim_id: c_2d94bfc0
+  context: Create `src/data/models.py` defining `CodeSnippet`, `QueryResult`, and
+    `PerformanceDelta` dataclasses with exact schema alignment to spec
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataclasses_CodeSnippet,_QueryResult,_and_PerformanceDelta_d
+  kind: entity_fact
+  raw_text: Create `src/data/models.py` defining `CodeSnippet`, `QueryResult`, and
+    `PerformanceDelta` dataclasses with exact schema alignment to spec
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:05:50Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: Pytest environment configured with conftest.py for shared fixtures
+  claim_id: c_2fce14e9
+  context: Configure `pytest` environment with `conftest.py` for shared fixtures (mocked
+    data paths, temp directories)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pytest_environment_configured_with_conftest.py_for_shared_fi
+  kind: entity_fact
+  raw_text: Configure `pytest` environment with `conftest.py` for shared fixtures
+    (mocked data paths, temp directories)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:05:52Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: Linting and formatting tools configured
+  claim_id: c_860da1ce
+  context: Configure linting (`ruff`) and formatting (`black`) tools
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linting_and_formatting_tools_configured
+  kind: entity_fact
+  raw_text: Configure linting (`ruff`) and formatting (`black`) tools
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:05:54Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: Resource study configures FAISS IndexFlatIP with memory cap via psutil
+  claim_id: c_afae6cde
+  context: Implement `src/analysis/resource_study.py` to configure FAISS with `IndexFlatIP`
+    and memory cap (limited capacity) via `psutil` monitoring
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_study_configures_FAISS_IndexFlatIP_with_memory_cap
+  kind: entity_fact
+  raw_text: Implement `src/analysis/resource_study.py` to configure FAISS with `IndexFlatIP`
+    and memory cap (limited capacity) via `psutil` monitoring
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:05:56Z'
+- artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
+  attempts: 2
+  canonical: CLI supports strict resources mode outputting degradation report with
+    absolute percentage point drops
+  claim_id: c_7f40e0a5
+  context: Update `src/cli/main.py` to support `--strict-resources` mode, run both
+    standard and constrained pipelines, and output `degradation_report.json` with
+    absolute percentage point drops
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CLI_supports_strict_resources_mode_outputting_degradation_re
+  kind: entity_fact
+  raw_text: Update `src/cli/main.py` to support `--strict-resources` mode, run both
+    standard and constrained pipelines, and output `degradation_report.json` with
+    absolute percentage point drops
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:05:58Z'

@@ -44,9 +44,9 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001a [P] Create project directory structure: `mkdir -p src/data src/models src/analysis src/cli src/lib data/raw data/processed results tests/unit tests/integration tests/contract`
-- [X] T001b [P] Initialize Python 3.11 project with `requirements.txt` pinning `ir-datasets`, `sentence-transformers`, `faiss-cpu`, `rank_bm25`, `scikit-learn`, `pandas`, `numpy`, `psutil`, `transformers`, `torch`, `accelerate`, `pytest`
+- [X] T001b [P] {{claim:c_1d1b248f}}
 - [X] T001c [P] Create `.gitignore` and `setup.cfg` for project configuration
-- [ ] T002 [P] Configure linting (`ruff`) and formatting (`black`) tools
+- [ ] T002 [P] Configure linting (`ruff`) and formatting (`black`) tools [UNRESOLVED-CLAIM: c_860da1ce — status=not_enough_info]
 
 ---
 
@@ -56,12 +56,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T003 [P] Implement `src/lib/utils.py` with functions for: fixed random seed setting, tokenization logic (256-token truncation), ASCII stripping, and logging setup
-- [ ] T004 [P] Implement `src/data/checksum.py` for raw data hash verification and state file management
-- [ ] T005 Create `src/data/models.py` defining `CodeSnippet`, `QueryResult`, and `PerformanceDelta` dataclasses with exact schema alignment to spec
-- [ ] T006 Implement `src/data/download.py` using `ir_datasets.load("codesearchnet")` to fetch Python/Java subsets; MUST raise on failure, NO synthetic fallback
-- [ ] T007 Implement `src/data/preprocess.py` to load raw data, strip non-ASCII, truncate to 256 tokens, and save processed JSONL/CSV to `data/processed/`
-- [ ] T008 [P] Configure `pytest` environment with `conftest.py` for shared fixtures (mocked data paths, temp directories)
+- [X] T003 [P] Implement `src/lib/utils.py` with functions for: fixed random seed setting, tokenization logic (256-token truncation) [UNRESOLVED-CLAIM: c_1696e6bf — status=not_enough_info], ASCII stripping, and logging setup
+- [X] T004 [P] Implement `src/data/checksum.py` for raw data hash verification and state file management [UNRESOLVED-CLAIM: c_72d735a2 — status=not_enough_info]
+- [ ] T005 Create `src/data/models.py` defining `CodeSnippet`, `QueryResult`, and `PerformanceDelta` dataclasses with exact schema alignment to spec [UNRESOLVED-CLAIM: c_2d94bfc0 — status=not_enough_info]
+- [X] T006 Implement `src/data/download.py` using `ir_datasets.load("codesearchnet")` to fetch Python/Java subsets [UNRESOLVED-CLAIM: c_700007ca — status=not_enough_info]; MUST raise on failure, NO synthetic fallback
+- [ ] T007 Implement `src/data/preprocess.py` to load raw data, strip non-ASCII, truncate to 256 tokens, and save processed JSONL/CSV to `data/processed/` [UNRESOLVED-CLAIM: c_96036eaa — status=not_enough_info]
+- [ ] T008 [P] Configure `pytest` environment with `conftest.py` for shared fixtures (mocked data paths, temp directories) [UNRESOLVED-CLAIM: c_2fce14e9 — status=not_enough_info]
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,13 +75,13 @@
 
 ### Implementation for User Story 1
 
-- [ ] T009 [P] [US1] Implement `src/models/retriever_bm25.py` using `rank_bm25` on preprocessed data
-- [ ] T010 [P] [US1] Implement `src/models/retriever_neural.py` using `sentence-transformers/all-MiniLM-L6-v2` for dual-encoder retrieval
-- [ ] T011 [US1] Implement `src/models/rag_pipeline.py` using `Salesforce/codegen-350M-mono` (CPU mode) with fixed prompt template, temp=0.0, top-k retrieval. MUST include fallback logic to `microsoft/phi-1.5` if the primary model fails to load within 7GB RAM, using 4-bit quantization and `device_map="cpu"` for the fallback to ensure deterministic behavior.
-- [ ] T012 [US1] Implement `src/models/metrics.py` to calculate Precision@K, Recall@K, and nDCG@K against ground truth labels
-- [ ] T013 [US1] Implement `src/cli/main.py` to orchestrate the multiple methods on 50 queries, handle edge cases (zero matches, truncation warnings), and output `results.csv`
+- [ ] T009 [P] [US1] Implement `src/models/retriever_bm25.py` using `rank_bm25` on preprocessed data [UNRESOLVED-CLAIM: c_09236a1b — status=not_enough_info]
+- [X] T010 [P] [US1] Implement `src/models/retriever_neural.py` using `sentence-transformers/all-MiniLM-L6-v2` for dual-encoder retrieval [UNRESOLVED-CLAIM: c_57f9d3b5 — status=not_enough_info]
+- [ ] T011 [US1] Implement `src/models/rag_pipeline.py` using `Salesforce/codegen-350M-mono` (CPU mode) [UNRESOLVED-CLAIM: c_2c3de7f4 — status=not_enough_info] with fixed prompt template, temp=0.0, top-k retrieval. MUST include fallback logic to `microsoft/phi-1.5` if the primary model fails to load within 7GB RAM, using 4-bit quantization and `device_map="cpu"` for the fallback to ensure deterministic behavior.
+- [ ] T012 [US1] Implement `src/models/metrics.py` to calculate Precision@K, Recall@K, and nDCG@K against ground truth labels [UNRESOLVED-CLAIM: c_95c2a0da — status=not_enough_info]
+- [ ] T013 [US1] Implement `src/cli/main.py` to orchestrate the multiple methods on 50 queries [UNRESOLVED-CLAIM: c_8eb4c3d7 — status=not_enough_info], handle edge cases (zero matches, truncation warnings), and output `results.csv`
 - [ ] T014 [US1] Add deterministic seed enforcement and reproducibility checks in `src/cli/main.py`
-- [ ] T015 [US1] Implement memory monitoring in `src/models/rag_pipeline.py` using `psutil` to ensure <7GB RAM usage
+- [ ] T015 [US1] Implement memory monitoring in `src/models/rag_pipeline.py` using `psutil` to ensure <7GB RAM usage [UNRESOLVED-CLAIM: c_8573d7ad — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -105,15 +105,15 @@ The research question is to evaluate the ranking effectiveness of the proposed a
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `src/data/descriptors.py` to calculate API density, doc density, and Naming-consistency score (using `CodeBERT-base` embeddings) ONLY for test set queries and their ground truth snippets (as defined by T013). MUST NOT compute for retrieved snippets to avoid circularity and ensure CPU feasibility.
-- [ ] T020 [US2] Implement `src/analysis/correlation.py` to compute Spearman's rho and Pearson's r. MUST perform a normality test (Shapiro-Wilk) to select between paired t-test and Wilcoxon signed-rank test. MUST format the final `correlation_results.json` and `results.csv` to explicitly flag correlations with p < 0.05 as "statistically significant" and others as "non-significant".
+- [ ] T019 [P] [US2] Implement `src/data/descriptors.py` to calculate API density, doc density, and Naming-consistency score (using `CodeBERT-base` embeddings) [UNRESOLVED-CLAIM: c_4484cb09 — status=not_enough_info] ONLY for test set queries and their ground truth snippets (as defined by T013). MUST NOT compute for retrieved snippets to avoid circularity and ensure CPU feasibility.
+- [ ] T020 [US2] Implement `src/analysis/correlation.py` to compute Spearman's rho and Pearson's r. [UNRESOLVED-CLAIM: c_9c49f7b2 — status=not_enough_info] MUST perform a normality test (Shapiro-Wilk) to select between paired t-test and Wilcoxon signed-rank test. [UNRESOLVED-CLAIM: c_b17840f7 — status=not_enough_info] MUST format the final `correlation_results.json` and `results.csv` to explicitly flag correlations with p < 0.05 as "statistically significant" and others as "non-significant".
 - [ ] T021 [US2] Implement `src/data/masking.py` to implement token masking logic (regex/token-level replacement) for API and documentation tokens as required by FR-009. Explicitly reference FR-009 in the docstring.
 - [ ] T022 [US2] Implement `src/analysis/control_experiment.py` to consume masked data generated by `src/data/masking.py`, re-run correlation analysis, and compare results against the unmasked baseline (output of T020) to verify correlations are not artifacts (FR-009). Explicitly reference FR-009 in the docstring.
 - [ ] T023 [US2] Implement `src/data/report_generator.py` to generate a CSV report of random samples for HUMAN manual review of ground truth labels (FR-010).
 - [ ] T023a [US2] **HUMAN TASK**: Perform Manual Spot-Check. A human must review the CSV generated by T023, estimate the label noise rate, and save the result to `results/manual_noise_input.json` with the format `{"noise_estimate": <estimated_value>}`.
 - [ ] T023b [US2] Implement `src/analysis/noise_recorder.py` to load the human-estimated noise rate from `results/manual_noise_input.json` (produced by T023a) and record it in `results/label_noise_estimate.json` (FR-010).
-- [ ] T025 [US2] Update `src/cli/main.py` to trigger descriptor calculation and correlation analysis after retrieval, outputting `correlation_results.json`.
-- [ ] T026 [US2] Ensure `src/data/descriptors.py` handles `NaN` gracefully and excludes invalid points from correlation while retaining them for retrieval metrics
+- [ ] T025 [US2] Update `src/cli/main.py` to trigger descriptor calculation and correlation analysis after retrieval, outputting `correlation_results.json`. [UNRESOLVED-CLAIM: c_f014c18b — status=not_enough_info]
+- [ ] T026 [US2] Ensure `src/data/descriptors.py` handles `NaN` gracefully and excludes invalid points from correlation while retaining them for retrieval metrics [UNRESOLVED-CLAIM: c_c65edd4d — status=not_enough_info]
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -121,18 +121,18 @@ The research question is to evaluate the ranking effectiveness of the proposed a
 
 ## Phase 5: User Story 3 - Resource Constraint Degradation Study (Priority: P3)
 
-**Goal**: Run the pipeline with strict resource limits (1GB FAISS index, 2-layer model) and generate a degradation report comparing results to the standard run.
+**Goal**: Run the pipeline with strict resource limits (1GB FAISS index, 2-layer model) [UNRESOLVED-CLAIM: c_cf68acc4 — status=not_enough_info] and generate a degradation report comparing results to the standard run.
 
 **Independent Test**: The system can be tested by running the pipeline with the "strict resource" flags enabled, verifying that the FAISS index size stays below 1GB and the model parameter count is reduced, while still producing valid (though potentially lower) nDCG scores.
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `src/analysis/resource_study.py` to configure FAISS with `IndexFlatIP` and memory cap (limited capacity) via `psutil` monitoring
+- [ ] T027 [P] [US3] Implement `src/analysis/resource_study.py` to configure FAISS with `IndexFlatIP` and memory cap (limited capacity) via `psutil` monitoring [UNRESOLVED-CLAIM: c_54edb23f — status=not_enough_info]
 - [ ] T028 [US3] Implement logic in `src/models/rag_pipeline.py` to load a specific multi-layer transformer variant (e.g., `google/flan-t5-small` or equivalent verified a large-scale parameter model
 
-The research question, method, and references remain unchanged as no specific values or citations were present in the original text to alter.) when `--strict-resources` flag is set. MUST include a programmatic check to verify the loaded model has approximately 150M parameters (±20%) before proceeding.
-- [ ] T029 [US3] Implement logic to enforce GB RAM limit by subsampling dataset or using a quantized index type if memory cap is approached (PREREQUISITE for T030). MUST depend on T006/T007 for dataset loading logic.
-- [ ] T030 [US3] Update `src/cli/main.py` to support `--strict-resources` mode, run both standard and constrained pipelines, and output `degradation_report.json` with absolute percentage point drops
+The research question, method, and references remain unchanged as no specific values or citations were present in the original text to alter.) when `--strict-resources` flag is set. MUST include a programmatic check to verify the loaded model has approximately 150M parameters (±20%) before proceeding. [UNRESOLVED-CLAIM: c_8a32550e — status=not_enough_info]
+- [ ] T029 [US3] Implement logic to enforce GB RAM limit by subsampling dataset or using a quantized index type if memory cap is approached [UNRESOLVED-CLAIM: c_f9688f2d — status=not_enough_info] (PREREQUISITE for T030). MUST depend on T006/T007 for dataset loading logic.
+- [ ] T030 [US3] Update `src/cli/main.py` to support `--strict-resources` mode, run both standard and constrained pipelines, and output `degradation_report.json` with absolute percentage point drops [UNRESOLVED-CLAIM: c_bb3560fb — status=not_enough_info]
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -143,14 +143,14 @@ The research question, method, and references remain unchanged as no specific va
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T032 [P] Implement `src/analysis/throughput_monitor.py` to measure and log throughput (queries/hour) to `results/throughput_report.json` to verify SC-004
-- [ ] T033a [P] Implement batched inference in `src/models/retriever_neural.py` and `src/models/rag_pipeline.py` to meet ≥33 queries/hour throughput target.
-- [ ] T033b [P] Implement streaming logic in `src/data/download.py` and `src/data/preprocess.py` to process large datasets in chunks, verifying throughput targets with benchmarks.
+- [ ] T033a [P] Implement batched inference in `src/models/retriever_neural.py` and `src/models/rag_pipeline.py` to meet ≥33 queries/hour throughput target. [UNRESOLVED-CLAIM: c_00b2f97b — status=not_enough_info]
+- [ ] T033b [P] Implement streaming logic in `src/data/download.py` and `src/data/preprocess.py` to process large datasets in chunks, verifying throughput targets with benchmarks. [UNRESOLVED-CLAIM: c_bd9ce153 — status=not_enough_info]
 - [ ] T034a [P] Update `docs/quickstart.md` with specific instructions on running the pipeline, expected outputs, and resource constraints
 - [ ] T034b [P] Update `docs/data-model.md` with specific entity definitions and data flow diagrams
 - [ ] T035 Code cleanup and refactoring to ensure modularity
 - [ ] T036 [P] Additional unit tests for edge cases (zero matches, truncation, NaN handling) in `tests/unit/`
 - [ ] T037 Security hardening: ensure no external API calls and fixed seeds are enforced globally
-- [ ] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T038 {{claim:c_8f4b53ae}}
 
 ---
 

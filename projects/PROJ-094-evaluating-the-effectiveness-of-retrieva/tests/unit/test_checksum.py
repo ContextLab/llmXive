@@ -1,18 +1,14 @@
 """
-Unit tests for src/data/checksum.py functionality.
+Unit tests for src/data/checksum.py
 """
-
-import json
 import os
+import json
 import tempfile
 from pathlib import Path
 import pytest
 
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
 from src.data.checksum import (
+    get_state_file_path,
     calculate_sha256,
     load_state,
     save_state,
@@ -20,198 +16,161 @@ from src.data.checksum import (
     register_file,
     verify_all,
     check_and_register_missing_files,
-    get_state_file_path,
-    STATE_FILE_NAME
 )
 
 
 @pytest.fixture
-def temp_project_root():
-    """Create a temporary directory to act as the project root."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+def temp_project_dir():
+    """Create a temporary directory structure for testing."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        project_root = Path(tmp_dir)
+        data_raw = project_root / "data" / "raw"
+        data_raw.mkdir(parents=True)
+        yield project_root
 
 
-@pytest.fixture
-def temp_file(temp_project_root):
-    """Create a temporary file with known content."""
-    file_path = Path(temp_project_root) / "test_file.txt"
-    content = "Hello, World!"
-    file_path.write_text(content, encoding="utf-8")
-    return file_path
-
-
-@pytest.fixture
-def large_temp_file(temp_project_root):
-    """Create a larger temporary file to test chunked reading."""
-    file_path = Path(temp_project_root) / "large_file.bin"
-    # Create a file larger than the chunk size (8KB)
-    content = b"A" * (100 * 1024)  # 100KB
+def test_calculate_sha256(temp_project_dir):
+    """Test SHA-256 calculation for a known file."""
+    file_path = temp_project_dir / "data" / "raw" / "test.txt"
+    content = b"Hello, World!"
     file_path.write_bytes(content)
-    return file_path
+
+    expected_hash = "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
+    assert calculate_sha256(file_path) == expected_hash
 
 
-def test_calculate_sha256_basic(temp_file):
-    """Test basic SHA-256 calculation."""
-    # Known hash for "Hello, World!"
-    expected_hash = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-    calculated_hash = calculate_sha256(temp_file)
-    assert calculated_hash == expected_hash
-
-
-def test_calculate_sha256_large_file(large_temp_file):
-    """Test SHA-256 calculation on a file larger than chunk size."""
-    # We can't easily verify the exact hash, but we can verify it runs
-    # and produces a valid hex string of the correct length.
-    calculated_hash = calculate_sha256(large_temp_file)
-    assert len(calculated_hash) == 64
-    assert all(c in "0123456789abcdef" for c in calculated_hash)
-
-
-def test_calculate_sha256_nonexistent_file():
-    """Test that FileNotFoundError is raised for non-existent files."""
+def test_calculate_sha256_missing_file(temp_project_dir):
+    """Test that calculating hash for a missing file raises FileNotFoundError."""
+    file_path = temp_project_dir / "data" / "raw" / "nonexistent.txt"
     with pytest.raises(FileNotFoundError):
-        calculate_sha256("/nonexistent/path/file.txt")
+        calculate_sha256(file_path)
 
 
-def test_calculate_sha256_directory(temp_project_root):
-    """Test that IsADirectoryError is raised for directories."""
+def test_calculate_sha256_directory(temp_project_dir):
+    """Test that calculating hash for a directory raises IsADirectoryError."""
+    dir_path = temp_project_dir / "data" / "raw"
     with pytest.raises(IsADirectoryError):
-        calculate_sha256(temp_project_root)
+        calculate_sha256(dir_path)
 
 
-def test_load_state_empty(temp_project_root):
-    """Test loading state when no state file exists."""
-    state = load_state(temp_project_root)
-    assert state == {}
+def test_load_state_empty(temp_project_dir):
+    """Test loading state from a non-existent file returns empty dict."""
+    state_file = get_state_file_path(temp_project_dir)
+    assert load_state(state_file) == {}
 
 
-def test_save_and_load_state(temp_project_root):
-    """Test saving and loading state."""
-    test_state = {
-        "file1.txt": "hash1",
-        "file2.txt": "hash2"
-    }
-    save_state(temp_project_root, test_state)
+def test_save_and_load_state(temp_project_dir):
+    """Test saving and loading state preserves data."""
+    state_file = get_state_file_path(temp_project_dir)
+    test_state = {"file1.txt": "abc123", "file2.txt": "def456"}
 
-    loaded_state = load_state(temp_project_root)
+    save_state(state_file, test_state)
+    loaded_state = load_state(state_file)
+
     assert loaded_state == test_state
 
 
-def test_verify_file_match(temp_file):
-    """Test verifying a file with the correct hash."""
-    correct_hash = calculate_sha256(temp_file)
-    assert verify_file(temp_file, correct_hash) is True
+def test_register_file(temp_project_dir):
+    """Test registering a file updates the state."""
+    file_path = temp_project_dir / "data" / "raw" / "test.txt"
+    file_path.write_text("test content")
+
+    state = {}
+    register_file(file_path, state, temp_project_dir)
+
+    assert len(state) == 1
+    assert "data/raw/test.txt" in state
+    assert len(state["data/raw/test.txt"]) == 64  # SHA-256 hex length
 
 
-def test_verify_file_mismatch(temp_file):
-    """Test verifying a file with an incorrect hash."""
-    wrong_hash = "0" * 64
-    assert verify_file(temp_file, wrong_hash) is False
+def test_verify_file_match(temp_project_dir):
+    """Test verifying a file that matches the stored hash."""
+    file_path = temp_project_dir / "data" / "raw" / "test.txt"
+    file_path.write_text("test content")
+
+    state = {}
+    register_file(file_path, state, temp_project_dir)
+
+    is_valid, error_msg = verify_file(file_path, state, temp_project_dir)
+    assert is_valid is True
+    assert error_msg is None
 
 
-def test_verify_file_nonexistent(temp_project_root):
-    """Test verifying a non-existent file."""
-    assert verify_file(Path(temp_project_root) / "missing.txt", "hash") is False
+def test_verify_file_mismatch(temp_project_dir):
+    """Test verifying a file that has been modified."""
+    file_path = temp_project_dir / "data" / "raw" / "test.txt"
+    file_path.write_text("original content")
 
-
-def test_register_file(temp_file, temp_project_root):
-    """Test registering a new file."""
-    success, message = register_file(temp_file, temp_project_root)
-    assert success is True
-    assert "Registered" in message
-
-    # Verify it's in the state
-    state = load_state(temp_project_root)
-    assert str(temp_file) in state
-    assert state[str(temp_file)] == calculate_sha256(temp_file)
-
-
-def test_register_missing_file(temp_project_root):
-    """Test registering a non-existent file."""
-    missing_path = Path(temp_project_root) / "missing.txt"
-    success, message = register_file(missing_path, temp_project_root)
-    assert success is False
-    assert "not found" in message
-
-
-def test_verify_all_empty(temp_project_root):
-    """Test verifying all when no files are registered."""
-    results = verify_all(temp_project_root)
-    assert results == {}
-
-
-def test_verify_all(temp_file, temp_project_root):
-    """Test verifying multiple files."""
-    # Register the file
-    register_file(temp_file, temp_project_root)
-
-    # Verify
-    results = verify_all(temp_project_root)
-    assert len(results) == 1
-    assert results[str(temp_file)] is True
-
-
-def test_verify_all_missing_file(temp_file, temp_project_root):
-    """Test verifying when a file is deleted."""
-    # Register the file
-    register_file(temp_file, temp_project_root)
-
-    # Delete the file
-    temp_file.unlink()
-
-    # Verify - should return False for missing file
-    results = verify_all(temp_project_root)
-    assert results[str(temp_file)] is False
-
-
-def test_check_and_register_missing_files_new_files(temp_project_root):
-    """Test checking and registering new files."""
-    file1 = Path(temp_project_root) / "new1.txt"
-    file2 = Path(temp_project_root) / "new2.txt"
-    file1.write_text("content1")
-    file2.write_text("content2")
-
-    status = check_and_register_missing_files([file1, file2], temp_project_root)
-
-    assert status[str(file1)] == "registered"
-    assert status[str(file2)] == "registered"
-
-    # Verify in state
-    state = load_state(temp_project_root)
-    assert str(file1) in state
-    assert str(file2) in state
-
-
-def test_check_and_register_missing_files_existing_files(temp_file, temp_project_root):
-    """Test checking files that are already registered."""
-    # Register the file first
-    register_file(temp_file, temp_project_root)
-
-    status = check_and_register_missing_files([temp_file], temp_project_root)
-
-    assert status[str(temp_file)] == "verified"
-
-
-def test_check_and_register_missing_files_mismatch(temp_file, temp_project_root):
-    """Test checking files with changed content."""
-    # Register the file
-    register_file(temp_file, temp_project_root)
+    state = {}
+    register_file(file_path, state, temp_project_dir)
 
     # Modify the file
-    temp_file.write_text("modified content")
+    file_path.write_text("modified content")
 
-    status = check_and_register_missing_files([temp_file], temp_project_root)
-
-    assert status[str(temp_file)] == "mismatch"
-
-    # Verify state was updated
-    state = load_state(temp_project_root)
-    assert state[str(temp_file)] == calculate_sha256(temp_file)
+    is_valid, error_msg = verify_file(file_path, state, temp_project_dir)
+    assert is_valid is False
+    assert "Checksum mismatch" in error_msg
 
 
-def test_get_state_file_path(temp_project_root):
-    """Test getting the state file path."""
-    expected_path = Path(temp_project_root) / STATE_FILE_NAME
-    actual_path = get_state_file_path(temp_project_root)
-    assert actual_path == expected_path
+def test_verify_file_missing(temp_project_dir):
+    """Test verifying a file that has been deleted."""
+    file_path = temp_project_dir / "data" / "raw" / "test.txt"
+    file_path.write_text("test content")
+
+    state = {}
+    register_file(file_path, state, temp_project_dir)
+
+    # Delete the file
+    file_path.unlink()
+
+    is_valid, error_msg = verify_file(file_path, state, temp_project_dir)
+    assert is_valid is False
+    assert "File missing" in error_msg
+
+
+def test_verify_all(temp_project_dir):
+    """Test verifying all registered files."""
+    file1 = temp_project_dir / "data" / "raw" / "test1.txt"
+    file2 = temp_project_dir / "data" / "raw" / "test2.txt"
+    file1.write_text("content 1")
+    file2.write_text("content 2")
+
+    state = {}
+    register_file(file1, state, temp_project_dir)
+    register_file(file2, state, temp_project_dir)
+
+    # Verify all pass
+    all_valid, errors = verify_all(temp_project_dir)
+    assert all_valid is True
+    assert len(errors) == 0
+
+    # Modify one file
+    file1.write_text("modified content 1")
+
+    all_valid, errors = verify_all(temp_project_dir)
+    assert all_valid is False
+    assert len(errors) == 1
+    assert "data/raw/test1.txt" in errors[0]
+
+
+def test_check_and_register_missing_files(temp_project_dir):
+    """Test checking and registering missing files."""
+    file1 = temp_project_dir / "data" / "raw" / "test1.txt"
+    file2 = temp_project_dir / "data" / "raw" / "test2.txt"
+    file1.write_text("content 1")
+    file2.write_text("content 2")
+
+    state_file = get_state_file_path(temp_project_dir)
+    # Save empty state initially
+    save_state(state_file, {})
+
+    count, registered = check_and_register_missing_files(temp_project_dir / "data" / "raw", temp_project_dir)
+
+    assert count == 2
+    assert len(registered) == 2
+    assert "data/raw/test1.txt" in registered
+    assert "data/raw/test2.txt" in registered
+
+    # Check state file was updated
+    loaded_state = load_state(state_file)
+    assert len(loaded_state) == 2

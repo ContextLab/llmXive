@@ -1,186 +1,154 @@
 """
 Metrics module for evaluating retrieval performance.
-
-Calculates Precision@K, Recall@K, and nDCG@K against ground truth labels.
+Implements Precision@K, Recall@K, DCG@K, and nDCG@K calculations.
 """
 import math
 from typing import List, Dict, Any, Optional, Set
 
-def precision_at_k(retrieved_ids: List[str], relevant_ids: Set[str], k: int) -> float:
+def precision_at_k(relevant_ids: Set[int], retrieved_ids: List[int], k: int) -> float:
     """
     Calculate Precision@K.
-
+    
     Args:
-        retrieved_ids: List of IDs of retrieved documents/snippets.
-        relevant_ids: Set of IDs of ground truth relevant documents/snippets.
-        k: The cutoff depth (e.g., 5, 10).
-
+        relevant_ids: Set of IDs of relevant documents (ground truth).
+        retrieved_ids: List of IDs of retrieved documents in order.
+        k: The cutoff rank.
+        
     Returns:
-        Precision@K score (float between 0.0 and 1.0).
+        Precision@K value between 0.0 and 1.0.
     """
     if k <= 0:
         return 0.0
     
-    # Truncate retrieved list to k
-    top_k_retrieved = retrieved_ids[:k]
-    
-    if not top_k_retrieved:
+    top_k = retrieved_ids[:k]
+    if not top_k:
         return 0.0
-    
-    # Count relevant items in top_k
-    relevant_count = sum(1 for doc_id in top_k_retrieved if doc_id in relevant_ids)
-    
-    return relevant_count / k
+        
+    hits = sum(1 for doc_id in top_k if doc_id in relevant_ids)
+    return hits / len(top_k)
 
-def recall_at_k(retrieved_ids: List[str], relevant_ids: Set[str], k: int) -> float:
+def recall_at_k(relevant_ids: Set[int], retrieved_ids: List[int], k: int) -> float:
     """
     Calculate Recall@K.
-
+    
     Args:
-        retrieved_ids: List of IDs of retrieved documents/snippets.
-        relevant_ids: Set of IDs of ground truth relevant documents/snippets.
-        k: The cutoff depth.
-
+        relevant_ids: Set of IDs of relevant documents (ground truth).
+        retrieved_ids: List of IDs of retrieved documents in order.
+        k: The cutoff rank.
+        
     Returns:
-        Recall@K score (float between 0.0 and 1.0).
+        Recall@K value between 0.0 and 1.0.
     """
-    if not relevant_ids:
-        return 0.0 if k <= 0 else 0.0
-    
-    # Truncate retrieved list to k
-    top_k_retrieved = retrieved_ids[:k]
-    
-    if not top_k_retrieved:
+    total_relevant = len(relevant_ids)
+    if total_relevant == 0:
         return 0.0
-    
-    # Count relevant items in top_k
-    relevant_count = sum(1 for doc_id in top_k_retrieved if doc_id in relevant_ids)
-    
-    return relevant_count / len(relevant_ids)
+        
+    top_k = retrieved_ids[:k]
+    if not top_k:
+        return 0.0
+        
+    hits = sum(1 for doc_id in top_k if doc_id in relevant_ids)
+    return hits / total_relevant
 
-def dcg_at_k(retrieved_ids: List[str], relevant_ids: Set[str], k: int) -> float:
+def dcg_at_k(relevant_ids: Set[int], retrieved_ids: List[int], k: int) -> float:
     """
-    Calculate Discounted Cumulative Gain (DCG)@K.
+    Calculate Discounted Cumulative Gain at K.
     
-    Assumes binary relevance (1 if in relevant_ids, 0 otherwise).
-
     Args:
-        retrieved_ids: List of IDs of retrieved documents/snippets.
-        relevant_ids: Set of IDs of ground truth relevant documents/snippets.
-        k: The cutoff depth.
-
+        relevant_ids: Set of IDs of relevant documents (ground truth).
+        retrieved_ids: List of IDs of retrieved documents in order.
+        k: The cutoff rank.
+        
     Returns:
-        DCG@K score (float).
+        DCG@K value.
     """
-    if k <= 0:
-        return 0.0
-    
     dcg = 0.0
-    for i, doc_id in enumerate(retrieved_ids[:k]):
-        # Relevance is 1 if the document is in the ground truth set, else 0
-        rel = 1.0 if doc_id in relevant_ids else 0.0
-        
-        # Discount factor: log2(i + 2) where i is 0-indexed position
-        # Position 0 -> log2(2), Position 1 -> log2(3), etc.
-        discount = math.log2(i + 2)
-        
-        dcg += rel / discount
+    top_k = retrieved_ids[:k]
     
+    for i, doc_id in enumerate(top_k):
+        if doc_id in relevant_ids:
+            # Relevance is binary (1 if relevant, 0 otherwise)
+            relevance = 1.0
+            # Discount factor: log2(i + 1 + 1) -> log2(i + 2)
+            discount = math.log2(i + 2)
+            dcg += relevance / discount
+            
     return dcg
 
-def ideal_dcg_at_k(relevant_ids: Set[str], k: int) -> float:
+def ideal_dcg_at_k(relevant_ids: Set[int], k: int) -> float:
     """
-    Calculate Ideal DCG (IDCG)@K.
+    Calculate Ideal DCG at K (IDCG).
+    This assumes the most relevant documents are ranked first.
+    Since relevance is binary here, we just take the first min(|relevant|, k) items.
     
-    Assumes binary relevance. The ideal ranking places all relevant items
-    at the top positions.
-
     Args:
-        relevant_ids: Set of IDs of ground truth relevant documents/snippets.
-        k: The cutoff depth.
-
+        relevant_ids: Set of IDs of relevant documents (ground truth).
+        k: The cutoff rank.
+        
     Returns:
-        IDCG@K score (float).
+        IDCG@K value.
     """
-    if k <= 0:
-        return 0.0
-    
     num_relevant = len(relevant_ids)
     if num_relevant == 0:
         return 0.0
+        
+    # In ideal case, all relevant docs are at the top
+    num_items_to_consider = min(num_relevant, k)
     
-    # In the ideal case, we have min(num_relevant, k) relevant items at the top
-    # each with relevance 1.0
     idcg = 0.0
-    count = min(num_relevant, k)
-    
-    for i in range(count):
+    for i in range(num_items_to_consider):
+        relevance = 1.0
         discount = math.log2(i + 2)
-        idcg += 1.0 / discount
-    
+        idcg += relevance / discount
+        
     return idcg
 
-def ndcg_at_k(retrieved_ids: List[str], relevant_ids: Set[str], k: int) -> float:
+def ndcg_at_k(relevant_ids: Set[int], retrieved_ids: List[int], k: int) -> float:
     """
-    Calculate Normalized Discounted Cumulative Gain (nDCG)@K.
-
-    Args:
-        retrieved_ids: List of IDs of retrieved documents/snippets.
-        relevant_ids: Set of IDs of ground truth relevant documents/snippets.
-        k: The cutoff depth.
-
-    Returns:
-        nDCG@K score (float between 0.0 and 1.0).
-    """
-    if k <= 0:
-        return 0.0
+    Calculate Normalized Discounted Cumulative Gain at K.
     
+    Args:
+        relevant_ids: Set of IDs of relevant documents (ground truth).
+        retrieved_ids: List of IDs of retrieved documents in order.
+        k: The cutoff rank.
+        
+    Returns:
+        nDCG@K value between 0.0 and 1.0.
+    """
+    dcg = dcg_at_k(relevant_ids, retrieved_ids, k)
     idcg = ideal_dcg_at_k(relevant_ids, k)
     
     if idcg == 0.0:
         return 0.0
-    
-    dcg = dcg_at_k(retrieved_ids, relevant_ids, k)
-    
+        
     return dcg / idcg
 
 def evaluate_metrics(
-    retrieved_ids: List[str],
-    relevant_ids: List[str],
-    k_values: Optional[List[int]] = None
+    relevant_ids: Set[int], 
+    retrieved_ids: List[int], 
+    k_values: List[int] = [1, 3, 5, 10]
 ) -> Dict[str, float]:
     """
-    Evaluate all metrics (Precision@K, Recall@K, nDCG@K) for a single query.
-
-    Args:
-        retrieved_ids: List of IDs of retrieved documents/snippets.
-        relevant_ids: List of IDs of ground truth relevant documents/snippets.
-        k_values: List of K values to evaluate (e.g., [5, 10, 20]). 
-                 Defaults to [5, 10, 20] if not provided.
-
-    Returns:
-        Dictionary containing metrics for each K value.
-        Format: {
-            "precision@5": float,
-            "recall@5": float,
-            "ndcg@5": float,
-            "precision@10": float,
-            ...
-        }
-    """
-    if k_values is None:
-        k_values = [5, 10, 20]
+    Evaluate all metrics for a single query.
     
-    relevant_set = set(relevant_ids)
+    Args:
+        relevant_ids: Set of IDs of relevant documents (ground truth).
+        retrieved_ids: List of IDs of retrieved documents in order.
+        k_values: List of K values to evaluate (e.g., [1, 3, 5, 10]).
+        
+    Returns:
+        Dictionary containing all metrics for all K values.
+        Format: {'P@1': ..., 'R@1': ..., 'nDCG@1': ..., 'P@3': ...}
+    """
     results = {}
     
     for k in k_values:
-        p_key = f"precision@{k}"
-        r_key = f"recall@{k}"
-        n_key = f"ndcg@{k}"
+        p_k = precision_at_k(relevant_ids, retrieved_ids, k)
+        r_k = recall_at_k(relevant_ids, retrieved_ids, k)
+        ndcg_k = ndcg_at_k(relevant_ids, retrieved_ids, k)
         
-        results[p_key] = precision_at_k(retrieved_ids, relevant_set, k)
-        results[r_key] = recall_at_k(retrieved_ids, relevant_set, k)
-        results[n_key] = ndcg_at_k(retrieved_ids, relevant_set, k)
-    
+        results[f'P@{k}'] = p_k
+        results[f'R@{k}'] = r_k
+        results[f'nDCG@{k}'] = ndcg_k
+        
     return results

@@ -1765,3 +1765,37 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T14:03:50Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/research.md
+  attempts: 1
+  canonical: pipeline processed 450 molecules and generated 15 correlation results
+  claim_id: c_5c659e9b
+  context: This report summarizes the computational investigation into the correlation
+    between molecular flexibility and Caco-2 permeability. The pipeline processed
+    450 molecules and generated 15 correlation results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline processed 450 molecules and generated 15 correlation results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:27:38Z'
+- artifact_path: projects/PROJ-266-exploring-the-correlation-between-molecu/specs/001-exploring-the-correlation-between-molecu/research.md
+  attempts: 1
+  canonical: 5-fold cross-validation with R2 mean of 0.4215
+  claim_id: c_07e252b2
+  context: "Statistical Rigor: Pearson/Spearman correlations with Benjamini-Hochberg\
+    \ FDR correction. Model Validation: 5-fold cross-validation with R\xB2 mean of\
+    \ 0.4215."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Model Validation: 5-fold cross-validation with R\xB2 mean of 0.4215."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:28:28Z'

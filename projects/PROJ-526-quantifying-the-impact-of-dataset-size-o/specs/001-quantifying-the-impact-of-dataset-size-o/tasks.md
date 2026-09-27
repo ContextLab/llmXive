@@ -167,7 +167,7 @@
 - [X] T041 [US3] **Physical Metric Definition**: Explicitly implement the calculation logic for "spatial locality" and "symmetry sensitivity" in `code/analyze_physics.py` based on the definitions in `research.md`. <!-- FAILED: unspecified -->
  - **Constraint**: If `research.md` does NOT contain explicit formulas for these metrics, the task must flag them as "undefined" and halt, rather than inventing formulas.
  - **Output**: `data/processed/metric_definitions.md` containing exact formulas and derivation logic (only if sourced from `research.md`).
-- [ ] T025 [US3] Implement `code/analyze_physics.py` to compute "spatial locality" and "symmetry sensitivity" using the formulas defined in T041. **Input**: Read metric definitions from `data/processed/metric_definitions.md`. <!-- FAILED: unspecified -->
+- [X] T025 [US3] Implement `code/analyze_physics.py` to compute "spatial locality" and "symmetry sensitivity" using the formulas defined in T041. **Input**: Read metric definitions from `data/processed/metric_definitions.md`. <!-- FAILED: unspecified -->
  - **Dependency**: Must wait for T041 to complete.
 - [X] T026 [US3] Implement Pearson correlation analysis between physical metrics and scaling exponents. **Input**: Read metric definitions from `data/processed/metric_definitions.md`.
 - [X] T027 [US3] Implement `code/analyze_physics.py` to perform a **Permutation Test** (primary method for N=2-3 scope) to compare electronic vs. mechanical classes. <!-- FAILED: unspecified -->

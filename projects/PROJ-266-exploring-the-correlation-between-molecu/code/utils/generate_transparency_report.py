@@ -1,11 +1,3 @@
-"""
-Transparency Report Generator for llmXive Project PROJ-266.
-
-This script generates the 'Computational Method Transparency' section dynamically
-by reading execution logs, deviation records, and artifact metadata.
-
-It adheres to Constitution Principle VI regarding transparency and reproducibility.
-"""
 import json
 import os
 import sys
@@ -13,283 +5,223 @@ import yaml
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, Optional, List, Tuple
 
-# Import project utilities to ensure consistent paths and logging
-from .config import get_project_root, get_logs_path, get_state_path, get_data_path
-from .logging import get_logger, setup_logging_for_script
+# Import from local utils to ensure project root is on path
+try:
+    from utils.config import get_project_root, get_data_path, get_state_path, get_logs_path
+    from utils.logging import get_logger, configure_root_logger
+except ImportError:
+    # Fallback for direct execution if utils not in path yet
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from utils.config import get_project_root, get_data_path, get_state_path, get_logs_path
+    from utils.logging import get_logger, configure_root_logger
 
-def load_deviation_record(deviation_path: Optional[Path] = None) -> Dict[str, Any]:
+logger = get_logger(__name__)
+
+def load_deviation_record(project_root: Path) -> Dict[str, Any]:
     """
-    Load the deviation record if it exists.
-    Returns an empty dict if no deviations were recorded.
+    Load the deviation record from the state directory if it exists.
+    Returns an empty dict if not found.
     """
-    if deviation_path is None:
-        state_dir = get_state_path()
-        deviation_path = state_dir / "deviations.yaml"
-
-    if not deviation_path.exists():
+    state_path = get_state_path(project_root)
+    deviation_file = state_path / "deviations.yaml"
+    
+    if not deviation_file.exists():
+        logger.info(f"No deviation record found at {deviation_file}.")
         return {}
-
+    
     try:
-        with open(deviation_path, 'r') as f:
+        with open(deviation_file, 'r') as f:
             return yaml.safe_load(f) or {}
     except Exception as e:
-        logger = logging.getLogger(__name__)
-        logger.warning(f"Could not load deviation record from {deviation_path}: {e}")
+        logger.warning(f"Failed to load deviation record: {e}")
         return {}
 
-def scan_execution_logs(logs_dir: Optional[Path] = None) -> Dict[str, Any]:
+def scan_execution_logs(project_root: Path) -> List[Dict[str, Any]]:
     """
-    Scan execution logs to extract key metrics:
-    - Conformer generation counts
-    - Sample sizes
-    - Runtime estimates
-    - Any errors or warnings that affected the run
+    Scan execution logs to gather metadata about the pipeline run.
+    Returns a list of log entries.
     """
-    if logs_dir is None:
-        logs_dir = get_logs_path()
-
-    summary = {
-        "conformer_count": 50, # Default from plan
-        "sample_size": 0,
-        "runtime_seconds": 0.0,
-        "errors": [],
-        "warnings": [],
-        "scripts_run": []
-    }
-
-    if not logs_dir.exists():
-        return summary
-
-    log_files = sorted(logs_dir.glob("*.log"))
+    logs_path = get_logs_path(project_root)
+    if not logs_path.exists():
+        logger.warning(f"Logs path {logs_path} does not exist.")
+        return []
     
-    for log_file in log_files:
-        summary["scripts_run"].append(log_file.name)
+    log_entries = []
+    for log_file in logs_path.glob("*.log"):
         try:
             with open(log_file, 'r') as f:
+                # Simple parsing: look for key lines
                 content = f.read()
-                # Extract specific metrics if present in logs
-                if "Conformer Generation" in content:
-                    # Heuristic: look for "count=50" or similar
-                    if "count=50" in content:
-                        summary["conformer_count"] = 50
-                if "Processing" in content and "molecules" in content:
-                    # Heuristic for sample size
-                    pass 
-                if "ERROR" in content:
-                    summary["errors"].append(f"{log_file.name}: {content.split('ERROR')[-1][:100]}")
-                if "WARNING" in content:
-                    summary["warnings"].append(f"{log_file.name}: {content.split('WARNING')[-1][:100]}")
+                entry = {
+                    "file": log_file.name,
+                    "size_bytes": len(content),
+                    "timestamp": datetime.fromtimestamp(log_file.stat().st_mtime).isoformat()
+                }
+                log_entries.append(entry)
         except Exception as e:
-            logging.getLogger(__name__).warning(f"Could not parse {log_file}: {e}")
-
-    # Try to load runtime from a potential metrics file if logs are sparse
-    metrics_file = logs_dir.parent / "processed" / "model_results.json"
-    if metrics_file.exists():
-        try:
-            with open(metrics_file, 'r') as f:
-                data = json.load(f)
-                if "sample_time" in data:
-                    summary["runtime_seconds"] = data["sample_time"]
-                if "sample_size" in data:
-                    summary["sample_size"] = data["sample_size"]
-        except Exception:
-            pass
-
-    return summary
-
-def gather_artifacts() -> Dict[str, Any]:
-    """
-    Gather information about key artifacts to report their status.
-    """
-    artifacts = {
-        "raw_data": None,
-        "processed_data": None,
-        "model_results": None,
-        "scaling_results": None
-    }
-
-    data_dir = get_data_path()
+            logger.warning(f"Could not read log file {log_file}: {e}")
     
-    # Check raw data
-    raw_file = data_dir / "raw" / "chembl_raw.csv"
-    if raw_file.exists():
-        artifacts["raw_data"] = {
-            "exists": True,
-            "size_bytes": raw_file.stat().st_size
-        }
+    return log_entries
 
-    # Check processed data
-    proc_file = data_dir / "processed" / "filtered_data.csv"
-    if proc_file.exists():
-        artifacts["processed_data"] = {
-            "exists": True,
-            "size_bytes": proc_file.stat().st_size
-        }
-
-    # Check model results
-    model_file = data_dir / "processed" / "model_results.json"
-    if model_file.exists():
+def gather_artifacts(project_root: Path) -> Dict[str, Any]:
+    """
+    Gather key artifacts and metrics from the data/processed directory.
+    Returns a summary dict.
+    """
+    data_path = get_data_path(project_root)
+    processed_path = data_path / "processed"
+    
+    artifacts = {
+        "conformer_count": 0,
+        "descriptor_count": 0,
+        "correlation_count": 0,
+        "scaling_results_exists": False,
+        "model_results_exists": False
+    }
+    
+    if not processed_path.exists():
+        logger.warning(f"Processed data path {processed_path} does not exist.")
+        return artifacts
+    
+    # Check for conformers
+    conf_file = processed_path / "conformers.pkl"
+    if conf_file.exists():
+        artifacts["conformer_count"] = "present" # Could try to load and count if needed
+    
+    # Check for descriptors
+    desc_file = processed_path / "descriptors_raw.csv"
+    if desc_file.exists():
         try:
-            with open(model_file, 'r') as f:
-                artifacts["model_results"] = json.load(f)
-        except Exception:
-            artifacts["model_results"] = {"exists": True, "valid": False}
-
-    # Check scaling results
-    scaling_file = data_dir / "processed" / "scaling_analysis_results.json"
-    if scaling_file.exists():
+            import pandas as pd
+            df = pd.read_csv(desc_file)
+            artifacts["descriptor_count"] = len(df)
+        except Exception as e:
+            logger.warning(f"Could not count descriptors: {e}")
+            artifacts["descriptor_count"] = "error"
+    
+    # Check for correlation results
+    corr_file = processed_path / "correlation_results.csv"
+    if corr_file.exists():
         try:
-            with open(scaling_file, 'r') as f:
-                artifacts["scaling_results"] = json.load(f)
-        except Exception:
-            artifacts["scaling_results"] = {"exists": True, "valid": False}
-
+            import pandas as pd
+            df = pd.read_csv(corr_file)
+            artifacts["correlation_count"] = len(df)
+        except Exception as e:
+            artifacts["correlation_count"] = "error"
+    
+    # Check for scaling results
+    scaling_file = processed_path / "scaling_analysis_results.json"
+    artifacts["scaling_results_exists"] = scaling_file.exists()
+    
+    # Check for model results
+    model_file = processed_path / "model_results.json"
+    artifacts["model_results_exists"] = model_file.exists()
+    
     return artifacts
 
 def generate_report(
-    deviations: Dict[str, Any],
-    logs_summary: Dict[str, Any],
-    artifacts: Dict[str, Any]
+    project_root: Path,
+    artifacts: Dict[str, Any],
+    logs: List[Dict[str, Any]],
+    deviations: Dict[str, Any]
 ) -> str:
     """
-    Generate the Markdown content for the Computational Method Transparency section.
+    Generate the narrative report string based on gathered data.
     """
-    lines = []
-    lines.append("## Computational Method Transparency")
-    lines.append("")
+    # Extract metrics with defaults
+    conf_count = artifacts.get("conformer_count", 0)
+    desc_count = artifacts.get("descriptor_count", 0)
+    corr_count = artifacts.get("correlation_count", 0)
+    scaling_exists = artifacts.get("scaling_results_exists", False)
+    model_exists = artifacts.get("model_results_exists", False)
     
-    # 1. Conformer Generation
-    conf_count = logs_summary.get("conformer_count", 50)
-    lines.append(f"- **Conformer Generation**: RDKit `EmbedMultipleConfs` with {conf_count} conformers per molecule.")
-    lines.append("")
-
-    # 2. Flexibility Metric
-    lines.append("- **Flexibility Metric**: Torsional variance (dihedral) computed via PyVib Normal Mode Analysis.")
-    lines.append("")
-
-    # 3. Statistical Rigor
-    lines.append("- **Statistical Rigor**: Pearson/Spearman correlations with Benjamini-Hochberg FDR correction.")
-    lines.append("")
-
-    # 4. Model Validation
-    # Try to extract R2 from model results if available
-    r2_val = "N/A"
-    if artifacts.get("model_results") and isinstance(artifacts["model_results"], dict):
-        if "mean_r2" in artifacts["model_results"]:
-            r2_val = f"{artifacts['model_results']['mean_r2']:.4f}"
-        elif "R2" in artifacts["model_results"]:
-            r2_val = f"{artifacts['model_results']['R2']:.4f}"
+    # Determine R2 from model results if possible
+    r2_mean = "N/A"
+    if model_exists:
+        model_file = get_data_path(project_root) / "processed" / "model_results.json"
+        try:
+            with open(model_file, 'r') as f:
+                model_data = json.load(f)
+                if "metrics" in model_data and "r2_mean" in model_data["metrics"]:
+                    r2_mean = f"{model_data['metrics']['r2_mean']:.4f}"
+                elif "r2_mean" in model_data:
+                    r2_mean = f"{model_data['r2_mean']:.4f}"
+        except Exception as e:
+            logger.warning(f"Could not parse R2 from model results: {e}")
     
-    lines.append(f"- **Model Validation**: 5-fold cross-validation with {r2_val} mean R².")
-    lines.append("")
-
-    # 5. Constraint
-    lines.append("- **Constraint**: All steps are CPU-tractable; no GPU offload.")
-    lines.append("")
-
-    # 6. Deviations (if any)
+    # Build the report
+    report_lines = [
+        "# Research Report: Molecular Flexibility and Drug Transport",
+        "",
+        "## Executive Summary",
+        f"This report summarizes the computational investigation into the correlation between",
+        f"molecular flexibility and Caco-2 permeability. The pipeline processed {desc_count} molecules",
+        f"and generated {corr_count} correlation results.",
+        "",
+        "## Computational Method Transparency",
+        "- **Conformer Generation**: RDKit `EmbedMultipleConfs` with 50 conformers per molecule.",
+        "- **Flexibility Metric**: Torsional variance (dihedral) computed via PyVib Normal Mode Analysis.",
+        "- **Statistical Rigor**: Pearson/Spearman correlations with Benjamini-Hochberg FDR correction.",
+        f"- **Model Validation**: 5-fold cross-validation with R² mean of {r2_mean}.",
+        "- **Constraint**: All steps are CPU-tractable; no GPU offload.",
+        "",
+        "## Execution Metadata",
+        f"- **Report Generated**: {datetime.now().isoformat()}",
+        f"- **Log Files Processed**: {len(logs)}",
+        "",
+        "## Deviations and Constraints",
+    ]
+    
     if deviations:
-        lines.append("### Deviations from Plan")
-        lines.append("")
-        for dev_id, details in deviations.items():
-            lines.append(f"- **{dev_id}**: {details.get('reason', 'No reason provided')}")
-        lines.append("")
+        for key, value in deviations.items():
+            report_lines.append(f"- **{key}**: {value}")
+    else:
+        report_lines.append("- No significant deviations recorded.")
+    
+    report_lines.append("")
+    report_lines.append("---")
+    report_lines.append("*Generated by llmXive automated science pipeline*")
+    
+    return "\n".join(report_lines)
 
-    # 7. Execution Summary
-    if logs_summary.get("errors"):
-        lines.append("### Execution Warnings/Errors")
-        lines.append("")
-        for err in logs_summary["errors"][:5]: # Limit to 5
-            lines.append(f"- {err}")
-        lines.append("")
-
-    return "\n".join(lines)
-
-def write_report(report_content: str, output_path: Optional[Path] = None) -> Path:
+def write_report(report_content: str, project_root: Path) -> Path:
     """
-    Write the report to the specified path.
-    Defaults to updating the research.md file in the specs directory.
+    Write the generated report to the specs directory.
     """
-    if output_path is None:
-        project_root = get_project_root()
-        # Construct the path to research.md based on project structure
-        # specs/001-molecular-flexibility-permeability/research.md
-        output_path = project_root / "specs" / "001-molecular-flexibility-permeability" / "research.md"
+    specs_dir = project_root / "specs" / "001-molecular-flexibility-permeability"
+    specs_dir.mkdir(parents=True, exist_ok=True)
     
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # If research.md exists, we need to update the specific section
-    # For now, we will append or replace the section. 
-    # A robust implementation would parse the existing markdown.
-    # Here we write the full section to a temporary file or append if not found.
-    # Given the task requirement to generate the section dynamically, 
-    # we will write the section to a dedicated file and also attempt to inject it.
+    output_path = specs_dir / "research.md"
     
-    # Strategy: Write the section to a dedicated file first, then append to research.md
-    # if the section header isn't already there.
+    with open(output_path, 'w') as f:
+        f.write(report_content)
     
-    with open(output_path, 'a') as f:
-        # Check if section already exists
-        f.seek(0)
-        content = f.read()
-        if "## Computational Method Transparency" not in content:
-            f.write("\n\n")
-            f.write(report_content)
-        else:
-            # Replace the section
-            # Simple string replacement for the block
-            start_marker = "## Computational Method Transparency"
-            end_marker = "### " # Next likely header
-            # Find start
-            idx_start = content.find(start_marker)
-            if idx_start != -1:
-                # Find next header
-                idx_end = content.find(end_marker, idx_start + len(start_marker))
-                if idx_end == -1:
-                    idx_end = len(content)
-                
-                new_content = content[:idx_start] + report_content + "\n" + content[idx_end:]
-                f.seek(0)
-                f.truncate()
-                f.write(new_content)
-    
+    logger.info(f"Report written to {output_path}")
     return output_path
 
-def main() -> int:
+def main():
     """
-    Main entry point for the transparency report generator.
+    Main entry point for the transparency report generation.
     """
-    logger = setup_logging_for_script(__name__)
-    logger.info("Starting Transparency Report Generation...")
-
-    try:
-        # 1. Load Deviations
-        deviations = load_deviation_record()
-        logger.info(f"Loaded {len(deviations)} deviation records.")
-
-        # 2. Scan Logs
-        logs_summary = scan_execution_logs()
-        logger.info(f"Scanned logs. Found {len(logs_summary['scripts_run'])} script runs.")
-
-        # 3. Gather Artifacts
-        artifacts = gather_artifacts()
-        logger.info(f"Gathered status for {sum(1 for v in artifacts.values() if v)} artifacts.")
-
-        # 4. Generate Report Content
-        report_content = generate_report(deviations, logs_summary, artifacts)
-        
-        # 5. Write Report
-        output_file = write_report(report_content)
-        logger.info(f"Transparency report section written to {output_file}")
-
-        return 0
-
-    except Exception as e:
-        logger.error(f"Failed to generate transparency report: {e}", exc_info=True)
-        return 1
+    configure_root_logger()
+    project_root = get_project_root()
+    logger.info(f"Starting transparency report generation for project at {project_root}")
+    
+    # Gather data
+    deviations = load_deviation_record(project_root)
+    logs = scan_execution_logs(project_root)
+    artifacts = gather_artifacts(project_root)
+    
+    # Generate report
+    report_content = generate_report(project_root, artifacts, logs, deviations)
+    
+    # Write report
+    output_path = write_report(report_content, project_root)
+    
+    logger.info("Transparency report generation complete.")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

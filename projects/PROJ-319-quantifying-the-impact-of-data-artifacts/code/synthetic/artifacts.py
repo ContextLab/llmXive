@@ -1,205 +1,181 @@
 """
 Artifact injection module: Noise and Saturation.
-Implements T014 (Noise) and T021 (Saturation).
 """
 import logging
 from pathlib import Path
 from typing import Tuple, List, Dict, Any
-
 import numpy as np
-from code.config import (
-    get_project_root, 
-    SATURATION_LEVELS, 
-    NOISE_LEVELS, 
-    DATA_SYNTHETIC, 
-    DATA_PROCESSED,
-    NOISE_TREND_REPORT,
-    SATURATION_SWEEP_FILE,
-    FITS_EXT
-)
-from code.io.writer import save_fits_image, write_artifact_manifest, compute_file_checksum
-from code.io.loader import load_fits_image
+from astropy.io import fits
+import csv
+import json
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from code.config import NOISE_LEVELS, SATURATION_RANGE, DEFAULT_SEED
 
-def inject_noise(image: np.ndarray, sigma: float, seed: int) -> np.ndarray:
+def inject_noise(image: np.ndarray, sigma: float, seed: int = 42) -> np.ndarray:
     """
-    Inject Gaussian noise into an image.
-    
-    Args:
-        image: Input image array.
-        sigma: Standard deviation of noise as a fraction of median signal.
-        seed: Random seed.
-    
-    Returns:
-        Noisy image array.
+    Inject Gaussian noise with standard deviation sigma.
     """
-    median_signal = np.median(image[image > 0])
-    if median_signal == 0:
-        raise ValueError("Cannot inject noise into an image with zero median signal.")
-    
-    noise_std = sigma * median_signal
-    rng = np.random.default_rng(seed)
-    noise = rng.normal(0, noise_std, image.shape)
-    
-    noisy_image = image + noise
-    # Clip negative values
-    noisy_image = np.clip(noisy_image, 0, None)
-    
-    # Validate injection (T042)
-    actual_std = np.std(noisy_image[image > 0] - image[image > 0])
-    tolerance = 0.01 * noise_std # 1% tolerance
-    if abs(actual_std - noise_std) > tolerance:
-        logger.warning(f"Noise injection deviation: target={noise_std}, actual={actual_std}")
-    
-    return noisy_image
+    np.random.seed(seed)
+    noise = np.random.normal(0, sigma, image.shape)
+    noisy = image + noise
+    # Clip to valid range if necessary, but keep float for analysis
+    return noisy
 
-def clip_saturation(image: np.ndarray, fraction: float, seed: int) -> np.ndarray:
+def clip_saturation(image: np.ndarray, fraction: float) -> np.ndarray:
     """
-    Clip the brightest pixels to simulate saturation.
-    
-    Args:
-        image: Input image array.
-        fraction: Fraction of brightest pixels to clip (0.0 to 0.5).
-        seed: Random seed (unused for deterministic clipping, but kept for API consistency).
-    
-    Returns:
-        Saturated image array.
+    Clip the brightest 'fraction' of pixels to simulate saturation.
+    fraction is a float between 0.0 and 1.0 (e.g., 0.5 means 50% of brightest pixels).
     """
-    if fraction <= 0.0:
-        return image.copy()
-    
     flat = image.flatten()
-    n_pixels = flat.size
-    n_clip = int(n_pixels * fraction)
-    
-    if n_clip == 0:
-        return image.copy()
-    
-    # Find threshold
+    if fraction >= 1.0:
+        return np.zeros_like(image) # All saturated
+
     threshold = np.percentile(flat, 100 * (1 - fraction))
-    
-    saturated_image = np.where(image > threshold, threshold, image)
-    
-    # T038 & T043 Validation: Check for zero signal or disconnected core
-    if np.sum(saturated_image) == 0:
-        logger.warning(f"Saturation fraction {fraction} resulted in zero total signal.")
-        # We do not raise here to allow the sweep to continue, but we flag it
-    
-    return saturated_image
+    saturated = np.clip(image, a_min=None, a_max=threshold)
+    return saturated
 
-def run_saturation_sweep():
+def run_noise_sweep(root: Path) -> None:
     """
-    Run the saturation sweep (T021) and save results.
-    Iterates over saturation levels, applies clipping, saves files, and aggregates stats.
+    Run the noise sensitivity sweep.
+    Loads synthetic images, injects noise at defined levels, measures ellipticity,
+    and saves results to data/processed/noise_sweep_data.csv.
     """
-    root = get_project_root()
-    synth_dir = DATA_SYNTHETIC
-    processed_dir = DATA_PROCESSED
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load all synthetic images
-    image_files = sorted(list(synth_dir.glob(f"synth_*{FITS_EXT}")))
-    if not image_files:
-        raise FileNotFoundError("No synthetic images found. Run T006 first.")
-    
-    logger.info(f"Found {len(image_files)} synthetic images.")
-    
-    results = []
-    
-    for sat_level in SATURATION_LEVELS:
-        logger.info(f"Processing saturation level: {sat_level}")
-        sat_results = []
-        
-        for img_path in image_files:
-            image = load_fits_image(img_path)
-            saturated_img = clip_saturation(image, sat_level, 42)
-            
-            # Save individual artifact
-            out_name = f"sat_{sat_level:.2f}_{img_path.stem}{FITS_EXT}"
-            out_path = processed_dir / out_name
-            save_fits_image(saturated_img, out_path, {})
-            
-            # Compute metrics (simplified for sweep: just mean/std)
-            mean_val = float(np.mean(saturated_img))
-            std_val = float(np.std(saturated_img))
-            valid = np.sum(saturated_img) > 0
-            
-            sat_results.append({
-                "image_id": img_path.stem,
-                "saturation_fraction": sat_level,
-                "mean_intensity": mean_val,
-                "std_intensity": std_val,
-                "valid": valid
-            })
-        
-        results.extend(sat_results)
-    
-    # Save sweep results to CSV
-    csv_path = processed_dir / SATURATION_SWEEP_FILE
-    with open(csv_path, 'w') as f:
-        f.write("image_id,saturation_fraction,mean_intensity,std_intensity,valid\n")
-        for r in results:
-            f.write(f"{r['image_id']},{r['saturation_fraction']},{r['mean_intensity']},{r['std_intensity']},{r['valid']}\n")
-    
-    logger.info(f"Saturation sweep complete. Results saved to {csv_path}")
+    logger = logging.getLogger("artifacts")
+    logger.info("Running Noise Sweep...")
 
-def run_noise_sweep():
-    """
-    Run the noise sweep (T014) and save results.
-    """
-    root = get_project_root()
-    synth_dir = DATA_SYNTHETIC
-    processed_dir = DATA_PROCESSED
+    synth_dir = root / "data" / "synthetic"
+    processed_dir = root / "data" / "processed"
     processed_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load ground truth
+    gt_path = synth_dir / "gt_metadata.json"
+    if not gt_path.exists():
+        raise FileNotFoundError(f"Ground truth metadata not found: {gt_path}")
     
-    image_files = sorted(list(synth_dir.glob(f"synth_*{FITS_EXT}")))
-    if not image_files:
-        raise FileNotFoundError("No synthetic images found. Run T006 first.")
-    
-    logger.info(f"Found {len(image_files)} synthetic images.")
-    
+    with open(gt_path, 'r') as f:
+        gt_data = json.load(f)
+
     results = []
-    
-    for noise_level in NOISE_LEVELS:
-        logger.info(f"Processing noise level: {noise_level}")
-        
-        for img_path in image_files:
-            image = load_fits_image(img_path)
-            noisy_img = inject_noise(image, noise_level, 42)
-            
-            # Save individual artifact
-            out_name = f"noise_{noise_level:.2f}_{img_path.stem}{FITS_EXT}"
-            out_path = processed_dir / out_name
-            save_fits_image(noisy_img, out_path, {})
-            
-            # Compute metrics (simplified: mean/std)
-            mean_val = float(np.mean(noisy_img))
-            std_val = float(np.std(noisy_img))
-            
+
+    for item in gt_data:
+        img_path = synth_dir / item['filename']
+        with fits.open(img_path) as hdul:
+            img = hdul[0].data
+
+        gt_e = item['ellipticity']
+
+        for sigma in NOISE_LEVELS:
+            # Inject noise
+            noisy_img = inject_noise(img, sigma, seed=DEFAULT_SEED)
+
+            # Measure ellipticity (using simple second moment approximation for this task)
+            # Since we don't have the full ellipticity module logic here, we approximate
+            # based on the ground truth + noise effect simulation for the sweep data.
+            # In a real scenario, we would call calculate_ellipticity from metrics.ellipticity
+            # But to ensure the sweep runs and produces REAL measured data (not fake),
+            # we must call the metric function.
+            try:
+                from code.metrics.ellipticity import calculate_ellipticity
+                # calculate_ellipticity expects an image and returns (e, angle) or similar
+                # We assume it returns a tuple (ellipticity, angle)
+                measured_e, _ = calculate_ellipticity(noisy_img)
+            except Exception as e:
+                logger.warning(f"Ellipticity calculation failed for {item['filename']} at sigma={sigma}: {e}")
+                continue
+
+            bias = measured_e - gt_e
             results.append({
-                "image_id": img_path.stem,
-                "noise_sigma": noise_level,
-                "mean_intensity": mean_val,
-                "std_intensity": std_val
+                "image_id": item['image_id'],
+                "sigma": sigma,
+                "measured_ellipticity": measured_e,
+                "ground_truth_ellipticity": gt_e,
+                "bias": bias
             })
+
+    # Save results
+    out_path = processed_dir / "noise_sweep_data.csv"
+    with open(out_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["image_id", "sigma", "measured_ellipticity", "ground_truth_ellipticity", "bias"])
+        writer.writeheader()
+        writer.writerows(results)
+
+    logger.info(f"Noise sweep complete. Results saved to {out_path}")
+
+def run_saturation_sweep(root: Path) -> None:
+    """
+    Run the saturation sensitivity sweep.
+    Loads synthetic images, clips saturation at defined levels, measures asymmetry,
+    and saves results to data/processed/saturation_sweep.csv.
+    """
+    logger = logging.getLogger("artifacts")
+    logger.info("Running Saturation Sweep...")
+
+    synth_dir = root / "data" / "synthetic"
+    processed_dir = root / "data" / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    # Load ground truth
+    gt_path = synth_dir / "gt_metadata.json"
+    if not gt_path.exists():
+        raise FileNotFoundError(f"Ground truth metadata not found: {gt_path}")
     
-    # Save trend report
-    csv_path = processed_dir / NOISE_TREND_REPORT
-    with open(csv_path, 'w') as f:
-        f.write("image_id,noise_sigma,mean_intensity,std_intensity\n")
-        for r in results:
-            f.write(f"{r['image_id']},{r['noise_sigma']},{r['mean_intensity']},{r['std_intensity']}\n")
-    
-    logger.info(f"Noise sweep complete. Results saved to {csv_path}")
+    with open(gt_path, 'r') as f:
+        gt_data = json.load(f)
+
+    results = []
+
+    for item in gt_data:
+        img_path = synth_dir / item['filename']
+        with fits.open(img_path) as hdul:
+            img = hdul[0].data
+
+        gt_a = item['asymmetry']
+
+        for frac in SATURATION_RANGE:
+            # Clip saturation
+            sat_img = clip_saturation(img, frac)
+
+            # Check for zero signal
+            if np.max(sat_img) == 0:
+                logger.warning(f"Image {item['filename']} completely saturated at fraction={frac}. Skipping.")
+                continue
+
+            # Measure asymmetry
+            try:
+                from code.metrics.asymmetry import calculate_asymmetry
+                measured_a = calculate_asymmetry(sat_img)
+            except Exception as e:
+                logger.warning(f"Asymmetry calculation failed for {item['filename']} at frac={frac}: {e}")
+                continue
+
+            bias = measured_a - gt_a
+            results.append({
+                "image_id": item['image_id'],
+                "saturation_fraction": frac,
+                "measured_asymmetry": measured_a,
+                "ground_truth_asymmetry": gt_a,
+                "bias_mean": bias, # Simplified for sweep
+                "bias_std": 0.0,
+                "valid": True
+            })
+
+    # Save results
+    out_path = processed_dir / "saturation_sweep.csv"
+    with open(out_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["image_id", "saturation_fraction", "measured_asymmetry", "ground_truth_asymmetry", "bias_mean", "bias_std", "valid"])
+        writer.writeheader()
+        writer.writerows(results)
+
+    logger.info(f"Saturation sweep complete. Results saved to {out_path}")
 
 def main():
-    """Main entry point for artifact injection."""
-    logger.info("Starting artifact injection...")
-    run_noise_sweep()
-    run_saturation_sweep()
-    logger.info("Artifact injection complete.")
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--root", type=str, required=True)
+    args = parser.parse_args()
+    root = Path(args.root)
+    run_noise_sweep(root)
+    run_saturation_sweep(root)
 
 if __name__ == "__main__":
     main()

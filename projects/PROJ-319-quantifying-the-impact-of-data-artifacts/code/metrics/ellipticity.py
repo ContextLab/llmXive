@@ -1,57 +1,53 @@
-"""Ellipticity calculation metrics for planetary nebulae.
-
-This module implements the calculation of ellipticity using second-order moments
-as per the Conselice (2003) definition or similar astronomical standards.
+"""
+Ellipticity calculation using second-order moments.
 """
 import logging
 from typing import Tuple
-
 import numpy as np
 
-logger = logging.getLogger(__name__)
-
 def calculate_ellipticity(image: np.ndarray) -> Tuple[float, float]:
-    """Calculate ellipticity components (e1, e2) using second-order moments.
-
-    The ellipticity is defined as:
-    e1 = (Q_xx - Q_yy) / (Q_xx + Q_yy)
-    e2 = 2 * Q_xy / (Q_xx + Q_yy)
-
-    Where Q_ij are the second-order moments of the light distribution.
-
-    Args:
-        image: 2D array representing the image intensity.
-
-    Returns:
-        Tuple (e1, e2) representing the ellipticity components.
     """
-    if image.ndim != 2:
-        raise ValueError("Image must be a 2D array.")
-
-    # Calculate the center of light (first moments)
+    Calculate ellipticity and position angle from second-order moments.
+    Returns (ellipticity, angle).
+    Ellipticity e = 1 - (b/a).
+    """
     y, x = np.indices(image.shape)
-    total_flux = np.sum(image)
-    if total_flux == 0:
-        logger.warning("Image has zero flux, returning zero ellipticity.")
+    cx = np.sum(x * image) / np.sum(image)
+    cy = np.sum(y * image) / np.sum(image)
+
+    dx = x - cx
+    dy = y - cy
+
+    # Second moments
+    m00 = np.sum(image)
+    m20 = np.sum(dx**2 * image) / m00
+    m02 = np.sum(dy**2 * image) / m00
+    m11 = np.sum(dx * dy * image) / m00
+
+    # Eigenvalues of moment matrix
+    # Matrix: [[m20, m11], [m11, m02]]
+    trace = m20 + m02
+    det = m20 * m02 - m11**2
+    delta = np.sqrt(trace**2 - 4 * det)
+
+    lambda1 = (trace + delta) / 2
+    lambda2 = (trace - delta) / 2
+
+    # Ensure non-negative
+    lambda1 = max(0.0, lambda1)
+    lambda2 = max(0.0, lambda2)
+
+    if lambda1 == 0:
         return 0.0, 0.0
 
-    x_bar = np.sum(x * image) / total_flux
-    y_bar = np.sum(y * image) / total_flux
+    # Ellipticity e = 1 - sqrt(lambda2/lambda1)
+    e = 1.0 - np.sqrt(lambda2 / lambda1)
+    e = max(0.0, min(1.0, e))
 
-    # Calculate second-order moments
-    # Q_xx = sum((x - x_bar)^2 * I)
-    # Q_yy = sum((y - y_bar)^2 * I)
-    # Q_xy = sum((x - x_bar) * (y - y_bar) * I)
-    Q_xx = np.sum((x - x_bar) ** 2 * image)
-    Q_yy = np.sum((y - y_bar) ** 2 * image)
-    Q_xy = np.sum((x - x_bar) * (y - y_bar) * image)
+    # Angle
+    if m11 == 0 and m20 == m02:
+        angle = 0.0
+    else:
+        angle = 0.5 * np.arctan2(2 * m11, m20 - m02)
 
-    trace = Q_xx + Q_yy
-    if trace == 0:
-        logger.warning("Trace of moment matrix is zero, returning zero ellipticity.")
-        return 0.0, 0.0
-
-    e1 = (Q_xx - Q_yy) / trace
-    e2 = 2 * Q_xy / trace
-
-    return e1, e2
+    return e, angle
