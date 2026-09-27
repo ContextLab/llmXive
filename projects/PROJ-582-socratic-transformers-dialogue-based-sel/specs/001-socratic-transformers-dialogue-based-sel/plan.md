@@ -13,7 +13,7 @@ This plan implements a research pipeline to test whether **negative selection on
 **Primary Dependencies**: `transformers`, `peft`, `bitsandbytes` (CPU fallback), `datasets`, `scikit-learn`, `pandas`, `pytest`, `ruff`, `pyyaml`.  
 **Storage**: Local filesystem (`data/`, `artifacts/`); no external DB.  
 **Testing**: `pytest` (unit, integration, contract).  
-**Target Platform**: Linux (GitHub Actions Free Tier: limited vCPU, 7GB RAM, 14GB Disk).  
+**Target Platform**: Linux (GitHub Actions Free Tier: limited vCPU, constrained RAM, and limited Disk).  
 **Project Type**: Research pipeline / CLI.  
 **Performance Goals**: Fit within 6h runtime per job; memory < 7GB (4-bit quantization); OOM fallback to smaller models or CPU-only inference.  
 **Constraints**: No local GPU; strict reproducibility (random seeds); no gated data access.  
