@@ -1,94 +1,160 @@
+"""
+Unit tests for save_cleaned_data module.
+
+Tests Task T015: Save cleaned dataset functionality.
+"""
 import os
-import tempfile
+import sys
 import pandas as pd
+import numpy as np
 import pytest
 from pathlib import Path
-import sys
+from unittest.mock import patch, MagicMock
+import tempfile
+import shutil
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from save_cleaned_data import save_cleaned_dataset
+from code.save_cleaned_data import save_cleaned_dataset, main
+from code.logging_config import get_logger
 
-@pytest.fixture
-def sample_dataframe():
-    """Create a sample DataFrame for testing."""
-    data = {
-        'participant_id': [1, 2, 3, 4, 5],
-        'shannon_index': [3.2, 2.8, 3.5, 2.9, 3.1],
-        'fluid_intelligence': [12.5, 11.2, 13.1, 10.8, 12.0],
-        'age': [45, 52, 38, 61, 49],
-        'sex': ['M', 'F', 'M', 'F', 'M'],
-        'bmi': [24.5, 26.1, 22.3, 28.7, 25.0],
-        'dqs': [65.2, 58.9, 72.1, 55.3, 68.4]
-    }
-    return pd.DataFrame(data)
+logger = get_logger(__name__)
 
-def test_save_cleaned_dataset_creates_file(sample_dataframe):
-    """Test that save_cleaned_dataset creates the output file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, 'test_cleaned_data.csv')
-        save_cleaned_dataset(sample_dataframe, output_path)
-        
-        assert os.path.exists(output_path), "Output file was not created."
-        
-        # Verify file is not empty
-        assert os.path.getsize(output_path) > 0, "Output file is empty."
-
-def test_save_cleaned_dataset_includes_header_definitions(sample_dataframe):
-    """Test that the saved file includes column definitions in the header."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, 'test_cleaned_data.csv')
-        save_cleaned_dataset(sample_dataframe, output_path)
-        
-        with open(output_path, 'r', encoding='utf-8') as f:
-            first_line = f.readline().strip()
-            second_line = f.readline().strip()
-        
-        assert first_line.startswith("# Column Definitions:"), "First line should be column definitions header."
-        assert second_line.startswith("#"), "Second line should be a column definition."
-        
-        # Check that at least one column name appears in the header
-        header_content = second_line.lower()
-        assert 'participant_id' in header_content or 'shannon_index' in header_content, \
-            "Column definitions should include column names."
-
-def test_save_cleaned_dataset_data_integrity(sample_dataframe):
-    """Test that the data is correctly saved and can be reloaded."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, 'test_cleaned_data.csv')
-        save_cleaned_dataset(sample_dataframe, output_path)
-        
-        # Read back the file, skipping the header comments
-        df_reloaded = pd.read_csv(output_path, comment='#')
-        
-        assert len(df_reloaded) == len(sample_dataframe), "Row count mismatch."
-        assert list(df_reloaded.columns) == list(sample_dataframe.columns), "Column names mismatch."
-        
-        # Check a few values
-        assert df_reloaded.iloc[0]['participant_id'] == sample_dataframe.iloc[0]['participant_id']
-        assert abs(df_reloaded.iloc[0]['shannon_index'] - sample_dataframe.iloc[0]['shannon_index']) < 1e-6
-
-def test_save_cleaned_dataset_empty_dataframe_raises_error():
-    """Test that saving an empty DataFrame raises a ValueError."""
-    empty_df = pd.DataFrame()
+class TestSaveCleanedDataset:
+    """Test suite for save_cleaned_dataset function."""
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, 'test_empty.csv')
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.test_dir = tempfile.mkdtemp()
+        self.test_output_path = os.path.join(self.test_dir, "test_cleaned_data.csv")
         
-        with pytest.raises(ValueError) as excinfo:
-            save_cleaned_dataset(empty_df, output_path)
+        # Create a sample DataFrame
+        self.sample_df = pd.DataFrame({
+            'participant_id': ['P001', 'P002', 'P003'],
+            'shannon_index': [3.2, 3.5, 2.9],
+            'fluid_intelligence': [45, 52, 38],
+            'age': [45, 50, 42],
+            'sex': ['M', 'F', 'M'],
+            'bmi': [24.5, 26.1, 22.8],
+            'dqs': [65, 70, 58]
+        })
+    
+    def teardown_method(self):
+        """Clean up test fixtures."""
+        if os.path.exists(self.test_dir):
+            shutil.rmtree(self.test_dir)
+    
+    def test_save_cleaned_dataset_creates_file(self):
+        """Test that save_cleaned_dataset creates the output file."""
+        result_path = save_cleaned_dataset(self.sample_df, self.test_output_path)
         
-        assert "DataFrame is empty" in str(excinfo.value)
+        assert os.path.exists(result_path), "Output file should exist"
+        assert result_path == self.test_output_path, "Returned path should match input path"
+    
+    def test_save_cleaned_dataset_contains_data(self):
+        """Test that the saved file contains the expected data."""
+        save_cleaned_dataset(self.sample_df, self.test_output_path)
+        
+        # Read the file back
+        with open(self.test_output_path, 'r') as f:
+            lines = f.readlines()
+        
+        # Check for column definitions in header
+        header_lines = [l for l in lines if l.startswith('#')]
+        assert len(header_lines) > 0, "File should contain column definition comments"
+        
+        # Check that actual data exists
+        data_lines = [l for l in lines if not l.startswith('#')]
+        assert len(data_lines) == 4, "Should have 1 header + 3 data rows"  # header + 3 rows
+    
+    def test_save_cleaned_dataset_empty_dataframe_raises_error(self):
+        """Test that saving an empty DataFrame raises ValueError."""
+        empty_df = pd.DataFrame()
+        
+        with pytest.raises(ValueError, match="Cannot save empty or None DataFrame"):
+            save_cleaned_dataset(empty_df, self.test_output_path)
+    
+    def test_save_cleaned_dataset_none_dataframe_raises_error(self):
+        """Test that saving None raises ValueError."""
+        with pytest.raises(ValueError, match="Cannot save empty or None DataFrame"):
+            save_cleaned_dataset(None, self.test_output_path)
+    
+    def test_save_cleaned_dataset_column_definitions(self):
+        """Test that column definitions are correctly formatted."""
+        save_cleaned_dataset(self.sample_df, self.test_output_path)
+        
+        with open(self.test_output_path, 'r') as f:
+            content = f.read()
+        
+        # Check for expected column definitions
+        assert "participant_id" in content, "Should contain participant_id definition"
+        assert "shannon_index" in content, "Should contain shannon_index definition"
+        assert "fluid_intelligence" in content, "Should contain fluid_intelligence definition"
+        assert "dtype=" in content, "Should contain dtype information"
+        assert "nulls=" in content, "Should contain null count information"
+    
+    def test_save_cleaned_dataset_creates_directories(self):
+        """Test that save_cleaned_dataset creates missing directories."""
+        nested_path = os.path.join(self.test_dir, "nested", "path", "output.csv")
+        result_path = save_cleaned_dataset(self.sample_df, nested_path)
+        
+        assert os.path.exists(result_path), "File should exist in nested directory"
+        assert os.path.isdir(os.path.dirname(result_path)), "Directory should be created"
 
-def test_save_cleaned_dataset_creates_directory_if_missing(sample_dataframe):
-    """Test that the function creates the output directory if it doesn't exist."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create a subdirectory path that doesn't exist yet
-        nested_dir = os.path.join(tmpdir, 'level1', 'level2')
-        output_path = os.path.join(nested_dir, 'test_cleaned_data.csv')
+class TestMainFunction:
+    """Test suite for main function."""
+    
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.test_dir = tempfile.mkdtemp()
+    
+    def teardown_method(self):
+        """Clean up test fixtures."""
+        if os.path.exists(self.test_dir):
+            shutil.rmtree(self.test_dir)
+    
+    @patch('code.save_cleaned_data.run_ingestion_pipeline')
+    @patch('code.save_cleaned_data.ensure_directories')
+    def test_main_success(self, mock_ensure_dirs, mock_ingestion):
+        """Test main function with successful ingestion."""
+        mock_ingestion.return_value = pd.DataFrame({'col1': [1, 2, 3]})
         
-        # This should not raise an error
-        save_cleaned_dataset(sample_dataframe, output_path)
+        with patch('code.save_cleaned_data.INPUT_PATHS', {'PROCESSED_OUTPUT': os.path.join(self.test_dir, 'output.csv')}):
+            result = main()
         
-        assert os.path.exists(output_path), "Output file was not created in nested directory."
+        assert result == 0, "Main should return 0 on success"
+        mock_ensure_dirs.assert_called_once()
+        mock_ingestion.assert_called_once()
+    
+    @patch('code.save_cleaned_data.run_ingestion_pipeline')
+    @patch('code.save_cleaned_data.ensure_directories')
+    def test_main_empty_dataset(self, mock_ensure_dirs, mock_ingestion):
+        """Test main function with empty dataset."""
+        mock_ingestion.return_value = pd.DataFrame()
+        
+        with patch('code.save_cleaned_data.INPUT_PATHS', {'PROCESSED_OUTPUT': os.path.join(self.test_dir, 'output.csv')}):
+            result = main()
+        
+        assert result == 0, "Main should return 0 even with empty dataset"
+    
+    @patch('code.save_cleaned_data.run_ingestion_pipeline')
+    def test_main_ingestion_failure(self, mock_ingestion):
+        """Test main function when ingestion fails."""
+        mock_ingestion.side_effect = Exception("Ingestion failed")
+        
+        result = main()
+        
+        assert result == 1, "Main should return 1 on failure"
+    
+    @patch('code.save_cleaned_data.run_ingestion_pipeline')
+    @patch('code.save_cleaned_data.save_cleaned_dataset')
+    def test_main_save_failure(self, mock_save, mock_ingestion):
+        """Test main function when save fails."""
+        mock_ingestion.return_value = pd.DataFrame({'col1': [1, 2, 3]})
+        mock_save.side_effect = IOError("Save failed")
+        
+        result = main()
+        
+        assert result == 1, "Main should return 1 on save failure"

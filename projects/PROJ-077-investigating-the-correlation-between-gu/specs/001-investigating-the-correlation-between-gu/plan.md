@@ -19,7 +19,7 @@ The pipeline includes preprocessing (imputation with Mode for categorical and Me
 **Primary Dependencies**: `pandas`, `numpy`, `scikit-bio`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `scipy`  
 **Storage**: Local file system (CSV, PNG, YAML artifacts); raw data assumed pre-downloaded to `data/raw/`  
 **Testing**: `pytest` (unit tests for data loading, integration tests for pipeline execution)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7GB RAM, 14GB disk)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, standard RAM, 14GB disk)  
 **Project Type**: Computational research pipeline / data analysis library  
 **Performance Goals**: Complete end-to-end analysis within 6 hours; memory usage < 7GB via hard-coded sample limit (N=50,000) and chunked processing.  
 **Constraints**: No GPU; no large language model inference; strict adherence to FR-001 through FR-008 (with methodological corrections noted); all statistical claims must be associational.  

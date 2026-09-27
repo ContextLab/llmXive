@@ -1,107 +1,118 @@
 """
-Unit tests for data ingestion module.
+Unit tests for data_ingestion.py
 """
+
 import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
 import sys
+import os
 
-# Add parent directory to path to allow imports from code/
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.data_ingestion import impute_missing_values, filter_primary_outcomes
+from data_ingestion import _find_participant_id_column, impute_missing_values, filter_primary_outcomes
 
-def load_fixture(filepath):
-    """Helper to load a fixture file."""
-    fixture_path = Path(__file__).parent.parent / "fixtures" / filepath
-    if not fixture_path.exists():
-        raise FileNotFoundError(f"Fixture file not found: {fixture_path}")
-    return pd.read_csv(fixture_path)
 
-class TestDataIngestion:
-    """Tests for data ingestion logic."""
+class TestFindParticipantIdColumn:
+    """Test the logic for finding the participant ID column."""
+
+    def test_priority_participant_id(self):
+        """Test that 'participant_id' is chosen if present."""
+        df = pd.DataFrame({'participant_id': [1, 2], 'eid': [10, 20], 'subject_id': [100, 200]})
+        assert _find_participant_id_column(df) == 'participant_id'
+
+    def test_priority_eid_over_subject_id(self):
+        """Test that 'eid' is chosen over 'subject_id' if 'participant_id' is missing."""
+        df = pd.DataFrame({'eid': [1, 2], 'subject_id': [10, 20]})
+        assert _find_participant_id_column(df) == 'eid'
+
+    def test_priority_subject_id(self):
+        """Test that 'subject_id' is chosen if it's the only option."""
+        df = pd.DataFrame({'subject_id': [1, 2]})
+        assert _find_participant_id_column(df) == 'subject_id'
+
+    def test_no_id_column_raises(self):
+        """Test that FileNotFoundError is raised if no ID column is found."""
+        df = pd.DataFrame({'age': [1, 2], 'sex': ['M', 'F']})
+        with pytest.raises(FileNotFoundError):
+            _find_participant_id_column(df)
+
+
+class TestImputation:
+    """Test imputation logic."""
 
     def test_imputation_sex_mode_returns_most_frequent(self):
-        """
-        Test that Sex imputation uses Mode (most frequent value).
-        Fixture: tests/fixtures/sample_imputation.csv
-        Expected: Majority 'M', so NaN should be imputed to 'M'.
-        """
-        # Load the fixture
-        df = load_fixture("sample_imputation.csv")
-        
-        # Verify fixture setup: Majority M, some F, some NaN
-        # Count non-null values
-        sex_counts = df['sex'].value_counts(dropna=False)
-        assert 'M' in sex_counts.index, "Fixture must have 'M' values"
-        assert df['sex'].isna().any(), "Fixture must have NaN values in sex"
-        
-        # Calculate the expected mode manually to ensure test validity
-        expected_mode = df['sex'].mode()[0]
-        assert expected_mode == 'M', "Fixture setup error: Mode should be M"
-        
-        # Call the actual implementation
-        # We pass a strategy dict to enforce 'mode' for 'sex'
-        # The function signature in code/data_ingestion.py is assumed to be:
-        # impute_missing_values(df, strategy=None) or similar.
-        # Based on T013 description: "Apply Median for Age, BMI, DQS; Mode for Sex."
-        # We will assume the function has a default strategy or we can pass one.
-        # If the function doesn't accept a strategy argument yet, we assume it
-        # implements the hardcoded logic from T013.
-        
-        # Assuming the function signature matches the task description logic:
-        df_imputed = impute_missing_values(df)
-        
-        # Verify no NaNs remain in the 'sex' column
-        assert not df_imputed['sex'].isna().any(), "Imputation should remove all NaNs in sex"
-        
-        # Verify the filled values are the mode ('M')
-        # Specifically check the row that was NaN
-        # In our fixture, the last row (index 5) had NaN.
-        # We need to ensure it is now 'M'.
-        # Since the order is preserved, we can check the last value if we know the fixture structure.
-        # A safer check: all non-null values in the original were 'M' or 'F'.
-        # The imputed value must be 'M'.
-        
-        # Check that the count of 'M' increased by 1 (the NaN was filled with M)
-        # Original count of M (excluding NaN)
-        original_m_count = df['sex'].value_counts().get('M', 0)
-        # New count of M
-        new_m_count = df_imputed['sex'].value_counts().get('M', 0)
-        
-        assert new_m_count == original_m_count + 1, "The NaN value should have been filled with 'M', increasing the count by 1"
+        """Test that Sex is imputed using Mode (most frequent)."""
+        # Fixture data: majority 'M', minority 'F', one NaN
+        df = pd.DataFrame({
+            'age': [25, 30, 35, 40],
+            'sex': ['M', 'M', 'M', np.nan],  # Mode is 'M'
+            'bmi': [22.0, 24.0, 25.0, 26.0]
+        })
+
+        result = impute_missing_values(df)
+
+        # Check that the NaN was filled with 'M'
+        assert result['sex'].iloc[3] == 'M'
+        # Check that no NaNs remain in sex
+        assert result['sex'].isnull().sum() == 0
+
+    def test_imputation_age_median(self):
+        """Test that Age is imputed using Median."""
+        df = pd.DataFrame({
+            'age': [20, 30, 40, np.nan],  # Median of [20, 30, 40] is 30
+            'sex': ['M', 'F', 'M', 'M']
+        })
+
+        result = impute_missing_values(df)
+
+        # Check that the NaN was filled with 30
+        assert result['age'].iloc[3] == 30.0
+
+    def test_imputation_bmi_median(self):
+        """Test that BMI is imputed using Median."""
+        df = pd.DataFrame({
+            'bmi': [20.0, 25.0, 30.0, np.nan],  # Median is 25.0
+            'age': [20, 30, 40, 50]
+        })
+
+        result = impute_missing_values(df)
+
+        assert result['bmi'].iloc[3] == 25.0
+
+
+class TestFiltering:
+    """Test filtering logic."""
 
     def test_filtering_excludes_null_primary_outcomes(self):
-        """
-        Test that filtering excludes participants with null alpha diversity, 
-        fluid intelligence, or DQS.
-        Input: A sample with null values in primary outcomes.
-        Expected: Reduced row count.
-        """
-        # Create a small in-memory sample with nulls
-        data = {
-            'participant_id': [1, 2, 3, 4, 5],
-            'alpha_diversity': [3.0, np.nan, 3.2, 3.1, 3.3],
-            'fluid_intelligence': [12.0, 11.5, np.nan, 12.5, 13.0],
-            'dqs': [80.0, 75.0, 78.0, np.nan, 82.0]
-        }
-        df = pd.DataFrame(data)
-        
-        initial_count = len(df)
-        assert initial_count == 5, "Test setup error"
-        
-        # Call the actual implementation
-        filtered_df = filter_primary_outcomes(df)
-        
-        final_count = len(filtered_df)
-        
-        # Expect only row 0 (id 1) and row 4 (id 5) to remain
-        # Row 0: [3.0, 12.0, 80.0] -> Keep
-        # Row 1: [nan, 11.5, 75.0] -> Drop
-        # Row 2: [3.2, nan, 78.0] -> Drop
-        # Row 3: [3.1, 12.5, nan] -> Drop
-        # Row 4: [3.3, 13.0, 82.0] -> Keep
-        
-        assert final_count == 2, f"Expected 2 rows after filtering, got {final_count}"
-        assert filtered_df['participant_id'].tolist() == [1, 5], "Incorrect rows retained"
+        """Test that rows with null fluid_intelligence are excluded."""
+        df = pd.DataFrame({
+            'participant_id': [1, 2, 3, 4],
+            'fluid_intelligence': [100.0, 110.0, np.nan, 120.0],
+            'shannon_index': [3.0, 3.5, 4.0, 3.2],
+            'age': [20, 30, 40, 50]
+        })
+
+        result = filter_primary_outcomes(df)
+
+        # Should have 3 rows (index 0, 1, 3)
+        assert len(result) == 3
+        # The row with null fluid_intelligence should be gone
+        assert 2 not in result.index
+
+    def test_filtering_excludes_null_dqs_if_present(self):
+        """Test that rows with null DQS are excluded if DQS column exists."""
+        df = pd.DataFrame({
+            'participant_id': [1, 2, 3],
+            'fluid_intelligence': [100.0, 110.0, 120.0],
+            'dqs': [50.0, np.nan, 60.0]
+        })
+
+        result = filter_primary_outcomes(df)
+
+        # Should have 2 rows
+        assert len(result) == 2
+        # Row with null DQS (index 1) should be gone
+        assert 1 not in result.index

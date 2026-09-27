@@ -1,3 +1,10 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I looked for the required directories (`projects/PROJ-investigating-the-correlation-between-gu/data/raw`,
+    `data/processed`, `code`, `tests`) but no artifact list or screenshots confirming
+    they exist was provided. Without concrete evidence that the `mkdir -p` command
+    was executed and the directories were created, the task cannot be considered completed.
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -12,6 +19,15 @@ T013:
     \ Age, BMI, DQS; mode for Sex) is present, nor any evidence that the strategy\
     \ was logged to `provenance.log`. Without these artifacts, the task\u2019s core\
     \ requirement is not satisfied."
+T014a:
+  c: false
+  h: e4ad6ed0cf9faa3130d1c41e4586d0dd151a70d4ba9c09482678b87a1c4aada6
+  r: "The provided `code/data_ingestion.py` does not contain logic that checks for\
+    \ the presence of `data/raw/dietary_data.csv` nor does it raise a fatal error\
+    \ conditioned on the `DQS_REQUIRED` flag; it only raises a generic `ValueError`\
+    \ when required columns are absent. Additionally, the required `dietary_data.csv`\
+    \ file is missing from `data/raw/`. The task\u2019s core requirement is therefore\
+    \ not satisfied."
 T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -38,3 +54,40 @@ T023:
     does not contain a completed `run_multivariate_regression` implementation using
     `statsmodels` with the specified predictors. Both the data dependency and the
     regression code are missing.
+T048a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file was provided that actually checks for\
+    \ the presence of the required local data files (or a verified public URL), validates\
+    \ them (e.g., via checksums), and raises a fatal error if they are missing. Without\
+    \ such an artifact, the task\u2019s requirement to verify data source availability\
+    \ is not satisfied."
+T052:
+  c: false
+  h: 1f16545d81d59cbc65c846ea3a30929f36f5a572cabaccfcf2154afd921017a7
+  r: The required checksum file `state/projects/PROJ-077-investigating-the-correlation-between-gu.yaml`
+    does not exist, and the shown portion of `code/main.py` contains no logic that
+    reads this file or validates the checksums of files in `data/raw/`. Consequently
+    the provenance check mandated by the user story is not implemented.
+T054a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file was provided, nor any excerpt showing a \u201CGetting Started\u201D\
+    \ section at the repository root. The required artifact is missing, so the task\
+    \ is not satisfied."
+T054b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` content was supplied, and thus we cannot confirm that it lists\
+    \ the required UK Biobank fields, includes the specific Application ID, download\
+    \ URL, or the \u201CPlace files in `data/raw/`\u201D instruction. The task\u2019\
+    s documentation artifact is missing."
+T056:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file is provided, nor any excerpt showing the required\
+    \ wording about allowing local data sources in `data/raw/` for the Reproducibility\
+    \ constraint. Without the actual modified specification, we cannot confirm that\
+    \ the conflict between \u201Cfresh runner\u201D and \u201Cno public URL\u201D\
+    \ has been resolved. The implementer must supply the revised `spec.md` containing\
+    \ the explicit allowance and validation of local data sources."

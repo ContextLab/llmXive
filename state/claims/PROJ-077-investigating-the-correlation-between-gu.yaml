@@ -967,3 +967,67 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T16:05:52Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 'Research question: Can large language models effectively refactor code
+    to improve its readability and maintainability?'
+  claim_id: c_3ae6bbaf
+  context: 'The research question is: Can large language models effectively refactor
+    code to improve its readability and maintainability? The method is: We will use
+    a combination of static analysis tools (e.g., pylint) and large language models
+    (e.g., GPT-4) to automatically refactor a dataset of Python code snippets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question:_Can_large_language_models_effectively_ref
+  kind: entity_fact
+  raw_text: 'The research question is: Can large language models effectively refactor
+    code to improve its readability and maintainability?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T07:29:12Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 'Method: Use static analysis tools (pylint) and large language models
+    (GPT-4) to refactor Python code snippets.'
+  claim_id: c_c6cbe582
+  context: 'The method is: We will use a combination of static analysis tools (e.g.,
+    pylint) and large language models (e.g., GPT-4) to automatically refactor a dataset
+    of Python code snippets. We will evaluate the refactored code using both automated
+    metrics (e.g., cyclomatic complexity) and human evaluation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We will use a combination of static analysis tools (e.g., pylint) and
+    large language models (e.g., GPT-4) to automatically refactor a dataset of Python
+    code snippets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T07:29:28Z'
+- artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: 'Evaluation method: Automated metrics (cyclomatic complexity) and human
+    evaluation for refactored code.'
+  claim_id: c_ffca02e4
+  context: We will evaluate the refactored code using both automated metrics (e.g.,
+    cyclomatic complexity) and human evaluation. (Vaswani et al., 2017) and (Raychel
+    et al., 2022).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_method:_Automated_metrics_(cyclomatic_complexity)
+  kind: entity_fact
+  raw_text: We will evaluate the refactored code using both automated metrics (e.g.,
+    cyclomatic complexity) and human evaluation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T07:30:15Z'

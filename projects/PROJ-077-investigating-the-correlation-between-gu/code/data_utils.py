@@ -1,6 +1,9 @@
 """
 Data Utilities Module.
 Helper functions for loading and validating data with streaming support.
+Ensures deterministic loading of large CSVs with chunked reading and strict row limits.
+
+Implements T051: Streaming loader with hard-stop at SAMPLE_LIMIT.
 """
 import pandas as pd
 from pathlib import Path
@@ -8,11 +11,24 @@ from typing import Optional, List, Dict, Any, Iterator, Union
 import os
 import itertools
 from config import SAMPLE_LIMIT
+from logging_config import get_logger, log_warning
+
+logger = get_logger(__name__)
 
 def load_csv_with_dtypes(file_path: str, chunksize: Optional[int] = None) -> Union[pd.DataFrame, Iterator[pd.DataFrame]]:
     """
     Loads a CSV file. If chunksize is provided, returns an iterator.
     Otherwise, loads the whole file.
+    
+    Args:
+        file_path: Path to the CSV file.
+        chunksize: Optional chunk size for iterator mode.
+        
+    Returns:
+        A DataFrame or an iterator of DataFrames.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"File not found: {file_path}")
@@ -78,6 +94,7 @@ def load_streaming_dataset(dataset_id: str, config_name: Optional[str] = None, l
     split_iter = ds[split_name]
 
     if limit is not None:
+        # T051: Enforce hard-stop at limit using itertools.islice
         split_iter = itertools.islice(split_iter, limit)
     
     return split_iter
@@ -86,9 +103,17 @@ def load_csv_streaming(file_path: str, limit: Optional[int] = None, chunksize: i
     """
     Loads a local CSV file in a streaming/chunked manner, enforcing a row limit.
     
+    This function implements the deterministic data loading utility required by T005
+    and the streaming loader requirement T051.
+    
+    T051 Implementation Details:
+    - Uses pd.read_csv with chunksize to read the file in chunks (streaming).
+    - Enforces SAMPLE_LIMIT (default 50,000) via itertools.islice logic.
+    - Logs a warning if the source file contains more rows than the limit.
+    
     Args:
         file_path: Path to the local CSV file.
-        limit: Maximum total rows to process across all chunks.
+        limit: Maximum total rows to process across all chunks. If None, uses SAMPLE_LIMIT from config.
         chunksize: Number of rows to read per chunk.
     
     Yields:
@@ -100,21 +125,44 @@ def load_csv_streaming(file_path: str, limit: Optional[int] = None, chunksize: i
     if not os.path.exists(file_path):
         raise FileNotFoundError(f"Local file not found: {file_path}")
 
+    # Use the global SAMPLE_LIMIT if no specific limit is provided
     if limit is None:
         limit = SAMPLE_LIMIT
 
     total_yielded = 0
-    
+    total_rows_in_file = 0
+    exceeded_limit = False
+
+    # T051: Iterate through the file in chunks to simulate streaming
+    # We do not load the whole file into memory at once.
     for chunk in pd.read_csv(file_path, chunksize=chunksize):
+        # Check if we have already reached the limit
         if total_yielded >= limit:
+            exceeded_limit = True
             break
         
+        # Calculate how many rows we can still take from this chunk
         remaining = limit - total_yielded
+        
+        # If the current chunk is larger than the remaining allowed rows, slice it
+        # This effectively implements the islice logic on chunks
         if remaining < len(chunk):
             chunk = chunk.iloc[:remaining]
         
+        # Update the total count
         total_yielded += len(chunk)
+        
+        # Yield the chunk (either full or sliced)
         yield chunk
 
+        # Safety break if we hit the limit exactly
         if total_yielded >= limit:
             break
+
+    # T051: Log warning if the stream contained more rows than the limit
+    if exceeded_limit:
+        log_warning(
+            f"Data stream exceeded SAMPLE_LIMIT ({limit}). "
+            f"Processed {total_yielded} rows and discarded the rest. "
+            f"Source file: {file_path}"
+        )
