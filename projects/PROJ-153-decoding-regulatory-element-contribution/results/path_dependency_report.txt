@@ -1,0 +1,280 @@
+Path Dependency Verification Report
+==================================================
+
+Project Root: /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution
+Analysis Date: PROJ-153-decoding-regulatory-element-contribution
+
+Code Files Analyzed:
+------------------------------
+
+code/062b_path_dependency_checker.py:
+  - data/extracted_accessions.yaml
+  - data/validation_log.yaml
+  - data/verified_accessions.yaml
+  - manifest.yaml
+  - data/raw/*.fastq.gz
+  - data/processed/*.bam
+  - data/processed/CRE_merged.bed
+  - data/processed/peak_signal_matrix.tsv
+  - data/processed/peaks_fdr_*.bed
+  - data/processed/hic_matrix_10kb.cool
+  ... and 25 more
+
+code/03_annotate.py:
+  - data/processed/CRE_merged.bed
+  - data/raw/tss_reference.bed
+  - data/processed/promoter_regions.bed
+  - data/processed/distal_regions.bed
+
+code/04_filter.py:
+  - data/processed/peak_signal_matrix.tsv
+  - data/processed/motif_validation_flags.tsv
+  - data/processed/hic_validation_flags.tsv
+  - data/processed/vif_flags.tsv
+  - data/processed/cre_all_vif_filtered.tsv
+  - data/processed/weights.tsv
+  - logs/pipeline.log
+
+code/05_validate_cre_gating.py:
+  - data/processed/CRE_merged.bed
+  - data/processed/motif_hits.tsv
+  - data/processed/hic_contacts.mcool
+  - data/processed/delta_peak_signal.tsv
+  - data/processed/weights.tsv
+  - data/processed/CRE_validated.bed
+  - data/processed/cre_validation_log.yaml
+
+code/05b_check_collinearity.py:
+  - data/processed/peak_signal_matrix.tsv
+  - data/processed/vif_flags.tsv
+
+code/05b_compute_delta_signal.py:
+  - data/processed/CRE_merged.bed
+  - data/processed/null_region_signal.bed
+  - data/processed/delta_peak_signal.tsv
+
+code/05c_compute_weights.py:
+  - data/processed/cre_validation_flags.tsv
+  - data/processed/vif_flags.tsv
+  - data/processed/delta_peak_signal.tsv
+  - data/processed/weights.tsv
+
+code/062b_path_dependency_checker.py:
+  - data/extracted_accessions.yaml
+  - data/validation_log.yaml
+  - data/verified_accessions.yaml
+  - manifest.yaml
+  - data/raw/*.fastq.gz
+  - data/processed/*.bam
+  - data/processed/CRE_merged.bed
+  - data/processed/peak_signal_matrix.tsv
+  - data/processed/peaks_fdr_*.bed
+  - data/processed/hic_matrix_10kb.cool
+  ... and 25 more
+
+code/08_visualize.py:
+  - data/processed/weights.tsv
+  - results/CRE_ranked_heatshock.md
+  - tracks/heatshock_CRE_signal.bw
+  - tracks/osmotic_CRE_signal.bw
+  - tracks/oxidative_CRE_signal.bw
+  - results/summit_match_stats.tsv
+
+code/10_add_disclaimer.py:
+  - results/CRE_ranked_heatshock.md
+  - results/CRE_ranked_osmotic.md
+  - results/CRE_ranked_oxidative.md
+  - results/Statistical_summary.pdf
+
+code/10_generate_reports_with_r2.py:
+  - data/processed/lmm_results.tsv
+  - data/processed/cre_features.tsv
+  - data/gene_background.tsv
+  - data/go_annotations.tsv
+  - results/CRE_ranked_heatshock.md
+  - results/CRE_ranked_osmotic.md
+  - results/CRE_ranked_oxidative.md
+  - results/Statistical_summary.pdf
+
+code/manifest.py:
+  - manifest.yaml
+  - data/verified_accessions.yaml
+
+code/setup_git_hooks.py:
+  - .gitattributes
+  - data/raw/*
+  - tracks/*
+
+code/setup_project_structure.py:
+  - code
+  - tests
+  - data
+  - data/raw
+  - data/processed
+  - results
+  - tracks
+  - logs
+  - specs
+
+
+Expected Outputs Validation:
+------------------------------
+
+data/extracted_accessions.yaml:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/extracted_accessions.yaml
+
+data/validation_log.yaml:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/validation_log.yaml
+
+data/verified_accessions.yaml:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/verified_accessions.yaml
+
+manifest.yaml:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): manifest.yaml
+
+data/raw/*.fastq.gz:
+  Status: EXPECTED
+  Message: Pattern data/raw/*.fastq.gz has no matches
+
+data/processed/*.bam:
+  Status: EXPECTED
+  Message: Pattern data/processed/*.bam has no matches
+
+data/processed/CRE_merged.bed:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/CRE_merged.bed
+
+data/processed/peak_signal_matrix.tsv:
+  Status: MISSING
+  Message: Missing: /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/data/processed/peak_signal_matrix.tsv (parent dir exists)
+  Producer: code/007c_extract_peak_signals.R
+  Action: Ensure code/007c_extract_peak_signals.R is executed to generate this file
+
+data/processed/peaks_fdr_*.bed:
+  Status: EXPECTED
+  Message: Pattern data/processed/peaks_fdr_*.bed has no matches
+
+data/processed/hic_matrix_10kb.cool:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/hic_matrix_10kb.cool
+
+data/processed/null_regions.bed:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/null_regions.bed
+
+data/processed/null_region_signal.bed:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/null_region_signal.bed
+
+data/processed/delta_peak_signal.tsv:
+  Status: MISSING
+  Message: Missing: /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/data/processed/delta_peak_signal.tsv (parent dir exists)
+  Producer: code/05b_compute_delta_signal.py
+  Action: Ensure code/05b_compute_delta_signal.py is executed to generate this file
+
+data/processed/weights.tsv:
+  Status: MISSING
+  Message: Missing: /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/data/processed/weights.tsv (parent dir exists)
+  Producer: code/05c_compute_weights.py
+  Action: Ensure code/05c_compute_weights.py is executed to generate this file
+
+data/processed/cre_all_vif_filtered.tsv:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/cre_all_vif_filtered.tsv
+
+data/processed/motif_validation_flags.tsv:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/motif_validation_flags.tsv
+
+data/processed/hic_validation_flags.tsv:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/hic_validation_flags.tsv
+
+data/processed/vif_flags.tsv:
+  Status: MISSING
+  Message: Missing: /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/data/processed/vif_flags.tsv (parent dir exists)
+  Producer: code/05b_check_collinearity.py
+  Action: Ensure code/05b_check_collinearity.py is executed to generate this file
+
+data/processed/weighted_delta_signal.tsv:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/weighted_delta_signal.tsv
+
+data/processed/lmm_results.tsv:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/lmm_results.tsv
+
+results/CRE_ranked_heatshock.md:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): results/CRE_ranked_heatshock.md
+
+results/CRE_ranked_osmotic.md:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): results/CRE_ranked_osmotic.md
+
+results/CRE_ranked_oxidative.md:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): results/CRE_ranked_oxidative.md
+
+results/fdr_sweep_summary.tsv:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): results/fdr_sweep_summary.tsv
+
+results/Statistical_summary.pdf:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): results/Statistical_summary.pdf
+
+results/permutation_pvalue.csv:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): results/permutation_pvalue.csv
+
+results/summit_match_stats.tsv:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): results/summit_match_stats.tsv
+
+tracks/heatshock_CRE_signal.bw:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): tracks/heatshock_CRE_signal.bw
+
+tracks/osmotic_CRE_signal.bw:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): tracks/osmotic_CRE_signal.bw
+
+tracks/oxidative_CRE_signal.bw:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): tracks/oxidative_CRE_signal.bw
+
+data/processed/CRE_validated.bed:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/CRE_validated.bed
+
+data/processed/cre_validation_log.yaml:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): data/processed/cre_validation_log.yaml
+
+results/traceability_manifest.json:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): results/traceability_manifest.json
+
+logs/pipeline.log:
+  Status: EXPECTED
+  Message: Expected output (not yet generated): logs/pipeline.log
+
+
+Summary:
+------------------------------
+Total expected outputs: 32
+Present: 0
+Expected (to be generated): 28
+Missing: 4
+
+ACTION REQUIRED:
+The following files are missing and must be generated by running their producer scripts:
+  - data/processed/peak_signal_matrix.tsv (Producer: code/007c_extract_peak_signals.R)
+  - data/processed/delta_peak_signal.tsv (Producer: code/05b_compute_delta_signal.py)
+  - data/processed/weights.tsv (Producer: code/05c_compute_weights.py)
+  - data/processed/vif_flags.tsv (Producer: code/05b_check_collinearity.py)

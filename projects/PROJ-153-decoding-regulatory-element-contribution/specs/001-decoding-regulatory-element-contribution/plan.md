@@ -9,11 +9,11 @@ This project implements a computational pipeline to identify cis-regulatory elem
 
 ## Technical Context
 
-**Language/Version**: Python 3.11, R 4.3.1  
+**Language/Version**: Python 3.x, R 4.3.1  
 **Primary Dependencies**: `pysam`, `pandas`, `statsmodels`, `scikit-learn`, `rpy2` (for `lme4`/`clusterProfiler`), `pybedtools`, `deepTools` (CLI), `bowtie2` (CLI), `fastp` (CLI), `MACS2` (CLI), `bioconductor`.  
 **Storage**: Local file system (`data/raw`, `data/processed`, `results`), SQLite for metadata (optional), HDF5/Parquet for intermediate matrices.  
 **Testing**: `pytest` (Python), `testthat` (R), contract validation via YAML schemas.  
-**Target Platform**: Linux (GitHub Actions runner: Multiple CPU, 7GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions runner: Multiple CPU, ample RAM., no GPU).  
 **Project Type**: Bioinformatics pipeline / CLI tool.  
 **Performance Goals**: Complete analysis within 5 hours on CPU; memory < 6GB; streaming data to avoid OOM.  
 **Constraints**: No GPU; CPU-only statistical models; strict adherence to FDR thresholds; no synthetic data generation.  
@@ -60,7 +60,7 @@ projects/PROJ-153-decoding-regulatory-element-contribution/
 │   └── interim/           # Intermediate stats
 ├── code/
 │   ├── 01_download.sh     # GEO/URL fetcher + checksum (FR-001)
-│   ├── 02_preprocess.sh   # fastp, bowtie2, MACS2, samtools view -q 30 (FR-002)
+│   ├── 02_preprocess.sh   # fastp, bowtie2, MACS, samtools view -q 30 (FR-002)
 │   ├── 03_annotate.py     # Merge peaks (merged_peaks.bed), context, Hi-C/Motif (FR-004)
 │   ├── 04_filter.py       # FR-011, FR-012 (VIF), FR-014 (Motif/Hi-C) filters
 │   ├── 05_weights.py      # FR-015 weight calculation
