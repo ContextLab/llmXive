@@ -12,13 +12,6 @@ T011:
   r: "The required integration test file `tests/integration/test_data_independence.py`\
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ No further evidence of a test implementation is provided."
-T016:
-  c: false
-  h: 8d1f8bad019f37bc4a1a03ad28978e3f4256f6c4f271e48f468e735f1f3bb86b
-  r: "The provided `annotator.py` defines `MIN_SAMPLE_SIZE` and an independence placeholder\
-    \ but contains no code that checks the sample size or performs a label\u2011independence\
-    \ test and raises an error accordingly. Moreover, the required log file `data/results/validation_log.txt`\
-    \ does not exist. Both the validation logic and the logging artifact are missing."
 T019:
   c: false
   h: 6ced3e91182fc1c05c82be9112d14471280336b8420338a2c2d6f7b5c5959707
@@ -65,3 +58,11 @@ T043:
   r: No `paper/draft.md` file or its contents were provided; without the markdown
     document we cannot confirm that it contains the required embedded metrics and
     mode distinctions. The implementer must supply the final draft file for verification.
+T054:
+  c: false
+  h: 129c2afad452bf77b5951e3fdc3d26bb14b4825d52875bc5187064114e481de3
+  r: "The provided `code/eval/report.py` is truncated and contains no logic that checks\
+    \ a power\u2011analysis result for an \u201CUNDERPOWERED\u201D flag nor appends\
+    \ a \u201CLimitations\u201D section to `data/results/evaluation_report.json`.\
+    \ Moreover, the required `data/results/evaluation_report.json` file does not exist\
+    \ at all. Both the functional code change and the output artifact are missing."

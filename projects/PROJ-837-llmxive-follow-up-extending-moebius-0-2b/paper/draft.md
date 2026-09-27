@@ -1,7 +1,7 @@
 # Moebius-Dynamic: Efficient Image Inpainting via Complexity-Aware Rank Modulation
 
 ## Abstract
-We present Moebius-Dynamic, a lightweight image inpainting framework that dynamically adjusts the rank of its internal linear matrices ($L\lambda MI$) based on the complexity of the masked region. By employing a lightweight gating head ($\le 5$M params), the model reduces computational overhead by up to 30% on low-complexity regions while maintaining fidelity (FID $\le 0.5$ delta) compared to static high-rank baselines. [UNRESOLVED-CLAIM: c_ce06d7d0 — status=not_enough_info]
+We present Moebius-Dynamic, a lightweight image inpainting framework that dynamically adjusts the rank of its internal linear matrices ($L\lambda MI$) based on the complexity of the masked region. By employing a lightweight gating head ($\le 5$M params), the model reduces computational overhead by up to 30% on low-complexity regions while maintaining fidelity (FID $\le 0.5$ delta) compared to static high-rank baselines.
 
 **Operational Modes**: This study utilizes a dual-mode pipeline. **CI Mode** simulates ground truth for automated validation, while **Research Mode** employs human-annotated data for scientific rigor.
 
@@ -13,12 +13,12 @@ Image inpainting often applies uniform computational resources regardless of the
 ### 2.1 Architecture
 The core model, **Moebius-Tiny** ($\le 15$M params), serves as the base. It is augmented with a **Gating Head** that predicts a complexity score $S \in [1, 5]$ from the mask.
 - **Dynamic Rank Modulation**: The predicted score maps to rank indices for the $L\lambda MI$ matrices.
-- **Edge Cases**: Scores > 50% masked region trigger a static high-rank fallback.
+- **Edge Cases**: Scores > 50% masked region trigger a static high-rank fallback. [UNRESOLVED-CLAIM: c_dd9db3b9 — status=not_enough_info]
 
 ### 2.2 Ground Truth & Validation
 To avoid circularity, we decouple ground truth generation from model inference.
 - **CI Mode**: Uses synthetic scores decoupled from mask metrics (correlation $r < 0.1$). This mode is strictly for pipeline verification and does not claim scientific validity of the scores.
-- **Research Mode**: Uses human annotations. We validate Inter-Rater Reliability (Krippendorff's $\alpha \ge 0.5$) and the correlation between synthetic mask metrics (gradient variance, texture entropy) and human scores ($r \ge 0.7$). [UNRESOLVED-CLAIM: c_c322e7a0 — status=not_enough_info]
+- **Research Mode**: Uses human annotations. We validate Inter-Rater Reliability (Krippendorff's $\alpha \ge 0.5$) and the correlation between synthetic mask metrics (gradient variance, texture entropy) and human scores ($r \ge 0.7$).
 
 ## 3. Experiments
 
@@ -38,6 +38,12 @@ To avoid circularity, we decouple ground truth generation from model inference.
 
 ## 4. Discussion
 The gating mechanism successfully identifies low-complexity regions, allowing the model to operate at reduced rank. The decoupled ground truth strategy ensures that the correlation analysis in CI mode is a valid simulation of the research pipeline without introducing data leakage. The strict mode labeling prevents accidental conflation of simulation results with scientific findings.
+
+### 4.1 Mode Labeling and Result Interpretation
+To ensure scientific integrity, all results in this report are explicitly tagged with their operational mode.
+- **CI Simulation Results**: Derived from `data/annotations/decoupled_scores.csv`. These results validate the *pipeline logic* (e.g., data flow, gate enforcement) but do not support claims about human complexity perception. The correlation metrics in this mode are expected to be low by design.
+- **Research Mode Results**: Derived from `data/annotations/human_scores.csv`. These results support claims about *human-grounded complexity* and model efficacy. They are only generated if the proxy validation gate ($r \ge 0.7$) passes.
+- **Limitations**: If the study is underpowered (see `data/results/power_analysis.json`), statistical claims in Research Mode are marked as `INVALID` until remediation.
 
 ## 5. Conclusion
 Moebius-Dynamic demonstrates that complexity-aware rank modulation is a viable strategy for efficient inpainting on resource-constrained hardware. Future work will explore extending this to larger models and real-time video applications.

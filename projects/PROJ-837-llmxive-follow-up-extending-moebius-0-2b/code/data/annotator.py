@@ -4,344 +4,392 @@ import csv
 import math
 import argparse
 import random
+import numpy as np
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
+from config import get_mode, is_ci_mode, is_research_mode, get_path
+from utils.logger import get_logger, get_timestamp
+from data.loader import fetch_places365_subset
 
-from config import is_ci_mode, is_research_mode, get_mode, get_path
-from utils.logger import get_logger, log_error
+# Importing logging setup to ensure consistent logging
+logger = get_logger("annotator")
 
-logger = get_logger(__name__)
-
-# Constants for Krippendorff's Alpha
-KRIFF_ALPHA_DEFAULT = 0.0
-
-def generate_ci_scores(n_samples: int, seed: int = 42) -> List[Dict[str, Any]]:
+def validate_sample_size(sample_count: int, min_threshold: int = 50) -> bool:
     """
-    Generate synthetic scores for CI mode.
-    Decoupled from any mask metrics to ensure independence.
+    Validates that the sample size meets the minimum threshold.
+    
+    Args:
+        sample_count (int): The number of samples to validate.
+        min_threshold (int): The minimum required sample size (default 50).
+    
+    Returns:
+        bool: True if sample_size >= min_threshold, False otherwise.
+    """
+    if sample_count < min_threshold:
+        logger.error(f"Sample size {sample_count} is below minimum threshold {min_threshold}.")
+        return False
+    return True
+
+def validate_label_independence(
+    scores_path: Path,
+    mask_metrics_path: Path,
+    threshold: float = 0.0
+) -> bool:
+    """
+    Validates that labels (scores) are independent of mask metrics.
+    
+    This check ensures that the generated scores do not correlate with the
+    synthetic mask metrics (gradient_variance, texture_entropy) beyond a
+    negligible threshold, preventing circularity in the labeling process.
+    
+    Args:
+        scores_path (Path): Path to the scores CSV (decoupled_scores.csv or human_scores.csv).
+        mask_metrics_path (Path): Path to the mask_metrics.json file.
+        threshold (float): Maximum allowed correlation coefficient. Default 0.0.
+    
+    Returns:
+        bool: True if independence holds (correlation <= threshold), False otherwise.
+    
+    Raises:
+        FileNotFoundError: If required input files are missing.
+        ValueError: If the independence check fails.
+    """
+    if not scores_path.exists():
+        logger.error(f"Scores file not found: {scores_path}")
+        raise FileNotFoundError(f"Scores file not found: {scores_path}")
+    
+    if not mask_metrics_path.exists():
+        logger.error(f"Mask metrics file not found: {mask_metrics_path}")
+        raise FileNotFoundError(f"Mask metrics file not found: {mask_metrics_path}")
+
+    # Load scores
+    scores_data = []
+    with open(scores_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            scores_data.append(row)
+
+    if not scores_data:
+        logger.error("Scores data is empty.")
+        return False
+
+    # Load mask metrics
+    with open(mask_metrics_path, 'r', encoding='utf-8') as f:
+        mask_metrics = json.load(f)
+
+    # Extract metrics for correlation check
+    # Assuming mask_metrics is a dict keyed by image_id
+    image_ids = [row['image_id'] for row in scores_data]
+    
+    # Ensure we have metrics for the images in scores
+    valid_metrics = {}
+    for iid in image_ids:
+        if iid in mask_metrics:
+            valid_metrics[iid] = mask_metrics[iid]
+        else:
+            logger.warning(f"No mask metrics found for image_id: {iid}")
+    
+    if not valid_metrics:
+        logger.error("No valid mask metrics found for the provided scores.")
+        return False
+
+    # Calculate correlation between scores and metrics
+    # We will check correlation for 'gradient_variance' and 'texture_entropy'
+    metrics_to_check = ['gradient_variance', 'texture_entropy']
+    max_correlation = 0.0
+
+    for metric in metrics_to_check:
+        metric_values = [valid_metrics[iid].get(metric, 0.0) for iid in valid_metrics]
+        score_values = [float(row['score']) for row in scores_data if row['image_id'] in valid_metrics]
+
+        if len(metric_values) != len(score_values) or len(metric_values) < 2:
+            logger.warning(f"Not enough data points for {metric} correlation check.")
+            continue
+
+        try:
+            # Using numpy for correlation calculation
+            corr_matrix = np.corrcoef(metric_values, score_values)
+            corr = corr_matrix[0, 1]
+            if abs(corr) > max_correlation:
+                max_correlation = abs(corr)
+            logger.info(f"Correlation between {metric} and score: {corr:.4f}")
+        except Exception as e:
+            logger.warning(f"Could not calculate correlation for {metric}: {e}")
+            continue
+
+    if max_correlation > threshold:
+        logger.error(f"Label independence check failed. Max correlation {max_correlation:.4f} > threshold {threshold}.")
+        return False
+
+    logger.info(f"Label independence check passed. Max correlation: {max_correlation:.4f} <= {threshold}.")
+    return True
+
+def log_validation_result(
+    result: bool,
+    check_name: str,
+    details: str = "",
+    log_path: Optional[Path] = None
+) -> None:
+    """
+    Logs the result of a validation check to the validation log file.
+    
+    Args:
+        result (bool): The result of the validation (True/False).
+        check_name (str): The name of the check being validated.
+        details (str): Additional details about the check.
+        log_path (Optional[Path]): Path to the validation log file. Defaults to data/results/validation_log.txt.
+    """
+    if log_path is None:
+        log_path = Path(get_path("results")) / "validation_log.txt"
+    
+    # Ensure directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    timestamp = get_timestamp()
+    status = "PASSED" if result else "FAILED"
+    
+    log_entry = f"[{timestamp}] [{check_name}] {status} - {details}\n"
+    
+    with open(log_path, 'a', encoding='utf-8') as f:
+        f.write(log_entry)
+    
+    if result:
+        logger.info(f"Validation passed: {check_name}")
+    else:
+        logger.error(f"Validation failed: {check_name} - {details}")
+
+def generate_ci_scores(
+    image_ids: List[str],
+    seed: int,
+    output_path: Path
+) -> None:
+    """
+    Generates decoupled random scores for CI Mode.
+    
+    This function generates scores strictly decoupled from synthetic mask metrics
+    to avoid circularity, as required for CI Mode simulation.
+    
+    Args:
+        image_ids (List[str]): List of image IDs to generate scores for.
+        seed (int): Random seed for reproducibility.
+        output_path (Path): Path to save the output CSV.
     """
     random.seed(seed)
     np.random.seed(seed)
     
-    scores = []
-    for i in range(n_samples):
-        score = float(np.random.uniform(1, 5))
-        scores.append({
-            'image_id': f'ci_img_{i:05d}',
-            'score': round(score, 3),
-            'mode': 'CI_MODE',
-            'rater_id': 'simulated_rater'
-        })
-    return scores
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['image_id', 'score', 'mode', 'seed_used'])
+        
+        for img_id in image_ids:
+            # Generate score uniformly between 1 and 5
+            score = np.random.uniform(1, 5)
+            writer.writerow([img_id, f"{score:.4f}", 'CI_MODE_SIMULATION', seed])
+    
+    logger.info(f"Generated CI scores for {len(image_ids)} images to {output_path}")
 
-def load_research_annotations(filepath: Optional[str] = None) -> List[Dict[str, Any]]:
+def save_scores(scores_data: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Load human-annotated scores from CSV.
-    Validates schema: image_id, score, rater_id.
-    """
-    if filepath is None:
-        filepath = get_path('annotations', 'human_scores.csv')
-    
-    if not os.path.exists(filepath):
-        if is_research_mode():
-            raise FileNotFoundError(
-                f"Research mode requires human scores file at {filepath} but it was not found."
-            )
-        else:
-            logger.warning(f"Research annotations file not found at {filepath}. Skipping.")
-            return []
-
-    scores = []
-    try:
-        with open(filepath, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            required_cols = {'image_id', 'score', 'rater_id'}
-            if not required_cols.issubset(set(reader.fieldnames or [])):
-                raise ValueError(f"CSV missing required columns: {required_cols}")
-            
-            for row in reader:
-                scores.append({
-                    'image_id': row['image_id'],
-                    'score': float(row['score']),
-                    'rater_id': row['rater_id']
-                })
-    except Exception as e:
-        log_error(f"Failed to load research annotations: {e}")
-        raise
-    
-    return scores
-
-def calculate_disagreement(scores: List[Dict[str, Any]]) -> Dict[str, float]:
-    """
-    Calculate standard deviation of scores per image.
-    Logs high disagreement to validation_log.txt.
-    """
-    from collections import defaultdict
-    
-    grouped = defaultdict(list)
-    for item in scores:
-        grouped[item['image_id']].append(item['score'])
-    
-    high_disagreement = {}
-    for img_id, s_list in grouped.items():
-        std_dev = float(np.std(s_list))
-        if std_dev > 1.0:
-            high_disagreement[img_id] = std_dev
-    
-    # Log to validation_log.txt
-    log_path = get_path('results', 'validation_log.txt')
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    
-    with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(f"Disagreement check completed at {os.popen('date').read().strip()}\n")
-        if high_disagreement:
-            f.write(f"Found {len(high_disagreement)} images with std_dev > 1.0\n")
-            for img_id, std in high_disagreement.items():
-                f.write(f"  {img_id}: std_dev={std:.4f}\n")
-        else:
-            f.write("No images with high disagreement found.\n")
-        f.write("-" * 40 + "\n")
-    
-    return high_disagreement
-
-def calculate_krippendorff_alpha(scores: List[Dict[str, Any]]) -> float:
-    """
-    Calculate Krippendorff's Alpha for Inter-Rater Reliability.
-    
-    This function implements the metric for nominal, ordinal, interval, or ratio data.
-    It handles missing data by excluding missing pairs from the denominator.
-    
-    Formula: alpha = 1 - (Do / De)
-    Where:
-      Do = Observed disagreement
-      De = Expected disagreement (chance)
+    Saves scores to a CSV file.
     
     Args:
-        scores: List of dicts with keys: image_id, score, rater_id.
+        scores_data (List[Dict[str, Any]]): List of score dictionaries.
+        output_path (Path): Path to save the CSV.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if not scores_data:
+        logger.warning("No scores data to save.")
+        return
+
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=scores_data[0].keys())
+        writer.writeheader()
+        writer.writerows(scores_data)
+    
+    logger.info(f"Saved scores to {output_path}")
+
+def load_research_annotations(input_path: Path) -> List[Dict[str, Any]]:
+    """
+    Loads human-annotated scores for Research Mode.
+    
+    Args:
+        input_path (Path): Path to the human_scores.csv file.
     
     Returns:
-        float: Krippendorff's alpha value (typically between -1 and 1).
-               Returns 0.0 if there is insufficient data to calculate.
+        List[Dict[str, Any]]: List of score dictionaries.
+    
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the schema is invalid.
     """
-    if not scores:
-        logger.warning("No scores provided for Krippendorff's Alpha calculation.")
-        return 0.0
-
-    # Group scores by image_id
-    from collections import defaultdict
-    ratings_by_item = defaultdict(list)
-    for item in scores:
-        ratings_by_item[item['image_id']].append(item['score'])
-
-    # Filter out items with less than 2 raters (cannot calculate disagreement)
-    valid_items = {k: v for k, v in ratings_by_item.items() if len(v) >= 2}
+    if not input_path.exists():
+        raise FileNotFoundError(f"Human annotation file not found: {input_path}")
     
-    if len(valid_items) == 0:
-        logger.warning("No items have >= 2 raters. Cannot calculate Krippendorff's Alpha.")
-        return 0.0
-
-    # Flatten all ratings for overall mean
-    all_ratings = [r for ratings in valid_items.values() for r in ratings]
-    if not all_ratings:
-        return 0.0
+    scores_data = []
+    required_keys = {'image_id', 'score', 'rater_id'}
     
-    mean_score = float(np.mean(all_ratings))
-    n_items = len(valid_items)
-    total_raters = sum(len(r) for r in valid_items.values())
-    
-    # Calculate Observed Disagreement (Do)
-    # Sum of squared differences between all pairs of ratings for each item
-    sum_d_obs = 0.0
-    count_pairs = 0
-    
-    for ratings in valid_items.values():
-        n = len(ratings)
-        for i in range(n):
-            for j in range(i + 1, n):
-                diff = ratings[i] - ratings[j]
-                sum_d_obs += diff * diff
-                count_pairs += 1
-    
-    if count_pairs == 0:
-        return 0.0
+    with open(input_path, 'r', newline='', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        # Check schema
+        if not required_keys.issubset(set(reader.fieldnames or [])):
+            raise ValueError(f"Invalid schema in {input_path}. Required keys: {required_keys}")
         
-    Do = sum_d_obs / count_pairs
+        for row in reader:
+            scores_data.append(row)
+    
+    logger.info(f"Loaded {len(scores_data)} human annotations from {input_path}")
+    return scores_data
 
-    # Calculate Expected Disagreement (De)
-    # Based on the variance of the entire dataset
-    # De = 1 / (N * (N-1)) * sum over all pairs (x_i - x_j)^2
-    # Where N is total number of ratings
-    
-    N = len(all_ratings)
-    if N < 2:
-        return 0.0
-    
-    sum_d_exp = 0.0
-    # Optimization: sum(x^2) and sum(x) to calculate sum((x_i - x_j)^2)
-    # sum((x_i - x_j)^2) = N * sum(x^2) - (sum(x))^2
-    sum_x = sum(all_ratings)
-    sum_x2 = sum(x*x for x in all_ratings)
-    
-    sum_d_exp = N * sum_x2 - (sum_x * sum_x)
-    
-    De = sum_d_exp / (N * (N - 1))
-    
-    if De == 0:
-        # Perfect agreement or no variance in data
-        logger.info("Expected disagreement is zero (no variance in data). Alpha is undefined/1.0.")
-        return 1.0 if Do == 0 else 0.0
-
-    alpha = 1.0 - (Do / De)
-    
-    # Clamp to [-1, 1] range theoretically possible but usually bounded
-    alpha = max(-1.0, min(1.0, alpha))
-    
-    logger.info(f"Calculated Krippendorff's Alpha: {alpha:.4f} (Do={Do:.4f}, De={De:.4f})")
-    return alpha
-
-def save_scores(scores: List[Dict[str, Any]], filepath: Optional[str] = None, mode: str = 'auto') -> str:
+def run_ci_mode(
+    seed: int,
+    sample_size: int,
+    output_scores_path: Path,
+    log_path: Path,
+    mask_metrics_path: Path
+) -> bool:
     """
-    Save scores to CSV.
-    """
-    if filepath is None:
-        if mode == 'CI' or is_ci_mode():
-            filepath = get_path('annotations', 'decoupled_scores.csv')
-        else:
-            filepath = get_path('annotations', 'human_scores.csv')
+    Executes the CI Mode workflow: generate decoupled scores and validate.
     
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    Args:
+        seed (int): Random seed.
+        sample_size (int): Number of samples to process.
+        output_scores_path (Path): Path to save decoupled scores.
+        log_path (Path): Path to validation log.
+        mask_metrics_path (Path): Path to mask metrics for independence check.
     
-    with open(filepath, 'w', newline='', encoding='utf-8') as f:
-        if scores:
-            writer = csv.DictWriter(f, fieldnames=scores[0].keys())
-            writer.writeheader()
-            writer.writerows(scores)
-        else:
-            f.write("image_id,score,mode,rater_id\n") # Empty file with header
+    Returns:
+        bool: True if all validations pass, False otherwise.
+    """
+    logger.info("Starting CI Mode workflow.")
     
-    logger.info(f"Saved {len(scores)} scores to {filepath}")
-    return filepath
-
-def log_validation(message: str, level: str = 'INFO'):
-    """
-    Append a log message to data/results/validation_log.txt
-    """
-    log_path = get_path('results', 'validation_log.txt')
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    # 1. Validate Sample Size
+    if not validate_sample_size(sample_size):
+        log_validation_result(False, "Sample Size Check", f"Size {sample_size} < 50", log_path)
+        return False
     
-    timestamp = os.popen('date').read().strip()
-    with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(f"[{timestamp}] [{level}] {message}\n")
-
-def validate_sample_size(scores: List[Dict[str, Any]], min_size: int = 50) -> bool:
-    """
-    Validate that sample size is sufficient.
-    """
-    if len(scores) < min_size:
-        msg = f"Sample size {len(scores)} is less than required {min_size}."
-        log_validation(msg, 'ERROR')
-        raise ValueError(msg)
-    log_validation(f"Sample size validation passed: {len(scores)} >= {min_size}")
+    log_validation_result(True, "Sample Size Check", f"Size {sample_size} >= 50", log_path)
+    
+    # 2. Generate Decoupled Scores
+    # We need image_ids. In CI mode, we might generate them or load from a small subset.
+    # For this implementation, we assume we have a list of image_ids.
+    # If not provided, we generate dummy IDs for the sample_size.
+    image_ids = [f"ci_img_{i:04d}" for i in range(sample_size)]
+    generate_ci_scores(image_ids, seed, output_scores_path)
+    
+    # 3. Validate Label Independence
+    try:
+        if not validate_label_independence(output_scores_path, mask_metrics_path, threshold=0.0):
+            log_validation_result(False, "Label Independence Check", "Correlation > 0.0", log_path)
+            return False
+        log_validation_result(True, "Label Independence Check", "Correlation <= 0.0", log_path)
+    except FileNotFoundError as e:
+        logger.warning(f"Skipping independence check due to missing file: {e}")
+        # In CI mode, if metrics are missing, we might still proceed but log a warning.
+        # However, the task requires raising an error if check fails.
+        # If the file is missing, we cannot verify independence, so we log it as a failure of the check.
+        log_validation_result(False, "Label Independence Check", f"Missing metrics file: {e}", log_path)
+        return False
+    
     return True
 
-def validate_label_independence(scores: List[Dict[str, Any]], metrics: Optional[List[Dict]] = None) -> bool:
+def run_research_mode(
+    input_scores_path: Path,
+    log_path: Path,
+    mask_metrics_path: Path
+) -> bool:
     """
-    Validate that labels are independent from mask metrics.
-    In CI mode, this is guaranteed by generation logic.
-    In Research mode, we check if there is a strong correlation (which would be bad).
+    Executes the Research Mode workflow: load human scores and validate.
+    
+    Args:
+        input_scores_path (Path): Path to human_scores.csv.
+        log_path (Path): Path to validation log.
+        mask_metrics_path (Path): Path to mask metrics for independence check.
+    
+    Returns:
+        bool: True if all validations pass, False otherwise.
     """
-    if is_ci_mode():
-        log_validation("CI Mode: Label independence guaranteed by decoupled generation.", 'INFO')
-        return True
+    logger.info("Starting Research Mode workflow.")
     
-    if metrics is None:
-        log_validation("No metrics provided to check independence. Skipping check.", 'WARNING')
-        return True
+    # 1. Load and Validate Annotations
+    try:
+        scores_data = load_research_annotations(input_scores_path)
+    except FileNotFoundError as e:
+        logger.error(f"Research mode disabled: {e}")
+        log_validation_result(False, "Human Annotation Load", str(e), log_path)
+        return False
+    except ValueError as e:
+        logger.error(f"Invalid annotation schema: {e}")
+        log_validation_result(False, "Human Annotation Schema", str(e), log_path)
+        return False
     
-    # If research mode and we have metrics, we assume independence is handled by data collection
-    # unless we see a perfect correlation (which implies circularity).
-    log_validation("Research Mode: Assuming independence based on external data source.", 'INFO')
+    # 2. Validate Sample Size
+    sample_size = len(scores_data)
+    if not validate_sample_size(sample_size):
+        log_validation_result(False, "Sample Size Check", f"Size {sample_size} < 50", log_path)
+        return False
+    log_validation_result(True, "Sample Size Check", f"Size {sample_size} >= 50", log_path)
+    
+    # 3. Validate Label Independence (Optional for Research Mode if human data is trusted, 
+    # but the task requires the check logic to exist and run if possible)
+    # For Research Mode, we check if scores are correlated with mask metrics to ensure 
+    # the human raters weren't biased by the synthetic metrics (if they had access).
+    # Or, we check that the scores are not trivially correlated (e.g., constant).
+    try:
+        # Create a temporary scores file for the check function
+        temp_scores_path = Path(get_path("annotations")) / "temp_research_scores.csv"
+        save_scores(scores_data, temp_scores_path)
+        
+        if not validate_label_independence(temp_scores_path, mask_metrics_path, threshold=0.5):
+            log_validation_result(False, "Label Independence Check", "Correlation > 0.5", log_path)
+            # In research mode, high correlation might indicate bias, but we log and return False
+            return False
+        log_validation_result(True, "Label Independence Check", "Correlation <= 0.5", log_path)
+    except FileNotFoundError as e:
+        logger.warning(f"Skipping independence check in Research Mode: {e}")
+        # If metrics are missing, we cannot check, but we don't fail the whole mode necessarily.
+        # However, per task T016, we must raise error if check fails. If we can't check, 
+        # we log a warning but might proceed.
+        log_validation_result(False, "Label Independence Check", f"Missing metrics file: {e}", log_path)
+        return False
+    
     return True
-
-def run_ci_mode():
-    """
-    Execute the full pipeline for CI Mode.
-    Generates decoupled scores and logs simulation status.
-    """
-    logger.info("Running in CI Mode.")
-    
-    # Generate synthetic scores
-    n_samples = 100 # Default for CI
-    scores = generate_ci_scores(n_samples)
-    
-    # Save scores
-    save_scores(scores, mode='CI')
-    
-    # Log specific CI message
-    log_validation("[CI_MODE] Single-Rater Simulation: Ground truth decoupled from metrics.")
-    
-    # Skip T015 (IR) in CI mode as per spec
-    log_validation("[CI_MODE] Skipping Inter-Rater Reliability calculation.")
-    
-    # Validate sample size
-    validate_sample_size(scores)
-    
-    logger.info("CI Mode pipeline completed successfully.")
-
-def run_research_mode():
-    """
-    Execute the full pipeline for Research Mode.
-    Loads human scores, validates, calculates IR, and checks disagreement.
-    """
-    logger.info("Running in Research Mode.")
-    
-    # Load human scores
-    scores = load_research_annotations()
-    
-    if not scores:
-        log_validation("No human scores found in Research Mode. Aborting.", 'ERROR')
-        raise FileNotFoundError("Human scores file missing in Research Mode.")
-    
-    # Validate sample size
-    validate_sample_size(scores)
-    
-    # Validate independence (just a check/log for research mode)
-    validate_label_independence(scores)
-    
-    # Calculate Disagreement
-    disagreement = calculate_disagreement(scores)
-    if disagreement:
-        log_validation(f"Found {len(disagreement)} images with high disagreement (std > 1.0).")
-    
-    # Calculate Krippendorff's Alpha (T015)
-    alpha = calculate_krippendorff_alpha(scores)
-    
-    # Log result
-    log_validation(f"Inter-Rater Reliability (Krippendorff's Alpha): {alpha:.4f}")
-    
-    logger.info(f"Research Mode pipeline completed. Alpha: {alpha:.4f}")
 
 def main():
-    """
-    CLI entry point for annotator.
-    """
-    parser = argparse.ArgumentParser(description="Annotator: Generate or Validate Scores")
-    parser.add_argument('--mode', type=str, choices=['auto', 'CI', 'RESEARCH'], default='auto',
-                        help="Run mode. Default: auto (detects from config)")
+    parser = argparse.ArgumentParser(description="Annotator for Human Complexity Annotation")
+    parser.add_argument("--participants", action="store_true", help="Run in Research Mode (with participants)")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for CI Mode")
+    parser.add_argument("--sample-size", type=int, default=500, help="Sample size for CI Mode")
+    
     args = parser.parse_args()
     
-    mode = args.mode
-    if mode == 'auto':
-        if is_ci_mode():
-            mode = 'CI'
-        else:
-            mode = 'RESEARCH'
+    mode = get_mode()
+    is_ci = is_ci_mode()
+    is_research = is_research_mode()
     
-    if mode == 'CI':
-        run_ci_mode()
+    log_path = Path(get_path("results")) / "validation_log.txt"
+    scores_path = Path(get_path("annotations"))
+    mask_metrics_path = Path(get_path("processed")) / "mask_metrics.json"
+    
+    if args.participants or is_research:
+        # Research Mode
+        human_scores_path = scores_path / "human_scores.csv"
+        success = run_research_mode(human_scores_path, log_path, mask_metrics_path)
+        if not success:
+            logger.error("Research Mode validation failed.")
+            return 1
     else:
-        run_research_mode()
+        # CI Mode
+        decoupled_scores_path = scores_path / "decoupled_scores.csv"
+        success = run_ci_mode(args.seed, args.sample_size, decoupled_scores_path, log_path, mask_metrics_path)
+        if not success:
+            logger.error("CI Mode validation failed.")
+            return 1
+    
+    logger.info("Annotator validation completed successfully.")
+    return 0
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    exit(main())

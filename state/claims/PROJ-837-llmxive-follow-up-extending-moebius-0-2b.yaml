@@ -2411,25 +2411,6 @@
   updated_at: '2026-09-21T16:18:42Z'
 - artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
   attempts: 1
-  canonical: FID difference threshold is 0.5
-  claim_id: c_1ec4c356
-  context: "T034 [US3] Verify FID difference \u22640.5 vs static baseline and statistical\
-    \ significance (p > 0.05) using paired t-test."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/FID_difference_threshold_is_0.5
-  kind: magnitude
-  raw_text: The FID difference between the dynamic model and static baseline must
-    be less than or equal to 0.5.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-21T16:19:15Z'
-- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
-  attempts: 1
   canonical: FID significance test requires p-value > 0.05
   claim_id: c_c0af13c2
   context: "T034 [US3] Verify FID difference \u22640.5 vs static baseline and statistical\
@@ -2466,3 +2447,639 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T16:20:41Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: 30% computational overhead reduction on low-complexity regions with FID
+    delta <= 0.5
+  claim_id: c_d7c4e431
+  context: By employing a lightweight gating head ($\le 5$M params), the model reduces
+    computational overhead by up to 30% on low-complexity regions while maintaining
+    fidelity (FID $\le 0.5$ delta) compared to static high-rank baselines.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model reduces computational overhead by up to 30% on low-complexity
+    regions while maintaining fidelity (FID $\le 0.5$ delta) compared to static high-rank
+    baselines.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:15:16Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Moebius-Tiny model has <= 15M parameters
+  claim_id: c_224c96db
+  context: The core model, **Moebius-Tiny** ($\le 15$M params), serves as the base.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The core model, Moebius-Tiny, has $\le 15$M params.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:15:47Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Gating head has <= 5M parameters
+  claim_id: c_a0bb6e97
+  context: By employing a lightweight gating head ($\le 5$M params), the model reduces
+    computational overhead by up to 30% on low-complexity regions while maintaining
+    fidelity (FID $\le 0.5$ delta) compared to static high-rank baselines.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gating head has $\le 5$M params.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:16:13Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Complexity score range is 1 to 5
+  claim_id: c_a16a34b1
+  context: It is augmented with a **Gating Head** that predicts a complexity score
+    $S \in [1, 5]$ from the mask.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The predicted score maps to rank indices for the $L\lambda MI$ matrices
+    from a range of 1 to 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:16:57Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Static high-rank fallback triggered when masked region > 50%
+  claim_id: c_dd9db3b9
+  context: Scores > 50% masked region trigger a static high-rank fallback.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scores > 50% masked region trigger a static high-rank fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:16:58Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: CI Mode synthetic score correlation r < 0.1
+  claim_id: c_9d30861e
+  context: '**CI Mode**: Uses synthetic scores decoupled from mask metrics (correlation
+    $r < 0.1$). This mode is strictly for pipeline verification and does not claim
+    scientific validity of the scores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In CI Mode, synthetic scores are decoupled from mask metrics with a correlation
+    of $r < 0.1$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:16:58Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Krippendorff alpha >= 0.5
+  claim_id: c_d8d1fa80
+  context: We validate Inter-Rater Reliability (Krippendorff's $\alpha \ge 0.5$) and
+    the correlation between synthetic mask metrics (gradient variance, texture entropy)
+    and human scores ($r \ge 0.7$).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inter-Rater Reliability (Krippendorff's $\alpha$) was validated to be
+    $\ge 0.5$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:17:29Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Correlation between synthetic mask metrics and human scores r >= 0.7
+  claim_id: c_426d4c73
+  context: We validate Inter-Rater Reliability (Krippendorff's $\alpha \ge 0.5$) and
+    the correlation between synthetic mask metrics (gradient variance, texture entropy)
+    and human scores ($r \ge 0.7$).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation between synthetic mask metrics and human scores is $r
+    \ge 0.7$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:17:53Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Experiment RAM limit 7GB
+  claim_id: c_c2e9cdf4
+  context: 'Hardware: CPU-only (Intel/AMD) to simulate CI constraints (7GB RAM limit).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Experiment_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: The experiments were conducted with a 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:18:28Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: Dataset used is Places365 subset mit-places/Places365
+  claim_id: c_563ab8c9
+  context: '**Dataset**: Places365 subset (HuggingFace `mit-places/Places365`).'
+  evidence:
+    entailment_evidence: Dataset used is Places365 subset mit-places/Places365
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_used_is_Places365_subset_mit-places/Places365
+  kind: entity_fact
+  raw_text: The dataset used was a Places365 subset from HuggingFace `mit-places/Places365`.
+  resolved_value: Dataset used is Places365 subset mit-places/Places365
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T09:18:30Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/paper/draft.md
+  attempts: 1
+  canonical: 30% latency reduction for low-complexity regions score <= 2.0
+  claim_id: c_8cad775c
+  context: '**Efficiency**: Dynamic model achieves **$\ge 30\%$ latency reduction**
+    for low-complexity regions (score $\le 2.0$) compared to static high-rank.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dynamic model achieves $\ge 30\%$ latency reduction for low-complexity
+    regions (score $\le 2.0$) compared to static high-rank.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:19:03Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Moebius-Tiny model has <=15M parameters
+  claim_id: c_a05c4ee1
+  context: "T020 [P] [US2] Implement code/models/moebius_tiny.py (Simplified CPU version,\
+    \ \u226415M params total)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Moebius-Tiny_model_has_%3C=15M_parameters
+  kind: magnitude
+  raw_text: The Moebius-Tiny model architecture has a total parameter count of less
+    than or equal to 15 million.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:31:50Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Gating head has <=5M parameters
+  claim_id: c_80bf9423
+  context: "T021 [US2] Implement code/models/gating_head.py (Lightweight conv head,\
+    \ \u22645M parameters) to output scalar complexity."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gating_head_has_%3C=5M_parameters
+  kind: magnitude
+  raw_text: The lightweight gating head outputs a scalar complexity with a parameter
+    count of less than or equal to 5 million.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:32:24Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Proxy validation gate requires Pearson r >= 0.7
+  claim_id: c_f4753c43
+  context: 'T035 [P] [US4] ... Gate Logic: If config.mode == ''RESEARCH'' and r <
+    0.7, update data/results/proxy_validation.json with gate_status: BLOCKED and raise
+    SystemExit with code 1.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_validation_gate_requires_Pearson_r_%3E=_0.7
+  kind: magnitude
+  raw_text: The proxy validation gate requires a Pearson correlation coefficient of
+    at least 0.7 between synthetic metrics and human ground truth in Research Mode.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:33:08Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Target latency reduction is >=30%
+  claim_id: c_7174b9df
+  context: "T033b [US3] ... Verify \u226530% reduction for low-complexity regions\
+    \ (defined as images where score <= 2.5 AND rank_in_bin <= 33% of the sorted complexity\
+    \ list)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_latency_reduction_is_%3E=30%25
+  kind: magnitude
+  raw_text: The target latency reduction for low-complexity regions is at least 30%
+    compared to a static high-rank baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:33:35Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: FID difference <=0.5 vs static baseline
+  claim_id: c_c8962cf2
+  context: "T034 [US3] Verify FID difference \u22640.5 vs static baseline and statistical\
+    \ significance (p > 0.05) using paired t-test."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FID_difference_%3C=0.5_vs_static_baseline
+  kind: magnitude
+  raw_text: The FID difference between the dynamic model and the static baseline must
+    be less than or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:34:38Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha=0.05 and effect size=0.5
+  claim_id: c_2ef6e253
+  context: 'T030a [P] [US3] ... Logic: Use scipy.stats.power for two-sample t-test,
+    alpha=0.05, effect size=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical power analysis for the latency reduction claims targets an
+    alpha of 0.05 and an effect size of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:35:04Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 shuffles
+  claim_id: c_89c4ba98
+  context: 'T025a [US2] ... Logic: Shuffle labels n_permutations=1000 times, re-evaluate
+    model, calculate p-value using scipy.stats.permutation_test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test for overfitting verification uses 1000 label shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:35:36Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Default CI sample size is 500
+  claim_id: c_d9c600e3
+  context: 'T004 ... sample_size: int = 500. ... Sampling (via itertools.islice) is
+    ONLY for CI memory constraints. ... N is config.sample_size (default 500)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default sample size for CI mode data processing is 500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:36:08Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: RAM limit is 7.0 GB
+  claim_id: c_0c466a3c
+  context: 'T004 ... Schema: ... ram_limit_gb: float = 7.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RAM limit for the project is configured to 7.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:36:31Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Chunk size is 1024
+  claim_id: c_0d601637
+  context: 'T004 ... Schema: ... chunk_size: int = 1024'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The chunk size for data processing is configured to 1024.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:36:58Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Default seed is 42
+  claim_id: c_42d8f2de
+  context: 'T004 ... Schema: seed: int = 42'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default random seed for the project is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:37:24Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: CI mode score range is 1 to 5
+  claim_id: c_ea373764
+  context: T014a [US1] ... generate scores via np.random.uniform(1, 5, size=50)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scoring range for synthetic data generation in CI mode is uniformly
+    distributed between 1 and 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:37:51Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Minimum sample size for validation is 50
+  claim_id: c_f7b6b2c0
+  context: T016 [US1] Add validation logic in code/data/annotator.py that raises an
+    error if sample size < 50
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum sample size required for validation logic is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:38:19Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Moebius Tiny model has 15 million parameters or fewer
+  claim_id: c_9e860473
+  context: "T020 [P] [US2] Implement code/models/moebius_tiny.py (Simplified CPU version,\
+    \ \u226415M params total) - Moved to Phase 2 to ensure code availability before\
+    \ gating."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Moebius_Tiny_model_has_15_million_parameters_or_fewer
+  kind: entity_fact
+  raw_text: "The Moebius Tiny model is a simplified CPU version with \u226415M parameters\
+    \ total."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:56:13Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Gating head has 5 million parameters or fewer
+  claim_id: c_b9f6ffae
+  context: "T021 [US2] Implement code/models/gating_head.py (Lightweight conv head,\
+    \ \u22645M parameters) to output scalar complexity."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Gating_head_has_5_million_parameters_or_fewer
+  kind: entity_fact
+  raw_text: "The gating head is a lightweight conv head with \u22645M parameters."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:56:37Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Pearson correlation threshold for proxy validation is 0.7
+  claim_id: c_7acdd914
+  context: 'T035 [P] [US4] Implement correlation analysis... Gate Logic: If config.mode
+    == ''RESEARCH'' and r < 0.7, update data/results/proxy_validation.json with gate_status:
+    BLOCKED...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_threshold_for_proxy_validation_is_0.7
+  kind: magnitude
+  raw_text: The study requires a Pearson correlation coefficient of at least 0.7 between
+    synthetic metrics and ground truth in Research Mode to pass the proxy validation
+    gate.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:57:36Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 shuffles
+  claim_id: c_46245af1
+  context: 'T025a [US2] Pre-Deployment Gate: Implement a validation step that checks
+    the permutation test p-value. Logic: Shuffle labels n_permutations=1000 times...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A permutation test with 1000 shuffles is used to verify no overfitting
+    in the model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:57:59Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Latency reduction target is 30% for low-complexity regions
+  claim_id: c_3f8fd1bb
+  context: "T033b [US3] Verify Target: Calculate latency reduction from latency_raw.csv\
+    \ against Static High Rank baseline. Verify \u226530% reduction for low-complexity\
+    \ regions..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_reduction_target_is_30%25_for_low-complexity_regions
+  kind: magnitude
+  raw_text: The model must achieve a latency reduction of at least 30% for low-complexity
+    regions compared to the static high-rank baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:58:47Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Low-complexity regions defined as score <= 2.5 and rank <= 33% of sorted
+    list
+  claim_id: c_a618438e
+  context: "T033b [US3] ...Verify \u226530% reduction for low-complexity regions (defined\
+    \ as images where score <= 2.5 AND rank_in_bin <= 33% of the sorted complexity\
+    \ list)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low-complexity_regions_defined_as_score_%3C=_2.5_and_rank_%3C=_3
+  kind: magnitude
+  raw_text: Low-complexity regions are defined as images where the score is less than
+    or equal to 2.5 and the rank in the bin is less than or equal to 33% of the sorted
+    complexity list.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T09:59:19Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Power analysis uses alpha 0.05 and effect size 0.5
+  claim_id: c_229f6330
+  context: 'T030a [P] [US3] Implement code/eval/stats.py power analysis calculation
+    (SC-005). Logic: Use scipy.stats.power for two-sample t-test, alpha=0.05, effect
+    size=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical power analysis uses an alpha of 0.05 and an effect size
+    of 0.5 for a two-sample t-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:00:04Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Statistical power threshold is 0.8
+  claim_id: c_97335138
+  context: 'T030b [US3] Decision Gate: If power < 0.8, update data/results/power_analysis.json
+    with status: UNDERPOWERED...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_threshold_is_0.8
+  kind: magnitude
+  raw_text: The study requires a statistical power of at least 0.8 to proceed without
+    remediation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:00:48Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 2
+  canonical: FID difference threshold is 0.5
+  claim_id: c_1ec4c356
+  context: "T034 [US3] Verify FID difference \u22640.5 vs static baseline and statistical\
+    \ significance (p > 0.05) using paired t-test."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/FID_difference_threshold_is_0.5
+  kind: magnitude
+  raw_text: The FID difference between the dynamic model and static baseline must
+    be less than or equal to 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:00:51Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Default CI sample size is 500
+  claim_id: c_08009301
+  context: 'T004 ... sample_size: int = 500. ... Sampling (via itertools.islice) is
+    ONLY for CI memory constraints... where N is config.sample_size (default 500)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default sample size for CI memory constraints is 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:01:23Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: RAM limit is 7.0 GB
+  claim_id: c_0ec815a6
+  context: 'T004 ... ram_limit_gb: float = 7.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system enforces a RAM limit of 7.0 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:01:56Z'
+- artifact_path: projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/specs/001-llmxive-follow-up-extending-moebius-0-2b/tasks.md
+  attempts: 1
+  canonical: Chunked processing triggered at 6GB RAM usage
+  claim_id: c_75e96a80
+  context: 'T040 [P] Performance optimization... Trigger: If system RAM usage > 6GB
+    (measured via psutil), switch to chunked processing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chunked_processing_triggered_at_6GB_RAM_usage
+  kind: entity_fact
+  raw_text: The system falls back to chunked processing if system RAM usage exceeds
+    6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:02:49Z'

@@ -1,394 +1,354 @@
 """
-End-to-End Fine-tuning Script for Moebius-Dynamic.
+Task T024: Implement end-to-end fine-tuning for Moebius-Dynamic.
 
-This script performs fine-tuning of the Moebius-Dynamic model (MoebiusTiny + GatingHead)
-on the prepared dataset. It integrates the dynamic rank modulation logic and
-optimizes for both reconstruction quality and gating accuracy.
+This script fine-tunes the full Moebius-Dynamic model (gating head + backbone)
+on the masked image dataset. It respects the CPU-only constraint and memory limits.
+It loads the pre-trained weights from T023 (gating) and T020 (backbone) if available,
+otherwise initializes from scratch (for CI mode).
 
-Workflow:
-1. Load configuration and seed environment.
-2. Initialize MoebiusDynamic model.
-3. Load training data (masked images + complexity scores).
-4. Run training loop with multi-task loss (Reconstruction + Gating Regression).
-5. Save model weights and training logs.
-
-Dependencies:
-- code/config.py, code/utils/seed.py, code/utils/logger.py
-- code/models/moebius_dynamic.py
-- code/data/loader.py, code/data/mask_generator.py (for metrics loading)
+It produces:
+  - data/results/e2e_training_log.json (training metrics)
+  - code/models/moebius_dynamic_finetuned.pt (final weights)
 """
-
 import os
 import sys
 import json
 import argparse
 import logging
+import time
+import gc
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-import time
+from datetime import datetime
 
-# Third-party imports
-import numpy as np
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import Dataset, DataLoader
-from torch.nn.functional import mse_loss, smooth_l1_loss
-
-# Project imports
-from config import get_mode, is_ci_mode, get_path, ensure_paths_exist
-from utils.seed import set_seed
+# Project imports (API surface)
+from config import get_mode, is_ci_mode, is_research_mode, get_path, ensure_paths_exist
 from utils.logger import get_logger, setup_project_logger
-from utils.cpu_profiler import profile_function, get_timing_report
-from models.moebius_dynamic import create_moebius_dynamic, MoebiusDynamic
-from data.loader import get_image_paths
+from utils.seed import set_seed
+from models.moebius_dynamic import MoebiusDynamic, create_moebius_dynamic
+from models.moebius_tiny import MoebiusTiny
+from data.loader import fetch_places365_subset, get_image_paths
 from data.mask_generator import generate_mask_batch
-from data.annotator import load_research_annotations, generate_ci_scores
-from eval.stats import load_scores_csv, load_mask_metrics_csv
+from utils.cpu_profiler import cpu_timer, get_timing_report, reset_timing_results
 
-# Configure logging
+# Setup logger
 logger = setup_project_logger("train_end_to_end")
 
+# Constants
+DEFAULT_EPOCHS = 5
+BATCH_SIZE = 4
+LEARNING_RATE = 1e-4
+WEIGHT_DECAY = 1e-2
+DEVICE = "cpu"  # Enforced CPU-only per project constraints
 
-class InpaintingDataset(Dataset):
+class InpaintingDataset:
     """
-    PyTorch Dataset for Inpainting Fine-tuning.
+    A simple dataset class for the end-to-end training.
+    It loads images, applies masks on-the-fly (or loads pre-computed if available),
+    and returns (input, target, mask) tuples.
     
-    Loads images, generates masks (or loads pre-generated), and retrieves
-    complexity scores for gating supervision.
+    For CI mode with memory constraints, it streams a small subset.
     """
-    def __init__(
-        self, 
-        image_paths: List[str], 
-        mode: str, 
-        score_file: Optional[Path] = None,
-        metrics_file: Optional[Path] = None,
-        img_size: int = 128,
-        transform=None
-    ):
-        self.image_paths = image_paths
-        self.mode = mode
-        self.score_file = score_file
-        self.metrics_file = metrics_file
-        self.img_size = img_size
-        self.transform = transform
+    def __init__(self, data_root: Path, sample_size: int = 50, seed: int = 42):
+        self.data_root = data_root
+        self.sample_size = sample_size
+        self.seed = seed
+        self.image_paths = []
+        self._load_paths()
+    
+    def _load_paths(self):
+        """Load image paths from the raw dataset directory."""
+        raw_dir = self.data_root / "raw"
+        if not raw_dir.exists():
+            logger.warning(f"Raw data directory not found: {raw_dir}. Creating empty dataset.")
+            return
         
-        # Load scores if available
-        self.scores = {}
-        self.metrics = {}
+        # Simple glob for images
+        extensions = {".jpg", ".jpeg", ".png", ".bmp"}
+        for ext in extensions:
+            self.image_paths.extend(raw_dir.glob(f"*{ext}"))
+            self.image_paths.extend(raw_dir.glob(f"*{ext.upper()}") if ext != ext.upper() else [])
         
-        if score_file and score_file.exists():
-            self.scores = load_scores_csv(score_file)
-            logger.info(f"Loaded {len(self.scores)} scores from {score_file}")
-        else:
-            logger.warning(f"Score file not found: {score_file}. Using default score 3.0.")
-            self.scores = {i: 3.0 for i in range(len(image_paths))}
+        # Filter duplicates and sort for determinism
+        self.image_paths = sorted(list(set(self.image_paths)))
+        
+        if len(self.image_paths) == 0:
+            logger.warning(f"No images found in {raw_dir}. Dataset will be empty.")
+            return
 
-        if metrics_file and metrics_file.exists():
-            self.metrics = load_mask_metrics_csv(metrics_file)
-            logger.info(f"Loaded {len(self.metrics)} metrics from {metrics_file}")
+        # Sample if necessary (for CI memory constraints)
+        if len(self.image_paths) > self.sample_size:
+            # Deterministic sampling based on seed
+            import random
+            random.seed(self.seed)
+            self.image_paths = random.sample(self.image_paths, self.sample_size)
+            logger.info(f"Sampled {len(self.image_paths)} images from {len(self.image_paths) + len(self.image_paths) - self.sample_size} total (seed={self.seed}).")
+        else:
+            logger.info(f"Loaded all {len(self.image_paths)} available images.")
 
     def __len__(self):
         return len(self.image_paths)
 
     def __getitem__(self, idx):
-        # Load image (simplified PIL loading for this pipeline)
-        # In a full pipeline, we would use torchvision.transforms
+        """
+        Load image, apply mask, return tensors.
+        Returns: (input_tensor, target_tensor, mask_tensor)
+        """
         from PIL import Image
-        img_path = self.image_paths[idx]
+        import torch
+        import numpy as np
+
+        path = self.image_paths[idx]
         
+        # Load image
         try:
-            image = Image.open(img_path).convert('RGB')
-            image = image.resize((self.img_size, self.img_size), Image.Resampling.LANCZOS)
-            image_np = np.array(image, dtype=np.float32) / 255.0
+            img = Image.open(path).convert("RGB")
         except Exception as e:
-            logger.error(f"Failed to load image {img_path}: {e}")
-            # Fallback to black image to prevent crash
-            image_np = np.zeros((self.img_size, self.img_size, 3), dtype=np.float32)
+            logger.error(f"Failed to load image {path}: {e}")
+            # Return zeros on error to keep pipeline running
+            return (torch.zeros(3, 64, 64), torch.zeros(3, 64, 64), torch.zeros(1, 64, 64))
 
-        # Generate mask on-the-fly for training (or load if pre-computed)
-        # For simplicity in this script, we generate a random mask per sample
-        # In a robust pipeline, we would load pre-generated masks from data/processed
-        mask = generate_mask_batch(1, self.img_size, self.img_size, seed=idx)[0]
+        # Resize to model input size (assume 64x64 for Tiny/CPU)
+        img = img.resize((64, 64), Image.Resampling.LANCZOS)
+        img_np = np.array(img).astype(np.float32) / 255.0
+        img_np = np.transpose(img_np, (2, 0, 1)) # C, H, W
         
-        # Convert to torch tensors
-        image_tensor = torch.from_numpy(image_np).permute(2, 0, 1) # C, H, W
-        mask_tensor = torch.from_numpy(mask).unsqueeze(0) # 1, H, W
+        target = torch.from_numpy(img_np)
         
-        # Get ground truth complexity score
-        # Map image path or index to score. Using index as fallback key.
-        score = self.scores.get(idx, 3.0)
-        score_tensor = torch.tensor(score, dtype=torch.float32)
+        # Generate a random mask (or load pre-computed if available)
+        # For simplicity in this script, we generate a random mask on-the-fly
+        # to ensure the script runs without external dependencies on pre-generated masks.
+        # In a real scenario, this would load from data/processed/masked_images/
+        mask = self._generate_random_mask(64, 64)
+        mask = torch.from_numpy(mask).float()
+        
+        # Apply mask
+        masked_img = target * (1 - mask)
+        
+        return masked_img, target, mask
 
-        return {
-            "image": image_tensor,
-            "mask": mask_tensor,
-            "gt_score": score_tensor,
-            "path": img_path
-        }
-
+    def _generate_random_mask(self, h, w):
+        """Generate a simple random rectangular mask."""
+        import numpy as np
+        mask = np.zeros((h, w), dtype=np.float32)
+        
+        # Random center
+        cx, cy = np.random.randint(0, w), np.random.randint(0, h)
+        # Random size
+        rw, rh = np.random.randint(w//4, w//2), np.random.randint(h//4, h//2)
+        
+        x1, y1 = max(0, cx - rw//2), max(0, cy - rh//2)
+        x2, y2 = min(w, x1 + rw), min(h, y1 + rh)
+        
+        mask[y1:y2, x1:x2] = 1.0
+        return mask
 
 def compute_reconstruction_loss(pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
     """
     Compute L1 reconstruction loss on the masked region.
     """
-    # mask is 0 for hole, 1 for known. We want to reconstruct where mask=0.
-    inv_mask = 1.0 - mask
-    loss = torch.abs(pred - target)
-    loss = (loss * inv_mask).sum() / (inv_mask.sum() + 1e-8)
+    # Only compute loss where mask is 1 (the missing region)
+    # Or sometimes total variation + L1 on whole image.
+    # Standard inpainting: L1 on masked region.
+    masked_pred = pred * mask
+    masked_target = target * mask
+    
+    loss = torch.mean(torch.abs(masked_pred - masked_target))
     return loss
-
 
 def train_epoch(
     model: MoebiusDynamic,
-    dataloader: DataLoader,
-    optimizer: optim.Optimizer,
-    device: torch.device,
+    dataloader: Any,
+    optimizer: torch.optim.Optimizer,
     epoch: int,
-    config: Dict[str, Any]
+    device: str
 ) -> Dict[str, float]:
     """
-    Train for one epoch.
+    Train one epoch.
     """
     model.train()
     total_loss = 0.0
-    total_recon_loss = 0.0
-    total_gate_loss = 0.0
-    samples = 0
-
-    for batch in dataloader:
-        images = batch["image"].to(device)
-        masks = batch["mask"].to(device)
-        gt_scores = batch["gt_score"].to(device)
-
+    total_samples = 0
+    
+    for batch_idx, (inputs, targets, masks) in enumerate(dataloader):
+        inputs = inputs.to(device)
+        targets = targets.to(device)
+        masks = masks.to(device)
+        
         optimizer.zero_grad()
-
+        
         # Forward pass
-        # Model expects: image, mask
-        # Returns: output_image, gating_state (complexity score)
-        output_image, gating_state = model(images, masks)
-
-        # Loss 1: Reconstruction (L1)
-        recon_loss = compute_reconstruction_loss(output_image, images, masks)
-
-        # Loss 2: Gating Regression (L1 or MSE)
-        # Gating state output is a scalar complexity score
-        gate_loss = smooth_l1_loss(gating_state, gt_scores)
-
-        # Total Loss
-        lambda_recon = config.get("lambda_recon", 1.0)
-        lambda_gate = config.get("lambda_gate", 0.5)
+        # MoebiusDynamic expects (B, C, H, W) and returns (B, C, H, W)
+        outputs = model(inputs, masks)
         
-        total_batch_loss = (lambda_recon * recon_loss) + (lambda_gate * gate_loss)
-
+        # Loss
+        loss = compute_reconstruction_loss(outputs, targets, masks)
+        
         # Backward
-        total_batch_loss.backward()
-        
-        # Gradient clipping to prevent explosion
-        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
-        
+        loss.backward()
         optimizer.step()
+        
+        total_loss += loss.item()
+        total_samples += inputs.size(0)
+        
+        if batch_idx % 10 == 0:
+            logger.debug(f"Epoch {epoch} [{batch_idx}/{len(dataloader)}] Loss: {loss.item():.4f}")
+    
+    avg_loss = total_loss / max(total_samples, 1)
+    return {"loss": avg_loss}
 
-        total_loss += total_batch_loss.item()
-        total_recon_loss += recon_loss.item()
-        total_gate_loss += gate_loss.item()
-        samples += 1
-
-    return {
-        "loss": total_loss / samples,
-        "recon_loss": total_recon_loss / samples,
-        "gate_loss": total_gate_loss / samples
-    }
-
-
-@profile_function
-def run_training(config: Dict[str, Any]) -> Dict[str, Any]:
+def run_training(
+    epochs: int,
+    batch_size: int,
+    lr: float,
+    seed: int,
+    data_root: Path,
+    output_dir: Path,
+    resume_from: Optional[Path] = None
+) -> Dict[str, Any]:
     """
-    Main training loop orchestration.
+    Main training loop.
     """
-    # Setup
-    mode = get_mode()
-    seed = config.get("seed", 42)
     set_seed(seed)
     
-    device = torch.device("cpu") # CPU-only constraint
-    logger.info(f"Running on device: {device}")
-    logger.info(f"Mode: {mode}")
-
-    # Paths
-    data_dir = get_path("data_processed")
-    annotations_dir = get_path("data_annotations")
-    results_dir = get_path("data_results")
-    models_dir = get_path("data_models")
+    # Initialize dataset
+    dataset = InpaintingDataset(data_root, sample_size=50, seed=seed)
+    if len(dataset) == 0:
+        logger.error("Dataset is empty. Cannot train.")
+        return {"error": "Empty dataset"}
     
-    ensure_paths_exist([results_dir, models_dir])
-
-    # Load Data
-    # T012/T017 should have populated data/processed/masked_images and data/annotations
-    image_paths = get_image_paths(data_dir, pattern="*.png") # Adjust pattern if needed
+    # DataLoader (simple list iteration for CPU demo)
+    # In real code, use torch.utils.data.DataLoader with num_workers=0 for CPU safety
+    import torch.utils.data as data
+    dataloader = data.DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
     
-    if not image_paths:
-        logger.warning("No images found in data/processed. Attempting to load from raw.")
-        image_paths = get_image_paths(get_path("data_raw"), pattern="*.jpg")
+    # Initialize Model
+    logger.info("Initializing Moebius-Dynamic model...")
+    model = create_moebius_dynamic(mode="tiny") # Use tiny for CPU feasibility
+    model = model.to(DEVICE)
     
-    if not image_paths:
-        raise FileNotFoundError("No training images found. Ensure data preparation (T017) is complete.")
-
-    logger.info(f"Found {len(image_paths)} images for training.")
-
-    # Determine score file based on mode
-    score_file = None
-    if mode == "RESEARCH":
-        score_file = Path(annotations_dir) / "human_scores.csv"
-        if not score_file.exists():
-            # T014c requirement: Raise error if missing in Research Mode
-            raise FileNotFoundError(f"Research mode active but human scores missing at {score_file}")
+    # Load pretrained weights if available (from T023 gating or T020 backbone)
+    if resume_from and resume_from.exists():
+        logger.info(f"Resuming from checkpoint: {resume_from}")
+        try:
+            state = torch.load(resume_from, map_location=DEVICE)
+            model.load_state_dict(state, strict=False)
+        except Exception as e:
+            logger.warning(f"Failed to load checkpoint: {e}. Training from scratch.")
     else:
-        # CI Mode
-        score_file = Path(annotations_dir) / "decoupled_scores.csv"
-        if not score_file.exists():
-            logger.warning(f"CI Mode score file {score_file} not found. Generating synthetic scores.")
-            # Generate on the fly if missing (T014a logic fallback)
-            generate_ci_scores(len(image_paths), score_file)
-    
-    # Metrics file (from mask generation)
-    metrics_file = Path(data_dir) / "mask_metrics.csv"
-    
-    dataset = InpaintingDataset(
-        image_paths=image_paths,
-        mode=mode,
-        score_file=score_file,
-        metrics_file=metrics_file,
-        img_size=config.get("img_size", 128)
-    )
-
-    dataloader = DataLoader(
-        dataset, 
-        batch_size=config.get("batch_size", 8), 
-        shuffle=True,
-        num_workers=0 # CPU constraint
-    )
-
-    # Model
-    model = create_moebius_dynamic(
-        in_channels=3,
-        hidden_dim=config.get("hidden_dim", 64),
-        num_blocks=config.get("num_blocks", 4),
-        rank_range=(1, 5)
-    )
-    model = model.to(device)
-    
-    param_count = sum(p.numel() for p in model.parameters())
-    logger.info(f"Model parameters: {param_count:,}")
+        # Check for standard paths
+        default_gating_ckpt = get_path("results") / "gating_checkpoint.pt"
+        default_backbone_ckpt = get_path("models") / "moebius_tiny.pt"
+        
+        if default_gating_ckpt.exists():
+            logger.info(f"Loading gating weights from {default_gating_ckpt}")
+            try:
+                state = torch.load(default_gating_ckpt, map_location=DEVICE)
+                model.gating_head.load_state_dict(state, strict=False)
+            except Exception as e:
+                logger.warning(f"Could not load gating head: {e}")
+        
+        if default_backbone_ckpt.exists():
+            logger.info(f"Loading backbone weights from {default_backbone_ckpt}")
+            try:
+                state = torch.load(default_backbone_ckpt, map_location=DEVICE)
+                # Assuming MoebiusDynamic has a 'backbone' or similar attribute
+                if hasattr(model, 'backbone'):
+                    model.backbone.load_state_dict(state, strict=False)
+                else:
+                    # Fallback: try loading into model itself if it's just the tiny model wrapped
+                    model.load_state_dict(state, strict=False)
+            except Exception as e:
+                logger.warning(f"Could not load backbone: {e}")
 
     # Optimizer
-    optimizer = optim.Adam(model.parameters(), lr=config.get("lr", 1e-4))
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=config.get("lr_decay_step", 5), gamma=0.5)
-
-    # Training Loop
-    epochs = config.get("epochs", 10)
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=WEIGHT_DECAY)
+    
+    # Training loop
     history = []
-    best_loss = float('inf')
-
-    logger.info(f"Starting training for {epochs} epochs...")
     start_time = time.time()
-
-    for epoch in range(epochs):
+    
+    for epoch in range(1, epochs + 1):
         epoch_start = time.time()
-        logs = train_epoch(model, dataloader, optimizer, device, epoch, config)
-        scheduler.step()
-        
+        metrics = train_epoch(model, dataloader, optimizer, epoch, DEVICE)
         epoch_time = time.time() - epoch_start
         
-        log_entry = {
-            "epoch": epoch + 1,
-            "loss": logs["loss"],
-            "recon_loss": logs["recon_loss"],
-            "gate_loss": logs["gate_loss"],
-            "lr": optimizer.param_groups[0]['lr'],
-            "time_s": round(epoch_time, 2)
-        }
-        history.append(log_entry)
+        metrics["epoch_time"] = epoch_time
+        history.append(metrics)
         
-        logger.info(
-            f"Epoch {epoch+1}/{epochs} | Loss: {log_entry['loss']:.4f} | "
-            f"Recon: {log_entry['recon_loss']:.4f} | Gate: {log_entry['gate_loss']:.4f} | "
-            f"LR: {log_entry['lr']:.6f} | Time: {log_entry['time_s']}s"
-        )
-
-        if logs["loss"] < best_loss:
-            best_loss = logs["loss"]
-            # Save best checkpoint
-            best_path = Path(models_dir) / "moebius_dynamic_best.pt"
-            torch.save({
-                "epoch": epoch,
-                "model_state_dict": model.state_dict(),
-                "optimizer_state_dict": optimizer.state_dict(),
-                "loss": best_loss,
-                "config": config
-            }, best_path)
-            logger.info(f"Saved new best model to {best_path}")
-
+        logger.info(f"Epoch {epoch}/{epochs} - Loss: {metrics['loss']:.4f} - Time: {epoch_time:.2f}s")
+        
+        # Garbage collection
+        gc.collect()
+    
     total_time = time.time() - start_time
-    logger.info(f"Training completed in {total_time:.2f} seconds.")
-
+    
     # Save final model
-    final_path = Path(models_dir) / "moebius_dynamic_final.pt"
-    torch.save({
-        "epoch": epochs,
-        "model_state_dict": model.state_dict(),
-        "optimizer_state_dict": optimizer.state_dict(),
-        "loss": history[-1]["loss"],
-        "config": config
-    }, final_path)
-    logger.info(f"Saved final model to {final_path}")
-
-    # Save history
-    history_path = Path(results_dir) / "training_history.json"
-    with open(history_path, "w") as f:
-        json.dump(history, f, indent=2)
-    logger.info(f"Saved training history to {history_path}")
-
-    return {
-        "status": "success",
-        "final_loss": history[-1]["loss"],
-        "best_loss": best_loss,
+    output_path = output_dir / "moebius_dynamic_finetuned.pt"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    torch.save(model.state_dict(), output_path)
+    logger.info(f"Model saved to {output_path}")
+    
+    # Save log
+    log_path = output_dir / "e2e_training_log.json"
+    log_data = {
         "epochs": epochs,
-        "model_path": str(final_path),
-        "history_path": str(history_path)
+        "batch_size": batch_size,
+        "learning_rate": lr,
+        "seed": seed,
+        "total_time_seconds": total_time,
+        "history": history,
+        "final_loss": history[-1]["loss"] if history else None,
+        "mode": get_mode(),
+        "timestamp": datetime.now().isoformat()
     }
-
+    with open(log_path, "w") as f:
+        json.dump(log_data, f, indent=2)
+    logger.info(f"Training log saved to {log_path}")
+    
+    return log_data
 
 def main():
     parser = argparse.ArgumentParser(description="End-to-End Fine-tuning for Moebius-Dynamic")
-    parser.add_argument("--config", type=str, default="code/config.py", help="Path to config module")
-    parser.add_argument("--epochs", type=int, default=10, help="Number of training epochs")
-    parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate")
-    parser.add_argument("--batch_size", type=int, default=8, help="Batch size")
+    parser.add_argument("--epochs", type=int, default=DEFAULT_EPOCHS, help="Number of epochs")
+    parser.add_argument("--batch_size", type=int, default=BATCH_SIZE, help="Batch size")
+    parser.add_argument("--lr", type=float, default=LEARNING_RATE, help="Learning rate")
     parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--resume", type=str, default=None, help="Path to checkpoint to resume")
+    
     args = parser.parse_args()
-
-    # Override config with CLI args if provided
-    training_config = {
-        "epochs": args.epochs,
-        "lr": args.lr,
-        "batch_size": args.batch_size,
-        "seed": args.seed,
-        "img_size": 128,
-        "hidden_dim": 64,
-        "num_blocks": 4,
-        "lambda_recon": 1.0,
-        "lambda_gate": 0.5
-    }
-
+    
+    # Ensure paths exist
+    ensure_paths_exist()
+    
+    data_root = get_path("raw")
+    output_dir = get_path("results")
+    
+    resume_path = Path(args.resume) if args.resume else None
+    
+    logger.info(f"Starting End-to-End Training (Mode: {get_mode()})")
+    logger.info(f"Data Root: {data_root}, Output Dir: {output_dir}")
+    
     try:
-        result = run_training(training_config)
-        logger.info("Training finished successfully.")
-        print(json.dumps(result, indent=2))
+        result = run_training(
+            epochs=args.epochs,
+            batch_size=args.batch_size,
+            lr=args.lr,
+            seed=args.seed,
+            data_root=data_root,
+            output_dir=output_dir,
+            resume_from=resume_path
+        )
+        
+        if "error" in result:
+            logger.error(f"Training failed: {result['error']}")
+            sys.exit(1)
+            
+        logger.info("Training completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Training failed: {e}")
-        raise
-
+        logger.exception(f"Unexpected error during training: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
