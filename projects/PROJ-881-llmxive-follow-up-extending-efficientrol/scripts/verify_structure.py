@@ -1,87 +1,97 @@
 #!/usr/bin/env python3
 """
-Verify that all project directories created by T004a (setup.sh) exist.
-
-This script checks the directory structure defined in the project plan
-and generates a JSON log file with the verification results.
+verify_structure.py - Verify that all required project directories exist.
+Exits with code 1 if any required path is missing.
+Generates project_structure.log with verification results.
 """
+
 import json
 import os
 import sys
 from pathlib import Path
+from datetime import datetime
 
-# Define the expected directory structure relative to the project root
-# These paths match the mkdir -p commands from T004a setup.sh
-EXPECTED_DIRS = [
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/tests/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/data/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/scripts/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/results/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-entropy-validity-prediction/contracts/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/data/raw/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/data/processed/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/artifacts/",
-    "projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/state/",
-]
-
-def verify_structure(root_path: Path) -> list:
+def verify_structure(project_root: str) -> bool:
     """
-    Verify that all expected directories exist under root_path.
+    Verify all required directories exist under project_root.
+    Returns True if all exist, False otherwise.
+    """
+    required_paths = [
+        "code",
+        "tests",
+        "data",
+        "docs",
+        "scripts",
+        "results",
+        "specs/001-entropy-validity-prediction/contracts",
+        "code/src",
+        "code/data/raw",
+        "code/data/processed",
+        "code/artifacts",
+        "code/state",
+        "code/logs",
+        "code/src/utils",
+        "code/src/data",
+        "code/src/generation",
+        "code/src/analysis",
+        "code/tests/unit",
+        "code/tests/integration",
+        "code/tests/contract",
+    ]
+
+    project_path = Path(project_root)
+    missing_paths = []
+
+    for rel_path in required_paths:
+        full_path = project_path / rel_path
+        if not full_path.exists():
+            missing_paths.append(str(full_path))
+        elif not full_path.is_dir():
+            missing_paths.append(f"{full_path} (exists but is not a directory)")
+
+    if missing_paths:
+        print("ERROR: Missing or invalid paths:")
+        for path in missing_paths:
+            print(f"  - {path}")
+        return False
+
+    print("All required directories exist.")
+    return True
+
+def write_log(project_root: str, success: bool, missing_paths: list = None):
+    """Write verification results to project_structure.log"""
+    log_path = Path(project_root).parent / "project_structure.log"
     
-    Args:
-        root_path: The root directory of the project.
-        
-    Returns:
-        A list of dictionaries with 'path' and 'exists' keys.
-    """
-    results = []
-    for dir_path in EXPECTED_DIRS:
-        full_path = root_path / dir_path
-        exists = full_path.is_dir()
-        results.append({
-            "path": str(full_path.absolute()),
-            "exists": exists
-        })
-    return results
+    entry = {
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "project_root": project_root,
+        "success": success,
+        "missing_paths": missing_paths or []
+    }
+
+    with open(log_path, "a") as f:
+        f.write(json.dumps(entry) + "\n")
 
 def main():
-    """Main entry point for the verification script."""
-    # Determine the project root (parent of the scripts directory)
-    # Assuming this script is located at: projects/PROJ-881-.../scripts/verify_structure.py
-    script_path = Path(__file__).resolve()
-    current_dir = script_path.parent
-    project_root = current_dir.parent  # Go up one level to the project root
-
-    print(f"Verifying project structure at: {project_root}")
-    
-    # Verify structure
-    results = verify_structure(project_root)
-    
-    # Check if all directories exist
-    all_exist = all(item["exists"] for item in results)
-    
-    # Generate log file
-    log_file = project_root / "project_structure.log"
-    log_data = {"paths": results}
-    
-    with open(log_file, "w", encoding="utf-8") as f:
-        json.dump(log_data, f, indent=2)
-    
-    print(f"Verification log written to: {log_file}")
-    
-    # Print summary
-    missing = [item["path"] for item in results if not item["exists"]]
-    if missing:
-        print(f"\n❌ Missing directories ({len(missing)}):")
-        for path in missing:
-            print(f"  - {path}")
+    if len(sys.argv) < 2:
+        print("Usage: verify_structure.py <project_root>")
         sys.exit(1)
-    else:
-        print(f"\n✅ All {len(results)} directories verified successfully.")
+
+    project_root = sys.argv[1]
+    
+    if not Path(project_root).exists():
+        print(f"ERROR: Project root does not exist: {project_root}")
+        write_log(project_root, False, [project_root])
+        sys.exit(1)
+
+    success = verify_structure(project_root)
+    
+    if success:
+        write_log(project_root, True)
         sys.exit(0)
+    else:
+        write_log(project_root, False)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

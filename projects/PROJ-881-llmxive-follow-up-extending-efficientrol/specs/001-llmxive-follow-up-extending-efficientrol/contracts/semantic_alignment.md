@@ -1,95 +1,92 @@
-# Semantic Alignment Logic for GSM8K and MiniGrid
+# Semantic Alignment Logic: GSM8K and MiniGrid
 
 ## Overview
-This document defines the logic for matching generated token sequences to ground truth paths for the purposes of validity labeling in the llmXive pipeline. The alignment logic is critical for determining whether a model's generation is "valid" (correct) or "invalid" (incorrect) based on deterministic comparison against known solutions.
+
+This document defines the **Semantic Alignment** logic used to determine the validity of generated token sequences against ground-truth solutions for two distinct task types: **GSM8K** (mathematical reasoning) and **MiniGrid** (navigation/reasoning in grid worlds).
+
+The core objective is to perform a **deterministic, token-level comparison** between the model's generated output and the canonical ground-truth paths to assign a binary validity label (`true`/`false`) to each token position.
 
 ## Ground Truth Sources
 
-### GSM8K
-- **Dataset**: `gsm8k` (HuggingFace Datasets)
-- **Solution Format**: Free-form text answer containing a numerical value
-- **Alignment Strategy**: Exact string match after normalization
-- **Normalization Rules**:
- 1. Strip leading/trailing whitespace
- 2. Convert to lowercase
- 3. Remove all punctuation except decimal points
- 4. Remove currency symbols ($) and commas
- 5. Remove the word "answer" and "the answer is" prefixes if present
- 6. Collapse multiple spaces to single space
+Validity labeling relies on the `data/canonical_ground_truth.jsonl` artifact, which contains:
+- `prompt_id`: Unique identifier for the problem instance.
+- `task_type`: Either `"gsm8k"` or `"minigrid"`.
+- `canonical_solution`: The ground-truth answer string (for GSM8K).
+- `valid_paths`: A list of valid shortest paths (for MiniGrid).
 
-### MiniGrid
-- **Dataset**: `minigrid` (HuggingFace Datasets or custom environment)
-- **Solution Format**: Sequence of actions (e.g., "move_forward", "turn_left", "turn_right", "pick_up", "drop")
-- **Alignment Strategy**: Exact sequence match against ANY of the known valid ground-truth paths
-- **Valid Paths**: Stored in `data/ground_truth_paths.jsonl` as a mapping of `prompt_id` to a list of valid action sequences
-- **Matching Logic**: A generation is valid if it matches AT LEAST ONE of the valid paths for the given `prompt_id`
+## Alignment Strategies by Task Type
 
-## Alignment Algorithm
+### 1. GSM8K (Mathematical Reasoning)
 
-### Step 1: Preprocessing
-1. Load the generated token sequence
-2. Decode tokens to string using the model's tokenizer
-3. Apply dataset-specific normalization rules
+**Strategy:** Exact String Matching of the Final Answer.
 
-### Step 2: Ground Truth Retrieval
-1. For GSM8K: Retrieve the `answer` field from the dataset example
-2. For MiniGrid: Retrieve the list of valid paths from `data/ground_truth_paths.jsonl` using `prompt_id`
+**Logic:**
+1. **Normalization:** Both the generated sequence and the `canonical_solution` are normalized to remove leading/trailing whitespace and convert to lowercase to handle case-insensitive variations (e.g., "42" vs "42.").
+2. **Extraction:** The model's generation is expected to conclude with the final answer. The alignment logic identifies the terminal segment of the generated tokens that represents the answer (typically the last few tokens).
+3. **Comparison:**
+ - If the normalized extracted answer **exactly matches** the normalized `canonical_solution`, the token sequence is labeled **VALID**.
+ - If there is any discrepancy (numerical mismatch, missing unit, extra characters), the sequence is labeled **INVALID**.
+4. **Token-Level Labeling:**
+ - Tokens preceding the final answer segment are labeled based on the final outcome of the sequence.
+ - If the sequence is valid, all tokens are `validity: true`.
+ - If the sequence is invalid, the specific token where the divergence occurs (or the first token of the incorrect answer segment) is marked `validity: false`.
 
-### Step 3: Matching
-1. **GSM8K**: Compare normalized generation against normalized ground truth answer
- - If exact match: `validity = true`
- - If no match: `validity = false`
-2. **MiniGrid**: Iterate through ALL valid paths for the `prompt_id`
- - If generation matches ANY path: `validity = true`
- - If generation matches NO paths after checking all: `validity = false`
+**Edge Cases:**
+- **Multiple Formatting Styles:** If the ground truth is "42" and the model generates "The answer is 42", the logic must extract "42" before comparison.
+- **Ambiguity:** If no ground-truth path matches after exhaustive checking, the token is marked `invalid` and a warning is logged to `logs/generation.log` (JSON format).
 
-### Step 4: Logging
-1. If no match is found for MiniGrid, log a WARNING to `logs/generation.log`
-2. Log format: `{"prompt_id": "...", "reason": "no_match", "validity": false}`
-3. Use `RotatingFileHandler` with `maxBytes=10MB`
+### 2. MiniGrid (Navigation & Goal State)
 
-## Edge Cases and Handling
+**Strategy:** Multi-Path Exact Sequence Matching.
 
-### Ambiguous Solutions
-- **GSM8K**: Some problems may have multiple valid answers (e.g., different units). The normalization rules are designed to handle common variations.
-- **MiniGrid**: Multiple valid paths may exist for the same environment. The alignment logic checks ALL valid paths.
+**Logic:**
+1. **Path Representation:** Ground truth is provided as `valid_paths`, a list of strings where each string represents a valid shortest path from `start_state` to `goal_state` (e.g., `["North", "East", "East", "South"]`).
+2. **Iterative Matching:** For a given `prompt_id`, the generated token sequence is compared against **every** path in the `valid_paths` list.
+3. **Matching Criteria:**
+ - The generated sequence must **exactly match** at least one path in `valid_paths` token-for-token.
+ - Case sensitivity is handled by normalizing tokens to a standard case (e.g., uppercase) before comparison.
+4. **Decision Rule:**
+ - **Valid:** If the generated sequence matches **ANY** of the known valid paths, the entire sequence is labeled **VALID**.
+ - **Invalid:** If the generated sequence fails to match **ALL** known valid paths, it is labeled **INVALID**.
+5. **Token-Level Labeling:**
+ - If a match is found, all tokens in the sequence are `validity: true`.
+ - If no match is found, the token at the index where the generated sequence first deviates from all known valid paths is marked `validity: false`. If the sequence is shorter than the shortest valid path, the final token is marked invalid.
 
-### Partial Matches
-- Partial matches are NOT considered valid. The generation must match the complete ground truth sequence.
+## Implementation Constraints
 
-### Tokenization Differences
-- If the model's tokenizer splits words differently than the ground truth string, the normalization step should handle common cases.
-- For MiniGrid, action sequences are typically tokenized as discrete tokens, reducing ambiguity.
+- **No Heuristics:** Alignment must not rely on fuzzy matching or semantic similarity scores (e.g., BERTScore) for the binary validity flag. It must be deterministic.
+- **Fail-Loudly:** If the `canonical_ground_truth.jsonl` is missing or malformed for a specific `prompt_id`, the process must raise an error rather than guessing.
+- **Logging:** All mismatches must be logged with `prompt_id`, `reason: "no_match"`, and `validity: false` to `logs/generation.log`.
 
-## Data Format for Ground Truth Paths
+## Pseudocode Reference
 
-The `data/ground_truth_paths.jsonl` file must contain one JSON object per line with the following schema:
+```python
+def label_validity(generated_tokens, ground_truth_record):
+ task_type = ground_truth_record["task_type"]
+ prompt_id = ground_truth_record["prompt_id"]
 
-```json
-{
- "prompt_id": "string",
- "task_type": "gsm8k" | "minigrid",
- "valid_paths": [
- "path_string_1",
- "path_string_2",
-...
- ]
-}
+ if task_type == "gsm8k":
+ generated_ans = extract_answer(generated_tokens)
+ target_ans = normalize(ground_truth_record["canonical_solution"])
+ is_valid = (normalize(generated_ans) == target_ans)
+
+ elif task_type == "minigrid":
+ valid_paths = ground_truth_record["valid_paths"]
+ generated_path = normalize_tokens(generated_tokens)
+ # Check against ALL known valid paths
+ is_valid = any(generated_path == normalize_tokens(path) for path in valid_paths)
+
+ else:
+ raise ValueError(f"Unknown task type: {task_type}")
+
+ if not is_valid:
+ log_warning(prompt_id, "no_match")
+
+ return assign_token_labels(generated_tokens, is_valid)
 ```
 
-For GSM8K, `valid_paths` will contain a single element (the normalized answer).
-For MiniGrid, `valid_paths` may contain multiple elements (all valid action sequences).
+## Dependencies
 
-## Implementation Notes
-
-- The alignment logic is implemented in `src/generation/generation.py` in the `label_validity` function
-- The ground truth paths file is generated by `scripts/generate_ground_truth_paths.py`
-- The alignment logic must be deterministic and reproducible
-- All matching is case-insensitive and whitespace-insensitive after normalization
-
-## References
-
-- Plan.md Phase 0: Research & Design
-- FR-001: Dataset capping (500 examples)
-- FR-007: Token-level batching (50 tokens)
-- SC-001 through SC-005: Scientific constraints for validity prediction
+- `data/canonical_ground_truth.jsonl` (Input)
+- `logs/generation.log` (Output for warnings)
+- `src/generation/generation.py` (Implementation of `label_validity`)
