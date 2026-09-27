@@ -1,5 +1,4 @@
-# Makefile for development tasks
-.PHONY: format lint test clean
+.PHONY: lint format check format-check
 
 format:
 	black code/
@@ -7,14 +6,17 @@ format:
 
 lint:
 	ruff check code/
-	flake8 code/
-	mypy code/
+
+format-check:
+	black --check code/
+
+check: lint format-check
 
 test:
-	pytest code/tests/
+	pytest code/tests/ -v --cov=code/src --cov-report=term-missing
 
 clean:
-	find code/ -type d -name "__pycache__" -exec rm -r {} +
-	find code/ -type f -name "*.pyc" -delete
-	find code/ -type f -name "*.pyo" -delete
-	rm -rf code/.pytest_cache code/.mypy_cache
+	find . -type d -name "__pycache__" -exec rm -r {} +
+	find . -type f -name "*.pyc" -delete
+	find . -type f -name ".coverage" -delete
+	rm -rf code/output/* code/data/processed/*

@@ -1,139 +1,135 @@
-description: >-
-  Schema for the output of the Disproportionality Analysis (User Story 2).
-  Defines the structure of signal detection metrics including ROR, PRR, IC,
-  confidence intervals, adjusted p-values, and signal flags.
-type: object
-required:
-  - schema_version
-  - generated_at
-  - signals
-properties:
-  schema_version:
+# Schema for Disproportionality Analysis Signal Output
+# Used by src/analysis/signal_output.py to generate output/signals.csv
+#
+# This schema defines the structure of the signal detection results
+# including ROR, PRR, IC metrics, confidence intervals, adjusted p-values,
+# and the 2-out-of-3 signal flag.
+
+name: signal_schema
+version: "1.0.0"
+description: Output structure for statistical signal detection metrics
+
+columns:
+  - name: soc
     type: string
-    description: Semantic version of this schema (e.g., "1.0.0")
-    const: "1.0.0"
-  generated_at:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the signals file was generated
-  signals:
-    type: array
-    description: List of disproportionality metrics per System Organ Class (SOC)
-    items:
-      type: object
-      required:
-        - soc_code
-        - soc_description
-        - case_count
-        - control_count
-        - total_exposed
-        - total_unexposed
-        - metrics
-        - signal_flags
-      properties:
-        soc_code:
-          type: string
-          description: MedDRA System Organ Class code (e.g., "10000001")
-        soc_description:
-          type: string
-          description: Human-readable description of the SOC
-        case_count:
-          type: integer
-          description: Number of reports with this SOC in the COVID-19 (exposed) group
-        control_count:
-          type: integer
-          description: Number of reports with this SOC in the Non-COVID (unexposed) group
-        total_exposed:
-          type: integer
-          description: Total number of reports in the COVID-19 group
-        total_unexposed:
-          type: integer
-          description: Total number of reports in the Non-COVID group
-        metrics:
-          type: object
-          description: Calculated disproportionality metrics
-          required:
-            - ROR
-            - ROR_CI_lower
-            - ROR_CI_upper
-            - PRR
-            - PRR_CI_lower
-            - PRR_CI_upper
-            - IC
-            - IC_CI_lower
-            - IC_CI_upper
-            - p_value_chi2
-            - adjusted_p
-          properties:
-            ROR:
-              type: number
-              format: float
-              description: Reporting Odds Ratio
-            ROR_CI_lower:
-              type: number
-              format: float
-              description: Lower bound of 95% CI for ROR
-            ROR_CI_upper:
-              type: number
-              format: float
-              description: Upper bound of 95% CI for ROR
-            PRR:
-              type: number
-              format: float
-              description: Proportional Reporting Ratio
-            PRR_CI_lower:
-              type: number
-              format: float
-              description: Lower bound of 95% CI for PRR
-            PRR_CI_upper:
-              type: number
-              format: float
-              description: Upper bound of 95% CI for PRR
-            IC:
-              type: number
-              format: float
-              description: Information Component
-            IC_CI_lower:
-              type: number
-              format: float
-              description: Lower bound of 95% CI for IC
-            IC_CI_upper:
-              type: number
-              format: float
-              description: Upper bound of 95% CI for IC
-            p_value_chi2:
-              type: number
-              format: float
-              description: P-value from Chi-squared test
-            adjusted_p:
-              type: number
-              format: float
-              description: Benjamini-Hochberg adjusted p-value
-        signal_flags:
-          type: object
-          description: Flags indicating if metrics meet signal thresholds
-          required:
-            - is_signal_2_of_3
-            - ROR_flag
-            - PRR_flag
-            - IC_flag
-            - background_rate_unknown
-          properties:
-            is_signal_2_of_3:
-              type: boolean
-              description: True if at least 2 out of 3 metrics (ROR, PRR, IC) meet thresholds
-            ROR_flag:
-              type: boolean
-              description: True if ROR > 2.0 AND ROR_CI_lower > 1.0
-            PRR_flag:
-              type: boolean
-              description: True if PRR > 1.5 AND PRR_CI_lower > 1.0
-            IC_flag:
-              type: boolean
-              description: True if IC > 0 AND IC_CI_lower > 0
-            background_rate_unknown:
-              type: boolean
-              description: True if SOC code is not found in KNOWN_BACKGROUND_RATES
-        notes:
-          type: string
-          description: Optional notes regarding specific calculations or data issues
+    required: true
+    description: System Organ Class code (e.g., SOC100001)
+    constraints:
+      - not_null: true
+      - pattern: "^SOC[0-9]+$"
+
+  - name: ror
+    type: float
+    required: true
+    description: Reporting Odds Ratio point estimate
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: ror_ci_lower
+    type: float
+    required: true
+    description: Lower bound of 95% confidence interval for ROR
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: ror_ci_upper
+    type: float
+    required: true
+    description: Upper bound of 95% confidence interval for ROR
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: prr
+    type: float
+    required: true
+    description: Proportional Reporting Ratio point estimate
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: prr_ci_lower
+    type: float
+    required: true
+    description: Lower bound of 95% confidence interval for PRR
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: prr_ci_upper
+    type: float
+    required: true
+    description: Upper bound of 95% confidence interval for PRR
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: ic
+    type: float
+    required: true
+    description: Information Component point estimate
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: ic_ci_lower
+    type: float
+    required: true
+    description: Lower bound of 95% confidence interval for IC
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: ic_ci_upper
+    type: float
+    required: true
+    description: Upper bound of 95% confidence interval for IC
+    constraints:
+      - finite: true
+      - not_null: true
+
+  - name: p_adj
+    type: float
+    required: true
+    description: Benjamini-Hochberg adjusted p-value
+    constraints:
+      - finite: true
+      - not_null: true
+      - min: 0.0
+      - max: 1.0
+
+  - name: signal_flag
+    type: boolean
+    required: true
+    description: True if SOC meets 2-out-of-3 rule (ROR, PRR, IC thresholds)
+    constraints:
+      - not_null: true
+
+# Thresholds for 2-out-of-3 rule (referenced in signal_output.py)
+# These must match src/utils/config.py THRESHOLDS
+thresholds:
+  ror_min: 2.0
+  ror_ci_min: 1.0
+  prr_min: 1.5
+  prr_ci_min: 1.0
+  ic_min: 0.0
+  ic_ci_min: 0.0
+
+# Validation rules
+validation:
+  - rule: "All metrics must be finite (no NaN, inf)"
+    check: "all columns are finite"
+  - rule: "CI bounds must be non-negative for ROR and PRR"
+    check: "ror_ci_lower >= 0, prr_ci_lower >= 0"
+  - rule: "Adjusted p-values must be in [0, 1]"
+    check: "0 <= p_adj <= 1"
+  - rule: "Signal flag must be boolean"
+    check: "signal_flag in [True, False]"
+
+# Output file path
+output_file: "output/signals.csv"
+file_format: "csv"
+delimiter: ","
+index: false

@@ -3,15 +3,15 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-covid-vaers-analysis"
+name = "llmxive-covid-vaers-analysis"
 version = "0.1.0"
-description = "Statistical analysis of publicly available COVID-19 vaccine adverse event reports"
+description = "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports"
 requires-python = ">=3.11"
 dependencies = [
     "pandas>=2.0.0",
     "numpy>=1.24.0",
     "scipy>=1.10.0",
-    "requests>=2.28.0",
+    "requests>=2.31.0",
     "pyarrow>=12.0.0",
     "matplotlib>=3.7.0",
     "pytest>=7.3.0",
@@ -20,27 +20,29 @@ dependencies = [
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+src = ["code/src", "code/tests", "code/scripts", "code/setup_project.py"]
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 pythonpath = ["code"]
-addopts = "-v --cov=src --cov-report=term-missing"
-
-[tool.setuptools.packages.find]
-where = ["code"]
+addopts = "-v --tb=short"

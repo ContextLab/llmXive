@@ -1,80 +1,72 @@
 """
-Configuration module for the COVID-19 Vaccine Adverse Event Analysis pipeline.
-Defines paths, random seeds, metric thresholds, and known background rates.
+Configuration module for the llmXive COVID-19 VAERS analysis pipeline.
+
+This file defines internal analysis parameters, paths, and random seeds.
+It does NOT load external background incidence rates. The analysis methodology
+(ROR/PRR/IC) uses internal dataset counts as the denominator; external rates
+are a known limitation and are not calculated.
 """
+
 import os
 from pathlib import Path
 from typing import Dict, Final
 
-# Project Root
-PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent.parent
+# Project Root (assumed to be the directory containing 'code/')
+# Adjust if running from a different context, but standard usage assumes
+# this file is at code/src/utils/config.py
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
 
 # Directory Paths
-DATA_RAW_DIR: Final[Path] = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR: Final[Path] = PROJECT_ROOT / "data" / "processed"
-OUTPUT_DIR: Final[Path] = PROJECT_ROOT / "output"
-OUTPUT_TEMPORAL_DIR: Final[Path] = OUTPUT_DIR / "temporal_profiles"
-SPECS_DIR: Final[Path] = PROJECT_ROOT / "specs"
-CONTRACTS_DIR: Final[Path] = PROJECT_ROOT / "contracts"
+DATA_DIR: Final[Path] = _PROJECT_ROOT / "data"
+RAW_DATA_DIR: Final[Path] = DATA_DIR / "raw"
+PROCESSED_DATA_DIR: Final[Path] = DATA_DIR / "processed"
+OUTPUT_DIR: Final[Path] = _PROJECT_ROOT / "output"
+SIGNALS_DIR: Final[Path] = OUTPUT_DIR / "signals"
+TEMPORAL_PROFILES_DIR: Final[Path] = OUTPUT_DIR / "temporal_profiles"
+LOGS_DIR: Final[Path] = _PROJECT_ROOT / "logs"
+CONTRACTS_DIR: Final[Path] = _PROJECT_ROOT / "contracts"
+SPECS_DIR: Final[Path] = _PROJECT_ROOT / "specs"
 
-# Random Seeds
+# MedDRA Mapping File
+MEDDRA_MAPPING_PATH: Final[Path] = DATA_DIR / "meddra_soc_mapping.csv"
+
+# Random Seeds for reproducibility
 RANDOM_SEED: Final[int] = 42
 
-# Metric Thresholds for Signal Detection (2-out-of-3 rule components)
-# A signal is flagged if at least 2 of these conditions are met:
-# 1. ROR > 2.0 AND Lower CI > 1.0
-# 2. PRR > 1.5 AND Lower CI > 1.0
-# 3. IC > 0 AND Lower CI > 0
-THRESHOLD_ROR: Final[float] = 2.0
-THRESHOLD_PRR: Final[float] = 1.5
-THRESHOLD_IC: Final[float] = 0.0
-THRESHOLD_CI_LOWER: Final[float] = 1.0  # For ROR/PRR (must be > 1)
-THRESHOLD_IC_CI_LOWER: Final[float] = 0.0  # For IC (must be > 0)
-
-# Minimum report count per SOC to include in analysis
-MIN_REPORT_COUNT: Final[int] = 5
-
-# Memory Limits (GB)
+# Memory Constraints (in GB)
 MEMORY_LIMIT_CLEANING: Final[float] = 5.0
 MEMORY_LIMIT_ANALYSIS: Final[float] = 7.0
 
-# Known Background Rates (Incidence per 1,000,000 population)
-# Source: CDC literature and general epidemiological estimates for US population.
-# Mapping: SOC Code (String) -> Incidence Rate (float)
-# Note: These are approximate background rates used for context in T024b.
-# SOCs not listed here will be flagged as "Background Rate Unknown".
-KNOWN_BACKGROUND_RATES: Final[Dict[str, float]] = {
-    # Cardiac disorders
-    "10007541": 450.0,  # Cardiac disorders (General estimate)
-    # Gastrointestinal disorders
-    "10017471": 1200.0, # Gastrointestinal disorders
-    # Nervous system disorders
-    "10029239": 850.0,  # Nervous system disorders
-    # Respiratory, thoracic and mediastinal disorders
-    "10038733": 600.0,  # Respiratory disorders
-    # Skin and subcutaneous tissue disorders
-    "10040785": 950.0,  # Skin disorders
-    # Vascular disorders
-    "10047065": 350.0,  # Vascular disorders (e.g., thrombosis)
-    # Immune system disorders
-    "10021409": 200.0,  # Immune system disorders
-    # Infections and infestations
-    "10021861": 2500.0, # Infections
-    # Musculoskeletal and connective tissue disorders
-    "10028395": 700.0,  # Musculoskeletal disorders
-    # General disorders and administration site conditions
-    "10018065": 1500.0, # General disorders (e.g., fatigue, fever)
+# Disproportionality Analysis Thresholds
+# These are internal thresholds for the 2-out-of-3 rule.
+# ROR: Reporting Odds Ratio
+# PRR: Proportional Reporting Ratio
+# IC: Information Component
+# CI: Confidence Interval lower bound
+THRESHOLDS: Final[Dict[str, float]] = {
+    "ror_min": 2.0,
+    "ror_ci_min": 1.0,
+    "prr_min": 1.5,
+    "prr_ci_min": 1.0,
+    "ic_min": 0.0,
+    "ic_ci_min": 0.0,
 }
+
+# Error Codes
+E_SCHEMA_MISSING: Final[str] = "E_SCHEMA_MISSING"
+E_MEMORY_LIMIT: Final[str] = "E_MEMORY_LIMIT"
 
 def ensure_dirs() -> None:
     """Create all required directories if they do not exist."""
-    directories = [
-        DATA_RAW_DIR,
-        DATA_PROCESSED_DIR,
+    dirs = [
+        RAW_DATA_DIR,
+        PROCESSED_DATA_DIR,
         OUTPUT_DIR,
-        OUTPUT_TEMPORAL_DIR,
-        SPECS_DIR,
+        SIGNALS_DIR,
+        TEMPORAL_PROFILES_DIR,
+        LOGS_DIR,
         CONTRACTS_DIR,
+        SPECS_DIR,
     ]
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)

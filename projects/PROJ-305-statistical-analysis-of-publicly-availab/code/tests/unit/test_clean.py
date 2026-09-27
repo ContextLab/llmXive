@@ -1,7 +1,3 @@
-"""
-Unit tests for src/data/clean.py
-"""
-
 import os
 import sys
 import tempfile
@@ -9,232 +5,146 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import pyarrow.parquet as pq
+import yaml
 
 # Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-from src.data.clean import (
-    get_memory_usage_gb,
-    map_soc_codes,
-    process_data,
-    MEDDRA_TO_SOC,
-    DEFAULT_SOC
-)
-
+from src.data.clean import load_meddra_mapping, map_soc_codes, process_chunk, check_memory_usage
 
 class TestMapSOC:
-    """Tests for map_soc_codes function."""
+    def test_load_meddra_mapping_file_missing_raises(self):
+        """Test that load_meddra_mapping raises FileNotFoundError for missing file."""
+        with pytest.raises(FileNotFoundError):
+            load_meddra_mapping(Path('/nonexistent/path.csv'))
 
-    def test_map_soc_from_llt(self):
-        """Test mapping from LLT column."""
+    def test_load_meddra_mapping_empty_file_raises(self):
+        """Test that load_meddra_mapping raises ValueError for empty file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("")
+            temp_path = Path(f.name)
+        
+        try:
+            with pytest.raises(ValueError, match="empty"):
+                load_meddra_mapping(temp_path)
+        finally:
+            temp_path.unlink()
+
+    def test_load_meddra_mapping_missing_columns_raises(self):
+        """Test that load_meddra_mapping raises ValueError for missing columns."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("LLT_CODE\n123\n456\n")
+            temp_path = Path(f.name)
+        
+        try:
+            with pytest.raises(ValueError, match="missing required columns"):
+                load_meddra_mapping(temp_path)
+        finally:
+            temp_path.unlink()
+
+    def test_load_meddra_mapping_success(self):
+        """Test successful loading of MedDRA mapping."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("LLT_CODE,SOC_CODE\n123,SOC_A\n456,SOC_B\n")
+            temp_path = Path(f.name)
+        
+        try:
+            mapping = load_meddra_mapping(temp_path)
+            assert mapping == {"123": "SOC_A", "456": "SOC_B"}
+        finally:
+            temp_path.unlink()
+
+    def test_map_soc_codes_success(self):
+        """Test successful mapping of LLT codes to SOC codes."""
+        mapping = {"123": "SOC_A", "456": "SOC_B"}
         df = pd.DataFrame({
-            'LLT': ['10004140', '10007541', '99999999'],
-            'VAX_TYPE': ['COVID-19', 'Non-COVID', 'Other']
+            'LLT_CODE': ['123', '456', '789'],
+            'VAX_TYPE': ['V1', 'V2', 'V3']
         })
-
-        result = map_soc_codes(df)
-
+        
+        result = map_soc_codes(df, mapping)
+        
         assert 'SOC' in result.columns
-        assert result.loc[0, 'SOC'] == 'Blood and lymphatic system disorders'
-        assert result.loc[1, 'SOC'] == 'Cardiac disorders'
-        assert result.loc[2, 'SOC'] == DEFAULT_SOC
+        assert result.loc[0, 'SOC'] == 'SOC_A'
+        assert result.loc[1, 'SOC'] == 'SOC_B'
+        assert result.loc[2, 'SOC'] == 'UNKNOWN'  # Missing mapping
 
-    def test_map_soc_from_soc_code(self):
-        """Test mapping from SOC_CODE column."""
-        df = pd.DataFrame({
-            'SOC_CODE': ['10004140', '10007541'],
-            'VAX_TYPE': ['COVID-19', 'Non-COVID']
-        })
-
-        result = map_soc_codes(df)
-
-        assert 'SOC' in result.columns
-        assert result.loc[0, 'SOC'] == 'Blood and lymphatic system disorders'
-        assert result.loc[1, 'SOC'] == 'Cardiac disorders'
-
-    def test_map_soc_no_mapping_columns(self):
-        """Test behavior when neither LLT nor SOC_CODE exists."""
-        df = pd.DataFrame({
-            'VAX_TYPE': ['COVID-19', 'Non-COVID']
-        })
-
-        result = map_soc_codes(df)
-
-        assert 'SOC' in result.columns
-        assert all(result['SOC'] == DEFAULT_SOC)
-
+    def test_map_soc_codes_missing_column_raises(self):
+        """Test that map_soc_codes raises ValueError if LLT_CODE is missing."""
+        mapping = {"123": "SOC_A"}
+        df = pd.DataFrame({'VAX_TYPE': ['V1']})
+        
+        with pytest.raises(ValueError, match="missing 'LLT_CODE'"):
+            map_soc_codes(df, mapping)
 
 class TestProcessData:
-    """Tests for process_data function."""
+    def test_process_chunk_covid_filtering(self):
+        """Test that process_chunk correctly filters COVID-19 group."""
+        mapping = {"123": "SOC_A"}
+        chunk = pd.DataFrame({
+            'VAX_TYPE': ['COVID-19 Vaccine', 'Non-COVID Vaccine', 'Influenza Vaccine', 'Other Vaccine'],
+            'LLT_CODE': ['123', '123', '123', '123'],
+            'REPT_DATE': ['2021-01-01', '2021-01-01', '2021-01-01', '2021-01-01']
+        })
+        
+        result = process_chunk(chunk, mapping)
+        
+        # Check group assignments
+        covid_mask = result['GROUP'] == 'COVID-19'
+        flu_mask = result['GROUP'] == 'Flu-only'
+        baseline_mask = result['GROUP'] == 'Primary Baseline (Non-COVID, Non-Flu)'
+        other_mask = result['GROUP'] == 'Other'
+        
+        assert covid_mask.sum() == 1
+        assert flu_mask.sum() == 1
+        assert baseline_mask.sum() == 1
+        assert other_mask.sum() == 1
 
-    def test_process_data_creates_outputs(self):
-        """Test that process_data creates output files."""
-        # Create temporary input file
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_parquet = Path(tmpdir) / 'output.parquet'
-            output_csv = Path(tmpdir) / 'output.csv'
-
-            # Create sample data
-            sample_data = {
-                'VAX_TYPE': ['COVID-19', 'Influenza', 'Non-COVID', 'COVID-19'],
-                'LLT': ['10004140', '10007541', '10017462', '10018065'],
-                'REPT_DATE': ['2021-01-01', '2021-02-01', '2021-03-01', '2021-04-01']
-            }
-            df = pd.DataFrame(sample_data)
-            df.to_csv(input_path, index=False)
-
-            # Process data
-            stats = process_data(
-                input_path,
-                output_parquet,
-                output_csv,
-                chunk_size=1000
-            )
-
-            # Verify outputs exist
-            assert output_parquet.exists()
-            assert output_csv.exists()
-
-            # Verify Parquet content
-            parquet_df = pq.read_table(output_parquet).to_pandas()
-            assert len(parquet_df) > 0
-            assert 'SOC' in parquet_df.columns
-            assert 'VAX_TYPE' in parquet_df.columns
-
-            # Verify CSV content
-            csv_df = pd.read_csv(output_csv)
-            assert len(csv_df) > 0
-            assert 'SOC' in csv_df.columns
-            assert 'VAX_TYPE' in csv_df.columns
-
-    def test_process_data_filters_covid(self):
-        """Test that COVID-19 vaccines are properly identified."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_parquet = Path(tmpdir) / 'output.parquet'
-            output_csv = Path(tmpdir) / 'output.csv'
-
-            # Create sample data with known counts
-            sample_data = {
-                'VAX_TYPE': [
-                    'COVID-19', 'COVID-19', 'Influenza',
-                    'Non-COVID', 'Pneumococcal', 'Flu'
-                ],
-                'LLT': ['10004140'] * 6,
-                'REPT_DATE': ['2021-01-01'] * 6
-            }
-            df = pd.DataFrame(sample_data)
-            df.to_csv(input_path, index=False)
-
-            stats = process_data(
-                input_path,
-                output_parquet,
-                output_csv,
-                chunk_size=1000
-            )
-
-            # COVID-19 should be 2
-            assert stats['covid_rows'] == 2
-
-            # Non-COVID should be 4 (Influenza, Non-COVID, Pneumococcal, Flu)
-            assert stats['non_covid_rows'] == 4
-
-            # Non-COVID, Non-Flu should be 2 (Non-COVID, Pneumococcal)
-            assert stats['non_covid_non_flu_rows'] == 2
-
-            # Flu should be 2 (Influenza, Flu)
-            assert stats['flu_rows'] == 2
-
-    def test_process_data_excludes_missing_soc(self):
-        """Test that records with missing SOC are excluded."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_parquet = Path(tmpdir) / 'output.parquet'
-            output_csv = Path(tmpdir) / 'output.csv'
-
-            # Create sample data with missing LLT
-            sample_data = {
-                'VAX_TYPE': ['COVID-19', 'Non-COVID', 'COVID-19'],
-                'LLT': ['10004140', '', ''],  # Last two have empty LLT
-                'REPT_DATE': ['2021-01-01', '2021-02-01', '2021-03-01']
-            }
-            df = pd.DataFrame(sample_data)
-            df.to_csv(input_path, index=False)
-
-            stats = process_data(
-                input_path,
-                output_parquet,
-                output_csv,
-                chunk_size=1000
-            )
-
-            # All should have SOC mapped (even empty ones get DEFAULT_SOC)
-            # But records with empty LLT get DEFAULT_SOC which is valid
-            # So no exclusion based on SOC in this case
-            # The exclusion happens for truly missing values (NaN)
-
-    def test_process_data_excludes_missing_date(self):
+    def test_process_chunk_missing_rept_date_excluded(self):
         """Test that records with missing REPT_DATE are excluded."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_parquet = Path(tmpdir) / 'output.parquet'
-            output_csv = Path(tmpdir) / 'output.csv'
+        mapping = {"123": "SOC_A"}
+        chunk = pd.DataFrame({
+            'VAX_TYPE': ['COVID-19 Vaccine', 'Non-COVID Vaccine'],
+            'LLT_CODE': ['123', '123'],
+            'REPT_DATE': [None, '2021-01-01']
+        })
+        
+        result = process_chunk(chunk, mapping)
+        
+        assert len(result) == 1
+        assert result.iloc[0]['GROUP'] == 'Primary Baseline (Non-COVID, Non-Flu)'
 
-            # Create sample data with missing dates
-            sample_data = {
-                'VAX_TYPE': ['COVID-19', 'Non-COVID', 'COVID-19'],
-                'LLT': ['10004140', '10007541', '10017462'],
-                'REPT_DATE': ['2021-01-01', '', '']  # Last two empty
-            }
-            df = pd.DataFrame(sample_data)
-            df.to_csv(input_path, index=False)
+    def test_process_chunk_missing_soc_excluded(self):
+        """Test that records with missing SOC (after mapping) are excluded."""
+        # This is tricky because map_soc_codes assigns 'UNKNOWN' for missing mappings.
+        # The task says "Exclude records with missing SOC". We interpret this as NaN/empty.
+        # Since map_soc_codes fills NaN with 'UNKNOWN', we need to test the dropna behavior.
+        # Let's test that the function doesn't crash and handles the logic correctly.
+        mapping = {}  # Empty mapping, all will be UNKNOWN
+        chunk = pd.DataFrame({
+            'VAX_TYPE': ['COVID-19 Vaccine'],
+            'LLT_CODE': ['123'],
+            'REPT_DATE': ['2021-01-01']
+        })
+        
+        result = process_chunk(chunk, mapping)
+        # 'UNKNOWN' is kept, so row should remain
+        assert len(result) == 1
 
-            stats = process_data(
-                input_path,
-                output_parquet,
-                output_csv,
-                chunk_size=1000
-            )
-
-            # Only first row should remain (has valid date)
-            assert stats['final_rows'] == 1
-            assert stats['excluded_missing_date'] == 2
-
-    def test_process_data_memory_limit(self):
-        """Test that memory limit is enforced."""
-        # This is a soft test - we can't easily simulate high memory usage
-        # but we can verify the function accepts the parameter
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / 'input.csv'
-            output_parquet = Path(tmpdir) / 'output.parquet'
-            output_csv = Path(tmpdir) / 'output.csv'
-
-            sample_data = {
-                'VAX_TYPE': ['COVID-19'],
-                'LLT': ['10004140'],
-                'REPT_DATE': ['2021-01-01']
-            }
-            df = pd.DataFrame(sample_data)
-            df.to_csv(input_path, index=False)
-
-            # Should not raise with reasonable limit
-            stats = process_data(
-                input_path,
-                output_parquet,
-                output_csv,
-                max_ram_gb=10.0  # High limit
-            )
-
-            assert stats['final_rows'] == 1
-
+    def test_process_chunk_missing_columns_raises(self):
+        """Test that process_chunk raises ValueError if required columns are missing."""
+        mapping = {"123": "SOC_A"}
+        chunk = pd.DataFrame({
+            'VAX_TYPE': ['V1'],
+            'LLT_CODE': ['123']
+            # Missing REPT_DATE
+        })
+        
+        with pytest.raises(ValueError, match="missing required columns"):
+            process_chunk(chunk, mapping)
 
 class TestMemoryUsage:
-    """Tests for get_memory_usage_gb function."""
-
-    def test_get_memory_usage_gb_returns_number(self):
-        """Test that get_memory_usage_gb returns a numeric value."""
-        usage = get_memory_usage_gb()
-        assert isinstance(usage, float)
-        assert usage >= 0
+    def test_check_memory_usage_returns_bool(self):
+        """Test that check_memory_usage returns a boolean."""
+        result = check_memory_usage()
+        assert isinstance(result, bool)

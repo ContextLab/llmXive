@@ -1,12 +1,9 @@
 """
-Plotting utilities for the VAERS Statistical Analysis pipeline.
+Plotting utilities for the COVID-19 VAERS statistical analysis pipeline.
 
-Generates matplotlib figures for:
-- Weekly reporting counts (temporal profiles)
-- Signal tables (disproportionality metrics)
-- ROR distributions
-- Sensitivity analysis comparisons
-- Summary dashboards
+This module provides helper functions for generating matplotlib figures,
+including weekly reporting counts, signal tables, ROR distributions,
+sensitivity comparisons, and summary dashboards.
 """
 import os
 import warnings
@@ -14,372 +11,385 @@ from pathlib import Path
 from typing import List, Optional, Dict, Any, Union
 
 import matplotlib
-# Use non-interactive backend for headless execution
+# Use non-interactive backend for server/headless environments
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import logging
 
-# Ensure output directories exist
-OUTPUT_DIR = Path("code/output/temporal_profiles")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+# Configure logging for plot generation
+logger = logging.getLogger(__name__)
 
-# Style configuration
-plt.style.use('seaborn-v0_8-whitegrid')
-plt.rcParams['font.size'] = 10
-plt.rcParams['figure.figsize'] = (10, 6)
-plt.rcParams['figure.dpi'] = 150
-plt.rcParams['savefig.dpi'] = 150
-plt.rcParams['savefig.bbox'] = 'tight'
-
+# Ensure output directory exists
+def _ensure_output_dir(output_path: Path) -> None:
+    """Ensure the directory for the output file exists."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
 def plot_weekly_counts(
     df: pd.DataFrame,
-    soc_code: str,
-    group_col: str = 'VAX_TYPE',
-    output_path: Optional[Path] = None
+    soc: str,
+    output_path: Union[str, Path],
+    group_col: str = 'VAX_TYPE_GROUP',
+    date_col: str = 'REPT_DATE',
+    count_col: str = 'count',
+    title_suffix: str = ""
 ) -> Path:
     """
-    Generate a weekly count plot for a specific SOC code.
+    Generate a weekly count plot for a specific SOC.
     
     Args:
-        df: Cleaned dataframe with 'REPT_DATE' and 'SOC_CODE' columns.
-        soc_code: The SOC code to filter for.
-        group_col: Column name for grouping (e.g., 'VAX_TYPE').
-        output_path: Where to save the figure. Defaults to output/temporal_profiles/.
-    
+        df: DataFrame containing weekly counts with columns for date, group, and count.
+        soc: The System Organ Class name to label the plot.
+        output_path: Path to save the generated PNG file.
+        group_col: Column name for the vaccine group (e.g., 'COVID-19', 'Non-COVID').
+        date_col: Column name for the date (weekly period).
+        count_col: Column name for the count values.
+        title_suffix: Optional suffix for the plot title.
+        
     Returns:
         Path to the saved figure.
+        
+    Raises:
+        ValueError: If the DataFrame is empty or missing required columns.
     """
-    if output_path is None:
-        output_path = OUTPUT_DIR / f"weekly_counts_{soc_code}.png"
+    if not isinstance(output_path, Path):
+        output_path = Path(output_path)
     
-    # Filter data
-    filtered_df = df[df['SOC_CODE'] == soc_code].copy()
-    if filtered_df.empty:
-        warnings.warn(f"No data found for SOC {soc_code}, creating empty plot.")
-    
-    # Parse dates and compute week number relative to median
-    filtered_df['REPT_DATE'] = pd.to_datetime(filtered_df['REPT_DATE'], errors='coerce')
-    filtered_df = filtered_df.dropna(subset=['REPT_DATE'])
-    
-    if filtered_df.empty:
-        # Create empty plot if no valid dates
-        fig, ax = plt.subplots()
-        ax.text(0.5, 0.5, 'No Data Available', ha='center', va='center', transform=ax.transAxes)
-        ax.set_title(f"Weekly Counts for SOC {soc_code}")
-        fig.savefig(output_path)
-        plt.close(fig)
-        return Path(output_path)
-    
-    median_date = filtered_df['REPT_DATE'].median()
-    filtered_df['WEEKS_RELATIVE'] = (filtered_df['REPT_DATE'] - median_date).dt.days / 7
-    filtered_df['WEEK'] = filtered_df['WEEKS_RELATIVE'].round()
-    
-    # Aggregate by week and group
-    weekly_counts = filtered_df.groupby(['WEEK', group_col]).size().unstack(fill_value=0)
-    
-    # Plot
-    fig, ax = plt.subplots()
-    weekly_counts.plot(ax=ax, marker='o', linestyle='-')
-    
-    ax.set_xlabel('Weeks Relative to Median Report Date')
-    ax.set_ylabel('Number of Reports')
-    ax.set_title(f"Weekly Reporting Counts: SOC {soc_code}\n(Label: Reporting Time, not Post-Vaccination)")
-    ax.legend(title=group_col)
-    
-    # Add disclaimer text
-    disclaimer = "Note: Temporal analysis is descriptive. 'Reporting Time' ≠ 'Post-Vaccination Time'."
-    fig.text(0.5, -0.15, disclaimer, ha='center', fontsize=8, style='italic')
-    
-    fig.savefig(output_path)
-    plt.close(fig)
-    
-    return Path(output_path)
-
-
-def plot_signal_table(
-    df: pd.DataFrame,
-    metrics: List[str] = ['ROR', 'PRR', 'IC'],
-    threshold: Dict[str, float] = None,
-    output_path: Optional[Path] = None
-) -> Path:
-    """
-    Generate a heatmap-style visualization of signal metrics for top SOCs.
-    
-    Args:
-        df: DataFrame containing signal metrics (SOC_CODE, ROR, PRR, IC, etc.).
-        metrics: List of metric columns to visualize.
-        threshold: Dictionary mapping metric names to significance thresholds.
-        output_path: Where to save the figure.
-    
-    Returns:
-        Path to the saved figure.
-    """
-    if output_path is None:
-        output_path = OUTPUT_DIR / "signal_table.png"
+    _ensure_output_dir(output_path)
     
     if df.empty:
-        fig, ax = plt.subplots()
-        ax.text(0.5, 0.5, 'No Signal Data', ha='center', va='center', transform=ax.transAxes)
-        fig.savefig(output_path)
-        plt.close(fig)
-        return Path(output_path)
+        raise ValueError(f"DataFrame is empty for SOC '{soc}'. Cannot generate plot.")
     
-    # Select relevant columns
-    plot_data = df[['SOC_CODE'] + [m for m in metrics if m in df.columns]].copy()
-    plot_data.set_index('SOC_CODE', inplace=True)
+    required_cols = {date_col, group_col, count_col}
+    if not required_cols.issubset(df.columns):
+        raise ValueError(f"DataFrame missing required columns: {required_cols - set(df.columns)}")
     
-    # Normalize for visualization (0 to 1) if thresholds exist
-    if threshold:
-        for metric in metrics:
-            if metric in plot_data.columns and metric in threshold:
-                thresh = threshold[metric]
-                # Cap at 2x threshold for visualization
-                max_val = max(plot_data[metric].max(), thresh * 2)
-                plot_data[metric] = plot_data[metric].clip(0, max_val) / max_val
+    fig, ax = plt.subplots(figsize=(12, 6))
     
-    # Create heatmap
-    fig, ax = plt.subplots(figsize=(10, len(plot_data) * 0.5 + 2))
+    # Sort by date to ensure correct plotting order
+    df_sorted = df.sort_values(by=date_col)
     
-    # Use matplotlib table directly for precise control
-    table_data = plot_data.reset_index().values
-    col_labels = plot_data.columns.tolist()
-    row_labels = plot_data.reset_index()['SOC_CODE'].tolist()
+    # Plot lines for each group
+    groups = df_sorted[group_col].unique()
+    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']  # Default matplotlib colors
     
+    for i, group in enumerate(groups):
+        group_data = df_sorted[df_sorted[group_col] == group]
+        color = colors[i % len(colors)]
+        ax.plot(
+            group_data[date_col], 
+            group_data[count_col], 
+            marker='o', 
+            linestyle='-', 
+            label=group,
+            color=color,
+            linewidth=2,
+            markersize=6
+        )
+    
+    ax.set_xlabel('Reporting Week', fontsize=12)
+    ax.set_ylabel('Number of Reports', fontsize=12)
+    
+    # Explicitly label as "Reporting Time" per project constraints
+    title = f"Weekly Reporting Counts for {soc} {title_suffix}".strip()
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    
+    ax.legend(loc='best', fontsize=10)
+    ax.grid(True, linestyle='--', alpha=0.7)
+    
+    # Rotate x-axis labels for readability
+    plt.xticks(rotation=45, ha='right')
+    
+    # Tight layout to prevent label cutoff
+    plt.tight_layout()
+    
+    # Save figure
+    fig.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.close(fig)
+    
+    logger.info(f"Saved weekly count plot for {soc} to {output_path}")
+    return output_path
+
+def plot_signal_table(
+    signals_df: pd.DataFrame,
+    output_path: Union[str, Path],
+    top_n: int = 10,
+    sort_by: str = 'ror'
+) -> Path:
+    """
+    Generate a formatted table plot of the top signals.
+    
+    Args:
+        signals_df: DataFrame containing signal metrics (ROR, PRR, IC, etc.).
+        output_path: Path to save the generated PNG file.
+        top_n: Number of top signals to display.
+        sort_by: Column name to sort by (default: 'ror').
+        
+    Returns:
+        Path to the saved figure.
+    """
+    if not isinstance(output_path, Path):
+        output_path = Path(output_path)
+        
+    _ensure_output_dir(output_path)
+    
+    if signals_df.empty:
+        raise ValueError("Signals DataFrame is empty. Cannot generate table plot.")
+    
+    # Sort and select top N
+    if sort_by not in signals_df.columns:
+        logger.warning(f"Sort column '{sort_by}' not found. Falling back to 'ror'.")
+        sort_by = 'ror'
+        
+    top_signals = signals_df.sort_values(by=sort_by, ascending=False).head(top_n).copy()
+    
+    fig, ax = plt.subplots(figsize=(10, 0.4 * len(top_signals) + 1))
+    ax.axis('off')
+    ax.axis('tight')
+    
+    # Prepare table data
+    # Select relevant columns for display
+    display_cols = ['soc', 'ror', 'ror_ci_lower', 'ror_ci_upper', 'prr', 'ic', 'signal_flag']
+    available_cols = [c for c in display_cols if c in top_signals.columns]
+    
+    table_data = top_signals[available_cols].values
+    col_labels = [c.upper() for c in available_cols]
+    
+    # Create table
     table = ax.table(
         cellText=table_data,
         colLabels=col_labels,
-        rowLabels=row_labels,
+        loc='center',
         cellLoc='center',
-        loc='center'
+        colColours=['#d9edf7'] * len(available_cols),
+        cellColours=[['#ffffff' if not val else '#ffcccc' for val in row] for row in table_data]
     )
+    
+    # Adjust cell size
     table.auto_set_font_size(False)
-    table.set_fontsize(9)
+    table.set_fontsize(10)
     table.scale(1.2, 1.5)
     
-    # Highlight significant signals (if thresholds provided)
-    if threshold:
-        for i, row in enumerate(plot_data.reset_index().itertuples(index=False)):
-            for j, metric in enumerate(col_labels):
-                if metric in threshold and metric != 'SOC_CODE':
-                    val = getattr(row, metric, 0)
-                    thresh = threshold[metric]
-                    # Simple logic: if value > threshold, make cell green
-                    # Adjust for normalized values if normalized
-                    if metric in threshold and val > thresh:
-                        table[(i+1, j+1)].set_facecolor('#d4edda')
+    # Highlight signals
+    if 'signal_flag' in available_cols:
+        flag_idx = available_cols.index('signal_flag')
+        for i, row in enumerate(table_data):
+            if row[flag_idx] is True or (isinstance(row[flag_idx], str) and row[flag_idx].lower() == 'true'):
+                for j in range(len(available_cols)):
+                    table[(i+1, j)].set_facecolor('#ffcccc')
+                    table[(i+1, j)].set_text_props(weight='bold')
     
-    ax.set_title('Signal Detection Metrics Table')
-    ax.axis('off')
+    title = f"Top {len(top_signals)} Disproportionality Signals"
+    ax.set_title(title, fontsize=14, fontweight='bold', pad=20)
     
-    fig.savefig(output_path)
+    plt.tight_layout()
+    fig.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
     
-    return Path(output_path)
-
+    logger.info(f"Saved signal table plot to {output_path}")
+    return output_path
 
 def plot_ror_distribution(
-    df: pd.DataFrame,
-    metric: str = 'ROR',
-    output_path: Optional[Path] = None
+    signals_df: pd.DataFrame,
+    output_path: Union[str, Path],
+    metric: str = 'ror',
+    threshold: Optional[float] = None
 ) -> Path:
     """
-    Plot the distribution of a disproportionality metric (e.g., ROR) across SOCs.
+    Generate a histogram of ROR (or other metric) distribution.
     
     Args:
-        df: DataFrame with metric columns.
-        metric: Column name for the metric.
-        output_path: Where to save the figure.
-    
+        signals_df: DataFrame containing signal metrics.
+        output_path: Path to save the generated PNG file.
+        metric: Metric column to plot (default: 'ror').
+        threshold: Optional vertical line to indicate a threshold.
+        
     Returns:
         Path to the saved figure.
     """
-    if output_path is None:
-        output_path = OUTPUT_DIR / f"{metric}_distribution.png"
+    if not isinstance(output_path, Path):
+        output_path = Path(output_path)
+        
+    _ensure_output_dir(output_path)
     
-    if metric not in df.columns:
-        warnings.warn(f"Metric {metric} not found in dataframe.")
-        fig, ax = plt.subplots()
-        ax.text(0.5, 0.5, f'Metric {metric} not found', ha='center', va='center')
-        fig.savefig(output_path)
-        plt.close(fig)
-        return Path(output_path)
+    if signals_df.empty:
+        raise ValueError("Signals DataFrame is empty. Cannot generate distribution plot.")
     
-    values = df[metric].dropna()
+    if metric not in signals_df.columns:
+        raise ValueError(f"Metric column '{metric}' not found in DataFrame.")
+    
+    values = signals_df[metric].dropna()
     if values.empty:
-        fig, ax = plt.subplots()
-        ax.text(0.5, 0.5, 'No data for distribution', ha='center', va='center')
-        fig.savefig(output_path)
-        plt.close(fig)
-        return Path(output_path)
+        raise ValueError(f"No valid values found for metric '{metric}'.")
     
-    fig, ax = plt.subplots()
-    ax.hist(values, bins=30, color='skyblue', edgecolor='black', alpha=0.7)
-    ax.set_xlabel(metric)
-    ax.set_ylabel('Frequency')
-    ax.set_title(f'Distribution of {metric} Across SOCs')
-    ax.axvline(x=2.0, color='red', linestyle='--', label='Threshold (2.0)')
-    ax.legend()
+    fig, ax = plt.subplots(figsize=(10, 6))
     
-    fig.savefig(output_path)
+    ax.hist(values, bins=30, color='#1f77b4', alpha=0.7, edgecolor='black')
+    ax.set_xlabel(f'{metric.upper()} Value', fontsize=12)
+    ax.set_ylabel('Frequency', fontsize=12)
+    ax.set_title(f'Distribution of {metric.upper()} for All SOCs', fontsize=14, fontweight='bold')
+    ax.grid(True, linestyle='--', alpha=0.5)
+    
+    if threshold is not None:
+        ax.axvline(x=threshold, color='red', linestyle='--', linewidth=2, label=f'Threshold: {threshold}')
+        ax.legend()
+    
+    plt.tight_layout()
+    fig.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
     
-    return Path(output_path)
-
+    logger.info(f"Saved {metric} distribution plot to {output_path}")
+    return output_path
 
 def plot_sensitivity_comparison(
-    df_primary: pd.DataFrame,
-    df_sensitivity: pd.DataFrame,
-    metrics: List[str] = ['ROR', 'PRR', 'IC'],
-    output_path: Optional[Path] = None
+    sensitivity_df: pd.DataFrame,
+    output_path: Union[str, Path],
+    top_n: int = 5
 ) -> Path:
     """
-    Compare metrics between primary and sensitivity baselines.
+    Generate a bar chart comparing metrics between baselines for top signals.
     
     Args:
-        df_primary: DataFrame with primary baseline metrics.
-        df_sensitivity: DataFrame with sensitivity baseline metrics.
-        metrics: List of metrics to compare.
-        output_path: Where to save the figure.
-    
+        sensitivity_df: DataFrame containing sensitivity analysis results.
+        output_path: Path to save the generated PNG file.
+        top_n: Number of top signals to display.
+        
     Returns:
         Path to the saved figure.
     """
-    if output_path is None:
-        output_path = OUTPUT_DIR / "sensitivity_comparison.png"
-    
-    # Merge on SOC_CODE
-    if 'SOC_CODE' not in df_primary.columns or 'SOC_CODE' not in df_sensitivity.columns:
-        warnings.warn("SOC_CODE column missing in one of the dataframes.")
-        fig, ax = plt.subplots()
-        ax.text(0.5, 0.5, 'Dataframe merge failed', ha='center', va='center')
-        fig.savefig(output_path)
-        plt.close(fig)
-        return Path(output_path)
-    
-    merged = pd.merge(
-        df_primary[['SOC_CODE'] + metrics],
-        df_sensitivity[['SOC_CODE'] + metrics],
-        on='SOC_CODE',
-        suffixes=('_primary', '_sens')
-    )
-    
-    if merged.empty:
-        fig, ax = plt.subplots()
-        ax.text(0.5, 0.5, 'No overlapping SOCs', ha='center', va='center')
-        fig.savefig(output_path)
-        plt.close(fig)
-        return Path(output_path)
-    
-    fig, ax = plt.subplots(figsize=(12, 8))
-    
-    x = np.arange(len(metrics))
-    width = 0.35
-    
-    for i, metric in enumerate(metrics):
-        primary_vals = merged[f'{metric}_primary'].values
-        sens_vals = merged[f'{metric}_sens'].values
+    if not isinstance(output_path, Path):
+        output_path = Path(output_path)
         
-        ax.bar(x - width/2 + i*width, primary_vals, width, label=f'{metric}_Primary')
-        ax.bar(x + width/2 + i*width, sens_vals, width, label=f'{metric}_Sensitivity')
+    _ensure_output_dir(output_path)
     
-    ax.set_ylabel('Metric Value')
-    ax.set_title('Sensitivity Analysis: Primary vs. Non-COVID, Non-Flu Baseline')
-    ax.set_xticks(x)
-    ax.set_xticklabels(metrics)
-    ax.legend()
+    if sensitivity_df.empty:
+        raise ValueError("Sensitivity DataFrame is empty. Cannot generate comparison plot.")
     
-    fig.savefig(output_path)
+    # Assume 'soc' and 'ror_delta' or similar delta columns exist
+    if 'soc' not in sensitivity_df.columns:
+        raise ValueError("Sensitivity DataFrame missing 'soc' column.")
+        
+    # Select top N by absolute delta of a primary metric (e.g., ror_delta)
+    delta_col = 'ror_delta' if 'ror_delta' in sensitivity_df.columns else sensitivity_df.columns[2]
+    
+    top_socs = sensitivity_df.nlargest(top_n, delta_col.abs())['soc'].tolist()
+    plot_df = sensitivity_df[sensitivity_df['soc'].isin(top_socs)]
+    
+    fig, ax = plt.subplots(figsize=(12, 6))
+    
+    # Pivot for plotting if necessary, or iterate
+    # Assuming long format: soc, metric_delta, baseline_type
+    # If wide format, handle accordingly. Let's assume we plot ROR delta per SOC.
+    
+    # Simplified: Plot ROR delta for each SOC if available
+    if 'ror_delta' in plot_df.columns:
+        x = range(len(plot_df))
+        ax.bar(x, plot_df['ror_delta'], color=['#ff7f0e' if v > 0 else '#2ca02c' for v in plot_df['ror_delta']])
+        ax.set_xticks(x)
+        ax.set_xticklabels(plot_df['soc'], rotation=45, ha='right')
+        ax.set_ylabel('ROR Delta (Primary - Flu)')
+        ax.set_title('Sensitivity Analysis: ROR Delta for Top Signals')
+        ax.axhline(0, color='black', linewidth=0.8)
+    else:
+        # Fallback: generic plot
+        ax.plot(plot_df['soc'], plot_df.iloc[:, 2], marker='o')
+        ax.set_xticklabels(plot_df['soc'], rotation=45, ha='right')
+        ax.set_title('Sensitivity Comparison')
+    
+    plt.tight_layout()
+    fig.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
     
-    return Path(output_path)
-
+    logger.info(f"Saved sensitivity comparison plot to {output_path}")
+    return output_path
 
 def create_summary_dashboard(
-    df_signals: pd.DataFrame,
-    df_temporal: Optional[pd.DataFrame] = None,
-    output_path: Optional[Path] = None
+    signals_df: pd.DataFrame,
+    weekly_plots_dir: Path,
+    output_path: Union[str, Path],
+    top_n: int = 5
 ) -> Path:
     """
-    Create a multi-panel dashboard summarizing key findings.
+    Create a summary dashboard figure combining key visualizations.
     
     Args:
-        df_signals: DataFrame with signal metrics.
-        df_temporal: Optional DataFrame with temporal data.
-        output_path: Where to save the figure.
-    
+        signals_df: DataFrame containing signal metrics.
+        weekly_plots_dir: Directory containing weekly count plots.
+        output_path: Path to save the combined dashboard PNG.
+        top_n: Number of top signals to include in the dashboard.
+        
     Returns:
         Path to the saved figure.
     """
-    if output_path is None:
-        output_path = OUTPUT_DIR / "summary_dashboard.png"
-    
-    fig = plt.figure(figsize=(15, 12))
-    gs = fig.add_gridspec(2, 2, hspace=0.3, wspace=0.3)
-    
-    # Panel 1: Top Signals Table (Heatmap style)
-    ax1 = fig.add_subplot(gs[0, 0])
-    if not df_signals.empty:
-        top_signals = df_signals.sort_values('ROR', ascending=False).head(10)
-        table_data = top_signals[['SOC_CODE', 'ROR', 'PRR', 'IC', 'Signal_Flag']].values
-        col_labels = ['SOC', 'ROR', 'PRR', 'IC', 'Signal']
-        row_labels = [f"Top {i+1}" for i in range(len(table_data))]
+    if not isinstance(output_path, Path):
+        output_path = Path(output_path)
         
-        table = ax1.table(
-            cellText=table_data,
-            colLabels=col_labels,
-            rowLabels=row_labels,
-            cellLoc='center',
-            loc='center'
-        )
-        table.auto_set_font_size(False)
-        table.set_fontsize(8)
-        table.scale(1.1, 1.4)
-        
-        # Color code signals
-        for i, row in enumerate(top_signals.itertuples(index=False)):
-            if hasattr(row, 'Signal_Flag') and row.Signal_Flag == True:
-                for j in range(1, 5): # Skip SOC column
-                    table[(i+1, j)].set_facecolor('#d4edda')
+    _ensure_output_dir(output_path)
     
+    fig = plt.figure(figsize=(20, 12))
+    
+    # 1. Signal Table (Top 5)
+    ax1 = fig.add_subplot(2, 2, 1)
     ax1.axis('off')
-    ax1.set_title('Top 10 Candidate Signals (Sorted by ROR)', pad=20)
+    if not signals_df.empty:
+        top_signals = signals_df.sort_values(by='ror', ascending=False).head(top_n)
+        display_cols = ['soc', 'ror', 'prr', 'ic', 'signal_flag']
+        available_cols = [c for c in display_cols if c in top_signals.columns]
+        if available_cols:
+            table_data = top_signals[available_cols].values
+            col_labels = [c.upper() for c in available_cols]
+            table = ax1.table(
+                cellText=table_data,
+                colLabels=col_labels,
+                loc='center',
+                cellLoc='center',
+                colColours=['#d9edf7'] * len(available_cols)
+            )
+            table.auto_set_font_size(False)
+            table.set_fontsize(9)
+            table.scale(1.1, 1.4)
+            ax1.set_title('Top Signals Summary', fontsize=12, fontweight='bold', pad=10)
     
-    # Panel 2: ROR Distribution
-    ax2 = fig.add_subplot(gs[0, 1])
-    if 'ROR' in df_signals.columns:
-        ror_vals = df_signals['ROR'].dropna()
-        ax2.hist(ror_vals, bins=30, color='lightcoral', edgecolor='black', alpha=0.7)
-        ax2.axvline(x=2.0, color='red', linestyle='--', label='Threshold (2.0)')
-        ax2.set_xlabel('ROR')
+    # 2. ROR Distribution
+    ax2 = fig.add_subplot(2, 2, 2)
+    if not signals_df.empty and 'ror' in signals_df.columns:
+        ax2.hist(signals_df['ror'].dropna(), bins=20, color='#1f77b4', alpha=0.7, edgecolor='black')
+        ax2.set_xlabel('ROR Value')
         ax2.set_ylabel('Frequency')
-        ax2.set_title('Distribution of Reporting Odds Ratios')
-        ax2.legend()
+        ax2.set_title('ROR Distribution', fontsize=12, fontweight='bold')
+        ax2.grid(True, linestyle='--', alpha=0.5)
     
-    # Panel 3: IC Distribution
-    ax3 = fig.add_subplot(gs[1, 0])
-    if 'IC' in df_signals.columns:
-        ic_vals = df_signals['IC'].dropna()
-        ax3.hist(ic_vals, bins=30, color='lightgreen', edgecolor='black', alpha=0.7)
-        ax3.axvline(x=0.0, color='red', linestyle='--', label='Threshold (0.0)')
-        ax3.set_xlabel('Information Component')
-        ax3.set_ylabel('Frequency')
-        ax3.set_title('Distribution of Information Components')
-        ax3.legend()
+    # 3. Placeholder for Temporal Profile (if plots exist)
+    ax3 = fig.add_subplot(2, 2, 3)
+    ax3.axis('off')
+    if weekly_plots_dir.exists():
+        plot_files = list(weekly_plots_dir.glob('*.png'))
+        if plot_files:
+            # Just list the files found or show a thumbnail if possible (simplified here)
+            ax3.text(0.5, 0.5, f"Found {len(plot_files)} Weekly Plots\nin {weekly_plots_dir.name}",
+                     ha='center', va='center', fontsize=12, transform=ax3.transAxes)
+            ax3.set_title('Temporal Profiles Available', fontsize=12, fontweight='bold')
+        else:
+            ax3.text(0.5, 0.5, "No Weekly Plots Found", ha='center', va='center', fontsize=12, transform=ax3.transAxes)
+    else:
+        ax3.text(0.5, 0.5, "Weekly Plots Directory Not Found", ha='center', va='center', fontsize=12, transform=ax3.transAxes)
     
-    # Panel 4: Signal Count Summary
-    ax4 = fig.add_subplot(gs[1, 1])
-    if not df_signals.empty:
-        signal_counts = df_signals['Signal_Flag'].value_counts()
-        labels = ['Signal', 'No Signal']
-        sizes = [signal_counts.get(True, 0), signal_counts.get(False, 0)]
-        colors = ['#d4edda', '#f8d7da']
-        ax4.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors)
-        ax4.set_title('Signal Detection Summary')
+    # 4. Signal Flag Count
+    ax4 = fig.add_subplot(2, 2, 4)
+    if not signals_df.empty and 'signal_flag' in signals_df.columns:
+        signal_counts = signals_df['signal_flag'].value_counts()
+        ax4.bar(['Signal', 'No Signal'], signal_counts.values, color=['#ff7f0e', '#2ca02c'])
+        ax4.set_ylabel('Count')
+        ax4.set_title('Signal Detection Summary', fontsize=12, fontweight='bold')
+        for i, v in enumerate(signal_counts.values):
+            ax4.text(i, v + 0.1, str(v), ha='center')
     
-    plt.suptitle('VAERS Statistical Analysis Summary Dashboard', fontsize=16, fontweight='bold')
-    fig.savefig(output_path)
+    plt.suptitle('COVID-19 VAERS Statistical Analysis Dashboard', fontsize=16, fontweight='bold', y=0.98)
+    plt.tight_layout(rect=[0, 0, 1, 0.96])
+    
+    fig.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close(fig)
     
-    return Path(output_path)
+    logger.info(f"Saved summary dashboard to {output_path}")
+    return output_path

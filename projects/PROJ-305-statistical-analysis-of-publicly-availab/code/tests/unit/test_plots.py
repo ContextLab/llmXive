@@ -7,9 +7,6 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-import matplotlib
-matplotlib.use('Agg') # Non-interactive backend
-import matplotlib.pyplot as plt
 
 from src.utils.plots import (
     plot_weekly_counts,
@@ -19,111 +16,137 @@ from src.utils.plots import (
     create_summary_dashboard
 )
 
-
 class TestPlots:
-    """Test suite for plotting functions."""
-
     @pytest.fixture
-    def sample_cleaned_data(self):
-        """Generate sample cleaned data for testing."""
-        dates = pd.date_range('2020-01-01', periods=100, freq='D')
-        data = {
-            'SOC_CODE': ['SOC_1'] * 50 + ['SOC_2'] * 50,
-            'VAX_TYPE': ['COVID-19'] * 25 + ['Non-COVID'] * 25 + ['COVID-19'] * 25 + ['Non-COVID'] * 25,
-            'REPT_DATE': list(dates) * 2
-        }
+    def weekly_data(self):
+        """Create sample weekly count data."""
+        dates = pd.date_range(start='2020-01-01', periods=20, freq='W')
+        data = []
+        for date in dates:
+            data.append({
+                'REPT_DATE': date,
+                'VAX_TYPE_GROUP': 'COVID-19',
+                'count': np.random.randint(10, 100)
+            })
+            data.append({
+                'REPT_DATE': date,
+                'VAX_TYPE_GROUP': 'Non-COVID',
+                'count': np.random.randint(10, 50)
+            })
         return pd.DataFrame(data)
 
     @pytest.fixture
-    def sample_signal_data(self):
-        """Generate sample signal data."""
-        data = {
-            'SOC_CODE': ['SOC_1', 'SOC_2', 'SOC_3'],
-            'ROR': [2.5, 1.8, 3.0],
-            'PRR': [2.1, 1.5, 2.8],
-            'IC': [0.5, -0.1, 1.2],
-            'Signal_Flag': [True, False, True]
-        }
-        return pd.DataFrame(data)
+    def signals_data(self):
+        """Create sample signals data."""
+        return pd.DataFrame({
+            'soc': ['SOC1', 'SOC2', 'SOC3', 'SOC4', 'SOC5'],
+            'ror': [2.5, 1.8, 3.1, 0.9, 2.2],
+            'ror_ci_lower': [1.2, 0.9, 1.5, 0.5, 1.1],
+            'ror_ci_upper': [4.0, 3.0, 5.0, 1.5, 3.5],
+            'prr': [2.1, 1.6, 2.8, 0.8, 1.9],
+            'ic': [0.8, 0.4, 1.2, -0.2, 0.7],
+            'signal_flag': [True, False, True, False, True]
+        })
 
-    def test_plot_weekly_counts(self, sample_cleaned_data, tmp_path):
+    @pytest.fixture
+    def sensitivity_data(self):
+        """Create sample sensitivity data."""
+        return pd.DataFrame({
+            'soc': ['SOC1', 'SOC2', 'SOC3', 'SOC4', 'SOC5'],
+            'ror_delta': [0.5, -0.2, 0.8, -0.1, 0.3],
+            'prr_delta': [0.4, -0.1, 0.6, 0.0, 0.2]
+        })
+
+    def test_plot_weekly_counts(self, weekly_data, tmp_path):
         """Test weekly count plot generation."""
-        output_file = tmp_path / "test_weekly.png"
-        result = plot_weekly_counts(sample_cleaned_data, 'SOC_1', output_path=output_file)
-        
+        output_path = tmp_path / "weekly_counts.png"
+        result = plot_weekly_counts(
+            df=weekly_data,
+            soc="Test SOC",
+            output_path=output_path
+        )
         assert result.exists()
         assert result.stat().st_size > 0
-        
-        # Verify no plot remains open
-        assert len(plt.get_fignums()) == 0
 
-    def test_plot_weekly_counts_empty(self, tmp_path):
-        """Test weekly count plot with no data."""
-        empty_df = pd.DataFrame(columns=['SOC_CODE', 'REPT_DATE', 'VAX_TYPE'])
-        output_file = tmp_path / "test_empty_weekly.png"
-        
-        with pytest.warns(UserWarning):
-            result = plot_weekly_counts(empty_df, 'SOC_1', output_path=output_file)
-        
-        assert result.exists()
+    def test_plot_weekly_counts_empty_df(self, tmp_path):
+        """Test that empty DataFrame raises ValueError."""
+        empty_df = pd.DataFrame(columns=['REPT_DATE', 'VAX_TYPE_GROUP', 'count'])
+        output_path = tmp_path / "empty.png"
+        with pytest.raises(ValueError):
+            plot_weekly_counts(df=empty_df, soc="Test", output_path=output_path)
 
-    def test_plot_signal_table(self, sample_signal_data, tmp_path):
+    def test_plot_weekly_counts_missing_columns(self, tmp_path):
+        """Test that missing columns raise ValueError."""
+        bad_df = pd.DataFrame({'date': [1], 'group': [2]})
+        output_path = tmp_path / "bad.png"
+        with pytest.raises(ValueError):
+            plot_weekly_counts(df=bad_df, soc="Test", output_path=output_path)
+
+    def test_plot_signal_table(self, signals_data, tmp_path):
         """Test signal table plot generation."""
-        output_file = tmp_path / "test_signal_table.png"
-        result = plot_signal_table(sample_signal_data, output_path=output_file)
-        
+        output_path = tmp_path / "signal_table.png"
+        result = plot_signal_table(
+            signals_df=signals_data,
+            output_path=output_path,
+            top_n=3
+        )
         assert result.exists()
         assert result.stat().st_size > 0
 
     def test_plot_signal_table_empty(self, tmp_path):
-        """Test signal table with empty dataframe."""
-        empty_df = pd.DataFrame()
-        output_file = tmp_path / "test_empty_table.png"
-        result = plot_signal_table(empty_df, output_path=output_file)
-        
-        assert result.exists()
+        """Test that empty signals DataFrame raises ValueError."""
+        empty_df = pd.DataFrame(columns=['soc', 'ror'])
+        output_path = tmp_path / "empty_table.png"
+        with pytest.raises(ValueError):
+            plot_signal_table(signals_df=empty_df, output_path=output_path)
 
-    def test_plot_ror_distribution(self, sample_signal_data, tmp_path):
+    def test_plot_ror_distribution(self, signals_data, tmp_path):
         """Test ROR distribution plot generation."""
-        output_file = tmp_path / "test_ror_dist.png"
-        result = plot_ror_distribution(sample_signal_data, 'ROR', output_path=output_file)
-        
-        assert result.exists()
-        assert result.stat().st_size > 0
-
-    def test_plot_ror_distribution_missing_metric(self, sample_signal_data, tmp_path):
-        """Test ROR distribution with missing metric column."""
-        output_file = tmp_path / "test_missing_metric.png"
-        with pytest.warns(UserWarning):
-            result = plot_ror_distribution(sample_signal_data, 'NON_EXISTENT', output_path=output_file)
-        
-        assert result.exists()
-
-    def test_plot_sensitivity_comparison(self, sample_signal_data, tmp_path):
-        """Test sensitivity comparison plot."""
-        output_file = tmp_path / "test_sens_comp.png"
-        # Use same data for both for simplicity
-        result = plot_sensitivity_comparison(
-            sample_signal_data, 
-            sample_signal_data, 
-            output_path=output_file
+        output_path = tmp_path / "ror_dist.png"
+        result = plot_ror_distribution(
+            signals_df=signals_data,
+            output_path=output_path,
+            metric='ror',
+            threshold=2.0
         )
-        
         assert result.exists()
         assert result.stat().st_size > 0
 
-    def test_create_summary_dashboard(self, sample_signal_data, tmp_path):
+    def test_plot_ror_distribution_missing_metric(self, signals_data, tmp_path):
+        """Test that missing metric column raises ValueError."""
+        output_path = tmp_path / "bad_metric.png"
+        with pytest.raises(ValueError):
+            plot_ror_distribution(
+                signals_df=signals_data,
+                output_path=output_path,
+                metric='nonexistent_metric'
+            )
+
+    def test_plot_sensitivity_comparison(self, sensitivity_data, tmp_path):
+        """Test sensitivity comparison plot generation."""
+        output_path = tmp_path / "sensitivity.png"
+        result = plot_sensitivity_comparison(
+            sensitivity_df=sensitivity_data,
+            output_path=output_path,
+            top_n=3
+        )
+        assert result.exists()
+        assert result.stat().st_size > 0
+
+    def test_create_summary_dashboard(self, signals_data, tmp_path):
         """Test summary dashboard generation."""
-        output_file = tmp_path / "test_dashboard.png"
-        result = create_summary_dashboard(sample_signal_data, output_path=output_file)
+        # Create a dummy weekly plots directory
+        weekly_dir = tmp_path / "weekly_plots"
+        weekly_dir.mkdir()
         
+        # Create a dummy plot file to simulate existence
+        (weekly_dir / "dummy.png").touch()
+        
+        output_path = tmp_path / "dashboard.png"
+        result = create_summary_dashboard(
+            signals_df=signals_data,
+            weekly_plots_dir=weekly_dir,
+            output_path=output_path
+        )
         assert result.exists()
         assert result.stat().st_size > 0
-
-    def test_create_summary_dashboard_empty(self, tmp_path):
-        """Test dashboard with empty dataframe."""
-        empty_df = pd.DataFrame()
-        output_file = tmp_path / "test_empty_dashboard.png"
-        result = create_summary_dashboard(empty_df, output_path=output_file)
-        
-        assert result.exists()

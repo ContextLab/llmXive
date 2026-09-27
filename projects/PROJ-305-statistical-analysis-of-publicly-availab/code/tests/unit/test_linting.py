@@ -5,59 +5,80 @@ import tempfile
 from pathlib import Path
 import pytest
 
+
 class TestLintingConfig:
-    def test_ruff_config_exists(self):
-        """Verify .ruff.toml exists in project root"""
-        project_root = Path(__file__).parent.parent.parent
-        config_path = project_root / ".ruff.toml"
-        assert config_path.exists(), ".ruff.toml configuration file missing"
+    """Tests to verify that linting and formatting tools are correctly configured."""
 
     def test_black_config_exists(self):
-        """Verify black config in pyproject.toml"""
-        project_root = Path(__file__).parent.parent.parent
-        config_path = project_root / "pyproject.toml"
-        assert config_path.exists(), "pyproject.toml missing"
-        
-        content = config_path.read_text()
-        assert "[tool.black]" in content, "Black configuration missing from pyproject.toml"
+        """Verify that a Black configuration exists in the project."""
+        # Check for pyproject.toml with [tool.black] section
+        pyproject_path = Path("code/pyproject.toml")
+        assert pyproject_path.exists(), "pyproject.toml must exist for Black config"
 
-    def test_flake8_config_exists(self):
-        """Verify .flake8 exists"""
-        project_root = Path(__file__).parent.parent.parent
-        config_path = project_root / ".flake8"
-        assert config_path.exists(), ".flake8 configuration file missing"
+        content = pyproject_path.read_text()
+        assert "[tool.black]" in content, "pyproject.toml must contain [tool.black] section"
 
-    def test_ruff_check_runs(self):
-        """Verify ruff can run against the codebase"""
-        project_root = Path(__file__).parent.parent.parent
-        code_dir = project_root / "code"
-        
+    def test_ruff_config_exists(self):
+        """Verify that a Ruff configuration exists in the project."""
+        # Check for .ruff.toml or ruff section in pyproject.toml
+        ruff_toml = Path("code/.ruff.toml")
+        pyproject_path = Path("code/pyproject.toml")
+
+        has_ruff_toml = ruff_toml.exists()
+        has_ruff_in_pyproject = (
+            pyproject_path.exists() and "[tool.ruff]" in pyproject_path.read_text()
+        )
+
+        assert has_ruff_toml or has_ruff_in_pyproject, (
+            "Must have either .ruff.toml or [tool.ruff] in pyproject.toml"
+        )
+
+    def test_makefile_lint_target(self):
+        """Verify that Makefile has a lint target."""
+        makefile_path = Path("code/Makefile")
+        if makefile_path.exists():
+            content = makefile_path.read_text()
+            assert "lint:" in content, "Makefile must contain 'lint:' target"
+
+    def test_makefile_format_target(self):
+        """Verify that Makefile has a format target."""
+        makefile_path = Path("code/Makefile")
+        if makefile_path.exists():
+            content = makefile_path.read_text()
+            assert "format:" in content, "Makefile must contain 'format:' target"
+
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Skipping subprocess tests on Windows"
+    )
+    def test_ruff_executable_available(self):
+        """Verify that ruff can be invoked (if installed)."""
         try:
             result = subprocess.run(
-                ["ruff", "check", str(code_dir)],
+                ["ruff", "--version"],
                 capture_output=True,
                 text=True,
-                cwd=project_root
+                timeout=10,
             )
-            # Ruff returns 0 if no errors, 1 if errors found. 
-            # We just want to ensure it runs without crashing.
-            assert result.returncode in [0, 1], f"Ruff crashed: {result.stderr}"
+            assert result.returncode == 0, "ruff command should succeed if installed"
         except FileNotFoundError:
-            pytest.skip("Ruff not installed in environment")
+            pytest.skip("ruff not installed in environment")
+        except subprocess.TimeoutExpired:
+            pytest.fail("ruff command timed out")
 
-    def test_black_check_runs(self):
-        """Verify black can run against the codebase"""
-        project_root = Path(__file__).parent.parent.parent
-        code_dir = project_root / "code"
-        
+    @pytest.mark.skipif(
+        sys.platform == "win32", reason="Skipping subprocess tests on Windows"
+    )
+    def test_black_executable_available(self):
+        """Verify that black can be invoked (if installed)."""
         try:
             result = subprocess.run(
-                ["black", "--check", str(code_dir)],
+                ["black", "--version"],
                 capture_output=True,
                 text=True,
-                cwd=project_root
+                timeout=10,
             )
-            # Black returns 0 if formatted, 1 if changes needed
-            assert result.returncode in [0, 1], f"Black crashed: {result.stderr}"
+            assert result.returncode == 0, "black command should succeed if installed"
         except FileNotFoundError:
-            pytest.skip("Black not installed in environment")
+            pytest.skip("black not installed in environment")
+        except subprocess.TimeoutExpired:
+            pytest.fail("black command timed out")

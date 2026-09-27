@@ -1,3 +1,24 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required project directories (`src/`, `tests/`, `data/`, `output/`)
+    is provided; the claim lacks any artifact showing that these folders exist or
+    contain files. The implementer must create and show the directory structure to
+    satisfy the task.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings, or related scripts) were found in the provided
+    evidence, so the requirement to configure ruff/flake8 and Black is not satisfied.
+T008:
+  c: false
+  h: bc910bb16ea9c93fd300fb4a0dd6963f7b02fbe71fd901940def4676879dcdaf
+  r: "The provided `src/data/validate.py` is truncated (the `validate_data` function\
+    \ ends mid\u2011line) and cannot fully perform validation, and the required `dataset.schema.yaml`\
+    \ file is missing, so the script cannot actually check raw data against a schema\
+    \ as the task demands. The implementation must be completed and the schema file\
+    \ supplied."
 T011:
   c: false
   h: 0beb49ae10367e9e876108cccf2b55350f7bc2fdd826b3d2fc7cc80b6f5b871d
@@ -6,3 +27,46 @@ T011:
     (truncated) does not contain a test that asserts an `E_SCHEMA_MISSING` exception
     is raised for missing columns; it only checks for a generic `SystemExit`. Both
     the required source file and the specific test for `E_SCHEMA_MISSING` are missing.
+T019:
+  c: false
+  h: d0b2661ff4d5139c18e22e8de91ac06044090ffd003a388f40d65d1043b60c5d
+  r: "The required unit\u2011test file `tests/unit/test_disproportionality.py` is\
+    \ missing; no test code is present to verify ROR/PRR/IC calculations or continuity\
+    \ correction. The task therefore is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/signals.csv` file or its contents were presented; the required columns\
+    \ (`soc`, `ror`, `ror_ci_lower`, `ror_ci_upper`, `prr`, `prr_ci_lower`, `prr_ci_upper`,\
+    \ `ic`, `ic_ci_lower`, `ic_ci_upper`, `p_adj`, `signal_flag`) are not demonstrated,\
+    \ so the task\u2019s deliverable is missing."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `output/sensitivity_analysis.csv` file or its contents were presented; therefore\
+    \ the required delta\u2011metrics CSV with the specified columns does not exist\
+    \ in the provided evidence. The task remains unfinished."
+T030:
+  c: false
+  h: bdcc28600994aee9e860628962de8e12d9af16f7ebeaa77a9cb4d4069f16d077
+  r: Both required artifacts (`src/analysis/temporal.py` and `tests/unit/test_temporal.py`)
+    are missing from the repository, so no unit test or implementation exists to verify
+    the weekly aggregation logic. The task is therefore not satisfied.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required files (`output/signals.csv` with identified top\u2011\
+    5 SOCs, or the fallback `output/temporal_profiles/empty_signal_warning.txt`) was\
+    \ provided, nor any indication that T026 was satisfied. The implementer\u2019\
+    s claim cannot be verified without these artifacts."
+T039:
+  c: false
+  h: fce98a4a94e7db63dc34e9ac2d87e3038cfdeb424a0e9716acfb93faef50d60c
+  r: "The required `src/main.py` file is missing, so no memory\u2011check logic, logging\
+    \ to `logs/memory.log`, or exit code `E_MEMORY_LIMIT` can be verified. The deliverable\
+    \ artifact does not exist."
+T040:
+  c: false
+  h: fce98a4a94e7db63dc34e9ac2d87e3038cfdeb424a0e9716acfb93faef50d60c
+  r: "The required file `src/main.py` does not exist, so no memory\u2011check logic,\
+    \ logging, or exit code can be present. The deliverable artifact is missing entirely."

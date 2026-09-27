@@ -1,55 +1,36 @@
-# Dataset Schema for VAERS Data
-# This schema defines the required columns and data types for the raw VAERS dataset
-# after download and before cleaning.
-
-schema_name: vaers_raw_dataset
 version: "1.0"
-
+description: Schema for raw VAERS dataset validation
 required_columns:
-  - name: VAX_TYPE
+  - VAX_TYPE
+  - SOC_CODE
+  - LLT
+  - REPT_DATE
+  - AGE
+column_definitions:
+  VAX_TYPE:
+    type: string
     description: Vaccine type administered
-    dtype: object
-    nullable: false
-  - name: SOC_CODE
-    description: System Organ Class code (MedDRA)
-    dtype: object
-    nullable: false
-  - name: LLT
-    description: Lowest Level Term (MedDRA)
-    dtype: object
-    nullable: true
-  - name: REPT_DATE
-    description: Date of report
-    dtype: object
-    nullable: false
-  - name: AGE
-    description: Age of patient
-    dtype: object
-    nullable: true
-  - name: VAERS_ID
-    description: Unique VAERS report identifier
-    dtype: object
-    nullable: false
-  - name: SEX
-    description: Sex of patient
-    dtype: object
-    nullable: true
-
+    required: true
+  SOC_CODE:
+    type: string
+    description: MedDRA System Organ Class code
+    required: true
+  LLT:
+    type: string
+    description: Lowest Level Term for adverse event
+    required: true
+  REPT_DATE:
+    type: string
+    description: Date of report submission (YYYY-MM-DD or MM/DD/YYYY)
+    required: true
+  AGE:
+    type: string
+    description: Age of the patient (numeric string or 'UNKNOWN')
+    required: true
 constraints:
-  min_rows: 1
-  max_null_percentage:
-    SOC_CODE: 0.0
-    VAX_TYPE: 0.0
-    REPT_DATE: 0.0
-    VAERS_ID: 0.0
-
-validation_rules:
-  - rule: no_duplicate_vaers_ids
-    description: VAERS_ID must be unique across the dataset
-  - rule: valid_date_format
-    description: REPT_DATE must be in a parsable date format (YYYY-MM-DD or MM/DD/YYYY)
-
-metadata:
-  source: CDC VAERS Public Dataset
-  update_frequency: Annual
-  contact: vaers@cdc.gov
+  - column: REPT_DATE
+    rule: non_empty
+  - column: VAX_TYPE
+    rule: non_empty
+  - column: SOC_CODE
+    rule: non_empty

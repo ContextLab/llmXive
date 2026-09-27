@@ -1,39 +1,37 @@
 import os
 from pathlib import Path
 
-def create_directories():
+def create_directories(root_path: str = ".") -> None:
     """
-    Creates the required project directory structure:
+    Create the project directory structure as per the implementation plan.
+    
+    Directories created:
     - src/ (source code)
-    - tests/ (test suite)
+    - tests/ (unit and integration tests)
     - data/ (raw and processed data)
-    - output/ (analysis results and reports)
+    - output/ (final reports and figures)
+    
+    Args:
+        root_path: The root directory where the structure will be created.
     """
-    base_dir = Path(__file__).parent
+    root = Path(root_path)
     
     directories = [
-        "src",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "output/temporal_profiles",
-        "contracts",
-        "specs"
+        root / "src",
+        root / "tests",
+        root / "data",
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "output",
+        root / "output" / "temporal_profiles",
+        root / "contracts",
+        root / "logs",
+        root / "specs",
     ]
     
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
-    
-    # Create placeholder .gitkeep files to ensure directories are tracked
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        gitkeep = full_path / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
-            print(f"Created .gitkeep in: {full_path}")
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {directory}")
 
 if __name__ == "__main__":
     create_directories()
-    print("Project structure initialization complete.")

@@ -1,0 +1,17 @@
+# Signal Output Schema for Disproportionality Analysis
+# Defines the structure of the output signals table
+required_columns:
+  - soc
+  - ror
+  - ror_ci_lower
+  - ror_ci_upper
+  - prr
+  - prr_ci_lower
+  - prr_ci_upper
+  - ic
+  - ic_ci_lower
+  - ic_ci_upper
+  - p_adj
+  - signal_flag
+description: "Schema for the output signals.csv file containing disproportionality metrics"
+version: "1.0"

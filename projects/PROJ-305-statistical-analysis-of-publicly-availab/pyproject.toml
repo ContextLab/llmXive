@@ -1,56 +1,48 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "covid-vaers-analysis"
+name = "llmxive-covid-vaers-analysis"
 version = "0.1.0"
 description = "Statistical Analysis of Publicly Available COVID-19 Vaccine Adverse Event Reports"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas>=2.1.4",
-    "numpy>=1.26.2",
-    "scipy>=1.11.4",
-    "requests>=2.31.0",
-    "pyarrow>=14.0.1",
-    "matplotlib>=3.8.2",
-    "pytest>=7.4.3",
-    "pytest-cov>=4.1.0",
+    "pandas",
+    "numpy",
+    "scipy",
+    "requests",
+    "pyarrow",
+    "matplotlib",
+    "pytest",
+    "pytest-cov",
+    "pyyaml",
 ]
-
-[project.optional-dependencies]
-dev = [
-    "ruff>=0.1.6",
-    "black>=23.11.0",
-]
-
-[tool.setuptools.packages.find]
-where = ["code"]
-
-[tool.setuptools.package-dir]
-"" = "code"
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
 
 [tool.ruff]
+# Inherits settings from .ruff.toml but can be overridden here if needed
+line-length = 100
 target-version = "py311"
-line-length = 88
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-]
-ignore = [
-    "E501", # line too long (handled by black)
-]
 
 [tool.pytest.ini_options]
 testpaths = ["code/tests"]
 pythonpath = ["code"]
-addopts = "-v --tb=short"
+addopts = "-v --cov=code/src --cov-report=term-missing"
