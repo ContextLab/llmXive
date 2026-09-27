@@ -6,76 +6,81 @@ import os
 import yaml
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
-from utils.config import STATE, PROJECT_ID
 
 logger = logging.getLogger(__name__)
 
-def load_csv(file_path: str) -> List[Dict[str, Any]]:
-    """Load a CSV file and return a list of dictionaries."""
-    with open(file_path, 'r', encoding='utf-8') as f:
+def load_csv(path: Union[str, Path]) -> List[Dict[str, Any]]:
+    """Load a CSV file into a list of dictionaries."""
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         return list(reader)
 
-def load_parquet(file_path: str) -> Any:
-    """Load a Parquet file using pandas."""
-    import pandas as pd
-    return pd.read_parquet(file_path)
+def load_parquet(path: Union[str, Path]) -> 'pd.DataFrame':
+    """Load a Parquet file into a pandas DataFrame."""
+    try:
+        import pandas as pd
+    except ImportError:
+        raise ImportError("pandas is required to load parquet files")
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    return pd.read_parquet(path)
 
-def compute_sha256(file_path: str) -> str:
-    """Compute SHA-256 checksum of a file."""
+def compute_sha256(path: Union[str, Path]) -> str:
+    """Compute SHA-256 hash of a file."""
+    path = Path(path)
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+def verify_checksum(path: Union[str, Path], expected_checksum: str) -> bool:
     """Verify file checksum against expected value."""
-    actual_checksum = compute_sha256(file_path)
+    actual_checksum = compute_sha256(path)
     if actual_checksum != expected_checksum:
-        logger.error(f"Checksum mismatch for {file_path}: expected {expected_checksum}, got {actual_checksum}")
+        logger.error(f"Checksum mismatch for {path}: expected {expected_checksum}, got {actual_checksum}")
         return False
-    logger.info(f"Checksum verified for {file_path}")
     return True
 
-def write_checksum_to_state(file_path: str, checksum: str, project_id: str = PROJECT_ID):
-    """
-    Write successful checksum to state file.
-    State file: state/projects/<project_id>.yaml
-    """
-    state_dir = STATE
-    os.makedirs(state_dir, exist_ok=True)
-    state_file = Path(state_dir) / f"{project_id}.yaml"
-
-    data = {}
-    if state_file.exists():
-        with open(state_file, 'r', encoding='utf-8') as f:
-            data = yaml.safe_load(f) or {}
-
-    if 'verified_checksums' not in data:
-        data['verified_checksums'] = {}
-
-    data['verified_checksums'][file_path] = {
-        'checksum': checksum,
-        'verified_at': str(os.path.getmtime(file_path)) # Using mtime as timestamp proxy
-    }
-
-    with open(state_file, 'w', encoding='utf-8') as f:
-        yaml.dump(data, f, default_flow_style=False)
+def write_checksum_to_state(checksums: Dict[str, str], state_file: Union[str, Path]) -> None:
+    """Write successful checksums to the state file."""
+    state_file = Path(state_file)
+    state_file.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Checksum written to state: {state_file}")
+    existing_checksums = {}
+    if state_file.exists():
+        try:
+            with open(state_file, 'r') as f:
+                existing_checksums = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            existing_checksums = {}
+    
+    existing_checksums.update(checksums)
+    
+    with open(state_file, 'w') as f:
+        json.dump(existing_checksums, f, indent=2)
+    logger.info(f"Checksums written to {state_file}")
 
-def hash_artifact(data: Any) -> str:
-    """Hash arbitrary data (e.g., dict, list) to a string."""
-    data_str = json.dumps(data, sort_keys=True).encode('utf-8')
-    return hashlib.sha256(data_str).hexdigest()
+def hash_artifact(path: Union[str, Path]) -> str:
+    """Generate a hash for an artifact."""
+    return compute_sha256(path)
 
-def load_json(file_path: str) -> Dict[str, Any]:
+def load_json(path: Union[str, Path]) -> Dict[str, Any]:
     """Load a JSON file."""
-    with open(file_path, 'r', encoding='utf-8') as f:
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def write_json(data: Dict[str, Any], file_path: str):
-    """Write a dictionary to a JSON file."""
-    with open(file_path, 'w', encoding='utf-8') as f:
+def write_json(data: Dict[str, Any], path: Union[str, Path]) -> None:
+    """Write data to a JSON file."""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2)
+    logger.info(f"Data written to {path}")

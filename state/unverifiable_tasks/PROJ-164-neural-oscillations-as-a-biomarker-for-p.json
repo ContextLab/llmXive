@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-164-neural-oscillations-as-a-biomarker-for-p",
+  "tasks": [
+    {
+      "task_key": "T009",
+      "reject_count": 1,
+      "last_reason": "No `pre-registration.json` or `power_analysis_report.json` files were provided, nor any evidence of a performed prospective power analysis, sample\u2011size calculation, or mode\u2011flag logic. The required artifacts are missing, so the task is not satisfied.",
+      "first_seen": "2026-09-27T23:21:56.447657+00:00",
+      "last_seen": "2026-09-27T23:21:56.447657+00:00"
+    },
+    {
+      "task_key": "T011",
+      "reject_count": 1,
+      "last_reason": "No `verified_source_manifest.json` file was provided, nor any evidence of a search being performed or a log entry indicating \u201cData Insufficient: No single\u2011source paired dataset found\u201d. The required artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-09-27T23:22:01.282845+00:00",
+      "last_seen": "2026-09-27T23:22:01.282845+00:00"
+    },
+    {
+      "task_key": "T012",
+      "reject_count": 1,
+      "last_reason": "No `verified_source_manifest.json` file or any script/output showing that the mode\u2011check logic was implemented and that the pipeline exits with code\u202f0 after writing the manifest when the mode flag is \u201cData Insufficient\u201d. The required artifact and its behavior are absent, so the task is not satisfied.",
+      "first_seen": "2026-09-27T23:22:01.283936+00:00",
+      "last_seen": "2026-09-27T23:22:01.283936+00:00"
+    },
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "No evidence of a run of the data\u2011alignment check is provided: there is no `verified_source_manifest.json`, no log indicating a \u201cData Insufficient\u201d flag, and no script or output showing that the EEG and tDCS subject overlap was verified (or mismatched). The required artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-09-27T23:22:01.285006+00:00",
+      "last_seen": "2026-09-27T23:22:01.285006+00:00"
+    }
+  ],
+  "updated_at": "2026-09-27T23:22:01.285006+00:00"
+}

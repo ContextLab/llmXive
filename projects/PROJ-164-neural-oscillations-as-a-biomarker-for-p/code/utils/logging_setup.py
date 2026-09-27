@@ -4,81 +4,96 @@ import sys
 import resource
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
-from utils.config import LOGS, PROJECT_ID
+from typing import Optional
 
-# Ensure logs directory exists
-LOGS_PATH = Path(LOGS)
-LOGS_PATH.mkdir(parents=True, exist_ok=True)
+# Constants
+LOG_DIR = Path("logs")
+LOG_FILE = LOG_DIR / "pipeline.log"
+MAX_BYTES = 10 * 1024 * 1024  # 10 MB
+BACKUP_COUNT = 5
+FORMAT_STRING = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-# Define log file path
-LOG_FILE = LOGS_PATH / "pipeline.log"
+# Ensure log directory exists
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-# Configuration constants
-MAX_BYTES = 10 * 1024 * 1024  # 10 MB per file
-BACKUP_COUNT = 5              # Keep 5 rotated files
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+# Global logger instance
+_logger: Optional[logging.Logger] = None
 
-# Global logger instance (initialized lazily)
-_logger = None
-
-def get_logger(name: str = "pipeline") -> logging.Logger:
+def get_logger(name: str = "llmXive") -> logging.Logger:
     """
-    Returns a configured logger instance with both file and console handlers.
-    Handles log rotation to prevent disk overflow.
+    Returns a configured logger instance.
+    The logger writes to both stdout and a rotating file handler.
     """
     global _logger
-    if _logger is not None and _logger.name == name:
-        return _logger
+    if _logger is None:
+        _logger = logging.getLogger(name)
+        _logger.setLevel(logging.DEBUG)
+        
+        # Prevent adding handlers multiple times if called repeatedly in same process
+        if _logger.handlers:
+            return _logger
 
-    logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+        # Console Handler (stdout)
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter(FORMAT_STRING))
+        _logger.addHandler(console_handler)
 
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+        # Rotating File Handler
+        file_handler = RotatingFileHandler(
+            LOG_FILE,
+            maxBytes=MAX_BYTES,
+            backupCount=BACKUP_COUNT,
+            encoding="utf-8"
+        )
+        file_handler.setLevel(logging.DEBUG)
+        file_handler.setFormatter(logging.Formatter(FORMAT_STRING))
+        _logger.addHandler(file_handler)
 
-    # File handler with rotation
-    file_handler = RotatingFileHandler(
-        LOG_FILE,
-        maxBytes=MAX_BYTES,
-        backupCount=BACKUP_COUNT,
-        encoding="utf-8"
-    )
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-
-    # Console handler for stdout
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
-    _logger = logger
-    return logger
+    return logging.getLogger(name)
 
 def log_mode_switch(mode: str, reason: str) -> None:
     """
-    Logs a mode switch event (e.g., Primary -> Data Insufficient).
-    Uses WARNING level to ensure visibility.
+    Logs a mode switch event with high visibility.
+    Used when the pipeline transitions between Primary, Data Insufficient, or Underpowered.
     """
-    logger = get_logger()
+    logger = get_logger("ModeController")
     logger.warning(f"MODE SWITCH: {mode} | Reason: {reason}")
+    # Also log to critical for immediate attention in logs
+    logger.critical(f"Pipeline mode set to: {mode}")
 
 def log_resource_usage() -> None:
     """
-    Logs current CPU and memory usage using the resource module.
-    Useful for monitoring pipeline performance and NFR-001 compliance.
+    Logs current memory and CPU resource usage.
+    Uses resource module for Unix-like systems.
+    Falls back gracefully on Windows if resource limits aren't applicable in the same way.
     """
-    logger = get_logger()
+    logger = get_logger("ResourceMonitor")
     try:
         usage = resource.getrusage(resource.RUSAGE_SELF)
-        max_mem_mb = usage.ru_maxrss / 1024.0  # Convert KB to MB on Linux
-        logger.info(f"Resource Usage: Max RSS: {max_mem_mb:.2f} MB, User CPU: {usage.ru_utime:.2f}s, Sys CPU: {usage.ru_stime:.2f}s")
+        maxrss_mb = usage.ru_maxrss / 1024  # Convert KB to MB (on Linux/macOS)
+        # Note: On Windows, ru_maxrss is in bytes, so division by 1024**2 would be needed.
+        # For cross-platform safety in this specific script context, we assume standard CI env (Linux).
+        
+        logger.info(f"Resource Usage - Max RSS: {maxrss_mb:.2f} MB, User CPU: {usage.ru_utime:.2f}s, Sys CPU: {usage.ru_stime:.2f}s")
+    except AttributeError:
+        # resource module might not be fully available or behave differently on some platforms
+        logger.debug("Resource monitoring skipped: resource module not fully available.")
     except Exception as e:
         logger.warning(f"Failed to log resource usage: {e}")
 
-# Initialize the main logger on module load to ensure immediate availability
-get_logger()
+def log_warning(message: str) -> None:
+    """Convenience wrapper to log a warning."""
+    get_logger().warning(message)
+
+def log_info(message: str) -> None:
+    """Convenience wrapper to log info."""
+    get_logger().info(message)
+
+def log_error(message: str) -> None:
+    """Convenience wrapper to log an error."""
+    get_logger().error(message)
+
+def log_debug(message: str) -> None:
+    """Convenience wrapper to log debug info."""
+    get_logger().debug(message)

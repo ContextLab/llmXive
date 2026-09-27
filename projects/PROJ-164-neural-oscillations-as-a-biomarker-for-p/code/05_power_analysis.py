@@ -5,256 +5,209 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
 
-# Import existing utilities from the project
+import numpy as np
+from scipy.stats import f
+
+# Import local utilities
 try:
     from utils.io_helpers import load_json, write_json
-    from utils.logging_setup import get_logger, log_mode_switch
 except ImportError:
-    # Fallback for direct execution context if utils not in path yet
-    sys.path.insert(0, str(Path(__file__).parent))
-    from utils.io_helpers import load_json, write_json
-    from utils.logging_setup import get_logger, log_mode_switch
+    # Fallback for direct execution context
+    from code.utils.io_helpers import load_json, write_json
 
-# Constants from spec (FR-007, FR-008)
-R2_TARGET = 0.1
-POWER_TARGET = 0.80
-ALPHA = 0.05
-PREDICTOR_COUNT = 5  # Estimated number of features (bands + connectivity)
-
-logger = get_logger(__name__)
-
-def calculate_sample_size_r2(r2: float, power: float, alpha: float, predictors: int) -> int:
+def calculate_minimum_sample_size(r2_target: float = 0.1, power: float = 0.80, alpha: float = 0.05, k_predictors: int = 5) -> int:
     """
-    Calculate minimum sample size (N) for a multiple regression given:
-    - r2: Expected R-squared (effect size)
-    - power: Desired statistical power (1 - beta)
-    - alpha: Significance level
-    - predictors: Number of independent variables
-
-    Uses the approximation for F-test in multiple regression:
-    f2 = R2 / (1 - R2)
-    u = predictors
-    v = N - u - 1
-    We solve for N using non-central F distribution parameters.
-    Since we cannot import statsmodels here to avoid heavy dependency if not installed,
-    we use a standard approximation or a simplified lookup logic.
+    Calculate minimum sample size (N) for multiple regression power analysis.
     
-    However, for robustness and to avoid external heavy deps if not needed,
-    we will use scipy.stats if available, or a standard approximation formula.
+    Uses the non-central F-distribution approximation.
+    We solve for N such that: P(F(df1, df2, lambda) > F_crit) >= power
     
-    Formula approximation (Cohen's f2):
-    f2 = R2 / (1 - R2)
-    N = (L / f2) + u + 1
-    Where L is the non-centrality parameter lambda required for the power.
-    For alpha=0.05, power=0.80, u=5, L is approximately 12-14.
+    Parameters:
+        r2_target: Expected R-squared value (effect size)
+        power: Desired statistical power (1 - beta)
+        alpha: Significance level
+        k_predictors: Number of predictors in the model
     
-    More precise calculation using scipy if available:
+    Returns:
+        Minimum integer sample size N
     """
-    try:
-        from statsmodels.stats.power import FTestAnovaPower
-        effect_size = r2 / (1 - r2)
-        analysis = FTestAnovaPower()
-        n = analysis.solve_power(effect_size=effect_size, 
-                                 alpha=alpha, 
-                                 power=power, 
-                                 n_groups=1, # Not used for regression directly, but F-test
-                                 numerator_df=predictors)
-        # The solve_power for FTestAnovaPower usually expects n_groups for ANOVA.
-        # For regression, we map: numerator_df = predictors, denominator_df = N - predictors - 1.
-        # statsmodels FTestPower is better, but FTestAnovaPower is often used as proxy.
-        # Let's use a more direct approach with FTestPower if available, or fallback.
+    df1 = k_predictors
+    # We iterate to find N. Start with a reasonable guess
+    # Approximation: N ~ (Z_alpha + Z_beta)^2 / (effect_size)^2 + k + 1
+    # For R2=0.1, effect is moderate. Let's start around 100
+    N_guess = 100 + k_predictors + 1
+    
+    while True:
+        df2 = N_guess - k_predictors - 1
+        if df2 <= 0:
+            N_guess += 1
+            continue
+          
+        # Critical F value
+        # We need the inverse CDF of F distribution at 1-alpha
+        # scipy.stats.f is not available in standard lib, but we assume scipy is installed per requirements.txt
+        # However, to avoid heavy imports in this specific script if not strictly needed, 
+        # we implement a simple search or use scipy if available.
+        # Given requirements.txt includes scipy, we use it.
+        from scipy import stats
         
-        # Actually, FTestAnovaPower is for ANOVA. For regression, we need FTestPower.
-        # Let's try FTestPower from statsmodels.stats.power
-        from statsmodels.stats.power import FTestPower
-        f2 = effect_size
-        # We need to solve for N given f2, alpha, power, u (numerator df)
-        # The denominator df v = N - u - 1.
-        # FTestPower.solve_power expects effect_size, alpha, power, nobs1 (numerator?), df2?
-        # Let's use the iterative approach or a standard approximation if statsmodels is tricky.
+        f_crit = stats.f.qf(1 - alpha, df1, df2)
         
-        # Standard approximation for multiple regression:
-        # N >= (lambda / f2) + u + 1
-        # For alpha=0.05, power=0.80, u=5, lambda is roughly 13.0
-        # f2 = 0.1 / 0.9 = 0.111
-        # N >= 13.0 / 0.111 + 5 + 1 = 117 + 6 = 123
+        # Non-centrality parameter lambda
+        # lambda = (R2 / (1 - R2)) * (N - k - 1)
+        lambda_ncp = (r2_target / (1 - r2_target)) * df2
         
-        # Let's try to use statsmodels FTestPower correctly
-        from statsmodels.stats.power import FTestPower
-        f2 = r2 / (1 - r2)
-        # We need to find nobs such that power is achieved.
-        # FTestPower.solve_power(effect_size, alpha, power, df_num, df_denom=None)
-        # df_num = predictors
-        # We iterate to find nobs (total sample size)
+        # Calculate power: P(F > f_crit | df1, df2, lambda)
+        # This is the survival function (1 - CDF) of the non-central F
+        current_power = stats.f.sf(f_crit, df1, df2, lambda_ncp)
         
-        power_analysis = FTestPower()
-        # We can't solve directly for df_denom easily in one call without nobs.
-        # We use a simple loop to find N.
-        n_min = predictors + 2
-        while True:
-            df_denom = n_min - predictors - 1
-            if df_denom <= 0:
-                n_min += 1
-                continue
-            # Calculate power for this N
-            current_power = power_analysis.power(effect_size=f2, alpha=alpha, df_num=predictors, df_denom=df_denom)
-            if current_power >= power:
-                return n_min
-            n_min += 1
-            if n_min > 10000: # Safety break
-                break
-        return n_min
+        if current_power >= power:
+            return N_guess
+        
+        N_guess += 1
 
-    except ImportError:
-        logger.warning("statsmodels not found. Using approximation formula.")
-        # Approximation: N = (L / f2) + u + 1
-        # L for alpha=0.05, power=0.80, u=5 is approx 12.97 (from tables)
-        f2 = r2 / (1 - r2)
-        L = 13.0 
-        n = (L / f2) + predictors + 1
-        return int(n)
-
-def generate_pre_registration(r2_target: float, power: float, alpha: float, predictors: int) -> Dict[str, Any]:
+def generate_pre_registration(analysis_plan_hash: str, r2_target: float, power: float, alpha: float, k_predictors: int) -> Dict[str, Any]:
     """
     Generate the pre-registration JSON artifact.
+    
+    Updates the existing pre-registration.json if it exists, otherwise creates a new one.
     """
-    timestamp = datetime.utcnow().isoformat() + "Z"
-    plan_params = {
-        "r2_target": r2_target,
-        "power_target": power,
-        "alpha": alpha,
-        "predictor_count": predictors
+    pre_reg_path = Path("data/processed/pre-registration.json")
+    
+    # Load existing if present
+    existing_data = {}
+    if pre_reg_path.exists():
+        existing_data = load_json(pre_reg_path)
+    
+    # Construct the new registration data
+    registration_data = {
+        "timestamp": datetime.now().isoformat(),
+        "analysis_plan_hash": analysis_plan_hash,
+        "parameters": {
+            "r2_target": r2_target,
+            "power": power,
+            "alpha": alpha,
+            "predictor_count": k_predictors
+        },
+        "status": "draft"
     }
     
-    # Create a deterministic hash of the plan to ensure integrity
-    plan_str = json.dumps(plan_params, sort_keys=True)
-    plan_hash = hashlib.sha256(plan_str.encode('utf-8')).hexdigest()
+    # Merge or create
+    final_data = {**existing_data, **registration_data}
     
-    pre_registration = {
-        "timestamp": timestamp,
-        "analysis_plan_hash": plan_hash,
-        "parameters": plan_params,
-        "status": "pending"
-    }
-    return pre_registration
+    # Ensure directory exists
+    pre_reg_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    write_json(final_data, pre_reg_path)
+    return final_data
 
 def main():
-    """
-    Main entry point for Power Analysis task (T009).
-    1. Load verified source manifest (from T011).
-    2. If data exists (Primary Mode), perform power analysis.
-    3. Generate pre-registration.json.
-    4. Calculate N_min.
-    5. Compare with N_actual (from manifest).
-    6. Generate power_analysis_report.json.
-    7. Set mode flag if underpowered.
-    """
-    project_root = Path(__file__).parent.parent
-    manifest_path = project_root / "data" / "verified_source_manifest.json"
-    pre_reg_path = project_root / "data" / "pre-registration.json"
-    report_path = project_root / "data" / "power_analysis_report.json"
-    state_path = project_root / "state" / "projects" / "PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml"
+    logger = logging.getLogger("PowerAnalysis")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
 
-    # Load manifest
+    logger.info("Starting Power Analysis Gate (T009)...")
+
+    # 1. Read verified_source_manifest.json
+    manifest_path = Path("data/processed/verified_source_manifest.json")
     if not manifest_path.exists():
-        logger.error("verified_source_manifest.json not found. T011 must run first.")
-        # If manifest missing, we can't proceed. Assuming T011 failed or didn't run.
-        # We will create a report indicating failure to verify source.
-        report = {
-            "status": "failed",
-            "reason": "Source manifest missing",
-            "timestamp": datetime.utcnow().isoformat() + "Z"
-        }
-        write_json(report_path, report)
-        return
+        logger.error("CRITICAL: verified_source_manifest.json not found. T011 must run first.")
+        sys.exit(1)
 
     manifest = load_json(manifest_path)
-    mode_flag = manifest.get("mode", "Unknown")
+    status = manifest.get("status", "absent")
     
-    if mode_flag == "Data Insufficient":
-        logger.info("Data Insufficient mode detected. Skipping power analysis.")
-        # Even if data insufficient, we might want to record the plan for transparency?
-        # The task says: "Perform prospective power analysis *after* T011 confirms data existence."
-        # If T011 says no data, we might not need to run the analysis, but we should record the intent.
-        # However, the task specifically says "If N_actual < N_min, set mode flag to Underpowered".
-        # If no data, N_actual = 0. N_min > 0. So it is underpowered.
-        # But the pipeline usually stops at T012 for Data Insufficient.
-        # Let's assume we run it anyway to document the "Underpowered" state if we were to try.
-        # But strictly, if mode is Data Insufficient, T012 terminates.
-        # We will generate the report indicating Data Insufficient.
-        report = {
-            "status": "skipped",
-            "reason": "Data Insufficient - No dataset found",
-            "mode_flag": "Data Insufficient",
-            "timestamp": datetime.utcnow().isoformat() + "Z"
-        }
-        write_json(report_path, report)
-        return
-
-    if mode_flag != "Primary":
-        logger.warning(f"Mode is {mode_flag}. Power analysis may not be applicable.")
-        # Proceed only if we have data to analyze power for
-        pass
-
-    # 1. Generate Pre-registration
-    pre_reg = generate_pre_registration(R2_TARGET, POWER_TARGET, ALPHA, PREDICTOR_COUNT)
-    pre_reg["status"] = "registered"
-    write_json(pre_reg_path, pre_reg)
-    logger.info(f"Pre-registration saved to {pre_reg_path}")
-
-    # 2. Calculate N_min
-    n_min = calculate_sample_size_r2(R2_TARGET, POWER_TARGET, ALPHA, PREDICTOR_COUNT)
-    logger.info(f"Minimum sample size required: {n_min}")
-
-    # 3. Get N_actual from manifest
-    # Manifest structure from T011: {"mode": "...", "datasets": [...], "subject_count": int}
-    n_actual = manifest.get("subject_count", 0)
-    if n_actual == 0 and "datasets" in manifest and len(manifest["datasets"]) > 0:
-        # Fallback if subject_count not explicitly set but data exists
-        # We assume at least 1 if datasets exist, but we need a real number.
-        # If T011 didn't count, we might need to re-scan or assume 0.
-        # For safety, if not counted, we assume 0 and mark as underpowered.
-        n_actual = 0 
-
-    # 4. Determine Status and Mode
-    is_underpowered = n_actual < n_min
-    final_status = "underpowered" if is_underpowered else "powered"
+    if status != "found":
+        logger.warning("Source status is 'absent' or unknown. Setting mode to Underpowered/Data Insufficient.")
+        # Even if absent, we might need to generate a report indicating why
+        n_actual = 0
+    else:
+        n_actual = manifest.get("N_actual", 0)
+        if n_actual == 0:
+            logger.warning("N_actual is 0 in manifest. Treating as insufficient.")
     
-    # 5. Generate Report
+    logger.info(f"N_actual from manifest: {n_actual}")
+
+    # 2. Define Analysis Parameters
+    # These should ideally come from config, but we hardcode as per task spec for this gate
+    r2_target = 0.1
+    power_target = 0.80
+    alpha = 0.05
+    # Estimate predictors: typically ~5 bands + connectivity metrics
+    k_predictors = 5 
+
+    # 3. Calculate Minimum Sample Size
+    logger.info(f"Calculating N_min for R2={r2_target}, Power={power_target}, Alpha={alpha}, k={k_predictors}")
+    n_min = calculate_minimum_sample_size(r2_target, power_target, alpha, k_predictors)
+    logger.info(f"Minimum required sample size (N_min): {n_min}")
+
+    # 4. Compare and Determine Mode
+    mode_flag = "Primary"
+    if n_actual < n_min:
+        mode_flag = "Underpowered"
+        logger.warning(f"UNDERPOWERED: N_actual ({n_actual}) < N_min ({n_min}). Downstream statistical inference skipped.")
+    elif n_actual == 0:
+        mode_flag = "Data Insufficient"
+        logger.warning("DATA INSUFFICIENT: No data found.")
+
+    # 5. Generate Power Analysis Report
     report = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "analysis_plan_hash": pre_reg["analysis_plan_hash"],
+        "timestamp": datetime.now().isoformat(),
         "parameters": {
-            "r2_target": R2_TARGET,
-            "power_target": POWER_TARGET,
-            "alpha": ALPHA,
-            "predictor_count": PREDICTOR_COUNT
+            "r2_target": r2_target,
+            "power_target": power_target,
+            "alpha": alpha,
+            "predictor_count": k_predictors
         },
         "results": {
-            "n_min": n_min,
             "n_actual": n_actual,
-            "is_underpowered": is_underpowered,
-            "status": final_status
+            "n_min": n_min,
+            "difference": n_actual - n_min,
+            "is_powered": n_actual >= n_min
         },
-        "mode_flag_update": "Underpowered" if is_underpowered else None
+        "mode_flag": mode_flag,
+        "status": "completed"
     }
-    write_json(report_path, report)
-    logger.info(f"Power analysis report saved to {report_path}")
 
-    # 6. Update Mode Flag if Underpowered
-    if is_underpowered:
-        # Update manifest to reflect Underpowered mode
-        manifest["mode"] = "Underpowered"
-        manifest["reason"] = f"Sample size ({n_actual}) < Minimum required ({n_min})"
-        write_json(manifest_path, manifest)
-        log_mode_switch("Underpowered", "Power Analysis (T009)")
-        logger.warning(f"Mode set to Underpowered. N_actual={n_actual}, N_min={n_min}")
-    else:
-        logger.info(f"Study is powered. N_actual={n_actual} >= N_min={n_min}")
+    report_path = Path("data/processed/power_analysis_report.json")
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    write_json(report, report_path)
+    logger.info(f"Power analysis report written to {report_path}")
 
-    return report
+    # 6. Update Pre-registration
+    # Calculate hash of the analysis plan (simulated here as a static string for now, 
+    # in reality this would hash the spec or plan)
+    plan_hash = hashlib.sha256(f"R2={r2_target},Power={power_target}".encode()).hexdigest()
+    
+    pre_reg_data = generate_pre_registration(plan_hash, r2_target, power_target, alpha, k_predictors)
+    
+    # Update pre-registration with actual predictor count if source found
+    if status == "found":
+        pre_reg_data["parameters"]["predictor_count"] = k_predictors
+        pre_reg_data["source_verified"] = True
+        write_json(pre_reg_data, Path("data/processed/pre-registration.json"))
+        logger.info("Updated pre-registration.json with actual predictor count.")
+
+    # 7. Update Mode Flag in a global state file if needed (optional, but good practice)
+    # The task says "set mode flag", usually this is done in a config or manifest
+    # We update the manifest or create a state file
+    state_path = Path("state/projects/PROJ-164-power-analysis-state.json")
+    state_path.parent.mkdir(parents=True, exist_ok=True)
+    state_data = {
+        "task_id": "T009",
+        "mode_flag": mode_flag,
+        "n_actual": n_actual,
+        "n_min": n_min
+    }
+    write_json(state_data, state_path)
+    logger.info(f"Mode flag '{mode_flag}' written to state.")
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
