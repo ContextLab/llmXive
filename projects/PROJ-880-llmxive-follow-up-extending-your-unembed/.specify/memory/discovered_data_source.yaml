@@ -1,14 +1,13 @@
 status: none
-intent: download Llama 3 Mistral BLOOM unembedding matrices and WALS typological features
-  python package dataset
+intent: download Common Crawl language subset and WALS typology data as python package
+  dataset
 required_fields:
-- model_name
-- vocab_size
-- embedding_dim
-- unembedding_matrix
-- language_iso_code
+- token
+- frequency
+- language_code
+- wals_language_iso
 - wals_feature_name
 - wals_feature_value
-cache_key: 77359aa40fb7cc7a696f320ac0e942a0d189f665aa50f27feceb39f8804d99cf
-searched_at: '2026-09-25T21:13:12.956328+00:00'
+cache_key: 3cf3358b434b2fb2f6b50c0ef5ac71dd0131bd87c89ade66d8939ecc00f492f0
+searched_at: '2026-09-27T06:13:33.368874+00:00'
 retry_count: 1
