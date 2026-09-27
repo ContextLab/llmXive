@@ -15,10 +15,14 @@ This project extends the "Blind-Spots-Bench" evaluation by analyzing the tempora
 **Primary Dependencies**: `datasets` (Hugging Face), `transformers` (CPU mode), `sentence-transformers` (semantic matching), `scikit-learn`, `pandas`, `numpy`, `statsmodels` (for Fisher's exact test).  
 **Storage**: Local file system (`data/` for raw/filtered data, `code/` for scripts).  
 **Testing**: `pytest` (unit tests for parser/classifier, integration tests for data flow).  
-**Target Platform**: GitHub Actions CPU runner (2 cores, ~7 GB RAM).  
+**Target Platform**: GitHub Actions CPU runner (cores, ~7 GB RAM).  
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: End-to-end analysis < 6 hours; per-task inference < 10 minutes; peak RAM < 7 GB.  
-**Constraints**: No local GPU; 4-bit quantization mandatory for LLM; deterministic generation (temp=0.0); strict data integrity checks on ingestion.  
+**Constraints**: No local GPU; Low-bit quantization mandatory for LLM
+
+Research Question: Can low-bit quantization enable efficient deployment of large language models without significant performance degradation?
+Method: Comparative analysis of quantization schemes across varying bit-widths on standard benchmarks.
+References: Dettmers et al. (n.d.), arXiv:2208.07339.; deterministic generation (temp=0.0); strict data integrity checks on ingestion.  
 **Scale/Scope**: Subset of Blind-Spots-Bench (Abstract Reasoning + Object-Centric); **Minimum Viable Sample Size (MVS)**: 40 tasks (20 per category). If the effective sample size falls below MVS after filtering/timeouts, the study halts and reports "Underpowered".
 
 > **Memory & Compute Strategy**: Low-bit quantized Llama models (compact weights) leaves <1 GB for OS/Python/Context, creating high OOM risk.
@@ -127,7 +131,7 @@ data/
 
 ### Phase 2: Parsing & Classification (US-2, US-3)
 *   **T013**: Load raw traces and task records.
-*   **T014**: **Parsing**: Identify first/last constraint mentions. "First step" is defined as the first 256 tokens; "Last step" is the last 256 tokens.
+*   **T014**: **Parsing**: Identify first/last constraint mentions. "First step" is defined as a preliminary sequence of tokens.; "Last step" is the last portion of the token sequence..
 *   **T015**: **Semantic Matching**: Apply tuned threshold from T007.
 *   **T016**: **Classification (Non-Tautological)**:
     *   **Predictor**: Temporal Pattern (Present in First & Last, Present in First Only, etc.).

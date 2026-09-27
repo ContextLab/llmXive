@@ -1,19 +1,12 @@
-T019:
-  c: false
-  h: 2db27761543c558c74a023ca1248d1edd002c5120d409c96062b709242281b8d
-  r: "The `code/tune_threshold.py` script is present but the provided excerpt ends\
-    \ before any logic that iterates thresholds, selects the optimal one, and writes\
-    \ `data/pilot/tuned_threshold.json`. Moreover, the required `tuned_threshold.json`\
-    \ file does not exist on disk. The task\u2019s core output is missing, so the\
-    \ implementation is not complete."
 T022:
-  c: false
-  h: 3140d7e631d10cad0959a88846d016770802b9886a4e9dcacf62f2862af0fb4d
-  r: "The repository lacks the required `data/pilot/tuned_threshold.json` file, and\
-    \ the provided `code/02_generate_cot.py` never reads this file. Moreover, the\
-    \ model\u2011loading function chooses CUDA when available instead of forcing `device=\"\
-    cpu\"` as mandated. These omissions mean the task\u2019s core requirements are\
-    \ not met."
+  c: true
+  h: fb2ff54d4523fc01f9fdba1ea70eb707f63158143b89699bfb11c372746272b0
+  r: "The provided `code/02_generate_cot.py` file exists, is non\u2011empty, and contains\
+    \ a `load_threshold` function that reads `data/pilot/tuned_threshold.json` and\
+    \ raises a clear `FileNotFoundError` if the file is absent, as required. It also\
+    \ defines a `load_quantized_model` function that configures 4\u2011bit quantization\
+    \ for the specified models and defaults to `device=\"cpu\"`, satisfying the model\u2011\
+    loading requirement."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

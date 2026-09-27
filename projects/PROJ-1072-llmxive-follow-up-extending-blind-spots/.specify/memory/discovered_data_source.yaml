@@ -1,14 +1,12 @@
 status: none
-intent: Blind-Spots-Bench dataset Hugging Face download python package dataset
+intent: Blind-Spots-Bench dataset Hugging Face download Python package dataset
 required_fields:
 - id
-- task_name
-- subtask_category
-- image_url
-- question
+- subtask
+- category
+- prompt
+- image_path
 - answer
-- metadata
-- split
-cache_key: d33035a6af859d7b49a06ec974de18a191f8547483e85a4e24d7056e35584404
-searched_at: '2026-09-24T12:21:00.630258+00:00'
+cache_key: 95106ba555250865dd5d223edc88061820e87dfcf7e2a302379ab554855ccbe2
+searched_at: '2026-09-27T01:40:15.374994+00:00'
 retry_count: 1

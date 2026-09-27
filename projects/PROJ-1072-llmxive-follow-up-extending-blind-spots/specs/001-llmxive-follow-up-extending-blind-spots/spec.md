@@ -25,7 +25,7 @@ The research pipeline MUST successfully download the *Blind-Spots-Bench* dataset
 
 ### User Story 2 - CoT Trace Generation and Parsing (Priority: P2)
 
-The system MUST execute a mid-sized open-weight LLM (e.g., Llama-3-8B-Int4 or Mistral-7B-Int4) on the filtered tasks using a fixed temperature (0.0) to generate Chain-of-Thought (CoT) traces, and subsequently parse these traces to identify the first mention and the last mention of the task's explicit constraint, including semantic equivalence checks.
+The system MUST execute a mid-sized open-weight LLM (e.g., Llama-8B-Int4 or Mistral-7B-Int4) on the filtered tasks using a fixed temperature (0.0) to generate Chain-of-Thought (CoT) traces, and subsequently parse these traces to identify the first mention and the last mention of the task's explicit constraint, including semantic equivalence checks.
 
 **Why this priority**: This step generates the primary signal (the reasoning trace) and extracts the specific temporal markers (first/last mention) required to classify errors. It is the core computational engine of the research.
 
@@ -74,7 +74,7 @@ The system MUST apply a rule-based classifier to label each trace as *Perceptual
 - **FR-009**: System MUST ensure all computations (model inference, parsing, statistics) complete within 6 hours on a CPU-only runner with ≤ 7 GB RAM, using a 4-bit quantized model if necessary (See US-2).
 - **FR-010**: System MUST validate the error classification by sampling [deferred] of traces and comparing the automated labels against human expert annotation (or a separate rule-based oracle) to ensure the 'Perceptual/Procedural' distinction is not a trivial restatement of the text (See US-3).
 - **FR-011**: System MUST implement a semantic equivalence check using a lightweight embedding model (e.g., all-MiniLM-L6-v2) to detect paraphrased constraints, preventing false 'Perceptual Errors' when the model rephrases the constraint (See US-2).
-- **FR-012**: System MUST skip any individual task inference that exceeds 10 minutes to ensure the global 6-hour runtime limit is not exceeded (See US-2).
+- **FR-012**: System MUST skip any individual task inference that exceeds a reasonable time threshold to ensure the global 6-hour runtime limit is not exceeded (See US-2).
 
 ### Key Entities
 

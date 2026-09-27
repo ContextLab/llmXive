@@ -1,105 +1,90 @@
+"""
+Hashing utilities for artifact integrity verification (Constitution Principle V).
+"""
 import hashlib
 import json
 import os
 from pathlib import Path
 from typing import Any, Dict, Union
 
-def compute_string_hash(s: str, algorithm: str = "sha256") -> str:
-    """
-    Compute the hash of a string.
-    
-    Args:
-        s: Input string.
-        algorithm: Hash algorithm to use.
-        
-    Returns:
-        Hexadecimal hash string.
-    """
+def compute_string_hash(s: str, algorithm: str = 'sha256') -> str:
+    """Compute hash of a string."""
     hasher = hashlib.new(algorithm)
     hasher.update(s.encode('utf-8'))
     return hasher.hexdigest()
 
-def compute_bytes_hash(data: bytes, algorithm: str = "sha256") -> str:
-    """
-    Compute the hash of bytes.
-    
-    Args:
-        data: Input bytes.
-        algorithm: Hash algorithm.
-        
-    Returns:
-        Hexadecimal hash string.
-    """
+def compute_bytes_hash(data: bytes, algorithm: str = 'sha256') -> str:
+    """Compute hash of bytes."""
     hasher = hashlib.new(algorithm)
     hasher.update(data)
     return hasher.hexdigest()
 
-def compute_file_hash(file_path: Union[str, Path], algorithm: str = "sha256", chunk_size: int = 8192) -> str:
+def compute_file_hash(path: Union[str, Path], algorithm: str = 'sha256', chunk_size: int = 8192) -> str:
     """
-    Compute the hash of a file.
+    Compute hash of a file by reading in chunks.
     
     Args:
-        file_path: Path to the file.
-        algorithm: Hash algorithm.
-        chunk_size: Size of chunks to read.
-        
+        path: Path to file
+        algorithm: Hash algorithm (default: sha256)
+        chunk_size: Size of chunks to read
+    
     Returns:
-        Hexadecimal hash string.
+        Hex digest of the file hash.
     """
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    
     hasher = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(chunk_size), b''):
+    with open(path, 'rb') as f:
+        while chunk := f.read(chunk_size):
             hasher.update(chunk)
     return hasher.hexdigest()
 
-def compute_dict_hash(d: Dict[str, Any], algorithm: str = "sha256") -> str:
+def compute_dict_hash(data: Dict[str, Any], algorithm: str = 'sha256') -> str:
     """
-    Compute the hash of a dictionary (sorted keys for consistency).
+    Compute hash of a dictionary by serializing with sorted keys.
     
     Args:
-        d: Input dictionary.
-        algorithm: Hash algorithm.
-        
+        data: Dictionary to hash
+        algorithm: Hash algorithm
+    
     Returns:
-        Hexadecimal hash string.
+        Hex digest of the dictionary hash.
     """
-    # Serialize with sorted keys to ensure consistency
-    serialized = json.dumps(d, sort_keys=True, ensure_ascii=False)
-    return compute_string_hash(serialized, algorithm)
+    # Sort keys to ensure deterministic serialization
+    serialized = json.dumps(data, sort_keys=True, ensure_ascii=True).encode('utf-8')
+    return compute_bytes_hash(serialized, algorithm)
 
-def hash_artifact(artifact: Union[str, bytes, Path, Dict[str, Any]], algorithm: str = "sha256") -> str:
+def hash_artifact(artifact: Dict[str, Any], include_metadata: bool = True) -> str:
     """
-    Compute hash based on artifact type.
+    Generate a content hash for an artifact dictionary.
     
     Args:
-        artifact: String, bytes, file path, or dictionary.
-        algorithm: Hash algorithm.
-        
+        artifact: Artifact dictionary
+        include_metadata: Whether to include metadata fields in hash
+    
     Returns:
-        Hexadecimal hash string.
+        Hash string.
     """
-    if isinstance(artifact, str):
-        return compute_string_hash(artifact, algorithm)
-    elif isinstance(artifact, bytes):
-        return compute_bytes_hash(artifact, algorithm)
-    elif isinstance(artifact, (Path, str)):
-        return compute_file_hash(artifact, algorithm)
-    elif isinstance(artifact, dict):
-        return compute_dict_hash(artifact, algorithm)
+    if include_metadata:
+        return compute_dict_hash(artifact)
     else:
-        raise TypeError(f"Unsupported artifact type: {type(artifact)}")
+        # Exclude common metadata fields
+        filtered = {k: v for k, v in artifact.items() if k not in ['timestamp', 'version', 'metadata']}
+        return compute_dict_hash(filtered)
 
-def verify_file_hash(file_path: Union[str, Path], expected_hash: str, algorithm: str = "sha256") -> bool:
+def verify_file_hash(path: Union[str, Path], expected_hash: str, algorithm: str = 'sha256') -> bool:
     """
-    Verify the hash of a file against an expected value.
+    Verify a file's hash against an expected value.
     
     Args:
-        file_path: Path to the file.
-        expected_hash: Expected hash string.
-        algorithm: Hash algorithm.
-        
+        path: Path to file
+        expected_hash: Expected hash string
+        algorithm: Hash algorithm
+    
     Returns:
-        True if hashes match, False otherwise.
+        True if hash matches, False otherwise.
     """
-    actual_hash = compute_file_hash(file_path, algorithm)
+    actual_hash = compute_file_hash(path, algorithm)
     return actual_hash == expected_hash

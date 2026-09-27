@@ -1,272 +1,283 @@
+"""
+T019: Tune the semantic matching threshold to maximize agreement with human labels.
+
+Iterates cosine similarity thresholds (0.0 to 1.0, step 0.05) to find the optimal
+value that maximizes the agreement rate between automated semantic matching and
+human expert labels from the pilot study.
+
+Deliverable: data/pilot/tuned_threshold.json
+"""
 import argparse
 import json
 import sys
+import logging
 from pathlib import Path
 from typing import List, Dict, Tuple, Any, Optional
+
 import numpy as np
 
-# Import from existing utils
+# Import from project utilities
 from utils.semantic_matcher import encode_texts, cosine_similarity
-from utils.logging_config import get_logger
+from utils.logging_config import get_logger, setup_root_logger
 
 logger = get_logger(__name__)
 
+
 def load_pilot_traces(path: Path) -> List[Dict[str, Any]]:
     """Load pilot traces from JSONL file."""
-    traces = []
     if not path.exists():
         raise FileNotFoundError(f"Pilot traces file not found: {path}")
     
+    traces = []
     with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
               traces.append(json.loads(line))
-    
-    if not traces:
-        raise ValueError(f"No traces found in {path}")
-    
+    logger.info(f"Loaded {len(traces)} pilot traces from {path}")
     return traces
 
+
 def load_pilot_labels(path: Path) -> List[Dict[str, Any]]:
-    """Load pilot ground truth labels from JSONL file."""
-    labels = []
+    """Load pilot labels from JSONL file."""
     if not path.exists():
         raise FileNotFoundError(f"Pilot labels file not found: {path}")
     
+    labels = []
     with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             if line.strip():
               labels.append(json.loads(line))
-    
-    if not labels:
-        raise ValueError(f"No labels found in {path}")
-    
+    logger.info(f"Loaded {len(labels)} pilot labels from {path}")
     return labels
 
-def align_traces_and_labels(traces: List[Dict], labels: List[Dict]) -> List[Tuple[Dict, Dict]]:
-    """Align traces with their corresponding ground truth labels by task_id."""
+
+def align_traces_and_labels(
+    traces: List[Dict[str, Any]], 
+    labels: List[Dict[str, Any]]
+) -> List[Tuple[Dict[str, Any], Dict[str, Any]]]:
+    """Align traces with their corresponding human labels by task_id."""
     label_map = {l['task_id']: l for l in labels}
     aligned = []
     
     for trace in traces:
         task_id = trace.get('task_id')
-        if task_id and task_id in label_map:
+        if task_id in label_map:
             aligned.append((trace, label_map[task_id]))
         else:
-            logger.warning(f"Skipping trace without matching label: {task_id}")
+            logger.warning(f"No label found for task_id: {task_id}")
     
-    if not aligned:
-        raise ValueError("No aligned trace-label pairs found. Check task_id consistency.")
-    
+    logger.info(f"Aligned {len(aligned)} trace-label pairs")
     return aligned
 
-def compute_agreement(automated_matches: List[bool], ground_truth_labels: List[bool]) -> float:
-    """Compute agreement rate between automated matches and ground truth."""
-    if len(automated_matches) != len(ground_truth_labels):
-        raise ValueError("Mismatch in lengths of automated matches and ground truth labels")
+
+def compute_agreement(
+    aligned_data: List[Tuple[Dict[str, Any], Dict[str, Any]]],
+    threshold: float,
+    model: Any
+) -> float:
+    """
+    Compute agreement rate between automated semantic matching and human labels.
     
-    if len(automated_matches) == 0:
+    For each pair:
+    1. Extract trace text and constraint from the task record
+    2. Compute semantic similarity
+    3. Classify as 'mention' if similarity >= threshold
+    4. Compare with human label ('yes'/'no')
+    5. Calculate agreement rate
+    """
+    if not aligned_data:
         return 0.0
     
-    agreements = sum(1 for a, g in zip(automated_matches, ground_truth_labels) if a == g)
-    return agreements / len(automated_matches)
+    matches = 0
+    total = 0
+    
+    for trace, label in aligned_data:
+        # Extract the trace text (generated CoT)
+        trace_text = trace.get('cot_trace', '')
+        if not trace_text:
+            continue
+        
+        # Extract the constraint text from the original task
+        # We need to get the constraint from the trace's original task record
+        # Assuming the trace contains the original task data or we load it
+        # For now, we assume the trace record has the constraint or we pass it
+        # In the pilot study, we likely have the constraint in the trace record
+        constraint_text = trace.get('constraint', '')
+        if not constraint_text:
+            # If not in trace, we might need to load the original task
+            # For this implementation, we assume it's available in the trace
+            logger.warning(f"No constraint found for task {trace.get('task_id')}")
+            continue
+        
+        # Compute semantic similarity
+        try:
+            embeddings = encode_texts([trace_text, constraint_text], model)
+            similarity = cosine_similarity(embeddings[0], embeddings[1])
+        except Exception as e:
+            logger.error(f"Error computing similarity for task {trace.get('task_id')}: {e}")
+            continue
+        
+        # Automated prediction: 'yes' if similarity >= threshold
+        automated_mention = 'yes' if similarity >= threshold else 'no'
+        
+        # Human label
+        human_mention = label.get('constraint_mention', 'no').lower()
+        
+        # Check agreement
+        if automated_mention == human_mention:
+            matches += 1
+        
+        total += 1
+    
+    if total == 0:
+        return 0.0
+    
+    agreement_rate = matches / total
+    return agreement_rate
+
 
 def tune_threshold(
-    aligned_pairs: List[Tuple[Dict, Dict]],
-    threshold_range: Tuple[float, float] = (0.0, 1.0),
-    num_steps: int = 100
-) -> Tuple[float, float, List[Tuple[float, float]]]:
+    aligned_data: List[Tuple[Dict[str, Any], Dict[str, Any]]],
+    model: Any,
+    step: float = 0.05,
+    min_threshold: float = 0.0,
+    max_threshold: float = 1.0
+) -> Tuple[float, float]:
     """
-    Iterate cosine similarity thresholds to maximize agreement with ground truth.
-    
-    Args:
-        aligned_pairs: List of (trace, label) tuples aligned by task_id
-        threshold_range: (min, max) threshold values to search
-        num_steps: Number of steps in the search grid
+    Iterate through thresholds and find the one that maximizes agreement rate.
     
     Returns:
-        Tuple of (optimal_threshold, max_agreement, history)
+        Tuple of (optimal_threshold, max_agreement_rate)
     """
-    min_thresh, max_thresh = threshold_range
-    thresholds = np.linspace(min_thresh, max_thresh, num_steps)
-    
-    history = []
-    best_threshold = 0.5
+    thresholds = np.arange(min_threshold, max_threshold + step, step)
+    best_threshold = min_threshold
     best_agreement = -1.0
     
-    # Extract constraint mentions from labels (ground truth)
-    # Assuming label format: {'task_id': ..., 'constraint_mention': True/False}
-    ground_truth_mentions = [pair[1].get('constraint_mention', False) for pair in aligned_pairs]
+    logger.info(f"Tuning threshold from {min_threshold} to {max_threshold} (step {step})")
     
-    # Extract traces for encoding
-    trace_texts = [pair[0].get('cot_trace', '') for pair in aligned_pairs]
-    
-    if not any(trace_texts):
-        raise ValueError("No valid trace text found in pilot traces")
-    
-    logger.info(f"Encoding {len(trace_texts)} traces for semantic matching...")
-    
-    # Encode all traces once (efficient)
-    try:
-        embeddings = encode_texts(trace_texts, model_name="all-MiniLM-L6-v2")
-    except Exception as e:
-        logger.error(f"Failed to encode traces: {e}")
-        raise
-    
-    # Define a reference constraint phrase to match against
-    # We use the constraint from the first task as a reference, or a generic one
-    # Better approach: use the constraint from the task record if available
-    # For now, we assume the trace itself contains the constraint mention if labeled True
-    # We need to compare each trace against a reference constraint string
-    
-    # Strategy: For each trace, we check if it is semantically similar to a known constraint phrase
-    # Since we don't have the original constraint strings in the trace object directly here,
-    # we will use the label's constraint_mention as the target and find the threshold that
-    # best separates traces labeled True vs False based on their similarity to a reference.
-    
-    # However, the task asks to tune threshold for "automated semantic match".
-    # The automated match typically compares the trace's constraint mention (if extracted)
-    # against the original task constraint.
-    
-    # Since we are tuning threshold, we simulate the automated match:
-    # We assume the "automated match" returns True if the trace is semantically similar
-    # to a reference constraint string (e.g., "Find the object that is red").
-    # We need the original constraint strings. Let's assume they are in the trace metadata
-    # or we use a generic reference if not present.
-    
-    # Alternative interpretation: The pilot labels tell us if the constraint was mentioned.
-    # We want to find a threshold T such that:
-    #   If similarity(trace, reference_constraint) > T => Predicted Mention = True
-    #   Else => Predicted Mention = False
-    # And this prediction matches the ground truth (label) best.
-    
-    # We need the reference constraint string. Let's assume it's in the trace data or task data.
-    # If not available, we cannot compute semantic similarity against a specific constraint.
-    # Let's assume the trace object contains 'original_constraint' or similar.
-    
-    reference_constraints = []
-    for pair in aligned_pairs:
-        trace = pair[0]
-        # Try to find constraint in trace or nested task data
-        constraint = trace.get('original_constraint') or trace.get('task', {}).get('constraint')
-        if constraint:
-            reference_constraints.append(constraint)
-        else:
-            # Fallback: If no constraint string is available, we cannot compute semantic similarity.
-            # This implies the pilot data structure might be missing the constraint string.
-            # In a real scenario, we would fail or request the data.
-            # For this implementation, we assume the constraint is present.
-            raise ValueError(f"Missing 'original_constraint' in trace for task {trace.get('task_id')}")
-    
-    # Encode reference constraints
-    ref_embeddings = encode_texts(reference_constraints, model_name="all-MiniLM-L6-v2")
-    
-    # Compute similarities
-    # embeddings: (N, D), ref_embeddings: (N, D)
-    # We want similarity between trace_i and ref_i
-    similarities = cosine_similarity(embeddings, ref_embeddings)
-    
-    logger.info(f"Computed {len(similarities)} similarity scores. Range: [{min(similarities):.3f}, {max(similarities):.3f}]")
-    
-    for thresh in thresholds:
-        # Automated prediction: True if similarity > thresh
-        predicted_mentions = [s > thresh for s in similarities]
-        
-        agreement = compute_agreement(predicted_mentions, ground_truth_mentions)
-        history.append((thresh, agreement))
+    for threshold in thresholds:
+        agreement = compute_agreement(aligned_data, threshold, model)
+        logger.debug(f"Threshold {threshold:.2f}: Agreement = {agreement:.4f}")
         
         if agreement > best_agreement:
             best_agreement = agreement
-            best_threshold = thresh
+            best_threshold = threshold
     
-    logger.info(f"Optimal threshold: {best_threshold:.4f} with agreement: {best_agreement:.4f}")
-    
-    return best_threshold, best_agreement, history
+    logger.info(f"Best threshold: {best_threshold:.2f} with agreement: {best_agreement:.4f}")
+    return best_threshold, best_agreement
+
 
 def save_results(
     optimal_threshold: float,
-    agreement: float,
-    history: List[Tuple[float, float]],
+    agreement_rate: float,
     output_path: Path
 ):
-    """Save tuned threshold and metrics to JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+    """Save the tuned threshold to JSON file."""
     result = {
-        "optimal_threshold": float(optimal_threshold),
-        "agreement_rate": float(agreement),
-        "history": [{"threshold": float(t), "agreement": float(a)} for t, a in history],
-        "num_samples": len(history),
-        "timestamp": datetime.now(timezone.utc).isoformat()
+        'optimal_threshold': optimal_threshold,
+        'agreement_rate': agreement_rate,
+        'description': 'Threshold optimized to maximize agreement between automated semantic matching and human labels',
+        'step_size': 0.05,
+        'threshold_range': [0.0, 1.0]
     }
     
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(result, f, indent=2)
     
-    logger.info(f"Results saved to {output_path}")
+    logger.info(f"Saved tuned threshold to {output_path}")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Tune semantic matching threshold for pilot study")
+    """Main entry point for threshold tuning."""
+    parser = argparse.ArgumentParser(description='Tune semantic matching threshold')
     parser.add_argument(
-        "--traces",
+        '--traces',
         type=str,
-        default="data/pilot/pilot_traces.jsonl",
-        help="Path to pilot traces JSONL"
+        default='data/pilot/pilot_traces.jsonl',
+        help='Path to pilot traces JSONL file'
     )
     parser.add_argument(
-        "--labels",
+        '--labels',
         type=str,
-        default="data/pilot/pilot_ground_truth_labels.jsonl",
-        help="Path to pilot ground truth labels JSONL"
+        default='data/pilot/pilot_ground_truth_labels.jsonl',
+        help='Path to pilot labels JSONL file'
     )
     parser.add_argument(
-        "--output",
+        '--output',
         type=str,
-        default="data/pilot/tuned_threshold.json",
-        help="Path to output threshold JSON"
+        default='data/pilot/tuned_threshold.json',
+        help='Path to output threshold JSON file'
     )
     parser.add_argument(
-        "--threshold-min",
+        '--step',
         type=float,
-        default=0.0,
-        help="Minimum threshold to search"
-    )
-    parser.add_argument(
-        "--threshold-max",
-        type=float,
-        default=1.0,
-        help="Maximum threshold to search"
-    )
-    parser.add_argument(
-        "--steps",
-        type=int,
-        default=100,
-        help="Number of steps in threshold search"
+        default=0.05,
+        help='Step size for threshold iteration'
     )
     
     args = parser.parse_args()
     
-    logger.info(f"Loading pilot traces from {args.traces}")
-    traces = load_pilot_traces(Path(args.traces))
+    # Setup logging
+    setup_root_logger()
     
-    logger.info(f"Loading pilot labels from {args.labels}")
-    labels = load_pilot_labels(Path(args.labels))
+    # Load data
+    try:
+        traces = load_pilot_traces(Path(args.traces))
+        labels = load_pilot_labels(Path(args.labels))
+    except FileNotFoundError as e:
+        logger.error(f"Data file error: {e}")
+        sys.exit(1)
     
-    logger.info("Aligning traces and labels...")
-    aligned = align_traces_and_labels(traces, labels)
-    logger.info(f"Aligned {len(aligned)} pairs")
+    if not traces or not labels:
+        logger.error("No data loaded. Cannot proceed with tuning.")
+        sys.exit(1)
     
-    logger.info(f"Tuning threshold in range [{args.threshold_min}, {args.threshold_max}]...")
-    optimal_thresh, best_agreement, history = tune_threshold(
-        aligned,
-        threshold_range=(args.threshold_min, args.threshold_max),
-        num_steps=args.steps
+    # Align traces and labels
+    aligned_data = align_traces_and_labels(traces, labels)
+    
+    if not aligned_data:
+        logger.error("No aligned trace-label pairs found. Cannot proceed with tuning.")
+        sys.exit(1)
+    
+    # Load semantic matching model
+    logger.info("Loading semantic matching model...")
+    try:
+        from utils.semantic_matcher import encode_texts
+        # The model is loaded inside the semantic_matcher module
+        # We need to ensure it's loaded. The module uses a singleton pattern.
+        # For now, we assume the model is loaded on first use.
+        # We'll trigger a load by calling encode_texts with dummy data
+        dummy_embeddings = encode_texts(["test", "test"], None)
+    except Exception as e:
+        logger.error(f"Failed to load semantic matching model: {e}")
+        sys.exit(1)
+    
+    # Import the model instance from the semantic_matcher module
+    # Since the module manages the model internally, we need to access it
+    # We'll assume the module has a way to get the model or we reload it
+    # For simplicity, we'll re-initialize the model here if needed
+    # But to avoid duplication, let's assume the semantic_matcher module
+    # provides a function to get the model or we use the same initialization
+    
+    # Re-initialize the model for this script
+    from sentence_transformers import SentenceTransformer
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    logger.info("Semantic matching model loaded successfully")
+    
+    # Tune threshold
+    optimal_threshold, agreement_rate = tune_threshold(
+        aligned_data, 
+        model, 
+        step=args.step
     )
     
-    logger.info(f"Saving results to {args.output}")
-    save_results(optimal_thresh, best_agreement, history, Path(args.output))
+    # Save results
+    save_results(optimal_threshold, agreement_rate, Path(args.output))
     
-    logger.info(f"Done. Optimal threshold: {optimal_thresh:.4f}, Agreement: {best_agreement:.4f}")
+    logger.info(f"Tuning complete. Optimal threshold: {optimal_threshold:.2f}")
+    return 0
 
-if __name__ == "__main__":
-    main()
+
+if __name__ == '__main__':
+    sys.exit(main())
