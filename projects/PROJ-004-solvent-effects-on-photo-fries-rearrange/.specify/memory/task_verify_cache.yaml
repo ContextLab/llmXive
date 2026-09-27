@@ -6,14 +6,6 @@ T014:
     \ Moreover, the required output file `data/processed/environment_logs.json` is\
     \ missing from the repository. Both the artifact and its behavior fail to meet\
     \ the task\u2019s specifications."
-T015:
-  c: false
-  h: 92101db885ae7a1330249351346091ed30b6eae7819b06b0509259a64d5433f7
-  r: "The repository contains `code/data/generate_synthetic.py`, but the required\
-    \ output file `data/raw/synthetic_traces.csv` is absent, and the provided script\
-    \ snippet is incomplete (truncated) with no evidence that it actually writes the\
-    \ CSV to the specified location. The task\u2019s core deliverable \u2013 a deterministic\
-    \ synthetic trace CSV file \u2013 is therefore not present."
 T015b:
   c: true
   h: c88346e8b887770fcfa0d0c79444c4284b763ee846555f7470860340b3a985e7
@@ -65,3 +57,19 @@ T048:
     \ solvent reference loading and dielectric checks; it does not implement the trend\u2011\
     verification logic that reads the correlation and kinetic files and writes the\
     \ report. The task therefore remains unfinished."
+T061:
+  c: false
+  h: d4407a870830c46ef1ced2902849ef301afeaed7bdc2b586ead6b129cf81a841
+  r: "The required output file `data/processed/material_balance_report.csv` is not\
+    \ present, and the provided `material_balance.py` is truncated before any report\u2011\
+    generation logic, so there is no evidence that the script actually creates the\
+    \ CSV with the requested quantities and error margins. The missing CSV must be\
+    \ generated for the task to be considered complete."
+T062:
+  c: false
+  h: 1a94a158b90aa0527c63fdaa5b5058e931e2fee57383d4f283abf86bb3bc1790
+  r: The `baseline_verification.py` script is present but appears truncated and does
+    not show the generation of the required `data/processed/baseline_verification_report.json`.
+    Moreover, the JSON report file is missing from the repository. The task is not
+    fully satisfied until the script fully implements the analysis and writes the
+    report file.

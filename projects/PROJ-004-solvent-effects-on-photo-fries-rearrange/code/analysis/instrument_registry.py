@@ -1,13 +1,8 @@
-"""
-Instrument Registry Module
+"""Instrument Registry Module.
 
-This module defines and logs instrument configuration for the Photo-Fries
-rearrangement kinetics pipeline. It ensures that the instrument model is
-loaded from a configuration file, falling back to a generic vendor-agnostic
-definition if the file is missing or incomplete. This satisfies the
-requirement to avoid hard-coding specific hardware dependencies.
+Defines and logs instrument configuration, loading model information from
+configuration files to ensure vendor agnosticism.
 """
-
 import os
 import json
 import logging
@@ -15,143 +10,136 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+from utils.logging import setup_logging, log_operation
 from config import get_chemicals_path
 
-# Logger setup
-logger = logging.getLogger(__name__)
 
-DEFAULT_INSTRUMENT_MODEL = "Generic Transient Absorption Spectrometer"
-CONFIG_FILENAME = "instrument_config.yaml"
-
-def load_instrument_config() -> Dict[str, Any]:
-    """
-    Loads instrument configuration from the YAML file.
-
-    Returns:
-        dict: A dictionary containing instrument details. If the file is missing
-              or the 'model' key is absent, returns a default generic configuration.
-    """
-    config_path = get_chemicals_path() / CONFIG_FILENAME
-    config = {
-        "model": DEFAULT_INSTRUMENT_MODEL,
-        "vendor": "Unknown",
-        "serial_number": "N/A",
-        "calibration_date": None,
-        "detection_limit": None,
-        "units": "OD",
-        "temporal_resolution_ns": None,
-        "wavelength_range_nm": None,
-        "notes": "Loaded from default fallback configuration."
-    }
-
-    if not config_path.exists():
-        logger.warning(
-            f"Instrument config file not found at {config_path}. "
-            f"Using default: {DEFAULT_INSTRUMENT_MODEL}"
-        )
-        return config
-
-    try:
-        import yaml
-        with open(config_path, 'r') as f:
-            data = yaml.safe_load(f)
-
-        if not data or 'instrument' not in data:
-            logger.warning(
-                f"Instrument config at {config_path} is missing 'instrument' key. "
-                f"Using default: {DEFAULT_INSTRUMENT_MODEL}"
-            )
-            return config
-
-        instrument_data = data['instrument']
-
-        # Extract model, enforcing the constraint
-        model = instrument_data.get('model')
-        if not model:
-            logger.warning(
-                f"Model key missing in {config_path}. "
-                f"Defaulting to: {DEFAULT_INSTRUMENT_MODEL}"
-            )
-            config['model'] = DEFAULT_INSTRUMENT_MODEL
-        else:
-            config['model'] = model
-
-        # Extract other optional fields
-        config['vendor'] = instrument_data.get('vendor', config['vendor'])
-        config['serial_number'] = instrument_data.get('serial_number', config['serial_number'])
-        config['calibration_date'] = instrument_data.get('calibration_date')
-        config['detection_limit'] = instrument_data.get('detection_limit')
-        config['units'] = instrument_data.get('units', config['units'])
-        config['temporal_resolution_ns'] = instrument_data.get('temporal_resolution_ns')
-        config['wavelength_range_nm'] = instrument_data.get('wavelength_range_nm')
-        config['notes'] = instrument_data.get('notes', config['notes'])
-
-        logger.info(f"Instrument config loaded: {config['model']}")
-
-    except Exception as e:
-        logger.error(f"Error parsing instrument config at {config_path}: {e}")
-        logger.warning(f"Reverting to default: {DEFAULT_INSTRUMENT_MODEL}")
-
-    return config
-
-def log_instrument_config(log_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Logs the current instrument configuration to a JSON file and returns it.
+def load_instrument_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load instrument configuration from YAML or use defaults.
 
     Args:
-        log_path: Optional path to write the log. If None, writes to
-                  data/processed/instrument_log.json.
+        config_path: Optional path to instrument_config.yaml. If None,
+            defaults to data/chemicals/instrument_config.yaml.
 
     Returns:
-        dict: The instrument configuration used.
+        Dictionary containing instrument configuration.
     """
-    config = load_instrument_config()
-    
-    # Add runtime metadata
-    config['logged_at'] = datetime.now(timezone.utc).isoformat()
-    config['logged_by'] = "instrument_registry"
+    if config_path is None:
+        config_path = os.path.join(get_chemicals_path(), "instrument_config.yaml")
 
+    defaults = {
+        "model": "Generic Transient Absorption Spectrometer",
+        "detector_type": "Photomultiplier Tube",
+        "detection_limit_absorbance": 1e-5,
+        "wavelength_range_nm": [200, 800],
+        "temporal_resolution_ns": [1, 1000],
+        "calibration_standards": ["NIST Standard Reference"],
+        "last_calibration_date": datetime.now(timezone.utc).isoformat()
+    }
+
+    if os.path.exists(config_path):
+        try:
+            import yaml
+            with open(config_path, 'r') as f:
+                loaded = yaml.safe_load(f)
+                return {**defaults, **loaded}
+        except Exception as e:
+            logging.warning(f"Failed to load instrument config from {config_path}: {e}. Using defaults.")
+    else:
+        logging.info(f"Instrument config not found at {config_path}. Using defaults.")
+
+    return defaults
+
+
+def log_instrument_config(config: Dict[str, Any], log_path: Optional[str] = None) -> str:
+    """Log the instrument configuration to a JSON file.
+
+    Args:
+        config: Instrument configuration dictionary.
+        log_path: Optional path for the log file.
+
+    Returns:
+        Path to the written log file.
+    """
     if log_path is None:
-        from config import get_processed_data_path
-        log_path = get_processed_data_path() / "instrument_log.json"
+        log_path = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "..",
+            "..",
+            "data",
+            "processed",
+            "instrument_registry.json"
+        )
 
-    # Ensure directory exists
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    log_entry = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "instrument": config
+    }
+
+    log_dir = os.path.dirname(log_path)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
 
     with open(log_path, 'w') as f:
-        json.dump(config, f, indent=2)
+        json.dump(log_entry, f, indent=2, default=str)
 
-    logger.info(f"Instrument configuration logged to {log_path}")
-    return config
+    logging.info(f"Instrument registry logged to {log_path}")
+    return log_path
 
-def get_instrument_model() -> str:
-    """
-    Convenience function to get just the instrument model string.
-    
+
+def get_instrument_model(config: Optional[Dict[str, Any]] = None) -> str:
+    """Get the instrument model name.
+
+    Args:
+        config: Optional instrument configuration. If None, loads from file.
+
     Returns:
-        str: The instrument model name.
+        The instrument model name.
     """
-    config = load_instrument_config()
-    return config['model']
+    if config is None:
+        config = load_instrument_config()
+    return config.get("model", "Generic Transient Absorption Spectrometer")
 
-def main():
-    """
-    CLI entry point to log instrument configuration.
-    """
-    import argparse
-    parser = argparse.ArgumentParser(description="Log instrument configuration")
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default=None, 
-        help="Path to output log file (default: data/processed/instrument_log.json)"
+
+def main() -> None:
+    """CLI entry point for logging instrument configuration."""
+    parser = argparse.ArgumentParser(
+        description="Log instrument configuration to registry."
     )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=None,
+        help="Path to instrument configuration YAML."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default=None,
+        help="Path for output log file."
+    )
+    parser.add_argument(
+        "--log-level",
+        type=str,
+        default="INFO",
+        help="Logging level."
+    )
+
     args = parser.parse_args()
 
-    log_path = Path(args.output) if args.output else None
-    config = log_instrument_config(log_path)
-    print(f"Logged instrument: {config['model']}")
-    print(f"Output written to: {log_path or 'data/processed/instrument_log.json'}")
+    setup_logging(level=args.log_level)
+
+    try:
+        config = load_instrument_config(args.config)
+        log_path = log_instrument_config(config, args.output)
+        logging.info(f"Instrument model: {get_instrument_model(config)}")
+        logging.info(f"Registry logged to {log_path}")
+    except Exception as e:
+        logging.error(f"Error logging instrument configuration: {e}")
+        import sys
+        sys.exit(1)
+
 
 if __name__ == "__main__":
+    import argparse
     main()
