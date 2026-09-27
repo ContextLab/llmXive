@@ -1,4 +1,6 @@
-"""Reproducibility logging — fully tolerant; raises on nothing."""
+"""
+Reproducibility logging — fully tolerant; raises on nothing.
+"""
 from __future__ import annotations
 
 import functools
@@ -75,61 +77,66 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_artifact_rejection(artifact_type: str, artifact_id: str, reason: str) -> None:
-    """Log artifact rejection to the exclusion log."""
-    entry = get_logger().log("artifact_rejection", artifact_type=artifact_type, artifact_id=artifact_id, reason=reason)
-    save_rejection_summary()
-
-
-def log_participant_exclusion(participant_id: str, reason: str) -> None:
-    """Log participant exclusion to the exclusion log."""
-    entry = get_logger().log("participant_exclusion", participant_id=participant_id, reason=reason)
-    save_rejection_summary()
-
-
-def save_rejection_summary() -> None:
-    """Save all rejection entries to the exclusion log CSV."""
-    logger = get_logger()
-    exclusion_log_path = "data/processed/exclusion_log.csv"
-    os.makedirs(os.path.dirname(exclusion_log_path), exist_ok=True)
-
-    # Check if file exists to determine if we need headers
-    file_exists = os.path.exists(exclusion_log_path)
-
-    with open(exclusion_log_path, "a", newline="") as f:
+def save_exclusion_log_csv(entries: list, filepath: str = "data/processed/exclusion_log.csv"):
+    """
+    Save exclusion log entries to a CSV file.
+    """
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    
+    with open(filepath, 'w', newline='') as f:
         writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(["participant_id", "reason", "timestamp"])
-
-        for entry in logger.entries:
-            if entry.operation in ["participant_exclusion", "artifact_rejection"]:
-                pid = entry.parameters.get("participant_id", entry.parameters.get("artifact_id", "unknown"))
-                reason = entry.parameters.get("reason", "unknown")
-                writer.writerow([pid, reason, entry.timestamp])
-
-
-def get_rejection_counts() -> dict:
-    """Get counts of rejections by reason."""
-    logger = get_logger()
-    counts = {}
-    for entry in logger.entries:
-        if entry.operation in ["participant_exclusion", "artifact_rejection"]:
-            reason = entry.parameters.get("reason", "unknown")
-            counts[reason] = counts.get(reason, 0) + 1
-    return counts
-
-
-def save_exclusion_log_csv(entries: list) -> None:
-    """Save exclusion log entries directly to CSV."""
-    exclusion_log_path = "data/processed/exclusion_log.csv"
-    os.makedirs(os.path.dirname(exclusion_log_path), exist_ok=True)
-
-    file_exists = os.path.exists(exclusion_log_path)
-
-    with open(exclusion_log_path, "a", newline="") as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(["participant_id", "reason", "timestamp"])
-
+        writer.writerow(['participant_id', 'reason', 'timestamp'])
         for entry in entries:
-            writer.writerow([entry.get("participant_id", "unknown"), entry.get("reason", "unknown"), entry.get("timestamp", datetime.utcnow().isoformat())])
+            # entry is a LogEntry or dict
+            if isinstance(entry, LogEntry):
+                participant_id = entry.parameters.get('participant_id', '')
+                reason = entry.parameters.get('reason', '')
+                timestamp = entry.timestamp
+            elif isinstance(entry, dict):
+                participant_id = entry.get('participant_id', '')
+                reason = entry.get('reason', '')
+                timestamp = entry.get('timestamp', datetime.utcnow().isoformat())
+            else:
+                continue
+            writer.writerow([participant_id, reason, timestamp])
+
+
+def log_artifact_rejection(artifact_type: str, artifact_id: str, reason: str):
+    """
+    Log an artifact rejection event.
+    """
+    entry = get_logger().log("artifact_rejection", artifact_type=artifact_type, artifact_id=artifact_id, reason=reason)
+    # Also save to CSV
+    save_exclusion_log_csv([entry])
+    return entry
+
+
+def log_participant_exclusion(participant_id: str, reason: str):
+    """
+    Log a participant exclusion event.
+    """
+    entry = get_logger().log("participant_exclusion", participant_id=participant_id, reason=reason)
+    # Also save to CSV
+    save_exclusion_log_csv([entry])
+    return entry
+
+
+def get_rejection_counts():
+    """
+    Get counts of rejected artifacts and participants.
+    """
+    logger = get_logger()
+    artifact_count = 0
+    participant_count = 0
+    
+    for entry in logger.entries:
+        if entry.operation == "artifact_rejection":
+            artifact_count += 1
+        elif entry.operation == "participant_exclusion":
+            participant_count += 1
+    
+    return {
+        "artifact_rejections": artifact_count,
+        "participant_exclusions": participant_count
+    }

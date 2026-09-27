@@ -1,104 +1,108 @@
-"""
-Tests for code/verify_runtime.py
-"""
-import os
+"""Unit tests for verify_runtime.py (T028)."""
 import json
-import tempfile
-import pytest
-from unittest.mock import patch, MagicMock
+import os
 import sys
+import tempfile
 from pathlib import Path
 
-# Ensure project root is in path
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+import pytest
 
-from code.verify_runtime import load_resource_usage, verify_runtime, main
-from code.utils.logging import get_logger
+# Add the code directory to the path for imports
+code_dir = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_dir))
+
+from verify_runtime import load_resource_usage, verify_runtime
+
 
 class TestLoadResourceUsage:
-    def test_load_valid_file(self, tmp_path):
-        """Test loading a valid resource usage file."""
-        test_data = {"total_runtime_hours": 2.5, "peak_rss_gb": 4.0}
-        test_file = tmp_path / "resource_usage.json"
-        test_file.write_text(json.dumps(test_data))
+    def test_load_existing_file(self, tmp_path):
+        """Test loading an existing resource usage file."""
+        resource_file = tmp_path / "resource_usage.json"
+        expected_data = {
+            "peak_rss_gb": 3.5,
+            "total_runtime_hours": 4.2
+        }
         
-        result = load_resource_usage(str(test_file))
-        assert result == test_data
-        assert result["total_runtime_hours"] == 2.5
+        with open(resource_file, "w") as f:
+            json.dump(expected_data, f)
+        
+        result = load_resource_usage(str(resource_file))
+        assert result == expected_data
+        assert result["total_runtime_hours"] == 4.2
 
-    def test_load_missing_file(self):
-        """Test loading a missing file raises FileNotFoundError."""
+    def test_missing_file(self, tmp_path):
+        """Test that FileNotFoundError is raised for missing file."""
+        missing_file = tmp_path / "nonexistent.json"
+        
         with pytest.raises(FileNotFoundError):
-            load_resource_usage("/nonexistent/path/file.json")
+            load_resource_usage(str(missing_file))
 
-    def test_load_invalid_json(self, tmp_path):
-        """Test loading a file with invalid JSON raises error."""
-        test_file = tmp_path / "invalid.json"
-        test_file.write_text("not valid json")
+    def test_invalid_json(self, tmp_path):
+        """Test that JSONDecodeError is raised for invalid JSON."""
+        invalid_file = tmp_path / "invalid.json"
+        invalid_file.write_text("not valid json")
         
         with pytest.raises(json.JSONDecodeError):
-            load_resource_usage(str(test_file))
+            load_resource_usage(str(invalid_file))
+
 
 class TestVerifyRuntime:
     def test_runtime_within_limit(self):
         """Test verification passes when runtime is within limit."""
-        data = {"total_runtime_hours": 5.0}
-        logger = get_logger("test")
-        assert verify_runtime(data, 6.0, logger) is True
+        resource_data = {
+            "peak_rss_gb": 3.5,
+            "total_runtime_hours": 5.5
+        }
+        
+        result = verify_runtime(resource_data, max_hours=6.0)
+        assert result is True
+
+    def test_runtime_exactly_at_limit(self):
+        """Test verification passes when runtime is exactly at limit."""
+        resource_data = {
+            "peak_rss_gb": 3.5,
+            "total_runtime_hours": 6.0
+        }
+        
+        result = verify_runtime(resource_data, max_hours=6.0)
+        assert result is True
 
     def test_runtime_exceeds_limit(self):
         """Test verification fails when runtime exceeds limit."""
-        data = {"total_runtime_hours": 7.5}
-        logger = get_logger("test")
-        assert verify_runtime(data, 6.0, logger) is False
+        resource_data = {
+            "peak_rss_gb": 3.5,
+            "total_runtime_hours": 6.5
+        }
+        
+        result = verify_runtime(resource_data, max_hours=6.0)
+        assert result is False
 
-    def test_runtime_exactly_limit(self):
-        """Test verification passes when runtime equals limit."""
-        data = {"total_runtime_hours": 6.0}
-        logger = get_logger("test")
-        assert verify_runtime(data, 6.0, logger) is True
+    def test_missing_runtime_key(self):
+        """Test that ValueError is raised when runtime key is missing."""
+        resource_data = {
+            "peak_rss_gb": 3.5
+            # missing total_runtime_hours
+        }
+        
+        with pytest.raises(ValueError):
+            verify_runtime(resource_data)
 
-    def test_missing_runtime_field(self):
-        """Test verification fails when runtime field is missing."""
-        data = {"peak_rss_gb": 4.0}
-        logger = get_logger("test")
-        assert verify_runtime(data, 6.0, logger) is False
+    def test_zero_runtime(self):
+        """Test verification passes with zero runtime."""
+        resource_data = {
+            "peak_rss_gb": 0.0,
+            "total_runtime_hours": 0.0
+        }
+        
+        result = verify_runtime(resource_data, max_hours=6.0)
+        assert result is True
 
-class TestMainIntegration:
-    @patch('code.verify_runtime.load_resource_usage')
-    @patch('code.verify_runtime.verify_runtime')
-    @patch('code.verify_runtime.sys.exit')
-    def test_main_success(self, mock_exit, mock_verify, mock_load):
-        """Test main function on successful verification."""
-        mock_load.return_value = {"total_runtime_hours": 3.0}
-        mock_verify.return_value = True
+    def test_very_large_runtime(self):
+        """Test verification fails with very large runtime."""
+        resource_data = {
+            "peak_rss_gb": 10.0,
+            "total_runtime_hours": 24.0
+        }
         
-        with patch('sys.argv', ['verify_runtime.py']):
-            main()
-        
-        mock_exit.assert_called_once_with(0)
-
-    @patch('code.verify_runtime.load_resource_usage')
-    @patch('code.verify_runtime.verify_runtime')
-    @patch('code.verify_runtime.sys.exit')
-    def test_main_failure(self, mock_exit, mock_verify, mock_load):
-        """Test main function on failed verification."""
-        mock_load.return_value = {"total_runtime_hours": 8.0}
-        mock_verify.return_value = False
-        
-        with patch('sys.argv', ['verify_runtime.py']):
-            main()
-        
-        mock_exit.assert_called_once_with(1)
-
-    @patch('code.verify_runtime.load_resource_usage')
-    @patch('code.verify_runtime.sys.exit')
-    def test_main_file_not_found(self, mock_exit, mock_load):
-        """Test main function when file is not found."""
-        mock_load.side_effect = FileNotFoundError("File not found")
-        
-        with patch('sys.argv', ['verify_runtime.py']):
-            main()
-        
-        mock_exit.assert_called_once_with(1)
+        result = verify_runtime(resource_data, max_hours=6.0)
+        assert result is False

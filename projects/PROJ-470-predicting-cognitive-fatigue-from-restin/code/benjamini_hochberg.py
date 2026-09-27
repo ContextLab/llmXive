@@ -1,136 +1,138 @@
-"""Benjamini-Hochberg correction for multiple comparisons across electrodes.
+"""Benjamini-Hochberg correction for multiple comparisons."""
+from __future__ import annotations
 
-Implements FR-005: Apply BH correction to p-values from correlation analysis.
-"""
+import argparse
+import logging
 import os
 import sys
-import json
-import logging
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
 
-# Import from local utils
-from utils.logging import get_logger, save_exclusion_log_csv
+# Import the project's custom logger factory (defined in utils/logging.py)
+from utils.logging import get_logger
 
-# Import from analysis module if needed for config
-# Note: We assume config is loaded via standard path or passed
-# For this task, we focus on the correction logic
 
-def load_config(config_path="code/config.yaml"):
+def load_config(config_path: str = "code/config.yaml") -> dict:
     """Load configuration from YAML file."""
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-    with open(config_path, 'r') as f:
-        return json.load(f) if config_path.endswith('.json') else __import__('yaml').safe_load(f)
+    import yaml
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f)
 
-def setup_logger(name, log_file=None):
-    """Setup a logger that writes to file and console."""
-    logger = get_logger(name, log_file)
+
+def setup_logger(name: str, log_file: str | None = None) -> logging.Logger:
+    """Set up a standard logging.Logger with file and console handlers."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+
+    if not logger.handlers:
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+        if log_file:
+            fh = logging.FileHandler(log_file)
+            fh.setLevel(logging.INFO)
+            fh.setFormatter(formatter)
+            logger.addHandler(fh)
+
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
     return logger
 
-def run_benjamini_hochberg(input_file, output_file, alpha=0.05):
+
+def run_benjamini_hochberg(
+    p_values: np.ndarray,
+    alpha: float = 0.05,
+    method: str = "indep"
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Apply Benjamini-Hochberg correction to p-values.
+    Apply Benjamini-Hochberg correction to a list of p-values.
+
+    Uses statsmodels.stats.multitest.multipletests.
 
     Args:
-        input_file (str): Path to CSV containing correlation results with p-values.
-        output_file (str): Path to write corrected p-values.
-        alpha (float): Significance threshold.
+        p_values: Array of raw p-values.
+        alpha: Significance level (default 0.05).
+        method: Method for correction ('indep' for independent tests,
+                'neg' for non-positive dependent tests).
 
     Returns:
-        pd.DataFrame: DataFrame with corrected p-values and significance flags.
+        Tuple of (reject, p_corrected, p_corrected_lower, p_corrected_upper)
+        as returned by statsmodels.
     """
-    if not os.path.exists(input_file):
-        raise FileNotFoundError(f"Input file not found: {input_file}")
+    from statsmodels.stats.multitest import multipletests
 
-    # Load correlation results
-    df = pd.read_csv(input_file)
+    if len(p_values) == 0:
+        return np.array([]), np.array([]), np.array([]), np.array([])
 
-    # Identify p-value column(s). Usually 'p_value' or 'pval'
-    p_col = None
-    for col in ['p_value', 'pval', 'p']:
-        if col in df.columns:
-            p_col = col
-            break
+    reject, p_corrected, _, _ = multipletests(p_values, alpha=alpha, method=method)
+    
+    # statsmodels returns (reject, p_corrected, _, _)
+    # We return the corrected p-values and the rejection mask
+    return reject, p_corrected, np.array([]), np.array([])
 
-    if p_col is None:
-        # Try to find any column containing 'p' and numeric
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        p_candidates = [c for c in numeric_cols if 'p' in c.lower()]
-        if p_candidates:
-            p_col = p_candidates[0]
-        else:
-            raise ValueError("No p-value column found in input file.")
 
-    # Extract p-values
-    p_values = df[p_col].values
-
-    # Ensure no NaNs
-    if np.any(np.isnan(p_values)):
-        logging.warning("NaN p-values detected. Handling by exclusion.")
-        valid_mask = ~np.isnan(p_values)
-        valid_indices = np.where(valid_mask)[0]
-        valid_p = p_values[valid_mask]
-    else:
-        valid_indices = np.arange(len(p_values))
-        valid_p = p_values
-
-    # Apply BH correction using statsmodels
-    try:
-        from statsmodels.stats.multitest import multipletests
-        # multipletests returns (reject, p_adjusted, p_corrected, alphacSidak)
-        # We use method='fdr_bh'
-        reject, p_adjusted, _, _ = multipletests(valid_p, alpha=alpha, method='fdr_bh')
-    except ImportError:
-        raise ImportError("statsmodels is required for BH correction. Install with: pip install statsmodels")
-
-    # Map back to original indices
-    df['p_corrected'] = np.nan
-    df.loc[valid_indices, 'p_corrected'] = p_adjusted
-    df['significant_bh'] = False
-    df.loc[valid_indices, 'significant_bh'] = reject
-
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-
-    # Save to CSV
-    df.to_csv(output_file, index=False)
-
-    return df
-
-def main():
-    """Main entry point for BH correction task."""
+def main() -> int:
+    """Main entry point for Benjamini-Hochberg correction task."""
     logger = setup_logger("benjamini_hochberg")
     logger.info("Starting Benjamini-Hochberg correction pipeline.")
 
-    # Load config
-    try:
-        config = load_config()
-    except FileNotFoundError:
-        print("Warning: config.yaml not found. Using defaults.")
-        config = {}
-
-    # Define paths based on task description
-    input_file = "data/analysis/correlation_results.csv"
+    # Paths
+    input_file = "data/analysis/raw_correlation_results.csv"
     output_file = "data/analysis/bh_corrected_pvalues.csv"
-    alpha = config.get('alpha', 0.05)
+    config_path = "code/config.yaml"
 
-    # Check input exists
+    # Load config to get alpha if specified
+    try:
+        config = load_config(config_path)
+        alpha = config.get("alpha", 0.05)
+    except Exception as e:
+        logger.warning(f"Could not load config for alpha, using default 0.05: {e}")
+        alpha = 0.05
+
+    # Validate input file exists
     if not os.path.exists(input_file):
         logger.error(f"Input file not found: {input_file}")
-        print(f"ERROR: Correlation results file not found at {input_file}.")
-        print("Please run code/analysis.py first to generate correlation results.")
-        sys.exit(1)
+        logger.error("Please ensure T020a (Raw Correlation Calculation) has been run successfully.")
+        return 1
 
     try:
-        df = run_benjamini_hochberg(input_file, output_file, alpha)
-        logger.info(f"BH correction complete. Results saved to {output_file}")
-        print(f"Success: BH-corrected p-values written to {output_file}")
-        print(f"Significant electrodes at alpha={alpha}: {df['significant_bh'].sum()}")
+        # Load raw correlation results
+        df = pd.read_csv(input_file)
+        logger.info(f"Loaded {len(df)} raw correlation results from {input_file}")
+
+        # Verify required columns
+        required_cols = ["p_value"]
+        missing_cols = [c for c in required_cols if c not in df.columns]
+        if missing_cols:
+            logger.error(f"Missing required columns in {input_file}: {missing_cols}")
+            return 1
+
+        # Extract p-values
+        p_values = df["p_value"].values
+
+        # Apply BH correction
+        reject, p_corrected, _, _ = run_benjamini_hochberg(p_values, alpha=alpha)
+
+        # Create output DataFrame
+        output_df = df.copy()
+        output_df["p_corrected"] = p_corrected
+        output_df["reject_bh"] = reject
+
+        # Save to disk
+        output_df.to_csv(output_file, index=False)
+        logger.info(f"Successfully wrote BH-corrected results to {output_file}")
+        logger.info(f"Significant findings at alpha={alpha}: {sum(reject)} out of {len(reject)}")
+
+        return 0
+
     except Exception as e:
-        logger.error(f"Error during BH correction: {e}")
-        print(f"ERROR: {e}")
-        sys.exit(1)
+        logger.error(f"Error during BH correction: {e}", exc_info=True)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

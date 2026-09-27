@@ -1,90 +1,199 @@
 """
-Test for T014: Segment Length Validation.
-Verifies that segments < 120 seconds are rejected and logged.
+Unit tests for Task T014: Segment Length Validation.
+
+This test verifies that segments shorter than 120 seconds are excluded
+and logged with reason "segment_too_short" in data/processed/exclusion_log.csv.
 """
 import os
-import sys
+import csv
+import tempfile
+import shutil
+from pathlib import Path
+import pytest
 import numpy as np
 import mne
-import pytest
-from pathlib import Path
 
-# Add the project root to the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add the code directory to the path for imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.preprocess import reject_short_segments, setup_logger
-from code.utils.logging import get_logger, save_exclusion_log_csv
+from preprocess import validate_segment_length, save_cleaned_data
+from utils.logging import get_logger, EXCLUSION_LOG_PATH, save_exclusion_log_csv
 
-@pytest.fixture
-def short_eeg_raw():
-    """Create a mock MNE Raw object with duration < 120 seconds."""
-    # Create dummy data: 10 channels, 120 seconds * 250 Hz = 30000 samples
-    # But we want < 120s, so let's do 60 seconds
-    sfreq = 250
-    duration = 60  # seconds
-    n_channels = 10
-    n_samples = int(sfreq * duration)
-    
-    data = np.random.randn(n_channels, n_samples) * 1e-6  # Volts
-    ch_names = [f'EEG {i:03d}' for i in range(n_channels)]
-    ch_types = ['eeg'] * n_channels
-    
-    info = mne.create_info(ch_names, sfreq, ch_types)
-    raw = mne.io.RawArray(data, info)
-    return raw
 
 @pytest.fixture
-def long_eeg_raw():
-    """Create a mock MNE Raw object with duration >= 120 seconds."""
-    sfreq = 250
-    duration = 150  # seconds
-    n_channels = 10
-    n_samples = int(sfreq * duration)
+def clean_log():
+    """Fixture to ensure a clean log state before each test."""
+    # Clear the global logger
+    from utils.logging import _GLOBAL_LOGGER
+    # Reset the global logger
+    import utils.logging
+    utils.logging._GLOBAL_LOGGER = None
     
-    data = np.random.randn(n_channels, n_samples) * 1e-6  # Volts
-    ch_names = [f'EEG {i:03d}' for i in range(n_channels)]
-    ch_types = ['eeg'] * n_channels
+    # Remove existing exclusion log if present
+    if os.path.exists(EXCLUSION_LOG_PATH):
+        os.remove(EXCLUSION_LOG_PATH)
     
-    info = mne.create_info(ch_names, sfreq, ch_types)
+    yield
+    
+    # Cleanup after test
+    if os.path.exists(EXCLUSION_LOG_PATH):
+        os.remove(EXCLUSION_LOG_PATH)
+    
+    # Reset logger again
+    import utils.logging
+    utils.logging._GLOBAL_LOGGER = None
+
+
+def create_short_eeg_file(duration_sec: float, sfreq: int = 250, ch_names: list | None = None) -> mne.io.Raw:
+    """
+    Create a synthetic short EEG file for testing.
+    
+    Args:
+        duration_sec: Duration of the recording in seconds.
+        sfreq: Sampling frequency in Hz.
+        ch_names: List of channel names.
+        
+    Returns:
+        mne.io.Raw: A Raw object with synthetic data.
+    """
+    if ch_names is None:
+        ch_names = ["EEG 001", "EEG 002", "EEG 003"]
+    
+    n_channels = len(ch_names)
+    n_samples = int(duration_sec * sfreq)
+    
+    # Create random data
+    data = np.random.randn(n_channels, n_samples)
+    
+    # Create info structure
+    info = mne.create_info(ch_names=ch_names, sfreq=sfreq, ch_types="eeg")
+    
+    # Create Raw object
     raw = mne.io.RawArray(data, info)
+    
     return raw
 
-def test_reject_short_segments_rejects_short_data(short_eeg_raw):
-    """Test that segments shorter than 120s are rejected."""
-    result = reject_short_segments(short_eeg_raw, min_duration_seconds=120)
-    assert result is None, "Short segment should be rejected (return None)"
 
-def test_reject_short_segments_accepts_long_data(long_eeg_raw):
-    """Test that segments >= 120s are accepted."""
-    result = reject_short_segments(long_eeg_raw, min_duration_seconds=120)
-    assert result is not None, "Long segment should be accepted"
-    assert result.n_times == long_eeg_raw.n_times
+@pytest.mark.usefixtures("clean_log")
+def test_validate_segment_length_short_segment(clean_log):
+    """
+    Test that a segment shorter than 120 seconds is rejected.
+    """
+    # Create a short EEG file (60 seconds)
+    duration = 60.0
+    raw = create_short_eeg_file(duration)
+    
+    # Mock config
+    config = {"min_length_sec": 120.0}
+    
+    # Mock logger
+    from utils.logging import get_logger
+    logger = get_logger("test_logger")
+    
+    # Run validation
+    rejected_segments = validate_segment_length(raw, config, logger)
+    
+    # Assertions
+    assert len(rejected_segments) == 1, "Expected 1 rejected segment."
+    assert rejected_segments[0] == "segment_0", "Expected segment_0 to be rejected."
+    
+    # Verify exclusion log was written
+    assert os.path.exists(EXCLUSION_LOG_PATH), "Exclusion log file should exist."
+    
+    # Read and verify CSV content
+    with open(EXCLUSION_LOG_PATH, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        
+        assert len(rows) == 1, "Expected 1 entry in exclusion log."
+        entry = rows[0]
+        assert entry["reason"] == "segment_too_short", "Expected reason 'segment_too_short'."
+        assert entry["participant_id"] == "segment_0", "Expected participant_id 'segment_0'."
 
-def test_exclusion_log_created_on_rejection(short_eeg_raw, tmp_path):
-    """Test that exclusion log is created and contains correct reason."""
-    # Temporarily change the log path for testing
-    original_path = "data/processed/exclusion_log.csv"
-    
-    # Ensure the directory exists
-    os.makedirs("data/processed", exist_ok=True)
-    
-    # Call the function
-    result = reject_short_segments(short_eeg_raw, min_duration_seconds=120)
-    
-    # Check that the file exists
-    assert os.path.exists(original_path), f"Exclusion log not created at {original_path}"
-    
-    # Read the log and verify content
-    import pandas as pd
-    df = pd.read_csv(original_path)
-    
-    # Check that there is an entry with reason "segment_too_short"
-    matching_rows = df[df['reason'] == 'segment_too_short']
-    assert len(matching_rows) > 0, "No entry found with reason 'segment_too_short'"
-    
-    # Clean up
-    if os.path.exists(original_path):
-        os.remove(original_path)
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+@pytest.mark.usefixtures("clean_log")
+def test_validate_segment_length_long_segment(clean_log):
+    """
+    Test that a segment longer than 120 seconds is accepted.
+    """
+    # Create a long EEG file (180 seconds)
+    duration = 180.0
+    raw = create_short_eeg_file(duration)
+    
+    # Mock config
+    config = {"min_length_sec": 120.0}
+    
+    # Mock logger
+    logger = get_logger("test_logger")
+    
+    # Run validation
+    rejected_segments = validate_segment_length(raw, config, logger)
+    
+    # Assertions
+    assert len(rejected_segments) == 0, "Expected 0 rejected segments."
+    
+    # Verify exclusion log exists but is empty (or has headers only)
+    assert os.path.exists(EXCLUSION_LOG_PATH), "Exclusion log file should exist."
+    
+    with open(EXCLUSION_LOG_PATH, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 0, "Expected no entries in exclusion log for valid segment."
+
+
+@pytest.mark.usefixtures("clean_log")
+def test_validate_segment_length_exact_threshold(clean_log):
+    """
+    Test that a segment exactly 120 seconds is accepted.
+    """
+    # Create an EEG file exactly 120 seconds
+    duration = 120.0
+    raw = create_short_eeg_file(duration)
+    
+    # Mock config
+    config = {"min_length_sec": 120.0}
+    
+    # Mock logger
+    logger = get_logger("test_logger")
+    
+    # Run validation
+    rejected_segments = validate_segment_length(raw, config, logger)
+    
+    # Assertions
+    assert len(rejected_segments) == 0, "Expected 0 rejected segments for exact threshold."
+    
+    # Verify exclusion log
+    with open(EXCLUSION_LOG_PATH, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 0, "Expected no entries in exclusion log for exact threshold."
+
+
+@pytest.mark.usefixtures("clean_log")
+def test_validate_segment_length_just_under_threshold(clean_log):
+    """
+    Test that a segment just under 120 seconds is rejected.
+    """
+    # Create an EEG file 119.9 seconds
+    duration = 119.9
+    raw = create_short_eeg_file(duration)
+    
+    # Mock config
+    config = {"min_length_sec": 120.0}
+    
+    # Mock logger
+    logger = get_logger("test_logger")
+    
+    # Run validation
+    rejected_segments = validate_segment_length(raw, config, logger)
+    
+    # Assertions
+    assert len(rejected_segments) == 1, "Expected 1 rejected segment."
+    
+    # Verify exclusion log
+    with open(EXCLUSION_LOG_PATH, "r", newline="") as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 1, "Expected 1 entry in exclusion log."
+        assert rows[0]["reason"] == "segment_too_short"

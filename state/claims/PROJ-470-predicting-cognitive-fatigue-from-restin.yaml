@@ -2678,3 +2678,47 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-22T15:30:58Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: 50Hz line noise peak attenuated by at least 20dB
+  claim_id: c_dc322d50
+  context: 'Verification for task T012: Run the preprocessing pipeline on the sample
+    file... Assert that the peak power at 50Hz in the filtered signal is at least
+    20dB lower than the raw signal.'
+  evidence:
+    candidates:
+    - - Donate Create account Log in
+      - 50.0
+    - - Hz line noise peak attenuated by at least
+      - 20.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/50Hz_line_noise_peak_attenuated_by_at_least_20dB
+  kind: magnitude
+  raw_text: Assert that the peak power at 50Hz in the filtered signal is at least
+    20dB lower than the raw signal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-27T08:44:31Z'
+- artifact_path: projects/PROJ-470-predicting-cognitive-fatigue-from-restin/specs/001-predicting-cognitive-fatigue-from-restin/tasks.md
+  attempts: 1
+  canonical: Lempel-Ziv complexity values less than 1.0 and permutation entropy values
+    less than 2.585
+  claim_id: c_c3be4e27
+  context: 'Verification for task T017: Create tests/unit/test_features.py that loads
+    complexity_metrics.csv and asserts that all LZC values are < 1.0 and all PE values
+    are < 2.585 (log2(6)).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Lempel-Ziv_complexity_values_less_than_1.0_and_permutation_e
+  kind: magnitude
+  raw_text: Assert that all LZC values are < 1.0 and all PE values are < 2.585 (log2(6)).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:45:13Z'

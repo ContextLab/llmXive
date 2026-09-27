@@ -1,263 +1,290 @@
-"""Feature extraction script for EEG complexity metrics.
-
-Calculates Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE)
-for resting-state EEG segments per channel.
+"""
+Feature extraction module for EEG complexity metrics.
+Calculates Lempel-Ziv Complexity (LZC) and Permutation Entropy (PE).
 """
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import os
 import sys
-import csv
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import List, Dict, Any
 
 import numpy as np
-import pandas as pd
 import mne
-from nolds import lzc_c
+import nolds
 from pyentropy import permutation_entropy
 
-# Import shared utilities from the project structure
-from utils.logging import get_logger, log_operation, save_exclusion_log_csv
-from utils.monitor import ResourceMonitor, run_stage_with_memory
+# Import local utilities using the API surface defined in the project
+from utils.logging import get_logger, log_operation
 from config import load_config
 
 
-def setup_logger(name: str, log_file: str | None = None):
-    """Setup a logger for the current module."""
-    # Delegate to the shared logging utility to maintain contract
+def setup_logger(name: str) -> Any:
+    """Initialize and return a logger instance."""
     return get_logger(name)
 
 
-def load_sample_path(manifest_path: str = "data/raw/download_manifest.json") -> str:
-    """Load the path of the cleaned EEG file from the download manifest.
-
-    Args:
-        manifest_path: Path to the download manifest JSON file.
-
-    Returns:
-        Path to the cleaned EEG file.
-
-    Raises:
-        FileNotFoundError: If manifest or sample file is not found.
+def load_eeg_data(input_dir: str) -> List[Dict[str, Any]]:
     """
-    if not os.path.exists(manifest_path):
-        raise FileNotFoundError(f"Manifest file not found: {manifest_path}. "
-                                "Please run code/download.py first.")
-
-    with open(manifest_path, 'r') as f:
-        manifest = json.load(f)
-
-    # The manifest should contain the path to the cleaned file from T012
-    # T012 writes to data/processed/cleaned_eeg.fif
-    sample_path = manifest.get("cleaned_eeg_path") or manifest.get("sample_eeg_path")
-
-    if not sample_path:
-        raise ValueError("Manifest does not contain 'cleaned_eeg_path' or 'sample_eeg_path'.")
-
-    if not os.path.exists(sample_path):
-        raise FileNotFoundError(f"Cleaned EEG file not found at: {sample_path}")
-
-    return sample_path
-
-
-def load_eeg_data(file_path: str) -> mne.Epochs | mne.Raw:
-    """Load EEG data from an FIF file.
-
-    Args:
-        file_path: Path to the FIF file.
-
-    Returns:
-        Loaded MNE data object (Raw or Epochs).
+    Load cleaned EEG data files from the processed directory.
+    Returns a list of dictionaries containing file paths and metadata.
     """
-    try:
-        data = mne.io.read_raw_fif(file_path, preload=True)
-        # If it's Raw, we need to handle it differently than Epochs
-        # For this implementation, we assume preprocessed data might be Raw or Epochs
-        # We will process based on the structure
-        return data
-    except Exception as e:
-        raise RuntimeError(f"Failed to load EEG data from {file_path}: {e}")
+    input_path = Path(input_dir)
+    if not input_path.exists():
+        logger = get_logger("features")
+        logger.error(f"Input directory not found: {input_dir}")
+        raise FileNotFoundError(f"Input directory not found: {input_dir}")
 
+    eeg_files = list(input_path.glob("*.fif"))
+    if not eeg_files:
+        logger = get_logger("features")
+        logger.error(f"No .fif files found in {input_dir}")
+        raise FileNotFoundError(f"No .fif files found in {input_dir}")
 
-def extract_complexity_metrics(
-    data: mne.Epochs | mne.Raw,
-    participant_id: str = "unknown",
-    segment_id: str = "0"
-) -> List[Dict[str, Any]]:
-    """Calculate LZC and PE for each channel.
+    data_list = []
+    for f_path in eeg_files:
+        # Extract participant ID from filename (assumes format: cleaned_eeg_<participant_id>.fif)
+        # If not, we'll try to parse the raw file or use the filename stem
+        participant_id = f_path.stem.replace("cleaned_eeg_", "")
+        if participant_id == "cleaned_eeg":
+            # Fallback: just use the stem if pattern doesn't match
+            participant_id = f_path.stem
 
-    Args:
-        data: MNE Raw or Epochs object.
-        participant_id: Identifier for the participant.
-        segment_id: Identifier for the segment.
-
-    Returns:
-        List of dictionaries containing metrics per channel.
-    """
-    logger = get_logger("features")
-    log_operation("feature_extraction_start", participant_id=participant_id)
-
-    results = []
-
-    # Determine channels
-    if isinstance(data, mne.Epochs):
-        # Average over epochs to get a single time series per channel
-        # Or process each epoch? The task implies "per channel per segment".
-        # Assuming we process the averaged data for the segment or the first epoch.
-        # To be robust, we'll average across epochs for a cleaner signal for complexity.
-        data_array = data.get_data() # Shape: (n_epochs, n_channels, n_times)
-        # Average across epochs
-        data_array = np.mean(data_array, axis=0) # Shape: (n_channels, n_times)
-        info = data.info
-    else:
-        # Raw data
-        data_array = data.get_data() # Shape: (n_channels, n_times)
-        info = data.info
-
-    channels = info['ch_names']
-    sfreq = info['sfreq']
-
-    # Parameters
-    emb_dim = 3
-    delay = 1
-
-    for idx, ch_name in enumerate(channels):
-        signal = data_array[idx, :]
-
-        # Remove NaNs if any (simple interpolation or drop)
-        valid_mask = ~np.isnan(signal)
-        if not np.all(valid_mask):
-            signal = signal[valid_mask]
-            if len(signal) < 100: # Minimum length check
-                logger.warning(f"Channel {ch_name} too short after NaN removal, skipping.")
-                continue
-
-        # 1. Lempel-Ziv Complexity (LZC)
-        # nolds.lzc_c expects a sequence. We can use the raw signal or quantize.
-        # Task says: "Use median quantization for LZC".
-        try:
-            median_val = np.median(signal)
-            binary_signal = (signal > median_val).astype(int)
-            lzc_val = lzc_c(binary_signal)
-        except Exception as e:
-            logger.error(f"Error calculating LZC for {ch_name}: {e}")
-            lzc_val = np.nan
-
-        # 2. Permutation Entropy (PE)
-        # pyentropy.permutation_entropy
-        try:
-            # Ensure signal is integer or float compatible
-            pe_val = permutation_entropy(signal, order=emb_dim, delay=delay, normalize=True)
-        except Exception as e:
-            logger.error(f"Error calculating PE for {ch_name}: {e}")
-            pe_val = np.nan
-
-        results.append({
+        data_list.append({
+            "path": str(f_path),
             "participant_id": participant_id,
-            "channel": ch_name,
-            "segment_id": segment_id,
-            "lzc_value": lzc_val,
-            "pe_value": pe_val
+            "filename": f_path.name
         })
 
-    log_operation("feature_extraction_complete", count=len(results))
-    return results
+    return data_list
 
 
-def save_metrics(results: List[Dict[str, Any]], output_path: str):
-    """Save complexity metrics to a CSV file.
-
+def extract_lempel_ziv_complexity(signal: np.ndarray, n_bins: int = 2) -> float:
+    """
+    Calculate Lempel-Ziv Complexity using median quantization.
+    
     Args:
-        results: List of metric dictionaries.
+        signal: 1D numpy array of EEG data.
+        n_bins: Number of bins for quantization (default 2 for median split).
+        
+    Returns:
+        Normalized Lempel-Ziv Complexity value (0.0 to 1.0).
+    """
+    if len(signal) == 0:
+        return 0.0
+        
+    # Quantize signal using median
+    median_val = np.median(signal)
+    if n_bins == 2:
+        # Binary quantization: 0 if below median, 1 if above or equal
+        quantized = (signal >= median_val).astype(int)
+    else:
+        # General quantization
+        quantized = np.digitize(signal, np.linspace(np.min(signal), np.max(signal), n_bins))
+        
+    # Calculate LZC using nolds
+    try:
+        # nolds.lz76 expects a binary sequence or sequence of integers
+        lzc = nolds.lz76(quantized)
+        # Normalize by sequence length
+        normalized_lzc = lzc / len(signal)
+        return float(normalized_lzc)
+    except Exception as e:
+        logger = get_logger("features")
+        logger.warning(f"Error calculating LZC for signal of length {len(signal)}: {e}")
+        return 0.0
+
+
+def extract_permutation_entropy(signal: np.ndarray, embedding_dim: int = 3, delay: int = 1) -> float:
+    """
+    Calculate Permutation Entropy.
+    
+    Args:
+        signal: 1D numpy array of EEG data.
+        embedding_dim: Dimension of the embedding (default 3).
+        delay: Time delay for embedding (default 1).
+        
+    Returns:
+        Permutation Entropy value (normalized to 0.0 to log2(n!)).
+    """
+    if len(signal) < embedding_dim:
+        return 0.0
+        
+    try:
+        # pyentropy.permutation_entropy returns the raw entropy
+        pe = permutation_entropy(signal, order=embedding_dim, delay=delay)
+        
+        # Normalize by maximum possible entropy (log2(embedding_dim!))
+        max_entropy = np.log2(np.math.factorial(embedding_dim))
+        if max_entropy > 0:
+            normalized_pe = pe / max_entropy
+        else:
+            normalized_pe = 0.0
+            
+        return float(normalized_pe)
+    except Exception as e:
+        logger = get_logger("features")
+        logger.warning(f"Error calculating PE for signal of length {len(signal)}: {e}")
+        return 0.0
+
+
+def process_segment(
+    raw: mne.io.Raw,
+    participant_id: str,
+    segment_id: str,
+    channel: str,
+    logger: Any
+) -> Dict[str, Any]:
+    """
+    Process a single EEG segment/channel to extract complexity metrics.
+    
+    Args:
+        raw: MNE Raw object containing the EEG data.
+        participant_id: Unique identifier for the participant.
+        segment_id: Identifier for the specific segment.
+        channel: Channel name to process.
+        logger: Logger instance.
+        
+    Returns:
+        Dictionary with metrics: participant_id, channel, segment_id, lzc_value, pe_value.
+    """
+    if channel not in raw.ch_names:
+        logger.warning(f"Channel {channel} not found in {raw.filenames[0] if raw.filenames else 'data'}")
+        return None
+        
+    # Get data for the channel
+    data, _ = raw[[channel]]
+    signal = data[0]
+    
+    # Extract metrics
+    lzc_value = extract_lempel_ziv_complexity(signal)
+    pe_value = extract_permutation_entropy(signal, embedding_dim=3, delay=1)
+    
+    return {
+        "participant_id": participant_id,
+        "channel": channel,
+        "segment_id": segment_id,
+        "lzc_value": lzc_value,
+        "pe_value": pe_value
+    }
+
+
+def write_metrics_to_csv(metrics: List[Dict[str, Any]], output_path: str) -> None:
+    """
+    Write extracted metrics to a CSV file.
+    
+    Args:
+        metrics: List of metric dictionaries.
         output_path: Path to the output CSV file.
     """
-    if not results:
+    if not metrics:
         logger = get_logger("features")
-        logger.warning("No metrics to save.")
+        logger.warning("No metrics to write.")
         return
-
-    df = pd.DataFrame(results)
-    # Ensure columns are in the expected order
-    expected_cols = ["participant_id", "channel", "segment_id", "lzc_value", "pe_value"]
-    df = df[expected_cols]
-
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    df.to_csv(output_path, index=False)
+        
+    fieldnames = ["participant_id", "channel", "segment_id", "lzc_value", "pe_value"]
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+        
+    with open(output_path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for metric in metrics:
+            if metric:  # Skip None entries
+                writer.writerow(metric)
+                
     logger = get_logger("features")
-    log_operation("metrics_saved", path=output_path, rows=len(results))
+    logger.info(f"Wrote {len(metrics)} metrics to {output_path}")
 
 
-def preprocess_eeg():
+def main() -> None:
     """Main entry point for feature extraction."""
-    logger = setup_logger("features")
-    log_operation("pipeline_start")
-
-    config = load_config()
-    monitor = ResourceMonitor()
-
-    try:
-        # 1. Load sample path from manifest
-        sample_path = load_sample_path()
-        logger.info(f"Loading data from: {sample_path}")
-
-        # 2. Load EEG data
-        eeg_data = load_eeg_data(sample_path)
-
-        # 3. Extract metrics
-        # Determine participant/segment ID from filename or config
-        # For now, use a default or extract from path
-        base_name = os.path.basename(sample_path)
-        # Heuristic: extract ID if present, else use 'unknown'
-        # Assuming filename might be like 'sub-001_cleaned.fif'
-        parts = base_name.split('_')
-        pid = "unknown"
-        sid = "0"
-        for part in parts:
-            if part.startswith("sub-"):
-                pid = part.replace("sub-", "")
-            elif part.startswith("seg-"):
-                sid = part.replace("seg-", "")
-
-        metrics = extract_complexity_metrics(eeg_data, participant_id=pid, segment_id=sid)
-
-        # 4. Save to data/analysis/complexity_metrics.csv
-        output_path = "data/analysis/complexity_metrics.csv"
-        save_metrics(metrics, output_path)
-
-        log_operation("pipeline_success", output=output_path)
-        return True
-
-    except FileNotFoundError as e:
-        logger.error(f"Data not found: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        return False
-    finally:
-        # Stop monitoring and save usage
-        monitor.stop()
-        # Save resource usage to the required path
-        resource_usage = monitor.get_usage()
-        usage_path = "data/analysis/resource_usage.json"
-        os.makedirs(os.path.dirname(usage_path), exist_ok=True)
-        with open(usage_path, 'w') as f:
-            json.dump(resource_usage, f, indent=2)
-
-
-def main():
-    """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Extract EEG complexity features.")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file.")
+    parser = argparse.ArgumentParser(description="Extract complexity metrics from EEG data.")
+    parser.add_argument(
+        "--input-dir",
+        type=str,
+        default="data/processed",
+        help="Directory containing cleaned EEG .fif files."
+    )
+    parser.add_argument(
+        "--output-file",
+        type=str,
+        default="data/analysis/complexity_metrics.csv",
+        help="Path to output CSV file."
+    )
+    
     args = parser.parse_args()
-
-    # Run the pipeline
-    success = preprocess_eeg()
-    sys.exit(0 if success else 1)
+    
+    logger = setup_logger("features")
+    logger.info("Starting feature extraction pipeline.")
+    
+    # Load configuration
+    try:
+        config = load_config()
+        logger.info("Configuration loaded successfully.")
+    except Exception as e:
+        logger.error(f"Failed to load configuration: {e}")
+        sys.exit(1)
+        
+    # Load EEG data
+    try:
+        eeg_files = load_eeg_data(args.input_dir)
+        logger.info(f"Found {len(eeg_files)} EEG files to process.")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+        
+    all_metrics = []
+    
+    # Process each file
+    for file_info in eeg_files:
+        participant_id = file_info["participant_id"]
+        file_path = file_info["path"]
+        
+        logger.info(f"Processing {file_path} for participant {participant_id}...")
+        
+        try:
+            # Load the raw data
+            raw = mne.io.read_raw_fif(file_path, preload=True)
+            
+            # Define segments (assuming whole file is one segment for now, or split by event)
+            # For resting-state, we often treat the whole file as one segment or split into fixed windows
+            # Here we assume the file contains one continuous segment labeled as "segment_0"
+            # In a more complex scenario, we would split by events or fixed windows
+            segment_id = "segment_0"
+            
+            # Process each channel
+            channels_to_process = [ch for ch in raw.ch_names if ch in raw.pick_types(eeg=True).ch_names]
+            
+            for channel in channels_to_process:
+                try:
+                    metrics = process_segment(raw, participant_id, segment_id, channel, logger)
+                    if metrics:
+                        all_metrics.append(metrics)
+                except Exception as e:
+                    logger.warning(f"Error processing channel {channel}: {e}")
+                    
+            # Close the raw object to free memory
+            raw.close()
+            
+        except Exception as e:
+            logger.error(f"Error processing file {file_path}: {e}")
+            continue
+            
+    # Write results to CSV
+    if all_metrics:
+        write_metrics_to_csv(all_metrics, args.output_file)
+        logger.info(f"Feature extraction complete. Output saved to {args.output_file}")
+    else:
+        logger.warning("No metrics were extracted. Output file not created.")
+        
+    logger.info("Feature extraction pipeline finished.")
 
 
 if __name__ == "__main__":
