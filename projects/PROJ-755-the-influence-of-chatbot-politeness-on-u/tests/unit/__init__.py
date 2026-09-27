@@ -1,3 +1,3 @@
 """
-Unit tests for individual functions and modules.
+Unit tests package.
 """

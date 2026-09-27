@@ -1,3 +1,4 @@
+# Core data science and ML libraries
 transformers
 datasets
 statsmodels
@@ -7,10 +8,22 @@ numpy
 pyyaml
 tqdm
 rpy2
-textstat
-evalue
-python-dotenv
-tomli; python_version < "3.11"
+polite
+scipy
+tomli
+tomli_w
+
+# Linting and formatting
 ruff
 black
 flake8
+
+# Utilities
+memory_profiler
+psutil
+python-dotenv
+
+# Testing
+pytest
+pytest-cov
+pytest-mock

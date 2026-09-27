@@ -49,7 +49,7 @@
 - [ ] T001b [P] **Verify** directory existence: Run `ls` (Linux/Mac) or `dir` (Windows) and `stat` to confirm all directories from T001a exist. Log output to `data/.setup_verification.log`.
  - *Logic*: This task provides the evidence artifact required by Constitution Principle I (Reproducibility) to prove directories exist on a fresh runner.
  - *Compliance*: Fails if any directory is missing. **CRITICAL**: The generated `data/.setup_verification.log` MUST be committed to the repository as a required artifact for reproducibility proof.
-- [ ] T002 [P] Initialize Python project with `code/requirements.txt` (transformers, datasets, statsmodels, pandas, scikit-learn, numpy, pyyaml, tqdm, rpy2, polite, ruff, black, memory_profiler, psutil, scipy).
+- [X] T002 [P] Initialize Python project with `code/requirements.txt` (transformers, datasets, statsmodels, pandas, scikit-learn, numpy, pyyaml, tqdm, rpy2, polite, ruff, black, memory_profiler, psutil, scipy).
  - *Logic*: Create `code/requirements.txt` containing ONLY Python packages. `ordinal` is an R package and must NOT be in this list; it is handled in T004b. Removed `textstat` and `evalue` as per plan.md constraints.
  - *ComplianceNote*: `textstat` and `evalue` are explicitly FORBIDDEN per plan.md "Complexity Tracking" which authorizes `polite` as the substitute for LIWC. This task ensures compliance by excluding unauthorized dependencies.
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black)
@@ -60,26 +60,26 @@
 - [X] T007 [P] Implement `code/utils/data_integrity.py` for checksumming and data integrity checks
  - *Logic*: Implementation of the script is parallelizable. However, T007b depends on the *runtime output* (checksums) of T007 execution, not just the script existence.
  - *Note*: T007 is marked [P] for implementation, but T007b is a sequential execution step.
-- [ ] T007b [US1] Implement `state/projects/PROJ-755-the-influence-of-chatbot-politeness-on-u.yaml` update logic to record checksums in `artifact_hashes.raw_data` key.
+- [X] T007b [US1] Implement `state/projects/PROJ-755-the-influence-of-chatbot-politeness-on-u.yaml` update logic to record checksums in `artifact_hashes.raw_data` key.
  - *Logic*: Dependency: T007 execution output. Must wait for T007 to complete and generate checksums. T007 is [P] for parallel implementation, but T007b is a sequential step in the execution flow.
  - *Correction*: Removed [P] marker to enforce sequential execution of the update logic if it implies execution; if purely implementation, [P] is retained. Clarified as implementation of the update logic.
 - [ ] T008 [P] [Setup] Create `contracts/dataset.schema.yaml` defining Dialogue, Utterance, and User entities.
  - *Logic*: This task MUST be completed before T011. Removed [P] to enforce sequential execution.
  - *Instruction*: Generate the file with the following structure, using `trust_rating` as the primary outcome variable and `quality_rating` as an alias:
-   ```yaml
-   Dialogue:
-     type: object
-     properties:
-       user_id: string
-       dialogue_id: string
-       trust_rating: integer (1-5) # Primary outcome per spec scenarios
-       quality_rating: integer (1-5) # Alias for trust_rating per spec Key Entities
-       # Map quality_rating from requirements to trust_rating if needed
-   Utterance:
-     ...
-   User:
-     ...
-   ```
+ ```yaml
+ Dialogue:
+ type: object
+ properties:
+ user_id: string
+ dialogue_id: string
+ trust_rating: integer (1-5) # Primary outcome per spec scenarios
+ quality_rating: integer (1-5) # Alias for trust_rating per spec Key Entities
+ # Map quality_rating from requirements to trust_rating if needed
+ Utterance:
+...
+ User:
+...
+ ```
  - *Traceability Note*: The `spec.md` Key Entities section defines `quality_rating`, while User Scenarios define `trust_rating`. This task explicitly resolves the spec inconsistency by defining `quality_rating` as a mapped alias for `trust_rating` to satisfy both the Key Entities and User Scenarios requirements.
 - [ ] T010 [P] [Setup] Create `contracts/output.schema.yaml` defining CLMM results structure
 - [ ] T010b [P] [Setup] Setup environment configuration management (`.env` template for `HF_TOKEN` if needed).
@@ -105,7 +105,7 @@
 ## Phase 3: User Story 1 - Data Acquisition and Politeness Scoring (Priority: P1) 🎯 MVP
 
 **Goal**: Download **HCI_P2** and **EmpatheticDialogues** datasets (per plan substitution for Persona-Chat). Filter for completeness, and compute mean politeness scores per conversation using `jfiedler/politeness-bert` on CPU.
-**Strict Abort Logic**: The pipeline MUST proceed with any dataset that has the required `trust_rating` variable. The pipeline MUST ONLY abort if BOTH datasets fail to download OR BOTH datasets are downloaded but lack the `trust_rating` variable. If a dataset is downloaded but lacks the variable, it is excluded from the merged set, and the pipeline continues with the remaining valid datasets. If only one dataset (HCI_P2) is valid, the pipeline proceeds with that one.
+**Strict Abort Logic**: The pipeline MUST proceed with any dataset that has the required `trust_rating` variable. The pipeline MUST ONLY abort if BOTH datasets fail to download OR BOTH datasets are downloaded but lack the `trust_rating` variable. If a dataset is downloaded but lacks the variable, it is excluded from the merged set, and the pipeline continues with the remaining valid datasets. If only one dataset (HCI_P2) is valid, the pipeline proceeds with that one. [UNRESOLVED-CLAIM: c_ea9b452a — status=not_enough_info]
 
 **Independent Test**: Run `code/01_download_and_score.py` on a sample of dialogues; verify `data/processed/scored_dialogues.parquet` exists with `politeness_score` and `trust_rating` columns, and that excluded dialogues are logged.
 
@@ -152,7 +152,7 @@
  1. **Dependency**: T019a.
  2. **Score**: Load `jfiedler/politeness-bert` (Revision: `main`, Cache: `data/models`). Verify model file size ≤ 100MB. Iterate through utterances in batches. Compute politeness scores; assign NaN to failures and log counts.
  3. **Memory Check**: Use `psutil` to monitor **peak RSS** (Resident Set Size). If peak RSS > 6.0 GB, raise `MemoryError` with message "Dataset exceeds memory limit (6.0 GB peak RSS). Please reduce sample size or use streaming."
- 4. **GPU Escape Hatch**: If `MemoryError` is raised or CUDA OOM occurs, **trigger a re-run command for the Kaggle GPU environment** using the specific script: `kaggle-kernels run --gpu ...` (as defined in the CI workflow). This is the authorized fallback mechanism.
+ 4. **GPU Escape Hatch**: If `MemoryError` is raised or CUDA OOM occurs, **trigger a re-run command for the Kaggle GPU environment** using the specific script: `kaggle-kernels run --gpu...` (as defined in the CI workflow). This is the authorized fallback mechanism.
  5. **Save**: Save scored dataset to `data/processed/scored_dialogues.parquet`.
  - *Note*: This task separates scoring from merging/standardization to isolate inference logic.
  - *Deliverable*: `data/processed/scored_dialogues.parquet`.
@@ -353,11 +353,11 @@
  - *Dependency*: T042.
  - *Deliverable*: `data/processed/performance_metrics.json`.
  - *Schema Definition*: The deliverable `data/processed/performance_metrics.json` MUST include:
-   - `runtime_seconds`: integer
-   - `peak_memory_gb`: float
-   - `verdict`: "PASS" | "FAIL"
-   - `reason`: string (e.g., "RAM exceeded 6.0 GB" or "Runtime within limits")
-   - *Evaluation Logic*: If `peak_memory_gb` > 6.0, `verdict` is "FAIL" and `reason` is "RAM exceeded 6.0 GB". Otherwise, `verdict` is "PASS".
+ - `runtime_seconds`: integer
+ - `peak_memory_gb`: float
+ - `verdict`: "PASS" | "FAIL"
+ - `reason`: string (e.g., "RAM exceeded 6.0 GB" or "Runtime within limits")
+ - *Evaluation Logic*: If `peak_memory_gb` > 6.0, `verdict` is "FAIL" and `reason` is "RAM exceeded 6.0 GB". Otherwise, `verdict` is "PASS".
 - [ ] T043 [P] Generate `docs/performance_report.md` and `docs/performance_verdict.md` with explicit schema.
  - *Schema*: `runtime_seconds`, `peak_memory_gb`, `convergence_rate`, `status`.
  - *Logic*: Collect metrics from `data/processed/performance_metrics.json` (generated by T042b).
