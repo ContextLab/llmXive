@@ -129,15 +129,15 @@
 - [X] T022 [US2] Implement ANCOVA fallback when covariates available at `code/analysis/anova.py` (FR-011) - task_complexity, project_type, team_size as covariates
 - [X] T022a [US2] Write function to test for normality/homogeneity assumption violations at `code/analysis/anova.py` (SC-002) - Shapiro-Wilk, Levene's test before deciding on Welch's ANOVA
 - [X] T023 [US2] Implement Welch's ANOVA fallback for unequal variances at `code/analysis/anova.py` - apply when assumption violations detected in T022a
-- [ ] T024 [US2] Implement Cohen's d effect size calculation at `code/analysis/effect_sizes.py` (FR-004, SC-004) - pairwise comparisons within experience strata
-- [ ] T024b [US2] Implement paired output verification at `code/analysis/effect_sizes.py` (Constitution Principle VI) - ensure effect sizes reported alongside p-values in same result block
-- [ ] T025 [US2] Implement Bonferroni/Holm-Bonferroni correction at `code/analysis/effect_sizes.py` (FR-005, SC-003) - family-wise error rate ≤0.05
-- [ ] T026 [US2] Implement VIF diagnostics for collinearity at `code/analysis/anova.py` - flag if VIF > 5 (edge case handling)
-- [ ] T027 [US2] Implement power analysis flagging at `code/analysis/anova.py` - flag if <30 observations per stratum (SC-006)
-- [ ] T028 [US2] Implement associational framing enforcement at `code/analysis/anova.py` (FR-006) - no causal language permitted in output headers/summaries
-- [ ] T029 [US2] Implement confounding control reporting at `code/analysis/anova.py` (FR-011, SC-008) - report adjusted effect estimates
-- [ ] T034 [US2] Implement sensitivity analysis for experience thresholds at `code/analysis/sensitivity.py` (FR-009, SC-005) - sweep thresholds ∈ {1, 2, 3 years}
-- [ ] T038 [US2] Add sensitivity analysis report generation at `code/analysis/sensitivity.py` (FR-009) - report variation in task completion time, defect rates, effect sizes
+- [X] T024 [US2] Implement Cohen's d effect size calculation at `code/analysis/effect_sizes.py` (FR-004, SC-004) - pairwise comparisons within experience strata
+- [X] T024b [US2] Implement paired output verification at `code/analysis/effect_sizes.py` (Constitution Principle VI) - ensure effect sizes reported alongside p-values in same result block
+- [X] T025 [US2] Implement Bonferroni/Holm-Bonferroni correction at `code/analysis/effect_sizes.py` (FR-005, SC-003) - family-wise error rate ≤0.05
+- [X] T026 [US2] Implement VIF diagnostics for collinearity at `code/analysis/anova.py` - flag if VIF > 5 (edge case handling)
+- [X] T027 [US2] Implement power analysis flagging at `code/analysis/anova.py` - flag if <30 observations per stratum (SC-006)
+- [X] T028 [US2] Implement associational framing enforcement at `code/analysis/anova.py` (FR-006) - no causal language permitted in output headers/summaries
+- [X] T029 [US2] Implement confounding control reporting at `code/analysis/anova.py` (FR-011, SC-008) - report adjusted effect estimates
+- [X] T034 [US2] Implement sensitivity analysis for experience thresholds at `code/analysis/sensitivity.py` (FR-009, SC-005) - sweep thresholds ∈ {1, 2, 3 years}
+- [X] T038 [US2] Add sensitivity analysis report generation at `code/analysis/sensitivity.py` (FR-009) - report variation in task completion time, defect rates, effect sizes
 
 ### Edge Case Tests for User Story 2
 

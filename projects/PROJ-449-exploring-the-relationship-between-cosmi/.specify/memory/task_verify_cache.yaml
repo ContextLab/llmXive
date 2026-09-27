@@ -61,3 +61,11 @@ T057:
     \ points per rigidity bin, skipping bins with <\u202F100 points, or adding a `valid_data_points`\
     \ column, and the required `data/processed/correlation_summary.csv` file is absent.\
     \ Both the code changes and the output artifact required by the task are missing."
+T058:
+  c: false
+  h: 0fe0ab235f8935380676c12d07922c11f8fa54f894328339e9b049b2b6d254af
+  r: "The provided `model_fitting.py` does not contain any code that reports iteration\
+    \ counts, computes the Jacobian condition number, or writes a `convergence_status`\
+    \ flag to `data/processed/model_fit_results.json`. Moreover, the required `model_fit_results.json`\
+    \ file is absent from the repository. These missing elements mean the task\u2019\
+    s convergence\u2011diagnostics requirements are not met."

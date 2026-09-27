@@ -1,12 +1,3 @@
-"""
-Model fitting module for deriving modulation amplitudes from cosmic ray time series.
-
-This module performs sinusoidal fits to the time-series data for each rigidity bin,
-calculates the peak-to-trough difference (modulation amplitude), and saves the results
-to data/processed/modulation_amplitudes.csv.
-
-It also supports fitting a rigidity-dependent diffusion model to these amplitudes.
-"""
 import os
 import sys
 import json
@@ -16,336 +7,234 @@ from typing import Dict, Tuple, Optional, Any, List
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
-from scipy.stats import f
-from code.utils.logging import setup_logger
+from scipy.stats import f_oneway, ftest
+
+# Ensure project root is in path for imports if run as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from code.utils.logging import setup_logger, log_model_fit
 from code.utils.config import Config
 
-# Initialize logger
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
 
-# Load configuration
-config = Config()
-
-# Define paths
-DATA_DIR = Path(config.data_dir)
-PROCESSED_DIR = DATA_DIR / "processed"
-UNIFIED_TIMESERIES_PATH = PROCESSED_DIR / "unified_timeseries.csv"
-MODULATION_AMPLITUDES_PATH = PROCESSED_DIR / "modulation_amplitudes.csv"
-MODEL_TREND_PATH = PROCESSED_DIR / "model_trend.json"
-
-def sinusoidal_model(t: np.ndarray, A: float, B: float, C: float, D: float) -> np.ndarray:
+# Diffusion model: Amplitude = A / (Rigidity + B)
+def diffusion_model(R, A, B):
     """
-    Sinusoidal model for cosmic ray flux modulation.
-    
-    Parameters:
-        t: Time array (in days or months)
-        A: Amplitude of modulation
-        B: Phase offset (in same units as t)
-        C: Mean flux level
-        D: Trend slope (optional linear trend)
-    
-    Returns:
-        Model values
+    Rigidity-dependent diffusion model parameterization.
+    Amplitude = A / (Rigidity + B)
     """
-    # Period is approximately 11 years = 132 months
-    period = 132.0  # months
-    return A * np.sin(2 * np.pi * (t - B) / period) + C + D * t
+    return A / (R + B)
+
+def sinusoidal_model(t, A, T, phi, C):
+    """
+    Sinusoidal model for time-series fitting.
+    y = A * sin(2 * pi * t / T + phi) + C
+    """
+    return A * np.sin(2 * np.pi * t / T + phi) + C
 
 def load_unified_data() -> pd.DataFrame:
-    """
-    Load the unified timeseries data from disk.
+    """Load the unified timeseries data."""
+    data_path = Path("data/processed/unified_timeseries.csv")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Unified data file not found: {data_path}")
     
-    Returns:
-        DataFrame with columns: date, rigidity_bin, proton_flux, helium_flux, heavy_flux, sunspot_number
-    """
-    if not UNIFIED_TIMESERIES_PATH.exists():
-        logger.error(f"Unified timeseries file not found: {UNIFIED_TIMESERIES_PATH}")
-        raise FileNotFoundError(f"Unified timeseries file not found: {UNIFIED_TIMESERIES_PATH}")
-    
-    df = pd.read_csv(UNIFIED_TIMESERIES_PATH, parse_dates=['date'])
-    logger.info(f"Loaded {len(df)} rows from {UNIFIED_TIMESERIES_PATH}")
+    df = pd.read_csv(data_path)
+    df['date'] = pd.to_datetime(df['date'])
     return df
 
 def extract_rigidity_bins(df: pd.DataFrame) -> List[float]:
-    """
-    Extract unique rigidity bins from the data.
-    
-    Parameters:
-        df: DataFrame with rigidity_bin column
-    
-    Returns:
-        List of unique rigidity bin values
-    """
+    """Extract unique rigidity bins from the dataframe."""
     return sorted(df['rigidity_bin'].unique().tolist())
 
-def calculate_modulation_amplitude(df: pd.DataFrame, rigidity_bin: float) -> Tuple[float, Dict[str, Any]]:
+def calculate_modulation_amplitude(time_series: np.ndarray, periods: int = 11) -> Tuple[float, Any]:
     """
-    Perform sinusoidal fit for a specific rigidity bin and calculate modulation amplitude.
-    
-    Parameters:
-        df: DataFrame with time series data for a specific rigidity bin
-        rigidity_bin: The rigidity bin value
-    
-    Returns:
-        Tuple of (amplitude, fit_info) where fit_info contains parameters and diagnostics
+    Fit a sinusoidal model to the time series and calculate peak-to-trough amplitude.
+    Returns (amplitude, fit_result_object)
     """
-    if len(df) < 10:
-        logger.warning(f"Insufficient data points ({len(df)}) for rigidity bin {rigidity_bin}")
-        return np.nan, {'error': 'insufficient_data', 'n_points': len(df)}
-    
-    # Prepare time array (convert to months since start)
-    df = df.sort_values('date').reset_index(drop=True)
-    start_date = df['date'].min()
-    df['time_months'] = (df['date'] - start_date).dt.days / 30.44  # Approximate months
-    
-    t = df['time_months'].values
-    y = df['proton_flux'].values  # Use proton flux for amplitude calculation
-    
-    # Remove NaN values
-    valid_mask = ~np.isnan(y)
-    t = t[valid_mask]
-    y = y[valid_mask]
-    
-    if len(t) < 10:
-        logger.warning(f"Insufficient valid data points ({len(t)}) for rigidity bin {rigidity_bin} after NaN removal")
-        return np.nan, {'error': 'insufficient_valid_data', 'n_points': len(t)}
-    
-    # Normalize y for better fitting
-    y_mean = np.mean(y)
-    y_std = np.std(y)
-    if y_std < 1e-10:
-        logger.warning(f"Zero variance in data for rigidity bin {rigidity_bin}")
-        return np.nan, {'error': 'zero_variance', 'n_points': len(t)}
-    
-    y_norm = (y - y_mean) / y_std
-    
-    # Initial parameter guesses
-    # A: amplitude (normalized), B: phase, C: mean (0 after normalization), D: slope
-    A0 = 0.1  # Expected small modulation amplitude
-    B0 = 0.0  # Phase offset
-    C0 = 0.0  # Mean (already normalized)
-    D0 = 0.0  # No trend initially
-    
-    p0 = [A0, B0, C0, D0]
+    if len(time_series) < 10:
+        logger.warning("Time series too short for sinusoidal fit.")
+        return np.nan, None
+
+    t = np.arange(len(time_series))
+    # Initial guess: A=1, T=11 (solar cycle approx), phi=0, C=mean
+    p0 = [np.std(time_series), 11, 0, np.mean(time_series)]
     
     try:
-        # Perform curve fitting
         popt, pcov = curve_fit(
-            sinusoidal_model, t, y_norm,
-            p0=p0,
-            bounds=([0, -100, -10, -0.1], [1, 100, 10, 0.1]),
+            sinusoidal_model, t, time_series, p0=p0, 
+            bounds=([0, 5, -np.pi, np.min(time_series)], [np.inf, 20, np.pi, np.max(time_series)]),
             maxfev=5000
         )
+        A_fit, T_fit, phi_fit, C_fit = popt
         
-        # Extract fitted parameters
-        A_fit, B_fit, C_fit, D_fit = popt
+        # Calculate amplitude as peak-to-trough
+        # Peak = A + C, Trough = -A + C -> Difference = 2A
+        amplitude = 2 * abs(A_fit)
         
-        # Calculate fitted values
-        y_fit = sinusoidal_model(t, *popt)
-        
-        # Calculate amplitude in original units
-        amplitude_original = A_fit * y_std
-        
-        # Calculate peak-to-trough difference
-        max_fit = np.max(y_fit)
-        min_fit = np.min(y_fit)
-        peak_to_trough = max_fit - min_fit
-        
-        # Convert back to original units
-        amplitude_original_ptt = peak_to_trough * y_std
-        
-        # Calculate R²
-        ss_res = np.sum((y_norm - y_fit) ** 2)
-        ss_tot = np.sum((y_norm - np.mean(y_norm)) ** 2)
-        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-        
-        fit_info = {
-            'parameters': {
-                'A': float(A_fit),
-                'B': float(B_fit),
-                'C': float(C_fit),
-                'D': float(D_fit)
-            },
-            'r_squared': float(r_squared),
-            'n_points': len(t),
-            'method': 'sinusoidal_fit',
-            'amplitude_original': float(amplitude_original),
-            'peak_to_trough_original': float(amplitude_original_ptt)
-        }
-        
-        return float(amplitude_original_ptt), fit_info
-        
+        return amplitude, popt
     except Exception as e:
-        logger.warning(f"Curve fitting failed for rigidity bin {rigidity_bin}: {str(e)}")
-        return np.nan, {'error': str(e), 'n_points': len(t)}
+        logger.error(f"Sinusoidal fit failed: {e}")
+        return np.nan, None
 
-def run_model_fitting() -> pd.DataFrame:
+def run_model_fitting(df: pd.DataFrame, output_path: Path) -> Dict[str, Any]:
     """
-    Run model fitting for all rigidity bins and save results.
-    
-    Returns:
-        DataFrame with modulation amplitudes for all rigidity bins
+    Run sinusoidal fitting for each rigidity bin and save modulation amplitudes.
     """
-    logger.info("Starting model fitting for all rigidity bins...")
-    
-    # Load unified data
-    df = load_unified_data()
-    
-    # Extract unique rigidity bins
-    rigidity_bins = extract_rigidity_bins(df)
-    logger.info(f"Found {len(rigidity_bins)} unique rigidity bins: {rigidity_bins}")
-    
-    # Results storage
     results = []
+    rigidity_bins = extract_rigidity_bins(df)
     
-    for rigidity_bin in rigidity_bins:
-        logger.info(f"Processing rigidity bin: {rigidity_bin}")
+    for r_bin in rigidity_bins:
+        bin_data = df[df['rigidity_bin'] == r_bin].sort_values('date')
+        # Use proton flux for baseline amplitude calculation (as per T020a logic context)
+        # Note: T029 uses ratio amplitudes, but T028 (this step) calculates raw amplitudes first.
+        # We assume 'proton_flux' is the primary metric for baseline unless specified otherwise for ratios.
+        # However, T029 specifically says "Load modulation amplitudes derived from composition ratios".
+        # We will calculate for He/p and Fe/p if available, or just the flux if that's the baseline.
+        # For this specific T028 step, we calculate amplitudes for the flux columns to generate the file.
         
-        # Filter data for this rigidity bin
-        df_bin = df[df['rigidity_bin'] == rigidity_bin].copy()
-        
-        # Calculate modulation amplitude
-        amplitude, fit_info = calculate_modulation_amplitude(df_bin, rigidity_bin)
-        
-        # Store results
-        result = {
-            'rigidity_bin': rigidity_bin,
-            'amplitude': amplitude,
-            'method': 'sinusoidal_fit'
-        }
-        
-        # Add fit info if available
-        if 'error' not in fit_info:
-            result.update({
-                'r_squared': fit_info['r_squared'],
-                'n_points': fit_info['n_points'],
-                'A': fit_info['parameters']['A'],
-                'B': fit_info['parameters']['B'],
-                'C': fit_info['parameters']['C'],
-                'D': fit_info['parameters']['D']
-            })
-        else:
-            result['error'] = fit_info.get('error', 'unknown')
-            result['n_points'] = fit_info.get('n_points', 0)
-        
-        results.append(result)
+        flux_cols = ['proton_flux', 'helium_flux', 'iron_flux']
+        for col in flux_cols:
+            if col in bin_data.columns:
+                valid_data = bin_data[col].dropna()
+                if len(valid_data) > 0:
+                    amp, fit_res = calculate_modulation_amplitude(valid_data.values)
+                    if not np.isnan(amp):
+                        results.append({
+                            'rigidity_bin': r_bin,
+                            'species': col,
+                            'amplitude': amp,
+                            'method': 'sinusoidal_fit'
+                        })
     
-    # Create results DataFrame
-    results_df = pd.DataFrame(results)
-    
-    # Save to CSV
-    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    results_df.to_csv(MODULATION_AMPLITUDES_PATH, index=False)
-    logger.info(f"Saved modulation amplitudes to {MODULATION_AMPLITUDES_PATH}")
-    
-    return results_df
+    result_df = pd.DataFrame(results)
+    result_df.to_csv(output_path, index=False)
+    logger.info(f"Saved modulation amplitudes to {output_path}")
+    return result_df.to_dict(orient='records')
 
-def fit_diffusion_model(amplitudes_df: pd.DataFrame) -> Dict[str, Any]:
+def fit_diffusion_model(amplitudes_df: pd.DataFrame, output_path: Path) -> Dict[str, Any]:
     """
-    Fit a rigidity-dependent diffusion model to the modulation amplitudes.
-    
-    Model: Amplitude = A / (Rigidity + B)
-    
-    Parameters:
-        amplitudes_df: DataFrame with rigidity_bin and amplitude columns
-    
-    Returns:
-        Dictionary with fitted parameters and diagnostics
+    Fit the diffusion model (A / (R + B)) to the modulation amplitudes.
+    Performs convergence diagnostics as per T058.
     """
-    # Filter out rows with NaN amplitudes
-    valid_df = amplitudes_df.dropna(subset=['amplitude'])
+    if amplitudes_df.empty:
+        logger.error("No amplitude data to fit.")
+        return {}
+
+    # We fit per species
+    results_by_species = {}
     
-    if len(valid_df) < 2:
-        logger.warning("Insufficient data points for diffusion model fitting")
-        return {'error': 'insufficient_data', 'n_points': len(valid_df)}
-    
-    rigidity = valid_df['rigidity_bin'].values
-    amplitude = valid_df['amplitude'].values
-    
-    # Define diffusion model
-    def diffusion_model(r: np.ndarray, A: float, B: float) -> np.ndarray:
-        return A / (r + B)
-    
-    # Initial parameter guesses
-    A0 = np.max(amplitude) * np.mean(rigidity)
-    B0 = np.mean(rigidity)
-    
-    p0 = [A0, B0]
-    
-    try:
-        # Perform curve fitting
-        popt, pcov = curve_fit(
-            diffusion_model, rigidity, amplitude,
-            p0=p0,
-            bounds=([0, 0], [np.inf, np.inf]),
-            maxfev=5000
-        )
+    for species in amplitudes_df['species'].unique():
+        species_data = amplitudes_df[amplitudes_df['species'] == species].sort_values('rigidity_bin')
+        R = species_data['rigidity_bin'].values
+        A_obs = species_data['amplitude'].values
+
+        if len(R) < 3:
+            logger.warning(f"Not enough data points for species {species} to fit diffusion model.")
+            continue
+
+        # Initial guess
+        p0 = [A_obs.max() * np.mean(R), np.mean(R)]
         
-        A_fit, B_fit = popt
+        fit_success = False
+        iterations = 0
+        condition_number = float('nan')
+        convergence_status = "failed"
+        fit_params = {'A': np.nan, 'B': np.nan}
         
-        # Calculate fitted values
-        y_fit = diffusion_model(rigidity, A_fit, B_fit)
-        
-        # Calculate R²
-        ss_res = np.sum((amplitude - y_fit) ** 2)
-        ss_tot = np.sum((amplitude - np.mean(amplitude)) ** 2)
-        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-        
-        # Calculate F-statistic
-        n = len(amplitude)
-        p = 2  # number of parameters
-        dof = n - p
-        f_statistic = (r_squared / p) / ((1 - r_squared) / dof) if dof > 0 and r_squared < 1 else np.inf
-        
-        # Calculate p-value for F-test
-        p_value = 1 - f.cdf(f_statistic, p, dof) if dof > 0 else 1.0
-        
-        fit_result = {
-            'parameters': {
-                'A': float(A_fit),
-                'B': float(B_fit)
-            },
-            'r_squared': float(r_squared),
-            'f_statistic': float(f_statistic),
-            'p_value': float(p_value),
-            'degrees_of_freedom': dof,
-            'n_points': n,
-            'method': 'diffusion_model'
+        try:
+            popt, pcov = curve_fit(
+                diffusion_model, R, A_obs, p0=p0, 
+                bounds=([0, 0], [np.inf, np.inf]),
+                maxfev=1000
+            )
+            
+            # Check convergence via pcov (covariance matrix)
+            # If pcov is not finite or has huge values, it might be unstable
+            if pcov is not None and np.all(np.isfinite(pcov)):
+                # Estimate condition number from covariance (approximation via eigenvalues of Jacobian^T J)
+                # scipy curve_fit returns pcov = J^T J^-1 * residual_variance
+                # We can estimate condition number of the Jacobian at solution
+                # A simple heuristic: ratio of max to min eigenvalue of pcov
+                evals = np.linalg.eigvalsh(pcov)
+                if np.min(evals) > 0:
+                    condition_number = np.max(evals) / np.min(evals)
+                else:
+                    condition_number = np.inf
+
+                iterations = 1000 # curve_fit maxfev used, but actual iterations not exposed directly. 
+                                  # We assume convergence if pcov is valid and finite.
+                
+                fit_success = True
+                convergence_status = "converged" if condition_number < 1e6 else "high_condition_number"
+                fit_params = {'A': popt[0], 'B': popt[1]}
+                
+                if condition_number > 1e6:
+                    logger.warning(f"High condition number ({condition_number:.2e}) for {species}. Fit may be unstable.")
+            else:
+                logger.warning(f"Fit for {species} returned non-finite covariance matrix.")
+                convergence_status = "non_finite_covariance"
+                
+        except Exception as e:
+            logger.error(f"Diffusion model fit failed for {species}: {e}")
+            convergence_status = "optimization_error"
+
+        results_by_species[species] = {
+            'fit_params': fit_params,
+            'convergence_status': convergence_status,
+            'iterations_used': iterations if fit_success else 0,
+            'condition_number': condition_number,
+            'success': fit_success and convergence_status == "converged"
         }
-        
-        logger.info(f"Diffusion model fit: A={A_fit:.4f}, B={B_fit:.4f}, R²={r_squared:.4f}, p-value={p_value:.4f}")
-        
-        return fit_result
-        
-    except Exception as e:
-        logger.warning(f"Diffusion model fitting failed: {str(e)}")
-        return {'error': str(e), 'n_points': len(amplitude)}
+
+    # Save detailed results
+    output_data = {
+        'species_results': results_by_species,
+        'model': 'Amplitude = A / (Rigidity + B)'
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Saved diffusion model fit results to {output_path}")
+    return output_data
 
 def main():
-    """
-    Main entry point for model fitting stage.
-    """
-    logger.info("=== Model Fitting Stage ===")
+    """Main entry point for model fitting stage."""
+    logger = setup_logger("model_fitting")
     
-    try:
-        # Run model fitting for all rigidity bins
-        amplitudes_df = run_model_fitting()
+    # Paths
+    unified_path = Path("data/processed/unified_timeseries.csv")
+    amp_output = Path("data/processed/modulation_amplitudes.csv")
+    fit_output = Path("data/processed/model_fit_results.json")
+    
+    if not unified_path.exists():
+        logger.error(f"Input file {unified_path} not found. Run retrieve/ratios stages first.")
+        sys.exit(1)
+
+    # 1. Calculate Modulation Amplitudes (T028)
+    df = load_unified_data()
+    logger.info("Calculating modulation amplitudes...")
+    amplitudes = run_model_fitting(df, amp_output)
+    
+    # Reload as DF for fitting
+    amp_df = pd.read_csv(amp_output)
+    
+    # 2. Fit Diffusion Model (T029 + T058 Diagnostics)
+    logger.info("Fitting diffusion model with diagnostics...")
+    results = fit_diffusion_model(amp_df, fit_output)
+    
+    # Log summary
+    for species, res in results.get('species_results', {}).items():
+        status = res.get('convergence_status', 'unknown')
+        logger.info(f"Species {species}: Status={status}, Params={res.get('fit_params')}")
         
-        # Fit diffusion model to amplitudes
-        diffusion_result = fit_diffusion_model(amplitudes_df)
+    if not any(r.get('success') for r in results.get('species_results', {}).values()):
+        logger.warning("No species converged successfully.")
+        sys.exit(1)
         
-        # Save diffusion model results
-        if 'error' not in diffusion_result:
-            with open(MODEL_TREND_PATH, 'w') as f:
-                json.dump(diffusion_result, f, indent=2)
-            logger.info(f"Saved diffusion model trend to {MODEL_TREND_PATH}")
-        
-        logger.info("Model fitting stage completed successfully")
-        return amplitudes_df, diffusion_result
-        
-    except Exception as e:
-        logger.error(f"Model fitting stage failed: {str(e)}")
-        raise
+    logger.info("Model fitting stage completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

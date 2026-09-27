@@ -13,32 +13,13 @@ T009:
     The implementer must add the appropriate configuration files and verify they enable
     coverage reporting.
 T013:
-  c: true
-  h: c9bd7839247de717fbac9e63b535216e499e93890ea5b7054c8cc8373a124f05
-  r: "The repository contains a non\u2011empty `code/services/data_ingestion.py` (\u2248\
-    4.6\u202FKB) that defines `download_and_validate_dataset()` which loads the HuggingFace\
-    \ `cardiffnlp/tweet_sentiment_extraction` dataset, saves it to `data/raw/social_media.csv`,\
-    \ and writes a SHA\u2011256 checksum file, fulfilling the required download\u2011\
-    and\u2011checksum behavior. The absence of the CSV file on disk is expected before\
-    \ the function is executed and does not indicate an incomplete implementation."
-T014b:
   c: false
-  h: adf99d4edbbde0ab6ccf19f3eee24bd8f0b5b8941cea2cedcf70f20fa3adf8f9
-  r: "The repository contains a partially shown `filter_non_english` function that\
-    \ uses `langdetect`, but the code is truncated and does not include logic to write\
-    \ the filtered DataFrame to `data/processed/preprocessed_text.csv`. Moreover,\
-    \ the required `preprocessed_text.csv` file is absent from the project. Consequently,\
-    \ the task\u2019s output artifact is missing and the implementation is incomplete."
-T014c:
-  c: false
-  h: 7ac6cd233cda167b1610661356ed3d816c8a64dbdecc05d6fff0b7c6571c6f46
-  r: "The `anxiety_scoring.py` file does contain a `filter_text_quality` function\
-    \ that reads thresholds from a config and raises `ConfigurationError` if missing,\
-    \ satisfying the code\u2011level requirement. However, the required data file\
-    \ `data/processed/preprocessed_text.csv` does not exist, and the contract file\
-    \ `contracts/analysis.schema.yaml` (or `schema.yaml`) is also missing, so the\
-    \ thresholds cannot be read and the filtering cannot be applied to the intended\
-    \ dataset. These missing artifacts prevent the task from being genuinely completed."
+  h: b0abd0ffab6e97aadfe2fa95c042cf0882946e857588e90d7b2425b8b4b12dd9
+  r: "The `code/services/data_ingestion.py` file is truncated and never reaches the\
+    \ part where it saves the CSV, computes or verifies an MD5 checksum, or writes\
+    \ to `data/raw/social_media.csv`. Moreover, the required `data/raw/social_media.csv`\
+    \ file does not exist. Consequently the implementation does not fulfill the task\u2019\
+    s requirements."
 T033a:
   c: false
   h: bdc5b776b6fc4308f3f141a1803bb8975c12776af2cbf76475c176791cc4e4c9

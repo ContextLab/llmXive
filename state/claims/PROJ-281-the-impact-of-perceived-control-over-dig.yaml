@@ -449,3 +449,330 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T18:57:01Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Random subset selection of exactly 10000 rows from dataset using streaming
+    mode
+  claim_id: c_7d994b20
+  context: 'T013b [US1] PRE-RUN SAMPLING: Implement logic in code/services/data_ingestion.py
+    to enforce config.SAMPLE_SIZE (default 10000) on the dataset before full ingestion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If dataset size > SAMPLE_SIZE, select a random subset using datasets.load_dataset(...,
+    split='train', streaming=True) and itertools.islice to fetch exactly SAMPLE_SIZE
+    rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:43:50Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Verify row count after filtering meets 95% coverage target
+  claim_id: c_0f6626c4
+  context: 'T014d [US1] FILTER SUFFICIENCY CHECK: Verify that the row count after
+    T014c filtering is sufficient to meet the >=95% coverage target (AC-003).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the row count after T014c filtering is sufficient to meet
+    the >=95% coverage target (AC-003).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:43:50Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Anxiety scores generated for 95% of non-null rows in ingestion pipeline
+  claim_id: c_9c965dd2
+  context: 'Independent Test: The system can be fully tested by running the ingestion
+    pipeline on a small, fixed sample of known posts and verifying that anxiety scores
+    are generated for >=95% of non-null rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be fully tested by running the ingestion pipeline on a
+    small, fixed sample of known posts and verifying that anxiety scores are generated
+    for >=95% of non-null rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:43:50Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Confidence score filtering with 0.6 threshold to exclude low-confidence
+    predictions
+  claim_id: c_2723f99d
+  context: T016 [US1] Implement confidence score filtering (threshold >= 0.6) in code/services/anxiety_scoring.py
+    to exclude low-confidence predictions before saving.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement confidence score filtering (threshold >= 0.6) in code/services/anxiety_scoring.py
+    to exclude low-confidence predictions before saving.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:44:18Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Raise CoverageError if coverage is below 95%
+  claim_id: c_51537849
+  context: 'T018b [US1] ENFORCEMENT: If T018a reports coverage <95%, raise CoverageError
+    and halt the pipeline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If T018a reports coverage <95%, raise CoverageError and halt the pipeline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:44:35Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Timestamp regularity identifies irregular posting patterns using synthetic
+    time-series fixture
+  claim_id: c_8309e466
+  context: 'T050 [US2] METADATA HEURISTIC VALIDATION: Create tests/unit/test_proxy_heuristics.py
+    to validate that timestamp_regularity correctly identifies irregular posting patterns
+    (e.g., bursty vs. regular) using a synthetic time-series fixture.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timestamp_regularity_identifies_irregular_posting_patterns_u
+  kind: entity_fact
+  raw_text: Verify that timestamp_regularity correctly identifies irregular posting
+    patterns (e.g., bursty vs. regular) using a synthetic time-series fixture.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:45:01Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Save correlation plot with 300 DPI and seaborn.darkgrid style
+  claim_id: c_ebd8a9d7
+  context: 'T036 [US3] Save final visualization as data/processed/correlation_plot.png.
+    Note: Ensure figure dimensions are appropriate for publication quality, DPI 300,
+    and style seaborn.darkgrid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Save final visualization as data/processed/correlation_plot.png with figure
+    dimensions appropriate for publication quality, DPI 300, and style seaborn.darkgrid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:45:25Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Analysis results JSON contains valid numeric values for r, p_value, and
+    is_significant
+  claim_id: c_2b9b75c3
+  context: 'T052 [P] [US1/US2/US3] FULL PIPELINE INTEGRATION TEST: Create tests/integration/test_full_pipeline.py
+    that executes the entire flow from raw data download to final visualization, asserting
+    that all intermediate files exist and that the final analysis_results.json contains
+    valid numeric values for r, p_value, and is_significant.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_results_JSON_contains_valid_numeric_values_for_r,_p
+  kind: entity_fact
+  raw_text: The final analysis_results.json contains valid numeric values for r, p_value,
+    and is_significant.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:46:38Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Model inference must run on CPU without CUDA or 8-bit quantization
+  claim_id: c_6877cd78
+  context: 'Critical Constraint: All model inference MUST run on CPU (no CUDA/8-bit
+    quantization) to ensure feasibility on free-tier runners.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All model inference MUST run on CPU (no CUDA/8-bit quantization) to ensure
+    feasibility on free-tier runners.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:47:11Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Filter non-English text or low confidence language detection below 0.8
+  claim_id: c_d34c2370
+  context: 'T014b [US1] [US1-AC-002] Implement Non-English text filtering in code/services/anxiety_scoring.py
+    using langdetect. Logic: Read data/raw/social_media.csv, filter rows where language
+    is not ''en'' OR langdetect confidence < 0.8 OR detection fails.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter rows where language is not 'en' OR langdetect confidence < 0.8
+    OR detection fails.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:47:11Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Filter gibberish based on text length below 3
+  claim_id: c_2455568d
+  context: T014c [US1] [US1-AC-002] Implement gibberish filtering logic in code/services/anxiety_scoring.py
+    (e.g., text length < 3 or entropy-based heuristic).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter gibberish based on text length < 3 or entropy-based heuristic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:47:11Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Entropy threshold default value is 0.7
+  claim_id: c_ce6b9cb7
+  context: 'T014c [US1] [US1-AC-002] Config: Read filtering.entropy_threshold (default
+    0.7) and filtering.min_text_length (default 3) from contracts/analysis.schema.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Read filtering.entropy_threshold (default 0.7) from contracts/analysis.schema.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:47:34Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Minimum text length default value is 3
+  claim_id: c_bd0d51ff
+  context: 'T014c [US1] [US1-AC-002] Config: Read filtering.entropy_threshold (default
+    0.7) and filtering.min_text_length (default 3) from contracts/analysis.schema.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Read filtering.min_text_length (default 3) from contracts/analysis.schema.yaml.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:47:49Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Enforce 6-hour runtime limit using signal-based hard kill-switch
+  claim_id: c_378e2c6e
+  context: 'T007 Create code/main.py pipeline orchestrator skeleton WITH TIMEOUT ENFORCEMENT:
+    Implement the main loop to track elapsed time and raise RuntimeLimitExceededError
+    if config.RUNTIME_LIMIT_HOURS (default 6) is exceeded. ADD: Implement a signal-based
+    hard kill-switch (e.g., signal.signal(signal.SIGALRM, handler)) to enforce the
+    6-hour limit independently of any config file.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a signal-based hard kill-switch to enforce the 6-hour limit
+    independently of any config file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:48:39Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Default sample size is 10000 and runtime limit is 6 hours
+  claim_id: c_e7dc091a
+  context: 'T004 [P] Implement code/config.py for global config, random seeds, and
+    path constants. ADD: Define SAMPLE_SIZE (default 10000) and RUNTIME_LIMIT_HOURS
+    (default 6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define SAMPLE_SIZE (default 10000) and RUNTIME_LIMIT_HOURS (default 6)
+    in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:49:02Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Filter rows with language detection confidence below 0.8
+  claim_id: c_5925b139
+  context: 'T014b [US1] [US1-AC-002] Implement Non-English text filtering in code/services/anxiety_scoring.py
+    using langdetect. Logic: Read data/raw/social_media.csv, filter rows where language
+    is not ''en'' OR langdetect confidence < 0.8 OR detection fails.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter rows where langdetect confidence < 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:49:03Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Calculate timestamp regularity by normalizing standard deviation of inter-post
+    intervals to 0-1 range
+  claim_id: c_9ba51a4e
+  context: 'T023 [US2] Implement logic to calculate timestamp_regularity metric per
+    user in code/services/proxy_extractor.py. Logic: Calculate standard deviation
+    of inter-post intervals; normalize to [0,1] (lower std dev = higher regularity).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate standard deviation of inter-post intervals; normalize to [0,1]
+    (lower std dev = higher regularity).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:49:30Z'
+- artifact_path: projects/PROJ-281-the-impact-of-perceived-control-over-dig/specs/001-the-impact-of-perceived-control-over-dig/tasks.md
+  attempts: 1
+  canonical: Verify correlation plot file size is below 5MB
+  claim_id: c_1879c8e7
+  context: 'T053 [P] [US3] VISUALIZATION QUALITY AUDIT: Implement a script in tests/unit/test_plot_quality.py
+    to programmatically verify that data/processed/correlation_plot.png contains the
+    regression line, axis labels, and title as specified in T036, and that the file
+    size is reasonable (< 5MB).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_correlation_plot_file_size_is_below_5MB
+  kind: entity_fact
+  raw_text: Verify that the file size of correlation_plot.png is reasonable (< 5MB).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T06:49:56Z'
