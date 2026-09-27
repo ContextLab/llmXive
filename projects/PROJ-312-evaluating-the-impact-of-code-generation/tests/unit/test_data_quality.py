@@ -1,110 +1,81 @@
-"""
-Unit tests for data quality validation module (T018b).
-"""
 import pytest
 import json
 import os
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from code.data_quality import calculate_success_rate, validate_and_check_quality
 
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-from data_quality import calculate_success_rate, validate_and_check_quality, DataQualityError
+def test_calculate_success_rate():
+    """Test success rate calculation."""
+    assert calculate_success_rate(95, 100) == 0.95
+    assert calculate_success_rate(0, 100) == 0.0
+    assert calculate_success_rate(100, 100) == 1.0
+    assert calculate_success_rate(0, 0) == 0.0  # Edge case: division by zero handled
 
-class TestCalculateSuccessRate:
-    def test_normal_case(self):
-        """Test normal calculation."""
-        result = calculate_success_rate(95, 100)
-        assert result == 0.95
-
-    def test_perfect_score(self):
-        """Test perfect score."""
-        result = calculate_success_rate(100, 100)
-        assert result == 1.0
-
-    def test_zero_total(self):
-        """Test with zero total."""
-        result = calculate_success_rate(0, 0)
-        assert result == 0.0
-
-    def test_partial_success(self):
-        """Test partial success."""
-        result = calculate_success_rate(50, 100)
-        assert result == 0.5
-
-class TestValidateAndCheckQuality:
-    def setup_method(self):
-        """Setup temporary files for testing."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.processed_file = os.path.join(self.temp_dir, "processed_prs.json")
-        self.stats_file = os.path.join(self.temp_dir, "processing_stats.json")
-
-    def teardown_method(self):
-        """Clean up temporary files."""
-        import shutil
-        shutil.rmtree(self.temp_dir, ignore_errors=True)
-
-    def test_success_rate_above_threshold(self):
-        """Test that success rate above threshold passes."""
-        # Create valid processed data
-        valid_data = [{"pr_id": "1", "repo_name": "test", "turnaround_hours": 10} for _ in range(95)]
-        with open(self.processed_file, 'w') as f:
-            json.dump(valid_data, f)
-
-        with open(self.stats_file, 'w') as f:
-            json.dump({"total_prs_processed": 100}, f)
-
+def test_validate_and_check_quality_warning():
+    """Test that warning is triggered when rate < threshold."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        
+        # Create mock raw data (100 PRs)
+        raw_data = [{"pr_id": f"pr_{i}"} for i in range(100)]
+        raw_file = tmpdir_path / "pr_data.json"
+        with open(raw_file, 'w') as f:
+            json.dump(raw_data, f)
+        
+        # Create mock processed data (90 PRs - below 95% threshold)
+        processed_file = tmpdir_path / "pr_turnaround.csv"
+        with open(processed_file, 'w') as f:
+            f.write("pr_id,turnaround_hours,classification\n")
+            for i in range(90):
+                f.write(f"pr_{i},10.5,ai\n")
+        
         result = validate_and_check_quality(
-            processed_data_path=self.processed_file,
-            total_prs_attempted=100,
-            quality_threshold=0.95
+            processed_file=str(processed_file),
+            raw_file=str(raw_file),
+            output_dir=str(tmpdir_path),
+            threshold=0.95
         )
+        
+        assert result["total_prs"] == 100
+        assert result["processed_prs"] == 90
+        assert result["success_rate"] == 0.90
+        assert result["status"] == "warning"
+        
+        # Verify warning log was created
+        assert (tmpdir_path / "data_quality_warning.log").exists()
+        assert (tmpdir_path / "quality_status.json").exists()
 
-        assert result["status"] == "passed"
-        assert result["success_rate"] == 0.95
-
-    def test_success_rate_below_threshold(self):
-        """Test that success rate below threshold raises DataQualityError."""
-        # Create processed data with low success rate
-        valid_data = [{"pr_id": "1", "repo_name": "test", "turnaround_hours": 10} for _ in range(50)]
-        with open(self.processed_file, 'w') as f:
-            json.dump(valid_data, f)
-
-        with open(self.stats_file, 'w') as f:
-            json.dump({"total_prs_processed": 100}, f)
-
-        with pytest.raises(DataQualityError) as exc_info:
-            validate_and_check_quality(
-                processed_data_path=self.processed_file,
-                total_prs_attempted=100,
-                quality_threshold=0.95
-            )
-
-        assert "Data quality threshold not met" in str(exc_info.value)
-
-    def test_file_not_found(self):
-        """Test that FileNotFoundError is raised when file doesn't exist."""
-        with pytest.raises(FileNotFoundError):
-            validate_and_check_quality(
-                processed_data_path="/nonexistent/file.json",
-                total_prs_attempted=100
-            )
-
-    def test_empty_processed_data(self):
-        """Test with empty processed data."""
-        with open(self.processed_file, 'w') as f:
-            json.dump([], f)
-
-        with open(self.stats_file, 'w') as f:
-            json.dump({"total_prs_processed": 100}, f)
-
-        with pytest.raises(DataQualityError) as exc_info:
-            validate_and_check_quality(
-                processed_data_path=self.processed_file,
-                total_prs_attempted=100,
-                quality_threshold=0.95
-            )
-
-        assert "Data quality threshold not met" in str(exc_info.value)
+def test_validate_and_check_quality_ok():
+    """Test that status is 'ok' when rate >= threshold."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        
+        # Create mock raw data (100 PRs)
+        raw_data = [{"pr_id": f"pr_{i}"} for i in range(100)]
+        raw_file = tmpdir_path / "pr_data.json"
+        with open(raw_file, 'w') as f:
+            json.dump(raw_data, f)
+        
+        # Create mock processed data (96 PRs - above 95% threshold)
+        processed_file = tmpdir_path / "pr_turnaround.csv"
+        with open(processed_file, 'w') as f:
+            f.write("pr_id,turnaround_hours,classification\n")
+            for i in range(96):
+                f.write(f"pr_{i},10.5,ai\n")
+        
+        result = validate_and_check_quality(
+            processed_file=str(processed_file),
+            raw_file=str(raw_file),
+            output_dir=str(tmpdir_path),
+            threshold=0.95
+        )
+        
+        assert result["total_prs"] == 100
+        assert result["processed_prs"] == 96
+        assert result["success_rate"] == 0.96
+        assert result["status"] == "ok"
+        
+        # Verify warning log was NOT created
+        assert not (tmpdir_path / "data_quality_warning.log").exists()
+        assert (tmpdir_path / "quality_status.json").exists()

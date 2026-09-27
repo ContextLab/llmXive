@@ -5,119 +5,120 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any
 
+import requests
+
 from utils import api_request_with_backoff, log_api_headers
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/pipeline.log'),
+        logging.StreamHandler()
+    ]
 )
 logger = logging.getLogger(__name__)
 
 GITHUB_API_BASE = "https://api.github.com"
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 
 def fetch_repos_from_github(language: str, min_stars: int = 10000, limit: int = 50) -> List[Dict[str, Any]]:
     """
     Fetch top repositories for a given language sorted by stars.
     
     Args:
-        language: Language to filter by (e.g., 'Python', 'JavaScript')
+        language: Language to search for (e.g., 'Python', 'JavaScript')
         min_stars: Minimum star count filter
-        limit: Maximum number of repos to return
+        limit: Maximum number of repos to fetch
         
     Returns:
-        List of repository dictionaries with 'name' and 'stars' keys
+        List of repository dictionaries containing 'name' and 'stars'
     """
-    if not GITHUB_TOKEN:
-        raise RuntimeError("GITHUB_TOKEN environment variable is not set")
-
-    query = f"language:{language}+stars:>{min_stars}&sort=stars&order=desc"
-    url = f"{GITHUB_API_BASE}/search/repositories?q={query}&per_page=100"
+    repos = []
+    query = f"language:{language}+stars:>{min_stars}"
+    url = f"{GITHUB_API_BASE}/search/repositories"
+    params = {
+        'q': query,
+        'sort': 'stars',
+        'order': 'desc',
+        'per_page': 100
+    }
     
     headers = {
-        "Accept": "application/vnd.github.v3+json",
-        "Authorization": f"token {GITHUB_TOKEN}"
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'llmXive-Research-Pipeline'
     }
-
-    all_repos = []
-    page = 1
     
-    while len(all_repos) < limit:
-        params = {"page": page, "per_page": 100}
-        
+    logger.info(f"Fetching top {limit} {language} repositories with >{min_stars} stars...")
+    
+    page = 1
+    while len(repos) < limit:
+        params['page'] = page
         try:
             response = api_request_with_backoff(url, headers, params=params)
             log_api_headers(response)
             
             if response.status_code != 200:
-                logger.error(f"Failed to fetch repos for {language}: {response.status_code} - {response.text}")
-                break
+                logger.error(f"API request failed with status {response.status_code}")
+                raise RuntimeError(f"GitHub API request failed: {response.status_code} {response.text}")
             
             data = response.json()
-            items = data.get("items", [])
+            items = data.get('items', [])
             
             if not items:
-                logger.info(f"No more items found for {language}")
+                logger.warning(f"No more items found for page {page}")
                 break
             
-            # Extract only name and stars as per spec
             for repo in items:
-                if len(all_repos) >= limit:
+                if len(repos) >= limit:
                     break
-                all_repos.append({
-                    "name": repo["full_name"],
-                    "stars": repo["stargazers_count"]
-                })
+                
+                repo_info = {
+                    'name': repo['full_name'],
+                    'stars': repo['stargazers_count'],
+                    'language': repo.get('language', language)
+                }
+                repos.append(repo_info)
             
+            logger.info(f"Page {page}: fetched {len(items)} items, total repos: {len(repos)}")
             page += 1
+            time.sleep(1)  # Respect rate limits between pages
             
-        except Exception as e:
-            logger.error(f"Error fetching page {page} for {language}: {e}")
-            break
-    
-    logger.info(f"Fetched {len(all_repos)} repositories for language: {language}")
-    return all_repos
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Network error fetching page {page}: {e}")
+            raise
+        
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {e}")
+            raise
+
+    logger.info(f"Successfully fetched {len(repos)} repositories for {language}")
+    return repos
 
 def main():
-    """Main entry point to fetch repos and save to data/raw/repos.json"""
-    project_root = Path(__file__).resolve().parent.parent
-    output_path = project_root / "data" / "raw" / "repos.json"
+    """Main entry point for fetching repository data."""
+    output_dir = Path('data/raw')
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / 'repos.json'
     
-    logger.info(f"Starting repository fetch. Output will be saved to: {output_path}")
+    # Fetch top Python repos
+    python_repos = fetch_repos_from_github('Python', min_stars=10000, limit=50)
     
-    all_repos = []
+    # Fetch top JavaScript repos
+    js_repos = fetch_repos_from_github('JavaScript', min_stars=10000, limit=50)
     
-    # Fetch Python repos
-    logger.info("Fetching top Python repositories...")
-    python_repos = fetch_repos_from_github("Python", min_stars=10000, limit=50)
-    all_repos.extend(python_repos)
+    # Combine results
+    all_repos = python_repos + js_repos
     
-    # Fetch JavaScript repos
-    logger.info("Fetching top JavaScript repositories...")
-    js_repos = fetch_repos_from_github("JavaScript", min_stars=10000, limit=50)
-    all_repos.extend(js_repos)
-    
-    # Deduplicate by repo name if any overlap exists (unlikely but safe)
-    seen_names = set()
-    unique_repos = []
-    for repo in all_repos:
-        if repo["name"] not in seen_names:
-            seen_names.add(repo["name"])
-            unique_repos.append(repo)
-    
-    logger.info(f"Total unique repositories collected: {len(unique_repos)}")
+    logger.info(f"Total repositories collected: {len(all_repos)}")
     
     # Save to JSON
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(unique_repos, f, indent=2)
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(all_repos, f, indent=2)
     
-    logger.info(f"Successfully saved {len(unique_repos)} repositories to {output_path}")
-    
-    return unique_repos
+    logger.info(f"Repository data saved to {output_file}")
+    print(f"Successfully saved {len(all_repos)} repositories to {output_file}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

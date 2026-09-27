@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-312-evaluating-the-impact-of-code-generation
-last_run_id: ce61d7b9-968a-428b-980e-0686db8f7c62
+last_run_id: 1257d32c-9aa7-4a0c-9f99-e8f1f1b3bbbe
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-312-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation on Code Review Turnaround Time
-updated_at: '2026-09-25T14:55:29.345109Z'
+updated_at: '2026-09-27T11:51:20.188638Z'

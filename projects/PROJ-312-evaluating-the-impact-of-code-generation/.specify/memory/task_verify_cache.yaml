@@ -1,77 +1,63 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory hierarchy (`projects/PROJ-312-evaluating-the-impact-of-code-generation/`,
-    `code/`, `data/`, `tests/`, `contracts/`, `artifacts/`, `state/`) is provided;
-    the claim lacks any tangible artifact confirming those folders exist. The implementer
-    must create and show the actual directory structure.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No files or content were provided in a `contracts/` directory defining the required\
-    \ local schemas; the evidence contains only a feature specification and no schema\
-    \ artifacts, so the task\u2019s deliverable is missing."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was presented showing that the required directories (`data/raw/`,
-    `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`) actually exist
-    in the repository; without such proof the task is not satisfied.
-T011:
-  c: false
-  h: 7329222ce0cdae72282568bb07ee2d6f86c411fa399c34f7c612cec6f6f515de
-  r: The `tests/contract/test_schema_validation.py` file exists, but it references
-    `contracts/pull_request.schema.yaml`, which is missing from the repository. Consequently
-    the test that checks schema existence (and any validation against it) cannot succeed,
-    so the contract test is not fully functional. The missing schema file must be
-    added for the task to be complete.
-T012b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, notebook, or other code artifact was presented that actually fetches\
-    \ all PRs, iterates through every commit of each PR, and handles GitHub API pagination\
-    \ via the `Link` header. Consequently, the required output (full commit messages\
-    \ for classification) is missing. The implementer must supply a working data\u2011\
-    acquisition script (or equivalent) that meets the pagination and completeness\
-    \ requirements."
-T018c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No script, function, or pipeline component was provided that computes the processed\u2011\
-    to\u2011total PR success rate, checks the 95\u202F% threshold, raises `DataQualityError`\
-    \ with the required message, or logs the success (SC\u2011003). The required artifact\
-    \ is missing, so the task is not satisfied."
 T019a:
   c: false
-  h: 2d29cc4ae82b90523561a3104bd4809453531bdc33446fffd3beecbe6d4bba2c
-  r: "The provided `code/validate_spot_check.py` ends abruptly (truncated at `def\
-    \ generate_sample_list_for_review`) and never writes the required CSV of non\u2011\
-    AI\u2011labeled PR IDs. Moreover, the expected output file `data/spot_check/sample_list.csv`\
-    \ does not exist. The task\u2019s core artifact is missing."
-T019b:
+  h: d1df6b18a70027fc7f2622019da5babf5ff004bb0db569c9ebda2a7564ac742d
+  r: "The `validate_spot_check.py` script is truncated and does not contain logic\
+    \ to filter non\u2011AI\u2011labeled PRs or write the required `data/spot_check/sample_list.csv`.\
+    \ Moreover, the expected output file `sample_list.csv` is missing from the repository.\
+    \ The task\u2019s core requirement\u2014producing a stratified CSV of non\u2011\
+    AI PR IDs\u2014is therefore not met."
+T019d:
   c: false
   h: 56b19b769c18bab879d042448b8ee106a800d84e7293542bb2acb962e44f97c1
-  r: The required artifact `data/spot_check/annotations.csv` does not exist in the
-    repository, so the manual annotation step has not been fulfilled. Without this
-    file the pipeline cannot proceed, violating the task requirement.
-T019c:
+  r: "The only artifact shown is that `data/spot_check/annotations.csv` is missing;\
+    \ there is no code, log output, or final report demonstrating that a CRITICAL\
+    \ warning is logged, the validation status is set to 'UNVALIDATED', or that the\
+    \ analysis proceeds with heuristic\u2011only classification. These required behaviors\
+    \ are absent, so the task is not satisfied."
+T023a:
   c: false
-  h: 22dff3dfbeb5b4550c8e3246950e8b0d67a339dd841d4550641843b55793d5b3
-  r: "The required input file `data/spot_check/annotations.csv` is missing, and `code/validate_spot_check.py`\
-    \ is truncated (ends mid\u2011definition) and never reads the CSV, computes a\
-    \ false\u2011negative rate, or writes that metric to `data/spot_check/validation_report.csv`.\
-    \ The existing `validation_report.csv` does not contain the calculated false\u2011\
-    negative rate."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: I examined the provided information and found no code, log file, or output that
-    records the number of outliers removed per group. The task requires an artifact
-    (e.g., a log entry or report) showing these counts, but none is present. Consequently,
-    the requirement is not satisfied.
+  h: 2b920214320a0c5a1cb9e2eda866f61e2d9b5ac984ce758f06c6acab6729b690
+  r: "The required `data/processed/excluded_repos.txt` file is missing, so the script\
+    \ cannot consume the exclusion list as mandated. Moreover, the provided `code/analyze.py`\
+    \ is truncated and does not show a complete implementation of the descriptive\u2011\
+    statistics calculation (e.g., the function ends abruptly). Both the prerequisite\
+    \ input and the full functionality are absent."
 T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No evidence was provided that an `artifacts/boxplot.png` file actually exists,
     nor any code that checks for its presence and computes a relative path for the
     report. The required artifact and validation logic are missing.
+T037:
+  c: false
+  h: 3a72a130efa989c084a36cd78e523e8bb569572be038441a20261a623f5cbb0f
+  r: The required `state/projects/PROJ-312-.../state.yaml` file does not exist, so
+    no artifact hashes or `updated_at` timestamp could be verified. The implementer
+    must create the file and populate it with the appropriate data.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md file or its contents were provided in the evidence, so we cannot
+    confirm that documentation was actually updated as required. The implementer must
+    supply the `projects/PROJ-312-evaluating-the-impact-of-code-generation/README.md`
+    file with the expected changes.
+T039a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the `ruff --fix` command was executed, nor any
+    linting report or modified files showing zero linting errors. The required artifact
+    (a clean codebase or a linting summary) is missing, so the task cannot be confirmed
+    as completed.
+T039b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., command output, CI log, or report) showing that `black --check`
+    was executed and returned zero formatting errors is present; without such evidence
+    we cannot confirm the requirement was met.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, command output, or generated files are provided to show that\
+    \ the commands in `quickstart.md` were run successfully, that each exited with\
+    \ code\u202F0, or that the expected output files were created. The required evidence\
+    \ is missing."

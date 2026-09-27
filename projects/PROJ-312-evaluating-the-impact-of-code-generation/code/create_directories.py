@@ -1,36 +1,35 @@
-"""
-Script to create the required directory structure for the project.
-Implements Task T008.
-"""
 import os
 from pathlib import Path
 
 def main():
-    """Create the directory structure for the project."""
-    # Define the base directory for this project
-    base_dir = Path(__file__).resolve().parent.parent
+    """
+    Create the required directory structure for the project.
+    This script ensures that the data and artifact directories exist
+    before any data processing or visualization tasks are executed.
+    """
+    base_path = Path.cwd()
     
-    # Define the required subdirectories relative to the project root
-    # Note: The task asks for these relative to the project root
     directories = [
-        "data/raw",
-        "data/processed",
-        "data/spot_check",
-        "artifacts",
-        "tests"
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "spot_check",
+        base_path / "artifacts",
+        base_path / "tests",
     ]
     
     created_count = 0
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Directory already exists: {directory}")
     
-    print(f"Directory creation complete. {created_count} new directories created.")
+    if created_count > 0:
+        print(f"Successfully created {created_count} new directories.")
+    else:
+        print("All required directories already exist.")
 
 if __name__ == "__main__":
     main()

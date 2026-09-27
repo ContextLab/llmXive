@@ -1,3 +1,8 @@
+"""
+Module: fetch_pr_commits.py
+Implements T012b: Fetch PRs and iterate through commits with pagination handling.
+"""
+
 import json
 import logging
 import os
@@ -21,299 +26,264 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Configuration constants
+MAX_PRS_PER_REPO = 500  # Representative number of PRs per repo
+MAX_TOTAL_PRS = 2000    # Substantial threshold for cumulative dataset size
+COMMITS_PER_PR_LIMIT = 100  # Fetch up to N commits per PR to manage size
 GITHUB_API_BASE = "https://api.github.com"
-GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-if not GITHUB_TOKEN:
-    logger.warning("GITHUB_TOKEN not set. API calls may be rate-limited.")
 
-HEADERS = {
-    "Accept": "application/vnd.github.v3+json",
-    "User-Agent": "llmXive-Pipeline",
-}
-if GITHUB_TOKEN:
-    HEADERS["Authorization"] = f"token {GITHUB_TOKEN}"
 
-def load_repos(repos_path: str = "data/raw/repos.json") -> List[Dict[str, Any]]:
-    """Load the list of repositories fetched in T012a."""
-    if not os.path.exists(repos_path):
-        raise FileNotFoundError(f"Repository list not found at {repos_path}. Run T012a first.")
+def load_repos(repos_path: Path) -> List[Dict[str, Any]]:
+    """Load the list of repositories from T012a output."""
+    if not repos_path.exists():
+        logger.error(f"Repos file not found: {repos_path}")
+        return []
     with open(repos_path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    logger.info(f"Loaded {len(data)} repositories from {repos_path}")
-    return data
+    return data if isinstance(data, list) else []
 
-def fetch_prs_for_repo(repo_full_name: str, per_page: int = 100) -> List[Dict[str, Any]]:
-    """
-    Fetch ALL pull requests for a given repository, handling pagination via the 'Link' header.
-    Only fetches merged PRs (state=merged) to ensure turnaround time is calculable.
-    """
-    url = f"{GITHUB_API_BASE}/repos/{repo_full_name}/pulls"
-    params = {
-        "state": "merged",
-        "per_page": per_page,
-        "sort": "created",
-        "direction": "asc",
-    }
 
-    all_prs = []
+def fetch_prs_for_repo(repo_name: str, token: str) -> List[Dict[str, Any]]:
+    """
+    Fetch PRs for a specific repository using GitHub API.
+    Handles pagination via the 'Link' header.
+    """
+    prs = []
     page = 1
+    per_page = 100
+    total_fetched = 0
 
-    logger.info(f"Fetching PRs for {repo_full_name}...")
+    base_url = f"{GITHUB_API_BASE}/repos/{repo_name}/pulls"
 
-    while True:
-        params["page"] = page
-        try:
-            response = api_request_with_backoff(url, headers=HEADERS, params=params)
-            log_api_headers(response)
+    logger.info(f"Fetching PRs for {repo_name} (limit: {MAX_PRS_PER_REPO})")
 
-            if response.status_code != 200:
-                logger.error(f"Failed to fetch PRs for {repo_full_name}: {response.status_code} - {response.text}")
-                break
+    while total_fetched < MAX_PRS_PER_REPO:
+        params = {
+            "state": "all",
+            "sort": "created",
+            "direction": "desc",
+            "per_page": per_page,
+            "page": page,
+        }
 
-            prs = response.json()
-            if not prs:
-                break
+        # Use the backoff wrapper to handle rate limits
+        response = api_request_with_backoff(base_url, token, params)
 
-            all_prs.extend(prs)
-            logger.info(f"Fetched page {page} ({len(prs)} PRs) for {repo_full_name}. Total so far: {len(all_prs)}")
-
-            # Check for next page in Link header
-            link_header = response.headers.get("Link")
-            if not link_header or 'rel="next"' not in link_header:
-                break
-
-            # Parse next URL from Link header
-            # Format: <url>; rel="next", <url>; rel="last"
-            next_url = None
-            for link in link_header.split(","):
-                parts = link.strip().split(";")
-                if len(parts) >= 2 and 'rel="next"' in parts[1]:
-                    next_url = parts[0].strip().strip("<>")
-                    break
-
-            if next_url:
-                # Use the full next_url to preserve pagination params
-                response = api_request_with_backoff(next_url, headers=HEADERS)
-                log_api_headers(response)
-                if response.status_code != 200:
-                    logger.error(f"Failed to fetch next page for {repo_full_name}: {response.status_code}")
-                    break
-                prs = response.json()
-                if not prs:
-                    break
-                all_prs.extend(prs)
-                # We don't increment page here because we are following the Link header directly
-                # But we need to ensure we don't loop infinitely if Link header is malformed
-                # We rely on the empty list check and Link header presence
-            else:
-                break
-
-            # Small delay to be polite to the API
-            time.sleep(1)
-            page += 1
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Network error fetching PRs for {repo_full_name}: {e}")
+        if response is None:
+            logger.error(f"Failed to fetch PRs for {repo_name} after retries.")
             break
 
-    logger.info(f"Total PRs fetched for {repo_full_name}: {len(all_prs)}")
-    return all_prs
+        log_api_headers(response)
 
-def fetch_commits_for_pr(repo_full_name: str, pr_number: int) -> List[Dict[str, Any]]:
-    """
-    Fetch ALL commits for a specific PR, handling pagination via the 'Link' header.
-    Returns a list of commit objects containing the message.
-    """
-    url = f"{GITHUB_API_BASE}/repos/{repo_full_name}/pulls/{pr_number}/commits"
-    params = {"per_page": 100}
+        page_data = response.json()
+        if not page_data:
+            break  # No more pages
 
-    all_commits = []
-    page = 1
+        prs.extend(page_data)
+        total_fetched += len(page_data)
+        page += 1
 
-    while True:
-        params["page"] = page
-        try:
-            response = api_request_with_backoff(url, headers=HEADERS, params=params)
-            log_api_headers(response)
-
-            if response.status_code != 200:
-                logger.error(f"Failed to fetch commits for PR #{pr_number} in {repo_full_name}: {response.status_code}")
-                break
-
-            commits = response.json()
-            if not commits:
-                break
-
-            all_commits.extend(commits)
-            logger.debug(f"Fetched page {page} ({len(commits)} commits) for PR #{pr_number}")
-
-            # Check for next page in Link header
-            link_header = response.headers.get("Link")
-            if not link_header or 'rel="next"' not in link_header:
-                break
-
-            # Parse next URL from Link header
-            next_url = None
-            for link in link_header.split(","):
-                parts = link.strip().split(";")
-                if len(parts) >= 2 and 'rel="next"' in parts[1]:
-                    next_url = parts[0].strip().strip("<>")
-                    break
-
-            if next_url:
-                response = api_request_with_backoff(next_url, headers=HEADERS)
-                log_api_headers(response)
-                if response.status_code != 200:
-                    logger.error(f"Failed to fetch next page for PR #{pr_number}: {response.status_code}")
-                    break
-                commits = response.json()
-                if not commits:
-                    break
-                all_commits.extend(commits)
-            else:
-                break
-
-            time.sleep(1)
-            page += 1
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Network error fetching commits for PR #{pr_number}: {e}")
+        # Check if we hit the repo limit
+        if total_fetched >= MAX_PRS_PER_REPO:
+            logger.info(f"Reached PR limit for {repo_name}: {total_fetched}")
             break
 
-    return all_commits
+        # Check Link header for next page
+        link_header = response.headers.get("Link")
+        if not link_header or "rel=\"next\"" not in link_header:
+            break
 
-def parse_iso_datetime(iso_str: str) -> datetime:
+        # Small delay to respect rate limits
+        time.sleep(0.5)
+
+    logger.info(f"Fetched {len(prs)} PRs for {repo_name}")
+    return prs[:MAX_PRS_PER_REPO]
+
+
+def fetch_commits_for_pr(repo_name: str, pr_number: int, token: str) -> List[Dict[str, Any]]:
+    """
+    Fetch commits for a specific PR.
+    Handles pagination.
+    """
+    commits = []
+    page = 1
+    per_page = 100
+    total_fetched = 0
+
+    base_url = f"{GITHUB_API_BASE}/repos/{repo_name}/pulls/{pr_number}/commits"
+
+    while total_fetched < COMMITS_PER_PR_LIMIT:
+        params = {
+            "per_page": per_page,
+            "page": page,
+        }
+
+        response = api_request_with_backoff(base_url, token, params)
+
+        if response is None:
+            logger.warning(f"Failed to fetch commits for PR #{pr_number} in {repo_name}")
+            break
+
+        log_api_headers(response)
+
+        page_data = response.json()
+        if not page_data:
+            break
+
+        commits.extend(page_data)
+        total_fetched += len(page_data)
+        page += 1
+
+        # Check Link header
+        link_header = response.headers.get("Link")
+        if not link_header or "rel=\"next\"" not in link_header:
+            break
+
+        time.sleep(0.5)
+
+    logger.debug(f"Fetched {len(commits)} commits for PR #{pr_number}")
+    return commits[:COMMITS_PER_PR_LIMIT]
+
+
+def parse_iso_datetime(iso_str: str) -> Optional[datetime]:
     """Parse ISO 8601 datetime string."""
     if not iso_str:
         return None
-    # Handle 'Z' suffix and timezone offsets
-    iso_str = iso_str.replace("Z", "+00:00")
     try:
+        # Handle common variations
+        iso_str = iso_str.replace("Z", "+00:00")
+        if "+00:00" in iso_str:
+            # Python 3.7+ handles this directly, but some parsers prefer standard
+            pass
         return datetime.fromisoformat(iso_str)
-    except ValueError:
-        # Fallback for older Python versions or weird formats
-        return datetime.strptime(iso_str[:19], "%Y-%m-%dT%H:%M:%S")
+    except ValueError as e:
+        logger.warning(f"Failed to parse date {iso_str}: {e}")
+        return None
 
-def calculate_turnaround_hours(created_at: str, merged_at: str) -> float:
-    """Calculate turnaround time in hours between created_at and merged_at."""
+
+def calculate_turnaround_hours(created_at: datetime, merged_at: datetime) -> Optional[float]:
+    """Calculate turnaround time in hours."""
     if not created_at or not merged_at:
         return None
-    created = parse_iso_datetime(created_at)
-    merged = parse_iso_datetime(merged_at)
-    if not created or not merged:
-        return None
-    delta = merged - created
+    delta = merged_at - created_at
     return delta.total_seconds() / 3600.0
 
+
 def extract_commit_messages(commits: List[Dict[str, Any]]) -> List[str]:
-    """Extract commit messages from a list of commit objects."""
+    """Extract commit messages from the commits list."""
     messages = []
     for commit in commits:
-        commit_data = commit.get("commit", {})
-        message = commit_data.get("message", "")
-        if message:
-            messages.append(message)
+        if "commit" in commit and "message" in commit["commit"]:
+            messages.append(commit["commit"]["message"])
     return messages
 
-def process_pr_data(repo_name: str, pr: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+def process_pr_data(
+    repo_name: str,
+    pr_data: Dict[str, Any],
+    token: str
+) -> Optional[Dict[str, Any]]:
     """
     Process a single PR: fetch commits, extract messages, calculate turnaround.
-    Returns a dictionary with PR metadata and commit messages, or None if invalid.
+    Returns a structured data object or None if failed.
     """
-    pr_id = str(pr.get("number"))
-    created_at = pr.get("created_at")
-    merged_at = pr.get("merged_at")
+    pr_id = pr_data.get("id")
+    pr_number = pr_data.get("number")
+    created_at_str = pr_data.get("created_at")
+    merged_at_str = pr_data.get("merged_at")
+    labels = pr_data.get("labels", [])
 
-    if not merged_at:
-        # Should be filtered out by fetch_prs_for_repo (state=merged), but double check
-        logger.debug(f"Skipping PR {pr_id} in {repo_name} due to missing merged_at")
+    # Skip if merged_at is missing (T013 logic)
+    if not merged_at_str:
         return None
 
-    turnaround = calculate_turnaround_hours(created_at, merged_at)
-    if turnaround is None:
-        logger.warning(f"Could not calculate turnaround for PR {pr_id} in {repo_name}")
+    created_at = parse_iso_datetime(created_at_str)
+    merged_at = parse_iso_datetime(merged_at_str)
+
+    turnaround_hours = calculate_turnaround_hours(created_at, merged_at)
+    if turnaround_hours is None:
         return None
 
-    # Fetch all commits for this PR
-    commits = fetch_commits_for_pr(repo_name, int(pr_id))
-    messages = extract_commit_messages(commits)
+    # Fetch commits for this PR
+    commits = fetch_commits_for_pr(repo_name, pr_number, token)
+    commit_messages = extract_commit_messages(commits)
 
     return {
-        "pr_id": pr_id,
+        "pr_id": str(pr_id),
         "repo_name": repo_name,
-        "created_at": created_at,
-        "merged_at": merged_at,
-        "turnaround_hours": turnaround,
-        "commit_messages": messages,
-        "labels": [label["name"] for label in pr.get("labels", [])],
-        "author": pr.get("user", {}).get("login"),
+        "pr_number": pr_number,
+        "created_at": created_at_str,
+        "merged_at": merged_at_str,
+        "turnaround_hours": turnaround_hours,
+        "labels": [label["name"] for label in labels],
+        "commit_messages": commit_messages,
+        "commit_count": len(commits),
     }
+
 
 def main():
     """
-    Main entry point for T012b:
-    1. Load repos from T012a.
-    2. For each repo, fetch ALL PRs.
-    3. For each PR, fetch ALL commits.
-    4. Save raw PR data with commit messages to data/raw/pr_data.json.
+    Main entry point for T012b.
+    Iterates through repos from T012a, fetches PRs, fetches commits,
+    and saves the raw data.
     """
-    logger.info("Starting T012b: Fetching PRs and all commits with pagination")
+    base_path = Path("projects/PROJ-312-evaluating-the-impact-of-code-generation")
+    repos_path = base_path / "data/raw/repos.json"
+    output_path = base_path / "data/raw/pr_data.json"
 
-    repos = load_repos()
+    token = os.getenv("GITHUB_TOKEN")
+    if not token:
+        logger.error("GITHUB_TOKEN environment variable not set.")
+        return
+
+    logger.info("Starting T012b: Fetching PRs and Commits")
+
+    repos = load_repos(repos_path)
     if not repos:
-        logger.error("No repositories found. Exiting.")
+        logger.error("No repositories loaded.")
         return
 
     all_pr_data = []
-    processed_repos = 0
-    skipped_repos = []
+    total_prs_processed = 0
 
     for repo in repos:
         repo_name = repo.get("name")
         if not repo_name:
             continue
 
-        logger.info(f"Processing repository: {repo_name}")
+        # Check cumulative limit
+        if total_prs_processed >= MAX_TOTAL_PRS:
+            logger.info(f"Cumulative PR limit ({MAX_TOTAL_PRS}) reached. Stopping.")
+            break
+
         try:
-            prs = fetch_prs_for_repo(repo_name)
-            
-            # T014 logic: Skip repos with < 50 PRs
-            if len(prs) < 50:
-                logger.warning(f"Skipping {repo_name} with only {len(prs)} PRs (< 50 threshold)")
-                skipped_repos.append(repo_name)
+            prs = fetch_prs_for_repo(repo_name, token)
+            if not prs:
                 continue
 
-            repo_pr_data = []
             for pr in prs:
-                pr_result = process_pr_data(repo_name, pr)
-                if pr_result:
-                    repo_pr_data.append(pr_result)
-            
-            all_pr_data.extend(repo_pr_data)
-            processed_repos += 1
-            logger.info(f"Successfully processed {repo_name}: {len(repo_pr_data)} PRs")
+                # Check cumulative limit again
+                if total_prs_processed >= MAX_TOTAL_PRS:
+                    break
+
+                processed = process_pr_data(repo_name, pr, token)
+                if processed:
+                    all_pr_data.append(processed)
+                    total_prs_processed += 1
+
+            logger.info(f"Processed {repo_name}. Total PRs so far: {total_prs_processed}")
 
         except Exception as e:
             logger.error(f"Error processing {repo_name}: {e}", exc_info=True)
             continue
 
-    # Save raw PR data
-    output_path = "data/raw/pr_data.json"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    # Save output
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(all_pr_data, f, indent=2, ensure_ascii=False)
-    logger.info(f"Saved raw PR data to {output_path} ({len(all_pr_data)} PRs)")
+        json.dump(all_pr_data, f, indent=2, default=str)
 
-    # Save excluded repos list
-    if skipped_repos:
-        excluded_path = "data/processed/excluded_repos.txt"
-        os.makedirs(os.path.dirname(excluded_path), exist_ok=True)
-        with open(excluded_path, "w", encoding="utf-8") as f:
-            for repo in skipped_repos:
-                f.write(f"{repo}\n")
-        logger.info(f"Saved excluded repos to {excluded_path}")
+    logger.info(f"Saved {len(all_pr_data)} PR records to {output_path}")
 
-    logger.info("T012b completed successfully.")
 
 if __name__ == "__main__":
     main()
