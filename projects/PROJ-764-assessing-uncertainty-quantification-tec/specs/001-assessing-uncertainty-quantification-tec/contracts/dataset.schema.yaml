@@ -1,30 +1,45 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "MaterialSampleDataset"
-description: "Schema for the processed material dataset (train/val/test splits). UNDEFINED: No data model defined due to missing numeric dataset."
-type: "object"
+title: "MaterialSample Dataset Schema"
+description: "Schema for the processed OQMD dataset used in training and evaluation."
+type: object
 properties:
-  sample_id:
-    type: "string"
+  id:
+    type: string
     description: "Unique identifier for the material sample."
   composition:
-    type: "string"
-    description: "String representation of composition (e.g., 'Fe2O3')."
-  features:
-    type: "array"
-    description: "Numeric feature vector (compositional + structural)."
-    items:
-      type: "number"
-  target_energy:
-    type: "number"
-    description: "Formation energy (eV/atom)."
-  target_modulus:
-    type: "number"
-    description: "Bulk modulus (GPa)."
-  target_gap:
-    type: "number"
-    description: "Band gap (eV)."
+    type: object
+    description: "Elemental composition fractions."
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  structural_descriptors:
+    type: object
+    description: "Computed structural features."
+    properties:
+      atomic_radius:
+        type: number
+        description: "Average atomic radius in Angstroms."
+      packing_fraction:
+        type: number
+        description: "Packing fraction of the crystal structure."
+    required:
+      - atomic_radius
+      - packing_fraction
+  formation_energy:
+    type: number
+    description: "Formation energy in eV/atom."
+  bulk_modulus:
+    type: number
+    description: "Bulk modulus in GPa."
+  band_gap:
+    type: number
+    description: "Band gap in eV."
 required:
-  - sample_id
-  - features
-  - target_energy
+  - id
+  - composition
+  - structural_descriptors
+  - formation_energy
+  - bulk_modulus
+  - band_gap
 additionalProperties: false

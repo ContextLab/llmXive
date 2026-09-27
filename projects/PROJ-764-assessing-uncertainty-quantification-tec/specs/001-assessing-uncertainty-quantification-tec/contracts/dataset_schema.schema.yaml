@@ -1,6 +1,6 @@
 $schema: 'http://json-schema.org/draft-07/schema#'
-title: OQMD Dataset Schema
-description: Schema for the OQMD dataset used in the project.
+title: OQMD Dataset Schema (Legacy)
+description: Legacy schema for the OQMD dataset. Use dataset.schema.yaml as SSoT.
 type: array
 items:
   type: object

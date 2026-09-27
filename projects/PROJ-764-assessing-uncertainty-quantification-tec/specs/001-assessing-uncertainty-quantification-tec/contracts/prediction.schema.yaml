@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "UQPrediction"
-description: "Schema for UQ prediction outputs. UNDEFINED: No data model defined due to missing numeric dataset."
+title: "UQPrediction (Legacy)"
+description: "Legacy schema for UQ prediction outputs. Use uq_prediction.schema.yaml as SSoT."
 type: "object"
 properties:
   sample_id:

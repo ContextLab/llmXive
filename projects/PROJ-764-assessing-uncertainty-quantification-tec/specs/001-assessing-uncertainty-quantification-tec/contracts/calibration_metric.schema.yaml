@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Calibration Metric Schema"
+description: "Schema for calibration evaluation results."
+type: object
+properties:
+  method:
+    type: string
+    enum:
+      - deep_ensemble
+      - mc_dropout
+      - sparse_gp
+    description: "The UQ method evaluated."
+  confidence_level:
+    type: number
+    enum:
+      - 0.5
+      - 0.9
+    description: "Confidence level for the interval."
+  ece_score:
+    type: number
+    description: "Expected Calibration Error."
+  interval_score:
+    type: number
+    description: "Winkler interval score."
+  sharpness:
+    type: number
+    description: "Mean interval width."
+  coverage_percentage:
+    type: number
+    description: "Empirical coverage percentage."
+required:
+  - method
+  - confidence_level
+  - ece_score
+  - interval_score
+  - sharpness
+  - coverage_percentage
+additionalProperties: false

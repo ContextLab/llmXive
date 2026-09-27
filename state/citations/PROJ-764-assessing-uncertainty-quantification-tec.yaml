@@ -1,36 +1,3 @@
-- artifact_hash: cd44e052306513df4d54522ffbfd6651a54875b9f6c3b5b5d41d51ef9b3ee817
-  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/oqmd/formation-energy`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/oqmd/formation-energy
-  verified_at: '2026-07-07T15:48:05.533534Z'
-- artifact_hash: cd44e052306513df4d54522ffbfd6651a54875b9f6c3b5b5d41d51ef9b3ee817
-  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/oqmd/formation-energy
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/oqmd/formation-energy
-  verified_at: '2026-07-07T15:48:05.533534Z'
-- artifact_hash: 6624b6f63911aaaf80a8ccac16ca4777e59da364844d4bdef14e25b918a7172b
-  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: cpu
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-07T15:48:26.220536Z'
 - artifact_hash: ecf69bd01145867f8027c06261812850b691a522501bba4ffa8b807f9a0d678a
   artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
   cite_id: c-001
@@ -75,3 +42,36 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/OQMD/OQMD-Subset
   verified_at: '2026-09-09T19:51:19.822544Z'
+- artifact_hash: 6f7838eda36dbbcd77661268ed2efa8a806a676a47d381af1a845a0f45c33d2f
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/OQMD/OQMD-Subset
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/OQMD/OQMD-Subset
+  verified_at: '2026-09-27T14:30:09.720462Z'
+- artifact_hash: 01320b73aaef2e7c0fbb667d60ac2f4fcb90d0e6962ae9ba4075b0b87b060817
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "materials-toolkits/oqmd \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/materials-toolkits/oqmd`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/materials-toolkits/oqmd
+  verified_at: '2026-09-27T14:30:11.877253Z'
+- artifact_hash: 01320b73aaef2e7c0fbb667d60ac2f4fcb90d0e6962ae9ba4075b0b87b060817
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: targets.csv
+  kind: url
+  value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?user_id=public&xip=z5qj6623Ia0&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&X-Xet-Cas-Uid=public&Expires=1790523012&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD91c2VyX2lkPXB1YmxpYyZ4aXA9ejVxajY2MjNJYTAmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YlM0IrY2hhcnNldCUzRHV0Zi04JnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0YXJnZXRzLmNzdiUzQitmaWxlbmFtZSUzRCUyMnRhcmdldHMuY3N2JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTA1MjMwMTJ9fX1dfQ__&Signature=MEUCIGYJcHTG7BpxseGSR%7EpZluV4IxSOqeoNls%7EO6Q5traT7AiEAyxZNza5t5D%7EkVbJNZY2Qz5sFu5eoHuhlghLP50RvQ3s_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-27T14:30:11.877253Z'

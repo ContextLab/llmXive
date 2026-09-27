@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CalibrationMetric"
-description: "Schema for calibration metrics output. UNDEFINED: No data model defined due to missing numeric dataset."
+title: "CalibrationMetric (Legacy)"
+description: "Legacy schema for calibration metrics. Use calibration_metric.schema.yaml as SSoT."
 type: "object"
 properties:
   method:

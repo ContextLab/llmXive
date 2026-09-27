@@ -1,7 +1,7 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: MaterialSample
+title: MaterialSample (Legacy)
 type: object
-description: Represents a single inorganic compound from the Materials Project dataset. UNDEFINED: No data model defined due to missing numeric dataset.
+description: Legacy schema for MaterialSample. Use dataset.schema.yaml as SSoT.
 required:
   - material_id
   - composition

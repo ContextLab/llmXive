@@ -1,51 +1,62 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: UQPrediction
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "UQ Prediction Schema"
+description: "Schema for the output of uncertainty quantification inference."
 type: object
-description: Output of a UQ method for a single sample. UNDEFINED: No data model defined due to missing numeric dataset.
-required:
-  - material_id
-  - method
-  - prediction
-  - variance
-  - lower_50
-  - upper_50
-  - lower_90
-  - upper_90
-  - uncertainty_type
 properties:
-  material_id:
+  sample_id:
     type: string
-    description: Reference to MaterialSample.
+    description: "Reference to the MaterialSample ID."
   method:
     type: string
     enum:
       - deep_ensemble
       - mc_dropout
       - sparse_gp
-    description: Method used for prediction.
-  prediction:
+    description: "The UQ method used."
+  prediction_mean:
     type: number
-    description: Point estimate (mean).
-  variance:
+    description: "Predicted mean value."
+  prediction_variance:
     type: number
-    description: Predictive variance.
-    minimum: 0
-  lower_50:
+    description: "Total predictive variance."
+  aleatoric_variance:
     type: number
-    description: Lower bound of 50% CI.
-  upper_50:
+    description: "Aleatoric uncertainty component."
+  epistemic_variance:
     type: number
-    description: Upper bound of 50% CI.
-  lower_90:
-    type: number
-    description: Lower bound of 90% CI.
-  upper_90:
-    type: number
-    description: Upper bound of 90% CI.
+    description: "Epistemic uncertainty component."
   uncertainty_type:
     type: string
     enum:
       - aleatoric
       - epistemic
       - total
-    description: Type of uncertainty reported.
+    description: "Type of uncertainty component (Required by FR-008)."
+  lower_bound_50:
+    type: number
+    description: "Lower bound for 50% confidence interval."
+  upper_bound_50:
+    type: number
+    description: "Upper bound for 50% confidence interval."
+  lower_bound_90:
+    type: number
+    description: "Lower bound for 90% confidence interval."
+  upper_bound_90:
+    type: number
+    description: "Upper bound for 90% confidence interval."
+  reconstruction_variance:
+    type: number
+    description: "Reconstruction variance for Sparse GP (optional)."
+required:
+  - sample_id
+  - method
+  - prediction_mean
+  - prediction_variance
+  - aleatoric_variance
+  - epistemic_variance
+  - uncertainty_type
+  - lower_bound_50
+  - upper_bound_50
+  - lower_bound_90
+  - upper_bound_90
+additionalProperties: false
