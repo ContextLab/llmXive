@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-follow-up"
+name = "llmxive-follow-up-extending-beyond-scala"
 version = "0.1.0"
-description = "Teacher Entanglement vs. Scalar Distillation Loss Analysis"
+description = "Follow-up study: Teacher Entanglement vs. Scalar Distillation Loss"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -14,40 +14,37 @@ dependencies = [
     "scikit-learn==1.3.0",
     "scipy==1.11.0",
     "pyyaml==6.0.1",
+    "datasets>=2.14.0",
+    "pyarrow>=12.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
     "pytest==7.4.0",
     "ruff==0.9.0",
     "black==24.8.0",
+    "coverage>=7.0.0",
 ]
+
+[tool.setuptools]
+packages = ["code", "tests"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
 
 [tool.black]
 line-length = 88
 target-version = ['py310']
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.ruff]
-# Extends .ruff.toml for project-level settings if needed,
-# but primary config is in .ruff.toml for CLI compatibility.
-extend = ".ruff.toml"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "unit: marks tests as unit tests",
-    "integration: marks tests as integration tests"
-]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

@@ -1,305 +1,196 @@
-"""
-Unit tests for data provenance verification.
-
-Tests that human_annotations are generated independently of teacher_scores
-and student_scalar, relying only on species_id and prompt_text.
-"""
-import json
+import pytest
+import pandas as pd
+import numpy as np
 import os
-import sys
 import tempfile
 from pathlib import Path
+import json
 
-import numpy as np
-import pandas as pd
-import pytest
+# Import functions from the provenance module
+import sys
+sys.path.insert(0, 'code')
+from provenance import (
+    load_dataset,
+    verify_provenance_independence,
+    save_verification_report
+)
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from provenance import verify_provenance_independence, load_dataset
-
-
-def create_test_dataset(independent_annotations: bool = True):
-    """
-    Create a test dataset for provenance verification.
-    
-    Args:
-        independent_annotations: If True, human_annotations depend only on species_id and prompt_text.
-                               If False, human_annotations also depend on teacher_scores.
-    """
-    n_samples = 100
-    
-    # Create base data
-    data = {
-        'species_id': np.random.choice([1, 2, 3, 4, 5], n_samples),
-        'prompt_text': np.random.choice(['prompt_a', 'prompt_b', 'prompt_c'], n_samples),
-        'teacher_scores': np.random.randn(n_samples, 4).tolist(),
-        'student_scalar': np.random.randn(n_samples).tolist(),
-    }
-    
-    if independent_annotations:
-        # human_annotations depend ONLY on species_id and prompt_text
-        # Create a deterministic mapping
-        annotations = []
-        for idx, row in enumerate(data['species_id']):
-            prompt = data['prompt_text'][idx]
-            # Create a hash-like value based on species_id and prompt_text
-            combined_key = f"{row}_{prompt}"
-            # Use a simple deterministic function
-            annotations.append((hash(combined_key) % 100) / 100.0)
-        data['human_annotations'] = annotations
-    else:
-        # human_annotations depend on teacher_scores as well (violates provenance)
-        teacher_scores_array = np.array(data['teacher_scores'])
-        teacher_mean = teacher_scores_array.mean(axis=1)
-        # Add dependency on teacher_scores
-        data['human_annotations'] = teacher_mean + np.random.randn(n_samples) * 0.01
-    
-    return pd.DataFrame(data)
-
-
-class TestProvenanceVerification:
-    """Test cases for data provenance verification."""
-    
-    def test_independent_annotations_pass(self):
-        """Test that independent annotations pass verification."""
-        df = create_test_dataset(independent_annotations=True)
+@pytest.fixture
+def temp_parquet_file():
+    """Create a temporary parquet file with test data for provenance verification."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = os.path.join(tmpdir, "test_data.parquet")
         
-        # Mock logger
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
+        # Create test data where human_annotations are INDEPENDENT of teacher_scores
+        n_samples = 100
         
-        logger = MockLogger()
-        results = verify_provenance_independence(df, logger)
+        # Generate deterministic teacher_scores based on species_id and prompt_text
+        # (simulating the actual data generation process)
+        species_ids = np.random.randint(1, 50, n_samples)
+        prompts = [f"Image of species {i} in natural setting" for i in range(n_samples)]
         
-        assert results["status"] == "passed", f"Expected pass, got: {results['checks']}"
+        # Teacher scores: deterministic function of species_id and prompt
+        teacher_scores = []
+        for i in range(n_samples):
+            seed_val = hash(f"{species_ids[i]}_{prompts[i]}") % 10000
+            scores = [
+                (seed_val + i * 7) % 100 / 100.0,
+                (seed_val + i * 11) % 100 / 100.0,
+                (seed_val + i * 13) % 100 / 100.0,
+                (seed_val + i * 17) % 100 / 100.0
+            ]
+            teacher_scores.append(scores)
         
-        # Verify specific checks passed
-        annotation_check = next(c for c in results["checks"] if c["check"] == "annotation_consistency")
-        assert annotation_check["status"] == "passed"
-    
-    def test_dependent_annotations_fail(self):
-        """Test that dependent annotations (on teacher_scores) fail verification."""
-        df = create_test_dataset(independent_annotations=False)
+        # Student scalar: derived from teacher_scores (mean)
+        student_scalars = [np.mean(scores) for scores in teacher_scores]
         
-        # Mock logger
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
+        # Human annotations: deterministic function of species_id and prompt ONLY
+        # NO dependency on teacher_scores
+        human_annotations = []
+        for i in range(n_samples):
+            seed_val = hash(f"{species_ids[i]}_{prompts[i]}") % 10000
+            # Use a DIFFERENT hash pattern to ensure independence from teacher_scores
+            scores = [
+                (seed_val + i * 23) % 100 / 100.0,  # Different multiplier
+                (seed_val + i * 29) % 100 / 100.0,
+                (seed_val + i * 31) % 100 / 100.0,
+                (seed_val + i * 37) % 100 / 100.0
+            ]
+            human_annotations.append(scores)
         
-        logger = MockLogger()
-        results = verify_provenance_independence(df, logger)
-        
-        # This should fail because human_annotations vary within (species_id, prompt_text) groups
-        # when they depend on teacher_scores
-        assert results["status"] == "failed", f"Expected fail, got: {results['checks']}"
-    
-    def test_missing_columns_raises_error(self):
-        """Test that missing required columns raise an error."""
+        # Create DataFrame
         df = pd.DataFrame({
-            'species_id': [1, 2, 3],
-            'prompt_text': ['a', 'b', 'c'],
-            # Missing human_annotations, teacher_scores, student_scalar
+            "image_path": [f"image_{i}.jpg" for i in range(n_samples)],
+            "species_id": species_ids,
+            "prompt_text": prompts,
+            "teacher_scores": teacher_scores,
+            "student_scalar": student_scalars,
+            "human_annotations": human_annotations
         })
         
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
+        # Save to parquet
+        df.to_parquet(filepath, index=False)
         
-        logger = MockLogger()
-        
-        with pytest.raises(ValueError, match="Missing required columns"):
-            verify_provenance_independence(df, logger)
+        yield filepath
+
+def test_load_dataset_success(temp_parquet_file):
+    """Test that load_dataset successfully loads a parquet file."""
+    import logging
+    logger = logging.getLogger(__name__)
     
-    def test_consistency_within_groups(self):
-        """Test that human_annotations are consistent within (species_id, prompt_text) groups."""
-        # Create dataset where same (species_id, prompt_text) always gives same annotation
-        data = {
-            'species_id': [1, 1, 2, 2, 1],
-            'prompt_text': ['a', 'a', 'b', 'b', 'a'],
-            'human_annotations': [0.5, 0.5, 0.7, 0.7, 0.5],  # Consistent
-            'teacher_scores': [[1, 2, 3, 4], [2, 3, 4, 5], [1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3]],
-            'student_scalar': [0.1, 0.2, 0.3, 0.4, 0.5],
-        }
-        df = pd.DataFrame(data)
-        
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
-        
-        logger = MockLogger()
-        results = verify_provenance_independence(df, logger)
-        
-        assert results["status"] == "passed"
-        annotation_check = next(c for c in results["checks"] if c["check"] == "annotation_consistency")
-        assert annotation_check["status"] == "passed"
+    df = load_dataset(temp_parquet_file, logger)
     
-    def test_inconsistency_within_groups_fails(self):
-        """Test that inconsistent human_annotations within groups fail verification."""
-        # Create dataset where same (species_id, prompt_text) gives different annotations
-        data = {
-            'species_id': [1, 1, 2, 2, 1],
-            'prompt_text': ['a', 'a', 'b', 'b', 'a'],
-            'human_annotations': [0.5, 0.6, 0.7, 0.7, 0.5],  # Inconsistent for (1, 'a')
-            'teacher_scores': [[1, 2, 3, 4], [2, 3, 4, 5], [1, 1, 1, 1], [2, 2, 2, 2], [3, 3, 3, 3]],
-            'student_scalar': [0.1, 0.2, 0.3, 0.4, 0.5],
-        }
-        df = pd.DataFrame(data)
-        
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
-        
-        logger = MockLogger()
-        results = verify_provenance_independence(df, logger)
-        
-        assert results["status"] == "failed"
-        annotation_check = next(c for c in results["checks"] if c["check"] == "annotation_consistency")
-        assert annotation_check["status"] == "failed"
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) > 0
+    assert "teacher_scores" in df.columns
+    assert "human_annotations" in df.columns
+
+def test_verify_provenance_independence_passes(temp_parquet_file):
+    """Test that provenance verification passes when human_annotations are independent."""
+    import logging
+    logger = logging.getLogger(__name__)
     
-    def test_empty_dataset(self):
-        """Test handling of empty dataset."""
-        df = pd.DataFrame(columns=['species_id', 'prompt_text', 'human_annotations', 'teacher_scores', 'student_scalar'])
-        
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
-        
-        logger = MockLogger()
-        
-        # Should handle empty dataset gracefully
-        results = verify_provenance_independence(df, logger)
-        assert results["status"] == "passed"  # No violations in empty data
+    df = load_dataset(temp_parquet_file, logger)
+    result = verify_provenance_independence(df, logger)
     
-    def test_single_sample(self):
-        """Test handling of single sample dataset."""
+    assert result["verification_passed"] is True
+    assert result["sample_count"] > 0
+    assert result["linear_regression_r2_from_teacher"] < 0.01
+    assert result["linear_regression_r2_from_student_scalar"] < 0.01
+    assert "independent" in result["message"].lower()
+
+def test_verify_provenance_independence_fails_with_dependent_data():
+    """Test that verification fails when human_annotations depend on teacher_scores."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        filepath = os.path.join(tmpdir, "dependent_data.parquet")
+        
+        n_samples = 100
+        species_ids = np.random.randint(1, 50, n_samples)
+        prompts = [f"Image of species {i}" for i in range(n_samples)]
+        
+        # Create data where human_annotations DEPEND on teacher_scores
+        teacher_scores = []
+        human_annotations = []
+        
+        for i in range(n_samples):
+            seed_val = hash(f"{species_ids[i]}_{prompts[i]}") % 10000
+            teacher_scores_i = [
+                (seed_val + i * 7) % 100 / 100.0,
+                (seed_val + i * 11) % 100 / 100.0,
+                (seed_val + i * 13) % 100 / 100.0,
+                (seed_val + i * 17) % 100 / 100.0
+            ]
+            # Human annotations are a direct function of teacher_scores (dependency!)
+            human_scores_i = [
+                t * 0.9 + 0.05 for t in teacher_scores_i  # Strong linear dependency
+            ]
+            
+            teacher_scores.append(teacher_scores_i)
+            human_annotations.append(human_scores_i)
+        
+        student_scalars = [np.mean(scores) for scores in teacher_scores]
+        
         df = pd.DataFrame({
-            'species_id': [1],
-            'prompt_text': ['a'],
-            'human_annotations': [0.5],
-            'teacher_scores': [[1, 2, 3, 4]],
-            'student_scalar': [0.1],
+            "image_path": [f"image_{i}.jpg" for i in range(n_samples)],
+            "species_id": species_ids,
+            "prompt_text": prompts,
+            "teacher_scores": teacher_scores,
+            "student_scalar": student_scalars,
+            "human_annotations": human_annotations
         })
         
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
+        df.to_parquet(filepath, index=False)
         
-        logger = MockLogger()
-        results = verify_provenance_independence(df, logger)
+        import logging
+        logger = logging.getLogger(__name__)
         
-        assert results["status"] == "passed"
+        loaded_df = load_dataset(filepath, logger)
+        result = verify_provenance_independence(loaded_df, logger)
+        
+        # Should fail because there IS a dependency
+        assert result["verification_passed"] is False
+        assert result["linear_regression_r2_from_teacher"] > 0.5  # High R² due to dependency
+
+def test_save_verification_report(temp_parquet_file):
+    """Test that verification report is saved correctly."""
+    import logging
+    logger = logging.getLogger(__name__)
     
-    def test_large_dataset_performance(self):
-        """Test performance with larger dataset."""
-        # Create a larger dataset
-        n_samples = 1000
-        df = create_test_dataset(independent_annotations=True)
-        
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
-        
-        logger = MockLogger()
-        
-        # Should complete without timeout
-        results = verify_provenance_independence(df, logger)
-        assert results["status"] in ["passed", "failed"]  # Either result is acceptable for performance test
+    df = load_dataset(temp_parquet_file, logger)
+    result = verify_provenance_independence(df, logger)
     
-    def test_json_serialization(self):
-        """Test that results can be serialized to JSON."""
-        df = create_test_dataset(independent_annotations=True)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "report.json")
+        save_verification_report(result, output_path, logger)
         
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
+        assert os.path.exists(output_path)
         
-        logger = MockLogger()
-        results = verify_provenance_independence(df, logger)
+        with open(output_path, "r") as f:
+            saved_result = json.load(f)
         
-        # Should not raise
-        json_str = json.dumps(results, default=str)
-        assert len(json_str) > 0
+        assert saved_result["verification_passed"] == result["verification_passed"]
+        assert saved_result["sample_count"] == result["sample_count"]
+
+def test_load_dataset_missing_file():
+    """Test that load_dataset raises FileNotFoundError for missing file."""
+    import logging
+    logger = logging.getLogger(__name__)
     
-    def test_teacher_scores_format(self):
-        """Test handling of teacher_scores as string representation."""
-        # Create dataset with teacher_scores as string
-        data = {
-            'species_id': [1, 2],
-            'prompt_text': ['a', 'b'],
-            'human_annotations': [0.5, 0.7],
-            'teacher_scores': ['[1, 2, 3, 4]', '[2, 3, 4, 5]'],  # String representation
-            'student_scalar': [0.1, 0.2],
-        }
-        df = pd.DataFrame(data)
-        
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
-        
-        logger = MockLogger()
-        
-        # Should handle string representation
-        results = verify_provenance_independence(df, logger)
-        assert results["status"] in ["passed", "failed"]
+    with pytest.raises(FileNotFoundError):
+        load_dataset("/nonexistent/path/data.parquet", logger)
+
+def test_verify_provenance_missing_columns(temp_parquet_file):
+    """Test that verification fails when required columns are missing."""
+    import logging
+    logger = logging.getLogger(__name__)
     
-    def test_string_teacher_scores_invalid_format(self):
-        """Test handling of invalid string teacher_scores format."""
-        data = {
-            'species_id': [1],
-            'prompt_text': ['a'],
-            'human_annotations': [0.5],
-            'teacher_scores': ['invalid_json'],  # Invalid JSON
-            'student_scalar': [0.1],
-        }
-        df = pd.DataFrame(data)
-        
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
-        
-        logger = MockLogger()
-        
-        with pytest.raises(ValueError, match="teacher_scores column must contain list-like values"):
-            verify_provenance_independence(df, logger)
+    df = load_dataset(temp_parquet_file, logger)
     
-    def test_correlation_checks_produced(self):
-        """Test that correlation checks are produced in results."""
-        df = create_test_dataset(independent_annotations=True)
-        
-        class MockLogger:
-            def info(self, msg): pass
-            def warning(self, msg): pass
-            def error(self, msg): pass
-            def debug(self, msg): pass
-        
-        logger = MockLogger()
-        results = verify_provenance_independence(df, logger)
-        
-        assert "details" in results
-        assert "partial_correlations_teacher" in results["details"]
-        assert "student_scalar_correlations" in results["details"]
+    # Remove a required column
+    df_no_teacher = df.drop(columns=["teacher_scores"])
+    
+    with pytest.raises(ValueError) as exc_info:
+        verify_provenance_independence(df_no_teacher, logger)
+    
+    assert "Missing required columns" in str(exc_info.value)
+    assert "teacher_scores" in str(exc_info.value)

@@ -7,52 +7,27 @@ __pycache__/
 *.so
 
 # Distribution / packaging
-.Python
-build/
-develop-eggs/
+.eggs/
+*.egg-info/
 dist/
+build/
+bdist/
+develop-eggs/
 downloads/
 eggs/
-.eggs/
 lib/
 lib64/
 parts/
 sdist/
 var/
 wheels/
-*.egg-info/
-.installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
+# Virtual environments
 venv/
 ENV/
 env/
+.venv
 
 # IDE
 .idea/
@@ -61,16 +36,29 @@ env/
 *.swo
 *~
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.hypothesis/
 
-# pyenv
-.python-version
+# Logs
+*.log
+logs/
 
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
+# Local config
+.env
+.env.local
 
-# Pyre type checker
-.pyre/
+# Project specific data (raw data is large, processed is generated)
+data/raw/*.parquet
+data/raw/*.csv
+data/processed/*.parquet
+data/processed/*.csv
+data/processed/*.json
+results/*.pkl
+results/*.json
+results/*.md
+results/*.png
+results/*.csv
+results/*.txt

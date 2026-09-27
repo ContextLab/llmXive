@@ -2,63 +2,71 @@ import json
 import os
 import tempfile
 from pathlib import Path
-
 import pytest
 
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "projects" / "PROJ-967-llmxive-follow-up-extending-beyond-scala" / "code"))
+from code.initialize_artifacts import initialize_empty_artifacts, parse_args
 
-from initialize_artifacts import initialize_empty_artifacts
+def test_initialize_artifacts_creates_files():
+    """Test that initialize_empty_artifacts creates the JSON files with correct content."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
+        
+        # Define paths within temp directory
+        data_dir = tmpdir_path / "data" / "processed"
+        results_dir = tmpdir_path / "results"
+        
+        features_path = data_dir / "features.json"
+        results_path = results_dir / "results.json"
+        
+        # Mock logger
+        class MockLogger:
+            def info(self, msg):
+                pass
+            def error(self, msg):
+                pass
+        
+        logger = MockLogger()
+        
+        # Initialize artifacts
+        initialize_empty_artifacts(features_path, results_path, logger)
+        
+        # Verify files exist
+        assert features_path.exists(), "features.json was not created"
+        assert results_path.exists(), "results.json was not created"
+        
+        # Verify content
+        with open(features_path, 'r') as f:
+            features_data = json.load(f)
+        assert features_data == [], "features.json should contain an empty list"
+        
+        with open(results_path, 'r') as f:
+            results_data = json.load(f)
+        assert results_data == {}, "results.json should contain an empty dict"
 
-
-class TestInitializeArtifacts:
-    def test_creates_features_json_with_empty_list(self, tmp_path):
-        """Verify that features.json is created with content []"""
-        # Create a temporary directory structure
-        base_dir = tmp_path / "test_project"
-        base_dir.mkdir()
+def test_initialize_artifacts_creates_directories():
+    """Test that initialize_empty_artifacts creates parent directories if they don't exist."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir_path = Path(tmpdir)
         
-        # Run the initialization
-        initialize_empty_artifacts(base_dir, None)
+        # Define paths where directories don't exist
+        features_path = tmpdir_path / "deep" / "nested" / "path" / "features.json"
+        results_path = tmpdir_path / "other" / "path" / "results.json"
         
-        # Check that the file exists
-        features_path = base_dir / "data" / "processed" / "features.json"
-        assert features_path.exists(), "features.json should be created"
+        class MockLogger:
+            def info(self, msg):
+                pass
+            def error(self, msg):
+                pass
         
-        # Check the content
-        with open(features_path, "r", encoding="utf-8") as f:
-            content = json.load(f)
+        logger = MockLogger()
         
-        assert content == [], "features.json should contain an empty list"
-
-    def test_creates_results_json_with_empty_dict(self, tmp_path):
-        """Verify that results.json is created with content {}"""
-        # Create a temporary directory structure
-        base_dir = tmp_path / "test_project"
-        base_dir.mkdir()
+        # Initialize artifacts
+        initialize_empty_artifacts(features_path, results_path, logger)
         
-        # Run the initialization
-        initialize_empty_artifacts(base_dir, None)
+        # Verify directories were created
+        assert features_path.parent.exists(), "Parent directory for features.json was not created"
+        assert results_path.parent.exists(), "Parent directory for results.json was not created"
         
-        # Check that the file exists
-        results_path = base_dir / "results" / "results.json"
-        assert results_path.exists(), "results.json should be created"
-        
-        # Check the content
-        with open(results_path, "r", encoding="utf-8") as f:
-            content = json.load(f)
-        
-        assert content == {}, "results.json should contain an empty dict"
-
-    def test_creates_directories(self, tmp_path):
-        """Verify that required directories are created if they don't exist"""
-        base_dir = tmp_path / "test_project"
-        base_dir.mkdir()
-        
-        # Run the initialization
-        initialize_empty_artifacts(base_dir, None)
-        
-        # Check directories exist
-        assert (base_dir / "data" / "processed").exists(), "data/processed directory should exist"
-        assert (base_dir / "results").exists(), "results directory should exist"
+        # Verify files exist
+        assert features_path.exists(), "features.json was not created"
+        assert results_path.exists(), "results.json was not created"

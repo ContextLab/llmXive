@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -27,7 +27,25 @@
 - [ ] T001a [P] Create project directory structure: Create directories `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/raw`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/tests` relative to repository root.
 - [ ] T001b [P] Create empty project files: Create empty files `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/.gitignore`, `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/pytest.ini`.
 - [ ] T001c [P] Write dependencies: Write `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt` with **pinned versions** (`pandas==2.0.3`, `numpy==1.24.3`, `scikit-learn==1.3.0`, `scipy==1.11.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `ruff==0.9.0`, `black==24.8.0`).
-- [ ] T001d [P] Create provisional dataset schema template: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/contracts/dataset.schema.yaml` with the exact YAML content matching the OxfordPets structure + simulated outputs.
+- [ ] T001d [P] Create provisional dataset schema template: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/contracts/dataset.schema.yaml` with the EXACT YAML content:
+ ```yaml
+ version: 1.0
+ fields:
+ - name: image_path
+ type: string
+ - name: species_id
+ type: integer
+ - name: prompt_text
+ type: string
+ - name: teacher_scores
+ type: list[float] # Length: [Alignment, Realism, Aesthetics, Plausibility]
+ - name: student_scalar
+ type: float
+ - name: human_annotations
+ type: list[float] # Length: [Alignment, Realism, Aesthetics, Plausibility]
+ - name: primary_dimension
+ type: integer # 0-3
+ ```
 - [ ] T001f [P] Create output schema contract: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/contracts/output.schema.yaml` defining the structure of `data/processed/features.json`.
 - [ ] T001e [P] Initialize output artifacts: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/data/processed/features.json` with content `[]` and `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/results/results.json` with content `{}`.
 - [ ] T003a [P] Create linting and formatting config: Create `.ruff.toml` and `pyproject.toml` in `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/` with pinned tool versions and configuration.
@@ -40,14 +58,16 @@
 
 **Purpose**: Obtain data (real or synthetic) and prepare it for downstream processing.
 
-- [ ] T037-deterministic-sim [FR-001][SC-005][P] **Data Producer: Simulated OxfordPets (Reframed Strategy)**
+- [ ] T037-deterministic-sim [FR-001-Simulated][SC-005-Simulated][P] **Data Producer: Simulated OxfordPets (Reframed Strategy)**
  1. **Enforce Plan Constraint**: Check `verified_sources` list. If 'z-reward' is present, raise `RuntimeError("Plan Conflict: Z-Reward is listed in verified_sources but Plan.md requires OxfordPets+Simulation. Aborting.")`.
- 2. **Fetch Verified Data**: Fetch the verified `oxford_pets` dataset via `datasets.load_dataset("oxford_pets", split="test", streaming=False)`.
- 3. **Simulate Distributions**: Invoke `code/simulate.py` to generate teacher score distributions (4 rubric dimensions) and student scalar outputs for each image.
- 4. **Generate Annotations**: Produce synthetic human annotations (independent of teacher scores) for each sample.
- 5. **Write Unified Dataset**: Save to `data/raw/oxford_pets_simulated.parquet`.
- 6. **Validation Log**: Append to `data/raw/validation_log.json` with `source: "oxford_pets_simulated"`, `status: "generated"`.
- 7. **Sample Count Log**: Write `data/processed/valid_sample_count.json` with `total_samples`, `valid_samples`, `excluded_count`.
+ 2. **Fetch Verified Data**: Fetch the verified `oxford_pets` dataset via `datasets.load_dataset("oxford_pets", split="test", streaming=False)`. Note: The raw dataset contains ONLY `image_path`, `species_id`, and `prompt_text`. It lacks `teacher_scores`, `student_scalar`, and `human_annotations`.
+ 3. **Simulate Distributions**: Invoke `code/simulate.py` to generate:
+ - `teacher_scores`: A list of 4 floats per sample, generated determinically from `species_id` and `prompt_text` (e.g., `hash(prompt_text) % 100 / 100.0` for each dimension).
+ - `student_scalar`: A single float per sample, derived from `teacher_scores` via a known distillation function (e.g., `mean(teacher_scores)`).
+ - `human_annotations`: A list of 4 floats per sample, generated determinically from `species_id` and `prompt_text` ONLY (e.g., `hash(prompt_text) % 100 / 100.0`), ensuring NO dependency on `teacher_scores`.
+ 4. **Write Unified Dataset**: Save to `data/raw/oxford_pets_simulated.parquet`. Ensure columns: `image_path`, `species_id`, `prompt_text`, `teacher_scores` (list of 4), `student_scalar`, `human_annotations` (list of 4).
+ 5. **Validation Log**: Append to `data/raw/validation_log.json` with `source: "oxford_pets_simulated"`, `status: "generated"`.
+ 6. **Sample Count Log**: Write `data/processed/valid_sample_count.json` with `total_samples`, `valid_samples`, `excluded_count`.
  **Depends**: T001d, T000d.
 
 - [ ] T037b [P] **Synthetic Unit‑Test Dataset**
@@ -55,7 +75,7 @@
  **Depends**: T001d, T000d.
 
 - [ ] T038 [P] **Schema Discovery & Validation**
- 1. Read the raw dataset file from `data/raw/`.
+ 1. Read the raw dataset file from `data/raw/oxford_pets_simulated.parquet` (primary). If missing, read `data/raw/mock_oxford_pets.parquet` (fallback). If both missing, raise `FileNotFoundError`.
  2. Infer actual column names and map to logical fields.
  3. Validate against provisional `contracts/dataset.schema.yaml`.
  4. On discrepancy, overwrite `contracts/dataset.schema.yaml` with the discovered schema.
@@ -82,10 +102,10 @@
  After ingestion, print sample counts, missing‑data flags, and per‑dimension coverage statistics.
  **Depends**: T012.
 
-- [ ] T014 [FR-003][P] **Primary Dimension & Cross-Dimensional Target Derivation**
+- [ ] T014 [FR-003-Simulated][P] **Primary Dimension & Cross-Dimensional Target Derivation**
  1. Read `data/processed/raw_data.parquet`.
- 2. Derive `primary_dimension_index` via fixed schema rule: `int(hashlib.sha(prompt_text.encode()).hexdigest(), 16) % 4`.
- 3. Derive `cross_dimension_target_index` as `(primary_dimension_index + offset) % 4` (Tautology-Breaking Rule), where `offset` represents a non-zero integer increment designed to break tautological dependencies.
+ 2. Derive `primary_dimension_index` via fixed schema rule: `int(hashlib.sha256(prompt_text.encode('utf-8')).hexdigest(), 16) % 4`. This rule serves as the 'fixed schema rule' mandated by the Plan for the simulated dataset.
+ 3. Derive `cross_dimension_target_index` as `(primary_dimension_index + 1) % 4` (Tautology-Breaking Rule).
  4. Identify `target_dimension` for fidelity loss as `cross_dimension_target_index`.
  5. Generate `data/processed/lineage_report_initial.json` with entries `{sample_id, source_type:"metadata", primary_dimension, target_dimension, derivation_rule:"sha256_prompt_text_mod_4_v1", cross_dim_rule:"(primary+1)%4"}`.
  6. Log exclusions (null primary dimension or missing target annotation) to `data/processed/exclusions_log.json` immediately.
@@ -95,17 +115,10 @@
 - [ ] T024 [FR-003][P] **Dimensional Fidelity Loss (Cross-Dimensional)**
  1. Read aligned data from `data/processed/cleaned_data.parquet`.
  2. Use `target_dimension_index` derived in T014 (Cross-Dimensional: `primary + 1`).
- 3. Compute MAE between `student_scalar` and the human annotation for the `target_dimension_index` (Cross-Dimensional).
+ 3. Compute MAE between `student_scalar` and the human annotation for the `target_dimension_index` (Cross-Dimensional). `human_annotations` is a list of 4 floats; access via index.
  4. Exclude samples with missing `student_scalar` or missing human annotation for the target (log to `exclusions_log.json`).
  5. Write filtered data to `data/processed/cleaned_data.parquet` (overwrite) with a new column `fidelity_loss`.
  6. Write summary stats (`mean`, `median`, `count`, `excluded_count`) to `data/processed/fidelity_loss_summary.json`.
- **Depends**: T014.
-
-- [ ] T024b-variant [P] **Dimensional Fidelity Loss (Same-Dimension Variant)**
- 1. Read aligned data from `data/processed/cleaned_data.parquet`.
- 2. Compute MAE between `student_scalar` and the human annotation for `target_dimension = primary_dimension_index`.
- 3. This task implements the "Same-Dimensional" hypothesis variant for comparative analysis, distinct from the FR-003 definition.
- 4. Write results to `data/processed/same_dim_fidelity_loss.parquet` with a column named `same_dim_fidelity_loss`.
  **Depends**: T014.
 
 - [ ] T014b [P] **Final Lineage Verification**
@@ -134,28 +147,28 @@
 - [ ] T022a [FR-002][P] **Per‑Sample Entanglement Features**
  For each sample in `data/processed/cleaned_data.parquet`, compute **variance, entropy, skewness, and kurtosis** of the teacher score vector. Append these as columns and write to `data/processed/features.json`.
  **Note**: Per-sample covariance matrices are NOT computed (see Plan.md Constitution Check Principle VI).
- **Depends**: T024.
+ **Depends**: T014.
 
 - [ ] T022c [P] **Mahalanobis Distance (Unconditional)**
  Using the global covariance matrix from `results/covariance_matrix_training.json`, compute Mahalanobis distance for each sample and merge as `mahalanobis_distance` into `data/processed/features.json`. Handle singular matrices with `numpy.linalg.pinv(rcond=1e-15)`.
- **Depends**: T024, T022b-training.
+ **Depends**: T014, T022b-training.
 
 ## Phase 4: Model Selection & Training (User Story 3)
 
 - [ ] T027d-early [P] **Performance Gate & Early Exit**
  1. Estimate runtime for T030-stats based on sample count from T024 and feature count.
- 2. If estimated time > 5.5 hours, log a warning and proceed with a reduced `n_estimators` (e.g., 10) for T030-stats, or fail gracefully if the constraint is strict.
- 3. Write `data/processed/performance_gate.json` with `estimated_time`, `action_taken`.
+ 2. **Formula**: `estimated_time = (N_samples * 0.05) + (N_features * 0.01) + 120` (seconds). Extract `N_samples` from row count of `data/processed/cleaned_data.parquet` and `N_features` from column count of `data/processed/features.json`.
+ 3. If estimated time > 5.5 hours (19800s), log a warning and proceed with a reduced `n_estimators` (e.g., 10) for T030-stats, or fail gracefully if the constraint is strict.
+ 4. Write `data/processed/performance_gate.json` with `estimated_time`, `action_taken`.
  **Depends**: T024.
 
 - [ ] T027d [FR-004][P] **Data Sufficiency Check & Model Selection**
  1. Load `data/processed/cleaned_data.parquet` and count samples `N`.
- 2. Write `data/processed/model_selection.json` with schema: `{"model_type": "rf" | "ridge" | "fail", "reason": "...", "sample_count": N}`.
+ 2. Write `data/processed/model_selection.json` with schema: `{"model_type": "rf", "reason": "...", "sample_count": N}`.
  3. **Logic**:
- - `N < 30` → `model_type = "fail"`, `reason = "Critical Power Limitation: N < 30"`.
- - `30 ≤ N < 300` → `model_type = "ridge"`, `reason = "Low sample count; using Ridge Regression"`.
- - `N ≥ 300` → `model_type = "rf"`, `reason = "Sufficient sample count; using Random Forest"`.
- 4. Do NOT raise an error; write the file and complete.
+ - `N < 300` → Raise `RuntimeError("Critical Power Limitation: N < 300. Random Forest requires >= 300 samples per FR-004.")`.
+ - `N >= 300` → `model_type = "rf"`, `reason = "Sufficient sample count; using Random Forest"`.
+ 4. Do NOT switch to Ridge; enforce Random Forest as per FR-004.
  **Depends**: T024.
 
 - [ ] T027h [P] **Global Feature Injection**
@@ -174,20 +187,20 @@
  Train `RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=2)` on the training split; save model to `results/model.pkl`.
  **Depends**: T027b.
 
-- [ ] T027g [FR-004][P] **Train Ridge Regression**
- Train `Ridge(alpha=1.0, random_state=42)` on the training split; save model to `results/model.pkl`.
+- [ ] T027g [P] **Train Ridge Regression (Placeholder)**
+ This task is a placeholder. If T027d raises an error for N < 300, this task is skipped.
  **Depends**: T027b.
 
 - [ ] T027c [P] **Placeholder Model for Failure**
- Write metadata `{"status":"fail","message":"Critical Power Limitation: N < 30"}` to `data/processed/model_fail.json` and `results/results.json`.
+ Write metadata `{"status":"fail","message":"Critical Power Limitation: N < 300"}` to `data/processed/model_fail.json` and `results/results.json`.
  **Depends**: T027b.
 
 - [ ] T027e [P] **Failure Report**
- When `model_type == "fail"`, write a detailed report to `results/results.json` with keys `hypothesis_status:"unsupported"`, `reason:"Critical Power Limitation: N < 30"`, `r2:null`, `mae:null`, `p_value:null`; update `quickstart.md` to note unsupported status.
+ When `model_type == "fail"`, write a detailed report to `results/results.json` with keys `hypothesis_status:"unsupported"`, `reason:"Critical Power Limitation: N < 300"`, `r2:null`, `mae:null`, `p_value:null`; update `quickstart.md` to note unsupported status.
  **Depends**: T027b.
 
 - [ ] T028 [P] **k‑Fold Cross‑Validation**
- Perform k‑fold CV using the estimator selected in Ta (RF or Ridge). Write mean R², std dev, and MAE to `results/cv_metrics.json`.
+ Perform k‑fold CV using the estimator selected in Ta (RF). Write mean R², std dev, and MAE to `results/cv_metrics.json`.
  **Depends**: T027a, T027d.
 
 - [ ] T029 [P] **Evaluation**
@@ -196,7 +209,7 @@
 
 - [ ] T030-stats [FR-005][P] **Unified Statistical Validation (Permutation + T-Test)**
  1. Load the trained model from `results/model.pkl` and the test set features/targets from `data/processed/residuals.csv` (using `split_config.json` to ensure same split).
- 2. **Permutation Test**: Permute the `fidelity_loss` target variable a sufficient number of times (fixed seed, min 1000). Calculate p-value as fraction of permuted statistics >= observed statistic.
+ 2. **Permutation Test**: Permute the `fidelity_loss` target variable **1000** times (fixed seed **42**). Calculate p-value as fraction of permuted **R²** statistics >= observed R².
  3. **T-Test**: Train `DummyRegressor(strategy='mean')` on the SAME training split. Evaluate on test set. Perform paired t-test on residuals of model vs. baseline.
  4. Write a unified `results/results.json` entry containing: `r2`, `mae`, `p_value_permutation`, `p_value_ttest`, `t_statistic`, `df`, `baseline_r2`, `baseline_mae`, `hypothesis_status`.
  5. If `p_value_ttest >= 0.05`, set `hypothesis_status:"unsupported"`.
@@ -208,11 +221,11 @@
 
 - [ ] T031 [P] **Integrate Pipeline Outputs**
  Verify that `results/results.json` contains all required keys (`p_value_permutation`, `p_value_ttest`, `t_statistic`, `df`, `baseline_r2`, `baseline_mae`, `mean_r2`, `mean_mae`, `hypothesis_status`, `partial_correlation_coefficient`, `partial_correlation_p_value`).
- **Depends**: T027a, T027f, T027g, T028, T029, T030-stats, T030d.
+ **Depends**: T027a, T027f, T028, T029, T030-stats, T030d.
 
 - [ ] T031b [P] **Cross-Dimensional Variant Reporting**
- If `data/processed/same_dim_fidelity_loss.parquet` exists, compute the same metrics (R², MAE) for this variant and append to `results/results.json` under `same_dim_metrics`.
- **Depends**: T024b-variant, T031.
+ (Removed T024b-variant; this task is no longer applicable).
+ **Depends**: T031.
 
 ## Phase 5: Polish & Cross‑Cutting Concerns
 
@@ -266,7 +279,12 @@
 **Purpose**: Address specific concerns from prior research-stage reviews regarding data provenance and statistical validity.
 
 - [ ] T040 [P] **Review: VIF Check Implementation**
- Implement a Variance Inflation Factor (VIF) check in `code/features.py`. If VIF > 5 for any feature (other than `mean_teacher_score`), drop that feature from the training set and log the decision to `data/processed/vif_report.json`. Update `code/model.py` to read this report before training.
+ Implement a Variance Inflation Factor (VIF) check in `code/features.py`.
+ **Logic**:
+ 1. Calculate VIF for all features (except `mean_teacher_score`).
+ 2. Iteratively remove the feature with the **highest** VIF. If multiple features have the same highest VIF > 5, remove the one with the **alphabetically first** name.
+ 3. Repeat until all VIFs <= 5.
+ 4. Log the decision to `data/processed/vif_report.json`. Update `code/model.py` to read this report before training.
  **Depends**: T022a.
 
 ## Phase 7: Final Validation & Reporting

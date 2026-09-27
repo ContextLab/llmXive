@@ -1,77 +1,16 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "OxfordPets + Simulated Outputs Dataset Schema"
-description: |
-  Provisional schema for the dataset derived from the Oxford Pets dataset,
-  augmented with simulated teacher scores, student scalars, and human annotations
-  as per the project's synthetic data generation strategy (Task T037).
-  This schema reflects the structure of `data/raw/oxford_pets_simulated.parquet`.
-type: object
-required:
-  - sample_id
-  - image_path
-  - species_id
-  - teacher_scores
-  - student_scalar
-  - human_annotations
-  - primary_dimension
-properties:
-  sample_id:
-    type: string
-    description: "Unique identifier for the sample (derived from image filename or index)."
-  image_path:
-    type: string
-    description: "Relative path to the image file within the Oxford Pets dataset."
-  species_id:
-    type: integer
-    description: "Integer ID representing the pet breed/species (0 to 36)."
-  teacher_scores:
-    type: object
-    description: "Simulated teacher model scores for the four rubric dimensions."
-    required:
-      - alignment
-      - realism
-      - aesthetics
-      - plausibility
-    properties:
-      alignment:
-        type: number
-        description: "Simulated teacher score for alignment (0.0 - 1.0)."
-      realism:
-        type: number
-        description: "Simulated teacher score for realism (0.0 - 1.0)."
-      aesthetics:
-        type: number
-        description: "Simulated teacher score for aesthetics (0.0 - 1.0)."
-      plausibility:
-        type: number
-        description: "Simulated teacher score for plausibility (0.0 - 1.0)."
-  student_scalar:
-    type: number
-    description: "Simulated scalar output from the student model (0.0 - 1.0)."
-  human_annotations:
-    type: object
-    description: "Simulated human annotations for the four rubric dimensions. May contain nulls."
-    properties:
-      alignment:
-        type: ["number", "null"]
-        description: "Simulated human annotation for alignment."
-      realism:
-        type: ["number", "null"]
-        description: "Simulated human annotation for realism."
-      aesthetics:
-        type: ["number", "null"]
-        description: "Simulated human annotation for aesthetics."
-      plausibility:
-        type: ["number", "null"]
-        description: "Simulated human annotation for plausibility."
-  primary_dimension:
-    type: string
-    enum:
-      - alignment
-      - realism
-      - aesthetics
-      - plausibility
-    description: |
-      The dimension derived for fidelity loss calculation.
-      Determined by `hash(species_id) % 4` mapping to the enum list.
-      (0: alignment, 1: realism, 2: aesthetics, 3: plausibility)
+version: 1.0
+fields:
+- name: image_path
+  type: string
+- name: species_id
+  type: integer
+- name: prompt_text
+  type: string
+- name: teacher_scores
+  type: list[float]
+- name: student_scalar
+  type: float
+- name: human_annotations
+  type: list[float]
+- name: primary_dimension
+  type: integer

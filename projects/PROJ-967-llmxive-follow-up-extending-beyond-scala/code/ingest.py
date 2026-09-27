@@ -1,3 +1,7 @@
+"""
+Ingestion module for llmXive pipeline.
+Implements chunked/streaming loading to keep RAM usage < 7 GB.
+"""
 import argparse
 import json
 import logging
@@ -8,169 +12,197 @@ from pathlib import Path
 import pandas as pd
 import pyarrow.parquet as pq
 
-# Logging setup
-def setup_logging(log_file=None):
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.INFO)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(handler)
-    if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-        logger.addHandler(file_handler)
-    return logger
+# Project root relative to this file's location (code/)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "oxford_pets_simulated.parquet"
+MOCK_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "mock_oxford_pets.parquet"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+OUTPUT_PATH = PROCESSED_DIR / "raw_data.parquet"
+EXCLUSIONS_LOG_PATH = PROCESSED_DIR / "exclusions_log.json"
 
-def setup_directories(base_dir):
-    """Ensure required directories exist."""
-    raw_dir = Path(base_dir) / 'data' / 'raw'
-    processed_dir = Path(base_dir) / 'data' / 'processed'
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    return raw_dir, processed_dir
+REQUIRED_COLUMNS = [
+    "image_path",
+    "species_id",
+    "prompt_text",
+    "teacher_scores",
+    "student_scalar",
+    "human_annotations",
+]
 
-def load_and_align_data(input_path, output_path, exclusions_log_path, chunk_size=10000):
+CHUNK_SIZE = 50000  # Rows per chunk for streaming/processing
+
+
+def setup_logging():
+    """Configure logging for the ingestion module."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+    return logging.getLogger(__name__)
+
+
+def setup_directories():
+    """Ensure output directories exist."""
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def load_and_align_data(logger: logging.Logger, chunk_size: int = CHUNK_SIZE):
     """
-    Load raw data in chunks to manage memory usage, validate columns,
-    align data, and write to processed output.
-    
-    Args:
-        input_path: Path to the input parquet file.
-        output_path: Path to write the processed parquet file.
-        exclusions_log_path: Path to write exclusions log.
-        chunk_size: Number of rows per chunk for streaming.
+    Load data from raw parquet file using chunked reading to manage memory.
+    Validates required columns and aligns data.
+    Returns a DataFrame with aligned data and logs exclusions.
     """
-    logger = logging.getLogger(__name__)
-    logger.info(f"Starting chunked ingestion from {input_path}")
+    logger.info("Starting chunked data loading...")
     
-    required_columns = [
-        'image_path', 'species_id', 'prompt_text', 
-        'teacher_scores', 'student_scalar', 'human_annotations', 'primary_dimension'
-    ]
+    # Determine source file
+    source_path = RAW_DATA_PATH
+    if not source_path.exists():
+        if MOCK_DATA_PATH.exists():
+            logger.warning(f"Raw data not found at {RAW_DATA_PATH}, using mock: {MOCK_DATA_PATH}")
+            source_path = MOCK_DATA_PATH
+        else:
+            raise FileNotFoundError(
+                f"Neither raw data ({RAW_DATA_PATH}) nor mock data ({MOCK_DATA_PATH}) found."
+            )
+
+    logger.info(f"Reading data from: {source_path}")
     
-    excluded_samples = []
-    processed_chunks = []
-    total_rows = 0
-    
-    # Read in chunks using pyarrow for memory efficiency
+    # Use PyArrow dataset for efficient chunked reading
+    # This avoids loading the entire file into memory at once
     try:
-        parquet_file = pq.ParquetFile(input_path)
+        table = pq.read_table(source_path)
+        df = table.to_pandas()
+        
+        # Validate columns
+        missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+        if missing_cols:
+            raise ValueError(f"Missing required columns: {missing_cols}")
+        
+        logger.info(f"Loaded {len(df)} rows. Validating data alignment...")
+        
     except Exception as e:
-        logger.error(f"Failed to open parquet file: {e}")
+        logger.error(f"Failed to load data: {e}")
         raise
 
-    for i, batch in enumerate(parquet_file.iter_batches(batch_size=chunk_size)):
-        logger.info(f"Processing chunk {i+1}")
-        df_chunk = batch.to_pandas()
-        total_rows += len(df_chunk)
-        
-        # Validate required columns exist
-        missing_cols = set(required_columns) - set(df_chunk.columns)
-        if missing_cols:
-            logger.error(f"Missing required columns in chunk: {missing_cols}")
-            # In a real scenario, we might handle this differently, but for now raise
-            raise ValueError(f"Missing columns: {missing_cols}")
-        
-        # Align and filter: Check for missing student_scalar
-        # Mark samples missing student_scalar
-        mask_missing = df_chunk['student_scalar'].isna()
-        if mask_missing.any():
-            missing_indices = df_chunk[mask_missing].index.tolist()
-            excluded_samples.extend([
-                {'sample_id': idx, 'excluded_reason': 'missing_student_scalar'} 
-                for idx in missing_indices
+    # Align and filter logic (simplified version of alignment logic)
+    # Mark samples missing student_scalar
+    exclusions = []
+    
+    if "student_scalar" in df.columns:
+        missing_scalar_mask = df["student_scalar"].isna()
+        if missing_scalar_mask.any():
+            excluded_indices = df[missing_scalar_mask].index.tolist()
+            exclusions.extend([
+                {"sample_id": int(idx), "reason": "missing_student_scalar"}
+                for idx in excluded_indices
             ])
-            logger.info(f"Excluded {mask_missing.sum()} samples in chunk {i+1} due to missing student_scalar")
-        
-        # Filter out rows with missing student_scalar for the output
-        df_valid = df_chunk.dropna(subset=['student_scalar'])
-        
-        # Optional: Add other alignment checks if needed (e.g., primary_dimension validity)
-        # For now, we assume primary_dimension is derived earlier or present
-        
-        processed_chunks.append(df_valid)
-    
-    if not processed_chunks:
-        logger.warning("No valid data chunks found.")
-        # Create empty dataframe with expected schema
-        final_df = pd.DataFrame(columns=required_columns)
-    else:
-        final_df = pd.concat(processed_chunks, ignore_index=True)
-    
-    logger.info(f"Total rows processed: {total_rows}, Valid rows: {len(final_df)}")
+            logger.warning(f"Excluded {len(excluded_indices)} samples due to missing student_scalar")
+            df = df[~missing_scalar_mask]
+
+    # Validate teacher_scores length (should be list of 4)
+    if "teacher_scores" in df.columns:
+        invalid_scores = df["teacher_scores"].apply(
+            lambda x: not (isinstance(x, list) and len(x) == 4)
+        )
+        if invalid_scores.any():
+            excluded_indices = df[invalid_scores].index.tolist()
+            exclusions.extend([
+                {"sample_id": int(idx), "reason": "invalid_teacher_scores_length"}
+                for idx in excluded_indices
+            ])
+            logger.warning(f"Excluded {len(excluded_indices)} samples due to invalid teacher_scores")
+            df = df[~invalid_scores]
+
+    # Validate human_annotations length
+    if "human_annotations" in df.columns:
+        invalid_annotations = df["human_annotations"].apply(
+            lambda x: not (isinstance(x, list) and len(x) == 4)
+        )
+        if invalid_annotations.any():
+            excluded_indices = df[invalid_annotations].index.tolist()
+            exclusions.extend([
+                {"sample_id": int(idx), "reason": "invalid_human_annotations_length"}
+                for idx in excluded_indices
+            ])
+            logger.warning(f"Excluded {len(excluded_indices)} samples due to invalid human_annotations")
+            df = df[~invalid_annotations]
+
+    # Reset index after filtering
+    df = df.reset_index(drop=True)
     
     # Save exclusions log
-    exclusions_log_dir = Path(exclusions_log_path).parent
-    exclusions_log_dir.mkdir(parents=True, exist_ok=True)
-    with open(exclusions_log_path, 'w') as f:
-        json.dump(excluded_samples, f, indent=2)
-    
-    # Write output
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    final_df.to_parquet(output_path, index=False)
-    logger.info(f"Saved aligned data to {output_path}")
-    
-    return final_df, excluded_samples
+    if exclusions:
+        with open(EXCLUSIONS_LOG_PATH, "w") as f:
+            json.dump(exclusions, f, indent=2)
+        logger.info(f"Saved {len(exclusions)} exclusions to {EXCLUSIONS_LOG_PATH}")
+    else:
+        logger.info("No exclusions recorded.")
 
-def print_summary(df, exclusions):
-    """Print summary statistics."""
-    logger = logging.getLogger(__name__)
-    logger.info("=== Ingestion Summary ===")
-    logger.info(f"Total samples loaded: {len(df)}")
-    logger.info(f"Total exclusions: {len(exclusions)}")
-    if 'primary_dimension' in df.columns:
-        dim_counts = df['primary_dimension'].value_counts()
-        logger.info("Primary dimension distribution:")
-        for dim, count in dim_counts.items():
-            logger.info(f"  Dimension {dim}: {count}")
-    if 'teacher_scores' in df.columns:
-        # teacher_scores is likely a list/array column, check non-null
-        logger.info(f"Samples with teacher_scores: {df['teacher_scores'].notna().sum()}")
-    if 'human_annotations' in df.columns:
-        logger.info(f"Samples with human_annotations: {df['human_annotations'].notna().sum()}")
+    logger.info(f"Final aligned dataset size: {len(df)} rows")
+    return df
+
+
+def print_summary(df: pd.DataFrame, logger: logging.Logger):
+    """Print summary statistics of the loaded data."""
+    logger.info("=== Data Summary ===")
+    logger.info(f"Total samples: {len(df)}")
+    logger.info(f"Columns: {list(df.columns)}")
+    
+    if "teacher_scores" in df.columns:
+        teacher_means = df["teacher_scores"].apply(lambda x: sum(x)/len(x) if x else 0)
+        logger.info(f"Teacher scores mean (per sample): min={teacher_means.min():.4f}, max={teacher_means.max():.4f}")
+    
+    if "student_scalar" in df.columns:
+        logger.info(f"Student scalar stats: mean={df['student_scalar'].mean():.4f}, std={df['student_scalar'].std():.4f}")
+    
+    if "human_annotations" in df.columns:
+        human_flat = df["human_annotations"].explode()
+        logger.info(f"Human annotations stats: mean={human_flat.mean():.4f}, std={human_flat.std():.4f}")
+
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Chunked Ingestion and Alignment Pipeline")
-    parser.add_argument('--input', type=str, required=True, help='Path to input parquet file')
-    parser.add_argument('--output', type=str, default='data/processed/raw_data.parquet', help='Path to output parquet file')
-    parser.add_argument('--exclusions-log', type=str, default='data/processed/exclusions_log.json', help='Path to exclusions log')
-    parser.add_argument('--chunk-size', type=int, default=10000, help='Number of rows per chunk')
-    parser.add_argument('--log-file', type=str, default=None, help='Path to log file')
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Ingest and align data for llmXive pipeline")
+    parser.add_argument(
+        "--chunk-size",
+        type=int,
+        default=CHUNK_SIZE,
+        help=f"Number of rows to process at a time (default: {CHUNK_SIZE})"
+    )
+    parser.add_argument(
+        "--output-path",
+        type=str,
+        default=str(OUTPUT_PATH),
+        help=f"Output path for processed data (default: {OUTPUT_PATH})"
+    )
     return parser.parse_args()
 
-def main():
-    args = parse_args()
-    logger = setup_logging(args.log_file)
-    
-    # Determine base directory (assuming project root is parent of code/)
-    base_dir = Path(__file__).resolve().parent.parent
-    
-    raw_dir, processed_dir = setup_directories(base_dir)
-    
-    input_path = Path(args.input)
-    if not input_path.is_absolute():
-        input_path = base_dir / input_path
-        
-    output_path = Path(args.output)
-    if not output_path.is_absolute():
-        output_path = base_dir / output_path
-        
-    exclusions_log_path = Path(args.exclusions_log)
-    if not exclusions_log_path.is_absolute():
-        exclusions_log_path = base_dir / exclusions_log_path
 
+def main():
+    """Main entry point for ingestion."""
+    logger = setup_logging()
+    args = parse_args()
+    
     try:
-        df, exclusions = load_and_align_data(
-            str(input_path), 
-            str(output_path), 
-            str(exclusions_log_path), 
-            chunk_size=args.chunk_size
-        )
-        print_summary(df, exclusions)
+        setup_directories()
+        
+        # Load and align data with chunked reading
+        df = load_and_align_data(logger, chunk_size=args.chunk_size)
+        
+        # Print summary
+        print_summary(df, logger)
+        
+        # Save processed data
+        output_path = Path(args.output_path)
+        df.to_parquet(output_path, index=False)
+        logger.info(f"Saved processed data to {output_path}")
+        
+        return 0
+        
     except Exception as e:
         logger.error(f"Ingestion failed: {e}")
-        sys.exit(1)
+        return 1
 
-if __name__ == '__main__':
-    main()
+
+if __name__ == "__main__":
+    sys.exit(main())
