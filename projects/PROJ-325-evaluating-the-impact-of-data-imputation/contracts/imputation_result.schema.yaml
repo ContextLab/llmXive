@@ -1,0 +1,32 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ImputationResult
+type: object
+properties:
+  method:
+    type: string
+    description: The name of the imputation method used (e.g., 'mean', 'mice', 'knn').
+  variance_estimate:
+    type: number
+    description: The estimated variance of the variable after imputation.
+  standard_error:
+    type: number
+    description: The standard error associated with the variance estimate.
+  convergence_diagnostics:
+    type: object
+    description: Diagnostics regarding the convergence of iterative imputation methods.
+    properties:
+      r_hat:
+        type: number
+        description: The potential scale reduction factor (R-hat) statistic.
+      converged:
+        type: boolean
+        description: Whether the imputation chain is considered converged based on diagnostics.
+    required:
+      - r_hat
+      - converged
+required:
+  - method
+  - variance_estimate
+  - standard_error
+  - convergence_diagnostics
+additionalProperties: false

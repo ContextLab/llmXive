@@ -1,9 +1,23 @@
-$schema: 'http://json-schema.org/draft-07/schema#'
+$schema: http://json-schema.org/draft-07/schema#
+title: SyntheticDataset
 type: object
 properties:
-  value:
-    type: array
-    items:
-      type: number
+  true_mean:
+    type: number
+  true_variance:
+    type: number
+  missingness_mechanism:
+    type: string
+    enum:
+      - MCAR
+      - MAR
+  n:
+    type: integer
+  missing_rate:
+    type: number
 required:
-  - value
+  - true_mean
+  - true_variance
+  - missingness_mechanism
+  - n
+  - missing_rate

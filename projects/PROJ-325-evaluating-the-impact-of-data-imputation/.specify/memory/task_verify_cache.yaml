@@ -1,18 +1,48 @@
+T004:
+  c: false
+  h: 9fcc79b524d175c1800b0876559b523ad9289937554f0c8022350717468b28b0
+  r: "The repository lacks the required `data/raw/gss_2018_subset.csv` file and the\
+    \ manifest does not record any checksum for it. Moreover, the provided `loader.py`\
+    \ excerpt never shows a `fetch_survey_data()` implementation (the file is truncated\
+    \ before such a function could appear), so the core fetching, caching, column\u2011\
+    checking, abort logic, variable\u2011selection, and sub\u2011setting behavior\
+    \ are not demonstrably present. The task is therefore not fulfilled."
+T004b:
+  c: false
+  h: d03af8a557ca5e74d3483717951385b0ce762e28b7aec1febf90ff78de52da84
+  r: The required `data/raw/gss_2018_subset.csv` file does not exist, and `state/manifest.yaml`
+    contains no entry for `gss_2018_subset.csv`, so the download, checksum, and manifest
+    recording steps were not performed.
 T005:
   c: false
-  h: d9d7fa5406e18af14c16a655c2da03f9e534216d74d4d5a6d37bbcca1c650236
-  r: "The provided `synthetic.py` is truncated and does not show a complete implementation\
-    \ (e.g., the MAR missingness logic, CLI argument handling, or code that writes\
-    \ the CSV and JSON files). Moreover, the required schema file `contracts/dataset.schema.yaml`\
-    \ is missing, so schema validation cannot be performed. The artifact therefore\
-    \ does not meet the task\u2019s output and validation requirements."
+  h: cd3dc6e880325f2d14edebe44e3f67c318f4edf81ac8d94fd3b52959199b5e6d
+  r: "The provided `code/data/synthetic.py` is truncated (ends mid\u2011line) and\
+    \ does not show a complete CLI, the MAR missingness logic, or the file\u2011writing\
+    \ steps required. Moreover, the required schema file `contracts/dataset.schema.yaml`\
+    \ is absent, so the generator cannot be validated against the contract. The task\u2019\
+    s essential outputs (CSV and metadata JSON) and schema compliance are therefore\
+    \ not demonstrated."
+T005b:
+  c: false
+  h: 36dae2c003766833ded0e655e26f207ef36be3cb30c343f66e836709098abcf9
+  r: The required files `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`
+    are absent, and `state/manifest.yaml` contains no entry (or checksum) for `synthetic_mar_v1.csv`.
+    Consequently the generator was not executed for the MAR mechanism and the verification
+    step cannot succeed.
 T005c:
   c: false
-  h: b351a114dce3f2f8910e12f2cbf5039fe3df2e3c78fa7ae826527ca1ce8ea806
-  r: "The repository lacks the required `generate_synthetic_data_mcar()` implementation\
-    \ in `code/data/synthetic.py`, and the expected output files `data/processed/synthetic_mcar_v1.csv`\
-    \ and `data/processed/synthetic_mcar_v1_meta.json` are absent. Consequently the\
-    \ task\u2019s specifications are not met."
+  h: 89955e13b4df01287bd69ec2e9d14fa61ebc42febabbeeb19bf13b7a23bfe886
+  r: "The repository contains `code/data/synthetic.py`, but the file is truncated\
+    \ and does not show a `generate_synthetic_data_mcar()` function. Moreover, the\
+    \ required output files `data/processed/synthetic_mcar_v1.csv` and `data/processed/synthetic_mcar_v1_meta.json`\
+    \ are absent. Implement the MCAR\u2011specific generator and produce the two output\
+    \ files to satisfy the task."
+T005d:
+  c: false
+  h: db7eada5959b5e908b7963984c5eed67652e0d3013a92ee65e0cd401914d8713
+  r: The required files `data/processed/synthetic_mcar_v1.csv` and `data/processed/synthetic_mcar_v1_meta.json`
+    do not exist, and the manifest contains placeholder checksums rather than real
+    ones, so the generator output was not actually produced or verified.
 T007:
   c: false
   h: 96491d4791e9f7209093734f7285318b4d0eae48350da0d42da199f73f1ba205

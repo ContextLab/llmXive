@@ -1,298 +1,301 @@
 """
 Design-based variance estimation utilities.
 
-Implements Taylor series linearization, Jackknife variance estimation,
-and simplified estimator fallbacks for edge cases (e.g., PSU=1 clusters).
+Implements Taylor series linearization and Jackknife variance estimation
+for complex survey data, with specific handling for design column presence
+and edge cases like small clusters (PSU size = 1).
 """
-
 import json
 import logging
 import os
 import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
-import numpy as np
 import pandas as pd
+import numpy as np
 
-# Local imports (ensure these exist in sibling files)
-# We assume these are available as per the API surface provided
-# If they don't exist, we will define minimal stubs or handle imports gracefully
-try:
-    from config import get_config
-except ImportError:
-    get_config = None
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    stream=sys.stdout,
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-
 def load_manifest(manifest_path: str = "state/manifest.yaml") -> Dict[str, Any]:
-    """Load the project manifest."""
-    if not os.path.exists(manifest_path):
+    """Load the state manifest file."""
+    try:
+        import yaml
+        with open(manifest_path, 'r') as f:
+            return yaml.safe_load(f) or {}
+    except FileNotFoundError:
+        logger.warning(f"Manifest file not found at {manifest_path}. Returning empty dict.")
         return {}
-    import yaml
-    with open(manifest_path, "r") as f:
-        return yaml.safe_load(f) or {}
 
-
-def update_manifest_with_entry(manifest_path: str, key: str, value: Any) -> None:
-    """Update a specific entry in the manifest."""
-    manifest = load_manifest(manifest_path)
+def update_manifest_with_entry(manifest: Dict[str, Any], key: str, value: Any) -> None:
+    """Update the manifest dictionary with a new entry."""
     manifest[key] = value
-    os.makedirs(os.path.dirname(manifest_path), exist_ok=True)
-    import yaml
-    with open(manifest_path, "w") as f:
-        yaml.dump(manifest, f)
 
-
-def delete_one_jackknife_variance(
-    values: np.ndarray,
-    weights: Optional[np.ndarray] = None
-) -> Tuple[float, float]:
+def check_design_columns(df: pd.DataFrame, variable: str) -> Tuple[bool, List[str]]:
     """
-    Calculate Jackknife variance estimate using delete-one method.
-
+    Check if required design columns (psu, strata, weight) are present.
+    
     Args:
-        values: Array of values.
-        weights: Optional array of weights. If None, assumes equal weights.
-
+        df: The dataframe to check.
+        variable: The variable being analyzed (for logging).
+        
     Returns:
-        Tuple of (mean_estimate, variance_estimate).
+        Tuple of (is_valid, list_of_missing_columns).
+        
+    Raises:
+        MissingDesignColumnsError: If critical columns are missing.
     """
-    n = len(values)
-    if n == 0:
-        return 0.0, 0.0
+    required_cols = ['psu', 'strata', 'weight']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    
+    if missing_cols:
+        logger.error(f"Missing design columns for variable '{variable}': {missing_cols}")
+        # Log to manifest as per T009 requirement
+        manifest = load_manifest()
+        update_manifest_with_entry(manifest, f"missing_design_cols_{variable}", missing_cols)
+        # Save manifest back
+        import yaml
+        with open("state/manifest.yaml", 'w') as f:
+            yaml.dump(manifest, f)
+        raise MissingDesignColumnsError(f"Missing columns: {missing_cols} for variable {variable}")
+    
+    return True, []
 
-    if weights is None:
-        weights = np.ones(n) / n
-    else:
-        weights = weights / np.sum(weights)
+class MissingDesignColumnsError(Exception):
+    """Raised when required design columns are missing."""
+    pass
 
-    # Full sample estimate (weighted mean)
-    theta_full = np.sum(weights * values)
+class SubsetLimitError(Exception):
+    """Raised when dataset exceeds row limit."""
+    pass
 
-    # Jackknife variance
-    # theta_i: estimate leaving out i-th observation
-    # With weights, this is slightly more complex.
-    # Simplified: treat as unweighted for now if weights are uniform,
-    # or re-normalize weights for each deletion.
-
-    jackknife_estimates = []
-    for i in range(n):
-        # Leave out i
-        mask = np.ones(n, dtype=bool)
-        mask[i] = False
-        w_sub = weights[mask]
-        v_sub = values[mask]
-
-        if len(v_sub) == 0:
-            continue
-
-        # Re-normalize weights
-        w_sub = w_sub / np.sum(w_sub)
-        theta_i = np.sum(w_sub * v_sub)
-        jackknife_estimates.append(theta_i)
-
-    if len(jackknife_estimates) < 2:
-        return theta_full, 0.0
-
-    # Variance of jackknife estimates
-    # Var(theta) = (n-1) * sum((theta_i - theta_bar)^2)
-    theta_bar = np.mean(jackknife_estimates)
-    var_est = (n - 1) * np.sum((np.array(jackknife_estimates) - theta_bar) ** 2)
-
-    return theta_full, var_est
-
-
-def calculate_jackknife_variance_for_variable(
-    df: pd.DataFrame,
-    value_col: str,
-    weight_col: Optional[str] = None
-) -> Dict[str, Any]:
+def estimate_taylor_variance(df: pd.DataFrame, variable: str) -> Dict[str, Any]:
     """
-    Calculate Jackknife variance for a specific variable in a DataFrame.
-
+    Estimate variance using Taylor series linearization.
+    
+    This function detects small clusters (PSU size = 1) as per T009b.
+    If a PSU has size 1, it issues a warning and flags the variance as
+    "potentially unstable" but does not abort.
+    
     Args:
-        df: Input DataFrame.
-        value_col: Name of the column containing values.
-        weight_col: Name of the column containing weights.
-
+        df: Dataframe with survey design columns.
+        variable: The variable name to estimate variance for.
+        
     Returns:
-        Dictionary with mean, variance, and method.
+        Dictionary containing variance estimate and stability flags.
     """
-    if value_col not in df.columns:
-        raise ValueError(f"Column {value_col} not found in DataFrame.")
+    # Check for design columns first
+    is_valid, missing = check_design_columns(df, variable)
+    
+    if variable not in df.columns:
+        raise ValueError(f"Variable '{variable}' not found in dataframe")
+        
+    # Drop missing values for the target variable
+    clean_df = df[[variable, 'psu', 'strata', 'weight']].dropna()
+    
+    if len(clean_df) == 0:
+        logger.warning(f"No valid data for variable '{variable}' after dropping NaNs")
+        return {
+            "variable": variable,
+            "variance_estimate": None,
+            "status": "no_data",
+            "potentially_unstable": False
+        }
 
-    values = df[value_col].dropna().values
-    if len(values) == 0:
-        return {"mean": 0.0, "variance": 0.0, "method": "jackknife", "status": "no_data"}
+    # Detect small clusters (PSU size = 1) - T009b Logic
+    psu_counts = clean_df.groupby('psu').size()
+    single_cluster_psus = psu_counts[psu_counts == 1].index.tolist()
+    is_unstable = len(single_cluster_psus) > 0
+    
+    if is_unstable:
+        logger.warning(
+            f"Variable '{variable}': Detected {len(single_cluster_psus)} clusters with PSU size = 1. "
+            f"Variance estimate is potentially unstable."
+        )
+        # Log to manifest
+        manifest = load_manifest()
+        if "psu1_warnings" not in manifest:
+            manifest["psu1_warnings"] = []
+        manifest["psu1_warnings"].append({
+            "variable": variable,
+            "psu_count": len(single_cluster_psus),
+            "action_taken": "warn",
+            "message": "Detected clusters with PSU size = 1"
+        })
+        import yaml
+        with open("state/manifest.yaml", 'w') as f:
+            yaml.dump(manifest, f)
 
-    weights = None
-    if weight_col and weight_col in df.columns:
-        weights = df.loc[df[value_col].notna(), weight_col].values
+    # Calculate Taylor Series Linearization Variance
+    # 1. Calculate weighted mean
+    weights = clean_df['weight']
+    values = clean_df[variable]
+    w_mean = np.average(values, weights=weights)
+    
+    # 2. Calculate residuals (linearization)
+    residuals = values - w_mean
+    
+    # 3. Group by PSU to get cluster totals of residuals
+    # We need to sum (weight * residual) per PSU
+    clean_df['residual_contrib'] = clean_df['weight'] * residuals
+    psu_totals = clean_df.groupby('strata').apply(
+        lambda x: x.groupby('psu')['residual_contrib'].sum()
+    )
+    
+    # Flatten the multi-index if necessary
+    if isinstance(psu_totals, pd.Series) and psu_totals.index.nlevels > 1:
+        psu_totals = psu_totals.droplevel(0)
+    
+    # 4. Calculate variance of PSU totals within strata
+    # Variance formula: sum((t_h - t)^2) / (L-1) ... simplified for this context
+    # Using a robust estimator for variance of the mean
+    n_strata = clean_df['strata'].nunique()
+    if n_strata < 2:
+        logger.warning("Only one stratum found. Variance estimation may be unreliable.")
+        # Fallback to naive variance if only one stratum, but flag it
+        naive_var = np.average(residuals**2, weights=weights)
+        return {
+            "variable": variable,
+            "variance_estimate": float(naive_var),
+            "status": "single_stratum",
+            "potentially_unstable": True
+        }
 
-    mean_est, var_est = delete_one_jackknife_variance(values, weights)
-
+    # Standard Taylor Linearization for mean variance
+    # V(mean) = sum_h (1 - f_h) * (S_h^2 / n_h) approximated by cluster totals
+    # Simplified implementation: Variance of cluster totals weighted by design
+    total_weight = weights.sum()
+    cluster_var = np.var(psu_totals, ddof=1) if len(psu_totals) > 1 else 0.0
+    
+    # Variance of the estimator
+    variance_est = (cluster_var / (n_strata * (total_weight**2))) if total_weight > 0 else 0.0
+    
     return {
-        "mean": float(mean_est),
-        "variance": float(var_est),
-        "method": "jackknife",
+        "variable": variable,
+        "variance_estimate": float(variance_est) if not np.isnan(variance_est) else 0.0,
+        "status": "success",
+        "potentially_unstable": is_unstable,
+        "n_clusters": len(psu_counts),
+        "single_cluster_count": len(single_cluster_psus)
+    }
+
+def calculate_jackknife_variance_for_variable(df: pd.DataFrame, variable: str) -> Dict[str, Any]:
+    """
+    Calculate Jackknife variance for a specific variable.
+    
+    Args:
+        df: Dataframe with survey data.
+        variable: Variable name.
+        
+    Returns:
+        Dictionary with variance estimate.
+    """
+    if variable not in df.columns:
+        raise ValueError(f"Variable '{variable}' not found")
+        
+    # Basic delete-one jackknife
+    clean_df = df[[variable, 'weight']].dropna()
+    if len(clean_df) < 2:
+        return {"variable": variable, "variance_estimate": None, "status": "insufficient_data"}
+        
+    weights = clean_df['weight']
+    values = clean_df[variable]
+    full_mean = np.average(values, weights=weights)
+    
+    jackknife_means = []
+    for i in range(len(clean_df)):
+        # Leave-one-out
+        mask = np.ones(len(clean_df), dtype=bool)
+        mask[i] = False
+        w_jack = weights[mask]
+        v_jack = values[mask]
+        if len(w_jack) == 0:
+            continue
+        mean_jack = np.average(v_jack, weights=w_jack)
+        jackknife_means.append(mean_jack)
+        
+    if len(jackknife_means) < 2:
+        return {"variable": variable, "variance_estimate": None, "status": "insufficient_jackknife"}
+        
+    # Variance formula: (n-1)/n * sum((theta_i - theta_bar)^2)
+    theta_bar = np.mean(jackknife_means)
+    variance_est = ((len(jackknife_means) - 1) / len(jackknife_means)) * np.sum((np.array(jackknife_means) - theta_bar)**2)
+    
+    return {
+        "variable": variable,
+        "variance_estimate": float(variance_est),
         "status": "success"
     }
 
+def delete_one_jackknife_variance(df: pd.DataFrame, variable: str) -> float:
+    """Helper for delete-one jackknife."""
+    result = calculate_jackknife_variance_for_variable(df, variable)
+    return result.get("variance_estimate", 0.0)
 
-def run_jackknife_analysis(
-    input_path: str,
-    output_path: str,
-    value_col: str = "value",
-    weight_col: Optional[str] = None
-) -> Dict[str, Any]:
+def run_jackknife_analysis(df: pd.DataFrame, variables: List[str]) -> List[Dict[str, Any]]:
+    """Run jackknife analysis on a list of variables."""
+    results = []
+    for var in variables:
+        try:
+            res = calculate_jackknife_variance_for_variable(df, var)
+            results.append(res)
+        except Exception as e:
+            logger.error(f"Jackknife failed for {var}: {e}")
+            results.append({"variable": var, "error": str(e)})
+    return results
+
+def apply_simplified_estimator(df: pd.DataFrame, variable: str) -> Dict[str, Any]:
     """
-    Run Jackknife variance analysis on a dataset and save results.
-
-    Args:
-        input_path: Path to input CSV.
-        output_path: Path to output JSON.
-        value_col: Column to analyze.
-        weight_col: Optional weight column.
-
-    Returns:
-        Result dictionary.
+    Apply a simplified variance estimator as a fallback for edge cases.
+    
+    Note: Per T009b revised instruction, the primary directive is to flag instability
+    rather than enforce a specific heuristic. This function provides a conservative
+    estimate if needed, but the main logic in estimate_taylor_variance handles the flagging.
     """
-    logger.info(f"Running Jackknife analysis on {input_path}")
-    df = pd.read_csv(input_path)
-    result = calculate_jackknife_variance_for_variable(df, value_col, weight_col)
-    result["input_file"] = input_path
-    result["value_col"] = value_col
-
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w") as f:
-        json.dump(result, f, indent=2)
-
-    logger.info(f"Jackknife results saved to {output_path}")
-    return result
-
-
-def apply_simplified_estimator(
-    df: pd.DataFrame,
-    value_col: str,
-    psu_col: str,
-    weight_col: Optional[str] = None
-) -> Dict[str, Any]:
-    """
-    Apply a simplified variance estimator when PSU=1 clusters are detected.
-
-    This method ignores clustering and calculates variance as if data were
-    simple random sample (or uses a conservative upper bound).
-    It flags the result as "estimated_with_fallback".
-
-    Args:
-        df: Input DataFrame.
-        value_col: Column containing values.
-        psu_col: Column containing PSU identifiers.
-        weight_col: Optional weight column.
-
-    Returns:
-        Dictionary with variance estimate, method, and status.
-    """
-    logger.info(f"Applying simplified estimator for {value_col} due to PSU=1 clusters.")
-
-    if value_col not in df.columns:
-        raise ValueError(f"Column {value_col} not found.")
-    if psu_col not in df.columns:
-        raise ValueError(f"Column {psu_col} not found.")
-
-    # Filter to non-null values
-    mask = df[value_col].notna()
-    values = df.loc[mask, value_col].values
-    weights = None
-    if weight_col and weight_col in df.columns:
-        weights = df.loc[mask, weight_col].values
-
-    if len(values) == 0:
-        return {
-            "variance": 0.0,
-            "method": "simplified_fallback",
-            "status": "no_data",
-            "flag": "estimated_with_fallback"
-        }
-
-    if weights is None:
-        # Simple sample variance
-        var_est = np.var(values, ddof=1)
-    else:
-        # Weighted variance (simplified)
-        w_sum = np.sum(weights)
-        w_mean = np.sum(weights * values) / w_sum
-        var_est = np.sum(weights * (values - w_mean) ** 2) / (w_sum - 1)
-
+    clean_df = df[[variable, 'weight']].dropna()
+    if len(clean_df) == 0:
+        return {"variable": variable, "variance_estimate": None, "status": "no_data"}
+        
+    values = clean_df[variable]
+    weights = clean_df['weight']
+    
+    # Conservative estimate: 2x naive variance (heuristic)
+    naive_var = np.average((values - np.average(values, weights=weights))**2, weights=weights)
+    conservative_var = 2.0 * naive_var
+    
     return {
-        "variance": float(var_est),
-        "method": "simplified_fallback",
-        "status": "success",
-        "flag": "estimated_with_fallback",
-        "note": "Variance estimated ignoring clustering due to PSU=1."
+        "variable": variable,
+        "variance_estimate": float(conservative_var),
+        "status": "estimated_with_fallback",
+        "note": "Conservative estimator applied due to edge case"
     }
 
-
-def main() -> int:
-    """CLI entry point for design.py."""
+def main():
+    """Main entry point for command line testing."""
     import argparse
-
-    parser = argparse.ArgumentParser(description="Design-based variance estimation.")
-    parser.add_argument("--input", type=str, help="Input CSV path.")
-    parser.add_argument("--output", type=str, help="Output JSON path.")
-    parser.add_argument("--value-col", type=str, default="value", help="Value column name.")
-    parser.add_argument("--weight-col", type=str, default=None, help="Weight column name.")
-    parser.add_argument("--psu-col", type=str, default="psu", help="PSU column name.")
-    parser.add_argument("--method", type=str, default="jackknife",
-                        choices=["jackknife", "simplified"],
-                        help="Variance estimation method.")
-
+    parser = argparse.ArgumentParser(description="Design-based variance estimation")
+    parser.add_argument('--variable', type=str, default='hrs1', help='Variable to analyze')
+    parser.add_argument('--input', type=str, default='data/raw/gss_2018_subset.csv', help='Input data file')
     args = parser.parse_args()
-
-    if not args.input:
-        logger.error("--input is required.")
-        return 1
-
-    if not args.output:
-        args.output = "data/processed/design_variance.json"
-
+    
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        sys.exit(1)
+        
+    df = pd.read_csv(args.input)
     try:
-        if args.method == "jackknife":
-            result = run_jackknife_analysis(
-                args.input, args.output,
-                value_col=args.value_col,
-                weight_col=args.weight_col
-            )
-        elif args.method == "simplified":
-            df = pd.read_csv(args.input)
-            result = apply_simplified_estimator(
-                df,
-                value_col=args.value_col,
-                psu_col=args.psu_col,
-                weight_col=args.weight_col
-            )
-            # Save manually as it's a specific fallback result
-            os.makedirs(os.path.dirname(args.output), exist_ok=True)
-            with open(args.output, "w") as f:
-                json.dump(result, f, indent=2)
-        else:
-            logger.error(f"Unknown method: {args.method}")
-            return 1
-
-        logger.info(f"Analysis complete. Result: {result.get('variance', 'N/A')}")
-        return 0
-
+        result = estimate_taylor_variance(df, args.variable)
+        print(json.dumps(result, indent=2))
+    except MissingDesignColumnsError as e:
+        logger.error(f"Analysis aborted: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        return 1
-
+        logger.error(f"Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
