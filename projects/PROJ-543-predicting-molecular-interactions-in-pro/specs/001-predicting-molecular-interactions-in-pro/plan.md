@@ -89,7 +89,7 @@ projects/PROJ-543-predicting-molecular-interactions-in-pro/
 |-----------|------------|-------------------------------------|
 | **Heterogeneous Graph Construction** | The spec requires explicit encoding of 3D steric constraints and non-covalent interactions which standard molecular graphs (bond-only) miss. | A standard bond-only graph would fail FR-001 and the reviewer's concern about steric constraints, leading to poor predictive power. |
 | **Permutation Test + FDR + T-Test** | FR-006, FR-008, and Constitution Principle VII require rigorous statistical validation of motifs to avoid false positives and ensure discrimination between affinity groups. | A simple t-test without FDR correction or permutation null distributions would inflate Type I errors, violating the statistical rigor requirement. |
-| **GPU Offload Strategy** | Training a multi-layer GNN on 10k+ graphs may exceed 4 hours on CPU. | Running on CPU only risks timeout. The plan uses a "CPU-first" approach but includes a `device="cuda"` fallback that triggers the Kaggle offload, ensuring the *real* computation runs without fabrication. |
+| **GPU Offload Strategy** | Training a multi-layer GNN on A substantial number of graphs may exceed 4 hours on CPU. | Running on CPU only risks timeout. The plan uses a "CPU-first" approach but includes a `device="cuda"` fallback that triggers the Kaggle offload, ensuring the *real* computation runs without fabrication. |
 
 ## Task List
 
