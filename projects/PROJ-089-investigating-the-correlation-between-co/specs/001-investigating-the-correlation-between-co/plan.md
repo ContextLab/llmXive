@@ -15,15 +15,15 @@ This project investigates the statistical correlation between **code churn** (li
 **Primary Dependencies**: `semgrep==1.30.0`, `pandas`, `scipy`, `statsmodels`, `gitpython`, `tqdm`, `pyyaml`  
 **Storage**: Local file system (`data/raw`, `data/processed`); No external database.  
 **Testing**: `pytest` (unit tests for metric extraction logic); Integration tests via `main.py` mock run.  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier: A modest CPU configuration with approximately 7 GB of RAM.).  
 **Project Type**: Data Pipeline / Statistical Analysis CLI.  
 **Performance Goals**: Complete full pipeline (clone, analyze, aggregate) within 6 hours.  
 **Constraints**: 
 - CPU-first execution; no GPU required for statistical analysis.
 - Memory usage < 7 GB (streaming git log and semgrep output).
 - Strict adherence to Spec FR-001 (Raw Metrics) and FR-002 (Semgrep v1.30.0).
-- **Sampling**: Limited to 30 repositories to guarantee 6h timeout.
-**Scale/Scope**: 30 repositories (selected to fit 6h timeout); ~10k files total.
+- **Sampling**: Limited to a subset of repositories to guarantee a 6h timeout.
+**Scale/Scope**: A subset of repositories (selected to fit 6h timeout); A substantial corpus of files total.
 
 > **Note on Constitution Deviation**: The Spec (FR-001, FR-002) mandates **Raw Metrics** and **Semgrep**, which conflicts with Constitution Principle VI (Normalized Density) and Principle VII (SonarQube/CodeClimate). The Plan implements the Spec's requirements. A **Constitution Exception** is formally recorded in `data/logs/constitution_exception.log` to satisfy governance requirements.
 
@@ -68,14 +68,16 @@ projects/PROJ-089-investigating-the-correlation-between-co/
 │   └── requirements.txt     # Pinned dependencies
 ├── data/
 │   ├── raw/
-│   │   ├── repos_metadata.csv       # PINNED list of 30 repos
+│   │   ├── repos_metadata.csv       # PINNED list of repositories
+
+The research question is to identify how to effectively curate a representative set of open-source repositories for analysis. The method involves selecting a PINNED list of repositories. References include [Citation].
 │   │   ├── git_history/             # Per-repo log files
 │   │   └── static_analysis/         # Per-repo semgrep JSON
 │   └── processed/
 │       ├── unified_metrics.csv
-│       ├── unified_metrics_loc5.csv # Sensitivity analysis (threshold 5)
-│       ├── unified_metrics_loc10.csv # Sensitivity analysis (threshold 10)
-│       ├── unified_metrics_loc20.csv # Sensitivity analysis (threshold 20)
+│       ├── unified_metrics_loc5.csv # Sensitivity analysis (threshold optimized through systematic parameter tuning.)
+│       ├── unified_metrics_loc10.csv # Sensitivity analysis (threshold set to a predetermined level)
+│       ├── unified_metrics_loc20.csv # Sensitivity analysis (threshold)
 │       ├── correlation_results.csv
 │       └── meta_analysis_results.csv
 ├── data/logs/

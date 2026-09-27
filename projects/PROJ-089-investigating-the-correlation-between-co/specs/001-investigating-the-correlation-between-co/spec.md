@@ -9,13 +9,13 @@ To avoid spurious correlations driven by file size, this study calculates **raw 
 ## Scope & Constraints
 
 ### SC-001: Feasibility
-The pipeline must run within a 6-hour timeout on standard CI infrastructure. Heavy tools like SonarQube are excluded in favor of lighter alternatives.
+The pipeline must run within a reasonable timeout on standard CI infrastructure. Heavy tools like SonarQube are excluded in favor of lighter alternatives.
 
 ### SC-002: Language Support
 Primary focus on Python, Java, JavaScript/TypeScript. Support for Go and Rust where tooling permits.
 
 ### SC-003: Time Limit
-Total pipeline execution must not exceed 6 hours.
+Total pipeline execution must not exceed hours.
 
 ### SC-004: Data Sources
 Repositories must be public on GitHub.

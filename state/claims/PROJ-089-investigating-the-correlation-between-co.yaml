@@ -2738,3 +2738,310 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T09:01:07Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: 'Python debt score formula: sum of cyclomatic complexity plus 100 minus
+    maintainability index from Semgrep'
+  claim_id: c_2c9363d8
+  context: 'T014 [US1] Static Analysis: Calculation logic for debt_score in Python
+    files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For Python, debt_score = Sum(Cyclomatic Complexity from Semgrep) + (100
+    - Maintainability Index from Semgrep).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:27:24Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Missing Semgrep maintainability index treated as zero in debt score calculation
+  claim_id: c_e570bbb7
+  context: 'T014 [US1] Static Analysis: Handling of missing MI metrics for Python
+    files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Semgrep does not provide Maintainability Index (MI) for a file, skip
+    the MI component (treat as 0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:27:44Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: 'Non-Python debt score formula: sum of code smells and cyclomatic complexity
+    from Semgrep'
+  claim_id: c_a512b032
+  context: 'T014 [US1] Static Analysis: Calculation logic for debt_score in non-Python
+    files.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Non-Python_debt_score_formula:_sum_of_code_smells_and_cyclom
+  kind: entity_fact
+  raw_text: For languages other than Python, debt_score = Sum(Code Smells + Cyclomatic
+    Complexity) as reported by Semgrep.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:28:08Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Tool validation includes citation check against hardcoded list including
+    Wheeler 2015
+  claim_id: c_3937bd2a
+  context: 'T013 [P] Tool Validation: Action to verify tool availability and validity.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The tool validation logic checks if a tool is in a hardcoded list of known,
+    cited papers (e.g., 'Wheeler, 2015').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:28:37Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Tool validation fetches GitHub star count if tool not in hardcoded citation
+    list
+  claim_id: c_f3851326
+  context: 'T013 [P] Tool Validation: Fallback mechanism for tool validation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tool_validation_fetches_GitHub_star_count_if_tool_not_in_har
+  kind: entity_fact
+  raw_text: If a tool is not in the hardcoded list, the system fetches GitHub star
+    count for Semgrep via API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:28:59Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Semgrep validation passes if GitHub star count exceeds 5000
+  claim_id: c_856666e4
+  context: 'T013 [P] Tool Validation: Threshold for GitHub star count validation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semgrep_validation_passes_if_GitHub_star_count_exceeds_5000
+  kind: magnitude
+  raw_text: If Semgrep GitHub stars are greater than 5000, the tool validation logs
+    'PASS'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:29:29Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Pipeline execution timeout set to 6 hours
+  claim_id: c_20d47363
+  context: 'T007b [P] Skeleton & Timeout: Deliverable for main.py timeout logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline raises a TimeoutError if execution exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:29:46Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Git history extracted for last 12 months using pydriller
+  claim_id: c_5a7f898e
+  context: 'T011 [P] [US1] Git History: Action to clone repos and extract metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Git history extraction uses pydriller to extract per-file commit counts
+    and lines changed for the last 12 months.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:30:08Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Meta-analysis Fisher Z calculation formula
+  claim_id: c_844745b5
+  context: 'T021 [US2] Meta-Analysis: Step 2 of the action.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The meta-analysis computes Fisher's Z using the formula z = 0.5 * np.log((1
+    + r) / (1 - r)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:32:02Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Meta-analysis standard error calculation formula
+  claim_id: c_baeeda7d
+  context: 'T021 [US2] Meta-Analysis: Step 3 of the action.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The meta-analysis computes standard error using the formula se = 1 / np.sqrt(n
+    - 3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:33:47Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds limited to 5, 10, and 20
+  claim_id: c_2e64ce03
+  context: 'T022 [US2] Sensitivity Analysis Aggregation: Action to call run_correlation_analysis
+    with specific thresholds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis thresholds are strictly limited to 5, 10, and 20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:34:12Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Moderate correlation defined as absolute r value >= 0.3
+  claim_id: c_5c69c325
+  context: 'T028a [US3] Report Data: Logic for flagging significance in the summary
+    report.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Moderate_correlation_defined_as_absolute_r_value_%3E=_0.3
+  kind: magnitude
+  raw_text: A correlation is flagged as 'moderate' if the absolute value of r is greater
+    than or equal to 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:35:08Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: VIF warning triggered if value exceeds 5
+  claim_id: c_5d530cc7
+  context: 'T018 [US2] VIF Check: Action to check for collinearity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_warning_triggered_if_value_exceeds_5
+  kind: magnitude
+  raw_text: The VIF check triggers a warning if any Variance Inflation Factor is greater
+    than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:35:47Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Streaming CSV read uses chunksize of 1000
+  claim_id: c_dd17252e
+  context: 'T033b [P] Streaming & Memory: Action to refactor preprocessing for large
+    files.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The streaming iterator implementation uses pd.read_csv with chunksize=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:36:06Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Peak memory usage limit set to 2GB
+  claim_id: c_d914e83a
+  context: 'T033b [P] Streaming & Memory: Success criteria for streaming implementation.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_set_to_2GB
+  kind: magnitude
+  raw_text: Peak memory usage must be less than 2GB as measured by the memory monitor.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:36:24Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Batch processing queue maxsize set to 100
+  claim_id: c_5a117f42
+  context: 'T034a [P] Batch Logic: Params for batch processing.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch processing logic uses a queue with maxsize=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:36:43Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Batch processing triggered when RAM exceeds 5GB
+  claim_id: c_c534b3eb
+  context: 'T034a [P] Batch Logic: Params for batch processing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_processing_triggered_when_RAM_exceeds_5GB
+  kind: entity_fact
+  raw_text: Batch processing triggers when RAM usage exceeds 5GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:37:20Z'
+- artifact_path: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co/tasks.md
+  attempts: 1
+  canonical: Batch size defined as 100 repos
+  claim_id: c_b3875696
+  context: 'T034a [P] Batch Logic: Params for batch processing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_size_defined_as_100_repos
+  kind: entity_fact
+  raw_text: The batch size is defined as 100 repos.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T16:37:46Z'

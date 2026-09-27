@@ -2,244 +2,226 @@ import os
 import time
 import logging
 import shutil
+import queue
+import psutil
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import csv
 
-from pydriller import Repository
 from config import get_config_summary, ensure_directories
-from utils import get_logger, pin_random_seed
+from utils import get_logger, calculate_checksum
 
-# Ensure we have a logger
 logger = get_logger(__name__)
 
-def query_github_repos() -> List[Dict[str, Any]]:
-    """
-    Query GitHub API for repositories.
-    Note: This is a placeholder for the actual API call logic.
-    In a real implementation, this would use requests to query GitHub API.
-    For this task, we assume repos_metadata.csv already exists from T010.
-    """
-    # This function is defined for API surface compatibility but T010 handles the actual data loading
-    logger.warning("query_github_repos called but T010 should have populated repos_metadata.csv")
-    return []
+# Batch processing constants
+BATCH_SIZE = 100
+RAM_TRIGGER_GB = 5.0
+QUEUE_MAXSIZE = 100
 
-def verify_repo_publicity(repos: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Verify repository public status.
-    Note: T010a handles the actual filtering.
-    """
-    return [r for r in repos if r.get('is_public', True)]
-
-def save_repos_metadata(repos: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Save repository metadata to CSV.
-    """
-    if not repos:
-        logger.warning("No repositories to save.")
-        return
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=repos[0].keys())
-        writer.writeheader()
-        writer.writerows(repos)
-
-def clone_repository(repo_info: Dict[str, Any], target_dir: Path, timeout_seconds: int = 300) -> bool:
-    """
-    Clone a repository from GitHub to the target directory.
-    """
-    repo_url = repo_info.get('clone_url') or f"https://github.com/{repo_info['owner']}/{repo_info['name']}.git"
-    repo_id = repo_info['repo_id']
-    repo_path = target_dir / repo_id
-
-    if repo_path.exists():
-        logger.info(f"Repository {repo_id} already exists at {repo_path}. Skipping clone.")
-        return True
-
-    repo_path.mkdir(parents=True, exist_ok=True)
-    
+def get_current_ram_usage_gb() -> float:
+    """Get current system RAM usage in GB."""
     try:
-        logger.info(f"Cloning {repo_id} from {repo_url}...")
-        # Using git clone via subprocess for robustness
-        import subprocess
-        result = subprocess.run(
-            ['git', 'clone', '--depth', '1', repo_url, str(repo_path)],
-            capture_output=True,
-            text=True,
-            timeout=timeout_seconds
-        )
-        if result.returncode != 0:
-            logger.error(f"Failed to clone {repo_id}: {result.stderr}")
-            return False
-        logger.info(f"Successfully cloned {repo_id}.")
-        return True
-    except subprocess.TimeoutExpired:
-        logger.error(f"Timeout while cloning {repo_id}.")
-        return False
+        mem = psutil.virtual_memory()
+        return mem.used / (1024 ** 3)
     except Exception as e:
-        logger.error(f"Error cloning {repo_id}: {e}")
+        logger.warning(f"Could not read RAM usage: {e}. Defaulting to 0.")
+        return 0.0
+
+def load_repos_metadata() -> List[Dict[str, Any]]:
+    """Load the pinned list of repositories from data/raw/repos_metadata.csv."""
+    config = get_config_summary()
+    data_path = Path(config['paths']['raw_data']) / 'repos_metadata.csv'
+    
+    if not data_path.exists():
+        logger.error(f"Repository metadata file not found: {data_path}")
+        raise FileNotFoundError(f"Missing required file: {data_path}")
+    
+    import pandas as pd
+    df = pd.read_csv(data_path)
+    
+    # Validate schema
+    required_cols = {'repo_id', 'owner', 'name', 'language', 'url'}
+    if not required_cols.issubset(df.columns):
+        missing = required_cols - set(df.columns)
+        raise ValueError(f"Missing required columns in repos_metadata.csv: {missing}")
+    
+    return df.to_dict(orient='records')
+
+def clone_repository(repo_info: Dict[str, Any], clone_dir: Path) -> bool:
+    """Clone a repository to the specified directory."""
+    repo_url = repo_info['url']
+    repo_id = repo_info['repo_id']
+    repo_path = clone_dir / repo_id
+    
+    if repo_path.exists():
+        logger.info(f"Repository {repo_id} already exists at {repo_path}, skipping clone.")
+        return True
+    
+    try:
+        import git
+        logger.info(f"Cloning {repo_url} to {repo_path}...")
+        git.Repo.clone_from(repo_url, str(repo_path), depth=1)
+        return True
+    except Exception as e:
+        logger.error(f"Failed to clone {repo_url}: {e}")
         return False
 
-def extract_git_metrics(repo_path: Path, repo_id: str, months: int = 12) -> List[Dict[str, Any]]:
-    """
-    Use pydriller to extract per-file commit counts and lines changed.
-    Returns a list of dicts: {'file_path': str, 'total_lines_changed': int, 'commit_count': int}
-    """
-    logger.info(f"Extracting git metrics for {repo_id} from {repo_path}...")
+def extract_git_metrics(repo_path: Path, repo_id: str) -> Optional[Path]:
+    """Extract git history metrics using pydriller."""
+    import pandas as pd
+    from pydriller import Repository
     
-    file_metrics: Dict[str, Dict[str, int]] = {}
+    output_dir = Path(get_config_summary()['paths']['raw_data']) / 'git_history' / repo_id
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / 'commits.csv'
     
-    # Calculate cutoff date (approximate)
-    # Pydriller handles date filtering internally via 'from_date'
-    from datetime import datetime, timedelta
-    cutoff_date = datetime.now() - timedelta(days=months * 30)
-
     try:
-        # Initialize Repository object
-        repo = Repository(str(repo_path), from_date=cutoff_date)
+        commits_data = []
+        # Analyze last 12 months
+        from datetime import datetime, timedelta
+        since = datetime.now() - timedelta(days=365)
+        
+        repo = Repository(str(repo_path), since=since)
         
         for commit in repo.get_commits():
-            for modified_file in commit.modified_files:
-                # Handle file path normalization
-                file_path = modified_file.filename
-                if not file_path:
-                    continue
-                
-                # Get changes (additions + deletions)
-                # Pydriller's ModifiedFile has 'added' and 'deleted' properties
-                added = modified_file.added
-                deleted = modified_file.deleted
-                total_changed = added + deleted
-
-                if file_path not in file_metrics:
-                    file_metrics[file_path] = {'total_lines_changed': 0, 'commit_count': 0}
-                
-                file_metrics[file_path]['total_lines_changed'] += total_changed
-                file_metrics[file_path]['commit_count'] += 1
-                
-        logger.info(f"Extracted metrics for {len(file_metrics)} files in {repo_id}.")
+            for mod in commit.modifications:
+                # Calculate lines changed (additions + deletions)
+                lines_changed = (mod.addition or 0) + (mod.deletion or 0)
+                commits_data.append({
+                    'file_path': mod.path,
+                    'total_lines_changed': lines_changed,
+                    'commit_count': 1,
+                    'commit_hash': commit.hash
+                })
+        
+        if commits_data:
+            df = pd.DataFrame(commits_data)
+            # Aggregate by file
+            aggregated = df.groupby('file_path').agg({
+                'total_lines_changed': 'sum',
+                'commit_count': 'sum'
+            }).reset_index()
+            aggregated.to_csv(output_file, index=False)
+            logger.info(f"Git metrics saved to {output_file}")
+            return output_file
+        else:
+            logger.warning(f"No commits found for {repo_id} in the last 12 months.")
+            return None
+            
     except Exception as e:
         logger.error(f"Error extracting git metrics for {repo_id}: {e}")
-        # If pydriller fails (e.g., repo is too large or corrupt), return empty
-        return []
-
-    return [
-        {
-            'file_path': path,
-            'total_lines_changed': data['total_lines_changed'],
-            'commit_count': data['commit_count']
-        }
-        for path, data in file_metrics.items()
-    ]
-
-def aggregate_file_metrics(metrics_list: List[Dict[str, Any]], repo_id: str, output_dir: Path) -> Path:
-    """
-    Save aggregated file metrics to CSV.
-    Returns the path to the saved CSV file.
-    """
-    if not metrics_list:
-        logger.warning(f"No metrics to save for {repo_id}.")
-        # Create an empty file with headers to satisfy schema
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / 'commits.csv'
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=['file_path', 'total_lines_changed', 'commit_count'])
-            writer.writeheader()
-        return output_path
-
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / 'commits.csv'
-
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['file_path', 'total_lines_changed', 'commit_count'])
-        writer.writeheader()
-        writer.writerows(metrics_list)
-
-    logger.info(f"Saved git metrics for {repo_id} to {output_path}.")
-    return output_path
-
-def process_single_repo(repo_info: Dict[str, Any], config: Dict[str, Any]) -> Optional[Path]:
-    """
-    Process a single repository: clone, extract metrics, save results.
-    """
-    repo_id = repo_info['repo_id']
-    config_dirs = get_config_summary()
-    git_history_dir = Path(config_dirs['data_raw']) / 'git_history'
-    clone_target = Path(config_dirs['temp_clones']) / repo_id
-
-    # Ensure directories exist
-    ensure_directories()
-
-    # Clone
-    if not clone_repository(repo_info, clone_target, timeout_seconds=300):
-        logger.error(f"Skipping {repo_id} due to clone failure.")
         return None
 
-    # Extract
-    metrics = extract_git_metrics(clone_target, repo_id, months=12)
+def aggregate_file_metrics(repo_id: str) -> Optional[Path]:
+    """Aggregate file metrics from git and static analysis (placeholder for now)."""
+    # This function would merge git history with static analysis results
+    # For now, we just return the git metrics path
+    git_dir = Path(get_config_summary()['paths']['raw_data']) / 'git_history' / repo_id
+    git_file = git_dir / 'commits.csv'
+    if git_file.exists():
+        return git_file
+    return None
 
-    # Aggregate and Save
-    repo_output_dir = git_history_dir / repo_id
-    output_path = aggregate_file_metrics(metrics, repo_id, repo_output_dir)
+def process_single_repo(repo_info: Dict[str, Any], clone_base: Path) -> Optional[Dict[str, Any]]:
+    """Process a single repository: clone, extract metrics, aggregate."""
+    repo_id = repo_info['repo_id']
+    logger.info(f"Processing repository: {repo_id}")
+    
+    # Clone
+    if not clone_repository(repo_info, clone_base):
+        return None
+    
+    repo_path = clone_base / repo_id
+    
+    # Extract git metrics
+    git_metrics_path = extract_git_metrics(repo_path, repo_id)
+    if not git_metrics_path:
+        return None
+    
+    # Aggregate (placeholder for merging with static analysis)
+    aggregated_path = aggregate_file_metrics(repo_id)
+    
+    return {
+        'repo_id': repo_id,
+        'git_metrics_path': str(git_metrics_path),
+        'aggregated_path': str(aggregated_path) if aggregated_path else None
+    }
 
-    # Cleanup clone (optional, but good for disk space)
-    # shutil.rmtree(clone_target, ignore_errors=True)
-
-    return output_path
-
-def run_data_extraction() -> List[Path]:
+def run_data_extraction_wrapper(repos: List[Dict[str, Any]], clone_base: Path) -> List[Dict[str, Any]]:
     """
-    Main entry point for T011: Git History extraction.
-    Reads repos from data/raw/repos_metadata.csv (output of T010).
-    Outputs to data/raw/git_history/{repo_id}/commits.csv.
+    Run data extraction with batch logic.
+    Uses queue.Queue with maxsize=100.
+    Triggers batch processing if RAM usage > 5GB.
     """
-    config = get_config_summary()
-    ensure_directories()
-    pin_random_seed()
-
-    repos_csv_path = Path(config['data_raw']) / 'repos_metadata.csv'
-    if not repos_csv_path.exists():
-        raise FileNotFoundError(f"Required input file not found: {repos_csv_path}. Run T010 first.")
-
-    logger.info(f"Reading repositories from {repos_csv_path}...")
-    repos = []
-    with open(repos_csv_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            repos.append(row)
-
-    if not repos:
-        raise ValueError("No repositories found in repos_metadata.csv.")
-
-    logger.info(f"Processing {len(repos)} repositories...")
-    output_paths = []
-
-    for repo_info in repos:
-        try:
-            result_path = process_single_repo(repo_info, config)
-            if result_path:
-                output_paths.append(result_path)
-        except Exception as e:
-            logger.error(f"Failed to process {repo_info['repo_id']}: {e}")
+    results = []
+    repo_queue = queue.Queue(maxsize=QUEUE_MAXSIZE)
+    
+    # Add all repos to queue
+    for repo in repos:
+        repo_queue.put(repo)
+    
+    logger.info(f"Starting batch processing for {len(repos)} repositories.")
+    logger.info(f"Queue maxsize: {QUEUE_MAXSIZE}, Batch size: {BATCH_SIZE}, RAM trigger: {RAM_TRIGGER_GB}GB")
+    
+    batch_count = 0
+    processed_count = 0
+    
+    while not repo_queue.empty():
+        # Check RAM usage before processing next batch
+        current_ram = get_current_ram_usage_gb()
+        if current_ram > RAM_TRIGGER_GB:
+            logger.warning(f"RAM usage ({current_ram:.2f}GB) exceeds trigger ({RAM_TRIGGER_GB}GB). "
+                           f"Pausing to allow memory to clear.")
+            time.sleep(5)  # Wait briefly to let memory clear
             continue
+        
+        batch = []
+        while len(batch) < BATCH_SIZE and not repo_queue.empty():
+            try:
+                repo = repo_queue.get_nowait()
+                batch.append(repo)
+            except queue.Empty:
+                break
+        
+        if not batch:
+            break
+        
+        batch_count += 1
+        logger.info(f"Processing batch {batch_count} with {len(batch)} repositories.")
+        
+        for repo_info in batch:
+            result = process_single_repo(repo_info, clone_base)
+            if result:
+                results.append(result)
+                processed_count += 1
+            
+            # Yield control to allow other tasks or memory cleanup
+            time.sleep(0.1)
+    
+    logger.info(f"Batch processing complete. Processed {processed_count} repositories.")
+    return results
 
-    logger.info(f"Git history extraction complete. {len(output_paths)} files generated.")
-    return output_paths
-
-def run_data_extraction_wrapper() -> None:
-    """
-    Wrapper for orchestration purposes.
-    """
-    run_data_extraction()
+def run_data_extraction(repos: List[Dict[str, Any]], clone_base: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """Main entry point for data extraction with batch logic."""
+    if clone_base is None:
+        config = get_config_summary()
+        clone_base = Path(config['paths']['raw_data']) / 'clones'
+    
+    ensure_directories()
+    clone_base.mkdir(parents=True, exist_ok=True)
+    
+    return run_data_extraction_wrapper(repos, clone_base)
 
 def main():
-    """
-    CLI entry point.
-    """
-    logger.info("Starting Git History Extraction (T011)...")
-    run_data_extraction_wrapper()
-    logger.info("Git History Extraction finished.")
+    """Main entry point for data extraction script."""
+    logger.info("Starting data extraction with batch logic.")
+    
+    try:
+        repos = load_repos_metadata()
+        results = run_data_extraction(repos)
+        logger.info(f"Successfully processed {len(results)} repositories.")
+    except Exception as e:
+        logger.error(f"Data extraction failed: {e}")
+        raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

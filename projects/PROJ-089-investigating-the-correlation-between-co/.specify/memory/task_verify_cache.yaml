@@ -1,9 +1,12 @@
-T000a:
+T007b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No spec.md or plan.md files (or excerpts thereof) were presented, and no written
-    identification of the stated contradiction was supplied. The required evidence
-    that the implementer read the artifacts and pinpointed the mismatch is missing.
+  h: 31a8a4bda9c87de927a6572e556d26b8bd4eab90235377df9872012ff413d33a
+  r: "The provided `code/main.py` does not define the required stubs `run_extraction(...)\
+    \ -> pd.DataFrame`, `run_analysis(...) -> dict`, and `run_reporting(...) -> None`;\
+    \ it merely imports them from other modules. Additionally, the log file `data/logs/pipeline.log`\
+    \ is absent, so the total execution time is never recorded in the required format.\
+    \ The timeout logic is present but not demonstrated to be invoked with the 6\u2011\
+    hour limit. These missing pieces must be added for the task to be considered complete."
 T007d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,13 +21,6 @@ T011:
     \ were cloned and per\u2011file commit/line\u2011change data were extracted as\
     \ required. The implementer must supply the script and the resulting raw git\u2011\
     history files."
-T013b:
-  c: false
-  h: 14f867e1c2a323420b13486e5dfda422c44489ba3b2bd2563ff82b940711b3d9
-  r: The required `utils.py` implementation is absent, the `citations.csv` file (needed
-    for fallback validation) is missing, and the provided `tool_validation_log.csv`
-    lacks star count data and any DEVIATION entry, indicating the validation logic
-    was not fully realized.
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -55,13 +51,6 @@ T021:
     \ of Fisher\u2011transformed r coefficients is present. The artifact is missing\
     \ entirely, so the task\u2019s core requirement (performing the meta\u2011analysis\
     \ and controlling family\u2011wise error rate) is not satisfied."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `analysis.py` (or any script) was provided, nor any output showing the model\
-    \ re\u2011run with `avg_loc` thresholds of 5,\u202F10,\u202F20 on the T015 datasets.\
-    \ Without the actual code or results, the sensitivity\u2011analysis requirement\
-    \ is not satisfied."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -77,6 +66,13 @@ T027:
     \ coefficient and p\u2011value was provided, and the expected output directory\
     \ `data/results/plots/` does not contain any generated plot files. The required\
     \ artifact and its saved results are missing."
+T028b:
+  c: false
+  h: 92f45724ac6370d60a06903446b29af43dd6bfa7458fc16eadaf79b29f757cae
+  r: The `summary_report.txt` file does not exist, and `code/reporting.py` is incomplete
+    (the implementation is truncated and missing the logic to generate and write the
+    report). Both required artifacts are absent or unfinished, so the task is not
+    genuinely completed.
 T031:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -95,3 +91,16 @@ T032b:
   r: No `research.md` file or its contents were presented, so there is no evidence
     that methodology details and validation study citations were added as required.
     The required artifact is missing.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` directory or test files for the metric calculation logic are
+    present in the provided artifact list, so the claimed additional unit tests do
+    not exist. The task requires concrete test files to be added, which are missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as a validation log, report, or evidence that `quickstart.md`\
+    \ was executed and passed is present; the implementer provided no output confirming\
+    \ end\u2011to\u2011end reproducibility. The required proof of running the quickstart\
+    \ validation is missing."

@@ -2,13 +2,10 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T000a** — No spec.md or plan.md files (or excerpts thereof) were presented, and no written identification of the stated contradiction was supplied. The required evidence that the implementer read the artifacts and pinpointed the mismatch is missing.
-- **T007b** — declared artifact(s) missing/empty/invalid: data/logs/pipeline.log
-- **T007c** — declared artifact(s) missing/empty/invalid: data/logs/pipeline.log
-- **T007d** — No `main.py` file or any code was presented that calls `run_extraction`, `run_analysis`, and `run_reporting` sequentially, nor evidence that it runs the full pipeline on mock data. The required artifact is missing.
-- **T010** — declared artifact(s) missing/empty/invalid: data/raw/repos_metadata.csv
-- **T010a** — declared artifact(s) missing/empty/invalid: data/raw/repos_metadata.csv
-- **T011** — No evidence of a `data_extraction.py` script or a populated `data/raw/git_history/` directory is provided; without these artifacts we cannot confirm that repositories were cloned and per‑file commit/line‑change data were extracted as required. The implementer must supply the script and the resulting raw git‑history files.
-- **T013b** — The required `utils.py` implementation is absent, the `citations.csv` file (needed for fallback validation) is missing, and the provided `tool_validation_log.csv` lacks star count data and any DEVIATION entry, indicating the validation logic was not fully realized.
-- **T014** — No evidence of a `static_analysis.py` script or the required `data/raw/static_analysis/{repo_id}/semgrep_results.json` files is present; without these artifacts the static analysis step and debt score calculations cannot be confirmed. The implementer must provide the script and the generated JSON results for each repository.
-- **T015a** — declared artifact(s) missing/empty/invalid: data/processed/filtered_metrics.csv
+- **T015a** — The repository contains a `code/preprocessing.py` file, but it is truncated and does not implement the full filtering logic or write the required `data/processed/unified_metrics.csv`. Moreover, the expected output file `data/processed/unified_metrics.csv` is absent. The task’s required output is therefore not produced.
+- **T022** — The repository lacks the required `data/results/sensitivity_analysis.csv` file, and the provided `code/analysis.py` only defines helper functions without any code that calls `run_correlation_analysis` for thresholds 5, 10, 20 and writes the aggregated results to the CSV. The task’s deliverable is therefore not satisfied.
+- **T028b** — The `summary_report.txt` file does not exist, and `code/reporting.py` is incomplete (the implementation is truncated and missing the logic to generate and write the report). Both required artifacts are absent or unfinished, so the task is not genuinely completed.
+- **T032a** — No `quickstart.md` file or its contents were provided, so we cannot confirm that installation and execution instructions were added as required. The implementer must supply the updated `quickstart.md` showing the new instructions.
+- **T032b** — No `research.md` file or its contents were presented, so there is no evidence that methodology details and validation study citations were added as required. The required artifact is missing.
+- **T035** — No `tests/unit/` directory or test files for the metric calculation logic are present in the provided artifact list, so the claimed additional unit tests do not exist. The task requires concrete test files to be added, which are missing.
+- **T036** — No artifact such as a validation log, report, or evidence that `quickstart.md` was executed and passed is present; the implementer provided no output confirming end‑to‑end reproducibility. The required proof of running the quickstart validation is missing.
