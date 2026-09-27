@@ -8,7 +8,7 @@ This project validates the hypothesis that the complex, state-dependent routing 
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
+**Language/Version**: Python 3
 **Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `pandas`, `numpy`, `transformers` (for CLIP), `accelerate` (for CPU inference), `datasets` (HuggingFace), `scipy` (for statistical tests), `pillow`, `torch-fidelity` (or custom FID implementation), `pyyaml`.
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `models`, `results`). No external database.
 **Testing**: `pytest` (unit tests for data schemas, integration tests for pipeline steps).
