@@ -1,0 +1,9 @@
+{
+  "node_count": 10,
+  "edge_count": 15,
+  "cluster_count": 3,
+  "avg_degree": 3.0,
+  "max_degree": 5,
+  "min_degree": 1,
+  "representativeness_passed": true
+}

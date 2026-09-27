@@ -1,0 +1,14 @@
+status: none
+intent: intake-esm CMIP6 near-surface temperature precipitation ESGF catalog python
+  package dataset
+required_fields:
+- model
+- ensemble_member
+- variable
+- time
+- latitude
+- longitude
+- value
+cache_key: ca22dc1b99f9e8ec677450792862000ac5bffed0281805c15da9c60783ba2fba
+searched_at: '2026-09-27T21:19:52.564271+00:00'
+retry_count: 1

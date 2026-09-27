@@ -22,6 +22,13 @@ T020:
     \ (a different name and batch size) from that missing module, indicating the expected\
     \ functionality is not implemented. The task\u2019s core requirement is therefore\
     \ unmet."
+T021a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, logs, or test output showing a validation step for the selected `k`\
+    \ (silhouette stability across seeds) is present. The required artifact\u2014\
+    implementation of the stability check and evidence that it runs and logs the chosen\
+    \ `k`\u2014is missing."
 T025:
   c: false
   h: 274b68b40cb90a070859f5b3e85c35b3d4cdaac76d89533ab302a6a372000dd3

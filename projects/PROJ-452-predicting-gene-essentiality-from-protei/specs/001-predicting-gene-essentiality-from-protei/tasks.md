@@ -60,7 +60,7 @@
 - [X] T006 [P] Create `code/hash_checker.py` to compute hashes for `data/` and `results/` and update `state/` YAML.
 - [X] T007 Create `contracts/correlation_result.schema.yaml`, `contracts/pgls_result.schema.yaml`, `contracts/sensitivity_report.schema.yaml`.
 - [X] T008 [P] Setup `tests/contract/test_schemas.py` to validate JSON outputs against the schema files.
-- [X] T009 Fetch the Newick phylogenetic tree from OpenTree of Life using the specific endpoint ` Name or service not known)"))] and the following taxonomic IDs: 9606 (Homo sapiens), 10090 (Mus musculus), 7955 (Danio rerio), 6239 (Caenorhabditis elegans), 7227 (Drosophila melanogaster), 8355 (Xenopus tropicalis), 9615 (Canis lupus familiaris). Use the `tax_ids` parameter. Save to `data/phylogeny/tree.newick`. **STRICT FAILURE CONDITION**: If the tree cannot be fetched or is missing, the build MUST FAIL immediately. Do NOT skip gracefully. This is a hard prerequisite for T024.
+- [X] T009 Fetch the Newick phylogenetic tree from OpenTree of Life using the specific endpoint `https://api.opentree.org/v3/taxonomy` and the following taxonomic IDs: 9606 (Homo sapiens), 10090 (Mus musculus), 7955 (Danio rerio), 6239 (Caenorhabditis elegans), 7227 (Drosophila melanogaster), 8355 (Xenopus tropicalis), 9615 (Canis lupus familiaris). Use the `tax_ids` parameter. Save to `data/phylogeny/tree.newick`. **STRICT FAILURE CONDITION**: If the tree cannot be fetched or is missing, the build MUST FAIL immediately. Do NOT skip gracefully. This is a hard prerequisite for T024.
 - [X] T010 [P] Implement `quickstart.md` with exact reproduction steps: Environment Setup, Data Fetching (commands), Pipeline Execution, and Reproducibility Verification. This task is critical for Constitution Principle I and must be completed before Phase 3.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -82,7 +82,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T013 [US1] Implement `fetch_string_ppi` function in `code/data_loader.py` to fetch PPI networks from STRING API (`) for each of the -8 model organisms defined in config; use confidence threshold ≥700; if API fails, raise an error (no fallback to synthetic).
+- [X] T013 [US1] Implement `fetch_string_ppi` function in `code/data_loader.py` to fetch PPI networks from STRING API (`https://string-db.org/api/tsv/interaction_network`) for each of the 5-8 model organisms defined in config; use confidence threshold ≥700; if API fails, raise an error (no fallback to synthetic).
 - [X] T014 [US1] Implement `fetch_deg_essentiality` function in `code/data_loader.py` to fetch gene essentiality labels (binary) from the DEG database via FTP: `ftp://ftp.ncbi.nlm.nih.gov/pub/microarray/deg/deg_essential_genes.csv`. Parse CSV; raise error if fetch fails (no fallback to synthetic).
 - [X] T015 [US1] Implement ID mapping logic in `code/data_loader.py` using Ensembl BioMart API to align STRING and DEG gene identifiers; log `mapping_coverage_percent`.
 - [X] T016 [US1] Implement `compute_centrality` function in `code/network_analysis.py` to compute degree, betweenness, and eigenvector centrality using NetworkX; use k-sampling for betweenness on networks >5,000 nodes to ensure <30min runtime (FR-004); exact calculation for smaller networks.
@@ -92,7 +92,7 @@
 
 ### Null Model A: Label Permutation (SC-001)
 
-- [X] T020 [US1] [P] Implement label permutation loop in `code/statistics.py` to shuffle essentiality labels [deferred] times (per SC-001) and compute Spearman correlation for each shuffle; save results to `results/null_distribution/{organism}/threshold_<value>/label_permutation.csv` (organism-specific and threshold-specific subfolders to prevent race conditions).
+- [X] T020 [US1] [P] Implement label permutation loop in `code/statistics.py` to shuffle essentiality labels 1,000 times (per SC-001) and compute Spearman correlation for each shuffle; save results to `results/null_distribution/{organism}/threshold_<value>/label_permutation.csv` (organism-specific and threshold-specific subfolders to prevent race conditions).
 - [X] T021 [US1] [P] Implement empirical p-value calculation in `code/statistics.py` by comparing the observed correlation (from T017) against the null distribution (from T020); update `results/correlations.json` with `empirical_p_value` and `null_distribution_summary`.
 
 ### Null Model B: Graph Rewiring (FR-010)
@@ -133,16 +133,16 @@
 
 **Goal**: Re-run the correlation analysis varying the STRING confidence score threshold across a range of low, medium, and high values. to assess robustness.
 
-**Independent Test**: Run pipeline with thresholds [lower bound, upper bound] for one organism; verify output contains separate results for each threshold.
+**Independent Test**: Run pipeline with thresholds [500, 700, 900] for one organism; verify output contains separate results for each threshold.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T033 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_schema.py`.
-- [X] T034 [P] [US3] Integration test for multi-threshold run in `tests/integration/test_sensitivity.py`: Run with thresholds within a moderate-to-high range. for a mock organism; assert that `results/sensitivity_report.md` contains a table with |Δρ| values and a pass/fail flag for SC-002.
+- [X] T034 [P] [US3] Integration test for multi-threshold run in `tests/integration/test_sensitivity.py`: Run with thresholds [500, 700, 900] for a mock organism; assert that `results/sensitivity_report.md` contains a table with |Δρ| values and a pass/fail flag for SC-002.
 
 ### Implementation for User Story 3
 
-- [X] T035 [US3] Refactor `code/main.py` to include a `run_sensitivity_analysis` function that iterates over a list of confidence thresholds (default: [, 700, 900]). For each threshold, call `run_organism_analysis` (from T018) with the specific threshold. **Ensure null models (T020, T022) are re-executed for each threshold** and results are saved to `results/null_distribution/{organism}/threshold_<value>/` to prevent overwrites.
+- [X] T035 [US3] Refactor `code/main.py` to include a `run_sensitivity_analysis` function that iterates over a list of confidence thresholds (default: [500, 700, 900]). For each threshold, call `run_organism_analysis` (from T018) with the specific threshold. **Ensure null models (T020, T022) are re-executed for each threshold** and results are saved to `results/null_distribution/{organism}/threshold_<value>/` to prevent overwrites.
 - [X] T036 [P] [US3] Implement logging for network sparsity (flag if edges < 500) while allowing NaN/0 returns for centrality metrics (Edge Case).
 - [X] T037 [US3] Generate `results/sensitivity_report.md` summarizing correlation coefficients and stability (|Δρ|) across thresholds; MUST include a table of |Δρ| values for each threshold pair and a pass/fail flag for SC-002 (stability ≤ 0.1).
 - [X] T038 [US3] Verify SC-002: Calculate absolute difference in correlation coefficients across thresholds and flag if > 0.1; log pass/fail status for SC-002 in `results/sensitivity_report.md`.
@@ -281,3 +281,8 @@ With multiple developers:
 - **Organism Scope**: T013, T014 explicitly iterate over 5-8 model organisms.
 - **Placeholder Resolution**: All placeholders (e.g., '[deferred]', '...') have been replaced with concrete values or specific patterns.
 - **Tree Requirement**: T009 enforces a hard failure if the phylogenetic tree is missing, ensuring FR-006 is not silently skipped.
+- **Data Streaming**: T013 and T014 must implement streaming or chunked reading for large datasets to prevent memory overflow on the 7GB RAM runner.
+- **Failure Loudness**: T013 and T014 must raise explicit exceptions on fetch failure; no silent fallbacks to synthetic data.
+- **Reporting**: T037 and T038 must explicitly report the sample size and any skipped organisms due to power constraints (n < 10) in the final report.
+- **Phylogenetic Data**: T009 must validate the tree structure (Newick) before saving to ensure it is parsable by `dendropy` for T029.
+- **Mapping Coverage**: T015 must explicitly log the number of genes excluded due to mapping failure, as required by the Edge Cases section of the spec.
