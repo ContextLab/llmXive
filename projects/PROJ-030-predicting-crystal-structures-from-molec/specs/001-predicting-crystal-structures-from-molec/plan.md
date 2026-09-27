@@ -26,7 +26,7 @@ The implementation is designed to run entirely on the GitHub Actions free-tier (
 **Project Type**: Data Science / Computational Chemistry Pipeline  
 **Performance Goals**: Complete full pipeline (ingestion → training → analysis) within 6 hours; memory usage < 7 GB via streaming/sampling.  
 **Constraints**: No local GPU; no access to gated datasets (e.g., ADNI, CSD); strict scaffold-split enforcement; handling of polymorphic ambiguity via Top-K metrics.  
-**Scale/Scope**: Process pre-filtered organic COD data; generate ~10k-50k samples (determined by HuggingFace subset size); train 3 models (2 classifiers, 1 regressor).
+**Scale/Scope**: Process pre-filtered organic COD data; generate a substantial number of samples (determined by HuggingFace subset size); train 3 models (2 classifiers, 1 regressor).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

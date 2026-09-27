@@ -1,0 +1,2 @@
+# This directory holds raw downloaded data (e.g., CIF files, dataset shards)
+# Do not commit large files; add to .gitignore

@@ -1,0 +1,48 @@
+T003:
+  c: true
+  h: f9cfc4592cb9d6a0ce4e84dd69465f6dd5406f7280fdb6267d99def8235e941b
+  r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and contains\
+    \ proper Black and Ruff hook configurations, fulfilling the requirement to set\
+    \ up linting and formatting tools."
+T013:
+  c: false
+  h: 656abed159ba469cf6b8aa6a42d680ab1ab09b3f5a2447d67d34645a2961a05f
+  r: The repository contains `code/ingestion/run_pipeline.py`, but the file is truncated
+    and never produces the required `data/processed/crystal_dataset.csv` (the file
+    is missing, as is the intermediate `polymorphic_dataset.csv`). The script therefore
+    does not demonstrably generate the expected output, so the task is not satisfied.
+T015:
+  c: false
+  h: 24537d46041b34005da54c4454f2809486f8cd04c184e0f47bc6ad7c19496ee6
+  r: "The repository contains a partially implemented `code/modeling/split.py` (functions\
+    \ for grouping rare space groups and generating scaffolds) but the script does\
+    \ not include logic to load the dataset, perform the split, write `data/processed/split_indices.json`,\
+    \ or create `data/validation/scaffold_overlap_report.json`. Both required output\
+    \ files are missing, so the task\u2019s deliverables are not satisfied."
+T016:
+  c: false
+  h: f8863b64e1fd68abe1a0bc60bd76724de59fe144eddfd388ca106a43550167d2
+  r: The repository lacks the required `data/processed/split_indices.json` and the
+    resulting `data/models/rf_model.pkl`. Moreover, `code/modeling/train.py` does
+    not contain a concrete Random Forest training implementation that reads the split
+    indices and saves the model to the specified path (the file is truncated and only
+    shows placeholders). These essential artifacts are missing, so the task is not
+    satisfied.
+T016b:
+  c: false
+  h: df72850519963d25e818fcb91361aac541f6c19c05aae87ae54f25c15954ec19
+  r: The repository lacks the required `data/processed/split_indices.json` file and
+    the expected output model `data/models/gb_model.pkl`. Moreover, the provided portion
+    of `code/modeling/train.py` does not contain any implementation of Gradient Boosting
+    classifier training (no function that fits a `GradientBoostingClassifier` and
+    saves it). These missing artifacts and absent functionality mean the task is not
+    satisfied.
+T016c:
+  c: false
+  h: 53e72e8aab19c9d7a48ba7641b4e8ed84b4a5fab71c96972d955ca40e030addd
+  r: The repository lacks the required `data/processed/split_indices.json` file and
+    the resulting `data/models/ridge_model.pkl` model artifact. Moreover, while `train.py`
+    defines a `train_ridge_regression` function, it never invokes it using the split
+    indices nor calls `save_model` to write the ridge model, so the training step
+    is not actually executed. These missing pieces mean the task is not genuinely
+    completed.
