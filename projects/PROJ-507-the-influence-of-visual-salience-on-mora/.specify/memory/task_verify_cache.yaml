@@ -26,11 +26,3 @@ T026b:
     the `data/survey/` and `data/synth/` directories, enforce naming conventions,
     or raise a `DataHygieneError` for misplaced files. The required enforcement logic
     and verification are missing.
-T061:
-  c: false
-  h: 86c37e2ef8bd51c2a9f14e09c06caee5da1ccba90785dd41285af3126fe6001c
-  r: The repository contains a `_log_sample_metadata` function that would write the
-    required JSON, but the `data/raw/sample_metadata.json` file is missing, and there
-    is no evidence that the function is actually invoked during dataset ingestion.
-    Without the generated file, the explicit sample size logging requirement is not
-    satisfied.

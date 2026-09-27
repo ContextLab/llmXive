@@ -44,7 +44,7 @@
 - [X] T009 Create `code/audit/manual_validation.py` skeleton for the audit sample size rule (`max(minimum_threshold, ceil(0.10 * N_LLM))`)
 - [X] T031 [US3] Implement `code/analysis/complexity.py` to compute Cyclomatic Complexity and Lines of Code for PR diffs (moved from Phase 5 to ensure data flow)
 - [X] T032 [US3] Implement fallback logic in `code/analysis/complexity.py` to use standard metrics if memory usage > 6GB (Assumption 3) **MUST include a psutil watchdog hook** to trigger fallback automatically.
-- [ ] T033 [US3] Create `code/analysis/save_complexity_scores.py` to output `data/processed/complexity_scores.csv` with `pr_id` (int) and `complexity_score` (float) columns. **MUST** join on `pr_id` from `data/processed/prs_labeled.csv` (produced by T017). This task is a prerequisite for T022.
+- [ ] T033 [US3] Create `code/analysis/save_complexity_scores.py` to output `data/processed/complexity_scores.csv` with `pr_id` (int) and `complexity_score` (float) columns. **MUST** join on `pr_id` from `data/processed/prs_labeled.csv` (produced by T017). This task is a prerequisite for T022. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,7 +74,7 @@
 - [X] T015 [US1] Implement `code/data/classify_prs.py` secondary detector: compute code entropy/n-gram anomaly scores on PR diffs to validate `llm` labels (FR-007) and output `detector_score`
 - [ ] T017 [US1] Create `code/data/save_labeled_dataset.py` to output `data/processed/prs_labeled.csv` with `source_type`, `confidence_score`, `flagged`, `detector_score`, and metadata
 - [X] T018 [US1] Implement fallback logic in `code/data/fetch_github.py` to automatically switch to next repo if `llm` count < 10 in current repo
-- [ ] T019a [US1] Implement `code/audit/manual_validation.py` logic to select a stratified sample of a minimum size that scales with the total LLM dataset size., execute human-judgment checklist, and log results to `data/audit/manual_audit_results.json`. **Depends on T017 completion.**
+- [ ] T019a [US1] Implement `code/audit/manual_validation.py` logic to select a stratified sample of a minimum size that scales with the total LLM dataset size., execute human-judgment checklist, and log results to `data/audit/manual_audit_results.json`. **Depends on T017 completion.** <!-- FAILED: unspecified -->
 - [ ] T019b [US1] [SC-004] Implement error rate calculation logic in `code/audit/manual_validation.py` to compare manual results against automated labels using **Human Expert Judgment as ground truth per SC-004** (secondary detector is only a validation metric, NOT ground truth). Calculate the labeling error rate, write the result to `data/audit/error_rate.json`, and raise a `ValueError` with message "Error rate {rate} exceeds threshold" if the rate exceeds a predefined acceptable limit. **Depends on T019a completion.** <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -97,14 +97,14 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] [FR-003] [FR-004] [SC-001] [SC-002] Implement `code/data/extract_metrics.py` to calculate `comment_count`, `time_to_merge_minutes`, `review_cycles` for every PR from `data/processed/prs_labeled.csv` and **Join `data/processed/prs_labeled.csv` and `data/processed/complexity_scores.csv` on `pr_id`** (produced by T033) to include actual `complexity_score`. **Requires T033 completion.** Output schema: `pr_id` (int), `comment_count` (int), `time_to_merge_minutes` (float), `review_cycles` (int), `complexity_score` (float).
-- [ ] T023 [US2] [FR-003] Save processed metrics to `data/processed/prs_metrics.csv` including `pr_id` (int), `comment_count` (int), `time_to_merge_minutes` (float), `review_cycles` (int), and `complexity_score` (float) columns.
-- [ ] T024a [US2] [FR-004] [SC-001] [SC-002] Implement `code/analysis/statistical_tests.py` to perform **Mann-Whitney U tests as PRIMARY analysis** (per Plan) comparing `llm` vs `human` groups for comment density and time-to-merge, outputting p-values, U-statistics, and effect sizes (Cohen's d). **Instruction: Follow Plan's Mann-Whitney primary requirement explicitly.**
-- [ ] T024b [US2] [FR-008] Implement **independent two-sample t-tests as sensitivity analysis** in `code/analysis/statistical_tests.py` to verify robustness of Mann-Whitney results.
-- [ ] T025 [US2] [FR-004] [SC-001] [SC-002] Implement calculation of effect sizes (Cohen's d) and significance determination (α = 0.05) in `code/analysis/statistical_tests.py`. **MUST** include a verification step to confirm that the chosen α aligns with the "no multiple-comparison correction" assumption before execution.
-- [ ] T026 [US2] [FR-008] Implement `code/analysis/sensitivity_analysis.py` to re-run tests using only the secondary detector cohort (FR-008)
-- [ ] T027 [US2] [FR-004] [FR-003] Create `code/analysis/generate_results_report.py` to aggregate findings into `data/processed/results.json` with all statistical outputs. **JSON Schema**: `{ "comment_density": { "p_value": float, "u_statistic": float, "effect_size": float, "is_significant": bool }, "time_to_merge": {... }, "complexity_correlation": float }`.
-- [ ] T028 [US2] Implement logic in `code/analysis/generate_results_report.py` to read the error rate from `data/audit/error_rate.json` (produced by T019b) and write a `gate_status` flag to `data/processed/gate_status.json` (block final report generation if rate > 0.05); **do not block Phase 4 execution, only final aggregation**. **JSON Schema for gate_status**: `{ "status": "blocked" | "passed" }`. **Requires T019b completion.**
+- [ ] T022 [US2] [FR-003] [FR-004] [SC-001] [SC-002] Implement `code/data/extract_metrics.py` to calculate `comment_count`, `time_to_merge_minutes`, `review_cycles` for every PR from `data/processed/prs_labeled.csv` and **Join `data/processed/prs_labeled.csv` and `data/processed/complexity_scores.csv` on `pr_id`** (produced by T033) to include actual `complexity_score`. **Requires T033 completion.** Output schema: `pr_id` (int), `comment_count` (int), `time_to_merge_minutes` (float), `review_cycles` (int), `complexity_score` (float). <!-- ATOMIZE: requested -->
+- [ ] T023 [US2] [FR-003] Save processed metrics to `data/processed/prs_metrics.csv` including `pr_id` (int), `comment_count` (int), `time_to_merge_minutes` (float), `review_cycles` (int), and `complexity_score` (float) columns. <!-- FAILED: unspecified -->
+- [X] T024a [US2] [FR-004] [SC-001] [SC-002] Implement `code/analysis/statistical_tests.py` to perform **Mann-Whitney U tests as PRIMARY analysis** (per Plan) comparing `llm` vs `human` groups for comment density and time-to-merge, outputting p-values, U-statistics, and effect sizes (Cohen's d). **Instruction: Follow Plan's Mann-Whitney primary requirement explicitly.** <!-- FAILED: unspecified -->
+- [X] T024b [US2] [FR-008] Implement **independent two-sample t-tests as sensitivity analysis** in `code/analysis/statistical_tests.py` to verify robustness of Mann-Whitney results. <!-- FAILED: unspecified -->
+- [X] T025 [US2] [FR-004] [SC-001] [SC-002] Implement calculation of effect sizes (Cohen's d) and significance determination (α = 0.05) in `code/analysis/statistical_tests.py`. **MUST** include a verification step to confirm that the chosen α aligns with the "no multiple-comparison correction" assumption before execution.
+- [X] T026 [US2] [FR-008] Implement `code/analysis/sensitivity_analysis.py` to re-run tests using only the secondary detector cohort (FR-008)
+- [ ] T027 [US2] [FR-004] [FR-003] Create `code/analysis/generate_results_report.py` to aggregate findings into `data/processed/results.json` with all statistical outputs. **JSON Schema**: `{ "comment_density": { "p_value": float, "u_statistic": float, "effect_size": float, "is_significant": bool }, "time_to_merge": {... }, "complexity_correlation": float }`. <!-- ATOMIZE: requested -->
+- [ ] T028 [US2] Implement logic in `code/analysis/generate_results_report.py` to read the error rate from `data/audit/error_rate.json` (produced by T019b) and write a `gate_status` flag to `data/processed/gate_status.json` (block final report generation if rate > 0.05); **do not block Phase 4 execution, only final aggregation**. **JSON Schema for gate_status**: `{ "status": "blocked" | "passed" }`. **Requires T019b completion.** <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,17 +118,17 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029a [P] [US3] Unit test `test_cyclomatic_complexity_calculation` in `tests/unit/test_complexity.py`
-- [ ] T029b [P] [US3] Unit test `test_lines_of_code_calculation` in `tests/unit/test_complexity.py`
+- [X] T029a [P] [US3] Unit test `test_cyclomatic_complexity_calculation` in `tests/unit/test_complexity.py`
+- [X] T029b [P] [US3] Unit test `test_lines_of_code_calculation` in `tests/unit/test_complexity.py`
 - [ ] T030a [P] [US3] Integration test `test_boxplot_generation` in `tests/integration/test_visualizations.py`: asserts PDF `reports/figures/boxplots.pdf` exists with correct plot types
-- [ ] T030b [P] [US3] Integration test `test_histogram_generation` in `tests/integration/test_visualizations.py`: asserts PDF `reports/figures/histograms.pdf` exists
+- [~] T030b [P] [US3] Integration test `test_histogram_generation` in `tests/integration/test_visualizations.py`: asserts PDF `reports/figures/histograms.pdf` exists
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] [FR-005] [FR-006] Implement `code/analysis/visualizations.py` to generate side-by-side boxplots for comment density and time-to-merge
-- [ ] T035 [US3] [FR-005] [FR-006] [SC-003] Implement correlation analysis in `code/analysis/visualizations.py` to measure relationship between complexity and review metrics (SC-003). **MUST** verify usage of complexity scores in regression/correlation analysis to ensure they are used to control for confounding variables as required by SC-003.
+- [X] T034 [US3] [FR-005] [FR-006] Implement `code/analysis/visualizations.py` to generate side-by-side boxplots for comment density and time-to-merge <!-- ATOMIZE: requested -->
+- [X] T035 [US3] [FR-005] [FR-006] [SC-003] Implement correlation analysis in `code/analysis/visualizations.py` to measure relationship between complexity and review metrics (SC-003). **MUST** verify usage of complexity scores in regression/correlation analysis to ensure they are used to control for confounding variables as required by SC-003. <!-- FAILED: unspecified -->
 - [ ] T036 [US3] [FR-005] [FR-006] Generate final report PDF in `reports/figures/final_report.pdf` containing all required plots (boxplots for comment density and time-to-merge, histograms) and correlation coefficients. **MUST** include sections: Executive Summary, Methodology, Results (with plots), Discussion, Limitations. **Depends on T028.**
-- [ ] T037 [US3] [FR-005] [FR-006] Implement `code/analysis/generate_final_report.py` to compile all findings, limitations, and visualizations into a research summary; **MUST** read `data/processed/gate_status.json` (from T028) and abort if `status` is 'blocked' by raising a `ValueError` with message "Pipeline blocked: error rate exceeded threshold". **Depends on T028.**
+- [ ] T037 [US3] [FR-005] [FR-006] Implement `code/analysis/generate_final_report.py` to compile all findings, limitations, and visualizations into a research summary; **MUST** read `data/processed/gate_status.json` (from T028) and abort if `status` is 'blocked' by raising a `ValueError` with message "Pipeline blocked: error rate exceeded threshold". **Depends on T028.** <!-- FAILED: unspecified -->
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -138,10 +138,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Update `README.md`: Add installation instructions, usage examples, and a data flow diagram.
-- [ ] T039 [P] Update API documentation in `docs/`: Document all modules in `code/` with docstrings and examples.
-- [ ] T040 [P] Refactor `code/data/fetch_github.py`: Use a single session object; extract common error handling logic into `code/utils/errors.py`.
-- [ ] T041 [P] Optimize `code/analysis/complexity.py`: Process diffs in chunks; implement parallel processing for metric extraction in `code/data/extract_metrics.py`.
+- [~] T038 [P] Update `README.md`: Add installation instructions, usage examples, and a data flow diagram.
+- [~] T039 [P] Update API documentation in `docs/`: Document all modules in `code/` with docstrings and examples.
+- [X] T040 [P] Refactor `code/data/fetch_github.py`: Use a single session object; extract common error handling logic into `code/utils/errors.py`.
+- [X] T041 [P] Optimize `code/analysis/complexity.py`: Process diffs in chunks; implement parallel processing for metric extraction in `code/data/extract_metrics.py`. <!-- ATOMIZE: requested -->
 - [ ] T042 [P] Implement PII filter in `code/utils/logging.py`: Add a function that masks email addresses and usernames in logs; verify no PII in `data/` artifacts via a scan script.
 - [ ] T043 [P] Run `quickstart.md` validation and verify all artifacts are checksummed
 

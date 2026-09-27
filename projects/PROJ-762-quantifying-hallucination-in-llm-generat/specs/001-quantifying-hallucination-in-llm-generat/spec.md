@@ -69,7 +69,7 @@
 - **FR-006**: System MUST perform a sensitivity analysis sweeping the hallucination index classification threshold (defined as `index >= threshold`) over the set {0.01, 0.05, 0.1} and report the variation in the "high hallucination" rate (See US-3).
 - **FR-007**: System MUST output a final JSON/CSV report containing the correlation coefficients, p-values (raw and adjusted), and sensitivity analysis results. The report MUST contain the phrase "correlation observed" to explicitly frame findings as associational (See US-2, US-3).
 - **FR-008**: System MUST fit a multiple linear regression (or generalized additive model) with the hallucination index as the dependent variable and source code token count, naming style, and cyclomatic complexity as independent predictors. The model MUST include the generated description's token count as a covariate to control for length bias as an empirical safeguard (See US-2).
-- **FR-009**: System MUST randomly select a stratified subset of items for manual verification.. For this subset, human annotators MUST verify factual accuracy against the **source code's actual behavior/signature** (ground truth) using the following protocol:
+- **FR-009**: System MUST randomly select a stratified subset of items for manual verification. For this subset, human annotators MUST verify factual accuracy against the **source code's actual behavior/signature** (ground truth) using the following protocol:
     1. **Recruitment & Training**: Engage independent annotators. Conduct a 1-hour calibration session to ensure a Kappa score > 0.6 on a pilot set of 10 items.
     2. **Scoring Rubric**: Annotators score each item on a 0-3 scale based **exclusively on entity-level accuracy** (parameters, return types, function names), matching the automated metric:
         - **Score 3**: Description correctly identifies all parameters/return types.
@@ -99,7 +99,7 @@
 
 - **SC-001**: The pipeline's memory usage is measured against the GitHub Actions free-tier RAM limit during the generation of 1000 descriptions. (See US-1).
 - **SC-002**: The total execution time is measured against the job limit for processing the full sample dataset. (See US-1).
-- **SC-003**: The validity of the entity-overlap metric is measured against a manual verification of a random stratified sample of items., comparing them against the source code's actual behavior using **Pearson's correlation coefficient** (See US-3).
+- **SC-003**: The validity of the entity-overlap metric is measured against a manual verification of a random stratified sample of items, comparing them against the source code's actual behavior using **Pearson's correlation coefficient** (See US-3).
 - **SC-004**: The robustness of the correlation findings is measured against the variation in "high hallucination" rates across the threshold sweep {0.01, 0.05, 0.1} (See US-3).
 - **SC-005**: The statistical rigor is measured by the presence of adjusted p-values for all hypothesis tests to control family-wise error (See US-3).
 - **SC-006**: The generalizability of findings is measured by the consistency of regression coefficients between the `codegen-350M` and `starcoderbase-1b` models, defined as: coefficients must have the same sign AND the absolute difference between coefficients must be ≤ 0.15 (a community-standard threshold for negligible variance in NLP evaluation). CI overlap is noted as a secondary observation but does not override the sign/difference requirement (See US-2).
@@ -114,5 +114,6 @@
 - The "naming style" metric (presence of verbs, camelCase vs snake_case) is a valid proxy for "descriptiveness" as hypothesized in the research question.
 - The dataset variables (token count, complexity, docstring) are sufficient to test the hypothesis; no additional external variables (e.g., developer experience, library age) are required for this specific correlation study.
 - The manual verification process described in FR-009 will yield a real, non-simulated dataset for validation; no placeholder or simulated scores will be generated or used.
-- The GitHub Actions free-tier runner provides sufficient disk space to store the dataset, model weights, and intermediate CSVs. without requiring external storage solutions.
+- The GitHub Actions free-tier runner provides sufficient disk space to store the dataset, model weights, and intermediate CSVs without requiring external storage solutions.
 - The sample size for manual verification is sufficient to achieve a stable Krippendorff's alpha estimate for the prototype scope.
+- The study is observational; therefore, all reported relationships are framed as associational correlations, not causal effects, unless the design explicitly incorporates randomization (which it does not).

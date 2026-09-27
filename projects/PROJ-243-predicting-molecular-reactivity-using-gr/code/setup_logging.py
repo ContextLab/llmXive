@@ -1,82 +1,48 @@
-"""
-Setup script for logging infrastructure (Task T009).
-
-This script initializes the logging directories and verifies
-that the logging utilities are functional.
-"""
 import sys
 import os
 from datetime import datetime
 from utils.logging_utils import setup_logging, log_metric, flush_metrics, log_execution_summary
 from config import ensure_directories, get_config
 
-def setup_script_logging() -> None:
+def setup_script_logging(script_name: str) -> None:
     """
-    Initialize logging for the setup script itself.
+    Initialize the logging infrastructure for a specific script.
+    Creates necessary directories and configures the logger.
     """
-    # Ensure required directories exist
-    ensure_directories([
-        "artifacts/logs",
-        "artifacts/metrics"
-    ])
+    config = get_config()
+    ensure_directories(config)
     
-    # Initialize the main logging infrastructure
-    logger = setup_logging()
-    logger.info("Starting logging infrastructure setup (T009)...")
+    # Generate unique log filename based on timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_filename = f"{script_name}_{timestamp}.log"
+    log_dir = os.path.join(config['paths']['artifacts'], 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    log_path = os.path.join(log_dir, log_filename)
+    
+    # Initialize logging
+    setup_logging(log_path)
 
-def main() -> None:
+def main():
     """
-    Main entry point for T009.
-    
-    This script:
-    1. Creates necessary directories.
-    2. Initializes the logging system.
-    3. Writes a test log entry to verify functionality.
-    4. Logs an initial metric to `artifacts/metrics.json`.
+    Entry point for the logging setup script.
+    Verifies that logs and metrics are written correctly.
     """
-    start_time = datetime.now()
+    script_name = "setup_logging"
+    setup_script_logging(script_name)
     
-    # Setup logging for this script
-    setup_script_logging()
-    logger = setup_logging()
+    from utils.logging_utils import get_logger
+    logger = get_logger()
     
-    try:
-        # Verify directories
-        dirs = ["artifacts/logs", "artifacts/metrics"]
-        for d in dirs:
-            if not os.path.exists(d):
-                os.makedirs(d)
-                logger.info(f"Created directory: {d}")
-            else:
-                logger.info(f"Directory exists: {d}")
-        
-        # Log a startup metric
-        log_metric("pipeline_start", datetime.now().isoformat())
-        log_metric("task_id", "T009")
-        
-        # Log execution summary for this setup run
-        duration = (datetime.now() - start_time).total_seconds()
-        log_execution_summary(
-            task_id="T009",
-            success=True,
-            duration_seconds=duration,
-            message="Logging infrastructure initialized successfully."
-        )
-        
-        logger.info("Logging infrastructure setup complete.")
-        
-    except Exception as e:
-        duration = (datetime.now() - start_time).total_seconds()
-        log_execution_summary(
-            task_id="T009",
-            success=False,
-            duration_seconds=duration,
-            message=f"Failed to setup logging: {str(e)}"
-        )
-        logger.error(f"Setup failed: {str(e)}")
-        sys.exit(1)
-    finally:
-        flush_metrics()
+    logger.info(f"Script {script_name} started.")
+    log_metric("setup_status", "success", tags={"script": script_name})
+    log_execution_summary({
+        "script": script_name,
+        "status": "completed",
+        "message": "Logging infrastructure initialized and verified."
+    })
+    
+    logger.info(f"Script {script_name} finished.")
+    print(f"Logging setup complete. Check artifacts/logs/ and artifacts/metrics.json")
 
 if __name__ == "__main__":
     main()

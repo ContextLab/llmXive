@@ -1,34 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/raw` directory (or any files within it) was provided;
-    the implementer did not supply the required artifact, so the task of creating
-    the data directory is not satisfied.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing a `data/processed` directory was provided; there is no file\u2011\
-    system listing, code snippet, or commit evidence that the directory exists or\
-    \ contains any files. The claim lacks concrete proof that the required directory\
-    \ was actually created."
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/assets` directory is provided; the artifact is missing
-    or not shown, so the requirement to create the data directory is not satisfied.
-T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `code`, `artifacts`, or `tests` directories (or\
-    \ their contents) is provided; without confirming their existence and non\u2011\
-    emptiness, the task requirement is not satisfied."
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
-    \ with Black/Ruff settings, or a pre\u2011commit hook) are present, nor any evidence\
-    \ that these tools have been set up in the repository or CI pipeline. The required\
-    \ artifacts to satisfy task T004 are missing."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

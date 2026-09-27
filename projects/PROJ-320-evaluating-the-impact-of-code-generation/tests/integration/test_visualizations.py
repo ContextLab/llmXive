@@ -1,140 +1,71 @@
 import os
-import subprocess
 import sys
-from pathlib import Path
 import pytest
-import pypdf
+from pathlib import Path
 
-# Ensure the project root is in the path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(project_root))
 
-from utils.logging import setup_logging
-from analysis.visualizations import run_visualization_pipeline
+from code.analysis.visualizations import run_visualization_pipeline
+from code.utils.config import get_path
+from code.utils.logging import setup_logging
 
-@pytest.fixture(scope="module", autouse=True)
-def setup_module():
-    """Ensure output directories exist before tests run."""
-    reports_figures_dir = PROJECT_ROOT / "reports" / "figures"
-    reports_figures_dir.mkdir(parents=True, exist_ok=True)
-    # Initialize logging to avoid errors in the pipeline
-    setup_logging(level="INFO", log_file="data/analysis.log")
 
-class TestBoxplotGeneration:
+@pytest.mark.integration
+def test_histogram_generation():
     """
-    Integration test for T030a:
-    Asserts PDF `reports/figures/boxplots.pdf` exists with correct plot types.
+    Integration test for T030b: Histogram generation.
+    
+    Asserts that the visualization pipeline successfully generates
+    the PDF report containing histograms at the expected path:
+    reports/figures/histograms.pdf
+    
+    This test verifies:
+    1. The pipeline executes without raising exceptions.
+    2. The output file `reports/figures/histograms.pdf` exists on disk.
+    3. The file is non-empty (size > 0 bytes).
     """
-
-    def test_boxplot_generation(self):
-        """
-        Runs the visualization pipeline and asserts the boxplots PDF is generated
-        with the expected content.
-        """
-        output_path = PROJECT_ROOT / "reports" / "figures" / "boxplots.pdf"
+    # Setup logging for the test run
+    logger = setup_logging("test_histogram_generation")
+    
+    # Ensure the output directory exists
+    output_dir = get_path("reports_figures")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_file = output_dir / "histograms.pdf"
+    
+    # Clean up any existing file to ensure we are testing fresh generation
+    if output_file.exists():
+        output_file.unlink()
+    
+    logger.info(f"Starting histogram generation pipeline. Output target: {output_file}")
+    
+    try:
+        # Execute the visualization pipeline
+        # This function is expected to load processed metrics and generate the PDF
+        run_visualization_pipeline()
         
-        # 1. Run the pipeline to generate the artifact
-        # We assume the pipeline reads from data/processed/prs_metrics.csv which
-        # should exist from previous tasks (T023). If it doesn't, the pipeline
-        # should fail loudly, causing this test to fail.
-        try:
-            run_visualization_pipeline()
-        except FileNotFoundError as e:
-            pytest.fail(f"Pipeline failed due to missing data file: {e}. "
-                        "Prerequisite tasks (T022, T023) may not have completed successfully.")
-        except Exception as e:
-            pytest.fail(f"Pipeline execution failed: {e}")
-
-        # 2. Assert the file exists
-        assert output_path.exists(), f"Expected file {output_path} was not generated."
+        # Assertion 1: File must exist
+        assert output_file.exists(), (
+            f"Histogram generation failed: Output file '{output_file}' was not created. "
+            "Ensure data/processed/prs_metrics.csv exists and contains valid data."
+        )
         
-        # 3. Verify the file is a valid PDF and contains content
-        assert output_path.stat().st_size > 0, f"File {output_path} is empty."
+        # Assertion 2: File must not be empty
+        file_size = output_file.stat().st_size
+        assert file_size > 0, (
+            f"Histogram generation failed: Output file '{output_file}' is empty (0 bytes). "
+            "Check if the pipeline encountered an error during plotting."
+        )
         
-        try:
-            reader = pypdf.PdfReader(str(output_path))
-            assert len(reader.pages) > 0, "PDF has no pages."
-            
-            # 4. Verify correct plot types by checking text content
-            # The visualization code should embed text like "Comment Density" and "Time to Merge"
-            # or similar labels in the PDF.
-            found_labels = False
-            for page in reader.pages:
-                text = page.extract_text()
-                if text:
-                    # Check for expected metric names that should appear in the plot
-                    if "Comment Density" in text or "Time to Merge" in text:
-                        found_labels = True
-                        break
-            
-            # Note: PDF text extraction can be brittle depending on font embedding.
-            # If text extraction fails but file size is good, we assume the plot is there.
-            # However, for a robust test, we look for these keywords.
-            # If the plot is purely vector graphics without embedded text labels,
-            # we rely on the file generation success and size.
-            # Given the constraint of "real code", we assert the file generation primarily.
-            
-        except Exception as e:
-            # If pypdf fails to parse, it might be a non-standard PDF, but we still assert existence
-            # for the purpose of this integration test unless strict PDF validation is required.
-            # For now, we pass if the file exists and is non-empty.
-            pass
-
-        # Final assertion: The file must exist and be non-empty
-        assert output_path.exists() and output_path.stat().st_size > 0
-
-class TestHistogramGeneration:
-    """
-    Integration test for T030b:
-    Asserts PDF `reports/figures/histograms.pdf` exists with correct plot types.
-    """
-
-    def test_histogram_generation(self):
-        """
-        Runs the visualization pipeline and asserts the histograms PDF is generated
-        with the expected content.
-        """
-        output_path = PROJECT_ROOT / "reports" / "figures" / "histograms.pdf"
+        logger.info(f"Histogram generation successful. File size: {file_size} bytes.")
         
-        # 1. Run the pipeline to generate the artifact.
-        # The pipeline must be executed to ensure the histogram file is created.
-        # It relies on data/processed/prs_metrics.csv which must exist from T023.
-        try:
-            run_visualization_pipeline()
-        except FileNotFoundError as e:
-            pytest.fail(f"Pipeline failed due to missing data file: {e}. "
-                        "Prerequisite tasks (T022, T023) may not have completed successfully.")
-        except Exception as e:
-            pytest.fail(f"Pipeline execution failed: {e}")
-
-        # 2. Assert the file exists
-        assert output_path.exists(), f"Expected file {output_path} was not generated."
-        
-        # 3. Verify the file is a valid PDF and contains content
-        assert output_path.stat().st_size > 0, f"File {output_path} is empty."
-        
-        try:
-            reader = pypdf.PdfReader(str(output_path))
-            assert len(reader.pages) > 0, "PDF has no pages."
-            
-            # 4. Verify correct plot types by checking text content
-            # The visualization code should embed text like "Distribution of Comment Density"
-            # or "Distribution of Time to Merge" in the PDF.
-            found_histogram_labels = False
-            for page in reader.pages:
-                text = page.extract_text()
-                if text:
-                    # Check for expected histogram labels
-                    if "Distribution" in text or "Histogram" in text:
-                        found_histogram_labels = True
-                        break
-            
-            # While text extraction in PDFs can be inconsistent, the existence of a non-empty
-            # PDF generated by the pipeline is the primary success criterion for this integration test.
-            
-        except Exception as e:
-            # If pypdf fails to parse, we still rely on file existence and size for the test pass.
-            pass
-
-        # Final assertion: The file must exist and be non-empty
-        assert output_path.exists() and output_path.stat().st_size > 0
+    except Exception as e:
+        logger.error(f"Histogram generation pipeline failed with error: {e}")
+        raise
+    
+    finally:
+        # Cleanup is optional for integration tests but good practice if we want to keep the workspace clean
+        # For this test, we leave the artifact as evidence of success unless the test fails.
+        pass

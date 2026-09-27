@@ -1,16 +1,12 @@
 """
-Manual Validation and Audit Module for LLM Code Review Impact Study.
+Manual validation and error rate calculation for code review classification.
 
-This module implements the audit sample size rule:
-max(minimum_threshold, ceil(0.10 * N_LLM))
-
-It handles:
-1. Loading labeled PRs from the processed dataset.
-2. Calculating the required sample size based on the audit rules.
-3. Selecting a stratified random sample for manual review.
-4. Executing a checklist for human judgment (simulated structure).
-5. Calculating the error rate against ground truth.
-6. Saving audit results and error rates to disk.
+This module implements the audit logic per SC-004:
+- Selects a stratified sample for human expert judgment.
+- Executes a human-judgment checklist (simulated via deterministic logic for now).
+- Calculates the labeling error rate against Human Expert Judgment as ground truth.
+- Saves audit results and error rate to JSON files.
+- Raises ValueError if error rate exceeds the configured threshold.
 """
 
 import os
@@ -20,280 +16,253 @@ import random
 import csv
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).parent.parent.parent
+# Import from local utils
+from utils.config import get_path, get_audit_settings, get_path as get_config_path
+from utils.logging import get_logger, setup_logging
+from utils.seeds import set_global_seed
 
-# Default configuration for audit
-DEFAULT_MINIMUM_THRESHOLD = 30
-DEFAULT_LLM_FRACTION = 0.10
-DEFAULT_ERROR_RATE_THRESHOLD = 0.05
-DEFAULT_SEED = 42
+# Initialize logger
+logger = get_logger(__name__)
+
 
 def get_audit_config() -> Dict[str, Any]:
-    """
-    Retrieve audit configuration.
-    In a full implementation, this would read from a config file.
-    For now, returns defaults or environment overrides.
-    """
+    """Load audit configuration from config.py."""
+    settings = get_audit_settings()
     return {
-        "minimum_threshold": int(os.getenv("AUDIT_MIN_THRESHOLD", DEFAULT_MINIMUM_THRESHOLD)),
-        "llm_fraction": float(os.getenv("AUDIT_LLM_FRACTION", DEFAULT_LLM_FRACTION)),
-        "error_rate_threshold": float(os.getenv("AUDIT_ERROR_THRESHOLD", DEFAULT_ERROR_RATE_THRESHOLD)),
-        "seed": int(os.getenv("AUDIT_SEED", DEFAULT_SEED)),
-        "input_path": os.getenv("AUDIT_INPUT_PATH", "data/processed/prs_labeled.csv"),
-        "audit_results_path": os.getenv("AUDIT_RESULTS_PATH", "data/audit/manual_audit_results.json"),
-        "error_rate_path": os.getenv("AUDIT_ERROR_PATH", "data/audit/error_rate.json"),
+        "minimum_threshold": settings.get("minimum_threshold", 10),
+        "sampling_fraction": settings.get("sampling_fraction", 0.10),
+        "error_threshold": settings.get("error_threshold", 0.05),
+        "seed": settings.get("seed", 42)
     }
 
-def load_labeled_prs(config: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Load labeled PRs from the processed CSV file.
-    Expects columns: pr_id, source_type, confidence_score, flagged, detector_score
-    """
-    input_path = PROJECT_ROOT / config["input_path"]
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input labeled dataset not found at {input_path}. "
-                                "Ensure T017 (save_labeled_dataset) has run successfully.")
 
-    prs = []
+def load_labeled_prs() -> List[Dict[str, Any]]:
+    """
+    Load the labeled dataset from data/processed/prs_labeled.csv.
+
+    Returns:
+        List of dicts with keys: pr_id, source_type, confidence_score, flagged, detector_score, etc.
+    """
+    input_path = get_path("processed_prs_labeled")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Required input file not found: {input_path}")
+
+    rows = []
     with open(input_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            # Convert types
-            pr = {
-                "pr_id": int(row["pr_id"]),
-                "source_type": row["source_type"],
-                "confidence_score": float(row["confidence_score"]),
-                "flagged": row["flagged"].lower() == 'true',
-                "detector_score": float(row["detector_score"]) if row["detector_score"] else 0.0
-            }
-            prs.append(pr)
-    return prs
+            # Convert types appropriately
+            row['pr_id'] = int(row['pr_id'])
+            row['confidence_score'] = float(row['confidence_score'])
+            row['flagged'] = row['flagged'].lower() == 'true'
+            if 'detector_score' in row:
+                row['detector_score'] = float(row['detector_score'])
+            rows.append(row)
 
-def calculate_sample_size(prs: List[Dict[str, Any]], config: Dict[str, Any]) -> int:
+    logger.info(f"Loaded {len(rows)} labeled PRs from {input_path}")
+    return rows
+
+
+def calculate_sample_size(total_count: int, config: Dict[str, Any]) -> int:
     """
-    Calculate the audit sample size using the rule:
-    max(minimum_threshold, ceil(0.10 * N_LLM))
+    Calculate the stratified sample size per SC-004.
 
-    Args:
-        prs: List of all labeled PRs.
-        config: Audit configuration dictionary.
-
-    Returns:
-        int: The number of samples to select.
+    Formula: max(minimum_threshold, ceil(0.10 * N_LLM))
     """
-    n_llm = sum(1 for pr in prs if pr["source_type"] == "llm")
-    minimum_threshold = config["minimum_threshold"]
-    llm_fraction = config["llm_fraction"]
+    n_llm = sum(1 for _ in range(total_count))  # Placeholder, actual count passed
+    # In reality, we calculate based on the LLM count in the dataset
+    # For this function, we assume total_count is the LLM count or we calculate it
+    # Let's assume total_count is the relevant population size (e.g., LLM count)
+    min_threshold = config["minimum_threshold"]
+    fraction = config["sampling_fraction"]
+    return max(min_threshold, math.ceil(fraction * total_count))
 
-    calculated_size = math.ceil(llm_fraction * n_llm)
-    final_size = max(minimum_threshold, calculated_size)
 
-    # Ensure we don't sample more than available LLMs
-    return min(final_size, n_llm)
-
-def select_stratified_sample(prs: List[Dict[str, Any]], sample_size: int, config: Dict[str, Any]) -> List[Dict[str, Any]]:
+def select_stratified_sample(prs: List[Dict[str, Any]], config: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
-    Select a stratified random sample of LLM PRs.
-    Stratification is currently based on confidence_score bins (High/Low)
-    to ensure representative coverage of the classification confidence.
-
-    Args:
-        prs: List of all labeled PRs.
-        sample_size: Target number of samples.
-        config: Audit configuration.
-
-    Returns:
-        List of selected PRs.
+    Select a stratified sample ensuring representation from both 'llm' and 'human' groups.
     """
-    seed = config["seed"]
-    random.seed(seed)
+    set_global_seed(config["seed"])
 
-    # Filter only LLM PRs for the audit sample
-    llm_prs = [pr for pr in prs if pr["source_type"] == "llm"]
+    llm_prs = [p for p in prs if p["source_type"] == "llm"]
+    human_prs = [p for p in prs if p["source_type"] == "human"]
 
-    if not llm_prs:
-        raise ValueError("No LLM PRs found in the dataset to sample from.")
+    # Calculate sample size for LLMs (SC-004 focuses on LLM error rate primarily, but we stratify)
+    sample_size_llm = calculate_sample_size(len(llm_prs), config)
+    sample_size_human = calculate_sample_size(len(human_prs), config)
 
-    # Stratify by confidence score: High (>0.8) and Low (<=0.8)
-    high_conf = [p for p in llm_prs if p["confidence_score"] > 0.8]
-    low_conf = [p for p in llm_prs if p["confidence_score"] <= 0.8]
+    # Cap at available
+    sample_size_llm = min(sample_size_llm, len(llm_prs))
+    sample_size_human = min(sample_size_human, len(human_prs))
 
-    # Calculate proportional allocation
-    total_llm = len(llm_prs)
-    if total_llm == 0:
-        return []
+    # Random sample
+    sample_llm = random.sample(llm_prs, sample_size_llm) if llm_prs else []
+    sample_human = random.sample(human_prs, sample_size_human) if human_prs else []
 
-    n_high = math.ceil(sample_size * (len(high_conf) / total_llm))
-    n_low = sample_size - n_high
+    audit_sample = sample_llm + sample_human
+    logger.info(f"Selected audit sample: {len(sample_llm)} LLM, {len(sample_human)} Human")
+    return audit_sample
 
-    # Ensure bounds
-    n_high = min(n_high, len(high_conf))
-    n_low = min(n_low, len(low_conf))
 
-    # Shuffle and select
-    random.shuffle(high_conf)
-    random.shuffle(low_conf)
-
-    selected = high_conf[:n_high] + low_conf[:n_low]
-
-    # If we fell short due to small strata, fill from the other if available
-    while len(selected) < sample_size:
-        available = [p for p in llm_prs if p not in selected]
-        if not available:
-            break
-        random.shuffle(available)
-        selected.append(available[0])
-
-    return selected
-
-def execute_human_judgment_checklist(sample: List[Dict[str, Any]], config: Dict[str, Any]) -> List[Dict[str, Any]]:
+def execute_human_judgment_checklist(audit_sample: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Simulates the execution of a human judgment checklist.
-    In a real pipeline, this would output a file for human annotators to fill.
-    Here, we simulate the result structure.
-    Since we cannot actually have a human run in this automated context,
-    we simulate a 'ground truth' label based on a deterministic rule for the sake of
-    calculating an error rate (e.g., assuming the detector score is the 'truth' proxy
-    or simply marking all as correct for a skeleton run, but the task requires
-    calculating an error rate logic).
+    Simulate human expert judgment on the audit sample.
 
-    To satisfy the requirement of 'calculating error rate' without fabricating data,
-    we will simulate a 'human_label' based on a threshold on detector_score
-    (treating high detector score as 'likely LLM' ground truth for this simulation).
-    NOTE: In a real production run, this function would write to a file and wait for human input.
+    In a real execution, this would involve a human reviewing each PR.
+    For the purpose of this pipeline, we simulate the ground truth by:
+    1. Using the automated label as the "human" judgment with a small probability of flip
+       to simulate human error or ambiguity, OR
+    2. Re-evaluating based on a more robust heuristic if available.
+
+    Per SC-004, Human Expert Judgment is the ground truth.
+    Here, we simulate the human judgment. In a real run, this data would come from an external
+    file or interactive process. We simulate it by assuming the 'source_type' is correct
+    with high probability, but we introduce a known error rate to test the pipeline's
+    error calculation logic.
+
+    To make the error rate calculation meaningful and non-trivial, we will simulate
+    human judgment as follows:
+    - If the automated label is 'llm', human says 'llm' with 95% probability.
+    - If the automated label is 'human', human says 'human' with 95% probability.
+    This creates a ~5% ground truth error rate in the simulation, which the pipeline
+    should detect.
     """
+    set_global_seed(12345) # Fixed seed for reproducibility of simulation
     results = []
-    for pr in sample:
-        # Simulation logic: Assume 'human_label' is 'llm' if detector_score > 0.7, else 'human'
-        # This is a placeholder for the actual human judgment process.
-        human_label = "llm" if pr["detector_score"] > 0.7 else "human"
 
-        # Determine if the automated label matches the simulated human label
-        # Note: The task asks to calculate error rate against human ground truth.
-        # Since we don't have real human labels, we simulate the process structure.
-        # In a real scenario, `human_label` would come from the JSON input by a human.
-        is_correct = (pr["source_type"] == human_label)
+    for pr in audit_sample:
+        pr_id = pr["pr_id"]
+        automated_label = pr["source_type"]
+        confidence = pr["confidence_score"]
 
-        results.append({
-            "pr_id": pr["pr_id"],
-            "automated_label": pr["source_type"],
-            "human_label": human_label, # Simulated
-            "confidence_score": pr["confidence_score"],
-            "detector_score": pr["detector_score"],
-            "is_correct": is_correct,
-            "notes": "Simulated human judgment for pipeline execution."
-        })
+        # Simulate human judgment
+        # High confidence -> high agreement probability
+        base_agreement = 0.95 if confidence > 0.8 else 0.90
+        if random.random() < base_agreement:
+            human_judgment = automated_label
+        else:
+            human_judgment = "human" if automated_label == "llm" else "llm"
+
+        result = {
+            "pr_id": pr_id,
+            "automated_label": automated_label,
+            "human_judgment": human_judgment,
+            "match": (automated_label == human_judgment),
+            "confidence_score": confidence,
+            "notes": "Simulated human judgment for pipeline validation."
+        }
+        results.append(result)
+
+    logger.info(f"Executed human judgment checklist on {len(results)} samples.")
     return results
 
-def calculate_error_rate(validation_results: List[Dict[str, Any]], config: Dict[str, Any]) -> float:
+
+def calculate_error_rate(audit_results: List[Dict[str, Any]], config: Dict[str, Any]) -> float:
     """
     Calculate the labeling error rate.
-    Error Rate = (Number of Incorrect Labels) / (Total Sample Size)
+
+    Error Rate = (Number of mismatches) / (Total samples)
+    Ground Truth is Human Expert Judgment.
     """
-    if not validation_results:
+    if not audit_results:
         return 0.0
 
-    incorrect_count = sum(1 for r in validation_results if not r["is_correct"])
-    total_count = len(validation_results)
+    mismatches = sum(1 for r in audit_results if not r["match"])
+    total = len(audit_results)
+    rate = mismatches / total
 
-    error_rate = incorrect_count / total_count
-    return error_rate
+    logger.info(f"Calculated error rate: {mismatches}/{total} = {rate:.4f}")
+    return rate
 
-def save_error_rate(error_rate: float, config: Dict[str, Any]) -> None:
-    """
-    Save the calculated error rate to the specified JSON file.
-    Raises ValueError if the error rate exceeds the threshold.
-    """
-    output_path = PROJECT_ROOT / config["error_rate_path"]
-    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    result_data = {
+def save_error_rate(error_rate: float, output_path: str) -> None:
+    """Save the error rate to a JSON file."""
+    output_dir = os.path.dirname(output_path)
+    os.makedirs(output_dir, exist_ok=True)
+
+    data = {
         "error_rate": error_rate,
-        "threshold": config["error_rate_threshold"],
-        "status": "exceeded" if error_rate > config["error_rate_threshold"] else "passed"
+        "threshold": config.get("error_threshold", 0.05),
+        "status": "exceeded" if error_rate > config.get("error_threshold", 0.05) else "passed"
     }
 
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(result_data, f, indent=2)
+        json.dump(data, f, indent=2)
 
-    if error_rate > config["error_rate_threshold"]:
-        raise ValueError(f"Error rate {error_rate:.4f} exceeds threshold {config['error_rate_threshold']}")
+    logger.info(f"Saved error rate to {output_path}")
 
-def save_audit_results(validation_results: List[Dict[str, Any]], config: Dict[str, Any]) -> None:
-    """
-    Save the full manual validation results to JSON.
-    """
-    output_path = PROJECT_ROOT / config["audit_results_path"]
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+def save_audit_results(audit_results: List[Dict[str, Any]], output_path: str) -> None:
+    """Save the full audit results to a JSON file."""
+    output_dir = os.path.dirname(output_path)
+    os.makedirs(output_dir, exist_ok=True)
 
     with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(validation_results, f, indent=2)
+        json.dump(audit_results, f, indent=2)
+
+    logger.info(f"Saved audit results to {output_path}")
+
 
 def run_manual_validation() -> None:
     """
-    Main entry point to run the manual validation pipeline.
-    1. Load config.
-    2. Load labeled PRs.
-    3. Calculate sample size.
-    4. Select sample.
-    5. Execute checklist (simulate).
-    6. Calculate error rate.
-    7. Save results.
+    Main entry point for the manual validation task (T019a and T019b).
+
+    1. Loads labeled PRs.
+    2. Selects a stratified sample.
+    3. Executes human judgment (simulated).
+    4. Saves audit results (T019a).
+    5. Calculates error rate.
+    6. Saves error rate (T019b).
+    7. Raises ValueError if error rate exceeds threshold.
     """
     config = get_audit_config()
-
-    print(f"Starting manual validation audit...")
-    print(f"Config: {config}")
+    set_global_seed(config["seed"])
 
     # Load data
-    prs = load_labeled_prs(config)
-    print(f"Loaded {len(prs)} PRs.")
-
-    # Calculate sample size
-    sample_size = calculate_sample_size(prs, config)
-    print(f"Calculated sample size: {sample_size}")
+    prs = load_labeled_prs()
+    if not prs:
+        logger.error("No labeled PRs found. Cannot perform audit.")
+        return
 
     # Select sample
-    sample = select_stratified_sample(prs, sample_size, config)
-    print(f"Selected {len(sample)} samples for audit.")
+    audit_sample = select_stratified_sample(prs, config)
 
-    # Execute checklist
-    results = execute_human_judgment_checklist(sample, config)
-    print(f"Executed human judgment checklist for {len(results)} items.")
+    # Execute judgment
+    audit_results = execute_human_judgment_checklist(audit_sample)
 
-    # Calculate error rate
-    error_rate = calculate_error_rate(results, config)
-    print(f"Calculated error rate: {error_rate:.4f}")
+    # T019a: Save audit results
+    audit_results_path = get_path("audit_results")
+    save_audit_results(audit_results, audit_results_path)
 
-    # Save audit results
-    save_audit_results(results, config)
-    print(f"Audit results saved to {PROJECT_ROOT / config['audit_results_path']}")
+    # T019b: Calculate error rate
+    error_rate = calculate_error_rate(audit_results, config)
 
-    # Save error rate (this may raise ValueError)
-    try:
-        save_error_rate(error_rate, config)
-        print(f"Error rate saved. Status: Passed.")
-    except ValueError as e:
-        print(f"Error rate threshold exceeded: {e}")
-        # Re-raise to stop pipeline if strict gating is required
-        raise
+    # T019b: Save error rate
+    error_rate_path = get_path("error_rate")
+    save_error_rate(error_rate, error_rate_path)
+
+    # T019b: Check threshold
+    threshold = config.get("error_threshold", 0.05)
+    if error_rate > threshold:
+        raise ValueError(f"Error rate {error_rate:.4f} exceeds threshold {threshold}")
+
+    logger.info(f"Audit complete. Error rate {error_rate:.4f} is within threshold {threshold}.")
+
 
 def main():
-    """CLI entry point."""
+    """Entry point for CLI."""
+    setup_logging(script_name="manual_validation")
     try:
         run_manual_validation()
-    except FileNotFoundError as e:
-        print(f"CRITICAL: {e}", file=sys.stderr)
-        sys.exit(1)
     except ValueError as e:
-        print(f"AUDIT FAILED: {e}", file=sys.stderr)
-        sys.exit(2)
-    except Exception as e:
-        print(f"UNEXPECTED ERROR: {e}", file=sys.stderr)
+        logger.error(f"Audit failed: {e}")
         sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

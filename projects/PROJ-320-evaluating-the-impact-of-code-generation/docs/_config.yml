@@ -1,0 +1,14 @@
+theme: jekyll-theme-slate
+title: llmXive Documentation
+description: Documentation for the llmXive project evaluating LLM code generation impact.
+author: llmXive Team
+show_downloads: true
+google_analytics:
+markdown_gfm: true
+toc: true
+toc_levels: 1,2,3
+nav:
+  - Home: /
+  - API Reference: /api_reference
+  - Examples: /api_examples
+  - Tasks: /../tasks

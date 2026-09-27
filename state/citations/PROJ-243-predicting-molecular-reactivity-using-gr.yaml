@@ -64,7 +64,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1021/acs.jpca.8b01234
   verified_at: '2026-08-08T16:58:50.701550Z'
-- artifact_hash: dcd353ac785b6cd4f9b791f455d44935edc646aecec9049e153688e185ccac83
+- artifact_hash: a19ed3be420e2c83a1b0c63b11ad178ff00cc8c5d3e4a9499f9cc0e2c38beb5f
   artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -74,8 +74,8 @@
   value: https://zenodo.org/api/records?doi=10.1038/s41597-020-00628-6`
   verification_status: pending
   verified_against_url: https://zenodo.org/api/records?doi=10.1038/s41597-020-00628-6
-  verified_at: '2026-09-25T07:50:35.710113Z'
-- artifact_hash: dcd353ac785b6cd4f9b791f455d44935edc646aecec9049e153688e185ccac83
+  verified_at: '2026-09-27T04:01:39.339572Z'
+- artifact_hash: a19ed3be420e2c83a1b0c63b11ad178ff00cc8c5d3e4a9499f9cc0e2c38beb5f
   artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -86,8 +86,8 @@
   value: 10.1038/s41597-020-00628-6
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00628-6
-  verified_at: '2026-09-25T07:50:35.710113Z'
-- artifact_hash: dcd353ac785b6cd4f9b791f455d44935edc646aecec9049e153688e185ccac83
+  verified_at: '2026-09-27T04:01:39.339572Z'
+- artifact_hash: a19ed3be420e2c83a1b0c63b11ad178ff00cc8c5d3e4a9499f9cc0e2c38beb5f
   artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -97,4 +97,4 @@
   value: 10.1093/nar/gky1079
   verification_status: pending
   verified_against_url: https://doi.org/10.1093/nar/gky1079
-  verified_at: '2026-09-25T07:50:35.710113Z'
+  verified_at: '2026-09-27T04:01:39.339572Z'
