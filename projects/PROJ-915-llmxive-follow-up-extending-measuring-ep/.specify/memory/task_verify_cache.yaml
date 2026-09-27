@@ -1,45 +1,50 @@
-T001:
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the `projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/`\
-    \ directory or any of its expected sub\u2011folders/files is provided; the claim\
-    \ lacks the required project\u2011structure artifact."
-T003:
+  h: 034516cfd9fdf26b08564119df28de43555c4c8c25365184e3fd793eb3984d1a
+  r: The `code/validation.py` file is present but the required output `data/results/pipeline_log.json`
+    does not exist on disk, and the module contains an unfinished `get_tracker` function
+    (typo `global _track`). Thus the logging mechanism is not fully initialized as
+    specified.
+T013:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
-    `pyproject.toml` with Black settings) are presented, nor any evidence that ruff/flake8
-    and Black have been set up in the repository. The required artifacts are missing,
-    so the task is not satisfied.
-T004:
+  h: 73a23cf7ff542db4614de095c9bbe826f3bd242bfd010a98bc1ffaa47a05d008
+  r: "The repository lacks the required `data/raw/medmis_subset.csv` file, and `state/artifact_hashes.yaml`\
+    \ contains only a placeholder hash. The provided `code/ingestion.py` does not\
+    \ implement CSV saving, SHA\u2011256 checksum calculation, or a real regex fallback\
+    \ that aborts on failure; it merely returns `True` with a comment. These missing\
+    \ pieces mean the task\u2019s core requirements are not satisfied."
+T015:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directories (`data/raw`, `data/processed`, `data/interim`,\
-    \ `data/results`, `code/`, `tests/`) is provided; the implementer did not supply\
-    \ a directory listing, screenshots, or any files showing that the structure has\
-    \ been created. The task remains undone until the specified folders are present\
-    \ and non\u2011empty."
-T008:
+  h: 42a186cd52dcd9c34fea8207ce4c15622023708416fa8ee9e1695851797e5448
+  r: "The required output file `data/processed/features.csv` does not exist, so the\
+    \ task\u2019s primary artifact is missing. Without this CSV containing the new\
+    \ columns (`is_ratio_undefined`, `ratio_safe_value`), the implementation cannot\
+    \ be considered complete."
+T017a:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration files, or documentation for an error\u2011handling framework\
-    \ (e.g., retry logic for dataset download or timeout handling for inference) were\
-    \ provided. Without any artifact to inspect, we cannot confirm that the required\
-    \ setup was implemented."
-T017b:
-  c: false
-  h: cb76370acc2af84b4ea84e8bcadad416a2cacad8b47cc21ae45011b99323312d
-  r: The required file `data/interim/human_pilot_cleaned.csv` does not exist, so no
-    rater responses have been aggregated as the task demands. The artifact is missing,
-    making the claim unfulfilled.
+  h: 5253b54f7be01f10810e33676a217aab9637b10d81a89223129626ad42d3b72e
+  r: "The repository lacks the required input file `data/raw/medmis_subset.csv` and\
+    \ the output file `data/raw/human_pilot_raw.csv`. Moreover, `code/annotation.py`\
+    \ contains only data\u2011loading and correlation utilities; it does not implement\
+    \ any Prolific (or equivalent) recruitment interface nor collect authority\u2011\
+    density scores as specified. The task\u2019s core manual\u2011recruitment functionality\
+    \ and output are absent."
 T017c:
   c: false
-  h: 5d74c7173c8d8a61fa969092e2f30307ac19e492b822dc0773fafe0df03a116d
-  r: "The required output file `data/interim/annotation_pilot_us1.csv` is absent,\
-    \ and the provided `code/annotation.py` does not implement the collection/aggregation\
-    \ of raw rater responses (it only loads existing data and computes correlations,\
-    \ expecting only `prompt_id` and `authority_density_score`). The script also lacks\
-    \ handling of a `rater_id` column, so the task\u2019s specification is not met."
+  h: 059ccff522cd1c2df228d8b3d133f9f23cb11eb7f30331220a84975e8262e1c6
+  r: "The repository contains a `code/annotation.py` file, but it is truncated and\
+    \ does not show a complete implementation that computes the Pearson/Spearman correlation\
+    \ and writes the result to `data/results/annotation_correlation_value.json`. Moreover,\
+    \ the required JSON output file is missing. The task\u2019s required artifact\
+    \ is therefore not present."
+T017d:
+  c: false
+  h: 504650a0d1111bf9e0608401f401a3d573d0f33b9bacca305862eee6cec7aa42
+  r: "The provided `code/annotation.py` does not contain the logic to compare the\
+    \ correlation coefficient against the 0.6 threshold, compute Cohen\u2019s\u202F\
+    \u03BA, raise `ValidationGateFailedError` when thresholds are violated, nor does\
+    \ it generate the required `data/results/feature_validation_report.md`. Additionally,\
+    \ the report file is missing from the repository."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -54,11 +59,3 @@ T027:
     \ so there is no evidence that two expert raters were recruited or that any labels\
     \ were produced. The task\u2019s deliverable is missing, making the requirement\
     \ unmet."
-T027a:
-  c: false
-  h: 086a72a95b892c97db604fddddfbfe4a28dfba8cc371d5717fb633c070f8fbf3
-  r: The repository lacks the required `data/raw/medmis_subset.csv` input and does
-    not contain the generated `data/interim/human_pilot_labels_mock.csv` output. Moreover,
-    the `generate_deterministic_pilot` function in `code/annotation.py` is truncated,
-    so it does not demonstrably produce the deterministic mock labels. These essential
-    artifacts are missing, so the task is not satisfied.

@@ -1,140 +1,143 @@
-"""
-Unit tests for ingestion module.
-"""
 import pytest
 import os
-import tempfile
+import csv
 import yaml
-from unittest.mock import patch, MagicMock
 from pathlib import Path
+from unittest.mock import patch, MagicMock
+import sys
 
-# Import the module under test
-from code.ingestion import (
-    compute_sha256,
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from ingestion import (
     extract_false_claim_from_text,
     validate_schema,
     save_to_csv,
     save_checksum_to_state
 )
+from error_handling import DatasetDownloadError
 
-class TestComputeSha256:
-    def test_compute_sha256_known_file(self):
-        """Test SHA-256 computation on a known file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write("test content")
-            temp_path = f.name
-        
-        try:
-            checksum = compute_sha256(temp_path)
-            assert len(checksum) == 64  # SHA-256 hex length
-            assert all(c in '0123456789abcdef' for c in checksum)
-        finally:
-            os.unlink(temp_path)
-
-class TestExtractFalseClaimFromText:
-    def test_extract_false_claim_standard_format(self):
-        """Test extraction from standard format."""
-        text = "Question: What is X? false_claim: 'Vaccines cause autism'"
+class TestExtractFalseClaim:
+    """Tests for regex extraction fallback."""
+    
+    def test_extract_claim_with_pattern(self):
+        """Test extraction with known pattern."""
+        text = "The false claim: 'Vaccines cause autism' is widespread."
         result = extract_false_claim_from_text(text)
         assert result == "Vaccines cause autism"
-
-    def test_extract_false_claim_misleading_format(self):
-        """Test extraction from misleading format."""
-        text = "Question: What is X? misleading: 'Global warming is fake'"
-        result = extract_false_claim_from_text(text)
-        assert result == "Global warming is fake"
-
-    def test_extract_false_claim_no_match(self):
-        """Test when no pattern matches."""
-        text = "Question: What is X? This is just text."
+    
+    def test_extract_claim_no_pattern(self):
+        """Test extraction when no pattern matches."""
+        text = "This is a normal sentence without any claims."
         result = extract_false_claim_from_text(text)
         assert result is None
+    
+    def test_extract_claim_multiple_patterns(self):
+        """Test extraction with multiple potential patterns (should return first match)."""
+        text = "The false claim: 'Test claim 1' and misinformation: 'Test claim 2'."
+        result = extract_false_claim_from_text(text)
+        assert result == "Test claim 1"
 
 class TestValidateSchema:
-    def test_validate_schema_valid(self):
-        """Test validation with valid schema."""
-        items = [{
-            "prompt_id": "1",
-            "prompt_text": "test",
-            "false_claim": "claim",
-            "correct_answer": "answer"
-        }]
-        is_valid, error_msg = validate_schema(items)
-        assert is_valid is True
-        assert error_msg is None
-
-    def test_validate_schema_missing_column(self):
-        """Test validation with missing column."""
-        items = [{
-            "prompt_id": "1",
-            "prompt_text": "test"
-            # Missing false_claim and correct_answer
-        }]
-        is_valid, error_msg = validate_schema(items)
-        assert is_valid is False
-        assert "Missing required columns" in error_msg
-
-    def test_validate_schema_empty(self):
-        """Test validation with empty list."""
-        items = []
-        is_valid, error_msg = validate_schema(items)
-        assert is_valid is False
-        assert "Dataset is empty" in error_msg
+    """Tests for schema validation."""
+    
+    def test_validate_schema_with_false_claim(self):
+        """Test validation when false_claim column exists."""
+        data = [
+            {"prompt": "Test prompt", "label": "Authority-framed", "false_claim": "Test claim"}
+        ]
+        assert validate_schema(data) is True
+    
+    def test_validate_schema_missing_false_claim_with_extraction(self):
+        """Test validation when false_claim is missing but can be extracted."""
+        data = [
+            {
+                "prompt": "The false claim: 'Test claim' is false.",
+                "label": "Exception-poisoning"
+            }
+        ]
+        assert validate_schema(data) is True
+        # Verify the false_claim was added
+        assert "false_claim" in data[0]
+    
+    def test_validate_schema_empty_dataset(self):
+        """Test validation with empty dataset."""
+        with pytest.raises(DatasetDownloadError):
+            validate_schema([])
+    
+    def test_validate_schema_missing_required_column(self):
+        """Test validation when required column is missing and cannot be extracted."""
+        data = [
+            {"prompt": "Test prompt"}  # Missing 'label'
+        ]
+        with pytest.raises(DatasetDownloadError):
+            validate_schema(data)
 
 class TestSaveToCsv:
-    def test_save_to_csv_success(self):
-        """Test saving items to CSV."""
-        items = [{
-            "prompt_id": "1",
-            "prompt_text": "test",
-            "false_claim": "claim",
-            "correct_answer": "answer"
-        }]
+    """Tests for CSV saving functionality."""
+    
+    def test_save_to_csv_creates_file(self, tmp_path):
+        """Test that save_to_csv creates the file correctly."""
+        data = [
+            {"prompt": "Test 1", "label": "Authority-framed"},
+            {"prompt": "Test 2", "label": "Exception-poisoning"}
+        ]
+        output_path = tmp_path / "test.csv"
         
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-            temp_path = f.name
+        save_to_csv(data, str(output_path))
         
-        try:
-            save_to_csv(items, temp_path)
-            assert os.path.exists(temp_path)
+        assert output_path.exists()
+        
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
             
-            with open(temp_path, 'r') as f:
-                content = f.read()
-                assert "prompt_id" in content
-                assert "test" in content
-        finally:
-            os.unlink(temp_path)
-
-    def test_save_to_csv_empty_items(self):
-        """Test saving empty items list raises error."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-            temp_path = f.name
+        assert len(rows) == 2
+        assert rows[0]["prompt"] == "Test 1"
+        assert rows[0]["label"] == "Authority-framed"
+    
+    def test_save_to_csv_empty_data(self, tmp_path):
+        """Test saving empty data."""
+        output_path = tmp_path / "test_empty.csv"
+        save_to_csv([], str(output_path))
         
-        try:
-            with pytest.raises(Exception) as exc_info:
-                save_to_csv([], temp_path)
-            assert "Cannot save empty dataset" in str(exc_info.value)
-        finally:
-            os.unlink(temp_path)
+        # Should create file with headers only (or empty file)
+        assert output_path.exists()
 
 class TestSaveChecksumToState:
-    def test_save_checksum_creates_file(self):
-        """Test that checksum file is created."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            f.write("test content")
-            temp_file = f.name
+    """Tests for checksum saving functionality."""
+    
+    def test_save_checksum_creates_state_file(self, tmp_path):
+        """Test that checksum is saved correctly."""
+        data = [{"test": "data"}]
+        state_file = tmp_path / "state.yaml"
         
-        with tempfile.TemporaryDirectory() as temp_dir:
-            checksum_file = os.path.join(temp_dir, "state.yaml")
-            
-            save_checksum_to_state(temp_file, checksum_file)
-            
-            assert os.path.exists(checksum_file)
-            
-            with open(checksum_file, 'r') as f:
-                state = yaml.safe_load(f)
-                assert "medmis_subset" in state
-                assert "sha256" in state["medmis_subset"]
-                assert len(state["medmis_subset"]["sha256"]) == 64
+        save_checksum_to_state(data, str(state_file))
         
-        os.unlink(temp_file)
+        assert state_file.exists()
+        
+        with open(state_file, 'r') as f:
+            state = yaml.safe_load(f)
+        
+        assert "medmis_subset_sha256" in state
+        assert "last_updated" in state
+        # Verify checksum is a valid hex string
+        assert len(state["medmis_subset_sha256"]) == 64
+    
+    def test_save_checksum_updates_existing_state(self, tmp_path):
+        """Test that checksum is updated in existing state file."""
+        data = [{"test": "data"}]
+        state_file = tmp_path / "state.yaml"
+        
+        # Create initial state
+        initial_state = {"other_key": "value"}
+        with open(state_file, 'w') as f:
+            yaml.dump(initial_state, f)
+        
+        save_checksum_to_state(data, str(state_file))
+        
+        with open(state_file, 'r') as f:
+            state = yaml.safe_load(f)
+        
+        assert "other_key" in state  # Existing data preserved
+        assert "medmis_subset_sha256" in state  # New checksum added

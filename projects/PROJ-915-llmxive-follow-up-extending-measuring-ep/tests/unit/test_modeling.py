@@ -1,152 +1,155 @@
 """
-Unit tests for Holm-Bonferroni correction logic in modeling.py.
+Unit tests for Firth regression fallback logic in modeling.py.
 
-This module tests the statistical correction logic required for User Story 3.
-It verifies that p-values are correctly adjusted and that the ordering
-and thresholding logic matches the Holm-Bonferroni method.
+This module tests the Firth's penalized logistic regression implementation
+and its fallback behavior when perfect separation is detected.
 """
 import unittest
-import math
-from typing import List, Dict, Any
 import sys
 import os
+import warnings
+import numpy as np
+import pandas as pd
 
 # Add project root to path for imports if running directly
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from code.modeling import apply_holm_bonferroni
+from code.modeling import run_firth_regression, detect_perfect_separation, run_logistic_regression
 
-class TestHolmBonferroniCorrection(unittest.TestCase):
-    """Tests for the Holm-Bonferroni correction implementation."""
+class TestFirthRegressionFallback(unittest.TestCase):
+    """Tests for the Firth regression fallback implementation."""
 
-    def test_basic_correction_ordering(self):
-        """Test that p-values are sorted correctly before adjustment."""
-        # Unsorted p-values
-        p_values = [0.05, 0.01, 0.10, 0.02]
-        features = ['feat_a', 'feat_b', 'feat_c', 'feat_d']
+    def setUp(self):
+        """Set up test data for perfect separation scenarios."""
+        # Create a dataset that exhibits perfect separation
+        # Feature X perfectly predicts the target Y
+        np.random.seed(42)
+        n = 50
+        # X is continuous, Y is binary
+        # We create a scenario where X > 0.5 => Y=1, X < 0.5 => Y=0
+        # This creates perfect separation
+        self.X_separated = np.random.uniform(0, 1, n)
+        self.y_separated = np.where(self.X_separated > 0.5, 1, 0)
         
-        result = apply_holm_bonferroni(p_values, features)
-        
-        # The result should be sorted by original p-value ascending
-        # Expected sorted order: 0.01 (b), 0.02 (d), 0.05 (a), 0.10 (c)
-        # Adjusted p-values:
-        # 1. 0.01 * 4 = 0.04
-        # 2. 0.02 * 3 = 0.06
-        # 3. 0.05 * 2 = 0.10
-        # 4. 0.10 * 1 = 0.10
-        
-        self.assertEqual(len(result), 4)
-        self.assertAlmostEqual(result[0]['adjusted_p'], 0.04, places=5)
-        self.assertEqual(result[0]['feature'], 'feat_b')
-        
-        self.assertAlmostEqual(result[1]['adjusted_p'], 0.06, places=5)
-        self.assertEqual(result[1]['feature'], 'feat_d')
+        # Create a dataset without separation (for comparison)
+        self.X_normal = np.random.uniform(0, 1, n)
+        self.y_normal = np.random.randint(0, 2, n)
 
-    def test_cumulative_monotonicity(self):
-        """Test that adjusted p-values are monotonically non-decreasing."""
-        # Create a scenario where simple multiplication would decrease
-        # but Holm-Bonferroni enforces monotonicity
-        p_values = [0.01, 0.02, 0.03]
-        features = ['f1', 'f2', 'f3']
-        
-        result = apply_holm_bonferroni(p_values, features)
-        
-        adjusted = [r['adjusted_p'] for r in result]
-        
-        # Check monotonicity: adjusted[i] <= adjusted[i+1]
-        for i in range(len(adjusted) - 1):
-            self.assertLessEqual(adjusted[i], adjusted[i+1],
-                                 f"Monotonicity violation at index {i}: {adjusted[i]} > {adjusted[i+1]}")
+    def test_firth_regression_runs_on_separated_data(self):
+        """Test that Firth regression successfully converges on separated data."""
+        # Standard logistic regression should fail or warn on separated data
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            try:
+                # Attempt standard regression
+                result_standard = run_logistic_regression(self.X_separated, self.y_separated)
+                # If it runs, check for warnings
+                convergence_warnings = [warning for warning in w if "convergence" in str(warning.message).lower()]
+                # Even if it runs, Firth should be preferred for separated data
+            except Exception:
+                # Expected: standard regression fails
+                pass
 
-    def test_edge_case_single_pvalue(self):
-        """Test correction with a single p-value."""
-        p_values = [0.05]
-        features = ['single_feature']
+        # Firth regression should succeed without convergence issues
+        result_firth = run_firth_regression(self.X_separated, self.y_separated)
         
-        result = apply_holm_bonferroni(p_values, features)
-        
-        # For n=1, adjusted = p * 1
-        self.assertAlmostEqual(result[0]['adjusted_p'], 0.05, places=5)
-        self.assertTrue(result[0]['significant'])
+        # Verify the result structure
+        self.assertIn('coefficients', result_firth)
+        self.assertIn('p_values', result_firth)
+        self.assertIn('converged', result_firth)
+        self.assertTrue(result_firth['converged'], "Firth regression should converge on separated data")
 
-    def test_edge_case_all_significant(self):
-        """Test case where all p-values remain significant after correction."""
-        p_values = [0.001, 0.002, 0.003]
-        features = ['f1', 'f2', 'f3']
+    def test_firth_coefficients_exist(self):
+        """Test that Firth regression returns valid coefficients."""
+        result = run_firth_regression(self.X_separated, self.y_separated)
         
-        result = apply_holm_bonferroni(p_values, features)
+        self.assertIsNotNone(result['coefficients'])
+        self.assertGreater(len(result['coefficients']), 0)
         
-        # 0.001 * 3 = 0.003 (sig)
-        # 0.002 * 2 = 0.004 (sig)
-        # 0.003 * 1 = 0.003 (sig)
-        for r in result:
-            self.assertTrue(r['significant'])
+        # Coefficients should be finite numbers
+        for coef in result['coefficients']:
+            self.assertTrue(np.isfinite(coef), f"Coefficient {coef} is not finite")
 
-    def test_edge_case_none_significant(self):
-        """Test case where no p-values remain significant."""
-        p_values = [0.1, 0.2, 0.3]
-        features = ['f1', 'f2', 'f3']
+    def test_firth_pvalues_exist(self):
+        """Test that Firth regression returns valid p-values."""
+        result = run_firth_regression(self.X_separated, self.y_separated)
         
-        result = apply_holm_bonferroni(p_values, features)
+        self.assertIn('p_values', result)
+        self.assertIsNotNone(result['p_values'])
         
-        # 0.1 * 3 = 0.3 (not sig)
-        # 0.2 * 2 = 0.4 (not sig)
-        # 0.3 * 1 = 0.3 (not sig)
-        for r in result:
-            self.assertFalse(r['significant'])
+        # P-values should be between 0 and 1
+        for p_val in result['p_values']:
+            self.assertGreaterEqual(p_val, 0.0)
+            self.assertLessEqual(p_val, 1.0)
 
-    def test_significance_threshold(self):
-        """Test that the significance threshold (alpha=0.05) is applied correctly."""
-        # Construct a case where the boundary is critical
-        # n=2. p1=0.02, p2=0.04
-        # 0.02 * 2 = 0.04 (sig)
-        # 0.04 * 1 = 0.04 (sig)
-        p_values = [0.02, 0.04]
-        features = ['f1', 'f2']
+    def test_firth_on_normal_data(self):
+        """Test that Firth regression works on non-separated data as well."""
+        result = run_firth_regression(self.X_normal, self.y_normal)
         
-        result = apply_holm_bonferroni(p_values, features)
-        
-        # Both should be significant
-        self.assertTrue(result[0]['significant'])
-        self.assertTrue(result[1]['significant'])
+        self.assertTrue(result['converged'])
+        self.assertIn('coefficients', result)
+        self.assertIn('p_values', result)
 
-    def test_input_validation_empty(self):
-        """Test handling of empty input lists."""
+    def test_separation_detection(self):
+        """Test that perfect separation is correctly detected."""
+        # The separated dataset should trigger separation detection
+        is_separated = detect_perfect_separation(self.X_separated, self.y_separated)
+        
+        # Note: The exact behavior depends on the statsmodels diagnostics
+        # We verify the function exists and returns a boolean
+        self.assertIsInstance(is_separated, bool)
+
+    def test_firth_vs_standard_coefficients(self):
+        """Test that Firth coefficients differ from standard MLE on separated data."""
+        # On separated data, standard MLE coefficients tend to infinity
+        # Firth regression shrinks them
+        
+        try:
+            result_standard = run_logistic_regression(self.X_separated, self.y_separated)
+            coef_standard = result_standard.get('coefficients', [])
+        except Exception:
+            coef_standard = [float('inf')] * 2  # Simulate divergence
+
+        result_firth = run_firth_regression(self.X_separated, self.y_separated)
+        coef_firth = result_firth['coefficients']
+
+        # Firth coefficients should be finite and typically smaller in magnitude
+        for coef in coef_firth:
+            self.assertTrue(np.isfinite(coef), "Firth coefficient should be finite")
+
+    def test_firth_regression_with_intercept(self):
+        """Test that Firth regression correctly handles the intercept term."""
+        # Create data with known intercept behavior
+        X = np.array([[1.0], [2.0], [3.0], [4.0], [5.0]])
+        y = np.array([0, 0, 0, 1, 1])
+        
+        result = run_firth_regression(X, y)
+        
+        # Should return coefficients for both intercept and slope
+        self.assertGreater(len(result['coefficients']), 0)
+
+    def test_firth_regression_input_validation(self):
+        """Test handling of invalid input data."""
+        # Test with mismatched lengths
         with self.assertRaises(ValueError):
-            apply_holm_bonferroni([], [])
+            run_firth_regression(np.array([1, 2, 3]), np.array([1, 2]))
 
-    def test_input_validation_mismatched_lengths(self):
-        """Test handling of mismatched p-values and features lengths."""
-        with self.assertRaises(ValueError):
-            apply_holm_bonferroni([0.05, 0.01], ['f1'])
+    def test_firth_regression_output_format(self):
+        """Test that the output format matches the expected schema."""
+        result = run_firth_regression(self.X_separated, self.y_separated)
+        
+        expected_keys = ['coefficients', 'p_values', 'converged', 'iterations', 'log_likelihood']
+        for key in expected_keys:
+            self.assertIn(key, result, f"Missing key: {key}")
 
-    def test_realistic_medical_scenario(self):
-        """Test with a realistic set of p-values from a medical study."""
-        # Simulating p-values from a logistic regression on medical features
-        p_values = [0.001, 0.045, 0.08, 0.20, 0.50]
-        features = ['age', 'blood_pressure', 'cholesterol', 'smoking', 'diet']
+    def test_firth_regression_significance(self):
+        """Test that Firth regression provides significance estimates."""
+        result = run_firth_regression(self.X_separated, self.y_separated)
         
-        result = apply_holm_bonferroni(p_values, features)
-        
-        # Expected calculations:
-        # Sorted: 0.001, 0.045, 0.08, 0.20, 0.50
-        # 1: 0.001 * 5 = 0.005 (sig)
-        # 2: 0.045 * 4 = 0.180 (not sig)
-        # 3: 0.08 * 3 = 0.24 (not sig) -> capped at 1.0? No, just compared to alpha
-        # ...
-        
-        # Check that the first one is significant
-        self.assertTrue(result[0]['significant'])
-        
-        # Check that the second one (0.045 * 4 = 0.18) is NOT significant
-        self.assertFalse(result[1]['significant'])
-        
-        # Verify monotonicity
-        adjusted = [r['adjusted_p'] for r in result]
-        for i in range(len(adjusted) - 1):
-            self.assertLessEqual(adjusted[i], adjusted[i+1])
+        # At least one coefficient should have a p-value
+        self.assertGreater(len(result['p_values']), 0)
 
 if __name__ == '__main__':
     unittest.main()

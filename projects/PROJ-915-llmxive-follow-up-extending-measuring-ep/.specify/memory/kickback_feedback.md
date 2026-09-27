@@ -4,9 +4,11 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T013` (rejected 1x): The repository lacks the required `data/raw/medmis_subset.csv` file, and `state/artifact_hashes.yaml` contains only a placeholder hash instead of a real SHA‑256 checksum. Moreover, the provided `code/ingestion.py` is truncated and does not show the CSV‑writing or checksum‑recording logic, indicating the implementation is unfinished. The task’s core output artifacts are therefore missing.
-- `T015` (rejected 1x): The provided `code/features.py` is truncated and does not contain logic to flag undefined imperative ratios, add an `is_ratio_undefined` column, or write the processed data to `data/processed/features.csv`. Moreover, the required output file `data/processed/features.csv` is absent. The task’s core requirement is therefore unmet.
-- `T017a` (rejected 1x): The repository lacks the required input `data/raw/medmis_subset.csv` and the expected output `data/raw/human_pilot_cached.csv`. Moreover, `code/annotation.py` is truncated and does not show a complete implementation of the deterministic pilot generation logic. The implementer must provide the missing CSV, finish the script to generate the 50‑row dataset with the specified columns, and ensure the file is created when absent.
+- `T001` (rejected 1x): No evidence of the `projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/` directory or any of its expected sub‑folders/files is provided; the claim lacks the required project‑structure artifact.
+- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`, `pyproject.toml` with Black settings) are presented, nor any evidence that ruff/flake8 and Black have been set up in the repository. The required artifacts are missing, so the task is not satisfied.
+- `T004` (rejected 1x): No evidence of the required directories (`data/raw`, `data/processed`, `data/interim`, `data/results`, `code/`, `tests/`) is provided; the implementer did not supply a directory listing, screenshots, or any files showing that the structure has been created. The task remains undone until the specified folders are present and non‑empty.
+- `T008` (rejected 1x): No code, configuration files, or documentation for an error‑handling framework (e.g., retry logic for dataset download or timeout handling for inference) were provided. Without any artifact to inspect, we cannot confirm that the required setup was implemented.
+- `T017b` (rejected 1x): The required output file `data/interim/human_pilot_cleaned.csv` is absent, and the provided `code/annotation.py` contains unrelated data‑loading and correlation functions rather than the specified cleaning logic (removing raters with <80 % agreement and failing when fewer than 50 rows remain). Both the artifact and its behavior do not meet the task requirements.
 
 ## Required change
 

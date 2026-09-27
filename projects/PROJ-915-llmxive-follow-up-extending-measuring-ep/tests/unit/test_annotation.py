@@ -1,86 +1,92 @@
-"""
-Unit tests for the annotation module (T017a).
-
-Tests cover:
-- Recruitment logic generation
-- File output structure
-- Mode switching behavior
-"""
-
-import json
 import os
+import json
+import tempfile
+import pandas as pd
+import numpy as np
 import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Import the module to test
-from annotation import RaterRecruiter, run_recruitment_pipeline
-from config import Config
+# Import the module under test
+# We assume the module is 'annotation' in the code directory
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+from annotation import compute_correlations, DataFlowError
 
+def test_compute_correlations_valid_data():
+    """Test that compute_correlations correctly calculates Pearson/Spearman on valid data."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        # Create mock features
+        features_path = tmp_path / "features.csv"
+        features_df = pd.DataFrame({
+            'prompt_id': ['p1', 'p2', 'p3', 'p4', 'p5'],
+            'modal_freq': [0.1, 0.5, 0.8, 0.2, 0.9], # Increasing trend
+            'imperative_ratio': [1.0, 2.0, 3.0, 4.0, 5.0]
+        })
+        features_df.to_csv(features_path, index=False)
 
-@pytest.fixture
-def temp_config(tmp_path):
-    """Create a temporary config for testing."""
-    # Mock the Config class to use temporary directories
-    config = MagicMock(spec=Config)
-    config.data_interim_path = tmp_path
-    return config
+        # Create mock annotations (perfect correlation with modal_freq)
+        annotations_path = tmp_path / "annotations.csv"
+        annotations_df = pd.DataFrame({
+            'prompt_id': ['p1', 'p2', 'p3', 'p4', 'p5'],
+            'rater_id': ['r1', 'r1', 'r1', 'r1', 'r1'],
+            'authority_density_score': [1.0, 2.0, 3.0, 4.0, 5.0] # Perfect linear match
+        })
+        annotations_df.to_csv(annotations_path, index=False)
 
+        output_path = tmp_path / "result.json"
 
-def test_rater_recruiter_manual_mode(temp_config):
-    """Test that manual mode generates the correct number of raters."""
-    n_raters = 50
-    recruiter = RaterRecruiter(temp_config, mode="manual")
-    raters = recruiter.recruit(n_raters)
+        # Run function
+        result = compute_correlations(
+            features_path=str(features_path),
+            annotations_path=str(annotations_path),
+            output_path=str(output_path)
+        )
 
-    assert len(raters) == n_raters
-    for rater in raters:
-        assert "rater_id" in rater
-        assert "consent_timestamp" in rater
-        assert rater["status"] == "consented"
-        assert rater["platform"] == "prolific"  # Simulated platform ID
+        # Verify output file exists
+        assert output_path.exists()
+        
+        # Verify result content
+        assert 'correlation_coefficient' in result
+        # With perfect linear correlation, Pearson should be 1.0
+        assert abs(result['correlation_coefficient']['pearson'] - 1.0) < 1e-6
+        assert abs(result['correlation_coefficient']['spearman'] - 1.0) < 1e-6
+        assert result['sample_size'] == 5
 
+def test_compute_correlations_missing_file():
+    """Test that the function raises DataFlowError if input files are missing."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        output_path = tmp_path / "result.json"
 
-def test_recruitment_log_structure(temp_config):
-    """Test that the saved log has the correct JSON structure."""
-    n_raters = 10
-    recruiter = RaterRecruiter(temp_config, mode="manual")
-    recruiter.recruit(n_raters)
-    log_path = recruiter.save_recruitment_log()
+        with pytest.raises(DataFlowError):
+            compute_correlations(
+                features_path=str(tmp_path / "missing.csv"),
+                annotations_path=str(tmp_path / "missing.csv"),
+                output_path=str(output_path)
+            )
 
-    assert log_path.exists()
+def test_compute_correlations_no_match():
+    """Test that the function raises DataFlowError if prompt IDs do not match."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        
+        features_path = tmp_path / "features.csv"
+        pd.DataFrame({'prompt_id': ['p1', 'p2'], 'modal_freq': [1.0, 2.0]}).to_csv(features_path, index=False)
+        
+        annotations_path = tmp_path / "annotations.csv"
+        pd.DataFrame({
+            'prompt_id': ['p3', 'p4'],
+            'rater_id': ['r1', 'r1'],
+            'authority_density_score': [1.0, 2.0]
+        }).to_csv(annotations_path, index=False)
+        
+        output_path = tmp_path / "result.json"
 
-    with open(log_path, 'r') as f:
-        data = json.load(f)
-
-    assert data["task_id"] == "T017a"
-    assert data["user_story"] == "US1"
-    assert data["purpose"] == "feature_validation"
-    assert data["total_raters"] == n_raters
-    assert "raters" in data
-    assert isinstance(data["raters"], list)
-
-
-def test_run_recruitment_pipeline_integration(temp_config):
-    """Test the full pipeline function."""
-    n_raters = 20
-    # Patch the Config initialization to use our temp config
-    with patch('annotation.Config', return_value=temp_config):
-        log_path = run_recruitment_pipeline(n=n_raters, mode="manual")
-
-    assert log_path.exists()
-    with open(log_path, 'r') as f:
-        data = json.load(f)
-    assert data["total_raters"] == n_raters
-
-
-def test_fallback_to_manual_on_prolific_failure(temp_config):
-    """Test that if prolific mode fails, it falls back to manual."""
-    # Mock get_prolific_api_key to raise an error
-    with patch('annotation.get_prolific_api_key', side_effect=RuntimeError("Key missing")):
-        recruiter = RaterRecruiter(temp_config, mode="prolific")
-        # The constructor should have caught the error and switched mode
-        assert recruiter.mode == "manual"
-
-        raters = recruiter.recruit(5)
-        assert len(raters) == 5
+        with pytest.raises(DataFlowError):
+            compute_correlations(
+                features_path=str(features_path),
+                annotations_path=str(annotations_path),
+                output_path=str(output_path)
+            )
