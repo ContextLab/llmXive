@@ -1,0 +1,59 @@
+# Feature Specification: Predicting the Impact of Alloying on Creep Resistance via Public Data
+
+**Feature Branch**: `001-predicting-impact-of-alloying-on-creep-resistance`  
+**Created**: 2026-06-29  
+**Status**: Draft  
+**Input**: User description: "Predicting the Impact of Alloying on Creep Resistance via Public Data"
+
+## User Scenarios & Testing
+
+### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
+
+A researcher needs to automatically download the NIMS Creep Data Center dataset, retrieve thermodynamic properties from the Materials Project API for each alloy, and generate a clean, processed CSV containing elemental fractions and derived thermodynamic descriptors (mixing enthalpy, atomic radius mismatch) ready for modeling. If NIMS and Materials Project are unreachable, the system MUST generate a synthetic dataset matching the defined schema to ensure pipeline executability.
+
+**Why this priority**: Without a reliable, reproducible data pipeline that correctly merges experimental creep data with computational thermodynamic descriptors, no analysis can be performed. This is the foundational step for all subsequent modeling and validation.
+
+**Independent Test**: Can be fully tested by executing the data pipeline script and verifying:
+1. Pre-flight checks confirm NIMS URL returns HTTP 200 and Materials Project API key returns valid metadata.
+2. If external sources fail, the system generates a synthetic dataset with the schema defined in FR-008.
+3. The output CSV contains non-null values for all required columns (rupture time, temperature, stress, elemental fractions, mixing enthalpy).
+4. **Real Data Path**: The row count is ≥ 95% of the count of rows in the raw NIMS CSV where temperature, stress, and rupture_time are non-null. **Synthetic Path**: The row count equals the number of requested synthetic records (high success rate).
+5. **Crucially**: The system logs the count of entries excluded due to missing thermodynamic data, confirming they are removed from the final dataset used for modeling **for both the thermodynamic and composition-only models**.
+6. **Duplicate Handling**: Given a raw dataset with duplicate entries for the same alloy/conditions, When the pipeline runs, Then the output CSV contains exactly one row for that alloy/conditions with the averaged rupture time, and the log confirms the averaging event.
+7. **Schema Validation**: The output CSV MUST validate against the schema defined in `data-model.md` (specifically `dataset.schema.yaml`).
+
+**Acceptance Scenarios**:
+
+1. **Given** a valid NIMS dataset URL and Materials Project API key, **When** the pipeline script is executed, **Then** a processed CSV file is generated, and the system reports the percentage of original rows retained after removing entries with missing temperature, stress, rupture time, OR missing thermodynamic data from Materials Project.
+2. **Given** a raw alloy composition string (e.g., "Ni-10Cr-5Al"), **When** the preprocessing module parses it, **Then** it normalizes the composition by sorting elements alphabetically, rounding stoichiometry to 2 decimal places, converting weight% to atomic% if necessary, and correctly calculates the atomic fraction for each element and computes the mixing enthalpy using pymatgen.
+3. **Given** an entry with missing thermodynamic data from the Materials Project API, **When** the pipeline encounters it, **Then** the entry is EXCLUDED from the final dataset used for **BOTH the thermodynamic model and the composition-only baseline**, and a log entry is recorded with the specific missing variable.
+
+---
+
+### User Story 2 - Comparative Model Training and Evaluation (Priority: P2)
+
+A materials scientist needs to train a Gradient Boosting Regressor using thermodynamic descriptors and compare its performance against a baseline Gradient Boosting Regressor using only raw elemental weight percentages, obtaining out-of-sample R² scores and RMSE values for both. The evaluation uses Nested Cross-Validation with a specific statistical test to handle small sample sizes. **The study explicitly validates the *methodology's ability to detect known physical signals* (in synthetic data) rather than claiming predictive power on real alloys until verified data is available.**
+
+**Why this priority**: This directly addresses the core research question of whether thermodynamic descriptors provide a predictive advantage over raw composition. The comparison is the primary mechanism for quantifying the "predictive ceiling" of composition-only models, now isolated from model architecture differences. The study design distinguishes between **Methodology Validation** (synthetic data) and **Scientific Discovery** (real data).
+
+**Independent Test**: Can be fully tested by running the training script and verifying that two distinct Gradient Boosting models are trained using Nested Cross-Validation (outer loop: 10-fold if N≥50, Repeated 5-fold if N<50; inner loop: hyperparameter tuning), and a results table is printed showing R² and RMSE for both models along with the appropriate statistical test result. **The test MUST assert that the input dataframes for both models have identical row counts and indices before training begins, confirming they are drawn from the intersection of valid thermodynamic data.** Additionally, the test must verify that excluded rows are logged with the specific missing variable. **The test must also verify that the outer loop uses stratification by temperature range (if N≥50) to prevent leakage.**
+
+**Acceptance Scenarios**:
+
+1. **Given** the processed dataset, **When** the model training script is executed, **Then** a Gradient Boosting Regressor is trained on the thermodynamic feature set and a separate Gradient Boosting Regressor is trained on the composition-only feature set, using Nested Cross-Validation for hyperparameter tuning. **Both models MUST be trained on the exact same subset of data (the intersection of available composition and thermodynamic data).**
+2. **Given** the trained models, **When** the outer loop cross-validation is performed, **Then** the system outputs the mean R² and RMSE for each fold, ensuring stratification is applied using **temperature range** (if N≥50) or Repeated 5-fold (if N<50).
+3. **Given** the cross-validation results, **When** the statistical significance test is executed, **Then** a result is calculated and printed: Bootstrap 95% Confidence Interval for the difference is reported for all N < 100. **For 20 ≤ N < 100, a Corrected Resampled t-test (Nadeau & Bengio) is also performed, accompanied by a sensitivity analysis sweeping the cutoff over {, 0.05, 0.1} to assess robustness.**
+
+---
+
+### User Story 3 - Feature Importance Analysis and Reporting (Priority: P3)
+
+A domain expert needs to visualize the relative importance of specific alloying elements (e.g., Ta, Mo, W) and thermodynamic descriptors (e.g., mixing enthalpy) in predicting creep resistance using SHAP (SHapley Additive exPlanations) plots to interpret the model's decisions.
+
+**Why this priority**: While the model performance (US-02) answers "if" descriptors help, this story answers "which" descriptors matter most. This interpretability is crucial for generating new material hypotheses and understanding the physical drivers of creep resistance.
+
+**Independent Test**: Can be fully tested by generating SHAP summary plots and verifying that the analysis is performed, the top 5 features are extracted and reported, and the plot is saved as a PNG file.
+
+**Acceptance Scenarios**:
+
+1. **Given** a trained Gradient Boosting model, **When** the SHAP analysis script is run, **Then** a summary plot is generated showing the mean absolute SHAP value for each feature, ordered by importance.

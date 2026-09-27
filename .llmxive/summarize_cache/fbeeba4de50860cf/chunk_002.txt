@@ -1,0 +1,12 @@
+    *   SHAP computation limited to `TreeExplainer` (fast for tree-based models).
+    *   Permutation Test optimized with parallelization (if available) or limited to a computationally feasible number of permutations.
+*   **Runtime**: Estimated < 2 hours for full pipeline (including Nested CV and Permutation Test).
+
+## 6. Decision Rationale
+
+*   **Synthetic Data First**: Chosen because the NIMS source is unverified. This ensures the project is runnable and testable in CI without external dependencies.
+*   **Strict Intersection**: Excluding rows with missing thermodynamic data from *both* models prevents selection bias.
+*   **Stratification by Temperature**: Required by Constitution Principle VII to prevent leakage, as temperature is a dominant factor in creep.
+*   **Nested CV**: Essential for small data to avoid overfitting during hyperparameter tuning.
+*   **Permutation Test**: Chosen over the t-test to ensure statistical validity given the dependency structure of Nested CV and the deterministic feature expansion.
+*   **Signal Injection**: Explicitly added to synthetic data to ensure the "Thermodynamic" model has a learnable signal, avoiding false negatives in methodology validation.

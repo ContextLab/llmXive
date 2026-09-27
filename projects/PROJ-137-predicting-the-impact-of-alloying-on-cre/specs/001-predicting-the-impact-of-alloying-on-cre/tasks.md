@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `docs/`, `config/`) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T001 [P] Create project structure: Initialize repository with `src/`, `tests/`, `data/`, `docs/`, `config/` directories, `pyproject.toml`, and `.gitignore`.
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, pymatgen, shap, numpy, pyyaml, requests, tqdm, scipy, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -38,9 +38,8 @@
 
 - [X] T004 [P] Create `config/settings.yaml` with random seeds, paths, and API key placeholders
 - [X] T005 [P] Create `config/synthetic_params.yaml` with Arrhenius/Power-law parameters and statistical targets
-- [X] T006a [P] Create `docs/data-model.md` defining `AlloySample`, `ThermodynamicDescriptor`, `ModelPerformance` entities with detailed schema descriptions, explicitly referencing `contracts/dataset.schema.yaml` for alignment
-- [ ] T006b Create `contracts/dataset.schema.yaml` validating the processed CSV schema (alloy_id, composition_str, temperature, stress, rupture_time, mixing_enthalpy, radius_mismatch)
-- [ ] T007 [P] Create `contracts/output.schema.yaml` for model reports
+- [X] T006b [P] Create `contracts/dataset.schema.yaml` validating the processed CSV schema. **Content**: Define JSON Schema with required fields: `alloy_id` (string), `composition_str` (string), `temperature` (float), `stress` (float), `rupture_time` (float), `mixing_enthalpy` (float), `radius_mismatch` (float), `solid_solution_strengthening` (float). Include validation rules for non-null values and data types as per FR-001 and US-01.
+- [X] T007 [P] Create `contracts/output.schema.yaml` for model reports. **Content**: Define JSON Schema for `R2_score` (float), `RMSE` (float), `CI_bounds` (object with lower/upper floats), `p_value` (float), `shap_top_5` (list of objects with feature name and value).
 - [X] T008 [P] Implement `src/utils/logger.py` for structured logging
 - [X] T009 [P] Implement `src/utils/hash.py` for artifact hashing and state updates (Constitution Principle V)
 - [X] T010 [P] Implement `src/utils/validators.py` for schema validation and physics consistency checks
@@ -68,12 +67,26 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `src/data/download.py`: NIMS fetch with exponential backoff, duplicate handling (averaging rupture times), and missing value filtering. <!-- FAILED: unspecified -->
+- [X] T015 [US1] Implement `src/data/download.py`:
+ - **Real Data Path**: Download NIMS Creep Data Center dataset with exponential backoff (limited retries).
+ - **Pre-flight Check**: Verify NIMS URL returns HTTP 200 before attempting download.
+ - Parse CSV, remove entries with missing `temperature`, `stress`, or `rupture_time`.
+ - **Duplicate Handling**: Group by (alloy_id, temperature, stress) and average `rupture_time`; log count of averaged duplicates.
+ - **Missing Value Filtering**: Log excluded entries and counts.
+ - If NIMS is unreachable, raise a `RuntimeError` ONLY if `STRICT_MODE` is enabled; otherwise, signal the pipeline to use synthetic data.
 - [X] T016 [US1] Implement `src/data/generate.py`: Synthetic data generation using Arrhenius/Power-law laws, signal injection, and statistical target validation (KS distance, mean/SD). **Mandatory**: If statistical targets (KS distance > 0.05 or mean/SD mismatch > 10%) are not met, the system MUST raise an error and halt execution immediately, preventing the pipeline from proceeding to modeling.
-- [X] T017 [US1] Implement `src/data/preprocess.py`: Composition parsing (alphabetical sort, rounding, weight% to atomic%), and exclusion logic for missing thermodynamic data. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
-- [X] T018 [US1] Implement `src/data/merge.py`: Join composition data with Materials Project thermodynamic properties (mixing enthalpy, radius mismatch) using `pymatgen`.
-- [X] T019 [US1] Implement `src/data/pipeline.py`: Orchestration script that selects real vs. synthetic path, runs preprocessing, validates schema, and logs exclusion counts. **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
-- [ ] T020 REMOVED (Merged into T019) <!-- FAILED: unspecified -->
+- [X] T017 [US1] Implement `src/data/preprocess.py`: Composition parsing (alphabetical sort, rounding, weight% to atomic%), and exclusion logic for missing thermodynamic data.
+ - **Mandatory**: Calculate `solid_solution_strengthening` estimates based on elemental fractions (FR-003).
+ - **Mandatory**: Embed logging for excluded entries (missing temperature/stress/rupture time AND missing thermodynamic data) directly within this script to ensure counts are generated during the pipeline run and available for the report.
+- [X] T018 [US1] Implement `src/data/merge.py`: Join composition data with Materials Project thermodynamic properties (mixing enthalpy, radius mismatch, solid-solution strengthening) using `pymatgen`.
+ - **Mandatory**: Implement exponential backoff for Materials Project API rate limits with a limited number of retries.
+ - **Mandatory**: Log "unresolved thermodynamic data" for entries with 404, null, or timeout > 30s; exclude these from the final dataset for BOTH models.
+- [X] T019 [US1] Implement `src/data/pipeline.py`: Orchestration script that selects real vs. synthetic path, runs preprocessing, validates schema, and logs exclusion counts.
+ - **Mandatory**: Validate output CSV against `contracts/dataset.schema.yaml` (T006b).
+ - **Mandatory**: Log the count of entries excluded due to missing thermodynamic data for both models.
+ - **Mandatory**: Ensure the pipeline can run in `STRICT_MODE` (fail on real data source error) or default mode (fallback to synthetic).
+ - **Mandatory**: Implement `STRICT_MODE` logic: If `STRICT_MODE` is true and real data source fails, raise `RuntimeError`.
+- [X] T041 [US1] Add a `verify_data_integrity.py` script to `src/utils/` that performs a final sanity check on the processed dataset: verify that all `alloy_id` entries have unique normalized composition keys, confirm that no duplicate (alloy, temp, stress) rows exist in the final CSV, and validate that the sum of retained + excluded rows equals the raw input count (where applicable).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -86,7 +99,8 @@
 **Independent Test**: Run training script and verify:
 1. Two distinct GBR models trained on the **exact same subset** of data.
 2. Nested CV uses stratification by temperature range (if N≥50) or Repeated 5-fold (if N<50).
-3. **Statistical Test**: Permutation Test (10,000 permutations) is performed for 20 ≤ N < 100; Bootstrap 95% CI for N < 20. Sensitivity analysis on cutoffs is logged.
+3. **Statistical Test**: Permutation Test (primary) with Corrected Resampled t-test (reference/logging only) for 20 ≤ N < 100. Bootstrap 95% CI for N < 20. Sensitivity analysis on cutoffs is logged.
+4. **Spec Compliance**: Permutation Test is implemented as the primary robust test, with t-test calculated for reference pending spec amendment.
 
 ### Tests for User Story 2
 
@@ -99,15 +113,17 @@
  - Load processed data.
  - Ensure both models train on the exact same intersection of valid rows.
  - Implement Nested CV: Outer loop (k-fold stratified by temp range OR Repeated m-fold), Inner loop (GridSearch).
- - Train Thermodynamic GBR (features: atomic fractions + mixing enthalpy + radius mismatch).
+ - Train Thermodynamic GBR (features: atomic fractions + mixing enthalpy + radius mismatch + solid_solution_strengthening).
  - Train Composition-Only GBR (features: atomic fractions only).
+ - Assert that input DataFrames for both models have identical indices; raise error if they differ.
 - [X] T024 [US2] Implement `src/models/evaluate.py`:
  - Calculate R² and RMSE for both models.
- - **Mandatory**: Implement **Permutation Test** (10,000 permutations) on the difference in CV scores for 20 ≤ N < 100, as per research.md and plan.md (Section 3.3). This test is robust to the dependency structure of Nested CV and deterministic feature expansion.
+ - **Primary Test**: Implement **Permutation Test** (10,000 permutations) on the difference in CV scores as the robust primary test for 20 ≤ N < 100.
+ - **Reference Test**: Implement **Corrected Resampled t-test (Nadeau & Bengio)** *only* for logging/reference purposes to satisfy the current spec FR-005, noting in the log that the Permutation Test is the primary result.
  - **Mandatory**: Implement **Bootstrap 95% Confidence Interval** for N < 20.
  - **Mandatory**: Perform sensitivity analysis sweeping cutoffs {0.01, 0.05, 0.1} specifically on the **Permutation Test p-value**.
- - Output results to logs: Permutation Test p-value, Bootstrap CI bounds, and sensitivity analysis results.
- - **Note**: This task implements the Permutation Test as mandated by the research plan and plan.md. The spec FR-005 (mandating Corrected Resampled t-test) is flagged for a kickback due to its potential scientific invalidity in this context.
+ - Output results to logs: Permutation Test p-value (primary), t-test p-value (reference), Bootstrap CI bounds, and sensitivity analysis results.
+ - **Note**: T024 consolidates the statistical testing logic. The Permutation Test is the primary result; the t-test is secondary.
 - [X] T025 [US2] Implement `src/models/main_eval.py`: Orchestration script to run training, evaluation, and print the final comparison table (R² delta, CI, significance).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -135,7 +151,7 @@
  - Extract top features and calculate mean absolute SHAP values.
  - Determine direction of influence (positive/negative correlation) for top features.
 - [X] T028 [US3] Implement `src/reports/generate_report.py`:
- - Compile final results: R² delta, statistical test results, SHAP top 5 list.
+ - Compile final results: R² delta, statistical test results (Permutation primary, t-test reference), SHAP top 5 list.
  - Format report with text summary: "feature_name: +value" or "feature_name: positive correlation".
  - Save final report to `docs/reports/`.
 
@@ -147,11 +163,20 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T029 [P] Update `README.md` with quickstart instructions and execution commands
-- [ ] T030 [P] Add `.gitignore` and CI configuration (GitHub Actions) for CPU-only runner
+- [X] T029 [P] Update `README.md` with quickstart instructions and execution commands for CI measurement.
+- [X] T030 [P] Add `.gitignore` and CI configuration (GitHub Actions) for CPU-only runner, including the workflow to run the full pipeline and log duration.
 - [X] T031 [P] Create `tests/integration/test_runtime.py` script to run the full pipeline, capture execution time, and **log the specific duration value** to stdout and a log file as a measured outcome for SC-005. Also assert pipeline duration < 6h and log failure if exceeded.
-- [X] T032 [P] Create `src/utils/runtime_logger.py` to ensure the total execution time is explicitly logged to standard output and a dedicated log file (`logs/runtime.log`) as a measured outcome for SC-005. This task ensures the artifact (the logged time value) is produced for the report, distinct from the pass/fail assertion in T031.
 - [X] T033 Verify all artifacts (CSVs, plots, reports) are hashed and state updated per `src/utils/hash.py`
+
+---
+
+## Phase 7: Review & Compliance (Revision Pass)
+
+**Goal**: Address specific reviewer concerns regarding data integrity, API robustness, and specification alignment.
+
+- [X] T038 [US2] Update `src/models/evaluate.py` (T024) to explicitly log the **sample size N** used for the statistical test selection (Bootstrap vs. Permutation) and the **stratification strategy** applied (Temp Range vs. Repeated 5-fold).
+
+**Note**: T020, T032, T034, T035, T039, T040, and T042 have been removed as their functionality is covered by T015, T031, T019, T018, T023, T024, and T024 respectively.
 
 ---
 
@@ -165,6 +190,7 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Review (Phase 7)**: Depends on completion of US1 and US2 implementation tasks
 
 ### User Story Dependencies
 
@@ -184,7 +210,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -246,8 +272,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All models MUST run on CPU-only CI (cores, 7GB RAM). No GPU/CUDA.
+- **Critical Constraint**: All models MUST run on CPU-only CI (cores, limited RAM). No GPU/CUDA.
 - **Critical Constraint**: Synthetic data MUST pass Physics Consistency Check (R² > 0.8) before proceeding to real data modeling.
 - **Critical Constraint**: Both models MUST train on the exact same intersection of data to ensure fair comparison.
-- **Critical Constraint**: Statistical tests MUST follow the research plan (Permutation Test for 20 ≤ N < 100, Bootstrap for N < 20). The spec FR-005 (Corrected Resampled t-test) is flagged for a kickback.
-- **Note on Statistical Methodology**: The research plan (research.md:3.3) and plan.md (Section 3.3) explicitly mandate the Permutation Test due to dependency violations in Nested CV. The spec FR-005 (Corrected Resampled t-test) is flagged for a kickback. This task list implements the scientifically robust Permutation Test.
+- **Critical Constraint**: Statistical tests MUST follow the research plan (Permutation Test primary) while logging the t-test for reference.
+- **Note on Statistical Methodology**: The Permutation Test is the primary robust test. The Corrected Resampled t-test is implemented for reference/logging only to align with the current spec FR-005, pending a formal spec amendment.
+- **Data Integrity**: The data loader must FAIL LOUDLY if `STRICT_MODE` is enabled and real sources are unreachable; synthetic fallback is the default behavior to ensure executability per FR-001/FR-008.

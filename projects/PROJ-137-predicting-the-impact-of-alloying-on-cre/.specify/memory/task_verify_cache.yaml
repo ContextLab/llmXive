@@ -1,7 +1,0 @@
-T006a:
-  c: true
-  h: 39984fbf8fcc7570fc2e3b1a128ce4368557d638279b28e454f66c3d9a995e3d
-  r: "The `docs/data-model.md` file exists, is non\u2011empty, and contains detailed\
-    \ schema tables for `AlloySample`, `ThermodynamicDescriptor`, and `ModelPerformance`,\
-    \ with an explicit reference to `../contracts/dataset.schema.yaml`. This satisfies\
-    \ the task\u2019s requirement."

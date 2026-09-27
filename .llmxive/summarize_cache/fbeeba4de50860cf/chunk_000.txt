@@ -1,0 +1,107 @@
+# Implementation Plan: Predicting the Impact of Alloying on Creep Resistance via Public Data
+
+**Branch**: `001-predicting-impact-of-alloying-on-creep-resistance` | **Date**: 2026-06-29 | **Spec**: [spec.md](./spec.md)
+
+## Summary
+
+This project implements a reproducible data pipeline and comparative modeling framework to evaluate whether **explicit feature engineering** (transforming raw elemental composition into physics-informed thermodynamic descriptors) provides a predictive advantage over raw composition for predicting creep rupture time. Due to the unverified status of the primary NIMS source, the primary execution path utilizes a **synthetic dataset** generated via physical laws (Arrhenius, Power-law) with an **explicitly injected non-linear interaction** between thermodynamic descriptors and rupture time. This design ensures the 'Thermodynamic' model has a learnable signal that the 'Composition-Only' model lacks, validating the methodology's ability to detect known physical signals. The pipeline merges composition data with thermodynamic properties (via `pymatgen`/Materials Project API where available), trains Gradient Boosting models under strict Nested Cross-Validation, and performs statistical significance testing using a **Permutation Test** (robust to nested CV dependencies) and SHAP-based interpretability analysis.
+
+## Technical Context
+
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `scikit-learn`, `pymatgen`, `shap`, `numpy`, `pyyaml`, `requests`, `tqdm`, `scipy`  
+**Storage**: Local CSV/Parquet files (`data/raw/`, `data/processed/`)  
+**Testing**: `pytest` (Unit tests for data parsing, integration tests for pipeline execution)  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM)  
+**Project Type**: Computational Materials Science / Data Pipeline  
+**Performance Goals**: Complete pipeline execution (data gen -> modeling -> reporting) within 6 hours on CPU-only runner.  
+**Constraints**: No GPU usage; strict memory limits (~7GB); no external API calls that block execution (fallback to synthetic data); strict adherence to "Fair Comparison" (identical training subsets).  
+**Scale/Scope**: Small dataset regime (N < 100 expected for real data; synthetic data generated to match statistical targets).
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research.*
+
+| Principle | Compliance Status | Implementation Strategy |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Random seeds pinned in `config.yaml`; all dependencies pinned in `requirements.txt`; synthetic data generation uses deterministic seeds if API fails. |
+| **II. Verified Accuracy** | **PASS** | Citations restricted to verified URLs in `research.md`; **Reference-Validator Agent** and **Verified Accuracy Gate** explicitly invoked in the pipeline to validate citations before artifact generation. |
+| **III. Data Hygiene** | **PASS** | Raw data (if fetched) preserved; processed data written to new files with checksums; no in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | All results derived from `data/processed/` files; no hand-typed statistics in reports. |
+| **V. Versioning Discipline** | **PASS** | **Implementation Detail**: `src/utils/hash.py` computes SHA-256 hashes of all artifacts (`data/`, `models/`, `reports/`) and updates `state/projects/PROJ-137...yaml` automatically upon successful pipeline completion. |
+| **VI. Physics-Informed Feature Integrity** | **PASS** | Thermodynamic descriptors computed *exclusively* via `pymatgen` (MPRester); raw composition baseline uses only weight% fractions; no manual calculation of descriptors. |
+| **VII. Microstructure-Agnostic Scope** | **PASS** | Features limited to composition and thermodynamics; stratification by **temperature range** enforced in CV to prevent leakage; microstructural data explicitly excluded. |
+
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-predicting-impact-of-alloying-on-creep-resistance/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    └── output.schema.yaml
+```
+
+### Source Code (repository root)
+
+```text
+src/
+├── data/
+│   ├── download.py          # NIMS fetch (if available)
+│   ├── generate.py          # Synthetic data generation with signal injection
+│   ├── preprocess.py        # Composition parsing, thermodynamic calc
+│   └── merge.py             # Join composition + thermodynamic data
+├── models/
+│   ├── train.py             # Nested CV, model training (GBR)
+│   ├── evaluate.py          # Statistical tests (Permutation Test, Bootstrap)
+│   └── interpret.py         # SHAP analysis
+├── config/
+│   ├── synthetic_params.yaml # Physics parameters for synthetic data
+│   └── settings.yaml        # Seeds, paths, API keys
+├── utils/
+│   ├── logger.py
+│   ├── hash.py              # Artifact hashing and state update (Principle V)
+│   └── validators.py        # Schema validation, physics checks
+└── main.py                  # Orchestration script
+
+tests/
+├── contract/
+│   ├── test_schema.py       # Validate CSV/Parquet against YAML schemas
+│   └── test_physics.py      # Validate synthetic data physics consistency
+├── integration/
+│   └── test_pipeline.py     # End-to-end pipeline execution
+└── unit/
+    ├── test_parsing.py      # Composition string parsing
+    └── test_thermo.py       # Mixing enthalpy calculation
+
+data/
+├── raw/                     # Raw downloads (if successful)
+├── processed/               # Cleaned CSVs, merged datasets
+└── outputs/                 # Model artifacts, plots, reports
+
+docs/
+└── reports/                 # Final analysis reports
+```
+
+**Structure Decision**: Single project structure (`src/`) chosen to minimize overhead for a data-science pipeline. Separation of concerns (data, models, utils) ensures modularity for testing and reproducibility. Note: `generate.py` is now a distinct module from `download.py` to align with execution commands in `quickstart.md`.
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **Nested Cross-Validation** | Essential for unbiased performance estimation in small sample regimes (N < 100) to prevent overfitting during hyperparameter tuning. | Standard Hold-out or simple K-Fold would yield biased estimates or high variance in performance metrics given the small dataset size. |
+| **Dual Model Architecture** | Required to isolate the "feature effect" of explicit feature engineering (thermodynamic descriptors) vs. raw composition. | Training a single model would not allow quantification of the marginal gain provided by physics-informed feature transforms. |
+| **Synthetic Data Fallback** | Primary data source (NIMS) is unverified; pipeline must be runnable without external dependencies to ensure CI feasibility. | Relying solely on external APIs would cause CI failures if the source is unreachable, violating Reproducibility (Principle I). |
+| **Statistical Sensitivity Analysis** | Required to assess robustness of results across different significance cutoffs in the low-power regime. | A single p-value threshold (e.g., 0.05) is insufficient to interpret results in the small sample size regime. |
+| **Permutation Test** | Required to handle the complex dependency structure of Nested CV and the deterministic nature of feature expansion, where standard t-tests fail. | Corrected Resampled t-test (Nadeau & Bengio) assumes independence conditions violated by Nested CV and deterministic feature transforms. |
+
+
+## projects/PROJ-137-predicting-the-impact-of-alloying-on-cre/specs/001-predicting-the-impact-of-alloying-on-cre/research.md
+
