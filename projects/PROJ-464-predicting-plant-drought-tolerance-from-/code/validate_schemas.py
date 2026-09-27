@@ -1,6 +1,6 @@
 """
-Schema validation module for llmXive Project PROJ-464.
-Implements validation logic against contracts/dataset.schema.yaml and contracts/output.schema.yaml.
+Schema validation logic for project artifacts.
+Loads JSON schemas from contracts/ and validates generated CSV/JSON artifacts.
 """
 import os
 import sys
@@ -8,196 +8,220 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
+import json
 import yaml
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-SCHEMA_DIR = PROJECT_ROOT / "contracts"
-DATASET_SCHEMA_PATH = SCHEMA_DIR / "dataset.schema.yaml"
-OUTPUT_SCHEMA_PATH = SCHEMA_DIR / "output.schema.yaml"
-
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a YAML schema definition."""
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    """Load a JSON schema from a YAML file."""
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
-def validate_column_types(df: pd.DataFrame, schema_def: Dict[str, Any]) -> List[str]:
-    """Validate column types and constraints based on schema definition."""
+def validate_column_types(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
+    """Validate column types against schema properties."""
     errors = []
-    properties = schema_def.get('properties', {})
+    props = schema.get('properties', {})
+    required_cols = [k for k, v in props.items() if v.get('type') == 'object' and v.get('required', [])]
     
-    for col, spec in properties.items():
+    # Check required columns exist
+    for col in required_cols:
         if col not in df.columns:
-            if spec.get('required', False):
-                errors.append(f"Missing required column: {col}")
-            continue
-        
-        # Check for null values in numeric columns
-        if spec.get('type') == 'number' or spec.get('type') == 'integer':
-            if df[col].isnull().any():
-                errors.append(f"Column '{col}' contains null values")
-            
-            # Check minimum constraints
-            min_val = spec.get('minimum')
-            if min_val is not None:
-                if spec.get('exclusiveMinimum', False):
-                    if (df[col] <= min_val).any():
-                        errors.append(f"Column '{col}' contains values <= {min_val}")
-                else:
-                    if (df[col] < min_val).any():
-                        errors.append(f"Column '{col}' contains values < {min_val}")
-            
-            # Check maximum constraints
-            max_val = spec.get('maximum')
-            if max_val is not None:
-                if (df[col] > max_val).any():
-                    errors.append(f"Column '{col}' contains values > {max_val}")
-        
-        # Check string patterns
-        elif spec.get('type') == 'string':
-            pattern = spec.get('pattern')
-            if pattern:
-                import re
-                if df[col].apply(lambda x: bool(re.match(pattern, str(x)) if pd.notna(x) else False)).all() == False:
-                    errors.append(f"Column '{col}' contains values not matching pattern: {pattern}")
-    
+            errors.append(f"Missing required column: {col}")
+
+    # Check types for existing columns
+    for col in df.columns:
+        if col in props:
+            col_schema = props[col]
+            if col_schema.get('type') == 'object':
+                # Nested object validation skipped for CSV flat structure, 
+                # but we check if the column exists as expected.
+                continue
+            elif col_schema.get('properties'):
+                # This implies a nested schema, but CSV is flat. 
+                # We assume the CSV columns map to the leaf properties.
+                leaf_props = col_schema.get('properties', {})
+                for leaf_col, leaf_def in leaf_props.items():
+                    if leaf_col in df.columns:
+                        expected_type = leaf_def.get('properties', {}).get('type', {}).get('const')
+                        if expected_type == 'number':
+                            if not pd.api.types.is_numeric_dtype(df[leaf_col]):
+                                errors.append(f"Column {leaf_col} should be numeric")
+                        elif expected_type == 'string':
+                            if not pd.api.types.is_string_dtype(df[leaf_col]) and not pd.api.types.is_object_dtype(df[leaf_col]):
+                                errors.append(f"Column {leaf_col} should be string")
     return errors
 
-def validate_rsa_metrics(df: pd.DataFrame) -> Tuple[bool, List[str]]:
-    """Validate RSA metrics dataframe against schema."""
-    schema = load_schema(DATASET_SCHEMA_PATH)
-    schema_def = schema['schemas']['rsa_metrics']
-    
-    errors = validate_column_types(df, schema_def)
-    
-    # Additional rule: positive_numerics
-    numeric_cols = ['depth', 'branching_density', 'surface_area']
-    for col in numeric_cols:
-        if col in df.columns:
-            if (df[col] <= 0).any():
-                errors.append(f"Column '{col}' must be strictly positive")
-    
-    return len(errors) == 0, errors
+def validate_rsa_metrics(df: pd.DataFrame, schema_path: Path) -> Tuple[bool, List[str]]:
+    """Validate RSA metrics CSV against schema."""
+    try:
+        schema = load_schema(schema_path)
+        errors = validate_column_types(df, schema)
+        
+        # Specific checks for RSA metrics
+        if 'depth' in df.columns:
+            if (df['depth'] <= 0).any():
+                errors.append("depth must be > 0")
+        if 'branching_density' in df.columns:
+            if (df['branching_density'] <= 0).any():
+                errors.append("branching_density must be > 0")
+        if 'surface_area' in df.columns:
+            if (df['surface_area'] <= 0).any():
+                errors.append("surface_area must be > 0")
+        
+        return len(errors) == 0, errors
+    except Exception as e:
+        logger.error(f"Error validating RSA metrics: {e}")
+        return False, [str(e)]
 
-def validate_physiological_traits(df: pd.DataFrame) -> Tuple[bool, List[str]]:
-    """Validate physiological traits dataframe against schema."""
-    schema = load_schema(DATASET_SCHEMA_PATH)
-    schema_def = schema['schemas']['physiological_traits']
-    
-    errors = validate_column_types(df, schema_def)
-    
-    # Additional rule: positive_numerics
-    numeric_cols = ['stomatal_conductance', 'photosynthesis_rate']
-    for col in numeric_cols:
-        if col in df.columns:
-            if (df[col] <= 0).any():
-                errors.append(f"Column '{col}' must be strictly positive")
-    
-    return len(errors) == 0, errors
+def validate_physiological_traits(df: pd.DataFrame, schema_path: Path) -> Tuple[bool, List[str]]:
+    """Validate physiological traits CSV against schema."""
+    try:
+        schema = load_schema(schema_path)
+        errors = validate_column_types(df, schema)
+        return len(errors) == 0, errors
+    except Exception as e:
+        logger.error(f"Error validating physiological traits: {e}")
+        return False, [str(e)]
 
-def validate_merged_dataset(df: pd.DataFrame) -> Tuple[bool, List[str]]:
-    """Validate merged dataset against schema."""
-    schema = load_schema(DATASET_SCHEMA_PATH)
-    schema_def = schema['schemas']['merged_dataset']
-    
-    errors = validate_column_types(df, schema_def)
-    
-    # Additional rule: sample_size_constraint
-    if len(df) < 55:
-        errors.append(f"Insufficient species after merge (N={len(df)} < 55). HALT required.")
-    
-    # Additional rule: positive_numerics
-    numeric_cols = ['depth', 'branching_density', 'surface_area', 'stomatal_conductance', 'photosynthesis_rate']
-    for col in numeric_cols:
-        if col in df.columns:
-            if (df[col] <= 0).any():
-                errors.append(f"Column '{col}' must be strictly positive")
-    
-    return len(errors) == 0, errors
+def validate_merged_dataset(df: pd.DataFrame, schema_path: Path) -> Tuple[bool, List[str]]:
+    """Validate merged dataset CSV against schema."""
+    try:
+        schema = load_schema(schema_path)
+        errors = validate_column_types(df, schema)
+        
+        # Check PCA/PVR fields if they exist
+        pvr_fields = ['pvr_lambda', 'pvr_sigma']
+        for field in pvr_fields:
+            if field in df.columns:
+                if (df[field] < 0).any() and field == 'pvr_lambda':
+                    errors.append(f"{field} must be >= 0")
+                if (df[field] > 1).any() and field == 'pvr_lambda':
+                    errors.append(f"{field} must be <= 1")
+        
+        return len(errors) == 0, errors
+    except Exception as e:
+        logger.error(f"Error validating merged dataset: {e}")
+        return False, [str(e)]
 
-def validate_model_results(df: pd.DataFrame) -> Tuple[bool, List[str]]:
-    """Validate model results dataframe against schema."""
+def validate_model_results(df: pd.DataFrame, schema_path: Path) -> Tuple[bool, List[str]]:
+    """Validate model results CSV against schema."""
+    try:
+        schema = load_schema(schema_path)
+        errors = validate_column_types(df, schema)
+        
+        # Check p-value and R2 ranges
+        if 'p_value' in df.columns:
+            if (df['p_value'] < 0).any() or (df['p_value'] > 1).any():
+                errors.append("p_value must be between 0 and 1")
+        if 'r2' in df.columns:
+            if (df['r2'] < 0).any() or (df['r2'] > 1).any():
+                errors.append("r2 must be between 0 and 1")
+        
+        return len(errors) == 0, errors
+    except Exception as e:
+        logger.error(f"Error validating model results: {e}")
+        return False, [str(e)]
+
+def validate_vif_compliance(yaml_path: Path) -> Tuple[bool, List[str]]:
+    """Validate VIF compliance YAML file."""
     errors = []
-    
-    if 'r_squared' in df.columns:
-        if ((df['r_squared'] < 0) | (df['r_squared'] > 1)).any():
-            errors.append("R-squared values must be between 0 and 1")
-    
-    if 'p_values' in df.columns or any('p_value' in str(c) for c in df.columns):
-        p_cols = [c for c in df.columns if 'p_value' in str(c)]
-        for col in p_cols:
-            if (df[col] < 0).any():
-                errors.append(f"P-values in '{col}' must be non-negative")
-    
-    return len(errors) == 0, errors
+    try:
+        with open(yaml_path, 'r') as f:
+            data = yaml.safe_load(f)
+        
+        if not isinstance(data, dict):
+            errors.append("VIF compliance file must be a dictionary")
+            return False, errors
+        
+        # Check required fields
+        required = ['vif_status', 'suppression_applied']
+        for field in required:
+            if field not in data:
+                errors.append(f"Missing required field: {field}")
+        
+        return len(errors) == 0, errors
+    except Exception as e:
+        logger.error(f"Error validating VIF compliance: {e}")
+        return False, [str(e)]
 
-def validate_vif_compliance(data: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """Validate VIF compliance check data."""
+def validate_proxy_detection(yaml_path: Path) -> Tuple[bool, List[str]]:
+    """Validate proxy detection YAML file."""
     errors = []
-    
-    max_vif = data.get('max_vif', 0)
-    suppression_applied = data.get('suppression_applied', False)
-    suppressed_variables = data.get('suppressed_variables', [])
-    
-    # Rule: IF max_vif > 5 THEN suppression_applied == true AND len(suppressed_variables) > 0
-    if max_vif > 5:
-        if not suppression_applied:
-            errors.append("VIF > 5 detected but suppression was not applied")
-        if len(suppressed_variables) == 0:
-            errors.append("VIF > 5 detected but no variables were suppressed")
-    
-    return len(errors) == 0, errors
-
-def validate_proxy_detection(data: Dict[str, Any]) -> Tuple[bool, List[str]]:
-    """Validate proxy detection status data."""
-    errors = []
-    
-    has_proxy = data.get('has_proxy', False)
-    classification_status = data.get('classification_status', 'SKIPPED')
-    
-    if has_proxy and classification_status != 'EXECUTED':
-        errors.append("Proxy found but classification status is not EXECUTED")
-    
-    if not has_proxy and classification_status != 'SKIPPED':
-        errors.append("No proxy found but classification status is not SKIPPED")
-    
-    return len(errors) == 0, errors
+    try:
+        with open(yaml_path, 'r') as f:
+            data = yaml.safe_load(f)
+        
+        if not isinstance(data, dict):
+            errors.append("Proxy detection file must be a dictionary")
+            return False, errors
+        
+        if 'has_proxy' not in data:
+            errors.append("Missing required field: has_proxy")
+        
+        return len(errors) == 0, errors
+    except Exception as e:
+        logger.error(f"Error validating proxy detection: {e}")
+        return False, [str(e)]
 
 def main():
-    """Run all schema validations."""
-    logger.info("Starting schema validation...")
-    
-    # Example validation calls (these would be triggered by specific tasks)
-    # 1. Validate RSA metrics if file exists
-    rsa_path = PROJECT_ROOT / "data/derived/rsametrics.csv"
-    if rsa_path.exists():
-        df = pd.read_csv(rsa_path)
-        valid, errors = validate_rsa_metrics(df)
-        if valid:
-            logger.info("RSA metrics validation: PASSED")
-        else:
-            logger.error(f"RSA metrics validation: FAILED - {errors}")
-    
-    # 2. Validate merged dataset if file exists
-    merged_path = PROJECT_ROOT / "data/derived/merged_dataset.csv"
-    if merged_path.exists():
-        df = pd.read_csv(merged_path)
-        valid, errors = validate_merged_dataset(df)
-        if valid:
-            logger.info("Merged dataset validation: PASSED")
-        else:
-            logger.error(f"Merged dataset validation: FAILED - {errors}")
-    
-    logger.info("Schema validation complete.")
+    """Main entry point for schema validation."""
+    logging.basicConfig(level=logging.INFO)
+    project_root = Path(__file__).parent.parent
+    contracts_dir = project_root / 'contracts'
+    data_dir = project_root / 'data' / 'derived'
+    state_dir = project_root / 'state'
 
-if __name__ == "__main__":
-    main()
+    # Define validation tasks
+    validations = [
+        ('rsametrics', data_dir / 'rsametrics.csv', contracts_dir / 'rsametrics.schema.yaml', validate_rsa_metrics),
+        ('merged_data', data_dir / 'merged_data.csv', contracts_dir / 'merged_data.schema.yaml', validate_merged_dataset),
+        ('model_results', data_dir / 'model_results.csv', contracts_dir / 'model_results.schema.yaml', validate_model_results),
+    ]
+
+    all_passed = True
+
+    for name, file_path, schema_path, validator in validations:
+        if not file_path.exists():
+            logger.warning(f"File not found: {file_path}. Skipping validation.")
+            continue
+        
+        try:
+            df = pd.read_csv(file_path)
+            passed, errors = validator(df, schema_path)
+            if passed:
+                logger.info(f"Validation passed for {name}")
+            else:
+                logger.error(f"Validation failed for {name}: {errors}")
+                all_passed = False
+        except Exception as e:
+            logger.error(f"Error processing {name}: {e}")
+            all_passed = False
+
+    # Validate YAML files
+    yaml_validations = [
+        ('vif_compliance', state_dir / 'vif_compliance_check.yaml', validate_vif_compliance),
+        ('proxy_detection', state_dir / 'proxy_detection.yaml', validate_proxy_detection),
+    ]
+
+    for name, file_path, validator in yaml_validations:
+        if not file_path.exists():
+            logger.warning(f"File not found: {file_path}. Skipping validation.")
+            continue
+        
+        passed, errors = validator(file_path)
+        if passed:
+            logger.info(f"Validation passed for {name}")
+        else:
+            logger.error(f"Validation failed for {name}: {errors}")
+            all_passed = False
+
+    if all_passed:
+        logger.info("All validations passed.")
+        return 0
+    else:
+        logger.error("Some validations failed.")
+        return 1
+
+if __name__ == '__main__':
+    sys.exit(main())

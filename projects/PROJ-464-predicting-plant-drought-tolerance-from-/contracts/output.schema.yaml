@@ -1,184 +1,63 @@
-%YAML 1.2
----
-# Output Validation Schema for llmXive Project PROJ-464
-# Defines the structure and constraints for generated artifacts and reports.
-
-schemas:
-  power_analysis_report:
-    description: Power analysis results (T008)
+$schema: http://json-schema.org/draft-07/schema#
+title: Final Report Framing Schema
+description: |
+  Validates the final report framing structure.
+  References: FR-009
+type: object
+required:
+  - $schema
+  - type
+  - properties
+properties:
+  $schema:
+    type: string
+    const: http://json-schema.org/draft-07/schema#
+  type:
+    type: string
+    const: object
+  properties:
     type: object
     required:
-      - nppn_species_count
-      - try_species_count
-      - overlap_count
-      - required_sample_size
-      - status
-      - timestamp
+      report_title
+      summary
+      tolerance_proxy_status
+      vif_suppression_applied
+      conclusions
     properties:
-      nppn_species_count:
-        type: integer
-        minimum: 0
-      try_species_count:
-        type: integer
-        minimum: 0
-      overlap_count:
-        type: integer
-        minimum: 0
-      required_sample_size:
-        type: integer
-        minimum: 55
-      status:
-        type: string
-        enum: ["PASS", "FAIL"]
-      message:
-        type: string
-      timestamp:
-        type: string
-        format: date-time
-
-  model_results:
-    description: Model fitting results (T026)
-    type: object
-    required:
-      - model_type
-      - metric_name
-      - metric_value
-      - coefficients
-      - p_values
-      - r_squared
-      - fold
-    properties:
-      model_type:
-        type: string
-        enum: ["OLS", "Ridge", "Lasso", "RandomForest", "PGLS"]
-      metric_name:
-        type: string
-      metric_value:
-        type: number
-      coefficients:
+      report_title:
         type: object
-        additionalProperties:
-          type: number
-      p_values:
+        properties:
+          type:
+            type: string
+            const: string
+      summary:
         type: object
-        additionalProperties:
-          type: number
-      r_squared:
-        type: number
-        minimum: 0
-        maximum: 1
-      fold:
-        type: integer
-        minimum: 1
-        maximum: 5
-      adjusted_p_value:
-        type: number
-        minimum: 0
-        maximum: 1
-
-  vif_compliance_check:
-    description: VIF compliance and claim suppression record (T026b)
-    type: object
-    required:
-      - vif_values
-      - max_vif
-      - suppression_applied
-      - suppressed_variables
-      - timestamp
-    properties:
-      vif_values:
+        properties:
+          type:
+            type: string
+            const: string
+      tolerance_proxy_status:
         type: object
-        additionalProperties:
-          type: number
-      max_vif:
-        type: number
-      suppression_applied:
-        type: boolean
-      suppressed_variables:
-        type: array
-        items:
-          type: string
-      timestamp:
-        type: string
-        format: date-time
-      compliance_status:
-        type: string
-        enum: ["COMPLIANT", "NON_COMPLIANT_SUPPRESSED", "NON_COMPLIANT_UNSAFE"]
-
-  proxy_detection:
-    description: Tolerance proxy detection status (T027)
-    type: object
-    required:
-      - has_proxy
-      - proxy_variable
-      - timestamp
-    properties:
-      has_proxy:
-        type: boolean
-      proxy_variable:
-        type: string
-        nullable: true
-      timestamp:
-        type: string
-        format: date-time
-      classification_status:
-        type: string
-        enum: ["SKIPPED", "EXECUTED"]
-        description: "SKIPPED if no proxy, EXECUTED if proxy found"
-
-  sensitivity_results:
-    description: Sensitivity analysis results (T028)
-    type: object
-    required:
-      - threshold
-      - accuracy
-      - precision
-      - recall
-      - f1_score
-      - false_positive_rate
-      - false_negative_rate
-    properties:
-      threshold:
-        type: number
-        minimum: 0
-        maximum: 1
-      accuracy:
-        type: number
-        minimum: 0
-        maximum: 1
-      precision:
-        type: number
-        minimum: 0
-        maximum: 1
-      recall:
-        type: number
-        minimum: 0
-        maximum: 1
-      f1_score:
-        type: number
-        minimum: 0
-        maximum: 1
-      false_positive_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-      false_negative_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-
-validation_rules:
-  - name: model_results_integrity
-    description: "Ensure model results have valid R2 and p-values"
-    apply_to: ["model_results"]
-    rule: "r_squared in [0,1] AND p_values >= 0"
-
-  - name: vif_suppression_logic
-    description: "Verify suppression logic matches VIF thresholds"
-    apply_to: ["vif_compliance_check"]
-    rule: "IF max_vif > 5 THEN suppression_applied == true AND len(suppressed_variables) > 0"
-
-  - name: sensitivity_range
-    description: "Ensure sensitivity sweep covers full threshold range"
-    apply_to: ["sensitivity_results"]
-    rule: "thresholds must cover [0.1, 0.9] range or justification provided"
+        properties:
+          type:
+            type: string
+            const: string
+      vif_suppression_applied:
+        type: object
+        properties:
+          type:
+            type: string
+            const: boolean
+      conclusions:
+        type: object
+        properties:
+          type:
+            type: string
+            const: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+                const: string
+additionalProperties: false

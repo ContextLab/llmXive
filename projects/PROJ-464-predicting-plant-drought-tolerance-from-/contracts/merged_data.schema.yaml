@@ -1,0 +1,114 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Merged Data Schema with PCA/PVR
+description: |
+  Validates the joined data including PCA and Phylogenetic Variance Regression fields.
+  References: FR-003, FR-010
+type: object
+required:
+  - $schema
+  - type
+  - properties
+properties:
+  $schema:
+    type: string
+    const: http://json-schema.org/draft-07/schema#
+  type:
+    type: string
+    const: object
+  properties:
+    type: object
+    required:
+      species_id
+      depth
+      branching_density
+      surface_area
+      stomatal_conductance
+      photosynthesis
+      pca_depth
+      pca_branching
+      pca_surface
+      pvr_lambda
+      pvr_sigma
+    properties:
+      species_id:
+        type: object
+        properties:
+          type:
+            type: string
+            const: string
+      depth:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          exclusiveMinimum:
+            type: number
+            const: 0
+      branching_density:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          exclusiveMinimum:
+            type: number
+            const: 0
+      surface_area:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          exclusiveMinimum:
+            type: number
+            const: 0
+      stomatal_conductance:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+      photosynthesis:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+      pca_depth:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+      pca_branching:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+      pca_surface:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+      pvr_lambda:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+          maximum:
+            type: number
+            const: 1
+      pvr_sigma:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+additionalProperties: false

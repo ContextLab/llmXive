@@ -1,171 +1,85 @@
-%YAML 1.2
----
-# Dataset Validation Schema for llmXive Project PROJ-464
-# Defines the structure and constraints for input datasets used in the pipeline.
-# Used by code/validate_schemas.py to enforce data hygiene.
-
-schemas:
-  nppn_root_images:
-    description: Raw image metadata from NPPN download (T012)
+$schema: http://json-schema.org/draft-07/schema#
+title: Merged Dataset Schema
+description: |
+  Validates the structure of the merged dataset combining RSA metrics and physiological traits.
+  References: FR-001, FR-002
+type: object
+required:
+  - $schema
+  - type
+  - properties
+properties:
+  $schema:
+    type: string
+    const: http://json-schema.org/draft-07/schema#
+  type:
+    type: string
+    const: object
+  properties:
     type: object
     required:
-      - image_id
-      - file_path
-      - species
-      - download_timestamp
-    properties:
-      image_id:
-        type: string
-        pattern: "^[a-zA-Z0-9_-]+$"
-      file_path:
-        type: string
-        pattern: "^data/raw/nppn_images/.*"
-      species:
-        type: string
-        minLength: 2
-      download_timestamp:
-        type: string
-        format: date-time
-
-  rsa_metrics:
-    description: Root System Architecture metrics derived from images (T015)
-    type: object
-    required:
-      - species_id
-      - depth
-      - branching_density
-      - surface_area
-      - image_id
+      species_id
+      depth
+      branching_density
+      surface_area
+      stomatal_conductance
+      photosynthesis
     properties:
       species_id:
-        type: string
-        minLength: 2
-      image_id:
-        type: string
+        type: object
+        properties:
+          type:
+            type: string
+            const: string
+          description:
+            type: string
       depth:
-        type: number
-        minimum: 0
-        exclusiveMinimum: false
-        description: "Root system depth in pixels or mm"
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+          exclusiveMinimum:
+            type: number
+            const: 0
       branching_density:
-        type: number
-        minimum: 0
-        exclusiveMinimum: false
-        description: "Branch points per unit length"
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+          exclusiveMinimum:
+            type: number
+            const: 0
       surface_area:
-        type: number
-        minimum: 0
-        exclusiveMinimum: false
-        description: "Total root surface area"
-      validation_status:
-        type: string
-        enum: ["valid", "flagged"]
-        default: "valid"
-    additionalProperties: false
-
-  physiological_traits:
-    description: Physiological trait data from TRY database (T020)
-    type: object
-    required:
-      - species
-      - stomatal_conductance
-      - photosynthesis_rate
-    properties:
-      species:
-        type: string
-        minLength: 2
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+          exclusiveMinimum:
+            type: number
+            const: 0
       stomatal_conductance:
-        type: number
-        minimum: 0
-        description: "mmol m-2 s-1"
-      photosynthesis_rate:
-        type: number
-        minimum: 0
-        description: "μmol m-2 s-1"
-      drought_tolerance_proxy:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: "Optional survival rate or proxy (0-1)"
-      source:
-        type: string
-        enum: ["TRY", "NPPN", "Manual"]
-    additionalProperties: false
-
-  merged_dataset:
-    description: Combined RSA and physiological data (T021)
-    type: object
-    required:
-      - species_id
-      - depth
-      - branching_density
-      - surface_area
-      - stomatal_conductance
-      - photosynthesis_rate
-    properties:
-      species_id:
-        type: string
-      depth:
-        type: number
-        minimum: 0
-      branching_density:
-        type: number
-        minimum: 0
-      surface_area:
-        type: number
-        minimum: 0
-      stomatal_conductance:
-        type: number
-        minimum: 0
-      photosynthesis_rate:
-        type: number
-        minimum: 0
-      drought_tolerance_proxy:
-        type: number
-        minimum: 0
-        maximum: 1
-      sample_size_check:
-        type: integer
-        minimum: 55
-        description: "Must be >= 55 per power analysis constraint"
-    additionalProperties: false
-
-  phylogenetic_tree:
-    description: Phylogenetic tree data (T024a)
-    type: object
-    required:
-      - tree_path
-      - species_count
-      - fetch_status
-    properties:
-      tree_path:
-        type: string
-        pattern: "^data/derived/.*\\.newick$"
-      species_count:
-        type: integer
-        minimum: 1
-      fetch_status:
-        type: string
-        enum: ["success", "failed"]
-      error_message:
-        type: string
-        nullable: true
-
-validation_rules:
-  - name: no_null_values
-    description: "Ensure no null values in numeric columns"
-    apply_to: ["rsa_metrics", "physiological_traits", "merged_dataset"]
-    columns: ["depth", "branching_density", "surface_area", "stomatal_conductance", "photosynthesis_rate"]
-    rule: "column must not be null"
-
-  - name: positive_numerics
-    description: "Ensure numeric traits are strictly positive"
-    apply_to: ["rsa_metrics", "physiological_traits", "merged_dataset"]
-    columns: ["depth", "branching_density", "surface_area", "stomatal_conductance", "photosynthesis_rate"]
-    rule: "value > 0"
-
-  - name: sample_size_constraint
-    description: "Enforce minimum sample size for statistical validity"
-    apply_to: ["merged_dataset"]
-    rule: "row_count >= 55"
-    error_message: "Insufficient species after merge (N < 55). HALT required."
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+      photosynthesis:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+additionalProperties: false

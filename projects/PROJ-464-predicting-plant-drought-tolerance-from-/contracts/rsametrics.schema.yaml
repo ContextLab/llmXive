@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RSAMetrics Schema
+description: Validates the structure and types of the RSA metrics dataset generated from root image analysis.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      source:
+        type: string
+      version:
+        type: string
+    required:
+      - generated_at
+      - source
+      - version
+  data:
+    type: array
+    items:
+      type: object
+      properties:
+        species_id:
+          type: string
+          minLength: 1
+        depth:
+          type: number
+          exclusiveMinimum: 0
+        branching_density:
+          type: number
+          exclusiveMinimum: 0
+        surface_area:
+          type: number
+          exclusiveMinimum: 0
+      required:
+        - species_id
+        - depth
+        - branching_density
+        - surface_area
+      additionalProperties: false
+required:
+  - metadata
+  - data

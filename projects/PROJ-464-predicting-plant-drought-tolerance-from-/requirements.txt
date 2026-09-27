@@ -1,3 +1,4 @@
+# Core dependencies
 pandas>=2.0.0
 numpy>=1.24.0
 scikit-learn>=1.3.0
@@ -9,4 +10,8 @@ requests>=2.31.0
 huggingface_hub>=0.16.0
 pytest>=7.0.0
 networkx>=3.0
+caper>=1.0.0
 pydantic>=2.0.0
+PyYAML>=6.0
+# New dependency for fetch_phylogeny (already in requirements but ensuring presence)
+# requests is already listed above

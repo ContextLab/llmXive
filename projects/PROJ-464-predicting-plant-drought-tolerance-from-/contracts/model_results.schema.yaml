@@ -1,0 +1,92 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: |
+  Validates model outputs including coefficients, p-values, R², and VIF.
+  References: FR-004, FR-005, FR-006
+type: object
+required:
+  - $schema
+  - type
+  - properties
+properties:
+  $schema:
+    type: string
+    const: http://json-schema.org/draft-07/schema#
+  type:
+    type: string
+    const: object
+  properties:
+    type: object
+    required:
+      model_type
+      predictor
+      coefficient
+      p_value
+      r2
+      adj_p_value
+      vif
+    properties:
+      model_type:
+        type: object
+        properties:
+          type:
+            type: string
+            const: string
+      predictor:
+        type: object
+        properties:
+          type:
+            type: string
+            const: string
+      coefficient:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+      p_value:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+          maximum:
+            type: number
+            const: 1
+      r2:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+          maximum:
+            type: number
+            const: 1
+      adj_p_value:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+          maximum:
+            type: number
+            const: 1
+      vif:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          minimum:
+            type: number
+            const: 0
+additionalProperties: false

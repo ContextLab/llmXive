@@ -2162,3 +2162,391 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-23T09:50:07Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: Initial memory usage was 125.45 MB
+  claim_id: c_3c42c491
+  context: Results Summary section lists initial, peak, and final memory usage values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initial Memory Usage: 125.45 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:40:04Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: Peak memory usage was 892.33 MB
+  claim_id: c_0b0ca476
+  context: Results Summary section lists initial, peak, and final memory usage values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Peak Memory Usage: 892.33 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:40:22Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: Final memory usage was 156.78 MB
+  claim_id: c_15046853
+  context: Results Summary section lists initial, peak, and final memory usage values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Final Memory Usage: 156.78 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:40:44Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: Total memory delta was 31.33 MB
+  claim_id: c_2180cc38
+  context: Results Summary section lists the total memory delta.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Memory Delta: 31.33 MB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:41:18Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: download stage duration was 12.45 seconds
+  claim_id: c_f1f3992d
+  context: Stage-by-Stage Breakdown table lists duration and memory changes for the
+    download stage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download stage duration was 12.45 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:41:37Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: download stage memory start was 125.45 MB
+  claim_id: c_a66513e7
+  context: Stage-by-Stage Breakdown table lists memory start for the download stage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download stage memory start was 125.45 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:41:56Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: download stage memory end was 145.20 MB
+  claim_id: c_1a017671
+  context: Stage-by-Stage Breakdown table lists memory end for the download stage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download stage memory end was 145.20 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:42:18Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: download stage memory delta was 19.75 MB
+  claim_id: c_2a8bcca7
+  context: Stage-by-Stage Breakdown table lists memory delta for the download stage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: download stage memory delta was 19.75 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:42:35Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: preprocess stage duration was 45.32 seconds
+  claim_id: c_30d64688
+  context: Stage-by-Stage Breakdown table lists duration and memory changes for the
+    preprocess stage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: preprocess stage duration was 45.32 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:42:54Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: preprocess stage memory start was 145.20 MB
+  claim_id: c_30b74c31
+  context: Stage-by-Stage Breakdown table lists memory start for the preprocess stage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: preprocess stage memory start was 145.20 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:43:16Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: preprocess stage memory end was 892.33 MB
+  claim_id: c_bbdf5927
+  context: Stage-by-Stage Breakdown table lists memory end for the preprocess stage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: preprocess stage memory end was 892.33 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:43:37Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: preprocess stage memory delta was 747.13 MB
+  claim_id: c_fe78e9e4
+  context: Stage-by-Stage Breakdown table lists memory delta for the preprocess stage.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: preprocess stage memory delta was 747.13 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:43:53Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/docs/memory_profile.md
+  attempts: 1
+  canonical: Image pipeline processes RSA images from the NPPN dataset
+  claim_id: c_26cd65be
+  context: Analysis section describes the source of images processed by the pipeline.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Image_pipeline_processes_RSA_images_from_the_NPPN_dataset
+  kind: entity_fact
+  raw_text: The image pipeline processes root system architecture (RSA) images from
+    the NPPN dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:44:29Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 0
+  canonical: 'Power analysis parameters: Cohen''s f2 0.15, alpha 0.05, power 0.80,
+    3 predictors'
+  claim_id: c_5c1da44e
+  context: 'Implement code/power_analysis.py: Calculate required sample size (N) using
+    statsmodels.stats.power.FTestPower. Parameters: Cohen''s f2=0.15 (medium effect),
+    alpha=0.05, power=0.80, k=3 predictors.'
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Cohen's f2=0.15 (medium effect), alpha=0.05, power=0.80, k=3 predictors.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T08:44:47Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Power analysis halt condition: sample size less than 55'
+  claim_id: c_d2358823
+  context: 'Logic: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, HALT
+    with critical error ''Insufficient species for power analysis (N < 55)''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_halt_condition:_sample_size_less_than_55
+  kind: magnitude
+  raw_text: If overlap N < 55, HALT with critical error 'Insufficient species for
+    power analysis (N < 55)'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:46:02Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Branching density formula: (branch points minus endpoints) divided by
+    total length'
+  claim_id: c_46ad9c1c
+  context: 'Algorithm: skeletonize (8-connectivity) for depth/branching; find_contours
+    for surface area. Branching density = (branch_points - endpoints) / total_length.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Branching_density_formula:_(branch_points_minus_endpoints)_d
+  kind: entity_fact
+  raw_text: Branching density = (branch_points - endpoints) / total_length.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:46:32Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Model validation uses 5-fold GroupKFold grouped by species name
+  claim_id: c_b92c1841
+  context: "Specs: R\xB2 metric, 5-fold GroupKFold (groups=species_name) to prevent\
+    \ phylogenetic leakage, alpha search [a range of values]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold GroupKFold (groups=species_name) to prevent phylogenetic leakage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:46:52Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Random Forest Regression configuration: 100 estimators, no max depth'
+  claim_id: c_756a2352
+  context: "Specs: R\xB2 metric, 5-fold GroupKFold (groups=species_name) to prevent\
+    \ phylogenetic leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest Regression uses n_estimators=100, max_depth=None.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:47:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis includes a 0.05 threshold sweep around baseline
+  claim_id: c_34b81d63
+  context: "Ensure at least \xB10.05 sweep around the baseline (optimal F1 or 0.5)\
+    \ is explicitly reported."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_includes_a_0.05_threshold_sweep_around
+  kind: magnitude
+  raw_text: "Ensure at least \xB10.05 sweep around the baseline (optimal F1 or 0.5)\
+    \ is explicitly reported."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:47:55Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Image loading pipeline peak memory usage under 7GB
+  claim_id: c_064cfb95
+  context: 'Profile memory usage of image loading pipeline. Deliverable: docs/memory_profile.md
+    with peak usage <7GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Image_loading_pipeline_peak_memory_usage_under_7GB
+  kind: entity_fact
+  raw_text: Peak memory usage <7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:48:21Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: 'Required Python package versions: pandas 2.0.0, numpy 1.24.0, scikit-learn
+    1.3.0, scipy 1.11.0, statsmodels 0.14.0, opencv-python-headless 4.8.0, scikit-image
+    0.21.0, requests 2.31.0, huggingface_hub 0.16.0, pytest 7.0.0, networkx 3.0, caper
+    1.0.0'
+  claim_id: c_f093fc8e
+  context: Initialize Python 3.11 project with dependencies in requirements.txt (pandas>=2.0.0,
+    numpy>=1.24.0, scikit-learn>=1.3.0, scipy>=1.11.0, statsmodels>=0.14.0, opencv-python-headless>=4.8.0,
+    scikit-image>=0.21.0, requests>=2.31.0, huggingface_hub>=0.16.0, pytest>=7.0.0,
+    networkx>=3.0, caper>=1.0.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, scipy>=1.11.0, statsmodels>=0.14.0,
+    opencv-python-headless>=4.8.0, scikit-image>=0.21.0, requests>=2.31.0, huggingface_hub>=0.16.0,
+    pytest>=7.0.0, networkx>=3.0, caper>=1.0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:48:38Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 5 triggers suppression of independent effect claims
+  claim_id: c_c84457a2
+  context: Verify that if VIF > 5 is detected, the system refrains from claiming independent
+    effects for definitionally related variables (assertion in T022/T026c).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5 is detected, the system refrains from claiming independent
+    effects for definitionally related variables.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:48:38Z'
+- artifact_path: projects/PROJ-464-predicting-plant-drought-tolerance-from-/specs/001-predicting-plant-drought-tolerance-from/tasks.md
+  attempts: 1
+  canonical: Unit test for Spearman correlation requires result within 5% of synthetic
+    target
+  claim_id: c_569ccb60
+  context: 'Unit test in tests/unit/test_model_fitting.py: Implement test_spearman_correlation_matches_known_value
+    (asserts correlation within 5% of synthetic target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test asserts correlation within 5% of synthetic target.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T08:48:39Z'
