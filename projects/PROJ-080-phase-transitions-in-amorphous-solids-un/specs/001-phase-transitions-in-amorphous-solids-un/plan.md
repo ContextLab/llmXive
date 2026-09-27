@@ -13,7 +13,7 @@ This project implements a computational pipeline to detect structural precursors
 **Primary Dependencies**: `numpy`, `scipy`, `pandas`, `h5py`, `scikit-learn`, `matplotlib`, `datasets` (Hugging Face), `tqdm`
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`) in HDF5/Parquet/CSV formats; no external database.
 **Testing**: `pytest` (unit tests for $D^2_{min}$ calculation, integration tests for pipeline flow).
-**Target Platform**: GitHub Actions `ubuntu-latest` (CPU-only, 2 cores, 7GB RAM).
+**Target Platform**: GitHub Actions `ubuntu-latest` (CPU-only, cores, 7GB RAM).
 **Project Type**: Scientific computation pipeline / CLI tool.
 **Performance Goals**: Process ≤100k particle trajectories within 6 hours; memory footprint <7GB.
 **Constraints**: Max [deferred] particles per trajectory (FR-006); no GPU usage for core logic; strict adherence to spec-defined stress drop thresholds.
@@ -123,8 +123,8 @@ No violations identified. The complexity is managed by:
 - **Output**: `data/processed/corrected_results.json`.
 
 ### Phase 5: Performance Validation (SC-004, SC-005)
-- **Task 5.1**: Instrument and measure total computational runtime. Compare against 6-hour limit.
-- **Task 5.2**: Instrument and measure peak memory footprint. Compare against 7GB limit.
+- **Task 5.1**: Instrument and measure total computational runtime. Compare against a predefined time limit..
+- **Task 5.2**: Instrument and measure peak memory footprint. Compare against GB limit.
 - **Task 5.3**: Generate performance report.
 - **Output**: `data/processed/performance_report.json`.
 
