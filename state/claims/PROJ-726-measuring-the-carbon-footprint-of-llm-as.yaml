@@ -122,3 +122,63 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-15T05:28:15Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: 'Synthesized Baseline Protocol failure condition: no valid literature
+    source identified'
+  claim_id: c_d7882ab0
+  context: Task T006 requires validating hardcoded time values from a 2025 paper or
+    executing a protocol using specific literature values, such as an average of 30-60
+    minutes per prompt from IEEE/ACM software engineering literature.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthesized_Baseline_Protocol_failure_condition:_no_valid_li
+  kind: entity_fact
+  raw_text: The task MUST fail ONLY if the Synthesized Baseline Protocol cannot identify
+    a valid literature source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:02:05Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average 30-60 minutes per prompt from IEEE/ACM software engineering literature
+  claim_id: c_0a8cdbf3
+  context: "T006 [P] Implement validate_baseline.py to synthesize local human baseline\
+    \ data: MUST validate that hardcoded time values from the 2025 comparative analysis\
+    \ paper (Table X, Section Y) represent raw developer time (minutes/hours), not\
+    \ pre-calculated CO\u2082. If the 2025 paper data is missing, execute the Synthesized\
+    \ Baseline Protocol using specific literature values (e.g., average 30-60 minutes\
+    \ per prompt from IEEE/ACM software engineering literature) with explicit citation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 2025 paper data is missing, execute the Synthesized Baseline Protocol
+    using specific literature values (e.g., average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature) with explicit citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:07:05Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average human coding time per prompt is 30-60 minutes
+  claim_id: c_39b8a06d
+  context: If the 2025 paper data is missing, execute the Synthesized Baseline Protocol
+    using specific literature values (e.g., average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature) with explicit citation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: average 30-60 minutes per prompt from IEEE/ACM software engineering literature
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:07:54Z'

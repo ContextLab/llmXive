@@ -1,31 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/`
-    directory or its subfolders (`code/`, `data/`, `tests/`, `docs/`) was provided;
-    the implementer did not supply any file listings or screenshots confirming their
-    existence. The task therefore remains unfulfilled.
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, configuration, or log files were provided that demonstrate the addition\
-    \ of wall\u2011clock timing logic, nor any sample logs showing total per\u2011\
-    video times for both modes. The required artifact (updated logging implementation\
-    \ and evidence of its output) is missing."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, test, or documentation was provided showing that a validation\
-    \ step was added to check for the presence of required dataset files before generation\
-    \ starts. The evidence consists only of high\u2011level feature specifications\
-    \ and user stories, without any concrete implementation artifact. The required\
-    \ validation functionality is therefore missing."
-T016:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission contains no code, script, or documentation showing added error
-    handling for dataset download failures, nor any clear error messages that list
-    missing files. No artifact was provided to verify the required functionality.
 T017:
   c: false
   h: fc6fe0fbcf9f03219a97f3e2ac95d4fbf7666f4b368d1b3f26d66361ad160a8c
@@ -75,6 +47,50 @@ T029:
   r: "The required output file `results/failure_cases.json` does not exist, so the\
     \ failure\u2011case identification logic was not produced nor logged as specified.\
     \ The task therefore remains unfinished."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CSV report was provided; there is no artifact containing the required columns\
+    \ (`video_id`, `condition`, `vbench_score`, `fvd`, `object_permanence`, `p_value`,\
+    \ `test_type`, `power_sufficient`). Without this file, the task\u2019s requirement\
+    \ cannot be verified. The next implementer must generate and supply the CSV report\
+    \ consuming T030a\u2019s output."
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `quickstart.md` file is provided, nor any excerpt showing the new
+    CLI flags or dataset requirements. The evidence consists only of a feature specification
+    and user stories, which do not satisfy the requirement to modify the documentation.
+    The implementer must add the revised `quickstart.md` content.
+T033:
+  c: false
+  h: 3ac03c7fc70b65778c579189889f7a02a856f61794803c7f937a5cc7e138eb6d
+  r: "The repository contains `code/generate.py`, but it lacks a `--profile-memory`\
+    \ command\u2011line option and does not implement real memory profiling (it merely\
+    \ returns the current memory usage). Moreover, the required output file `results/memory_profile.log`\
+    \ is absent, so the peak RSS was never recorded. The task\u2019s memory\u2011\
+    footprint verification is therefore not satisfied."
+T034a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only high\u2011level user stories and specifications;\
+    \ there is no log, script, or data showing RAFT\u2011Small inference time per\
+    \ frame measured on CPU, nor any evidence that the measurement was compared against\
+    \ CI limits (SC\u2011005). The required artifact (timing measurements) is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no evidence of new unit test files under `tests/unit/` targeting
+    the metric calculation logic; no test code, file listings, or test results are
+    present. Consequently, the required artifact (additional unit tests) is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `quickstart.md` validation run is provided\u2014there are\
+    \ no logs, generated video files, timing records, or analysis reports demonstrating\
+    \ that the baseline, naive, and flow\u2011corrected pipelines were executed and\
+    \ reproduced as required. The implementer must supply the actual execution output\
+    \ and validation artifacts."
 T037:
   c: false
   h: 57ac286340f72ad797677e241e72d368a5c605305874ac046cb5ac1e48986b9e

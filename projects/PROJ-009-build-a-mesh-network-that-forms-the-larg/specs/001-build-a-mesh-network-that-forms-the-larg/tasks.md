@@ -80,7 +80,7 @@
  - **Output**: Returns a list of dictionaries: `[{'ip': '...', 'hostname': '...', 'status': 'online'/'offline'/'unreachable'},...]`. **Explicitly define enum values for 'status'**: 'online', 'offline', 'unreachable'.
  - **Recovery**: This task handles ONLY *initial* discovery. Runtime heartbeat monitoring and re-assignment logic are handled in T013c.
  - **Fail Loudly**: Raise `NodeDiscoveryError` if *all* nodes are unreachable.
- - **Timeout Definition**: Use `ssh -o ConnectTimeout=5` to determine status.
+ - **Timeout Definition**: Use `ssh -o ConnectTimeout=5 ` to determine status.
  - **Status Logic**: 'offline' = SSH timeout (5s); 'unreachable' = ICMP ping failure.
  - **Dependency**: T004 (config), None (Base task).
 - [ ] T013d [US1] Implement `scheduler_state.py` in `code/orchestrator/` to define the runtime `SchedulerState` machine and feedback handler logic. **Specifics**:
@@ -95,7 +95,7 @@
  - **Re-assignment**: **Explicitly implement the heterogeneity-aware re-assignment algorithm**:
  1. Identify the failed task chunk.
  2. Query the `SchedulerState` (T013d) for the list of currently available/online nodes.
- 3. Calculate a **heterogeneity score** for each available node: `score = (cpu_speed_mhz / max_latency_ms) * (1 - packet_loss_rate)`.
+ 3. Calculate a **heterogeneity score** for each available node: `score = (cpu_speed_mhz / max_latency_ms) * (1 - packet_loss_rate) `.
  - `cpu_speed_mhz`: From T049 (current CPU speed).
  - `max_latency_ms`: From T014a/T014c (rolling short window of heartbeat response times).
  - `packet_loss_rate`: From T014a (current packet loss rate).
@@ -127,11 +127,11 @@
  - **Logic**: Aggregate per-node SNR and bandwidth measurements. Calculate average SNR and bandwidth for the mesh.
  - **Output**: Write `data/raw/radio_metrics_extracted.json` containing `run_id`, `avg_snr_db`, `avg_bandwidth_Mbps`, `node_snr_map`, `node_bandwidth_map`. **This file is the required input for T032 (Theoretical Bound Validation) and T046c (Phase 6 Validation).**
  - **Dependency**: T048, T014a.
-- [~] T046b [US1] Implement `radio_metrics_validator.py` in `code/analysis/` to validate that radio metrics were successfully extracted. **Specifics**:
+- [ ] T046b [US1] Implement `radio_metrics_validator.py` in `code/analysis/` to validate that radio metrics were successfully extracted. **Specifics**:
  - **Input**: `data/raw/radio_metrics_extracted.json`.
  - **Logic**: If file is missing or SNR/Bandwidth values are null, raise `RadioMetricsMissingError` and flag the run as 'WARN' for T010a (non-critical missing).
  - **Dependency**: T046a.
-- [~] T014a [US1] Implement `instrumentor_remote.py` in `code/orchestrator/` to remotely execute `tcpdump` (packet counts) and `mpstat` (CPU usage) commands on target nodes via SSH. **Specifics**:
+- [ ] T014a [US1] Implement `instrumentor_remote.py` in `code/orchestrator/` to remotely execute `tcpdump` (packet counts) and `mpstat` (CPU usage) commands on target nodes via SSH. **Specifics**:
  - **Execution**: Run `tcpdump -i any -nn -c 0` (continuous capture) and pipe output to a line‑counter.
  - **Parsing Logic**:
  - `tcpdump`: Support multiple timestamp formats (absolute `HH:MM:SS.sss` via regex `r'\d{2}:\d{2}:\d{2}\.\d{3}'` and relative `delta` via regex `r'^\d+\.\d+\s+'`). Detect format automatically. Count lines matching timestamps. If no lines match, raise `InstrumentationFailureError`.
@@ -142,14 +142,14 @@
  - **Output**: Return a dict `{'packet_count': int, 'cpu_utilization_pct': float or null}`.
  - **Network Saturation Detection**: Implement `check_network_saturation()` that computes packet loss using `ip -s link show <interface>` (parse the `RX` and `TX` drop/err fields). If loss >20 % raise `NetworkSaturationException` (sent to T014b).
  - **Dependency**: T012, T013a.
-- [~] T014b [US1] Implement `network_saturation_handler.py` in `code/orchestrator/` to handle the abort logic. **Specifics**: Receive the `NetworkSaturationException` from T014a. **Action**:
+- [ ] T014b [US1] Implement `network_saturation_handler.py` in `code/orchestrator/` to handle the abort logic. **Specifics**: Receive the `NetworkSaturationException` from T014a. **Action**:
  - **Terminate Remote Processes**: Send a SIGKILL to the benchmark process ID (captured during T016 start) on all active nodes.
  - **Verify Termination**: Poll the remote process list (e.g. `ps -p <pid>`) to confirm termination, retry up to 3 times with a 1‑second delay.
  - **Log Failure**: If termination fails, log an ERROR and raise `TerminationFailedError`.
  - **Abort Mechanism**: **Raise `NetworkSaturationException`** exception to signal the orchestrator (T015b) to stop the pipeline and exclude the run.
  - **Update State**: Log the failure with error code `NETWORK_SATURATION` to `data/raw/validation_status.json`.
  - **Dependency**: T014a.
-- [~] T014c [US1] Implement `remote_wall_clock_timer.py` in `code/orchestrator/` to capture wall‑clock execution time on remote nodes. **Specifics**: Use SSH to start a high‑resolution timer before benchmark launch and stop it after completion. **Output**: Return the elapsed seconds and **format the output to match the CSV schema** defined in Key Entities (PhysicalNode, TaskChunk) with a `wall_clock_time` column. **Dependency**: T013a.
+- [ ] T014c [US1] Implement `remote_wall_clock_timer.py` in `code/orchestrator/` to capture wall‑clock execution time on remote nodes. **Specifics**: Use SSH to start a high‑resolution timer before benchmark launch and stop it after completion. **Output**: Return the elapsed seconds and **format the output to match the CSV schema** defined in Key Entities (PhysicalNode, TaskChunk) with a `wall_clock_time` column. **Dependency**: T013a.
 - [ ] T014d [US1] Implement `instrumentation_validator.py` in `code/analysis/` to handle SC-006 variable fit validation for instrumentation data. **Specifics**:
  - **Input**: Raw metrics from T014a.
  - **Logic**: If `cpu_utilization_pct` is missing or flagged as error by T014a (e.g. `InstrumentationError`), **flag the run as 'WARN' or 'EXCLUDED'** (write to `data/raw/validation_status.json`). **Do NOT proceed with zero-filled data**.

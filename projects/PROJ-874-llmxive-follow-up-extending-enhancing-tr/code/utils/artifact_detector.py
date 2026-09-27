@@ -6,239 +6,216 @@ import numpy as np
 from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 
-# Configure logging for the module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Import existing utilities from the project API surface
+from code.utils.video import extract_frames, get_video_metadata
+from code.config import get_results_dir, get_config
+
 logger = logging.getLogger(__name__)
 
+# Configuration for artifact detection
+# Threshold for detecting tearing (gradient magnitude difference)
+TEARING_THRESHOLD = 50.0
+# Minimum number of consecutive bad lines to consider a tear
+MIN_TEAR_LINES = 5
 
-def detect_tearing_artifacts(
-    frame: np.ndarray,
-    threshold: float = 0.15,
-    min_severity: float = 0.25
-) -> Tuple[bool, Dict]:
+def detect_tearing_artifacts(frame: np.ndarray, threshold: float = TEARING_THRESHOLD) -> Tuple[bool, List[int]]:
     """
-    Detects pixel tearing artifacts in a frame caused by severe 3D drift during warping.
+    Detect tearing artifacts in a single frame.
     
-    Tearing manifests as sharp, discontinuous horizontal intensity changes that violate
-    natural scene continuity. This function analyzes horizontal gradients to identify
-    such anomalies.
+    Tearing is detected by finding horizontal lines where there is a sudden
+    discontinuity in pixel values (gradient magnitude) that exceeds the threshold.
+    This often happens when 3D drift causes severe misalignment during warping.
     
     Args:
-        frame: Input frame (BGR, uint8 or float).
-        threshold: Gradient magnitude threshold for edge detection (0.0-1.0).
-        min_severity: Minimum ratio of affected pixels to flag as tearing.
-    
+        frame: Input frame as numpy array (H, W, C) or (H, W)
+        threshold: Gradient magnitude threshold for tear detection
+        
     Returns:
-        Tuple of (is_tearing, details_dict).
-        details_dict contains:
-            - 'severity': float (0.0 to 1.0)
-            - 'affected_rows': int
-            - 'total_rows': int
-            - 'locations': List of (row_idx, max_gradient)
+        Tuple of (has_tearing, list of row indices where tearing was detected)
     """
-    if frame is None or frame.size == 0:
-        return False, {'error': 'Empty frame'}
-    
-    # Normalize to float [0, 1] if needed
-    if frame.dtype == np.uint8:
-        img = frame.astype(np.float32) / 255.0
+    # Convert to grayscale if necessary
+    if len(frame.shape) == 3:
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     else:
-        img = frame.astype(np.float32)
+        gray = frame.copy()
+        
+    # Convert to float for gradient calculation
+    gray_float = gray.astype(np.float32)
     
-    # Convert to grayscale for gradient analysis
-    if len(img.shape) == 3:
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    else:
-        gray = img
+    # Calculate vertical gradient (difference between consecutive rows)
+    # This will highlight horizontal discontinuities (tearing)
+    vertical_diff = np.abs(np.diff(gray_float, axis=0))
     
-    # Compute horizontal gradient (Sobel X)
-    # Using Sobel to detect sharp horizontal discontinuities
-    grad_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
-    abs_grad_x = cv2.absgrad(grad_x)
+    # Find rows where the gradient magnitude exceeds the threshold
+    # We look for the maximum gradient in each column and then check if
+    # enough columns exceed the threshold at the same row
+    row_max_gradients = np.max(vertical_diff, axis=1)
     
-    # Normalize gradient
-    max_grad = np.max(abs_grad_x)
-    if max_grad == 0:
-        return False, {'severity': 0.0, 'affected_rows': 0, 'total_rows': gray.shape[0]}
+    # Identify rows with significant gradients
+    bad_rows = np.where(row_max_gradients > threshold)[0].tolist()
     
-    norm_grad = abs_grad_x / max_grad
+    # Filter for consecutive bad rows (tearing usually spans multiple lines)
+    if len(bad_rows) < MIN_TEAR_LINES:
+        return False, []
+        
+    # Group consecutive rows
+    tear_locations = []
+    if bad_rows:
+        current_group = [bad_rows[0]]
+        for i in range(1, len(bad_rows)):
+            if bad_rows[i] == bad_rows[i-1] + 1:
+                current_group.append(bad_rows[i])
+            else:
+                if len(current_group) >= MIN_TEAR_LINES:
+                    tear_locations.append(current_group)
+                current_group = [bad_rows[i]]
+        # Check the last group
+        if len(current_group) >= MIN_TEAR_LINES:
+            tear_locations.append(current_group)
     
-    # Identify rows with high gradients (potential tearing lines)
-    # Tearing typically appears as a sharp horizontal line
-    row_max_grads = np.max(norm_grad, axis=1)
+    # Flatten the list of tear locations
+    all_tear_rows = []
+    for group in tear_locations:
+        all_tear_rows.extend(group)
+        
+    has_tearing = len(all_tear_rows) > 0
+    return has_tearing, all_tear_rows
+
+def scan_video_for_artifacts(video_path: str, output_dir: Optional[str] = None) -> Dict:
+    """
+    Scan a video for tearing artifacts and generate a report.
     
-    # Find rows exceeding threshold
-    tearing_rows = np.where(row_max_grads > threshold)[0]
+    Args:
+        video_path: Path to the input video file
+        output_dir: Directory to save the artifact report (optional)
+        
+    Returns:
+        Dictionary containing:
+            - video_path: Path to the scanned video
+            - total_frames: Total number of frames
+            - frames_with_artifacts: Number of frames with tearing
+            - artifact_details: List of dictionaries with frame index and tear locations
+            - artifact_rate: Percentage of frames with artifacts
+    """
+    video_path = Path(video_path)
+    if not video_path.exists():
+        raise FileNotFoundError(f"Video file not found: {video_path}")
+        
+    logger.info(f"Scanning video for artifacts: {video_path}")
     
-    if len(tearing_rows) == 0:
-        return False, {
-            'severity': 0.0,
-            'affected_rows': 0,
-            'total_rows': gray.shape[0],
-            'locations': []
+    # Extract frames
+    frames = extract_frames(str(video_path))
+    total_frames = len(frames)
+    
+    if total_frames == 0:
+        logger.warning(f"No frames extracted from {video_path}")
+        return {
+            "video_path": str(video_path),
+            "total_frames": 0,
+            "frames_with_artifacts": 0,
+            "artifact_details": [],
+            "artifact_rate": 0.0
         }
     
-    # Calculate severity
-    severity = len(tearing_rows) / gray.shape[0]
+    artifact_details = []
+    frames_with_artifacts = 0
     
-    # Collect detailed locations
-    locations = []
-    for row_idx in tearing_rows:
-        max_val = float(row_max_grads[row_idx])
-        locations.append((int(row_idx), max_val))
-    
-    is_tearing = severity >= min_severity
-    
-    return is_tearing, {
-        'severity': float(severity),
-        'affected_rows': int(len(tearing_rows)),
-        'total_rows': int(gray.shape[0]),
-        'locations': locations
-    }
-
-
-def scan_video_for_artifacts(
-    video_path: str,
-    output_log_path: str,
-    threshold: float = 0.15,
-    min_severity: float = 0.25
-) -> Dict:
-    """
-    Scans a warped video file for tearing artifacts and logs results.
-    
-    Args:
-        video_path: Path to the input video file.
-        output_log_path: Path to the JSON log file for artifact details.
-        threshold: Gradient threshold for detection.
-        min_severity: Minimum severity to flag a frame as corrupted.
-    
-    Returns:
-        Dictionary with summary statistics.
-    """
-    if not os.path.exists(video_path):
-        logger.error(f"Video file not found: {video_path}")
-        return {'error': 'File not found', 'video_path': video_path}
-    
-    cap = cv2.VideoCapture(video_path)
-    if not cap.isOpened():
-        logger.error(f"Failed to open video: {video_path}")
-        return {'error': 'Failed to open video', 'video_path': video_path}
-    
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    
-    flagged_frames = []
-    all_details = []
-    
-    frame_idx = 0
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
+    for frame_idx, frame in enumerate(frames):
+        has_tearing, tear_rows = detect_tearing_artifacts(frame)
         
-        is_tearing, details = detect_tearing_artifacts(
-            frame, 
-            threshold=threshold, 
-            min_severity=min_severity
-        )
-        
-        details['frame_index'] = frame_idx
-        details['timestamp'] = frame_idx / fps if fps > 0 else 0
-        
-        if is_tearing:
-            flagged_frames.append(frame_idx)
-            logger.warning(
-                f"Teering detected at frame {frame_idx} "
-                f"(severity: {details['severity']:.2f})"
-            )
-        
-        all_details.append(details)
-        frame_idx += 1
+        if has_tearing:
+            frames_with_artifacts += 1
+            artifact_details.append({
+                "frame_index": frame_idx,
+                "tear_rows": tear_rows,
+                "num_tear_rows": len(tear_rows)
+            })
+            
+            # Log severe cases immediately
+            if len(tear_rows) > 20:  # Severe tearing
+                logger.warning(
+                    f"Severe tearing detected in {video_path.name} at frame {frame_idx}. "
+                    f"Detected {len(tear_rows)} corrupted rows. Flagging for manual review."
+                )
     
-    cap.release()
+    artifact_rate = (frames_with_artifacts / total_frames * 100) if total_frames > 0 else 0.0
     
-    # Prepare summary
-    summary = {
-        'video_path': video_path,
-        'total_frames': total_frames,
-        'flagged_frames_count': len(flagged_frames),
-        'flagged_frame_indices': flagged_frames,
-        'tearing_rate': len(flagged_frames) / total_frames if total_frames > 0 else 0.0,
-        'threshold_used': threshold,
-        'min_severity_used': min_severity
+    result = {
+        "video_path": str(video_path),
+        "total_frames": total_frames,
+        "frames_with_artifacts": frames_with_artifacts,
+        "artifact_details": artifact_details,
+        "artifact_rate": artifact_rate
     }
     
-    # Write detailed log
-    log_entry = {
-        'video_path': video_path,
-        'summary': summary,
-        'frame_details': all_details
-    }
+    # Save report if output directory specified
+    if output_dir:
+        output_path = Path(output_dir) / f"{video_path.stem}_artifacts.json"
+        import json
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+        logger.info(f"Artifact report saved to: {output_path}")
     
-    output_dir = os.path.dirname(output_log_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
-    
-    with open(output_log_path, 'w') as f:
-        json.dump(log_entry, f, indent=2)
-    
-    logger.info(f"Artifact scan complete. Logged to {output_log_path}")
-    return summary
-
+    return result
 
 def main():
-    """CLI entry point for artifact detection."""
+    """
+    Main entry point for artifact detection script.
+    Usage: python -m code.utils.artifact_detector --video <path> --output <dir>
+    """
     import argparse
-    import json
     
-    parser = argparse.ArgumentParser(
-        description="Detect and log pixel tearing artifacts in warped videos."
-    )
-    parser.add_argument(
-        '--input', '-i',
-        required=True,
-        help="Path to the input video file (warped/condition C)."
-    )
-    parser.add_argument(
-        '--output', '-o',
-        required=True,
-        help="Path to the output JSON log file."
-    )
-    parser.add_argument(
-        '--threshold', '-t',
-        type=float,
-        default=0.15,
-        help="Gradient threshold for tearing detection (default: 0.15)."
-    )
-    parser.add_argument(
-        '--min-severity', '-s',
-        type=float,
-        default=0.25,
-        help="Minimum severity ratio to flag frame (default: 0.25)."
-    )
+    parser = argparse.ArgumentParser(description="Detect tearing artifacts in videos")
+    parser.add_argument("--video", required=True, help="Path to input video")
+    parser.add_argument("--output", help="Output directory for artifact report")
+    parser.add_argument("--threshold", type=float, default=TEARING_THRESHOLD, 
+                      help="Gradient threshold for tear detection")
     
     args = parser.parse_args()
     
-    summary = scan_video_for_artifacts(
-        video_path=args.input,
-        output_log_path=args.output,
-        threshold=args.threshold,
-        min_severity=args.min_severity
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    if 'error' in summary:
-        print(f"Error: {summary['error']}")
-        sys.exit(1)
-    
-    print(f"Scan Complete:")
-    print(f"  Total Frames: {summary['total_frames']}")
-    print(f"  Flagged Frames: {summary['flagged_frames_count']}")
-    print(f"  Tearing Rate: {summary['tearing_rate']:.2%}")
-    print(f"  Log saved to: {args.output}")
-
+    try:
+        # Determine output directory
+        output_dir = args.output
+        if not output_dir:
+            # Default to results directory
+            config = get_config()
+            output_dir = str(get_results_dir())
+            
+        # Run detection
+        result = scan_video_for_artifacts(args.video, output_dir)
+        
+        # Print summary
+        print(f"\nArtifact Detection Summary for: {args.video}")
+        print(f"Total frames: {result['total_frames']}")
+        print(f"Frames with artifacts: {result['frames_with_artifacts']}")
+        print(f"Artifact rate: {result['artifact_rate']:.2f}%")
+        
+        if result['frames_with_artifacts'] > 0:
+            print("\n⚠️  WARNING: Tearing artifacts detected!")
+            print("These frames may have been corrupted by severe 3D drift.")
+            print("Manual review is recommended before including these in final analysis.")
+            
+            # Log severe cases
+            severe_cases = [
+                detail for detail in result['artifact_details']
+                if detail['num_tear_rows'] > 20
+            ]
+            if severe_cases:
+                print(f"\nSevere tearing detected in {len(severe_cases)} frame(s):")
+                for case in severe_cases:
+                    print(f"  - Frame {case['frame_index']}: {case['num_tear_rows']} corrupted rows")
+        
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Error during artifact detection: {str(e)}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

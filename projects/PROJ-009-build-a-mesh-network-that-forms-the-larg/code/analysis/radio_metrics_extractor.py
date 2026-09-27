@@ -1,15 +1,11 @@
 """
 Radio Metrics Extractor (T046a)
 
-Processes raw radio metrics from T048 (SNR/Bandwidth) and network stats from T014a
-(packet counts/loss) into a unified `radio_metrics_extracted.json`.
+Processes raw radio metrics from T048 (radio_metrics_collector.py) and network stats
+from T014a (instrumentor_remote.py) to produce a unified radio_metrics_extracted.json.
 
-This file is the required input for T032 (Theoretical Bound Validation) and T046c (Phase 6 Validation).
-
-Dependencies:
-- T048: Generates raw radio metrics (SNR, Bandwidth) per node.
-- T014a: Generates network stats (packet counts, loss) per node.
-- T013c: Generates dropout events (optional context).
+This file aggregates per-node SNR and bandwidth measurements, calculates averages,
+and writes the result to data/raw/radio_metrics_extracted.json.
 """
 
 import json
@@ -18,225 +14,217 @@ import os
 import glob
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime
 
-# Import logger from the project's orchestrator module
+# Import logger from existing orchestrator module
 from orchestrator.logger import get_logger
-
-# Constants for file paths (relative to project root)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
-OUTPUT_FILE = RAW_DATA_DIR / "radio_metrics_extracted.json"
-
-# Input patterns for raw data files
-# T048 typically outputs per-node JSON or a consolidated JSON. We assume a consolidated file
-# or a directory of per-node files. For robustness, we look for files matching specific patterns.
-RADIO_METRICS_PATTERN = "radio_metrics_*.json"
-NETWORK_STATS_PATTERN = "network_stats_*.json"
-INSTRUMENTATION_PATTERN = "instrumentation_*.json"
 
 logger = get_logger(__name__)
 
+# Output path as specified in tasks.md
+OUTPUT_PATH = Path("data/raw/radio_metrics_extracted.json")
 
 def load_json_file(file_path: Path) -> Optional[Dict[str, Any]]:
-    """Safely load a JSON file."""
+    """Load a JSON file and return its contents."""
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, 'r') as f:
             return json.load(f)
     except FileNotFoundError:
         logger.warning(f"File not found: {file_path}")
         return None
     except json.JSONDecodeError as e:
-        logger.error(f"JSON decode error in {file_path}: {e}")
+        logger.error(f"Invalid JSON in {file_path}: {e}")
         return None
 
-
-def find_latest_run_files(data_dir: Path, pattern: str) -> List[Path]:
+def find_latest_run_files(directory: Path, pattern: str) -> List[Path]:
     """
-    Find files matching a pattern in the data directory.
-    Returns a list of Path objects.
+    Find all files matching the pattern in the given directory.
+    Returns a list of Path objects sorted by modification time (newest first).
     """
-    if not data_dir.exists():
-        logger.error(f"Data directory does not exist: {data_dir}")
+    if not directory.exists():
+        logger.warning(f"Directory does not exist: {directory}")
         return []
-    
-    files = list(data_dir.glob(pattern))
-    if not files:
-        logger.warning(f"No files found matching pattern: {pattern} in {data_dir}")
-    return sorted(files)
 
+    files = list(directory.glob(pattern))
+    # Sort by modification time, newest first
+    files.sort(key=lambda p: p.stat().st_mtime, reverse=True)
+    return files
 
-def extract_radio_metrics_from_raw(raw_data: Dict[str, Any]) -> Tuple[Optional[float], Optional[float]]:
+def extract_radio_metrics_from_raw(raw_dir: Path) -> Dict[str, Any]:
     """
-    Extract SNR and Bandwidth from a raw radio metrics data structure.
-    Expected structure (based on T048):
+    Extract radio metrics from T048 output files.
+    Looks for radio_metrics_collector outputs (JSON format).
+
+    Expected input format (from T048):
     {
-        "node_id": "...",
-        "snr_db": float,
-        "bandwidth_Mbps": float,
-        ...
+        "run_id": "run_001",
+        "node_id": "node_192_168_1_10",
+        "snr_db": 25.5,
+        "bandwidth_Mbps": 100.2,
+        "timestamp": "..."
     }
     """
-    snr = raw_data.get("snr_db")
-    bandwidth = raw_data.get("bandwidth_Mbps")
-    return snr, bandwidth
-
-
-def extract_network_stats_from_raw(raw_data: Dict[str, Any]) -> Tuple[Optional[int], Optional[float]]:
-    """
-    Extract packet count and loss rate from a raw network stats data structure.
-    Expected structure (based on T014a):
-    {
-        "node_id": "...",
-        "packet_count": int,
-        "packet_loss_rate": float,
-        ...
-    }
-    """
-    packet_count = raw_data.get("packet_count")
-    loss_rate = raw_data.get("packet_loss_rate")
-    return packet_count, loss_rate
-
-
-def aggregate_metrics(raw_files: List[Path]) -> Dict[str, Any]:
-    """
-    Aggregate metrics from multiple raw data files into a unified structure.
+    radio_files = find_latest_run_files(raw_dir, "radio_metrics_*.json")
     
-    Returns:
-        Dict containing:
-        - run_id: Identifier for the run (derived from filename or timestamp)
-        - avg_snr_db: Average SNR across all nodes
-        - avg_bandwidth_Mbps: Average bandwidth across all nodes
-        - node_snr_map: Dict mapping node_id -> snr_db
-        - node_bandwidth_map: Dict mapping node_id -> bandwidth_Mbps
-        - node_packet_map: Dict mapping node_id -> packet_count
-        - node_loss_map: Dict mapping node_id -> packet_loss_rate
-    """
-    node_snr_map = {}
-    node_bandwidth_map = {}
-    node_packet_map = {}
-    node_loss_map = {}
-    node_count = 0
-    total_snr = 0.0
-    total_bandwidth = 0.0
-    snr_count = 0
-    bandwidth_count = 0
+    if not radio_files:
+        logger.warning("No radio metrics files found in raw directory")
+        return {}
 
-    run_id = None
-
-    for file_path in raw_files:
+    radio_data = {}
+    for file_path in radio_files:
         data = load_json_file(file_path)
-        if not data:
-            continue
+        if data and isinstance(data, dict):
+            node_id = data.get("node_id", "unknown")
+            run_id = data.get("run_id", "unknown")
+            
+            if node_id not in radio_data:
+                radio_data[node_id] = {
+                    "run_id": run_id,
+                    "snr_db": [],
+                    "bandwidth_Mbps": []
+                }
+            
+            # Collect measurements (allow multiple samples per node)
+            if "snr_db" in data and data["snr_db"] is not None:
+                radio_data[node_id]["snr_db"].append(data["snr_db"])
+            if "bandwidth_Mbps" in data and data["bandwidth_Mbps"] is not None:
+                radio_data[node_id]["bandwidth_Mbps"].append(data["bandwidth_Mbps"])
 
-        # Infer run_id from filename if not present in data
-        if run_id is None:
-            run_id = file_path.stem.replace("radio_metrics_", "").replace("network_stats_", "")
-            # If it's a generic name, use timestamp or a default
-            if not run_id:
-                run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return radio_data
 
-        node_id = data.get("node_id")
-        if not node_id:
-            logger.warning(f"Skipping file {file_path} due to missing node_id")
-            continue
+def extract_network_stats_from_raw(raw_dir: Path) -> Dict[str, Any]:
+    """
+    Extract network stats from T014a output files.
+    Looks for instrumentor_remote or data_collector outputs.
 
-        # Extract Radio Metrics (from T048)
-        if "snr_db" in data or "bandwidth_Mbps" in data:
-            snr, bw = extract_radio_metrics_from_raw(data)
-            if snr is not None:
-                node_snr_map[node_id] = snr
-                total_snr += snr
-                snr_count += 1
-            if bw is not None:
-                node_bandwidth_map[node_id] = bw
-                total_bandwidth += bw
-                bandwidth_count += 1
-
-        # Extract Network Stats (from T014a)
-        if "packet_count" in data or "packet_loss_rate" in data:
-            packet_count, loss_rate = extract_network_stats_from_raw(data)
-            if packet_count is not None:
-                node_packet_map[node_id] = packet_count
-            if loss_rate is not None:
-                node_loss_map[node_id] = loss_rate
-
-        node_count += 1
-
-    # Calculate averages
-    avg_snr = total_snr / snr_count if snr_count > 0 else None
-    avg_bandwidth = total_bandwidth / bandwidth_count if bandwidth_count > 0 else None
-
-    result = {
-        "run_id": run_id,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "node_count": node_count,
-        "avg_snr_db": avg_snr,
-        "avg_bandwidth_Mbps": avg_bandwidth,
-        "node_snr_map": node_snr_map,
-        "node_bandwidth_map": node_bandwidth_map,
-        "node_packet_map": node_packet_map,
-        "node_loss_map": node_loss_map,
-        "status": "complete" if node_count > 0 else "empty"
+    Expected input format (from T014a/T017):
+    {
+        "run_id": "run_001",
+        "node_id": "node_192_168_1_10",
+        "packet_count": 1500,
+        "cpu_utilization_pct": 45.2,
+        "packet_loss_rate": 0.02
     }
-
-    return result
-
-
-def main():
     """
-    Main entry point for the radio metrics extractor.
-    Reads raw data from data/raw/, aggregates it, and writes to data/raw/radio_metrics_extracted.json.
-    """
-    logger.info("Starting Radio Metrics Extraction (T046a)")
-
-    # Ensure the output directory exists
-    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Find raw files
-    # We look for files generated by T048 (radio_metrics_*.json) and T014a (network_stats_*.json or instrumentation_*.json)
-    # Since T048 and T014a might write to the same directory, we aggregate all relevant files.
+    # Look for data collector output or instrumentor output
+    network_files = find_latest_run_files(raw_dir, "data_collected_*.json")
+    if not network_files:
+        # Try alternative pattern
+        network_files = find_latest_run_files(raw_dir, "*network*.json")
     
-    radio_files = find_latest_run_files(RAW_DATA_DIR, RADIO_METRICS_PATTERN)
-    network_files = find_latest_run_files(RAW_DATA_DIR, NETWORK_STATS_PATTERN)
-    instrument_files = find_latest_run_files(RAW_DATA_DIR, INSTRUMENTATION_PATTERN)
+    if not network_files:
+        logger.warning("No network stats files found in raw directory")
+        return {}
 
-    all_files = list(set(radio_files + network_files + instrument_files))
+    network_data = {}
+    for file_path in network_files:
+        data = load_json_file(file_path)
+        if data and isinstance(data, dict):
+            node_id = data.get("node_id", "unknown")
+            run_id = data.get("run_id", "unknown")
+            
+            if node_id not in network_data:
+                network_data[node_id] = {
+                    "run_id": run_id,
+                    "packet_loss_rate": []
+                }
+            
+            if "packet_loss_rate" in data:
+                network_data[node_id]["packet_loss_rate"].append(data["packet_loss_rate"])
 
-    if not all_files:
-        logger.error("No raw radio or network metric files found. T048 and T014a must run first.")
-        # Create an empty result to indicate failure state
-        result = {
-            "run_id": "failed",
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "node_count": 0,
+    return network_data
+
+def aggregate_metrics(radio_data: Dict[str, Any], network_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Aggregate per-node metrics into summary statistics.
+    Calculates average SNR and bandwidth for the mesh.
+    """
+    if not radio_data:
+        logger.warning("No radio data to aggregate")
+        return {
+            "run_id": "unknown",
             "avg_snr_db": None,
             "avg_bandwidth_Mbps": None,
             "node_snr_map": {},
-            "node_bandwidth_map": {},
-            "node_packet_map": {},
-            "node_loss_map": {},
-            "status": "failed_no_data",
-            "error": "No raw data files found. Ensure T048 and T014a have executed."
+            "node_bandwidth_map": {}
         }
-        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-            json.dump(result, f, indent=2)
-        return
 
-    logger.info(f"Found {len(all_files)} raw files to process.")
+    # Use the run_id from the first available data point
+    run_id = list(radio_data.values())[0].get("run_id", "unknown")
 
-    # Aggregate
-    aggregated = aggregate_metrics(all_files)
+    node_snr_map = {}
+    node_bandwidth_map = {}
+    all_snr_values = []
+    all_bandwidth_values = []
+
+    for node_id, metrics in radio_data.items():
+        snr_values = metrics.get("snr_db", [])
+        bandwidth_values = metrics.get("bandwidth_Mbps", [])
+
+        # Calculate average for this node
+        if snr_values:
+            avg_snr = sum(snr_values) / len(snr_values)
+            node_snr_map[node_id] = avg_snr
+            all_snr_values.extend(snr_values)
+        else:
+            node_snr_map[node_id] = None
+
+        if bandwidth_values:
+            avg_bandwidth = sum(bandwidth_values) / len(bandwidth_values)
+            node_bandwidth_map[node_id] = avg_bandwidth
+            all_bandwidth_values.extend(bandwidth_values)
+        else:
+            node_bandwidth_map[node_id] = None
+
+    # Calculate mesh-wide averages
+    avg_snr_db = sum(all_snr_values) / len(all_snr_values) if all_snr_values else None
+    avg_bandwidth_Mbps = sum(all_bandwidth_values) / len(all_bandwidth_values) if all_bandwidth_values else None
+
+    return {
+        "run_id": run_id,
+        "avg_snr_db": avg_snr_db,
+        "avg_bandwidth_Mbps": avg_bandwidth_Mbps,
+        "node_snr_map": node_snr_map,
+        "node_bandwidth_map": node_bandwidth_map
+    }
+
+def main():
+    """
+    Main entry point for radio metrics extraction.
+    Reads raw data from data/raw/, processes it, and writes to data/raw/radio_metrics_extracted.json.
+    """
+    logger.info("Starting radio metrics extraction (T046a)")
+
+    # Define input directory
+    raw_dir = Path("data/raw")
+    
+    if not raw_dir.exists():
+        logger.error("Raw data directory does not exist: data/raw")
+        raise FileNotFoundError("Raw data directory does not exist: data/raw")
+
+    # Extract metrics from raw files
+    radio_data = extract_radio_metrics_from_raw(raw_dir)
+    network_data = extract_network_stats_from_raw(raw_dir)
+
+    # Log summary
+    logger.info(f"Found {len(radio_data)} nodes with radio metrics")
+    logger.info(f"Found {len(network_data)} nodes with network stats")
+
+    # Aggregate metrics
+    aggregated = aggregate_metrics(radio_data, network_data)
+
+    # Ensure output directory exists
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     # Write output
-    try:
-        with open(OUTPUT_FILE, 'w', encoding='utf-8') as f:
-            json.dump(aggregated, f, indent=2)
-        logger.info(f"Successfully wrote aggregated radio metrics to {OUTPUT_FILE}")
-    except IOError as e:
-        logger.error(f"Failed to write output file: {e}")
-        raise
+    with open(OUTPUT_PATH, 'w') as f:
+        json.dump(aggregated, f, indent=2)
 
+    logger.info(f"Radio metrics extracted and saved to {OUTPUT_PATH}")
+    logger.info(f"  - run_id: {aggregated['run_id']}")
+    logger.info(f"  - avg_snr_db: {aggregated['avg_snr_db']}")
+    logger.info(f"  - avg_bandwidth_Mbps: {aggregated['avg_bandwidth_Mbps']}")
+
+    return aggregated
 
 if __name__ == "__main__":
     main()

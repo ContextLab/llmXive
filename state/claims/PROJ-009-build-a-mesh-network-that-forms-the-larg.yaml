@@ -444,3 +444,157 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-13T11:14:45Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: NetworkSaturationException raised if packet loss exceeds 20 percent
+  claim_id: c_209fe668
+  context: 'Network Saturation Detection: Implement check_network_saturation() that
+    computes packet loss using ip -s link show <interface> (parse the RX and TX drop/err
+    fields). If loss >20 % raise NetworkSaturationException (sent to T014b).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If loss >20 % raise NetworkSaturationException
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:12:01Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'Calibration convergence stop condition: relative change less than 1e-4
+    for five consecutive checks or 1000 iterations'
+  claim_id: c_67a3bc94
+  context: 'Logic: Maintain a deque of the last several MSE values. After each iteration
+    compute relative_change = abs(current - value_5_steps_ago) / value_5_steps_ago.
+    For the first iterations, skip the relative change check. Stop when relative_change
+    < 1e-4 for five consecutive checks or after max_iterations = 1000.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Calibration_convergence_stop_condition:_relative_change_less
+  kind: magnitude
+  raw_text: stop when relative_change < 1e-4 for five consecutive checks or after
+    max_iterations = 1000
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:12:30Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Validation tolerance set to 0.05 times the mean physical throughput
+  claim_id: c_447f3ad1
+  context: "Tolerance: If abs(simulated - physical) > tolerance (tolerance = 0.05\
+    \ \xD7 mean physical), raise ValidationFailure."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "tolerance = 0.05 \xD7 mean physical"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:12:56Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Adaptive chunking minimum size is 1 MB
+  claim_id: c_051f38db
+  context: 'Adaptive Chunking Algorithm: Configuration: Load base_chunk_size and min_chunk_size
+    from config/sweep_config.yaml. If available_ram < chunk_size, recursively halve
+    the chunk until it fits (minimum 1 MB).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: minimum 1 MB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:13:20Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Black formatter line length set to 88
+  claim_id: c_a6f1b91b
+  context: 'Configure linting (ruff/flake8) and formatting (black) tools: Create pyproject.toml
+    with ruff rules (E, W, F, I) and black line-length=88.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: black line-length=88
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:13:45Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: SSH connection timeout set to 5 seconds
+  claim_id: c_d397e4c4
+  context: 'Timeout Definition: Use ssh -o ConnectTimeout=5 to determine status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ssh -o ConnectTimeout=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:14:12Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: Process termination retry limit is 3 times with 1 second delay
+  claim_id: c_843f710c
+  context: "Verify Termination: Poll the remote process list (e.g. ps -p <pid>) to\
+    \ confirm termination, retry up to 3 times with a 1\u2011second delay."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "retry up to 3 times with a 1\u2011second delay"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:14:32Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: 'Heterogeneity score formula: cpu_speed_mhz divided by max_latency_ms
+    multiplied by (1 minus packet_loss_rate)'
+  claim_id: c_b1d68846
+  context: 'Calculate a heterogeneity score for each available node: score = (cpu_speed_mhz
+    / max_latency_ms) * (1 - packet_loss_rate).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: score = (cpu_speed_mhz / max_latency_ms) * (1 - packet_loss_rate)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:14:48Z'
+- artifact_path: projects/PROJ-009-build-a-mesh-network-that-forms-the-larg/specs/001-build-a-mesh-network-that-forms-the-larg/tasks.md
+  attempts: 1
+  canonical: CPU speed measured via lscpu on Linux or sysctl on macOS
+  claim_id: c_a1d933df
+  context: 'Execution: Run ''lscpu | grep CPU MHz'' (or ''sysctl -n hw.cpufrequency''
+    on macOS) to obtain cpu_speed_mhz.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CPU_speed_measured_via_lscpu_on_Linux_or_sysctl_on_macOS
+  kind: entity_fact
+  raw_text: run 'lscpu | grep CPU MHz' (or 'sysctl -n hw.cpufrequency' on macOS)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:15:06Z'

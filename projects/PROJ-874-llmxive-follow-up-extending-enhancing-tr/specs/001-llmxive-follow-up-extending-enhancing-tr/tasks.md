@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/` directory structure: `code/`, `data/`, `tests/`, `docs/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T001a [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/` directory structure: `code/`, `data/`, `tests/`, `docs/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T001b [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/data/raw/`, `data/processed/`, `data/results/` directories
 - [X] T001c [US0] Create `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/tests/contract/`, `tests/integration/`, `tests/unit/` directories
 
@@ -102,7 +102,7 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for flow field schema in `tests/contract/test_flow_schema.py`
-- [ ] T019 [P] [US2] Integration test for flow correction pipeline in `tests/integration/test_flow_correction.py`
+- [X] T019 [P] [US2] Integration test for flow correction pipeline in `tests/integration/test_flow_correction.py`
 
 ### Implementation for User Story 2
 
@@ -125,7 +125,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T037 [P] [US3] Contract test for metrics schema in `tests/contract/test_metrics_schema.py` (Renamed from T024 to resolve ID collision)
+- [X] T037 [P] [US3] Contract test for metrics schema in `tests/contract/test_metrics_schema.py` (Renamed from T024 to resolve ID collision)
 - [X] T025 [P] [US3] Integration test for statistical analysis in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 3
@@ -134,7 +134,7 @@
 - [X] T027 [US3] Implement `code/analyze.py` to perform Shapiro-Wilk test for normality on metric differences. **Note: Correct interpretation is p < 0.05 implies non-normality (reject null).** (FR-006)
 - [ ] T028 [US3] Implement adaptive statistical testing: Wilcoxon signed-rank if normality rejected (p<0.05), else paired t-test. **Note: Correct interpretation is p < 0.05 implies non-normality, triggering Wilcoxon.** (FR-006)
 - [ ] T029 [US3] Implement failure case identification logic: flag videos where object permanence drops ≥5% or VBench score drops ≥0.1 compared to naive baseline. **Output must be written to `results/failure_cases.json`. MUST log explicit note that these are 2D perceptual proxies and do not guarantee 3D geometric correctness** (FR-007)
-- [~] T030 [US3] Generate CSV report containing all metrics and a final statistical summary with p-values. **Must consume output of T030a. CSV columns MUST include: 'video_id', 'condition', 'vbench_score', 'fvd', 'object_permanence', 'p_value', 'test_type', 'power_sufficient' (boolean).** (SC-006)
+- [ ] T030 [US3] Generate CSV report containing all metrics and a final statistical summary with p-values. **Must consume output of T030a. CSV columns MUST include: 'video_id', 'condition', 'vbench_score', 'fvd', 'object_permanence', 'p_value', 'test_type', 'power_sufficient' (boolean).** (SC-006)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,12 +144,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T032a [P] [US0] Update `quickstart.md` with new CLI flags and dataset requirements
+- [ ] T032a [P] [US0] Update `quickstart.md` with new CLI flags and dataset requirements
 - [X] T032b [P] [US0] Generate `docs/paper/methodology.md` draft based on implementation
-- [~] T033 [P] [US0] Code cleanup and refactoring to ensure memory footprint < 6GB peak. **Verify by running `code/generate.py --profile-memory` and logging peak RSS to `results/memory_profile.log`**
-- [~] T034a [P] [US0] Measure and log RAFT-Small inference time per frame on CPU. **No optimization required; only measurement against CI limits (SC-005)**
-- [~] T035 [P] [US0] Additional unit tests for metric calculation logic in `tests/unit/`
-- [~] T036 [P] [US0] Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T033 [P] [US0] Code cleanup and refactoring to ensure memory footprint < 6GB peak. **Verify by running `code/generate.py --profile-memory` and logging peak RSS to `results/memory_profile.log`**
+- [ ] T034a [P] [US0] Measure and log RAFT-Small inference time per frame on CPU. **No optimization required; only measurement against CI limits (SC-005)**
+- [ ] T035 [P] [US0] Additional unit tests for metric calculation logic in `tests/unit/`
+- [ ] T036 [P] [US0] Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 

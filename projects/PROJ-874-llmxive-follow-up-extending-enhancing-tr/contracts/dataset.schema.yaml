@@ -1,81 +1,124 @@
-%YAML 1.2
----
 $schema: http://json-schema.org/draft-07/schema#
 title: LlmXive Dataset Schema
-description: >
-  Schema defining the structure and constraints for the NarrLV and VBench datasets
-  used in the llmXive pipeline.
+description: |
+  Schema defining the structure and validation rules for dataset files
+  used in the LlmXive video generation pipeline.
 type: object
 required:
   - dataset_name
   - version
   - source
-  - samples
+  - files
+  - checksums
+  - metadata
 properties:
   dataset_name:
     type: string
-    description: Name of the dataset (e.g., "NarrLV", "VBench")
-    enum:
-      - NarrLV
-      - VBench
+    description: "Name of the dataset (e.g., 'NarrLV', 'VBench')"
+    pattern: "^[A-Za-z0-9_-]+$"
   version:
     type: string
-    description: Semantic version of the dataset
-    pattern: '^\d+\.\d+\.\d+$'
+    description: "Semantic version of the dataset"
+    pattern: "^[0-9]+\\.[0-9]+\\.[0-9]+$"
   source:
     type: string
-    description: Source identifier (HuggingFace ID or URL)
-  download_status:
-    type: string
-    description: Status of the dataset download
-    enum:
-      - pending
-      - downloading
-      - verified
-      - failed
-      - missing
-  checksum:
-    type: string
-    description: SHA-256 checksum of the downloaded archive
-    pattern: '^[a-f0-9]{64}$'
-  samples:
+    description: "URL or identifier of the data source (e.g., HuggingFace dataset ID)"
+    minLength: 1
+  files:
     type: array
-    description: List of sample entries in the dataset
+    description: "List of required files in the dataset"
     minItems: 1
     items:
       type: object
       required:
-        - sample_id
-        - video_path
-        - prompt
-        - metadata
+        - path
+        - type
+        - size_bytes
       properties:
-        sample_id:
+        path:
           type: string
-          description: Unique identifier for the sample
-        video_path:
+          description: "Relative path to the file within the dataset"
+        type:
           type: string
-          description: Relative path to the video file
-          pattern: '^data/raw/.+\.mp4$'
-        prompt:
+          enum:
+            - video
+            - audio
+            - text
+            - metadata
+            - index
+          description: "Type of the file"
+        size_bytes:
+          type: integer
+          minimum: 0
+          description: "File size in bytes"
+        frame_count:
+          type: integer
+          minimum: 0
+          description: "Number of frames (only for video files)"
+        duration_seconds:
+          type: number
+          minimum: 0
+          description: "Duration in seconds (only for video files)"
+  checksums:
+    type: object
+    description: "SHA-256 checksums for each file to ensure integrity"
+    additionalProperties:
+      type: string
+      pattern: "^[a-f0-9]{64}$"
+      description: "SHA-256 hash of the file"
+  metadata:
+    type: object
+    description: "Additional dataset metadata"
+    properties:
+      total_videos:
+        type: integer
+        minimum: 0
+      total_frames:
+        type: integer
+        minimum: 0
+      average_duration:
+        type: number
+        minimum: 0
+      resolution:
+        type: object
+        properties:
+          width:
+            type: integer
+            minimum: 1
+          height:
+            type: integer
+            minimum: 1
+      fps:
+        type: number
+        minimum: 0
+      tags:
+        type: array
+        items:
           type: string
-          description: Text prompt associated with the video
-        metadata:
-          type: object
-          description: Additional metadata for the sample
-          properties:
-            duration_seconds:
-              type: number
-              minimum: 0
-            resolution:
-              type: string
-              description: Video resolution (e.g., "1920x1080")
-              pattern: '^\d+x\d+$'
-            fps:
-              type: integer
-              minimum: 1
-            frame_count:
-              type: integer
-              minimum: 1
-          additionalProperties: true
+      license:
+        type: string
+      download_date:
+        type: string
+        format: date-time
+  download_info:
+    type: object
+    description: "Information about the download process"
+    properties:
+      downloaded_at:
+        type: string
+        format: date-time
+      download_method:
+        type: string
+        enum:
+          - huggingface
+          - wget
+          - manual
+      status:
+        type: string
+        enum:
+          - complete
+          - partial
+          - failed
+      error_message:
+        type: string
 additionalProperties: false

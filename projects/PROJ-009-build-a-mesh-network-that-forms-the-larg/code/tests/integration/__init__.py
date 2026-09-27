@@ -1,3 +1,2 @@
-"""
-Integration tests.
-"""
+# Integration tests
+# Tests for interactions between modules

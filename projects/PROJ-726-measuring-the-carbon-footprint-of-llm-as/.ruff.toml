@@ -1,0 +1,43 @@
+# Exclude a few common directories
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+]
+
+# Same as Black
+line-length = 88
+
+# Assume Python 3.11
+target-version = "py311"
+
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.per-file-ignores]
+# Ignore specific rules for specific files if needed
+"__init__.py" = ["F401"]
+
+[lint.isort]
+force-single-line = false
+lines-after-imports = 2
+known-first-party = []
+known-third-party = []
+
+[lint.pydocstyle]
+convention = "google"

@@ -1,3 +1,2 @@
-"""
-Test suite root.
-"""
+# Tests module
+# Contains all test suites

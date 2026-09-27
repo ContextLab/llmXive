@@ -2,33 +2,33 @@
 
 ### Phenomenon-vs-method check
 
-**Verdict**: fail
+**Verdict**: concern
 
-The question is framed as a resource-constrained engineering benchmark ("lightweight," "CPU-tractable," "7GB RAM," "2 CPU cores") rather than a substantive inquiry into the nature of spatial generalization. The core scientific question—whether targeted failure-case curation is sufficient to close generalization gaps—is buried under specific hardware constraints and architecture choices that make the answer dependent on implementation details rather than domain phenomena.
+The question asks whether a specific training strategy (adapter on failure modes) yields robust generalization, which is a substantive scientific question about data efficiency and curriculum learning in spatial intelligence. However, it is heavily fixated on the implementation constraint of "parameter-efficient adapter" and the specific mechanism of "contrastive loss on failure modes," which risks narrowing the inquiry to a specific engineering recipe rather than the broader phenomenon of how failure-case curation drives generalization. The core scientific question is valid, but the framing leans too heavily on the specific method (adapter) rather than the principle of targeted curation.
 
 ### Circularity check
 
 **Verdict**: pass
 
-The predictor (model performance on failure cases) is derived from the training signal (the adapter weights updated on those specific cases), while the predicted variable (performance on the full test suite) is an independent evaluation on held-out data. Although the training data is a subset of the benchmark, the evaluation on the full suite and generalization to unseen tasks ensures the predictor and outcome are not mechanically identical summaries of the same single signal.
+The predictor (the model's performance after training on failure modes) and the predicted variable (generalization on unseen tasks from the same benchmark suite) rely on distinct data sources: the training data is a curated subset of the original benchmark's failure cases, while the evaluation data is the held-out "unseen" portion of the test suite. Since the evaluation tasks are explicitly defined as "unseen" and distinct from the training subset, the relationship is not mechanically guaranteed by construction.
 
 ### Triviality check
 
-**Verdict**: concern
+**Verdict**: pass
 
-There is a risk that the result is predetermined by the definition of "failure cases." If the adapter is trained *exclusively* on the errors, it is trivially expected to improve on those specific errors (overfitting to the test set's failure modes), making the "positive" result uninformative regarding generalization. Conversely, if it fails to generalize, the null result is also expected given the lack of diverse data. The question needs to ensure the evaluation distinguishes between memorizing the failure cases and learning the underlying spatial principles.
+A positive result (failure-case training achieves parity with full fine-tuning) would be highly informative, suggesting that data quality (targeting errors) can substitute for data quantity in spatial reasoning. Conversely, a null result (failure-case training fails to generalize) would also be publishable, as it would indicate that spatial robustness requires broad exposure to diverse scenarios rather than just correcting specific errors. Neither outcome is predetermined by current domain knowledge.
 
 ### Question-narrowing check
 
-**Verdict**: fail
+**Verdict**: concern
 
-The question explicitly names implementation constraints (CPU, 2 cores, 7GB RAM, 546 scenes) as the defining feature of the inquiry. A valid domain question would ask "Does failure-case curation improve spatial generalization?" without the "CPU-tractable" qualifier, which is a deployment constraint, not a scientific mechanism. The current framing asks "Can we do this on a laptop?" rather than "Does this method work?"
+The question names a relationship (failure-case training → generalization) but immediately constrains it with specific implementation details ("parameter-efficient adapter," "contrastive loss," "CPU feasibility") that are not central to the scientific phenomenon. A more robust domain question would ask "Does targeted curation of failure cases improve generalization in spatial foundation models?" without binding the answer to a specific architecture or hardware constraint, which are better suited for the methodology section.
 
 ### Overall verdict
 
 **Verdict**: validator_revise
 
 [REVISED]
-Does training a parameter-efficient adapter exclusively on the identified failure modes of spatial foundation models yield robust generalization on unseen embodied and egocentric tasks comparable to full-scale fine-tuning?
+Does training exclusively on identified failure modes of spatial foundation models yield robust generalization on unseen embodied and egocentric tasks comparable to training on a random subset of equivalent size?
 [/REVISED]
-The reframing removes the specific hardware constraints (CPU, RAM limits) and architectural specifics (10M parameters) that narrow the question to an engineering feasibility test, focusing instead on the scientific relationship between targeted failure-case curation and generalization capability. The resource efficiency can be a secondary metric or a constraint for the *methodology* section, but should not define the *research question* itself.
+The reframing removes the specific architectural constraints (adapter, contrastive loss, CPU) and the "parameter-efficient" label, focusing instead on the core scientific hypothesis: whether the *content* of the training data (failure modes vs. random) drives generalization better than quantity alone, allowing the methodology to remain flexible.

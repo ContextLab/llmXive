@@ -1,9 +1,17 @@
-transformers==4.40.0
-codecarbon==2.7.0
-datasets==2.19.0
-scikit-learn==1.4.2
+# Core dependencies
+transformers==4.44.0
+torch==2.3.1
+codecarbon==2.7.1
+datasets==2.20.0
+scikit-learn==1.5.1
 pandas==2.2.2
-matplotlib==3.8.4
+matplotlib==3.9.1
 seaborn==0.13.2
-ruff==0.4.4
-black==24.4.2
+
+# Testing
+pytest==8.3.2
+pytest-mock==3.14.0
+
+# Linting & Formatting
+ruff==0.5.7
+black==24.8.0

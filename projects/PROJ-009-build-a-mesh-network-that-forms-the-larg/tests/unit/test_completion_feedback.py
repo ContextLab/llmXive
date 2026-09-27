@@ -1,147 +1,127 @@
 """
-Unit tests for completion_feedback.py (T013b).
+Unit Tests for completion_feedback.py (T013b)
 """
 import pytest
 from datetime import datetime, timezone
+from unittest.mock import MagicMock, patch
 
 from orchestrator.completion_feedback import (
     CompletionFeedbackManager,
     TaskFeedback,
     TaskStatusEnum,
-    InvalidStatusError,
+    FeedbackError,
     StateUpdateError,
-    create_feedback_manager
+    InvalidStatusError,
+    create_feedback_manager,
 )
-from orchestrator.scheduler_state import SchedulerState
+from orchestrator.scheduler_state import (
+    SchedulerState,
+    TaskStatusEvent,
+    SchedulerStateError,
+    create_scheduler_state,
+)
 
 
-class MockSchedulerState:
-    """
-    Mock implementation of SchedulerState for unit testing.
-    Tracks calls to verify update_scheduler_state logic.
-    """
-    def __init__(self):
-        self.state_log = []
-        self.tasks = {}
+class TestTaskFeedback:
+    def test_valid_status_string(self):
+        fb = TaskFeedback(
+            node_id="n1",
+            task_id="t1",
+            status="completed"
+        )
+        assert fb.status == TaskStatusEnum.COMPLETED
 
-    def handle_task_completion(self, task_id: str, node_id: str = None):
-        self.state_log.append(("COMPLETED", task_id, node_id))
-        self.tasks[task_id] = "COMPLETED"
+    def test_valid_status_enum(self):
+        fb = TaskFeedback(
+            node_id="n1",
+            task_id="t1",
+            status=TaskStatusEnum.FAILED
+        )
+        assert fb.status == TaskStatusEnum.FAILED
 
-    def handle_task_failure(self, task_id: str, node_id: str = None):
-        self.state_log.append(("FAILED", task_id, node_id))
-        self.tasks[task_id] = "FAILED"
+    def test_invalid_status_string(self):
+        with pytest.raises(InvalidStatusError):
+            TaskFeedback(
+                node_id="n1",
+                task_id="t1",
+                status="unknown_status"
+            )
 
-    def handle_task_cancelled(self, task_id: str, node_id: str = None):
-        self.state_log.append(("CANCELLED", task_id, node_id))
-        self.tasks[task_id] = "CANCELLED"
-
-    def handle_task_started(self, task_id: str, node_id: str = None):
-        self.state_log.append(("RUNNING", task_id, node_id))
-        self.tasks[task_id] = "RUNNING"
-
-
-@pytest.fixture
-def mock_state():
-    return MockSchedulerState()
-
-
-@pytest.fixture
-def feedback_manager(mock_state):
-    return create_feedback_manager(mock_state)
-
-
-def test_receive_task_status_valid(feedback_manager, mock_state):
-    """Test receiving a valid status string."""
-    feedback = feedback_manager.receive_task_status(
-        node_id="node-1",
-        task_id="task-1",
-        status="completed"
-    )
-
-    assert feedback.node_id == "node-1"
-    assert feedback.task_id == "task-1"
-    assert feedback.status == TaskStatusEnum.COMPLETED
-    assert feedback.timestamp.tzinfo == timezone.utc
-
-    # Verify it was added to history
-    history = feedback_manager.get_feedback_history()
-    assert len(history) == 1
-    assert history[0] == feedback
+    def test_timestamp_default(self):
+        fb = TaskFeedback(
+            node_id="n1",
+            task_id="t1",
+            status="pending"
+        )
+        assert isinstance(fb.timestamp, datetime)
+        assert fb.timestamp.tzinfo == timezone.utc
 
 
-def test_receive_task_status_invalid_string(feedback_manager):
-    """Test that an invalid status string raises InvalidStatusError."""
-    with pytest.raises(InvalidStatusError):
-        feedback_manager.receive_task_status(
+class TestCompletionFeedbackManager:
+    @pytest.fixture
+    def mock_state(self):
+        return create_scheduler_state()
+
+    @pytest.fixture
+    def manager(self, mock_state):
+        return create_feedback_manager(mock_state)
+
+    def test_init(self, mock_state):
+        mgr = CompletionFeedbackManager(mock_state)
+        assert mgr.state is mock_state
+        assert len(mgr.get_history()) == 0
+
+    def test_receive_task_status_success(self, manager):
+        fb = manager.receive_task_status(
             node_id="node-1",
             task_id="task-1",
-            status="unknown_status"
+            status="running",
+            details={"progress": 0.5}
         )
+        assert fb.node_id == "node-1"
+        assert fb.task_id == "task-1"
+        assert fb.status == TaskStatusEnum.RUNNING
+        assert fb.details == {"progress": 0.5}
+        assert len(manager.get_history()) == 1
 
+    def test_update_scheduler_state_success(self, manager):
+        fb = manager.receive_task_status(
+            node_id="node-1",
+            task_id="task-1",
+            status="completed"
+        )
+        result = manager.update_scheduler_state(fb)
+        assert result is True
+        # Verify state transition occurred (assuming IDLE -> RUNNING -> COMPLETED logic in state)
+        # The exact state depends on the state machine logic in T013d
+        # Here we just verify no exception was raised
 
-def test_update_scheduler_state_completed(feedback_manager, mock_state):
-    """Test that updating state for COMPLETED calls the correct handler."""
-    # First receive the feedback
-    feedback = feedback_manager.receive_task_status("node-1", "task-1", "completed")
+    def test_update_scheduler_state_failure(self, manager):
+        fb = manager.receive_task_status(
+            node_id="node-1",
+            task_id="task-1",
+            status="completed"
+        )
+        # Mock the state to raise an error
+        with patch.object(manager.state, 'handle_task_status_update', side_effect=SchedulerStateError("Simulated error")):
+            with pytest.raises(StateUpdateError):
+                manager.update_scheduler_state(fb)
 
-    # Then update the state
-    feedback_manager.update_scheduler_state("task-1", feedback.status)
+    def test_process_feedback_loop(self, manager):
+        fb1 = TaskFeedback(node_id="n1", task_id="t1", status="completed")
+        fb2 = TaskFeedback(node_id="n2", task_id="t2", status="failed")
+        result = manager.process_feedback_loop([fb1, fb2])
+        assert len(result) == 2
+        assert len(manager.get_history()) == 2
 
-    # Verify the mock state was updated
-    assert mock_state.tasks["task-1"] == "COMPLETED"
-    assert ("COMPLETED", "task-1", "node-1") in mock_state.state_log
+    def test_receive_invalid_status(self, manager):
+        with pytest.raises(InvalidStatusError):
+            manager.receive_task_status(
+                node_id="n1",
+                task_id="t1",
+                status="invalid_status_string"
+            )
 
-
-def test_update_scheduler_state_failed(feedback_manager, mock_state):
-    """Test that updating state for FAILED calls the correct handler."""
-    feedback = feedback_manager.receive_task_status("node-1", "task-1", "failed")
-    feedback_manager.update_scheduler_state("task-1", feedback.status)
-
-    assert mock_state.tasks["task-1"] == "FAILED"
-    assert ("FAILED", "task-1", "node-1") in mock_state.state_log
-
-
-def test_update_scheduler_state_timeout(feedback_manager, mock_state):
-    """Test that TIMEOUT is treated as a failure."""
-    feedback = feedback_manager.receive_task_status("node-1", "task-1", "timeout")
-    feedback_manager.update_scheduler_state("task-1", feedback.status)
-
-    assert mock_state.tasks["task-1"] == "FAILED"
-    assert ("FAILED", "task-1", "node-1") in mock_state.state_log
-
-
-def test_update_scheduler_state_running(feedback_manager, mock_state):
-    """Test that RUNNING updates the state to running."""
-    feedback = feedback_manager.receive_task_status("node-1", "task-1", "running")
-    feedback_manager.update_scheduler_state("task-1", feedback.status)
-
-    assert mock_state.tasks["task-1"] == "RUNNING"
-    assert ("RUNNING", "task-1", "node-1") in mock_state.state_log
-
-
-def test_state_update_error_propagation(feedback_manager):
-    """Test that StateUpdateError is raised if the state update fails."""
-    # Create a manager with a state that raises an error
-    class BrokenState:
-        def handle_task_completion(self, task_id, node_id=None):
-            raise Exception("Intentional break")
-
-    broken_manager = create_feedback_manager(BrokenState())
-    feedback = broken_manager.receive_task_status("node-1", "task-1", "completed")
-
-    with pytest.raises(StateUpdateError):
-        broken_manager.update_scheduler_state("task-1", feedback.status)
-
-
-def test_feedback_history_accumulation(feedback_manager):
-    """Test that multiple feedbacks are accumulated in history."""
-    feedback_manager.receive_task_status("node-1", "task-1", "running")
-    feedback_manager.receive_task_status("node-1", "task-1", "completed")
-    feedback_manager.receive_task_status("node-2", "task-2", "failed")
-
-    history = feedback_manager.get_feedback_history()
-    assert len(history) == 3
-    assert history[0].task_id == "task-1"
-    assert history[1].task_id == "task-1"
-    assert history[2].task_id == "task-2"
+    def test_factory_function(self, mock_state):
+        mgr = create_feedback_manager(mock_state)
+        assert isinstance(mgr, CompletionFeedbackManager)

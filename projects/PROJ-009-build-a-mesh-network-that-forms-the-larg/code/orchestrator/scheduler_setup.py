@@ -1,15 +1,3 @@
-"""
-Scheduler Setup Module for Mesh Network Supercomputer.
-
-This module configures the scheduler logic by loading chunk sizes,
-node lists, and timeout settings from the project configuration.
-It acts as the initialization layer before execution (T015b) begins.
-
-Dependencies:
-- T013a (node_manager): For node list structure compatibility.
-- T013b (completion_feedback): For feedback manager initialization.
-- T009 (timeout_guard): For timeout enforcement configuration.
-"""
 from __future__ import annotations
 
 import logging
@@ -18,179 +6,182 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 
 from orchestrator.config import Config, get_config, save_config
-from orchestrator.models import PhysicalNode, TaskChunk, ExecutionRun
-from orchestrator.timeout_guard import enforce_pipeline_timeout, check_budget_remaining
+from orchestrator.scheduler_state import create_scheduler_state, SchedulerState
 from orchestrator.completion_feedback import create_feedback_manager, CompletionFeedbackManager
+from orchestrator.heartbeat_monitoring import create_heartbeat_monitor, HeartbeatMonitor
 from orchestrator.node_manager import create_node_manager, NodeManager
+from orchestrator.timeout_guard import enforce_pipeline_timeout, PipelineTimeoutError
 from orchestrator.logger import get_logger
 
-# Constants
-DEFAULT_CHUNK_SIZE_MB = 10  # Default base chunk size in MB
-MIN_CHUNK_SIZE_MB = 1       # Minimum allowed chunk size
-DEFAULT_TIMEOUT_SECONDS = 3600  # Default hard timeout for a run
-
 class SchedulerSetupError(Exception):
-    """Raised when scheduler configuration fails."""
+    """Raised when scheduler configuration or initialization fails."""
     pass
 
 class SchedulerSetup:
     """
-    Handles the configuration and initialization of the scheduler.
-    
-    This class loads settings, validates the environment, and prepares
-    the necessary managers (Node, Feedback, Timeout) for the execution phase.
+    Configures the scheduler logic by loading settings, initializing
+    the state machine, and setting up the necessary managers.
     """
 
     def __init__(self, config_path: Optional[str] = None):
         self.logger = get_logger(__name__)
-        self.config_path = config_path
-        self.config: Config = None
-        self.node_manager: Optional[NodeManager] = None
+        self.config: Optional[Config] = None
+        self.state: Optional[SchedulerState] = None
         self.feedback_manager: Optional[CompletionFeedbackManager] = None
-        self.chunk_size_mb: int = DEFAULT_CHUNK_SIZE_MB
-        self.timeout_seconds: int = DEFAULT_TIMEOUT_SECONDS
-        self.node_list: List[Dict[str, Any]] = []
-        self.is_initialized: bool = False
+        self.heartbeat_monitor: Optional[HeartbeatMonitor] = None
+        self.node_manager: Optional[NodeManager] = None
+        self.config_path = config_path or "config/sweep_config.yaml"
 
     def load_configuration(self) -> Config:
         """
-        Loads the scheduler configuration from the project config.
-        
-        Raises:
-            SchedulerSetupError: If configuration file is missing or invalid.
+        Loads the scheduler configuration from the YAML file.
+        Specifically retrieves chunk size, node list, and timeout settings.
         """
         try:
             self.config = get_config(self.config_path)
-            if not self.config:
-                raise SchedulerSetupError("Failed to load configuration. Config object is None.")
+            self.logger.info(f"Configuration loaded from {self.config_path}")
             
-            # Extract specific scheduler settings
-            self.chunk_size_mb = self.config.get('scheduler', {}).get('chunk_size_mb', DEFAULT_CHUNK_SIZE_MB)
-            self.timeout_seconds = self.config.get('scheduler', {}).get('timeout_seconds', DEFAULT_TIMEOUT_SECONDS)
-            self.node_list = self.config.get('nodes', [])
+            # Validate critical keys exist
+            required_keys = ['chunk_size', 'node_list', 'timeout_seconds']
+            for key in required_keys:
+                if not hasattr(self.config, key) or getattr(self.config, key) is None:
+                    raise SchedulerSetupError(f"Missing required config key: {key}")
             
-            # Validate constraints
-            if self.chunk_size_mb < MIN_CHUNK_SIZE_MB:
-                self.logger.warning(f"Chunk size {self.chunk_size_mb}MB is below minimum. Setting to {MIN_CHUNK_SIZE_MB}MB.")
-                self.chunk_size_mb = MIN_CHUNK_SIZE_MB
-
-            self.logger.info(f"Configuration loaded: Chunk={self.chunk_size_mb}MB, Timeout={self.timeout_seconds}s, Nodes={len(self.node_list)}")
+            self.logger.debug(f"Chunk size: {self.config.chunk_size}")
+            self.logger.debug(f"Node list: {self.config.node_list}")
+            self.logger.debug(f"Timeout: {self.config.timeout_seconds}s")
+            
             return self.config
-
         except FileNotFoundError:
-            raise SchedulerSetupError("Configuration file not found. Ensure config.yaml exists in the project root.")
+            raise SchedulerSetupError(f"Configuration file not found: {self.config_path}")
         except Exception as e:
-            raise SchedulerSetupError(f"Error loading configuration: {str(e)}")
+            raise SchedulerSetupError(f"Failed to load configuration: {e}")
+
+    def initialize_state_machine(self) -> SchedulerState:
+        """
+        Initializes the thread-safe SchedulerState object.
+        This is the base for the state machine logic (T013d).
+        """
+        if self.config is None:
+            raise SchedulerSetupError("Configuration must be loaded before initializing state.")
+        
+        self.state = create_scheduler_state(
+            initial_timeout=self.config.timeout_seconds,
+            node_count=len(self.config.node_list)
+        )
+        self.logger.info("Scheduler state machine initialized.")
+        return self.state
 
     def initialize_managers(self) -> None:
         """
-        Initializes the Node Manager and Feedback Manager based on loaded config.
+        Initializes the NodeManager, FeedbackManager, and HeartbeatMonitor.
+        Dependencies: T013a (NodeManager), T013b (FeedbackManager), T013c (HeartbeatMonitor).
+        """
+        if self.config is None or self.state is None:
+            raise SchedulerSetupError("Config and State must be initialized first.")
+
+        # Initialize Node Manager (T013a)
+        self.node_manager = create_node_manager(self.config.node_list)
+        self.logger.info("Node manager initialized.")
+
+        # Initialize Feedback Manager (T013b)
+        # This manager will update the state object defined in T013d
+        self.feedback_manager = create_feedback_manager(self.state)
+        self.logger.info("Feedback manager initialized.")
+
+        # Initialize Heartbeat Monitor (T013c)
+        # This monitor will detect losses and trigger re-assignment logic
+        self.heartbeat_monitor = create_heartbeat_monitor(
+            state=self.state,
+            node_manager=self.node_manager
+        )
+        self.logger.info("Heartbeat monitor initialized.")
+
+    def verify_dependencies(self) -> None:
+        """
+        Verifies that all required dependencies (T013a, T013b, T013d, T009)
+        are correctly integrated and available.
+        """
+        # Check T013a: NodeManager
+        if self.node_manager is None:
+            raise SchedulerSetupError("NodeManager (T013a) not initialized.")
         
-        This prepares the system for discovery and task tracking.
+        # Check T013d: SchedulerState
+        if self.state is None:
+            raise SchedulerSetupError("SchedulerState (T013d) not initialized.")
         
-        Raises:
-            SchedulerSetupError: If manager initialization fails.
-        """
-        if not self.config:
-            raise SchedulerSetupError("Configuration not loaded. Call load_configuration() first.")
-
-        try:
-            # Initialize Node Manager (T013a dependency)
-            # The config provides the IP list, node_manager handles the SSH logic
-            self.node_manager = create_node_manager()
-            self.logger.info("Node Manager initialized.")
-
-            # Initialize Feedback Manager (T013b dependency)
-            self.feedback_manager = create_feedback_manager()
-            self.logger.info("Feedback Manager initialized.")
-
-            self.is_initialized = True
-        except Exception as e:
-            raise SchedulerSetupError(f"Failed to initialize managers: {str(e)}")
-
-    def verify_timeout_enforcement(self) -> bool:
-        """
-        Verifies that the timeout guard is correctly configured.
+        # Check T013b: Feedback Manager
+        if self.feedback_manager is None:
+            raise SchedulerSetupError("CompletionFeedbackManager (T013b) not initialized.")
         
-        Returns:
-            bool: True if timeout is valid, False otherwise.
-        """
-        try:
-            # This ensures the timeout guard logic is ready (T009 dependency)
-            # We don't run the timeout here, just verify the config is usable
-            if self.timeout_seconds <= 0:
-                self.logger.error("Invalid timeout configuration: must be > 0")
-                return False
-            
-            self.logger.info(f"Timeout enforcement configured for {self.timeout_seconds} seconds.")
-            return True
-        except Exception as e:
-            self.logger.error(f"Timeout verification failed: {str(e)}")
-            return False
-
-    def get_scheduler_state(self) -> Dict[str, Any]:
-        """
-        Returns the current scheduler state for debugging/logging.
+        # Check T009: Timeout Guard
+        # We verify the function exists and is callable; actual enforcement happens at runtime
+        if not callable(enforce_pipeline_timeout):
+            raise SchedulerSetupError("enforce_pipeline_timeout (T009) is not callable.")
         
-        Returns:
-            Dict containing current configuration and manager status.
-        """
-        return {
-            "chunk_size_mb": self.chunk_size_mb,
-            "timeout_seconds": self.timeout_seconds,
-            "node_count": len(self.node_list),
-            "is_initialized": self.is_initialized,
-            "node_manager_active": self.node_manager is not None,
-            "feedback_manager_active": self.feedback_manager is not None
-        }
+        self.logger.info("All dependencies verified successfully.")
 
     def run_setup(self) -> Dict[str, Any]:
         """
-        Executes the full setup sequence: Load Config -> Init Managers -> Verify Timeout.
-        
-        Returns:
-            Dict: The scheduler state after successful setup.
-        
-        Raises:
-            SchedulerSetupError: If any step in the setup sequence fails.
+        Executes the full setup sequence.
+        Returns a dictionary containing the initialized components.
         """
-        self.logger.info("Starting Scheduler Setup sequence...")
+        try:
+            self.load_configuration()
+            self.initialize_state_machine()
+            self.initialize_managers()
+            self.verify_dependencies()
+            
+            return {
+                "config": self.config,
+                "state": self.state,
+                "node_manager": self.node_manager,
+                "feedback_manager": self.feedback_manager,
+                "heartbeat_monitor": self.heartbeat_monitor,
+                "status": "ready"
+            }
+        except Exception as e:
+            self.logger.error(f"Scheduler setup failed: {e}")
+            raise
+
+    def save_runtime_config(self, output_path: str = "data/processed/scheduler_runtime_config.json") -> None:
+        """
+        Saves the effective runtime configuration to a JSON file.
+        """
+        if self.config is None:
+            raise SchedulerSetupError("No configuration to save.")
         
-        # Step 1: Load Configuration
-        self.load_configuration()
+        runtime_data = {
+            "chunk_size": self.config.chunk_size,
+            "node_list": self.config.node_list,
+            "timeout_seconds": self.config.timeout_seconds,
+            "min_chunk_size": getattr(self.config, 'min_chunk_size', 1),
+            "base_chunk_size": getattr(self.config, 'base_chunk_size', 10)
+        }
         
-        # Step 2: Initialize Managers
-        self.initialize_managers()
-        
-        # Step 3: Verify Timeout
-        if not self.verify_timeout_enforcement():
-            raise SchedulerSetupError("Timeout verification failed. Aborting setup.")
-        
-        self.logger.info("Scheduler Setup completed successfully.")
-        return self.get_scheduler_state()
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        save_config(runtime_data, output_path)
+        self.logger.info(f"Runtime config saved to {output_path}")
 
 
 def main():
     """
-    Entry point for testing the scheduler setup independently.
-    Runs the setup sequence and prints the resulting state.
+    Entry point for scheduler setup verification.
     """
-    logging.basicConfig(level=logging.INFO)
     logger = get_logger(__name__)
-    
-    # Attempt to run setup
     try:
         setup = SchedulerSetup()
-        state = setup.run_setup()
-        logger.info(f"Final Scheduler State: {state}")
-        return 0
+        result = setup.run_setup()
+        setup.save_runtime_config()
+        logger.info("Scheduler setup completed successfully.")
+        logger.info(f"State: {result['state'].current_state}")
+        logger.info(f"Nodes: {len(result['node_manager'].node_list)}")
     except SchedulerSetupError as e:
-        logger.critical(f"Setup failed: {e}")
+        logger.error(f"Setup failed: {e}")
         raise
     except Exception as e:
-        logger.critical(f"Unexpected error: {e}")
+        logger.error(f"Unexpected error: {e}")
         raise
 
-
 if __name__ == "__main__":
-    exit(main())
+    main()

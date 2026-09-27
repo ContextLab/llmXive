@@ -27,20 +27,35 @@ T013d:
     \ (or it is empty/placeholder), so the required runtime `SchedulerState` machine\
     \ and feedback handler logic are not present. The implementer\u2019s claim cannot\
     \ be verified without the actual implementation."
-T015a:
+T014a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `code/orchestrator/scheduler_setup.py` file (or its contents) was presented\
-    \ for review, so we cannot confirm that the scheduler configuration logic was\
-    \ actually implemented, is non\u2011empty, or meets the detailed requirements\
-    \ described in the user stories. The required artifact is missing."
-T015b:
+  r: "No `instrumentor_remote.py` file or its contents were provided; there is no\
+    \ evidence that the script exists, is non\u2011empty, or implements SSH\u2011\
+    based remote execution of `tcpdump` and `mpstat` as required. The implementer\
+    \ must supply the actual file with functional code."
+T014b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `code/orchestrator/scheduler_execution.py` file or its contents were provided,
-    and there is no evidence that the required functions `assign_chunk(chunk, node)`
-    and `monitor_task(task_id)` have been implemented. The implementer must supply
-    the actual script with working implementations of these functions.
+  r: "No `network_saturation_handler.py` file (or its contents) was presented in the\
+    \ evidence, so the required implementation does not exist or cannot be verified\
+    \ as non\u2011empty and handling the `NetworkSaturationException`. The task remains\
+    \ undone."
+T014c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `remote_wall_clock_timer.py` file (or any non\u2011empty implementation)\
+    \ is present in `code/orchestrator/`; without the script we cannot verify that\
+    \ it uses SSH, measures high\u2011resolution wall\u2011clock time, and outputs\
+    \ a CSV row with a `wall_clock_time` column as required. The task therefore remains\
+    \ unfinished."
+T014d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The repository does not contain a `code/analysis/instrumentation_validator.py`\
+    \ file, nor any evidence that such a module was added or populated with logic\
+    \ for SC\u2011006 variable fit validation. Without the required artifact, the\
+    \ task cannot be considered completed."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -61,6 +76,12 @@ T046a:
     is provided; without these artifacts we cannot verify that raw radio metrics and
     network stats are processed as required. The implementer must add the script and
     generate the unified JSON output.
+T046b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `radio_metrics_validator.py` file was found in the `code/analysis/` directory,
+    and no code or documentation was provided to demonstrate its implementation or
+    functionality. The required validator script is therefore missing.
 T048:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

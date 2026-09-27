@@ -1,3 +1,2 @@
-"""
-Analysis module for statistical processing and modeling.
-"""
+# Analysis module
+# Handles statistical analysis, regression, and theoretical bound validation

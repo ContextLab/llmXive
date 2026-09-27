@@ -1,143 +1,193 @@
 """
-Unit tests for download_data.py
+Unit tests for the download_data module.
 """
+
 import json
 import os
 import tempfile
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 import pytest
 
-# We need to mock the heavy dependencies to avoid network calls in unit tests
-# But we must ensure the logic is correct.
+# Import the module to test
+import code.download_data as download_data_module
 
-# Mock the datasets library
-class MockDatasetItem:
-    def __init__(self, source, target):
-        self.source = source
-        self.target = target
-    
-    def __getitem__(self, key):
-        if key == 'source':
-            return self.source
-        if key == 'target':
-            return self.target
-        raise KeyError(key)
-    
-    def __contains__(self, key):
-        return key in ['source', 'target']
 
-class MockDatasetIterator:
-    def __init__(self, items, max_count=5):
-        self.items = items
-        self.count = 0
-        self.max_count = max_count
-    
-    def __iter__(self):
-        return self
-    
-    def __next__(self):
-        if self.count >= self.max_count:
-            raise StopIteration
-        item = self.items[self.count]
-        self.count += 1
-        return item
+class TestFetchCodexglueDataset:
+    """Tests for fetch_codexglue_dataset function."""
 
-# Mock the load_dataset function
-def mock_load_dataset(name, config, split, streaming):
-    items = [
-        MockDatasetItem("def hello(): pass", "print('hello')"),
-        MockDatasetItem("def add(a, b): return a+b", "def add(a, b): return a + b"),
-    ]
-    return MockDatasetIterator(items, max_count=2)
+    @patch('code.download_data.load_dataset')
+    def test_fetch_dataset_success(self, mock_load_dataset):
+        """Test successful dataset fetching."""
+        # Mock dataset object
+        mock_dataset = MagicMock()
+        mock_dataset.to_list.return_value = [
+            {"prompt": "def hello(): pass", "code": "print('hello')"},
+            {"prompt": "def add(a, b): return a + b", "code": "def add(a, b): return a + b"}
+        ]
+        mock_load_dataset.return_value = mock_dataset
 
-@pytest.fixture
-def mock_datasets(monkeypatch):
-    import sys
-    from unittest.mock import MagicMock
-    datasets_mock = MagicMock()
-    datasets_mock.load_dataset = mock_load_dataset
-    sys.modules['datasets'] = datasets_mock
-    return datasets_mock
+        result = download_data_module.fetch_codexglue_dataset()
+        
+        assert isinstance(result, list)
+        assert len(result) == 2
+        assert "prompt" in result[0]
+        assert "code" in result[0]
+        mock_load_dataset.assert_called_once()
 
-def test_validate_sample_size_success():
-    from download_data import validate_sample_size
-    records = [{"id": 1}, {"id": 2}]
-    assert validate_sample_size(records, min_size=1) is True
-    assert validate_sample_size(records, min_size=2) is True
+    @patch('code.download_data.load_dataset')
+    def test_fetch_dataset_with_max_samples(self, mock_load_dataset):
+        """Test fetching with max_samples limit."""
+        mock_dataset = MagicMock()
+        mock_dataset.to_list.return_value = [{"prompt": "p", "code": "c"} for _ in range(100)]
+        mock_load_dataset.return_value = mock_dataset
 
-def test_validate_sample_size_failure():
-    from download_data import validate_sample_size
-    records = []
-    assert validate_sample_size(records, min_size=1) is False
+        result = download_data_module.fetch_codexglue_dataset(max_samples=10)
+        
+        assert len(result) == 10
 
-def test_compute_file_hash(tmp_path):
-    from download_data import compute_file_hash
-    test_file = tmp_path / "test.txt"
-    test_file.write_text("hello world")
-    
-    hash1 = compute_file_hash(test_file)
-    hash2 = compute_file_hash(test_file)
-    
-    assert len(hash1) == 64  # SHA256 hex length
-    assert hash1 == hash2
+    @patch('code.download_data.load_dataset')
+    def test_fetch_dataset_streaming(self, mock_load_dataset):
+        """Test fetching with streaming mode."""
+        mock_dataset_iter = iter([
+            {"prompt": "p1", "code": "c1"},
+            {"prompt": "p2", "code": "c2"}
+        ])
+        mock_load_dataset.return_value = mock_dataset_iter
 
-def test_save_dataset(mock_datasets, tmp_path, monkeypatch):
-    from download_data import save_dataset, validate_sample_size, fetch_codexglue_dataset
-    
-    # Override the DATA_DIR for this test
-    import download_data
-    original_dir = download_data.DATA_DIR
-    download_data.DATA_DIR = tmp_path
-    download_data.OUTPUT_FILE = tmp_path / "test_output.json"
-    
-    # Patch load_dataset
-    monkeypatch.setattr("download_data.load_dataset", mock_load_dataset)
-    
-    records = fetch_codexglue_dataset()
-    assert len(records) == 2
-    
-    save_dataset(records, download_data.OUTPUT_FILE)
-    
-    assert download_data.OUTPUT_FILE.exists()
-    with open(download_data.OUTPUT_FILE) as f:
-        data = json.load(f)
-    assert len(data) == 2
-    assert "prompt_id" in data[0]
-    
-    # Restore
-    download_data.DATA_DIR = original_dir
+        result = download_data_module.fetch_codexglue_dataset(streaming=True, max_samples=2)
+        
+        assert len(result) == 2
 
-def test_validate_checksum_creation(mock_datasets, tmp_path, monkeypatch):
-    from download_data import validate_checksum, save_dataset, fetch_codexglue_dataset, compute_file_hash
-    import download_data
-    
-    original_dir = download_data.DATA_DIR
-    download_data.DATA_DIR = tmp_path
-    download_data.OUTPUT_FILE = tmp_path / "test.json"
-    download_data.CHECKSUM_FILE = tmp_path / "checksum.json"
-    
-    monkeypatch.setattr("download_data.load_dataset", mock_load_dataset)
-    
-    records = fetch_codexglue_dataset()
-    save_dataset(records, download_data.OUTPUT_FILE)
-    
-    # First run should create checksum
-    validate_checksum(records, download_data.CHECKSUM_FILE)
-    assert download_data.CHECKSUM_FILE.exists()
-    
-    # Second run should validate
-    validate_checksum(records, download_data.CHECKSUM_FILE)
-    
-    download_data.DATA_DIR = original_dir
+    def test_fetch_dataset_import_error(self):
+        """Test handling of missing datasets library."""
+        with patch.dict('sys.modules', {'datasets': None}):
+            with pytest.raises(ImportError):
+                download_data_module.fetch_codexglue_dataset()
 
-def test_fetch_empty_dataset(mock_datasets, monkeypatch):
-    from download_data import fetch_codexglue_dataset
-    import download_data
-    
-    def mock_empty(*args, **kwargs):
-        return MockDatasetIterator([], max_count=0)
-    
-    monkeypatch.setattr("download_data.load_dataset", mock_empty)
-    
-    with pytest.raises(RuntimeError, match="No valid records found"):
-        fetch_codexglue_dataset()
+
+class TestComputeFileHash:
+    """Tests for compute_file_hash function."""
+
+    def test_compute_hash(self):
+        """Test hash computation for a known file."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            f.write("test content")
+            temp_path = Path(f.name)
+
+        try:
+            hash_val = download_data_module.compute_file_hash(temp_path)
+            assert len(hash_val) == 64  # SHA-256 hex length
+            assert isinstance(hash_val, str)
+        finally:
+            os.unlink(temp_path)
+
+
+class TestValidateSampleSize:
+    """Tests for validate_sample_size function."""
+
+    def test_sample_size_sufficient(self):
+        """Test validation with sufficient samples."""
+        data = [{"id": i} for i in range(250)]
+        assert download_data_module.validate_sample_size(data, min_required=200) is True
+
+    def test_sample_size_insufficient(self):
+        """Test validation with insufficient samples."""
+        data = [{"id": i} for i in range(100)]
+        assert download_data_module.validate_sample_size(data, min_required=200) is False
+
+
+class TestVerifyBaselineExists:
+    """Tests for verify_baseline_exists function."""
+
+    def test_baseline_exists(self):
+        """Test when baseline file exists."""
+        with tempfile.NamedTemporaryFile(delete=False) as f:
+            f.write(b'{}')
+            temp_path = Path(f.name)
+        
+        try:
+            assert download_data_module.verify_baseline_exists(temp_path) is True
+        finally:
+            os.unlink(temp_path)
+
+    def test_baseline_not_exists(self):
+        """Test when baseline file does not exist."""
+        fake_path = Path("/nonexistent/path/baseline.json")
+        assert download_data_module.verify_baseline_exists(fake_path) is False
+
+
+class TestSaveDataset:
+    """Tests for save_dataset function."""
+
+    def test_save_dataset(self):
+        """Test saving dataset to JSONL."""
+        data = [
+            {"prompt": "p1", "code": "c1"},
+            {"prompt": "p2", "code": "c2"}
+        ]
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test.jsonl"
+            download_data_module.save_dataset(data, output_path)
+            
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                lines = f.readlines()
+                assert len(lines) == 2
+                
+                # Verify JSON structure
+                first_line = json.loads(lines[0])
+                assert first_line["prompt"] == "p1"
+                assert first_line["code"] == "c1"
+
+
+class TestValidateChecksum:
+    """Tests for validate_checksum function."""
+
+    def test_checksum_match(self):
+        """Test when checksum matches."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_path = Path(tmpdir) / "data.jsonl"
+            checksum_path = Path(tmpdir) / "checksums.json"
+            
+            # Write data
+            with open(data_path, 'w') as f:
+                f.write("test data")
+            
+            # Compute and store hash
+            file_hash = download_data_module.compute_file_hash(data_path)
+            with open(checksum_path, 'w') as f:
+                json.dump({"data.jsonl": file_hash}, f)
+            
+            assert download_data_module.validate_checksum(data_path, checksum_path) is True
+
+    def test_checksum_mismatch(self):
+        """Test when checksum does not match."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_path = Path(tmpdir) / "data.jsonl"
+            checksum_path = Path(tmpdir) / "checksums.json"
+            
+            # Write data
+            with open(data_path, 'w') as f:
+                f.write("test data")
+            
+            # Store wrong hash
+            with open(checksum_path, 'w') as f:
+                json.dump({"data.jsonl": "wrong_hash_value"}, f)
+            
+            assert download_data_module.validate_checksum(data_path, checksum_path) is False
+
+    def test_no_checksum_file(self):
+        """Test when no checksum file exists."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            data_path = Path(tmpdir) / "data.jsonl"
+            checksum_path = Path(tmpdir) / "checksums.json"
+            
+            # Write data
+            with open(data_path, 'w') as f:
+                f.write("test data")
+            
+            # No checksum file created
+            assert download_data_module.validate_checksum(data_path, checksum_path) is True

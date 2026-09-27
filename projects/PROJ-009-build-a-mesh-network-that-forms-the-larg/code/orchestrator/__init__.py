@@ -1,3 +1,2 @@
-"""
-Orchestrator module for managing the mesh network testbed.
-"""
+# Orchestrator module
+# Handles node management, scheduling, and execution coordination
