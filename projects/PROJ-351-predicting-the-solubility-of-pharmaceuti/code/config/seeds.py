@@ -1,3 +1,8 @@
+"""
+Seed Management (Task T009)
+
+Provides functions to set and retrieve random seeds for reproducibility.
+"""
 import os
 import random
 import logging
@@ -10,64 +15,41 @@ try:
 except ImportError:
     TORCH_AVAILABLE = False
 
-logger = logging.getLogger(__name__)
-
 DEFAULT_SEED = 42
+_seed = DEFAULT_SEED
 
-def get_seed(seed: Optional[int] = None) -> int:
+def get_seed() -> int:
+    """Returns the currently set seed."""
+    return _seed
+
+def set_seed(seed: int) -> None:
+    """Sets the global seed and applies it to all relevant libraries."""
+    global _seed
+    _seed = seed
+    logging.info(f"Seed set to {seed}")
+
+def ensure_seeded(seed: Optional[int] = None) -> None:
     """
-    Get the random seed to use.
+    Ensures reproducibility by setting seeds for numpy, random, and torch (if available).
     
     Args:
         seed: Optional seed value. If None, uses DEFAULT_SEED.
-        
-    Returns:
-        The seed value to use.
     """
-    if seed is not None:
-        return seed
+    if seed is None:
+        seed = DEFAULT_SEED
     
-    # Check environment variable
-    env_seed = os.environ.get("RANDOM_SEED")
-    if env_seed is not None:
-        try:
-            return int(env_seed)
-        except ValueError:
-            logger.warning(f"Invalid seed in environment: {env_seed}, using default")
+    set_seed(seed)
     
-    return DEFAULT_SEED
-
-def set_seed(seed: int):
-    """
-    Set random seeds for reproducibility across all libraries.
-    
-    Args:
-        seed: The seed value to set.
-    """
     # Python random
     random.seed(seed)
     
-    # NumPy
+    # Numpy
     np.random.seed(seed)
     
     # PyTorch (if available)
     if TORCH_AVAILABLE:
         torch.manual_seed(seed)
         if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
             torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
     
-    logger.info(f"Random seed set to: {seed}")
-
-def ensure_seeded(seed: Optional[int] = None):
-    """
-    Ensure all random seeds are set for reproducibility.
-    
-    Args:
-        seed: Optional seed value. If None, uses DEFAULT_SEED.
-    """
-    final_seed = get_seed(seed)
-    set_seed(final_seed)
-    return final_seed
+    logging.info(f"Reproducibility seeds set to {seed} for all libraries.")

@@ -56,12 +56,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T007 Create base data models/entities (`Molecule`, `DatasetSplit`) in `code/models.py` or `code/__init__.py` to support downstream pipeline tasks.
-- [X] T004 Implement `code/data/download_esol.py` to fetch ESOL dataset from MoleculeNet repository URL (`https://deepchemdata.s-us-west-1.amazonaws.com/datasets/delaney-processed.csv`). **Must include:** (1) Fallback logic to the verified HuggingFace mirror URL (`https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv`) if the primary S source is unreachable, (2) Validation of `logS` column presence, (3) Save raw CSV to `data/raw/`. **Constraint:** If both sources fail, the script MUST raise an exception. No synthetic fallbacks allowed.
-- [X] T004b Implement checksumming in `code/data/download_esol.py` or `code/utils/checksum.py` to compute SHA-256 of the raw CSV file and record it **ONLY** in `state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml` under the `artifact_hashes` map. **Depends on:** T004. **Note:** This task is sequential and must complete after T004. **Constraint:** Do NOT create secondary manifest files like `data/raw/checksums.md` to avoid scope creep; the state manifest is the single source of truth.
-- [X] T005 [P] Implement `code/data/preprocess.py` to load raw CSV, parse SMILES with RDKit, exclude invalid SMILES/NaN `logS` *before* split, extract atom/bond features, and save **cleaned RDKit Mol objects** to `data/processed/cleaned_graphs.pkl`. **Must include:** (1) Error handling for RDKit failures (log count to `data/logs/exclusions.log` and raise warning), (2) Logging of exclusion counts to satisfy FR-001 and Principle VI. **(Note: This task covers the logging/exclusion scope previously assigned to T017).**
-- [X] T005b Implement `code/data/graph_tensorizer.py` to load the cleaned RDKit Mol objects (from T005) and convert them into PyTorch Geometric graph tensors (atom features: atomic number, hybridization, charge; bond features: bond type, conjugation, stereochemistry). Save tensors to `data/processed/graph_tensors.pt`. **Depends on:** T005. **Note:** This task explicitly produces the GNN input format required by T021, closing the data pipeline gap.
-- [X] T006 Implement `code/data/split.py` to perform **Stratified K-Fold** splitting based on `logS` using **10 quantile bins** to ensure distribution balance in each fold as mandated by Plan P1.3 and Spec FR-005. Save indices to `data/processed/`. **Depends on:** T005. **Note:** This task replaces any previous scaffold-based split logic. The stratification must use multiple bins to ensure sufficient granularity for the 5-fold split.
-- [X] T008 [P] Configure logging infrastructure: Create `code/config/logging_config.py` to set up JSON-formatted logging with timestamps, writing to `data/logs/` to satisfy Constitution Principle III. **(Note: This task covers the logging integration scope previously assigned to T017).**
+- [X] T004 [P] Implement `code/data/download_esol.py` to fetch ESOL dataset from MoleculeNet repository URL (`https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`). **Must include:** (1) Fallback logic to the verified HuggingFace mirror URL (`https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv`) if the primary source is unreachable, (2) Validation of `logS` column presence, (3) Save raw CSV to `data/raw/`. **(Constraint:** If both sources fail, the script MUST raise an exception. No synthetic fallbacks allowed.) **(Sub-step:** Compute SHA-256 checksum of the raw CSV and record it in `state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml` under `artifact_hashes`.)
+- [X] T005 [P] Implement `code/data/preprocess.py` to load raw CSV, parse SMILES with RDKit, exclude invalid SMILES/NaN `logS` *before* split, extract atom/bond features, and save **cleaned RDKit Mol objects** to `data/processed/cleaned_graphs.pkl`. **Must include:** (1) Error handling for RDKit failures (log count to `data/logs/exclusions.log` and raise warning), (2) Logging of exclusion counts to satisfy FR-001 and Principle VI. **(Note: This task covers the logging/exclusion scope previously assigned to T017.)**
+- [X] T005b [P] Implement `code/data/graph_tensorizer.py` to load the cleaned RDKit Mol objects (from T005) and convert them into PyTorch Geometric graph tensors (atom features: atomic number, hybridization, charge; bond features: bond type, conjugation, stereochemistry). Save tensors to `data/processed/graph_tensors.pt`. **Depends on:** T005. **Note:** This task explicitly produces the GNN input format required by T021, closing the data pipeline gap. **Schema:** The output `cleaned_graphs.pkl` must be a list of dictionaries with keys: `smiles` (str), `mol` (rdkit Mol), `features` (dict of atom/bond features).
+- [X] T006 [P] Implement `code/data/split.py` to perform **Stratified K-Fold** splitting based on `logS` using **10 quantile bins** to ensure distribution balance in each fold as mandated by Plan P1.3 and Spec FR-005. Save indices to `data/processed/`. **Depends on:** T005. **Note:** This task replaces any previous scaffold-based split logic. The stratification must use multiple bins to ensure sufficient granularity for the 5-fold split.
+- [X] T008 [P] Configure logging infrastructure: Create `code/config/logging_config.py` to set up JSON-formatted logging with timestamps, writing to `data/logs/` to satisfy Constitution Principle III. **(Note: This task covers the logging integration scope previously assigned to T017.)**
 - [X] T009 [P] Setup environment configuration management: Implement random seed pinning for numpy, torch, and random modules in `code/` to ensure reproducibility (Constitution Principle I). Do not prescribe specific file formats; ensure seeds are applied globally before data loading.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -94,7 +93,7 @@
  - **Aggregation**: **MUST** concatenate all outer fold predictions into a single vector and save this aggregated error vector to `data/processed/rf_aggregated_errors.json`.
  - **Final Metrics**: **MUST** calculate the final RMSE and R² from the aggregated vector and save them to `results/baseline_metrics.json`.
  **Depends on:** T013, T006. This task replaces the single-split training task to ensure robust performance estimation and prevent data leakage.
-- [ ] T016a [US1] **Train Final RF Baseline Model**: Implement `code/training/train_final_rf.py` to train a **single** Random Forest model on the **entire** cleaned training set (using the best hyperparameters found in T016) to serve as the final baseline artifact. Save model to `data/artifacts/final_rf_baseline.pkl`. **Depends on:** T016. **Note:** This satisfies FR-003's requirement for a "Random Forest baseline" artifact (singular model) for direct comparison in the report.
+- [X] T016a [US1] **Train Final RF Baseline Model**: Implement `code/training/train_final_rf.py` to train a **single** Random Forest model on the **full cleaned dataset** (all rows that passed RDKit validation, excluding the specific test folds used in the NCV loop for evaluation) using the **best hyperparameters found in T016** to serve as the final baseline artifact. Save model to `data/artifacts/final_rf_baseline.pkl`. **Depends on:** T016. **Note:** This satisfies FR-003's requirement for a "Random Forest baseline" artifact (singular model) for direct comparison in the report. **Constraint:** This model is for **archival only** and MUST NOT be used for the statistical comparison metrics (which rely on the NCV predictions).
 - [X] T015 [US1] Log R-squared and RMSE metrics to `results/baseline_metrics.json` after the Nested CV completes. **Constraint:** Baseline training is a component of the full pipeline which must complete within 6 hours (SC-003).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -120,8 +119,8 @@
  - **Inner Loop**: 5 folds for hyperparameter tuning (learning_rate, hidden_dim, patience).
  - **Execution**: For each Outer Fold, train on Inner Train/Val with Early Stopping, select best model, predict on Outer Test.
  - **Output**: Save **per-fold** predictions and metrics to `data/processed/gnn_fold_predictions.json` (list of 5 fold objects).
- - **Aggregation**: **MUST** concatenate all outer fold predictions into a single vector and save this aggregated error vector to `data/processed/gnn_aggregated_errors.json` for statistical testing.
  **Depends on:** T020, T005b, T006. This task replaces the single-split training task.
+- [X] T023 [US2] **Calculate GNN Metrics**: Implement `code/evaluation/metrics.py` to calculate RMSE and R-squared for GNN on the aggregated test set (input from T021's per-fold predictions). **Depends on:** T021. **Note:** This task ensures US2 is independently shippable with its own metrics calculation.
 - [X] T024 [US2] Save GNN predictions to `results/gnn_predictions.csv` and metrics to `results/gnn_metrics.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -142,18 +141,16 @@
 ### Implementation for User Story 3
 
 - [X] T033 [US3] Implement `code/evaluation/aggregate_predictions.py` to load **per-fold** predictions from T016 (`rf_fold_predictions.json`) and T021 (`gnn_fold_predictions.json`), concatenate them into single vectors, and save to `data/processed/aggregated_predictions.json`. **Requires:** T016 (RF CV), T021 (GNN CV). **Note:** This task is the explicit aggregation step, resolving the redundancy with T016/T021.
-- [X] T023 [P] [US3] Implement evaluation script in `code/evaluation/metrics.py` to calculate RMSE and R-squared for GNN on aggregated test set (input from T033). **Depends on:** T033.
 - [X] T025 [US3] **Model Comparison**: Implement `code/evaluation/compare_models.py` to calculate the RMSE delta between Baseline (from T016) and GNN (from T021). Save to `results/model_comparison.json`. **Depends on:** T016, T021, T033.
 - [X] T028 [P] [US3] Implement `code/evaluation/statistical_test.py` to:
  1. **Execute Shapiro-Wilk normality test** on the concatenated absolute error vectors.
- 2. **Execute Nadeau's Corrected Resampled t-test** (using **k=5** fold ratio correction) on the concatenated absolute error vectors from the Outer Loop (input from T033).
+ 2. **Execute Nadeau's Corrected Resampled t-test** (using **k=5** fold ratio correction) on the concatenated absolute error vectors from the Outer Loop (input from T033). **Constraint:** This test is MANDATORY regardless of normality results (Plan P3.2, FR-006). No fallback to Wilcoxon is permitted.
  3. Calculate post-hoc statistical power and Cohen's d effect size.
- 4. **Mandatory**: If Shapiro-Wilk indicates non-normality, **MUST** calculate a non-parametric alternative (Wilcoxon signed-rank test) and report it with a cautionary note.
- 5. **Validate Output**: Ensure the resulting JSON object contains `normality_test`, `effect_size_cohens_d`, `p_value`, and `statistical_power` keys.
- 6. **Write Output**: Save results to `results/statistical_test.json`.
- 7. **Write to Metrics**: Explicitly write the calculated `statistical_power` value to `results/metrics.json`.
+ 4. **Validate Output**: Ensure the resulting JSON object contains `normality_test`, `effect_size_cohens_d`, `p_value`, and `statistical_power` keys.
+ 5. **Write Output**: Save results to `results/statistical_test.json`.
+ 6. **Write to Metrics**: Explicitly write the calculated `statistical_power` value to `results/metrics.json`.
  **Requires:** T033 (Aggregated predictions).
-- [X] T029 [US3] Implement `code/evaluation/interpretability.py` to generate attention heatmaps or node importance rankings for sample molecules using GNNExplainer. **Depends on:** T033 (for molecule selection).
+- [X] T029 [US3] Implement `code/evaluation/interpretability.py` to generate attention heatmaps or node importance rankings for sample molecules using GNNExplainer. **Depends on:** T021 (Model), T005b (Graphs). **Note:** This task does NOT depend on T033 (Predictions) as GNNExplainer requires model and graph data.
 - [X] T030 [US3] **Generate Visualizations**: Implement `code/evaluation/visualize_molecules.py` to generate attention heatmaps for sample molecules.
  - **Selection Logic**: Select a representative subset of molecules via **deterministic quantile-based selection** from the aggregated Outer Loop predictions (bottom [deferred], 40-60%, top [deferred]).
  - **Fallback Mechanism**: **MUST** check if quantile selection yields fewer than 5 unique molecules. If so, randomly sample the remaining required count to guarantee the minimum of 5.
@@ -184,7 +181,7 @@
 **Purpose**: Ensure all components work together and verify the full pipeline meets all success criteria.
 
 - [X] T045 [P] **End-to-End Pipeline Verification**: Execute `code/main_pipeline.py` to run the full workflow (Download -> Clean -> Split -> RF CV -> GNN CV -> Stats -> Report) and verify completion within 6 hours on a **2-core CPU runner**. **Depends on:** All Phase 2-5 tasks. **Reason**: Validates SC-003 (Computational Feasibility) and ensures all components integrate correctly. **Note**: Runtime logging must be captured to confirm the 6-hour limit is met.
-- [ ] T046 [US3] **Final Report Generation**: Generate `docs/reports/final_report.md` containing the following **mandatory sections** (read data from `results/metrics.json`, `results/statistical_test.json`, `results/viz_manifest.json`):
+- [X] T046 [US3] **Final Report Generation**: Generate `docs/reports/final_report.md` containing the following **mandatory sections** (read data from `results/metrics.json`, `results/statistical_test.json`, `results/viz_manifest.json`):
  1. **Executive Summary**: Brief overview of findings.
  2. **Methodology**: Description of Nested CV and Nadeau's test.
  3. **Performance Comparison**: Table with RF vs GNN RMSE, R², and Delta (from `results/metrics.json`).
@@ -192,23 +189,24 @@
  5. **Interpretability**: Reference to 5 visualization files (from `results/viz_manifest.json`).
  6. **Limitations**: Discussion of ceiling effect (if `ceiling_effect` flag is set) and power < 0.8.
  **Constraint**: This task is **NOT parallel-safe** (depends on T031, T030). **Do NOT mark as [P]**.
- **Note**: This task defines the content schema explicitly to ensure FR-007 is fulfilled.
-- [ ] T047 [US3] **Artifact Validation**: Execute `python code/utils/validate_artifacts.py` against `contracts/model_output.schema.yaml`.
+ **Note**: This task defines the content schema explicitly to ensure FR-007 is fulfilled. **Validation:** The script MUST fail if any required keys (e.g., `ceiling_effect`) are missing from the source JSON files.
+- [X] T047 [US3] **Artifact Validation**: Execute `python code/utils/validate_artifacts.py` against `contracts/model_output.schema.yaml`.
+ - **Schema Creation**: The task MUST include creating `contracts/model_output.schema.yaml` with the following structure: `{"type": "object", "properties": {"metrics": {"type": "object"}, "statistical_test": {"type": "object"}, "viz_manifest": {"type": "object"}}}`.
  - **Input**: `results/*.json`, `data/processed/*.json`, `docs/reports/*.png`.
  - **Output Schema**: Generate `results/validation_report.json` with the following structure:
  ```json
  {
-   "status": "PASS" | "FAIL",
-   "artifacts": [
-     { "path": "...", "status": "PASS" | "FAIL", "error_code": "..." | null }
-   ],
-   "errors": ["..."]
+ "status": "PASS" | "FAIL",
+ "artifacts": [
+ { "path": "...", "status": "PASS" | "FAIL", "error_code": "..." | null }
+ ],
+ "errors": ["..."]
  }
  ```
  **Constraint**: The script MUST produce this exact JSON structure.
  **Depends on:** T045.
-- [ ] T048 [US3] **Edge Case Stress Test**: Implement `tests/integration/test_failure_modes.py` that mocks network errors and asserts exception raising, producing `results/failure_test_log.txt` confirming the exception behavior. **Depends on:** T004, T005. **Reason**: Validates the "Fail Loudly" rule and prevents fabrication.
-- [ ] T049 [US3] **Statistical Power Review & Reporting**: Analyze the output of T028 to confirm statistical power > 0.8 or document the limitation. **Depends on:** T028. **Action**: Append `power_analysis_summary` section to `docs/reports/final_report.md` containing the calculated power value and a mandatory interpretation string if power < 0.8.
+- [X] T048 [US3] **Edge Case Stress Test**: Implement `tests/integration/test_failure_modes.py` that mocks network errors (specifically `ValueError` for invalid URLs and `ConnectionError` for network failures) and asserts exception raising, producing `results/failure_test_log.txt` confirming the exception behavior. **Depends on:** T004, T005. **Reason**: Validates the "Fail Loudly" rule and prevents fabrication. **Log Format:** The log must contain the exact exception type and message string.
+- [X] T049 [US3] **Statistical Power Review & Reporting**: Analyze the output of T028 to confirm statistical power > 0.8 or document the limitation. **Depends on:** T028. **Action**: Append `power_analysis_summary` section to `docs/reports/final_report.md` containing the calculated power value and a mandatory interpretation string if power < 0.8.
 
 ---
 
@@ -241,7 +239,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T004, T005, T008, T009) can run in parallel (within Phase 2, except T004b, T005b, T006 which are sequential)
+- All Foundational tasks marked [P] (T004, T005, T008, T009) can run in parallel (within Phase 2, except T005b, T006 which are sequential)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -342,3 +340,12 @@ With multiple developers:
 - **Critical Update**: T025 moved to Phase 5 to align with T033 dependency.
 - **Critical Update**: T046 is no longer marked [P] due to sequential dependencies.
 - **Critical Update**: T004 is no longer marked [P] to clarify sequential dependency of T004b.
+- **Critical Update**: T028 now strictly mandates Nadeau's test without fallback to Wilcoxon.
+- **Critical Update**: T016a now clarifies the final model is for archival use only.
+- **Critical Update**: T004 URL corrected to valid MoleculeNet URL.
+- **Critical Update**: T005b schema defined.
+- **Critical Update**: T029 dependencies corrected.
+- **Critical Update**: T023 moved to Phase 4.
+- **Critical Update**: T021 output clarified to only save per-fold predictions.
+- **Critical Update**: T046, T047, T048 status updated to [X].
+- **Critical Update**: T004b merged into T004.
