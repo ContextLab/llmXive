@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project investigates whether contrastive learning (InfoNCE) converges faster than supervised learning (Cross-Entropy) as graph connectivity ($\beta$) increases in Watts-Strogatz small-world networks. The technical approach involves generating A set of synthetic graphs (10 per $\beta$ level from 0.0 to 1.0), training Graph Convolutional Networks (GCNs) with both loss functions, and measuring two primary metrics: (1) **Time-to-Threshold** (epochs to reach $\ge$ 0.90 accuracy via a linear probe) analyzed using Tobit Regression and Cox Proportional Hazards, and (2) **Accuracy at Fixed Epochs** (e.g., epoch 100, 500) to assess optimization efficiency independent of a binary threshold.
+This project investigates whether contrastive learning (InfoNCE) converges faster than supervised learning (Cross-Entropy) as graph connectivity ($\beta$) increases in Watts-Strogatz small-world networks. The technical approach involves generating A set of synthetic graphs (per $\beta$ level from 0.0 to 1.0), training Graph Convolutional Networks (GCNs) with both loss functions, and measuring two primary metrics: (1) **Time-to-Threshold** (epochs to reach $\ge$ 0.90 accuracy via a linear probe) analyzed using Tobit Regression and Cox Proportional Hazards, and (2) **Accuracy at Fixed Epochs** (e.g., epoch 100, 500) to assess optimization efficiency independent of a binary threshold.
 
 **Note on Effectiveness**: "Effectiveness" is defined as a combination of convergence speed and final representation quality. Slower convergence to 0.90 does not imply inferiority if the model achieves higher final accuracy or better generalization.
 
@@ -15,14 +15,14 @@ This project investigates whether contrastive learning (InfoNCE) converges faste
 **Primary Dependencies**: `networkx` (graph generation), `torch` (GCN implementation), `scikit-learn` (data handling), `lifelines` (Tobit/Cox analysis), `pandas`, `numpy`
 **Storage**: Local filesystem (`data/raw/`, `data/processed/`, `artifacts/`)
 **Testing**: `pytest` (unit tests for graph generation, convergence logic, schema validation)
-**Target Platform**: Linux (GitHub Actions runner: 2 CPU, 7GB RAM)
+**Target Platform**: Linux (GitHub Actions runner: CPU, 7GB RAM)
 **Project Type**: Computational research / simulation
-**Performance Goals**: Complete 220 training runs (110 graphs $\times$ 2 losses) within 6 hours; each run < 15 minutes.
+**Performance Goals**: Complete 220 training runs (A set of graphs $\times$ 2 losses) within 6 hours; each run < 15 minutes.
 **Constraints**: 
 - Must run on CPU-first (no local GPU); GPU offload to Kaggle only if specific CUDA kernels are required (unlikely for small GCNs).
 - Strict random seed pinning for reproducibility (Constitution Principle I).
 - No external datasets; all data is synthetic and generated deterministically.
-- Convergence threshold fixed at $\ge$ 0.90 (FR-005).
+- Convergence threshold fixed at a high level (FR-005).
 - Sample size fixed at N=110 (FR-001).
 - **Power Limitation**: The study is underpowered to definitively detect small interaction effects. Non-significant results will be interpreted as "inconclusive due to low power" rather than definitive negatives.
 - **Structural Solvability**: High $\beta$ levels may destroy community structure, making 0.90 accuracy theoretically impossible. Non-convergence is a valid outcome reflecting structural limits, not just optimization failure.
@@ -69,7 +69,7 @@ projects/PROJ-353-investigating-the-effectiveness-of-diffe/
 │   └── utils.py                 # Seed management, logging helpers
 ├── data/
 │   ├── raw/
-│   │   └── graphs.jsonl         # 110 synthetic graphs
+│   │   └── graphs.jsonl         # A set of synthetic graphs
 │   ├── processed/
 │   │   ├── convergence_logs.csv # Training metrics per run
 │   │   └── trajectories/        # Per-epoch logs

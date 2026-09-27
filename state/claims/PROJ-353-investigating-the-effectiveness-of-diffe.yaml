@@ -3237,3 +3237,168 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T14:51:00Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Generate 110 graphs for small-world analysis
+  claim_id: c_1aa7370e
+  context: "Implement code/data_generation.py to generate N=110 graphs (hardcoded\
+    \ from T004) with \u03B2 levels 0.0 to 1.0 (10 per level)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=110 graphs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:15:04Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime under 6 hours
+  claim_id: c_da56b7aa
+  context: 'Runtime Validation: Run the full pipeline on the CI runner and assert
+    total duration < 21600s (6 hours).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Total duration < 21600s (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:15:05Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Memory usage under 7GB
+  claim_id: c_4ed7e3c5
+  context: Profile memory usage of code/train.py to ensure < 7GB limit.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_under_7GB
+  kind: entity_fact
+  raw_text: Memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:15:23Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: 10 graphs generated per beta level
+  claim_id: c_1a551565
+  context: "Generate N=110 graphs with \u03B2 levels 0.0 to 1.0 (10 per level)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10 graphs per beta level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:15:33Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Class balance maximum 80 percent
+  claim_id: c_c3f85bd4
+  context: 'Add validation logic: detect disconnected components (regenerate/skip)
+    and enforce class balance (<80% max) in code/data_generation.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Class balance < 80% max
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:15:34Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 2
+  canonical: Generate 110 graphs with 10 per beta level
+  claim_id: c_05c58c4c
+  context: Implement code/data_generation.py to generate N=110 graphs (hardcoded from
+    T004) with beta levels 0.0 to 1.0 (10 per level).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=110 graphs with beta levels 0.0 to 1.0 (10 per level).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:29:15Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 3
+  canonical: plan.md contains N=110, Tobit Regression, Cox Proportional Hazards, and
+    0.90
+  claim_id: c_b386d5b1
+  context: 'Create Validation Script: Create scripts/validate_plan.py. Action: The
+    script must assert that plan.md contains ''N=110'', ''Tobit Regression'', ''Cox
+    Proportional Hazards'', and ''0.90''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must assert that plan.md contains N=110, Tobit Regression,
+    Cox Proportional Hazards, and 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:29:16Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: N is fixed at 110
+  claim_id: c_4e0dd4f1
+  context: 'Constraint: N is fixed at 110 (Spec FR-001).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N is fixed at 110.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:29:46Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Total duration must be less than 21600 seconds
+  claim_id: c_a56e904a
+  context: 'Runtime Validation: Run the full pipeline on the CI runner and assert
+    total duration < 21600s (6 hours). If this fails, the build fails.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_duration_must_be_less_than_21600_seconds
+  kind: magnitude
+  raw_text: Assert total duration < 21600s (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:32:10Z'
+- artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  attempts: 1
+  canonical: Memory usage must be less than 7GB
+  claim_id: c_1a0a671e
+  context: Profile memory usage of code/train.py to ensure < 7GB limit.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_be_less_than_7GB
+  kind: magnitude
+  raw_text: Profile memory usage of code/train.py to ensure < 7GB limit.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T03:32:19Z'

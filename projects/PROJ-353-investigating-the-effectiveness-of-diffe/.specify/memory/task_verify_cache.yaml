@@ -1,34 +1,26 @@
-T001:
+T005b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `code/`, `tests/`, or `data/` directories was provided;
-    the claim lacks any actual artifacts showing the project structure exists. The
-    implementer must create and show these directories (with at least placeholder
-    files) to satisfy the task.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
-    \ with Black settings, or equivalent) are provided or referenced, so the requirement\
-    \ to configure flake8/black is not demonstrated. The implementer must add the\
-    \ appropriate configuration artifacts and ensure they are non\u2011empty."
+  r: "No `data-model.md` file or its contents were provided; thus the required markdown\
+    \ document with the specified schema and JSON\u2011Schema Draft\u202F7 examples\
+    \ is missing. The task cannot be considered completed until the file exists and\
+    \ contains the appropriate entity definitions."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `spec.md` file or its contents were provided, so we cannot verify that all\
     \ occurrences of \u201C50\u201D were replaced with \u201C110\u201D in FR\u2011\
     001 and US\u20111 Acceptance Scenario\u202F1. The required artifact is missing."
-T014:
+T040a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No spec.md file or excerpt showing the revised FR\u2011008 is provided; without\
-    \ the updated specification we cannot confirm that the \u201Ccorrelation coefficients\u201D\
-    \ requirement was removed and the scope limited to \u201CTobit/Cox interaction\
-    \ terms only.\u201D The required artifact is missing."
-T015:
+  r: No `research.md` file content was provided, and there is no evidence that it
+    exists or contains the required initial research questions and methodology summary.
+    The implementer must supply the actual `research.md` document meeting the specification.
+T040b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `plan.md` file was provided, and there is no evidence that the Success\
-    \ Criteria section now explicitly defines the `is_significant` flag logic as \u201C\
-    Bonferroni\u2011corrected min p\u2011value\u202F<\u202F0.05\u201D. The required\
-    \ artifact is missing, so the task is not satisfied."
+  r: "No `quickstart.md` file or its contents were provided in the evidence, so we\
+    \ cannot confirm that the required documentation exists or contains the necessary\
+    \ instructions to run the full pipeline. The implementer must add a non\u2011\
+    empty `quickstart.md` in the project root with the full pipeline usage guide."

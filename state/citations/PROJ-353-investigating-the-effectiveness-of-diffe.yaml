@@ -1,1 +1,11 @@
-[]
+- artifact_hash: d01354f7239c48f6a9ce16e953420c86480b3545c4446a1ee2563ba3c10de1e3
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-09-27T03:24:06.142486Z'
