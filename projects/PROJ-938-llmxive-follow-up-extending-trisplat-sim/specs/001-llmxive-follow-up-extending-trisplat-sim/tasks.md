@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -43,9 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` in `projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/`
-- [X] T002 Initialize Python 3.11 project with `code/requirements.txt` including `torch`, `numpy`, `scipy`, `trimesh`, `pygltflib`, `datasets`, `scikit-learn`, `tqdm`, `pandas`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`
+- [X] T001 Create project structure per `plan.md` in `projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/`. **Deliverables**: Execute `mkdir -p code/{data,models,utils,experiments} tests/{unit,integration} data/{raw,processed} state/projects`.
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/`. **Deliverables**: Create `code/.ruff.toml` (lint rules) and `code/pyproject.toml` (black config).
 
 ---
 
@@ -57,14 +56,17 @@
 
 - [X] T004 Implement `code/cli.py` entry point with arguments: `--views`, `--timeout`, `--seed`, `--update-state`
 - [X] T023 [P] Implement dynamic view count configuration in `code/cli.py` (FR-002) to support 2, 3, 4, 5 views as a prerequisite for batch orchestration
-- [X] T005 [P] Create `code/data/loader.py` implementing RealEstate10K streaming via `datasets.load_dataset(..., streaming=True)` with explicit 320x240 downscaling logic (FR-003)
+- [X] T005 [P] Create `code/data/loader.py` implementing RealEstate10K streaming via `datasets.load_dataset(..., streaming=True)` with explicit 320x240 downscaling logic (FR-003).
 - [X] T006 [P] Implement `code/utils/mesh_utils.py` for mesh generation, validation (manifold check), and cleanup
 - [X] T007 [P] Implement `code/utils/stats.py` for Shapiro-Wilk, paired t-test, and Wilcoxon signed-rank test logic (FR-005)
 - [X] T008 [P] Create `code/models/trisplat_base.py` to load frozen TriSplat backbone weights in CPU-compatible mode
 - [X] T009 [P] Create `code/models/geometry_only.py` stub (empty file) for the differentiable ray-surface intersection layer (FR-001)
 - [X] T010 [P] Implement `code/data/metrics.py` for Chamfer Distance and PSNR calculation against ground truth
-- [X] T011 [P] Setup `code/experiments/run_batch.py` orchestrator skeleton with N=20 scene limit. **Note**: Must implement a wall-clock timeout. using `signal.alarm` (Unix) or a `time.time()` loop with a hard exit and logging before CI termination to satisfy FR-006. T011a will implement the specific mechanism.
-- [X] T011a [P] Implement a configurable batch timeout mechanism in `code/experiments/run_batch.py`: Add a wrapper using `signal.alarm` (or `time.time()` loop) that triggers a graceful exit and logs "BATCH_TIMEOUT_EXCEEDED" if the process runs longer than a predefined duration., satisfying FR-006. **Note**: This task must be completed before T024 can run the batch.
+- [X] T011 [P] Setup `code/experiments/run_batch.py` orchestrator skeleton with N=20 scene limit. **Note**: Must define the *need* for a timeout mechanism (orchestration level).
+
+### Timeout Mechanism Block (FR-006, FR-007)
+- [X] T011a [P] Implement a configurable batch timeout mechanism in `code/experiments/run_batch.py`: Add a wrapper using `signal.alarm` (or `time.time()` loop) that triggers a graceful exit and logs "BATCH_TIMEOUT_EXCEEDED" if the process runs longer than a predefined duration. **Config**: Must expose a CLI argument `--batch-timeout` with a default value of `6 hours` (360 minutes). (FR-006)
+- [X] T011b [P] Implement per-scene timeout mechanism in `code/experiments/run_batch.py`: Define a concrete per-scene timeout to enforce the wall-clock limit. **Config**: Must expose a CLI argument `--scene-timeout` with a default value of `4.5 minutes` (270 seconds). Log "SCENE_TIMEOUT_EXCEEDED" and skip the scene if exceeded. (FR-006)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,18 +80,16 @@
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Implement `code/models/geometry_only.py` differentiable ray-surface intersection layer using local triangle connectivity and depth gradients (FR-001)
-- [X] T016 [US1] Implement convergence detection in `code/models/geometry_only.py` with a configurable hard limit on the maximum number of iterations, set via `--max-iterations` CLI arg. and non-convergence logging (FR-007). **Note**: This task depends on T015 completion; [P] tag removed. Must log the current `view_count` (sparsity threshold) alongside the failure flag to satisfy Constitution Principle VI.
+- [X] T015 [US1] Implement `code/models/geometry_only.py` differentiable ray-surface intersection layer using local triangle connectivity and depth gradients (FR-001). **STATUS**: Implemented.
+- [X] T016 [US1] Implement convergence detection in `code/models/geometry_only.py` with a configurable hard limit on the maximum number of iterations. **Config**: Must expose a CLI argument `--max-iterations` with a default value set to a reasonable upper bound for typical convergence behavior. The failure condition for convergence is defined as: If p-value < 0.05 AND relative error increase > tolerance.
 - [X] T017 [US1] Integrate `code/utils/mesh_utils.py` (from T006) into `code/experiments/run_batch.py` to produce valid `.obj`/`.ply` files (FR-004). **Note**: Consumes T006 logic, does not re-implement.
 - [X] T018 [US1] Integrate `code/models/geometry_only.py` into `code/experiments/run_batch.py` to replace the learned refinement head
 - [X] T019b [US1] **Handle monocular input gracefully**: In `code/cli.py` and `run_batch.py`, if input views < 2, log a WARNING "Monocular input detected. Skipping scene." and continue to the next scene (do NOT exit with code 1). (FR-002, US1). **Note**: Replaces T019 to satisfy graceful handling requirement.
 - [X] T020 [US1] Implement corrupted/missing ground truth handling in `code/data/loader.py`: If ground truth is missing *after* a successful fetch, skip scene, log WARNING, and continue (Edge Case). **Note**: Distinguish from fetch errors (T049); this handles data integrity issues *after* a successful fetch.
-- [X] T040 [US1] Implement low-texture/non-convergence detection in `code/models/geometry_only.py`: detect via gradient variance, output a placeholder mesh, and log a distinct error flag "LOW_TEXTURE_CONVERGENCE_FAILED" (Edge Case)
-- [X] T043 [US1] Implement general non-convergence handling in `code/models/geometry_only.py`: if the 100-iteration limit (T016) is hit for ANY reason (not just low-texture), generate a placeholder mesh and log an error flag "TIMEOUT_CONVERGENCE_FAILED" to satisfy FR-007 (Edge Case). **Note**: Must include the current `view_count` in the log entry to attribute failure to sparsity.
+- [X] T040 [US1] Implement low-texture/non-convergence detection in `code/models/geometry_only.py`: detect via gradient variance (L2 norm of gradient map), output a placeholder mesh, and log a distinct error flag "LOW_TEXTURE_CONVERGENCE_FAILED", including the `view_count` in the log message. **Threshold**: If variance < `0.01`. **Log Format (Canonical)**: `ERROR: Convergence failed. View Count: {view_count}. Reason: LOW_TEXTURE_CONVERGENCE_FAILED`.
+- [X] T043 [US1] Implement general non-convergence handling in `code/models/geometry_only.py`: if the maximum iteration limit (defined by `--max-iterations` in T016) is hit for ANY reason (not just low-texture), generate a placeholder mesh and log an error flag "TIMEOUT_CONVERGENCE_FAILED" to satisfy FR-007. **Trigger**: Only if T040 (low-texture) did not trigger. **Log Format**: `ERROR: Convergence failed. View Count: {view_count}. Reason: TIMEOUT_CONVERGENCE_FAILED`. Must include the current `view_count` in the log entry to attribute failure to sparsity.
 
 ### Tests for User Story 1
-
-> **NOTE**: Write these tests AFTER implementation to ensure they pass
 
 - [X] T012 [P] [US1] Unit test for a bounded iteration limit in `code/models/geometry_only.py` (FR-007) in `tests/unit/test_geometry.py`. **Note**: Test function `test_iteration_limit_enforcement` must assert that the process raises a `TimeoutError` or sets a specific status flag when iterations > limit, and verify the log contains 'TIMEOUT_CONVERGENCE_FAILED'.
 - [X] T013 [P] [US1] Integration test for single scene reconstruction pipeline in `tests/integration/test_single_scene.py`
@@ -109,10 +109,11 @@
 
 - [X] T024 [US2] Implement batch orchestration in `code/experiments/run_batch.py` to process N=20 scenes (or N=50 if T042 triggers) across 2, 3, 4, and 5 view configurations (depends on T023)
 - [X] T025 [US2] Implement metric logging in `code/experiments/run_batch.py` to output JSON logs with Chamfer Distance and PSNR per scene/view-count (FR-004)
-- [X] T026 [US2] Implement statistical test logic in `code/utils/stats.py`: orchestrate normality check (T027) and conditional selection of t-test/Wilcoxon (FR-005)
+- [X] T026 [US2] **Implement Statistical Tests**: Explicitly perform ALL three tests (Shapiro-Wilk, paired t-test, Wilcoxon) in `code/utils/stats.py` regardless of normality results. **Logic**: 1. Run Shapiro-Wilk. 2. Run BOTH paired t-test AND Wilcoxon. 3. If Shapiro-Wilk p-value >= 0.05, use the t-test p-value for the final significance decision. 4. If Shapiro-Wilk p-value < 0.05, use the Wilcoxon p-value for the final significance decision. Log all three p-values. (FR-005).
 - [X] T027 [US2] **Implement Shapiro-Wilk test**: Explicitly implement and log the Shapiro-Wilk normality test results in `code/utils/stats.py` as a distinct, verifiable unit of work to satisfy FR-005 requirement to perform all three tests.
 - [X] T028 [US2] Integrate statistical results (T027, T026) into the final batch report JSON (FR-004)
-- [X] T041 [US2] Implement threshold identification logic in `code/utils/stats.py`: Define a CLI argument `--tolerance` (default configurable) for the tolerance threshold. Calculate relative error increase as `(error_N - error_baseline) / error_baseline` where error_N is Chamfer Distance at view count N. Identify the specific view count where this exceeds the threshold; output result to `data/processed/threshold_result.json` (FR-005). **Note**: Document derivation of [deferred] default in code comments.
+- [X] T041 [US2] Implement threshold identification logic in `code/utils/stats.py`: Define a CLI argument `--tolerance` (configurable) for the tolerance threshold. **Default**: a predefined relative error increase limit. Calculate relative error increase as `(error_N - error_baseline) / error_baseline` where error_N is Chamfer Distance at view count N. Identify the specific view count where the relative error increase exceeds the `--tolerance` threshold. **Dependency**: Must consume the final significance results from T026/T027. Output result to `data/processed/threshold_result.json` (FR-005).
+- [X] T055 [US2] Implement bootstrapping logic in `code/utils/stats.py` to calculate confidence intervals for the identified threshold, integrating it with the threshold determination logic in T041.
 
 ### Tests for User Story 2
 
@@ -131,11 +132,10 @@
 
 ### Implementation for User Story 3
 
-- [X] T030 [P] [US3] Implement latency measurement wrapper in `code/experiments/run_batch.py` to record inference time per scene-config
-- [X] T031b [US3] **Implement CPU affinity enforcement for geometry-only module**: Explicitly implement `os.sched_setaffinity` or `taskset` logic in `code/experiments/run_batch.py` to enforce a limited multi-core CPU affinity (selecting a small subset of available cores, e.g., 0 and 1) for the geometry-only module (T015/T018) as required by SC-001, ensuring the primary hypothesis runs under strict CPU constraints. **Note**: Must be executed before T030 to ensure measurement is valid.
-- [X] T031 [US3] Implement baseline TriSplat execution logic in `code/experiments/run_batch.py`: **Explicitly enforce** limited CPU affinity (e.g., `os.sched_setaffinity` selecting a restricted set of cores) for **both** the baseline and the geometry-only module (T015/T018) to strictly match SC-001 requirements. **Note**: If baseline fails on CPU, log a CRITICAL error and exit the batch process immediately; do NOT skip. A skipped baseline invalidates the research question (Constitution Principle VII).
+- [X] T031 [US3] Implement baseline TriSplat execution logic in `code/experiments/run_batch.py`. **Enforce 2-core CPU affinity** using `os.sched_setaffinity` for both the baseline and the geometry-only module (T015/T018) to satisfy SC-001.
+- [X] T030 [US3] Implement latency measurement wrapper in `code/experiments/run_batch.py` to record inference time per scene-config
 - [X] T032 [US3] Implement comparative metric aggregation in `code/utils/stats.py` to calculate speedup ratio and PSNR delta (FR-004)
-- [X] T033 [US3] Generate benchmark report CSV at `data/processed/benchmark_tradeoff.csv` with columns: `view_count,latency,chamfer_distance,psnr,baseline_latency` (US-3 Acceptance 1). **Note**: Explicitly list these headers in the code.
+- [X] T033 [US3] Generate benchmark report CSV at `data/processed/benchmark_tradeoff.csv` with columns: `view_count,latency,chamfer_distance,psnr,baseline_latency,speedup_ratio,psnr_delta` (US-3 Acceptance 1). **Note**: Explicitly list these headers in the code.
 - [X] T039 [US3] Generate visualization of trade-off curve: Create a plot (PNG/SVG) showing latency vs. Chamfer Distance for different view counts, saved to `data/processed/benchmark_tradeoff_plot.png` (US-3 Acceptance 3)
 
 ### Tests for User Story 3
@@ -143,7 +143,7 @@
 - [X] T028 [P] [US3] Unit test for latency measurement wrapper in `tests/unit/test_latency.py`. **Note**: Test function `test_latency_measurement_wrapper` must assert that the wrapper uses `time.perf_counter()`, returns a float > 0, and correctly logs exceptions during the timed block.
 - [X] T029 [P] [US3] Integration test for comparative benchmarking in `tests/integration/test_benchmark.py`
 
-**Checkpoint**: All user stories are independently functional and benchmarked
+**Checkpoint**: User Story 3 is complete; benchmark results are generated
 
 ---
 
@@ -151,11 +151,12 @@
 
 **Purpose**: Handling N=50 scenes and final validation
 
-- [X] T042 [P] Implement N=50 stretch goal logic in `code/experiments/run_batch.py`: If N=20 scenes complete within 70% of the time budget, dynamically expand the scene list to 50 random scenes and continue processing (Plan: Stretch Goal). **Note**: Must implement timeout using `signal.alarm` or `threading.Timer` to enforce the 6-hour wall-clock limit.
+- [X] T042 [P] Implement N=50 stretch goal logic in `code/experiments/run_batch.py`: If N=20 scenes complete within 70% of the batch timeout value defined in T011a, dynamically expand the scene list to 50 random scenes and continue processing (Plan: Stretch Goal). **Note**: Implement timeout using `signal.alarm` or `threading.Timer` to enforce the predefined wall-clock limit.
 - [X] T035 [P] Add checksumming logic for downloaded dataset shards in `code/data/loader.py` (Plan: Data Hygiene)
-- [X] T044 [P] Implement data flow for checksums: Ensure `code/data/loader.py` (T035) writes computed checksums to a temporary JSON file (`data/processed/checksums_temp.json`) that `code/cli.py --update-state` (T034) ingests to satisfy Constitution Principle III (Plan: Data Hygiene). **Note**: Explicitly defines the producer-consumer chain for checksums to state file.
-- [X] T034 [P] Implement `code/cli.py --update-state` command to compute SHA-256 hashes and update `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml` (Plan: Post-Execution State Update). **Note**: Must read `checksums_temp.json` if present (from T044) instead of recomputing hashes.
-- [X] T036 [P] Write comprehensive `README.md` and `quickstart.md` in `specs/001-llmxive-trisplat-ext/`
+- [X] T044 [P] Implement data flow for checksums: Ensure `code/data/loader.py` writes computed checksums to a temporary JSON file (`data/processed/checksums_temp.json`) that `code/cli.py --update-state` ingests to satisfy Constitution Principle III (Data Hygiene). **Note**: Explicitly defines the producer-consumer chain for checksums to state file.
+- [X] T034 [P] Implement `code/cli.py --update-state` command to compute SHA-256 hashes and update `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml` (Plan: Post-Execution State Update). **Note**: Read `checksums_temp.json` if present (from T044) instead of recomputing hashes. **DEPENDS ON: T044**.
+- [X] T050 [P] **Artifact Hashing Logic**: In `code/cli.py --update-state`, implement the logic to recursively hash all files in `data/processed/` (including the `threshold_result.json` and `benchmark_tradeoff_plot.png`) and write the resulting map to `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml` under key `artifact_hashes` to ensure the "Single Source of Truth" is updated. **Note**: Filter files by size < 100MB using `os.path.getsize` BEFORE hashing to avoid long runtimes on large mesh files.
+- [X] T036 [P] Write comprehensive `README.md` and `quickstart.md` in `specs/001-llmxive-trisplat-ext/`. **Deliverables**: `specs/001-llmxive-trisplat-ext/README.md` (Installation, Usage, Data Source, Architecture) and `specs/001-llmxive-trisplat-ext/quickstart.md` (Quick start guide). **Mandatory Sections**: 'Installation', 'Usage', 'Data Source', 'Architecture'.
 - [X] T037 [P] Validate all contracts (`contracts/*.schema.yaml`) against generated JSON outputs
 - [X] T046 [P] Final CI validation: Run full batch (N=20) on simulated GitHub Actions free-tier environment and archive logs to `data/processed/ci_validation_logs/` to satisfy Reproducibility principle
 
@@ -167,10 +168,20 @@
 
 ### Implementation for Data Integrity
 
-- [X] T047 [US1] **Explicit Dataset Sampling Rule**: In `code/experiments/run_batch.py`, explicitly define the RealEstate10K validation split ID ('validation') and implement a deterministic sampling strategy using `itertools.islice` to select the *first* N=20 (or N=50) scenes from the streamed dataset using seed 42. Document the exact seed and slice logic in the code comments to satisfy the "Real data + real results" rule. **Note**: [P] tag removed due to file conflict risk with T024.
-- [X] T048 [US1] **Stream Verification**: In `code/data/loader.py`, add a pre-flight check that attempts to stream a small sample of frames from the dataset to verify connectivity and schema validity before starting the main batch. If this fails, raise a loud error (no fallback) to satisfy Constitution Principle III. **Note**: [P] tag removed due to file conflict risk with T005.
-- [X] T049 [US1] **Real Data Source Lock-in**: Ensure `code/data/loader.py` contains NO `try/except` blocks that fallback to `generate_synthetic_*()` or `mock_*()` functions. If `datasets.load_dataset` fails, the script MUST crash immediately with a clear error message pointing to the real source URL. **Note**: [P] tag removed due to file conflict risk with T005.
-- [ ] T050 [US1] **Artifact Hashing Logic**: In `code/cli.py --update-state`, implement the logic to recursively hash all files in `data/processed/` (including the `threshold_result.json` and `benchmark_tradeoff.csv`) and write the resulting map to `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml` to ensure the "Single Source of Truth" is updated. **Note**: Must filter files by size < 100MB using `os.path.getsize` BEFORE hashing to avoid long runtimes on large mesh files. [P] tag removed due to file conflict risk with T034.
+- [X] T047 [US1] **Explicit Dataset Sampling Rule**: In `code/experiments/run_batch.py`, explicitly define the RealEstate10K validation split ID ('validation') and implement a deterministic sampling strategy using `itertools.islice` to select the *first* N=20 (or N=50) scenes from the streamed dataset using seed 42. Document the exact seed and slice logic in the code comments to satisfy the "Real data + real results" rule. **Note**: This task implements the sampling logic within T024.
+- [X] T048 [US1] **Stream Verification**: In `code/data/loader.py`, add a pre-flight check that attempts to stream a small sample of frames from the dataset to verify connectivity and schema validity before starting the main batch. If this fails, raise a loud error (no fallback) to satisfy Constitution Principle III. **Note**: This task implements the verification logic within T005.
+- [X] T049 [US1] **Real Data Source Lock-in**: Ensure `code/data/loader.py` uses `streaming=True` and never falls back to synthetic data (Constitution Principle III & IV).
+
+---
+
+## Phase 8: Analysis-Driven Revisions (Pending Review)
+
+**Purpose**: Tasks to be added after `/speckit.analyze` identifies specific gaps or failures in the current plan.
+
+- [ ] T051 [US1] **Pending Analysis**: Implement missing convergence metric calculation if `/speckit.analyze` reports that the current iteration limit logic does not capture the "rate of convergence" required by the research question. **Trigger**: If `analyze_report` flags "insufficient convergence diagnostics".
+- [ ] T052 [US2] **Pending Analysis**: Add a bootstrapping confidence interval calculation to `data/processed/threshold_result.json` if `/speckit.analyze` indicates that the single-point threshold estimate lacks statistical robustness for N=20. **Trigger**: If `analyze_report` flags "low statistical power for threshold identification".
+- [ ] T053 [US3] **Pending Analysis**: Implement a variance-stabilizing transformation for latency measurements if `/speckit.analyze` detects non-normal distribution in the latency logs that invalidates the t-test assumptions. **Trigger**: If `analyze_report` flags "violation of normality assumption in latency data".
+- [ ] T054 [General] **Pending Analysis**: Add a dedicated "Data Source Validation" task if `/speckit.analyze` finds that the streaming verification (T048) does not cover all edge cases (e.g., corrupted shards, partial downloads). **Trigger**: If `analyze_report` flags "incomplete data integrity checks".
 
 ---
 
@@ -186,6 +197,7 @@
  - US3 (P3) depends on US1 and US2 for comparative data
 - **Stretch Goal & Polish (Phase 6)**: Depends on all desired user stories being complete
 - **Data Integrity (Phase 7)**: Can be implemented in parallel with Phase 6, but MUST be completed before final CI validation (T046).
+- **Analysis-Driven Revisions (Phase 8)**: Can ONLY be executed after `/speckit.analyze` is run and specific triggers are identified.
 
 ### User Story Dependencies
 
@@ -202,14 +214,15 @@
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
+- All Setup tasks marked [P] can run in parallel (once T001/T003 are fixed)
 - All Foundational tasks marked [P] (T004-T011) can run in parallel
 - Once Foundational phase completes:
  - Developer A can work on US1 (P1) Implementation
  - Developer B can work on US2 (P2) logic (batch orchestration)
  - Developer C can work on US3 (P3) logic (benchmarking)
 - All tests for a user story marked [P] can run in parallel (after implementation)
-- Phase 7 tasks (T047-T050) can run in parallel with Phase 6 tasks.
+- Phase 6 tasks (T047-T050) can run in parallel with Phase 6 tasks.
+- Phase 8 tasks (T051-T054) are blocked until analysis results are available.
 
 ---
 
@@ -222,40 +235,9 @@ Task: "Integrate mesh generation from code/utils/mesh_utils.py"
 Task: "Implement low-texture detection in code/models/geometry_only.py"
 
 # Launch all tests for User Story 1 together (after implementation):
-Task: "Unit test for a configurable maximum iteration limit in code/models/geometry_only.py"
+Task: "Unit test for a bounded iteration limit in code/models/geometry_only.py"
 Task: "Integration test for single scene in tests/integration/test_single_scene.py"
 ```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Geometry-only pipeline on CPU)
-4. **STOP and VALIDATE**: Test US1 on a single scene. If it fails to produce a mesh or OOMs, the project is blocked.
-5. Deploy/demo if ready (MVP: CPU-feasible geometry-only reconstruction)
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Run batch of 20 scenes → Identify threshold → Deploy/Demo
-4. Add User Story 3 → Run benchmark comparison → Generate trade-off curve → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Core Geometry Layer)
- - Developer B: User Story 2 (Batch Orchestrator & Stats)
- - Developer C: User Story 3 (Benchmarking & Latency)
-3. Stories complete and integrate independently
 
 ---
 
@@ -268,20 +250,18 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Ensure `code/data/loader.py` uses `streaming=True` and never falls back to synthetic data (Constitution Principle III & IV).
+- **Critical**: Ensure `code/data/loader.py` uses `streaming=True` and never falls back to synthetic data (Constitution Principle III).
 - **Critical**: Ensure `code/models/geometry_only.py` runs on CPU only for the primary hypothesis (US-1).
 - **Critical**: T042 ensures the N=50 spec requirement is met if runtime permits.
-- **Critical**: T044 ensures checksums are recorded in the state file as per Constitution Principle III.
-- **Critical**: T031 and T031b enforce 2-core CPU affinity for both baseline and geometry-only modules to satisfy SC-001.
-- **Critical**: T043 ensures placeholder mesh is generated for general 100-iteration timeouts.
-- **Critical**: T041 enforces the 15% tolerance constant (now CLI configurable).
-- **Critical**: T019b explicitly handles monocular input with a warning and skip.
-- **Critical**: T027 explicitly implements Shapiro-Wilk test as a distinct unit.
-- **Critical**: T046 ensures final CI validation logs are archived.
+- **Critical**: T035 ensures checksums are recorded in the state file as per Constitution Principle III.
 - **Critical**: Ensure `code/experiments/run_batch.py` explicitly defines the RealEstate10K validation split ID and uses `itertools.islice` for the first N=20 (or N=50) scenes to guarantee a deterministic, reproducible sample as per the "Real data + real results" rule (T047).
 - **Critical**: Ensure `code/data/loader.py` raises a loud error on fetch failure and contains NO synthetic fallback logic (T049).
 - **Critical**: Ensure `code/cli.py --update-state` correctly hashes all processed artifacts (excluding large files >100MB) to update the state file (T050).
-- **Critical**: Ensure T011a implements the 6-hour timeout mechanism explicitly.
-- **Critical**: Ensure T016 and T043 log the specific `view_count` on failure.
-- **Critical**: Ensure T031 does not skip the baseline on CPU failure.
+- **Critical**: T011a and T011b implement the timeout mechanisms according to the plan and spec.
+- **Critical**: T043 ensures placeholder mesh is generated for general 100-iteration timeouts.
+- **Critical**: Ensure T019b explicitly handles monocular input with a warning and skip.
+- **Critical**: Ensure T027 explicitly implements Shapiro-Wilk test as a distinct unit.
+- **Critical**: Ensure T046 runs final CI validation.
 - **Critical**: Ensure T044 is executed before T034.
+- **Critical**: Phase 7 tasks (T047-T049) can run in parallel with Phase 6 tasks.
+- **Critical**: Phase 8 tasks (T051-T054) are placeholders and must be activated only after `/speckit.analyze` returns specific findings.

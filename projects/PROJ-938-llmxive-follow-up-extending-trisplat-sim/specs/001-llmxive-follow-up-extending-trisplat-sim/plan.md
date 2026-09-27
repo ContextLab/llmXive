@@ -4,7 +4,7 @@
 
 ## Summary
 
-This project implements a CPU-feasible, geometry-only 3D scene reconstruction pipeline based on the TriSplat architecture. The core hypothesis is that explicit geometric constraints (differentiable ray-surface intersection) can replace the learned CNN refinement head, enabling simulation-ready mesh generation on edge hardware (2-core CPU, ~7 GB RAM). The project systematically evaluates the "sparsity threshold" where this geometry-only approach fails, comparing it against the original TriSplat baseline across varying input view counts (2-5) using the RealEstate10K dataset.
+This project implements a CPU-feasible, geometry-only 3D scene reconstruction pipeline based on the TriSplat architecture. The core hypothesis is that explicit geometric constraints (differentiable ray-surface intersection) can replace the learned CNN refinement head, enabling simulation-ready mesh generation on edge hardware (low-core CPU, constrained RAM). The project systematically evaluates the "sparsity threshold" where this geometry-only approach fails, comparing it against the original TriSplat baseline across varying input view counts (2-5) using the RealEstate10K dataset.
 
 **Critical Feasibility Adjustment**: To ensure the experiment completes within the 6-hour GitHub Actions limit, the primary target sample size is **N=20 scenes** (processed at 4 view counts each). N=50 is a stretch goal contingent on runtime performance. This adjustment ensures statistical power is not sacrificed for an infeasible timeline.
 
@@ -25,7 +25,7 @@ This project implements a CPU-feasible, geometry-only 3D scene reconstruction pi
 - No GPU acceleration allowed for the primary "geometry-only" method.
 - Input images must be downscaled to 320x240.
 - Strict timeout (min) and memory cap enforced per scene-config.
-**Scale/Scope**: A set of unique scenes from the RealEstate10K validation set (primary); additional scenes (stretch goal); 4 view-count configurations (2, 3, 4, 5) per scene.
+**Scale/Scope**: A set of unique scenes from the RealEstate10K validation set (primary); additional scenes (stretch goal); Multiple view-count configurations (ranging from 2 to 5) per scene.
 
 > **Dataset Note**: The RealEstate dataset is used via the verified HuggingFace source. The plan relies on streaming or chunked loading to fit within RAM constraints.
 
@@ -108,7 +108,7 @@ projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/
 | **Statistical Rigor (Shapiro-Wilk + t-test/Wilcoxon + Bootstrapping)** | Required by FR-005 to scientifically determine the "sparsity threshold" and account for baseline variance. | A simple "average error" comparison would not satisfy the requirement for statistical significance (p < 0.05) and normality checks, and would fail to account for the random variable nature of the baseline. |
 | **Streaming Data Loading** | Required to fit the RealEstate dataset into a constrained RAM limit while processing multiple scenes. | Loading the full dataset into memory would cause OOM errors on the GitHub Actions free-tier runner, failing the feasibility test. |
 | **Differentiable Ray-Surface Layer** | Core to FR-001; replaces the learned refinement head to achieve CPU feasibility. | Using a pre-trained CNN refinement head would violate the "geometry-only" hypothesis and likely exceed CPU latency/memory budgets. |
-| **Reduced Sample Size (N=20)** | Required to meet the 6-hour time budget on a 2-core CPU. | N=50 would require ~15 hours, exceeding the CI limit and forcing a premature termination that invalidates statistical power. |
+| **Reduced Sample Size (N=20)** | Required to meet the time budget on a 2-core CPU. | N=50 would require ~15 hours, exceeding the CI limit and forcing a premature termination that invalidates statistical power. |
 
 
 ## Post-Execution State Update

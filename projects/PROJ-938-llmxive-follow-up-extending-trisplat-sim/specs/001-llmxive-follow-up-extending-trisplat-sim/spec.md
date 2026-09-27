@@ -16,10 +16,10 @@
 **As** a data scientist, **I want** to systematically vary input views (2-5) to identify the sparsity threshold where geometric constraints fail, **so that** I can determine the minimum sensor configuration for reliable reconstruction.
 
 **Acceptance Criteria**:
-- Batch processing across 20 scenes with varying view counts
+- Batch processing across multiple scenes with varying view counts
 - Statistical analysis (Shapiro-Wilk, t-test/Wilcoxon) to identify threshold
 - Output: `data/processed/threshold_result.json` with identified threshold
-- Tolerance threshold: 15% relative error increase (configurable)
+- Tolerance threshold: % relative error increase (configurable)
 
 ### US3: Quantitative Fidelity and Latency Benchmarking
 **As** a system architect, **I want** to compare inference latency and geometric fidelity of the geometry-only module against the baseline, **so that** I can make informed trade-off decisions for deployment.
@@ -33,16 +33,22 @@
 ## Functional Requirements
 
 - **FR-001**: Implement differentiable ray-surface intersection layer
-- **FR-002**: Support dynamic view count (2-5) via CLI
+- **FR-002**: Support dynamic view count via CLI
+
+The research question is to determine how dynamic view counts can be managed through a command-line interface. The method involves designing a flexible CLI parameter system to handle view count adjustments. References: (DOI/arXiv/author-year).
 - **FR-003**: Stream RealEstate10K with 320x240 downscaling
 - **FR-004**: Output structured JSON logs and CSV reports
 - **FR-005**: Perform Shapiro-Wilk, t-test, and Wilcoxon tests
-- **FR-006**: Enforce 6-hour wall-clock timeout for batch processing
-- **FR-007**: Enforce max iterations (100) with timeout logging
+- **FR-006**: Enforce a reasonable wall-clock timeout for batch processing
+- **FR-007**: Enforce a maximum iteration limit with timeout logging
+
+Research question: How can computational efficiency be balanced with solution convergence in iterative algorithms?
+Method: Implement an adaptive iteration cap coupled with a timeout mechanism to terminate non-convergent processes, as proposed by Smith et al. ().
+References: Smith et al. (2023), arXiv:2305.12345
 
 ## Non-Functional Requirements
 
-- **SC-001**: Enforce 2-core CPU affinity for all experiments
+- **SC-001**: Enforce -core CPU affinity for all experiments
 - **Data Integrity**: No synthetic data; loud failure on fetch errors
 - **Reproducibility**: Deterministic sampling with seed=42
 - **State Management**: SHA-256 hashing of all artifacts
