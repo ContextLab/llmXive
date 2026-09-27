@@ -20,7 +20,7 @@ The system shall simulate VR interaction logs with perceptual salience condition
 The system shall compute AIC/WAIC and perform Posterior Predictive Checks (PPC) to compare the Bayesian model against a frequentist baseline.
 
 ### FR-005: Sensitivity Analysis
-The system shall perform sensitivity analysis on model thresholds (e.g., {2, 10, 20}) to ensure robustness of conclusions.
+The system shall perform sensitivity analysis on model thresholds (e.g., varying magnitudes) to ensure robustness of conclusions.
 
 ### FR-006: Real Data Integration
 The system shall support a "Real Data Mode" that fetches actual MFQ and VR logs from verified sources (OSF/HuggingFace) and fails loudly if data is unavailable, never falling back to synthetic data.

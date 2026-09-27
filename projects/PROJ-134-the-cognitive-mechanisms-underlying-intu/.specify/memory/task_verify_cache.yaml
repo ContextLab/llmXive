@@ -1,27 +1,11 @@
-T013:
+T014:
   c: false
-  h: 994f15486bed28d54ab5f0acc99c57b0cf6291b2df2885b3a851d9880fc23a70
-  r: "The repository lacks the required `state/mdes_report.yaml` (pre\u2011execution\
-    \ check) and the output `data/processed/synthetic_mfq.csv` is not present, so\
-    \ the script cannot run nor produce the mandated CSV with the specified columns.\
-    \ The missing files must be added and the script executed to generate the synthetic\
-    \ data."
-T015:
-  c: false
-  h: 961e0f689872327f01a13473b7c8f9765aba0d95a8ee1e23fddab132bcd3224b
-  r: "The `code/data/ingest.py` file is present but does not contain the required\
-    \ merging, ID\u2011mismatch handling, exclusion\u2011logging logic, nor does it\
-    \ call the specified `fetch_real.py` and `parse_real_logs.py` (those files are\
-    \ missing). The exclusion log file `data/logs/exclusion.log` does not exist, and\
-    \ there is no hard assertion that `DATA_MODE` is defined. Consequently, the implementation\
-    \ does not meet the task\u2019s specifications."
-T015#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data files, or documentation were provided to demonstrate that the system
-    actually ingests MFQ and Moral Stories data, validates them against the Pydantic
-    schemas, and maps them to VR salience conditions as required by US1. Without concrete
-    artifacts, the claim cannot be verified.
+  h: c09129b8633bade184769a13f8ea8a37cdca8c6a245e747c3873794a2006e4d3
+  r: "The required output file `data/processed/synthetic_logs.csv` does not exist,\
+    \ so the deliverable cannot be verified. Consequently the task\u2019s core requirement\u2014\
+    producing a CSV with the specified columns and injected ground\u2011truth effect\u2014\
+    is unmet. The implementer must run the script (or add code) to generate and save\
+    \ the CSV at the expected location."
 T018:
   c: false
   h: 07d4d7342729102ce6c45a935db87aab1ad7d7d94446ca6891aa9705432a016b
@@ -37,19 +21,6 @@ T027c:
     \ unfinished line `coverage_95ci = covered / n_samples if n_samp`). It never writes\
     \ the required `data/results/parameter_recovery.json`, and that JSON file is absent\
     \ from the repository. The task\u2019s deliverable is therefore not fulfilled."
-T027d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided no code, model, or results for US2 (Bayesian Model Execution);
-    there is no evidence of a PyMC5 hierarchical model, data ingestion, or model comparison
-    artifacts. Consequently, the required deliverables are missing.
-T032:
-  c: false
-  h: 20289c6dc2e521952af44a099e8e34c39b96ccde9568c4a1506f73fac12162d0
-  r: "The provided `validation.py` contains only partial functionality (e.g., sample\u2011\
-    size validation) and shows no code that sweeps the thresholds\u202F2,\u202F10,\u202F\
-    20 or writes a JSON with stability metrics. Moreover, the required `data/results/sensitivity_analysis.json`\
-    \ file does not exist. Both the core analysis and its expected output are missing."
 T033:
   c: false
   h: 52aa67131e9254e7e40002949e578d81d84caff485b00d86f2345b92f135a45c
@@ -59,78 +30,6 @@ T033:
     \ (Executive Summary, Model Comparison, Parameter Recovery, Sensitivity Analysis,\
     \ Conclusion). The task\u2019s deliverable (a script that produces a correctly\
     \ structured report) is therefore not demonstrably fulfilled."
-T038:
-  c: false
-  h: 03990d019d0e4d05312136feafdd4307474edad1b6afac454b982c4763dcaf95
-  r: "The required `code/unity_verification.py` file is missing, so no verification\
-    \ logic or output JSON (`state/unity_fidelity.json`) was produced. The task\u2019\
-    s deliverable is therefore not satisfied."
-T039:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no test files, code, or documentation for edge\u2011\
-    case tests of data ingestion, model convergence, or VR rendering failures. Consequently,\
-    \ there is no artifact to verify that the required tests were implemented."
-T040:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided only a feature specification and user stories; there
-    is no evidence of running a `quickstart.md` validation, nor any checksum files
-    or logs confirming that all artifacts have been checksummed. The required validation
-    and checksum verification artifacts are missing.
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides no code, scripts, or documentation showing an end\u2011\
-    to\u2011end pipeline that fetches real MFQ and VR logs from OSF/HuggingFace, validates\
-    \ them with Pydantic models, runs a PyMC5 Bayesian model, and performs the required\
-    \ model comparison and sensitivity analyses. Consequently, the core requirement\
-    \ of US4 (real data acquisition and processing) is not demonstrated."
-T043:
-  c: false
-  h: 77684035ae9bf4eeb52e7bb2efbad3c5109449e3487682a14b31bbce69160ec6
-  r: "The `config.py` correctly defines the `DATA_MODE` flag and includes validation,\
-    \ but the required routing files `code/data/fetch_real.py` and `code/data/parse_real_logs.py`\
-    \ are missing, and `ingest.py` does not import or call them (it references a non\u2011\
-    existent `code.data.ingest_real` module and raises a placeholder RuntimeError).\
-    \ The real\u2011data routing and hard assertion are therefore not fully implemented."
-T054d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no artifacts\u2014no test scripts, execution logs,\
-    \ or results demonstrating an end\u2011to\u2011end run on real MFQ and VR logs.\
-    \ Consequently there is no evidence that the system fetched real data, processed\
-    \ it, ran the Bayesian model, and produced the required validation outputs, as\
-    \ required by US4. The missing deliverables are the actual real\u2011data integration\
-    \ test execution and its outcomes."
-T069:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, tests, or documentation were provided showing that the \u201CReal Data\
-    \ Mode\u201D gate has been removed and its logic transferred to T054b/T041-Real,\
-    \ nor any evidence that the system now fails loudly when real data is unavailable.\
-    \ The required artifact demonstrating this change is missing."
-T075:
-  c: false
-  h: 2245208bb7830e9f78c05879d85ff0ef6716c01b0a5f553776973b737a0e54ed
-  r: "The `data/raw/mfq_real.csv` file required for the script to run does not exist,\
-    \ and the provided `validate_mfq_norms.py` is truncated (e.g., `observed = data[dim].dropn`\
-    \ and missing the rest of the KS\u2011test implementation). Without the real data\
-    \ and a complete script, the task\u2019s requirement is not satisfied."
-T075#1:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, data, or documentation artifact demonstrating a \u201CReal Data Mode\u201D\
-    \ that fetches actual MFQ and VR logs from OSF/HuggingFace, validates them, and\
-    \ raises errors when unavailable is present. The claim cannot be verified because\
-    \ the required implementation is missing."
-T076:
-  c: false
-  h: 0bdd4fec95ff10d65a9cbb6e65d45c7d903f1f15847264a6ab0b2bd2cb1dc365
-  r: The required script `code/unity_verification.py` does not exist, and the output
-    artifacts `data/config/unity_simulation_fidelity.yaml`, `data/logs/simulation_params.log`,
-    and `state/artifact_hashes.yaml` are all missing. Consequently, no verification,
-    logging, or checksum updates have been performed.
 T079:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -139,3 +38,10 @@ T079:
     20} is provided; the claim that it was merged into T027c\u2011Sensitivity\u2011\
     Analysis cannot be verified from the available evidence. The implementer must\
     \ supply the actual implementation or output demonstrating the correct sweep."
+T090:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required file `specs/001-the-cognitive-mechanisms-underlying-intu/spec_amendment_FR006.md`
+    is provided, nor any content showing the three mandated sections. The implementer
+    must create the file with the "Deviations", "Justification", and "Approval" sections
+    as specified.

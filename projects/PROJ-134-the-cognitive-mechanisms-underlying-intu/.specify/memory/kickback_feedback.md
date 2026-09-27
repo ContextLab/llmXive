@@ -1,13 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T016b` (rejected 1x): No code, data, or documentation artifacts were presented to demonstrate that US1 (data ingestion and preprocessing) has been implemented, nor any evidence of schema validation, mapping to VR salience conditions, or quality checks. Without tangible artifacts, the claim cannot be verified as meeting the task requirements.
-- `T054c#1` (rejected 1x): No artifacts (code, data files, logs, or results) were provided showing that real VR interaction logs were fetched, processed, and used to verify the VR salience mapping. Consequently, the requirement to validate the mapping with actual data is not demonstrated.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Task T095 logic depends on the existence of T090's output file, but T090 is 'Pending'. The task description says 'If file exists... allow simulation', but does not specify the *exact* file path or content validation logic (e.g., 'check for string "APPROVED"'). Without a concrete verification step for the amendment's validity, the gate logic is ambiguous.
