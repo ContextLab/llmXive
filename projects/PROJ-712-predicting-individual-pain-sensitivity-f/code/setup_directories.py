@@ -4,45 +4,43 @@ from pathlib import Path
 
 def main():
     """
-    Creates the required directory structure for project PROJ-712.
-    
-    Creates:
-    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/
-    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/processed/
-    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/artifacts/
-    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/state/
-    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/
-    - projects/PROJ-712-predicting-individual-pain-sensitivity-f/tests/
-    
-    This script ensures the directory tree exists on disk before other
-    pipeline stages attempt to write data or artifacts.
+    Creates the required directory structure for the project.
+    Specifically creates 'code' and 'tests' directories under the project root.
+    Also ensures 'data/raw', 'data/processed', 'artifacts', and 'state' exist
+    to satisfy T001a and T001b requirements which were previously rejected.
     """
-    # Define the project root relative to the current working directory
-    project_root = Path("projects/PROJ-712-predicting-individual-pain-sensitivity-f")
+    # Determine project root based on the script location or environment
+    # The task specifies paths relative to project root:
+    # projects/PROJ-712-predicting-individual-pain-sensitivity-f/
     
-    # Define the directories to create based on T001a, T001b, T001c
+    # We assume the script is run from the repository root or the project root
+    # Let's define the project root explicitly to match the task requirement
+    # Since the task asks to create directories under "projects/PROJ-712..."
+    # we will create that structure relative to the current working directory.
+    
+    base_dir = Path.cwd()
+    project_root = base_dir / "projects" / "PROJ-712-predicting-individual-pain-sensitivity-f"
+    
     directories = [
+        project_root / "code",
+        project_root / "tests",
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "artifacts",
-        project_root / "state",
-        project_root / "code",
-        project_root / "tests",
+        project_root / "state"
     ]
     
     created_count = 0
-    for directory in directories:
-        # Create the directory and any necessary parents
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
-        created_count += 1
+    for dir_path in directories:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    print(f"Successfully created {created_count} directories.")
-    
-    # Verify existence for robustness
-    all_exist = all(d.exists() and d.is_dir() for d in directories)
-    if not all_exist:
-        raise RuntimeError("Failed to create all required directories.")
+    print(f"Setup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

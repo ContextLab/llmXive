@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-17T05:52:52.052689Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-712-predicting-individual-pain-sensitivity-f
-last_run_id: 13f589bc-09a3-4a11-9d7c-f664bd1d4455
+last_run_id: a377a38f-f9b4-4550-9e8a-cc2d6f8bd014
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-712-predicting-individual-pain-sensitivity-f/specs/001-predicting-individual-pain-sensitivity-f
 title: "Predicting Individual Pain Sensitivity from Resting\u2011State EEG Microstates"
-updated_at: '2026-07-07T08:40:53.424345Z'
+updated_at: '2026-09-27T12:54:17.380410Z'
