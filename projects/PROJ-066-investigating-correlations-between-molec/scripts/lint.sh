@@ -1,10 +1,13 @@
 #!/bin/bash
-# Script to run linters (Ruff) and type checkers (optional)
+# Script to run linting checks without auto-fix
 # Usage: ./scripts/lint.sh
 
 set -e
 
-echo "Running Ruff check..."
+echo "Running Black check (dry run)..."
+black --check code/ tests/
+
+echo "Running Ruff linter..."
 ruff check code/ tests/
 
 echo "Linting complete."

@@ -1,3 +1,3 @@
 """
-Analysis and comparison logic.
+Analysis, comparison, and diagnostics modules.
 """

@@ -21,8 +21,24 @@ T009:
     files that set up pytest with contract test fixtures, so the requirement is unmet.
 T013:
   c: false
-  h: 9d11b688d002928c6e9f406f0f70eaa3d188102f0b04bde5d35bae12626feac5
+  h: 98032f9ff2fff210667a69ca73453e89b720a4fadbc2f02bcf9fd6b3e3b5a650
   r: "The required output file `data/raw/moral_machine_subset.csv` does not exist,\
-    \ and the provided `download.py` snippet does not show any implementation of the\
-    \ stratified sampling, subsetting to \u226450,000 rows, or saving to that CSV\
-    \ path. The task\u2019s core functionality and resulting artifact are missing."
+    \ and the provided `download.py` is truncated (the implementation of subsetting\
+    \ and saving is not visible), so the task\u2019s core requirement is not satisfied.\
+    \ The next implementer must ensure the script downloads the full CSV, performs\
+    \ stratified sampling (by `outcome` and `species`) to \u226450\u202F000 rows with\
+    \ seed\u202F42, and writes the result to the specified path."
+T016:
+  c: false
+  h: 5d180b23a6d9d313e75520f78511b48082e4540161f04f2ceeba97a744e3de5b
+  r: "The required output file `data/processed/salience_enriched.csv` does not exist,\
+    \ and the provided `preprocess.py` snippet is truncated before any merging or\
+    \ assertion logic, so there is no evidence that the script creates the CSV with\
+    \ a validated `salience_score` column. The task\u2019s core deliverable is therefore\
+    \ missing."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided that demonstrate logging has
+    been added for salience computation failures or fallback triggers. The artifact
+    required to verify the new logging behavior is missing, so the task is not satisfied.

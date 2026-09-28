@@ -5,81 +5,70 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Ensure logs directory exists
-LOGS_DIR = Path('logs')
-LOGS_DIR.mkdir(exist_ok=True)
+# Ensure the logger module can be imported
+# This file is referenced in the API surface but may not have been fully implemented
 
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
+def setup_logging(log_level: str = 'INFO', log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure the root logger with file and console handlers.
+    Sets up logging configuration for the project.
     
     Args:
-        level: Logging level (default: INFO)
-    
+        log_level: The logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        log_file: Optional path to a log file. If None, logs to console only.
+        
     Returns:
-        Configured root logger
+        The root logger instance.
     """
     root_logger = logging.getLogger()
-    root_logger.setLevel(level)
+    root_logger.setLevel(getattr(logging, log_level.upper()))
     
-    # Clear existing handlers to avoid duplicates
+    # Clear existing handlers
     root_logger.handlers.clear()
-    
-    # File handler
-    file_handler = logging.FileHandler(LOGS_DIR / 'pipeline.log')
-    file_handler.setLevel(level)
-    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(file_format)
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_format = logging.Formatter('%(levelname)s: %(message)s')
-    console_handler.setFormatter(console_format)
-    
-    root_logger.addHandler(file_handler)
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    console_handler.setFormatter(console_formatter)
     root_logger.addHandler(console_handler)
+    
+    # File handler (optional)
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(console_formatter)
+        root_logger.addHandler(file_handler)
     
     return root_logger
 
-def get_logger(name: str) -> logging.Logger:
+def get_logger(name: Optional[str] = None) -> logging.Logger:
     """
-    Get a logger instance with the given name.
+    Gets a logger instance with the given name.
     
     Args:
-        name: Logger name (typically __name__)
-    
+        name: The name of the logger. If None, returns the root logger.
+        
     Returns:
-        Logger instance
+        The logger instance.
     """
+    if name is None:
+        return logging.getLogger()
     return logging.getLogger(name)
 
-def log_error_to_file(file_path: str, timestamp: str, row_id: str, reason: str) -> None:
+def log_error_to_file(message: str, file: str = 'error.log'):
     """
-    Log a salience computation error to the specified file.
-    
-    This function implements the error logging requirement for T016:
-    - Appends a line to the error log file
-    - Format: timestamp, row_id, reason
+    Logs an error message to a specific file.
     
     Args:
-        file_path: Path to the error log file (e.g., 'logs/salience_errors.log')
-        timestamp: ISO format timestamp string
-        row_id: Unique identifier for the failed row
-        reason: Description of the failure reason
+        message: The error message to log.
+        file: The filename to log to (relative to project root).
     """
-    # Ensure directory exists
-    log_dir = os.path.dirname(file_path)
-    if log_dir:
-        os.makedirs(log_dir, exist_ok=True)
+    log_path = Path(file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Append error entry
-    with open(file_path, 'a', encoding='utf-8') as f:
-        f.write(f"{timestamp},{row_id},{reason}\n")
-    
-    # Also log to the main logger for visibility
-    logger = get_logger(__name__)
-    logger.error(f"Salience error logged: row_id={row_id}, reason={reason}")
-
-# Initialize logging on module import
-setup_logging()
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    with open(log_path, 'a') as f:
+        f.write(f"[{timestamp}] ERROR: {message}\n")

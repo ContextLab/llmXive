@@ -1,39 +1,131 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Molecule Processed Data Schema
+description: Schema for the processed molecule dataset containing descriptors and drug-likeness scores.
 type: object
 required:
-  - SMILES
-  - experimental_value
-  - tpsa
-  - logp
-  - mw
-  - rotatable_bonds
-  - h_bond_donors
-  - h_bond_acceptors
-  - ring_count
+  - properties
+  - required
 properties:
-  SMILES:
+  type:
     type: string
-    description: Canonical SMILES string
-  experimental_value:
-    type: number
-    description: Experimental drug-likeness or activity value
-  tpsa:
-    type: number
-    description: Topological Polar Surface Area
-  logp:
-    type: number
-    description: Octanol-water partition coefficient
-  mw:
-    type: number
-    description: Molecular Weight
-  rotatable_bonds:
-    type: number
-    description: Count of rotatable bonds
-  h_bond_donors:
-    type: number
-    description: Count of hydrogen bond donors
-  h_bond_acceptors:
-    type: number
-    description: Count of hydrogen bond acceptors
-  ring_count:
-    type: number
-    description: Number of rings
+    const: object
+  properties:
+    type: object
+    additionalProperties: true
+    properties:
+      smiles:
+        type: object
+        properties:
+          type:
+            type: string
+            const: string
+          description:
+            type: string
+            const: Canonical SMILES string of the molecule
+      experimental_value:
+        type: object
+        properties:
+          type:
+            type: string
+            enum:
+              - number
+              - string
+          description:
+            type: string
+            const: Experimental measurement (e.g., IC50, Ki, or transformed value)
+      target:
+        type: object
+        properties:
+          type:
+            type: string
+            const: string
+          description:
+            type: string
+            const: Target protein or assay target name
+      mw:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+            const: Molecular weight
+      logp:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+            const: Partition coefficient (logP)
+      tpsa:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+            const: Topological polar surface area
+      hbd:
+        type: object
+        properties:
+          type:
+            type: string
+            const: integer
+          description:
+            type: string
+            const: Number of hydrogen bond donors
+      hba:
+        type: object
+        properties:
+          type:
+            type: string
+            const: integer
+          description:
+            type: string
+            const: Number of hydrogen bond acceptors
+      rotatable_bonds:
+        type: object
+        properties:
+          type:
+            type: string
+            const: integer
+          description:
+            type: string
+            const: Number of rotatable bonds
+      ring_count:
+        type: object
+        properties:
+          type:
+            type: string
+            const: integer
+          description:
+            type: string
+            const: Number of rings
+      mol_weight:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+            const: Molecular weight (alias for mw, kept for compatibility)
+      log_p:
+        type: object
+        properties:
+          type:
+            type: string
+            const: number
+          description:
+            type: string
+            const: LogP (alias for logp, kept for compatibility)
+  required:
+    type: array
+    items:
+      type: string
+    description: List of required fields
+additionalProperties: false

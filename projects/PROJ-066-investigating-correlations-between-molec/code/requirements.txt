@@ -1,0 +1,9 @@
+rdkit
+pandas
+scikit-learn
+matplotlib
+seaborn
+pyyaml
+pytest
+black
+ruff

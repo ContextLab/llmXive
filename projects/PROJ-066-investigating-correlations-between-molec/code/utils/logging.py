@@ -1,5 +1,5 @@
 """
-Logging utilities for structured logging and resource monitoring.
+Structured logging and resource monitoring utilities.
 """
 import logging
 import sys
@@ -8,132 +8,98 @@ import time
 import threading
 import traceback
 from pathlib import Path
+from datetime import datetime
 from typing import Optional
 
-# Project root
+# Add project root to path
 project_root = Path(__file__).resolve().parent.parent.parent
-LOG_DIR = project_root / "logs"
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+sys.path.insert(0, str(project_root))
 
 class StructuredFormatter(logging.Formatter):
-    """
-    Custom formatter to output logs as JSON for structured logging.
-    """
+    """Custom formatter for structured JSON logging."""
     def format(self, record):
-        log_record = {
-            "timestamp": self.formatTime(record, self.datefmt),
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
-            "message": record.getMessage(),
             "module": record.module,
-            "function": record.funcName,
-            "line": record.lineno
+            "message": record.getMessage(),
         }
         if record.exc_info:
-            log_record["exception"] = self.formatException(record.exc_info)
-        return json.dumps(log_record)
+            log_data["exception"] = traceback.format_exception(*record.exc_info)
+        return json.dumps(log_data)
 
-def get_logger(name: str, level: int = logging.INFO) -> logging.Logger:
-    """
-    Gets a logger with structured formatting.
-    """
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger with structured formatting."""
     logger = logging.getLogger(name)
-    logger.setLevel(level)
-    
     if not logger.handlers:
-        # Console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(StructuredFormatter())
-        logger.addHandler(console_handler)
-        
-        # File handler
-        log_file = LOG_DIR / f"{name}.log"
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(StructuredFormatter())
-        logger.addHandler(file_handler)
-    
+        logger.setLevel(logging.INFO)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(StructuredFormatter())
+        logger.addHandler(handler)
     return logger
 
-def log_pipeline_step(task_id: str, step_name: str, status: str = "started", details: Optional[dict] = None) -> None:
-    """
-    Logs a pipeline step with structured information.
-    """
-    logger = get_logger("pipeline")
-    log_data = {
-        "task_id": task_id,
-        "step": step_name,
-        "status": status,
-        "details": details or {}
-    }
-    logger.info(f"Pipeline Step: {json.dumps(log_data)}")
+def log_pipeline_step(task_id: str, step_name: str, status: str = "in_progress") -> None:
+    """Log a pipeline step with task ID."""
+    logger = get_logger(__name__)
+    logger.info(f"[{task_id}] {step_name} - Status: {status}")
 
 class ResourceMonitor:
-    """
-    Monitors memory and CPU usage during execution.
-    """
+    """Monitor memory and CPU usage."""
     def __init__(self):
         self.start_time = None
-        self.end_time = None
         self.peak_memory = 0
-        self._monitoring = False
         self._thread = None
-        self.logger = get_logger("resource_monitor")
+        self._stop_event = threading.Event()
 
     def start(self):
-        """Starts the resource monitoring thread."""
+        """Start monitoring."""
         self.start_time = time.time()
-        self._monitoring = True
+        self._stop_event.clear()
         self._thread = threading.Thread(target=self._monitor_loop, daemon=True)
         self._thread.start()
-        self.logger.info("Resource monitoring started.")
+        logger = get_logger(__name__)
+        logger.info("Resource monitoring started.")
 
     def stop(self):
-        """Stops the resource monitoring thread."""
-        self._monitoring = False
-        self.end_time = time.time()
+        """Stop monitoring."""
+        self._stop_event.set()
         if self._thread:
             self._thread.join(timeout=1.0)
-        self.logger.info(f"Resource monitoring stopped. Duration: {self.get_duration():.2f}s, Peak Memory: {self.peak_memory:.2f} MB")
+        logger = get_logger(__name__)
+        logger.info(f"Resource monitoring stopped. Peak memory: {self.peak_memory} MB")
 
     def _monitor_loop(self):
-        """Background loop to check resource usage."""
+        """Periodically check memory usage."""
         try:
             import psutil
             process = psutil.Process()
-            while self._monitoring:
-                memory_info = process.memory_info().rss / (1024 * 1024)  # MB
-                if memory_info > self.peak_memory:
-                    self.peak_memory = memory_info
-                time.sleep(1.0)
         except ImportError:
-            # psutil not installed, skip monitoring
-            self._monitoring = False
-        except Exception as e:
-            self.logger.error(f"Error in resource monitor: {e}")
-            self._monitoring = False
+            # Fallback if psutil not available
+            return
 
-    def get_duration(self) -> float:
-        """Returns the duration in seconds."""
-        if self.start_time and self.end_time:
-            return self.end_time - self.start_time
-        elif self.start_time:
-            return time.time() - self.start_time
-        return 0.0
+        while not self._stop_event.is_set():
+            try:
+                mem_mb = process.memory_info().rss / (1024 * 1024)
+                if mem_mb > self.peak_memory:
+                    self.peak_memory = mem_mb
+                self._stop_event.wait(10)  # Check every 10 seconds
+            except Exception:
+                break
 
-    def get_peak_memory_mb(self) -> float:
-        """Returns the peak memory usage in MB."""
-        return self.peak_memory
+def log_resource_usage() -> dict:
+    """Log current resource usage."""
+    logger = get_logger(__name__)
+    try:
+        import psutil
+        process = psutil.Process()
+        mem_mb = process.memory_info().rss / (1024 * 1024)
+        cpu_percent = process.cpu_percent()
+        logger.info(f"Memory: {mem_mb:.2f} MB, CPU: {cpu_percent:.2f}%")
+        return {"memory_mb": mem_mb, "cpu_percent": cpu_percent}
+    except ImportError:
+        logger.warning("psutil not available for resource logging.")
+        return {}
 
-def log_resource_usage(logger_name: str, memory_mb: float, duration_s: float) -> None:
-    """
-    Logs resource usage metrics.
-    """
-    logger = get_logger(logger_name)
-    logger.info(f"Resource Usage - Memory: {memory_mb:.2f} MB, Duration: {duration_s:.2f} s")
-
-def start_monitoring() -> ResourceMonitor:
-    """
-    Convenience function to start a new ResourceMonitor.
-    """
-    monitor = ResourceMonitor()
-    monitor.start()
-    return monitor
+def start_monitoring():
+    """Start the global resource monitor."""
+    return ResourceMonitor()

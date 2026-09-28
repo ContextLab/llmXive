@@ -1,17 +1,22 @@
-"""
-Script to set up the project directory structure.
-"""
 import os
 from pathlib import Path
 
 def setup_directories():
     """
-    Creates the necessary directory structure for the project.
+    Creates the required directory structure for the PROJ-066 project.
+    Ensures existence of data/raw, data/processed, code/data, code/models,
+    code/utils, and tests directories relative to the project root.
     """
-    # Assume this script is run from the project root or code directory
-    # We determine root based on the script's location
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent if script_dir.name == "code" else script_dir
+    # Determine project root (assuming script runs from project root or code/)
+    # We use the directory of this script as the anchor if run from code/, 
+    # otherwise we assume current working directory is root.
+    script_path = Path(__file__).resolve()
+    # If the script is in code/, go up one level to root
+    if script_path.parent.name == "code":
+        root = script_path.parent.parent
+    else:
+        # Fallback to cwd if structure is different
+        root = Path.cwd()
 
     directories = [
         "data/raw",
@@ -20,25 +25,26 @@ def setup_directories():
         "code/models",
         "code/utils",
         "tests",
-        "state/projects",
-        "logs",
-        "specs"
+        "figures" # Added for visualization outputs mentioned in tasks
     ]
 
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {full_path}")
+    created = []
+    for dir_name in directories:
+        dir_path = root / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+        else:
+            # Ensure it is a directory, not a file
+            if not dir_path.is_dir():
+                raise RuntimeError(f"Path exists but is not a directory: {dir_path}")
 
-    # Create __init__.py files to make directories packages
-    package_dirs = ["code", "code/data", "code/models", "code/utils", "tests"]
-    for pkg_dir in package_dirs:
-        full_path = project_root / pkg_dir / "__init__.py"
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created __init__.py in: {full_path}")
-
-    print("Project directory structure setup complete.")
+    if created:
+        print(f"Created directories: {', '.join(created)}")
+    else:
+        print("All required directories already exist.")
+    
+    return created
 
 if __name__ == "__main__":
     setup_directories()

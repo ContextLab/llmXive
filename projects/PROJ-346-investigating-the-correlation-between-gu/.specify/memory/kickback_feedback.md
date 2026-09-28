@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T027` (rejected 1x): The required result file `data/results/vlm_trace_audit.json` does not exist, and the provided `vlm_trace_auditor.py` is truncated before showing any logic that writes this file or aborts the pipeline on violations. Consequently the task’s output artifact and full behavior are missing.
+- `T040a` (rejected 1x): The provided `code/09_literature_extraction.py` stops after fetching abstracts and does not contain the spaCy NER extraction, confidence filtering, median selection, or JSON writing required, and the expected output file `data/raw/literature_metadata.json` is absent. Consequently the script does not fulfill the specification.
 
 ## Required change
 

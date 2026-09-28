@@ -97,7 +97,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1037/R42259-000
   verified_at: '2026-08-17T23:15:32.671748Z'
-- artifact_hash: 86509fdb36b8204ce8442cfc35d278eaad9b7308e41242a7b9a996f94b3e62ff
+- artifact_hash: cabbdc9c2dcff0c47bf9cafa6dd07b134631b9d9d75a2c2f4c9f1beeb0107f85
   artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -108,4 +108,4 @@
   value: https://arxiv.org/abs/1501.05788
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1501.05788
-  verified_at: '2026-08-21T20:07:45.346691Z'
+  verified_at: '2026-09-28T23:09:42.972574Z'

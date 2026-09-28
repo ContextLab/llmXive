@@ -1,3 +1,3 @@
 """
-Paper and analysis artifacts generation module.
+Paper and results generation artifacts.
 """

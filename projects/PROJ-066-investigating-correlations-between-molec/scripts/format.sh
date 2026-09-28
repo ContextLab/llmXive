@@ -1,13 +1,16 @@
 #!/bin/bash
-# Script to format code using Black and Ruff
+# Script to run formatting and linting tools
 # Usage: ./scripts/format.sh
 
 set -e
 
-echo "Running Ruff fix..."
-ruff check --fix code/ tests/
-
-echo "Running Black..."
+echo "Running Black formatter..."
 black code/ tests/
 
-echo "Formatting complete."
+echo "Running Ruff linter (fix mode)..."
+ruff check code/ tests/ --fix
+
+echo "Running Ruff linter (strict mode)..."
+ruff check code/ tests/
+
+echo "Formatting and linting complete."

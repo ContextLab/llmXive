@@ -1,3 +1,3 @@
 """
-Utility functions and helpers.
+Utility modules for the research pipeline.
 """

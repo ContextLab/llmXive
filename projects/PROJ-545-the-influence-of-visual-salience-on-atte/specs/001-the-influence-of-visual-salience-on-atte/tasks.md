@@ -100,8 +100,8 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test: Verify output JSON contains `log_likelihood`, `drift_rate`, `threshold`, `salience_weight` in `tests/contract/test_addm_output.py`
-- [ ] T019 [P] [US2] Unit test: Verify grid search completes without GPU error in `tests/unit/test_addm_cpu_fit.py`
+- [X] T018 [P] [US2] Contract test: Verify output JSON contains `log_likelihood`, `drift_rate`, `threshold`, `salience_weight` in `tests/contract/test_addm_output.py`
+- [X] T019 [P] [US2] Unit test: Verify grid search completes without GPU error in `tests/unit/test_addm_cpu_fit.py`
 
 ### Implementation for User Story 2
 

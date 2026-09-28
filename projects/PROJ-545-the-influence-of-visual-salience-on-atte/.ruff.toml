@@ -1,0 +1,3 @@
+# Extend pyproject.toml if needed, or define standalone config.
+# This file is kept for explicit ruff discovery if pyproject.toml is not found.
+extend = "pyproject.toml"

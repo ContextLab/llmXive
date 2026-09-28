@@ -13,11 +13,19 @@ T010a:
     until this file is added with the specified tests.
 T015:
   c: false
-  h: 5777b498d657eadac3acd680a5fa7e2afe2df5ea5e36019bbe9e6700d7d99e39
-  r: "The repository lacks the required `data/qc/filtering_log.json` file, and the\
-    \ shown portion of `code/02_preprocess.py` contains no implementation of z\u2011\
-    score outlier filtering or logging to that JSON path. Consequently the script\
-    \ does not meet the task\u2019s output and logging requirements."
+  h: 53d4cd3bb78a661d739567bfd8627c3cda36766dd21e5e85cf83a96cefea5fcc
+  r: "The provided `code/02_preprocess.py` does not contain any implementation of\
+    \ outlier filtering based on z\u2011score >\u202F3 nor does it write a `data/qc/filtering_log.json`\
+    \ file; the script is truncated before such logic could appear. Moreover, the\
+    \ required `data/qc/filtering_log.json` file is absent from the repository. Consequently\
+    \ the task\u2019s core requirement is unmet."
+T017d:
+  c: false
+  h: b4393e527617140d96ebf146b4a8263a176a9a635b0904d36ad861ec51e274c0
+  r: The repository contains `code/08_meta_analysis.py`, but the script is incomplete
+    (truncated) and relies on `data/raw/literature_metadata.json`, which is absent,
+    causing a FileNotFoundError. Consequently, no `data/processed/meta_analysis_report.json`
+    is produced, so the required output and real literature data are missing.
 T020:
   c: false
   h: ea0a908338222d8597ae90b3617458b6cde9c3b0d75575748cd3a6e3851d0e80
@@ -57,14 +65,6 @@ T030:
     \ of comparing significant taxa counts across methods is not fulfilled. The script\
     \ needs the missing implementation (DESeq2 processing, significance testing, and\
     \ output generation)."
-T040a:
-  c: false
-  h: 6b31735d8e4a06ebe5a6483a4b6b6a5de539e2ac18057ec63fe3367835685f80
-  r: The repository contains `code/09_literature_extraction.py`, but the required
-    output file `data/raw/literature_metadata.json` is absent, and the script (as
-    shown) does not include the spaCy NER extraction, confidence filtering, or JSON
-    writing logic needed to satisfy the task. The implementer must complete the extraction
-    pipeline and generate the specified JSON file.
 T041:
   c: false
   h: 4df2b840be502e4326edfa42e4d63070980b5e13932ec5d5e28b38da49fd98e2

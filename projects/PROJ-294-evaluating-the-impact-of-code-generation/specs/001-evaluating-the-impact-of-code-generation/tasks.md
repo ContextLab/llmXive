@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/294-evaluating-the-impact-of-code-generation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. [UNRESOLVED-CLAIM: c_018388b7 — status=not_enough_info] Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
@@ -24,11 +24,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure at `projects/PROJ-294-evaluating-the-impact-of-code-generation/`: `code/`, `data/`, `results/`, `tests/`, `docs/`. **Constraint**: Create parent directories if missing (e.g., `mkdir -p projects/PROJ-294-evaluating-the-impact-of-code-generation/code/`). **Constitution**: Aligns with Constitution Reproducibility Requirements (Principle V) path structure. (Plan: Project Structure)
+- [ ] T001a [P] Create directory structure at `projects/PROJ-294-evaluating-the-impact-of-code-generation/`: `code/`, `data/`, `results/`, `tests/`, `docs/`. [UNRESOLVED-CLAIM: c_7df3749a — status=not_enough_info] **Constraint**: Create parent directories if missing (e.g., `mkdir -p projects/PROJ-294-evaluating-the-impact-of-code-generation/code/`). **Constitution**: Aligns with Constitution Reproducibility Requirements (Principle V) path structure. (Plan: Project Structure)
 - [ ] T001b [P] Create `state/` directory at `projects/PROJ-294-evaluating-the-impact-of-code-generation/`. **Constraint**: Distinct from T001a to ensure clear separation of state tracking from data/results. (Plan: Project Structure)
 - [ ] T001c [P] Create `__init__.py` files in `code/`, `tests/`, `tests/unit/`, `tests/integration/`. (Plan: Project Structure)
-- [X] T002 [P] Initialize a Python project with pinned dependencies in `code/requirements.txt`. (FR-007, Plan: Dependencies)
-- [X] T003 [P] Configure linting (flake8/black). **Deliverable**: Create `.flake8` with `max-line-length=88` and `pyproject.toml` with black configuration. (Plan: Testing)
+- [X] T002 [P] Initialize a Python project with pinned dependencies in `code/requirements.txt`. [UNRESOLVED-CLAIM: c_84ef0d55 — status=not_enough_info] (FR-007, Plan: Dependencies)
+- [X] T003 [P] Configure linting (flake8/black). **Deliverable**: Create `.flake8` with `max-line-length=88` and `pyproject.toml` with black configuration. [UNRESOLVED-CLAIM: c_d30f22d6 — status=not_enough_info] (Plan: Testing)
 
 ---
 
@@ -40,7 +40,7 @@
 
 - [X] T004 [P] Setup logging infrastructure in `code/utils/logger.py` with timestamp and task ID tracking (FR-007). (FR-007)
 - [ ] T004b [P] **Performance Instrumentation (Hooks)**: Implement logging hooks in `code/utils/logger.py` to capture `generation_duration_ms` and `tasks_per_minute` for each generation task. **Constraint**: Hooks must emit structured log events. Do NOT implement aggregation logic here. (SC-001, SC-002)
-- [ ] T004c [P] **Performance Instrumentation (Aggregation)**: Implement logic to aggregate metrics from logs, write them to `data/analysis/performance.json`, and validate against a documented capacity threshold (e.g., >= 10 tasks/min). **Constraint**: This task implements the threshold validation previously in T004b. (SC-001, SC-002)
+- [ ] T004c [P] **Performance Instrumentation (Aggregation)**: Implement logic to aggregate metrics from logs, write them to `data/analysis/performance.json`, and validate against a documented capacity threshold (e.g., >= 10 tasks/min). [UNRESOLVED-CLAIM: c_70f84d19 — status=not_enough_info] **Constraint**: This task implements the threshold validation previously in T004b. (SC-001, SC-002)
 - [X] T005 [P] Implement SHA256 checksum utility in `code/utils/hash_utils.py` for dataset and artifact verification (FR-001, FR-011). (FR-001, FR-011)
 - [ ] T015a [US1] **Execution Environment Setup**: Implement `code/sandbox.py` to create an isolated execution environment for HumanEval test suites. **Implementation**: Use Python's `subprocess` module with `preexec_fn` to call `resource.setrlimit(resource.RLIMIT_AS, (2*1024*1024*2*1024*1024*1024, 2*1024*1024*1024))` to enforce a **memory limit**, ensuring sufficient headroom on the GitHub Actions runner for OS and Python overhead. **Timeout**: Enforce a strict **timeout** per task execution (per FR-005). **Output**: A reusable sandbox context manager class `TestSandbox` in `code/sandbox.py`. **Constraint**: This task MUST create `data/sandbox/` directory if needed. **Dependency**: T001a, T005. **Note**: This task ONLY provides the execution environment; it does NOT compute metrics. (FR-005, Plan: Testability Evaluation)
 - [ ] T008 [P] Create data directory structure: `data/raw/`, `data/generated/`, `data/analysis/`. **Constraint**: Do NOT create `state/` here; it is created in T001b at the root level. (Plan: Project Structure)
@@ -53,7 +53,7 @@
 
 **Goal**: Download HumanEval, generate LLM code, compute metrics (Complexity, Halstead, Static/Dynamic Coverage), and produce paired JSON dataset.
 
-**Independent Test**: Run the pipeline on the full HumanEval dataset (N=164). [UNRESOLVED-CLAIM: c_3e6cf316 — status=not_enough_info] Verify the following:
+**Independent Test**: Run the pipeline on the full HumanEval dataset (N=164). Verify the following:
 1. `data/analysis/base_metrics.json` exists and contains `cyclomatic_complexity`, `halstead_volume`, `branch_coverage_potential`, and `pass_rate` for **all tasks** (unfiltered).
 2. `data/analysis/valid_metrics.json` exists and contains **only** tasks with `pass_rate` >= 0.80.
 3. `data/analysis/valid_task_ids.json` exists and contains the exact list of task IDs filtered by the 0.80 threshold.
@@ -61,12 +61,12 @@
 
 ### Sub-Phase 3.1: Data Ingestion
 
-- [ ] T010 [US1] Implement `code/download_data.py` to download the **full** HumanEval dataset from HuggingFace (`openai/openai_humaneval`) using a **specific commit SHA** resolved dynamically from the dataset card or `data/metadata.yaml` (not hardcoded). Save raw data directly as `data/raw/humaneval.parquet`. **Implementation**: Use `datasets.load_dataset(...)` to fetch, convert the resulting Dataset object to a `pandas.DataFrame`, and use `df.to_parquet('data/raw/humaneval.parquet')`. Compute SHA256 for the parquet file. **Verification**: The script MUST verify that the recorded SHA in `metadata.yaml` matches the actual dataset fetched; if mismatch, **raise a critical exception and halt execution** to enforce Constitution Principle I (Reproducibility). **Constraint**: Implement exponential-backoff retry logic and a fixed timeout per task. **FAIL LOUDLY**: If the download fails, raise an exception. (FR-001, FR-011, Plan: Large real datasets: STREAM the real data)
+- [ ] T010 [US1] Implement `code/download_data.py` to download the **full** HumanEval dataset from HuggingFace (`openai/openai_humaneval`) using a **specific commit SHA** resolved dynamically from the dataset card or `data/metadata.yaml` (not hardcoded). Save raw data directly as `data/raw/humaneval.parquet`. [UNRESOLVED-CLAIM: c_f8137aca — status=not_enough_info] **Implementation**: Use `datasets.load_dataset(...)` to fetch, convert the resulting Dataset object to a `pandas.DataFrame`, and use `df.to_parquet('data/raw/humaneval.parquet')`. Compute SHA256 for the parquet file. **Verification**: The script MUST verify that the recorded SHA in `metadata.yaml` matches the actual dataset fetched; if mismatch, **raise a critical exception and halt execution** to enforce Constitution Principle I (Reproducibility). **Constraint**: Implement exponential-backoff retry logic and a fixed timeout per task. **FAIL LOUDLY**: If the download fails, raise an exception. (FR-001, FR-011, Plan: Large real datasets: STREAM the real data)
 - [ ] T011 [US1] Implement `code/extract_human_reference.py` to extract human reference code from `data/raw/humaneval.parquet` and save to `data/generated/human_samples.json`. **Constraint**: Must preserve `task_id` and `prompt` fields. **Output**: JSONL file with human solutions. **Dependency**: T010. (FR-005, Plan: Paired Statistical Design)
 
 ### Sub-Phase 3.2: Code Generation
 
-- [ ] T012 [US1] Implement `code/generate_code.py` to load **Primary Model: `Salesforce/codegen-mono-4b`** (8-bit quantized) on CPU. **Fallback**: If the large model fails (OOM or timeout), fall back to `Salesforce/codegen-mono-350M`. **Constraint**: Ensure `device="cpu"` is explicitly set. **Template**: Create `code/prompt_templates/humaneval.txt` if missing, using the standard HumanEval prompt format. **Timeout**: Implement exponential backoff retry logic with a **60-second timeout** per task. **Output**: Save generated code to `data/generated/codegen_samples.json`. (FR-002)
+- [ ] T012 [US1] Implement `code/generate_code.py` to load **Primary Model: `Salesforce/codegen-mono-4b`** (8-bit quantized) on CPU. **Fallback**: If the large model fails (OOM or timeout), fall back to `Salesforce/codegen-mono-350M`. **Constraint**: Ensure `device="cpu"` is explicitly set. **Template**: Create `code/prompt_templates/humaneval.txt` if missing, using the standard HumanEval prompt format. **Timeout**: Implement exponential backoff retry logic with a **60-second timeout** per task. [UNRESOLVED-CLAIM: c_dde5e9bd — status=not_enough_info] **Output**: Save generated code to `data/generated/codegen_samples.json`. (FR-002)
 - [ ] T013 [US1] Implement error handling in `code/generate_code.py` to log failures to `code/errors.log` and mark samples as missing. **Logic**: Catch `RuntimeError`, `TimeoutError`, and `MemoryError`. Log the task_id and error message. In the output JSON, set `generated_code` to `null` and `status` to `'failed'` for the specific task. (FR-002)
 
 ### Sub-Phase 3.3: Metric Extraction

@@ -1,9 +1,8 @@
 """
-Data download utilities for the Visual Salience project.
+Data download and subsetting utilities for the Moral Machine dataset.
 
-This module handles the retrieval of the Moral Machine dataset.
-It implements the full fetch, stratified subsetting, and saving logic
-as required by Task T013.
+This module handles fetching the raw Moral Machine data, verifying checksums,
+and creating a stratified subset for efficient processing.
 """
 import os
 import sys
@@ -11,266 +10,207 @@ import hashlib
 import logging
 import requests
 from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any
+from typing import Optional, Dict, Any, Tuple
 
-# Configure logger
+import pandas as pd
+from sklearn.model_selection import train_test_split
+
+# Configure logging
 logger = logging.getLogger(__name__)
 
-# Project root detection
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-RAW_DATA_DIR = DATA_DIR / "raw"
+# Constants
+MORAL_MACHINE_URL = "https://raw.githubusercontent.com/robinlovelace/moral-machine/master/moral_machine.csv"
+CHECKSUM_URL = "https://raw.githubusercontent.com/robinlovelace/moral-machine/master/moral_machine.csv.sha256"
+RAW_DATA_DIR = Path("data/raw")
+OUTPUT_FILE = RAW_DATA_DIR / "moral_machine_subset.csv"
+MAX_ROWS = 50000
+RANDOM_SEED = 42
+STRATIFY_COLUMNS = ["outcome", "species"]
 
-# Ensure directories exist
-RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-# Moral Machine dataset source
-# Source: HuggingFace Datasets (Open Science)
-# Dataset: moral-machine
-# File: moral_machine_data.csv
-MORAL_MACHINE_URL = "https://huggingface.co/datasets/moralmachine/moral_machine_data/resolve/main/moral_machine_data.csv"
-# If HuggingFace is not reachable, fallback to the direct GitHub raw link if available,
-# or fail loudly as per constraints.
-MORAL_MACHINE_GITHUB_RAW = "https://raw.githubusercontent.com/rajan-moralmachine/moral-machine-data/main/moral_machine_data.csv"
+def compute_file_sha256(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def download_from_url(url: str, dest_path: Path, chunk_size: int = 8192) -> bool:
+
+def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
+    """Verify the SHA256 checksum of a file."""
+    computed = compute_file_sha256(file_path)
+    return computed.lower() == expected_checksum.lower().strip()
+
+
+def download_from_url(url: str, dest_path: Path, timeout: int = 300) -> Path:
     """
-    Downloads a file from a URL to a destination path.
-    
+    Download a file from a URL to a local path.
+
     Args:
-        url: The source URL.
-        dest_path: The local destination path.
-        chunk_size: Size of chunks to read.
-        
+        url: The URL to download from.
+        dest_path: The local path to save the file.
+        timeout: Request timeout in seconds.
+
     Returns:
-        True if successful, False otherwise.
+        The path to the downloaded file.
+
+    Raises:
+        RuntimeError: If the download fails or the file cannot be written.
     """
-    logger.info(f"Attempting download from {url}...")
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Downloading {url} to {dest_path}...")
+
     try:
-        response = requests.get(url, stream=True, timeout=60)
+        response = requests.get(url, stream=True, timeout=timeout)
         response.raise_for_status()
-        
+
         total_size = int(response.headers.get('content-length', 0))
-        logger.info(f"Downloading... Total size: {total_size / 1024 / 1024:.2f} MB")
-        
+        block_size = 1024  # 1 Kibibyte
+
         with open(dest_path, 'wb') as f:
             downloaded = 0
-            for chunk in response.iter_content(chunk_size=chunk_size):
+            for chunk in response.iter_content(chunk_size=block_size):
                 if chunk:
                     f.write(chunk)
                     downloaded += len(chunk)
                     if total_size > 0:
                         progress = (downloaded / total_size) * 100
-                        if downloaded % (chunk_size * 100) == 0:
-                            logger.debug(f"Progress: {progress:.1f}%")
-        
-        logger.info(f"Download complete: {dest_path}")
-        return True
+                        logger.debug(f"Download progress: {progress:.2f}%")
+
+        logger.info(f"Download complete: {dest_path} ({downloaded} bytes)")
+        return dest_path
+
     except requests.exceptions.RequestException as e:
         logger.error(f"Failed to download from {url}: {e}")
-        return False
+        raise RuntimeError(f"Download failed: {e}")
 
-def verify_checksum(file_path: Path, expected_hash: str, algorithm: str = "sha256") -> bool:
+
+def download_moral_machine_data() -> Path:
     """
-    Verify the SHA-256 checksum of a file.
-    
-    Args:
-        file_path: Path to the file to verify.
-        expected_hash: The expected hex digest.
-        algorithm: Hash algorithm (default sha256).
-        
+    Download the full Moral Machine dataset and verify its checksum.
+
     Returns:
-        True if the hash matches, False otherwise.
+        Path to the downloaded raw CSV file.
     """
-    if not file_path.exists():
-        logger.error(f"File not found for checksum verification: {file_path}")
-        return False
+    raw_file = RAW_DATA_DIR / "moral_machine_full.csv"
 
-    hasher = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hasher.update(chunk)
-    
-    actual_hash = hasher.hexdigest()
-    if actual_hash.lower() == expected_hash.lower():
-        logger.info(f"Checksum verified for {file_path}")
-        return True
-    else:
-        logger.error(f"Checksum mismatch for {file_path}. Expected {expected_hash}, got {actual_hash}")
-        return False
+    if raw_file.exists():
+        logger.info(f"Raw data already exists at {raw_file}. Skipping download.")
+        # Verify checksum if possible, otherwise assume valid
+        try:
+            # Attempt to fetch checksum for verification
+            checksum_resp = requests.get(CHECKSUM_URL, timeout=30)
+            if checksum_resp.status_code == 200:
+                expected_checksum = checksum_resp.text.strip()
+                if verify_checksum(raw_file, expected_checksum):
+                    logger.info("Checksum verification passed.")
+                else:
+                    logger.warning("Checksum mismatch. Re-downloading...")
+                    raw_file.unlink()
+                return raw_file
+        except Exception as e:
+            logger.warning(f"Could not verify checksum: {e}")
+
+    download_from_url(MORAL_MACHINE_URL, raw_file)
+    return raw_file
+
 
 def subset_csv(
-    input_path: Path, 
-    output_path: Path, 
-    max_rows: int = 50000, 
-    seed: int = 42, 
-    stratify_columns: Optional[List[str]] = None
-) -> Tuple[int, int]:
-    """
-    Subsets a CSV file using stratified sampling.
-    
-    Args:
-        input_path: Path to the source CSV.
-        output_path: Path to save the subset.
-        max_rows: Maximum number of rows to keep.
-        seed: Random seed for reproducibility.
-        stratify_columns: Columns to use for stratified sampling.
-        
-    Returns:
-        Tuple of (original_count, subset_count).
-    """
-    import pandas as pd
-    
-    logger.info(f"Loading data from {input_path}...")
-    try:
-        df = pd.read_csv(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load CSV: {e}")
-        raise
-    
-    original_count = len(df)
-    logger.info(f"Loaded {original_count} rows.")
-    
-    if original_count <= max_rows:
-        logger.info("Original dataset is already within the row limit. Saving as is.")
-        df.to_csv(output_path, index=False)
-        return (original_count, original_count)
-    
-    logger.info(f"Subsetting to {max_rows} rows with seed={seed}...")
-    
-    # Determine stratification columns
-    # Task T013 specifies: stratify by outcome and species
-    # We need to map generic column names to the Moral Machine schema if possible.
-    # Common Moral Machine columns: 'outcome' (who died), 'species' (if applicable), 'gender', 'age', etc.
-    # If specific columns don't exist, we fall back to random sampling without stratification
-    # but log a warning.
-    
-    available_cols = df.columns.tolist()
-    stratify_cols = []
-    
-    # Heuristic mapping for Moral Machine dataset
-    outcome_col = None
-    species_col = None
-    
-    # Look for 'outcome' or similar
-    for col in ['outcome', 'decision', 'choice']:
-        if col in available_cols:
-            outcome_col = col
-            break
-    
-    # Look for 'species' or similar (often encoded in 'who_died' or specific columns)
-    # In the standard Moral Machine dataset, 'who_died' indicates the category of the dead party.
-    # We will try to use 'who_died' or 'outcome' for stratification.
-    for col in ['who_died', 'species', 'category']:
-        if col in available_cols:
-            species_col = col
-            break
-    
-    if outcome_col:
-        stratify_cols.append(outcome_col)
-    if species_col and species_col != outcome_col:
-        stratify_cols.append(species_col)
-    
-    if not stratify_cols:
-        logger.warning("Could not find stratification columns (outcome/species). Falling back to random sampling.")
-        # Random sample without stratification
-        subset_df = df.sample(n=max_rows, random_state=seed)
-    else:
-        logger.info(f"Stratifying by columns: {stratify_cols}")
-        # Ensure we don't have more strata than rows requested (which would cause sample size issues)
-        # pandas sample with stratify handles this by taking proportional representation.
-        # We must ensure the sample size is valid for the smallest stratum.
-        try:
-            subset_df = df.sample(n=max_rows, random_state=seed, stratify=df[stratify_cols])
-        except ValueError as e:
-            logger.warning(f"Stratified sampling failed: {e}. Falling back to random sampling.")
-            subset_df = df.sample(n=max_rows, random_state=seed)
-    
-    subset_count = len(subset_df)
-    subset_df.to_csv(output_path, index=False)
-    
-    logger.info(f"Subset saved to {output_path} with {subset_count} rows.")
-    return (original_count, subset_count)
-
-def download_moral_machine_data(
-    output_path: Optional[Path] = None, 
-    max_rows: int = 50000, 
-    seed: int = 42
+    input_path: Path,
+    output_path: Path,
+    max_rows: int = MAX_ROWS,
+    seed: int = RANDOM_SEED,
+    stratify_cols: list = None
 ) -> Path:
     """
-    Orchestrates the download and subsetting of the Moral Machine dataset.
-    
+    Load a CSV, perform stratified sampling, and save the subset.
+
+    This function ensures the output contains exactly `max_rows` (or fewer if
+    the dataset is smaller) rows, maintaining the distribution of the
+    specified stratification columns.
+
     Args:
-        output_path: Optional specific output path. Defaults to data/raw/moral_machine_subset.csv.
-        max_rows: Target number of rows for the subset.
-        seed: Random seed for sampling.
-        
+        input_path: Path to the input CSV.
+        output_path: Path to save the subset CSV.
+        max_rows: Maximum number of rows to keep.
+        seed: Random seed for reproducibility.
+        stratify_cols: List of column names to use for stratification.
+
     Returns:
-        Path to the resulting CSV file.
+        Path to the output subset CSV.
     """
-    if output_path is None:
-        output_path = RAW_DATA_DIR / "moral_machine_subset.csv"
-        
-    logger.info(f"Starting Moral Machine data download process...")
-    logger.info(f"Target output: {output_path}")
-    logger.info(f"Target rows: {max_rows}, Seed: {seed}")
-    
-    # Step 1: Download the full dataset
-    # We download to a temporary full file first
-    temp_full_path = RAW_DATA_DIR / "moral_machine_full.csv"
-    
-    success = False
-    # Try primary source
-    if download_from_url(MORAL_MACHINE_URL, temp_full_path):
-        success = True
-    # Try fallback source
-    elif download_from_url(MORAL_MACHINE_GITHUB_RAW, temp_full_path):
-        success = True
-    
-    if not success:
-        logger.error("Failed to download the Moral Machine dataset from all known sources.")
-        raise RuntimeError("Unable to fetch real data. Aborting.")
-    
-    # Step 2: Subset the data
-    try:
-        subset_csv(
-            input_path=temp_full_path,
-            output_path=output_path,
-            max_rows=max_rows,
-            seed=seed,
-            stratify_columns=['outcome', 'who_died'] # Attempt to use common column names
-        )
-    except Exception as e:
-        logger.error(f"Subsetting failed: {e}")
-        # Clean up temp file if subset fails? No, keep it for debugging.
-        raise
-    
-    # Step 3: Clean up full file (optional, but good practice for large files)
-    if temp_full_path.exists():
-        logger.info("Removing full dataset file to save space.")
-        temp_full_path.unlink()
-    
-    logger.info(f"Download and subsetting complete. Output: {output_path}")
+    if stratify_cols is None:
+        stratify_cols = STRATIFY_COLUMNS
+
+    logger.info(f"Loading {input_path}...")
+    df = pd.read_csv(input_path)
+    total_rows = len(df)
+    logger.info(f"Loaded {total_rows} rows.")
+
+    if total_rows <= max_rows:
+        logger.warning(f"Dataset ({total_rows} rows) is smaller than target ({max_rows}). Saving full dataset.")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(output_path, index=False)
+        return output_path
+
+    # Check if stratification columns exist
+    missing_cols = [col for col in stratify_cols if col not in df.columns]
+    if missing_cols:
+        logger.warning(f"Stratification columns {missing_cols} not found. Falling back to random sampling.")
+        df_sample = df.sample(n=max_rows, random_state=seed)
+    else:
+        # Filter out rows with missing values in stratification columns to avoid errors
+        df_clean = df.dropna(subset=stratify_cols)
+        if len(df_clean) < max_rows:
+            logger.warning(f"Cleaned dataset ({len(df_clean)} rows) is smaller than target. Saving all clean rows.")
+            df_sample = df_clean
+        else:
+            # Stratified sample
+            # We need to sample n=max_rows from the whole dataframe, preserving ratios
+            # sklearn's train_test_split is perfect for this
+            _, df_sample = train_test_split(
+                df_clean,
+                train_size=max_rows,
+                random_state=seed,
+                stratify=df_clean[stratify_cols]
+            )
+            logger.info(f"Stratified sampling completed. Selected {len(df_sample)} rows.")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df_sample.to_csv(output_path, index=False)
+    logger.info(f"Subset saved to {output_path} ({len(df_sample)} rows).")
     return output_path
 
+
 def main():
-    """
-    Entry point for the download module.
-    Runs the full download and subsetting process.
-    """
+    """Main entry point for the download and subsetting pipeline."""
+    # Setup logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    
-    logger.info("Executing code/data/download.py (T013 Implementation)")
-    
+
     try:
-        output_file = download_moral_machine_data()
-        logger.info(f"Download process completed successfully. Output at: {output_file}")
+        # Step 1: Download full data
+        raw_path = download_moral_machine_data()
+
+        # Step 2: Subset the data
+        subset_path = subset_csv(
+            input_path=raw_path,
+            output_path=OUTPUT_FILE,
+            max_rows=MAX_ROWS,
+            seed=RANDOM_SEED,
+            stratify_cols=STRATIFY_COLUMNS
+        )
+
+        logger.info(f"Pipeline complete. Output: {subset_path}")
+        return 0
+
     except Exception as e:
-        logger.error(f"Download process failed: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Pipeline failed: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

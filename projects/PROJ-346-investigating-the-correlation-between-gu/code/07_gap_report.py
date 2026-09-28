@@ -5,77 +5,95 @@ import logging
 from pathlib import Path
 from datetime import datetime
 
-# Import shared utilities
-from utils import (
-    get_project_root_path,
-    get_data_processed_path,
-    get_data_qc_path,
-    setup_logger,
-    write_json_log
-)
+# Import local utilities ensuring compatibility with the API surface
+try:
+    from utils import (
+        get_project_root_path,
+        get_data_processed_path,
+        get_data_raw_path,
+        setup_logger,
+        write_json_log
+    )
+except ImportError:
+    sys.path.insert(0, str(Path(__file__).parent))
+    from utils import (
+        get_project_root_path,
+        get_data_processed_path,
+        get_data_raw_path,
+        setup_logger,
+        write_json_log
+    )
 
 logger = setup_logger("gap_report")
 
-def generate_gap_report(reason: str = "Unknown reason"):
+def generate_gap_report(reason: str = "No common participant IDs found"):
     """
-    Generate a structured Data Gap Report artifact.
-    Documents the inability to link individual-level data.
-    Logs the specific reason and marks SC-001/SC-004 as "Not Measurable".
-    This function implements FR-008 fallback behavior.
-    
-    Args:
-        reason: The specific reason for the data gap (e.g., "No common sample IDs").
-    
-    Returns:
-        dict: The generated report data.
+    Generate a Data Gap Notification (FR-008 fallback).
+    Writes the report to data/processed/data_gap_report.json.
+    Triggers T017d (Meta-Analysis) immediately after writing the report.
     """
-    logger.warning("Generating Data Gap Report (FR-008 fallback)...")
-    
-    # Determine output path: The task specifies data/processed/data_gap_report.json
-    processed_path = get_data_processed_path()
-    report_file = processed_path / "data_gap_report.json"
-    
-    # Ensure the directory exists
-    processed_path.mkdir(parents=True, exist_ok=True)
-    
-    timestamp = datetime.now().isoformat()
-    
+    logger.info(f"Generating Data Gap Report (FR-008 fallback)...")
+    logger.info(f"Reason: {reason}")
+
     report_data = {
-        "timestamp": timestamp,
-        "status": "Data Gap Detected",
-        "measureability": {
-            "SC-001": "Not Measurable",
-            "SC-004": "Not Measurable"
-        },
-        "reason": reason,
-        "details": {
-            "action_taken": "Skipped statistical synthesis (FR-008 fallback)",
-            "next_steps": "Review data sources for individual-level linkage keys (sample_id)",
-            "affected_studies": [
-                "Gut Microbiome Composition Study",
-                "Cognitive Flexibility Assessment"
-            ],
-            "pipeline_status": "TERMINATED_AT_PREPROCESSING",
-            "associational_framing": "No association could be measured due to data gap.",
-            "causal_claims": "None made. Pipeline halted before analysis."
-        }
+        "timestamp": datetime.now().isoformat(),
+        "status": "DATA_GAP",
+        "failure_reason": reason,
+        "affected_studies": [
+            "Qiita Study 10313 (Microbiome)",
+            "UK Biobank / NHANES (Cognitive)"
+        ],
+        "action_taken": "Triggered Secondary Literature Synthesis (T017d)",
+        "next_step_script": "code/08_meta_analysis.py",
+        "output_file": "data/processed/data_gap_report.json"
     }
+
+    # Ensure the output path is a file, not a directory
+    output_dir = get_data_processed_path()
+    output_path = output_dir / "data_gap_report.json"
     
-    logger.info(f"Writing gap report to {report_file}")
-    write_json_log(report_data, report_file)
-    
-    logger.info(f"Data Gap Report saved. Reason: {reason}")
-    return report_data
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Fix potential IsADirectoryError by ensuring we write to a file path
+    # If a directory exists at this path, remove it to allow file creation
+    if output_path.exists() and output_path.is_dir():
+        logger.warning(f"Path {output_path} is a directory. Removing it to write file.")
+        import shutil
+        shutil.rmtree(output_path)
+
+    write_json_log(report_data, output_path)
+    logger.info(f"Gap report written to {output_path}")
+
+    # Trigger T017d (Meta-Analysis) immediately
+    logger.info("Triggering T017d (Secondary Literature Synthesis)...")
+    trigger_meta_analysis()
+
+def trigger_meta_analysis():
+    """
+    Executes the meta-analysis script (T017d) to generate the fallback report.
+    This function is called by generate_gap_report.
+    """
+    meta_script_path = Path(__file__).parent / "08_meta_analysis.py"
+    if meta_script_path.exists():
+        logger.info(f"Executing {meta_script_path}...")
+        # Run the meta-analysis script as a subprocess to ensure it runs independently
+        # and writes its own output files.
+        result = os.system(f"python {meta_script_path}")
+        if result != 0:
+            logger.error(f"Meta-analysis script failed with exit code {result}")
+            raise RuntimeError("Secondary literature synthesis (T017d) failed.")
+        logger.info("Meta-analysis completed successfully.")
+    else:
+        logger.warning(f"Meta-analysis script not found at {meta_script_path}. Skipping trigger.")
 
 def main():
-    """
-    Entry point for generating the gap report.
-    Can be called directly or invoked from 02_preprocess.py when merge fails.
-    This script is designed to run and produce the required artifact.
-    """
-    reason = "Individual-level linkage failed: No common sample IDs found between microbiome and cognitive datasets."
-    generate_gap_report(reason=reason)
-    logger.info("Gap report generation complete.")
+    """Main entry point for the gap report generation."""
+    try:
+        generate_gap_report()
+    except Exception as e:
+        logger.exception(f"Error generating gap report: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

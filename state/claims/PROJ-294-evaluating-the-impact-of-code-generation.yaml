@@ -2395,3 +2395,266 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-21T20:07:45Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: directory structure creation
+  claim_id: c_7df3749a
+  context: 'Create directory structure at `projects/PROJ-294-evaluating-the-impact-of-code-generation/`:
+    `code/`, `data/`, `results/`, `tests/`, `docs/`. **Constraint**: Create parent
+    directories if missing (e.g., `mkdir -p projects/PROJ-294-evaluating-the-impact-of-code-generation/code/`).
+    **Constitution**: Aligns with Constitution Reproducibility Requirements (Principle
+    V) path structure. (Plan: Project Structure)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create directory structure at `projects/PROJ-294-evaluating-the-impact-of-code-generation/`:
+    `code/`, `data/`, `results/`, `tests/`, `docs/`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:02:39Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Python project initialization with pinned dependencies
+  claim_id: c_84ef0d55
+  context: 'Initialize a Python project with pinned dependencies in `code/requirements.txt`.
+    (FR-007, Plan: Dependencies)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Python_project_initialization_with_pinned_dependencies
+  kind: entity_fact
+  raw_text: Initialize a Python project with pinned dependencies in `code/requirements.txt`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:03:15Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: flake8 and black configuration
+  claim_id: c_d30f22d6
+  context: 'Configure linting (flake8/black). **Deliverable**: Create `.flake8` with
+    `max-line-length=88` and `pyproject.toml` with black configuration. (Plan: Testing)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create `.flake8` with `max-line-length=88` and `pyproject.toml` with black
+    configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:03:53Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: SHA256 checksum implementation
+  claim_id: c_f67a85e3
+  context: Implement SHA256 checksum utility in `code/utils/hash_utils.py` for dataset
+    and artifact verification (FR-001, FR-011). (FR-001, FR-011)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHA256_checksum_implementation
+  kind: entity_fact
+  raw_text: Implement SHA256 checksum utility in `code/utils/hash_utils.py` for dataset
+    and artifact verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:04:24Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: memory limit implementation
+  claim_id: c_5fa7e599
+  context: Implement `code/sandbox.py` to create an isolated execution environment
+    for HumanEval test suites...`resource.setrlimit(resource.RLIMIT_AS, (2*1024*1024*2*1024*1024*1024,
+    2*1024*1024*1024))` to enforce a **memory limit**...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a **memory limit**... `resource.setrlimit(resource.RLIMIT_AS,
+    (2*1024*1024*2*1024*1024*1024, 2*1024*1024*1024))`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:04:47Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: logging hooks for generation metrics
+  claim_id: c_a8cf4e64
+  context: 'Implement logging hooks in `code/utils/logger.py` to capture `generation_duration_ms`
+    and `tasks_per_minute` for each generation task. **Constraint**: Hooks must emit
+    structured log events. Do NOT implement aggregation logic here. (SC-001, SC-002)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Logging_hooks_for_generation_metrics
+  kind: entity_fact
+  raw_text: Implement logging hooks to capture `generation_duration_ms` and `tasks_per_minute`
+    for each generation task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:05:18Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: performance metric aggregation and validation
+  claim_id: c_70f84d19
+  context: 'Implement logic to aggregate metrics from logs, write them to `data/analysis/performance.json`,
+    and validate against a documented capacity threshold (e.g., >= 10 tasks/min).
+    **Constraint**: This task implements the threshold validation previously in T004b.
+    (SC-001, SC-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic to aggregate metrics from logs, write them to `data/analysis/performance.json`,
+    and validate against a documented capacity threshold (e.g., >= 10 tasks/min).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:05:47Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset download
+  claim_id: c_ae3147fa
+  context: Implement `code/download_data.py` to download the **full** HumanEval dataset
+    from HuggingFace (`openai/openai_humaneval`) using a **specific commit SHA** resolved
+    dynamically from the dataset card or `data/metadata.yaml` (not hardcoded).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_download
+  kind: entity_fact
+  raw_text: Download the **full** HumanEval dataset from HuggingFace (`openai/openai_humaneval`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:06:23Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval data storage format
+  claim_id: c_f8137aca
+  context: Implement `code/download_data.py` to download the **full** HumanEval dataset
+    from HuggingFace (`openai/openai_humaneval`) using a **specific commit SHA** resolved
+    dynamically from the dataset card or `data/metadata.yaml` (not hardcoded). Save
+    raw data directly as `data/raw/humaneval.parquet`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_data_storage_format
+  kind: entity_fact
+  raw_text: Save raw data directly as `data/raw/humaneval.parquet`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:06:57Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: codegen-mono-4b model usage
+  claim_id: c_35e5ab82
+  context: 'Implement `code/generate_code.py` to load **Primary Model: `Salesforce/codegen-mono-4b`**
+    (8-bit quantized) on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `Salesforce/codegen-mono-4b` (8-bit quantized)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:07:30Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: codegen-mono-350M model fallback
+  claim_id: c_2329a546
+  context: 'Implement `code/generate_code.py` to load **Primary Model: `Salesforce/codegen-mono-4b`**
+    (8-bit quantized) on CPU. **Fallback**: If the large model fails (OOM or timeout),
+    fall back to `Salesforce/codegen-mono-350M`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Codegen-mono-350M_model_fallback
+  kind: entity_fact
+  raw_text: Fall back to `Salesforce/codegen-mono-350M`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:08:14Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: code generation timeout
+  claim_id: c_dde5e9bd
+  context: 'Implement `code/generate_code.py` to load **Primary Model: `Salesforce/codegen-mono-4b`**
+    (8-bit quantized) on CPU. **Fallback**: If the large model fails (OOM or timeout),
+    fall back to `Salesforce/codegen-mono-350M`. **Constraint**: Ensure `device="cpu"`
+    is explicitly set. **Template**: Create `code/prompt_templates/humaneval.txt`
+    if missing, using the standard HumanEval prompt format. **Timeout**: Implement
+    exponential backoff retry logic with a **60-second timeout** per task.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff retry logic with a **60-second timeout**
+    per task.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:08:43Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: metric file verification and filtering
+  claim_id: c_4ae7fe6b
+  context: 'Independent Test: Run the pipeline on the full HumanEval dataset (N=164).
+    Verify the following: 1. `data/analysis/base_metrics.json` exists and contains
+    `cyclomatic_complexity`, `halstead_volume`, `branch_coverage_potential`, and `pass_rate`
+    for **all tasks** (unfiltered). 2. `data/analysis/valid_metrics.json` exists and
+    contains **only** tasks with `pass_rate` >= 0.80.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Verify the following: 1. `data/analysis/base_metrics.json` exists and
+    contains `cyclomatic_complexity`, `halstead_volume`, `branch_coverage_potential`,
+    and `pass_rate` for **all tasks** (unfiltered). 2. `data/analysis/valid_metrics.json`
+    exists and contains **only** tasks with `pass_rate` >= 0.80.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:09:08Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset size
+  claim_id: c_78bd45da
+  context: 'Independent Test: Run the pipeline on the full HumanEval dataset (N=164).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full HumanEval dataset (N=164).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T23:09:42Z'

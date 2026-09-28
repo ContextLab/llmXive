@@ -1,16 +1,18 @@
-# PROJ-066: Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores
+# Project: Investigating Correlations Between Molecular Descriptors and Drug-Likeness Scores
 
-This project investigates correlations between molecular descriptors and drug-likeness scores.
+## Overview
+This project aims to analyze the relationship between molecular descriptors (e.g., TPSA, logP) and drug-likeness scores using data from ChEMBL.
 
-## Project Structure
+## Status
+- Phase 1 (Setup): In Progress
+- Phase 2 (Foundational): Pending
+- Phase 3 (User Story 1): Pending
 
-- `data/`: Raw and processed datasets
-- `code/`: Python modules for data processing, modeling, and utilities
-- `tests/`: Unit and integration tests
-- `specs/`: Project specifications and design documents
-- `state/`: Pipeline state tracking and artifact hashes
-- `figures/`: Generated plots and visualizations
+## Artifacts
+- Raw Data: `data/raw/chembl_33.db`
+- Processed Data: `data/processed/molecules_processed.csv`
+- Models: `data/processed/model_lr.pkl`, `data/processed/model_rf.pkl`
+- Metrics: `data/processed/metrics_summary.json`
 
-## Setup
-
-Run `python code/setup_directories.py` to ensure the directory structure is initialized.
+## State Tracking
+Pipeline state is managed in `state/projects/PROJ-066-investigating-correlations-between-molec.yaml`.

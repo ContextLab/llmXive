@@ -1,11 +1,8 @@
-# Ruff configuration for PROJ-066
-# This file is an alternative to [tool.ruff] in pyproject.toml
-# It is included to ensure explicit configuration visibility.
-
+# Ruff configuration for linting
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
 line-length = 88
 target-version = "py310"
 
-[lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -20,5 +17,7 @@ ignore = [
     "C901",  # too complex
 ]
 
-[lint.per-file-ignores]
-"tests/*" = ["S101"]  # Allow asserts in tests
+[isort]
+known-first-party = ["utils", "data", "models"]
+force-sort-within-sections = true
+combine-as-imports = true

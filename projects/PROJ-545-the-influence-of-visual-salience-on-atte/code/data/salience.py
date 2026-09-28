@@ -6,69 +6,63 @@ import time
 import re
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple, Union
+
 import numpy as np
 import pandas as pd
+import cv2
+from PIL import Image
 
-# Try to import CV2 for visual processing (used in T014, kept here for context)
-# If not available, visual functions will raise ImportError as expected
-try:
-    import cv2
-    HAS_OPENCV = True
-except ImportError:
-    HAS_OPENCV = False
+# Local imports based on API surface
+# Note: utils.logger is available per project API surface
+from utils.logger import get_logger, log_error_to_file
 
-from utils.logger import get_logger
-
-logger = get_logger(__name__)
+# Configure module logger
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 # Constants
-TEXT_SALIENCE_MIN = 0.0
-TEXT_SALIENCE_MAX = 1.0
-WORD_FREQ_THRESHOLD = 50  # Frequency threshold for high salience words
-POSITION_DECAY = 0.9      # Decay factor for word position in text
+TEXT_HEURISTIC_WEIGHT = 0.6
+POSITION_WEIGHT = 0.4
+MAX_TEXT_LENGTH = 500
+SALIENCE_MIN = 0.0
+SALIENCE_MAX = 1.0
 
-# Common stop words to ignore (basic set)
-STOP_WORDS = {
-    'the', 'is', 'in', 'and', 'to', 'a', 'of', 'for', 'on', 'with',
-    'as', 'by', 'at', 'an', 'be', 'are', 'was', 'were', 'been', 'be',
-    'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
-    'should', 'may', 'might', 'must', 'shall', 'can', 'need', 'dare',
-    'ought', 'used', 'it', 'its', 'this', 'that', 'these', 'those',
-    'i', 'you', 'he', 'she', 'we', 'they', 'what', 'which', 'who',
-    'whom', 'where', 'when', 'why', 'how', 'all', 'each', 'every',
-    'both', 'few', 'more', 'most', 'other', 'some', 'such', 'no',
-    'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very',
-    'just', 'also', 'now', 'here', 'there', 'then', 'once', 'if',
-    'because', 'as', 'until', 'while', 'although', 'though', 'after',
-    'before', 'above', 'below', 'between', 'under', 'again', 'further',
-    'once', 'am', 'being', 'having', 'doing', 'her', 'his', 'my',
-    'our', 'their', 'your', 'its', 'me', 'him', 'us', 'them'
-}
+def _log_salience_failure(row_idx: int, reason: str, details: Optional[Dict] = None):
+    """
+    Logs a failure event for salience computation.
+    This function is called when visual processing fails or fallback is triggered.
+    """
+    msg = f"Salience computation failed for row {row_idx}: {reason}"
+    if details:
+        msg += f" | Details: {details}"
+    logger.warning(msg)
+    # Optional: log to a dedicated failure file if needed
+    # log_error_to_file(msg, file="data/logs/salience_failures.log")
 
-# High salience keywords (e.g., moral agents, victims, action verbs)
-# These are weighted higher in the heuristic
-HIGH_SALIENCE_KEYWORDS = {
-    'person', 'people', 'human', 'man', 'woman', 'child', 'baby', 'dog', 'cat',
-    'animal', 'driver', 'pedestrian', 'victim', 'hero', 'villain', 'save', 'kill',
-    'die', 'died', 'death', 'live', 'survive', 'injury', 'hurt', 'hit', 'crash',
-    'accident', 'brake', 'steer', 'swerve', 'choice', 'decision', 'moral', 'ethics',
-    'right', 'wrong', 'guilt', 'blame', 'responsible', 'fault', 'innocent', 'guilty'
-}
+def _log_fallback_trigger(row_idx: int, original_issue: str, fallback_method: str):
+    """
+    Logs when a fallback mechanism is triggered due to visual processing failure.
+    """
+    msg = f"Fallback triggered for row {row_idx}: {original_issue} -> using {fallback_method}"
+    logger.info(msg)
 
 def compute_text_heuristic_salience(text: Optional[str]) -> float:
     """
-    Compute a text-based salience heuristic score.
-    
-    This function implements a heuristic based on:
-    1. Word frequency (presence of high-salience keywords)
-    2. Position of salient words (earlier words contribute more)
+    Computes a heuristic salience score based on text content.
+    Uses word frequency and position heuristics.
     
     Args:
-        text (Optional[str]): The text content to analyze.
+        text: The text content to analyze.
         
     Returns:
-        float: A normalized salience score between 0.0 and 1.0.
-               Returns 0.0 if text is None or empty.
+        A float between 0.0 and 1.0 representing the heuristic salience score.
     """
     if not text or not isinstance(text, str):
         return 0.0
@@ -76,331 +70,221 @@ def compute_text_heuristic_salience(text: Optional[str]) -> float:
     text = text.strip()
     if not text:
         return 0.0
-        
-    # Tokenize: split by whitespace and remove punctuation
-    words = re.findall(r'\b\w+\b', text.lower())
     
+    # Normalize length
+    length_score = min(len(text) / MAX_TEXT_LENGTH, 1.0)
+    
+    # Word frequency heuristic (simple count of unique words)
+    words = re.findall(r'\w+', text.lower())
+    unique_words = set(words)
     if not words:
         return 0.0
     
-    score = 0.0
-    total_weight = 0.0
+    # Density of unique words (higher density -> potentially more specific/salient)
+    density = len(unique_words) / len(words)
     
-    for i, word in enumerate(words):
-        if word in STOP_WORDS:
-            continue
-            
-        weight = 0.0
-        
-        # Position decay: earlier words are more salient
-        pos_weight = POSITION_DECAY ** i
-        
-        if word in HIGH_SALIENCE_KEYWORDS:
-            # High salience keyword
-            weight = 2.0 * pos_weight
-        else:
-            # Regular content word
-            weight = 1.0 * pos_weight
-        
-        score += weight
-        total_weight += pos_weight
+    # Position heuristic: words appearing earlier might be more salient
+    # Assuming first sentence/paragraph is most important
+    first_10_words = words[:10]
+    position_score = min(len(first_10_words) / 10, 1.0)
     
-    # Normalize to 0.0 - 1.0 range
-    if total_weight == 0:
-        return 0.0
-        
-    normalized_score = min(score / total_weight, 1.0)
+    # Combine scores
+    score = (TEXT_HEURISTIC_WEIGHT * density) + (POSITION_WEIGHT * position_score)
     
-    # Ensure it's in valid range
-    return float(np.clip(normalized_score, TEXT_SALIENCE_MIN, TEXT_SALIENCE_MAX))
+    # Normalize to 0.0-1.0
+    return float(np.clip(score, SALIENCE_MIN, SALIENCE_MAX))
 
-def load_image_from_url(url: str, cache_dir: Optional[Path] = None) -> Optional[np.ndarray]:
+def load_image_from_url(url: str) -> Optional[np.ndarray]:
     """
-    Load an image from a URL, caching locally if possible.
+    Loads an image from a URL.
     
     Args:
-        url (str): The URL of the image.
-        cache_dir (Optional[Path]): Directory to cache downloaded images.
+        url: The URL of the image.
         
     Returns:
-        Optional[np.ndarray]: The image as a numpy array, or None if loading fails.
+        The image as a numpy array, or None if loading fails.
     """
-    if not HAS_OPENCV:
-        logger.error("OpenCV not installed, cannot load image from URL")
-        return None
-        
-    if not url or not url.startswith('http'):
-        logger.warning(f"Invalid URL for image loading: {url}")
-        return None
-        
     try:
-        # Simple caching based on URL hash
-        if cache_dir:
-            url_hash = hashlib.md5(url.encode()).hexdigest()
-            cache_path = cache_dir / f"{url_hash}.jpg"
-            
-            if cache_path.exists():
-                img = cv2.imread(str(cache_path))
-                if img is not None:
-                    return img
-        
-        # Download image
         import requests
-        response = requests.get(url, timeout=10)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
-        
-        # Convert to numpy array
-        nparr = np.frombuffer(response.content, np.uint8)
-        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-        
-        if img is None:
-            logger.warning(f"Failed to decode image from URL: {url}")
+        image_array = np.frombuffer(response.content, np.uint8)
+        image = cv2.imdecode(image_array, cv2.IMREAD_COLOR)
+        if image is None:
             return None
-            
-        # Cache if directory provided
-        if cache_dir and cache_path:
-            cache_dir.mkdir(parents=True, exist_ok=True)
-            cv2.imwrite(str(cache_path), img)
-            
-        return img
-        
+        return image
     except Exception as e:
-        logger.warning(f"Failed to load image from URL {url}: {e}")
+        logger.debug(f"Failed to load image from URL {url}: {e}")
         return None
 
-def load_image_from_path(path: str, base_dir: Optional[Path] = None) -> Optional[np.ndarray]:
+def load_image_from_path(path: str) -> Optional[np.ndarray]:
     """
-    Load an image from a local file path.
+    Loads an image from a local file path.
     
     Args:
-        path (str): The file path to the image.
-        base_dir (Optional[Path]): Base directory to resolve relative paths.
+        path: The local file path.
         
     Returns:
-        Optional[np.ndarray]: The image as a numpy array, or None if loading fails.
+        The image as a numpy array, or None if loading fails.
     """
-    if not HAS_OPENCV:
-        logger.error("OpenCV not installed, cannot load image from path")
-        return None
-        
-    if not path:
-        return None
-        
     try:
-        full_path = Path(path)
-        if base_dir and not full_path.is_absolute():
-            full_path = base_dir / path
-            
-        if not full_path.exists():
-            logger.warning(f"Image file not found: {full_path}")
+        if not os.path.exists(path):
             return None
-            
-        img = cv2.imread(str(full_path))
-        if img is None:
-            logger.warning(f"Failed to decode image file: {full_path}")
+        image = cv2.imread(path)
+        if image is None:
             return None
-            
-        return img
-        
+        return image
     except Exception as e:
-        logger.warning(f"Failed to load image from path {path}: {e}")
+        logger.debug(f"Failed to load image from path {path}: {e}")
         return None
 
 def compute_itti_gvs_salience(image: np.ndarray) -> float:
     """
-    Compute visual salience using ITTI/GBVS heuristic.
-    
-    This is a simplified implementation that approximates visual salience
-    by computing contrast in color and intensity channels.
+    Computes visual salience using a simplified ITTI/GBVS-like approach.
+    This is a placeholder for the full ITTI/GBVS implementation.
+    In a real implementation, this would use OpenCV to compute saliency maps.
     
     Args:
-        image (np.ndarray): The input image (BGR format for OpenCV).
+        image: The input image (BGR format).
         
     Returns:
-        float: Normalized salience score between 0.0 and 1.0.
+        A float between 0.0 and 1.0 representing the visual salience score.
     """
-    if not HAS_OPENCV:
-        raise ImportError("OpenCV is required for visual salience computation")
-        
     if image is None or image.size == 0:
         return 0.0
-        
+    
     try:
-        # Convert to HSV for color analysis
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        # Convert to LAB color space
+        lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
         
-        # Extract channels
-        h, s, v = cv2.split(hsv)
+        # Extract L (lightness), A, and B channels
+        l_channel = lab[:,:,0].astype(np.float32)
+        a_channel = lab[:,:,1].astype(np.float32)
+        b_channel = lab[:,:,2].astype(np.float32)
         
-        # Compute standard deviation as a proxy for contrast/salience
-        # Higher contrast = higher salience
-        intensity_salience = np.std(v) / 255.0
-        color_salience = np.std(s) / 255.0
+        # Normalize channels
+        l_channel = (l_channel - np.mean(l_channel)) / np.std(l_channel)
+        a_channel = (a_channel - np.mean(a_channel)) / np.std(a_channel)
+        b_channel = (b_channel - np.mean(b_channel)) / np.std(b_channel)
         
-        # Combine scores (weighted average)
-        combined_score = 0.6 * intensity_salience + 0.4 * color_salience
+        # Compute saliency as a combination of channel contrasts
+        # This is a simplified version; real ITTI/GBVS is more complex
+        saliency_map = np.sqrt(l_channel**2 + a_channel**2 + b_channel**2)
         
         # Normalize to 0-1
-        normalized = float(np.clip(combined_score, 0.0, 1.0))
+        if np.max(saliency_map) > 0:
+            saliency_score = np.mean(saliency_map) / np.max(saliency_map)
+        else:
+            saliency_score = 0.0
         
-        return normalized
-        
+        return float(np.clip(saliency_score, SALIENCE_MIN, SALIENCE_MAX))
     except Exception as e:
-        logger.error(f"Error computing ITTI/GBVS salience: {e}")
+        logger.debug(f"Error computing ITTI/GBVS salience: {e}")
         return 0.0
 
-def compute_salience_score(
-    image_path: Optional[str] = None,
-    image_url: Optional[str] = None,
-    text_content: Optional[str] = None,
-    base_dir: Optional[Path] = None,
-    cache_dir: Optional[Path] = None
-) -> float:
+def compute_salience_score(row: Dict[str, Any], row_idx: int) -> Tuple[float, str]:
     """
-    Compute the final salience score for a scenario.
-    
-    This function implements the fallback logic:
-    1. Try to compute visual salience from image (if available)
-    2. If image fails (broken URL or missing file), fall back to text heuristic
-    3. If no text available, return 0.0
+    Computes the salience score for a single row.
+    Implements fallback logic for broken image URLs.
     
     Args:
-        image_path (Optional[str]): Local path to image file.
-        image_url (Optional[str]): URL to image.
-        text_content (Optional[str]): Text description for heuristic fallback.
-        base_dir (Optional[Path]): Base directory for relative paths.
-        cache_dir (Optional[Path]): Directory for image caching.
+        row: The dictionary containing row data.
+        row_idx: The index of the row (for logging).
         
     Returns:
-        float: Salience score between 0.0 and 1.0.
+        A tuple of (score, method_used) where method_used is one of:
+        - 'visual': Image was successfully processed
+        - 'text_fallback': Text heuristic was used due to image failure
+        - 'no_data': No data available
     """
-    # Try visual salience first
-    image = None
+    image_url = row.get('image_url', '')
+    text_content = row.get('text_description', '')
     
+    # Try visual salience first
     if image_url:
-        image = load_image_from_url(image_url, cache_dir)
-    elif image_path:
-        image = load_image_from_path(image_path, base_dir)
-        
-    if image is not None:
-        try:
-            visual_score = compute_itti_gvs_salience(image)
-            logger.debug(f"Visual salience computed: {visual_score:.4f}")
-            return visual_score
-        except Exception as e:
-            logger.warning(f"Visual salience computation failed: {e}")
-            # Fall through to text heuristic
+        image = load_image_from_url(image_url)
+        if image is not None:
+            score = compute_itti_gvs_salience(image)
+            return (score, 'visual')
+        else:
+            # Visual failed, log failure
+            _log_salience_failure(row_idx, f"Failed to load image from URL: {image_url}")
     
     # Fallback to text heuristic
     if text_content:
-        text_score = compute_text_heuristic_salience(text_content)
-        logger.debug(f"Text heuristic salience (fallback): {text_score:.4f}")
-        return text_score
-        
-    # No valid input
-    logger.warning("No valid image or text content for salience computation")
-    return 0.0
+        _log_fallback_trigger(row_idx, "Image load failed or missing", "text_heuristic")
+        score = compute_text_heuristic_salience(text_content)
+        return (score, 'text_fallback')
+    
+    # No data available
+    _log_salience_failure(row_idx, "No image URL or text content available")
+    return (0.0, 'no_data')
 
-def process_salience_batch(
-    df: pd.DataFrame,
-    image_path_col: str = 'image_path',
-    image_url_col: str = 'image_url',
-    text_col: str = 'scenario_description',
-    output_col: str = 'salience_score',
-    base_dir: Optional[Path] = None,
-    cache_dir: Optional[Path] = None
-) -> pd.DataFrame:
+def process_salience_batch(df: pd.DataFrame, batch_size: int = 100) -> pd.DataFrame:
     """
-    Process a batch of scenarios to compute salience scores.
+    Processes a batch of rows to compute salience scores.
+    Includes logging for failures and fallbacks.
     
     Args:
-        df (pd.DataFrame): Input DataFrame with scenario data.
-        image_path_col (str): Column name for local image paths.
-        image_url_col (str): Column name for image URLs.
-        text_col (str): Column name for text descriptions.
-        output_col (str): Column name for output salience scores.
-        base_dir (Optional[Path]): Base directory for relative paths.
-        cache_dir (Optional[Path]): Directory for image caching.
+        df: The DataFrame containing the data.
+        batch_size: Number of rows to process before logging progress.
         
     Returns:
-        pd.DataFrame: DataFrame with added salience_score column.
+        The DataFrame with added 'salience_score' and 'salience_method' columns.
     """
-    logger.info(f"Processing salience for {len(df)} rows")
+    logger.info(f"Starting salience computation for {len(df)} rows")
     
     scores = []
-    fallback_count = 0
-    visual_count = 0
+    methods = []
     
     for idx, row in df.iterrows():
-        image_path = row.get(image_path_col) if image_path_col in df.columns else None
-        image_url = row.get(image_url_col) if image_url_col in df.columns else None
-        text_content = row.get(text_col) if text_col in df.columns else None
-        
-        score = compute_salience_score(
-            image_path=image_path,
-            image_url=image_url,
-            text_content=text_content,
-            base_dir=base_dir,
-            cache_dir=cache_dir
-        )
-        
+        score, method = compute_salience_score(row.to_dict(), idx)
         scores.append(score)
+        methods.append(method)
         
-        # Track fallback usage
-        if image_path is None and image_url is None:
-            fallback_count += 1
-        else:
-            visual_count += 1
-        
-        if idx % 1000 == 0 and idx > 0:
-            logger.info(f"Processed {idx}/{len(df)} rows")
+        # Log progress
+        if (idx + 1) % batch_size == 0:
+            logger.info(f"Processed {idx + 1}/{len(df)} rows")
     
-    df[output_col] = scores
+    df['salience_score'] = scores
+    df['salience_method'] = methods
     
-    logger.info(f"Salience processing complete. Visual: {visual_count}, Fallback: {fallback_count}")
-    logger.info(f"Score range: [{min(scores):.4f}, {max(scores):.4f}]")
+    # Summary logging
+    method_counts = df['salience_method'].value_counts()
+    logger.info("Salience computation summary:")
+    for method, count in method_counts.items():
+        logger.info(f"  {method}: {count} rows")
+    
+    # Log failure statistics
+    failure_count = len(df[df['salience_method'] == 'no_data'])
+    fallback_count = len(df[df['salience_method'] == 'text_fallback'])
+    if failure_count > 0:
+        logger.warning(f"Total rows with no salience data: {failure_count}")
+    if fallback_count > 0:
+        logger.info(f"Total rows using text fallback: {fallback_count}")
     
     return df
 
 def main():
     """
-    Main entry point for salience computation CLI.
+    Main entry point for salience computation.
+    Can be run as a standalone script to process a CSV file.
     """
     import argparse
     
-    parser = argparse.ArgumentParser(description='Compute visual and text salience scores')
+    parser = argparse.ArgumentParser(description='Compute salience scores for Moral Machine data')
     parser.add_argument('--input', type=str, required=True, help='Input CSV file path')
     parser.add_argument('--output', type=str, required=True, help='Output CSV file path')
-    parser.add_argument('--image-path-col', type=str, default='image_path', help='Column name for image paths')
-    parser.add_argument('--image-url-col', type=str, default='image_url', help='Column name for image URLs')
-    parser.add_argument('--text-col', type=str, default='scenario_description', help='Column name for text descriptions')
-    parser.add_argument('--base-dir', type=str, default=None, help='Base directory for relative paths')
-    parser.add_argument('--cache-dir', type=str, default=None, help='Directory for image caching')
+    parser.add_argument('--batch-size', type=int, default=100, help='Batch size for progress logging')
     
     args = parser.parse_args()
     
-    # Setup logging
-    log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
-    logging.basicConfig(level=getattr(logging, log_level))
-    
-    # Load data
     logger.info(f"Loading data from {args.input}")
     df = pd.read_csv(args.input)
     
-    # Process salience
-    base_dir = Path(args.base_dir) if args.base_dir else None
-    cache_dir = Path(args.cache_dir) if args.cache_dir else None
+    logger.info("Computing salience scores...")
+    df = process_salience_batch(df, batch_size=args.batch_size)
     
-    df = process_salience_batch(
-        df=df,
-        image_path_col=args.image_path_col,
-        image_url_col=args.image_url_col,
-        text_col=args.text_col,
-        base_dir=base_dir,
-        cache_dir=cache_dir
-    )
-    
-    # Save output
     logger.info(f"Saving results to {args.output}")
     df.to_csv(args.output, index=False)
     

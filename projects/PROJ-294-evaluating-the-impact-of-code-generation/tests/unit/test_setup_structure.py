@@ -1,49 +1,70 @@
 import os
-import unittest
+import sys
 import tempfile
 import shutil
-import sys
+import pytest
 
-# Add parent directory to path to import setup_project_structure
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Add parent to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
-from setup_project_structure import ensure_directory, create_init_file
+from code.setup_project_structure import ensure_directory, create_init_file
 
-class TestSetupStructure(unittest.TestCase):
-    def setUp(self):
-        self.test_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
-        os.chdir(self.test_dir)
+class TestProjectStructure:
+    @pytest.fixture
+    def temp_base(self):
+        """Create a temporary base directory for testing."""
+        base = tempfile.mkdtemp()
+        yield base
+        shutil.rmtree(base)
 
-    def tearDown(self):
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.test_dir)
+    def test_ensure_directory_creates_new(self, temp_base):
+        new_dir = os.path.join(temp_base, "new_folder")
+        assert not os.path.exists(new_dir)
+        result = ensure_directory(new_dir)
+        assert result is True
+        assert os.path.isdir(new_dir)
 
-    def test_ensure_directory_creates_dir(self):
-        test_path = "test_new_dir"
-        result = ensure_directory(test_path)
-        self.assertTrue(result)
-        self.assertTrue(os.path.isdir(test_path))
+    def test_ensure_directory_exists_noop(self, temp_base):
+        existing = os.path.join(temp_base, "existing")
+        os.makedirs(existing)
+        result = ensure_directory(existing)
+        assert result is True
+        assert os.path.isdir(existing)
 
-    def test_ensure_directory_exists(self):
-        test_path = "test_existing_dir"
-        os.makedirs(test_path)
-        result = ensure_directory(test_path)
-        self.assertTrue(result)
+    def test_create_init_file(self, temp_base):
+        target_dir = os.path.join(temp_base, "target")
+        ensure_directory(target_dir)
+        result = create_init_file(target_dir)
+        assert result is True
+        init_path = os.path.join(target_dir, "__init__.py")
+        assert os.path.isfile(init_path)
+        with open(init_path, "r") as f:
+            content = f.read()
+            assert "Auto-generated" in content
 
-    def test_create_init_file(self):
-        test_dir = "test_init_dir"
-        os.makedirs(test_dir)
-        result = create_init_file(test_dir)
-        self.assertTrue(result)
-        self.assertTrue(os.path.isfile(os.path.join(test_dir, "__init__.py")))
+    def test_full_pipeline_simulation(self, temp_base):
+        """Simulate the T001a/b/c logic on a temp base."""
+        # T001a
+        core_dirs = ["code", "data", "results", "tests", "docs"]
+        for d in core_dirs:
+            ensure_directory(os.path.join(temp_base, d))
+        
+        # T001b
+        ensure_directory(os.path.join(temp_base, "state"))
 
-    def test_create_init_file_in_subdir(self):
-        test_dir = "parent/child"
-        os.makedirs(test_dir, exist_ok=True)
-        result = create_init_file(test_dir)
-        self.assertTrue(result)
-        self.assertTrue(os.path.isfile(os.path.join(test_dir, "__init__.py")))
+        # T001c
+        init_dirs = [
+            os.path.join(temp_base, "code"),
+            os.path.join(temp_base, "tests"),
+            os.path.join(temp_base, "tests", "unit"),
+            os.path.join(temp_base, "tests", "integration")
+        ]
+        for d in init_dirs:
+            ensure_directory(d)
+            create_init_file(d)
 
-if __name__ == "__main__":
-    unittest.main()
+        # Verification
+        assert os.path.isdir(os.path.join(temp_base, "code"))
+        assert os.path.isdir(os.path.join(temp_base, "state"))
+        assert os.path.isfile(os.path.join(temp_base, "tests", "__init__.py"))
+        assert os.path.isfile(os.path.join(temp_base, "tests", "unit", "__init__.py"))

@@ -1,3 +1,3 @@
 """
-Data processing and storage module.
+Data directory placeholder.
 """

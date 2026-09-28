@@ -1,146 +1,88 @@
 """
-Contract test for aDDM model output schema.
-Verifies that the JSON output from the model fitting stage contains
-the required fields and types.
+Contract tests for aDDM Model Output Schema.
+Verifies that the fitted model parameters adhere to the expected schema.
 """
-import os
-import sys
 import json
 import pytest
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, Any
+import sys
+import os
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Ensure project root is in path for imports if running from root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Constants for schema validation
 REQUIRED_KEYS = [
-    'log_likelihood',
-    'drift_rate',
-    'threshold',
-    'salience_weight'
+    "log_likelihood", "drift_rate", "threshold", "salience_weight",
+    "aic", "bic", "converged"
 ]
 
-REQUIRED_NUMERIC_KEYS = [
-    'log_likelihood',
-    'drift_rate',
-    'threshold',
-    'salience_weight'
-]
-
-
-def load_test_artifact(path: str) -> Dict[str, Any]:
+@pytest.fixture
+def sample_model_params() -> Dict[str, Any]:
     """
-    Helper to load a JSON artifact for testing.
-    Raises FileNotFoundError if the file does not exist.
+    Fixture to load the actual fitted parameters from the pipeline output.
+    This ensures the contract test validates the real artifact produced by T025.
     """
-    full_path = project_root / path
-    if not full_path.exists():
-        raise FileNotFoundError(f"Contract test artifact not found: {full_path}")
+    output_path = PROJECT_ROOT / "data" / "processed" / "addm_fitted_params.json"
     
-    with open(full_path, 'r') as f:
-        return json.load(f)
-
-
-class TestAddmOutputSchema:
-    """
-    Contract test suite for User Story 2: aDDM Simulation and Parameter Fitting.
+    if not output_path.exists():
+        pytest.fail(f"Model output file not found at {output_path}. "
+                    "Run the fitting pipeline (T020-T025) before running this test.")
     
-    These tests ensure that the model fitting process produces a valid JSON
-    structure with the necessary parameters for downstream analysis.
-    """
-
-    def test_addm_output_contains_required_keys(self):
-        """
-        Contract test: Verify output JSON contains `log_likelihood`, `drift_rate`, 
-        `threshold`, `salience_weight`.
-        """
-        artifact_path = "data/processed/addm_fitted_params.json"
-        
-        try:
-            data = load_test_artifact(artifact_path)
-        except FileNotFoundError:
-            pytest.skip(
-                f"Artifact {artifact_path} not found. "
-                "This is expected if T025 (fit) has not been run yet."
-            )
-
-        # Check if data is a dict (top level)
-        assert isinstance(data, dict), (
-            f"Contract violation: Expected root object to be a dict, got {type(data)}"
-        )
-
-        # Check for required keys
-        missing_keys = [key for key in REQUIRED_KEYS if key not in data]
-        assert not missing_keys, (
-            f"Contract violation: Missing required keys: {missing_keys}. "
-            f"Found keys: {list(data.keys())}"
-        )
-
-    def test_addm_output_values_are_numeric(self):
-        """
-        Contract test: Verify that required parameter values are numeric.
-        """
-        artifact_path = "data/processed/addm_fitted_params.json"
-        
-        try:
-            data = load_test_artifact(artifact_path)
-        except FileNotFoundError:
-            pytest.skip(
-                f"Artifact {artifact_path} not found. "
-                "This is expected if T025 (fit) has not been run yet."
-            )
-
-        for key in REQUIRED_NUMERIC_KEYS:
-            value = data.get(key)
-            assert value is not None, f"Contract violation: Key '{key}' is missing."
-            assert isinstance(value, (int, float)), (
-                f"Contract violation: Key '{key}' must be numeric. "
-                f"Got type: {type(value)}, value: {value}"
-            )
-
-    def test_addm_output_salience_weight_range(self):
-        """
-        Contract test: Verify `salience_weight` is within expected bounds [0.0, 1.0].
-        (Based on T021 grid search step 0.1 to 1.0)
-        """
-        artifact_path = "data/processed/addm_fitted_params.json"
-        
-        try:
-            data = load_test_artifact(artifact_path)
-        except FileNotFoundError:
-            pytest.skip(
-                f"Artifact {artifact_path} not found. "
-                "This is expected if T025 (fit) has not been run yet."
-            )
-
-        weight = data.get('salience_weight')
-        if weight is not None:
-            assert 0.0 <= weight <= 1.0, (
-                f"Contract violation: 'salience_weight' ({weight}) is outside [0.0, 1.0]."
-            )
+    with open(output_path, 'r') as f:
+        data = json.load(f)
     
-    def test_addm_output_log_likelihood_negative(self):
-        """
-        Contract test: Verify `log_likelihood` is negative (standard for log-likelihoods).
-        """
-        artifact_path = "data/processed/addm_fitted_params.json"
-        
-        try:
-            data = load_test_artifact(artifact_path)
-        except FileNotFoundError:
-            pytest.skip(
-                f"Artifact {artifact_path} not found. "
-                "This is expected if T025 (fit) has not been run yet."
-            )
+    # Handle case where the file might contain a list of results or a single dict
+    # Based on T025 spec, it saves "best parameters and log-likelihood"
+    # We assume the top-level is the params dict or a dict containing a 'best' key.
+    # If it's a list, we take the first one (or the best one if marked).
+    if isinstance(data, list):
+        if len(data) == 0:
+            pytest.fail("Model output list is empty.")
+        # If list, assume the first is the best or we need to find the one with max log_likelihood
+        # For simplicity in contract test, we take the first if it looks like params
+        data = data[0]
+    
+    return data
 
-        ll = data.get('log_likelihood')
-        if ll is not None:
-            # Log likelihoods are typically negative numbers (sum of logs of probabilities <= 1)
-            # Allow a small tolerance for 0 if perfect fit (unlikely)
-            assert ll <= 0.0, (
-                f"Contract violation: 'log_likelihood' ({ll}) is positive. "
-                "Log-likelihoods should be <= 0."
-            )
+def test_schema_structure(sample_model_params: Dict[str, Any]):
+    """
+    Contract Test: Verify output JSON contains required keys.
+    """
+    missing = set(REQUIRED_KEYS) - set(sample_model_params.keys())
+    assert len(missing) == 0, f"Missing required keys in model params: {missing}"
+
+def test_schema_numeric_types(sample_model_params: Dict[str, Any]):
+    """
+    Contract Test: Verify numeric fields are actually numeric.
+    """
+    numeric_fields = ["log_likelihood", "drift_rate", "threshold", "salience_weight", "aic", "bic"]
+    for field in numeric_fields:
+        assert isinstance(sample_model_params[field], (int, float)), f"Field '{field}' is not numeric"
+
+def test_schema_threshold_range(sample_model_params: Dict[str, Any]):
+    """
+    Contract Test: Verify threshold is within expected bounds (0, 1).
+    """
+    threshold = sample_model_params["threshold"]
+    assert 0.0 < threshold < 1.0, f"Threshold {threshold} is out of expected range (0, 1)"
+
+def test_schema_salience_weight_range(sample_model_params: Dict[str, Any]):
+    """
+    Contract Test: Verify salience_weight is within [0.0, 1.0].
+    """
+    weight = sample_model_params["salience_weight"]
+    assert 0.0 <= weight <= 1.0, f"Salience weight {weight} is out of range [0.0, 1.0]"
+
+def test_schema_converged_flag(sample_model_params: Dict[str, Any]):
+    """
+    Contract Test: Verify converged is a boolean.
+    """
+    assert isinstance(sample_model_params["converged"], bool), "Converged flag must be boolean"
+    
+    # Additional logical check: if not converged, log_likelihood might be invalid or -inf
+    if not sample_model_params["converged"]:
+        # We allow non-converged runs in the file, but the contract ensures the flag is present
+        pass
