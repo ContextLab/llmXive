@@ -6,7 +6,7 @@ failed_stage: null
 field: environmental science
 human_escalation_reason: null
 id: PROJ-016-evaluating-the-effectiveness-of-communit
-last_run_id: 81699cd5-ff01-4e42-be75-f0d3583ec554
+last_run_id: f688be8f-0edf-4772-972b-72980ff6248f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-016-evaluating-the-effectiveness-of-communit/specs/001-evaluating-the-effectiveness-of-communit
 title: Evaluating the Effectiveness of Community-Based Natural Resource Management
   in Developing Countries
-updated_at: '2026-09-24T18:34:39.089208Z'
+updated_at: '2026-09-28T11:21:40.561404Z'

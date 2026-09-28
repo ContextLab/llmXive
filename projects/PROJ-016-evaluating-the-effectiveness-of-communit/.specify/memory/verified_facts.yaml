@@ -1,6 +1,6 @@
-'|alpha benjamini correction fdr hochberg method use':
-  quote: "and \u03B1 = 0.05. Each row corresponds to a different simulation setting,\
-    \ and signal strength values"
-  source_id: '2602.11610'
-  url: https://arxiv.org/abs/2602.11610
+'|alpha benjamini correction hochberg use':
+  quote: "are small and n\u2217 is relatively large. For example, when \u03B1 = 0.05,\
+    \ \u03C00 = 0.2"
+  source_id: '1906.01701'
+  url: https://arxiv.org/abs/1906.01701
   value: '0.05'

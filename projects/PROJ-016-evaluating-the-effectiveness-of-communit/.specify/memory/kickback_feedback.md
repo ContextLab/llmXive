@@ -4,7 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T008a` (rejected 1x): declared artifact(s) missing/empty/invalid: data/processed/counts_fao.json
+- `T011` (rejected 1x): The repository lacks the required `data/raw/fao_land_use.csv` file, and the `download.py` script does not contain a concrete implementation that calls `fetch_fao_fra_data` with the exact indicator `AG.LND.FRST.ZS`, processes the early‑21st‑century years, uses chunked handling, or writes the resulting DataFrame to that CSV path. Consequently the task’s core requirement is not satisfied.
 
 ## Required change
 
