@@ -120,7 +120,7 @@ projects/PROJ-849-llmxive-follow-up-extending-agent-explor/
 ## Computational Feasibility & Data Strategy
 
 - **CPU-First**: All embedding and retrieval steps use CPU-optimized models (`sentence-transformers` with `device='cpu'`). No GPU required.
-- **Memory Management**: The pipeline processes data in batches. If memory usage approaches a high threshold, the system triggers a graceful downsampling to 300 records. (as per FR-007) and logs the action.
+- **Memory Management**: The pipeline processes data in batches. If memory usage approaches a high threshold, the system triggers a graceful downsampling to a reduced record count. (as per FR-007) and logs the action.
 - **Data Source**: Uses `AI4Math/MathVista` (verified URL) for problems. Tool mappings are generated from a curated JSON file (`data/tool_mappings/mathvista_tool_map.json`) which is a static asset in the repo.
 - **Outcome Data**: Simulated failure rates are derived from a deterministic Oracle (ground truth answer comparison) to ensure reproducibility and independence from the thinking trace.
-- **Timeout Enforcement**: A hard 5-hour limit is enforced via a wrapper in `run_diagnostic.py`. If exceeded, `TimeoutExceededError` is raised.
+- **Timeout Enforcement**: A hard Time limit is enforced via a wrapper in `run_diagnostic.py`. If exceeded, `TimeoutExceededError` is raised.

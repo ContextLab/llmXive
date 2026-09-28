@@ -1,4 +1,22 @@
-# Black configuration file
-# This file exists for explicit black invocation: black .
-# Settings are defined in pyproject.toml.
-extend = "pyproject.toml"
+# Black configuration
+# This file is redundant with pyproject.toml but ensures CLI compatibility
+# for older versions that might not read pyproject.toml directly.
+
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+force-exclude = true

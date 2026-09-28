@@ -8,15 +8,15 @@ version = "0.1.0"
 description = "Semantic Divergence Diagnostic for Agentic Reasoning"
 requires-python = ">=3.11"
 dependencies = [
-    "transformers",
-    "rank_bm25",
-    "scikit-learn",
-    "pandas",
-    "datasets",
-    "pyyaml",
-    "torch",
-    "scipy",
-    "psutil",
+    "transformers>=4.30.0",
+    "rank_bm25>=0.2.2",
+    "scikit-learn>=1.2.0",
+    "pandas>=2.0.0",
+    "datasets>=2.14.0",
+    "pyyaml>=6.0",
+    "torch>=2.0.0",
+    "scipy>=1.10.0",
+    "sentence-transformers>=2.2.0",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +24,7 @@ dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
     "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
 ]
 
 [tool.black]
@@ -32,7 +33,8 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -45,30 +47,39 @@ exclude = '''
 '''
 
 [tool.ruff]
-line-length = 88
 target-version = "py311"
+line-length = 88
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflake
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "build",
+    "dist",
+    "venv",
 ]
 
 [tool.ruff.per-file-ignores]
-"tests/*" = ["S101"] # Allow assertions in tests
+"__init__.py" = ["F401"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+python_files = ["test_*.py"]
 addopts = "-v --strict-markers"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",

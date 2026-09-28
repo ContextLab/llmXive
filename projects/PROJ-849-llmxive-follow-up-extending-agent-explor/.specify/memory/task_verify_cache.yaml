@@ -6,13 +6,13 @@ T001:
     \ project\u2011structure artifacts. The implementer must create the specified\
     \ folder hierarchy and populate it with the initial codebase as outlined in the\
     \ implementation plan."
-T006:
+T003:
   c: false
-  h: b45288d8fec59fa6581253c11f9289eaf489f19941d7e1261f0a619e10b2b939
-  r: "The required file `src/lib/tool_mapper.py` does not exist, so the functionality\
-    \ to load the JSON, extract per\u2011problem `tool_descriptions`, and raise `ERR_TOOL_MAPPING_MISSING`\
-    \ cannot be verified. The missing artifact must be added and contain the described\
-    \ logic."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,\
+    \ `pyproject.toml` with Black settings, or pre\u2011commit hook definitions) were\
+    \ provided, nor any evidence that ruff/flake8 and Black have been set up and run.\
+    \ The required artifacts are missing, so the task is not satisfied."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

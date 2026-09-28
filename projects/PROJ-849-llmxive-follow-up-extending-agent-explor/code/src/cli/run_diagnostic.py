@@ -1,205 +1,163 @@
+"""
+Main entry point for the Semantic Divergence Diagnostic pipeline.
+Orchestrates loading, retrieval, scoring, and reporting.
+"""
+
 import os
 import sys
 import json
 import logging
+import time
+import signal
 from pathlib import Path
 from typing import List, Dict, Any
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Project root setup
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
 
-from src.lib.config import ensure_directories
-from src.lib.data_loader import load_dataset, validate_dataset
-from src.lib.tool_mapper import load_tool_mapping, get_tool_descriptions, get_all_problem_ids
+from src.lib.config import ensure_directories, RANDOM_SEED
+from src.lib.errors import TimeoutExceededError, MemoryLimitExceededError
+from src.lib.resource_tracker import ResourceTracker
+from src.lib.data_loader import load_data, save_filtered_dataset
+from src.lib.tool_mapper import get_all_tool_descriptions
 from src.services.retrieval_service import create_retrieval_service, retrieve_top_tools
-from src.models.divergence_model import get_model_and_tokenizer, process_problem, DivergenceResult
-from src.lib.resource_tracker import enforce_limits, TimeoutExceededError, MemoryLimitExceededError
+from src.models.divergence_model import DivergenceModel, process_problem
+from src.services.analysis_service import save_analysis_report
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(PROJECT_ROOT / "results" / "diagnostic.log")
+    ]
 )
 logger = logging.getLogger(__name__)
 
-class DiagnosticError(Exception):
-    """Custom exception for diagnostic errors."""
-    pass
-
-def load_and_validate_data(dataset_path: str) -> List[Dict[str, Any]]:
-    """
-    Load and validate the dataset.
+def load_and_validate_data(data_path: str) -> List[Dict[str, Any]]:
+    """Load raw data and perform initial validation."""
+    logger.info(f"Loading data from: {data_path}")
+    data = load_data(data_path)
     
-    Args:
-        dataset_path: Path to the dataset file.
-        
-    Returns:
-        List of validated records.
-    """
-    logger.info(f"Loading dataset from {dataset_path}...")
-    data = load_dataset(dataset_path)
-    validate_dataset(data)
-    logger.info(f"Loaded and validated {len(data)} records")
+    if not data:
+        raise ValueError("Data loader returned empty dataset.")
+    
+    logger.info(f"Loaded {len(data)} records.")
     return data
 
 def run_retrieval_and_scoring(
-    data: List[Dict[str, Any]],
+    data: List[Dict[str, Any]], 
     tool_descriptions: List[str],
-    problem_ids: List[str],
-    tokenizer,
-    model
-) -> List[DivergenceResult]:
-    """
-    Run retrieval and scoring for all problems.
+    output_path: str
+) -> List[Dict[str, Any]]:
+    """Run retrieval and divergence scoring for all problems."""
+    logger.info("Initializing Retrieval Service...")
+    retrieval_service = create_retrieval_service(tool_descriptions)
     
-    Args:
-        data: List of problem records.
-        tool_descriptions: List of all tool descriptions.
-        problem_ids: List of all problem IDs.
-        tokenizer: DistilBertTokenizer.
-        model: DistilBertModel.
-        
-    Returns:
-        List of DivergenceResult objects.
-    """
-    retrieval_service = create_retrieval_service(tool_descriptions, problem_ids)
+    divergence_model = DivergenceModel()
     results = []
-    
-    for record in data:
-        problem_id = record.get('problem_id')
-        thinking_prefix = record.get('thinking_prefix')
-        
-        if not thinking_prefix:
-            logger.warning(f"Skipping problem {problem_id}: missing thinking_prefix")
-            continue
-        
-        # Retrieve top tools
-        retrieved_ids, scores, embedding_dim = retrieval_service.retrieve_top_tools(thinking_prefix, top_k=5)
-        
-        if not retrieved_ids:
-            logger.warning(f"No tools retrieved for problem {problem_id}. Setting divergence to 1.0.")
-            # Handle zero-retrieval: return zero vector for centroid, similarity=0, divergence=1.0
-            tool_embeddings = [np.zeros(768) for _ in range(1)] # Dummy to trigger zero centroid
-            retrieval_stats = {
-                "num_tools_retrieved": 0,
-                "embedding_dimension": embedding_dim,
-                "status": "no_tools_retrieved"
-            }
-            # Manually construct result for zero-retrieval case
-            result = DivergenceResult(
-                problem_id=problem_id,
-                thinking_embedding=np.zeros(768).tolist(),
-                tool_centroid_embedding=np.zeros(768).tolist(),
-                cosine_similarity=0.0,
-                semantic_divergence_score=1.0,
-                retrieval_stats=retrieval_stats
-            )
-            results.append(result)
-            continue
-        
-        # Get embeddings for retrieved tools
-        tool_embeddings = []
-        for tid in retrieved_ids:
-            # Find the description for this tool ID
-            # Note: In a real scenario, we'd map ID -> Description more efficiently
-            # For now, we assume tool_descriptions and problem_ids are aligned and we need to find the index
-            try:
-                idx = problem_ids.index(tid)
-                desc = tool_descriptions[idx]
-                emb = process_problem.__globals__['encode_text'](desc, tokenizer, model) # Accessing helper
-                tool_embeddings.append(emb)
-            except ValueError:
-                logger.warning(f"Tool ID {tid} not found in problem_ids list")
+
+    for idx, record in enumerate(data):
+        try:
+            problem_id = record.get("problem_id", f"unknown_{idx}")
+            thinking_prefix = record.get("thinking", "")
+            
+            if not thinking_prefix:
+                logger.warning(f"Record {problem_id} missing 'thinking' prefix. Skipping.")
                 continue
-        
-        if not tool_embeddings:
-            logger.warning(f"No valid tool embeddings for problem {problem_id}")
+
+            # Retrieve tools
+            retrieved_tools = retrieve_top_tools(retrieval_service, thinking_prefix, top_k=10)
+            
+            # Calculate divergence
+            divergence_result = process_problem(
+                thinking_prefix=thinking_prefix,
+                tool_descriptions=retrieved_tools,
+                model=divergence_model
+            )
+            
+            results.append({
+                "problem_id": problem_id,
+                "thinking_embedding": divergence_result.thinking_embedding.tolist() if hasattr(divergence_result.thinking_embedding, 'tolist') else [],
+                "tool_centroid_embedding": divergence_result.tool_centroid_embedding.tolist() if hasattr(divergence_result.tool_centroid_embedding, 'tolist') else [],
+                "cosine_similarity": divergence_result.cosine_similarity,
+                "semantic_divergence_score": divergence_result.semantic_divergence_score
+            })
+
+            if (idx + 1) % 50 == 0:
+                logger.info(f"Processed {idx + 1} records...")
+
+        except Exception as e:
+            logger.error(f"Error processing problem {problem_id}: {e}")
             continue
-        
-        retrieval_stats = {
-            "num_tools_retrieved": len(retrieved_ids),
-            "embedding_dimension": embedding_dim,
-            "status": "success"
-        }
-        
-        result = process_problem(problem_id, thinking_prefix, tool_embeddings, retrieval_stats, tokenizer, model)
-        results.append(result)
-        
-        # Log retrieval stats and embedding dimensions
-        logger.info(
-            f"Problem {problem_id}: "
-            f"retrieved {retrieval_stats['num_tools_retrieved']} tools, "
-            f"embedding dimension = {retrieval_stats['embedding_dimension']}"
-        )
+
+    logger.info(f"Saving results to: {output_path}")
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=2)
     
     return results
 
-def save_results(results: List[DivergenceResult], output_path: str):
-    """
-    Save results to a JSON file.
-    
-    Args:
-        results: List of DivergenceResult objects.
-        output_path: Path to output file.
-    """
-    logger.info(f"Saving results to {output_path}...")
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump([asdict(r) for r in results], f, indent=2)
-    
-    logger.info(f"Saved {len(results)} results")
+def save_results(results: List[Dict[str, Any]], output_path: str):
+    """Save final results to JSON."""
+    logger.info(f"Writing final results to {output_path}")
+    with open(output_path, "w") as f:
+        json.dump(results, f, indent=2)
 
-def run_diagnostic(dataset_path: str, output_path: str):
+def run_diagnostic():
     """
-    Main entry point for the diagnostic pipeline.
+    Main orchestration function.
+    Wraps execution with resource limits and error handling.
+    """
+    ensure_directories()
     
-    Args:
-        dataset_path: Path to input dataset.
-        output_path: Path to output results.
-    """
+    data_path = str(PROJECT_ROOT / "data" / "raw" / "problems.json")
+    output_path = str(PROJECT_ROOT / "results" / "divergence_scores.json")
+    error_log_path = str(PROJECT_ROOT / "results" / "error_log.txt")
+
     logger.info("Starting Semantic Divergence Diagnostic...")
-    
-    try:
-        # Enforce limits
-        with enforce_limits(timeout_seconds=300, memory_gb=7):
-            # Load data
-            data = load_and_validate_data(dataset_path)
-            
-            # Load tool mapping
-            tool_mapping_path = "data/tool_mappings/mathvista_tool_map.json"
-            tool_map = load_tool_mapping(tool_mapping_path)
-            tool_descriptions = get_tool_descriptions(tool_map)
-            problem_ids = get_all_problem_ids(tool_map)
-            
-            # Load model
-            tokenizer, model = get_model_and_tokenizer()
-            
-            # Run retrieval and scoring
-            results = run_retrieval_and_scoring(data, tool_descriptions, problem_ids, tokenizer, model)
-            
-            # Save results
-            save_results(results, output_path)
-            
-        logger.info("Diagnostic completed successfully.")
-        
-    except TimeoutExceededError:
-        logger.error("Diagnostic timed out.")
-        raise
-    except MemoryLimitExceededError:
-        logger.error("Diagnostic exceeded memory limit.")
-        raise
-    except Exception as e:
-        logger.error(f"Diagnostic failed: {e}")
-        raise
 
-def main():
-    import argparse
-    parser = argparse.ArgumentParser(description="Run Semantic Divergence Diagnostic")
-    parser.add_argument("--dataset", required=True, help="Path to dataset JSON")
-    parser.add_argument("--output", required=True, help="Path to output JSON")
-    args = parser.parse_args()
+    # Initialize Resource Tracker
+    tracker = ResourceTracker()
+
+    try:
+        # 1. Load Data
+        data = load_and_validate_data(data_path)
+        
+        # 2. Get Tool Descriptions
+        logger.info("Loading tool mappings...")
+        # Assuming tool_mapper loads from a fixed path or data is embedded
+        # Using the API from T006
+        from src.lib.tool_mapper import load_tool_mapping
+        # Load the specific mapping file
+        tool_mapping = load_tool_mapping(str(PROJECT_ROOT / "data" / "tool_mappings" / "mathvista_tool_map.json"))
+        all_tools = get_all_tool_descriptions(tool_mapping)
+        
+        # 3. Run Retrieval and Scoring
+        results = run_retrieval_and_scoring(data, all_tools, output_path)
+        
+        # 4. Save Results
+        save_results(results, output_path)
+        
+        logger.info("Diagnostic completed successfully.")
+
+    except TimeoutExceededError:
+        logger.error("Timeout Exceeded")
+        with open(error_log_path, "w") as f:
+            f.write("Timeout Exceeded")
+        sys.exit(1)
     
-    run_diagnostic(args.dataset, args.output)
+    except MemoryLimitExceededError:
+        logger.error("Memory Limit Exceeded")
+        with open(error_log_path, "w") as f:
+            f.write("Memory Limit Exceeded")
+        sys.exit(1)
+    
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        # Re-raise or handle generic errors
+        raise
 
 if __name__ == "__main__":
-    main()
+    run_diagnostic()
