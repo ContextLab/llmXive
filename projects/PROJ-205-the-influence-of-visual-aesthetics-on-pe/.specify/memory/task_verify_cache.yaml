@@ -20,6 +20,12 @@ T015:
   r: "No code, configuration, or documentation showing that the \u201CI Do Not Agree\u201D\
     \ button now redirects to a withdrawal page was provided; the required implementation\
     \ artifact is missing. The task cannot be verified as completed."
+T022e:
+  c: false
+  h: 79f153aed92b42b1c2870f61214318bce89d557365e1f8823d27e3b2eb8f00e3
+  r: The required file `data/raw/submissions.csv` is missing, so no data capture implementation
+    can be verified. Without the CSV (or any evidence of rows being appended with
+    the specified columns), the task is not satisfied.
 T022h:
   c: false
   h: 6854f22444e9375c994e97e126944a4bfa908425742aba788b06f75b162d80fc
@@ -27,14 +33,14 @@ T022h:
     \ `code/analysis/audit.py` is missing, and the dependent data files `data/raw/submissions.csv`\
     \ and the expected output `data/raw/duplicate_audit.csv` do not exist, so the\
     \ task\u2019s verification step cannot be performed."
-T043a:
+T024a:
   c: false
-  h: 7afa11a16dae3ead75bb614996d99ec1421d80c25252cae298e45915fba27993
-  r: "The repository contains the `generate_mock_data.py` script, but it does not\
-    \ set `numpy.random.seed(42)` (it uses `random.seed`), the required `data/raw/submissions.csv`\
-    \ file is absent, and there is no evidence that the script computes and records\
-    \ the CSV\u2019s SHA\u2011256 checksum in the specified YAML state file. These\
-    \ missing/incorrect artifacts mean the task\u2019s requirements are not satisfied."
+  h: bace1f679a159d1a9ef4c0e728197f75ab336c9895f6f9e48fced419ae728049
+  r: The `code/analysis/00_preprocess.py` file exists, but it defines its own checksum
+    functions instead of importing/calling the checksum verification logic from T057,
+    and there is no visible call to such verification before processing. Moreover,
+    the required input file `data/raw/submissions.csv` is missing, so the script cannot
+    actually perform the intended preprocessing.
 T043b:
   c: false
   h: 8257fbf57bd7cf23f7fc58f1f028fa2309c256d5b8934c581e38a8be0afa5ffc
@@ -49,32 +55,3 @@ T043c:
     \ but the dependent file `data/raw/submissions.csv` is absent, so the assertion\
     \ cannot be evaluated and the task\u2019s prerequisite is unmet. The missing CSV\
     \ file must be provided for the task to be considered complete."
-T043d:
-  c: false
-  h: 6d2331e8c680a5238f459237c3a88d21b5b008735200df9832b73ffeb332bb5f
-  r: "The provided `tests/unit/test_data_integrity.py` only contains checksum\u2011\
-    related tests and never asserts that `data/raw/submissions.csv` is flagged as\
-    \ \u201CTEST_DATA\u201D or excluded from the analysis pipeline. Moreover, the\
-    \ required `data/raw/submissions.csv` file is missing entirely. Both the test\
-    \ logic and the data artifact needed to satisfy the task are absent."
-T048:
-  c: false
-  h: 381779a028dc39c16e351188778a40c3d9cd301f401eea0a049c887370081b2b
-  r: "The required `data/processed/analysis_results.json` file does not exist, and\
-    \ the provided excerpt of `code/analysis/02_pairwise.py` does not show the new\
-    \ `--correction-method` command\u2011line argument (its parser is missing from\
-    \ the visible code). Both artifacts needed to satisfy the task are absent or incomplete."
-T051c:
-  c: false
-  h: a08c667e528404290ac2ec21a883508c6ad3b641512ef366d7ee221fb1f010bf
-  r: Both required files `data/processed/analysis_results.json` and `data/processed/mixed_effects_results.json`
-    are missing, so the schema updates cannot be verified. The task needs these JSON
-    files present and containing the new `ci_lower` and `ci_upper` keys.
-T057:
-  c: false
-  h: d496437d46e4d24ba7f6a8153aabf62f224fecd094bcb6e786f7879ad38974db
-  r: "The repository lacks any implementation that computes a SHA\u2011256 checksum\
-    \ of `data/raw/submissions.csv`, stores it under `data_checksums` in the project\
-    \ YAML, or verifies it in `code/analysis/00_preprocess.py`. Moreover, the required\
-    \ `data/raw/submissions.csv` file is absent, and the shown portions of `helpers.py`\
-    \ and `00_preprocess.py` contain no checksum\u2011related logic."

@@ -1,312 +1,406 @@
+"""
+Utility functions for the Visual Aesthetics Credibility Survey.
+Handles ID generation, hashing, CSV operations, and consent logging.
+"""
 import hashlib
 import uuid
 import os
 import csv
 import json
 import yaml
-from datetime import datetime
+import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from datetime import datetime
+from typing import Optional, Dict, Any, List
 
-# --- Constants & Paths ---
-
+# Import local project root logic
 def get_project_root() -> Path:
-    """Returns the root path of the project (parent of 'code')."""
+    """Get the absolute path to the project root."""
     return Path(__file__).resolve().parent.parent.parent
 
 def ensure_data_dirs() -> None:
-    """Creates data directories if they do not exist."""
+    """Ensure all required data directories exist."""
     root = get_project_root()
     (root / "data" / "raw").mkdir(parents=True, exist_ok=True)
     (root / "data" / "processed").mkdir(parents=True, exist_ok=True)
+    (root / "data" / "consent").mkdir(parents=True, exist_ok=True)
     (root / "state" / "projects").mkdir(parents=True, exist_ok=True)
 
 def get_submissions_csv_path() -> Path:
-    """Returns the path to the raw submissions CSV."""
+    """Return the path to the raw submissions CSV."""
     return get_project_root() / "data" / "raw" / "submissions.csv"
 
 def get_consent_log_path() -> Path:
-    """Returns the path to the consent log CSV."""
+    """Return the path to the consent log CSV."""
     return get_project_root() / "data" / "raw" / "consent_log.csv"
 
 def get_duplicate_audit_path() -> Path:
-    """Returns the path to the duplicate audit CSV."""
-    return get_project_root() / "data" / "raw" / "duplicate_audit.csv"
+    """Return the path to the duplicate audit JSON."""
+    return get_project_root() / "data" / "processed" / "duplicate_audit.json"
 
 def get_state_file_path() -> Path:
-    """Returns the path to the project state YAML file."""
-    project_id = "PROJ-205-the-influence-of-visual-aesthetics-on-pe"
-    return get_project_root() / "state" / "projects" / f"{project_id}.yaml"
-
-# --- Helper Functions ---
+    """Return the path to the session state file."""
+    return get_project_root() / "state" / "projects" / "session_state.json"
 
 def generate_user_id() -> str:
-    """Generates a unique participant ID (UUID v4)."""
+    """Generate a unique UUID v4 for a participant."""
     return str(uuid.uuid4())
 
-def hash_ip(ip_address: str, salt: str = "project_salt_2024") -> str:
+def hash_ip(ip_address: str, salt: Optional[str] = None) -> str:
     """
-    Hashes an IP address using SHA-256 with a salt to prevent reverse lookup.
+    Hash an IP address using SHA-256 with a salt.
     
     Args:
         ip_address: The raw IP address string.
-        salt: The salt string to prepend.
-        
+        salt: Optional salt string. If None, attempts to load from 
+              IP_HASH_SALT environment variable.
+    
     Returns:
-        Hex digest of the SHA-256 hash.
+        Hex digest of the hash.
+    
+    Raises:
+        ValueError: If salt is missing in both arguments and environment.
     """
-    if not ip_address:
-        raise ValueError("IP address cannot be empty")
-    salted = f"{salt}{ip_address}"
-    return hashlib.sha256(salted.encode('utf-8')).hexdigest()
+    if salt is None:
+        salt = os.environ.get("IP_HASH_SALT")
+        if not salt:
+            raise ValueError(
+                "IP_HASH_SALT environment variable is not set. "
+                "Please set it in your .env file."
+            )
+    
+    # Combine salt and IP
+    salted_string = f"{salt}{ip_address}"
+    return hashlib.sha256(salted_string.encode('utf-8')).hexdigest()
 
 def format_timestamp(dt: Optional[datetime] = None) -> str:
-    """Formats a datetime object to ISO 8601 string."""
+    """Format a datetime object to a standard ISO string."""
     if dt is None:
         dt = datetime.now()
-    return dt.isoformat()
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
 
-def compute_consent_form_hash() -> str:
-    """Computes SHA-256 hash of the IRB consent file for version tracking."""
-    path = get_project_root() / "data" / "consent" / "irb_approved.txt"
-    if not path.exists():
-        raise FileNotFoundError(f"Consent file not found: {path}")
-    content = path.read_text(encoding='utf-8')
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+def compute_consent_form_hash(text: str) -> str:
+    """Compute SHA-256 hash of the consent text for verification."""
+    return hashlib.sha256(text.encode('utf-8')).hexdigest()
 
-def log_consent_decision(user_id: str, decision: bool, irb_protocol_id: str) -> None:
-    """Logs a consent decision to the consent_log.csv."""
+def log_consent_decision(
+    user_id: str, 
+    decision: str, 
+    protocol_id: str,
+    timestamp: Optional[datetime] = None
+) -> None:
+    """
+    Log a consent decision to the consent log CSV.
+    
+    Args:
+        user_id: The participant ID.
+        decision: 'agreed' or 'declined'.
+        protocol_id: The IRB protocol ID.
+        timestamp: Optional timestamp (defaults to now).
+    """
     ensure_data_dirs()
     path = get_consent_log_path()
-    file_exists = os.path.exists(path)
     
-    with open(path, mode='a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(['timestamp', 'user_id', 'decision', 'irb_protocol_id'])
-        
-        writer.writerow([
-            format_timestamp(),
-            user_id,
-            'Agreed' if decision else 'Declined',
-            irb_protocol_id
-        ])
+    fieldnames = ['timestamp', 'user_id', 'decision', 'IRB_PROTOCOL_ID']
+    row = {
+        'timestamp': format_timestamp(timestamp),
+        'user_id': user_id,
+        'decision': decision,
+        'IRB_PROTOCOL_ID': protocol_id
+    }
+    
+    # Check if file exists to determine if header is needed
+    write_header = not path.exists()
+    
+    with open(path, 'a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if write_header:
+            writer.writeheader()
+        writer.writerow(row)
 
-def validate_rating_count(ratings: Dict[str, Any], min_stimuli: int = 4) -> bool:
-    """Validates that the participant has rated the minimum number of stimuli."""
-    # Assuming ratings dict keys are stimulus IDs or similar
-    return len(ratings) >= min_stimuli
+def validate_rating_count(ratings: Dict[str, Any]) -> bool:
+    """
+    Validate that a participant has rated at least 4 stimuli.
+    
+    Args:
+        ratings: Dictionary of stimulus_id -> rating values.
+    
+    Returns:
+        True if count >= 4, False otherwise.
+    """
+    return len([k for k, v in ratings.items() if v is not None]) >= 4
 
-def calculate_safe_truncation_length(max_len: int = 255) -> int:
-    """Returns a safe truncation length for metadata fields."""
-    return max_len
+def calculate_safe_truncation_length(max_length: int = 100) -> int:
+    """
+    Calculate a safe truncation length for metadata fields.
+    
+    Args:
+        max_length: Maximum allowed length.
+    
+    Returns:
+        Safe length (max_length - 1 to ensure no overflow).
+    """
+    return max_length - 1
 
-def truncate_user_agent(user_agent: str, max_len: int = 255) -> str:
-    """Truncates user agent string to a safe length."""
-    return user_agent[:max_len] if len(user_agent) > max_len else user_agent
+def truncate_user_agent(user_agent: str, max_length: int = 100) -> str:
+    """
+    Truncate a user agent string to a safe length.
+    
+    Args:
+        user_agent: The raw user agent string.
+        max_length: Maximum length to truncate to.
+    
+    Returns:
+        Truncated string.
+    """
+    safe_len = calculate_safe_truncation_length(max_length)
+    return user_agent[:safe_len]
 
 def get_education_code(education: str) -> str:
-    """Maps education string to a code."""
-    mapping = {
-        'High School': 'HS',
-        'Bachelor': 'B',
-        'Master': 'M',
-        'PhD': 'P'
-    }
-    return mapping.get(education, 'U')
+    """
+    Map education string to a standardized code.
+    
+    Args:
+        education: Raw education string.
+    
+    Returns:
+        Standardized code (e.g., 'HS', 'BA', 'GR').
+    """
+    education_lower = education.lower()
+    if 'high school' in education_lower or 'ged' in education_lower:
+        return 'HS'
+    elif 'bachelor' in education_lower or 'ba' in education_lower:
+        return 'BA'
+    elif 'master' in education_lower or 'ma' in education_lower:
+        return 'MA'
+    elif 'phd' in education_lower or 'doctorate' in education_lower:
+        return 'PHD'
+    elif 'some college' in education_lower:
+        return 'SC'
+    else:
+        return 'UNKNOWN'
 
-def get_current_csv_size(path: Optional[Path] = None) -> int:
-    """Returns the current size of the CSV file in bytes."""
-    if path is None:
-        path = get_submissions_csv_path()
+def get_current_csv_size() -> int:
+    """
+    Get the current size of the submissions CSV in bytes.
+    
+    Returns:
+        File size in bytes.
+    """
+    path = get_submissions_csv_path()
     if not path.exists():
         return 0
     return path.stat().st_size
 
-def check_duplicate_ip(hashed_ip: str, path: Optional[Path] = None) -> bool:
-    """Checks if a hashed IP already exists in the submissions CSV."""
-    if path is None:
-        path = get_submissions_csv_path()
+def check_duplicate_ip(hashed_ip: str) -> bool:
+    """
+    Check if a hashed IP has already been submitted.
+    
+    Args:
+        hashed_ip: The hashed IP string.
+    
+    Returns:
+        True if duplicate, False otherwise.
+    """
+    path = get_submissions_csv_path()
     if not path.exists():
         return False
     
-    with open(path, mode='r', newline='', encoding='utf-8') as f:
+    with open(path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
             if row.get('hashed_ip') == hashed_ip:
                 return True
     return False
 
-def prepare_submission_row(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Prepares a row for CSV submission, ensuring types are correct."""
-    row = {
-        'participant_id': data.get('participant_id'),
-        'stimulus_id': data.get('stimulus_id'),
-        'credibility': data.get('credibility'),
-        'professionalism': data.get('professionalism'),
-        'timestamp': format_timestamp(),
-        'hashed_ip': data.get('hashed_ip'),
-        'age': data.get('age'),
-        'education': data.get('education'),
-        'duplicate_flag': data.get('duplicate_flag', False),
-        'session_status': data.get('session_status', 'complete'),
-        'submission_status': data.get('submission_status', 'complete'),
-        'hashed_user_agent': data.get('hashed_user_agent')
+def prepare_submission_row(
+    participant_id: str,
+    age: int,
+    education: str,
+    hashed_ip: str,
+    user_agent: str,
+    timestamp: Optional[datetime] = None
+) -> Dict[str, Any]:
+    """
+    Prepare a row for submission to the CSV.
+    
+    Args:
+        participant_id: Unique participant ID.
+        age: Participant age.
+        education: Education level string.
+        hashed_ip: Hashed IP address.
+        user_agent: Raw user agent string.
+        timestamp: Optional timestamp.
+    
+    Returns:
+        Dictionary ready for CSV writing.
+    """
+    return {
+        'participant_id': participant_id,
+        'age': age,
+        'education': get_education_code(education),
+        'timestamp': format_timestamp(timestamp),
+        'hashed_ip': hashed_ip,
+        'user_agent_hash': hashlib.sha256(user_agent.encode('utf-8')).hexdigest()
     }
-    return row
 
 def append_to_submissions_csv(row: Dict[str, Any]) -> None:
-    """Appends a single row to the submissions CSV."""
+    """
+    Append a row to the submissions CSV using atomic write.
+    
+    Args:
+        row: Dictionary of field values.
+    
+    Raises:
+        IOError: If disk is full or write fails.
+    """
     ensure_data_dirs()
     path = get_submissions_csv_path()
-    file_exists = os.path.exists(path)
+    fieldnames = ['participant_id', 'age', 'education', 'timestamp', 'hashed_ip', 'user_agent_hash']
     
-    fieldnames = [
-        'participant_id', 'stimulus_id', 'credibility', 'professionalism',
-        'timestamp', 'hashed_ip', 'age', 'education', 'duplicate_flag',
-        'session_status', 'submission_status', 'hashed_user_agent'
-    ]
-    
-    with open(path, mode='a', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(row)
-
-def save_submission(data_list: List[Dict[str, Any]]) -> None:
-    """Saves a list of submission rows to the CSV."""
-    for row in data_list:
-        append_to_submissions_csv(row)
-
-def write_audit_log(audit_results: List[Dict[str, Any]], output_path: Path) -> None:
-    """Writes audit results to a CSV file."""
-    ensure_data_dirs()
-    if not output_path.parent.exists():
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Atomic write: write to temp file, then rename
+    try:
+        # Determine if header is needed
+        write_header = not path.exists()
         
-    file_exists = os.path.exists(output_path)
-    fieldnames = list(audit_results[0].keys()) if audit_results else []
-    
-    with open(output_path, mode='a', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        if not file_exists:
-            writer.writeheader()
-        writer.writerows(audit_results)
+        with tempfile.NamedTemporaryFile(
+            mode='w', 
+            delete=False, 
+            newline='', 
+            encoding='utf-8',
+            dir=path.parent
+        ) as tmp_file:
+            writer = csv.DictWriter(tmp_file, fieldnames=fieldnames)
+            if write_header:
+                writer.writeheader()
+            writer.writerow(row)
+            tmp_name = tmp_file.name
+        
+        # Rename to final path
+        os.replace(tmp_name, path)
+        
+    except OSError as e:
+        # Clean up temp file if it exists
+        if 'tmp_name' in locals() and os.path.exists(tmp_name):
+            os.unlink(tmp_name)
+        raise IOError(f"Failed to write to submissions CSV: {e}") from e
 
-# --- NEW: T057 Data Integrity Checksums ---
+def save_submission(
+    participant_id: str,
+    age: int,
+    education: str,
+    hashed_ip: str,
+    user_agent: str,
+    timestamp: Optional[datetime] = None
+) -> None:
+    """
+    High-level function to save a complete submission.
+    
+    Args:
+        participant_id: Unique participant ID.
+        age: Participant age.
+        education: Education level string.
+        hashed_ip: Hashed IP address.
+        user_agent: Raw user agent string.
+        timestamp: Optional timestamp.
+    """
+    row = prepare_submission_row(
+        participant_id, age, education, hashed_ip, user_agent, timestamp
+    )
+    append_to_submissions_csv(row)
+
+def write_audit_log(
+    audit_type: str, 
+    details: Dict[str, Any], 
+    timestamp: Optional[datetime] = None
+) -> None:
+    """
+    Write an audit log entry to the processed directory.
+    
+    Args:
+        audit_type: Type of audit (e.g., 'duplicate_check', 'integrity').
+        details: Dictionary of audit details.
+        timestamp: Optional timestamp.
+    """
+    ensure_data_dirs()
+    path = get_project_root() / "data" / "processed" / "audit_log.json"
+    
+    entry = {
+        'timestamp': format_timestamp(timestamp),
+        'audit_type': audit_type,
+        'details': details
+    }
+    
+    # Load existing log if it exists
+    log = []
+    if path.exists():
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                log = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            log = []
+    
+    log.append(entry)
+    
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(log, f, indent=2)
 
 def compute_file_checksum(file_path: Path) -> str:
     """
-    Computes a SHA-256 checksum of a file.
+    Compute SHA-256 checksum of a file.
     
     Args:
-        file_path: Path to the file to checksum.
-        
+        file_path: Path to the file.
+    
     Returns:
-        Hex digest of the SHA-256 hash.
-        
+        Hex digest of the checksum.
+    
     Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        FileNotFoundError: If file does not exist.
     """
     if not file_path.exists():
-        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+        raise FileNotFoundError(f"File not found: {file_path}")
     
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        raise IOError(f"Failed to read file for checksum: {e}")
+    sha256 = hashlib.sha256()
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
-def store_data_checksum(checksum: str) -> None:
+def store_data_checksum(file_path: Path, checksum: str) -> None:
     """
-    Stores the data checksum in the project state YAML file.
+    Store a checksum in the state directory.
     
     Args:
-        checksum: The SHA-256 checksum string to store.
+        file_path: Path to the file being checksummed.
+        checksum: The checksum string.
     """
-    state_path = get_state_file_path()
-    state_path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_data_dirs()
+    state_path = get_project_root() / "state" / "projects" / "checksums.json"
     
-    # Load existing state or create new
+    checksums = {}
     if state_path.exists():
-        try:
-            with open(state_path, 'r', encoding='utf-8') as f:
-                state = yaml.safe_load(f) or {}
-        except yaml.YAMLError:
-            state = {}
-    else:
-        state = {}
+        with open(state_path, 'r', encoding='utf-8') as f:
+            checksums = json.load(f)
     
-    # Ensure structure exists
-    if 'data_checksums' not in state:
-        state['data_checksums'] = {}
+    checksums[str(file_path)] = checksum
     
-    # Update checksum for submissions.csv
-    submissions_path = get_submissions_csv_path()
-    state['data_checksums']['submissions.csv'] = {
-        'checksum': checksum,
-        'timestamp': format_timestamp(),
-        'file_path': str(submissions_path)
-    }
-    
-    # Write back
     with open(state_path, 'w', encoding='utf-8') as f:
-        yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
+        json.dump(checksums, f, indent=2)
 
-def verify_data_checksum() -> bool:
+def verify_data_checksum(file_path: Path, expected_checksum: str) -> bool:
     """
-    Verifies the checksum of submissions.csv against the stored value in state.
+    Verify a file's checksum against an expected value.
+    
+    Args:
+        file_path: Path to the file.
+        expected_checksum: Expected checksum string.
     
     Returns:
-        True if checksum matches or no stored checksum exists.
-        
+        True if checksums match, False otherwise.
+    
     Raises:
-        RuntimeError: If checksum mismatches (data integrity violation).
+        FileNotFoundError: If file does not exist.
     """
-    state_path = get_state_file_path()
-    submissions_path = get_submissions_csv_path()
-    
-    if not submissions_path.exists():
-        # If file doesn't exist, nothing to verify
-        return True
-    
-    # Load stored state
-    if not state_path.exists():
-        # No stored checksum, cannot verify
-        return True
-        
-    try:
-        with open(state_path, 'r', encoding='utf-8') as f:
-            state = yaml.safe_load(f) or {}
-    except yaml.YAMLError:
-        return True # Corrupt state, skip verification
-    
-    stored_checksums = state.get('data_checksums', {})
-    stored_info = stored_checksums.get('submissions.csv', {})
-    stored_checksum = stored_info.get('checksum')
-    
-    if not stored_checksum:
-        # No checksum stored, nothing to verify
-        return True
-    
-    # Compute current checksum
-    try:
-        current_checksum = compute_file_checksum(submissions_path)
-    except (FileNotFoundError, IOError):
-        raise RuntimeError("Could not compute current checksum for verification.")
-    
-    if current_checksum != stored_checksum:
-        raise RuntimeError(
-            f"DATA INTEGRITY FAILURE: Checksum mismatch for {submissions_path}. "
-            f"Stored: {stored_checksum}, Current: {current_checksum}. "
-            f"Data may have been tampered with or corrupted."
-        )
-    
-    return True
-
-# --- End T057 ---
+    actual = compute_file_checksum(file_path)
+    return actual == expected_checksum

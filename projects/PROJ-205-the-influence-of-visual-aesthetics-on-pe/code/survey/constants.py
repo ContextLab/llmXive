@@ -1,93 +1,68 @@
 """
-Constants for the survey application.
+Constants for the Survey Application.
+Defines schemas, stimuli lists, and Latin Square sequences.
 """
+import os
+from pathlib import Path
 
-# Latin Square Matrix for stimulus presentation order
-# Each row is a balanced permutation of the 4 conditions
-LATIN_SQUARE_MATRIX = [
-    ["Professional", "Minimalist", "Low-Quality", "Neutral"],
-    ["Minimalist", "Low-Quality", "Neutral", "Professional"],
-    ["Low-Quality", "Neutral", "Professional", "Minimalist"],
-    ["Neutral", "Professional", "Minimalist", "Low-Quality"]
-]
-
-# Minimum number of stimuli required for valid submission
-MIN_STIMULI = 4
-
-# Demographic input schema
+# --------------------------------------------------------------------------
+# Demographic Schema
+# --------------------------------------------------------------------------
 DEMOGRAPHIC_SCHEMA = {
     "age": {
         "type": "integer",
         "min_value": 18,
         "max_value": 120,
-        "description": "Age in years"
+        "required": True
     },
     "education": {
         "type": "string",
         "options": [
             "Less than High School",
-            "High School Diploma",
+            "High School",
             "Some College",
-            "Associate Degree",
             "Bachelor's Degree",
             "Master's Degree",
             "Doctoral Degree"
         ],
-        "description": "Highest level of education completed"
+        "required": True
     }
 }
 
-# CSV export schema definition
-CSV_SCHEMA = {
-    "participant_id": {
-        "type": "string",
-        "description": "Unique UUID for the participant"
-    },
-    "stimulus_id": {
-        "type": "string",
-        "description": "Identifier for the stimulus condition"
-    },
-    "credibility": {
-        "type": "integer",
-        "min_value": 1,
-        "max_value": 7,
-        "description": "Credibility rating (1-7)"
-    },
-    "professionalism": {
-        "type": "integer",
-        "min_value": 1,
-        "max_value": 7,
-        "description": "Professionalism rating (1-7)"
-    },
-    "timestamp": {
-        "type": "string",
-        "description": "ISO format timestamp of submission"
-    },
-    "hashed_ip": {
-        "type": "string",
-        "description": "SHA-256 hash of participant IP address"
-    },
-    "age": {
-        "type": "integer",
-        "description": "Participant age"
-    },
-    "education": {
-        "type": "string",
-        "description": "Education level text"
-    },
-    "duplicate_flag": {
-        "type": "string",
-        "options": ["YES", "NO"],
-        "description": "Flag indicating duplicate IP"
-    },
-    "session_status": {
-        "type": "string",
-        "options": ["active", "timeout"],
-        "description": "Status of the session"
-    },
-    "submission_status": {
-        "type": "string",
-        "options": ["complete", "incomplete"],
-        "description": "Status of the submission"
-    }
+# --------------------------------------------------------------------------
+# Stimuli List
+# --------------------------------------------------------------------------
+# The stimuli files are expected to be in code/stimuli/
+STIMULI_LIST = [
+    "professional",
+    "minimalist",
+    "low_quality",
+    "neutral"
+]
+
+# --------------------------------------------------------------------------
+# Latin Square Sequences
+# --------------------------------------------------------------------------
+# A 4x4 Latin Square ensures each stimulus appears once in each position
+# and each stimulus follows every other stimulus exactly once.
+# Hardcoded valid sequences for 4 conditions (A, B, C, D)
+LATIN_SQUARE_SEQUENCES = [
+    ["professional", "minimalist", "low_quality", "neutral"],
+    ["minimalist", "low_quality", "neutral", "professional"],
+    ["low_quality", "neutral", "professional", "minimalist"],
+    ["neutral", "professional", "minimalist", "low_quality"]
+]
+
+# --------------------------------------------------------------------------
+# Rating Scale
+# --------------------------------------------------------------------------
+LIKERT_SCALE = {
+    "min": 1,
+    "max": 7,
+    "description": "1 = Very Low, 7 = Very High"
 }
+
+# --------------------------------------------------------------------------
+# Minimum Ratings Required
+# --------------------------------------------------------------------------
+MIN_RATINGS_REQUIRED = 4

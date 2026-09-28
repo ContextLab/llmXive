@@ -1,18 +1,18 @@
 {
   "project_id": "PROJ-205-the-influence-of-visual-aesthetics-on-pe",
   "ok": false,
-  "reason": "6 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/utils/generate_mock_data.py: function `generate_user_agent` returns a bare RNG draw (line 71) \u2014 a reported value computed from no real input; code/analysis/05_audit.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026pp.py) or the authorized mock data generator (code/utils/ge\u2026\u201d; code/analysis/05_audit.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026n the survey or generate mock data first using \"\u2026\u201d; 3 command(s) failed: python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json (rc=1); python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json (rc=1); python code/analysis/03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json (rc=1); 5 declared deliverable(s) absent: data/processed/cleaned_data.csv; data/processed/pairwise_results.json; data/processed/power_analysis_results.json",
+  "reason": "7 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/utils/generate_mock_data.py: function `generate_user_agent` returns a bare RNG draw (line 63) \u2014 a reported value computed from no real input; code/analysis/05_audit.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026pp.py) or the authorized mock data generator (code/utils/ge\u2026\u201d; code/analysis/05_audit.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026n the survey or generate mock data first using \"\u2026\u201d; 3 command(s) failed: python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json (rc=1); python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json (rc=1); python code/analysis/03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json (rc=1); 1 declared deliverable(s) absent: data/raw/submissions.csv",
   "artifacts": [],
   "failures": [
     "python code/analysis/01_anova.py --input ../../data/raw/participants.csv --output ../../data/processed/anova_results.json -> rc=1\n    Loading data from ../../data/raw/participants.csv...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py\", line 268, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/01_anova.py\", line 236, in main\n    df = load_wide_data(args.input)\n         ^^^^^^^^^^^^^^^^^^^^^^^",
     "python code/analysis/02_pairwise.py --input ../../data/raw/participants.csv --output ../../data/processed/pairwise_results.json -> rc=1\n    Loading data from ../../data/raw/participants.csv...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py\", line 189, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/code/analysis/02_pairwise.py\", line 168, in main\n    df = load_wide_data(args.input)\n         ^^^^^^^^^^^",
-    "python code/analysis/03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json -> rc=1\n    2026-09-25 18:11:42,511 - INFO - Loading data from ../../data/raw/participants.csv...\n2026-09-25 18:11:42,511 - ERROR - Cleaned data file not found at ../../data/raw/participants.csv. Please run 00_preprocess.py first."
+    "python code/analysis/03_mixed_effects.py --input ../../data/raw/participants.csv --output ../../data/processed/mixed_effects_results.json -> rc=1\n    2026-09-28 13:40:26,509 - INFO - Loading data from ../../data/raw/participants.csv...\n2026-09-28 13:40:26,509 - ERROR - Cleaned data file not found at ../../data/raw/participants.csv. Please run 00_preprocess.py first."
   ],
-  "fix_rounds": 5,
+  "fix_rounds": 6,
   "model_tier": 0,
-  "total_attempts": 5,
+  "total_attempts": 6,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-25T18:11:43Z"
+  "updated_at": "2026-09-28T13:40:27Z"
 }

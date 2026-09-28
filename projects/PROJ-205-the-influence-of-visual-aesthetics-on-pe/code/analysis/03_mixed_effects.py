@@ -1,3 +1,12 @@
+"""
+Mixed-Effects Model Analysis for Robustness Check (US3).
+
+Implements a linear mixed-effects model to verify that design effects persist
+after controlling for demographic covariates (Age, Education).
+
+Model Formula: Credibility ~ Condition + Age + Education + (1|Participant)
+"""
+
 import os
 import sys
 import json
@@ -7,429 +16,291 @@ import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from scipy import stats
-from statsmodels.stats.anova import AnovaRM
-from statsmodels.regression.mixed_linear_model import MixedLM
-from statsmodels.genmod.generalized_linear_model import GLM
-from statsmodels.genmod import families
-import time
+
+# Suppress specific warnings during model fitting
+warnings.filterwarnings('ignore', category=FutureWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# --- Path Helpers (matching API surface) ---
+try:
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+except ImportError:
+    logger.error("statsmodels is required. Install via: pip install statsmodels")
+    sys.exit(1)
+
 def get_project_root():
-    """Returns the project root directory (parent of 'code')."""
+    """Return the project root directory."""
     return Path(__file__).resolve().parent.parent.parent
 
 def get_cleaned_data_path():
-    """Returns path to cleaned_data.csv."""
-    return get_project_root() / "data" / "processed" / "cleaned_data.csv"
+    """Return the path to the cleaned wide-format data."""
+    return get_project_root() / "data" / "raw" / "participants.csv"
 
 def get_anova_results_path():
-    """Returns path to anova_results.json."""
+    """Return the path to the ANOVA results file."""
     return get_project_root() / "data" / "processed" / "anova_results.json"
 
 def get_output_path():
-    """Returns default output path."""
+    """Return the path for the mixed effects results."""
     return get_project_root() / "data" / "processed" / "mixed_effects_results.json"
 
-# --- Data Loading ---
-def load_wide_data_for_mixed(input_path=None):
+def load_wide_data_for_mixed(input_path):
     """
-    Loads the wide-format data required for Mixed Effects modeling.
-    Expects columns: participant_id, condition_Professional, condition_Minimalist, etc.
-    or a long format that can be pivoted.
+    Load the wide-format data required for mixed effects analysis.
+    Validates that required columns exist.
     """
-    if input_path is None:
-        input_path = get_cleaned_data_path()
-    
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"Cleaned data file not found at {input_path}. "
-                                "Please run 00_preprocess.py first.")
-    
+                                "Please run 00_preprocess.py first to generate participants.csv.")
+
     df = pd.read_csv(input_path)
-    
-    # Ensure participant_id is string for grouping
-    df['participant_id'] = df['participant_id'].astype(str)
-    
-    # Check for necessary columns
-    required_cols = ['participant_id', 'Credibility_Professional', 'Credibility_Minimalist', 
-                     'Credibility_Low-Quality', 'Credibility_Neutral', 'Age', 'Education']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        # Fallback: try to find columns with 'Credibility' prefix if exact names differ
-        cred_cols = [c for c in df.columns if c.startswith('Credibility_')]
-        if len(cred_cols) >= 4 and 'participant_id' in df.columns:
-            logger.warning(f"Exact column names not found. Found {len(cred_cols)} Credibility columns. Attempting inference.")
-            # Assume mapping order matches Latin Square or alphabetical if names are standard
-            # This is a robust fallback; in a real scenario, explicit mapping is better.
-            pass 
-        else:
-            raise ValueError(f"Missing required columns for Mixed Effects: {missing}")
-    
+
+    required_cols = ['participant_id', 'condition', 'credibility_mean', 'age', 'education']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
+
+    # Ensure categorical variables are treated as such
+    df['condition'] = df['condition'].astype('category')
+    df['participant_id'] = df['participant_id'].astype('category')
+
+    # Drop rows with missing values in critical columns
+    initial_count = len(df)
+    df = df.dropna(subset=required_cols)
+    dropped_count = initial_count - len(df)
+    if dropped_count > 0:
+        logger.warning(f"Dropped {dropped_count} rows with missing values.")
+
     return df
 
-# --- Residual Normality Check ---
-def check_residual_normality(model, dependent_var='Credibility'):
+def check_residual_normality(residuals):
     """
-    Performs Shapiro-Wilk test on model residuals.
-    Returns (is_normal, p_value, residuals).
+    Perform a Shapiro-Wilk test for normality on residuals.
+    Returns True if residuals are normally distributed (p > 0.05).
     """
-    try:
-        # Get predicted values
-        pred = model.fittedvalues
-        # Get observed values (need to map back from model data)
-        # Assuming model.data.endog holds the dependent variable
-        observed = model.data.endog
-        residuals = observed - pred
-        
-        stat, p_val = stats.shapiro(residuals)
-        is_normal = p_val > 0.05
-        return is_normal, p_val, residuals
-    except Exception as e:
-        logger.warning(f"Could not perform Shapiro-Wilk test: {e}")
-        return None, None, None
+    from scipy.stats import shapiro
+    stat, p_value = shapiro(residuals)
+    logger.info(f"Shapiro-Wilk Normality Test: W={stat:.4f}, p={p_value:.4f}")
+    return p_value > 0.05
 
-# --- Variable Transformation ---
-def transform_variable(data, method='log'):
+def transform_variable(data, column, method='log'):
     """
-    Applies a transformation to the data.
-    Handles zeros/negatives by adding a small offset if necessary.
+    Apply a transformation to a variable if needed.
+    Currently supports 'log' for positive-only values.
     """
     if method == 'log':
-        # Add 1 to avoid log(0) if data can be 0, or min+epsilon
-        min_val = data.min()
-        offset = 0 if min_val > 0 else (abs(min_val) + 1e-6)
-        return np.log(data + offset)
-    elif method == 'sqrt':
-        min_val = data.min()
-        offset = 0 if min_val >= 0 else (abs(min_val) + 1e-6)
-        return np.sqrt(data + offset)
-    elif method == 'reciprocal':
-        min_val = data.min()
-        offset = 0 if min_val != 0 else 1e-6
-        return 1.0 / (data + offset)
-    return data
+        if (data[column] <= 0).any():
+            raise ValueError(f"Cannot apply log transform to {column} containing non-positive values.")
+        return np.log(data[column])
+    return data[column]
 
-# --- Convergence Retry Logic ---
-def run_mixed_effects_model_with_convergence(df, formula, max_retries=5):
+def run_mixed_effects_model_with_convergence(df, formula, max_iter=1000):
     """
-    Runs MixedLM with automatic retry on different optimizers if convergence fails.
-    Returns the model, result, and a log of attempts.
+    Run the mixed effects model with convergence checks.
+    Returns the fitted model and convergence status.
     """
-    attempts_log = []
-    optimizers = ['bfgs', 'newton', 'cg', 'lbfgs', 'powell']
-    
-    # Prepare data
-    # Ensure categorical variables are handled correctly
-    df['Condition'] = pd.Categorical(df['Condition'])
-    df['Education'] = pd.Categorical(df['Education'])
-    
-    for i, solver in enumerate(optimizers[:max_retries]):
+    logger.info(f"Fitting Mixed Effects Model: {formula}")
+    try:
+        # Use REML for estimation
+        model = smf.lme_fixed_effects(
+            formula,
+            data=df,
+            re_formula="1 | participant_id",
+            re_constraints=None,
+            weights=None,
+            cov_re=None,
+            scale=None,
+            constraints=None,
+            method="ml"  # Using ML for fixed effects comparison, REML for final fit
+        )
+        # Note: statsmodels lme_fixed_effects is experimental.
+        # We use the standard mixedlm API for robustness in this context.
+        raise NotImplementedError("Using standard MixedLM API below instead.")
+
+    except Exception:
+        # Fallback to standard MixedLM API which is more stable in statsmodels
+        model = smf.mixedlm(formula, df, groups=df["participant_id"])
         try:
-            logger.info(f"Attempt {i+1}: Running MixedLM with solver '{solver}'...")
-            start_time = time.time()
-            
-            # Fit model
-            model = MixedLM.from_formula(formula, groups="participant_id", data=df, 
-                                         exog_re=None, re_formula="1")
-            # Try fitting with specific method
-            result = model.fit(method=solver, disp=False)
-            
-            elapsed = time.time() - start_time
-            
-            # Check convergence status
-            # statsmodels MixedLM fit result has 'converged' attribute in newer versions,
-            # or we check the 'converged' flag in the result object if available.
-            # If not, we assume success if no exception was raised and result is valid.
-            converged = result.converged if hasattr(result, 'converged') else True
-            
-            attempts_log.append({
-                "solver": solver,
-                "status": "converged" if converged else "failed",
-                "time_seconds": elapsed,
-                "message": "Success" if converged else "Did not converge"
-            })
-            
-            if converged:
-                logger.info(f"Converged successfully with solver '{solver}'.")
-                return model, result, attempts_log, True
-            else:
-                logger.warning(f"Model did not converge with solver '{solver}'. Retrying...")
-                
+            result = model.fit(reml=False, maxiter=max_iter)
+            # Check convergence
+            if not result.converged:
+                logger.warning("Model did not converge within max iterations.")
+                # Try again with more iterations or different method if needed
+                result = model.fit(reml=True, maxiter=max_iter * 2)
+            return result, result.converged
         except Exception as e:
-            attempts_log.append({
-                "solver": solver,
-                "status": "error",
-                "message": str(e)
-            })
-            logger.warning(f"Error with solver '{solver}': {e}. Retrying...")
+            logger.error(f"Model fitting failed: {e}")
+            raise
+
+def bootstrap_coefficient_ci(result, n_boot=1000, seed=42):
+    """
+    Calculate 95% confidence intervals for fixed effects coefficients via bootstrapping.
+    """
+    np.seed(seed)
+    df = result.model.data.frame
+    formula = result.model.formula
+    groups = result.model.groups
+
+    boot_coefs = []
+
+    for _ in range(n_boot):
+        # Resample participants (cluster bootstrap)
+        unique_groups = df['participant_id'].unique()
+        sampled_groups = np.random.choice(unique_groups, size=len(unique_groups), replace=True)
+        sampled_df = df[df['participant_id'].isin(sampled_groups)]
+
+        if len(sampled_df) < 10:
             continue
-    
-    # If all retries failed
-    logger.error("All convergence attempts failed.")
-    return None, None, attempts_log, False
 
-# --- Bootstrapping for Confidence Intervals (T051b) ---
-def bootstrap_coefficient_ci(df, formula, n_iterations=1000, seed=42):
-    """
-    Calculates 95% Confidence Intervals for the Condition coefficients using bootstrapping.
-    Resamples participants (rows) with replacement.
-    """
-    np.random.seed(seed)
-    logger.info(f"Starting bootstrapping (n={n_iterations}, seed={seed})...")
-    
-    # Extract unique participants
-    participants = df['participant_id'].unique()
-    n_participants = len(participants)
-    
-    # Store coefficients for each condition
-    # We assume the formula includes 'Condition' which is categorical
-    # We will extract coefficients for each level relative to the reference
-    # To make this robust, we run the model on the full data first to get the formula structure
-    
-    # Prepare the full data model to identify coefficients
-    df['Condition'] = pd.Categorical(df['Condition'])
-    df['Education'] = pd.Categorical(df['Education'])
-    
-    # Initial fit to get coefficient names
-    try:
-        base_model = MixedLM.from_formula(formula, groups="participant_id", data=df)
-        base_result = base_model.fit(method='bfgs', disp=False)
-        coef_names = [k for k in base_result.params.keys() if k.startswith('Condition')]
-    except:
-        # Fallback if base fit fails, try to infer from formula string
-        # This is a heuristic
-        coef_names = []
-        logger.warning("Could not determine coefficient names from initial fit. Bootstrapping might be limited.")
-        return None
-
-    if not coef_names:
-        logger.warning("No Condition coefficients found to bootstrap.")
-        return None
-
-    # Initialize storage for bootstrapped coefficients
-    bootstrap_samples = {name: [] for name in coef_names}
-    
-    for i in range(n_iterations):
-        # Resample participants with replacement
-        # We need to keep all rows for a selected participant to maintain the repeated measures structure
-        sample_indices = np.random.choice(n_participants, size=n_participants, replace=True)
-        sample_participants = participants[sample_indices]
-        
-        # Filter dataframe to these participants
-        boot_df = df[df['participant_id'].isin(sample_participants)].copy()
-        
-        if len(boot_df) < 10:
-            continue # Skip if sample is too small
-        
         try:
-            # Re-fit model on bootstrap sample
-            # Use a simpler method for speed if needed, but 'bfgs' is standard
-            boot_model = MixedLM.from_formula(formula, groups="participant_id", data=boot_df)
-            boot_result = boot_model.fit(method='bfgs', disp=False)
-            
-            # Extract coefficients
-            for name in coef_names:
-                if name in boot_result.params:
-                    bootstrap_samples[name].append(boot_result.params[name])
-                else:
-                    # If a coefficient is dropped due to collinearity in sample, skip or handle
-                    pass
-                    
-        except Exception as e:
-            # If model fails to converge on a bootstrap sample, skip it
+            boot_model = smf.mixedlm(formula, sampled_df, groups=sampled_df["participant_id"])
+            boot_result = boot_model.fit(reml=False, maxiter=100)
+            boot_coefs.append(boot_result.params)
+        except Exception:
             continue
-    
-    # Calculate CIs
-    ci_results = {}
-    for name, samples in bootstrap_samples.items():
-        if len(samples) > 0:
-            lower = np.percentile(samples, 2.5)
-            upper = np.percentile(samples, 97.5)
-            mean = np.mean(samples)
-            ci_results[name] = {
-                "mean": float(mean),
-                "ci_lower": float(lower),
-                "ci_upper": float(upper),
-                "n_samples": len(samples)
-            }
-        else:
-            ci_results[name] = {
-                "mean": None,
-                "ci_lower": None,
-                "ci_upper": None,
-                "n_samples": 0
-            }
-            
-    logger.info(f"Bootstrapping complete. Valid samples: {len(bootstrap_samples[coef_names[0]]) if coef_names else 0}")
-    return ci_results
 
-# --- Comparison with ANOVA ---
-def compare_with_anova(mixed_results, anova_path=None):
-    """
-    Compares Mixed Effects results with ANOVA results.
-    """
-    if anova_path is None:
-        anova_path = get_anova_results_path()
-        
-    if not os.path.exists(anova_path):
-        logger.warning(f"ANOVA results not found at {anova_path}. Skipping comparison.")
-        return None
-    
-    try:
-        with open(anova_path, 'r') as f:
-            anova_data = json.load(f)
-        
-        comparison = {
-            "anova_p_value": anova_data.get('p_value'),
-            "mixed_p_value": mixed_results.get('overall_p_value'),
-            "consistency": "consistent" if (anova_data.get('p_value') is not None and 
-                                            mixed_results.get('overall_p_value') is not None and
-                                            (anova_data['p_value'] < 0.05) == (mixed_results['overall_p_value'] < 0.05)) 
-                           else "inconsistent"
-        }
-        return comparison
-    except Exception as e:
-        logger.error(f"Error comparing with ANOVA: {e}")
-        return None
+    if len(boot_coefs) > 0:
+        boot_df = pd.DataFrame(boot_coefs)
+        ci_lower = boot_df.quantile(0.025)
+        ci_upper = boot_df.quantile(0.975)
+        return ci_lower, ci_upper
+    return None, None
 
-# --- Main Execution ---
-def main():
-    parser = argparse.ArgumentParser(description="Run Mixed Effects Analysis with Bootstrapping")
-    parser.add_argument('--input', type=str, default=None, help='Path to cleaned data CSV (default: auto-detect)')
-    parser.add_argument('--output', type=str, default=None, help='Path to output JSON (default: auto-detect)')
-    parser.add_argument('--formula', type=str, default="C(Credibility) ~ C(Condition) + Age + Education + (1|participant_id)",
-                        help='Statsmodels formula for the mixed model')
-    parser.add_argument('--bootstrap', action='store_true', default=True, help='Enable bootstrapping for CIs (T051b)')
-    parser.add_argument('--n-bootstrap', type=int, default=1000, help='Number of bootstrap iterations')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed for bootstrapping')
+def compare_with_anova(anova_results, mixed_results):
+    """
+    Compare the Condition effect from ANOVA and Mixed Effects Model.
+    """
+    anova_f = anova_results.get('F_statistic', None)
+    anova_p = anova_results.get('p_value', None)
     
-    args = parser.parse_args()
-    
-    # Set paths
-    input_path = args.input if args.input else get_cleaned_data_path()
-    output_path = args.output if args.output else get_output_path()
-    
-    logger.info(f"Loading data from {input_path}...")
-    try:
-        df_wide = load_wide_data_for_mixed(input_path)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        sys.exit(1)
-    
-    # Reshape to long format for MixedLM (MixedLM expects long format for repeated measures)
-    # Wide columns: Credibility_Professional, Credibility_Minimalist, etc.
-    # We need to pivot to: participant_id, Condition, Credibility, Age, Education
-    
-    # Identify Credibility columns
-    cred_cols = [c for c in df_wide.columns if c.startswith('Credibility_')]
-    if not cred_cols:
-        logger.error("No Credibility columns found in wide data.")
-        sys.exit(1)
-    
-    # Create long dataframe
-    long_dfs = []
-    for col in cred_cols:
-        cond_name = col.replace('Credibility_', '')
-        temp_df = df_wide[['participant_id', 'Age', 'Education']].copy()
-        temp_df['Condition'] = cond_name
-        temp_df['Credibility'] = df_wide[col]
-        long_dfs.append(temp_df)
-    
-    df_long = pd.concat(long_dfs, ignore_index=True)
-    
-    # Drop rows with missing data
-    df_long = df_long.dropna(subset=['Credibility', 'Condition', 'Age', 'Education'])
-    
-    logger.info(f"Data reshaped to long format. {len(df_long)} observations.")
-    
-    # Run Mixed Effects Model
-    logger.info("Running Mixed Effects Model...")
-    model, result, attempts_log, converged = run_mixed_effects_model_with_convergence(df_long, args.formula)
-    
-    results_dict = {
-        "convergence_status": "converged" if converged else "failed",
-        "convergence_attempts": attempts_log,
-        "parameters": {},
-        "p_values": {},
-        "comparison_with_anova": None
+    # Extract Condition fixed effect
+    mixed_coef = mixed_results.get('fixed_effects', {}).get('C(condition)[T.high_quality]', 0)
+    mixed_p = mixed_results.get('fixed_effects_p', {}).get('C(condition)[T.high_quality]', 1.0)
+
+    comparison = {
+        "anova_f_stat": anova_f,
+        "anova_p_value": anova_p,
+        "mixed_effect_coef": mixed_coef,
+        "mixed_effect_p_value": mixed_p,
+        "effect_persistence": "Yes" if (mixed_p < 0.05) else "No",
+        "notes": "Comparing main effect of condition across models."
     }
-    
-    if converged and result is not None:
-        # Extract parameters and p-values
-        for param, val in result.params.items():
-            results_dict["parameters"][param] = float(val)
-        for param, val in result.pvalues.items():
-            results_dict["p_values"][param] = float(val)
-        
-        # Overall significance (simplified: check if any Condition effect is significant)
-        cond_pvals = [v for k, v in results_dict["p_values"].items() if k.startswith('Condition')]
-        if cond_pvals:
-            results_dict["overall_p_value"] = min(cond_pvals) # Conservative min
-        else:
-            results_dict["overall_p_value"] = None
-        
-        # Residual Normality Check (T049)
-        is_normal, p_val, _ = check_residual_normality(result, 'Credibility')
-        results_dict["residual_normality"] = {
+    return comparison
+
+def main():
+    parser = argparse.ArgumentParser(description="Run Mixed Effects Analysis for US3")
+    parser.add_argument("--input", type=str, default=None,
+                        help="Path to cleaned wide-format CSV (default: data/raw/participants.csv)")
+    parser.add_argument("--output", type=str, default=None,
+                        help="Path to output JSON results (default: data/processed/mixed_effects_results.json)")
+    parser.add_argument("--anova-input", type=str, default=None,
+                        help="Path to ANOVA results JSON for comparison")
+    args = parser.parse_args()
+
+    # Resolve paths
+    input_path = args.input if args.input else str(get_cleaned_data_path())
+    output_path = args.output if args.output else str(get_output_path())
+    anova_input = args.anova_input if args.anova_input else str(get_anova_results_path())
+
+    # Ensure output directory exists
+    os.makedirs(os.dirname(output_path), exist_ok=True)
+
+    logger.info(f"Loading data from {input_path}...")
+    df = load_wide_data_for_mixed(input_path)
+
+    logger.info(f"Dataset shape: {df.shape}")
+    logger.info(f"Unique participants: {df['participant_id'].nunique()}")
+    logger.info(f"Conditions: {df['condition'].unique()}")
+
+    # Define the model formula
+    # Credibility ~ Condition + Age + Education + (1|Participant)
+    formula = "credibility_mean ~ C(condition) + age + education"
+
+    logger.info("Running Mixed Effects Model...")
+    result, converged = run_mixed_effects_model_with_convergence(df, formula)
+
+    if not converged:
+        logger.warning("Model convergence warning: Results may be approximate.")
+
+    # Extract results
+    fixed_effects = result.params.to_dict()
+    fixed_effects_p = result.pvalues.to_dict()
+    random_effects = result.var_to_names
+    aic = result.aic
+    bic = result.bic
+    log_likelihood = result.llf
+
+    # Check residual normality
+    residuals = result.resid
+    is_normal = check_residual_normality(residuals)
+
+    # Bootstrap CIs
+    ci_lower, ci_upper = bootstrap_coefficient_ci(result, n_boot=500)
+
+    # Load ANOVA results for comparison if available
+    comparison = None
+    if os.path.exists(anova_input):
+        try:
+            with open(anova_input, 'r') as f:
+                anova_data = json.load(f)
+            comparison = compare_with_anova(anova_data, {
+                "fixed_effects": fixed_effects,
+                "fixed_effects_p": fixed_effects_p
+            })
+        except Exception as e:
+            logger.warning(f"Could not load ANOVA results for comparison: {e}")
+
+    # Prepare output dictionary
+    output_data = {
+        "model_formula": formula,
+        "convergence_status": converged,
+        "sample_size": len(df),
+        "num_groups": df['participant_id'].nunique(),
+        "fit_statistics": {
+            "AIC": aic,
+            "BIC": bic,
+            "Log-Likelihood": log_likelihood
+        },
+        "fixed_effects": fixed_effects,
+        "fixed_effects_pvalues": fixed_effects_p,
+        "random_effects_structure": random_effects,
+        "residual_normality": {
             "is_normal": is_normal,
-            "shapiro_p_value": float(p_val) if p_val is not None else None
-        }
-        
-        # Transformation attempt if not normal
-        if is_normal is False:
-            logger.info("Residuals not normal. Attempting log transformation...")
-            # Transform Credibility in df_long
-            df_long['Credibility_Transformed'] = transform_variable(df_long['Credibility'], 'log')
-            formula_trans = args.formula.replace('Credibility', 'Credibility_Transformed')
-            model_t, result_t, attempts_log_t, converged_t = run_mixed_effects_model_with_convergence(df_long, formula_trans)
-            
-            if converged_t:
-                results_dict["transformation_applied"] = True
-                results_dict["transformation_method"] = "log"
-                results_dict["transformed_parameters"] = {k: float(v) for k, v in result_t.params.items()}
-                results_dict["transformed_p_values"] = {k: float(v) for k, v in result_t.pvalues.items()}
-                # Check transformed residuals
-                is_normal_t, p_val_t, _ = check_residual_normality(result_t, 'Credibility_Transformed')
-                results_dict["transformed_residual_normality"] = {
-                    "is_normal": is_normal_t,
-                    "shapiro_p_value": float(p_val_t) if p_val_t is not None else None
-                }
-            else:
-                results_dict["transformation_applied"] = False
-                results_dict["transformation_method"] = "log"
-                results_dict["transformation_status"] = "failed"
-        else:
-            results_dict["transformation_applied"] = False
-    
-    # Bootstrapping (T051b)
-    if args.bootstrap and converged and result is not None:
-        logger.info("Calculating Confidence Intervals via Bootstrapping...")
-        # We need to pass the long dataframe to the bootstrap function
-        # Adjust formula for long format if necessary (it should be compatible)
-        # The formula in args.formula is already set for long format: "C(Credibility) ~ C(Condition) + ..."
-        ci_results = bootstrap_coefficient_ci(df_long, args.formula, n_iterations=args.n_bootstrap, seed=args.seed)
-        results_dict["bootstrap_confidence_intervals"] = ci_results
-    else:
-        results_dict["bootstrap_confidence_intervals"] = None
-        if not converged:
-            logger.warning("Bootstrapping skipped due to model convergence failure.")
-        elif not args.bootstrap:
-            logger.info("Bootstrapping disabled by argument.")
-    
-    # Comparison with ANOVA
-    results_dict["comparison_with_anova"] = compare_with_anova(results_dict)
-    
-    # Save results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            "test": "Shapiro-Wilk"
+        },
+        "confidence_intervals": {
+            "lower": ci_lower.to_dict() if ci_lower is not None else None,
+            "upper": ci_upper.to_dict() if ci_upper is not None else None
+        },
+        "comparison_with_anova": comparison,
+        "timestamp": str(pd.Timestamp.now())
+    }
+
+    # Write to file
     with open(output_path, 'w') as f:
-        json.dump(results_dict, f, indent=2)
-    
-    logger.info(f"Results saved to {output_path}")
-    return 0
+        json.dump(output_data, f, indent=2, default=str)
+
+    logger.info(f"Results written to {output_path}")
+    logger.info("Mixed Effects Analysis Complete.")
+
+    # Print summary to stdout for quick inspection
+    print("\n--- Mixed Effects Model Summary ---")
+    print(f"Formula: {formula}")
+    print(f"Converged: {converged}")
+    print(f"AIC: {aic:.2f}, BIC: {bic:.2f}")
+    print("\nFixed Effects (Condition High Quality):")
+    coef = fixed_effects.get('C(condition)[T.high_quality]', 'N/A')
+    p_val = fixed_effects_p.get('C(condition)[T.high_quality]', 'N/A')
+    print(f"  Coefficient: {coef}")
+    print(f"  p-value: {p_val}")
+    print("-----------------------------------\n")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
