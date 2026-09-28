@@ -1,6 +1,6 @@
 status: none
-intent: Aluminum alloy recrystallization dataset cold work composition annealing temperature
-  time-to-peak softening python package dataset
+intent: Aluminum alloy recrystallization kinetics dataset NIST HuggingFace python
+  package dataset
 required_fields:
 - cold_work_percent
 - mg_wt_percent
@@ -9,6 +9,8 @@ required_fields:
 - mn_wt_percent
 - annealing_temperature_K
 - time_to_peak_softening
-cache_key: cd6d889a3e763a5b7d1729f8e09cf6278d46ba44893e9ead9fa74a384e78ea15
-searched_at: '2026-09-24T19:44:35.043289+00:00'
+- interaction_feature_pinning
+- interaction_feature_solute_drag
+cache_key: 1f6fa4b4298db5b590dc65739dad294806c402ba2cbb2a3a3b907705df824007
+searched_at: '2026-09-28T16:53:53.502565+00:00'
 retry_count: 1

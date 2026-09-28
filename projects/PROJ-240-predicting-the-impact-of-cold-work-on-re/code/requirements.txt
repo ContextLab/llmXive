@@ -4,3 +4,4 @@ scikit-learn>=1.0.0
 shap>=0.41.0
 scipy>=1.7.0
 pyyaml>=5.4.0
+statsmodels  # auto-added: imported by run-book but missing from venv
