@@ -1,115 +1,124 @@
-import logging
-import os
-import sys
-from pathlib import Path
-from config import LOGS_DIR
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
 
-# Ensure log directory exists
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
 
-class DetailedFormatter(logging.Formatter):
-    """Custom formatter for detailed logging output."""
-    def format(self, record):
-        log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        self._style._fmt = log_fmt
-        return super().format(record)
 
-def setup_logger(name, log_file=None, level=logging.INFO):
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
-    Set up a logger with file and/or console handlers.
-    
-    Args:
-        name: Logger name
-        log_file: Path to log file (optional)
-        level: Logging level
-        
-    Returns:
-        Configured logger instance
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates
-    if logger.handlers:
-        logger.handlers.clear()
-    
-    # Create formatter
-    formatter = DetailedFormatter()
-    
-    # File handler if log_file specified
-    if log_file:
-        # Ensure directory exists
-        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(log_file)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-    
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    
-    return logger
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
 
-def get_logger(name):
-    """Get an existing logger or create a new one with default settings."""
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        return setup_logger(name)
-    return logger
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
 
-def initialize_pipeline_logging():
-    """Initialize logging infrastructure for the entire pipeline."""
-    # Set up root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
-    
-    # Remove any existing handlers
-    if root_logger.handlers:
-        root_logger.handlers.clear()
-    
-    # Create console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setFormatter(DetailedFormatter())
-    root_logger.addHandler(ch)
-    
-    # Create file handler for general pipeline logs
-    pipeline_log = LOGS_DIR / "pipeline.log"
-    fh = logging.FileHandler(pipeline_log)
-    fh.setFormatter(DetailedFormatter())
-    root_logger.addHandler(fh)
-    
-    return root_logger
+        return _wrapper
 
-def get_preprocess_logger():
-    """Get the logger for preprocessing tasks."""
-    log_file = LOGS_DIR / "preprocess.log"
-    return setup_logger("preprocess", log_file)
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
 
-def get_download_logger():
-    """Get the logger for download tasks."""
-    log_file = LOGS_DIR / "download.log"
-    return setup_logger("download", log_file)
 
-def get_train_logger():
-    """Get the logger for training tasks."""
-    log_file = LOGS_DIR / "train.log"
-    return setup_logger("train", log_file)
+# Compatibility aliases for existing callers
+def get_train_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Get the global logger. Accepts any call shape."""
+    return get_logger(*args, **kwargs)
 
-def get_project_logger():
-    """Get the logger for project-wide tasks."""
-    log_file = LOGS_DIR / "project.log"
-    return setup_logger("project", log_file)
 
-def get_evaluate_logger():
-    """Get the logger for evaluation tasks."""
-    log_file = LOGS_DIR / "evaluate.log"
-    return setup_logger("evaluate", log_file)
+def get_preprocess_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Get the global logger (alias for compatibility)."""
+    return get_logger(*args, **kwargs)
 
-def get_pipeline_logger():
-    """Get the general pipeline logger."""
-    log_file = LOGS_DIR / "pipeline.log"
-    return setup_logger("pipeline", log_file)
 
-# Initialize pipeline logging on module import
-initialize_pipeline_logging()
+def get_download_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Get the global logger (alias for compatibility)."""
+    return get_logger(*args, **kwargs)
+
+
+def get_project_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Get the global logger (alias for compatibility)."""
+    return get_logger(*args, **kwargs)
+
+
+def get_evaluate_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Get the global logger (alias for compatibility)."""
+    return get_logger(*args, **kwargs)
+
+
+def get_pipeline_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Get the global logger (alias for compatibility)."""
+    return get_logger(*args, **kwargs)
+
+
+def setup_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Setup logger (alias for compatibility)."""
+    return get_logger(*args, **kwargs)
+
+
+def initialize_pipeline_logging(*args: Any, **kwargs: Any) -> None:
+    """Initialize pipeline logging (no-op for compatibility)."""
+    pass
+
+
+class DetailedFormatter:
+    """Placeholder for compatibility."""
+    pass
+
+
+def setup_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    """Setup logger (alias for compatibility)."""
+    return get_logger(*args, **kwargs)

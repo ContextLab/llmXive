@@ -1,11 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or file listings were provided to demonstrate that `projects/PROJ-181-predicting-species-distribution-shifts-u/`\
-    \ and all required sub\u2011directories exist, nor that each contains a `.gitkeep`\
-    \ placeholder. The implementer must supply concrete evidence (e.g., a tree view,\
-    \ `ls` output, or a zip of the created folders) showing the full structure with\
-    \ the `.gitkeep` files."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,29 +6,36 @@ T003:
     \ evidence, so the requirement to configure flake8 and black is not demonstrated.\
     \ The implementer must add the appropriate configuration files and show they are\
     \ integrated into the project (e.g., via a Makefile target or CI step)."
-T010:
+T011:
   c: false
-  h: 313c4eed02aeff9125f66260a8224a177dcfd51927657b503b4ae2d27d3d36fc
-  r: "The required output CSV `data/raw/occurrence_1970_2000.csv` does not exist,\
-    \ so the task\u2019s core deliverable is missing. Additionally, the provided `download.py`\
-    \ is truncated and does not show the logic that reads the species list, invokes\
-    \ the fetch function, and writes the CSV, leaving uncertainty that all required\
-    \ columns and constraints are satisfied. The next implementer must ensure the\
-    \ script creates the specified CSV with the mandated metadata columns."
+  h: ba3d9469e459f111efca86f55fd7523fab65fd9254d12df11d8f62a15f00a164
+  r: "The required output file `data/raw/occurrence_2005_2020.csv` does not exist,\
+    \ and the provided `code/download.py` is truncated and lacks a working dynamic\
+    \ pagination loop (offset is never updated). Consequently the task\u2019s core\
+    \ requirement\u2014fetching records for 2005\u20112020 and saving them with the\
+    \ required metadata columns\u2014is not satisfied."
 T013:
   c: false
   h: 6966478272f285e639d8e283be7f8d257fafb835a56bca7aae7dff906148941a
   r: 'Both required artifacts are absent: `code/preprocess.py` does not exist, and
     the log file `logs/preprocess_counts.yaml` is missing, so the preprocessing functionality
     and logging are not implemented.'
-T013b:
+T013a:
   c: false
   h: 217a3020c3a7bc1547601afa5eeef5e3ca25854db48bd5f0390eb7441a94691d
-  r: "The required input file `data/raw/occurrence_1970_2000.csv` is absent, and the\
-    \ provided `code/preprocess.py` (as shown) contains no logic that reads this CSV,\
-    \ counts records per species, or writes `metrics/historical_insufficient_data.json`\
-    \ with the specified schema. Consequently the task\u2019s core requirement is\
-    \ not satisfied."
+  r: "The required `data/raw/occurrence_1970_2000.csv` file is absent, so the script\
+    \ cannot count records. Moreover, the provided `code/preprocess.py` excerpt shows\
+    \ no function that reads this CSV and writes `metrics/data_sufficiency.json` with\
+    \ the specified schema, only generic thinning logic. Both the data source and\
+    \ the specific insufficiency\u2011checking implementation are missing."
+T015:
+  c: false
+  h: d408e318bcadc58ab6273f813f47b2b6310fb7666391954fd4e4dc6630ff7a20
+  r: "The provided `code/download.py` only contains a GBIF occurrence\u2011fetching\
+    \ function and lacks any implementation for downloading the 19 WorldClim historical\
+    \ rasters or the CMIP6 SSP2\u20114.5 future rasters, saving them to the required\
+    \ directories, validating their presence, or exiting with code\u202F1 on missing\
+    \ files. No climate raster files are present in the repository."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -52,14 +51,11 @@ T026:
     file is missing, so the task is not satisfied.
 T027:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., training logs, process monitoring output, code checks, or\
-    \ test results) was provided to demonstrate that the model training runs without\
-    \ invoking any GPU/CUDA libraries. Without such evidence, we cannot confirm that\
-    \ the requirement \u201Cno GPU/CUDA dependencies are invoked during training\u201D\
-    \ is satisfied. The implementer must supply concrete proof\u2014such as a log\
-    \ showing absence of CUDA initialization, a dependency list confirming only CPU\
-    \ libraries, or a test run that verifies no CUDA errors."
+  h: 430d0db3c6687d4926d000cbfd2847b5b583a590abf2608cd85688a3ea41a7ff
+  r: "The provided `code/train.py` contains no `torch.cuda.is_available()` call, no\
+    \ sklearn device flag checks, no logging to `logs/gpu_check.log`, and does not\
+    \ exit on GPU detection. Additionally, the expected `code/utils/gpu_check.py`\
+    \ file is absent. Hence the required pre\u2011training GPU check is not implemented."
 T029b:
   c: false
   h: f1889f20cb1b7353c07ff0ae9317516075ed5a918062a958ab32b42aa71a3dd4

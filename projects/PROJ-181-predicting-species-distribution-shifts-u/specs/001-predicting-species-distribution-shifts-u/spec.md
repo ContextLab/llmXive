@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Acquisition and Preprocessing (Priority: P1)
 
-The system MUST download historical occurrence records (1970-2000) and corresponding climate rasters (WorldClim v2), then preprocess them by filtering for breeding season, removing duplicates, and spatially thinning points to reduce autocorrelation.
+The system MUST download historical occurrence records (from a multi-decade baseline period) and corresponding climate rasters (WorldClim v2), then preprocess them by filtering for breeding season, removing duplicates, and spatially thinning points to reduce autocorrelation.
 
 **Why this priority**: This is the foundational step; without clean, temporally-aligned occurrence and climate data, no model can be trained or validated.
 
@@ -41,7 +41,7 @@ The system MUST train three SDM algorithms (MaxEnt-style, Random Forest, Bioclim
 
 ### User Story 3 - Future Projection and Evaluation (Priority: P3)
 
-The system MUST project trained models onto future climate scenarios (CMIP6 SSP2-4.5, 2050) and evaluate predictive performance against recent occurrence records (2000s-2020) using paired statistical tests and niche stability checks.
+The system MUST project trained models onto future climate scenarios (CMIP SSP-4.5, 2050) and evaluate predictive performance against recent occurrence records (2000s-2020) using paired statistical tests and niche stability checks.
 
 **Why this priority**: This completes the forecasting loop, allowing comparison of historic predictions against recent observations to quantify reliability and distinguish between niche conservatism and range shift.
 

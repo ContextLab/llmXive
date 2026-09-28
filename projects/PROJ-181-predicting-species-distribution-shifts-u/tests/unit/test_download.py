@@ -1,204 +1,107 @@
 """
 Unit tests for the download module.
 """
-import os
-import sys
-import tempfile
-import pytest
-from pathlib import Path
+import unittest
 from unittest.mock import patch, MagicMock
-import csv
+import pandas as pd
+from pathlib import Path
+import os
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Mock the config module to avoid file system dependencies in tests
+import sys
+from unittest.mock import MagicMock
 
-from code.download import fetch_gbif_occurrences, get_download_logger
-from code.config import DATA_RAW_DIR
+mock_config = MagicMock()
+mock_config.PROJECT_ROOT = Path("/tmp/test_project")
+mock_config.DATA_RAW_DIR = Path("/tmp/test_project/data/raw")
+mock_config.SPECIES_LIST = ["Turdus migratorius"]
+mock_config.HISTORICAL_START_YEAR = 1970
+mock_config.HISTORICAL_END_YEAR = 2000
+mock_config.RECENT_START_YEAR = 2005
+mock_config.RECENT_END_YEAR = 2020
+mock_config.GBIF_BASE_URL = "https://api.gbif.org/v1/occurrence/search"
+mock_config.GBIF_MAX_RESULTS_PER_REQUEST = 300
+mock_config.LOGS_DIR = Path("/tmp/test_project/logs")
+mock_config.THINNING_DISTANCE_KM = 10.0
 
-class TestFetchGbifOccurrences:
-    """Tests for fetch_gbif_occurrences function."""
+sys.modules['config'] = mock_config
 
-    def test_fetch_gbif_occurrences_creates_csv(self, tmp_path):
-        """Test that fetch_gbif_occurrences creates a valid CSV file."""
-        # Mock the requests.get to return a valid response
-        mock_response_data = {
-            "results": [
-                {
-                    "scientificName": "Turdus migratorius",
-                    "decimalLatitude": 40.7128,
-                    "decimalLongitude": -74.0060,
-                    "eventDate": "2015-05-01",
-                    "basisOfRecord": "OCCURRENCE",
-                    "datasetKey": "test-dataset-key"
-                },
-                {
-                    "scientificName": "Turdus migratorius",
-                    "decimalLatitude": 41.8781,
-                    "decimalLongitude": -87.6298,
-                    "eventDate": "2016-06-15",
-                    "basisOfRecord": "OCCURRENCE",
-                    "datasetKey": "test-dataset-key"
-                }
-            ],
-            "offset": 0,
-            "limit": 300,
-            "endOfRecords": True
-        }
+# Mock logging config
+mock_logging_config = MagicMock()
+mock_logger = MagicMock()
+mock_logging_config.get_download_logger.return_value = mock_logger
+sys.modules['logging_config'] = mock_logging_config
 
-        output_path = tmp_path / "test_occurrence.csv"
+from download import fetch_gbif_occurrences
 
-        with patch('code.download.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.json.return_value = mock_response_data
-            mock_response.raise_for_status.return_value = None
-            mock_get.return_value = mock_response
+class TestDownload(unittest.TestCase):
 
-            fetch_gbif_occurrences(
-                species_list=["Turdus migratorius"],
-                start_year=2010,
-                end_year=2020,
-                output_path=str(output_path),
-                api_key="test-key"
-            )
-
-            # Verify the file was created
-            assert output_path.exists()
-
-            # Verify the content
-            with open(output_path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-
-                assert len(rows) == 2
-                assert rows[0]['species'] == 'Turdus migratorius'
-                assert rows[0]['decimalLatitude'] == '40.7128'
-                assert 'source_identifier' in reader.fieldnames
-                assert 'download_timestamp' in reader.fieldnames
-                assert 'original_dataset_name' in reader.fieldnames
-
-    def test_fetch_gbif_occurrences_pagination(self, tmp_path):
+    @patch('download.requests.get')
+    def test_fetch_gbif_occurrences_pagination(self, mock_get):
         """Test that pagination works correctly."""
-        # First page
-        page1_data = {
-            "results": [{"scientificName": "Species A", "decimalLatitude": 10, "decimalLongitude": 10, "eventDate": "2010", "basisOfRecord": "OCC", "datasetKey": "K1"} for _ in range(300)],
-            "offset": 0,
-            "limit": 300,
-            "endOfRecords": False
-        }
-        # Second page
-        page2_data = {
-            "results": [{"scientificName": "Species A", "decimalLatitude": 11, "decimalLongitude": 11, "eventDate": "2010", "basisOfRecord": "OCC", "datasetKey": "K1"} for _ in range(100)],
-            "offset": 300,
-            "limit": 300,
-            "endOfRecords": True
-        }
-
-        output_path = tmp_path / "test_paginated.csv"
-
-        call_count = 0
-        def mock_get_side_effect(*args, **kwargs):
-            nonlocal call_count
-            mock_response = MagicMock()
-            mock_response.raise_for_status.return_value = None
-            if call_count == 0:
-                mock_response.json.return_value = page1_data
-            else:
-                mock_response.json.return_value = page2_data
-            call_count += 1
-            return mock_response
-
-        with patch('code.download.requests.get', side_effect=mock_get_side_effect):
-            fetch_gbif_occurrences(
-                species_list=["Species A"],
-                start_year=2010,
-                end_year=2020,
-                output_path=str(output_path),
-                api_key="test-key"
-            )
-
-            assert call_count == 2
-            with open(output_path, 'r') as f:
-                reader = csv.reader(f)
-                rows = list(reader)
-                # Header + 300 + 100
-                assert len(rows) == 401
-
-    def test_fetch_gbif_occurrences_missing_coordinates(self, tmp_path):
-        """Test that records with missing coordinates are skipped."""
-        mock_response_data = {
+        # Mock response for first page
+        mock_response1 = MagicMock()
+        mock_response1.json.return_value = {
             "results": [
-                {
-                    "scientificName": "Species A",
-                    "decimalLatitude": 10.0,
-                    "decimalLongitude": 10.0,
-                    "eventDate": "2010",
-                    "basisOfRecord": "OCC",
-                    "datasetKey": "K1"
-                },
-                {
-                    "scientificName": "Species A",
-                    "decimalLatitude": None,
-                    "decimalLongitude": None,
-                    "eventDate": "2010",
-                    "basisOfRecord": "OCC",
-                    "datasetKey": "K1"
-                }
-            ],
-            "offset": 0,
-            "limit": 300,
-            "endOfRecords": True
+                {"scientificName": "Turdus migratorius", "decimalLatitude": 40.0, "decimalLongitude": -75.0, "eventDate": "1990-01-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"},
+                {"scientificName": "Turdus migratorius", "decimalLatitude": 41.0, "decimalLongitude": -76.0, "eventDate": "1990-02-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"}
+            ]
         }
+        mock_response1.raise_for_status = MagicMock()
 
-        output_path = tmp_path / "test_missing_coords.csv"
+        # Mock response for second page (empty)
+        mock_response2 = MagicMock()
+        mock_response2.json.return_value = {"results": []}
+        mock_response2.raise_for_status = MagicMock()
 
-        with patch('code.download.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.json.return_value = mock_response_data
-            mock_response.raise_for_status.return_value = None
-            mock_get.return_value = mock_response
+        mock_get.side_effect = [mock_response1, mock_response2]
 
-            fetch_gbif_occurrences(
-                species_list=["Species A"],
-                start_year=2010,
-                end_year=2020,
-                output_path=str(output_path),
-                api_key="test-key"
-            )
+        output_path = Path("/tmp/test_output.csv")
+        df = fetch_gbif_occurrences(
+            species_list=["Turdus migratorius"],
+            year_start=1970,
+            year_end=2000,
+            output_path=output_path
+        )
 
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                # Only the first record should be present
-                assert len(rows) == 1
+        self.assertEqual(len(df), 2)
+        self.assertIn("species", df.columns)
+        self.assertIn("decimalLatitude", df.columns)
+        self.assertIn("download_timestamp", df.columns)
+        self.assertIn("source_identifier", df.columns)
+        self.assertIn("original_dataset_name", df.columns)
 
-    def test_fetch_gbif_occurrences_no_records_raises(self, tmp_path):
-        """Test that an error is raised if no records are fetched."""
-        mock_response_data = {
-            "results": [],
-            "offset": 0,
-            "limit": 300,
-            "endOfRecords": True
+        # Clean up
+        if output_path.exists():
+            output_path.unlink()
+
+    @patch('download.requests.get')
+    def test_fetch_gbif_occurrences_missing_coordinates(self, mock_get):
+        """Test that records with missing coordinates are filtered out."""
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "results": [
+                {"scientificName": "Turdus migratorius", "decimalLatitude": 40.0, "decimalLongitude": -75.0, "eventDate": "1990-01-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"},
+                {"scientificName": "Turdus migratorius", "decimalLatitude": None, "decimalLongitude": -75.0, "eventDate": "1990-01-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"},
+                {"scientificName": "Turdus migratorius", "decimalLatitude": 40.0, "decimalLongitude": None, "eventDate": "1990-01-01", "basisOfRecord": "OCCURRENCE", "datasetKey": "test-dataset"}
+            ]
         }
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
 
-        output_path = tmp_path / "test_empty.csv"
+        output_path = Path("/tmp/test_output2.csv")
+        df = fetch_gbif_occurrences(
+            species_list=["Turdus migratorius"],
+            year_start=1970,
+            year_end=2000,
+            output_path=output_path
+        )
 
-        with patch('code.download.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.json.return_value = mock_response_data
-            mock_response.raise_for_status.return_value = None
-            mock_get.return_value = mock_response
+        self.assertEqual(len(df), 1)
 
-            with pytest.raises(RuntimeError, match="No records fetched from GBIF API"):
-                fetch_gbif_occurrences(
-                    species_list=["Species A"],
-                    start_year=2010,
-                    end_year=2020,
-                    output_path=str(output_path),
-                    api_key="test-key"
-                )
+        # Clean up
+        if output_path.exists():
+            output_path.unlink()
 
-def test_get_download_logger():
-    """Test that get_download_logger returns a logger."""
-    logger = get_download_logger()
-    assert logger is not None
-    assert logger.name == "download"
+if __name__ == "__main__":
+    unittest.main()

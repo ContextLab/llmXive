@@ -1,0 +1,25 @@
+{
+  "project_id": "PROJ-181-predicting-species-distribution-shifts-u",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/bias_correction.py --occurrence data/raw/occurrence_1970_2000.csv  --output data/processed/bias_layer.tif; python code/project.py --models data/artifacts/ --climate data/raw/cmip6_2050.tif; python code/evaluate.py --models data/artifacts/  --test-data data/raw/occurrence_2005_2020.csv  --bias-layer data/processed/bias_layer.tif; 6 command(s) failed: python code/download.py --species-list list_of_species.txt --year-range 1970,2000 (rc=1); python code/download.py --species-list list_of_species.txt --year-range 2005,2020 --target recent (rc=1); python code/download.py --climate cmip6 --scenario SSP2-4.5 --year 2050 (rc=1); 1 declared deliverable(s) absent: data/processed/occurrence_clean.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/download.py --species-list list_of_species.txt --year-range 1970,2000 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/download.py\", line 12, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/download.py --species-list list_of_species.txt --year-range 2005,2020 --target recent -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/download.py\", line 12, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/download.py --climate cmip6 --scenario SSP2-4.5 --year 2050 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/download.py\", line 12, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/bias_correction.py --occurrence data/raw/occurrence_1970_2000.csv  --output data/processed/bias_layer.tif -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/bias_correction.py': [Errno 2] No such file or directory",
+    "python code/preprocess.py --input data/raw/occurrence_1970_2000.csv  --bias-layer data/processed/bias_layer.tif  --thinning-distance 10 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/preprocess.py\", line 13, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/baseline.py --data data/processed/filtered_thinned.csv  --output metrics/baseline_performance.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/baseline.py\", line 25, in <module>\n    logger = get_train_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: get_train_logger() takes 0 positional arguments but 1 was given",
+    "python code/train.py --data data/processed/filtered_thinned.csv --cv-blocks 5 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/train.py\", line 10, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/project.py --models data/artifacts/ --climate data/raw/cmip6_2050.tif -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/project.py': [Errno 2] No such file or directory",
+    "python code/evaluate.py --models data/artifacts/  --test-data data/raw/occurrence_2005_2020.csv  --bias-layer data/processed/bias_layer.tif -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/evaluate.py': [Errno 2] No such file or directory",
+    "python code/sensitivity.py --metrics metrics/final_results.csv  --output metrics/sensitivity_report.csv -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-181-predicting-species-distribution-shifts-u/code/sensitivity.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-28T06:02:31Z"
+}
