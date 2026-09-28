@@ -1,66 +1,21 @@
-T000:
+T018d:
+  c: false
+  h: 1b72373041b229f3db5022a38b206466dd6abebaa0c8ef6cbf0e2752fbbb9eb3
+  r: "The repository contains a partially shown `fedavg.py` that hints at DP\u2011\
+    optional behavior, but the file is truncated and does not demonstrate a complete\
+    \ non\u2011DP training loop or logging of `epsilon=inf` and `is_dp=False`. Moreover,\
+    \ the required output file `results/raw_logs.csv` is absent, so the task\u2019\
+    s deliverable of non\u2011DP log entries for every seed is not present."
+T028:
+  c: false
+  h: a6f59eb81b506d277abd468e9ffd319804084e025498ff505eca0aad8270b027
+  r: "The required output files `results/summary.csv`, `results/validation_report.md`,\
+    \ and `results/p_values_by_seed.json` are all missing, so the task\u2019s deliverables\
+    \ have not been produced. No evidence shows that the specified calculations or\
+    \ report generation were performed."
+T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No content of `specs/001-evaluating-dp-federated-learning/spec.md` is provided,\
-    \ nor any grep output showing that the word \u201CShakespeare\u201D is absent.\
-    \ Without the actual file or verification result, we cannot confirm that all Shakespeare\
-    \ references have been removed and that FR\u2011001 lists only \u201CFEMNIST\u201D\
-    . The required artifact is missing."
-T011:
-  c: false
-  h: d899a7a85911ee4b75c45482dd3bb383a5466d65a2688083398c81718a1bae7b
-  r: The `code/data/download.py` script is present, but the required output files
-    `data/raw/femnist.parquet` and `data/raw/femnist.sha256` are missing, which is
-    a mandatory completion criterion. Without these files the task is not considered
-    done.
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No JSON partition files matching the pattern `partition_femnist_{seed}_{alpha}.json`
-    are present in `data/partitions/`, and the claim provides no evidence of such
-    files, their schema, or any explicit reference to T000 as required. Consequently
-    the required output artifact is missing.
-T026:
-  c: false
-  h: 0e7a85b7512dfd567efc0e91609ee30ecf4e168ef07b72a2ebcb9e7777a9d12b
-  r: The required overlay plot `results/plots/minority_vs_global_overlay.png` does
-    not exist, so the core output and its DPI metadata cannot be validated. The validation
-    script is present, but without the PNG file the task is not fulfilled.
-T028a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No DataFrame or aggregation code was provided; the response contains only the
-    task description and project specifications, with no concrete implementation,
-    script, or output file that consolidates filtered results. Consequently, the required
-    artifact (a combined DataFrame) is missing.
-T028b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides only the task description and specifications but includes\
-    \ no actual artifact (e.g., CSV, JSON, or report) showing calculated p\u2011values\
-    \ from T024a/T024b or the variance of accuracy metrics across the 5 seeds per\
-    \ configuration. Without concrete output files or data, the requirement cannot\
-    \ be verified. The missing deliverable is the statistical results (p\u2011values\
-    \ and variance values) for each configuration."
-T028c:
-  c: false
-  h: 8e0995fa3183072184bd6c637ab7ee361cb7231bb7e4965058f2cb7a568daa01
-  r: The required output files `results/summary.csv` and `results/validation_report.md`
-    do not exist in the provided artifact list. Consequently, the task of generating
-    the final results summary CSV and validation report has not been fulfilled. The
-    implementer must create these two files with the specified columns and content.
-T029:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `README.md` or documentation files were presented; the required \u201C\
-    Installation\u201D, \u201CUsage\u201D, and \u201CResults\u201D sections with the\
-    \ new CLI arguments, expected outputs, and the explicit Shakespeare exclusion\
-    \ statement are missing. The implementer must provide the modified README (and\
-    \ any docs/ files) containing those updates."
-T033:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., a validation report, logs, or updated quickstart.md) was\
-    \ provided to demonstrate that the quickstart.md was executed and its end\u2011\
-    to\u2011end reproducibility was verified. Without such evidence, the task requirement\
-    \ is not satisfied."
+  r: No evidence of additional unit test files was provided in `tests/unit/`; there
+    are no test cases visible that cover the specified edge cases (missing classes,
+    timeout triggers). Consequently, the required artifact is missing.

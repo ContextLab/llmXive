@@ -1,124 +1,64 @@
-# Architecture Documentation
+# Project Architecture
 
 ## Overview
 
-This document describes the architectural design of the Differential Privacy in Federated Learning evaluation pipeline. The system is designed to be modular, reproducible, and extensible, allowing for independent implementation and testing of research components.
+This project implements a modular pipeline for evaluating Differential Privacy (DP) in Federated Learning (FL). The architecture is designed to separate concerns between data handling, training orchestration, and statistical analysis.
 
 ## Core Components
 
 ### 1. Data Layer (`code/data/`)
+- **`download.py`**: Handles fetching the FEMNIST dataset from Hugging Face. Supports streaming to manage memory constraints.
+- **`partition.py`**: Implements Dirichlet-based partitioning to simulate client heterogeneity.
+- **`checksum_utils.py`**: Ensures data integrity via SHA-256 verification.
+- **`generate_partition_metadata.py`**: Creates JSON metadata files describing client label distributions.
 
-Responsible for data acquisition, validation, and partitioning.
+### 2. Training Layer (`code/training/`)
+- **`fedavg.py`**: Implements the FedAvg algorithm with optional DP noise injection via Opacus.
+- **`dp_utils.py`**: Configures DP-SGD parameters (noise multiplier, clipping norm, moments accountant).
+- **`logging.py`**: Handles CSV and JSON logging of training metrics (accuracy, loss, privacy budget).
+- **`orchestrate_experiment.py`**: Manages the execution of multiple seeds and configurations.
+- **`run_experiment_orchestrator.py`**: High-level entry point for the full experiment run.
 
-- **`download.py`**: Handles downloading of raw datasets (FEMNIST, Shakespeare) from Hugging Face Hub. Implements retry logic and checksum verification.
-- **`partition.py`**: Implements Dirichlet distribution-based partitioning to simulate non-IID data across clients. Supports configurable α parameters to control heterogeneity.
-- **`checksum_utils.py`**: Provides SHA256 checksum generation and verification for data integrity.
+### 3. Analysis Layer (`code/analysis/`)
+- **`stats.py`**: Performs statistical tests (paired t-tests, Mann-Whitney U) and calculates summary statistics.
+- **`aggregation.py`**: Consolidates raw logs into filtered datasets.
+- **`plots.py`**: Generates visualizations for accuracy gaps and sensitivity analysis.
+- **`sensitivity_analysis.py`**: Calculates slope ratios for heterogeneity sensitivity.
+- **`generate_summary.py`**: Produces the final validation report and summary CSV.
 
-**Data Flow**:
-1. Raw data is downloaded from Hugging Face Hub.
-2. Checksums are generated and stored for verification.
-3. Data is partitioned into client-specific subsets based on Dirichlet sampling.
-4. Partition metadata is saved as JSON files.
+### 4. Validation Layer (`code/validation/`)
+- **`validate_quickstart.py`**: Automated script to verify project setup and reproducibility.
 
-### 2. Model Layer (`code/models/`)
+## Data Flow
 
-Defines the neural network architectures used in the experiments.
+1. **Ingestion**: `download.py` fetches FEMNIST -> `data/raw/femnist.parquet`.
+2. **Partitioning**: `partition.py` splits data -> `data/partitions/partition_*.json`.
+3. **Training**: `run_experiment_orchestrator.py` consumes partitions -> `results/raw_logs.csv`.
+4. **Filtering**: `aggregation.py` filters logs -> `results/filtered_data.csv`.
+5. **Analysis**: `stats.py` and `plots.py` consume filtered data -> `results/summary.csv`, `results/plots/*.png`.
+6. **Reporting**: `generate_summary.py` produces `results/validation_report.md`.
 
-- **`cnn.py`**: Contains `SmallCNN` and `SmallMLP` implementations optimized for FEMNIST and Shakespeare datasets.
+## Constraints & Design Decisions
 
-**Design Decisions**:
-- Models are kept lightweight to facilitate rapid experimentation on CPU/GPU.
-- Architecture is abstracted to allow easy swapping of model types.
+- **Dataset**: Only FEMNIST is supported. Shakespeare is excluded per T000.
+- **Privacy**: Opacus is used for DP-SGD implementation.
+- **Heterogeneity**: Controlled via Dirichlet $\alpha$ parameter.
+- **Reproducibility**: All random seeds are explicitly logged and controlled.
+- **Statistical Rigor**: Paired t-tests are prioritized; Mann-Whitney U is a fallback for low seed counts (flagged as `power_reduced`).
 
-### 3. Training Layer (`code/training/`)
+## Error Handling
 
-Implements the Federated Learning training loop with Differential Privacy.
-
-- **`fedavg.py`**: Orchestrates the FedAvg algorithm, managing client selection, model aggregation, and privacy budget tracking.
-- **`dp_utils.py`**: Configures Opacus for DP-SGD, including noise multiplier calculation and moments accountant setup.
-- **`logging.py`**: Handles structured logging of training metrics (accuracy, loss, privacy budget) to CSV and JSON formats.
-
-**Key Features**:
-- Support for multiple privacy budgets (ε).
-- Detection of "utility collapse" for extremely low ε values.
-- Timeout handling and early stopping.
-- Separate logging for majority and minority clients.
-
-### 4. Analysis Layer (`code/analysis/`)
-
-Performs statistical analysis and visualization of experimental results.
-
-- **`stats.py`**: Implements statistical tests (t-tests, Mann-Whitney U), calculates summary statistics, and generates validation reports.
-- **`plots.py`**: Generates visualizations including accuracy gap vs. α, accuracy vs. ε, and minority degradation overlays.
-
-**Analysis Workflow**:
-1. Load training metrics from CSV.
-2. Filter out time-limited runs.
-3. Calculate summary statistics and perform statistical tests.
-4. Generate plots and validation reports.
-
-### 5. Configuration (`code/config.py`)
-
-Centralized configuration management using a `Config` dataclass.
-
-**Supported Parameters**:
-- `seed`: Random seed for reproducibility.
-- `alpha`: Dirichlet parameter for heterogeneity.
-- `epsilon`: Privacy budget.
-- `dataset`: Dataset name (`femnist` or `shakespeare`).
-
-## Data Models
-
-### Partition Metadata
-
-Stored in `data/partitions/` as JSON files.
-
-```json
-{
- "client_id": "client_0",
- "label_distribution": {
- "0": 0.1,
- "1": 0.2,
-...
- },
- "total_samples": 100
-}
-```
-
-### Training Metrics
-
-Stored in `results/` as CSV files.
-
-| Column | Description |
-|--------|-------------|
-| seed | Random seed |
-| alpha | Heterogeneity parameter |
-| epsilon | Privacy budget |
-| round | Training round number |
-| global_accuracy | Global model accuracy |
-| minority_accuracy | Accuracy on minority clients |
-| majority_accuracy | Accuracy on majority clients |
-| is_time_limited | Flag for timeout |
-
-## Dependencies
-
-- **PyTorch**: Core deep learning framework.
-- **Opacus**: Differential privacy library for PyTorch.
-- **Hugging Face Datasets**: Data loading and preprocessing.
-- **Pandas/NumPy**: Data manipulation and analysis.
-- **SciPy**: Statistical tests.
-- **Matplotlib**: Visualization.
-
-## Security & Privacy
-
-- All data downloads are verified via SHA256 checksums.
-- Differential privacy is enforced via Opacus with strict privacy budget tracking.
-- No synthetic data fallbacks are permitted; failures are explicit.
+- **Data Fetch Failures**: Retries up to 3 times, then fails loudly with `DataFetchError`.
+- **Utility Collapse**: Results with extremely low accuracy or $\epsilon < 0.05$ are flagged and filtered.
+- **Timeouts**: Runs exceeding time budgets are flagged as `is_time_limited` and excluded from final metrics.
+- **Zero-Sample Clients**: Clients with no samples for a target class are skipped during gradient updates.
 
 ## Extensibility
 
-The modular design allows for easy addition of:
-- New datasets (by extending `download.py`).
-- New partitioning strategies (by extending `partition.py`).
-- New statistical tests (by extending `stats.py`).
-- New model architectures (by extending `models/`).
+To add a new dataset:
+1. Update `code/config.py` to include the new dataset name.
+2. Implement a new download function in `code/data/download.py`.
+3. Ensure the partitioning logic in `code/data/partition.py` supports the new label structure.
+4. Update `README.md` and `docs/CLI_REFERENCE.md`.
+
+Note: Adding Shakespeare is currently blocked by the T000 exclusion constraint until a verified source is identified.

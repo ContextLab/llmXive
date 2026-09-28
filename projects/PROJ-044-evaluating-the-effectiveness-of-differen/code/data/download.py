@@ -1,22 +1,30 @@
 """
-Data download module for FED-LEAF datasets.
+FEMNIST Data Downloader using Hugging Face Datasets.
 
-Implements robust downloading of FEMNIST dataset from Hugging Face with
-checksum verification and retry logic.
+This module implements the streaming download of the FEMNIST dataset from
+the Hugging Face Hub (leaf/femnist). It adheres to the project constraints:
+- Only "femnist" is supported. "shakespeare" is explicitly excluded per T000
+  and plan.md Gap Analysis.
+- No synthetic fallbacks. If the download fails, it raises DataFetchError.
+- Uses streaming mode to handle large datasets within memory constraints.
+- Saves the processed data to data/raw/femnist.parquet and generates
+  data/raw/femnist.sha256.
+
+References:
+- T000: Spec Alignment (Shakespeare Exclusion)
+- plan.md: Gap Analysis
 """
 
 import time
 import hashlib
 import os
 import logging
+import sys
+import argparse
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 
-from datasets import load_dataset
 import pandas as pd
-
-# Import checksum utilities from sibling module
-from code.data.checksum_utils import compute_sha256, generate_checksum_file
 
 # Configure logging
 logging.basicConfig(
@@ -25,196 +33,251 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Project root detection (assumes running from project root or code/data/)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+
+# Constants
+MAX_RETRIES = 3
+DATASET_NAME = "leaf/femnist"
+SUPPORTED_DATASETS = {"femnist"}
+EXCLUDED_DATASETS = {"shakespeare"}
 
 class DataFetchError(Exception):
     """Custom exception for data fetching failures."""
     pass
 
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def download_femnist(output_dir: Path, max_retries: int = 3) -> Path:
+def generate_checksum_file(file_path: Path, checksum: str) -> Path:
+    """Generate a .sha256 file containing the checksum."""
+    checksum_path = file_path.with_suffix(file_path.suffix + ".sha256")
+    with open(checksum_path, "w") as f:
+        f.write(f"{checksum}  {file_path.name}\n")
+    logger.info(f"Generated checksum file: {checksum_path}")
+    return checksum_path
+
+def download_femnist_streaming(output_dir: Path) -> Path:
     """
-    Download FEMNIST dataset from Hugging Face and save as parquet.
-    
+    Download FEMNIST dataset using Hugging Face datasets in streaming mode.
+
     Args:
-        output_dir: Directory to save the downloaded data
-        max_retries: Maximum number of retry attempts with exponential backoff
-    
+        output_dir: Directory to save the downloaded parquet file.
+
     Returns:
-        Path to the downloaded parquet file
-    
+        Path to the saved parquet file.
+
     Raises:
-        DataFetchError: If download fails after all retries
-        ValueError: If dataset name is not "femnist"
+        DataFetchError: If the download fails after MAX_RETRIES attempts.
     """
-    dataset_name = "leaf/femnist"
-    output_dir = Path(output_dir)
+    # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
-    
-    parquet_path = output_dir / "femnist.parquet"
-    checksum_path = output_dir / "femnist.sha256"
-    
-    # Check if already downloaded and valid
-    if parquet_path.exists() and checksum_path.exists():
-        logger.info(f"Verifying existing FEMNIST download...")
-        if compute_sha256(parquet_path) == Path(checksum_path).read_text().strip():
-            logger.info("Existing download verified successfully.")
-            return parquet_path
+    output_file = output_dir / "femnist.parquet"
+
+    # If file already exists, verify checksum or skip?
+    # For idempotency, we check if file exists and has valid checksum
+    # But to ensure freshness and correctness per task, we might re-download
+    # if checksum file is missing or invalid.
+    checksum_file = output_file.with_suffix(output_file.suffix + ".sha256")
+    if output_file.exists() and checksum_file.exists():
+        with open(checksum_file, "r") as f:
+            stored_checksum = f.read().split()[0]
+        current_checksum = compute_sha256(output_file)
+        if stored_checksum == current_checksum:
+            logger.info(f"File {output_file} already exists and checksum matches. Skipping download.")
+            return output_file
         else:
-            logger.warning("Existing checksum mismatch, re-downloading...")
+            logger.warning(f"Checksum mismatch for {output_file}. Re-downloading.")
+            output_file.unlink()
+            checksum_file.unlink()
+
+    logger.info(f"Starting streaming download of {DATASET_NAME}...")
     
-    attempt = 0
+    # Import here to avoid hard dependency if not installed (though required by T002)
+    try:
+        from datasets import load_dataset
+    except ImportError:
+        raise DataFetchError("Hugging Face 'datasets' library is not installed. Please install it via requirements.txt.")
+
+    retry_count = 0
     last_exception = None
-    
-    while attempt < max_retries:
+
+    while retry_count < MAX_RETRIES:
         try:
-            logger.info(f"Downloading {dataset_name} (attempt {attempt + 1}/{max_retries})...")
+            logger.info(f"Attempt {retry_count + 1}/{MAX_RETRIES}: Loading dataset with streaming=True...")
+            # Load dataset in streaming mode
+            # split='train' as per task requirements
+            dataset = load_dataset(
+                DATASET_NAME,
+                split='train',
+                trust_remote_code=True,
+                streaming=True
+            )
+
+            # Process in chunks to avoid memory issues and convert to pandas
+            # We will collect all data into a list of dicts then convert to DataFrame
+            # Note: FEMNIST is large. Streaming iterates over examples.
+            # We need to accumulate them.
+            logger.info("Iterating over streaming dataset to build DataFrame...")
             
-            # Load dataset from Hugging Face with streaming to handle large size
-            # FEMNIST is large (~7GB+), so we stream and process in chunks
-            dataset = load_dataset(dataset_name, split="train", streaming=True)
+            data_records = []
+            batch_size = 1000
+            count = 0
             
-            # Convert to pandas and save as parquet
-            # Since FEMNIST is large, we process it in batches
-            logger.info("Processing dataset chunks...")
-            
-            # FEMNIST structure: images are stored as 'pixels' (list of ints), labels as 'label'
-            # We need to convert to a format suitable for parquet
-            chunks = []
-            batch_size = 1000  # Process in batches to manage memory
-            
-            batch_count = 0
-            for batch in dataset.iter(batch_size=batch_size):
-                # Convert batch to DataFrame
-                # batch is a dict with 'pixels' (list of lists) and 'label' (list)
-                df_batch = pd.DataFrame({
-                    'pixels': batch['pixels'],
-                    'label': batch['label']
-                })
-                chunks.append(df_batch)
-                batch_count += 1
+            # Iterate through the streaming dataset
+            for example in dataset:
+                # Example structure from leaf/femnist:
+                # {'user_id': ..., 'segment_id': ..., 'image': <PIL.Image>, 'label': int}
+                # We need to handle the image. For parquet, we might store as bytes or skip if not needed for partition.
+                # However, T012 (Partition) needs the data.
+                # If the partition logic expects raw images, we must convert to bytes or base64.
+                # Let's assume we convert image to bytes for storage.
                 
-                if batch_count % 10 == 0:
-                    logger.info(f"Processed {batch_count} batches ({batch_count * batch_size} samples)")
+                img = example.get('image')
+                img_bytes = None
+                if img is not None:
+                    # Convert PIL Image to bytes
+                    import io
+                    buf = io.BytesIO()
+                    img.save(buf, format='PNG')
+                    img_bytes = buf.getvalue()
+                
+                record = {
+                    'user_id': example.get('user_id'),
+                    'segment_id': example.get('segment_id'),
+                    'label': example.get('label'),
+                    'image_bytes': img_bytes
+                }
+                data_records.append(record)
+                count += 1
+
+                if count % 10000 == 0:
+                    logger.info(f"Processed {count} examples...")
+
+            logger.info(f"Downloaded {count} examples. Converting to DataFrame...")
+            df = pd.DataFrame(data_records)
             
-            # Concatenate all chunks
-            logger.info(f"Concatenating {len(chunks)} chunks...")
-            df = pd.concat(chunks, ignore_index=True)
-            
-            # Save to parquet
-            logger.info(f"Saving to {parquet_path}...")
-            df.to_parquet(parquet_path, index=False)
+            logger.info(f"Saving to {output_file}...")
+            df.to_parquet(output_file, index=False)
             
             # Generate checksum
-            logger.info("Generating checksum...")
-            checksum = compute_sha256(parquet_path)
-            generate_checksum_file(parquet_path, checksum_path)
+            checksum = compute_sha256(output_file)
+            generate_checksum_file(output_file, checksum)
             
-            logger.info(f"Successfully downloaded and saved FEMNIST ({len(df)} samples)")
-            logger.info(f"Checksum: {checksum}")
-            
-            return parquet_path
-            
+            logger.info(f"Successfully saved FEMNIST to {output_file} (checksum: {checksum})")
+            return output_file
+
         except Exception as e:
             last_exception = e
-            attempt += 1
-            if attempt < max_retries:
-                wait_time = 2 ** attempt  # Exponential backoff: 2s, 4s, 8s
-                logger.warning(f"Download failed: {e}. Retrying in {wait_time}s...")
+            retry_count += 1
+            logger.error(f"Attempt {retry_count} failed: {e}")
+            if retry_count < MAX_RETRIES:
+                wait_time = 2 ** retry_count
+                logger.info(f"Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
-                logger.error(f"Download failed after {max_retries} attempts: {e}")
-    
-    raise DataFetchError(f"Failed to download FEMNIST dataset after {max_retries} attempts. Last error: {last_exception}")
+                logger.error(f"Failed to download FEMNIST after {MAX_RETRIES} attempts.")
+                raise DataFetchError(f"Failed to download FEMNIST after {MAX_RETRIES} attempts: {e}") from e
 
+    raise DataFetchError("Unexpected error in download loop.")
 
-def download_shakespeare(output_dir: Path, max_retries: int = 3) -> Path:
+def download_dataset(dataset_name: str, output_dir: Optional[Path] = None, is_streaming: bool = True) -> Path:
     """
-    Download Shakespeare dataset from Hugging Face.
-    
-    Note: This dataset is excluded per plan.md Gap Analysis (no verified source).
-    This function raises ValueError if called.
-    
+    Main entry point for downloading a dataset.
+
     Args:
-        output_dir: Directory to save the downloaded data
-        max_retries: Maximum number of retry attempts (unused)
-    
-    Raises:
-        ValueError: Always raises with message about exclusion
-    """
-    raise ValueError(
-        "Shakespeare dataset is excluded per plan.md Gap Analysis (no verified source). "
-        "Only FEMNIST is supported for this project."
-    )
+        dataset_name: Name of the dataset to download (e.g., 'femnist').
+        output_dir: Directory to save the data. Defaults to data/raw/.
+        is_streaming: Whether to use streaming mode.
 
-
-def download_dataset(dataset_name: str, output_dir: Path, max_retries: int = 3) -> Path:
-    """
-    Download dataset by name.
-    
-    Args:
-        dataset_name: Name of dataset to download ("femnist" or "shakespeare")
-        output_dir: Directory to save the downloaded data
-        max_retries: Maximum number of retry attempts
-    
     Returns:
-        Path to the downloaded parquet file
-    
+        Path to the downloaded file.
+
     Raises:
-        ValueError: If dataset_name is not "femnist"
-        DataFetchError: If download fails
+        ValueError: If the dataset is not supported (e.g., 'shakespeare').
+        DataFetchError: If download fails.
     """
-    dataset_name_lower = dataset_name.lower()
-    
-    if dataset_name_lower == "femnist":
-        return download_femnist(output_dir, max_retries)
-    elif dataset_name_lower == "shakespeare":
-        return download_shakespeare(output_dir, max_retries)
-    else:
+    if output_dir is None:
+        output_dir = DATA_RAW_DIR
+
+    dataset_name = dataset_name.lower()
+
+    # Check constraints (T000)
+    if dataset_name in EXCLUDED_DATASETS:
         raise ValueError(
-            f"Unsupported dataset: {dataset_name}. "
-            f"Only 'femnist' is supported for this project."
+            f"Shakespeare excluded per plan.md Gap Analysis (no verified source). "
+            f"Refer to T000 for exclusion details."
         )
 
+    if dataset_name not in SUPPORTED_DATASETS:
+        raise ValueError(f"Unsupported dataset: {dataset_name}. Supported: {SUPPORTED_DATASETS}")
+
+    if dataset_name == "femnist":
+        return download_femnist_streaming(output_dir)
+    
+    raise ValueError(f"No handler for dataset: {dataset_name}")
 
 def main():
-    """Main entry point for downloading FEMNIST dataset."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Download FEMNIST dataset")
+    """CLI entry point."""
+    parser = argparse.ArgumentParser(description="Download FEMNIST dataset for Federated Learning.")
     parser.add_argument(
         "--dataset",
         type=str,
         default="femnist",
-        help="Dataset name (default: femnist)"
+        help="Dataset name to download (default: femnist)."
     )
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="data/raw",
-        help="Output directory (default: data/raw)"
+        default=None,
+        help="Output directory (default: data/raw/)."
     )
     parser.add_argument(
-        "--max-retries",
-        type=int,
-        default=3,
-        help="Maximum retry attempts (default: 3)"
+        "--no-streaming",
+        action="store_true",
+        help="Disable streaming mode (not recommended for large datasets)."
     )
-    
+
     args = parser.parse_args()
-    
-    output_dir = Path(args.output_dir)
-    
+
+    output_dir = Path(args.output_dir) if args.output_dir else DATA_RAW_DIR
+
     try:
+        logger.info(f"Starting download for dataset: {args.dataset}")
         result_path = download_dataset(
             dataset_name=args.dataset,
             output_dir=output_dir,
-            max_retries=args.max_retries
+            is_streaming=not args.no_streaming
         )
-        logger.info(f"Download complete: {result_path}")
-    except (DataFetchError, ValueError) as e:
-        logger.error(f"Download failed: {e}")
-        raise
+        logger.info(f"Download complete. Output: {result_path}")
+        
+        # Verify existence
+        if not result_path.exists():
+            raise DataFetchError(f"Downloaded file not found at {result_path}")
+        
+        # Verify checksum file
+        checksum_path = result_path.with_suffix(result_path.suffix + ".sha256")
+        if not checksum_path.exists():
+            raise DataFetchError(f"Checksum file not found at {checksum_path}")
 
+        print(f"SUCCESS: {result_path}")
+        sys.exit(0)
+
+    except ValueError as ve:
+        logger.error(f"Configuration Error: {ve}")
+        sys.exit(1)
+    except DataFetchError as de:
+        logger.error(f"Data Fetch Error: {de}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected Error: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

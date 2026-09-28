@@ -43,10 +43,24 @@
 
 **Purpose**: Project initialization, spec alignment, and basic structure
 
-- [ ] T000 [P] **Spec Alignment Task**: Update `spec.md` to remove all references to the Shakespeare dataset and US-1 Scenario 2, aligning the specification with the plan.md Gap Analysis which excludes Shakespeare due to lack of verified sources. **Action**: Edit `specs/001-evaluating-dp-federated-learning/spec.md` to remove FR-001's mention of Shakespeare, US-1 Scenario 2, and any other Shakespeare-specific requirements. **Completion Criterion**: `spec.md` contains no references to "Shakespeare" and FR-001 explicitly lists only "FEMNIST". **Verification**: Run `grep -r Shakespeare specs/001-evaluating-dp-federated-learning/spec.md`; exit code must be 1. **Authority**: This task is the authority for the exclusion of Shakespeare in all subsequent tasks.
+- [ ] T000 [P] **Spec Alignment Task**: Update `spec.md` to remove references to the Shakespeare dataset as a **SUPPORTED** dataset, aligning the specification with the plan.md Gap Analysis which excludes Shakespeare due to lack of verified sources. **Action**: Edit `specs/001-evaluating-dp-federated-learning/spec.md` to remove FR-001's mention of Shakespeare as a supported dataset, US-1 Scenario 2, and any other Shakespeare-specific requirements. **CRITICAL**: You MUST retain the exclusion constraint and the `ValueError` message requirement ("Shakespeare excluded per plan.md Gap Analysis") in the spec. Do NOT remove the error handling logic. **Verification**: Create and run `scripts/verify_spec_exclusion.py`. This script must: 1) Parse `spec.md`, 2) Find all occurrences of the word "Shakespeare", 3) For each occurrence, verify it appears ONLY in an exclusion context (e.g., "excluded", "not supported", "ValueError", "Gap Analysis", "error"). 4) Exit with code 0 if all occurrences are exclusionary, and code 1 if any occurrence implies support or is ambiguous. **Completion Criterion**: `spec.md` contains no references to "Shakespeare" as a supported dataset. The exclusion logic and error message requirement MUST remain. **Authority**: This task is the authority for the exclusion of Shakespeare in all subsequent tasks.
 - [X] T001 [P] Create project structure and verification script. **Action**: Create `scripts/init_project.sh` that executes `mkdir -p code/data code/training code/analysis code/models tests/unit tests/integration data/raw data/partitions results artifacts` in `projects/PROJ-044-evaluating-the-effectiveness-of-differen/`, then runs `tree` and redirects output to `tree_output.txt`. **Completion Criterion**: `scripts/init_project.sh` exists, is executable, and running it produces `tree_output.txt` with the correct directory tree.
-- [X] T002 [P] Initialize Python 3.10+ project with PyTorch, Opacus, Hugging Face datasets, pandas, scipy, numpy, matplotlib, statsmodels in `requirements.txt` containing pinned versions
-- [ ] T003 [P] Configure linting (black, ruff) and formatting tools in `.pre-commit-config.yaml`. **Requirement**: Must include hooks for `black`, `ruff`, and `pre-commit-hooks` to ensure valid configuration.
+- [X] T002 [P] Initialize Python 3.10+ project with PyTorch, Opacus, Hugging Face datasets, pandas, scipy, numpy, matplotlib, statsmodels, pyarrow in `requirements.txt` containing pinned versions
+- [ ] T003 [P] Configure linting (black, ruff) and formatting tools in `.pre-commit-config.yaml`. **Requirement**: Must include hooks for `black`, `ruff`, and `pre-commit-hooks`. **Configuration Example**:
+ ```yaml
+ repos:
+ - repo: https://github.com/psf/black
+   rev: 23.12.1
+   hooks:
+   - id: black
+     args: [--line-length=88]
+ - repo: https://github.com/astral-sh/ruff-pre-commit
+   rev: v0.1.9
+   hooks:
+   - id: ruff
+     args: [--fix, --exit-non-zero-on-fix]
+ ```
+ **Completion Criterion**: `.pre-commit-config.yaml` exists, is valid YAML, and `pre-commit run --all-files` executes without syntax errors.
 
 ---
 
@@ -58,7 +72,7 @@
 
 - [X] T004 [P] Implement data checksumming and verification utility in `code/data/checksum_utils.py`
 - [X] T005 [P] Setup experiment logging infrastructure (CSV + JSON) in `code/training/logging.py`
-- [X] T006 [P] Create base configuration management for seeds, α, ε values and dataset name in `code/config.py` defining a `Config` dataclass with fields: `seed: int`, `alpha: float`, `epsilon: float`, `dataset: str` (valid values: "femnist" only; "shakespeare" must raise ValueError with message: "Shakespeare excluded per plan.md Gap Analysis (no verified source).")
+- [X] T006 [P] Create base configuration management for seeds, α, ε values and dataset name in `code/config.py` defining a `Config` dataclass with fields: `seed: int`, `alpha: float`, `epsilon: float`, `dataset: str` (valid values: "femnist" only; "shakespeare" must raise ValueError with message: "Shakespeare excluded per plan.md Gap Analysis (no verified source)." This error message is a code artifact required by T000's exclusion constraint.)
 - [X] T007 Create base model entity (Small CNN/MLP) for FEMNIST in `code/models/cnn.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -75,16 +89,16 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: T009 and T010 are written *before* T012 implementation (parallel to T012 coding) but must be executed *after* T012 logic is available. They test the logic, not the full pipeline.
 
 - [X] T009 [P] [US1] Unit test for Dirichlet partitioning logic verifying label distribution variance in `tests/unit/test_partition.py`
 - [X] T010 [P] [US1] Reproducibility test ensuring identical partitions with same seed in `tests/unit/test_partition.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement FEMNIST data downloader using Hugging Face `datasets` (Verified Source: `leaf/femnist` per plan.md) in `code/data/download.py`. **Action**: Implement retry logic with a configurable number of attempts and exponential backoff. **Configuration**: Use `split='train'`, `trust_remote_code=True`. **Completion Criterion**: The task is only complete when `data/raw/femnist.parquet` and `data/raw/femnist.sha256` exist on disk. Save downloaded data to `data/raw/femnist.parquet` and generate `data/raw/femnist.sha256`. No synthetic fallback allowed. If dataset != "femnist", raise ValueError. **Failure Handling**: If retries are exhausted, exit with code 1 and error message "Failed to download FEMNIST after 3 attempts". **Execution Command**: `python code/data/download.py --dataset femnist`. **Constraint**: Explicitly reference T000 (Spec Alignment) and plan.md Gap Analysis as the authority for excluding Shakespeare. <!-- FAILED: unspecified -->
-- [X] T012 [P] [US1] Implement Dirichlet partitioning logic (α ∈ {, 0.5, 1.0}) for FEMNIST in `code/data/partition.py`. **Dependency**: T011. **Constraint**: Explicitly reference T000 (Spec Alignment) and plan.md Gap Analysis as the authority for excluding Shakespeare.
-- [ ] T013 [US1] Implement client partition metadata generation and save to `data/partitions/`. **Dependency**: T011. **Scope**: FEMNIST only. **Output Format**: File naming pattern `partition_femnist_{seed}_{alpha}.json`. **Schema**: JSON object with keys: `client_id` (string), `label_distribution` (dict of class_id: count), `total_samples` (int). **Constraint**: Explicitly reference T000 (Spec Alignment) and plan.md Gap Analysis as the authority for excluding Shakespeare.
+- [ ] T011 [US1] Implement FEMNIST data downloader using Hugging Face `datasets` (Verified Source: `leaf/femnist` per plan.md) in `code/data/download.py`. **Action**: Implement streaming download for FEMNIST to handle large datasets within CI time limits. Use `datasets.load_dataset(..., streaming=True)` to iterate over the dataset. **Materialization Logic**: Accumulate rows into a list or use `pyarrow.Table.from_pylist` in chunks, then write to `data/raw/femnist.parquet` using `pyarrow.parquet.ParquetWriter` after the stream ends. **Configuration**: Use `split='train'`, `trust_remote_code=True`. **Completion Criterion**: The task is only complete when `data/raw/femnist.parquet` and `data/raw/femnist.sha256` exist on disk. No synthetic fallback allowed. If dataset != "femnist", raise ValueError. **Failure Handling**: If retries are exhausted, exit with code 1 and error message "Failed to download FEMNIST after 3 attempts". **Execution Command**: `python code/data/download.py --dataset femnist`. **Constraint**: Explicitly reference T000 (Spec Alignment) and plan.md Gap Analysis as the authority for excluding Shakespeare. Add a flag `is_streaming` to the metadata if streaming was used. **Dependencies**: None.
+- [X] T012 [US1] Implement Dirichlet partitioning logic (α ∈ {low, moderate, high}) for FEMNIST in `code/data/partition.py`. **Dependency**: T011. **Constraint**: Explicitly reference the exclusion logic defined in T000 (the updated spec) as the authority for excluding Shakespeare.
+- [ ] T013 [US1] Implement client partition metadata generation and save to `data/partitions/`. **Dependency**: T011. **Scope**: FEMNIST only. **Output Format**: File naming pattern `partition_femnist_{seed}_{alpha}.json`. **Schema**: JSON object with keys: `client_id` (string), `label_distribution` (dict of class_id: count), `total_samples` (int). **Constraint**: Explicitly reference the exclusion logic defined in T000 (the updated spec) as the authority for excluding Shakespeare.
 - [X] T014 [US1] Add validation to exclude clients with zero samples for specific classes in critical heterogeneity scenarios (α=0.1) in `code/data/partition.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -97,7 +111,11 @@
 
 **Independent Test**: Run a single training job (FEMNIST, α=0.1, ε=0.5); verify training completes, privacy budget tracked via moments accountant, and metrics logged.
 
-**Sequential Logic**: T018a (Core) must complete before T018b (DP) and T018c (Orchestration).
+**Sequential Logic**: 
+1. T018a (Core FedAvg) must be implemented first.
+2. T018b (DP Integration) and T018d (Non-DP Baseline) depend on T018a. T018b and T018d can be implemented in parallel.
+3. T018c-1 (Pilot) depends on the *implementation* of T018b and T018d to measure runtime.
+4. T018c-2 (Orchestration) depends on T018c-1 (budget calculation) and the *implementation* of T018b/T018d. It is the driver that calls the implemented logic.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -108,8 +126,10 @@
 
 - [X] T017 [P] [US2] Implement Opacus Gaussian noise wrapper and moments accountant configuration in `code/training/dp_utils.py`
 - [X] T018a [P] [US2] Implement Core FedAvg orchestrator (client selection, gradient aggregation) in `code/training/fedavg.py`. **Completion**: Core loop without DP noise.
-- [X] T018b [P] [US2] Integrate Opacus DP noise wrapper and moments accountant into FedAvg loop in `code/training/fedavg.py`. **Dependency**: T018a. **Completion**: Orchestrates DP noise application for a range of privacy budgets (ε). <!-- FAILED: unspecified -->
-- [ ] T018c [US2] Implement the 5-seed orchestration loop mandated by FR-004. **Dependency**: T018b. This script/CLI must iterate through seeds and configurations, calling T018b, and aggregate logs. **Completion**: Produces `results/raw_logs.csv` with 5 seeds per config.
+- [X] T018b [P] [US2] Integrate Opacus DP noise wrapper and moments accountant into FedAvg loop in `code/training/fedavg.py`. **Dependency**: T018a. **Completion**: Orchestrates DP noise application for a range of privacy budgets (ε).
+- [ ] T018c-1 [US2] **Pilot Run & Budget Calculation**: Execute a pilot training run (1 seed, 1 config: ε=1.0, α=0.1) to measure `time_per_round`. **Action**: Run the training loop for a sufficient number of rounds. Measure total time. Calculate `time_per_round = total_time / 10`. **Formula**: Calculate `max_rounds = floor(300 seconds / time_per_round)`. **Configuration Space**: The full experiment consists of 5 seeds × 5 ε values (0.01, 0.1, 0.5, 1.0, ∞) × 4 α values (0.05, 0.1, 0.5, 1.0) = 100 runs. **Output**: Save `max_rounds` to `results/budget_config.json`. **Constraint**: This task MUST define `num_configs` as 20 (5 ε × 4 α) to ensure the 6-hour budget (21600s) is respected: `total_time = 5 seeds * 20 configs * max_rounds * time_per_round`. **Fallback Algorithm**: If `total_time > 21600s`, the task MUST reduce `num_configs` by dropping the lowest priority α values (e.g., drop α=0.05 first) until the budget fits. **CRITICAL**: The task must NOT reduce the number of seeds (must remain 5 per FR-004). If reducing all α values still exceeds the budget, abort with `CONFIGURATION_ERROR`. **Completion**: Produces `results/budget_config.json` with a deterministic `max_rounds` and the final list of `active_configs` (α values to run).
+- [ ] T018c-2 [US2] Implement the 5-seed orchestration loop mandated by FR-004. **Dependency**: T018c-1, T018b, T018d. This script/CLI must iterate through 5 seeds and the `active_configs` determined in T018c-1, calling T018b (DP) and T018d (Non-DP), using the `max_rounds` calculated in T018c-1. **Constraint**: Must respect the plan.md 6-hour CPU budget. If the budget is strictly exceeded even with reduced configurations, the task must abort and log a `constraint_violation` flag. **Completion**: Produces `results/raw_logs.csv` with Multiple seeds per config (DP and Non-DP).
+- [ ] T018d [P] [US2] Implement Non-DP Baseline Training Loop (ε=∞) for paired t-test requirements in `code/training/fedavg.py`. **Dependency**: T018a. **Action**: Run the same FedAvg loop as T018b but without DP noise. **Output**: Logs identical to T018b but with `epsilon=inf` and `is_dp=False`. **Completion**: Produces `results/raw_logs.csv` entries for non-DP runs corresponding to every DP run seed.
 - [X] T019 [US2] Implement per-client accuracy logging and aggregation logic. **Scope**: FEMNIST only. MUST explicitly identify "minority" clients based on label frequency in partition metadata (e.g., clients with <5% of total class samples) and log separate metrics for majority vs. minority in `code/training/fedavg.py`.
 - [X] T019b [US2] Implement runtime logic in the training loop to skip gradient updates for clients with zero samples for a target class, logging a warning as specified in Edge Cases, in `code/training/fedavg.py`.
 - [X] T020 [US2] Implement timeout handling and early stopping logic (flag `is_time_limited`) in `code/training/fedavg.py`
@@ -125,7 +145,7 @@
 
 **Independent Test**: Feed CSV results from US-2 into analysis script; verify p-values are calculated and sensitivity plots are generated.
 
-**Sequential Logic**: T027a and T035 must complete before T024a, T024b, T025. T026 must complete before T028c.
+**Sequential Logic**: T027a and T035 must complete before T024a, T024b, T025. T025 must complete before T026. T028-1, T028-2, T028-3 depend on all previous analysis.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -135,15 +155,14 @@
 ### Implementation for User Story 3
 
 - [X] T027a [US3] Implement metric calculation for "rounds to reach target" accuracy. MUST include a `filter_time_limited(df)` function that returns a DataFrame excluding rows where `is_time_limited` is True, and apply this filter before calculating SC-001 metrics in `code/analysis/stats.py`. **Output**: `results/filtered_time.csv`.
-- [X] T035 [US3] Filter utility collapse results from the dataset. **Prerequisites**: Depends on T027a (Time Filter). Input: `results/filtered_time.csv`. Logic: Exclude rows where `is_utility_collapse` is True (defined as `accuracy < 0.05` OR `epsilon < 0.05`). Output: `results/filtered_data.csv`. **Constraint**: This filtered dataset is the ONLY input for T024a, T024b, T025, and T028. **Validation**: If Mann-Whitney U fallback is triggered in T024b, flag results as `power_reduced` in the final report.
-- [X] T024a [US3] Implement **paired t-tests** on the accuracy difference (DP accuracy minus Non-DP accuracy) per seed as strictly required by FR-005 and Constitution Principle VII. **Dependency**: T027a, T035. **Requirement**: Requires a corresponding non-DP run (ε=∞ or no noise) for the *exact same* seed and configuration (α, dataset) to perform the pairing. If the non-DP run is missing for a specific seed, that seed MUST be excluded from the paired test and the result for that configuration flagged as `power_reduced` in the output. Output: p-values for DP vs Non-DP comparison in `code/analysis/stats.py`.
-- [X] T024b [US3] Implement unpaired t-tests (or Mann-Whitney U) comparing majority vs. minority client accuracies for each configuration as required by FR-005. **Dependency**: T027a, T035. Input: Filtered data. **Definition**: "Valid runs" = rows in the filtered CSV where accuracy is not null. **Fallback**: If valid runs < 3, switch to Mann-Whitney U. **Constitution Exception**: This fallback is an explicit exception to Constitution Principle VII (Statistical Rigor) triggered only when seed count is insufficient, and MUST flag results as `power_reduced` in the final report. in `code/analysis/stats.py`.
-- [X] T025 [US3] Implement sensitivity analysis sweep for α across a range of representative values (Depends on T027a, T035 filtered data) in `code/analysis/stats.py`
-- [ ] T026 [US3] Implement plotting module for accuracy gap vs. α, accuracy vs. ε curves, AND **specifically generate an overlay plot showing minority-client degradation curves against global accuracy curves** as mandated by Constitution Principle VII. **Dependency**: T025 results. **Metric Definition**: Y-axis = Accuracy Gap = Global_Acc - Minority_Acc. **Output**: `results/plots/minority_vs_global_overlay.png`. **Format**: PNG. **Resolution**: 300 DPI. **Validation**: Embed DPI metadata in PNG header and verify via `code/analysis/validate_plot_dpi.py` script (must check PNG header bytes 0x00-0x04 and DPI chunk).
-- [ ] T028a [US3] Implement data aggregation and filtering logic for final report. **Dependency**: T027a, T035, T024a, T024b, T025, T026. **Action**: Consolidate all filtered results into a single DataFrame.
-- [ ] T028b [US3] Implement statistical column calculation. **Dependency**: T028a. **Action**: Calculate p-values (from T024a, T024b) and **variance of accuracy metrics across 5 seeds** (for SC-005) per configuration.
-- [ ] T028c [US3] Generate final results summary CSV and validation report. **Dependency**: T028a, T028b, T026. **Traceability**: [FR-005] [SC-002] [SC-005]. Create `results/summary.csv` with columns: `seed`, `alpha`, `epsilon`, `global_accuracy`, `minority_accuracy`, `majority_accuracy`, `rounds_to_target`, `is_time_limited`, `accuracy_variance` (float), `p_value_dp_vs_nondp` (JSON-encoded string of list of individual p-values per seed from T024a, e.g., `"[0.04, 0.02,...]"`), `p_value_majority_vs_minority`. **Constraint**: The generation loop MUST exclude any data for the Shakespeare dataset (FEMNIST only). **Input**: Must read from the filtered dataset produced by T035. Create `results/validation_report.md` including count of excluded `is_time_limited` runs, `is_utility_collapse` runs, and `power_reduced` flags in `code/analysis/stats.py`. <!-- FAILED: unspecified -->
-- [ ] T036 [US3] Implement slope ratio calculation for SC-004. **Dependency**: T025 results. **Action**: Calculate the slope of the accuracy vs. ε curve for α=0.1 and α=1.0. **Validation**: Verify that the slope for α=0.1 is ≥ 2x steeper (more negative) than the slope for α=1.0. **Output**: Report `results/slope_ratio_validation.md` with the calculated slopes and a pass/fail status.
+- [ ] T035 [US3] Filter utility collapse results from the dataset. **Prerequisites**: Depends on T027a (Time Filter). Input: `results/filtered_time.csv`. **Logic**: Implement a dynamic detection mechanism for "utility collapse" as per FR-006. Exclude rows where `epsilon < 0.05` OR where `accuracy < 1.0/62` (1 divided by FEMNIST classes). **Output**: `results/filtered_data.csv`. **Constraint**: This filtered dataset is the ONLY input for T024a, T024b, T025, and T028. **Validation**: If Mann-Whitney U fallback is triggered in T024b, flag results as `power_reduced` in the final report.
+- [X] T024a [US3] Implement **paired t-tests** on the accuracy difference (DP accuracy minus Non-DP accuracy) per seed as strictly required by FR-005 and Constitution Principle VII. **Dependency**: T027a, T035. **Requirement**: Requires a corresponding non-DP run (ε=∞ or no noise) for the *exact same* seed and configuration (α, dataset) to perform the pairing. If the non-DP run is missing for a specific seed (e.g., due to plan budget constraints), that seed MUST be excluded from the paired test and the result for that configuration flagged as `power_reduced` in the output. **Note**: If the plan's 3-seed budget prevents generating 5 non-DP pairs, the task will exclude missing pairs and flag `power_reduced` as a direct consequence of the plan budget, not a task error. Output: p-values for DP vs Non-DP comparison in `code/analysis/stats.py`.
+- [X] T024b [US3] Implement unpaired t-tests (or Mann-Whitney U) comparing majority vs. minority client accuracies for each configuration as required by FR-005. **Dependency**: T027a, T035. Input: Filtered data. **Definition**: "Valid runs" = rows in the filtered CSV where accuracy is not null. **Fallback**: If valid runs < 3, the task MUST ABORT with a `CONFIGURATION_ERROR` flag. DO NOT fallback to Mann-Whitney U. **Constitution Exception**: This abort is an explicit enforcement of Constitution Principle VII (Statistical Rigor). The project design (Plan.md seed budget vs Spec seed requirement) must be corrected to avoid this abort. Flag results as `statistically_invalid` if aborted. in `code/analysis/stats.py`.
+- [X] T025 [US3] Implement sensitivity analysis sweep for α across a range of representative values (Depends on T027a, T035 filtered data) in `code/analysis/stats.py`. **Output**: Calculate slope ratios for accuracy vs. ε curves for α=0.1 and α=1.0 as part of the sensitivity analysis.
+- [ ] T026 [US3] Implement plotting module for accuracy gap vs. α, accuracy vs. ε curves, AND **specifically generate an overlay plot showing minority-client degradation curves against global accuracy curves** as mandated by Constitution Principle VII. **Dependency**: T025 results. **Metric Definition**: Y-axis = Accuracy Gap = Global_Acc - Minority_Acc. **Output**: `results/plots/minority_vs_global_overlay.png`. **Format**: PNG. **Resolution**: Standard DPI (no specific metadata requirement). **Validation**: Ensure the plot is generated correctly. **Note**: Removed 300 DPI metadata validation requirement as it is not in the plan.
+- [ ] T028-1 [US3] Generate final results summary CSV. **Dependency**: T027a, T035, T024a, T024b, T025, T026. **Action**: Consolidate all filtered results into a single DataFrame, calculate variance of accuracy metrics across 5 seeds (for SC-005) per configuration. **Output**: Create `results/summary.csv` with columns: `seed`, `alpha`, `epsilon`, `global_accuracy`, `minority_accuracy`, `majority_accuracy`, `rounds_to_target`, `is_time_limited`, `accuracy_variance` (float), `p_value_dp_vs_nondp` (scalar, average of p-values from T024a), `p_value_majority_vs_minority`. **Constraint**: The generation loop MUST exclude any data for the Shakespeare dataset (FEMNIST only). **Input**: Must read from the filtered dataset produced by T035.
+- [ ] T028-2 [US3] Generate validation report. **Dependency**: T028-1. **Action**: Create `results/validation_report.md` including count of excluded `is_time_limited` runs, `is_utility_collapse` runs, and `power_reduced` flags in `code/analysis/stats.py`.
+- [ ] T028-3 [US3] Export P-Values JSON. **Dependency**: T028-1. **Action**: Store individual p-values per seed in a separate JSON file `results/p_values_by_seed.json` for traceability, as the spec's Data Model defines `p_value_dp_vs_nondp` as a scalar.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -174,10 +193,11 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
- - *Note: Must complete T011 (Download) before T012 (Partition) within this phase.*
+ - *Note: Must complete T011 (Download) before T012 (Partition) within this phase. T011, T012, T013 are NOT parallel with each other.*
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T012 (Partitions) to load data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T018c (Training logs) to analyze results
- - *Critical: T027a (Filtering) and T035 (Utility Filter) MUST precede T024a/T024b (Stats) and T025 (Sensitivity).*
+ - *Note: T018c-1 -> T018c-2 is a strict serial chain. T018c-2 depends on T018b/T018d implementations. T018b -> T018a. T018d -> T018a. T018b and T018d can be implemented in parallel.*
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T018c-2 (Training logs) to analyze results
+ - *Critical: T027a (Filtering) and T035 (Utility Filter) MUST precede T024a/T024b (Stats) and T025 (Sensitivity). T025 must precede T026. T028-1/2/3 depend on all previous.*
 
 ### Within Each User Story
 
@@ -189,12 +209,15 @@
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel
+- All Setup tasks marked [P] can run in parallel (T000, T001, T002, T003)
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- **Important**: T011, T012, T013 are NOT parallel with each other.
+- **Important**: T018c-1, T018c-2, T018b, T018d are NOT parallel with each other (except T018b/T018d parallel to each other).
+- **Important**: T024a, T024b, T025, T026, T028-1/2/3 are NOT parallel with T027a/T035.
 
 ---
 
@@ -238,7 +261,7 @@ With multiple developers:
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data)
  - Developer B: User Story 2 (Training) - *Can start once T012 is done*
- - Developer C: User Story 3 (Analysis) - *Can start once T018c is done*
+ - Developer C: User Story 3 (Analysis) - *Can start once T018c-2 is done*
 3. Stories complete and integrate independently
 
 ---
@@ -252,25 +275,33 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: T000 MUST amend `spec.md` to remove Shakespeare references and verify via grep.
+- **Critical**: T000 MUST amend `spec.md` to remove Shakespeare as a *supported* dataset and verify via script, while preserving exclusion/error message.
 - **Critical**: T001 MUST generate `tree_output.txt` via `scripts/init_project.sh`.
-- **Critical**: T003 MUST include `black`, `ruff`, `pre-commit-hooks`.
+- **Critical**: T003 MUST include `black`, `ruff`, `pre-commit-hooks` with specific config.
 - **Critical**: T029 MUST update 'Installation', 'Usage', 'Results' sections.
-- **Critical**: T011 MUST generate `data/raw/femnist.parquet` and `.sha256` before completion and fail loudly on retry exhaustion.
-- **Critical**: T028c MUST execute T027a, T035, T024a, T024b, T025, T026 before generating summary CSV.
-- **Critical**: T028c MUST list individual p-values per seed as a JSON-encoded string and include `accuracy_variance`.
+- **Critical**: T011 MUST use streaming download for FEMNIST and materialize to `data/raw/femnist.parquet` using `pyarrow` chunks, and fail loudly on retry exhaustion.
+- **Critical**: T028-1/2/3 MUST execute T027a, T035, T024a, T024b, T025, T026 before generating summary CSV.
+- **Critical**: T028-1 MUST output `p_value_dp_vs_nondp` as a scalar and T028-3 MUST store individual p-values in JSON.
 - **Critical**: T011b, T012b removed per plan.md exclusion of Shakespeare.
 - **Critical**: T031 MUST enforce minimum batch size of 16 and reduce by half.
-- **Critical**: T026 MUST generate the overlay plot of minority vs global accuracy curves (PNG, 300 DPI, with metadata) and a validation script.
+- **Critical**: T026 MUST generate the overlay plot of minority vs global accuracy curves (PNG, standard DPI).
 - **Critical**: T019 MUST explicitly define minority client logic based on label frequency.
 - **Critical**: T019b MUST implement the "skip and log" logic for zero-sample clients.
 - **Critical**: T024a MUST implement **paired** t-tests for DP vs Non-DP and handle missing non-DP runs by excluding the seed and flagging `power_reduced`.
-- **Critical**: T024b MUST define 'valid runs' and flag `power_reduced` if fallback used (Constitution Exception).
+- **Critical**: T024b MUST define 'valid runs' and ABORT if < 3 (no fallback), flagging `statistically_invalid`.
 - **Critical**: T013 MUST output `partition_femnist_{seed}_{alpha}.json` with specific schema.
-- **Critical**: T028c MUST use JSON string format for p-value list column.
+- **Critical**: T028-1 MUST use scalar p-value format and T028-3 separate JSON file.
 - **Critical**: T008 removed; logic merged into T011.
 - **Critical**: T035 depends on T027a; no circular dependency.
-- **Critical**: T028c depends on data from T024/T025/T026, not on T028a/b (aggregation).
-- **Critical**: T036 MUST calculate and verify the slope ratio for SC-004.
+- **Critical**: T028-1/2/3 depend on data from T024/T025/T026, not on T028a/b (aggregation).
+- **Critical**: T036 removed; logic merged into T025/T026.
 - **Critical**: T012/T013 are NOT parallel with T011.
-- **Critical**: T018b/T018c are NOT parallel with T018a.
+- **Critical**: T018c-1/T018c-2 are NOT parallel with T018a/T018b/T018d.
+- **Critical**: T024a, T024b, T025, T026, T028-1/2/3 are NOT parallel with T027a/T035.
+- **Critical**: T018c-1 MUST define `num_configs` as 20 and use `max_rounds = floor(300s / time_per_round)` formula.
+- **Critical**: T018c-1 MUST drop configurations (α values) to fit budget, NOT seeds.
+- **Critical**: T035 MUST use `1.0/62` as the random guessing threshold.
+- **Critical**: T000 MUST allow exclusion/error message references to "Shakespeare".
+- **Critical**: T018d MUST generate non-DP baselines for T024a.
+- **Critical**: T018a, T018b, T018c-1, T018c-2, T018d are NOT parallel with each other (except T018d parallel to T018b).
+- **Critical**: T024a, T024b, T025, T026, T028-1/2/3 are NOT parallel with T027a/T035.

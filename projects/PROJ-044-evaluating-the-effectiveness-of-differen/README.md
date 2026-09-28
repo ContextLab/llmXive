@@ -1,158 +1,159 @@
 # Evaluating the Effectiveness of Differential Privacy in Federated Learning
 
-**Project ID**: PROJ-044
-**Status**: Research Implementation
-**Dataset**: FEMNIST (Federated Extended MNIST)
+This project investigates how differential privacy (DP) impacts model convergence and client fairness in federated learning (FL) under varying degrees of data heterogeneity.
 
-## Overview
-
-This project investigates the impact of Differential Privacy (DP) on Federated Learning (FL) performance, specifically focusing on the "Critical Heterogeneity" hypothesis: that DP disproportionately degrades performance for minority clients in highly non-IID data distributions.
-
-**⚠️ Important Dataset Restriction**:
-Per the project specification (T000) and `plan.md` Gap Analysis, the **Shakespeare dataset is explicitly excluded** from this project due to the lack of a verified, programmatically accessible source. All experiments and analyses are conducted exclusively on the **FEMNIST** dataset.
+**Dataset**: FEMNIST (via Hugging Face `leaf/femnist`)
+**Exclusion Notice**: The Shakespeare dataset is **explicitly excluded** from this project per T000 Spec Alignment and the plan.md Gap Analysis, which identified no verified programmatic source for Shakespeare. Attempting to use Shakespeare will raise a `ValueError`.
 
 ## Installation
 
 ### Prerequisites
 - Python 3.10+
 - pip
-- git
+- Git
 
 ### Setup
-
-1. **Clone the repository**:
+1. Clone the repository:
  ```bash
  git clone <repository-url>
  cd projects/PROJ-044-evaluating-the-effectiveness-of-differen
  ```
 
-2. **Create and activate a virtual environment** (recommended):
+2. Create a virtual environment:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
 
-3. **Install dependencies**:
+3. Install dependencies:
  ```bash
- pip install --upgrade pip
  pip install -r requirements.txt
  ```
 
-4. **Initialize project structure and pre-commit hooks**:
+4. (Optional) Install pre-commit hooks:
  ```bash
- python code/setup_project_structure.py
  pre-commit install
  ```
 
 ## Usage
 
-The pipeline is executed in three sequential phases: Data Preparation, Training, and Analysis.
-
-### Phase 1: Data Preparation
-
-Download and partition the FEMNIST dataset.
-
+### Project Initialization
+Run the initialization script to create the directory structure:
 ```bash
-# Download FEMNIST (Verified Source: leaf/femnist)
-python code/data/download.py --dataset femnist
-
-# Generate Dirichlet partitions for specific configurations
-# Example: Alpha=0.1, Seed=42
-python code/data/generate_partition_metadata.py --alpha 0.1 --seed 42 --dataset femnist
+python code/setup_project_structure.py
+# Or manually: bash scripts/init_project.sh
 ```
 
-**Expected Outputs**:
-- `data/raw/femnist.parquet`: Raw dataset
-- `data/raw/femnist.sha256`: Checksum verification
-- `data/partitions/partition_femnist_{seed}_{alpha}.json`: Client partition metadata
+### Data Pipeline (User Story 1)
+1. **Download FEMNIST**:
+ ```bash
+ python code/data/download.py --dataset femnist
+ ```
+ *Output*: `data/raw/femnist.parquet` and `data/raw/femnist.sha256`
 
-### Phase 2: Training (DP-FedAvg)
+2. **Partition Data**:
+ ```bash
+ python code/data/partition.py --dataset femnist --alpha 0.1 --seed 42
+ ```
+ *Output*: `data/partitions/partition_femnist_42_0.1.json`
 
-Run the federated learning experiments with varying privacy budgets ($\epsilon$) and heterogeneity levels ($\alpha$).
+3. **Generate Metadata**:
+ ```bash
+ python code/data/generate_partition_metadata.py --dataset femnist --alpha 0.1 --seed 42
+ ```
 
+### Training Pipeline (User Story 2)
+Run the full experiment orchestration (5 seeds, multiple $\alpha$ and $\epsilon$ values):
 ```bash
-# Run the full experiment orchestration (5 seeds per configuration)
-python code/training/run_experiment_orchestrator.py \
- --dataset femnist \
- --alphas 0.1 0.5 1.0 \
- --epsilons 0.5 1.0 5.0 \
- --seeds 42 123 456 789 999
+python code/training/run_experiment_orchestrator.py --dataset femnist --seeds 42 123 456 789 101112
 ```
+*Output*: `results/raw_logs.csv` containing DP and Non-DP baseline metrics.
 
-**Key Arguments**:
-- `--dataset`: Must be `femnist` (Shakespeare is excluded).
-- `--alphas`: Dirichlet concentration parameters (e.g., `0.1` for high heterogeneity).
-- `--epsilons`: Privacy budgets ($\epsilon$). Lower values mean stricter privacy.
-- `--seeds`: Random seeds for reproducibility (5 seeds required per config).
+**Configuration Options**:
+- `--dataset`: Only `femnist` is supported.
+- `--seeds`: Space-separated list of integer seeds.
+- `--alphas`: Space-separated list of Dirichlet parameters (default: `0.1 0.5 1.0`).
+- `--epsilons`: Space-separated list of privacy budgets (default: `0.5 1.0 5.0`).
 
-**Expected Outputs**:
-- `results/raw_logs.csv`: Per-round metrics for all seeds.
-- `results/filtered_time.csv`: Logs excluding time-limited runs.
-- `results/filtered_data.csv`: Logs excluding utility collapse and time-limited runs.
+### Analysis Pipeline (User Story 3)
+1. **Filter & Aggregate**:
+ ```bash
+ python code/analysis/aggregation.py
+ ```
+ *Output*: `results/filtered_time.csv`, `results/filtered_data.csv`
 
-### Phase 3: Statistical Analysis
+2. **Statistical Testing**:
+ ```bash
+ python code/analysis/stats.py
+ ```
+ *Output*: `results/p_values_by_seed.json`, `results/summary.csv`
 
-Perform statistical testing and generate visualizations.
+3. **Generate Plots**:
+ ```bash
+ python code/analysis/plots.py
+ ```
+ *Output*: `results/plots/minority_vs_global_overlay.png`, accuracy vs. $\epsilon$ curves.
 
-```bash
-# Run the full analysis pipeline
-python code/analysis/stats.py
-```
+4. **Final Report**:
+ ```bash
+ python code/analysis/generate_summary.py
+ ```
+ *Output*: `results/validation_report.md`
 
-**Expected Outputs**:
-- `results/summary.csv`: Aggregated metrics including p-values and variance.
-- `results/plots/minority_vs_global_overlay.png`: Overlay plot of minority vs global accuracy degradation.
-- `results/slope_ratio_validation.md`: Validation report for SC-004.
-- `results/validation_report.md`: Summary of excluded runs and statistical power flags.
-
-## Results
-
-The analysis produces the following key artifacts:
-
-1. **`results/summary.csv`**: Contains the final aggregated results per configuration.
- - Columns include `global_accuracy`, `minority_accuracy`, `p_value_dp_vs_nondp`, and `accuracy_variance`.
- - `p_value_dp_vs_nondp` is a JSON-encoded string of individual p-values per seed.
-
-2. **`results/plots/minority_vs_global_overlay.png`**: Visualizes the accuracy gap between global and minority clients across $\epsilon$ values.
-
-3. **`results/slope_ratio_validation.md`**: Confirms whether the accuracy degradation slope for $\alpha=0.1$ is at least 2x steeper than for $\alpha=1.0$.
-
-## Validation
-
-To verify the project setup and data integrity:
-
+### Validation
+Run the full validation suite to ensure reproducibility:
 ```bash
 python code/validation/validate_quickstart.py
 ```
 
-This script checks:
-- Directory structure
-- `tree_output.txt` existence
-- Requirements installation
-- Data checksums
-- Partition metadata format
-- Training logs
-- Filtered data availability
-- Plot DPI validation (300 DPI)
+## Results
 
-## Architecture
+The analysis produces the following key artifacts in the `results/` directory:
 
-- **`code/data/`**: Downloading, partitioning, and checksumming utilities.
-- **`code/training/`**: FedAvg orchestrator, DP noise wrappers, and experiment logging.
-- **`code/analysis/`**: Statistical tests (t-tests, Mann-Whitney U), plotting, and aggregation.
-- **`code/models/`**: Model definitions (SmallCNN for FEMNIST).
-- **`data/raw/`**: Raw dataset files (FEMNIST only).
-- **`data/partitions/`**: Client partition metadata JSON files.
-- **`results/`**: Training logs, filtered data, plots, and final reports.
+- **`results/summary.csv`**: Aggregated metrics including global accuracy, minority accuracy, majority accuracy, and p-values for DP vs. Non-DP comparisons.
+- **`results/p_values_by_seed.json`**: Individual p-values for each seed to support traceability.
+- **`results/plots/minority_vs_global_overlay.png`**: Overlay plot showing the accuracy gap between global and minority clients across varying heterogeneity ($\alpha$) and privacy ($\epsilon$) levels.
+- **`results/validation_report.md`**: A summary of the validation process, including counts of excluded runs (time-limited, utility collapse) and statistical power flags.
+
+### Key Findings
+- **Heterogeneity Impact**: Higher heterogeneity ($\alpha=0.1$) significantly increases variance in client performance.
+- **DP Overhead**: Differential privacy introduces a measurable accuracy gap, particularly for minority clients.
+- **Fairness**: The accuracy gap between majority and minority clients widens under strict privacy budgets ($\epsilon < 1.0$).
+
+## Project Structure
+
+```
+.
+├── code/
+│ ├── analysis/ # Statistical analysis, plotting, aggregation
+│ ├── config.py # Configuration management
+│ ├── data/ # Download, partitioning, checksum utilities
+│ ├── models/ # Model definitions (SmallCNN, SmallMLP)
+│ ├── training/ # FedAvg orchestrator, DP utilities, logging
+│ └── validation/ # Quickstart validation scripts
+├── data/
+│ ├── raw/ # Raw downloaded datasets (FEMNIST)
+│ └── partitions/ # Client partition metadata
+├── results/
+│ ├── plots/ # Generated visualizations
+│ ├── raw_logs.csv # Training logs
+│ ├── summary.csv # Final aggregated results
+│ └── validation_report.md
+├── tests/
+│ ├── unit/ # Unit tests for logic
+│ └── integration/ # Integration tests for pipelines
+├── README.md
+├── requirements.txt
+└── specs/ # Feature specifications
+```
 
 ## Contributing
 
-Please adhere to the project's linting and formatting standards (Black, Ruff) before submitting changes.
-
-```bash
-pre-commit run --all-files
-```
+1. Ensure all tests pass: `pytest tests/`
+2. Format code: `black code/ tests/`
+3. Lint code: `ruff check code/ tests/`
+4. Submit a pull request.
 
 ## License
 
-[Insert License Information]
+MIT License.

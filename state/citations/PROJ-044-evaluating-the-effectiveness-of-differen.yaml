@@ -9,3 +9,38 @@
   verification_status: pending
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/662256b8d721c7b9788a006f/a536b7cf9598162c23f1a5152dd80d7131e0e7bb27587b5900e75bd8eb7986b8?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&Expires=1785489362&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYyMjU2YjhkNzIxYzdiOTc4OGEwMDZmL2E1MzZiN2NmOTU5ODE2MmMyM2YxYTUxNTJkZDgwZDcxMzFlMGU3YmIyNzU4N2I1OTAwZTc1YmQ4ZWI3OTg2YjhcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4NTQ4OTM2Mn19fV19&Signature=MEUCIDld4LNU3hcw64vUuOwlHUHNZpniBpo71UdfrHfZg%7EG8AiEAymPp7ei3im4E8PbnnU5hwwveurI3oVru5GMbJi6IQAU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
   verified_at: '2026-07-31T08:16:02.673599Z'
+- artifact_hash: 3a9b2788e6408a533899b367123fe64ab52c3237b1b48fa442042ec6710cac5d
+  artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/docs/TRoubleshooting.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Hugging Face status
+  kind: url
+  value: https://status.huggingface.co/
+  verification_status: pending
+  verified_against_url: https://status.huggingface.co/
+  verified_at: '2026-09-28T08:50:07.809587Z'
+- artifact_hash: f22009a1775bde30ab23edee38bf056f6a08543c0e7c11b99284843a922d0092
+  artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - psf/black: The uncompromising Python code formatter \xB7\
+    \ GitHub"
+  kind: url
+  value: https://github.com/psf/black
+  verification_status: pending
+  verified_against_url: https://github.com/psf/black
+  verified_at: '2026-09-28T08:52:23.195689Z'
+- artifact_hash: f22009a1775bde30ab23edee38bf056f6a08543c0e7c11b99284843a922d0092
+  artifact_path: projects/PROJ-044-evaluating-the-effectiveness-of-differen/specs/001-evaluating-the-effectiveness-of-differen/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - astral-sh/ruff-pre-commit: A pre-commit hook for Ruff.\
+    \ \xB7 GitHub"
+  kind: url
+  value: https://github.com/astral-sh/ruff-pre-commit
+  verification_status: pending
+  verified_against_url: https://github.com/astral-sh/ruff-pre-commit
+  verified_at: '2026-09-28T08:52:23.195689Z'
