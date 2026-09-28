@@ -1,0 +1,46 @@
+# Configuration for clang-format
+# Based on LLVM/Google style with minor adjustments
+---
+BasedOnStyle: Google
+IndentWidth: 4
+TabWidth: 4
+UseTab: false
+ColumnLimit: 100
+BreakBeforeBrace: true
+AllowAllExceptionsOnLine: false
+Standard: true
+SpaceBeforeParens: true
+SpaceInEmptyParen: false
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceAfterTemplateKeyword: true
+SpaceAroundPointer: true
+SpaceAroundReference: true
+SpaceAroundBinaryOperator: true
+SpaceAroundAssignmentOperator: true
+SpaceAroundUnaryOperator: false
+SpaceAroundMemberAccessOperator: false
+SpaceAroundPunctuation: true
+SpaceAroundBrackets: false
+SpaceAroundBraces: true
+SpaceAroundAngleBrackets: false
+SpaceAroundColon: true
+SpaceAroundComma: true
+SpaceAroundSemicolon: false
+SpaceAroundQuestionMark: true
+SpaceAroundEllipsis: false
+SpaceAroundTemplateArguments: true
+SpaceAroundTemplateParameters: true
+SpaceAroundLambdaCapture: true
+SpaceAroundLambdaParameter: true
+SpaceAroundLambdaBody: true
+SpaceAroundLambdaType: true
+SpaceAroundLambdaReturn: true
+SpaceAroundLambdaExpression: true
+SpaceAroundLambdaExpressionBody: true
+SpaceAroundLambdaExpressionReturnType: true
+SpaceAroundLambdaExpressionParameter: true
+SpaceAroundLambdaExpressionCapture: true
+SpaceAroundLambdaExpressionType: true
+SpaceAroundLambdaExpressionReturnType: true
+SpaceAroundLambdaExpressionBody: true

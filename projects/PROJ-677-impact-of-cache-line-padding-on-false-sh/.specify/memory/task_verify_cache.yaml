@@ -1,59 +1,63 @@
-T017:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `build.sh` script or diff showing added logging for compilation warnings/errors\
-    \ and an exit\u2011code\u20111 on failure is provided. Without the actual script\
-    \ (or a clear excerpt) we cannot verify that the required logging and error\u2011\
-    handling behavior was implemented. The task remains undone."
-T021:
+  r: No evidence of the required directory hierarchy (`projects/PROJ-677-impact-of-cache-line-padding-on-false-sh/`
+    containing `code/`, `data/`, `state/`, `.github/`) is provided; the implementer
+    did not supply any files or folder listings to confirm the structure exists. The
+    task remains undone.
+T002:
+  c: false
+  h: c07050ad0e1f65d4590794482994789105fd73620520ee0d3fafef6904a99a3a
+  r: "The `requirements.txt` file is present and contains the required Python packages,\
+    \ but there is no C++17 build system file (neither a `Makefile` nor a `CMakeLists.txt`)\
+    \ in the specified directory, so the task\u2019s requirement to initialize a C++\
+    \ build system is not satisfied."
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `main.cpp` (or any source file) containing the required multi\u2011threaded\
-    \ worker logic was provided; the evidence contains no code, build scripts, or\
-    \ compiled binaries to demonstrate that `std::thread` and `std::atomic<long>`\
-    \ are used as specified. The implementer\u2019s claim cannot be verified without\
-    \ the actual artifact."
-T022:
+  r: "The implementer provided no `.gitignore` file, nor any configuration or setup\
+    \ for clang\u2011format, black, or flake8. The evidence only describes benchmark\
+    \ specifications unrelated to the requested linting/formatting task, so the required\
+    \ artifacts are missing."
+T005:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `run_benchmarks.sh` script was presented in the evidence, and there is no\
-    \ content showing it iterates over thread counts 2,\u202F4,\u202F8 and the two\
-    \ configurations. Without the actual file, we cannot confirm the required functionality\
-    \ is implemented."
-T023:
+  r: No `verify_layout.cpp` file was found in `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/benchmark/`,
+    nor any other artifact that verifies struct sizes and alignment. The required
+    utility is missing, so the task is not satisfied.
+T006:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `main.cpp` file or diff showing the addition of `std::chrono::high_resolution_clock`\
-    \ timing logic and CSV output is provided. Without the actual source code or generated\
-    \ CSV, we cannot confirm that the required wall\u2011clock timing and CSV export\
-    \ were implemented. The task therefore remains incomplete."
-T024:
+  r: The required Pydantic schema files for `BenchmarkRun` and `AggregatedResult`
+    are not present in `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/analysis/contracts/`;
+    no code or definitions were provided as evidence. The task therefore remains unfinished.
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code changes or scripts were provided showing a CSV writer added to `main.cpp`
-    or `run_benchmarks.sh`, and there is no generated CSV file or evidence that rows
-    with the required fields are being appended. The required artifact is missing,
-    so the task is not satisfied.
-T025:
+  r: "No `counter_packed.hpp` or `counter_padded.hpp` files are present in the indicated\
+    \ directory, nor any content showing the required `#pragma pack(1)` or `alignas(64)`\
+    \ definitions. The implementer provided only a textual description without the\
+    \ actual source files, so the task\u2019s core deliverable is missing."
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `run_benchmarks.sh` script or diff showing added CPU pinning and governor\u2011\
-    setting logic was provided; there is no evidence of `cpupower` commands or sysfs\
-    \ fallback code, nor any test output confirming the changes work. The required\
-    \ artifact is missing."
-T026:
+  r: No `main.cpp` file was presented in `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/benchmark/`,
+    nor any code snippet showing argument parsing for thread count and the packed/padded
+    configuration. Without the required source file, the task is not satisfied.
+T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No updated `run_benchmarks.sh` script or any code changes were presented, and\
-    \ there is no evidence (e.g., diff, script content, test output) showing that\
-    \ the script now repeats each configuration \u22655 times with timeout handling.\
-    \ The required artifact is missing, so the task is not satisfied."
-T027:
+  r: No `build.sh` script was presented in the evidence, nor any file listing or content
+    showing that a script exists at `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/scripts/`
+    and compiles `main.cpp`, `verify_layout.cpp`, and the headers with `-O3 -march=native`.
+    The required artifact is missing, so the task is not satisfied.
+T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV file, script, or code changes were presented that add a `status` column\
-    \ with the value `TIMEOUT` or that filter out such rows during analysis. The required\
-    \ artifact is missing, so the timeout\u2011handling requirement is not demonstrated."
+  r: "No `main.cpp` file or diff showing added single\u2011threaded validation logic\
+    \ is provided; without the actual source code we cannot confirm that atomic increments\
+    \ are protected from compiler optimization as required. The implementer must supply\
+    \ the modified `main.cpp` (or a patch) containing the validation code."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -82,3 +86,9 @@ T033:
     Hochberg FDR correction is provided, nor any evidence that the correction is applied\
     \ to the p\u2011values from T032. The required artifact is missing, so the task\
     \ is not satisfied."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `validate_raw_data.py` script was presented in the evidence, nor any code
+    showing checks for NaNs, missing values, or schema compliance in the specified
+    directory. The required artifact is missing, so the task is not satisfied.

@@ -4,13 +4,13 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T005` (rejected 1x): No evidence of a `verify_layout.cpp` file was provided in `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/`; the required utility is missing, so the task is not satisfied.
-- `T007` (rejected 1x): The required files `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/benchmark/counter_packed.hpp` and `counter_padded.hpp` are not present in the provided evidence; no code content, size, or pragma/alignment directives can be verified. Without these artifacts the task’s core requirement is unmet.
-- `T008` (rejected 1x): declared artifact(s) missing/empty/invalid: github/workflows/benchmark.yml
-- `T009` (rejected 1x): No artifacts (e.g., a modified `run_benchmarks.sh` implementing `taskset` core pinning, code that creates the output directory, compiled binaries, CSV results, or analysis outputs) are present or referenced. The claim lacks any concrete files or evidence that the environment configuration was actually set up, so the requirement is not satisfied.
-- `T014` (rejected 1x): No `main.cpp` file was presented in `projects/PROJ-677-impact-of-cache-line-padding-false-sharing/code/benchmark/`, and no code showing argument parsing for thread count and configuration (packed/padded) is available. The required source artifact is missing, so the task is not satisfied.
-- `T015` (rejected 1x): No `build.sh` script was presented in the evidence, and there is no indication that a file exists at `projects/PROJ-677-impact-of-cache-line-padding-false-sh/code/scripts/build.sh` containing commands to compile `main.cpp` (and `verify_layout.cpp`) with `-O3 -march=native`. The required artifact is missing, so the task is not satisfied.
-- `T016` (rejected 1x): No `main.cpp` file or any code changes were presented, so there is no evidence that single‑threaded validation logic was added to ensure atomic increments aren’t optimized away. The required artifact (the modified source file) is missing.
+- `T017` (rejected 1x): No `build.sh` script or diff showing added logging for compilation warnings/errors and an exit‑code‑1 on failure is provided. Without the actual script (or a clear excerpt) we cannot verify that the required logging and error‑handling behavior was implemented. The task remains undone.
+- `T021` (rejected 1x): No `main.cpp` (or any source file) containing the required multi‑threaded worker logic was provided; the evidence contains no code, build scripts, or compiled binaries to demonstrate that `std::thread` and `std::atomic<long>` are used as specified. The implementer’s claim cannot be verified without the actual artifact.
+- `T022` (rejected 1x): declared artifact(s) missing/empty/invalid: hardware_spec.yaml
+- `T023` (rejected 1x): No `main.cpp` file or diff showing the addition of `std::chrono::high_resolution_clock` timing logic and CSV output is provided. Without the actual source code or generated CSV, we cannot confirm that the required wall‑clock timing and CSV export were implemented. The task therefore remains incomplete.
+- `T024` (rejected 1x): No code changes or scripts were provided showing a CSV writer added to `main.cpp` or `run_benchmarks.sh`, and there is no generated CSV file or evidence that rows with the required fields are being appended. The required artifact is missing, so the task is not satisfied.
+- `T025` (rejected 1x): No `run_benchmarks.sh` script or diff showing added CPU pinning and governor‑setting logic was provided; there is no evidence of `cpupower` commands or sysfs fallback code, nor any test output confirming the changes work. The required artifact is missing.
+- `T026` (rejected 1x): No updated `run_benchmarks.sh` script or any code changes were presented, and there is no evidence (e.g., diff, script content, test output) showing that the script now repeats each configuration ≥5 times with timeout handling. The required artifact is missing, so the task is not satisfied.
 
 ## Required change
 

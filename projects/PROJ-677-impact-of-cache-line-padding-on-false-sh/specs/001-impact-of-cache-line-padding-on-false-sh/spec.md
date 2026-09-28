@@ -89,7 +89,7 @@ Perform two-sample t-tests comparing padded vs. unpadded throughput at each thre
 - **SC-002**: Statistical significance (p-value) is measured against α = 0.05 threshold for each thread-count comparison (See US-3)
 - **SC-003**: Effect size (Cohen's d) is measured against conventional benchmarks (small ≥ 0.2, medium ≥ 0.5, large ≥ 0.8) for each comparison (See US-3)
 - **SC-004**: Measurement validity is ensured by using atomic operations (`std::atomic<long>`) to prevent compiler optimization from eliminating increments (See US-2)
-- **SC-005**: Multiplicity control is applied via the Benjamini-Hochberg False Discovery Rate (FDR) procedure at q ≤ 0.05 across the 4 thread counts, consistent with standard practice in performance benchmarking where multiple correlated comparisons are made (see Benjamini & Hochberg, 1995). If the FDR-adjusted p-value for any thread count is ≤ 0.05, the difference is declared significant. (See US-3)
+- **SC-005**: Multiplicity control is applied via the Benjamini-Hochberg False Discovery Rate (FDR) procedure at q ≤ 0.05 across the 4 thread counts, consistent with standard practice in performance benchmarking where multiple correlated comparisons are made (see Benjamini & Hochberg,). If the FDR-adjusted p-value for any thread count is ≤ 0.05, the difference is declared significant. (See US-3)
 
 ## Assumptions
 

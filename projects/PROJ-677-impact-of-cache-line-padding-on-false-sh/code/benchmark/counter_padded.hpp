@@ -1,21 +1,22 @@
-#pragma once
+#ifndef COUNTER_PADDED_HPP
+#define COUNTER_PADDED_HPP
 
-#include <atomic>
 #include <cstdint>
 #include <cstddef>
 
-// Cache line size constant (typical x86_64)
+// Cache line size constant (typically 64 bytes on modern x86-64)
 constexpr size_t CACHE_LINE_SIZE = 64;
 
-// Padded counter struct: each atomic is on its own cache line
-// Total size >= 192 bytes (3 * 64 bytes)
-struct alignas(CACHE_LINE_SIZE) CounterPadded {
-    alignas(CACHE_LINE_SIZE) std::atomic<long> value1;
-    alignas(CACHE_LINE_SIZE) std::atomic<long> value2;
-    alignas(CACHE_LINE_SIZE) std::atomic<long> value3;
-
-    CounterPadded() : value1(0), value2(0), value3(0) {}
+// Padded counter structure - each counter is aligned to cache line boundary
+// This prevents false sharing because each thread writes to a different cache line
+struct alignas(CACHE_LINE_SIZE) CounterStruct {
+    int64_t value;      // 8 bytes
+    int32_t thread_id;  // 4 bytes
+    // Remaining 56 bytes are padding to reach 64 bytes total
+    // The alignas attribute ensures the struct itself is 64-byte aligned
+    // and each instance in an array will be 64 bytes apart
 };
 
-static_assert(sizeof(CounterPadded) >= 192, "CounterPadded must be at least 192 bytes");
-static_assert(alignof(CounterPadded) >= CACHE_LINE_SIZE, "CounterPadded must be cache-line aligned");
+static_assert(sizeof(CounterStruct) >= CACHE_LINE_SIZE, "CounterStruct should be at least 64 bytes when padded");
+
+#endif // COUNTER_PADDED_HPP

@@ -26,7 +26,7 @@ ENV/
 env/
 .venv/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
@@ -37,22 +37,25 @@ env/
 .DS_Store
 Thumbs.db
 
-# Project specific
+# Project Specific
 state/
 data/raw/
 data/processed/
 figures/
 *.log
-results/
-.benchmarks/
+hardware_spec.yaml
+statistical_comparison.csv
+benchmark_results.csv
 
 # C++ Build
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile
+build/
 *.o
 *.a
 *.so
-*.out
-benchmark_executable
+a.out
+*.exe
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/

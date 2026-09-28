@@ -1,18 +1,19 @@
-#pragma once
+#ifndef COUNTER_PACKED_HPP
+#define COUNTER_PACKED_HPP
 
-#include <atomic>
 #include <cstdint>
 
-// Packed counter struct: 24 bytes total (3 * 8 bytes)
-// No padding between members, leading to potential false sharing
+// Packed counter structure - no padding between fields
+// This will result in multiple counters potentially sharing the same cache line
 #pragma pack(push, 1)
-struct CounterPacked {
-    std::atomic<long> value1;
-    std::atomic<long> value2;
-    std::atomic<long> value3;
-
-    CounterPacked() : value1(0), value2(0), value3(0) {}
+struct CounterStruct {
+    int64_t value;      // 8 bytes
+    int32_t thread_id;  // 4 bytes
+    int32_t padding;    // 4 bytes (explicit, but still packed)
+    // Total size: 12 bytes (not a multiple of cache line)
 };
 #pragma pack(pop)
 
-static_assert(sizeof(CounterPacked) == 24, "CounterPacked must be exactly 24 bytes");
+static_assert(sizeof(CounterStruct) == 12, "CounterStruct should be 12 bytes when packed");
+
+#endif // COUNTER_PACKED_HPP

@@ -4,18 +4,18 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
 
 jobs:
   benchmark:
     runs-on: ubuntu-latest
-    timeout-minutes: 360
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
@@ -23,47 +23,60 @@ jobs:
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pandas scipy matplotlib pydantic pyyaml
+          if [ -f code/analysis/requirements.txt ]; then
+            pip install -r code/analysis/requirements.txt
+          else
+            pip install pandas scipy matplotlib pydantic pyyaml
+          fi
 
       - name: Install C++ build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential g++ cmake
+          sudo apt-get install -y build-essential cmake
 
-      - name: Configure CPU Governor (Best Effort)
+      - name: Configure CPU Governor (Performance)
         run: |
-          # Attempt to set performance governor; ignore failure in CI if permissions denied
+          # Attempt to set governor via cpupower, fallback to sysfs
           if command -v cpupower &> /dev/null; then
-            sudo cpupower frequency-set -g performance || true
+            sudo cpupower frequency-set -g performance
           else
-            # Fallback: try direct sysfs if available and writable
-            if [ -w /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor ]; then
-              echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor || true
-            fi
+            echo performance | sudo tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor
           fi
 
-      - name: Build Benchmark
-        working-directory: projects/PROJ-677-impact-of-cache-line-padding-false-sh
+      - name: Detect Hardware
         run: |
-          chmod +x code/scripts/build.sh
-          code/scripts/build.sh
+          python code/analysis/hardware_detect.py
+
+      - name: Build Benchmark
+        run: |
+          cd code/scripts
+          bash build.sh
 
       - name: Run Benchmarks
-        working-directory: projects/PROJ-677-impact-of-cache-line-padding-false-sh
         run: |
-          chmod +x code/scripts/run_benchmarks.sh
-          code/scripts/run_benchmarks.sh
+          cd code/scripts
+          bash run_benchmarks.sh
+
+      - name: Validate Raw Data
+        run: |
+          python code/analysis/validate_raw_data.py
 
       - name: Run Analysis
-        working-directory: projects/PROJ-677-impact-of-cache-line-padding-false-sh
         run: |
           python code/analysis/run_analysis.py
 
-      - name: Upload Results
+      - name: Update Checksums
+        run: |
+          python code/analysis/update_checksums.py
+
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: benchmark-results
           path: |
-            projects/PROJ-677-impact-of-cache-line-padding-false-sh/data/**/*.csv
-            projects/PROJ-677-impact-of-cache-line-padding-false-sh/figures/*.png
-            projects/PROJ-677-impact-of-cache-line-padding-false-sh/state/artifacts/checksums.json
+            data/
+            state/
+            figures/
+            hardware_spec.yaml
+            code/analysis/checksums.json
+        if: always()
