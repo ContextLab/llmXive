@@ -610,3 +610,1102 @@
   source_type: external
   status: refuted
   updated_at: '2026-09-25T01:26:51Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 0
+  canonical: Correlation heatmaps generated at 300 DPI
+  claim_id: c_ac98deed
+  context: T034 [US3] Generate correlation heatmaps in `code/viz.py` (300 DPI) (FR-005).
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Generate correlation heatmaps in `code/viz.py` (300 DPI)
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T03:08:19Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 50 statistically independent snapshots generated using Lennard-Jones
+    potentials
+  claim_id: c_13cfbc65
+  context: 'T014 [US1] Implement `SyntheticDataGenerator` in `code/synthetic.py`:
+    Generate **N=50** statistically independent snapshots using Lennard-Jones potentials
+    (`ase`) with unique random seeds...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate **N=50** statistically independent snapshots using Lennard-Jones
+    potentials
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:10:54Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Cu-Ni Lennard-Jones parameters: epsilon=0.104 eV, sigma=2.56 A'
+  claim_id: c_47f654d2
+  context: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:10:59Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Au-Ag Lennard-Jones parameters: epsilon=0.103 eV, sigma=2.89 A'
+  claim_id: c_c064d403
+  context: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Au-Ag (epsilon=0.103 eV, sigma=2.89 A)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:01Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Recoverable correlation between defect density and thermal conductivity
+    is within 0.05 of 0.6
+  claim_id: c_8a850df6
+  context: "T014.1 [US1] Validate Synthetic Data Generation. **Verification**: Run\
+    \ the generator with seed=42 and verify that the resulting dataset has a recoverable\
+    \ correlation between defect density and thermal conductivity within \xB10.05\
+    \ of 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the resulting dataset has a recoverable correlation between\
+    \ defect density and thermal conductivity within \xB10.05 of 0.6"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:12Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Callaway model parameters: Debye_T=300K, Gruneisen=1.5'
+  claim_id: c_2c3c0386
+  context: '**Parameters**: `Debye_T=300K`, `Gruneisen=1.5`, `Formula: conductivity
+    = base_conductivity * (1 - alpha * defect_density)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive conductivity using Debye_T=300K and Gruneisen=1.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:15Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: VoronoiNN used with tolerance=0.01 and allow_pathological=False
+  claim_id: c_a1681670
+  context: '**Strictly use `pymatgen.analysis.sites.VoronoiNN(tolerance=0.01, allow_pathological=False)`**
+    to define nearest neighbors via Voronoi tessellation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Strictly use `pymatgen.analysis.sites.VoronoiNN(tolerance=0.01, allow_pathological=False)`
+    to define nearest neighbors
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:18Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.01, 0.05, and 0.10
+  claim_id: c_7cc30676
+  context: Sweep significance thresholds **{0.01, 0.05, 0.10}** applied to **Bonferroni-corrected
+    p-values**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep significance thresholds {0.01, 0.05, 0.10} applied to Bonferroni-corrected
+    p-values
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:26Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Scatter plots generated at 300 DPI
+  claim_id: c_90bf6c70
+  context: T033 [US3] Generate scatter plots with regression lines in `code/viz.py`
+    (300 DPI) (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scatter plots with regression lines in `code/viz.py` (300 DPI)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:32Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: MetricCalculator stability tested over 10 runs with atol=1e-10
+  claim_id: c_0651259f
+  context: 'Implementation**: Run `MetricCalculator` 10 times with the same graph
+    input and assert `np.isclose(result, expected, atol=1e-10)` for all runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `MetricCalculator` 10 times with the same graph input and assert `np.isclose(result,
+    expected, atol=1e-10)`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:43Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Ground truth validation fails if difference from 0.6 exceeds 0.05
+  claim_id: c_e1975675
+  context: 'Success Criterion: If difference > 0.05, raise `ValidationFailedError`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Success Criterion: If difference > 0.05, raise `ValidationFailedError`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:44Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Permutation test uses seed=42 for shuffling
+  claim_id: c_3b246a2d
+  context: '**Implementation**: Shuffle `thermal_conductivity` labels [deferred] times
+    with `seed=42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shuffle `thermal_conductivity` labels with `seed=42`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:11:53Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Real mode requires at least 20 valid snapshots with thermal conductivity
+    metadata
+  claim_id: c_82ca82c6
+  context: "If file exists AND contains \u2265 20 valid snapshots with `thermal_conductivity`\
+    \ metadata: Set mode to **Real**."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Real_mode_requires_at_least_20_valid_snapshots_with_thermal
+  kind: magnitude
+  raw_text: "Set mode to Real if local file contains \u2265 20 valid snapshots with\
+    \ thermal_conductivity metadata"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:14:50Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Power analysis flags if sample size is less than 20
+  claim_id: c_2b4145de
+  context: Report minimum detectable effect size using `statsmodels.stats.power.FTestPower`
+    for correlation tests; flag if N < 20 (FR-007).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_flags_if_sample_size_is_less_than_20
+  kind: magnitude
+  raw_text: Flag if N < 20 in power analysis
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:15:05Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Lennard-Jones parameters for Cu-Ni: epsilon 0.104 eV, sigma 2.56 A;
+    Au-Ag: epsilon 0.103 eV, sigma 2.89 A'
+  claim_id: c_1f4dda0e
+  context: 'Generate N=50 statistically independent snapshots using Lennard-Jones
+    potentials (ase) with unique random seeds (seed=42 + i for i in 0..49) and NVT
+    thermalization steps. Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A),
+    Au-Ag (epsilon=0.103 eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:19:49Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Synthetic data correlation recoverable within 0.05 of 0.6
+  claim_id: c_136a4403
+  context: "Validate Synthetic Data Generation. Verification: Run the generator with\
+    \ seed=42 and verify that the resulting dataset has a recoverable correlation\
+    \ between defect density and thermal conductivity within \xB10.05 of 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the resulting dataset has a recoverable correlation between\
+    \ defect density and thermal conductivity within \xB10.05 of 0.6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:19:49Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Callaway model parameters: Debye temperature 300 K, Gruneisen parameter
+    1.5'
+  claim_id: c_b2ed0232
+  context: 'Parameters: Debye_T=300K, Gruneisen=1.5, Formula: conductivity = base_conductivity
+    * (1 - alpha * defect_density).'
+  evidence:
+    asserted: '300.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Use Debye_T=300K and Gruneisen=1.5 for Callaway phonon-scattering model.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T03:19:49Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Voronoi nearest neighbor calculation uses pymatgen with tolerance 0.01
+  claim_id: c_4930fd38
+  context: 'Implement DefectGraphBuilder in code/ingest.py: Strictly use pymatgen.analysis.sites.VoronoiNN(tolerance=0.01,
+    allow_pathological=False) to define nearest neighbors via Voronoi tessellation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Strictly use pymatgen.analysis.sites.VoronoiNN with tolerance=0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:20:20Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Metric calculation tolerance less than 1e-6 against theoretical expectations
+  claim_id: c_1af6851c
+  context: "Independent Test: Run extraction on a synthetic graph with known properties\
+    \ (e.g., Erd\u0151s-R\xE9nyi) and verify metrics match theoretical expectations\
+    \ within < 1e-6 tolerance."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Metric_calculation_tolerance_less_than_1e-6_against_theoreti
+  kind: magnitude
+  raw_text: Verify metrics match theoretical expectations within < 1e-6 tolerance
+    on synthetic graphs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:20:37Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Bonferroni correction formula: min(p_raw * num_metrics, 1.0)'
+  claim_id: c_bbd325f5
+  context: 'Formula: p_corrected = min(p_raw * num_metrics, 1.0) where num_metrics
+    = count of topological metrics tested.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate Bonferroni-corrected p-values using formula p_corrected = min(p_raw
+    * num_metrics, 1.0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:20:44Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Power analysis flags if sample size less than 20
+  claim_id: c_4dafffb3
+  context: Report minimum detectable effect size using statsmodels.stats.power.FTestPower
+    for correlation tests; flag if N < 20 (FR-007).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_flags_if_sample_size_less_than_20
+  kind: magnitude
+  raw_text: Flag power analysis if N < 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:20:46Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps thresholds 0.01, 0.05, and 0.10
+  claim_id: c_876e98af
+  context: Sweep significance thresholds {0.01, 0.05, 0.10} applied to Bonferroni-corrected
+    p-values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep significance thresholds {0.01, 0.05, 0.10} applied to Bonferroni-corrected
+    p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:20:46Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Scatter plot resolution is 300 DPI
+  claim_id: c_fb2c31d5
+  context: Generate scatter plots with regression lines in code/viz.py (300 DPI) (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scatter plots with 300 DPI resolution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:20:54Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Correlation heatmap resolution is 300 DPI
+  claim_id: c_6f8d554f
+  context: 'Verification: Verify data/processed/correlation_heatmap.png exists, is
+    300 DPI, and contains a grid with labels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify correlation heatmap is 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:20:59Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Metric stability test runs 10 times
+  claim_id: c_459f8da9
+  context: 'Implementation: Run MetricCalculator 10 times with the same graph input
+    and assert np.isclose(result, expected, atol=1e-10) for all runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MetricCalculator 10 times to verify no floating-point non-determinism.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:21:02Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Metric stability absolute tolerance 1e-10
+  claim_id: c_886f1da3
+  context: 'Implementation: Run MetricCalculator 10 times with the same graph input
+    and assert np.isclose(result, expected, atol=1e-10) for all runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert metric stability with absolute tolerance 1e-10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:21:07Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Topology anomaly warning if more than 90% of graphs are disconnected
+  claim_id: c_7bdd68fd
+  context: If > 90% of graphs are disconnected, log a TopologyAnomaly warning and
+    halt, requiring a review of the synthetic generator parameters.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Topology_anomaly_warning_if_more_than_90%25_of_graphs_are_disc
+  kind: magnitude
+  raw_text: Halt if > 90% of graphs are disconnected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:24:12Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Ground truth validation difference threshold 0.05 for correlation 0.6
+  claim_id: c_af60645a
+  context: 'Implementation: Calculate abs(recovered_r - 0.6). Success Criterion: If
+    difference > 0.05, raise ValidationFailedError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Success criterion for ground truth validation is abs(recovered_r - 0.6)
+    <= 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:24:24Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Permutation test uses random seed 42
+  claim_id: c_777c67b5
+  context: 'Implementation: Shuffle thermal_conductivity labels [deferred] times with
+    seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform permutation test with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:24:34Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset size is 50 snapshots
+  claim_id: c_0c1005c3
+  context: Generate N=50 statistically independent snapshots using Lennard-Jones potentials
+    (ase) with unique random seeds (seed=42 + i for i in 0..49) and NVT thermalization
+    steps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate synthetic data with N=50 statistically independent snapshots.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:24:48Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation uses random seed 42
+  claim_id: c_41188d7d
+  context: Generate N=50 statistically independent snapshots using Lennard-Jones potentials
+    (ase) with unique random seeds (seed=42 + i for i in 0..49) and NVT thermalization
+    steps.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use random seed 42 for initial synthetic data generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:24:55Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Data audit switches to synthetic mode if snapshot count is less than
+    20
+  claim_id: c_5e2105d6
+  context: "Fallback: If fetch fails (network error, 404, no data), check for local\
+    \ file data/raw/real_snapshots.parquet. If file exists AND contains \u2265 20\
+    \ valid snapshots with thermal_conductivity metadata: Set mode to Real."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_audit_switches_to_synthetic_mode_if_snapshot_count_is_l
+  kind: magnitude
+  raw_text: Switch to Synthetic mode if local file contains fewer than 20 valid snapshots.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:25:03Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Real data threshold parameter is 20
+  claim_id: c_1e171d2d
+  context: 'Implementation: Define DataConfig class with fields: MODE (str, default=''auto''),
+    DATA_PATH (str, default=''data/raw''), REAL_DATA_THRESHOLD (int, default=20),
+    SYNTHETIC_SEED (int, default=42), GROUND_TRUTH_R (float, default=0.6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define REAL_DATA_THRESHOLD as 20 in DataConfig.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:28:32Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Ground truth correlation parameter is 0.6
+  claim_id: c_699b7247
+  context: 'Implementation: Define DataConfig class with fields: MODE (str, default=''auto''),
+    DATA_PATH (str, default=''data/raw''), REAL_DATA_THRESHOLD (int, default=20),
+    SYNTHETIC_SEED (int, default=42), GROUND_TRUTH_R (float, default=0.6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define GROUND_TRUTH_R as 0.6 in DataConfig.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:28:37Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Generate 50 statistically independent Lennard-Jones snapshots
+  claim_id: c_f5c0f957
+  context: 'Task T014 [US1] Implement `SyntheticDataGenerator` in `code/synthetic.py`:
+    Generate **N=50** statistically independent snapshots using Lennard-Jones potentials...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate **N=50** statistically independent snapshots using Lennard-Jones
+    potentials with unique random seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:31:46Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Lennard-Jones parameters for Cu-Ni and Au-Ag
+  claim_id: c_709635cf
+  context: '...Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:31:46Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Verify recoverable correlation within 0.05 of 0.6
+  claim_id: c_c907adac
+  context: "**Verification**: Run the generator with seed=42 and verify that the resulting\
+    \ dataset has a recoverable correlation between defect density and thermal conductivity\
+    \ within \xB10.05 of 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the resulting dataset has a recoverable correlation between\
+    \ defect density and thermal conductivity within \xB10.05 of 0.6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:31:47Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: 'Callaway model parameters: Debye temperature 300K, Gruneisen parameter
+    1.5'
+  claim_id: c_532e9833
+  context: '**Parameters**: `Debye_T=300K`, `Gruneisen=1.5`, `Formula: conductivity
+    = base_conductivity * (1 - alpha * defect_density)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Parameters: `Debye_T=300K`, `Gruneisen=1.5`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:32:32Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Run MetricCalculator 10 times with atol 1e-10 tolerance
+  claim_id: c_d12a5286
+  context: '**Implementation**: Run `MetricCalculator` 10 times with the same graph
+    input and assert `np.isclose(result, expected, atol=1e-10)` for all runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run `MetricCalculator` 10 times with the same graph input and assert `np.isclose(result,
+    expected, atol=1e-10)` for all runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:32:35Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Sweep significance thresholds 0.01, 0.05, 0.10
+  claim_id: c_f2daa14c
+  context: '**Consume `corrected_p_value` from T029**. Sweep significance thresholds
+    **{0.01, 0.05, 0.10}** applied to **Bonferroni-corrected p-values**.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep significance thresholds {0.01, 0.05, 0.10} applied to Bonferroni-corrected
+    p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:32:35Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Verify correlation heatmap is 300 DPI
+  claim_id: c_b0be7a95
+  context: '**Verification**: Verify `data/processed/correlation_heatmap.png` exists,
+    is 300 DPI, and contains a grid with labels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify `data/processed/correlation_heatmap.png` exists, is 300 DPI, and
+    contains a grid with labels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:32:39Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Generate scatter plots at 300 DPI
+  claim_id: c_53b445c5
+  context: '[X] T033 [US3] Generate scatter plots with regression lines in `code/viz.py`
+    (300 DPI) (FR-005).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scatter plots with regression lines in `code/viz.py` (300 DPI).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:32:39Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Flag power analysis if N less than 20
+  claim_id: c_03c3a03c
+  context: '...flag if N < 20 (FR-007).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_power_analysis_if_N_less_than_20
+  kind: magnitude
+  raw_text: Flag if N < 20 in Post-hoc Power Analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:36:11Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: generate 50 statistically independent snapshots with unique random seeds
+  claim_id: c_196d6bc8
+  context: 'T014 [US1] Implement SyntheticDataGenerator in code/synthetic.py: Generate
+    N=50 statistically independent snapshots using Lennard-Jones potentials (ase)
+    with unique random seeds (seed=42 + i for i in 0..49) and NVT thermalization steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate N=50 statistically independent snapshots using Lennard-Jones
+    potentials with unique random seeds (seed=42 + i for i in 0..49) and NVT thermalization
+    steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:40:56Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Cu-Ni LJ parameters epsilon 0.104 eV sigma 2.56 A Au-Ag epsilon 0.103
+    eV sigma 2.89 A
+  claim_id: c_baad884a
+  context: 'T014 [US1] Implement SyntheticDataGenerator in code/synthetic.py: Use
+    LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103 eV,
+    sigma=2.89 A).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103
+    eV, sigma=2.89 A).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:40:57Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: verify recoverable correlation between defect density and thermal conductivity
+    within 0.05 of 0.6
+  claim_id: c_dc763211
+  context: "T014.1 [US1] Validate Synthetic Data Generation. Verification: Run the\
+    \ generator with seed=42 and verify that the resulting dataset has a recoverable\
+    \ correlation between defect density and thermal conductivity within \xB10.05\
+    \ of 0.6."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the resulting dataset has a recoverable correlation between\
+    \ defect density and thermal conductivity within \xB10.05 of 0.6."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:40:57Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: Callaway model parameters Debye T 300 K Gruneisen 1.5
+  claim_id: c_f65b753f
+  context: 'T015 [US1] Implement ThermalConductivityEstimator in code/synthetic.py:
+    Parameters: Debye_T=300K, Gruneisen=1.5, Formula: conductivity = base_conductivity
+    * (1 - alpha * defect_density).'
+  evidence:
+    asserted: '300.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: 'Parameters: Debye_T=300K, Gruneisen=1.5, Formula: conductivity = base_conductivity
+    * (1 - alpha * defect_density).'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T03:40:57Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: use pymatgen VoronoiNN with tolerance 0.01
+  claim_id: c_702a9bd7
+  context: 'T016 [US1] Implement DefectGraphBuilder in code/ingest.py: Strictly use
+    pymatgen.analysis.sites.VoronoiNN(tolerance=0.01, allow_pathological=False) to
+    define nearest neighbors via Voronoi tessellation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Strictly use pymatgen.analysis.sites.VoronoiNN(tolerance=0.01, allow_pathological=False)
+    to define nearest neighbors via Voronoi tessellation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:00Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: handle edge cases N equals 1 missing metadata undefined metrics
+  claim_id: c_cef8a3b8
+  context: 'T017 [US1] Add validation logic to code/ingest.py: Verify edge existence
+    constraints, log specific file errors for corrupted data, and handle edge cases
+    (N=1, missing metadata, undefined metrics) by logging to data/audit_log.json with
+    error codes and exiting gracefully.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify edge existence constraints, log specific file errors for corrupted
+    data, and handle edge cases (N=1, missing metadata, undefined metrics) by logging
+    to data/audit_log.json with error codes and exiting gracefully.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:12Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: generate scatter plots with regression lines at 300 DPI
+  claim_id: c_ab51c7b9
+  context: T033 [US3] Generate scatter plots with regression lines in code/viz.py
+    (300 DPI) (FR-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scatter plots with regression lines in code/viz.py (300 DPI).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:12Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: run MetricCalculator 10 times assert tolerance 1e-10
+  claim_id: c_051a8fe0
+  context: 'T050 [US2] Metric Stability Test: Add a unit test in tests/unit/test_metric_stability.py
+    that verifies the MetricCalculator (T020) produces identical results for the same
+    graph input across multiple runs, ensuring no floating-point non-determinism affects
+    the correlation analysis. Implementation: Run MetricCalculator 10 times with the
+    same graph input and assert np.isclose(result, expected, atol=1e-10) for all runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MetricCalculator 10 times with the same graph input and assert np.isclose(result,
+    expected, atol=1e-10) for all runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:12Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: halt if greater than 90 percent of graphs are disconnected
+  claim_id: c_dc4a31c6
+  context: 'T052 [US1] Graph Topology Sanity Check: Implement a pre-analysis check
+    in code/ingest.py to ensure the generated defect graphs are not fully disconnected
+    or fully connected (which would trivialize the analysis). If > 90% of graphs are
+    disconnected, log a TopologyAnomaly warning and halt, requiring a review of the
+    synthetic generator parameters.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_greater_than_90_percent_of_graphs_are_disconnected
+  kind: magnitude
+  raw_text: If > 90% of graphs are disconnected, log a TopologyAnomaly warning and
+    halt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:17Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: validate recovered correlation against 0.6 with tolerance 0.05
+  claim_id: c_6907577a
+  context: 'T054 [US3] Ground Truth Validation: Implement a validation check in code/stats.py
+    to verify the recovered correlation against the known ground truth. Implementation:
+    Calculate abs(recovered_r - 0.6). Success Criterion: If difference > 0.05, raise
+    ValidationFailedError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate abs(recovered_r - 0.6). Success Criterion: If difference >
+    0.05, raise ValidationFailedError.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:24Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: shuffle thermal conductivity labels with seed 42
+  claim_id: c_7def42e4
+  context: 'T055 [US3] Null Hypothesis Verification: Implement a permutation test
+    in code/stats.py to generate a formal null hypothesis test report. Implementation:
+    Shuffle thermal_conductivity labels [deferred] times with seed=42.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shuffle thermal_conductivity labels [deferred] times with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:28Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: sweep significance thresholds 0.01 0.05 0.10 on Bonferroni corrected
+    p-values
+  claim_id: c_b3a255df
+  context: 'T031 [US3] Implement Sensitivity Analysis and generate data/processed/sensitivity_report.csv
+    in code/stats.py: Consume corrected_p_value from T029. Sweep significance thresholds
+    {0.01, 0.05, 0.10} applied to Bonferroni-corrected p-values.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep significance thresholds {0.01, 0.05, 0.10} applied to Bonferroni-corrected
+    p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:28Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: flag if sample size less than 20 in power analysis
+  claim_id: c_edb0cfda
+  context: 'T030 [US3] Implement Post-hoc Power Analysis and generate data/processed/power_analysis_report.json
+    in code/stats.py: Report minimum detectable effect size using statsmodels.stats.power.FTestPower
+    for correlation tests; flag if N < 20 (FR-007).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_if_sample_size_less_than_20_in_power_analysis
+  kind: magnitude
+  raw_text: Flag if N < 20 in Post-hoc Power Analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:31Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: set mode to Real if local file contains at least 20 valid snapshots
+  claim_id: c_77521459
+  context: "T000 [US1] Implement DataAudit class in code/ingest.py: Fallback: If fetch\
+    \ fails (network error, 404, no data), check for local file data/raw/real_snapshots.parquet.\
+    \ If file exists AND contains \u2265 20 valid snapshots with thermal_conductivity\
+    \ metadata: Set mode to Real."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Set_mode_to_Real_if_local_file_contains_at_least_20_valid_sn
+  kind: magnitude
+  raw_text: "Check for local file data/raw/real_snapshots.parquet. If file exists\
+    \ AND contains \u2265 20 valid snapshots with thermal_conductivity metadata: Set\
+    \ mode to Real."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:40Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: define REAL_DATA_THRESHOLD integer default 20
+  claim_id: c_8f67f528
+  context: 'T005 [P] Configure data configuration management in code/config.py (paths,
+    mode selection flags) - writes only to code/config.py. Implementation: Define
+    DataConfig class with fields: MODE (str, default=''auto''), DATA_PATH (str, default=''data/raw''),
+    REAL_DATA_THRESHOLD (int, default=20), SYNTHETIC_SEED (int, default=42), GROUND_TRUTH_R
+    (float, default=0.6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define REAL_DATA_THRESHOLD (int, default=20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:41:48Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: define SYNTHETIC_SEED integer default 42
+  claim_id: c_18aa7c25
+  context: 'T005 [P] Configure data configuration management in code/config.py (paths,
+    mode selection flags) - writes only to code/config.py. Implementation: Define
+    DataConfig class with fields: MODE (str, default=''auto''), DATA_PATH (str, default=''data/raw''),
+    REAL_DATA_THRESHOLD (int, default=20), SYNTHETIC_SEED (int, default=42), GROUND_TRUTH_R
+    (float, default=0.6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define SYNTHETIC_SEED (int, default=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:45:46Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: define GROUND_TRUTH_R float default 0.6
+  claim_id: c_84acb775
+  context: 'T005 [P] Configure data configuration management in code/config.py (paths,
+    mode selection flags) - writes only to code/config.py. Implementation: Define
+    DataConfig class with fields: MODE (str, default=''auto''), DATA_PATH (str, default=''data/raw''),
+    REAL_DATA_THRESHOLD (int, default=20), SYNTHETIC_SEED (int, default=42), GROUND_TRUTH_R
+    (float, default=0.6).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define GROUND_TRUTH_R (float, default=0.6).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:45:57Z'
+- artifact_path: projects/PROJ-538-quantifying-the-impact-of-network-struct/specs/001-quantifying-the-impact-of-network-struct/tasks.md
+  attempts: 1
+  canonical: initialize Python 3.11 project with specified dependencies
+  claim_id: c_87824aab
+  context: 'T002 Initialize Python 3.11 project with dependencies: pandas, numpy,
+    scipy, networkx, scikit-learn, matplotlib, seaborn, pydantic, ase, phonopy, statsmodels,
+    pymatgen, requests in requirements.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with dependencies: pandas, numpy, scipy,
+    networkx, scikit-learn, matplotlib, seaborn, pydantic, ase, phonopy, statsmodels,
+    pymatgen, requests in requirements.txt.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:46:04Z'

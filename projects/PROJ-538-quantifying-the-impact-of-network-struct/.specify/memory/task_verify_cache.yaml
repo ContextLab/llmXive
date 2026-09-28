@@ -1,3 +1,10 @@
+T008:
+  c: true
+  h: e5ee44b2dda0484fe4748c87488702d4f3d938d7402cc152245b21feb942d636
+  r: "The repository contains non\u2011empty `code/logging.py` and `code/utils.py`\
+    \ that configure a console logger and provide `log_audit_event` which creates\
+    \ `data/audit_log.json` (if absent) and appends structured JSON entries, satisfying\
+    \ the requirement to initialize logging to both console and the audit log file."
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

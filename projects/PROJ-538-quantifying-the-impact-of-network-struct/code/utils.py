@@ -14,6 +14,18 @@ class VoronoiFailure(Exception):
     """Raised when Voronoi tessellation fails."""
     pass
 
+class DataIntegrityError(Exception):
+    """Raised when data integrity checks fail."""
+    pass
+
+class TopologyAnomaly(Exception):
+    """Raised when graph topology is invalid (e.g., fully disconnected)."""
+    pass
+
+class ValidationFailedError(Exception):
+    """Raised when validation against ground truth fails."""
+    pass
+
 # Logger Setup
 def get_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)

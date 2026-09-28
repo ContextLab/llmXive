@@ -10,7 +10,8 @@ ase
 phonopy
 statsmodels
 pymatgen
+requests
 pytest
 pytest-cov
 ruff
-black
+mypy

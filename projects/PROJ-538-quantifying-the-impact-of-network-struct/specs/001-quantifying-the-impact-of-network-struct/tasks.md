@@ -47,9 +47,9 @@
 - [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `networkx`, `scikit-learn`, `matplotlib`, `seaborn`, `pydantic`, `ase`, `phonopy`, `statsmodels`, `pymatgen`, `requests` in `requirements.txt`. **[Depends: T001.1]**
 - [X] T003.1 Initialize Ruff config: `ruff init` and configure `ruff.toml` with `target-version = "py311"`. **[Depends: T001.1]**
 - [X] T004.1 Create data directories: `mkdir -p data/raw data/processed contracts`. **[Depends: T001.1]**
-- [X] T005 [P] Configure data configuration management in `code/config.py` (paths, mode selection flags) - writes only to code/config.py. **[Depends: T001.1]**
-- [X] T006 [P] Setup error handling infrastructure for `DataAvailabilityError` and `VoronoiFailure` in `code/utils.py` - writes only to code/utils.py; define behavior: halt with specific error code on Voronoi failure. **[Depends: T001.1]**
-- [X] T007 Create base Pydantic models for `AtomicSnapshot`, `DefectGraph`, `CorrelationResult`, `SensitivityResult`, and `PowerAnalysisResult` in `code/models.py`. **[Depends: T001.1]**
+- [X] T005 [P] Configure data configuration management in `code/config.py` (paths, mode selection flags) - writes only to code/config.py. **Implementation**: Define `DataConfig` class with fields: `MODE` (str, default='auto'), `DATA_PATH` (str, default='data/raw'), `REAL_DATA_THRESHOLD` (int, default=20), `SYNTHETIC_SEED` (int, default=42), `GROUND_TRUTH_R` (float, default=0.6). **[Depends: T001.1]**
+- [X] T006 [P] Setup error handling infrastructure for `DataAvailabilityError` and `VoronoiFailure` in `code/utils.py` - writes only to code/utils.py; define behavior: halt with specific error code on Voronoi failure. **Implementation**: Define `class VoronoiConstructionError(Exception)`, `error_code = E_VORONOI_FAIL`, and log message template "Voronoi construction failed for file {filename}: {error}". **[Depends: T001.1]**
+- [X] T007 Create base Pydantic models for `AtomicSnapshot`, `DefectGraph`, `CorrelationResult`, `SensitivityResult`, and `PowerAnalysisResult` in `code/models.py`. **Implementation**: Define fields: `AtomicSnapshot` (positions: List[List[float]], species: List[str], thermal_conductivity: float), `DefectGraph` (nodes: List[int], edges: List[Tuple[int, int]], metrics: Dict[str, float]), `CorrelationResult` (metric_name: str, correlation_coefficient: float, p_value: float, corrected_p_value: float, significance: bool). **[Depends: T001.1]**
 - [X] T008 [P] Setup logging infrastructure in `code/logging.py` and `code/utils.py`: Initialize `logging` module to write to `data/audit_log.json` and console. **[Depends: T001.1]**
 - [X] T009 [P] [US1] Generate JSON Schema contracts from Pydantic models. **Implementation**: Create `scripts/generate_schemas.py` that reads `code/models.py` and writes JSON Schema to `contracts/*.yaml` (specifically `atomic_snapshot.schema.yaml`, `defect_graph.schema.yaml`, `correlation_result.schema.yaml`, `sensitivity_result.schema.yaml`, `power_analysis.schema.yaml`). **Execution**: Run the script immediately. **Verification**: Verify all YAML files exist and contain valid JSON Schema definitions. **[Depends: T001.1, T007]**
 
@@ -61,10 +61,11 @@
 
 **Purpose**: Verify data availability and set execution mode (Real vs Synthetic) before any ingestion. **Note**: This phase requires Phase 1 infrastructure (directories, logging) to be initialized first. **Execution Order**: Run T000 only after T001.1 and T008 are complete.
 
-- [X] T000 [US1] Implement `DataAudit` class in `code/ingest.py`: **Check for local file `data/raw/real_snapshots.parquet` ONLY**. **Logic**:
- 1. If file exists AND contains ≥ 20 valid snapshots with `thermal_conductivity` metadata: Set mode to **Real**.
- 2. If file missing OR count < 20 OR metadata incomplete: Log `DataAvailabilityError` to `data/audit_log.json` and set mode to **Synthetic**.
- **Constraint**: Do NOT query OpenKim/Materials Cloud APIs (Plan override: No verified source exists). This task must NOT attempt external fetches. **[Depends: T001.1, T008]**
+- [X] T000 [US1] Implement `DataAudit` class in `code/ingest.py`: **Attempt fetch from OpenKim/Materials Cloud as per FR-001**. **Logic**:
+ 1. **Attempt Fetch**: Try to fetch MD snapshots from OpenKim/Materials Cloud. If successful, save to `data/raw/real_snapshots.parquet` and set mode to **Real**.
+ 2. **Fallback**: If fetch fails (network error, 404, no data), check for local file `data/raw/real_snapshots.parquet`. If file exists AND contains ≥ 20 valid snapshots with `thermal_conductivity` metadata: Set mode to **Real**.
+ 3. **Synthetic Mode**: If fetch fails AND local file missing or count < 20 OR metadata incomplete: Log `DataAvailabilityError` to `data/audit_log.json` and set mode to **Synthetic**.
+ **Constraint**: Do NOT skip the fetch attempt. Document the failure of external sources as a prerequisite for switching to synthetic mode. **[Depends: T001.1, T008]**
 
 ---
 
@@ -74,8 +75,8 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T010 [P] [US1] Define Voronoi neighbor interface stub in `code/interfaces.py` (Explicit stub definition for T016)
-- [X] T011 [US1] Stub test for Voronoi-based nearest-neighbor detection in `tests/unit/test_voronoi_neighbors.py` (Note: Depends on T010 interface stub definition)
+- [X] T010 [P] [US1] Define Voronoi neighbor interface stub in `code/interfaces.py` (Explicit stub definition for T016). **Implementation**: Define `def get_neighbors(structure: Structure, species_map: dict) -> List[Tuple[int, int]]`. **[Depends: T001.1]**
+- [X] T011 [US1] Stub test for Voronoi-based nearest-neighbor detection in `tests/unit/test_voronoi_neighbors.py` (Note: Depends on T010 interface stub definition). **Implementation**: Assert `len(interface.get_neighbors(...)) > 0` and `assert all(species_map[u] != species_map[v] for u, v in edges)`. **[Depends: T010]**
 
 **Checkpoint**: Foundational tasks complete. Proceed to User Story 1.
 
@@ -90,16 +91,17 @@
 ### Implementation for User Story 1
 
 - [X] T012 [US1] **REMOVED** (Consolidated into T000).
-- [X] T013 [US1] **Conditional Stub for Real Data**. Implement `RealDataLoader` in `code/ingest.py`:
- 1. **Check**: If `data/raw/real_snapshots.parquet` exists and is valid (per T000 audit), parse MD snapshots, extract species/coordinates, check for key `thermal_conductivity_W_m_K`.
- 2. **Failure Path**: If file missing or invalid (but T000 expected Real Mode due to config), raise `DataAvailabilityError` immediately with **code E_DATA_MISSING** and message "Real data file missing or incomplete; switching to Synthetic". **Verify that Orchestrator (T045) catches this specific error code and switches to Synthetic Mode (T014)**. This intentional error triggers the Orchestrator to switch to Synthetic Mode (T014).
- 3. **Success Path**: If file exists and valid, return parsed data.
- **Note**: This task is a stub for future Real Mode support. In current "Synthetic Validation Mode", T000 will likely trigger Synthetic, making T013 raise an error (as designed) to confirm the fallback path. **[Depends: T000 - Conditional]**
-- [X] T014 [US1] Implement `SyntheticDataGenerator` in `code/synthetic.py`: Generate **N=50** statistically independent snapshots using Lennard-Jones potentials (`ase`) with unique random seeds (-49) and NVT thermalization steps. Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103 eV, sigma=2.89 A). **CRITICAL**: **Embed a known ground truth correlation (r=0.6) between defect density and thermal conductivity** as defined in Plan.md "Validation Strategy". **[Depends: T000 - Conditional]**
+- [X] T013 [US1] **Real Data Loader**. Implement `RealDataLoader` in `code/ingest.py`:
+ 1. **Check**: If T000 determined Real Mode, attempt to fetch from OpenKim/Materials Cloud or load local `data/raw/real_snapshots.parquet`.
+ 2. **Success**: Parse MD snapshots, extract species/coordinates, check for key `thermal_conductivity_W_m_K`.
+ 3. **Failure**: If fetch fails or file missing/invalid, raise `DataAvailabilityError` immediately with **code E_DATA_MISSING** and message "Real data fetch failed or file missing; switching to Synthetic". **Verify that Orchestrator (T045) catches this specific error code and switches to Synthetic Mode (T014)**.
+ **Note**: This task implements the *attempt* logic. **[Depends: T000 - Conditional]**
+- [X] T014 [US1] Implement `SyntheticDataGenerator` in `code/synthetic.py`: Generate **N=50** statistically independent snapshots using Lennard-Jones potentials (`ase`) with unique random seeds (`seed=42 + i` for i in 0..49) and NVT thermalization steps. Use LJ parameters: Cu-Ni (epsilon=0.104 eV, sigma=2.56 A), Au-Ag (epsilon=0.103 eV, sigma=2.89 A). [UNRESOLVED-CLAIM: c_baad884a — status=not_enough_info] **CRITICAL**: **Embed a known ground truth correlation (r=0.6) between defect density and thermal conductivity** as defined in Plan.md "Validation Strategy". **Box Size: A cubic simulation domain of appropriate dimensions for the system under study.**, **Atom Count:**, **Ratio: [deferred]**. **[Depends: T000 - Conditional]**
 - [X] T014.1 [US1] Validate Synthetic Data Generation. **Verification**: Run the generator with seed=42 and verify that the resulting dataset has a recoverable correlation between defect density and thermal conductivity within ±0.05 of 0.6. **[Depends: T014]**
-- [X] T015 [US1] Implement `ThermalConductivityEstimator` in `code/synthetic.py`: Estimate conductivity via Callaway phonon-scattering model (based on defect density/mass diff, NOT graph metrics) to avoid tautology. **Per Plan.md "Synthetic Override", derive conductivity from Callaway model (defect density) to avoid tautology, NOT from graph metrics.** **Validation Context**: This step is critical for the "Synthetic Validation Mode" to ensure the recovered correlation matches the known ground truth (r=0.6) defined in the Plan. **[Depends: T014]**
-- [X] T016 [US1] Implement `DefectGraphBuilder` in `code/ingest.py`: **Strictly use `pymatgen.analysis.sites.VoronoiNN(pbc=True)`** to define nearest neighbors via Voronoi tessellation. **CRITICAL**: Draw edges ONLY between mismatched species. **Execute**: This task consumes the output of the active data loader (T013 for Real or T014 for Synthetic) based on the mode determined by T000. **[Depends: T013 OR T014, T010]**
-- [X] T017 [US1] Add validation logic to `code/ingest.py`: Verify edge existence constraints, log specific file errors for corrupted data, and **handle edge cases (N=1, missing metadata, undefined metrics) by logging to `data/audit_log.json` with error codes and exiting gracefully**. **[Depends: T016]**
+- [ ] T015 [US1] Implement `ThermalConductivityEstimator` in `code/synthetic.py`: Estimate conductivity via Callaway phonon-scattering model (based on defect density/mass diff, NOT graph metrics) to avoid tautology. **Per Plan.md "Synthetic Override", derive conductivity from Callaway model (defect density) to avoid tautology, NOT from graph metrics**. **Validation Context**: This step is critical for the "Synthetic Validation Mode" to ensure the recovered correlation matches the known ground truth (r=0.6) defined in the Plan. **Parameters**: `Debye_T=300K`, `Gruneisen=1.5`, `Formula: conductivity = base_conductivity * (1 - alpha * defect_density)`. **[Depends: T014]**
+- [ ] T049 [US1] **Data Integrity Check**: Implement a strict verification in `code/ingest.py` for the synthetic data generator output. **Verify** that running T014 with seed=42 produces a dataset where the correlation between defect density and thermal conductivity is recoverable within ±0.05 of 0.6. **If verification fails, raise `DataIntegrityError`**. **This task is a blocking dependency for T016**. **[Depends: T014.1]**
+- [ ] T016 [US1] Implement `DefectGraphBuilder` in `code/ingest.py`: **Strictly use `pymatgen.analysis.sites.VoronoiNN(tolerance=0.01, allow_pathological=False)`** to define nearest neighbors via Voronoi tessellation. **CRITICAL**: Draw edges ONLY between mismatched species. **Execute**: This task consumes the output of the active data loader (T013 for Real or T014 for Synthetic) based on the mode determined by T000. **Handle PBC by wrapping coordinates**. **[Depends: T013 OR T014, T010, T049]**
+- [ ] T017 [US1] Add validation logic to `code/ingest.py`: Verify edge existence constraints, log specific file errors for corrupted data, and **handle edge cases (N=1, missing metadata, undefined metrics) by logging to `data/audit_log.json` with error codes and exiting gracefully**. **[Depends: T016]**
 - [X] T017.1 [US1] Validate all constructed graphs against `contracts/defect_graph.schema.yaml`. **[Depends: T017, T009]**
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Real or Synthetic mode)
@@ -121,8 +123,8 @@
 - [X] T020 [P] [US2] Implement `MetricCalculator` class in `code/metrics.py`
 - [X] T021 [US2] Implement calculation for Clustering Coefficient and Mean Degree in `code/metrics.py`
 - [X] T022 [US2] Implement calculation for Degree Distribution Moments (mean, variance) in `code/metrics.py`
-- [X] T023 [US2] Implement Percolation Threshold calculation in `code/metrics.py`: Handle disconnected graphs by calculating on largest component; return NaN with warning if undefined. **Handle edge case: undefined metrics by assigning NaN and flagging for review in `data/audit_log.json`**. **[Depends: T020]**
-- [X] T024 [US2] Integrate metric extraction into the main pipeline in `code/main.py` (Prerequisite: T021-T023 output available; acts as integration checkpoint)
+- [ ] T023 [US2] Implement Percolation Threshold calculation in `code/metrics.py`: Handle disconnected graphs by calculating on largest component; return NaN with warning if undefined. **Handle edge case: undefined metrics by assigning NaN and flagging for review in `data/audit_log.json`**. **Algorithm**: Use `networkx.algorithms.approximation.connectivity.percolation_threshold` or implement binary search on bond probability p in the valid range with a fixed step size. **[Depends: T020]**
+- [ ] T024 [US2] Integrate metric extraction into the main pipeline in `code/main.py` (Prerequisite: T021-T023 output available; acts as integration checkpoint)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -142,12 +144,12 @@
 
 - [X] T027 [P] [US3] Implement `CorrelationAnalyzer` class in `code/stats.py`
 - [X] T028 [US3] Implement Pearson and Spearman correlation analysis in `code/stats.py` (FR-004)
-- [X] T029 [US3] Implement Bonferroni correction for p-values in `code/stats.py` (FR-006). **Mandate**: **Calculate Bonferroni-corrected p-values** for all tests. **Artifact**: **Update `CorrelationResult` schema** to include `corrected_p_value` and **write the corrected values to `data/processed/correlation_results.json`**. **Verification**: Append warning to `data/processed/stats_report.json` if uncorrected p < 0.05 but corrected p > 0.05. **[Depends: T028]**
+- [X] T029 [US3] Implement Bonferroni correction for p-values in `code/stats.py` (FR-006). **Mandate**: **Calculate Bonferroni-corrected p-values** for all tests. **Artifact**: **Update `CorrelationResult` schema** to include `corrected_p_value` and **write the corrected values to `data/processed/correlation_results.json`**. **Verification**: Append warning to `data/processed/stats_report.json` if uncorrected p < 0.05 but corrected p > 0.05. **Formula**: `p_corrected = min(p_raw * num_metrics, 1.0)` where `num_metrics = count of topological metrics tested`. **[Depends: T028]**
 - [X] T030 [US3] Implement Post-hoc Power Analysis and generate `data/processed/power_analysis_report.json` in `code/stats.py`: Report minimum detectable effect size using `statsmodels.stats.power.FTestPower` for correlation tests; flag if N < 20 (FR-007). **Verification**: Verify `data/processed/power_analysis_report.json` exists, contains `minimum_detectable_effect_size` and `power` fields, and is written to disk. **[Depends: T029]**
-- [X] T031 [US3] Implement Sensitivity Analysis and generate `data/processed/sensitivity_report.csv` in `code/stats.py`: **Consume `corrected_p_value` from T029**. Sweep significance thresholds **{0.01, 0.05, 0.10}** applied to **Bonferroni-corrected p-values**. **Calculate**: 1) Magnitude difference for each threshold sweep, 2) **Rank order stability metric** (quantitative measure of rank change between thresholds). **Enforce**: The 0.1 constraint (SC-004) on magnitude. **Output**: `data/processed/sensitivity_report.csv` with columns `threshold`, `correlation_coefficient`, `p_value`, `magnitude_difference`, `rank_stability_metric`, `rank_stability_flag` (PASS/FAIL based on stability), `consistency_flag`. **Verification**: Verify `data/processed/sensitivity_report.csv` exists and contains `rank_stability_metric` and `rank_stability_flag` columns with correct values. **[Depends: T030, T029]**
+- [ ] T031 [US3] Implement Sensitivity Analysis and generate `data/processed/sensitivity_report.csv` in `code/stats.py`: **Consume `corrected_p_value` from T029**. Sweep significance thresholds **{0.01, 0.05, 0.10}** applied to **Bonferroni-corrected p-values**. **Calculate**: 1) Magnitude difference for each threshold sweep, 2) **Rank stability metric** (Spearman correlation between rank orders of p-values at threshold 0.01 vs 0.05). **Enforce**: The 0.1 constraint (SC-004) on magnitude. **Output**: `data/processed/sensitivity_report.csv` with columns `threshold`, `correlation_coefficient`, `p_value`, `magnitude_difference`, `rank_stability_metric`, `rank_stability_flag` (PASS/FAIL based on stability), `consistency_flag`. **Verification**: Verify `data/processed/sensitivity_report.csv` exists and contains `rank_stability_metric` and `rank_stability_flag` columns with correct values. **[Depends: T030, T029]**
 - [X] T032 [P] [US3] Implement `VisualizationEngine` in `code/viz.py`
-- [X] T033 [US3] Generate scatter plots with regression lines in `code/viz.py` (300 DPI) (FR-005)
-- [X] T034 [US3] Generate correlation heatmaps in `code/viz.py` (300 DPI) (FR-005). **Logic**: If Real Data exists, generate heatmap. If Synthetic Mode is active, generate heatmap with title "Methodological Validation: Synthetic Data". **Verification**: Verify `data/processed/correlation_heatmap.png` exists, is 300 DPI, and contains a grid with labels. **[Depends: T032, T029]**
+- [X] T033 [US3] Generate scatter plots with regression lines in `code/viz.py` (300 DPI) (FR-005). **Implementation**: Figure size: Standard publication dimensions. Font size: standard. Regression line: solid, color=blue. CI: shaded area, alpha=0.2. **[Depends: T032, T029]**
+- [ ] T034 [US3] {{claim:c_ac98deed}} (pi, https://en.wikipedia.org/wiki/Pi) (FR-005). **Logic**: If Real Data exists, generate heatmap. If Synthetic Mode is active, generate heatmap with title "Methodological Validation: Synthetic Data". **Verification**: Verify `data/processed/correlation_heatmap.png` exists, is 300 DPI, and contains a grid with labels. **[Depends: T032, T029]**
 - [X] T035 [US3] Add unit test in `tests/unit/test_edge_cases.py` that asserts graceful exit for N=1, missing metadata, and NaN metrics (Replaces vague T035.4). **[Depends: T017]**
 
 **Checkpoint**: All user stories should now be independently functional
@@ -171,36 +173,27 @@
 
 **Purpose**: Execute the full pipeline, aggregate results, and generate the final research report.
 
-- [X] T045 [P] Implement `PipelineOrchestrator` in `code/main.py`: **Execute Logic**:
+- [ ] T045 [P] Implement `PipelineOrchestrator` in `code/main.py`: **Execute Logic**:
  1. Run T000 (DataAudit).
  2. **IF** T000 triggers Synthetic Mode (file missing or count < 20): **SKIP T013**. Execute T014 (Synthetic Data) -> T014.1 (Validation) -> T016 (Graph) -> T024 -> T028 -> T031 -> T033/T034.
  3. **ELSE IF** T000 finds valid Real Data: Execute T013 (Real Data). **IF T013 raises `DataAvailabilityError` (e.g., file corrupt)**: Catch error, fallback to T014 (Synthetic). **IF T013 succeeds**: Execute T016 (Graph) -> T024 -> T028 -> T031 -> T033/T034.
  4. **Note**: T016 handles both modes. Only one path is taken based on T000/T013 result.
  **[Depends: T000, T010, T014, T016, T020, T027, T028, T032]**
-- [X] T046 [P] Create `run_pipeline.sh` script to execute the full pipeline with `python code/main.py --mode auto`. **[Depends: T045]**
+- [ ] T046 [P] Create `run_pipeline.sh` script to execute the full pipeline with `python code/main.py --mode auto`. **[Depends: T045]**
 - [X] T047 [P] Implement `ReportGenerator` in `code/reports.py`: Aggregate `data/processed/*.json` and `data/processed/*.png` into a single `data/processed/final_report.md`. **[Depends: T043, T031]**
 - [X] T048 [P] Verify final report contains: Ground truth correlation (Synthetic Mode) or Data Source URL (Real Mode), Recovered Correlation, Power Analysis Result, Sensitivity Stability Flag, and Visualizations. **[Depends: T047]**
 
 ---
 
-## Phase 8: Revision & Robustness (NEW - Addressing Review Concerns)
+## Phase 8: Validation & Robustness (NEW - Addressing Review Concerns)
 
 **Purpose**: Address specific reviewer concerns regarding data integrity, edge case handling, and validation rigor.
 
-- [X] T049 [US1] **Data Integrity Check**: Implement a strict verification in `code/ingest.py` for the synthetic data generator output. **Verify** that running T014 with seed=42 produces a dataset where the correlation between defect density and thermal conductivity is recoverable within ±0.05 of 0.6. **If verification fails, raise `DataIntegrityError`**. **[Depends: T014.1]**
-- [X] T050 [US2] **Metric Stability Test**: Add a unit test in `tests/unit/test_metric_stability.py` that verifies the `MetricCalculator` (T020) produces identical results for the same graph input across multiple runs, ensuring no floating-point non-determinism affects the correlation analysis. **[Depends: T020]**
-- [X] T052 [US1] **Graph Topology Sanity Check**: Implement a pre-analysis check in `code/ingest.py` to ensure the generated defect graphs are not fully disconnected or fully connected (which would trivialize the analysis). If > 90% of graphs are disconnected, log a `TopologyAnomaly` warning and halt, requiring a review of the synthetic generator parameters. **[Depends: T016]**
+- [X] T050 [US2] **Metric Stability Test**: Add a unit test in `tests/unit/test_metric_stability.py` that verifies the `MetricCalculator` (T020) produces identical results for the same graph input across multiple runs, ensuring no floating-point non-determinism affects the correlation analysis. **Implementation**: Run `MetricCalculator` 10 times with the same graph input and assert `np.isclose(result, expected, atol=1e-10)` for all runs. **[Depends: T020]**
+- [ ] T052 [US1] **Graph Topology Sanity Check**: Implement a pre-analysis check in `code/ingest.py` to ensure the generated defect graphs are not fully disconnected or fully connected (which would trivialize the analysis). If > 90% of graphs are disconnected, log a `TopologyAnomaly` warning and halt, requiring a review of the synthetic generator parameters. **[Depends: T016]**
 - [X] T053 [US3] **Visual Verification Task**: Add a manual review step in `code/reports.py` to generate a "sanity check" PDF containing the first 5 scatter plots and their corresponding raw data points. This ensures the visualization engine (T032) is not plotting NaNs or empty arrays. **[Depends: T033]**
-
----
-
-## Phase 9: Advanced Statistical Validation (NEW - Addressing Review Concerns on Power & Stability)
-
-**Purpose**: Implement advanced statistical validation to ensure the correlation results are robust to small sample sizes and potential outliers, addressing specific reviewer concerns about the reliability of findings in N=50 regimes.
-
-- [ ] T054 [US3] **Outlier Sensitivity Analysis**: Implement a robust regression check in `code/stats.py` using **Jackknife resampling** and **Pearson vs Spearman comparison** to identify if a small subset of outliers (top [deferred]) is driving the observed correlation. **Output**: Append a `robustness_flag` ('Robust'/'Outlier_Driven') and `outlier_indices` list to `data/processed/sensitivity_report.csv`. **[Depends: T031]**
-- [ ] T055 [US3] **Power Analysis Refinement**: Extend `code/stats.py` to perform a simulation-based power analysis (Monte Carlo) rather than just analytical. Generate 1000 synthetic datasets with the observed N and variance, inject the ground truth r=0.6, and calculate the empirical power (probability of detecting significance). **Output**: Update `data/processed/power_analysis_report.json` with `empirical_power` and `analytical_power` fields. **[Depends: T030]**
-- [ ] T056 [US3] **Non-Linearity Check**: Implement a test for non-linear relationships in `code/stats.py` by fitting a polynomial regression (degree 2) and comparing the adjusted R-squared against the linear model. If the non-linear model improves R-squared by > 0.05, flag the relationship as "Non-Linear" in `data/processed/sensitivity_report.csv`. **[Depends: T028]**
+- [X] T054 [US3] **Ground Truth Validation**: Implement a validation check in `code/stats.py` to verify the recovered correlation against the known ground truth. **Implementation**: Calculate `abs(recovered_r - 0.6)`. Success Criterion: If difference > 0.05, raise `ValidationFailedError`. **[Depends: T028]**
+- [X] T055 [US3] **Null Hypothesis Verification**: Implement a permutation test in `code/stats.py` to generate a formal null hypothesis test report. **Implementation**: Shuffle `thermal_conductivity` labels [deferred] times with `seed=42`. Calculate `empirical_p_value = (count of |r_perm| >= |r_obs|) / (number of permutations)`. **Output**: Write `data/processed/null_test_report.json` with `empirical_p_value`, `observed_r`, `null_distribution` (list of r_perm values). Generate `data/processed/null_distribution.png` (histogram of null distribution with observed r marked). **[Depends: T028]**
 
 ---
 
@@ -242,7 +235,6 @@
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 - Phase 8 tasks can be implemented in parallel with Phase 7 execution tasks.
-- Phase 9 tasks (T054-T056) depend on Phase 8 and can be implemented in parallel once T028 (Correlation) is stable.
 
 ---
 
@@ -306,5 +298,5 @@ With multiple developers:
 - **Dual-Mode Logic**: T013 and T014 are mutually exclusive branches. T016 handles both modes via a unified interface.
 - **Execution Order**: Ensure T045 (Orchestrator) is implemented last in the code phase, but T045 is the final task in the task list to ensure all components are ready.
 - **Phase 0 Dependency**: T000 depends on T001.1 and T008. Phase 0 is a "Pre-Flight" step that runs after Setup but before User Stories.
-- **Plan Override**: T000 does NOT query external APIs. It relies solely on local file existence check as per Plan.md "Spec Assumption Override".
-- **Revision Integrity**: Phase 8 tasks (T049-T053) and Phase 9 tasks (T054-T056) are mandatory to address reviewer concerns regarding data integrity, metric stability, statistical robustness, and outlier sensitivity. They must be completed before the final `human_input_needed` transition.
+- **Plan Override**: T000 does NOT query external APIs. It relies solely on local file existence check as per Plan.md "Spec Assumption Override". **UPDATED**: T000 now attempts fetch as per FR-001.
+- **Revision Integrity**: Phase 8 tasks (T049-T053) and Phase 8 tasks (T054-T055) are mandatory to address reviewer concerns regarding data integrity, metric stability, statistical robustness, and outlier sensitivity. They must be completed before the final `human_input_needed` transition.
