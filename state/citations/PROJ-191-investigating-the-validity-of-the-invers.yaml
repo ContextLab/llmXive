@@ -97,7 +97,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-08-19T10:53:23.699040Z'
-- artifact_hash: 0235b05a44118169025c6b75286e4eb0a9feaddf9a6692d7fbc0e85240d932e2
+- artifact_hash: 4a7b2676ac90074d9bf0d62a3ee0a76cb18042c132dad2b291281cbf86ddf6d9
   artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -107,8 +107,8 @@
   value: '2106.08611'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-09-25T15:42:09.489958Z'
-- artifact_hash: 0235b05a44118169025c6b75286e4eb0a9feaddf9a6692d7fbc0e85240d932e2
+  verified_at: '2026-09-28T09:06:21.697574Z'
+- artifact_hash: 4a7b2676ac90074d9bf0d62a3ee0a76cb18042c132dad2b291281cbf86ddf6d9
   artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -118,4 +118,4 @@
   value: '2305.06325'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-09-25T15:42:09.489958Z'
+  verified_at: '2026-09-28T09:06:21.697574Z'

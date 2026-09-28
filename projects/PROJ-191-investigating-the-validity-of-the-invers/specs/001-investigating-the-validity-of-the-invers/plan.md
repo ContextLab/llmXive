@@ -157,8 +157,8 @@ where $F_{Newton}(r)$ is the **experiment-specific calculated force** derived fr
  - **Steps**: **Up to** 5000, stopping early if Gelman-Rubin < 1.01.
  - **Execution Logic**: The sampler runs in batches of steps. After each batch, the Gelman-Rubin statistic is computed. If < 1.01, the run stops. If 5000 steps are reached and GR > 1.01, a warning is logged and the best samples are used, flagged as "unconverged".
  - **Priors**:
- - $\alpha \sim \text{Uniform}(-0.1, 0.1)$ (with sensitivity analysis on width).
- - $\lambda \sim \text{Uniform}(10^{-5}, 10^{-4})$ (with sensitivity analysis).
+ - $\alpha \sim \text{Uniform}(-\epsilon, \epsilon)$ (with sensitivity analysis on width).
+ - $\lambda \sim \text{Uniform}(\text{low}, \text{higher})$ (with sensitivity analysis).
 - **Evidence**: `dynesty` (Nested Sampling).
  - Used to compute $\ln \mathcal{Z}_{Newton}$ and $\ln \mathcal{Z}_{Yukawa}$.
  - Bayes Factor $K = \exp(\ln \mathcal{Z}_{Yukawa} - \ln \mathcal{Z}_{Newton})$.
@@ -190,7 +190,7 @@ where $F_{Newton}(r)$ is the **experiment-specific calculated force** derived fr
  - `emcee` and `dynesty` are CPU-tractable for this problem size.
  - No GPU required.
  - Memory usage is low (< 1 GB) as data is small.
- - Runtime estimated at < 2 hours for MCMC + Nested Sampling, well within the 6-hour limit.
+ - Runtime estimated at < 2 hours for MCMC + Nested Sampling, well within the time limit.
 - **Fallback Logic**:
  - Trigger: Memory > 6 GB or Runtime > 5 hours.
  - Action: Reduce walkers or steps. and re-run.

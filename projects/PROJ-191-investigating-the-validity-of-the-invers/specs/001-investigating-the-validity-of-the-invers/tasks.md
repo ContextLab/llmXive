@@ -43,9 +43,12 @@
 
 **Purpose**: Project initialization, pre‑flight checks, and basic structure
 
-- [ ] T001 Create the full project directory tree at the repository root: `projects/PROJ-191-investigating-the-validity-of-the-invers/` with sub‑directories (`code/`, `tests/`, `data/`, `docs/`, `code/data/`, `code/models/`, `code/inference/`, `code/robustness/`, `code/utils/`, `data/raw/`, `data/processed/`, `data/results/`, `tests/unit/`, `tests/contract/`, `tests/integration/`) using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/{code/{data,models,inference,robustness,utils},tests/{unit,contract,integration},data/{raw,processed,results},docs}` in a single atomic operation.
-- [ ] T002 Initialize a Python project and write pinned dependencies to `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools.
+- [ ] T001-ROOT Create the root project directory tree at the repository root: `projects/PROJ-191-investigating-the-validity-of-the-invers/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers`.
+- [ ] T001-CODE [P] Create the `code/` directory and all required sub‑directories within the project root: `code/`, `code/data/`, `code/models/`, `code/inference/`, `code/robustness/`, `code/utils/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/code/{data,models,inference,robustness,utils}`.
+- [ ] T001-DATA [P] Create the `data/` directory and all required sub‑directories: `data/raw/`, `data/processed/`, `data/results/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/data/{raw,processed,results}`.
+- [ ] T001-TESTS [P] Create the `tests/` directory and all required sub‑directories: `tests/unit/`, `tests/contract/`, `tests/integration/` using the shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/tests/{unit,contract,integration}`.
+- [ ] T002 Initialize a Python project in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/` and write pinned dependencies to `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt` using `pip freeze` after installing core dependencies.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools by creating `.ruff.toml` and adding `[tool.black]` / `[tool.ruff]` sections to `pyproject.toml` in the root directory.
 
 ---
 
@@ -55,9 +58,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement versioning utility for atomic state updates in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/utils/versioning.py`.
-- [ ] T005 [P] Setup logging infrastructure and configuration management in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/config.py`.
-- [ ] T006 [P] Create base data model for `HarmonizedDataset` in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/data/models.py`. **Alignment**: This aligns with the plan's "Project Structure" section which implies data models should reside in a dedicated model file (e.g., `models.py`) and the `data-model.md` phase output.
+- [X] T004 [P] Implement versioning utility for atomic state updates in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/utils/versioning.py`.
+- [X] T005 [P] Setup logging infrastructure and configuration management in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/config.py`.
+- [X] T006 [P] Create base data model for `HarmonizedDataset` in `projects/PROJ-191-investigating-the-validity-of-the-invers/code/data/models.py`. **Alignment**: This aligns with the plan's "Project Structure" section. **Definition**: Implement a Pydantic model with fields `separation_m` (np.ndarray, shape (N,)), `force_n` (np.ndarray, shape (N,)), `covariance_matrix` (np.ndarray, shape (N, N)), and `metadata` (dict). **Dependency**: Runs after T005. <!-- FAILED: unspecified -->
 - [ ] T007 [P] Ensure directory structure for `data/raw/`, `data/processed/`, and `data/results/` exists (use robust `mkdir -p` logic).
 
 **Checkpoint**: Foundation ready – user story implementation can now begin in parallel.
@@ -70,11 +73,13 @@
 
 **Independent Test**: Execute `code/data/download.py` and `code/data/harmonize.py` against the provided arXiv URLs; verify output is a single CSV/JSON file containing aligned force data, separation distances, and a valid positive‑definite **full** covariance matrix with no missing values in the microscopic separation distance range.
 
+**Sequential Flow**: T013-AGENT → T013-DOC-CIT → T013-DATA → T013-CALIB-VAL → T013-CALIB-DSK → T013-PARSE → T014 → T015-COV
+
 ### Tests for User Story 1 (OPTIONAL)
 
-- [ ] T010 [P] [US1] Unit test for SI unit conversion logic in `tests/unit/test_harmonize.py`.
-- [ ] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_harmonized_dataset.py`.
-- [ ] T012 [P] [US1] Integration test for end‑to‑end download and harmonization in `tests/integration/test_data_pipeline.py`.
+- [X] T010 [P] [US1] Unit test for SI unit conversion logic in `tests/unit/test_harmonize.py`.
+- [X] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_harmonized_dataset.py`.
+- [X] T012 [P] [US1] Integration test for end‑to‑end download and harmonization in `tests/integration/test_data_pipeline.py`.
 
 ### Implementation for User Story 1
 
@@ -82,21 +87,37 @@
  1. Command: `reference-validator --arxiv-id <id>`.
  2. Expected Exit Code: `0` for success, `1` for failure.
  3. On failure (non-zero exit), raise `RuntimeError` with the agent's error message.
- 4. Verify arXiv:2106.08611 and arXiv:2305.06325.
+ 4. Verify arXiv:2106.08611 and arXiv:2305.06325. [UNRESOLVED-CLAIM: c_a7951992 — status=not_enough_info]
+- [ ] T013-DOC-CIT [US1] **Document Citation Validation**: Implement logic in `code/agents/validator.py` to validate all external citations found in `research.md` and `plan.md` against their primary sources as required by Constitution Principle II.
+ 1. Parse `research.md` and `plan.md` for citation patterns (e.g., `arXiv:xxxx.xxxxx`).
+ 2. Invoke the Reference-Validator Agent for each found ID.
+ 3. Raise `RuntimeError` if any citation is unreachable or mismatched.
 - [ ] T013-DATA [US1] **Data Acquisition**: Implement `code/data/download.py` to **fetch** arXiv:2106.08611 and arXiv:2305.06325.
- 1. Call the Reference‑Validator Agent (T013‑AGENT). On failure, raise `RuntimeError`.
+ 1. Call the Reference‑Validator Agent (T013‑AGENT) and Document Citation Validator (T013-DOC-CIT). On failure, raise `RuntimeError`.
  2. Unpack tarballs to `data/raw/`.
  3. Scan for files matching `*_run*.csv` (or metadata `experiment_id`) to count independent experimental runs.
  4. **If** `len(runs) < 3`: **log a warning** `"Insufficient runs (<3) for leave‑one‑out cross‑validation; robustness stage will use bootstrap fallback."` Continue execution; downstream robustness tasks will handle the fallback.
  5. **If** `len(runs) >= 3`: proceed normally.
-- [ ] T013-PARSE [US1] **Parser**: Implement logic in `code/data/parsers.py` to parse the raw CSV files extracted by T013‑DATA: read headers, map columns to force, separation, and uncertainty fields, and construct intermediate `HarmonizedDataset` objects. **Dependency**: Runs after T013‑DATA.
-- [ ] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge‑case handling**: Detect non‑overlapping separation ranges; interpolate missing points or exclude non‑overlapping regions and log a warning as required by the spec.
+ 6. **Dependency**: Runs after T013-AGENT and T013-DOC-CIT.
+- [ ] T013-CALIB-VAL [US1] **Calibration Curve Validation**: Implement logic in `code/agents/validator.py` to validate the specific arXiv ID or URL for the calibration curves mentioned in the spec for arXiv:2305.06325 (if distinct from the main paper).
+ 1. Identify the specific file or section in the arXiv source containing calibration curves.
+ 2. Invoke the Reference-Validator Agent for the identified ID/URL.
+ 3. Raise `RuntimeError` if validation fails.
+ 4. **Dependency**: Runs after T013-DATA.
+- [ ] T013-CALIB-DSK [US1] **Calibration Curve Data Fetch**: Implement logic in `code/data/download.py` to specifically fetch and parse the "calibration curves" data file mentioned in the spec for arXiv:2305.06325.
+ 1. Identify the specific file containing calibration curves within the arXiv:2305.06325 tarball.
+ 2. Download and store in `data/raw/calibration/`.
+ 3. Parse the file to extract force-vs-separation data or calibration parameters.
+ 4. **Dependency**: Runs after T013-CALIB-VAL.
+- [ ] T013-PARSE [US1] **Parser**: Implement logic in `code/data/parsers.py` to parse the raw CSV files extracted by T013‑DATA and T013-CALIB-DSK: read headers, map columns to force, separation, and uncertainty fields, and construct intermediate `HarmonizedDataset` objects. **Dependency**: Runs after T013-DATA, T013-CALIB-VAL, and T013-CALIB-DSK.
+- [X] T014 [P] [US1] Implement unit conversion (dynes → N, micrometers → m) and grid alignment in `code/data/harmonize.py`. **Edge‑case handling**: Detect non‑overlapping separation ranges; interpolate missing points or exclude non‑overlapping regions and log a warning as required by the spec.
 - [ ] T015-COV [US1] **Covariance Construction**: Implement construction of a **full covariance matrix** in `code/data/harmonize.py` by combining statistical uncertainties and systematic error budgets.
- 1. Where systematic correlations are provided, populate off‑diagonal entries accordingly.
- 2. If only independent errors are available, the resulting matrix will be diagonal. **Justification**: Document this as a valid 'full' matrix under current data constraints.
- 3. **Sensitivity Analysis**: Implement logic to construct a **banded covariance matrix** (bandwidth = 20) to test the impact of unmodeled correlations as required by the Plan's Complexity Tracking.
- 4. Verify the matrix is positive‑definite using `scipy.linalg.cholesky` with `check_finite=False` and a tolerance for eigenvalues. Raise an error if not.
- 5. Output as `data/processed/covariance_matrix.npy`. **Dependency**: Runs after T014.
+ 1. **Primary Strategy**: Attempt to construct a full matrix including off-diagonal terms if the source data provides systematic correlation information.
+ 2. **Documentation Prerequisite**: If the source data explicitly lacks off-diagonal terms, **first** document this absence in the output metadata as a prerequisite for the fallback.
+ 3. **Fallback Strategy**: If and only if the source data explicitly lacks off-diagonal terms (after documentation), construct a diagonal matrix.
+ 4. **Sensitivity Analysis**: Implement logic to construct a **banded covariance matrix** (bandwidth = 20) to test the impact of unmodeled correlations as required by the Plan's Complexity Tracking.
+ 5. Verify the matrix is positive‑definite using `scipy.linalg.cholesky` with `check_finite=False` and a tolerance for eigenvalues. Raise an error if not.
+ 6. Output as `data/processed/covariance_matrix.npy`. **Dependency**: Runs after T014.
 
 **Checkpoint**: User Story 1 should now be fully functional and testable independently.
 
@@ -120,18 +141,17 @@
 
 - [ ] T021 [P] [US2] Implement Newtonian and Yukawa‑modified force models in `code/models/physics.py`.
 - [ ] T022 [US2] Implement log‑likelihood function using the **full** covariance matrix from T015‑COV. Employ Cholesky decomposition for numerical stability. **Dependency**: Runs after T015‑COV.
-- [ ] T027-SUBSAMPLE [US2] **Feasibility & Subsampling**: Implement logic in `code/data/config.py` to decide whether to subsample based on an *estimated* runtime exceeding the **2.5-hour** performance goal.
- 1. Estimate runtime using a simple heuristic (e.g., `runtime ≈ 0.001 s × N_points`) **after T022 is fully implemented**.
- 2. If estimated runtime > 2.5 h, set mode = "subsample" and select the first 2000 points (or the largest subset that keeps estimated runtime ≤ 2.5 h).
- 3. Record the mode and selected indices in `data/processed/data_config.json`.
- 4. When subsampling, the covariance matrix is stored as a **block‑diagonal** matrix (bandwidth = 20) to retain local correlation structure.
- 5. If estimated runtime ≤ 2.5 h, mode = "full".
- 6. **Output**: `data/processed/data_config.json`. **Dependency**: Runs after T022 (log-likelihood implementation complete).
+- [ ] T027-SUBSAMPLE [US2] **Feasibility & Subsampling**: Implement logic in `code/data/config.py` to decide whether to subsample based on an *estimated* runtime.
+ 1. **Estimation Formula**: Measure the actual wall-clock time taken for the first 100 steps of the MCMC run (batch). Project the total runtime using: `total_estimated_time = (batch_wall_time /) * 5000`.
+ 2. **Threshold**: If `total_estimated_time > 5.5` hours (leaving a 0.5-hour buffer for retries within the 6-hour limit), set mode = "subsample" and select the first 2000 points (or the largest subset that keeps estimated runtime ≤ 5.5h).
+ 3. **Recording**: Record the mode and selected indices in `data/processed/data_config.json`.
+ 4. **Covariance Handling**: When subsampling, the covariance matrix is stored as a **block‑diagonal** matrix (bandwidth = 20) to retain local correlation structure.
+ 5. **Output**: `data/processed/data_config.json`. **Dependency**: Runs after T022 (log-likelihood implementation complete).
 - [ ] T023-MCMC [US2] **MCMC Execution**: Implement `emcee` runner in `code/inference/mcmc.py`.
  1. Run in **batches** of steps with 100 walkers.
  2. After each batch, compute the Gelman‑Rubin statistic.
- 3. **Stop Condition**: If `GR < 1.01`, stop immediately. If `GR >= 1.01` after 5000 steps, **continue** to 10000 steps. If `GR >= 1.01` after 10000 steps, log a warning `"MCMC chains did not fully converge (GR = …)"` and flag the result as unreliable.
- 4. **Timeout Enforcement**: Implement a hard wall-clock timeout. If the limit is reached before convergence, stop the run, log `"TIME_LIMIT_REACHED"`, and flag the result. Do NOT continue beyond the limit.
+ 3. **Stop Condition**: Run until Gelman‑Rubin < 1.01. Extend steps indefinitely if convergence is not met by 5000 steps. Do NOT impose a hard step cap.
+ 4. **Timeout Enforcement**: Implement a hard wall-clock timeout of a fixed duration. If the limit is reached before convergence, stop the run, log `"TIME_LIMIT_REACHED"`, and flag the result as unreliable. Do NOT attempt to re-run after the timeout.
  5. Store chains in `data/results/mcmc_chains.npy`. **Dependency**: Runs after T022 and T027‑SUBSAMPLE.
 - [ ] T024 [US2] Implement `dynesty` nested sampler for both Newtonian and Yukawa models in `code/inference/nested.py`.
 - [ ] T025-INJECTION [US2] **Injection‑Recovery Test**: Implement `code/robustness/injection.py`.
@@ -152,7 +172,7 @@
 
 ## Phase 5: User Story 3 - Robustness and Sensitivity Analysis (Priority: P3)
 
-**Goal**: Perform leave‑one‑experiment‑out cross‑validation and systematic uncertainty inflation tests to ensure result stability.
+**Goal**: Perform leave‑one‑experiment‑out cross-validation and systematic uncertainty inflation tests to ensure result stability.
 
 **Independent Test**: Run `code/robustness/cross_val.py` and `code/robustness/uncertainty.py`; verify Bayes factors and credible‑upper‑limit shifts stay < 15% across all iterations.
 
@@ -163,15 +183,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement leave‑one‑experiment‑out cross‑validation loop in `code/robustness/cross_val.py`.
+- [ ] T030 [US3] Implement leave‑one‑experiment‑out cross-validation loop in `code/robustness/cross_val.py`.
  1. **Primary method**: If `runs ≥ 3`, iteratively omit one experimental run, recompute the harmonized dataset, and re‑run inference.
  2. **Fallback method**: If `runs < 3`, perform **row bootstrap resampling** with **N = 1000** samples (as stipulated in the plan). For each bootstrap sample, recompute the diagonal (or block‑diagonal) covariance and re‑run inference.
  3. Store each iteration's 95 % credible upper limit for α for later analysis. **Dependency**: Runs after T014, T015, and T023‑MCMC.
-- [ ] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read inflation factor from `code/config.py`. Apply it multiplicatively to the covariance matrix. Verify that the Bayes factor changes by a negligible amount; log the result. **Dependency**: Runs after T023‑MCMC.
-- [ ] T032 [US3] Implement parallel execution of robustness iterations using `multiprocessing`.
-- [ ] T033 [US3] Calculate the **coefficient of variation (CV)** of the credible‑upper‑limits (95th percentile) across all robustness iterations (`CV = (std / mean) × 100`).
- 1. **Artifact**: Write `data/results/robustness_metrics.json` containing `cv_value`, `threshold` (15.0), and `pass` (boolean: `cv_value < 15.0`).
- 2. If `pass` is false, flag the result as "unstable" in the report. **Dependency**: Runs after T030.
+- [ ] T031 [US3] Implement systematic uncertainty inflation test in `code/robustness/uncertainty.py`. **Parameter**: Read `INFLATION_FACTOR` from `code/config.py`. If missing, use default value `1.1`. Apply it multiplicatively to the covariance matrix. Verify that the Bayes factor changes by a negligible amount; log the result. **Dependency**: Runs after T023‑MCMC.
+- [ ] T032-CV [US3] Implement parallel execution of cross-validation iterations in `code/robustness/cross_val.py` using `concurrent.futures.ProcessPoolExecutor` with `max_workers` set to available CPU cores. The unit of work is the `run_inference_for_subset` function for each left-out run.
+- [ ] T032-UNC [US3] Implement parallel execution of uncertainty inflation iterations in `code/robustness/uncertainty.py` using `concurrent.futures.ProcessPoolExecutor`. The unit of work is the `run_inference_with_inflated_covariance` function for each inflation factor.
+- [ ] T033 [US3] Calculate the robustness metrics in `code/robustness/metrics.py`.
+ 1. **Metric 1**: Calculate the Coefficient of Variation (CV) of the credible‑upper‑limits (95th percentile) across all robustness iterations (`CV = (std / mean) * 100`).
+ 2. **Metric 2**: Calculate the **relative shift**: `(max_limit - min_limit) / mean_limit`.
+ 3. **Acceptance Criterion**: Verify `relative_shift < 0.15` ([deferred]) as defined in SC-003.
+ 4. **Artifact**: Write `data/results/robustness_metrics.json` containing `cv_value`, `relative_shift`, `threshold` (0.15), and `pass` (boolean: `relative_shift < 0.15`).
+ 5. If `pass` is false, flag the result as "unstable" in the report. **Dependency**: Runs after T030.
 - [ ] T038 [US2/US3] **Single Source of Truth & SC‑002 Verification**:
  1. Load Bayes factor `K` from the primary inference (`data/results/bayes_factor.json`).
  2. Load null‑simulation baseline statistics (`mean`, `std`) from `data/results/null_baseline_report.json`.
@@ -200,7 +224,7 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies – can start immediately. **T001 must run first**.
+- **Setup (Phase 1)**: No dependencies – can start immediately. **T001-ROOT must run first**.
 - **Foundational (Phase 2)**: Depends on Setup completion – BLOCKS all user stories.
 - **User Stories (Phase 3‑5)**: All depend on Foundational completion.
  - User Story 1 can start after Phase 2.

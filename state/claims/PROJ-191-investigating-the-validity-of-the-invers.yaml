@@ -1875,3 +1875,857 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-25T06:45:21Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 2
+  canonical: Validation of arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_d3d1fa7f
+  context: "T013-AGENT: Implement logic in code/agents/validator.py to invoke the\
+    \ official Reference\u2011Validator Agent CLI. Verify arXiv:2106.08611 and arXiv:2305.06325."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Verify arXiv:2106.08611 and arXiv:2305.06325.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:42:17Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Verify arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_f7312a4e
+  context: 'Task T013-AGENT requires implementing logic to invoke the Reference-Validator
+    Agent CLI. 1. Command: reference-validator --arxiv-id <id>. ... 4. Verify arXiv:2106.08611
+    and arXiv:2305.06325.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Verify arXiv:2106.08611 and arXiv:2305.06325.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:44:12Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: MCMC run until Gelman-Rubin statistic is less than 1.01
+  claim_id: c_5756072a
+  context: 'Task T023-MCMC implementation details: 3. Stop Condition: Run until Gelman-Rubin
+    < 1.01. Extend steps indefinitely if convergence is not met by 5000 steps.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MCMC_run_until_Gelman-Rubin_statistic_is_less_than_1.01
+  kind: magnitude
+  raw_text: Run until Gelman-Rubin < 1.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:44:57Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bayes factors and credible upper limit shifts less than 15 percent across
+    iterations
+  claim_id: c_4010ed76
+  context: 'Independent Test for User Story 3: Run code/robustness/cross_val.py and
+    code/robustness/uncertainty.py; verify Bayes factors and credible-upper-limit
+    shifts stay < 15% across all iterations.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bayes_factors_and_credible_upper_limit_shifts_less_than_15_p
+  kind: magnitude
+  raw_text: Verify Bayes factors and credible-upper-limit shifts stay < 15% across
+    all iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:45:23Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Row bootstrap resampling with 1000 samples
+  claim_id: c_3f75a305
+  context: 'Task T030 fallback method: If runs < 3, perform row bootstrap resampling
+    with N = 1000 samples (as stipulated in the plan).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform row bootstrap resampling with N = 1000 samples (as stipulated
+    in the plan).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:46:49Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: SC002 Kass Raftery pass condition is Bayes factor greater than 3
+  claim_id: c_93c8ef42
+  context: 'Task T038: 3. Compute SC002_KASS_RAFTERY_PASS = (K > 3).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SC002_Kass_Raftery_pass_condition_is_Bayes_factor_greater_th
+  kind: magnitude
+  raw_text: Compute SC002_KASS_RAFTERY_PASS = (K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:48:37Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: False positive condition is Bayes factor K greater than 3
+  claim_id: c_12383639
+  context: 'Task T026-NULL-SIM: 3. Compute false_positive = (Bayes_factor_K > 3).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_positive_condition_is_Bayes_factor_K_greater_than_3
+  kind: magnitude
+  raw_text: Compute false_positive = (Bayes_factor_K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:49:14Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Use emcee MCMC for posteriors of alpha and lambda and dynesty for Bayesian
+    evidence
+  claim_id: c_4f782fe0
+  context: "Phase 4 Goal: Run emcee MCMC to estimate posteriors for \u03B1 and \u03BB\
+    , and dynesty nested sampling to compute Bayesian evidence for model comparison."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_emcee_MCMC_for_posteriors_of_alpha_and_lambda_and_dynest
+  kind: entity_fact
+  raw_text: Run emcee MCMC to estimate posteriors for alpha and lambda, and dynesty
+    nested sampling to compute Bayesian evidence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:49:52Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: MCMC run with 100 walkers
+  claim_id: c_1e775091
+  context: 'Task T023-MCMC: 1. Run in batches of steps with 100 walkers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run in batches of steps with 100 walkers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:50:23Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: MCMC extends steps indefinitely if convergence not met by 5000 steps
+  claim_id: c_1420606b
+  context: 'Task T023-MCMC: 3. Stop Condition: Run until Gelman-Rubin < 1.01. Extend
+    steps indefinitely if convergence is not met by 5000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extend steps indefinitely if convergence is not met by 5000 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:50:59Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Subsampling mode triggered if estimated runtime exceeds 5.5 hours
+  claim_id: c_a0d4ed94
+  context: 'Task T027-SUBSAMPLE: 2. Threshold: If total_estimated_time > 5.5 hours
+    (leaving a 0.5-hour buffer for retries within the 6-hour limit), set mode = subsample...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_estimated_time > 5.5 hours, set mode = subsample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:50:59Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Select first 2000 points for subsampling
+  claim_id: c_899f24e8
+  context: "Task T027-SUBSAMPLE: 2. Threshold: ... set mode = subsample and select\
+    \ the first 2000 points (or the largest subset that keeps estimated runtime \u2264\
+    \ 5.5h)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_first_2000_points_for_subsampling
+  kind: magnitude
+  raw_text: Select the first 2000 points (or the largest subset that keeps estimated
+    runtime <= 5.5h).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:51:37Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Banded covariance matrix with bandwidth 20
+  claim_id: c_332d74b1
+  context: 'Task T015-COV: 4. Sensitivity Analysis: Implement logic to construct a
+    banded covariance matrix (bandwidth = 20) to test the impact of unmodeled correlations
+    as required by the Plan''s Complexity Tracking.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Construct a banded covariance matrix (bandwidth = 20) to test the impact
+    of unmodeled correlations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:52:11Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Warning logged if fewer than 3 experimental runs for leave-one-out cross-validation
+  claim_id: c_7adc9797
+  context: 'Task T013-DATA: 4. If len(runs) < 3: log a warning Insufficient runs (<3)
+    for leave-one-out cross-validation; robustness stage will use bootstrap fallback.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_logged_if_fewer_than_3_experimental_runs_for_leave-o
+  kind: magnitude
+  raw_text: If len(runs) < 3, log a warning Insufficient runs (<3) for leave-one-out
+    cross-validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:53:32Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Count independent experimental runs by scanning for *_run*.csv files
+  claim_id: c_6cf02ace
+  context: 'Task T013-DATA: 3. Scan for files matching *_run*.csv (or metadata experiment_id)
+    to count independent experimental runs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Count_independent_experimental_runs_by_scanning_for_*_run*.c
+  kind: entity_fact
+  raw_text: Scan for files matching *_run*.csv to count independent experimental runs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:53:53Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Measure wall-clock time for first 100 MCMC steps
+  claim_id: c_30cdff46
+  context: 'Task T027-SUBSAMPLE: 1. Estimation Formula: Measure the actual wall-clock
+    time taken for the first 100 steps of the MCMC run (batch).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Measure the actual wall-clock time taken for the first 100 steps of the
+    MCMC run (batch).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:54:17Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Total estimated runtime projection formula using 5000 steps
+  claim_id: c_53036b2d
+  context: 'Task T027-SUBSAMPLE: 1. Estimation Formula: ... Project the total runtime
+    using: total_estimated_time = (batch_wall_time /) * 5000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Project the total runtime using: total_estimated_time = (batch_wall_time
+    / 100) * 5000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:54:59Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Default systematic uncertainty inflation factor is 1.1
+  claim_id: c_7aae4258
+  context: 'Task T031: Read INFLATION_FACTOR from code/config.py. If missing, use
+    default value 1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If default value for INFLATION_FACTOR is missing, use default value 1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:55:33Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Verify positive-definite matrix using scipy.linalg.cholesky with check_finite
+    false
+  claim_id: c_5bd6c68c
+  context: 'Task T015-COV: 5. Verify the matrix is positive-definite using scipy.linalg.cholesky
+    with check_finite=False and a tolerance for eigenvalues.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_positive-definite_matrix_using_scipy.linalg.cholesky
+  kind: entity_fact
+  raw_text: Verify the matrix is positive-definite using scipy.linalg.cholesky with
+    check_finite=False.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:56:05Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 2
+  canonical: Verify arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_3ea3586b
+  context: Implement logic in code/agents/validator.py to invoke the official Reference-Validator
+    Agent CLI. Verify arXiv:2106.08611 and arXiv:2305.06325.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Verify arXiv:2106.08611 and arXiv:2305.06325.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:56:48Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Verify positive-definite matrix using scipy.linalg.cholesky with check_finite=False
+  claim_id: c_7d88eebe
+  context: Verify the matrix is positive-definite using scipy.linalg.cholesky with
+    check_finite=False and a tolerance for eigenvalues. Raise an error if not.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_positive-definite_matrix_using_scipy.linalg.cholesky
+  kind: entity_fact
+  raw_text: Verify the matrix is positive-definite using scipy.linalg.cholesky with
+    check_finite=False and a tolerance for eigenvalues.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:57:18Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Run MCMC until Gelman-Rubin statistic is less than 1.01
+  claim_id: c_8c8724b6
+  context: 'Run in batches of steps with 100 walkers. After each batch, compute the
+    Gelman-Rubin statistic. Stop Condition: Run until Gelman-Rubin < 1.01.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_MCMC_until_Gelman-Rubin_statistic_is_less_than_1.01
+  kind: magnitude
+  raw_text: Run until Gelman-Rubin < 1.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:57:21Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Run MCMC in batches with 100 walkers
+  claim_id: c_5428bfa8
+  context: Run in batches of steps with 100 walkers. After each batch, compute the
+    Gelman-Rubin statistic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run in batches of steps with 100 walkers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:57:21Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Extend MCMC steps indefinitely if convergence not met by 5000 steps
+  claim_id: c_54bd5a63
+  context: 'Stop Condition: Run until Gelman-Rubin < 1.01. Extend steps indefinitely
+    if convergence is not met by 5000 steps. Do NOT impose a hard step cap.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extend steps indefinitely if convergence is not met by 5000 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:57:22Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Define false positive as Bayes factor K greater than 3
+  claim_id: c_2071306e
+  context: Compute false_positive = (Bayes_factor_K > 3). Output data/results/null_baseline_report.json
+    with true_alpha, recovered_alpha_median, bayes_factor_K, false_positive_detected,
+    and SC002_BASELINE_PASS.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_false_positive_as_Bayes_factor_K_greater_than_3
+  kind: magnitude
+  raw_text: Compute false_positive = (Bayes_factor_K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:57:25Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Perform row bootstrap resampling with 1000 samples
+  claim_id: c_8d8db5f9
+  context: If runs < 3, perform row bootstrap resampling with N = 1000 samples (as
+    stipulated in the plan). For each bootstrap sample, recompute the diagonal (or
+    block-diagonal) covariance and re-run inference.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform row bootstrap resampling with N = 1000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:57:25Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Verify relative shift in credible upper limits is less than 0.15
+  claim_id: c_6f1e1d74
+  context: 'Acceptance Criterion: Verify relative_shift < 0.15 ([deferred]) as defined
+    in SC-003. Artifact: Write data/results/robustness_metrics.json containing cv_value,
+    relative_shift, threshold (0.15), and pass.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_relative_shift_in_credible_upper_limits_is_less_than
+  kind: magnitude
+  raw_text: Verify relative_shift < 0.15.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:58:06Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Define SC002 Kass-Raftery pass condition as Bayes factor K greater than
+    3
+  claim_id: c_4baf34d7
+  context: "Compute SC002_KASS_RAFTERY_PASS = (K > 3). Compute SC_BASELINE_PASS =\
+    \ (K < baseline_mean + 2 \xD7 baseline_std)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_SC002_Kass-Raftery_pass_condition_as_Bayes_factor_K_g
+  kind: magnitude
+  raw_text: Compute SC002_KASS_RAFTERY_PASS = (K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:58:08Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Define SC002 baseline pass condition as K less than baseline mean plus
+    2 standard deviations
+  claim_id: c_e8936702
+  context: "Compute SC002_KASS_RAFTERY_PASS = (K > 3). Compute SC_BASELINE_PASS =\
+    \ (K < baseline_mean + 2 \xD7 baseline_std)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Define_SC002_baseline_pass_condition_as_K_less_than_baseline
+  kind: magnitude
+  raw_text: "Compute SC_BASELINE_PASS = (K < baseline_mean + 2 \xD7 baseline_std)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:59:52Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 2
+  canonical: arXiv:2106.08611 and arXiv:2305.06325 are the target datasets for validation
+  claim_id: c_16cc73da
+  context: 'T013-AGENT [US1] Validator Invocation: Implement logic in code/agents/validator.py
+    to invoke the official Reference-Validator Agent CLI. 4. Verify arXiv:2106.08611
+    and arXiv:2305.06325.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Verify arXiv:2106.08611 and arXiv:2305.06325.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:01:01Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: arXiv:2305.06325 contains calibration curves data
+  claim_id: c_47cbf877
+  context: 'T013-CALIB-VAL [US1] Calibration Curve Validation: Implement logic in
+    code/agents/validator.py to validate the specific arXiv ID or URL for the calibration
+    curves mentioned in the spec for arXiv:2305.06325 (if distinct from the main paper).
+    1. Identify the specific file or section in the arXiv source containing calibration
+    curves.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: The specific file or section in the arXiv source containing calibration
+    curves for arXiv:2305.06325 must be identified.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:01:04Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Gelman-Rubin statistic convergence threshold is 1.01
+  claim_id: c_26f56292
+  context: 'T023-MCMC [US2] MCMC Execution: Implement emcee runner in code/inference/mcmc.py.
+    3. Stop Condition: Run until Gelman-Rubin < 1.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run until Gelman-Rubin < 1.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:01:04Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: MCMC steps extended beyond 5000 if Gelman-Rubin not met
+  claim_id: c_a510fcdf
+  context: 'T023-MCMC [US2] MCMC Execution: Implement emcee runner in code/inference/mcmc.py.
+    3. Stop Condition: Run until Gelman-Rubin < 1.01. Extend steps indefinitely if
+    convergence is not met by 5000 steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extend steps indefinitely if convergence is not met by 5000 steps.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:01:05Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Injection recovery pass condition is recovered alpha median within 95%
+    CI
+  claim_id: c_82d53846
+  context: 'T025-INJECTION [US2] Injection-Recovery Test: Implement code/robustness/injection.py.
+    4. Determine pass: SC005_PASS = (recovered_alpha_median within 95 % CI of injected
+    value).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Determine pass: SC005_PASS = (recovered_alpha_median within 95 % CI of
+    injected value).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:01:28Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: False positive defined as Bayes factor K greater than 3
+  claim_id: c_903bea19
+  context: 'T026-NULL-SIM [US2] Null-Simulation Test: Implement code/robustness/null_simulation.py.
+    3. Compute false_positive = (Bayes_factor_K > 3).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_positive_defined_as_Bayes_factor_K_greater_than_3
+  kind: magnitude
+  raw_text: Compute false_positive = (Bayes_factor_K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:01:30Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling uses N=1000 samples for fallback method
+  claim_id: c_95082f4a
+  context: 'T030 [US3] Implement leave-one-experiment-out cross-validation loop in
+    code/robustness/cross_val.py. 2. Fallback method: If runs < 3, perform row bootstrap
+    resampling with N = 1000 samples (as stipulated in the plan).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each bootstrap sample, recompute the diagonal (or block-diagonal)
+    covariance and re-run inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:01:30Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Default systematic uncertainty inflation factor is 1.1
+  claim_id: c_d75280d5
+  context: 'T031 [US3] Implement systematic uncertainty inflation test in code/robustness/uncertainty.py.
+    Parameter: Read INFLATION_FACTOR from code/config.py. If missing, use default
+    value 1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If missing, use default value 1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:03:02Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Robustness metric relative shift acceptance criterion is less than 0.15
+  claim_id: c_5398a680
+  context: 'T033 [US3] Calculate the robustness metrics in code/robustness/metrics.py.
+    3. Acceptance Criterion: Verify relative_shift < 0.15 ([deferred]) as defined
+    in SC-003.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_metric_relative_shift_acceptance_criterion_is_les
+  kind: magnitude
+  raw_text: Verify relative_shift < 0.15.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:03:05Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: SC-002 Kass Raftery pass condition is Bayes factor K greater than 3
+  claim_id: c_5f2c41f0
+  context: 'T038 [US2/US3] Single Source of Truth & SC-002 Verification: 3. Compute
+    SC002_KASS_RAFTERY_PASS = (K > 3).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/SC-002_Kass_Raftery_pass_condition_is_Bayes_factor_K_greater
+  kind: magnitude
+  raw_text: Compute SC002_KASS_RAFTERY_PASS = (K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:03:08Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Verification of arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_cb34a94b
+  context: T013-AGENT task requires invoking the Reference-Validator Agent CLI to
+    verify specific arXiv IDs.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Verify arXiv:2106.08611 and arXiv:2305.06325.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:04:40Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Row bootstrap resampling with 1000 samples
+  claim_id: c_54d95f69
+  context: T030 task specifies that if runs < 3, the fallback method is row bootstrap
+    resampling with N=1000 samples as stipulated in the plan.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform row bootstrap resampling with N = 1000 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:04:40Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Bayes factors and credible-upper-limit shifts stay under 15 percent
+  claim_id: c_b45ca47e
+  context: The independent test for User Story 3 requires verifying that shifts stay
+    below 15%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Bayes factors and credible-upper-limit shifts stay < 15% across
+    all iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:04:41Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: False positive defined as Bayes factor K greater than 3
+  claim_id: c_cfdb1472
+  context: T026-NULL-SIM task defines the false positive condition based on the Bayes
+    factor threshold.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/False_positive_defined_as_Bayes_factor_K_greater_than_3
+  kind: magnitude
+  raw_text: Compute false_positive = (Bayes_factor_K > 3).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:04:43Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Gelman-Rubin statistic less than 1.01
+  claim_id: c_3b38b70b
+  context: T023-MCMC task specifies the stop condition for MCMC execution as Gelman-Rubin
+    < 1.01.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gelman-Rubin_statistic_less_than_1.01
+  kind: magnitude
+  raw_text: Run until Gelman-Rubin < 1.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:04:47Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Positive-definite verification using scipy.linalg.cholesky with check_finite
+    false
+  claim_id: c_a43010c9
+  context: T015-COV task requires verifying the covariance matrix is positive-definite
+    using specific parameters.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Positive-definite_verification_using_scipy.linalg.cholesky_w
+  kind: entity_fact
+  raw_text: Verify the matrix is positive-definite using scipy.linalg.cholesky with
+    check_finite=False.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:04:51Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Banded covariance matrix with bandwidth 20
+  claim_id: c_e55a05fb
+  context: T015-COV task includes a sensitivity analysis step to construct a banded
+    covariance matrix with bandwidth 20.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Construct a banded covariance matrix (bandwidth = 20).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:05:23Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: MCMC run with 100 walkers
+  claim_id: c_76f6ba77
+  context: T023-MCMC task specifies running the emcee runner in batches with 100 walkers.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run in batches of steps with 100 walkers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:05:23Z'
+- artifact_path: projects/PROJ-191-investigating-the-validity-of-the-invers/specs/001-investigating-the-validity-of-the-invers/tasks.md
+  attempts: 1
+  canonical: Verify arXiv:2106.08611 and arXiv:2305.06325
+  claim_id: c_a7951992
+  context: Verify arXiv:2106.08611 and arXiv:2305.06325.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: Verify arXiv:2106.08611 and arXiv:2305.06325.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T09:06:21Z'

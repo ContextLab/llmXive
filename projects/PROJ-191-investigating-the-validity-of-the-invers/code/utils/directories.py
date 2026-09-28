@@ -5,85 +5,65 @@ from pathlib import Path
 from typing import List
 from config import get_logger, setup_logging
 
-def ensure_data_directories(root_dir: Path) -> List[Path]:
+def ensure_data_directories(base_path: Path, dirs: List[str]) -> None:
     """
-    Ensure that the required data directory structure exists.
-    
-    This function implements robust 'mkdir -p' logic for the following directories:
-    - data/raw/
-    - data/processed/
-    - data/results/
+    Ensure the specified directory structure exists under base_path.
+    Uses robust mkdir -p logic (creates parents if missing, ignores if exists).
     
     Args:
-        root_dir: The root directory of the project (where 'data' is located).
-        
-    Returns:
-        A list of Path objects for the created/verified directories.
-        
-    Raises:
-        RuntimeError: If a directory cannot be created due to permissions or I/O errors.
+        base_path: The root directory to create subdirectories under.
+        dirs: List of relative directory paths to ensure exist.
     """
     logger = get_logger(__name__)
     
-    sub_dirs = [
+    for d in dirs:
+        target_path = base_path / d
+        try:
+            target_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Ensured directory: {target_path}")
+        except PermissionError:
+            logger.error(f"Permission denied creating directory: {target_path}")
+            raise
+        except OSError as e:
+            logger.error(f"OS error creating directory {target_path}: {e}")
+            raise
+
+def main() -> None:
+    """
+    Entry point for T007: Ensure directory structure for data/raw/, 
+    data/processed/, and data/results/ exists.
+    
+    This script is designed to be run as: python code/utils/directories.py
+    """
+    # Setup logging
+    setup_logging()
+    logger = get_logger(__name__)
+    
+    # Determine the project root. 
+    # The script is at code/utils/directories.py, so project root is 3 levels up.
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent.parent
+    
+    # Define the required directories relative to the project root
+    required_dirs = [
         "data/raw",
         "data/processed",
         "data/results"
     ]
     
-    created_paths = []
-    
-    for sub_dir in sub_dirs:
-        full_path = root_dir / sub_dir
-        
-        if not full_path.exists():
-            try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {full_path}")
-            except PermissionError:
-                logger.error(f"Permission denied when creating directory: {full_path}")
-                raise RuntimeError(f"Cannot create directory {full_path}: Permission denied")
-            except OSError as e:
-                logger.error(f"OS error when creating directory {full_path}: {e}")
-                raise RuntimeError(f"Cannot create directory {full_path}: {e}")
-        else:
-            if not full_path.is_dir():
-                raise RuntimeError(f"Path exists but is not a directory: {full_path}")
-            logger.debug(f"Directory already exists: {full_path}")
-        
-        created_paths.append(full_path)
-    
-    return created_paths
-
-def main():
-    """
-    Main entry point for ensuring data directories exist.
-    
-    This script is intended to be run to initialize the data storage structure
-    required by the pipeline (T007).
-    """
-    setup_logging()
-    logger = get_logger(__name__)
-    
-    # Determine project root based on script location
-    # Assuming script is at code/utils/directories.py, root is two levels up
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent.parent
-    
     logger.info(f"Project root detected at: {project_root}")
+    logger.info(f"Ensuring directories exist under: {project_root}")
     
-    try:
-        directories = ensure_data_directories(project_root)
-        logger.info("Successfully ensured all data directories exist.")
-        for d in directories:
-            logger.info(f"  - {d}")
-        return 0
-    except RuntimeError as e:
-        logger.error(f"Failed to ensure directories: {e}")
-        return 1
-    except Exception as e:
-        logger.exception(f"Unexpected error: {e}")
-        return 1
-
-if __name__ == "__main__":
-    sys.exit(main())
+    ensure_data_directories(project_root, required_dirs)
+    
+    # Verify existence
+    for d in required_dirs:
+        target = project_root / d
+        if not target.exists():
+            logger.critical(f"Failed to create directory: {target}")
+            sys.exit(1)
+        if not target.is_dir():
+            logger.critical(f"Path exists but is not a directory: {target}")
+            sys.exit(1)
+    
+    logger.info("All required directories successfully created or verified.")

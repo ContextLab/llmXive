@@ -6,14 +6,22 @@ T001:
     \ with all the specified sub\u2011directories actually exists. The implementer\
     \ must supply concrete proof that the `mkdir -p \u2026` command was run and the\
     \ full hierarchy is present."
-T003:
+T002:
+  c: false
+  h: 2c94fcd4e2a85ffe45a6b12e5efb39802ebf016bfb438a94f5faee4834a2f259
+  r: The required `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`
+    file does not exist, so the pinned dependencies are not placed in the specified
+    project directory. The existing `code/requirements.txt` is in the wrong location.
+    The task remains unfinished until the file is created at the correct path with
+    the appropriate contents.
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries\
-    \ for Black, a `.ruff.toml` or `ruff.toml`, or related setup scripts) were presented\
-    \ in the evidence, so the required artifacts to claim the task is done are missing.\
-    \ The implementer must add the actual configuration files and ensure they are\
-    \ non\u2011empty and correctly set up for ruff and black."
+  r: "No directory structure (`data/raw/`, `data/processed/`, `data/results/`) is\
+    \ shown or described in the provided artifacts; there is no code, script output,\
+    \ or file listing demonstrating that the required folders have been created with\
+    \ robust `mkdir -p` logic. The implementer\u2019s claim cannot be verified without\
+    \ concrete evidence."
 T025#1:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -3,19 +3,22 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "investigating-inverse-square-law"
+name = "investigating-the-inverse-square-law"
 version = "0.1.0"
-description = "Investigating the validity of the inverse-square law at sub-millimeter scales"
+description = "Investigating the Validity of the Inverse-Square Law at Sub-Millimeter Scales"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.24.0",
     "pandas>=2.0.0",
     "scipy>=1.10.0",
+    "pydantic>=2.0.0",
     "emcee>=3.1.0",
     "dynesty>=2.1.0",
+    "matplotlib>=3.7.0",
     "requests>=2.31.0",
     "tqdm>=4.65.0",
+    "pyyaml>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -23,6 +26,7 @@ dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
     "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
 ]
 
 [tool.black]
@@ -31,24 +35,25 @@ target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data/raw
-    | data/processed
-    | data/results
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
 
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+src = ["code", "tests"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+pythonpath = ["code"]
 addopts = "-v --tb=short"
