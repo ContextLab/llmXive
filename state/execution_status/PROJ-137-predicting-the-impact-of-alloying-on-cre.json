@@ -10,11 +10,11 @@
     "python src/models/train.py --input data/processed/synthetic_data.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-137-predicting-the-impact-of-alloying-on-cre/src/models/train.py\", line 39, in <module>\n    from src.utils.validators import validate_dataset_schema\nImportError: cannot import name 'validate_dataset_schema' from 'src.utils.validators' (/home/runner/work/llmXive/llmXive/projects/PROJ-137-predicting-the-impact-of-alloying-on-cre/src/utils/validators.py)",
     "python src/models/interpret.py --model-path models/gbr_thermo.pkl -> rc=1\n    ing-the-impact-of-alloying-on-cre/src/models/interpret.py\", line 57, in load_data_and_model\n    raise FileNotFoundError(\nFileNotFoundError: Processed data not found at /home/runner/work/llmXive/llmXive/projects/PROJ-137-predicting-the-impact-of-alloying-on-cre/data/processed/alloy_dataset_clean.csv. Please run the data pipeline (T019) first.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-137-predicting-the-impact-of-alloying-on-cre/src/models/interpret.py\", line 213, in <m"
   ],
-  "fix_rounds": 7,
+  "fix_rounds": 8,
   "model_tier": 0,
-  "total_attempts": 7,
+  "total_attempts": 8,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-27T01:59:22Z"
+  "updated_at": "2026-09-28T07:08:04Z"
 }

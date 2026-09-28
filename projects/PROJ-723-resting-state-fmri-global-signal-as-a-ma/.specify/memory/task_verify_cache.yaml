@@ -1,32 +1,3 @@
-T010:
-  c: false
-  h: ffd009dfd09ca155e1e73fab0d45d7775b865cc436a445de9eb528be2accd90a
-  r: "The required `contracts/dataset.schema.yaml` file is absent, and `code/ingestion.py`\
-    \ does not read or validate against such a schema (it uses hard\u2011coded column\
-    \ lists instead). Consequently the script cannot halt with \u201CFATAL: Dataset\
-    \ Mismatch\u201D based on the missing schema as the task demands."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or log file implementing the subject\u2011validation logic\
-    \ is provided; the claim lacks any artifact showing how fMRI and MWQ data are\
-    \ joined, how unmatched pairs are excluded, or how counts are logged. The required\
-    \ implementation and its output are missing."
-T014:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, log file, or filtered dataset was provided to demonstrate that\
-    \ per\u2011subject mean FD >\u202F0.5\u202Fmm subjects are excluded, that exclusion\
-    \ counts and IDs are logged, and that a filtered dataset is output. The required\
-    \ artifacts are missing."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, log file, or test output showing a zero\u2011variance check,\
-    \ warning, or logged exclusion count is provided; without such artifacts we cannot\
-    \ confirm the requirement was implemented. The implementer must supply the updated\
-    \ ingestion/processing code (or a diff) and example logs demonstrating the exclusion\
-    \ count."
 T024:
   c: false
   h: 1b5f1d0948df6b7c84af4970b59981403700e9652715d788eb683a0f367ba2b6

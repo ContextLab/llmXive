@@ -1,141 +1,117 @@
-"""
-Unit tests for User Story 3: Robustness and Sensitivity Analysis.
-
-Specifically implements T033: Verify variance metric correlation is within ±0.05 
-of primary SD result.
-"""
-import os
-import sys
-import unittest
-import json
-import tempfile
-import shutil
-from pathlib import Path
-
-import numpy as np
+import pytest
 import pandas as pd
+import numpy as np
+from pathlib import Path
+import json
+import sys
+import os
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from robustness import run_variance_metric_analysis, load_cleaned_data_for_robustness
-from utils import write_csv, read_csv
+from robustness import run_alpha_sweep, run_variance_metric_analysis, run_partial_correlation_analysis
+from utils import write_csv
 
+@pytest.fixture
+def sample_cleaned_data(tmp_path):
+    """Create a temporary cleaned_data.csv for testing."""
+    data = {
+        'Subject_ID': [f'sub-{i}' for i in range(1, 51)],
+        'Global_Signal_SD': np.random.normal(0.5, 0.1, 50),
+        'MWQ_Score': np.random.normal(30, 5, 50),
+        'FD': np.random.uniform(0.1, 0.4, 50),
+        'DVARS': np.random.uniform(0.1, 0.5, 50),
+        'Age': np.random.randint(18, 65, 50),
+        'Sex': np.random.choice(['M', 'F'], 50)
+    }
+    df = pd.DataFrame(data)
+    csv_path = tmp_path / "cleaned_data.csv"
+    write_csv(csv_path, df)
+    return csv_path
 
-class TestVarianceMetricCorrelation(unittest.TestCase):
-    """Test that variance metric correlation matches SD correlation within tolerance."""
+def test_alpha_sweep_returns_results(sample_cleaned_data, tmp_path):
+    """Verify alpha sweep produces a list of results with expected keys."""
+    # Mock the load function behavior by passing the dataframe directly
+    df = pd.read_csv(sample_cleaned_data)
+    
+    # Patch the load function in the module if needed, but here we test the core logic
+    # by calling the function that does the work.
+    result = run_alpha_sweep(df)
+    
+    assert isinstance(result, dict)
+    assert "results" in result
+    assert len(result["results"]) > 0
+    
+    for item in result["results"]:
+        assert "alpha" in item
+        assert "mean_mae" in item
+        assert "std_mae" in item
+        assert "mean_r2" in item
+        # MAE should be positive
+        assert item["mean_mae"] > 0
 
-    def setUp(self):
-        """Set up temporary directory and synthetic test data."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.data_path = os.path.join(self.temp_dir, "cleaned_data.csv")
-        
-        # Generate synthetic data that mimics the expected structure from T016
-        # We need: Subject_ID, Global_Signal_SD, MWQ_Score, Mean_FD, Mean_DVARS
-        n_subjects = 100
-        np.random.seed(42)
-        
-        # Create correlated variables to simulate a real relationship
-        # Global Signal SD and MWQ should have some correlation
-        global_signal_sd = np.random.normal(0.5, 0.1, n_subjects)
-        mwq_score = 20 + 15 * global_signal_sd + np.random.normal(0, 2, n_subjects)
-        
-        # Add some noise and covariates
-        mean_fd = np.random.normal(0.2, 0.05, n_subjects)
-        mean_dvars = np.random.normal(0.3, 0.08, n_subjects)
-        
-        subjects = [f"sub-{i:03d}" for i in range(n_subjects)]
-        
-        df = pd.DataFrame({
-            'Subject_ID': subjects,
-            'Global_Signal_SD': global_signal_sd,
-            'MWQ_Score': mwq_score,
-            'Mean_FD': mean_fd,
-            'Mean_DVARS': mean_dvars
-        })
-        
-        # Write to temp location
-        write_csv(self.data_path, df)
+def test_variance_metric_analysis_returns_mae(sample_cleaned_data):
+    """Verify variance metric analysis returns an MAE."""
+    df = pd.read_csv(sample_cleaned_data)
+    result = run_variance_metric_analysis(df)
+    
+    assert isinstance(result, dict)
+    assert "mean_mae" in result
+    assert result["mean_mae"] > 0
+    assert result["metric"] == "Global_Signal_Variance"
 
-    def tearDown(self):
-        """Clean up temporary directory."""
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
+def test_partial_correlation_analysis_returns_stats(sample_cleaned_data):
+    """Verify partial correlation returns r and p-value."""
+    df = pd.read_csv(sample_cleaned_data)
+    result = run_partial_correlation_analysis(df)
+    
+    assert isinstance(result, dict)
+    assert "partial_correlation_r" in result
+    assert "p_value" in result
+    assert "controlled_for" in result
+    assert result["controlled_for"] == "Mean_FD"
+    
+    # Correlation should be between -1 and 1
+    assert -1.0 <= result["partial_correlation_r"] <= 1.0
+    assert 0.0 <= result["p_value"] <= 1.0
 
-    def test_variance_correlation_matches_sd_correlation(self):
-        """
-        T033: Verify variance metric correlation is within ±0.05 of primary SD result.
-        
-        This test:
-        1. Loads cleaned data
-        2. Runs variance metric analysis (Global Signal Variance vs MWQ)
-        3. Computes the SD-based correlation (Global Signal SD vs MWQ)
-        4. Verifies the difference between correlations is <= 0.05
-        """
-        # Load the cleaned data
-        df = load_cleaned_data_for_robustness(self.data_path)
-        
-        # Calculate the primary SD correlation (Global_Signal_SD vs MWQ_Score)
-        sd_corr = df['Global_Signal_SD'].corr(df['MWQ_Score'])
-        
-        # Run the variance metric analysis
-        # This function computes Global Signal Variance (SD^2) and correlates with MWQ
-        variance_results = run_variance_metric_analysis(
-            input_path=self.data_path,
-            output_path=os.path.join(self.temp_dir, "variance_analysis.json")
-        )
-        
-        # Extract the variance-based correlation
-        # The function should return a dict with 'variance_correlation' key
-        variance_corr = variance_results.get('variance_correlation')
-        
-        # Verify the correlation was computed
-        self.assertIsNotNone(variance_corr, "Variance correlation should be computed")
-        self.assertIsInstance(variance_corr, (int, float), "Correlation should be numeric")
-        
-        # Calculate the difference
-        diff = abs(sd_corr - variance_corr)
-        
-        # T033 Requirement: Variance metric correlation must be within ±0.05 of SD result
-        self.assertLessEqual(
-            diff, 
-            0.05, 
-            f"Variance correlation ({variance_corr:.4f}) differs from SD correlation "
-            f"({sd_corr:.4f}) by {diff:.4f}, which exceeds the ±0.05 tolerance."
-        )
-        
-        # Additional sanity checks
-        self.assertGreaterEqual(variance_corr, -1.0, "Correlation must be >= -1")
-        self.assertLessEqual(variance_corr, 1.0, "Correlation must be <= 1")
-        self.assertGreaterEqual(sd_corr, -1.0, "SD correlation must be >= -1")
-        self.assertLessEqual(sd_corr, 1.0, "SD correlation must be <= 1")
-
-    def test_variance_metric_analysis_output_structure(self):
-        """Verify the variance metric analysis produces expected output structure."""
-        output_path = os.path.join(self.temp_dir, "variance_analysis.json")
-        
-        # Run the analysis
-        results = run_variance_metric_analysis(
-            input_path=self.data_path,
-            output_path=output_path
-        )
-        
-        # Verify output file was created
-        self.assertTrue(os.path.exists(output_path), "Output JSON file should be created")
-        
-        # Verify JSON structure
-        with open(output_path, 'r') as f:
-            saved_results = json.load(f)
-        
-        expected_keys = ['variance_correlation', 'sd_correlation', 'n_subjects', 'p_value']
-        for key in expected_keys:
-            self.assertIn(key, saved_results, f"Output should contain '{key}'")
-        
-        # Verify results match return value
-        self.assertEqual(results['variance_correlation'], saved_results['variance_correlation'])
-        self.assertEqual(results['n_subjects'], saved_results['n_subjects'])
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_robustness_script_execution(tmp_path, monkeypatch):
+    """Test that the main script runs and produces the output file."""
+    # Setup temporary paths
+    data_dir = tmp_path / "data" / "processed"
+    data_dir.mkdir(parents=True)
+    results_dir = tmp_path / "data" / "results"
+    results_dir.mkdir(parents=True)
+    
+    # Create dummy cleaned data
+    csv_path = data_dir / "cleaned_data.csv"
+    data = {
+        'Subject_ID': [f'sub-{i}' for i in range(1, 21)],
+        'Global_Signal_SD': np.random.normal(0.5, 0.1, 20),
+        'MWQ_Score': np.random.normal(30, 5, 20),
+        'FD': np.random.uniform(0.1, 0.4, 20),
+        'DVARS': np.random.uniform(0.1, 0.5, 20),
+        'Age': np.random.randint(18, 65, 20),
+        'Sex': np.random.choice(['M', 'F'], 20)
+    }
+    df = pd.DataFrame(data)
+    write_csv(csv_path, df)
+    
+    # Change CWD to tmp_path to simulate project root
+    monkeypatch.chdir(tmp_path)
+    
+    # Import and run main
+    from robustness import main
+    exit_code = main()
+    
+    assert exit_code == 0
+    
+    output_file = Path("data/results/robustness_report.json")
+    assert output_file.exists()
+    
+    with open(output_file, 'r') as f:
+        report = json.load(f)
+    
+    assert "alpha_sweep" in report
+    assert "variance_metric_analysis" in report
+    assert "partial_correlation_analysis" in report

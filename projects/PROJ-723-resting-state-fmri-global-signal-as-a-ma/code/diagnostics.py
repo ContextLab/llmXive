@@ -40,16 +40,23 @@ def calculate_vif(df: pd.DataFrame, feature_names: List[str]) -> Dict[str, float
     Dict[str, float]
         Dictionary mapping feature names to their VIF values.
     """
-    X = df[feature_names].values
+    # Ensure we have valid data (no NaNs) for VIF calculation
+    valid_df = df[feature_names].dropna()
+    
+    if valid_df.shape[0] < len(feature_names) + 1:
+        logger.warning(f"Insufficient samples for VIF calculation: {valid_df.shape[0]} samples, {len(feature_names)} features")
+        return {name: float('inf') for name in feature_names}
+
+    X = valid_df.values
     
     # Add intercept column for VIF calculation
     X_with_intercept = np.column_stack((np.ones(X.shape[0]), X))
     
     vif_data = {}
     for i, name in enumerate(feature_names):
-        # VIF for feature i is the VIF of the i-th column in the design matrix
-        # (skipping the intercept which is at index 0)
         try:
+            # VIF for feature i is the VIF of the i-th column in the design matrix
+            # (skipping the intercept which is at index 0)
             vif = variance_inflation_factor(X_with_intercept, i + 1)
             vif_data[name] = float(vif)
         except Exception as e:

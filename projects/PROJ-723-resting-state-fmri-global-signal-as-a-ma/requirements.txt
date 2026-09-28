@@ -7,5 +7,6 @@ pyyaml
 statsmodels
 scipy
 datasets
+pytest
 ruff
 black

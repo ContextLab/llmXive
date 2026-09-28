@@ -1,106 +1,143 @@
-import os
 import json
+import os
 import tempfile
+from pathlib import Path
 import numpy as np
 import pytest
-from pathlib import Path
 
-# Import the functions to test
-from model_report import calculate_empirical_p_value, compute_null_distribution_stats, generate_model_report, load_existing_results
+from model_report import (
+    load_existing_results,
+    compute_null_distribution_stats,
+    calculate_empirical_p_value,
+    generate_model_report
+)
+from utils import write_json, read_json
 
-class TestEmpiricalPValue:
-    def test_p_value_calculation_basic(self):
-        """Test basic p-value calculation with known values."""
-        observed_mae = 0.5
-        null_maes = np.array([0.1, 0.2, 0.3, 0.4, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1])
-        
-        # Count <= 0.5: 0.1, 0.2, 0.3, 0.4 -> 4 items
-        # p = (4 + 1) / (10 + 1) = 5/11
-        expected_p = 5 / 11
-        
-        p_value = calculate_empirical_p_value(observed_mae, null_maes)
-        assert abs(p_value - expected_p) < 1e-6
+@pytest.fixture
+def temp_results_dir():
+    """Create a temporary directory for test results."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
-    def test_p_value_all_lower(self):
-        """Test when all null values are lower than observed."""
-        observed_mae = 10.0
-        null_maes = np.array([1.0, 2.0, 3.0])
-        
-        # Count <= 10: 3 items
-        # p = (3 + 1) / (3 + 1) = 1.0
-        p_value = calculate_empirical_p_value(observed_mae, null_maes)
-        assert p_value == 1.0
+def test_load_existing_results_missing_files(temp_results_dir):
+    """Test loading results when files are missing."""
+    results = load_existing_results(temp_results_dir)
+    
+    assert results["null_distribution"] is None
+    assert results["delta_r2"] is None
 
-    def test_p_value_all_higher(self):
-        """Test when all null values are higher than observed."""
-        observed_mae = 0.0
-        null_maes = np.array([1.0, 2.0, 3.0])
-        
-        # Count <= 0: 0 items
-        # p = (0 + 1) / (3 + 1) = 0.25
-        p_value = calculate_empirical_p_value(observed_mae, null_maes)
-        assert abs(p_value - 0.25) < 1e-6
+def test_load_existing_results_with_files(temp_results_dir):
+    """Test loading results when files exist."""
+    # Create mock null distribution file
+    null_data = {
+        "mae_values": [0.1, 0.2, 0.3, 0.4, 0.5],
+        "count": 5
+    }
+    write_json(temp_results_dir / "null_distribution.json", null_data)
+    
+    # Create mock delta_r2 file
+    delta_r2_data = {
+        "delta_r2": 0.05,
+        "status": "success",
+        "full_model_r2": 0.2,
+        "reduced_model_r2": 0.15
+    }
+    write_json(temp_results_dir / "delta_r2.json", delta_r2_data)
+    
+    results = load_existing_results(temp_results_dir)
+    
+    assert results["null_distribution"] is not None
+    assert results["delta_r2"] is not None
+    assert results["null_distribution"]["count"] == 5
+    assert results["delta_r2"]["delta_r2"] == 0.05
 
-    def test_p_value_empty_null(self):
-        """Test that empty null distribution raises error."""
-        observed_mae = 0.5
-        null_maes = np.array([])
-        
-        with pytest.raises(ValueError):
-            calculate_empirical_p_value(observed_mae, null_maes)
+def test_compute_null_distribution_stats():
+    """Test computing statistics from null distribution."""
+    null_data = {
+        "mae_values": [0.1, 0.2, 0.3, 0.4, 0.5]
+    }
+    
+    stats = compute_null_distribution_stats(null_data)
+    
+    assert stats["mean"] == 0.3
+    assert stats["std"] == pytest.approx(0.1414, rel=0.01)
+    assert stats["min"] == 0.1
+    assert stats["max"] == 0.5
+    assert stats["count"] == 5
 
-class TestNullDistributionStats:
-    def test_stats_calculation(self):
-        """Test calculation of null distribution statistics."""
-        null_maes = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
-        
-        stats = compute_null_distribution_stats(null_maes)
-        
-        assert stats["mean_mae"] == 3.0
-        assert stats["std_mae"] == pytest.approx(np.std(null_maes))
-        assert stats["min_mae"] == 1.0
-        assert stats["max_mae"] == 5.0
-        assert stats["count"] == 5
+def test_compute_null_distribution_stats_none():
+    """Test computing statistics when null data is None."""
+    stats = compute_null_distribution_stats(None)
+    
+    assert stats["mean"] == 0.0
+    assert stats["std"] == 0.0
+    assert stats["min"] == 0.0
+    assert stats["max"] == 0.0
+    assert stats["count"] == 0
 
-class TestModelReportGeneration:
-    def test_report_generation(self):
-        """Test generation of model report JSON."""
-        observed_stats = {"mae": 0.5, "r2": 0.3}
-        null_stats = {"mean_mae": 0.6, "std_mae": 0.1}
-        p_value = 0.03
-        
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-            output_path = f.name
-        
-        try:
-            report = generate_model_report(observed_stats, null_stats, p_value, output_path)
-            
-            # Verify file exists and content matches
-            assert os.path.exists(output_path)
-            
-            with open(output_path, 'r') as f:
-                saved_report = json.load(f)
-            
-            assert saved_report["empirical_p_value"] == p_value
-            assert saved_report["observed_stats"]["mae"] == 0.5
-            assert saved_report["interpretation"] == "Significant"
-        finally:
-            os.unlink(output_path)
+def test_calculate_empirical_p_value():
+    """Test calculating empirical p-value."""
+    null_data = {
+        "mae_values": [0.1, 0.2, 0.3, 0.4, 0.5]
+    }
+    observed_mae = 0.25
+    
+    # count(mae <= 0.25) = 2 (0.1, 0.2)
+    # p = (2 + 1) / (5 + 1) = 3/6 = 0.5
+    p_value = calculate_empirical_p_value(null_data, observed_mae)
+    
+    assert p_value == 0.5
 
-class TestLoadExistingResults:
-    def test_load_valid_file(self):
-        """Test loading a valid JSON file."""
-        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
-            json.dump({"observed_stats": {"mae": 0.5}}, f)
-            temp_path = f.name
-        
-        try:
-            data = load_existing_results(temp_path)
-            assert data["observed_stats"]["mae"] == 0.5
-        finally:
-            os.unlink(temp_path)
+def test_calculate_empirical_p_value_none():
+    """Test calculating p-value when null data is None."""
+    p_value = calculate_empirical_p_value(None, 0.25)
+    
+    assert p_value == 1.0
 
-    def test_load_missing_file(self):
-        """Test that loading a missing file raises FileNotFoundError."""
-        with pytest.raises(FileNotFoundError):
-            load_existing_results("nonexistent_file.json")
+def test_generate_model_report(temp_results_dir):
+    """Test generating the complete model report."""
+    # Create mock null distribution file
+    null_data = {
+        "mae_values": [0.1, 0.2, 0.3, 0.4, 0.5],
+        "count": 5
+    }
+    write_json(temp_results_dir / "null_distribution.json", null_data)
+    
+    # Create mock delta_r2 file
+    delta_r2_data = {
+        "delta_r2": 0.05,
+        "status": "success",
+        "full_model_r2": 0.2,
+        "reduced_model_r2": 0.15
+    }
+    write_json(temp_results_dir / "delta_r2.json", delta_r2_data)
+    
+    # Observed metrics
+    observed_metrics = {
+        "mean_mae": 0.18,
+        "mean_r": 0.35,
+        "mean_r2": 0.12,
+        "observed_mae": 0.18
+    }
+    
+    output_path = temp_results_dir / "model_report.json"
+    report = generate_model_report(
+        base_path=temp_results_dir,
+        output_path=output_path,
+        observed_metrics=observed_metrics
+    )
+    
+    # Verify the report structure
+    assert report["mean_mae"] == 0.18
+    assert report["mean_r"] == 0.35
+    assert report["mean_r2"] == 0.12
+    assert report["p_value"] == 0.5  # Calculated from null distribution
+    assert report["observed_mae"] == 0.18
+    assert report["permutation_count"] == 5
+    assert report["null_distribution_stats"]["count"] == 5
+    assert report["reduced_model_stats"]["delta_r2"] == 0.05
+    
+    # Verify file was written
+    assert output_path.exists()
+    written_report = read_json(output_path)
+    assert written_report == report
