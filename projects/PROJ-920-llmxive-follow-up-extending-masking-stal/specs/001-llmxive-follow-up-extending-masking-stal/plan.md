@@ -9,7 +9,7 @@ This feature implements a synthetic simulation pipeline to investigate how the *
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `numpy`, `pandas`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn` (CPU-only), `scipy`  
 **Storage**: Local JSON/CSV files under `data/` (streamed to disk to manage RAM)  
 **Testing**: `pytest` (unit tests for entropy calculation, simulation logic, and regression output)  
@@ -87,4 +87,4 @@ projects/PROJ-920-llmxive-follow-up-extending-masking-stal/
 | **Natural Splines in GLM** | Required to capture the complex interaction surface (piecewise regime shift) between horizon and success. | Standard linear terms would fail to model the non-linear "tipping point" where high density requires longer horizons. |
 | **Streaming to Disk** | 2,000 trajectories + simulation logs could approach RAM limits if held in memory. | In-memory storage risks OOM on 7 GB limit; streaming ensures robustness. |
 | **Composite Density Metric** | FR-008 defines density as entropy + technical tokens. | Pure entropy ignores domain-specific technicality; pure technical ratio ignores information density. |
-| **[deferred] Trajectories** | Required for statistical power to detect interaction effect across 30 bins with natural splines. | A lower count results in approximately a small number of samples per bin, which is underpowered for logistic regression with splines. |
+| **[deferred] Trajectories** | Required for statistical power to detect interaction effect across A variable number of bins with natural splines. | A lower count results in approximately a small number of samples per bin, which is underpowered for logistic regression with splines. |

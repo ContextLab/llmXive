@@ -1023,3 +1023,163 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T05:48:56Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Shannon Entropy zero values are clamped to a small positive constant
+  claim_id: c_2b7e81a3
+  context: 'Requirement: If Shannon Entropy calculation results in a negligible or
+    zero value, clamp the value to a small positive constant...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Shannon_Entropy_zero_values_are_clamped_to_a_small_positive
+  kind: causal
+  raw_text: If Shannon Entropy calculation results in a negligible or zero value,
+    clamp the value to a small positive constant to prevent division-by-zero errors
+    in downstream density calculations.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:43:56Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Trajectory count N calculated as max(500, num_bins * 10)
+  claim_id: c_a9e4a118
+  context: 'Dynamic Count: The task MUST calculate the required trajectory count (N)
+    dynamically... and min_samples_per_bin is 10 (derived from FR-003 power analysis).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The task MUST calculate the required trajectory count (N) dynamically:
+    N = max(500, num_bins * min_samples_per_bin), where min_samples_per_bin is 10.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:46:51Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Simulation reports failure for retention horizon < 5 turns and success
+    for >= 5 turns
+  claim_id: c_7ff63491
+  context: "The system must correctly report 'failure' when the retention horizon\
+    \ is set to < 5 turns, and 'success' when \u2265 5 turns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system must correctly report failure when the retention horizon is\
+    \ set to < 5 turns, and success when \u2265 5 turns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:46:51Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Retrieval probability determined by sigmoid(alpha * (density - threshold))
+  claim_id: c_1f3fc79c
+  context: "Implement the 'Heuristic Solver' using the specific logistic function\
+    \ P(retrieval) = sigmoid(\u03B1 * (density - threshold)) to determine success\
+    \ probabilistically (FR-009)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retrieval_probability_determined_by_sigmoid(alpha_*_(density
+  kind: entity_fact
+  raw_text: "The logistic function P(retrieval) = sigmoid(\u03B1 * (density - threshold))\
+    \ is used to determine success probabilistically."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:46:58Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Memory limit exceeded triggers exit code 1 if Max RSS > 7168 MB
+  claim_id: c_04ec55f0
+  context: If Max RSS > 7168 (7 GB), exit with code 1 and print 'MEMORY_LIMIT_EXCEEDED'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Max RSS > 7168 MB, the script must exit with code 1 and print MEMORY_LIMIT_EXCEEDED.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:46:58Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: "Entropy per token validation tolerance is \xB10.01 bits/token"
+  claim_id: c_b15ef16e
+  context: "Run a validation check asserting that the calculated entropy per token\
+    \ for injected evidence blocks matches the requested density levels within \xB1\
+    0.01 bits/token."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The validation check asserts that the calculated entropy per token for\
+    \ injected evidence blocks matches the requested density levels within \xB10.01\
+    \ bits/token."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:47:06Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: GLM fitting fails if any bin has fewer than 10 samples
+  claim_id: c_f3b4a1af
+  context: 'If any bin has fewer than 10 samples (threshold derived from Plan Assumption:
+    Cohen f^2=0.15, power), exit with a clear error message detailing the bin counts.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLM_fitting_fails_if_any_bin_has_fewer_than_10_samples
+  kind: magnitude
+  raw_text: If any bin has fewer than 10 samples, the system must exit with an error
+    message.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:47:14Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Natural spline degrees of freedom range from 3 to 6 based on sample count
+  claim_id: c_b64afe96
+  context: Start with df=3. If the number of samples per bin is < 10, increase df
+    by 1 (capped at df=6).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Natural splines for the horizon variable start with df=3 and increase
+    by 1 if samples per bin are < 10, capped at df=6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:47:20Z'
+- artifact_path: projects/PROJ-920-llmxive-follow-up-extending-masking-stal/specs/001-llmxive-follow-up-extending-masking-stal/tasks.md
+  attempts: 1
+  canonical: Regime map plot output file size limit is 5 MB
+  claim_id: c_481a456c
+  context: "Enforce output file size limit of \u2264 5 MB (US-3 Acceptance 2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The output file size limit for the regime map plot is \u2264 5 MB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T03:47:20Z'

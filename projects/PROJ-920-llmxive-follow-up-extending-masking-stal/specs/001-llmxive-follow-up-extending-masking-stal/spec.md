@@ -9,7 +9,7 @@
 
 ### User Story 1 - Synthetic Trajectory Generation with Controlled Density (Priority: P1)
 
-As a researcher, I need a Python-based simulator that generates 500 synthetic search trajectories where "critical evidence" is injected at specific turns, and the semantic density of that evidence is explicitly parameterized (via information entropy per token), so that I can isolate the variable of interest without relying on external, noisy datasets.
+As a researcher, I need a Python-based simulator that generates A set of synthetic search trajectories where "critical evidence" is injected at specific turns, and the semantic density of that evidence is explicitly parameterized (via information entropy per token), so that I can isolate the variable of interest without relying on external, noisy datasets.
 
 **Why this priority**: This is the foundational data source. Without a mechanism to independently control semantic density and evidence age, the core hypothesis cannot be tested. It must be the first implemented component.
 
