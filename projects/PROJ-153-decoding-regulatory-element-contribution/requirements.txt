@@ -3,16 +3,7 @@ pandas
 numpy
 pyyaml
 requests
-scipy
-statsmodels
-scikit-learn
-matplotlib
-seaborn
-# New dependency for VIF calculation (already in statsmodels, but ensuring version)
-# statsmodels>=0.13.0
-# Additional for pipeline utilities
-biopython
+datasets
 pybedtools
-cooltools
-h5py
-tqdm
+# New dependency for T008
+pybedtools>=0.9.0

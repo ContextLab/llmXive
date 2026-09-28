@@ -1,15 +1,16 @@
 status: none
-intent: download 1002 Yeast Genomes eQTL dataset and GEO SRA ChIP-seq yeast TF python
-  package dataset
+intent: NCBI GEO SRA yeast stress ChIP-seq and 1002 Yeast Genomes eQTL python package
+  dataset
 required_fields:
 - chromosome
-- start
-- end
-- tf_name
+- start_position
+- end_position
+- transcription_factor
+- stress_condition
 - log2FC
 - beta1_estimate
-- adjusted_qvalue
-- gene_id
-cache_key: cc378ca681530d69f6cad0146baee33d7657b7321abd04e08874eb4bf2ab40ed
-searched_at: '2026-09-24T15:30:17.629747+00:00'
+- adjusted_q_value
+- target_gene
+cache_key: f71808368e8739a52cb32612f0725bcf086f0755fcd037088b4aa3b3e6c3d241
+searched_at: '2026-09-28T06:53:51.912855+00:00'
 retry_count: 1

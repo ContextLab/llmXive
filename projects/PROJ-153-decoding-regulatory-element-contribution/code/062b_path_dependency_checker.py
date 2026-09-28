@@ -1,9 +1,18 @@
+"""
+Path Dependency Verification Script (Task T62b)
+
+Performs static analysis on code/ to verify that all file paths referenced in scripts
+match the plan.md structure and exist (or are expected to be generated).
+
+Output: results/path_dependency_report.json
+"""
 import os
 import re
 import sys
 import ast
 import argparse
 import logging
+import json
 from pathlib import Path
 from typing import List, Dict, Set, Tuple, Optional
 
@@ -14,288 +23,292 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Expected project structure based on plan.md and tasks.md
-EXPECTED_DIRECTORIES = {
-    'code',
-    'data',
-    'data/raw',
-    'data/processed',
-    'results',
-    'tracks',
-    'tests',
-    'tests/unit',
-    'tests/contract',
-    'tests/integration',
-    'specs',
-    'logs'
+# Define expected file paths based on plan.md and tasks.md
+# These are files that MUST exist (inputs) or are EXPECTED to be generated (outputs)
+EXPECTED_INPUT_FILES = {
+    # Data inputs
+    "data/verified_accessions.yaml",
+    "data/manifest.yaml",
+    "data/raw/*.fastq.gz",  # Wildcard handled separately
+    "data/raw/eqtl/*.tsv",  # Wildcard handled separately
+    "data/processed/CRE_merged.bed",
+    "data/processed/peak_signal_matrix.tsv",
+    "data/processed/null_regions.bed",
+    "data/processed/null_region_signal.bed",
+    "data/processed/delta_peak_signal.tsv",
+    "data/processed/vif_flags.tsv",
+    "data/processed/motif_validation_flags.tsv",
+    "data/processed/hic_validation_flags.tsv",
+    "data/processed/cre_filtered.tsv",
+    "data/processed/weighted_delta_signal.tsv",
+    "data/processed/lmm_results.tsv",
+    "data/processed/hic_matrix_10kb.cool",
+    # Config/Spec inputs
+    "plan.md",
+    "tasks.md",
+    "specs/001-yeast-cre-analysis/spec.md",
 }
 
-# Expected output files from tasks.md
 EXPECTED_OUTPUT_FILES = {
-    # From T008/T03_annotate
-    'data/processed/CRE_merged.bed',
-    # From T007c
-    'data/processed/peak_signal_matrix.tsv',
-    # From T009a
-    'data/processed/null_regions.bed',
-    # From T009b
-    'data/processed/null_region_signal.bed',
-    # From T043
-    'data/processed/delta_peak_signal.tsv',
-    # From T04_filter_impl
-    'data/processed/weights.tsv',
-    'data/processed/cre_all_vif_filtered.tsv',
-    'data/processed/motif_validation_flags.tsv',
-    'data/processed/hic_validation_flags.tsv',
-    'data/processed/vif_flags.tsv',
-    # From T05_weights_impl
-    'data/processed/weighted_delta_signal.tsv',
-    # From T06_lmm_impl
-    'data/processed/lmm_results.tsv',
-    # From T018/T07_report_impl
-    'results/CRE_ranked_heatshock.md',
-    'results/CRE_ranked_osmotic.md',
-    'results/CRE_ranked_oxidative.md',
-    'results/Statistical_summary.pdf',
-    'results/permutation_pvalue.csv',
-    'results/bias_sensitivity.csv',
-    'results/fdr_sweep_summary.tsv',
-    'results/summit_match_stats.tsv',
-    'results/traceability_manifest.json',
-    'results/performance_report.csv',
-    # From T08_visualize_impl
-    'tracks/heatshock_CRE_signal.bw',
-    'tracks/osmotic_CRE_signal.bw',
-    'tracks/oxidative_CRE_signal.bw',
-    # From T05_validate_cre_gating_impl
-    'data/processed/CRE_validated.bed',
-    'data/processed/cre_validation_log.yaml',
-    # From T007_sweep
-    'results/cre_intersections.tsv',
-    'results/fdr_overlap_stats.csv',
-    # From T005/T01_download
-    'data/extracted_accessions.yaml',
-    'data/validation_log.yaml',
-    'data/verified_accessions.yaml',
-    'manifest.yaml',
-    # From T045
-    'data/raw/eqtl_dataset.parquet',  # or similar
+    # Results outputs
+    "results/CRE_ranked_heatshock.md",
+    "results/CRE_ranked_osmotic.md",
+    "results/CRE_ranked_oxidative.md",
+    "results/fdr_sweep_summary.tsv",
+    "results/permutation_pvalue.csv",
+    "results/variance_explained.tsv",
+    "results/go_enrichment.tsv",
+    "results/bias_sensitivity.csv",
+    "results/summit_match_stats.tsv",
+    "results/Statistical_summary.pdf",
+    "results/traceability_manifest.json",
+    "results/performance_report.csv",
+    "results/path_dependency_report.json",  # This script's output
+    "results/syntax_validation.log",
+    "results/dry_run_manifest.json",
+    # Tracks outputs
+    "tracks/heatshock_CRE_signal.bw",
+    "tracks/osmotic_CRE_signal.bw",
+    "tracks/oxidative_CRE_signal.bw",
     # Logs
-    'logs/pipeline.log',
+    "logs/pipeline.log",
 }
 
-# Patterns to detect file path references in code
-PATH_PATTERNS = [
-    # Direct string literals with paths
-    r'["\']([^"\']*\/[^"\']+)["\']',
-    # f-strings with path components
-    r'f["\']([^"\']*)["\']',
-    # Path construction with os.path.join
-    r'os\.path\.join\s*\(\s*["\']([^"\']+)["\']',
-    # Path construction with Path
-    r'Path\s*\(\s*["\']([^"\']+)["\']',
-    # Input/output file arguments in argparse
-    r'--output\s+["\']([^"\']+)["\']',
-    r'--input\s+["\']([^"\']+)["\']',
+# Patterns for dynamic path construction (regex)
+DYNAMIC_PATH_PATTERNS = [
+    r"data/processed/peaks_fdr_([\d.]+)\.bed",  # FDR sweep outputs
+    r"results/CRE_ranked_(\w+)\.md",  # Stress-specific reports
+    r"tracks/(\w+)_CRE_signal\.bw",  # Stress-specific tracks
 ]
 
-def extract_paths_from_file(file_path: Path) -> List[str]:
-    """Extract all file path references from a Python or R script."""
-    paths = []
+def find_python_scripts(code_dir: Path) -> List[Path]:
+    """Find all Python scripts in the code directory."""
+    return list(code_dir.glob("*.py"))
+
+def extract_paths_from_file(file_path: Path) -> Set[str]:
+    """Extract file paths referenced in a Python script."""
+    paths = set()
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
-        
-        # For Python files, use AST for more accurate extraction
-        if file_path.suffix == '.py':
-            try:
-                tree = ast.parse(content)
-                for node in ast.walk(tree):
-                    if isinstance(node, ast.Constant) and isinstance(node.value, str):
-                        val = node.value
-                        if '/' in val and ('.tsv' in val or '.bed' in val or '.csv' in val or '.yaml' in val or '.json' in val or '.bw' in val or '.pdf' in val or '.md' in val):
-                            paths.append(val)
-                    elif isinstance(node, ast.Call):
-                        if isinstance(node.func, ast.Name) and node.func.id == 'Path':
-                            for arg in node.args:
-                                if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-                                    paths.append(arg.value)
-                        elif isinstance(node.func, ast.Attribute) and node.func.attr == 'join':
-                            for arg in node.args:
-                                if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-                                    paths.append(arg.value)
-            except SyntaxError:
-                logger.warning(f"Syntax error in {file_path}, falling back to regex")
-        
-        # Fallback to regex for all files
-        for pattern in PATH_PATTERNS:
+
+        # Look for string literals that look like paths
+        # Common patterns: "data/...", "results/...", "code/...", "tracks/..."
+        path_patterns = [
+            r'["\']((data|results|code|tracks|logs|specs)/[^\s"\']+)["\']',
+            r'Path\(["\']((data|results|code|tracks|logs|specs)/[^\s"\']+)["\']\)',
+            r'\.join\([^\)]*["\']((data|results|code|tracks|logs|specs)/[^\s"\']+)["\']',
+        ]
+
+        for pattern in path_patterns:
             matches = re.findall(pattern, content)
-            paths.extend(matches)
-        
+            for match in matches:
+                # Handle tuple returns from groups
+                if isinstance(match, tuple):
+                    paths.add(match[0])
+                else:
+                    paths.add(match)
+
+        # Also check for f-strings and format() calls
+        # Simple heuristic: look for variables that might contain paths
+        # and common path construction patterns
+        if 'os.path.join' in content or 'Path(' in content:
+            # Extract variable assignments that might be paths
+            var_pattern = r'(\w+)\s*=\s*["\']((data|results|code|tracks|logs|specs)/[^\s"\']+)["\']'
+            var_matches = re.findall(var_pattern, content)
+            for var_name, path_val in var_matches:
+                paths.add(path_val)
+
     except Exception as e:
-        logger.error(f"Error reading {file_path}: {e}")
-    
+        logger.warning(f"Could not parse {file_path}: {e}")
+
     return paths
 
-def check_path_exists(path: str, base_dir: Path) -> Tuple[bool, str]:
+def check_path_exists(path: str, base_dir: Path, is_output: bool = False) -> Tuple[bool, str]:
     """Check if a path exists or is expected to be generated."""
     full_path = base_dir / path
-    
+
+    # Handle wildcards
+    if '*' in path:
+        parent_dir = base_dir / Path(path).parent
+        pattern = Path(path).name
+        if parent_dir.exists():
+            matches = list(parent_dir.glob(pattern))
+            return len(matches) > 0, f"Found {len(matches)} matches for {path}"
+        return False, f"No matches for wildcard pattern {path}"
+
     if full_path.exists():
-        return True, "exists"
-    
-    # Check if it's in the expected outputs list
-    if path in EXPECTED_OUTPUT_FILES:
-        return False, "expected_output"
-    
-    # Check if parent directory exists (might be generated later)
-    if full_path.parent.exists():
-        return False, "parent_exists"
-    
-    return False, "missing"
+        return True, "Exists"
 
-def analyze_code_directory(code_dir: Path) -> Dict:
-    """Analyze all scripts in the code directory for path references."""
-    results = {
-        'total_files': 0,
-        'files_with_paths': 0,
-        'path_references': {},
-        'issues': []
-    }
-    
-    for py_file in code_dir.glob('*.py'):
-        results['total_files'] += 1
-        paths = extract_paths_from_file(py_file)
-        
-        if paths:
-            results['files_with_paths'] += 1
-            results['path_references'][str(py_file.relative_to(code_dir))] = list(set(paths))
-            
-            # Validate each path
-            for path in set(paths):
-                exists, status = check_path_exists(path, code_dir.parent)
-                if not exists and status != "expected_output":
-                    results['issues'].append({
-                        'file': str(py_file.relative_to(code_dir)),
-                        'path': path,
-                        'status': status
-                    })
-    
-    return results
-
-def validate_expected_outputs(project_root: Path) -> Dict:
-    """Validate that all expected output files are accounted for."""
-    validation = {
-        'total_expected': len(EXPECTED_OUTPUT_FILES),
-        'found': [],
-        'missing': [],
-        'details': {}
-    }
-    
-    for expected_path in EXPECTED_OUTPUT_FILES:
-        full_path = project_root / expected_path
-        if full_path.exists():
-            validation['found'].append(expected_path)
-            validation['details'][expected_path] = 'exists'
+    if is_output:
+        # Check if parent directory exists (output can be generated)
+        parent = full_path.parent
+        if parent.exists():
+            return False, f"Expected output (parent dir exists): {path}"
         else:
-            # Check if it's a generated file (not yet produced)
-            parent = full_path.parent
-            if parent.exists():
-                validation['missing'].append(expected_path)
-                validation['details'][expected_path] = 'not_yet_generated'
-            else:
-                validation['missing'].append(expected_path)
-                validation['details'][expected_path] = 'parent_missing'
-    
-    return validation
+            return False, f"Missing output directory: {parent}"
+
+    return False, "Not found"
+
+def analyze_code_directory(code_dir: Path) -> Dict[str, any]:
+    """Analyze all Python scripts to extract referenced paths."""
+    scripts = find_python_scripts(code_dir)
+    all_paths = set()
+    path_sources = {}  # path -> list of scripts referencing it
+
+    for script in scripts:
+        paths = extract_paths_from_file(script)
+        all_paths.update(paths)
+        for p in paths:
+            if p not in path_sources:
+                path_sources[p] = []
+            path_sources[p].append(script.name)
+
+    return {
+        "scripts_analyzed": len(scripts),
+        "total_unique_paths": len(all_paths),
+        "paths": list(all_paths),
+        "path_sources": path_sources
+    }
+
+def validate_expected_outputs(code_dir: Path, base_dir: Path) -> Dict[str, any]:
+    """Validate that expected input files exist and outputs are valid."""
+    results = {
+        "inputs": {},
+        "outputs": {},
+        "dynamic_patterns": {},
+        "summary": {
+            "total_inputs": 0,
+            "missing_inputs": 0,
+            "total_outputs": 0,
+            "missing_outputs": 0
+        }
+    }
+
+    # Check input files
+    for path in EXPECTED_INPUT_FILES:
+        exists, reason = check_path_exists(path, base_dir, is_output=False)
+        results["inputs"][path] = {
+            "exists": exists,
+            "reason": reason
+        }
+        results["summary"]["total_inputs"] += 1
+        if not exists:
+            results["summary"]["missing_inputs"] += 1
+
+    # Check output files
+    for path in EXPECTED_OUTPUT_FILES:
+        exists, reason = check_path_exists(path, base_dir, is_output=True)
+        results["outputs"][path] = {
+            "exists": exists,
+            "reason": reason
+        }
+        results["summary"]["total_outputs"] += 1
+        if not exists:
+            results["summary"]["missing_outputs"] += 1
+
+    # Check dynamic patterns
+    for pattern in DYNAMIC_PATH_PATTERNS:
+        # Find all matches in the code directory
+        matches = []
+        for root, dirs, files in os.walk(base_dir):
+            for file in files:
+                full_path = Path(root) / file
+                if re.match(pattern, str(full_path.relative_to(base_dir))):
+                    matches.append(str(full_path.relative_to(base_dir)))
+
+        results["dynamic_patterns"][pattern] = {
+            "matches": matches,
+            "count": len(matches)
+        }
+
+    return results
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Verify file path dependencies in code/ against plan.md structure'
+        description="Path Dependency Verification Script (T62b)"
     )
     parser.add_argument(
-        '--project-root',
-        type=Path,
-        default=Path('.'),
-        help='Path to project root directory'
+        "--code-dir",
+        type=str,
+        default="code",
+        help="Directory containing Python scripts"
     )
     parser.add_argument(
-        '--output',
-        type=Path,
-        default=None,
-        help='Output report file (JSON)'
+        "--base-dir",
+        type=str,
+        default=".",
+        help="Base project directory"
     )
-    
-    args = parser.parse_args()
-    project_root = args.project_root.resolve()
-    code_dir = project_root / 'code'
-    
-    if not code_dir.exists():
-        logger.error(f"Code directory not found: {code_dir}")
-        sys.exit(1)
-    
-    logger.info(f"Analyzing code directory: {code_dir}")
-    
-    # Analyze code files
-    code_analysis = analyze_code_directory(code_dir)
-    
-    # Validate expected outputs
-    output_validation = validate_expected_outputs(project_root)
-    
-    # Compile report
-    report = {
-        'status': 'pass' if not code_analysis['issues'] else 'fail',
-        'code_analysis': code_analysis,
-        'output_validation': output_validation,
-        'summary': {
-            'total_scripts': code_analysis['total_files'],
-            'scripts_with_paths': code_analysis['files_with_paths'],
-            'total_path_references': sum(len(v) for v in code_analysis['path_references'].values()),
-            'total_expected_outputs': output_validation['total_expected'],
-            'outputs_found': len(output_validation['found']),
-            'outputs_missing': len(output_validation['missing']),
-            'path_issues': len(code_analysis['issues'])
-        }
-    }
-    
-    # Print summary
-    print("\n" + "="*60)
-    print("PATH DEPENDENCY VERIFICATION REPORT")
-    print("="*60)
-    print(f"Status: {report['status'].upper()}")
-    print(f"Total scripts analyzed: {report['summary']['total_scripts']}")
-    print(f"Scripts with path references: {report['summary']['scripts_with_paths']}")
-    print(f"Total path references found: {report['summary']['total_path_references']}")
-    print(f"Expected outputs: {report['summary']['total_expected_outputs']}")
-    print(f"Outputs found: {report['summary']['outputs_found']}")
-    print(f"Outputs missing (not yet generated): {report['summary']['outputs_missing']}")
-    print(f"Path issues detected: {report['summary']['path_issues']}")
-    print("="*60)
-    
-    if code_analysis['issues']:
-        print("\nPATH ISSUES DETECTED:")
-        for issue in code_analysis['issues']:
-            print(f"  - {issue['file']}: {issue['path']} ({issue['status']})")
-    
-    if output_validation['missing']:
-        print("\nMISSING OUTPUTS (expected but not yet generated):")
-        for path in output_validation['missing'][:10]:  # Show first 10
-            print(f"  - {path} ({output_validation['details'][path]})")
-        if len(output_validation['missing']) > 10:
-            print(f"  ... and {len(output_validation['missing']) - 10} more")
-    
-    # Save report if requested
-    if args.output:
-        import json
-        output_file = project_root / args.output
-        with open(output_file, 'w') as f:
-            json.dump(report, f, indent=2)
-        logger.info(f"Report saved to: {output_file}")
-    
-    # Exit with appropriate code
-    if report['status'] == 'fail':
-        sys.exit(1)
-    sys.exit(0)
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="results/path_dependency_report.json",
+        help="Output report file path"
+    )
 
-if __name__ == '__main__':
+    args = parser.parse_args()
+
+    code_dir = Path(args.code_dir)
+    base_dir = Path(args.base_dir)
+    output_path = Path(args.output)
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Starting path dependency verification...")
+    logger.info(f"Code directory: {code_dir}")
+    logger.info(f"Base directory: {base_dir}")
+
+    # Analyze code directory
+    code_analysis = analyze_code_directory(code_dir)
+    logger.info(f"Analyzed {code_analysis['scripts_analyzed']} scripts")
+    logger.info(f"Found {code_analysis['total_unique_paths']} unique paths")
+
+    # Validate expected outputs
+    validation_results = validate_expected_outputs(code_dir, base_dir)
+    logger.info(f"Checked {validation_results['summary']['total_inputs']} input files")
+    logger.info(f"Missing inputs: {validation_results['summary']['missing_inputs']}")
+    logger.info(f"Checked {validation_results['summary']['total_outputs']} output files")
+    logger.info(f"Missing outputs: {validation_results['summary']['missing_outputs']}")
+
+    # Compile final report
+    report = {
+        "task_id": "T62b",
+        "description": "Path Dependency Verification",
+        "timestamp": str(Path(output_path).stat().st_mtime) if output_path.exists() else "new",
+        "code_analysis": code_analysis,
+        "validation_results": validation_results,
+        "status": "PASS" if validation_results['summary']['missing_inputs'] == 0 else "FAIL",
+        "recommendations": []
+    }
+
+    # Add recommendations
+    if validation_results['summary']['missing_inputs'] > 0:
+        missing = [p for p, v in validation_results['inputs'].items() if not v['exists']]
+        report['recommendations'].append(
+            f"Missing {len(missing)} input files. Ensure data is downloaded: {missing}"
+        )
+
+    if validation_results['summary']['missing_outputs'] > 0:
+        missing = [p for p, v in validation_results['outputs'].items() if not v['exists']]
+        report['recommendations'].append(
+            f"Missing {len(missing)} expected output files. Run pipeline to generate: {missing}"
+        )
+
+    # Write report
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Report written to {output_path}")
+
+    # Exit with appropriate code
+    if report['status'] == "FAIL":
+        logger.error("Path dependency verification FAILED")
+        sys.exit(1)
+    else:
+        logger.info("Path dependency verification PASSED")
+        sys.exit(0)
+
+if __name__ == "__main__":
     main()

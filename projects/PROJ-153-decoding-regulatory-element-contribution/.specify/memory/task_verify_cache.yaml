@@ -1,11 +1,9 @@
-T007c:
+T008:
   c: false
-  h: d8de0a8705bf355c899126fc9d3a73495ea657adb24803870f6381622a078a6b
-  r: "The repository contains a partially\u2011written `code/03c_extract_peak_signals.R`\
-    \ (it ends abruptly and never defines the full processing loop or writes the output),\
-    \ and the required output `data/processed/peak_signal_matrix.tsv` is absent. Consequently\
-    \ the task\u2019s core deliverable \u2013 a populated peak\u2011signal matrix\
-    \ file \u2013 is missing."
+  h: 7fd30146f0d89560dc1cbfd87613bd5c929271be6cee351cc321aaa4b000c59b
+  r: "The repository contains `code/03_annotate.py`, but the script is incomplete\
+    \ (truncated) and no `data/processed/CRE_merged.bed` file was generated. The required\
+    \ output file is missing, so the task\u2019s core deliverable is not present."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -13,3 +11,19 @@ T027:
     \ there is no evidence that the disclaimer was programmatically injected into\
     \ any output files. The task\u2019s deliverable (updated report outputs with the\
     \ explicit \u201Cresults are associational, not causal\u201D statement) is missing."
+T043:
+  c: false
+  h: 8219dc1d864e50f21c046ca7652f6023ddcf856dbe8a0a52cb67bcfd82d648ae
+  r: The required input `data/processed/null_region_signal.bed` does not exist, and
+    the expected output `data/processed/delta_peak_signal.tsv` was never created.
+    Moreover, the provided `code/05b_compute_delta_signal.py` is truncated and does
+    not contain the full implementation needed to join the two files and write the
+    delta signal. The task therefore remains unfinished.
+T051b:
+  c: false
+  h: 5da7bca09d6e45ed3aae209032408df21369abc5719f3564fa8b2660822ba1b3
+  r: "The repository contains `code/051b_filter_genes.py`, but the script is truncated\
+    \ and does not show the logic that counts and logs dropped genes, performs the\
+    \ post\u2011filter join, or writes `data/processed/cre_gene_pairs.tsv`. Moreover,\
+    \ the required output file `data/processed/cre_gene_pairs.tsv` is absent from\
+    \ the disk. The task\u2019s core deliverable is therefore not present."

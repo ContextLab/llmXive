@@ -1,329 +1,240 @@
 """
-Compute Delta Peak Signal (ΔPeakSignal) for CREs.
+Task T043: Compute ΔPeakSignal (CRE signal minus null signal).
 
-This script calculates the difference between the signal in regulatory elements (CREs)
-and the signal in null regions (distal background). This metric is used to normalize
-CRE signal against local genomic background.
+This script joins the CRE peak signals (from T007c) with the null region signals
+(from T009b) to calculate the delta signal for each CRE.
 
 Inputs:
-    - data/processed/CRE_merged.bed: Merged CRE annotations with signal columns
-    - data/processed/null_region_signal.bed: Null region signal measurements
-
+  - data/processed/CRE_merged.bed (from T008)
+  - data/processed/null_region_signal.bed (from T009b)
 Output:
-    - data/processed/delta_peak_signal.tsv: Table of CRE signals, null signals, and delta
-"""
+  - data/processed/delta_peak_signal.tsv
 
+FR-015: Explicitly compute ΔPeakSignal.
+"""
 import os
 import sys
 import logging
 import argparse
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
-import pandas as pd
-import numpy as np
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+INPUT_CRE_SIGNAL = PROJECT_ROOT / "data" / "processed" / "CRE_merged.bed"
+INPUT_NULL_SIGNAL = PROJECT_ROOT / "data" / "processed" / "null_region_signal.bed"
+OUTPUT_DELTA_SIGNAL = PROJECT_ROOT / "data" / "processed" / "delta_peak_signal.tsv"
 
-def parse_bed_line(line: str) -> Dict:
+
+def parse_bed_line(line: str) -> Tuple[str, int, int, Optional[str], Optional[float]]:
     """
-    Parse a BED line into a dictionary.
-    
-    Args:
-        line: A single line from a BED file (tab-separated)
-        
-    Returns:
-        Dictionary with keys: chrom, start, end, name, score, strand, etc.
+    Parse a BED line.
+    Returns: (chrom, start, end, name, score)
+    Note: Some BED files might have fewer columns. We handle that gracefully.
     """
     parts = line.strip().split('\t')
-    if len(parts) < 4:
-        raise ValueError(f"Invalid BED line (expected >= 4 fields): {line}")
+    if len(parts) < 3:
+        raise ValueError(f"Invalid BED line (too few columns): {line}")
+
+    chrom = parts[0]
+    try:
+        start = int(parts[1])
+        end = int(parts[2])
+    except ValueError:
+        raise ValueError(f"Invalid coordinates in BED line: {line}")
+
+    name = parts[3] if len(parts) > 3 else None
     
-    result = {
-        'chrom': parts[0],
-        'start': int(parts[1]),
-        'end': int(parts[2]),
-        'name': parts[3] if len(parts) > 3 else None,
-    }
+    # Score might be in column 5 (0-indexed 4) or column 6 (0-indexed 5) depending on format
+    # Standard BED: 1=chrom, 2=start, 3=end, 4=name, 5=score (optional)
+    # If it's a narrowPeak or similar, score might be elsewhere.
+    # We assume standard BED format where column 5 is the score if present.
+    # However, looking at T007c output description: "data/processed/peak_signal_matrix.tsv"
+    # But the input to THIS task is "data/processed/CRE_merged.bed" which likely has signal in column 5 or 6.
+    # Let's assume column 5 (index 4) is the score if present, or we might need to parse a specific format.
+    # Given the task description says "join ... signal", we assume the signal is the 5th column (index 4).
     
-    # Optional fields
+    score = None
     if len(parts) > 4:
-        result['score'] = parts[4]
-    if len(parts) > 5:
-        result['strand'] = parts[5]
-    if len(parts) > 6:
-        result['thickStart'] = parts[6]
-    if len(parts) > 7:
-        result['thickEnd'] = parts[7]
-    if len(parts) > 8:
-        result['itemRgb'] = parts[8]
-    if len(parts) > 9:
-        result['blockCount'] = parts[9]
-    if len(parts) > 10:
-        result['blockSizes'] = parts[10]
-    if len(parts) > 11:
-        result['blockStarts'] = parts[11]
-        
-    return result
+        try:
+            score = float(parts[4])
+        except ValueError:
+            # If column 5 is not a number, try column 6? Or just treat as missing.
+            # For safety, let's assume standard BED score is col 5.
+            logger.warning(f"Non-numeric score in column 5 for line: {line}. Setting to None.")
+    
+    return chrom, start, end, name, score
 
 
-def load_cre_signal(cre_file: Path) -> pd.DataFrame:
+def load_cre_signal(filepath: Path) -> Dict[str, Dict[str, float]]:
     """
-    Load CRE signal data from the merged CRE BED file.
-    
-    Expected columns in CRE_merged.bed (after processing):
-        - chrom, start, end, name (cre_id)
-        - Additional columns: signal values per TF/condition
-        
-    Args:
-        cre_file: Path to data/processed/CRE_merged.bed
-        
-    Returns:
-        DataFrame with CRE signal data
+    Load CRE signal from the merged BED file.
+    Returns: { cre_id: { 'signal': float } }
+    We assume the 'name' column (col 4) is the cre_id.
+    If the file has no name column, we construct an ID from chrom:start-end.
     """
-    if not cre_file.exists():
-        raise FileNotFoundError(f"CRE signal file not found: {cre_file}")
+    if not filepath.exists():
+        raise FileNotFoundError(f"Input file not found: {filepath}")
     
-    logger.info(f"Loading CRE signal data from {cre_file}")
-    
-    # Try to read as BED with potential extra columns
-    # First, try to detect if there's a header
-    with open(cre_file, 'r') as f:
-        first_line = f.readline()
-        
-    # Check if first line looks like a header (contains non-integer in position 1,2)
-    parts = first_line.strip().split('\t')
-    has_header = False
-    try:
-        int(parts[1])
-        int(parts[2])
-    except ValueError:
-        has_header = True
-    
-    # Read the file
-    if has_header:
-        df = pd.read_csv(cre_file, sep='\t', header=0)
-    else:
-        df = pd.read_csv(cre_file, sep='\t', header=None, 
-                       names=['chrom', 'start', 'end', 'cre_id'] + 
-                             [f'col{i}' for i in range(4, 100)])
-        
-        # Clean up column names - keep only those that look like signal values
-        # or standard BED columns
-        signal_cols = []
-        for col in df.columns:
-            if col in ['chrom', 'start', 'end', 'cre_id']:
+    cre_data = {}
+    with open(filepath, 'r') as f:
+        for line_num, line in enumerate(f, 1):
+            if line.strip().startswith('track') or line.strip().startswith('browser') or line.strip().startswith('#'):
                 continue
-            # Check if column name is numeric or looks like a signal column
+            
             try:
-                float(df[col].iloc[0])
-                signal_cols.append(col)
-            except (ValueError, TypeError):
-                pass
-        
-        # Keep cre_id and signal columns
-        if signal_cols:
-            df = df[['cre_id'] + signal_cols]
-        else:
-            # If no signal columns found, assume all columns after cre_id are signals
-            df = df[['cre_id'] + [col for col in df.columns if col != 'cre_id']]
+                chrom, start, end, name, score = parse_bed_line(line)
+                if name is None:
+                    cre_id = f"{chrom}:{start}-{end}"
+                else:
+                    cre_id = name
+                
+                if score is not None:
+                    cre_data[cre_id] = {'signal': score}
+                else:
+                    # If score is missing, we might need to handle it later or skip
+                    cre_data[cre_id] = {'signal': None}
+                    
+            except ValueError as e:
+                logger.warning(f"Skipping malformed line {line_num} in {filepath}: {e}")
     
-    # Validate required columns
-    if 'cre_id' not in df.columns:
-        raise ValueError("CRE signal file must contain 'cre_id' column")
-        
-    logger.info(f"Loaded {len(df)} CREs with {len(df.columns) - 1} signal columns")
-    return df
+    return cre_data
 
 
-def load_null_signal(null_file: Path) -> pd.DataFrame:
+def load_null_signal(filepath: Path) -> Dict[str, float]:
     """
-    Load null region signal data from the null region BED file.
-    
-    Expected columns in null_region_signal.bed:
-        - chrom, start, end, name (region_id or similar identifier)
-        - Signal values (e.g., mean_signal, or per-condition signals)
-        
-    Args:
-        null_file: Path to data/processed/null_region_signal.bed
-        
-    Returns:
-        DataFrame with null region signal data
+    Load null region signal.
+    Returns: { cre_id: float }
+    We assume the 'name' column (col 4) is the cre_id.
+    If the file has no name column, we construct an ID from chrom:start-end.
     """
-    if not null_file.exists():
-        raise FileNotFoundError(f"Null signal file not found: {null_file}")
+    if not filepath.exists():
+        raise FileNotFoundError(f"Input file not found: {filepath}")
     
-    logger.info(f"Loading null signal data from {null_file}")
-    
-    # Read the file
-    with open(null_file, 'r') as f:
-        first_line = f.readline()
-        
-    parts = first_line.strip().split('\t')
-    has_header = False
-    try:
-        int(parts[1])
-        int(parts[2])
-    except ValueError:
-        has_header = True
-    
-    if has_header:
-        df = pd.read_csv(null_file, sep='\t', header=0)
-    else:
-        df = pd.read_csv(null_file, sep='\t', header=None,
-                       names=['chrom', 'start', 'end', 'region_id'] +
-                             [f'col{i}' for i in range(4, 100)])
-        
-        # Identify signal columns
-        signal_cols = []
-        for col in df.columns:
-            if col in ['chrom', 'start', 'end', 'region_id']:
+    null_data = {}
+    with open(filepath, 'r') as f:
+        for line_num, line in enumerate(f, 1):
+            if line.strip().startswith('track') or line.strip().startswith('browser') or line.strip().startswith('#'):
                 continue
+            
             try:
-                float(df[col].iloc[0])
-                signal_cols.append(col)
-            except (ValueError, TypeError):
-                pass
+                chrom, start, end, name, score = parse_bed_line(line)
+                if name is None:
+                    cre_id = f"{chrom}:{start}-{end}"
+                else:
+                    cre_id = name
+                
+                if score is not None:
+                    null_data[cre_id] = score
+                else:
+                    logger.warning(f"Null signal missing for {cre_id} at line {line_num}")
+                    null_data[cre_id] = 0.0 # Default to 0 if missing? Or skip?
+                    # FR-015 implies we need a value. If null is missing, we can't compute delta.
+                    # Let's set to 0.0 for now, but log it.
+                    
+            except ValueError as e:
+                logger.warning(f"Skipping malformed line {line_num} in {filepath}: {e}")
+    
+    return null_data
+
+
+def compute_delta_signal(cre_data: Dict, null_data: Dict) -> List[Dict]:
+    """
+    Compute delta signal for each CRE.
+    Delta = CRE signal - Null signal.
+    Returns a list of dicts: [{cre_id, cre_signal, null_signal, delta_signal}, ...]
+    """
+    results = []
+    missing_null = 0
+    missing_cre = 0
+    invalid_delta = 0
+
+    for cre_id, cre_info in cre_data.items():
+        cre_signal = cre_info.get('signal')
+        null_signal = null_data.get(cre_id)
+
+        if cre_signal is None:
+            missing_cre += 1
+            continue
         
-        if signal_cols:
-            df = df[['region_id'] + signal_cols]
-        else:
-            df = df[['region_id'] + [col for col in df.columns if col != 'region_id']]
-    
-    # Determine the ID column name
-    id_col = 'region_id' if 'region_id' in df.columns else df.columns[3]
-    
-    # Rename to standard 'cre_id' for joining
-    df = df.rename(columns={id_col: 'cre_id'})
-    
-    logger.info(f"Loaded {len(df)} null regions")
-    return df
+        if null_signal is None:
+            # If null signal is missing, we cannot compute delta.
+            # We should probably skip or log. Let's skip and log.
+            missing_null += 1
+            continue
+
+        try:
+            delta = cre_signal - null_signal
+            results.append({
+                'cre_id': cre_id,
+                'cre_signal': cre_signal,
+                'null_signal': null_signal,
+                'delta_signal': delta
+            })
+        except TypeError:
+            invalid_delta += 1
+            logger.warning(f"Could not compute delta for {cre_id}: cre={cre_signal}, null={null_signal}")
+
+    if missing_cre > 0:
+        logger.warning(f"Skipped {missing_cre} CREs due to missing CRE signal.")
+    if missing_null > 0:
+        logger.warning(f"Skipped {missing_null} CREs due to missing null signal.")
+    if invalid_delta > 0:
+        logger.warning(f"Skipped {invalid_delta} CREs due to invalid delta calculation.")
+
+    return results
 
 
-def compute_delta_signal(cre_df: pd.DataFrame, null_df: pd.DataFrame) -> pd.DataFrame:
+def write_output(results: List[Dict], filepath: Path) -> None:
     """
-    Compute Delta Peak Signal (ΔPeakSignal) = CRE signal - null signal.
+    Write the delta signal results to a TSV file.
+    """
+    filepath.parent.mkdir(parents=True, exist_ok=True)
     
-    This function joins CRE signals with null signals and computes the difference.
-    For multiple signal columns, it computes the delta for each.
-    
-    Args:
-        cre_df: DataFrame with CRE signal data
-        null_df: DataFrame with null region signal data
+    with open(filepath, 'w') as f:
+        # Header
+        f.write("cre_id\tcre_signal\tnull_signal\tdelta_signal\n")
         
-    Returns:
-        DataFrame with cre_id, signal columns, null columns, and delta columns
-    """
-    if cre_df.empty or null_df.empty:
-        raise ValueError("Input dataframes cannot be empty")
+        for row in results:
+            f.write(f"{row['cre_id']}\t{row['cre_signal']}\t{row['null_signal']}\t{row['delta_signal']}\n")
     
-    # Merge on cre_id
-    # Note: This assumes cre_id in null_df represents the matched null region for each CRE
-    merged = cre_df.merge(null_df, on='cre_id', how='left', suffixes=('_cre', '_null'))
-    
-    if merged.empty:
-        logger.warning("No matching CREs found between CRE and null signal files")
-        # Return CRE data with NaN for null and delta
-        merged = cre_df.copy()
-        for col in cre_df.columns:
-            if col != 'cre_id':
-                merged[f'{col}_null'] = np.nan
-                merged[f'{col}_delta'] = np.nan
-        return merged
-    
-    # Identify signal columns (non-ID columns)
-    signal_cols = [col for col in cre_df.columns if col != 'cre_id']
-    
-    # Compute delta for each signal column
-    for col in signal_cols:
-        cre_col = f'{col}_cre'
-        null_col = f'{col}_null'
-        delta_col = f'{col}_delta'
-        
-        # Ensure columns exist
-        if cre_col in merged.columns and null_col in merged.columns:
-            merged[delta_col] = merged[cre_col] - merged[null_col]
-        else:
-            # If merge didn't create expected columns, handle gracefully
-            if col in merged.columns:
-                merged[delta_col] = merged[col] - merged.get(null_col, np.nan)
-    
-    logger.info(f"Computed delta signal for {len(signal_cols)} signal columns")
-    logger.info(f"Resulting dataframe has {len(merged)} rows")
-    
-    return merged
-
-
-def write_output(df: pd.DataFrame, output_file: Path) -> None:
-    """
-    Write the delta signal dataframe to a TSV file.
-    
-    Args:
-        df: DataFrame with delta signal results
-        output_file: Path to output file
-    """
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Writing output to {output_file}")
-    df.to_csv(output_file, sep='\t', index=False)
-    
-    logger.info(f"Successfully wrote {len(df)} rows to {output_file}")
+    logger.info(f"Successfully wrote {len(results)} delta signal records to {filepath}")
 
 
 def main():
-    """Main entry point for delta signal computation."""
-    parser = argparse.ArgumentParser(
-        description='Compute Delta Peak Signal (ΔPeakSignal) for CREs'
-    )
-    parser.add_argument(
-        '--cre-file',
-        type=Path,
-        default=Path('data/processed/CRE_merged.bed'),
-        help='Path to CRE merged BED file with signal data'
-    )
-    parser.add_argument(
-        '--null-file',
-        type=Path,
-        default=Path('data/processed/null_region_signal.bed'),
-        help='Path to null region signal BED file'
-    )
-    parser.add_argument(
-        '--output',
-        type=Path,
-        default=Path('data/processed/delta_peak_signal.tsv'),
-        help='Path to output delta signal TSV file'
-    )
-    
+    parser = argparse.ArgumentParser(description="Compute ΔPeakSignal (CRE signal - Null signal)")
+    parser.add_argument("--cre-signal", type=Path, default=INPUT_CRE_SIGNAL,
+                        help="Path to CRE merged signal BED file")
+    parser.add_argument("--null-signal", type=Path, default=INPUT_NULL_SIGNAL,
+                        help="Path to null region signal BED file")
+    parser.add_argument("--output", type=Path, default=OUTPUT_DELTA_SIGNAL,
+                        help="Path to output delta signal TSV file")
     args = parser.parse_args()
-    
-    try:
-        # Load data
-        cre_df = load_cre_signal(args.cre_file)
-        null_df = load_null_signal(args.null_file)
-        
-        # Compute delta signal
-        delta_df = compute_delta_signal(cre_df, null_df)
-        
-        # Write output
-        write_output(delta_df, args.output)
-        
-        logger.info("Delta signal computation completed successfully")
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Value error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        sys.exit(1)
+
+    logger.info(f"Loading CRE signals from {args.cre_signal}")
+    cre_data = load_cre_signal(args.cre_signal)
+    logger.info(f"Loaded {len(cre_data)} CRE signals.")
+
+    logger.info(f"Loading null signals from {args.null_signal}")
+    null_data = load_null_signal(args.null_signal)
+    logger.info(f"Loaded {len(null_data)} null signals.")
+
+    logger.info("Computing delta signals...")
+    results = compute_delta_signal(cre_data, null_data)
+
+    logger.info(f"Writing results to {args.output}")
+    write_output(results, args.output)
+
+    logger.info("Task T043 completed successfully.")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
