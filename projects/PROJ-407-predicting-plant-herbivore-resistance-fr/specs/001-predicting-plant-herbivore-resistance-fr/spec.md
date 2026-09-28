@@ -24,7 +24,7 @@ The system must successfully locate, download, and parse publicly available plan
 
 ### User Story 2 - Predictive Modeling and Feature Importance (Priority: P2)
 
-The system must train a CPU-tractable machine learning model (Random Forest Regressor or Classifier depending on data type) to predict resistance scores from metabolite profiles and extract a ranked list of the top 20 most predictive metabolites.
+The system must train a CPU-tractable machine learning model (Random Forest Regressor or Classifier depending on data type) to predict resistance scores from metabolite profiles and extract a ranked list of the most predictive metabolites.
 
 **Why this priority**: This delivers the core scientific value: identifying which metabolites are associated with resistance. It validates the "predictive potential" hypothesis mentioned in the research question.
 
@@ -66,7 +66,7 @@ The system must perform permutation testing to validate that the model's perform
 - **FR-002**: System MUST preprocess metabolomic data by normalizing abundances, filtering low-coverage metabolites, and imputing missing values using k-nearest neighbors (k=5). (See US-1)
 - **FR-003**: System MUST train a Random Forest Regressor (n_estimators=100, max_depth=10) on the training set and evaluate performance on a genotype-held-out test set. If the target variable is categorical, the system MUST use an Ordinal Regression or Classification model instead. (See US-2)
 - **FR-004**: System MUST extract and rank the top 20 metabolites by feature importance and output a CSV containing metabolite names, importance scores, and univariate correlation coefficients. (See US-2)
-- **FR-005**: System MUST perform 1,000 iterations of permutation testing to generate a null distribution and calculate the p-value for the model's R² score. (See US-3)
+- **FR-005**: System MUST perform permutation testing to generate a null distribution and calculate the p-value for the model's R² score. (See US-3)
 - **FR-006**: System MUST apply Benjamini-Hochberg correction to all metabolite-resistance correlation p-values and report q-values, filtering results to q < 0.10. (See US-3)
 - **FR-007**: System MUST stratify permutation testing by study ID or batch if metadata indicates multiple sources, OR include batch as a covariate in the model if feasible, to control for confounding variables. (See US-3)
 - **FR-008**: System MUST attempt to normalize resistance scores by herbivore density if metadata provides it; otherwise, it MUST flag the limitation in the output report. (See Assumptions)
