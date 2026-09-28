@@ -1,1 +1,3 @@
-# Project code package
+"""
+llmXive Research Pipeline - Code Module
+"""

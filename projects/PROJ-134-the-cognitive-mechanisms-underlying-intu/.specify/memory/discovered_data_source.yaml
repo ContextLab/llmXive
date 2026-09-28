@@ -1,16 +1,14 @@
 status: none
-intent: download MFQ dataset Open Science Framework and Moral Stories HuggingFace
+intent: download Moral Foundations Questionnaire MFQ dataset OSF supplemental logs
   python package dataset
 required_fields:
-- participant_id
-- story_id
-- mfq_responses
-- story_text
-- salience_level
+- foundation_scores
+- vignette_text
 - response_time
-- gaze_tracking
-- judgment_input
-- vr_scene_id
-cache_key: 793e96b8eaf5bbcf304ab4dbc31327f262e115a196473594593cf2b95b768cca
-searched_at: '2026-09-03T18:13:32.398801+00:00'
+- gaze_metrics
+- salience_level
+- simulated_flag
+- loglikelihood
+cache_key: abaa299772d376443451edacd3366b7838470f4f33dab0251c23f8ad081f7c6a
+searched_at: '2026-09-28T15:37:23.641639+00:00'
 retry_count: 1

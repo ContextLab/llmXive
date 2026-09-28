@@ -120,6 +120,9 @@ def run_transformation_pipeline(input_path: str, output_path: str) -> None:
     logger.info(f"Starting CLR transformation pipeline for {input_path}")
     
     # Load the data
+    if not Path(input_path).exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
     df = pd.read_csv(input_path)
     
     # Validate that we have numeric data (assuming first column is ID, rest are taxa)
@@ -131,6 +134,10 @@ def run_transformation_pipeline(input_path: str, output_path: str) -> None:
     
     # Apply CLR transformation
     clr_data = apply_clr(taxa_data)
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     # Save the result
     clr_data.to_csv(output_path, index=False)

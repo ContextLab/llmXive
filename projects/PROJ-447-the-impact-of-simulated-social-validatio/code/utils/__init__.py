@@ -1,1 +1,3 @@
-# Utils package
+"""
+Utility module for constants, exceptions, and logging.
+"""

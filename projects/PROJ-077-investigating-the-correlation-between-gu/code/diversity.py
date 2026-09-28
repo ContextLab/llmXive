@@ -1,9 +1,3 @@
-"""
-Diversity Analysis Module.
-
-Calculates alpha diversity metrics (Shannon Index) from raw taxa abundance counts.
-Implements Spec Override T045: Uses RAW counts, NOT CLR-transformed data.
-"""
 import os
 import sys
 import pandas as pd
@@ -11,132 +5,140 @@ import numpy as np
 from pathlib import Path
 from typing import Union, Optional, List
 
-# Import from project API surface
-from config import ensure_directories, INPUT_PATHS, SAMPLE_LIMIT
-from logging_config import get_logger, log_provenance, log_warning, log_pipeline_start, log_pipeline_end
-
-# scikit-bio is listed in requirements.txt (T002)
-import skbio
+# Ensure imports from sibling modules match the API surface
+try:
+    from logging_config import get_logger, log_provenance, log_warning
+except ImportError:
+    # Fallback for direct execution or different environment
+    import logging
+    def get_logger(name):
+        return logging.getLogger(name)
+    def log_provenance(msg):
+        logging.info(msg)
+    def log_warning(msg):
+        logging.warning(msg)
 
 logger = get_logger(__name__)
 
-def calculate_shannon_index(taxa_matrix: pd.DataFrame, sample_column: str = 'participant_id') -> pd.DataFrame:
+def calculate_shannon_index(df: pd.DataFrame, taxa_columns: Optional[List[str]] = None) -> pd.DataFrame:
     """
-    Calculate Shannon Index (alpha diversity) from a wide-format taxa matrix.
-
-    IMPORTANT: This function expects RAW counts as input.
-    Per Spec Override T045 (replacing FR-003), we do NOT apply CLR transformation
-    before calculating alpha diversity. CLR is only applied to taxa for regression
-    (Secondary Path), not for diversity metrics.
-
+    Calculates the Shannon Index (alpha diversity) from raw OTU/ASV counts.
+    
+    CRITICAL: This function validates that the input data consists of raw integer counts.
+    It explicitly raises a ValueError if any taxa column is detected as float,
+    indicating that the data might have been CLR-transformed or normalized prior to this step.
+    
     Args:
-        taxa_matrix (pd.DataFrame): Wide-format DataFrame where rows are samples
-            (participants) and columns are taxa (species/genera). The first column
-            should be the sample identifier.
-        sample_column (str): Name of the column containing sample IDs.
-
+        df: DataFrame containing participant data and taxa counts.
+        taxa_columns: List of column names representing taxa abundances. 
+                      If None, all numeric columns excluding known metadata are assumed to be taxa.
+                      
     Returns:
-        pd.DataFrame: Original taxa matrix with an additional 'shannon_index' column.
+        DataFrame with an added 'shannon_index' column.
+        
+    Raises:
+        ValueError: If taxa columns are not integers or if data appears transformed (floats).
     """
-    logger.info("Starting Shannon Index calculation from raw counts.")
+    if taxa_columns is None:
+        # Heuristic: Assume numeric columns that are not standard metadata are taxa
+        metadata_cols = ['participant_id', 'age', 'sex', 'bmi', 'dqs', 'fluid_intelligence', 'shannon_index']
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        taxa_columns = [col for col in numeric_cols if col not in metadata_cols]
+        
+    if not taxa_columns:
+        raise ValueError("No taxa columns found in the input DataFrame.")
     
-    # Validate input
-    if taxa_matrix.empty:
-        log_warning("Empty taxa matrix provided to Shannon calculation.")
-        return taxa_matrix
-
-    # Ensure we are working with numeric data for taxa columns
-    # Identify taxa columns (all except the sample ID column)
-    taxa_cols = [col for col in taxa_matrix.columns if col != sample_column]
+    # --- T020b: Verify Input Integrity ---
+    # Check column types to ensure we are working with raw counts (integers)
+    # and NOT CLR-transformed floats.
+    for col in taxa_columns:
+        if col not in df.columns:
+            raise ValueError(f"Taxa column '{col}' not found in DataFrame.")
+        
+        # Check if the column dtype is float. 
+        # While some integer data might be loaded as float by pandas, 
+        # CLR-transformed data is inherently float. 
+        # We enforce strict integer checking for raw counts as per spec.
+        if df[col].dtype == np.float64 or df[col].dtype == np.float32:
+            # Check if values are effectively integers (e.g., 1.0, 2.0) vs transformed (e.g., 0.123, -0.456)
+            # If any value is non-integer, it is definitely transformed.
+            # Even if all are integers stored as float, we warn/raise to enforce strict raw count usage.
+            if not np.allclose(df[col].dropna(), df[col].dropna().astype(int)):
+                raise ValueError(
+                    f"Input data must be raw counts (integers), not transformed values. "
+                    f"Column '{col}' contains non-integer float values."
+                )
+            else:
+                # All values are integers but stored as float. 
+                # Strictly speaking, raw counts should be int. 
+                # We raise to enforce the requirement for raw integer counts.
+                raise ValueError(
+                    f"Input data must be raw counts (integers), not transformed values. "
+                    f"Column '{col}' is of float type. Please ensure input is integer counts."
+                )
     
-    if not taxa_cols:
-        log_warning("No taxa columns found in the matrix.")
-        return taxa_matrix
+    logger.info(f"Validated input integrity for {len(taxa_columns)} taxa columns. All are raw integer counts.")
 
-    # Extract the taxa data
-    taxa_data = taxa_matrix[taxa_cols].copy()
-
-    # Ensure numeric types and handle non-positive values
-    # Shannon index requires counts >= 0. Negative values are invalid.
-    # Zero counts are allowed (log(0) is handled by scikit-bio or we filter).
-    # scikit-bio's diversity.alpha.shannon handles zeros correctly.
-    
-    # Convert to float to ensure compatibility
-    taxa_data = taxa_data.apply(pd.to_numeric, errors='coerce').fillna(0)
-
-    # Calculate Shannon Index using scikit-bio
-    # Input: 2D array where rows are samples, columns are OTUs/Taxa
+    # Import scikit-bio
     try:
-        shannon_values = skbio.diversity.alpha.shannon(taxa_data.values)
-    except Exception as e:
-        logger.error(f"Error calculating Shannon index: {e}")
-        raise
+        import skbio
+        from skbio.diversity import alpha
+    except ImportError:
+        raise ImportError("scikit-bio is required for Shannon index calculation. Install via: pip install scikit-bio")
 
-    # Create result DataFrame
-    result = taxa_matrix.copy()
-    result['shannon_index'] = shannon_values
-
-    logger.info(f"Calculated Shannon Index for {len(result)} samples.")
-    return result
-
-def run_diversity_pipeline(input_path: Optional[str] = None, output_path: Optional[str] = None) -> pd.DataFrame:
-    """
-    Orchestrate the diversity calculation pipeline.
-
-    Args:
-        input_path (str, optional): Path to the cleaned taxa data CSV.
-            Defaults to 'data/processed/cleaned_data.csv'.
-        output_path (str, optional): Path to save the results.
-            Defaults to 'data/processed/diversity_metrics.csv'.
-
-    Returns:
-        pd.DataFrame: The dataframe with the added shannon_index column.
-    """
-    if input_path is None:
-        input_path = INPUT_PATHS.get('cleaned_data', 'data/processed/cleaned_data.csv')
+    # Extract counts matrix
+    counts = df[taxa_columns].values.astype(int)
     
-    if output_path is None:
-        output_path = 'data/processed/diversity_metrics.csv'
-
-    log_pipeline_start("Diversity Analysis Pipeline")
-    log_provenance("Task", "T020")
-    log_provenance("Method", "Shannon Index (Raw Counts)")
-
-    ensure_directories()
-
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-
-    # Check for necessary columns (participant_id is required for merging later)
-    if 'participant_id' not in df.columns:
-        # Try to infer if the first column is the ID
-        logger.warning("'participant_id' column not found. Assuming first column is ID.")
-        # We need a column to identify samples. If the file has a generic index column,
-        # we might need to handle it, but per T011, we expect 'participant_id'.
-        # For safety, if the first column is numeric or looks like an ID, we use it.
-        # However, strict adherence to T011 implies 'participant_id' exists.
-        raise ValueError("Input data must contain 'participant_id' column.")
+    # Validate non-negative
+    if np.any(counts < 0):
+        raise ValueError("Taxa counts must be non-negative.")
 
     # Calculate Shannon Index
-    df_with_diversity = calculate_shannon_index(df, sample_column='participant_id')
+    # scikit-bio expects 2D array (samples x taxa)
+    shannon_values = alpha.shannon(counts, axis=1)
+    
+    # Create result DataFrame
+    result_df = df.copy()
+    result_df['shannon_index'] = shannon_values
+    
+    log_provenance(f"Calculated Shannon Index for {len(result_df)} samples using {len(taxa_columns)} taxa.")
+    
+    return result_df
 
-    # Log summary statistics
-    shannon_mean = df_with_diversity['shannon_index'].mean()
-    shannon_std = df_with_diversity['shannon_index'].std()
-    logger.info(f"Shannon Index - Mean: {shannon_mean:.4f}, Std: {shannon_std:.4f}")
-
-    # Save results
-    ensure_directories()
-    df_with_diversity.to_csv(output_path, index=False)
-    logger.info(f"Results saved to {output_path}")
-
-    log_pipeline_end("Diversity Analysis Pipeline")
-
-    return df_with_diversity
+def run_diversity_pipeline(input_path: str, output_path: str) -> None:
+    """
+    Runs the diversity analysis pipeline:
+    1. Loads data
+    2. Validates input integrity (T020b)
+    3. Calculates Shannon Index
+    4. Saves results
+    """
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    logger.info(f"Loading data from {input_path}")
+    df = pd.read_csv(input_path)
+    
+    logger.info("Running diversity pipeline...")
+    try:
+        result_df = calculate_shannon_index(df)
+    except ValueError as e:
+        logger.error(f"Input validation failed: {e}")
+        raise
+    
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    result_df.to_csv(output_path, index=False)
+    log_provenance(f"Saved diversity results to {output_path}")
+    logger.info(f"Pipeline complete. Results saved to {output_path}")
 
 if __name__ == "__main__":
-    run_diversity_pipeline()
+    # Simple CLI for testing
+    import argparse
+    parser = argparse.ArgumentParser(description="Run Shannon Index Diversity Pipeline")
+    parser.add_argument("--input", required=True, help="Path to input CSV")
+    parser.add_argument("--output", required=True, help="Path to output CSV")
+    args = parser.parse_args()
+    
+    run_diversity_pipeline(args.input, args.output)

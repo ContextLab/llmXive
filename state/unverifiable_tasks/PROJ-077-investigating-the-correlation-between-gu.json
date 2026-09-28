@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-077-investigating-the-correlation-between-gu",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "I looked for the required directories (`projects/PROJ-investigating-the-correlation-between-gu/data/raw`, `data/processed`, `code`, `tests`) but no artifact list or screenshots confirming they exist was provided. Without concrete evidence that the `mkdir -p` command was executed and the directories were created, the task cannot be considered completed.",
+      "first_seen": "2026-09-28T16:23:04.578100+00:00",
+      "last_seen": "2026-09-28T16:23:04.578100+00:00"
+    },
+    {
+      "task_key": "T054a",
+      "reject_count": 1,
+      "last_reason": "No `README.md` file was provided, nor any excerpt showing a \u201cGetting Started\u201d section at the repository root. The required artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-09-28T16:23:04.579123+00:00",
+      "last_seen": "2026-09-28T16:23:04.579123+00:00"
+    },
+    {
+      "task_key": "T054b",
+      "reject_count": 1,
+      "last_reason": "No `README.md` content was supplied, and thus we cannot confirm that it lists the required UK Biobank fields, includes the specific Application ID, download URL, or the \u201cPlace files in `data/raw/`\u201d instruction. The task\u2019s documentation artifact is missing.",
+      "first_seen": "2026-09-28T16:23:04.580101+00:00",
+      "last_seen": "2026-09-28T16:23:04.580101+00:00"
+    }
+  ],
+  "updated_at": "2026-09-28T16:23:04.580101+00:00"
+}

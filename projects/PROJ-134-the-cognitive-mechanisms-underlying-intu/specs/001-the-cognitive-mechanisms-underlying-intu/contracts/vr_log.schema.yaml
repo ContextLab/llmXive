@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VRInteractionLog Schema"
+description: "Schema for VR interaction logs including salience conditions"
+type: "object"
+properties:
+  log_id:
+    type: "string"
+    description: "Unique identifier for the log entry"
+  participant_id:
+    type: "string"
+    description: "Foreign key to participant"
+  story_id:
+    type: "string"
+    description: "Foreign key to the moral story"
+  salience_level:
+    type: "string"
+    enum:
+      - "low"
+      - "high"
+    description: "Perceptual salience condition"
+  blend_shape_config:
+    type: "string"
+    description: "JSON string of Unity blend-shape parameters (e.g., {\"eyeOpen\": 0.9})"
+  duration_seconds:
+    type: "number"
+    minimum: 0.0
+    description: "Duration of interaction in seconds"
+  physiological_data:
+    type: "string"
+    description: "Optional JSON string of physiological metrics (HR, GSR)"
+required:
+  - log_id
+  - participant_id
+  - story_id
+  - salience_level
+  - blend_shape_config
+  - duration_seconds
+additionalProperties: false

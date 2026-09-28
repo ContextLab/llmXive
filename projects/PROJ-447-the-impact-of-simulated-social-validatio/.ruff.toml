@@ -1,27 +1,22 @@
-# Ruff Configuration for PROJ-447
-# Enforces strict code quality and style consistency
-
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
-select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
-ignore = []
+# Select common rules: E (pycodestyle errors), W (pycodestyle warnings), F (Pyflakes), I (isort), B (flake8-bugbear)
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B905"] # Ignore line-length (handled by black) and zip-without-explicit-strict
 
 # Allow autofix for all enabled rules
 fixable = ["ALL"]
 unfixable = []
 
-# Exclude specific files/directories
+# Exclude a few common directories
 exclude = [
     ".bzr",
     ".direnv",
     ".eggs",
     ".git",
-    ".git-rewrite",
     ".hg",
     ".mypy_cache",
     ".nox",
     ".pants.d",
-    ".pytype",
     ".ruff_cache",
     ".svn",
     ".tox",
@@ -33,25 +28,10 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
-    "data/raw", # Exclude raw data files
-    "data/processed", # Exclude generated data files
 ]
 
-# Same as Black
-line-length = 88
+# Per-file-ignores if needed
+# [lint.per-file-ignores]
 
-# Allow unused variables starting with underscore
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-[lint.isort]
-force-single-line = false
-force-sort-within-sections = false
-known-first-party = ["utils", "data", "analysis", "viz", "main"]
-order-by-type = true
-relative-imports-order = "closest-to-furthest"
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
-
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow asserts in tests
-"code/utils/constants.py" = ["E501"] # Allow long lines in config
-"data/processed/*" = ["INP001"] # Ignore implicit namespace in data folders
+# Target Python version
+target-version = "py311"

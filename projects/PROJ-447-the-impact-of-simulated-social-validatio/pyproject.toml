@@ -3,10 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-447-social-validation"
+name = "llmxive-proj-447"
 version = "0.1.0"
-description = "Impact of Simulated Social Validation on Self-Perception in Adolescents"
-readme = "README.md"
+description = "The Impact of Simulated Social Validation on Self-Perception in Adolescents"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -27,26 +26,15 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.eggs
-  | \.git
+    \.git
   | \.hg
   | \.mypy_cache
-  | \.nox
-  | \.pants\.d
-  | \.pytype
-  | \.ruff_cache
-  | \.svn
   | \.tox
   | \.venv
-  | \.bzr
   | _build
   | buck-out
   | build
   | dist
-  | node_modules
-  | venv
-  | data/raw
-  | data/processed
 )/
 '''
 
@@ -57,22 +45,6 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --strict-markers"
 markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
-]
-
-[tool.coverage.run]
-source = ["code"]
-omit = ["tests/*", "data/*"]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if __name__ == .__main__.:",
-    "if TYPE_CHECKING:",
-    "@abstractmethod",
+    "unit: Unit tests",
+    "integration: Integration tests",
 ]

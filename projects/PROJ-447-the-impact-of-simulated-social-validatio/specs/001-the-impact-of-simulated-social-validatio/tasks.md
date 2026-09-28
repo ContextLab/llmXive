@@ -77,7 +77,7 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for `code/data/generator.py` verifying that synthetic data converges to target SEM parameters in `tests/unit/test_generator.py` <!-- ATOMIZE: requested -->
+- [X] T009 [P] [US1] Unit test for `code/data/generator.py` verifying that synthetic data converges to target SEM parameters in `tests/unit/test_generator.py` <!-- ATOMIZE: requested -->
 - [X] T010 [P] [US1] Unit test for `code/data/validator.py` verifying that missing data (N < 100) or missing longitudinal order triggers a specific error in `tests/unit/test_validator.py`
 
 ### Implementation for User Story 1
@@ -138,10 +138,10 @@
 - [X] T024 [P] [US3] Implement `code/analysis/sensitivity.py` to re-run the regression with **three outlier strategies (none, IQR removal, winsorization) AND with critical confounders included/excluded (creating a 3x2 matrix of runs)**, reporting the variation in the primary coefficient for each strategy
 - [X] T025a [P] [US3] Implement `code/utils/exceptions.py` (if not already done) to define `StabilityThresholdViolationError` class inheriting from `Exception`
 - [X] T025 [US3] Implement logic in `code/analysis/sensitivity.py` to calculate the variation in the primary coefficient, **read the stability threshold from `code/utils/constants.py`**, and **if the variation exceeds the threshold, raise `StabilityThresholdViolationError` (imported from `code/utils/exceptions.py`) to halt the pipeline**.
-- [ ] T026 [P] [US3] Implement `code/analysis/nonlinearity.py` to fit a quadratic term for the primary predictor and report its significance
-- [ ] T027 [US3] Implement `code/viz/plots.py` to generate: (1) Scatter plot with regression line; (2) Residual diagnostic plot; (3) Save as PNG files in `data/processed/` with exact filenames: `scatter_plot.png`, `residuals.png`
+- [X] T026 [P] [US3] Implement `code/analysis/nonlinearity.py` to fit a quadratic term for the primary predictor and report its significance
+- [X] T027 [US3] Implement `code/viz/plots.py` to generate: (1) Scatter plot with regression line; (2) Residual diagnostic plot; (3) Save as PNG files in `data/processed/` with exact filenames: `scatter_plot.png`, `residuals.png`
 - [ ] T027a [US3] Implement logic to count the number of generated visualization files in `data/processed/` and validate the count against the minimum set requirement (SC-005), raising an error if the count is insufficient
-- [ ] T028 [US3] Update `code/main.py` to execute sensitivity and non-linearity checks after the primary model. **Explicitly catch `CausalLanguageViolationError` (from T020) and `StabilityThresholdViolationError` (from T025), and halt the pipeline immediately if either is raised.** Aggregate all results into a final report.
+- [X] T028 [US3] Update `code/main.py` to execute sensitivity and non-linearity checks after the primary model. **Explicitly catch `CausalLanguageViolationError` (from T020) and `StabilityThresholdViolationError` (from T025), and halt the pipeline immediately if either is raised.** Aggregate all results into a final report.
 
 **Checkpoint**: All user stories should now be independently functional
 

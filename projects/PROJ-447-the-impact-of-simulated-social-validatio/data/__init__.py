@@ -1,1 +1,3 @@
-# Data package
+"""
+Data module for raw and processed datasets.
+"""

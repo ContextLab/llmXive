@@ -2,10 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No evidence of the required directories (`projects/PROJ-543-predicting-molecular-interactions-in-pro/code/`, `.../data/raw/`, `.../data/processed/`, `.../data/results/`, `.../tests/`, `.../specs/`) was presented; the claim lacks any file‑system listing, screenshots, or command output confirming they were created. The implementer must provide concrete proof that the directory tree exists and is non‑empty.
-- **T001b** — No evidence of a Git repository being initialized nor a `.gitignore` file containing Python/data artifact patterns is present. The required artifacts (the repo metadata and the `.gitignore` contents) are missing, so the task is not satisfied.
-- **T002a** — No evidence of a Python 3.11 virtual environment (e.g., a `venv` directory, `pyvenv.cfg`, or activation scripts) was provided in the specified `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/` location. The implementer’s claim lacks any tangible artifact confirming the environment was created.
-- **T002b** — No artifact (e.g., requirements.txt, environment.yml, installation script, or pip/conda freeze output) is provided to demonstrate that the listed packages have been installed into a virtual environment. Without such evidence, we cannot verify that the dependencies are actually present. The task therefore remains incomplete.
-- **T003** — No linting or formatting configuration files (e.g., `setup.cfg`, `.flake8`, `pyproject.toml` with Black settings) or documentation of their integration were provided. Without these artifacts, the requirement to configure flake8/black cannot be verified as satisfied.
-- **T004** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T005** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T001b** — No evidence of a Git repository being created nor a `.gitignore` file containing Python/data artifact exclusions is provided; the claim lacks any actual artifact to verify. The required repository initialization and ignore configuration are missing.

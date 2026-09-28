@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directory structure: Execute `python projects/PROJ-543-predicting-molecular-interactions-in-pro/code/scripts/setup_dirs.py` which creates `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/raw/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/processed/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/results/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/tests/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/`.
+- [X] T001a [P] Create project directory structure: Execute `python projects/PROJ-543-predicting-molecular-interactions-in-pro/code/scripts/setup_dirs.py` which creates `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/raw/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/processed/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/results/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/tests/`, `projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/`.
 - [ ] T001b [P] Initialize git-repository and configure `.gitignore` for Python/data artifacts
 - [ ] T002a [P] Create Python 3.11 virtual environment in `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/`
 - [ ] T002b [P] Generate `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/requirements.txt` listing `torch`, `torch_geometric`, `rdkit`, `datasets`, `scikit-learn`, `pandas`, `pyyaml`, `biopython`.
@@ -59,42 +59,42 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. All tasks below must be completed.
 
 - [ ] T004 [P] Create `contracts/dataset_schema.schema.yaml` with the following content:
-  ```yaml
-  type: object
-  properties:
-    water_flag:
-      type: boolean
-    coordinates_3d:
-      type: array
-      items:
-        type: number
-    resolution:
-      type: number
-      minimum: 0
-    atom_type:
-      type: string
-    charge:
-      type: number
-    hydrophobicity:
-      type: number
-  required: [water_flag, coordinates_3d, resolution, atom_type, charge, hydrophobicity]
-  ```
+ ```yaml
+ type: object
+ properties:
+ water_flag:
+ type: boolean
+ coordinates_3d:
+ type: array
+ items:
+ type: number
+ resolution:
+ type: number
+ minimum: 0
+ atom_type:
+ type: string
+ charge:
+ type: number
+ hydrophobicity:
+ type: number
+ required: [water_flag, coordinates_3d, resolution, atom_type, charge, hydrophobicity]
+ ```
 - [ ] T005 [P] Create `contracts/output_schema.schema.yaml` with the following content:
-  ```yaml
-  type: object
-  properties:
-    cluster_id:
-      type: integer
-    p_value:
-      type: number
-    is_significant:
-      type: boolean
-    pharmacophore_match:
-      type: string
-    rmsd:
-      type: number
-  required: [cluster_id, p_value, is_significant, pharmacophore_match, rmsd]
-  ```
+ ```yaml
+ type: object
+ properties:
+ cluster_id:
+ type: integer
+ p_value:
+ type: number
+ is_significant:
+ type: boolean
+ pharmacophore_match:
+ type: string
+ rmsd:
+ type: number
+ required: [cluster_id, p_value, is_significant, pharmacophore_match, rmsd]
+ ```
 - [X] T006 [P] Create base `MolecularGraph` entity class in `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/models/entities.py`
 - [ ] T007 [P] Create `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/config.yaml` as a YAML file with the following exact keys and default values: `seed: 42`, `epochs: 50`, `cutoff: 5.0`, `alpha: 0.05`, `cutoffs_for_sensitivity: [3.0, 4.0, 5.0, 6.0]`, `timeout_hours: 4`. **MUST**: Ensure `alpha` matches Spec FR-006.
 - [ ] T008 [P] Implement `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/utils/logger.py` using `logging` module, outputting JSON to `logs/pipeline.log`. Track `peak_memory_mb` and `elapsed_time_s`.
@@ -146,7 +146,7 @@
 
 **Goal**: Train a 3-layer message-passing GNN to predict pKd and establish a baseline QSAR model.
 
-**Independent Test**: Train the model on the training split for up to 50 epochs or 4 hours. Evaluate on the test set. Verify MSE is finite and model file is saved.
+**Independent Test**: Train the model on the training split for up to 50 epochs or 4 hours. [UNRESOLVED-CLAIM: c_2e75caa5 — status=not_enough_info] Evaluate on the test set. Verify MSE is finite and model file is saved.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -185,9 +185,9 @@
 - [ ] T034 [US3] Implement `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/analysis/clustering.py`: DBSCAN clustering on aligned substructures (min_samples=5) to identify motifs (FR-004)
 - [ ] T035a1 [US3] **Primary Validation (T-Test)**: Implement `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/analysis/validation.py`: Compute two-sample t-tests comparing high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes for each identified cluster (Constitution Principle VII). **Input**: Extract importance scores for atoms belonging to each cluster from `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/results/attribution_scores.json`. **MUST**: Use `scipy.stats.ttest_ind` to compare `high_affinity_scores` vs `low_affinity_scores`. **Depends on**: T032, T034.
 - [ ] T035a2 [US3] **FDR Correction**: Apply Benjamini-Hochberg FDR correction (alpha=0.05 per Spec FR-006) to the raw p-values from T035a1 and generate the final validated motif list. **MUST**: Explicitly cite Spec FR-006 as the authority for alpha=0.05, overriding Plan/Constitution alpha=0.01 to prevent drift. **Depends on**: T035a1.
-- [ ] T037 [US3] **Secondary Validation (Permutation)**: Implement `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/analysis/validation.py`: **Permutation test with 1,000 iterations** of **atom coordinates** (shuffling spatial positions while preserving graph topology) to generate the null distribution required by SC-003 and FR-008. **MUST** execute to satisfy SC-003. **DO NOT** shuffle cluster labels. **Overlap Score**: Calculate overlap score as fraction of atoms within 1.5 Å of original centroid. **Output**: Generate and save `null_distribution.json` containing the distribution of overlap scores from the permuted coordinates. **Depends on**: T034.
+- [ ] T037 [US3] **Secondary Validation (Permutation)**: Implement `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/analysis/validation.py`: **Permutation test with 1,000 iterations** of **atom coordinates** (shuffling spatial positions while preserving graph topology) to generate the null distribution required by SC-003 and FR-008. **MUST** execute to satisfy SC-003. **DO NOT** shuffle cluster labels. **Overlap Score**: Calculate overlap score as fraction of atoms within 1.5 Å of original centroid. [UNRESOLVED-CLAIM: c_37f06341 — status=not_enough_info] **Output**: Generate and save `null_distribution.json` containing the distribution of overlap scores from the permuted coordinates. **Depends on**: T034.
 - [ ] T038 [US3] **Statistical Validation Logic**: Implement `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/analysis/validation.py`: **OR Logic**. If the permutation test (T037) yields p < 0.05, the motif is statistically significant. If p >= 0.05, the motif is NOT significant, and the project **stops** for that metric (do not run MM-GBSA to "rescue" significance). MM-GBSA (T044b) is ONLY for novel scaffolds that failed pharmacophore matching, not for validating statistical significance. **Depends on**: T037.
-- [ ] T038a0 [US3] **Ingest ChEMBL Reference**: Download `chembl_snapshot.json` from `https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/releases/` and verify the cryptographic checksum against `data/checksums.yaml` (generated by T038a0a). **MUST**: Raise exception if checksum fails (NO synthetic fallback). **Depends on**: T038a0a.
+- [ ] T038a0 [US3] **Ingest ChEMBL Reference**: Download `chembl_snapshot.json` from ` and verify the cryptographic checksum against `data/checksums.yaml` (generated by T038a0a). **MUST**: Raise exception if checksum fails (NO synthetic fallback). **Depends on**: T038a0a.
 - [ ] T038a1 [US3] **Generate Pharmacophore Reference**: Process `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/raw/chembl_snapshot_v29.json` (from T038a0) to extract standard pharmacophore features (H-bond donor/acceptor, hydrophobic, aromatic) and save to `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/reference/pharmacophores.json`. **MUST**: Validate against `contracts/output_schema.schema.yaml` subset. **Schema Requirement**: Output JSON must be a list of objects with keys: `id` (str), `features` (dict with bools for 'H-bond_donor', 'H-bond_acceptor', 'hydrophobic', 'aromatic'), and `coordinates` (list of 3 floats). **Depends on**: T038a0.
 - [ ] T039 [US3] Implement cross-referencing against known pharmacophore set in `projects/PROJ-543-predicting-molecular-interactions-in-pro/data/reference/pharmacophores.json` (generated in T038a1) using Kabsch algorithm (RMSD < 1.5 Å) and reporting matches (FR-005). **Depends on**: T038a1.
 - [ ] T040 [US3] Implement ablation study in `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/analysis/validation.py`: Validate attribution scores against random edge removal and feature permutation baselines

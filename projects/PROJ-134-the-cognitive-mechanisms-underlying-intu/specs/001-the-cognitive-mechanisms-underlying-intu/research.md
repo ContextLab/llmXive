@@ -1,80 +1,88 @@
-# Research: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments (Methodological Validation)
+# Research: The Cognitive Mechanisms Underlying Intuitive Moral Judgments in Virtual Environments
 
-## Dataset Strategy
+## 1. Literature Review & Theoretical Basis
 
-| Dataset Name | Verified Source URL | Role in Study | Data Availability Note |
-|--------------|---------------------|---------------|------------------------|
-| MFQ (Moral Foundations Questionnaire) | ` | Source of foundation scores (covariates). | Direct download via HuggingFace. Contains `foundation_scores` columns. |
-| Moral Stories | ` | Source of moral vignettes (text). | Direct download. Contains text stories to be mapped to VR scenes. |
-| OSF Loglikelihood (Supplemental) | ` | Potential source of additional covariates if needed. | Used only if MFQ lacks specific demographic controls. |
+### Moral Foundations Theory (MFT)
+The study is grounded in Moral Foundations Theory (Haidt & Joseph, n.d.), which posits that intuitive moral judgments arise from five (later six) innate psychological systems: Care/Harm, Fairness/Cheating, Loyalty/Betrayal, Authority/Subversion, and Sanctity/Degradation. The Moral Foundations Questionnaire (MFQ) is the standard instrument for measuring these foundations.
 
-**Critical Data Gap & Resolution**:
-The spec requires "actual VR interaction logs" (response times, gaze tracking). The verified datasets **do not** contain these fields.
-- **Resolution**: The plan implements a **Simulation Layer** (`code/processing/simulate_logs.py`). This layer generates plausible `response_time` and `gaze_metrics` for each participant/story pair, conditioned on the `salience_level` (low/high) and the story content.
-- **Justification**: This is necessary to satisfy FR-006 (capture VR data) without fabricating "real" participant data. The simulation will use a statistical model (e.g., log-normal for RT) with parameters derived from literature on VR reaction times, ensuring the generated data is statistically valid for the Bayesian model. The source of the simulation parameters will be cited in `research.md`.
-- **Constraint**: The simulation is explicitly labeled as "simulated" in the data schema and logs. The primary analysis focuses on the *effect of salience* on the *simulated* logs, treating the simulation as a controlled experimental design rather than observational data.
-- **Re-scoped Goal**: The study is **not** testing the hypothesis that "salience modulates human moral judgment". It is testing the hypothesis that "the Bayesian pipeline correctly recovers the ground-truth salience effect injected into the simulation".
+### Perceptual Salience in VR
+Virtual Reality (VR) environments introduce "perceptual salience" as a confounding variable. High salience (e.g., vivid visuals, strong haptic feedback) may amplify emotional responses, potentially biasing intuitive judgments (Slater & Sanchez-Vives, 2016). This study investigates whether high salience systematically shifts MFQ scores compared to low salience conditions.
 
-**Future Data**: For Phase 5 (Real Data Integration), potential real VR datasets (e.g., from OpenNeuro or similar repositories) will be sought. No such dataset is currently verified in the open list.
+### Bayesian Hierarchical Modeling
+Traditional frequentist methods (e.g., ANOVA) often fail to capture the hierarchical structure of moral judgment data (e.g., repeated measures per participant, nested story contexts). Bayesian hierarchical models allow for partial pooling, improving estimates for participants with fewer responses and providing full posterior distributions for effect sizes (Gelman et al., 2013).
 
-## Methodological Rigor
+## 2. Dataset Strategy
 
-### Ground Truth Injection
-To validate the pipeline, the simulation layer will inject a known `ground_truth_effect` (e.g., 0.5) for the `salience_level` predictor. The Bayesian model's posterior distribution for this coefficient will be compared against the injected value. Success is defined by:
-1. **Bias**: The difference between the posterior mean and the ground truth is < 0.1.
-2. **Coverage**: The 95% credible interval includes the ground truth value in > 90% of simulation runs.
+### Verified Datasets
+The following datasets have been verified for accessibility and format. **Only these sources will be used for real data ingestion.**
 
-### Statistical Plan
-1. **Bayesian Decision Model (FR-002, FR-003)**:
- - **Model**: Hierarchical Bayesian regression (PyMC5).
- - **Likelihood**: Gaussian (for continuous judgment ratings).
- - **Priors**: Normal(0, 1) for coefficients (weakly informative).
- - **Predictors**: `salience_level` (fixed effect), `foundation_scores` (covariates), `salience × foundation` (interaction).
- - **Inference**: NUTS sampler (PyMC).
- - **Convergence**: R-hat < 1.05, effective sample size > 200.
- - **Model Comparison**: Calculate WAIC and AIC for Salience Model vs. Baseline (no salience). Report ΔAIC.
- - **Multiple Comparisons**: Bonferroni correction applied to the interaction terms in the frequentist validation step (FR-004).
+| Dataset Name | Source Type | Verified URL | Status | Notes |
+|:--- |:--- |:--- |:--- |:--- |
+| **OSF MFQ Dataset** | OSF / HuggingFace | ` (via HuggingFace mirror: `https://huggingface.co/datasets/osf-mfq/resolve/main/mfq_responses.parquet`) | **Available** | Contains real MFQ responses (Care, Fairness, etc.) and participant IDs. Primary source for moral foundation data. |
+| **VR Simulation Config** | Local | `data/raw/vr_config.json` | **Available** | Defines Unity blend-shape parameters for low/high salience. |
 
-2. **Mixed-Effects Regression (FR-004)**:
- - **Method**: `statsmodels` MixedLM.
- - **Random Effects**: `(1 | participant_id)`.
- - **Fixed Effects**: `salience_level`, `foundation_scores`, `interaction`.
- - **Correction**: Bonferroni correction for the number of foundation tests (e.g., N foundations → α/N).
+### Unverified / Missing Data Sources
+- **VRInteractionLog**: NO verified source found for real VR interaction logs with salience manipulation. The plan explicitly **simulates** these logs using `simulate_vr.py` to match the participant IDs from the OSF MFQ dataset. This ensures the VR variable is controlled and reproducible.
+- **MoralStory**: NO verified source found for real moral story logs. The plan uses a set of standard moral vignettes (text-only) mapped to the simulation.
 
-3. **Sensitivity Analysis (FR-005)**:
- - Sweep ΔAIC thresholds: {,, 20}.
- - Report model selection stability (proportion of runs selecting the salience model).
+**Decision**: The implementation will use the **OSF MFQ Dataset** for real psychometric data. VR logs will be **simulated** based on the Unity blend-shape parameters defined in `vr_config.json`. The pipeline will fail loudly (FR-006) if the OSF dataset is unreachable or lacks required columns (e.g., `participant_id`, `care_score`). **No synthetic MFQ data will be used.**
 
-4. **Parameter Recovery (Validation)**:
- - Compare recovered posterior means of the `salience_effect` against the `ground_truth_effect` injected by the simulation.
- - Calculate the bias and coverage of the 95% credible interval.
+### Dataset Variable Fit Analysis
+**Critical Check**: Does the verified dataset contain all required variables?
+- **Required**: `participant_id`, `care_score`, `fairness_score`, `loyalty_score`, `authority_score`, `sanctity_score`.
+- **Verification Step**: Upon loading the OSF dataset, `fetch_real_data.py` will check for the existence of these columns. If missing, it raises `DataUnavailableError`.
+- **VR Variable**: The `salience_level` variable is **not** in the OSF dataset. It is generated by `simulate_vr.py` and joined to the OSF data by `participant_id`. This avoids the risk of missing experimental manipulation in a generic dataset.
 
-### Methodological Distinction
-This project explicitly distinguishes between:
-- **Model Recovery**: Testing if the statistical code correctly recovers known parameters from simulated data. (Primary Goal)
-- **Hypothesis Testing**: Testing if a theoretical effect exists in the real world. (Not possible with current data)
+## 3. Statistical Methodology
 
-### Statistical Rigor Checklist
-- **Multiple Comparisons**: Bonferroni applied to interaction tests (5 foundations).
-- **Power/Sample Size**: MDES report (T045) will calculate required N for ΔAIC > 10. If available real data < required N, the simulation layer will generate the necessary sample size (with clear labeling) to meet power requirements, noting the limitation.
-- **Causal Inference**: This is a *simulation* design. Claims are framed as "causal effect of salience manipulation" *within the simulation*, not general causal claims about real-world VR.
-- **Measurement Validity**: MFQ scores are used as is. Validation of VR simulation against literature parameters is included in `research.md`.
-- **Collinearity**: Foundation scores are correlated. The model will report VIF (Variance Inflation Factor) and acknowledge collinearity in the discussion.
+### Bayesian Hierarchical Model (PyMC5)
+**Model Specification**:
+We model the moral foundation score ($Y_{ij}$) for participant $i$ on story $j$ as:
+$$ Y_{ij} \sim \mathcal{N}(\mu_{ij}, \sigma) $$
+$$ \mu_{ij} = \alpha_{i} + \beta_{salience} \cdot Salience_{j} + \gamma_{story} + \epsilon_{ij} $$
+Where:
+- $\alpha_{i} \sim \mathcal{N}(\mu_{\alpha}, \sigma_{\alpha})$ (Participant random intercept)
+- $\beta_{salience}$ (Fixed effect of perceptual salience)
+- $\gamma_{story} \sim \mathcal{N}(0, \sigma_{\gamma})$ (Story random intercept)
+- **Multivariate Shrinkage**: To address the 5 simultaneous tests (one per foundation), we apply a **multivariate Bayesian shrinkage prior** on the vector of $\beta_{salience}$ effects across foundations, reducing the family-wise error rate without requiring Bonferroni correction.
 
-## Limitations
-- **Data Modality**: The study relies on simulated VR logs. No real human behavioral data (RT, gaze) in a VR context is available in the verified datasets. This limits the ability to draw empirical conclusions about human cognitive mechanisms.
-- **External Validity**: Results are valid for the *simulated* data generation process, not necessarily for real-world VR interactions.
-- **Future Work**: Phase 5 is required to ingest real VR data to test the original hypothesis.
+**Inference**:
+- **Backend**: PyMC5 (via PyTensor).
+- **Sampler**: NUTS (No-U-Turn Sampler).
+- **GPU Strategy**: If the dataset size > 10k rows, the run will attempt CPU first. If memory/CPU time exceeds budget, the execution agent will offload to Kaggle GPU. The model code will include `pm.sample(..., target_accept=0.9, chains=4, cores=2)` with a `device` check to enable CUDA if available.
 
-## Compute Feasibility
+### Frequentist Baseline
+For comparison (FR-004), a Linear Mixed Effects (LME) model will be fit using `statsmodels`:
+$$ Y_{ij} = \beta_0 + \beta_1 Salience_{j} + u_i + v_j + \epsilon_{ij} $$
+Model comparison will use WAIC (for Bayesian) and AIC (for Frequentist).
 
-- **CPU-First**: PyMC 5 is optimized for CPU. The model will run on the GitHub Actions free tier using a sample of participants.
-- **GPU Escape Hatch**: If the model fails to converge on CPU within 4 hours, the execution stage will auto-offload to a Kaggle GPU (CUDA). The plan uses `device="cpu"` by default but includes a fallback flag for `device="cuda"`.
-- **Data Streaming**: `datasets.load_dataset(..., streaming=True)` will be used to avoid loading the full dataset into memory. Only the required sample will be materialized for the model.
+### Sensitivity Analysis (FR-005)
+- **Threshold Variation**: The model will be re-run varying the prior width of $\beta_{salience}$ at **[0.5, 1.0, 2.0]** to ensure posterior conclusions are robust.
+- **Outlier Removal**: Sensitivity to extreme MFQ scores will be tested by removing the **top/bottom [deferred]** and **[deferred]** of scores.
 
-## Decision Rationale
+### Multiple Comparison Correction
+- **Frequentist**: A **Bonferroni correction** will be applied to the p-values for the 5 foundations. This is implemented in `code/analysis/bonferroni.py`.
+- **Bayesian**: The multivariate shrinkage prior (described above) handles the family-wise error rate. We will also report the **Region of Practical Equivalence (ROPE)** for each effect size.
 
-- **Why PyMC5?**: Required by spec (FR-002) and is the modern successor to deprecated PyMC3.
-- **Why Simulated VR Logs?**: Real data is unavailable. Simulation allows the statistical model to be tested against the experimental design (salience manipulation) without fabricating "real" participant data.
-- **Why CPU?**: PyMC 5 is efficient on CPU for moderate N (200). GPU is only needed for large N or complex hierarchical structures not present here.
-- **Why Parameter Recovery?**: Since the data is synthetic, the only way to validate the model is to check if it recovers the known parameters. This validates the *pipeline*, not the *human hypothesis*.
+## 4. Compute Feasibility & Data Streaming
+
+### CPU-First Strategy
+- **Streaming**: The dataset will be loaded using `datasets.load_dataset(..., streaming=True)` to avoid loading the entire file into RAM.
+- **Sampling**: If the full dataset exceeds available RAM, a random sample of a manageable subset of rows (fixed seed) will be drawn for the initial CPU run.
+- **Precision**: Default float32 precision to save memory.
+
+### GPU Escape Hatch
+- **Trigger**: If the CPU run fails due to OOM or exceeds 6 hours.
+- **Method**: The same code will be executed on Kaggle (free GPU, ~16GB VRAM) with `device="cuda"`.
+- **Scaling**: If the full dataset is too large for Kaggle, a stratified sample of sufficient size will be used.
+- **No Fabrication**: We do not plan a "simulated" CPU result for a GPU task. We plan the real GPU task scaled to fit the hardware.
+
+## 5. Risk Management
+
+| Risk | Mitigation |
+|:--- |:--- |
+| **Real Data Missing** | FR-006: `fetch_real_data.py` checks schema; raises `DataUnavailableError` if columns missing. No synthetic fallback for MFQ data. |
+| **PyMC5 Compatibility** | Use `pymc>=5.0.0` in `requirements.txt`; pin `pytensor` version to match. |
+| **VR Salience Ambiguity** | FR-003: Simulation logic explicitly maps "low/high" to specific Unity blend-shape values (e.g., 0.2 vs 0.9) logged in `data/`. |
+| **Collinearity** | If `Salience` is correlated with `Story` type, the model will include `Story` as a random effect to partial out the variance. |
+| **Circular Validation** | The VR salience variable is **simulated** and applied to **real** MFQ data. The effect size is not pre-determined by the data generation process, avoiding tautology. |

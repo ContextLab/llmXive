@@ -91,9 +91,9 @@ max-line-length = 88
 import os
 
 INPUT_PATHS = {
-    "microbiome": "data/raw/microbiome.csv",
-    "cognitive": "data/raw/cognitive.csv",
-    "dietary": "data/raw/dietary.csv"
+ "microbiome": "data/raw/microbiome.csv",
+ "cognitive": "data/raw/cognitive.csv",
+ "dietary": "data/raw/dietary.csv"
 }
 RANDOM_SEED = 42
 SAMPLE_LIMIT = 50000
@@ -105,14 +105,14 @@ ALLOW_LOCAL_DATA = True
 - [X] T005 [P] Implement deterministic data loading utility in `code/data_utils.py` to handle chunked reading of large CSVs. **Exact Function Signature**:
 ```python
 def load_chunked(path: str, chunk_size: int = 10000):
-    """
-    Loads a CSV in chunks. Raises FileNotFoundError if path does not exist.
-    Yields pandas DataFrames.
-    """
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"File not found: {path}")
-    for chunk in pd.read_csv(path, chunksize=chunk_size):
-        yield chunk
+ """
+ Loads a CSV in chunks. Raises FileNotFoundError if path does not exist.
+ Yields pandas DataFrames.
+ """
+ if not os.path.exists(path):
+ raise FileNotFoundError(f"File not found: {path}")
+ for chunk in pd.read_csv(path, chunksize=chunk_size):
+ yield chunk
 ```
 - [X] T006 [P] Setup logging infrastructure in `code/logging_config.py` to record provenance and warnings (e.g., zero variance detection). **Exact Configuration**:
 ```python
@@ -121,10 +121,10 @@ import os
 
 os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
-    filename="logs/provenance.log",
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
+ filename="logs/provenance.log",
+ level=logging.INFO,
+ format='%(asctime)s - %(levelname)s - %(message)s',
+ datefmt='%Y-%m-%d %H:%M:%S'
 )
 ```
 **Data Source Verification & Execution Safety (Moved from Phase O)**
@@ -218,16 +218,16 @@ logging.basicConfig(
 
 ### Implementation for User Story 2
 
-- [ ] T020 [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Dependency**: T045 (Spec Override). Input: wide format taxa matrix. Output column: `shannon_index` (FR-002). **Exact Code**: `shannon = skbio.diversity.alpha.shannon(counts)`. **Verification**: Verify input is integer type; raise `ValueError` if non-integer detected. Verify output column `shannon_index` exists in the processed data and contains non-negative float values.
+- [X] T020 [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Dependency**: T045 (Spec Override). Input: wide format taxa matrix. Output column: `shannon_index` (FR-002). **Exact Code**: `shannon = skbio.diversity.alpha.shannon(counts)`. **Verification**: Verify input is integer type; raise `ValueError` if non-integer detected. Verify output column `shannon_index` exists in the processed data and contains non-negative float values.
 - [ ] T020b [User Story 2] Verify Input Integrity: **Depends on T020**. Add a verification step to confirm the input to `scikit-bio` is raw counts (integers) and NOT CLR-transformed floats. **Exact Logic**: Check column types. If any taxa column is float, raise `ValueError` with message "Input data must be raw counts (integers), not transformed values." **Dependency**: T020.
-- [ ] T021 [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path), not alpha diversity (FR-003, Plan Correction). **Exact Logic**: `clr = np.log(counts + 1) - np.mean(np.log(counts + 1), axis=1, keepdims=True)`.
+- [X] T021 [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path), not alpha diversity (FR-003, Plan Correction). **Exact Logic**: `clr = np.log(counts + 1) - np.mean(np.log(counts + 1), axis=1, keepdims=True)`.
 - [ ] T022 [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence. **Dependency**: T046 (Spec Override). **Critical Validation**: Verify input is raw counts, not CLR-transformed. Raise `ValueError` if non-integer or CLR-transformed data detected. Output schema: `r_value`, `p_value`, `n_obs` (User Story 2, SC-001 corrected). **Verification**: Verify `data/processed/correlation_results.csv` is created with columns `r_value`, `p_value`, `n_obs`.
 - [ ] T023 [User Story 2] Implement multivariate linear regression (Primary Path) in `code/analysis.py` using `statsmodels` with predictors: `shannon_index`, Age, Sex, BMI, DQS (FR-004). **Dependency**: T014c (DQS Calculation). **Logic**: If DQS column is missing from `cleaned_data.csv` and `DQS_REQUIRED` is False, exclude it from the model and log a warning to `provenance.log`. If DQS is required by the current run configuration (per T014a), raise a fatal error. **Dependency**: T015 (Cleaned Data). **Exact Formula**: `fluid_intelligence ~ shannon_index + age + C(sex) + bmi + dqs`. **Verification**: Verify `data/processed/regression_results.csv` is created with columns `coefficient`, `std_err`, `p_value`.
 - [ ] T024 [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` to check for unstable coefficients (Plan: Complexity Tracking). **Exact Logic**: Calculate VIF for all predictors. If any VIF > 5, log warning: "High multicollinearity detected: {var} has VIF {vif}". Output: Save VIF values to `data/processed/vif_results.json`. **Dependency**: T023.
-- [ ] T025a [User Story 2] Implement edge case detection: In `code/analysis.py`, detect zero variance in fluid intelligence scores. **Exact Logic**: `if df['fluid_intelligence'].var() < 1e-9: raise ValueError("Zero variance in target")`.
+- [X] T025a [User Story 2] Implement edge case detection: In `code/analysis.py`, detect zero variance in fluid intelligence scores. **Exact Logic**: `if df['fluid_intelligence'].var() < 1e-9: raise ValueError("Zero variance in target")`.
 - [ ] T025c [User Story 2] Implement edge case logging: If zero variance is detected (T025a), skip correlation and log a warning to `data/processed/analysis_warnings.log`. **Exact Message**: "Warning: Zero variance in fluid_intelligence; skipping correlation."
 - [ ] T025b [User Story 2] Implement Residual Normality Validation (Primary Path): In `code/analysis.py`, perform Shapiro-Wilk test on regression residuals for the Primary Path (OLS). Save validation report to `data/processed/regression_diagnostics.json` (Plan: Constitution Check). **Scope**: Only for OLS model. **Exact Logic**: `if p > 0.05: pass else: log_warning`.
-- [ ] T029a [User Story 2] Implement Secondary Path Lasso Regression: In `code/analysis.py`, implement Lasso regression using `sklearn.linear_model.Lasso` on CLR-transformed taxa (output of T021) to predict `fluid_intelligence`. **Dependency**: T021 (CLR), T020 (Shannon for comparison). **Logic**: Use 5-fold cross-validation for alpha selection. **Exact Code**: `Lasso(alpha=alpha, cv=5).fit(X, y)`. **Scope**: High-dimensional taxa data only.
+- [X] T029a [User Story 2] Implement Secondary Path Lasso Regression: In `code/analysis.py`, implement Lasso regression using `sklearn.linear_model.Lasso` on CLR-transformed taxa (output of T021) to predict `fluid_intelligence`. **Dependency**: T021 (CLR), T020 (Shannon for comparison). **Logic**: Use 5-fold cross-validation for alpha selection. **Exact Code**: `Lasso(alpha=alpha, cv=5).fit(X, y)`. **Scope**: High-dimensional taxa data only.
 - [ ] T029b [User Story 2] Save Lasso results: Write Lasso coefficients, non-zero feature count, and performance metrics to `data/processed/lasso_results.csv`.
 - [ ] T029c [User Story 2] Implement Residual Normality Validation (Secondary Path): In `code/analysis.py`, perform Shapiro-Wilk test on Lasso regression residuals. Save validation report to `data/processed/lasso_diagnostics.json`. **Scope**: Only for Lasso model. **Dependency**: T029a. **Exact Logic**: `if p > 0.05: pass else: log_warning`.
 - [ ] T026 [User Story 2] Save correlation results: Write `r_value`, `p_value`, `n_obs` to `data/processed/correlation_results.csv`. **Exact Columns**: `r_value`, `p_value`, `n_obs`.
