@@ -1,12 +1,11 @@
 T015#2:
   c: false
-  h: e9e163a97d744bec54db7faae08a15c0d0286da805bfe84fdf870c72f5b23389
-  r: "The provided `manipulator.py` only contains validation and the `add_minor_objects`\
-    \ helper; it lacks a processing loop that iterates over baseline images, catches\
-    \ manipulation failures, logs them to `data/logs/manipulation_errors.log`, and\
-    \ continues. Moreover, the required log file does not exist on disk. These missing\
-    \ pieces mean the task\u2019s error\u2011handling and full compositing pipeline\
-    \ are not implemented."
+  h: 70defa1ca3ea3f4d7d924ee0dfe526fe90acb616d7c9ac1ac3abade3153e6cde
+  r: "The provided `code/stimuli/manipulator.py` is truncated and shows only a reduced\u2011\
+    detail function; there is no visible implementation of the required enhanced\u2011\
+    detail compositing, nor evidence of error handling that writes to `data/logs/manipulation_errors.log`.\
+    \ Additionally, the log file itself is missing. The task\u2019s core requirements\
+    \ are therefore not satisfied."
 T016:
   c: false
   h: e9e163a97d744bec54db7faae08a15c0d0286da805bfe84fdf870c72f5b23389
@@ -15,6 +14,13 @@ T016:
     \ (Gaussian blur or masking) nor any error\u2011handling that writes to `data/logs/manipulation_errors.log`.\
     \ Additionally, the required log file does not exist. The task\u2019s core requirements\
     \ are therefore unmet."
+T017a:
+  c: false
+  h: 0b2e26c380bae145a380c7cbbeb5a4f3b758ccd910148a83f459fc002e6aa95a
+  r: "The required output files `data/stimuli/enhanced_{id}_metadata.yaml` and `data/stimuli/reduced_{id}_metadata.yaml`\
+    \ are not present (the only artifact shown is the generation log JSON, and a placeholder\
+    \ `_metadata.yaml` is missing). Hence the task\u2019s core deliverable \u2013\
+    \ the generated metadata files \u2013 has not been produced."
 T032:
   c: false
   h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
@@ -34,17 +40,3 @@ T045:
     or corrected quickstart.md) to demonstrate that the quickstart.md file was validated
     successfully. Consequently, there is no evidence that the required validation
     was performed.
-T093:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a `research.md` file or its updated contents was provided; the\
-    \ required new section \u201CThe Ladder of Explanation: A Behavioral Gap\u201D\
-    \ is not present in any shown artifact. The implementer must supply the modified\
-    \ `research.md` with the exact requested paragraph."
-T098:
-  c: false
-  h: 6c732bc034bcdc52945039c7a4dc4d51342c7e2cb89d6842ced76aacd2a47ca7
-  r: The repository lacks the required `data/analysis/anova_results.json` file, and
-    the provided `code/analysis/anova.py` does not contain any logic that writes a
-    `hypothesis_gap` field to such a JSON output. Consequently, the specified disclaimer
-    is not added and the output artifact is missing.

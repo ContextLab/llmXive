@@ -1,8 +1,13 @@
 """
 Data loading utilities for the Visual Detail and False Memory project.
 
-This module handles fetching real datasets (COCO 2017), loading metadata,
-and processing images with robust error handling.
+This module provides robust error handling for:
+1. Missing metadata files
+2. Failed dataset fetches from external sources
+3. Corrupted or invalid data files
+
+It ensures that the pipeline fails loudly with clear error messages rather than
+silently falling back to synthetic data.
 """
 
 import json
@@ -11,247 +16,293 @@ import math
 import os
 import random
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Iterator
+from typing import Optional, Dict, Any, List, Tuple
 
-# Import logging utilities from the project's utils
+import yaml
+from datasets import load_dataset
+from PIL import Image
+from io import BytesIO
+
+from config import get_project_root, get_stimuli_dir, get_stimuli_metadata_dir, get_data_dir
 from utils.logging import get_logger, log_error
-from config import get_stimuli_dir, get_stimuli_metadata_dir, get_logs_dir
+from data.checksum import compute_file_checksum, verify_checksum
 
-# Import Image entity
-from data.image import Image
-
-# Configure module logger
+# Configure logger
 logger = get_logger(__name__)
 
-# Constants
-MISSING_METADATA_ERROR = "Metadata file missing for image ID: {}"
-FETCH_FAILED_ERROR = "Failed to fetch image ID: {} from dataset source"
-PROCESSING_FAILED_ERROR = "Failed to process image ID: {}"
-LOG_FILE_PATH = None  # Will be initialized dynamically
+class DataLoadError(Exception):
+    """Custom exception for data loading failures."""
+    pass
 
-def _get_manipulation_error_log_path() -> Path:
-    """Get the path to the manipulation error log file."""
-    global LOG_FILE_PATH
-    if LOG_FILE_PATH is None:
-        logs_dir = get_logs_dir()
-        LOG_FILE_PATH = logs_dir / "manipulation_errors.log"
-        # Ensure the directory exists
-        LOG_FILE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    return LOG_FILE_PATH
+class MetadataNotFoundError(DataLoadError):
+    """Exception raised when metadata file is missing."""
+    pass
 
-def generate_mock_visual_genome(count: int = 10) -> List[Dict[str, Any]]:
+class FetchFailedError(DataLoadError):
+    """Exception raised when dataset fetch fails."""
+    pass
+
+class IntegrityError(DataLoadError):
+    """Exception raised when data integrity check fails."""
+    pass
+
+def generate_mock_visual_genome(output_dir: Path, count: int = 10) -> List[Dict[str, Any]]:
     """
-    Generate a small set of mock Visual Genome-like metadata for testing.
+    Generate mock Visual Genome image metadata for testing purposes ONLY.
+    
+    WARNING: This function is for CI/testing only. It MUST NOT be used in
+    production or research runs. Real data must always be loaded from
+    the actual Visual Genome dataset.
     
     Args:
-        count: Number of mock items to generate.
+        output_dir: Directory to write mock metadata files
+        count: Number of mock entries to generate
         
     Returns:
-        List of dictionaries containing mock image metadata.
-    """
-    mock_data = []
-    categories = ["vehicle", "animal", "furniture", "food", "electronics"]
-    
-    for i in range(count):
-        item = {
-            "image_id": f"mock_{i:04d}",
-            "width": 512,
-            "height": 512,
-            "objects": [
-                {
-                    "name": f"mock_object_{i}",
-                    "category": random.choice(categories),
-                    "bbox": [50, 50, 100, 100],
-                    "confidence": 0.9
-                }
-            ],
-            "complexity_score": random.uniform(0.3, 0.7)
-        }
-        mock_data.append(item)
+        List of mock metadata dictionaries
         
+    Raises:
+        ValueError: If called in production mode
+    """
+    # This is strictly for testing - raise if used inappropriately
+    if os.environ.get("ALLOW_MOCK_DATA", "false").lower() != "true":
+        raise DataLoadError(
+            "Mock data generation is disabled. Set ALLOW_MOCK_DATA=true for testing only. "
+            "Production runs must use real data from the Visual Genome dataset."
+        )
+    
+    logger.warning(f"Generating {count} mock Visual Genome entries (TEST MODE ONLY)")
+    mock_data = []
+    for i in range(count):
+        mock_entry = {
+            "image_id": f"mock_{i:04d}",
+            "url": f"https://example.com/mock/{i}.jpg",
+            "width": 640,
+            "height": 480,
+            "objects": [{"name": "mock_object"}],
+            "attributes": [],
+            "relationships": []
+        }
+        mock_data.append(mock_entry)
+        
+        # Write mock metadata file
+        metadata_path = output_dir / f"mock_{i:04d}_metadata.json"
+        with open(metadata_path, 'w') as f:
+            json.dump(mock_entry, f, indent=2)
+    
     return mock_data
 
-def fetch_real_dataset_image(image_id: str) -> Optional[Dict[str, Any]]:
+def fetch_real_dataset_image(image_id: str, subset_dir: Path) -> Optional[Path]:
     """
-    Fetch a single image and its metadata from the real dataset source (COCO 2017).
+    Fetch a real image from the Visual Genome dataset.
     
-    This function attempts to retrieve image data. If the fetch fails for an 
-    individual image, it logs the error and returns None, allowing the pipeline
-    to continue processing other images.
+    This function attempts to load the image from the pre-bundled subset.
+    If the image is not found in the local subset, it will attempt to fetch
+    it from the streaming dataset.
     
     Args:
-        image_id: The unique identifier for the image in the dataset.
+        image_id: The unique identifier for the image
+        subset_dir: Directory containing the pre-bundled subset
         
     Returns:
-        A dictionary containing image metadata if successful, None otherwise.
+        Path to the downloaded image file, or None if fetch fails
         
     Raises:
-        SystemExit: If the entire dataset fetch mechanism fails (not individual images).
+        FetchFailedError: If the image cannot be retrieved from any source
+        IntegrityError: If checksum verification fails
     """
+    logger.info(f"Attempting to fetch image {image_id}")
+    
+    # First, check local pre-bundled subset
+    local_path = subset_dir / f"{image_id}.jpg"
+    if local_path.exists():
+        logger.info(f"Found image {image_id} in local subset")
+        # Verify checksum if manifest exists
+        manifest_path = subset_dir / "manifest.sha256"
+        if manifest_path.exists():
+            if not verify_checksum(local_path, manifest_path):
+                raise IntegrityError(f"Checksum mismatch for image {image_id}")
+        return local_path
+    
+    # If not in local subset, try streaming fetch
     try:
-        # Attempt to load the dataset in streaming mode
-        # Using datasets library to access COCO 2017
-        try:
-            from datasets import load_dataset
-        except ImportError:
-            logger.error("The 'datasets' library is not installed. Please install it via pip.")
-            raise SystemExit("Dependency 'datasets' not found. Cannot fetch real data.")
-
-        logger.info(f"Attempting to fetch image {image_id} from COCO 2017...")
-        
-        # Load the dataset in streaming mode to handle large sizes
-        dataset = load_dataset("coco_2017", split="train", streaming=True)
-        
-        # Iterate to find the specific image
-        # Note: In a real streaming scenario, we might need to filter by ID
-        # For this implementation, we assume the image_id corresponds to an index or specific filter
-        # If the dataset structure requires a different lookup, it should be adjusted here.
-        
-        # Since COCO 2017 in HuggingFace might not have a direct 'id' filter in streaming
-        # without loading the whole index, we implement a robust fetch strategy:
-        # 1. Try to find the image by iterating (for small subsets) or by index if ID is numeric.
-        # 2. If the ID is not found, we log and return None.
-        
-        found_image = None
-        count = 0
-        
-        # Limit iteration to avoid hanging if ID is not found (safety break)
-        # In a production system, we would use a dataset index or map function.
-        max_iter = 10000 
+        logger.info(f"Fetching image {image_id} from streaming dataset")
+        dataset = load_dataset("visual_genense", split="train", streaming=True)
         
         for item in dataset:
-            if count >= max_iter:
-                logger.warning(f"Stopped searching for image {image_id} after {max_iter} items.")
-                break
-            
-            # Check if this item matches the requested ID
-            # COCO images usually have an 'id' field
-            if str(item.get("id", "")) == image_id or str(item.get("image_id", "")) == image_id:
-                found_image = item
-                break
-            
-            count += 1
+            if str(item.get('image_id')) == image_id:
+                img_data = item.get('image')
+                if img_data:
+                    # Save to local file
+                    output_path = subset_dir / f"{image_id}.jpg"
+                    img_data.save(output_path)
+                    logger.info(f"Successfully saved image {image_id} to {output_path}")
+                    return output_path
         
-        if found_image:
-            logger.info(f"Successfully fetched image {image_id}")
-            return found_image
-        else:
-            logger.warning(f"Image {image_id} not found in the dataset stream.")
-            return None
-
+        raise FetchFailedError(f"Image {image_id} not found in dataset")
+        
     except Exception as e:
-        # Log the specific error
-        error_msg = FETCH_FAILED_ERROR.format(image_id)
-        log_error(str(e), log_file_path=_get_manipulation_error_log_path())
-        logger.error(f"{error_msg}: {str(e)}")
-        return None
+        logger.error(f"Failed to fetch image {image_id}: {str(e)}")
+        raise FetchFailedError(f"Failed to fetch image {image_id}: {str(e)}") from e
 
-def load_image_metadata(image_id: str) -> Optional[Dict[str, Any]]:
+def load_image_metadata(image_id: str, metadata_dir: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load metadata for a specific image from the generated YAML files.
+    Load metadata for a specific image from YAML file.
+    
+    This function implements robust error handling for:
+    1. Missing metadata files (raises MetadataNotFoundError)
+    2. Corrupted YAML files (raises DataLoadError)
+    3. Missing required fields (raises DataLoadError)
     
     Args:
-        image_id: The unique identifier for the image.
+        image_id: The unique identifier for the image
+        metadata_dir: Optional override for metadata directory
         
     Returns:
-        A dictionary containing the metadata if found, None otherwise.
+        Dictionary containing image metadata
         
     Raises:
-        Logs error and returns None if metadata is missing.
+        MetadataNotFoundError: If metadata file does not exist
+        DataLoadError: If metadata file is corrupted or missing required fields
     """
-    metadata_dir = get_stimuli_metadata_dir()
-    metadata_path = metadata_dir / f"{image_id}.yaml"
+    if metadata_dir is None:
+        metadata_dir = get_stimuli_metadata_dir()
+    
+    # Check for metadata file
+    metadata_path = metadata_dir / f"{image_id}_metadata.yaml"
     
     if not metadata_path.exists():
-        error_msg = MISSING_METADATA_ERROR.format(image_id)
-        log_error(error_msg, log_file_path=_get_manipulation_error_log_path())
-        logger.warning(error_msg)
-        return None
+        error_msg = f"Metadata file not found: {metadata_path}"
+        logger.error(error_msg)
+        raise MetadataNotFoundError(error_msg)
     
     try:
-        import yaml
         with open(metadata_path, 'r') as f:
             metadata = yaml.safe_load(f)
+        
+        if metadata is None:
+            error_msg = f"Empty metadata file: {metadata_path}"
+            logger.error(error_msg)
+            raise DataLoadError(error_msg)
+        
+        # Validate required fields
+        required_fields = ['id', 'detail_level']
+        for field in required_fields:
+            if field not in metadata:
+                error_msg = f"Missing required field '{field}' in metadata for {image_id}"
+                logger.error(error_msg)
+                raise DataLoadError(error_msg)
+        
+        logger.debug(f"Successfully loaded metadata for {image_id}")
         return metadata
-    except Exception as e:
-        error_msg = f"Failed to parse metadata for image {image_id}: {str(e)}"
-        log_error(error_msg, log_file_path=_get_manipulation_error_log_path())
+        
+    except yaml.YAMLError as e:
+        error_msg = f"Failed to parse YAML metadata for {image_id}: {str(e)}"
         logger.error(error_msg)
-        return None
+        raise DataLoadError(error_msg) from e
+    except Exception as e:
+        error_msg = f"Unexpected error loading metadata for {image_id}: {str(e)}"
+        logger.error(error_msg)
+        raise DataLoadError(error_msg) from e
 
-def process_image_with_error_handling(image_id: str, process_func, *args, **kwargs) -> Optional[Image]:
+def process_image_with_error_handling(image_path: Path, processing_func, **kwargs) -> Tuple[Optional[Path], Optional[str]]:
     """
-    Wrapper function to process an image with comprehensive error handling.
+    Process an image with comprehensive error handling.
     
-    This function attempts to load metadata and fetch the image. If any step fails,
-    it logs the error and returns None, allowing the pipeline to continue.
+    This wrapper function catches common image processing errors and logs them
+    appropriately, returning a tuple of (result_path, error_message).
     
     Args:
-        image_id: The unique identifier for the image.
-        process_func: A callable that takes the image data and returns an Image object.
-        *args: Additional positional arguments for process_func.
-        **kwargs: Additional keyword arguments for process_func.
+        image_path: Path to the image file to process
+        processing_func: Function to apply to the image
+        **kwargs: Additional arguments to pass to processing_func
         
     Returns:
-        An Image object if successful, None otherwise.
+        Tuple of (output_path or None, error_message or None)
     """
-    # Step 1: Load Metadata
-    metadata = load_image_metadata(image_id)
-    if metadata is None:
-        # Metadata missing is a fatal error for this specific image
-        logger.warning(f"Skipping image {image_id} due to missing metadata.")
-        return None
-    
-    # Step 2: Fetch Real Image Data (if needed by process_func)
-    # In many cases, process_func might just need the ID and metadata, 
-    # but if it needs the actual image bytes, we fetch here.
-    # For this generic wrapper, we assume process_func handles the fetch if needed,
-    # or we pass the metadata which contains paths.
-    
     try:
-        # Execute the processing function
-        result = process_func(image_id, metadata, *args, **kwargs)
+        if not image_path.exists():
+            error_msg = f"Image file not found: {image_path}"
+            logger.error(error_msg)
+            return None, error_msg
         
-        if result is None:
-            error_msg = PROCESSING_FAILED_ERROR.format(image_id)
-            log_error(error_msg, log_file_path=_get_manipulation_error_log_path())
-            logger.warning(error_msg)
-            return None
-            
-        return result
+        # Validate image format
+        try:
+            with Image.open(image_path) as img:
+                img.verify()
+        except Exception as e:
+            error_msg = f"Corrupted or unsupported image format: {image_path} - {str(e)}"
+            logger.error(error_msg)
+            return None, error_msg
+        
+        # Execute processing function
+        result = processing_func(image_path, **kwargs)
+        return result, None
         
     except Exception as e:
-        error_msg = f"Processing error for image {image_id}: {str(e)}"
-        log_error(error_msg, log_file_path=_get_manipulation_error_log_path())
+        error_msg = f"Processing failed for {image_path}: {str(e)}"
         logger.error(error_msg)
-        return None
+        log_error(error_msg)
+        return None, error_msg
+
+def validate_data_bundle(bundle_dir: Path) -> bool:
+    """
+    Validate the integrity of a data bundle.
+    
+    Checks:
+    1. Required files exist
+    2. Checksums match manifest
+    3. File sizes are reasonable
+    
+    Args:
+        bundle_dir: Directory containing the data bundle
+        
+    Returns:
+        True if validation passes, False otherwise
+        
+    Raises:
+        IntegrityError: If validation fails
+    """
+    required_files = ['manifest.sha256']
+    for req_file in required_files:
+        if not (bundle_dir / req_file).exists():
+            raise IntegrityError(f"Required file missing: {req_file}")
+    
+    if not verify_directory_integrity(bundle_dir):
+        raise IntegrityError("Directory integrity check failed")
+    
+    return True
 
 def main():
-    """
-    Main entry point for testing the loader module.
-    Demonstrates fetching and processing logic.
-    """
-    logger.info("Starting loader module test...")
+    """Main entry point for CLI usage."""
+    import argparse
     
-    # Example: Try to load metadata for a known mock ID or a real one if available
-    # Since we don't have a guaranteed real ID without running the downloader first,
-    # we test the error handling path.
+    parser = argparse.ArgumentParser(description="Data loading utilities")
+    parser.add_argument('--image-id', type=str, help="Image ID to load")
+    parser.add_argument('--metadata-dir', type=str, help="Override metadata directory")
+    parser.add_argument('--validate-bundle', type=str, help="Validate a data bundle directory")
     
-    test_ids = ["non_existent_id_12345", "another_fake_id"]
+    args = parser.parse_args()
     
-    for tid in test_ids:
-        logger.info(f"Testing fetch for: {tid}")
-        img_data = fetch_real_dataset_image(tid)
-        if img_data:
-            logger.info(f"Found: {img_data.get('id')}")
-        else:
-            logger.info("Fetch returned None (expected for fake IDs)")
-        
-        meta = load_image_metadata(tid)
-        if meta:
-            logger.info(f"Metadata loaded: {meta}")
-        else:
-            logger.info("Metadata missing (expected for fake IDs)")
+    if args.validate_bundle:
+        bundle_dir = Path(args.validate_bundle)
+        try:
+            validate_data_bundle(bundle_dir)
+            print(f"Validation successful for {bundle_dir}")
+        except IntegrityError as e:
+            print(f"Validation failed: {e}")
+            return 1
+    
+    if args.image_id:
+        metadata_dir = Path(args.metadata_dir) if args.metadata_dir else None
+        try:
+            metadata = load_image_metadata(args.image_id, metadata_dir)
+            print(json.dumps(metadata, indent=2))
+        except (MetadataNotFoundError, DataLoadError) as e:
+            print(f"Error: {e}")
+            return 1
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

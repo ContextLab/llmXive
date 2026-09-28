@@ -1,129 +1,222 @@
-"""
-Unit tests for stimulus metadata generation (T017).
-"""
 import json
 import os
 import tempfile
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pytest
 import yaml
 
+# Import the module under test
+import sys
+sys.path.append(str(Path(__file__).parent.parent / 'code'))
+
 from stimuli.metadata import (
+    StimulusMetadata,
+    ManipulationRecord,
     generate_metadata_for_image,
     save_metadata_as_yaml,
     load_metadata_from_yaml,
     generate_stimulus_metadata,
-    StimulusMetadata
+    load_generation_log
 )
+
 from config import get_stimuli_dir
 
-class TestMetadataGeneration:
-    """Tests for metadata generation functionality."""
 
-    def test_generate_metadata_for_image_creates_required_fields(self):
-        """Test that generate_metadata_for_image creates all required fields."""
-        image_id = "test_img_001"
-        image_path = Path("/fake/path/test_img_001.png")
-        
-        metadata = generate_metadata_for_image(image_id, image_path)
-        
-        # Verify all required fields are present
-        assert metadata.id == image_id
-        assert metadata.path == str(image_path)
-        assert metadata.detail_level in ["low", "medium", "high", "baseline"]
-        assert isinstance(metadata.object_list, list)
-        assert isinstance(metadata.texture_settings, dict)
-        assert metadata.timestamp is not None
-        assert metadata.manipulation_timestamp is not None
+class TestStimulusMetadataGeneration:
+    """Tests for the stimulus metadata generation functionality."""
 
-    def test_manipulation_timestamp_is_iso_format(self):
-        """Test that manipulation_timestamp is in ISO 8601 format."""
-        image_id = "test_img_002"
-        image_path = Path("/fake/path/test_img_002.png")
+    def test_generate_baseline_metadata(self, tmp_path):
+        """Test generation of baseline metadata."""
+        # Mock image ID and path
+        image_id = "test_baseline_001"
+        image_path = str(tmp_path / f"{image_id}.png")
         
-        metadata = generate_metadata_for_image(image_id, image_path)
-        
-        # Verify timestamp format
-        try:
-            datetime.fromisoformat(metadata.manipulation_timestamp.replace("Z", "+00:00"))
-        except ValueError:
-            pytest.fail("manipulation_timestamp is not in valid ISO 8601 format")
+        # Create a dummy file
+        Path(tmp_path / f"{image_id}.png").touch()
 
-    def test_save_metadata_as_yaml_creates_file(self, tmp_path):
-        """Test that save_metadata_as_yaml creates a valid YAML file."""
-        image_id = "test_img_003"
-        image_path = tmp_path / "test_img_003.png"
-        image_path.touch()  # Create dummy file
-        
-        metadata = generate_metadata_for_image(image_id, image_path)
-        
-        output_path = tmp_path / "test_img_003_metadata.yaml"
-        save_metadata_as_yaml(metadata, output_path)
-        
-        assert output_path.exists()
-        
-        # Verify YAML content
-        with open(output_path, 'r') as f:
-            data = yaml.safe_load(f)
-        
-        assert "manipulation_timestamp" in data
-        assert data["id"] == image_id
+        # Generate metadata
+        meta = generate_metadata_for_image(
+            image_id=image_id,
+            image_path=image_path,
+            manipulation_type='baseline'
+        )
 
-    def test_load_metadata_from_yaml_reconstructs_object(self, tmp_path):
-        """Test that load_metadata_from_yaml correctly reconstructs the object."""
-        image_id = "test_img_004"
-        image_path = tmp_path / "test_img_004.png"
-        image_path.touch()
-        
-        original_metadata = generate_metadata_for_image(image_id, image_path)
-        
-        output_path = tmp_path / "test_img_004_metadata.yaml"
-        save_metadata_as_yaml(original_metadata, output_path)
-        
-        loaded_metadata = load_metadata_from_yaml(output_path)
-        
-        assert loaded_metadata is not None
-        assert loaded_metadata.id == original_metadata.id
-        assert loaded_metadata.manipulation_timestamp == original_metadata.manipulation_timestamp
+        # Assertions
+        assert meta.id == image_id
+        assert meta.path == image_path
+        assert meta.type == 'baseline'
+        assert meta.detail_level == 'baseline'
+        assert meta.baseline_id is None
+        assert meta.manipulation_timestamp is None
+        assert meta.manipulation_record is None
+        assert meta.version == '1.0'
 
-    def test_generate_stimulus_metadata_writes_file(self, tmp_path, monkeypatch):
-        """Test that generate_stimulus_metadata writes to the correct location."""
-        # Mock get_stimuli_dir to use tmp_path
-        monkeypatch.setattr("stimuli.metadata.get_stimuli_dir", lambda: tmp_path)
+    def test_generate_enhanced_metadata(self, tmp_path):
+        """Test generation of enhanced metadata."""
+        image_id = "enhanced_test_001"
+        base_id = "test_001"
+        image_path = str(tmp_path / f"{image_id}.png")
         
-        image_id = "test_img_005"
-        image_path = tmp_path / "test_img_005.png"
-        image_path.touch()
-        
-        generate_stimulus_metadata(image_id, image_path)
-        
-        output_path = tmp_path / f"{image_id}_metadata.yaml"
-        assert output_path.exists()
-        
-        with open(output_path, 'r') as f:
-            data = yaml.safe_load(f)
-        
-        assert "manipulation_timestamp" in data
-        assert data["id"] == image_id
+        # Create dummy file
+        Path(tmp_path / f"{image_id}.png").touch()
 
-    def test_metadata_contains_manipulation_timestamp(self, tmp_path, monkeypatch):
-        """Verification: Assert manipulation_timestamp is present in generated files."""
-        monkeypatch.setattr("stimuli.metadata.get_stimuli_dir", lambda: tmp_path)
+        # Mock generation log entry
+        mock_params = {
+            "object_name": "cup",
+            "shape_type": "circle",
+            "x": 120.5,
+            "y": 240.1,
+            "count": 5
+        }
+
+        # Generate metadata
+        meta = generate_metadata_for_image(
+            image_id=image_id,
+            image_path=image_path,
+            manipulation_type='enhanced',
+            baseline_id=base_id,
+            manipulation_params=mock_params
+        )
+
+        # Assertions
+        assert meta.id == image_id
+        assert meta.type == 'enhanced'
+        assert meta.detail_level == 'enhanced'
+        assert meta.baseline_id == base_id
+        assert meta.manipulation_timestamp is not None
+        assert meta.manipulation_record is not None
+        assert meta.manipulation_record['operation_type'] == 'enhanced'
+        assert meta.manipulation_record['parameters']['object_name'] == 'cup'
+
+    def test_generate_reduced_metadata(self, tmp_path):
+        """Test generation of reduced metadata."""
+        image_id = "reduced_test_001"
+        base_id = "test_001"
+        image_path = str(tmp_path / f"{image_id}.png")
         
-        image_id = "test_img_006"
-        image_path = tmp_path / "test_img_006.png"
-        image_path.touch()
-        
-        generate_stimulus_metadata(image_id, image_path)
-        
-        output_path = tmp_path / f"{image_id}_metadata.yaml"
-        
-        with open(output_path, 'r') as f:
-            data = yaml.safe_load(f)
-        
-        # Core verification for T017
-        assert "manipulation_timestamp" in data, "manipulation_timestamp is missing from metadata file"
-        assert data["manipulation_timestamp"] is not None
-        assert len(data["manipulation_timestamp"]) > 0
+        # Create dummy file
+        Path(tmp_path / f"{image_id}.png").touch()
+
+        # Mock generation log entry
+        mock_params = {
+            "object_name": "removed_obj",
+            "count": 3
+        }
+
+        # Generate metadata
+        meta = generate_metadata_for_image(
+            image_id=image_id,
+            image_path=image_path,
+            manipulation_type='reduced',
+            baseline_id=base_id,
+            manipulation_params=mock_params
+        )
+
+        # Assertions
+        assert meta.id == image_id
+        assert meta.type == 'reduced'
+        assert meta.detail_level == 'reduced'
+        assert meta.baseline_id == base_id
+        assert meta.manipulation_record is not None
+        assert meta.manipulation_record['operation_type'] == 'reduced'
+
+    def test_save_and_load_metadata_yaml(self, tmp_path):
+        """Test saving and loading metadata from YAML."""
+        # Create a metadata object
+        meta = generate_metadata_for_image(
+            image_id="test_yaml_001",
+            image_path=str(tmp_path / "test_yaml_001.png"),
+            manipulation_type='baseline'
+        )
+
+        # Save to YAML
+        output_path = str(tmp_path / "test_metadata.yaml")
+        save_metadata_as_yaml(meta, output_path)
+
+        # Verify file exists
+        assert os.path.exists(output_path)
+
+        # Load back
+        loaded_meta = load_metadata_from_yaml(output_path)
+
+        # Verify content
+        assert loaded_meta.id == meta.id
+        assert loaded_meta.type == meta.type
+        assert loaded_meta.path == meta.path
+
+    def test_generate_stimulus_metadata_batch(self, tmp_path):
+        """Test batch generation of metadata for multiple stimuli."""
+        # Setup test files
+        baseline_ids = ["base_001", "base_002"]
+        enhanced_ids = ["enhanced_base_001", "enhanced_base_002"]
+        reduced_ids = ["reduced_base_001", "reduced_base_002"]
+
+        # Create dummy image files
+        for img_id in baseline_ids + enhanced_ids + reduced_ids:
+            Path(tmp_path / f"{img_id}.png").touch()
+
+        # Mock generation log
+        gen_log_path = tmp_path / "generation_log.json"
+        with open(gen_log_path, 'w') as f:
+            json.dump([{"object_name": "test_obj", "count": 1}], f)
+
+        # Run batch generation
+        output_map = generate_stimulus_metadata(
+            baseline_ids=baseline_ids,
+            enhanced_ids=enhanced_ids,
+            reduced_ids=reduced_ids,
+            generation_log_path=str(gen_log_path)
+        )
+
+        # Verify all metadata files were created
+        assert len(output_map) == len(baseline_ids) + len(enhanced_ids) + len(reduced_ids)
+
+        # Verify file existence
+        for img_id, file_path in output_map.items():
+            assert os.path.exists(file_path), f"Metadata file missing for {img_id}: {file_path}"
+            # Verify it's valid YAML
+            with open(file_path, 'r') as f:
+                data = yaml.safe_load(f)
+                assert 'id' in data
+                assert 'type' in data
+
+    def test_metadata_contains_timestamp(self, tmp_path):
+        """Verify that generated metadata contains valid timestamps."""
+        meta = generate_metadata_for_image(
+            image_id="time_test",
+            image_path=str(tmp_path / "time_test.png"),
+            manipulation_type='enhanced'
+        )
+
+        # Check created_at is ISO format
+        assert meta.created_at is not None
+        datetime.fromisoformat(meta.created_at.replace('Z', '+00:00'))
+
+        # Check manipulation_timestamp is ISO format for non-baseline
+        assert meta.manipulation_timestamp is not None
+        datetime.fromisoformat(meta.manipulation_timestamp.replace('Z', '+00:00'))
+
+    def test_metadata_file_naming_convention(self, tmp_path):
+        """Verify that metadata files follow the expected naming convention."""
+        # Create dummy images
+        test_ids = ["base_001", "enhanced_base_001", "reduced_base_001"]
+        for img_id in test_ids:
+            Path(tmp_path / f"{img_id}.png").touch()
+
+        gen_log_path = tmp_path / "gen_log.json"
+        with open(gen_log_path, 'w') as f:
+            json.dump([{"object": "test"}], f)
+
+        output_map = generate_stimulus_metadata(
+            baseline_ids=["base_001"],
+            enhanced_ids=["enhanced_base_001"],
+            reduced_ids=["reduced_base_001"],
+            generation_log_path=str(gen_log_path)
+        )
+
+        # Check filenames
+        assert output_map["base_001"].endswith("base_001_metadata.yaml")
+        assert output_map["enhanced_base_001"].endswith("enhanced_enhanced_base_001_metadata.yaml")
+        assert output_map["reduced_base_001"].endswith("reduced_reduced_base_001_metadata.yaml")

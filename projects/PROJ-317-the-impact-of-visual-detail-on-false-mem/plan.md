@@ -1,88 +1,62 @@
-# Project Plan: Visual Detail and False Memory Susceptibility
+# Implementation Plan: The Impact of Visual Detail on False Memory Susceptibility
 
 ## Summary
 
-This project investigates the impact of visual detail on false memory susceptibility.
-The study utilizes a **Repeated-Measures (Within-Subjects)** design where participants
-are exposed to baseline images, followed by manipulated versions (enhanced and reduced
-detail), and then tested on their recognition memory. The analysis employs a
-**Repeated-Measures ANOVA** to compare false memory rates across conditions.
+This project investigates the relationship between visual detail in stimuli and susceptibility to false memories using a **Repeated-Measures (Within-Subjects) design**. Participants will view images at three levels of visual detail (Baseline, Enhanced, Reduced) and subsequently answer recognition questions containing both true and false details. The primary analysis will employ a **Repeated-Measures ANOVA** to determine if the level of visual detail significantly influences false memory rates.
 
-The project explicitly refrains from hypothesizing a specific cellular correlate
-(e.g., synaptic weight changes in the visual cortex) for the observed behavioral effect.
-While the reviewer (Kandel) suggests that 'detail' might be written in the neuron via
-presynaptic facilitation (serotonin → cAMP → PKA → CREB), this study does not measure
-or infer these molecular events. The 'visual detail' variable is a psychophysical parameter.
-The plan acknowledges the 'ladder of explanation' gap: the behavioral observation (false
-memory modulation) is not yet mapped to a specific synaptic or molecular mechanism in humans.
-Future work is required to bridge this gap.
+## Scientific Rationale
+
+False memories are a well-documented phenomenon where individuals recall events that did not occur or recall them differently than they happened. This study builds upon the work of Loftus et al. (1974) regarding the malleability of memory and extends it to visual stimuli. [UNRESOLVED-CLAIM: c_c50eb536 — status=not_enough_info] We hypothesize that higher visual detail creates stronger, more specific memory traces that are less susceptible to interference from false details, while lower visual detail leaves gaps that are more easily filled by incorrect information.
 
 ## Technical Context
 
-### Design Specification
-- **Design**: Repeated-Measures (Within-Subjects)
-- **Analysis**: Repeated-Measures ANOVA
-- **Power Analysis**: Target power = 0.80, alpha = 0.05, effect size (Cohen's f) = 0.25
-- **Sample Size**: Minimum N = 50 subjects required
+The technical implementation follows a modular pipeline:
+1. **Data Acquisition**: Fetching a representative subset of images from the Visual Genome dataset.
+2. **Stimuli Generation**: Creating three conditions (Baseline, Enhanced, Reduced) for each image.
+3. **Participant Interface**: A simulated web-based interface for presenting stimuli and capturing responses.
+4. **Statistical Analysis**: Performing a **Repeated-Measures ANOVA** to test the hypothesis, followed by post-hoc tests with Bonferroni correction.
 
-### Data Pipeline
-1. **Data Acquisition**: Download representative subset of Visual Genome images
-2. **Stimulus Generation**: Create enhanced and reduced detail versions
-3. **Participant Testing**: Administer recognition tasks with true/false questions
-4. **Statistical Analysis**: Compute ANOVA and generate visualizations
+## Design Specifications
 
-### Theoretical Gap: Behavioral vs. Synaptic Mechanism
+- **Design Type**: **Repeated-Measures (Within-Subjects)**
+- **Independent Variable**: Visual Detail Level (3 levels: Baseline, Enhanced, Reduced)
+- **Dependent Variable**: False Memory Rate (proportion of false details endorsed)
+- **Analysis Method**: **Repeated-Measures ANOVA**
+- **Power Analysis**: Target power = 0.80, Alpha = 0.05, Effect Size (Cohen's f) = 0.25 (medium)
+- **Sample Size**: Minimum 50 participants (based on sensitivity analysis)
 
-The project explicitly refrains from hypothesizing a specific cellular correlate
-(e.g., synaptic weight changes in the visual cortex) for the observed behavioral effect.
-While the reviewer (Kandel) suggests that 'detail' might be written in the neuron via
-presynaptic facilitation (serotonin → cAMP → PKA → CREB), this study does not measure
-or infer these molecular events. The 'visual detail' variable is a psychophysical parameter.
-The plan acknowledges the 'ladder of explanation' gap: the behavioral observation (false
-memory modulation) is not yet mapped to a specific synaptic or molecular mechanism in humans.
-Future work is required to bridge this gap.
+## Project Structure
 
-### Scope Boundaries
-- This study measures *behavioral* false memory rates only
-- Does not measure or infer specific molecular/cellular mechanisms
-- Findings are associational, not mechanistic
+The project follows the standard llmXive directory structure:
+- `code/`: Source code for data loading, manipulation, participant interface, and analysis.
+- `data/`: Raw stimuli, processed data, and analysis outputs.
+- `tests/`: Unit and integration tests.
+- `docs/`: Ethics documentation, scope boundaries, and research notes.
+
+## Ethical Considerations
+
+This study involves human participants and requires IRB approval before recruitment. All data will be anonymized, and participants will provide informed consent. A detailed scope boundary document is maintained in `docs/ethics/scope_boundary.md`.
 
 ## Implementation Phases
 
-### Phase 1: Setup
-- Project structure initialization
-- Dependency management
-- Tool configuration
+1. **Phase 1: Setup**: Project initialization and directory structure.
+2. **Phase 2: Foundational**: Data fetching, asset generation, and power analysis.
+3. **Phase 3: User Story 1**: Image manipulation pipeline (Enhanced/Reduced generation).
+4. **Phase 4: User Story 2**: Participant testing interface.
+5. **Phase 5: User Story 3**: Statistical analysis and results generation.
+6. **Phase N: Polish**: Performance optimization, security, and validation.
 
-### Phase 2: Foundational
-- Power analysis and sample size calculation
-- Data fetching and preprocessing
-- Asset generation
-- Ethics documentation
+## Dependencies
 
-### Phase 3: User Story 1 - Image Manipulation
-- Enhanced detail compositing
-- Reduced detail manipulation
-- Metadata generation
+- Python 3.11+
+- `numpy`, `pandas`, `scipy`, `statsmodels` for analysis.
+- `matplotlib` for visualization.
+- `datasets` (Hugging Face) for Visual Genome access.
+- `Pillow` for image manipulation.
 
-### Phase 4: User Story 2 - Participant Interface
-- Session management
-- Distractor tasks
-- Recognition question generation
+## Success Criteria
 
-### Phase 5: User Story 3 - Statistical Analysis
-- ANOVA computation
-- Multiple comparison correction
-- Visualization generation
-
-### Phase 6-8: Review Response
-- Documentation of theoretical gaps
-- Mechanism disclaimers
-- Biological context statements
-
-## Dependencies and Constraints
-
-- **Power Gate**: T012-Runtime must pass before data collection
-- **Ethics**: IRB approval required before participant recruitment
-- **Data**: Real data only, no synthetic fallbacks
-- **Reproducibility**: Pinned random seeds and version control
+- Successful execution of the full pipeline from data fetching to analysis.
+- Generation of `data/analysis/anova_results.json` with valid statistical outputs.
+- Verification that `data/analysis/power_report.json` indicates sufficient power.
+- No fabrication of data; all results must be derived from real or clearly labeled sampled inputs.

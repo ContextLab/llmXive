@@ -4955,3 +4955,1207 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-21T19:07:03Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/plan.md
+  attempts: 1
+  canonical: Loftus et al. 1974 studied malleability of memory
+  claim_id: c_c50eb536
+  context: False memories are a well-documented phenomenon where individuals recall
+    events that did not occur or recall them differently than they happened. This
+    study builds upon the work of Loftus et al. (1974) regarding the malleability
+    of memory and extends it to visual stimuli.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This study builds upon the work of Loftus et al. (1974) regarding the
+    malleability of memory and extends it to visual stimuli.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:12:15Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_7aa30e39
+  context: 'T012.0 Document Effect Size Source: Append Section 2.1 to research.md
+    with ''Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Append Section 2.1 to research.md with ''Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974)''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:13:52Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Sample size selection threshold required_n >= 50 for effect size
+  claim_id: c_fd2b2b7e
+  context: "T012-Design Design\u2011Phase Power Analysis & Plan Update: ... Select\
+    \ the smallest effect size where required_n >= 50."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_selection_threshold_required_n_%3E=_50_for_effect_
+  kind: magnitude
+  raw_text: Select the smallest effect size where required_n >= 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:14:46Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power analysis validation gate requires n_total_subjects >= 50
+  claim_id: c_4ad90842
+  context: 'T012-Runtime Power Analysis Validation Gate: Verify data/analysis/power_report.json
+    exists, power_insufficient is false, and n_total_subjects >= 50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify data/analysis/power_report.json exists, power_insufficient is false,
+    and n_total_subjects >= 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:15:17Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Sample selection allows up to 3 attempts with Q1-Q3 range >= 0.3
+  claim_id: c_e86f9ad3
+  context: "T006.3-Select Select Representative Sample: Deterministically attempt\
+    \ up to 3 attempts to sample images such that Q1\u2011Q3 range \u2265 0.3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Deterministically attempt up to 3 attempts to sample images such that\
+    \ Q1\u2011Q3 range \u2265 0.3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:16:26Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Mock object pool contains at least 50 distinct objects
+  claim_id: c_3262a099
+  context: "T027.1 Generate Mock Object Pool: data/assets/mock_objects.json with \u2265\
+    50 distinct objects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_object_pool_contains_at_least_50_distinct_objects
+  kind: magnitude
+  raw_text: "Generate Mock Object Pool with \u226550 distinct objects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:17:16Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image display duration is 10 seconds plus or minus 0.5 seconds
+  claim_id: c_0c3a6a35
+  context: "T025 Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Image Display \u2013 10 s \xB10.5 s."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:17:47Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration is 2 minutes plus or minus 10 seconds
+  claim_id: c_a395d5c4
+  context: "T026 Implement View: Distractor Task (code/participants/interface.py)\
+    \ \u2013 2 min \xB110 s, flag incomplete if out of range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Distractor Task \u2013 2 min \xB110 s."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:18:25Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption of Cohen's f=0.25 based on Loftus et al. (1974)
+  claim_id: c_de096a92
+  context: 'T012.0 [P] Document Effect Size Source: Append Section 2.1 to research.md
+    with ''Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Append Section 2.1 to research.md with ''Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974)''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:20:00Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Required sample size threshold of 50 subjects for power analysis
+  claim_id: c_15566c6b
+  context: "T012-Design [S] Design\u2011Phase Power Analysis & Plan Update: Using\
+    \ data/analysis/sensitivity_analysis.json, compute required sample size for Repeated\u2011\
+    Measures ANOVA via statsmodels.stats.power.FTestAnovaPower. Select the smallest\
+    \ effect size where required_n >= 50."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Required_sample_size_threshold_of_50_subjects_for_power_anal
+  kind: magnitude
+  raw_text: Select the smallest effect size where required_n >= 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:20:03Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power analysis validation gate requiring 50 total subjects
+  claim_id: c_04b6b86d
+  context: 'T012-Runtime [S] Power Analysis Validation Gate: Verify data/analysis/power_report.json
+    exists, power_insufficient is false, and n_total_subjects >= 50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify data/analysis/power_report.json exists, power_insufficient is false,
+    and n_total_subjects >= 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:20:04Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image sampling requires Q1-Q3 range of at least 0.3 within 3 attempts
+  claim_id: c_6f139cdf
+  context: "T006.3-Select Select Representative Sample: Deterministically attempt\
+    \ up to 3 attempts to sample images such that Q1\u2011Q3 range \u2265 0.3."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Image_sampling_requires_Q1-Q3_range_of_at_least_0.3_within_3
+  kind: magnitude
+  raw_text: "Deterministically attempt up to 3 attempts to sample images such that\
+    \ Q1\u2011Q3 range \u2265 0.3."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:20:08Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Mock object pool requires at least 50 distinct objects
+  claim_id: c_03c7faf0
+  context: "T027.1 Generate Mock Object Pool: data/assets/mock_objects.json with \u2265\
+    50 distinct objects. No dependency."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_object_pool_requires_at_least_50_distinct_objects
+  kind: magnitude
+  raw_text: "Generate Mock Object Pool: data/assets/mock_objects.json with \u2265\
+    50 distinct objects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:20:45Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image display duration is 10 seconds with a tolerance of 0.5 seconds
+  claim_id: c_9721d041
+  context: "T025 [P] Implement View: Image Display (code/participants/interface.py)\
+    \ \u2013 10 s \xB10.5 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:20:46Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration is 2 minutes with a tolerance of 10 seconds
+  claim_id: c_8ea7b22a
+  context: "T026 Implement View: Distractor Task (code/participants/interface.py)\
+    \ \u2013 2 min \xB110 s, flag incomplete if out of range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Distractor Task (code/participants/interface.py) \u2013\
+    \ 2 min \xB110 s, flag incomplete if out of range."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:21:10Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 2
+  canonical: Performance optimization target is less than 30 seconds per image
+  claim_id: c_60a62723
+  context: T046-B Performance Optimization (target <30 s/image). Depends on T046-A.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_is_less_than_30_seconds_per
+  kind: magnitude
+  raw_text: Performance Optimization (target <30 s/image).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:21:13Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_b6899646
+  context: 'T012.0 [P] Document Effect Size Source: Append Section 2.1 to research.md
+    with ''Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:22:56Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Select smallest effect size where required sample size is at least 50
+  claim_id: c_772cd769
+  context: "T012-Design [S] Design\u2011Phase Power Analysis & Plan Update: ... Select\
+    \ the smallest effect size where required_n >= 50."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_smallest_effect_size_where_required_sample_size_is_at
+  kind: magnitude
+  raw_text: Select the smallest effect size where required_n >= 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:22:59Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Verify n_total_subjects is at least 50 in power report
+  claim_id: c_be12f399
+  context: 'T012-Runtime [S] Power Analysis Validation Gate: Verify data/analysis/power_report.json
+    exists, power_insufficient is false, and n_total_subjects >= 50.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_n_total_subjects_is_at_least_50_in_power_report
+  kind: magnitude
+  raw_text: Verify data/analysis/power_report.json exists, power_insufficient is false,
+    and n_total_subjects >= 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:23:02Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generate PNG assets for semantic minor objects
+  claim_id: c_5c3006a0
+  context: 'T015.1-GenAssets [P] Generate Semantic Minor Object Assets: ... Generate
+    a set of PNG assets in data/assets/minor_objects/obj_{i}.png.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_PNG_assets_for_semantic_minor_objects
+  kind: entity_fact
+  raw_text: Generate a set of PNG assets in data/assets/minor_objects/obj_{i}.png.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:23:50Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image display duration is 10 seconds with tolerance of 0.5 seconds
+  claim_id: c_88466be3
+  context: "T025 [P] Implement View: Image Display (code/participants/interface.py)\
+    \ \u2013 10 s \xB10.5 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:23:51Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration is 2 minutes with tolerance of 10 seconds
+  claim_id: c_f385cd95
+  context: "T026 Implement View: Distractor Task (code/participants/interface.py)\
+    \ \u2013 2 min \xB110 s, flag incomplete if out of range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Distractor Task (code/participants/interface.py) \u2013\
+    \ 2 min \xB110 s, flag incomplete if out of range."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:23:52Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generate mock object pool with at least 50 distinct objects
+  claim_id: c_74ce7ea9
+  context: "T027.1 Generate Mock Object Pool: data/assets/mock_objects.json with \u2265\
+    50 distinct objects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_mock_object_pool_with_at_least_50_distinct_objects
+  kind: magnitude
+  raw_text: "Generate Mock Object Pool: data/assets/mock_objects.json with \u2265\
+    50 distinct objects."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:23:55Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Target performance optimization is less than 30 seconds per image
+  claim_id: c_6c95fdfa
+  context: T046-B Performance Optimization (target <30 s/image). Depends on T046-A.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_performance_optimization_is_less_than_30_seconds_per
+  kind: magnitude
+  raw_text: Performance Optimization (target <30 s/image).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:23:58Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption of Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_335f169e
+  context: 'Append Section 2.1 to research.md with Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:24:48Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Sample size requirement of 50 subjects for power analysis
+  claim_id: c_bde26900
+  context: Select the smallest effect size where required_n >= 50. Write data/analysis/power_report.json.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_requirement_of_50_subjects_for_power_analysis
+  kind: magnitude
+  raw_text: Select the smallest effect size where required_n >= 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:24:51Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generation of PNG assets for minor objects
+  claim_id: c_05c9b559
+  context: 'Generate Semantic Minor Object Assets: Create code/stimuli/asset_generator.py.
+    Generate a set of PNG assets in data/assets/minor_objects/obj_{i}.png.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generation_of_PNG_assets_for_minor_objects
+  kind: entity_fact
+  raw_text: Generate a set of PNG assets in data/assets/minor_objects/obj_{i}.png
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:24:55Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Mock object pool containing at least 50 distinct objects
+  claim_id: c_301b8be7
+  context: "Generate Mock Object Pool: data/assets/mock_objects.json with \u226550\
+    \ distinct objects. No dependency."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_object_pool_containing_at_least_50_distinct_objects
+  kind: magnitude
+  raw_text: "Generate Mock Object Pool: data/assets/mock_objects.json with \u2265\
+    50 distinct objects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:25:00Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Target performance optimization of under 30 seconds per image
+  claim_id: c_aef5c326
+  context: Performance Optimization (target <30 s/image). Depends on T046-A.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance Optimization (target <30 s/image)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:25:01Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption Cohen's f 0.25 based on Loftus et al. 1974
+  claim_id: c_efdf18d9
+  context: 'T012.0 [P] Document Effect Size Source: Append Section 2.1 to research.md
+    with Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al. (1974).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:25:53Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Select smallest effect size with required sample size at least 50
+  claim_id: c_c0435630
+  context: "T012-Design [S] Design\u2011Phase Power Analysis & Plan Update: Using\
+    \ data/analysis/sensitivity_analysis.json, compute required sample size for Repeated\u2011\
+    Measures ANOVA via statsmodels.stats.power.FTestAnovaPower. Select the smallest\
+    \ effect size where required_n >= 50."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_smallest_effect_size_with_required_sample_size_at_lea
+  kind: magnitude
+  raw_text: Select the smallest effect size where required_n >= 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:25:56Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Verify power report shows power sufficient and total subjects at least
+    50
+  claim_id: c_798cbe6d
+  context: 'T012-Runtime [S] Power Analysis Validation Gate: Verify data/analysis/power_report.json
+    exists, power_insufficient is false, and n_total_subjects >= 50.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_power_report_shows_power_sufficient_and_total_subject
+  kind: magnitude
+  raw_text: Verify data/analysis/power_report.json exists, power_insufficient is false,
+    and n_total_subjects >= 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:25:59Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 2
+  canonical: Attempt up to 3 times to sample images with Q1-Q3 range at least 0.3
+  claim_id: c_914a6119
+  context: "T006.3-Select Select Representative Sample: Deterministically attempt\
+    \ up to 3 attempts to sample images such that Q1\u2011Q3 range \u2265 0.3."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Attempt_up_to_3_times_to_sample_images_with_Q1-Q3_range_at_l
+  kind: magnitude
+  raw_text: "Deterministically attempt up to 3 attempts to sample images such that\
+    \ Q1\u2011Q3 range \u2265 0.3."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:26:02Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image display duration 10 seconds plus or minus 0.5 seconds
+  claim_id: c_5d977263
+  context: "T025 [P] Implement View: Image Display (code/participants/interface.py)\
+    \ \u2013 10 s \xB10.5 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "10 s \xB10.5 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:27:20Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration 2 minutes plus or minus 10 seconds
+  claim_id: c_8c4aece8
+  context: "T026 Implement View: Distractor Task (code/participants/interface.py)\
+    \ \u2013 2 min \xB110 s, flag incomplete if out of range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "2 min \xB110 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:27:51Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Performance optimization target less than 30 seconds per image
+  claim_id: c_a1085cbc
+  context: T046-B Performance Optimization (target <30 s/image). Depends on T046-A.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_less_than_30_seconds_per_ima
+  kind: magnitude
+  raw_text: target <30 s/image
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:28:37Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 effect size based on Loftus et al. 1974
+  claim_id: c_28cf05d5
+  context: 'Append Section 2.1 to research.md with Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:29:38Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption of Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_765fcf82
+  context: 'Append Section 2.1 to research.md with ''Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974) ''. Verification: string present
+    in Section 2.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:30:29Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Required sample size threshold of 50 subjects for power analysis
+  claim_id: c_2b69e2df
+  context: Using data/analysis/sensitivity_analysis.json, compute required sample
+    size for Repeated-Measures ANOVA... Select the smallest effect size where required_n
+    >= 50.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Required_sample_size_threshold_of_50_subjects_for_power_anal
+  kind: magnitude
+  raw_text: Select the smallest effect size where required_n >= 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:30:32Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Generation of minor object assets as PNG files
+  claim_id: c_b9993927
+  context: Create code/stimuli/asset_generator.py... Generate a set of PNG assets
+    in data/assets/minor_objects/obj_{i}.png.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generation_of_minor_object_assets_as_PNG_files
+  kind: entity_fact
+  raw_text: Generate a set of PNG assets in data/assets/minor_objects/obj_{i}.png
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:30:35Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 2
+  canonical: Image display duration of 10 seconds with 0.5 second tolerance
+  claim_id: c_4a3aa9f3
+  context: "Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:30:36Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 2
+  canonical: Distractor task duration of 2 minutes with 10 second tolerance
+  claim_id: c_8a3607f2
+  context: "Implement View: Distractor Task (code/participants/interface.py) \u2013\
+    \ 2 min \xB110 s, flag incomplete if out of range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Distractor Task (code/participants/interface.py) \u2013\
+    \ 2 min \xB110 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:30:37Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Performance optimization target of less than 30 seconds per image
+  claim_id: c_defe2e7a
+  context: Performance Optimization (target <30 s/image). Depends on T046-A.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_of_less_than_30_seconds_per
+  kind: magnitude
+  raw_text: target <30 s/image
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:30:41Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Cohen's f=0.25 medium effect size based on Loftus et al. 1974
+  claim_id: c_5f1d0ff8
+  context: 'Append Section 2.1 to research.md with Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974). Verification: string present in
+    Section 2.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:32:07Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Required sample size n_total_subjects >= 50 for power analysis
+  claim_id: c_3ce6f5ce
+  context: Using data/analysis/sensitivity_analysis.json, compute required sample
+    size for Repeated-Measures ANOVA via statsmodels.stats.power.FTestAnovaPower.
+    Select the smallest effect size where required_n >= 50.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Required_sample_size_n_total_subjects_%3E=_50_for_power_analys
+  kind: magnitude
+  raw_text: Select the smallest effect size where required_n >= 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:32:09Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power analysis validation requires n_total_subjects >= 50
+  claim_id: c_12c868fd
+  context: 'Power Analysis Validation Gate: Verify data/analysis/power_report.json
+    exists, power_insufficient is false, and n_total_subjects >= 50.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify data/analysis/power_report.json exists, power_insufficient is false,
+    and n_total_subjects >= 50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:32:10Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image sample selection attempts up to 3 times with Q1-Q3 range >= 0.3
+  claim_id: c_d3a7b608
+  context: Deterministically attempt up to 3 attempts to sample images such that Q1-Q3
+    range >= 0.3. If after 3 attempts the condition is unmet, raise SystemExit with
+    explicit error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Deterministically attempt up to 3 attempts to sample images such that
+    Q1-Q3 range >= 0.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:33:06Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: "Image Display view duration 10 s \xB10.5 s"
+  claim_id: c_97344649
+  context: "Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:33:07Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: "Distractor Task duration 2 min \xB110 s"
+  claim_id: c_b95f73d6
+  context: "Implement View: Distractor Task (code/participants/interface.py) \u2013\
+    \ 2 min \xB110 s, flag incomplete if out of range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Distractor Task (code/participants/interface.py) \u2013\
+    \ 2 min \xB110 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:33:08Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Mock object pool contains at least 50 distinct objects
+  claim_id: c_7eb957d0
+  context: 'Generate Mock Object Pool: data/assets/mock_objects.json with >=50 distinct
+    objects. No dependency.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_object_pool_contains_at_least_50_distinct_objects
+  kind: magnitude
+  raw_text: 'Generate Mock Object Pool: data/assets/mock_objects.json with >=50 distinct
+    objects'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:33:11Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Performance optimization target less than 30 seconds per image
+  claim_id: c_1e019157
+  context: Performance Optimization (target <30 s/image). Depends on T046-A.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_less_than_30_seconds_per_ima
+  kind: magnitude
+  raw_text: Performance Optimization (target <30 s/image)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:33:13Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: effect size assumption Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_23a4f87a
+  context: 'Append Section 2.1 to `research.md` with ''Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974) ''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:35:26Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: sample size required_n greater than or equal to 50
+  claim_id: c_31f423d1
+  context: "Using `data/analysis/sensitivity_analysis.json`, compute required sample\
+    \ size for Repeated\u2011Measures ANOVA via `statsmodels.stats.power.FTestAnovaPower`.\
+    \ Select the smallest effect size where `required_n >= 50`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_required_n_greater_than_or_equal_to_50
+  kind: magnitude
+  raw_text: Select the smallest effect size where `required_n >= 50`
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:35:36Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: power analysis validation n_total_subjects greater than or equal to 50
+  claim_id: c_adf543dc
+  context: '**Power Analysis Validation Gate**: Verify `data/analysis/power_report.json`
+    exists, `power_insufficient` is false, and `n_total_subjects >= 50`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_validation_n_total_subjects_greater_than_or_e
+  kind: magnitude
+  raw_text: Verify `data/analysis/power_report.json` exists, `power_insufficient`
+    is false, and `n_total_subjects >= 50`
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:35:39Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: image display duration 10 seconds plus or minus 0.5 seconds
+  claim_id: c_5ee20c69
+  context: "Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Image Display ... \u2013 10 s \xB10.5 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:35:40Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: distractor task duration 2 minutes plus or minus 10 seconds
+  claim_id: c_90a85675
+  context: "Implement View: Distractor Task (code/participants/interface.py) \u2013\
+    \ 2 min \xB110 s, flag incomplete if out of range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Distractor Task ... \u2013 2 min \xB110 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:35:41Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: mock object pool contains at least 50 distinct objects
+  claim_id: c_71ae78bf
+  context: "Generate Mock Object Pool: `data/assets/mock_objects.json` with \u2265\
+    50 distinct objects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_object_pool_contains_at_least_50_distinct_objects
+  kind: magnitude
+  raw_text: "Generate Mock Object Pool ... with \u226550 distinct objects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:35:45Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: performance optimization target less than 30 seconds per image
+  claim_id: c_7960b77e
+  context: Performance Optimization (target <30 s/image). Depends on T046-A.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_less_than_30_seconds_per_ima
+  kind: magnitude
+  raw_text: Performance Optimization (target <30 s/image)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:35:48Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: sample selection attempts 3 with Q1 Q3 range greater than or equal to
+    0.3
+  claim_id: c_54aed30e
+  context: "Deterministically attempt up to **3 attempts** to sample images such that\
+    \ Q1\u2011Q3 range \u2265 0.3."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_selection_attempts_3_with_Q1_Q3_range_greater_than_or
+  kind: magnitude
+  raw_text: "Deterministically attempt up to 3 attempts to sample images such that\
+    \ Q1\u2011Q3 range \u2265 0.3"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:35:51Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: fetch visual genome images from train split
+  claim_id: c_414def95
+  context: If `manifest.sha256` missing/invalid, fetch a representative sample of
+    Visual Genome images via `datasets.load_dataset("visual_genome", split="train",
+    streaming=True)`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_visual_genome_images_from_train_split
+  kind: entity_fact
+  raw_text: fetch a representative sample of Visual Genome images via `datasets.load_dataset("visual_genome",
+    split="train", streaming=True)`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:36:34Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size assumption of Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_19da54ff
+  context: 'Append Section 2.1 to research.md with ''Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974) ''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:37:12Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Select smallest effect size where required sample size is at least 50
+  claim_id: c_75fe5e1e
+  context: "Using data/analysis/sensitivity_analysis.json, compute required sample\
+    \ size for Repeated\u2011Measures ANOVA... Select the smallest effect size where\
+    \ required_n >= 50."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_smallest_effect_size_where_required_sample_size_is_at
+  kind: magnitude
+  raw_text: Select the smallest effect size where required_n >= 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:37:15Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Power validation requires n_total_subjects of at least 50
+  claim_id: c_a355b34d
+  context: 'Power Analysis Validation Gate: Verify data/analysis/power_report.json
+    exists, power_insufficient is false, and n_total_subjects >= 50.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_validation_requires_n_total_subjects_of_at_least_50
+  kind: magnitude
+  raw_text: Verify data/analysis/power_report.json exists, power_insufficient is false,
+    and n_total_subjects >= 50
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:37:19Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Image display duration is 10 seconds with a tolerance of 0.5 seconds
+  claim_id: c_ea171771
+  context: "Implement View: Image Display (code/participants/interface.py) \u2013\
+    \ 10 s \xB10.5 s."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Image Display \u2013 10 s \xB10.5 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:37:20Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Distractor task duration is 2 minutes with a tolerance of 10 seconds
+  claim_id: c_3c7795b8
+  context: "Implement View: Distractor Task (code/participants/interface.py) \u2013\
+    \ 2 min \xB110 s, flag incomplete if out of range."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement View: Distractor Task \u2013 2 min \xB110 s"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:37:21Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Mock object pool contains at least 50 distinct objects
+  claim_id: c_60da72dc
+  context: "Generate Mock Object Pool: data/assets/mock_objects.json with \u226550\
+    \ distinct objects."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mock_object_pool_contains_at_least_50_distinct_objects
+  kind: magnitude
+  raw_text: "Generate Mock Object Pool with \u226550 distinct objects"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:37:24Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Performance optimization target is less than 30 seconds per image
+  claim_id: c_b4eb2c7e
+  context: Performance Optimization (target <30 s/image).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_target_is_less_than_30_seconds_per
+  kind: magnitude
+  raw_text: Performance Optimization target <30 s/image
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:37:59Z'
+- artifact_path: projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/specs/001-the-impact-of-visual-detail-on-false-mem/tasks.md
+  attempts: 1
+  canonical: Effect size Cohen's f=0.25 based on Loftus et al. 1974
+  claim_id: c_7296f061
+  context: 'Append Section 2.1 to research.md with Effect Size Assumption: Cohen''s
+    f=0.25 (medium) based on Loftus et al. (1974) . Verification: string present in
+    Section 2.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Effect Size Assumption: Cohen''s f=0.25 (medium) based on Loftus et al.
+    (1974)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T10:41:51Z'
