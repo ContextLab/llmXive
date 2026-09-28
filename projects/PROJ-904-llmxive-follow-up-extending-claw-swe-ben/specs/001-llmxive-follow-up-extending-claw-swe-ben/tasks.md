@@ -280,3 +280,12 @@ With multiple developers:
 - **Critical**: All model execution (including 7B) must run on CPU with Q4_K_M quantization as per FR-007. No GPU offload is permitted.
 - **Critical**: T012a/b/c, T040, T041 must complete before T016 to ensure valid data. T042 must complete before T029. T043 must complete before T016/T023/T027.
 - **Critical**: T044 must run before T016/T023/T027 to ensure the 72-hour budget is feasible.
+
+## Phase O: Revision & Analysis Resolution (Post-Analysis Fixes)
+
+**Purpose**: Address specific issues raised by `/speckit.analyze` that require code or task list updates.
+
+- [ ] T050 [P] [US1, US2, US3] [Rev-001] Update `loader.py` to explicitly log the exact number of instances dropped during the >500 lines filter and the specific reason (e.g., "line_count < 500", "import_graph_unavailable") before exiting, ensuring the "Insufficient Context-Bound Data" error message in the spec is actionable. **Verification**: Run a small subset with known low-line instances and verify the log output contains the specific counts and reasons.
+- [ ] T051 [P] [US2] [Rev-002] Refactor `diff_aware.py` to explicitly handle cases where `difflib` returns no hunks (e.g., if the issue description is purely textual without code diffs) by falling back to the `first_n_lines` strategy for that specific instance, and log this fallback event to `data/audit_logs/fallbacks.jsonl` as per Edge Case Handling. **Verification**: Create a unit test `test_diff_aware_no_hunks` that mocks an issue with no code changes and verifies the fallback occurs and logs correctly.
+- [ ] T052 [P] [US3] [Rev-003] Update `glm_analyzer.py` to include a check for `statsmodels` version compatibility (>=0.14.0) and raise a clear, actionable error if the required Firth penalization method is missing, rather than silently proceeding with a standard GLM that might fail to converge. **Verification**: Mock a missing `statsmodels` version and verify the script raises a `RuntimeError` with the specific version requirement.
+- [ ] T053 [P] [US1, US2, US3] [Rev-004] Add a `--dry-run` flag to `run_baseline.py`, `run_high_fidelity.py`, and `run_7b_experiments.py` that executes the data loading, filtering, and context strategy logic for the first 5 instances without running the model, verifying the data flow and context generation before committing to the full 72-hour run. **Verification**: Run each script with `--dry-run` and verify it completes in <1 minute and outputs the first 5 processed instances to a temporary file.
