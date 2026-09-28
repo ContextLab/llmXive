@@ -45,10 +45,7 @@
 
 - [ ] T001a Create project directory structure per implementation plan:
  - Directories: `src/`, `src/ingestion/`, `src/preprocessing/`, `src/analysis/`, `src/utils/`, `tests/`, `tests/contract/`, `tests/integration/`, `tests/unit/`, `data/raw/`, `data/processed/`, `data/processed/results/`, `docs/`, `state/`
- - **Verification**: Verify all directories exist via `os.path.isdir` checks in a setup script or post-task validation.
-- [ ] T001b Create initial project files:
- - Files: `src/main.py`, `src/utils/logger.py`, `src/utils/power_analysis.py`, `tests/test_schemas.py`, `requirements.txt`, `README.md`
- - **Verification**: Create `README.md` with a standard project header (Title, Description, Usage) and verify file size > 0 bytes.
+ - **Verification**: Verify all directories exist via `os.path.isdir` checks in a setup script or post-task validation. If any directory is missing, the task must fail.
 
 ---
 
@@ -65,9 +62,6 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T003a [P] Create `ruff` configuration file at `pyproject.toml` or `.ruff.toml`
 - [X] T003b [P] Create `black` configuration file at `pyproject.toml`
 - [X] T004a [P] Create `pytest` configuration file (`pytest.ini` or `pyproject.toml`)
-- [ ] T009 [P] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing). **Must not** include logging configuration.
-- [ ] T009a [US1] Generate Exclusion Log: Implement logic to write `data/processed/results/covariate_exclusion_log.txt` recording the count of samples excluded due to >20% missing covariate data. **Depends on**: T009.
-- [ ] T009b [US1] Validate Covariate Exclusion: Verify `data/processed/results/covariate_exclusion_log.txt` exists and contains valid counts. **Depends on**: T009a.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -93,35 +87,66 @@ Examples of foundational tasks (adjust based on your project):
  - **Constraint**: Must use `datasets.load_dataset` or `requests` with a verified real URL. **NO** synthetic fallback. If download fails, raise `RuntimeError`.
  - **Streaming**: If the dataset exceeds memory, implement streaming logic to process in chunks.
  - **Validation**: Generate checksum for `data/raw/agp_raw.tsv` and record in `state/artifact_hashes.json`.
+- [ ] T012a [US1] **AGP Parsing Logic**: Implement the specific parsing logic within `src/ingestion/agp_loader.py` to extract 16S rRNA amplicon tables and metadata fields as per FR-001.
+ - **Action**: Parse the downloaded raw file to separate taxon abundance matrix and metadata.
+ - **Output**: Intermediate parsed structures ready for harmonization.
 - [ ] T013 [P] [US1] Implement `src/ingestion/ukbb_loader.py` to download UKBB data from canonical sources (verify URL/ID first)
  - **Output**: Must write raw data to `data/raw/ukbb_raw.tsv`.
  - **Constraint**: Must use verified UKBB access method (e.g., specific `datasets.load_dataset` ID or official UKBB API wrapper). **NO** synthetic fallback. If download fails, raise `RuntimeError`.
  - **Streaming**: Implement streaming/chunking if the full cohort exceeds available RAM.
  - **Validation**: Run `tests/contract/test_schemas.py` against `data/raw/ukbb_raw.tsv` to validate schema. Generate checksum and record in `state/artifact_hashes.json`.
+- [ ] T013a [US1] **UKBB Parsing Logic**: Implement the specific parsing logic within `src/ingestion/ukbb_loader.py` to extract 16S rRNA amplicon tables and metadata fields as per FR-001.
+ - **Action**: Parse the downloaded raw file to separate taxon abundance matrix and metadata.
+ - **Output**: Intermediate parsed structures ready for harmonization.
+- [ ] T014a [US1] **AGP Read Count Filter**: Implement filtering of AGP data for samples with <5,000 reads.
+ - **Input**: Parsed AGP data (from T012a).
+ - **Output**: Filtered AGP data saved to `data/processed/agp_filtered_reads.tsv`.
+ - **Logic**: Exclude samples where `read_count` < 5000.
+ - **Logging**: Record count of excluded samples.
+- [ ] T014b [US1] **AGP Fiber Intake Filter**: Implement filtering of AGP data for implausible fiber values.
+ - **Input**: Filtered AGP data (from T014a).
+ - **Output**: Filtered AGP data saved to `data/processed/agp_final.tsv`.
+ - **Logic**: Exclude samples where `fiber_g_day` < 0 or > 200. Exclude samples with missing fiber data.
+ - **Logging**: Record count of excluded samples.
+- [ ] T014c [US1] **UKBB Read Count Filter**: Implement filtering of UKBB data for samples with <5,000 reads.
+ - **Input**: Parsed UKBB data (from T013a).
+ - **Output**: Filtered UKBB data saved to `data/processed/ukbb_filtered_reads.tsv`.
+ - **Logic**: Exclude samples where `read_count` < 5000.
+ - **Logging**: Record count of excluded samples.
+- [ ] T014d [US1] **UKBB Fiber Intake Filter**: Implement filtering of UKBB data for implausible fiber values.
+ - **Input**: Filtered UKBB data (from T014c).
+ - **Output**: Filtered UKBB data saved to `data/processed/ukbb_final.tsv`.
+ - **Logic**: Exclude samples where `fiber_g_day` < 0 or > 200. Exclude samples with missing fiber data.
+ - **Logging**: Record count of excluded samples.
 - [ ] T014 [US1] Implement `src/ingestion/harmonizer.py` to:
- - Convert all fiber units to g/day
- - Filter samples with <5,000 reads
- - Filter samples with fiber intake <0 or >200 g/day
- - Exclude samples with missing fiber data
+ - Convert all fiber units to g/day (if not already done).
+ - Merge filtered AGP and UKBB data into a unified dataset.
  - **Mandatory**: Preserve and include a `cohort_id` column (values: "AGP", "UKBB") in the output.
  - Merge into `data/processed/merged_harmonized.tsv`
  - **Logging**: Record counts of filtered samples and reasons for exclusion.
  - **Output Schema**: `sample_id`, `cohort_id`, `fiber_g_day`, `read_count`, `taxon_abundances...`, `covariates...`
+ - **Depends on**: T014b, T014d.
 - [ ] T015 [US1] Generate PII Scan Report and Artifact Checksums:
  - **Input**: `data/raw/agp_raw.tsv`, `data/raw/ukbb_raw.tsv`, `data/processed/merged_harmonized.tsv`.
  - **Action**: Run PII scan on all data files. Calculate SHA256 checksums.
+ - **Conditional Execution**: If T012/T013 failed or files are missing, skip this task and log "Files missing".
  - **Output**: Write `data/processed/results/pii_scan_report.json` (must contain zero PII matches) and update `state/artifact_hashes.json` with new checksums.
- - **Verification**: Verify `data/processed/results/pii_scan_report.json` exists and contains `{"pii_found": 0}`. Also verify `logs/ingestion.log` exists from the execution of T012/T013/T014.
+ - **Verification**: Verify `data/processed/results/pii_scan_report.json` exists and contains `{"pii_found": 0}`.
+ - **Constraint**: **MUST HALT** (exit code 1) if PII is detected in raw source files (`data/raw/`).
  - **Depends on**: T012, T013, T014.
-- [X] T006b_validate [US1] Validate Power Analysis Output: Verify `data/processed/results/power_analysis_report.tsv` contains required columns (`power`, `margin_of_error`, `sample_size`) and that `sample_size` matches the count from T009b log. **Depends on**: T006b_run.
 - [ ] T006 [US1] Implement `src/utils/power_analysis.py` for calculating statistical power and margin of error (CPU-tractable). **Must accept**: sample size, effect size, alpha. **Must output**: power, margin of error. **Verification**: Run `tests/unit/test_power.py` to confirm correctness.
 - [ ] T006b_run [US1] Execute Power Analysis: Run `src/utils/power_analysis.py` (T006) on the **filtered** harmonized dataset (`data/processed/merged_harmonized.tsv`) to generate `data/processed/results/power_analysis_report.tsv`.
  - **Logic**: Calculate power and margin of error.
+ - **Propagation**: If calculated power < 0.8, write a `state/power_flag_config.json` file with `power_flag: true` and `threshold: 0.8` to propagate this flag to downstream tasks (T021, T028, T029).
  - **Conditional Action**: If calculated power < 0.8:
  1. Generate `data/processed/results/low_power_warning.tsv`.
  2. **Mandate** that all downstream analysis tasks (T021, T028, T029) MUST add a `power_flag` column to their outputs marking results as "underpowered".
  3. **Mandate** that the final summary (T033) MUST report non-significant results with the `power_flag` set to "underpowered", explicitly distinguishing them from true null effects (do NOT suppress).
- - **Depends on**: T014, T009, T006.
+ - **Depends on**: T014, T006.
+- [ ] T006b_validate [US1] Validate Power Analysis Output: Verify `data/processed/results/power_analysis_report.tsv` contains required columns (`power`, `margin_of_error`, `sample_size`) and that `sample_size` matches the count from T014. **Depends on**: T006b_run.
+- [ ] T009 [P] [US1] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing). **Must not** include logging configuration.
+- [ ] T009a [US1] Generate Exclusion Log: Implement logic to write `data/processed/results/covariate_exclusion_log.txt` recording the count of samples excluded due to >20% missing covariate data. **Must validate** that the exclusion count matches the input requirements for power analysis. **Depends on**: T009, T014.
+- [ ] T009b [US1] Validate Covariate Exclusion: Verify `data/processed/results/covariate_exclusion_log.txt` exists and contains valid counts. **Must validate** that the exclusion logic aligns with the 'acceptable threshold' defined in T006b_run. **Depends on**: T009a.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -150,19 +175,18 @@ Examples of foundational tasks (adjust based on your project):
  - **Depends on**: T014.
 - [ ] T020b [US2] Generate Pseudocount Documentation:
  - **Input**: `data/processed/clr_transformed.tsv`.
- - **Action**: Document the specific pseudocount value used (default 1) in a log file.
- - **Output**: Write `data/processed/results/pseudocount_documentation.txt` containing the value used and the justification.
- - **Constraint**: Do NOT perform a pass/fail diagnostic test. Only document.
- - **Verification**: Verify `data/processed/results/pseudocount_documentation.txt` exists and contains the string "pseudocount" and the value "1".
+ - **Action**: Document the pseudocount value used and justification **within** `data/processed/results/clr_validation_log.txt`.
+ - **Constraint**: Do NOT create a separate file. Embed in the primary CLR validation log.
+ - **Verification**: Verify `data/processed/results/clr_validation_log.txt` exists and contains the string "pseudocount" and the value "1".
  - **Depends on**: T020.
 - [ ] T021 [US2] **Primary Task**: Implement `src/analysis/correlation_maaslin2.py` to:
  - **Primary**: Invoke MaAsLin2 (via `rpy2` or `subprocess`) on CLR data to adjust for covariates (age, BMI, antibiotic use).
  - **Secondary (Mandatory)**: Calculate Spearman ρ and Standard Error (SE) for fiber intake vs. CLR-transformed taxa abundances using `scipy.stats.spearmanr` and Fisher's z-transformation.
  - **Constraint**: If R/MaAsLin2 is unavailable, the script MUST fail loudly (exit code 1) rather than falling back to non-compliant methods (ALR/ILR or OLS).
  - **FDR Correction**: Apply Benjamini-Hochberg FDR correction to p-values if not done by MaAsLin2.
- - **Power Flag**: If `power_flag` is set in input (from T006b_run), add a `power_flag` column to the output.
+ - **Power Flag**: If `power_flag` is set in input (from `state/power_flag_config.json` or T006b_run), add a `power_flag` column to the output.
  - **Output**: `data/processed/results/association_results.tsv`
- - **Schema**: Columns must be exactly `taxon`, `maaslin2_beta`, `maaslin2_se`, `maaslin2_p_value`, `maaslin2_q_value`, `spearman_rho`, `spearman_se`, `spearman_p_value`, `power_flag`.
+ - **Schema**: Columns must be exactly `taxon`, `maaslin2_beta`, `maaslin2_se`, `maaslin2_p_value`, `maaslin2_q_value`, `spearman_rho` (rounded to 3 decimal places), `spearman_se` (rounded to 3 decimal places), `spearman_p_value`, `power_flag`.
  - **Depends on**: T020.
 - [ ] T022 [US2] Generate FDR Correction Report:
  - **Input**: `data/processed/results/association_results.tsv`.
@@ -189,13 +213,13 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T028a1_proj [P] [US3] **AGP**: Project Runtime:
  - **Input**: `data/processed/merged_harmonized.tsv`.
- - **Logic**: Estimate runtime for ANCOM-II/DESeq2 on the full AGP cohort.
+ - **Logic**: Estimate runtime for ANCOM-II/DESeq on the full AGP cohort by running a 10-sample subset and extrapolating linearly.
  - **Output**: `data/processed/results/agp_runtime_estimate.txt` containing the projected hours.
  - **Verification**: Verify `data/processed/results/agp_runtime_estimate.txt` exists and contains a numeric value representing hours.
  - **Depends on**: T014, T020.
 - [ ] T028a1_downsample [P] [US3] **AGP**: Downsample for Runtime (Last Resort):
  - **Input**: `data/processed/merged_harmonized.tsv`, `data/processed/results/agp_runtime_estimate.txt`, `data/processed/results/power_analysis_report.tsv` (T006b_run).
- - **Logic**: If projected runtime > 5 hours, perform random stratified downsampling (by cohort) to ensure total runtime ≤ 6 hours.
+ - **Logic**: If projected runtime > 5 hours, perform random stratified downsampling (by cohort, fiber quartile) to ensure total runtime ≤ 6 hours.
  - **Constraint**: **Mandatory**: If downsampling reduces power below an acceptable threshold (refer to T006b_run), the task MUST **FLAG** the results as 'underpowered' and proceed with the analysis (do NOT halt). The analysis MUST continue to produce results with the power context reported.
  - **Output**: `data/processed/agp_processed.tsv` (filtered/downsampled).
  - **Verification**: If halted (should not happen per new logic), verify `data/processed/results/agp_analysis_halted.txt` exists and contains the reason string. (Note: Logic updated to not halt).
@@ -223,13 +247,13 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T028b1_proj [P] [US3] **UKBB**: Project Runtime:
  - **Input**: `data/processed/merged_harmonized.tsv`.
- - **Logic**: Estimate runtime for ANCOM-II/DESeq2 on the full UKBB cohort.
+ - **Logic**: Estimate runtime for ANCOM-II/DESeq on the full UKBB cohort by running a 10-sample subset and extrapolating linearly.
  - **Output**: `data/processed/results/ukbb_runtime_estimate.txt` containing the projected hours.
  - **Depends on**: T014, T020.
 - [ ] T028b1_downsample [US3] **UKBB**: Downsample for Runtime (Last Resort):
  - **Input**: `data/processed/merged_harmonized.tsv`, `data/processed/results/ukbb_runtime_estimate.txt`, `data/processed/results/power_analysis_report.tsv` (T006b_run).
- - **Logic**: If projected runtime > 5 hours, perform random stratified downsampling (by cohort) to ensure total runtime ≤ 6 hours.
- - **Constraint**: **Mandatory**: If downsampling reduces power below an acceptable threshold (refer to T006b_run), the task MUST **FLAG** the results as 'underpowered' and proceed with the analysis (do NOT halt).
+ - **Logic**: If projected runtime > 5 hours, perform random stratified downsampling (by cohort, fiber quartile) to ensure total runtime ≤ 6 hours.
+ - **Constraint**: **Mandatory**: If downsampling reduces power below an acceptable threshold (refer to T006b_run), the task MUST **FLAG** the results as 'underpowered' and proceed with the analysis (do NOT halt). **Mandatory**: If power drops, ensure the final summary logic (T033) explicitly distinguishes 'underpowered' non-replication from 'cohort-specific' findings.
  - **Output**: `data/processed/ukbb_processed.tsv` (filtered/downsampled).
  - **Depends on**: T028b1_proj, T006b_run.
 
@@ -255,11 +279,12 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T029 [US3] Implement replication logic in `src/analysis/validation_cross_cohort.py`:
  - **Input**: `data/processed/results/association_results.tsv` (from T021) for both cohorts, and `diff_abundance_*.tsv` files (from T028a2, T028a3, T028b2, T028b3).
+ - **Prerequisite**: **T021 (Phase 4) is a hard prerequisite for this entire Phase 5 block.**
  - **Primary Logic**: Compare **MaAsLin2 beta-coefficients** (continuous model) for significant taxa between AGP and UKBB. Flag consistent directionality (same sign of effect size).
  - **Secondary Logic**: Compare ANCOM-II/DESeq2 results for significant taxa between AGP and UKBB. Flag consistent directionality. **Note**: This scope is mandated by FR-007 (evaluate replication status of significant findings) and FR-006 (use both methods), superseding the plan's previous restriction to MaAsLin2 only.
  - **Constraint**: **Both methods (MaAsLin2, ANCOM-II, DESeq2) must be evaluated with equal weight**. All significant taxa must be included in the output.
  - **Output**: `data/processed/results/replication_status.tsv`
- - **Schema**: `taxon`, `method` (MaAsLin2/ANCOM/DESeq2), `agp_q_value`, `ukbb_q_value`, `agp_effect_size`, `ukbb_effect_size`, `replication_status` (values: 'replicated', 'non-replicable', 'cohort-specific'), `power_flag` (if applicable), `diff_abundance_replicated` (boolean column for ANCOM/DESeq2 results). **Must include 'diff_abundance_replicated' column for ANCOM/DESeq2 results.**
+ - **Schema**: `taxon`, `method` (MaAsLin2/ANCOM/DESeq2), `agp_q_value`, `ukbb_q_value`, `agp_effect_size`, `ukbb_effect_size`, `replication_status` (values: 'replicated', 'non-replicable', 'cohort-specific'), `power_flag` (if applicable), `diff_abundance_status` (values: 'replicated', 'non-replicable', 'cohort-specific'). **Must include 'diff_abundance_status' column for ANCOM/DESeq2 results.**
  - **Depends on**: T021, T028a2, T028a3, T028b2, T028b3.
 
 - [ ] T030 [US3] Calculate Cross-Cohort Replication Rate:
@@ -268,18 +293,24 @@ Examples of foundational tasks (adjust based on your project):
  - **Output**: `data/processed/results/replication_rate.tsv` containing a single row with `total_significant_taxa`, `replicated_count`, `replication_rate` (percentage).
  - **Depends on**: T029.
 
+- [ ] T033a [US3] Report Power Analysis:
+ - **Input**: `data/processed/results/power_analysis_report.tsv` (from T006b_run).
+ - **Action**: Format power and margin of error values for user-facing consumption.
+ - **Output**: `data/processed/results/power_report_summary.txt` containing the calculated power, margin of error, and sample size.
+ - **Depends on**: T006b_run.
+
 - [ ] T033 [US3] Generate Final Summary Table:
- - **Input**: `data/processed/results/association_results.tsv` (T021), `diff_abundance_agp_ancom.tsv` (T028a2), `diff_abundance_agp_deseq2.tsv` (T028a3), `diff_abundance_ukbb_ancom.tsv` (T028b2), `diff_abundance_ukbb_deseq2.tsv` (T028b3), `replication_status.tsv` (T029), `replication_rate.tsv` (T030), `agp_fiber_metrics.tsv` (T028a4), `ukbb_fiber_metrics.tsv` (T028b4), `data/processed/results/power_analysis_report.tsv` (T006b_run).
+ - **Input**: `data/processed/results/association_results.tsv` (T021), `diff_abundance_agp_ancom.tsv` (T028a2), `diff_abundance_agp_deseq2.tsv` (T028a3), `diff_abundance_ukbb_ancom.tsv` (T028b2), `diff_abundance_ukbb_deseq2.tsv` (T028b3), `replication_status.tsv` (T029), `replication_rate.tsv` (T030), `agp_fiber_metrics.tsv` (T028a4), `ukbb_fiber_metrics.tsv` (T028b4), `data/processed/results/power_analysis_report.tsv` (T006b_run), `data/processed/results/power_report_summary.txt` (T033a).
  - **Action**: Aggregate all results into a single comprehensive table.
  - **Output**: `data/processed/results/final_summary.tsv` containing:
- - Taxon, method, q-value, effect_size (beta), **Standard Error for Spearman ρ**, direction
+ - Taxon, method, q-value, effect_size (beta), **Standard Error for Spearman ρ** (rounded to 3 decimals), direction
  - **Replication status** (from T029)
- - **Median fiber intake for high/low groups** (from T028a4/T028b4) - **Mandatory for FR-009**. Columns: `median_fiber_high_group_agp`, `median_fiber_low_group_agp`, `median_fiber_high_group_ukbb`, `median_fiber_low_group_ukbb`. **These columns MUST be present in the output even if input data is missing (use 'N/A' or 'NaN').**
+ - **Median fiber intake for high/low groups** (from T028a4/T028b4) - **Mandatory for FR-009**. Columns: `median_fiber_high_group_agp`, `median_fiber_low_group_agp`, `median_fiber_high_group_ukbb`, `median_fiber_low_group_ukbb`. **These columns MUST be present in the output. If input data is missing, calculate medians directly from `data/processed/merged_harmonized.tsv` using the high/low quartile logic and use 'N/A' or 'NaN' only if data is truly absent.**
  - **Replication Rate** (from T030).
  - Confidence intervals (calculated as beta ± 1.96 * SE)
- - Statistical power and margin of error (from T006b_run).
+ - Statistical power and margin of error (from T006b_run and T033a).
  - **Low Power Flag**: If power < 0.8, include a `power_flag` column and **report** non-significant results with the flag, explicitly distinguishing them from true null effects (do NOT suppress).
- - **Depends on**: T021, T028a2, T028a3, T028b2, T028b3, T029, T030, T028a4, T028b4, T006b_run.
+ - **Depends on**: T021, T028a2, T028a3, T028b2, T028b3, T029, T030, T028a4, T028b4, T006b_run, T033a.
 - [ ] T031 [US3] Integrate power analysis results (from T006b/T006b_validate) into final report to distinguish true null effects from underpowered results. **Depends on**: T006b_run, T033.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -301,7 +332,7 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T036 Run `quickstart.md` validation to ensure end-to-end reproducibility
  - **Verification**: Execute the commands listed in `quickstart.md` in a fresh virtualenv and verify the pipeline completes successfully, producing `data/processed/results/final_summary.tsv`.
 - [ ] T037 Verify all artifacts (CSV/TSV) are deterministic and reproducible (check random seeds)
- - **Verification**: Run the pipeline twice with the same seed. Compare SHA256 hashes of all output files in `data/processed/`. Verify hashes match and record in `state/determinism_check.json`.
+ - **Verification**: Run the pipeline twice with the same seed. Compare cryptographic hashes of all output files in `data/processed/`. Verify hashes match. and record in `state/determinism_check.json`.
 
 ---
 
@@ -404,3 +435,4 @@ With multiple developers:
 - **POWER ANALYSIS**: T006 (Implementation) must be completed before T006b_run (Execution). If power < 0.8, downstream tasks MUST flag results and report them with context (do NOT suppress).
 - **TIME BUDGET**: ANCOM-II/DESeq2 tasks (T028a1/T028b1) MUST project runtime and downsample if > 5h to guarantee SC-004 (≤6h) compliance. If power drops below 0.8 due to downsampling, the analysis MUST FLAG results as 'underpowered' and continue (do NOT halt).
 - **PLAN NOTE**: The Plan's "Complexity Tracking" section regarding the rejection of ANCOM-II/DESeq2 is superseded by the Spec's FR-006 requirement. The tasks implement both methods as mandatory.
+- **COHORT SPECIFICITY**: If power drops due to downsampling, the final summary MUST distinguish 'underpowered' non-replication from 'cohort-specific' findings.

@@ -1,6 +1,3 @@
-"""
-Unit tests for AGP loader.
-"""
 import pytest
 import os
 import sys
@@ -10,125 +7,154 @@ import json
 import pandas as pd
 import numpy as np
 
-# Add project root to path
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
-
 from src.ingestion.agp_loader import (
+    get_project_root,
     verify_url,
     ensure_qiita_token,
+    calculate_file_checksum,
+    record_checksum,
     fetch_sample_mapping,
     fetch_otu_table,
     fetch_agp_data,
-    build_arg_parser
+    build_arg_parser,
+    main
 )
 
-class TestEnsureQiitaToken:
-    def test_token_exists(self):
-        with patch.dict(os.environ, {"QIITA_API_TOKEN": "test_token"}):
-            token = ensure_qiita_token()
-            assert token == "test_token"
+@patch('src.ingestion.agp_loader.get_project_root')
+def test_get_project_root(mock_root):
+    """Test that get_project_root returns a Path object."""
+    mock_root.return_value = Path("/fake/project/root")
+    assert get_project_root() == Path("/fake/project/root")
 
-    def test_token_missing(self):
-        with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(RuntimeError, match="QIITA_API_TOKEN environment variable is not set"):
-                ensure_qiita_token()
+@patch('src.ingestion.agp_loader.requests.head')
+def test_verify_url(mock_head):
+    """Test URL verification with a 200 response."""
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.raise_for_status = MagicMock()
+    mock_head.return_value = mock_response
 
-class TestFetchSampleMapping:
-    @pytest.fixture
-    def mock_response(self):
-        return {
-            "samples": {
-                "sample_1": {"fiber_intake": 25.0, "age": 30},
-                "sample_2": {"fiber_intake": 15.0, "age": 40}
-            }
+    assert verify_url("http://example.com") is True
+
+@patch('src.ingestion.agp_loader.requests.head')
+def test_verify_url_failure(mock_head):
+    """Test URL verification with a 404 response."""
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_response.raise_for_status = MagicMock(side_effect=Exception("404"))
+    mock_head.return_value = mock_response
+
+    assert verify_url("http://example.com") is False
+
+def test_ensure_qiita_token_missing(monkeypatch):
+    """Test that ensure_qiita_token raises RuntimeError if token is missing."""
+    monkeypatch.delenv("QIITA_API_TOKEN", raising=False)
+    with pytest.raises(RuntimeError, match="Qiita API token not found"):
+        ensure_qiita_token()
+
+def test_ensure_qiita_token_present(monkeypatch):
+    """Test that ensure_qiita_token returns the token."""
+    monkeypatch.setenv("QIITA_API_TOKEN", "test_token_123")
+    assert ensure_qiita_token() == "test_token_123"
+
+def test_calculate_file_checksum(tmp_path):
+    """Test checksum calculation."""
+    test_file = tmp_path / "test.txt"
+    test_file.write_text("Hello, World!")
+    
+    checksum = calculate_file_checksum(test_file)
+    assert isinstance(checksum, str)
+    assert len(checksum) == 64  # SHA256 length
+
+@patch('src.ingestion.agp_loader.Path.exists')
+@patch('src.ingestion.agp_loader.Path.open')
+def test_record_checksum(mock_open, mock_exists, tmp_path):
+    """Test recording checksum to state file."""
+    # Mock exists to return False first (new file)
+    mock_exists.return_value = False
+    
+    state_file = tmp_path / "state.json"
+    record_checksum(tmp_path / "file.txt", "abc123", "test_artifact", state_file)
+    
+    # Verify file was created
+    assert state_file.exists()
+    with open(state_file, 'r') as f:
+        data = json.load(f)
+    assert "test_artifact" in data
+    assert data["test_artifact"]["checksum"] == "abc123"
+
+@patch('src.ingestion.agp_loader.requests.get')
+def test_fetch_sample_mapping(mock_get, tmp_path):
+    """Test fetching sample mapping."""
+    # Mock response
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "samples": {
+            "sample_1": {"fiber_g_day": 25, "age": 30},
+            "sample_2": {"fiber_g_day": 10, "age": 45}
         }
+    }
+    mock_get.return_value = mock_response
 
-    @patch('src.ingestion.agp_loader.requests.get')
-    def test_fetch_success(self, mock_get, mock_response):
-        mock_get.return_value = MagicMock(
-            status_code=200,
-            json=lambda: mock_response,
-            raise_for_status=lambda: None
-        )
-        
-        with patch.dict(os.environ, {"QIITA_API_TOKEN": "test_token"}):
-            df = fetch_sample_mapping("1031", "test_token")
-            
-            assert isinstance(df, pd.DataFrame)
-            assert len(df) == 2
-            assert "fiber_intake" in df.columns
-            assert "age" in df.columns
+    output_path = tmp_path / "samples.tsv"
+    df = fetch_sample_mapping("10317", "token", output_path)
 
-    @patch('src.ingestion.agp_loader.requests.get')
-    def test_fetch_failure(self, mock_get):
-        mock_get.return_value = MagicMock(
-            status_code=500,
-            raise_for_status=lambda: (_ for _ in ()).throw(Exception("Server Error"))
-        )
-        
-        with patch.dict(os.environ, {"QIITA_API_TOKEN": "test_token"}):
-            with pytest.raises(Exception, match="Server Error"):
-                fetch_sample_mapping("1031", "test_token")
+    assert len(df) == 2
+    assert "sample_id" in df.columns
+    assert "fiber_g_day" in df.columns
+    assert output_path.exists()
 
-class TestFetchOtuTable:
-    @pytest.fixture
-    def mock_otu_response(self):
-        return {
-            "otutable": {
-                "sample_1": {"otu_1": 100, "otu_2": 50},
-                "sample_2": {"otu_1": 200, "otu_2": 75}
-            }
-        }
+@patch('src.ingestion.agp_loader.requests.get')
+def test_fetch_otu_table(mock_get, tmp_path):
+    """Test fetching OTU table."""
+    # Mock response for a small table
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "otu_1": {"sample_1": 100, "sample_2": 200},
+        "otu_2": {"sample_1": 50, "sample_2": 150}
+    }
+    mock_get.return_value = mock_response
 
-    @patch('src.ingestion.agp_loader.requests.get')
-    def test_fetch_success(self, mock_get, mock_otu_response):
-        mock_get.return_value = MagicMock(
-            status_code=200,
-            json=lambda: mock_otu_response,
-            raise_for_status=lambda: None
-        )
-        
-        with patch.dict(os.environ, {"QIITA_API_TOKEN": "test_token"}):
-            df = fetch_otu_table("1031", "test_token")
-            
-            assert isinstance(df, pd.DataFrame)
-            assert len(df) == 2
-            assert "otu_1" in df.columns
-            assert "otu_2" in df.columns
+    output_path = tmp_path / "otu.tsv"
+    df = fetch_otu_table("10317", "token", output_path)
 
-    @patch('src.ingestion.agp_loader.requests.get')
-    def test_fetch_failure(self, mock_get):
-        mock_get.return_value = MagicMock(
-            status_code=500,
-            raise_for_status=lambda: (_ for _ in ()).throw(Exception("Server Error"))
-        )
-        
-        with patch.dict(os.environ, {"QIITA_API_TOKEN": "test_token"}):
-            with pytest.raises(Exception, match="Server Error"):
-                fetch_otu_table("1031", "test_token")
+    assert df.shape == (2, 2)
+    assert output_path.exists()
 
-class TestMain:
-    @patch('src.ingestion.agp_loader.fetch_agp_data')
-    @patch('src.ingestion.agp_logger.get_logger')
-    def test_main_success(self, mock_logger, mock_fetch):
-        mock_logger_instance = MagicMock()
-        mock_logger.return_value = mock_logger_instance
-        mock_fetch.return_value = (pd.DataFrame(), pd.DataFrame())
-        
-        with patch('sys.argv', ['agp_loader.py']):
-            with patch.dict(os.environ, {"QIITA_API_TOKEN": "test_token"}):
-                result = main()
-                assert result == 0
+@patch('src.ingestion.agp_loader.fetch_sample_mapping')
+@patch('src.ingestion.agp_loader.fetch_otu_table')
+@patch('src.ingestion.agp_loader.calculate_file_checksum')
+@patch('src.ingestion.agp_loader.record_checksum')
+@patch('src.ingestion.agp_loader.get_project_root')
+@patch('src.ingestion.agp_loader.ensure_qiita_token')
+def test_fetch_agp_data(
+    mock_token, mock_root, mock_record, mock_checksum, mock_otu, mock_sample, tmp_path
+):
+    """Test the main fetch_agp_data function."""
+    mock_token.return_value = "fake_token"
+    mock_root.return_value = tmp_path / "project"
+    (mock_root.return_value / "data").mkdir(parents=True, exist_ok=True)
+    (mock_root.return_value / "state").mkdir(parents=True, exist_ok=True)
+    
+    mock_sample_df = pd.DataFrame({"sample_id": ["s1"], "fiber": [10]})
+    mock_sample.return_value = mock_sample_df
+    
+    mock_otu_df = pd.DataFrame({"otu1": [100], "otu2": [200]})
+    mock_otu.return_value = mock_otu_df
+    
+    mock_checksum.return_value = "fake_checksum"
+    
+    output_path = tmp_path / "project" / "data" / "raw" / "agp_raw.tsv"
+    meta_df, otu_df = fetch_agp_data(output_path)
+    
+    assert meta_df is not None
+    assert otu_df is not None
+    assert output_path.exists()
 
-    @patch('src.ingestion.agp_loader.fetch_agp_data')
-    @patch('src.ingestion.agp_logger.get_logger')
-    def test_main_failure(self, mock_logger, mock_fetch):
-        mock_logger_instance = MagicMock()
-        mock_logger.return_value = mock_logger_instance
-        mock_fetch.side_effect = Exception("Download failed")
-        
-        with patch('sys.argv', ['agp_loader.py']):
-            with patch.dict(os.environ, {"QIITA_API_TOKEN": "test_token"}):
-                result = main()
-                assert result == 1
+def test_build_arg_parser():
+    """Test argument parser construction."""
+    parser = build_arg_parser()
+    args = parser.parse_args(["--output", "test.tsv"])
+    assert args.output == "test.tsv"

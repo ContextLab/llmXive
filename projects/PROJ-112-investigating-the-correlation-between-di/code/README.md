@@ -1,94 +1,41 @@
-# llmXive: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition
+# llmXive Research Pipeline: Dietary Fiber and Gut Microbiome
 
-## Overview
-
-This project investigates the relationship between dietary fiber intake and gut microbiome composition using data from the American Gut Project (AGP) and the UK Biobank (UKBB). The pipeline performs data ingestion, harmonization, compositional transformation (CLR), and statistical correlation analysis (MaAsLin2, Spearman) with cross-cohort validation.
+This project investigates the correlation between dietary fiber intake and gut microbiome composition using data from the American Gut Project (AGP) and UK Biobank (UKBB).
 
 ## Project Structure
 
-```
-code/
-├── src/
-│ ├── main.py # Main entry point
-│ ├── utils/
-│ │ ├── logger.py # Logging configuration
-│ │ └── power_analysis.py # Statistical power calculations
-│ ├── ingestion/
-│ │ ├── agp_loader.py # AGP data ingestion
-│ │ ├── ukbb_loader.py # UKBB data ingestion
-│ │ └── harmonizer.py # Data harmonization
-│ ├── preprocessing/
-│ │ ├── id_generator.py # Sample ID generation
-│ │ ├── covariate_handler.py # MICE imputation
-│ │ └── clr_transform.py # CLR transformation
-│ └── analysis/
-│ ├── correlation_maaslin2.py
-│ └── validation_cross_cohort.py
-├── tests/
-│ ├── contract/ # Schema contract tests
-│ ├── integration/ # Integration tests
-│ └── unit/ # Unit tests
-├── data/
-│ ├── raw/ # Raw downloaded data
-│ └── processed/ # Processed data
-└── requirements.txt
+- `src/`: Source code for the pipeline
+ - `ingestion/`: Data loading and harmonization
+ - `preprocessing/`: Data cleaning, transformation, and imputation
+ - `analysis/`: Statistical analysis and correlation
+ - `utils/`: Utility functions
+- `tests/`: Test suites
+ - `contract/`: Schema validation tests
+ - `integration/`: Integration tests
+ - `unit/`: Unit tests
+- `data/`: Data directories
+ - `raw/`: Raw downloaded data
+ - `processed/`: Processed and harmonized data
+ - `processed/results/`: Final analysis results
+- `docs/`: Documentation
+- `state/`: Pipeline state and logs
+- `figures/`: Generated plots
 
-## Setup
+## Usage
 
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
+1. **Setup Environment**:
  ```bash
  pip install -r requirements.txt
  ```
 
-3. Run the pipeline:
+2. **Setup Directory Structure**:
  ```bash
- python src/main.py
+ python code/src/setup_data_structure.py
  ```
 
-## Usage
+3. **Run Pipeline**:
+ Follow the steps in `quickstart.md`.
 
-### Data Ingestion
-Download and harmonize data from AGP and UKBB:
-```bash
-python src/ingestion/run_ingestion_pipeline.py
-```
+## Dependencies
 
-### Preprocessing
-Apply CLR transformation:
-```bash
-python src/preprocessing/clr_transform.py --input data/processed/merged_harmonized.tsv --output data/processed/clr_transformed.tsv
-```
-
-### Analysis
-Run correlation analysis:
-```bash
-python src/analysis/correlation_maaslin2.py --input data/processed/clr_transformed.tsv --output data/processed/results/association_results.tsv
-```
-
-## Testing
-
-Run all tests:
-```bash
-pytest
-```
-
-Run specific test suites:
-```bash
-pytest tests/unit/
-pytest tests/contract/
-pytest tests/integration/
-```
-
-## License
-
-This project is licensed under the terms specified in the LICENSE file.
-
-## Contact
-
-For questions, please contact the project maintainers.
+See `requirements.txt` for the full list of dependencies.

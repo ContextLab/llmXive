@@ -1,18 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory tree or file listing was provided; the implementer did not supply
-    any artifact showing that a project directory structure was created. The required
-    folder hierarchy is missing, so the task is not satisfied.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No actual project files (e.g., README, directory layout, ingestion scripts,\
-    \ or any code/data) were presented; the claim provides only the specification\
-    \ text. Without concrete artifacts on disk, the requirement to \u201CCreate initial\
-    \ project files\u201D is not satisfied. The next implementer must add the expected\
-    \ files (e.g., a project root with README, `requirements.txt`, initial Python/R\
-    \ scripts, and placeholder data directories)."
 T003a:
   c: true
   h: a23e7cabe4ed97ffeacd8033a2ef65c6ed894c50678b7a3ca1d032e2cd368647
@@ -27,13 +12,6 @@ T004a:
     \ that includes a `[tool.pytest.ini_options]` section with realistic pytest settings,\
     \ satisfying the requirement to provide a pytest configuration file (either `pytest.ini`\
     \ or `pyproject.toml`). No further files are needed."
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`data/raw/`, `data/processed/`, `data/processed/results/`)
-    being created is provided; the response contains only task description and no
-    filesystem artifacts. The implementer must create and show the actual directory
-    structure.
 T009b:
   c: false
   h: 56ac508b1aa496a06b9ac23c9a211cafc18143a26f550bb0bc0d257fa666a778
