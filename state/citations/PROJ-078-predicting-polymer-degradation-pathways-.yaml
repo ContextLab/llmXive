@@ -42,47 +42,47 @@
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/1711.00066
   verified_at: '2026-08-22T09:10:19.931793Z'
-- artifact_hash: efd97303c00f08b399be388c7c72145dedea6b9a891ea99356ee95adfc2994d3
+- artifact_hash: 17e6ffd9140ecbb8252bf9d2a299dbe6c407026c0abb719b96f02f9e2fcc0036
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/research.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/di-zhang-fdu/ChemData700K-SMILES-only/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/671bb105f640ce5da50d7176/a31bfc0186c1ad4c1888390fa008bb1944a3bd2920534c014f3da6a7cb9dae50?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001.parquet%3B+filename%3D%22train-00000-of-00001.parquet%22%3B&xip=iZS6WYQx4_Y&user_id=public&Expires=1790582092&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxYmIxMDVmNjQwY2U1ZGE1MGQ3MTc2L2EzMWJmYzAxODZjMWFkNGMxODg4MzkwZmEwMDhiYjE5NDRhM2JkMjkyMDUzNGMwMTRmM2RhNmE3Y2I5ZGFlNTBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAxLnBhcnF1ZXQlMjIlM0ImeGlwPWlaUzZXWVF4NF9ZJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTA1ODIwOTJ9fX1dfQ__&Signature=MEUCIHL8SnWMgwJguNLdOcyx5LJ7%7ED3Xag5BwMxBWkIfd0PbAiEAvvMNoHGO39KQ0ushifhDurfd-xa1%7E2LfeqnNVd4DHCg_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-28T06:54:52.586460Z'
+- artifact_hash: 17e6ffd9140ecbb8252bf9d2a299dbe6c407026c0abb719b96f02f9e2fcc0036
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/research.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: test-00000-of-00015-27ed436361d9186e.parquet
   kind: url
   value: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&Expires=1790247976&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkwMjQ3OTc2fX19XX0_&Signature=MEUCICkN4UiUvRCVom8vEUL6fvWWBmMFJE0bAeFYKQo8e49bAiEAvGfnMhVaxxJju%7EAlXP8DjSt-9%7EysjKKe2NURwZc-onU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-09-24T10:06:16.708286Z'
-- artifact_hash: efd97303c00f08b399be388c7c72145dedea6b9a891ea99356ee95adfc2994d3
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/642c21d86c11a741c521acc3/05f01d12e9eebd2f505bdbe0e04adf1b38d046376106167292c9c772a6fc9a2f?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00015-27ed436361d9186e.parquet%3B+filename%3D%22test-00000-of-00015-27ed436361d9186e.parquet%22%3B&X-Xet-Cas-Uid=public&xip=iZS6WYQx4_Y&user_id=public&Expires=1790582095&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQyYzIxZDg2YzExYTc0MWM1MjFhY2MzLzA1ZjAxZDEyZTllZWJkMmY1MDViZGJlMGUwNGFkZjFiMzhkMDQ2Mzc2MTA2MTY3MjkyYzljNzcyYTZmYzlhMmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNS0yN2VkNDM2MzYxZDkxODZlLnBhcnF1ZXQlM0IrZmlsZW5hbWUlM0QlMjJ0ZXN0LTAwMDAwLW9mLTAwMDE1LTI3ZWQ0MzYzNjFkOTE4NmUucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9aVpTNldZUXg0X1kmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MDU4MjA5NX19fV19&Signature=MEUCIQD5HEM%7ExUvJMMmSOmXHrifmFN-qRwNbj-tASfkTXPF2VgIgDsyT67Ti7S3a7lQtPgrhmc7rJ2RZbAx%7EZDu2CgyZvRM_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-28T06:54:52.586460Z'
+- artifact_hash: 17e6ffd9140ecbb8252bf9d2a299dbe6c407026c0abb719b96f02f9e2fcc0036
   artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/research.md
-  cite_id: c-002
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: data.csv
   kind: url
   value: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644573a053ecc52f50f2bd0f/524a7e5d5f65d3c105c046a5e8da86bcee0d64a844d59402fb617e230beacee1?response-content-type=text%2Fcsv%3B+charset%3Dutf-8&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.csv%3B+filename%3D%22data.csv%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1790247980&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0NTczYTA1M2VjYzUyZjUwZjJiZDBmLzUyNGE3ZTVkNWY2NWQzYzEwNWMwNDZhNWU4ZGE4NmJjZWUwZDY0YTg0NGQ1OTQwMmZiNjE3ZTIzMGJlYWNlZTFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN2RhdGEuY3N2JTNCK2ZpbGVuYW1lJTNEJTIyZGF0YS5jc3YlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc5MDI0Nzk4MH19fV19&Signature=MEQCIHZ%7EZhLpWQx50me7pGJiMQec12fXW83JJW0g7UkUbDV5AiAYTnm5dn-P1QKbWk9BZpTvk-tcKi4cCR1cEy348KSsew__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-09-24T10:06:16.708286Z'
-- artifact_hash: efd97303c00f08b399be388c7c72145dedea6b9a891ea99356ee95adfc2994d3
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/research.md
-  cite_id: c-003
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/644573a053ecc52f50f2bd0f/524a7e5d5f65d3c105c046a5e8da86bcee0d64a844d59402fb617e230beacee1?response-content-type=text%2Fcsv%3B+charset%3Dutf-8&user_id=public&X-Xet-Cas-Uid=public&xip=iZS6WYQx4_Y&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data.csv%3B+filename%3D%22data.csv%22%3B&Expires=1790582099&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0NTczYTA1M2VjYzUyZjUwZjJiZDBmLzUyNGE3ZTVkNWY2NWQzYzEwNWMwNDZhNWU4ZGE4NmJjZWUwZDY0YTg0NGQ1OTQwMmZiNjE3ZTIzMGJlYWNlZTFcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmeGlwPWlaUzZXWVF4NF9ZJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhLmNzdiUzQitmaWxlbmFtZSUzRCUyMmRhdGEuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTA1ODIwOTl9fX1dfQ__&Signature=MEUCIQDzwnhPLcA1tNGxsW79NZRIt-QffVDy4%7EdLCPapFziojwIgVSwqWYKL8ueOgD4wqR3oRq7lZ5Joo-GrI2mx41hWThc_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-28T06:54:52.586460Z'
+- artifact_hash: 46b8917dc186b3e15c919432e7ae5e011436fad0b8da6fe02c080c13ec20cd69
+  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/quickstart.md
+  cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: nist.jsonl
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/rkreddyp/nist_800_53/resolve/main/nist.jsonl`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/rkreddyp/nist_800_53/521fcc861fd85b5bfd52171041ccbd4d3d7fb963/nist.jsonl?%2Fdatasets%2Frkreddyp%2Fnist_800_53%2Fresolve%2Fmain%2Fnist.jsonl=&etag=%22a9ac1847956294e9cd774eee73e72f56c9323076%22
-  verified_at: '2026-09-24T10:06:16.708286Z'
-- artifact_hash: efd97303c00f08b399be388c7c72145dedea6b9a891ea99356ee95adfc2994d3
-  artifact_path: projects/PROJ-078-predicting-polymer-degradation-pathways-/specs/001-predicting-polymer-degradation-pathways/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: books_dataset.txt
-  kind: url
-  value: https://huggingface.co/datasets/Raziel1234/WebBooks-1/resolve/main/books_dataset.txt`
-  verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/699d98fccb7ff0a7c59329bf/a6bfd74a82501a96bbb754bd1771d3f8307af4073b1db7384ff7f1216485c4b6?user_id=public&response-content-type=text%2Fplain%3B+charset%3Dutf-8&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27books_dataset.txt%3B+filename%3D%22books_dataset.txt%22%3B&Expires=1790247984&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk5ZDk4ZmNjYjdmZjBhN2M1OTMyOWJmL2E2YmZkNzRhODI1MDFhOTZiYmI3NTRiZDE3NzFkM2Y4MzA3YWY0MDczYjFkYjczODRmZjdmMTIxNjQ4NWM0YjZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJTNCK2NoYXJzZXQlM0R1dGYtOCZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Ym9va3NfZGF0YXNldC50eHQlM0IrZmlsZW5hbWUlM0QlMjJib29rc19kYXRhc2V0LnR4dCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkwMjQ3OTg0fX19XX0_&Signature=MEUCIHGoxlb8GP4Be6F%7EZq-YEbl4POdESOvS2riRmxQOjBw8AiEA2RwlK2hLP0SxlikW9HdDxPO1KFhxu001tahITOJB2t4_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
-  verified_at: '2026-09-24T10:06:16.708286Z'
+  value: https://github.com/your-org/PROJ-078-predicting-polymer-degradation-pathways-.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-078-predicting-polymer-degradation-pathways-
+  verified_at: '2026-09-28T06:55:27.309015Z'

@@ -1,78 +1,118 @@
-# Quickstart: Predicting Polymer Degradation Pathways
+# Quickstart: Predicting Polymer Degradation Pathways with Graph Neural Networks
 
 ## Prerequisites
 
 - Python 3.11+
-- Git
-- Access to a GitHub Actions runner (or local environment with ≥7GB RAM)
+- 2 CPU cores, 7 GB RAM, 14 GB disk (GitHub Actions free-tier)
+- Internet access for dataset download (no credentials required)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-078-predicting-polymer-degradation-pathways-
-    ```
+1. **Clone the repository**:
+ ```bash
+ git clone
+ cd projects/PROJ-078-predicting-polymer-degradation-pathways-/
+ ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create virtual environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: This installs CPU-only versions of PyTorch and PyTorch Geometric.*
+3. **Install dependencies**:
+ ```bash
+ pip install -r code/requirements.txt
+ ```
 
-## Running the Pipeline
+## Data Setup
 
-### 1. Data Ingestion & Preprocessing
-Download the verified datasets and convert them to graph format.
-```bash
-python src/main.py --step ingestion
-```
-*Output*: `data/processed/polymer_records.csv`, `data/processed/molecular_graphs.pt`
+1. **Download verified datasets**:
+ ```bash
+ python code/ingest.py --source verified_smiles
+ ```
+ This will:
+ - Fetch SMILES from HuggingFace (verified sources).
+ - Filter for polyesters (ester bond detection).
+ - Apply synthetic labels or flag for curation.
+ - Save to `data/raw/` and `data/processed/`.
 
-### 2. Data Augmentation
-Expand the dataset by 2x using edge dropout and subgraph sampling.
-```bash
-python src/main.py --step augmentation
-```
-*Output*: `data/processed/augmented_graphs.pt`
+2. **Verify data integrity**:
+ ```bash
+ python code/utils.py --check-data
+ ```
+ This will:
+ - Validate SMILES strings.
+ - Check for missing environmental conditions.
+ - Log imputation actions.
 
-### 3. Model Training
-Train the GNN with 5-fold CV (or LOO if n<150).
-```bash
-python src/main.py --step train
-```
-*Output*: `models/gnn_weights.pt`, `logs/training_log.json`
+## Model Training
 
-### 4. Feature Attribution & Statistical Analysis
-Generate Integrated Gradients and run the χ² test.
-```bash
-python src/main.py --step analysis
-```
-*Output*: `reports/statistical_report.json`, `reports/motif_report.md`
+1. **Run augmentation** (if dataset <150 instances):
+ ```bash
+ python code/augment.py --expand 2x
+ ```
+ This will:
+ - Apply edge dropout and subgraph sampling.
+ - Expand dataset by 2x.
+ - Save to `data/augmented/`.
 
-### 5. Generate Final Report
-Compile all results into a human-readable report.
-```bash
-python src/main.py --step report
-```
-*Output*: `reports/final_report.md`
+2. **Train GNN**:
+ ```bash
+ python code/train.py --cv 5 --epochs 100
+ ```
+ This will:
+ - Perform 5-fold cross-validation (or LOO if n<150).
+ - Train lightweight GNN (≤3 layers, hidden dim ≤128).
+ - Save model checkpoint to `code/models/`.
 
-## Verification
+3. **Monitor training**:
+ - Check `code/logs/training.log` for loss convergence.
+ - Verify macro-F1 score and epoch convergence.
 
-To verify the pipeline on a small subset:
-```bash
-python tests/integration/test_pipeline.py --subset 10
-```
-This runs the full pipeline on 10 records to ensure no crashes occur.
+## Feature Attribution & Validation
+
+1. **Compute feature importance**:
+ ```bash
+ python code/attribution.py --method integrated_gradients
+ ```
+ This will:
+ - Generate `MotifImportance` scores.
+ - Identify top structural motifs.
+
+2. **Run statistical validation**:
+ ```bash
+ python code/validate.py --chi2-iterations 1000
+ ```
+ This will:
+ - Perform χ² test with 1000+ iterations.
+ - Generate final report with p-values and motif rankings.
+
+3. **View report**:
+ ```bash
+ cat docs/reports/final_report.md
+ ```
+
+## Testing
+
+1. **Run unit tests**:
+ ```bash
+ pytest tests/unit/
+ ```
+
+2. **Run integration tests**:
+ ```bash
+ pytest tests/integration/
+ ```
+
+3. **Run contract tests**:
+ ```bash
+ pytest tests/contract/
+ ```
 
 ## Troubleshooting
 
-- **RAM Error**: If you encounter OOM, reduce `hidden_dim` in `src/models/gnn.py` or decrease the augmentation factor.
-- **Invalid SMILES**: Check `logs/ingestion.log` for skipped records.
-- **No Labels**: If the dataset size is 0, check the `synthetic_labels.py` logic or the source URLs.
+- **API rate limits**: The system implements exponential backoff (3 retries) per FR-009.
+- **Invalid SMILES**: Skipped with logging; continue processing.
+- **Small dataset**: Power analysis warning triggered if n<150; LOO validation used.
+- **Memory issues**: Dataset subsampled if >7GB RAM usage.

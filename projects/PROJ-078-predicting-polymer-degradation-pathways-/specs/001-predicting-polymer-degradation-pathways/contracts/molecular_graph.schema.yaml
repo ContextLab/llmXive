@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MolecularGraph
+description: Schema for graph representation of polymer records.
+type: object
+properties:
+  record_id:
+    type: string
+    description: "Reference to PolymerRecord.id"
+  nodes:
+    type: array
+    description: "Atom nodes with features"
+    items:
+      type: object
+      properties:
+        atom_type:
+          type: string
+        degree:
+          type: integer
+        hybridization:
+          type: string
+        formal_charge:
+          type: integer
+      required:
+        - atom_type
+        - degree
+        - hybridization
+        - formal_charge
+  edges:
+    type: array
+    description: "Bond edges with features"
+    items:
+      type: object
+      properties:
+        bond_type:
+          type: string
+        conjugation:
+          type: boolean
+        aromaticity:
+          type: boolean
+      required:
+        - bond_type
+        - conjugation
+        - aromaticity
+  global_features:
+    type: object
+    description: "Environmental conditions"
+    properties:
+      temperature:
+        type: number
+      ph:
+        type: number
+      uv_exposure:
+        type: number
+    required:
+      - temperature
+      - ph
+      - uv_exposure
+  graph_hash:
+    type: string
+    description: "Content hash for versioning"
+required:
+  - record_id
+  - nodes
+  - edges
+  - global_features
+  - graph_hash
+additionalProperties: false

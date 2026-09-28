@@ -1,74 +1,73 @@
-# Data Model: Predicting Polymer Degradation Pathways
+# Data Model: Predicting Polymer Degradation Pathways with Graph Neural Networks
 
-## Overview
+## Key Entities
 
-This document defines the data structures used throughout the project, from raw ingestion to final model output. All data is stored in `data/` and processed in `src/`.
+### PolymerRecord
 
-## Entities
+Represents a single polymer degradation entry.
 
-### 1. PolymerRecord (Raw/Intermediate)
-Represents a single polymer entry before graph conversion.
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `id` | str | Unique identifier (hash of SMILES + conditions) | Required, unique |
+| `smiles` | str | SMILES string of polymer | Valid RDKit SMILES |
+| `polymer_type` | str | Detected polymer class (e.g., "polyester") | Derived from SMILES |
+| `temperature` | float | Temperature in °C | Imputed if missing (default: 25.0) |
+| `ph` | float | pH value | Imputed if missing (default: 7.0) |
+| `uv_exposure` | float | UV exposure level (0-1) | Imputed if missing (default: 0.0) |
+| `degradation_pathway` | str | Pathway label (hydrolysis, oxidation, photolysis) | Synthetic or flagged for curation |
+| `label_source` | str | "synthetic" or "curated" | Required |
+| `flagged_for_curation` | bool | True if label missing/invalid | Required |
+| `metadata` | dict | Additional info (e.g., imputation flags) | Optional |
 
-| Field | Type | Description | Source/Constraint |
-| :--- | :--- | :--- | :--- |
-| `id` | str | Unique identifier (hash of SMILES + env params) | Generated |
-| `smiles` | str | Canonical SMILES string | Verified Dataset |
-| `raw_source` | str | URL or source identifier | Verified Dataset |
-| `is_polyester` | bool | True if functional group detected | RDKit Filter |
-| `temp_c` | float | Temperature in Celsius | Synthetic Default (25.0) |
-| `ph` | float | pH level | Synthetic Default (7.0) |
-| `uv_exposure` | float | UV intensity (arbitrary units) | Synthetic Default (0.0) |
-| `label` | str | Degradation pathway | Synthetic / Curation Flag |
-| `label_source` | str | "synthetic" or "curated" | Logic |
-| `validation_flag` | str | "valid", "missing_env", "invalid_smiles" | Logic |
+### MolecularGraph
 
-### 2. MolecularGraph (Processed)
-The graph representation used for GNN input.
+Graph representation of a polymer record.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `node_features` | Tensor [N, F] | Atom features (type, degree, etc.) |
-| `edge_index` | Tensor [2, E] | Connectivity matrix |
-| `edge_features` | Tensor [E, F] | Bond features (type, conjugation) |
-| `global_features` | Tensor [G] | Environmental vector [pH, Temp, UV] |
-| `target` | int | Class index (0: Hydrolysis, 1: Oxidation, 2: Photolysis) |
-| `augmented_id` | str | ID linking to original record (for tracking) |
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `record_id` | str | Reference to PolymerRecord.id | Required |
+| `nodes` | list[dict] | Atom nodes with features | At least 1 node |
+| `edges` | list[dict] | Bond edges with features | At least 1 edge |
+| `global_features` | dict | Environmental conditions | Must include temp, pH, UV |
+| `graph_hash` | str | Content hash for versioning | Required |
 
-### 3. PredictionResult (Output)
-Result of the GNN inference on a test sample.
+### DegradationPathway
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `record_id` | str | Original record ID |
-| `predicted_class` | str | Predicted degradation pathway |
-| `confidence` | float | Softmax probability for predicted class |
-| `is_low_confidence` | bool | True if confidence < 0.6 |
-| `motif_importance` | Dict | {motif_name: score} |
-| `attribution_map` | Tensor | Node-level importance scores |
+Categorical label for degradation mechanism.
 
-### 4. StatisticalReport (Final)
-Aggregated results for the final report.
+| Value | Description |
+|-------|-------------|
+| `hydrolysis` | Breakdown via water (e.g., ester hydrolysis) |
+| `oxidation` | Breakdown via oxidation (e.g., radical attack) |
+| `photolysis` | Breakdown via UV light |
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `metric_name` | str | e. g., "Macro-F1", "χ² p-value" |
-| `value` | float | Measured value |
-| `confidence_interval` | Tuple | (lower, upper) from CV/LOO |
-| `significance` | str | "significant" if p < 0.05 |
-| `top_motifs` | List | Ranked list of motifs with correlation strength |
+### MotifImportance
+
+Derived metric linking subgraph patterns to degradation pathways.
+
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `motif_id` | str | Unique motif identifier | Required |
+| `motif_pattern` | str | SMILES subgraph pattern | Valid RDKit SMILES |
+| `pathway` | str | Associated degradation pathway | Required |
+| `importance_score` | float | Integrated Gradients score | 0.0-1.0 |
+| `p_value` | float | χ² test p-value | 0.0-1.0 |
+| `significant` | bool | True if p < 0.05 | Required |
 
 ## Data Flow
 
-1.  **Ingestion**: `raw/` (JSONL/CSV) -> `processed/polymer_records.csv` (PolymerRecord).
-2.  **Conversion**: `polymer_records.csv` -> `processed/molecular_graphs.pt` (MolecularGraph).
-3.  **Augmentation**: `molecular_graphs.pt` -> `processed/augmented_graphs.pt` (2x size).
-4.  **Training**: `augmented_graphs.pt` -> `models/gnn_weights.pt` + `logs/training_log.json`.
-5.  **Inference**: `processed/test_graphs.pt` -> `results/predictions.json` (PredictionResult).
-6.  **Analysis**: `predictions.json` -> `reports/statistical_report.json` (StatisticalReport).
+1. **Ingestion**: `ingest.py` fetches SMILES from verified sources → `PolymerRecord` (raw).
+2. **Preprocessing**: `preprocess.py` converts SMILES to `MolecularGraph`, imputes missing values, flags for curation.
+3. **Augmentation**: `augment.py` applies edge dropout/subgraph sampling → augmented `MolecularGraph` list.
+4. **Training**: `train.py` fits GNN on augmented graphs → model weights.
+5. **Attribution**: `attribution.py` computes `MotifImportance` via Integrated Gradients.
+6. **Validation**: `validate.py` runs χ² test, generates final report.
 
-## Constraints & Validation
+## Storage Format
 
-*   **SMILES Validity**: All SMILES must pass RDKit `MolFromSmiles` check. Invalid entries are logged and excluded.
-*   **Label Integrity**: If `label_source` is "synthetic", the record is included in training but flagged in the final report as simulation-based.
-*   **Missing Values**: If environmental data is missing, defaults are applied and `validation_flag` is set to "missing_env".
-*   **Size Limit**: If `n < 150`, the system automatically switches to LOO validation (FR-009).
+- **Raw Data**: `data/raw/` (CSV/Parquet from verified sources).
+- **Processed Data**: `data/processed/` (JSONL: `PolymerRecord` objects).
+- **Graph Data**: `data/processed/graphs/` (Pickled `MolecularGraph` objects).
+- **Augmented Data**: `data/augmented/` (Pickled augmented graphs).
+- **Model Checkpoints**: `code/models/` (PyTorch `.pt` files).
+- **Reports**: `docs/reports/` (Markdown/JSON).

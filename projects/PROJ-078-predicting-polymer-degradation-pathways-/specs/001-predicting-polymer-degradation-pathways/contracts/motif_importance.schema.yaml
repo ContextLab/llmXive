@@ -1,43 +1,39 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "MotifImportance"
-description: "Schema for motif importance scores and statistical validation. Uses Null Attribution Test (algorithmic validation) and χ² test (data quality)."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: MotifImportance
+description: Schema for motif importance scores linking subgraphs to degradation pathways.
+type: object
 properties:
+  motif_id:
+    type: string
+    description: "Unique motif identifier"
   motif_pattern:
-    type: "string"
-    description: "SMILES fragment or subgraph description"
+    type: string
+    description: "SMILES subgraph pattern"
   pathway:
-    type: "string"
-    description: "Associated degradation pathway (always 'unknown' in feasibility study)"
+    type: string
+    description: "Associated degradation pathway"
     enum:
-      - "unknown"
+      - hydrolysis
+      - oxidation
+      - photolysis
   importance_score:
-    type: "number"
-    description: "Integrated Gradients attribution score (for technical demonstration only)"
-  p_value_null:
-    type: "number"
-    description: "Null Attribution Test p-value (algorithmic validation only)"
-    minimum: 0
-    maximum: 1
-  chi_square_statistic:
-    type: "number"
-    description: "χ² statistic for motif distribution analysis (data quality)"
-  chi_square_p_value:
-    type: "number"
-    description: "χ² p-value for motif distribution analysis"
-    minimum: 0
-    maximum: 1
-  confidence:
-    type: "number"
-    description: "Prediction confidence (0-1)"
-    minimum: 0
-    maximum: 1
+    type: number
+    description: "Integrated Gradients score"
+    minimum: 0.0
+    maximum: 1.0
+  p_value:
+    type: number
+    description: "χ² test p-value"
+    minimum: 0.0
+    maximum: 1.0
+  significant:
+    type: boolean
+    description: "True if p < 0.05"
 required:
-  - "motif_pattern"
-  - "pathway"
-  - "importance_score"
-  - "p_value_null"
-  - "chi_square_statistic"
-  - "chi_square_p_value"
-  - "confidence"
+  - motif_id
+  - motif_pattern
+  - pathway
+  - importance_score
+  - p_value
+  - significant
 additionalProperties: false

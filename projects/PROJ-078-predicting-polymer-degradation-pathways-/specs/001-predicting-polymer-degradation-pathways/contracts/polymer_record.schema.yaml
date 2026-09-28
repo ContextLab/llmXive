@@ -1,27 +1,58 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
+title: PolymerRecord
+description: Schema for polymer degradation records with SMILES and environmental conditions.
 type: object
 properties:
+  id:
+    type: string
+    description: "Unique identifier (hash of SMILES + conditions)"
   smiles:
     type: string
-    description: "SMILES string representing the polymer."
+    description: "SMILES string of polymer"
+  polymer_type:
+    type: string
+    description: "Detected polymer class (e.g., polyester)"
   temperature:
     type: number
-    format: float
-    description: "Temperature in Celsius."
+    description: "Temperature in °C (imputed if missing)"
+    minimum: -273.15
   ph:
     type: number
-    format: float
-    description: "pH value."
+    description: "pH value (imputed if missing)"
+    minimum: 0.0
+    maximum: 14.0
   uv_exposure:
     type: number
-    format: float
-    description: "UV exposure level."
+    description: "UV exposure level (0-1, imputed if missing)"
+    minimum: 0.0
+    maximum: 1.0
   degradation_pathway:
     type: string
-    description: "Degradation pathway."
+    description: "Pathway label (hydrolysis, oxidation, photolysis)"
+    enum:
+      - hydrolysis
+      - oxidation
+      - photolysis
+  label_source:
+    type: string
+    description: "Source of label (synthetic or curated)"
+    enum:
+      - synthetic
+      - curated
+  flagged_for_curation:
+    type: boolean
+    description: "True if label missing/invalid"
+  metadata:
+    type: object
+    description: "Additional info (e.g., imputation flags)"
 required:
+  - id
   - smiles
+  - polymer_type
   - temperature
   - ph
   - uv_exposure
   - degradation_pathway
+  - label_source
+  - flagged_for_curation
+additionalProperties: true
