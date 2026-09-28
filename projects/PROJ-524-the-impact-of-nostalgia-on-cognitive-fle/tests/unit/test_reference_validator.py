@@ -1,121 +1,128 @@
 """
-Unit tests for code/reference_validator.py citation validation functions.
+Unit tests for reference_validator.py
 """
 import pytest
+import os
 import json
-import sys
+import tempfile
 from pathlib import Path
 
-# Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
+# Import the module under test
+# Assuming the test is run from the project root or code is in PYTHONPATH
 from code.reference_validator import (
     normalize_text,
     calculate_title_overlap,
-    load_references_from_file
+    validate_reference,
+    validate_references_list,
+    load_references_from_file,
+    save_validation_report
 )
 
-
 class TestNormalizeText:
-    def test_normalize_lowercase(self):
-        """Test text normalization to lowercase."""
-        text = "The Quick Brown Fox"
-        result = normalize_text(text)
-        assert result == "the quick brown fox"
+    def test_lower_case(self):
+        assert normalize_text("Hello World") == "hello world"
 
-    def test_normalize_remove_punctuation(self):
-        """Test punctuation removal."""
-        text = "Hello, World! How are you?"
-        result = normalize_text(text)
-        assert "," not in result
-        assert "!" not in result
-        assert "?" not in result
+    def test_remove_punctuation(self):
+        assert normalize_text("Hello, World!") == "hello world"
 
-    def test_normalize_extra_spaces(self):
-        """Test extra space removal."""
-        text = "Hello   World   Test"
-        result = normalize_text(text)
-        assert "   " not in result
-        assert result == "hello world test"
+    def test_collapse_whitespace(self):
+        assert normalize_text("Hello   World") == "hello world"
 
-    def test_normalize_empty_string(self):
-        """Test empty string handling."""
-        result = normalize_text("")
-        assert result == ""
+    def test_combined(self):
+        assert normalize_text("Hello,   World!") == "hello world"
 
+    def test_empty(self):
+        assert normalize_text("") == ""
 
-class TestTitleOverlap:
-    def test_calculate_title_overlap_identical(self):
-        """Test overlap calculation for identical titles."""
-        title1 = "The Impact of Nostalgia on Cognitive Flexibility"
-        title2 = "The Impact of Nostalgia on Cognitive Flexibility"
+class TestCalculateTitleOverlap:
+    def test_identical(self):
+        assert calculate_title_overlap("A B C", "A B C") == 1.0
 
-        overlap = calculate_title_overlap(title1, title2)
-        assert overlap == 1.0
+    def test_partial_overlap(self):
+        # {A, B, C} vs {C, D, E} -> intersection {C}, union {A, B, C, D, E} -> 1/5 = 0.2
+        assert calculate_title_overlap("A B C", "C D E") == 0.2
 
-    def test_calculate_title_overlap_none(self):
-        """Test overlap calculation for completely different titles."""
-        title1 = "Nostalgia and Memory"
-        title2 = "Climate Change Effects"
+    def test_no_overlap(self):
+        assert calculate_title_overlap("A B", "C D") == 0.0
 
-        overlap = calculate_title_overlap(title1, title2)
-        assert overlap == 0.0
+    def test_case_insensitive(self):
+        assert calculate_title_overlap("A B C", "a b c") == 1.0
 
-    def test_calculate_title_overlap_partial(self):
-        """Test overlap calculation for partially similar titles."""
-        title1 = "Nostalgia Effects on Aging Adults"
-        title2 = "Cognitive Effects of Nostalgia in Aging"
+    def test_empty_strings(self):
+        assert calculate_title_overlap("", "") == 0.0
 
-        overlap = calculate_title_overlap(title1, title2)
-        assert 0 < overlap < 1.0
+    def test_one_empty(self):
+        assert calculate_title_overlap("A B", "") == 0.0
 
-    def test_calculate_title_overlap_case_insensitive(self):
-        """Test that overlap calculation is case insensitive."""
-        title1 = "The Impact of Nostalgia"
-        title2 = "THE IMPACT OF NOSTALGIA"
+class TestValidateReference:
+    def test_valid_with_high_overlap(self):
+        ref = {'doi': '10.1234/test', 'title': 'A B C D E'}
+        source = {'title': 'A B C D E'}
+        res = validate_reference(ref, source)
+        assert res['valid'] is True
+        assert res['overlap_score'] == 1.0
 
-        overlap = calculate_title_overlap(title1, title2)
-        assert overlap == 1.0
+    def test_invalid_with_low_overlap(self):
+        ref = {'doi': '10.1234/test', 'title': 'A B C'}
+        source = {'title': 'X Y Z'}
+        res = validate_reference(ref, source)
+        assert res['valid'] is False
+        assert res['overlap_score'] == 0.0
+        assert "Title overlap" in res['errors'][0]
 
-    def test_calculate_title_overlap_empty(self):
-        """Test overlap calculation with empty strings."""
-        overlap = calculate_title_overlap("", "")
-        assert overlap == 0.0
+    def test_missing_doi(self):
+        ref = {'title': 'A B C'}
+        res = validate_reference(ref)
+        assert res['valid'] is False
+        assert "Missing DOI" in res['errors']
 
+    def test_no_source_metadata(self):
+        ref = {'doi': '10.1234/test', 'title': 'A B C'}
+        res = validate_reference(ref, source_metadata=None)
+        assert res['valid'] is True # Assumed valid if no check possible
+
+class TestValidateReferencesList:
+    def test_mixed_validity(self):
+        refs = [
+            {'doi': '1', 'title': 'A B C'},
+            {'doi': '2', 'title': 'X Y Z'}
+        ]
+        source = {'title': 'A B C'}
+        report = validate_references_list(refs, source)
+        assert report['total'] == 2
+        assert report['valid'] == 1
+        assert report['invalid'] == 1
 
 class TestLoadReferencesFromFile:
-    def test_load_references_json(self):
-        """Test loading references from JSON file."""
-        test_data = [
-            {"title": "Study One", "authors": ["Author A"], "year": 2020},
-            {"title": "Study Two", "authors": ["Author B"], "year": 2021}
-        ]
+    def test_load_valid_json(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump([{'doi': '1', 'title': 'Test'}], f)
+            temp_path = f.name
 
-        with patch('code.reference_validator.Path') as mock_path:
-            mock_file = MagicMock()
-            mock_file.read_text.return_value = json.dumps(test_data)
-            mock_path.return_value.open.return_value.__enter__.return_value = mock_file
+        try:
+            refs = load_references_from_file(temp_path)
+            assert len(refs) == 1
+            assert refs[0]['doi'] == '1'
+        finally:
+            os.unlink(temp_path)
 
-            result = load_references_from_file(Path("test.json"))
-            assert len(result) == 2
-            assert result[0]['title'] == "Study One"
+    def test_file_not_found(self):
+        refs = load_references_from_file("nonexistent_file.json")
+        assert refs == []
 
-    def test_load_references_empty_file(self):
-        """Test loading from empty JSON file."""
-        with patch('code.reference_validator.Path') as mock_path:
-            mock_file = MagicMock()
-            mock_file.read_text.return_value = "[]"
-            mock_path.return_value.open.return_value.__enter__.return_value = mock_file
+class TestSaveValidationReport:
+    def test_save_report(self):
+        report = {'total': 1, 'valid': 1, 'invalid': 0, 'details': []}
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            temp_path = f.name
+        os.unlink(temp_path) # Remove the empty file, we want save to create it
 
-            result = load_references_from_file(Path("empty.json"))
-            assert len(result) == 0
-
-    def test_load_references_invalid_json(self):
-        """Test loading from invalid JSON file."""
-        with patch('code.reference_validator.Path') as mock_path:
-            mock_file = MagicMock()
-            mock_file.read_text.return_value = "{invalid json}"
-            mock_path.return_value.open.return_value.__enter__.return_value = mock_file
-
-            with pytest.raises(json.JSONDecodeError):
-                load_references_from_file(Path("invalid.json"))
+        try:
+            save_validation_report(report, temp_path)
+            assert os.path.exists(temp_path)
+            with open(temp_path, 'r') as f:
+                loaded = json.load(f)
+            assert loaded == report
+        finally:
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)

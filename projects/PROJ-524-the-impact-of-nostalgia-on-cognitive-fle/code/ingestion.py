@@ -33,6 +33,42 @@ def main():
     df.to_csv(raw_path, index=False)
     log_info(f"Raw dataset saved to {raw_path}")
     
+    # T011: Data Validation Logic
+    # Filter for age >= 65
+    if 'age' not in df.columns:
+        log_error("ERR_MISSING_AGE_FIELD: 'age' column not found in dataset.")
+        raise ValueError("Missing required 'age' column")
+    
+    initial_count = len(df)
+    
+    # Filter age >= 65
+    age_filtered = df[df['age'] >= 65]
+    age_excluded_count = initial_count - len(age_filtered)
+    
+    if age_excluded_count > 0:
+        log_warning(f"Excluded {age_excluded_count} records due to age < 65.")
+    else:
+        log_info("No records excluded due to age < 65.")
+    
+    # Exclude missing stimulus_type
+    if 'stimulus_type' not in age_filtered.columns:
+        log_error("ERR_MISSING_STIMULUS_TYPE: 'stimulus_type' column not found.")
+        raise ValueError("Missing required 'stimulus_type' column")
+    
+    valid_stimulus = age_filtered.dropna(subset=['stimulus_type'])
+    stimulus_excluded_count = len(age_filtered) - len(valid_stimulus)
+    
+    if stimulus_excluded_count > 0:
+        log_warning(f"Excluded {stimulus_excluded_count} records due to missing 'stimulus_type'.")
+    else:
+        log_info("No records excluded due to missing 'stimulus_type'.")
+    
+    # Update df for subsequent steps
+    df = valid_stimulus
+    
+    # Log validation summary
+    log_info(f"Validation complete. Started with {initial_count} records, ended with {len(df)} valid records.")
+    
     # Clean data
     try:
         cleaned_df, exclusion_counts = clean_data(df, simulation_mode)

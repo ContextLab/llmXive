@@ -2,99 +2,62 @@ import os
 import sys
 import pytest
 from pathlib import Path
-import yaml
+import tempfile
+import shutil
 
 # Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from setup_contracts import create_contracts_directory
+from setup_contracts import create_contracts_directory, main
 from config import get_config
 
-
-class TestSetupContracts:
-    """Unit tests for T007 setup_contracts functionality."""
-
-    def test_create_contracts_directory_exists(self, tmp_path):
-        """Test that create_contracts_directory creates the contracts folder."""
-        # Create a temporary config
-        config = {
-            "project_root": str(tmp_path)
-        }
-
-        # Call the function
+def test_create_contracts_directory_creates_dir():
+    """
+    Test that create_contracts_directory creates the directory if it doesn't exist.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_contracts_path = Path(tmpdir) / "contracts"
+        
+        # Mock config to point to temp dir
+        config = {"contracts_dir": str(test_contracts_path)}
+        
+        # Ensure it doesn't exist first
+        assert not test_contracts_path.exists()
+        
+        # Run the function
         result = create_contracts_directory(config)
-
-        # Assertions
+        
+        # Verify
         assert result is True
-        contracts_path = tmp_path / "contracts"
-        assert contracts_path.exists()
-        assert contracts_path.is_dir()
+        assert test_contracts_path.exists()
+        assert test_contracts_path.is_dir()
 
-    def test_create_contracts_directory_creates_placeholders(self, tmp_path):
-        """Test that create_contracts_directory creates placeholder schema files."""
-        config = {
-            "project_root": str(tmp_path)
-        }
-
+def test_create_contracts_directory_existing_dir():
+    """
+    Test that create_contracts_directory handles existing directory gracefully.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        test_contracts_path = Path(tmpdir) / "contracts"
+        
+        # Create it first
+        test_contracts_path.mkdir()
+        assert test_contracts_path.exists()
+        
+        # Mock config
+        config = {"contracts_dir": str(test_contracts_path)}
+        
+        # Run the function
         result = create_contracts_directory(config)
-
+        
+        # Verify it returns True and directory still exists
         assert result is True
-        contracts_path = tmp_path / "contracts"
+        assert test_contracts_path.exists()
 
-        # Check for placeholder files
-        dataset_schema = contracts_path / "dataset.schema.yaml"
-        output_schema = contracts_path / "output.schema.yaml"
-
-        assert dataset_schema.exists()
-        assert output_schema.exists()
-
-    def test_create_contracts_directory_files_are_valid_yaml(self, tmp_path):
-        """Test that the created placeholder files are valid YAML."""
-        config = {
-            "project_root": str(tmp_path)
-        }
-
-        create_contracts_directory(config)
-
-        contracts_path = tmp_path / "contracts"
-        dataset_schema = contracts_path / "dataset.schema.yaml"
-        output_schema = contracts_path / "output.schema.yaml"
-
-        # Verify YAML parsing
-        with open(dataset_schema, 'r') as f:
-            dataset_data = yaml.safe_load(f)
-            assert isinstance(dataset_data, dict)
-
-        with open(output_schema, 'r') as f:
-            output_data = yaml.safe_load(f)
-            assert isinstance(output_data, dict)
-
-    def test_create_contracts_directory_idempotent(self, tmp_path):
-        """Test that calling create_contracts_directory twice doesn't fail."""
-        config = {
-            "project_root": str(tmp_path)
-        }
-
-        # First call
-        result1 = create_contracts_directory(config)
-        assert result1 is True
-
-        # Second call should also succeed
-        result2 = create_contracts_directory(config)
-        assert result2 is True
-
-    def test_contract_directory_structure_matches_requirements(self, tmp_path):
-        """Test that the contracts directory contains required files."""
-        config = {
-            "project_root": str(tmp_path)
-        }
-
-        create_contracts_directory(config)
-
-        contracts_path = tmp_path / "contracts"
-        required_files = ["dataset.schema.yaml", "output.schema.yaml"]
-
-        for filename in required_files:
-            file_path = contracts_path / filename
-            assert file_path.exists(), f"Missing required file: {filename}"
-            assert file_path.stat().st_size > 0, f"Empty file: {filename}"
+def test_main_returns_success():
+    """
+    Test that main() returns 0 on success.
+    """
+    # We assume standard config works in the test environment
+    # This is a basic smoke test
+    result = main()
+    assert result == 0

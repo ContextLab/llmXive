@@ -1,17 +1,24 @@
-T001:
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or other evidence were provided showing that the eight
-    required folders (`data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`,
-    `contracts/`, `code/`, `tests/`, `paper/`) actually exist; without such artifacts
-    the claim cannot be verified.
+  r: "No evidence of a `contracts/` directory or any files within it is presented;\
+    \ the implementer provided only the project specification, not the required directory\
+    \ structure or its contents. The task\u2019s artifact is missing."
 T010a:
   c: false
-  h: 0baccae73f95007f78df01b62f299ae1a1e969c8124e6ad40aae2af016ef78af
-  r: The raw dataset and metadata/exclusion logs are present and correctly indicate
-    a simulation fallback, but there is no evidence of the required dynamic search
-    of OpenML/HuggingFace, and the referenced `code/synthetic_data.py` script is missing,
-    so the fallback generation step is not demonstrably performed as specified.
+  h: 7f945f21d9b9eb411dafcf0de763977546d333dd9946e1dd0778e236abc767f7
+  r: "The repository contains a `code/ingestion.py` file, but it does not implement\
+    \ the required fallback logic (exception handling and synthetic data generation)\
+    \ within this module, and the expected output files `data/raw/raw_dataset.csv`\
+    \ and `data/raw/metadata.json` are missing. Consequently the task\u2019s critical\
+    \ execution flow and required artifacts are not satisfied."
+T010b:
+  c: false
+  h: 8b89dd126c3f0459d37cddd323c4e6d390c8e70cb3596321204e1232b751a8e4
+  r: The repository contains `code/ingestion.py`, but the required output file `data/raw/raw_dataset.csv`
+    is missing, so the ingestion step was never completed (or its result was not saved).
+    Consequently the schema validation cannot be confirmed. The next implementer must
+    run the ingestion script and ensure the CSV is created with the required columns.
 T012a:
   c: false
   h: b9f108a50d25b4a1bdec99595d6cb9fe1147c8f02ec9671202ce1ebdc9809c04
@@ -41,13 +48,6 @@ T015:
     \ validation cannot be performed, and there is no evidence of the required error\
     \ logging or conditional skip behavior. Without the metadata file (or logs showing\
     \ the appropriate error handling), the task\u2019s requirements are not met."
-T020c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `specs/001-nostalgia-cognitive-flexibility/quickstart.md` file or its contents\
-    \ were presented; thus the required installation guide and example are missing.\
-    \ The implementer must add the markdown file with the specified instructions and\
-    \ a runnable \u201CHello World\u201D ingestion example."
 T025:
   c: false
   h: c64880739c834f3172e80b3cd185f24aaeab4fc57ab24d9ab58a82842bd66fdd

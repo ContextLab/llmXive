@@ -1,7 +1,3 @@
-"""
-Setup script to create all required data and project directories.
-Implements Task T001: Create data/raw/, data/processed/, data/results/, data/stimuli/, contracts/, code/, tests/, paper/.
-"""
 import os
 import sys
 import logging
@@ -11,12 +7,13 @@ from utils import setup_logging, log_info, log_warning, log_error
 
 def create_required_directories():
     """
-    Creates all required directories for the project.
-    Returns a list of created directory paths.
+    Creates all required data directories for the project.
+    Directories: data/raw/, data/processed/, data/results/, data/stimuli/,
+                 contracts/, code/, tests/, paper/
     """
     config = get_config()
-    project_root = Path(config.get('project_root', '.'))
-    
+    base_path = config.get('base_path', Path.cwd())
+
     required_dirs = [
         'data/raw',
         'data/processed',
@@ -27,33 +24,40 @@ def create_required_directories():
         'tests',
         'paper'
     ]
-    
+
     created_dirs = []
-    for dir_path in required_dirs:
-        full_path = project_root / dir_path
-        try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
-            log_info(f"Directory created: {full_path}")
-        except OSError as e:
-            log_error(f"Failed to create directory {full_path}: {e}")
-            raise
-    
+    for dir_name in required_dirs:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            try:
+                dir_path.mkdir(parents=True, exist_ok=True)
+                created_dirs.append(str(dir_path))
+                log_info(f"Created directory: {dir_path}")
+            except PermissionError:
+                log_error(f"Permission denied creating directory: {dir_path}")
+                raise
+            except Exception as e:
+                log_error(f"Error creating directory {dir_path}: {e}")
+                raise
+        else:
+            log_info(f"Directory already exists: {dir_path}")
+
+    if not created_dirs:
+        log_info("All required directories already exist.")
+    else:
+        log_info(f"Successfully created {len(created_dirs)} directories.")
+
     return created_dirs
 
 def main():
-    """Main entry point for the directory setup script."""
     setup_logging()
-    log_info("Starting directory creation for T001...")
-    
+    log_info("Starting directory creation task (T001)...")
     try:
-        created = create_required_directories()
-        log_info(f"Successfully created {len(created)} directories.")
-        log_info(f"Directories: {', '.join(created)}")
-        return 0
+        create_required_directories()
+        log_info("T001 completed successfully.")
     except Exception as e:
-        log_error(f"Directory creation failed: {e}")
-        return 1
+        log_error(f"T001 failed: {e}")
+        sys.exit(1)
 
-if __name__ == '__main__':
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

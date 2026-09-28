@@ -45,18 +45,18 @@
 
 - [ ] T001 [P] Create all required data directories: `data/raw/`, `data/processed/`, `data/results/`, `data/stimuli/`, `contracts/`, `code/`, `tests/`, `paper/`. **Depends on**: None.
 
-- [ ] T002 [P] Create `requirements.txt` with pinned versions for: pandas, scipy, statsmodels, numpy, pyyaml, openml, datasets, requests, pytest, black, ruff. **Depends on**: T001.
+- [X] T002 [P] Create `requirements.txt` with pinned versions for: pandas, scipy, statsmodels, numpy, pyyaml, openml, datasets, requests, pytest, black, ruff. **Depends on**: T001.
 
-- [ ] T003a [P] Create `pyproject.toml` with an empty `[tool.black]` and `[tool.ruff]` section skeleton. **Depends on**: T002.
-- [ ] T003b [P] Verify `pyproject.toml` exists and explicitly contains populated `[tool.black]` (with `line-length=88`) and `[tool.ruff]` (with `lint.select = ["E", "F"]`) configuration sections. **Depends on**: T003a.
+- [X] T003a [P] Create `pyproject.toml` with an empty `[tool.black]` and `[tool.ruff]` section skeleton. **Depends on**: T002.
+- [X] T003b [P] Verify `pyproject.toml` exists and explicitly contains populated `[tool.black]` (with `line-length=88`) and `[tool.ruff]` (with `lint.select = ["E", "F"]`) configuration sections. **Depends on**: T003a.
 
-- [ ] T004 [P] Implement `code/utils.py` with checksum (SHA-256) helpers, logging setup, and versioning logic. **Depends on**: T003b.
-- [ ] T005 [P] Setup `code/reference_validator.py` to validate citations and enforce title overlap ≥ 0.7. **Depends on**: T004. **Note**: Implement Welch's independent samples t-test logic as mandated by Spec FR-002.
-- [ ] T006 [P] Create base configuration management in `code/config.py` (env vars, paths). **Note**: Do not store runtime flags here. **Depends on**: T004.
+- [X] T004 [P] Implement `code/utils.py` with checksum (SHA-256) helpers, logging setup, and versioning logic. **Depends on**: T003b.
+- [X] T005 [P] Setup `code/reference_validator.py` to validate citations and enforce title overlap ≥ 0.7. **Depends on**: T004. **Note**: Implement Welch's independent samples t-test logic as mandated by Spec FR-002.
+- [X] T006 [P] Create base configuration management in `code/config.py` (env vars, paths). **Note**: Do not store runtime flags here. **Depends on**: T004.
 - [ ] T007 [P] Setup `contracts/` directory structure (files generated in Phase 1). **Depends on**: T001.
 
 - [ ] T020b-1 [P] **GENERATE DATA MODEL (SKELETON)**: Generate `specs/001-nostalgia-cognitive-fle/data-model.yaml` skeleton with basic structure for entities (Participant, Stimulus, Metric) based on Spec Section 5. **Depends on**: T007.
-- [ ] T020b-2 [P] **POPULATE DATA MODEL**: Populate `specs/001-nostalgia-cognitive-fle/data-model.yaml` with specific entities, relationships, and optional fields (MMSE) from the Spec's Data Model section. **Depends on**: T020b-1.
+- [ ] T020b-2 [P] **POPULATE DATA MODEL**: Populate `specs/001-nostalgia-cognitive-fle/data-model.yaml` with specific entities, relationships, and optional fields (MMSE) from the Spec. **Depends on**: T020b-1.
 - [ ] T020b-3 [P] **VALIDATE DATA MODEL**: Validate `specs/001-nostalgia-cognitive-fle/data-model.yaml` consistency against the Spec. **Depends on**: T020b-2.
 - [ ] T020a-1 [P] **GENERATE CONTRACTS (YAML)**: Generate `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` based on the Data Model (T020b-3). Validate that `participant_id`, `age`, `stimulus_type`, `perseverative_errors`, `categories_completed`, and optional `MMSE` are defined. **Depends on**: T020b-3.
 - [ ] T020a-2 [P] **VALIDATE CONTRACTS**: Verify `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` contain all required fields defined in T020a-1 and match the Data Model. **Depends on**: T020a-1.
@@ -74,33 +74,32 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T008 [P] [US1] Contract test for schema validation in `tests/contract/test_dataset_schema.py`. **Depends on**: T020a-2.
-- [ ] T009 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py`. **Depends on**: T008.
+- [X] T008 [P] [US1] Contract test for schema validation in `tests/contract/test_dataset_schema.py`. **Depends on**: T020a-2.
+- [X] T009 [P] [US1] Integration test for data ingestion pipeline in `tests/integration/test_ingestion.py`. **Depends on**: T008.
 
 ### Implementation for User Story 1
 
-- [ ] T010a [US1] **SETUP INGESTION LOGIC WITH FALLBACK**: Implement `code/ingestion.py` with functions to fetch data from a **fixed** canonical source (OpenML ID or specific HuggingFace path). **CRITICAL EXECUTION FLOW**: The task must attempt to fetch the canonical source. If the fetch fails, it MUST raise an exception immediately. The logic must then immediately catch this exception and trigger the "Methodological Simulation" fallback: generate a synthetic dataset with `seed=42` and exact schema compliance, saving to `data/raw/raw_dataset.csv` and setting `simulation_mode=True` in `data/raw/metadata.json`. **Do NOT** implement a separate fallback task; this logic must be contained within the execution of this task to ensure the pipeline continues as per the Plan. **Depends on**: T004-T007, T020a-2.
-- [ ] T010b [US1] **EXECUTE INGESTION**: Run `code/ingestion.py` to execute T010a. Save the raw fetched dataset (or generated synthetic dataset) to `data/raw/raw_dataset.csv`. Validate schema contains `age`, `stimulus_type`, `perseverative_errors`, `categories_completed`. **Depends on**: T010a.
-- [ ] T010c [US1] **PIPELINE ORCHESTRATOR**: Implement `code/main.py` to orchestrate the ingestion pipeline. **CRITICAL**: This task must depend on T010b to ensure the fetch attempt (T010b) actually occurs before the fallback logic (T010a) is triggered. The orchestrator must catch exceptions from T010b and trigger the fallback if necessary. **Depends on**: T010b, T010a.
-- [ ] T011 [P] [US1] Implement data validation logic in `code/ingestion.py`: filter `age >= 65`, exclude missing `stimulus_type`, log `ERR_MISSING_AGE_FIELD`. **Depends on**: T010b.
+- [ ] T010a [US1] **IMPLEMENT INGESTION LOGIC**: Implement `code/ingestion.py` with functions to fetch data from a **fixed** canonical source (OpenML ID or specific HuggingFace path). **Logic**: The code must attempt to fetch real data; if fetch fails, it must raise an exception (fail loud). **Do NOT include execution logic or fallback generation in this task.** **Depends on**: T004-T007, T020a-2.
+- [ ] T010b [US1] **EXECUTE INGESTION & GENERATE ARTIFACT**: Run `code/ingestion.py` (from T010a). **If real fetch succeeds**: Save raw dataset to `data/raw/raw_dataset.csv`. **If real fetch fails**: The script must raise an error (per Constitution Principle III). **Do NOT generate synthetic data here unless explicitly mandated by a separate, distinct task for simulation-only validation.** **Validate schema** of the saved file contains `age`, `stimulus_type`, `perseverative_errors`, `categories_completed`. **Depends on**: T010a.
+- [X] T010c [P] [US1] **PIPELINE ORCHESTRATOR**: Implement `code/main.py` to orchestrate the ingestion pipeline. **Depends on**: T010b, T010a.
+- [X] T011 [P] [US1] Implement data validation logic in `code/ingestion.py`: filter `age >= 65`, exclude missing `stimulus_type`, log `ERR_MISSING_AGE_FIELD`. **Depends on**: T010b.
 - [ ] T012a [P] [US1] **AGE EXCLUSION**: Filter `data/raw/raw_dataset.csv` for `age >= 65`. Write filtered data to `data/processed/cleaned_age_filtered.csv`. Write exclusion count to `data/processed/exclusion_counts.json` with key `ERR_MISSING_AGE_FIELD`. **Depends on**: T010b.
 - [ ] T012b [P] [US1] **SCORE EXCLUSION**: Filter `data/processed/cleaned_age_filtered.csv` for non-null `perseverative_errors` and `categories_completed`. Write filtered data to `data/processed/cleaned_score_filtered.csv`. Write exclusion count to `data/processed/exclusion_counts.json` with key `ERR_MISSING_SCORE`. **Depends on**: T012a.
-- [ ] T012d [P] [US1] **MMSE FLAG**: Validate presence of 'MMSE' column in `data/processed/cleaned_score_filtered.csv`. **Check if column exists AND contains at least one non-null value using `df['MMSE'].notna().any()`**. **Write `has_mmse` (True/False) to `data/processed/mmse_flag.json`**. If column missing OR all null, set `has_mmse=False` and log `ERR_MMSE_MISSING`. If present and non-null, set `has_mmse=True`. **Depends on**: T010b, T012b.
-- [ ] T012e [P] [US1] **MMSE EXCLUSION AND ROBUSTNESS PREP**: **Read `has_mmse` from `data/processed/mmse_flag.json`** (produced by T012d). **CRITICAL EXECUTION ORDER**: Ensure T012b (Score Exclusion) -> T012d (MMSE Flag) -> T012e (MMSE Exclusion) to avoid race conditions.
-   - If `has_mmse=True`: Filter `data/processed/cleaned_score_filtered.csv` for `MMSE >= 24` and write to `data/processed/cleaned_dataset.csv` (Primary).
-   - If `has_mmse=False`: Copy `data/processed/cleaned_score_filtered.csv` to `data/processed/cleaned_dataset.csv` (Primary).
-   - **CRITICAL**: In ALL cases, generate `data/processed/cleaned_dataset_no_mmse.csv` by copying `data/processed/cleaned_score_filtered.csv` (to preserve the pre-MMSE state for sensitivity analysis).
-   - Write exclusion counts to `data/processed/exclusion_counts.json`. **Depends on**: T012d, T012b.
+- [ ] T012d [P] [US1] **MMSE FLAG**: **Read from `data/raw/raw_dataset.csv` (the raw input)**. Validate presence of 'MMSE' column. **Check if column exists AND contains at least one non-null value in the *raw* input using `df['MMSE'].notna().any()`**. **Write `has_mmse` (True/False) to `data/processed/mmse_flag.json`**. If column missing OR all null, set `has_mmse=False` and log `ERR_MMSE_MISSING`. If present and non-null, set `has_mmse=True`. **Depends on**: T010b, T012b.
+- [ ] T012e [US1] **MMSE EXCLUSION AND ROBUSTNESS PREP**: **Read `has_mmse` from `data/processed/mmse_flag.json`** (produced by T012d). **CRITICAL EXECUTION ORDER**: Ensure T012b -> T012d -> T012e to avoid race conditions.
+ - If `has_mmse=True`: Filter `data/processed/cleaned_score_filtered.csv` for `MMSE >= 24` and write to `data/processed/cleaned_dataset.csv` (Primary).
+ - If `has_mmse=False`: Copy `data/processed/cleaned_score_filtered.csv` to `data/processed/cleaned_dataset.csv` (Primary).
+ - **CRITICAL**: In ALL cases, generate `data/processed/cleaned_dataset_no_mmse.csv` by copying `data/processed/cleaned_score_filtered.csv` (to preserve the pre-MMSE state for sensitivity analysis).
+ - Write exclusion counts to `data/processed/exclusion_counts.json`. **Depends on**: T012d, T012b.
 - [ ] T012c [P] [US1] **GENERATE EXCLUSION LOG**: Read exclusion counts from `data/processed/exclusion_counts.json` (from T012a, T012b, T012e) and write `data/processed/exclusion_log.json` with keys `ERR_MISSING_AGE_FIELD`, `ERR_MISSING_SCORE`, `ERR_MMSE_IMPAIRED`, and `SIMULATION_FALLBACK` (if applicable). **Ensure file write order: T012a -> T012b -> T012e -> T012c.** **Depends on**: T012a, T012b, T012e.
 - [ ] T014a [P] [US1] **GENERATE CLEANED DATASET**: Use `data/processed/cleaned_dataset.csv` (from T012e) as the primary input. **Copy this file to `data/processed/final_cleaned_dataset.csv`**. Columns: `participant_id`, `stimulus_type` (nostalgia/control), `perseverative_errors`, `categories_completed`, `age`. **Depends on**: T012c, T012e.
-- [ ] T014b [P] [US1] **VALIDITY METRICS**: Calculate percentage of valid records (age >= 65, non-null metrics, MMSE >= 24 if available) vs total raw input records. Write to `data/processed/validity_metrics.json`. Must satisfy SC-001 (≥90% target). **Depends on**: T012c.
-- [ ] T015a [P] [US1] **GENERATE METADATA**: Create `data/raw/metadata.json` with keys `dataset_source`, `validation_study_doi` (if found in source, **set to null if not found**), `stimuli_checksums` (SHA-256 of all files in `data/stimuli/`), and `simulation_mode` (boolean). **If `data/stimuli/` is empty and `simulation_mode=True`, set `stimuli_checksums` to null and log `INFO_SIMULATION_NO_STIMULI`**. **This task MUST run regardless of data fetch success**. **Depends on**: T010b.
+- [ ] T014b [P] [US1] **VALIDITY METRICS**: Calculate percentage of valid records (age >= 65, non-null metrics, MMSE >= 24 if available) vs total raw input records from `data/raw/raw_dataset.csv`. Write the calculated percentage to `data/processed/validity_metrics.json`. **Depends on**: T012c.
+- [ ] T015a [P] [US1] **GENERATE METADATA**: Create `data/raw/metadata.json` with keys `dataset_source`, `validation_study_doi` (if found in source, **set to null if not found**), `stimuli_checksums` (SHA-256 of all files in `data/stimuli/`), and `simulation_mode` (boolean). **If `data/stimuli/` is empty and `simulation_mode=True`, set `stimuli_checksums` to null and log `INFO_SIMULATION_NO_STIMULI`**. **This task MUST run regardless of data fetch success**. **Depends on**: T004, T007.
 - [ ] T015 [P] [US1] **STIMULUS INTEGRITY**: **Read `simulation_mode` from `data/raw/metadata.json`** (produced by T015a). **CRITICAL**: T015a must run before T015.
-   - If `simulation_mode=True` AND `data/stimuli/` is empty: Generate placeholder stimuli (random noise) to satisfy schema, set `stimuli_checksums` to their hash, and log `INFO_SIMULATION_NO_STIMULI`. **Do NOT halt**.
-   - If `simulation_mode=False`: Validate stimulus files in `data/stimuli/` against `data/raw/metadata.json` checksums. If mismatch, log `ERR_STIMULUS_CORRUPT` and halt. If missing files, log `ERR_STIMULUS_MISSING` and halt.
-   - **CRITICAL**: If validation passes (or simulation mode), update `state/state.yaml` `artifact_hashes` with the stimulus checksums. **Depends on**: T015a, T010b.
+ - **Check**: Verify `data/stimuli/` is non-empty before attempting to read checksums if `simulation_mode` is false. If empty, log `ERR_STIMULUS_EMPTY` and halt.
+ - If `simulation_mode=True` AND `data/stimuli/` is empty: Generate placeholder stimuli (random noise) to satisfy schema, set `stimuli_checksums` to their hash, and log `INFO_SIMULATION_NO_STIMULI`. **Do NOT halt**.
+ - If `simulation_mode=False`: Validate stimulus files in `data/stimuli/` against `data/raw/metadata.json` checksums. If mismatch, log `ERR_STIMULUS_CORRUPT` and halt. If missing files, log `ERR_STIMULUS_MISSING` and halt.
+ - **CRITICAL**: If validation passes (or simulation mode), update `state/state.yaml` `artifact_hashes` with the stimulus checksums. **Depends on**: T015a, T010b.
 - [ ] T015b [P] [US1] **STIMULUS VALIDATION**: If `data/raw/metadata.json` contains `validation_study_doi` (and not null), log `INFO_STIMULUS_VALIDATED`. Else, log `WARN_STIMULUS_NO_VALIDATION`. **Depends on**: T015a.
 - [ ] T042 [P] [US1] **ENFORCE STREAMING**: Update `code/ingestion.py` to use `datasets.load_dataset(..., streaming=True)` for any dataset > 100MB to ensure RAM compliance on the specified runner. **Depends on**: T010a.
 
@@ -136,7 +135,7 @@
 
 **Goal**: Perform sensitivity analysis by sweeping significance thresholds and checking robustness against cognitive impairment exclusions.
 
-**Independent Test**: The system can be tested by running the sensitivity module with a predefined set of thresholds (e.g., low, medium, and high values). and verifying the output table shows how the "significance" status changes across these values.
+**Independent Test**: The system can be tested by running the sensitivity module with a predefined set of thresholds (e.g., low, medium, and high values) and verifying the output table shows how the "significance" status changes across these values.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -145,8 +144,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement sensitivity sweep in `code/analysis.py`: test thresholds including **specifically a range of low significance levels**. **Depends on**: T022.
-- [ ] T027a [P] [US3] **MMSE ROBUSTNESS DATA PREP**: **Read from `data/processed/cleaned_dataset.csv` (Primary, with MMSE) and `data/processed/cleaned_dataset_no_mmse.csv` (Robustness, without MMSE)**. Both files must exist (produced by T012e). **CRITICAL LOGIC**: If `has_mmse=False` (from T012d), the Primary and Robustness datasets are identical. In this case, **SKIP** the robustness comparison and log `WARN_MMSE_MISSING_ROBUSTNESS`. **Depends on**: T012e.
+- [ ] T026 [P] [US3] Implement sensitivity sweep in `code/analysis.py`: test thresholds including **explicitly: 0.01, 0.04, 0.05, 0.06, 0.10**. **Depends on**: T022.
+- [ ] T027a [P] [US3] **MMSE ROBUSTNESS DATA PREP**: **Read from `data/processed/cleaned_dataset.csv` (Primary, with MMSE) and `data/processed/cleaned_dataset_no_mmse.csv` (Robustness, without MMSE)**. **CRITICAL LOGIC**: If `has_mmse=False`, the Primary and Robustness datasets are identical. In this case, **SKIP** the robustness comparison and log `WARN_MMSE_MISSING`. **Depends on**: T012e.
 - [ ] T027b [P] [US3] **MMSE ROBUSTNESS ANALYSIS**: **Only if T027a did not skip**: Re-run analysis (T018 logic, but independent) on `data/processed/cleaned_dataset_no_mmse.csv` (output of T027a/T012e). Write results to `data/results/robustness_report.json`. **Note: This is a sensitivity check comparing with and without MMSE exclusion**. **Depends on**: T027a.
 - [ ] T027c [P] [US3] **COMPARE ROBUSTNESS**: **Only if T027a did not skip**: Explicitly compare the results of the primary analysis (T022, with MMSE) vs. the robustness analysis (T027b, without MMSE). Generate `data/results/sensitivity_comparison.json` highlighting any differences in significance or effect size. **Depends on**: T022, T027b.
 - [ ] T028 [P] [US3] **SENSITIVITY REPORT**: Generate `data/results/sensitivity_report.json` with significance status per threshold and subset comparison. **Depends on**: T026, T027c.
@@ -171,157 +170,9 @@
 - [ ] T033c [P] [US2] Unit test: `test_welch_ttest` in `tests/unit/test_analysis.py`. **Depends on**: T018.
 - [ ] T033d [P] [US3] Unit test: `test_sensitivity_sweep` in `tests/unit/test_sensitivity.py`. **Depends on**: T026.
 - [ ] T034 [P] Run `code/reference_validator.py` to validate all citations in the final report. **Depends on**: T036b.
-- [ ] T035a [P] **SPEC SCHEMA UPDATE**: Update `spec.md` (Section 5: Output Schema) to include `data/results/runtime_log.json` as a valid output artifact for runtime warnings. **Depends on**: T004.
+- [ ] T035a [P] **RUNTIME MONITORING LOG GENERATION**: Generate `data/results/runtime_log.json` artifact for runtime warnings. **Do NOT update spec.md**. **Depends on**: T035b.
 - [ ] T035b [P] **RUNTIME MONITORING**: Implement runtime monitoring logic: **In `code/main.py`, wrap the execution in a timer using `time.time()` at start and end. If total runtime > 21600 seconds (6 hours), log warning `WARN_TIMEOUT` to `data/results/runtime_log.json` (as defined in T035a) and CONTINUE TO COMPLETION** (per FR-007). Verify the warning is logged and execution proceeds. **Depends on**: T004, T035a.
-- [ ] T036a [P] [US1/US2/US3] **EXTRACT CITATION**: Parse source metadata from `data/raw/metadata.json` (from T015a) to extract `validation_study_doi`. **Read `data/raw/metadata.json`. If `validation_study_doi` key is missing or null, set `doi` to `null`, log `WARN_NO_DOI_FOUND`, and set `verification_status` to 'skipped' in the report.** **CRITICAL**: T015a must run before T036a to ensure `metadata.json` exists. **Depends on**: T015a.
-- [ ] T036b [P] [US1/US2/US3] **VERIFY CITATION**: Run `code/reference_validator.py` on extracted DOI (from T036a) to verify against primary source (format/existence check). **If `doi` is null (from T036a), log `INFO_SKIPPED_VERIFICATION` and proceed without failing.** **Depends on**: T036a.
-- [ ] T036c [P] [US1/US2/US3] **GENERATE PAPER**: Generate `paper/001_results.md` including verified citation status (from T036b), scientific validity status (from T015a/T015b), and **Stimulus Integrity status (from T015)**. **Depends on**: T036b, T015a, T015.
-
+- [ ] T036a [P] **EXTRACT CITATION**: Parse source metadata from `data/raw/metadata.json` (from T015a) to extract `validation_study_doi`. **Read `data/raw/metadata.json`. If `validation_study_doi` key is missing or null, set `doi` to `null`, log `WARN_NO_DOI_FOUND`, and set `verification_status` to 'skipped' in the report.** **CRITICAL**: T015a must run before T036a to ensure `metadata.json` exists. **Depends on**: T015a.
+- [ ] T036b [P] **VERIFY CITATION**: Run `code/reference_validator.py` on extracted DOI (from T036a) to verify against primary source (format/existence check). **If `doi` is null (from T036a), log `INFO_SKIPPED_VERIFICATION` and proceed without failing.** **Depends on**: T036a.
+- [ ] T036c [P] **GENERATE PAPER**: Generate `paper/001_results.md` including verified citation status (from T036b), scientific validity status (from T015a), and **Stimulus Integrity status (from T015)**. **Depends on**: T036b, T015a, T015.
 - [ ] T037 [P] Update `state/state.yaml` with final artifact hashes and timestamps. **Depends on**: T036c.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup & Foundational (Phase 1)**: No dependencies - can start immediately
-- **User Stories (Phase 2+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 1) - Depends on cleaned data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 1) - Depends on statistical results from US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Validation before Services/Analysis
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 1)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Specific Task Dependencies (Critical Execution Order)
-
-- **T001**: No dependencies.
-- **T002**: Depends on T001.
-- **T003a, T003b**: Depends on T002.
-- **T004-T007**: Depends on T003b.
-- **T020b-1, T020b-2, T020b-3, T020a-1, T020a-2, T020c**: Depends on T007, T002, T003a. **T020b-1 -> T020b-2 -> T020b-3 -> T020a-1 -> T020a-2 -> T020c**.
-- **T008-T009**: Depends on T004-T007, T020a-2.
-- **T010a**: No dependencies (except T004-T007, T020a-2).
-- **T010b**: Depends on T010a.
-- **T010c**: Depends on T010b, T010a.
-- **T012a, T012b**: Depends on T010b.
-- **T012d**: Depends on T010b (needs ingestion to check column), T012b.
-- **T012e**: Depends on T012d (needs MMSE flag from JSON), T012b.
-- **T012c**: Depends on T012a, T012b, T012e.
-- **T014a**: Depends on T012c, T012e (consumes intermediate file).
-- **T014b**: Depends on T012c.
-- **T015a**: Depends on T010b (needs source info).
-- **T015**: Depends on T015a, T010b.
-- **T016-T023**: Depends on T014a.
-- **T024-T030**: Depends on T022.
-- **T027a**: Depends on T012e (cleaned_dataset.csv and cleaned_dataset_no_mmse.csv).
-- **T027b**: Depends on T027a.
-- **T027c**: Depends on T022, T027b.
-- **T031a-T032b**: Depends on T014a, T022.
-- **T034-T037**: Depends on T022, T030.
-- **T035a**: Depends on T004.
-- **T035b**: Depends on T004, T035a.
-- **T036a**: Depends on T015a (needs metadata.json).
-- **T036b**: Depends on T036a (needs extracted citation).
-- **T036c**: Depends on T036b, T015a, T015.
-- **T037**: Depends on T036c.
-- **T042**: Depends on T010a (streaming logic integrated into ingestion).
-- **T041**: Depends on T026 (borderline logic integrated into sensitivity sweep).
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup & Foundational
-2. Complete Phase 2: User Story 1
-3. **STOP and VALIDATE**: Test User Story 1 independently
-4. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Ensure all statistical tests use Welch's independent samples t-test (between-subjects) as per spec FR-002 and plan.md.
-- **Critical**: T010a now includes the "fail loud then fallback" logic in a single task to ensure the pipeline continues as per the Plan.
-- **Critical**: T015 enforces Constitution Principle VI by halting if stimuli are missing in real mode; synthetic stimuli are allowed ONLY in simulation mode.
-- **Critical**: T012d must run before T012e to ensure MMSE column existence is validated before filtering.
-- **Critical**: T012e (MMSE Exclusion) is now part of the primary pipeline (US1), not just US3, and generates both `cleaned_dataset.csv` and `cleaned_dataset_no_mmse.csv`.
-- **Critical**: T036a must run before T036b (citation extraction precedes verification).
-- **Critical**: T012a, T012b, T012c, T012e handle ALL exclusion logic to prevent race conditions on `exclusion_log.json`.
-- **Critical**: T014b must run after T012c to calculate valid record percentages including MMSE exclusions.
-- **Critical**: T014a depends on T012e for the MMSE filter.
-- **Critical**: T015a must run before T015 and T036a to provide metadata.json.
-- **Critical**: T015 is conditional on `simulation_mode` to prevent failure when stimuli are missing in simulation mode (but halts if stimuli are required and missing).
-- **Critical**: T036c depends on T015 to ensure stimulus integrity is verified before paper generation.
-- **Critical**: T003 (Linting) has been replaced by T003a/T003b to ensure executable config file creation.
-- **Critical**: T042 ensures streaming is used for large datasets to comply with memory constraints.
-- **Critical**: T041 ensures the borderline sensitivity flag is explicitly implemented per FR-005 (0.04-0.06 range).
-- **Critical**: T027a reads from `cleaned_dataset.csv` (Primary) and `cleaned_dataset_no_mmse.csv` (Robustness) to ensure valid sensitivity analysis comparison (with vs without MMSE).
-- **Critical**: T012d and T012e use `data/processed/mmse_flag.json` for runtime state, not `code/config.py`.
-- **Critical**: T027a reads `data/processed/cleaned_dataset.csv` and `data/processed/cleaned_dataset_no_mmse.csv` (output of T012e) to apply MMSE filter independently for robustness check.
-- **Critical**: T010b saves raw data to `data/raw/raw_dataset.csv` to support T027a.
-- **Critical**: T015a and T010b coordinate on `metadata.json` lifecycle (T010b sets flag, T015a finalizes metadata).
-- **Critical**: T039 and T040 have been removed to resolve contradictions.
-- **Critical**: T001 consolidates directory creation for clarity.
-- **Critical**: T035a updates the spec schema to include `runtime_log.json` before T035b writes to it.
-- **Critical**: T035b uses `time.time()` for precise runtime measurement.
-- **Critical**: T029 and T041 explicitly implement the 0.04-0.06 range for sensitivity flags.
-- **Critical**: T020b-1, T020b-2, T020b-3 split generation and validation of the data model.
-- **Critical**: T020a-1 and T020a-2 split generation and validation of contracts.
-- **Critical**: T005 documents the implementation of Welch's t-test as mandated by Spec FR-002.
-- **Critical**: T027c explicitly compares primary and robustness analysis results.
-- **Critical**: T019 implements Bonferroni correction as required by FR-003.
-- **Critical**: T020 implements Cohen's d calculation as required by FR-004.
-- **Critical**: T023 implements error handling as required by robustness goals.
-- **Critical**: T026 uses the complete threshold set `[0.01, 0.04, 0.05, 0.06, 0.10]`.
-- **Critical**: T015 explicitly flags synthetic stimuli as not satisfying Stimulus Fidelity (and halts if missing) in real mode, but allows them in simulation mode.
-- **Critical**: T010c ensures the fetch attempt (T010b) occurs before the fallback logic (T010a) is triggered.

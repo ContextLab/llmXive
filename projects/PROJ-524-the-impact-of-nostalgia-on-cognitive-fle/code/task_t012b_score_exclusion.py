@@ -1,10 +1,3 @@
-"""
-T012b: Score Exclusion Task
-
-Filters the age-filtered dataset for non-null `perseverative_errors` and `categories_completed`.
-Writes filtered data to `data/processed/cleaned_score_filtered.csv`.
-Updates `data/processed/exclusion_counts.json` with key `ERR_MISSING_SCORE`.
-"""
 import os
 import json
 import logging
@@ -12,84 +5,150 @@ import pandas as pd
 from pathlib import Path
 from utils import setup_logging, log_info, log_warning, log_error
 
-# Constants
-INPUT_FILE = Path("data/processed/cleaned_age_filtered.csv")
-OUTPUT_FILE = Path("data/processed/cleaned_score_filtered.csv")
-EXCLUSION_COUNTS_FILE = Path("data/processed/exclusion_counts.json")
-LOG_KEY = "ERR_MISSING_SCORE"
+# Configure logging
+logger = setup_logging()
 
-def load_age_filtered_dataset() -> pd.DataFrame:
-    """Load the age-filtered dataset."""
-    if not INPUT_FILE.exists():
-        raise FileNotFoundError(f"Input file not found: {INPUT_FILE}")
-    return pd.read_csv(INPUT_FILE)
-
-def filter_by_score(df: pd.DataFrame) -> pd.DataFrame:
+def load_age_filtered_dataset(file_path: str) -> pd.DataFrame:
     """
-    Filter dataframe for non-null `perseverative_errors` and `categories_completed`.
-    """
-    initial_count = len(df)
-    # Filter for non-null values in both columns
-    mask = df["perseverative_errors"].notna() & df["categories_completed"].notna()
-    filtered_df = df[mask]
-    final_count = len(filtered_df)
-    excluded_count = initial_count - final_count
+    Load the age-filtered dataset from the specified CSV file.
     
-    log_info(f"Score filtering: {excluded_count} records excluded due to missing scores.")
+    Args:
+        file_path: Path to the CSV file containing age-filtered data.
+        
+    Returns:
+        pandas DataFrame containing the loaded data.
+        
+    Raises:
+        FileNotFoundError: If the specified file does not exist.
+        pd.errors.ParserError: If the CSV file cannot be parsed.
+    """
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Age filtered dataset not found at {file_path}")
+    
+    logger.info(f"Loading age filtered dataset from {file_path}")
+    df = pd.read_csv(path)
+    logger.info(f"Loaded {len(df)} records from age filtered dataset")
+    return df
+
+def filter_by_score(df: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """
+    Filter the dataset to keep only records with non-null 
+    perseverative_errors and categories_completed.
+    
+    Args:
+        df: Input DataFrame.
+        
+    Returns:
+        Tuple of (filtered DataFrame, count of excluded records).
+    """
+    original_count = len(df)
+    
+    # Check for required columns
+    required_cols = ['perseverative_errors', 'categories_completed']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in score filtering: {missing_cols}")
+    
+    # Filter for non-null values in both score columns
+    mask = df['perseverative_errors'].notna() & df['categories_completed'].notna()
+    filtered_df = df[mask]
+    
+    excluded_count = original_count - len(filtered_df)
+    
+    logger.info(f"Score filtering: {original_count} -> {len(filtered_df)} records")
+    logger.info(f"Excluded {excluded_count} records due to missing scores")
+    
     return filtered_df, excluded_count
 
-def save_filtered_dataset(df: pd.DataFrame) -> None:
-    """Save the filtered dataset to CSV."""
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(OUTPUT_FILE, index=False)
-    log_info(f"Saved filtered dataset to {OUTPUT_FILE}")
+def save_filtered_dataset(df: pd.DataFrame, output_path: str) -> None:
+    """
+    Save the filtered dataset to a CSV file.
+    
+    Args:
+        df: DataFrame to save.
+        output_path: Path where the CSV file will be written.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    df.to_csv(path, index=False)
+    logger.info(f"Saved filtered dataset to {output_path}")
 
-def update_exclusion_counts(excluded_count: int) -> None:
-    """Update the exclusion counts JSON file."""
-    counts = {"ERR_MISSING_AGE_FIELD": 0, "ERR_MISSING_SCORE": 0, "ERR_MMSE_IMPAIRED": 0}
+def update_exclusion_counts(exclusion_key: str, count: int, counts_file_path: str) -> None:
+    """
+    Update the exclusion counts JSON file with the new exclusion count.
     
-    if EXCLUSION_COUNTS_FILE.exists():
-        try:
-            with open(EXCLUSION_COUNTS_FILE, "r") as f:
-                counts = json.load(f)
-        except json.JSONDecodeError:
-            log_warning(f"Invalid JSON in {EXCLUSION_COUNTS_FILE}, resetting counts.")
+    Args:
+        exclusion_key: Key to use in the JSON object (e.g., 'ERR_MISSING_SCORE').
+        count: Number of excluded records.
+        counts_file_path: Path to the exclusion counts JSON file.
+    """
+    counts_file = Path(counts_file_path)
     
-    counts[LOG_KEY] = excluded_count
+    # Load existing counts or create new dict
+    if counts_file.exists():
+        with open(counts_file, 'r') as f:
+            counts = json.load(f)
+    else:
+        counts = {}
     
-    with open(EXCLUSION_COUNTS_FILE, "w") as f:
+    # Update with new count
+    counts[exclusion_key] = count
+    
+    # Ensure parent directory exists
+    counts_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write updated counts
+    with open(counts_file, 'w') as f:
         json.dump(counts, f, indent=2)
     
-    log_info(f"Updated exclusion counts: {counts}")
+    logger.info(f"Updated exclusion counts: {exclusion_key} = {count}")
 
 def main():
-    """Main entry point for T012b."""
-    setup_logging()
-    log_info("Starting T012b: Score Exclusion")
+    """
+    Main function to execute the score exclusion task (T012b).
+    
+    Reads the age-filtered dataset, filters out records with missing scores,
+    saves the filtered dataset, and updates the exclusion counts.
+    """
+    # Define paths
+    config = {
+        'age_filtered_input': 'data/processed/cleaned_age_filtered.csv',
+        'score_filtered_output': 'data/processed/cleaned_score_filtered.csv',
+        'exclusion_counts_file': 'data/processed/exclusion_counts.json',
+        'exclusion_key': 'ERR_MISSING_SCORE'
+    }
     
     try:
-        # Load data
-        log_info(f"Loading data from {INPUT_FILE}")
-        df = load_age_filtered_dataset()
+        # Load the age-filtered dataset
+        df = load_age_filtered_dataset(config['age_filtered_input'])
         
-        # Filter by score
+        # Filter by score (non-null perseverative_errors and categories_completed)
         filtered_df, excluded_count = filter_by_score(df)
         
-        # Save output
-        save_filtered_dataset(filtered_df)
+        # Save the filtered dataset
+        save_filtered_dataset(filtered_df, config['score_filtered_output'])
         
         # Update exclusion counts
-        update_exclusion_counts(excluded_count)
+        update_exclusion_counts(
+            config['exclusion_key'], 
+            excluded_count, 
+            config['exclusion_counts_file']
+        )
         
-        log_info("T012b completed successfully.")
-        return 0
+        logger.info(f"T012b Score Exclusion completed successfully. "
+                   f"Excluded {excluded_count} records.")
         
     except FileNotFoundError as e:
         log_error(f"File not found: {e}")
-        return 1
+        raise
+    except ValueError as e:
+        log_error(f"Validation error: {e}")
+        raise
     except Exception as e:
-        log_error(f"Error during score exclusion: {e}")
+        log_error(f"Unexpected error during score exclusion: {e}")
         raise
 
-if __name__ == "__main__":
-    exit(main())
+if __name__ == '__main__':
+    main()

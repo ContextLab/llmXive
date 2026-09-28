@@ -1,16 +1,16 @@
-# Quickstart Guide: Impact of Nostalgia on Cognitive Flexibility
+# Quickstart Guide: The Impact of Nostalgia on Cognitive Flexibility
 
-This guide provides instructions for setting up the environment and running the ingestion pipeline on a sample dataset.
+This guide provides instructions for setting up the environment and running the ingestion pipeline on a sample dataset to verify the system's functionality.
 
 ## Prerequisites
 
-- Python 3.9+
-- pip (Python package manager)
-- Access to the internet (for fetching the dataset)
+- Python 3.9 or higher
+- pip (Python package installer)
+- A Unix-like environment (Linux or macOS) or WSL on Windows
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
+1. **Clone the repository** and navigate to the project root:
  ```bash
  git clone <repository-url>
  cd PROJ-524-the-impact-of-nostalgia-on-cognitive-fle
@@ -27,91 +27,73 @@ This guide provides instructions for setting up the environment and running the 
  pip install -r requirements.txt
  ```
 
- The `requirements.txt` file includes:
- - `pandas`, `numpy`, `scipy`, `statsmodels` (for data processing and analysis)
- - `openml`, `datasets` (for data fetching)
- - `pyyaml`, `requests` (for configuration and HTTP requests)
- - `pytest`, `black`, `ruff` (for testing and linting)
+4. **Verify configuration**:
+ Ensure `pyproject.toml` exists and contains the required `[tool.black]` and `[tool.ruff]` sections. You can verify this by running:
+ ```bash
+ python code/task_t003b_verify_pyproject.py
+ ```
 
-## Project Structure
+## Running the "Hello World" Ingestion Pipeline
 
-The project follows this directory structure:
+This example runs the ingestion pipeline to fetch data (or fall back to synthetic data if the canonical source is unreachable), validate the schema, and produce a cleaned dataset.
 
-```
-.
-├── code/ # Source code for ingestion, analysis, and utilities
-├── data/
-│ ├── raw/ # Raw fetched datasets
-│ ├── processed/ # Cleaned and filtered datasets
-│ ├── results/ # Statistical reports and analysis outputs
-│ └── stimuli/ # Stimulus files (audio clips)
-├── contracts/ # JSON/YAML schemas for data validation
-├── specs/ # Feature specifications and documentation
-├── tests/ # Unit and integration tests
-└── paper/ # Drafts and final paper
+### Step 1: Setup Directories and Contracts
+
+Before running the pipeline, ensure the required directory structure and contract schemas are in place.
+
+```bash
+python code/setup_dirs.py
+python code/setup_contracts.py
 ```
 
-## Running the Ingestion Pipeline (Hello World)
+### Step 2: Run the Ingestion Pipeline
 
-The ingestion pipeline fetches a real dataset, validates it, and saves the raw output.
-
-### Step 1: Run the Ingestion Script
-
-Execute the following command from the project root:
+Execute the main ingestion script. This script will:
+- Attempt to fetch data from the canonical source (OpenML or HuggingFace).
+- If the fetch fails, it will trigger the "Methodological Simulation" fallback to generate a synthetic dataset compliant with the schema.
+- Validate the data against the schema (`contracts/dataset.schema.yaml`).
+- Filter for participants aged 65+.
+- Save the raw and cleaned datasets to `data/raw/` and `data/processed/`.
 
 ```bash
 python code/ingestion.py
 ```
 
-**What this does:**
-- Fetches the canonical dataset (via OpenML or HuggingFace) defined in `code/ingestion/fetcher.py`.
-- If the fetch fails, the script raises an exception (fails loudly) unless a fallback mechanism is triggered by `code/main.py`.
-- Saves the raw dataset to `data/raw/raw_dataset.csv`.
-- Generates `data/raw/metadata.json` with source information and checksums.
+**Expected Output**:
+- `data/raw/raw_dataset.csv`: The raw dataset (fetched or synthetic).
+- `data/raw/metadata.json`: Metadata including `simulation_mode` flag.
+- `data/processed/cleaned_dataset.csv`: The final cleaned dataset.
+- Console logs detailing the fetch attempt, validation results, and exclusion counts.
 
-### Step 2: Verify the Output
+### Step 3: Verify Results
 
-Check that the following files were created:
-- `data/raw/raw_dataset.csv`: Contains the raw fetched records.
-- `data/raw/metadata.json`: Contains metadata about the dataset source and simulation mode status.
+After the pipeline completes, verify the output files exist and contain valid data:
 
-You can inspect the raw dataset using Python:
+```bash
+# Check raw data
+head data/raw/raw_dataset.csv
 
-```python
-import pandas as pd
-df = pd.read_csv('data/raw/raw_dataset.csv')
-print(df.head())
-print(f"Total records: {len(df)}")
+# Check cleaned data
+head data/processed/cleaned_dataset.csv
+
+# Check metadata
+cat data/raw/metadata.json
 ```
 
-### Expected Output
-
-If successful, you should see a DataFrame with columns including:
-- `participant_id`
-- `age`
-- `stimulus_type`
-- `perseverative_errors`
-- `categories_completed`
-- `MMSE` (optional)
+If `simulation_mode` is `true` in `metadata.json`, the system used the fallback synthetic data generation because the real source was unreachable. This is expected behavior for the "Hello World" test in an isolated environment.
 
 ## Next Steps
 
-Once the ingestion pipeline is verified:
+Once the ingestion pipeline is verified, proceed to **User Story 2** (Statistical Analysis) by running the analysis module:
 
-1. **Run Data Cleaning**: Execute age and score filtering tasks (`T012a`, `T012b`).
-2. **Run Statistical Analysis**: Execute the analysis pipeline (`code/analysis.py`) to generate statistical reports.
-3. **Run Sensitivity Analysis**: Execute sensitivity checks (`code/analysis.py` sensitivity functions).
+```bash
+python code/analysis.py
+```
+
+For detailed information on the statistical methods, data model, and full API reference, consult the `specs/` directory and the `paper/` folder.
 
 ## Troubleshooting
 
 - **Missing Dependencies**: Ensure all packages in `requirements.txt` are installed.
-- **Fetch Errors**: If the dataset fetch fails, check your internet connection. The pipeline is designed to fail loudly if the real source is unreachable.
-- **File Permissions**: Ensure you have write permissions to the `data/` directory.
-
-## Configuration
-
-Most configuration is handled via environment variables or `code/config.py`.
-- `MMSE_THRESHOLD`: Default is 24. Can be overridden via `MMSE_THRESHOLD` env variable.
-- `DATA_SOURCE`: Override the default data source if needed.
-
-For advanced configuration, refer to `code/config.py`.
+- **Schema Errors**: If validation fails, check `contracts/dataset.schema.yaml` and ensure the input data matches the required fields (`participant_id`, `age`, `stimulus_type`, `perseverative_errors`, `categories_completed`).
+- **Permission Errors**: Ensure write permissions for `data/` and `code/` directories.

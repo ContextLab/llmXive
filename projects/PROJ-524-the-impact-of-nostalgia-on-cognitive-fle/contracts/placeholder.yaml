@@ -1,0 +1,11 @@
+# Contracts Placeholder
+# This directory contains schema definitions and validation contracts.
+# See specs/001-nostalgia-cognitive-fle/quickstart.md for details on contract generation.
+#
+# Generated artifacts will include:
+# - dataset.schema.yaml
+# - output.schema.yaml
+#
+# Status: Pending T020a-1 (Generate Contracts)
+status: pending
+generated_files: []

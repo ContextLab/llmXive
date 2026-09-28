@@ -5,43 +5,44 @@ from pathlib import Path
 from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
 from config import get_config, ensure_dirs
 
-def create_contracts_directory():
+def create_contracts_directory(config: dict) -> bool:
     """
     Creates the contracts/ directory structure if it does not exist.
-    This directory will hold schema definitions (dataset.schema.yaml, output.schema.yaml).
-    
-    Returns:
-        Path: The absolute path to the created contracts directory.
+    This task (T007) ensures the directory exists for schema files to be generated later.
     """
-    config = get_config()
-    contracts_dir = config.get('contracts_dir', Path('contracts'))
+    contracts_dir = Path(config.get("contracts_dir", "contracts"))
     
-    # Ensure the parent directory exists (project root)
-    if not contracts_dir.parent.exists():
-        contracts_dir.parent.mkdir(parents=True, exist_ok=True)
-        log_info(f"Created project root directory: {contracts_dir.parent}")
+    log_info(f"Ensuring contracts directory exists at: {contracts_dir}")
+    ensure_dirs([contracts_dir])
     
-    # Create the contracts directory
-    contracts_dir.mkdir(parents=True, exist_ok=True)
-    log_info(f"Contracts directory created/verified: {contracts_dir}")
-    
-    # Create subdirectories for schema versions if needed (future-proofing)
-    # For now, we keep schemas at the root of contracts/
-    return contracts_dir
+    if contracts_dir.exists() and contracts_dir.is_dir():
+        log_info(f"Contracts directory created/verified: {contracts_dir}")
+        return True
+    else:
+        log_error(f"Failed to create contracts directory: {contracts_dir}")
+        return False
 
-def main():
+def main() -> int:
     """
-    Main entry point for T007: Setup contracts directory structure.
+    Main entry point for T007: Setup contracts directory.
     """
-    logger = setup_logging("T007_setup_contracts")
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    
+    config = get_config()
+    setup_logging()
+    
     log_info(f"Starting T007: Setup contracts directory structure at {get_timestamp()}")
     
-    try:
-        contracts_dir = create_contracts_directory()
-        log_info(f"T007 completed successfully. Contracts directory: {contracts_dir}")
+    success = create_contracts_directory(config)
+    
+    if success:
+        log_info("T007 completed successfully.")
         return 0
-    except Exception as e:
-        log_error(f"T007 failed: {str(e)}")
+    else:
+        log_error("T007 failed: Could not create contracts directory.")
         return 1
 
 if __name__ == "__main__":

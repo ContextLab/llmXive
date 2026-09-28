@@ -1,97 +1,147 @@
-"""
-Task T012c: Generate Exclusion Log
-
-Reads exclusion counts from data/processed/exclusion_counts.json (produced by T012a, T012b, T012e)
-and writes a consolidated exclusion log to data/processed/exclusion_log.json.
-"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any
-
 from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
 
-# Paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-EXCLUSION_COUNTS_PATH = PROCESSED_DIR / "exclusion_counts.json"
-EXCLUSION_LOG_PATH = PROCESSED_DIR / "exclusion_log.json"
-METADATA_PATH = PROJECT_ROOT / "data" / "raw" / "metadata.json"
+# Configure logging for this module
+logger = logging.getLogger(__name__)
 
-def load_exclusion_counts() -> Dict[str, int]:
-    """Load exclusion counts from the intermediate JSON file."""
-    if not EXCLUSION_COUNTS_PATH.exists():
-        log_error(f"Exclusion counts file not found: {EXCLUSION_COUNTS_PATH}")
-        raise FileNotFoundError(f"Exclusion counts file not found: {EXCLUSION_COUNTS_PATH}")
-
-    with open(EXCLUSION_COUNTS_PATH, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-def check_simulation_fallback() -> bool:
+def load_exclusion_counts(exclusion_counts_path: Path) -> Dict[str, Any]:
     """
-    Check if the pipeline ran in simulation mode by reading data/raw/metadata.json.
-    Returns True if simulation_mode is True, False otherwise.
+    Load exclusion counts from the JSON file produced by T012a, T012b, and T012e.
+    
+    Args:
+        exclusion_counts_path: Path to exclusion_counts.json
+        
+    Returns:
+        Dictionary containing exclusion counts.
     """
-    if not METADATA_PATH.exists():
-        log_warning(f"Metadata file not found: {METADATA_PATH}. Assuming no simulation fallback.")
+    if not exclusion_counts_path.exists():
+        log_error(f"Exclusion counts file not found: {exclusion_counts_path}")
+        return {}
+    
+    try:
+        with open(exclusion_counts_path, 'r') as f:
+            data = json.load(f)
+        log_info(f"Loaded exclusion counts from {exclusion_counts_path}")
+        return data
+    except json.JSONDecodeError as e:
+        log_error(f"Failed to parse exclusion counts JSON: {e}")
+        return {}
+    except Exception as e:
+        log_error(f"Unexpected error loading exclusion counts: {e}")
+        return {}
+
+def check_simulation_fallback(metadata_path: Path) -> bool:
+    """
+    Check if the pipeline ran in simulation mode by reading metadata.json.
+    
+    Args:
+        metadata_path: Path to data/raw/metadata.json
+        
+    Returns:
+        True if simulation_mode is True, False otherwise.
+    """
+    if not metadata_path.exists():
+        log_warning(f"Metadata file not found: {metadata_path}. Assuming no simulation fallback.")
+        return False
+    
+    try:
+        with open(metadata_path, 'r') as f:
+            metadata = json.load(f)
+        
+        simulation_mode = metadata.get('simulation_mode', False)
+        if simulation_mode:
+            log_info("Simulation fallback detected in metadata.")
+        return simulation_mode
+    except Exception as e:
+        log_error(f"Failed to read metadata for simulation check: {e}")
         return False
 
-    with open(METADATA_PATH, 'r', encoding='utf-8') as f:
-        metadata = json.load(f)
-
-    return metadata.get("simulation_mode", False)
-
-def generate_exclusion_log() -> Dict[str, Any]:
+def generate_exclusion_log(
+    exclusion_counts: Dict[str, Any],
+    simulation_fallback: bool,
+    output_path: Path
+) -> Dict[str, Any]:
     """
-    Generate the final exclusion log combining counts and simulation status.
+    Generate the final exclusion log by aggregating counts and flags.
+    
+    Args:
+        exclusion_counts: Dictionary with counts from previous steps.
+        simulation_fallback: Boolean indicating if simulation fallback was used.
+        output_path: Path to write the exclusion_log.json file.
+        
+    Returns:
+        The generated exclusion log dictionary.
     """
-    counts = load_exclusion_counts()
-    is_simulation = check_simulation_fallback()
-
-    log_entry = {
-        "timestamp": get_timestamp(),
-        "task_id": "T012c",
-        "exclusion_counts": {
-            "ERR_MISSING_AGE_FIELD": counts.get("ERR_MISSING_AGE_FIELD", 0),
-            "ERR_MISSING_SCORE": counts.get("ERR_MISSING_SCORE", 0),
-            "ERR_MMSE_IMPAIRED": counts.get("ERR_MMSE_IMPAIRED", 0),
-        },
-        "SIMULATION_FALLBACK": is_simulation
+    # Ensure all required keys exist, defaulting to 0 if missing
+    log_data = {
+        "ERR_MISSING_AGE_FIELD": exclusion_counts.get("ERR_MISSING_AGE_FIELD", 0),
+        "ERR_MISSING_SCORE": exclusion_counts.get("ERR_MISSING_SCORE", 0),
+        "ERR_MMSE_IMPAIRED": exclusion_counts.get("ERR_MMSE_IMPAIRED", 0),
+        "SIMULATION_FALLBACK": simulation_fallback,
+        "timestamp": get_timestamp()
     }
-
-    return log_entry
+    
+    # Calculate total exclusions
+    total_exclusions = (
+        log_data["ERR_MISSING_AGE_FIELD"] +
+        log_data["ERR_MISSING_SCORE"] +
+        log_data["ERR_MMSE_IMPAIRED"]
+    )
+    log_data["total_exclusions"] = total_exclusions
+    
+    # Log summary
+    log_info(f"Generated exclusion log: {log_data}")
+    
+    # Write to file
+    try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(log_data, f, indent=2)
+        log_info(f"Successfully wrote exclusion log to {output_path}")
+    except Exception as e:
+        log_error(f"Failed to write exclusion log: {e}")
+        raise
+    
+    return log_data
 
 def main():
-    """Main entry point for Task T012c."""
-    setup_logging("T012c_generate_exclusion_log")
+    """
+    Main entry point for T012c: Generate Exclusion Log.
+    
+    Execution Order: T012a -> T012b -> T012e -> T012c
+    """
+    # Setup logging
+    setup_logging()
     log_info("Starting T012c: Generate Exclusion Log")
-
+    
+    # Define paths relative to project root
+    # Assuming execution from project root or code directory
+    project_root = Path(__file__).resolve().parent.parent
+    exclusion_counts_path = project_root / "data" / "processed" / "exclusion_counts.json"
+    metadata_path = project_root / "data" / "raw" / "metadata.json"
+    output_path = project_root / "data" / "processed" / "exclusion_log.json"
+    
+    # 1. Load exclusion counts (from T012a, T012b, T012e)
+    exclusion_counts = load_exclusion_counts(exclusion_counts_path)
+    if not exclusion_counts:
+        log_error("No exclusion counts found. Cannot generate log.")
+        return 1
+    
+    # 2. Check for simulation fallback (from T010a/T010b via metadata)
+    simulation_fallback = check_simulation_fallback(metadata_path)
+    
+    # 3. Generate and save the exclusion log
     try:
-        log_entry = generate_exclusion_log()
-
-        # Ensure directory exists
-        PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-        # Write the log
-        with open(EXCLUSION_LOG_PATH, 'w', encoding='utf-8') as f:
-            json.dump(log_entry, f, indent=2)
-
-        log_info(f"Successfully wrote exclusion log to {EXCLUSION_LOG_PATH}")
-        log_info(f"Exclusion Counts: {log_entry['exclusion_counts']}")
-        log_info(f"Simulation Fallback Active: {log_entry['SIMULATION_FALLBACK']}")
-
-    except FileNotFoundError as e:
-        log_error(f"Required file missing: {e}")
-        raise
-    except json.JSONDecodeError as e:
-        log_error(f"JSON parsing error in exclusion counts: {e}")
-        raise
+        generate_exclusion_log(exclusion_counts, simulation_fallback, output_path)
+        log_info("T012c completed successfully.")
+        return 0
     except Exception as e:
-        log_error(f"Unexpected error during exclusion log generation: {e}")
-        raise
-
-    log_info("T012c completed successfully.")
+        log_error(f"T012c failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

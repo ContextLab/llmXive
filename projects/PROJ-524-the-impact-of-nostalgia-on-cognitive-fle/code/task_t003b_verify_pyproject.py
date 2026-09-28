@@ -1,76 +1,79 @@
 """
-Task T003b: Verify pyproject.toml exists and contains valid configuration sections for black and ruff.
+Task T003b: Verify pyproject.toml exists and contains required linting configurations.
 
-This script checks the existence of `pyproject.toml` in the project root and validates
-that it contains the required configuration sections for Black (line-length=88) and
-Ruff (lint.select = ["E", "F"]) as specified in T003a.
+This script verifies that `pyproject.toml` exists in the project root and explicitly
+contains populated [tool.black] and [tool.ruff] sections with the required settings:
+- [tool.black]: line-length = 88
+- [tool.ruff]: lint.select = ["E", "F"]
 
-It exits with code 0 if valid, or code 1 if missing/invalid, printing a clear error.
+It exits with code 0 on success, or 1 on failure (missing file, missing sections, or incorrect values).
 """
-
 import os
 import sys
 import toml
 from pathlib import Path
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PYPROJECT_PATH = PROJECT_ROOT / "pyproject.toml"
-
 def main():
-    """Verify pyproject.toml configuration."""
-    print(f"Checking: {PYPROJECT_PATH}")
+    """
+    Main entry point for T003b verification.
+    
+    Returns:
+        int: 0 if verification passes, 1 if it fails.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    pyproject_path = project_root / "pyproject.toml"
 
-    if not PYPROJECT_PATH.exists():
-        print("ERROR: pyproject.toml not found in project root.")
-        sys.exit(1)
+    # Check if pyproject.toml exists
+    if not pyproject_path.exists():
+        print(f"ERROR: {pyproject_path} does not exist.")
+        print("Please run T003a first to create the skeleton file.")
+        return 1
 
     try:
-        with open(PYPROJECT_PATH, "r", encoding="utf-8") as f:
+        with open(pyproject_path, "r", encoding="utf-8") as f:
             config = toml.load(f)
     except Exception as e:
-        print(f"ERROR: Failed to parse pyproject.toml: {e}")
-        sys.exit(1)
+        print(f"ERROR: Failed to parse {pyproject_path}: {e}")
+        return 1
 
     errors = []
 
-    # Check Black configuration
-    tool_black = config.get("tool", {}).get("black", {})
-    if not tool_black:
+    # Verify [tool.black] section
+    if "tool" not in config or "black" not in config["tool"]:
         errors.append("Missing [tool.black] section.")
     else:
-        line_length = tool_black.get("line-length")
-        if line_length != 88:
-            errors.append(f"Invalid [tool.black] line-length: expected 88, got {line_length}.")
+        black_config = config["tool"]["black"]
+        if "line-length" not in black_config:
+            errors.append("[tool.black] is missing 'line-length'.")
+        elif black_config["line-length"] != 88:
+            errors.append(f"[tool.black] line-length is {black_config['line-length']}, expected 88.")
         else:
-            print("OK: [tool.black] configured with line-length=88.")
+            print(f"OK: [tool.black] line-length = {black_config['line-length']}")
 
-    # Check Ruff configuration
-    tool_ruff = config.get("tool", {}).get("ruff", {})
-    if not tool_ruff:
+    # Verify [tool.ruff] section
+    if "tool" not in config or "ruff" not in config["tool"]:
         errors.append("Missing [tool.ruff] section.")
     else:
-        lint = tool_ruff.get("lint", {})
-        if not lint:
-            errors.append("Missing [tool.ruff.lint] section.")
+        ruff_config = config["tool"]["ruff"]
+        if "lint" not in ruff_config or "select" not in ruff_config["lint"]:
+            errors.append("[tool.ruff] is missing 'lint.select'.")
         else:
-            select = lint.get("select", [])
-            required = {"E", "F"}
-            if not required.issubset(set(select)):
-                errors.append(
-                    f"Invalid [tool.ruff.lint.select]: expected to include {required}, got {select}."
-                )
+            select_list = ruff_config["lint"]["select"]
+            if not isinstance(select_list, list):
+                errors.append(f"[tool.ruff] lint.select is not a list: {type(select_list)}")
+            elif "E" not in select_list or "F" not in select_list:
+                errors.append(f"[tool.ruff] lint.select missing 'E' or 'F'. Current: {select_list}")
             else:
-                print(f"OK: [tool.ruff.lint] configured with select={select}.")
+                print(f"OK: [tool.ruff] lint.select = {select_list}")
 
     if errors:
-        print("\nVALIDATION FAILED:")
+        print("VERIFICATION FAILED:")
         for err in errors:
             print(f"  - {err}")
-        sys.exit(1)
+        return 1
 
-    print("\nVALIDATION PASSED: pyproject.toml is correctly configured.")
-    sys.exit(0)
+    print("VERIFICATION PASSED: pyproject.toml contains required configurations.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

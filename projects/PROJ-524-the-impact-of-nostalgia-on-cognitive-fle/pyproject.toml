@@ -3,53 +3,24 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "nostalgia-cognitive-flexibility"
+name = "llmxive-nostalgia-cognitive-fle"
 version = "0.1.0"
-description = "Analysis of the impact of nostalgia on cognitive flexibility in aging adults"
-readme = "README.md"
+description = "The Impact of Nostalgia on Cognitive Flexibility in Aging Adults"
 requires-python = ">=3.9"
 dependencies = [
-    "pandas>=2.0.0",
-    "scipy>=1.11.0",
-    "statsmodels>=0.14.0",
-    "numpy>=1.24.0",
-    "pyyaml>=6.0",
-    "openml>=0.14.0",
-    "datasets>=2.14.0",
-    "requests>=2.31.0",
-    "pytest>=7.4.0",
-    "black>=23.0.0",
-    "ruff>=0.1.0",
-    "toml>=0.10.0"
+    "pandas",
+    "scipy",
+    "statsmodels",
+    "numpy",
+    "pyyaml",
+    "openml",
+    "datasets",
+    "requests",
+    "pytest",
+    "black",
+    "ruff",
 ]
 
 [tool.black]
-line-length = 88
-target-version = ['py39']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
 
 [tool.ruff]
-lint.select = ["E", "F"]
-line-length = 88
-target-version = "py39"
-exclude = [
-    ".git",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "build",
-    "dist"
-]
