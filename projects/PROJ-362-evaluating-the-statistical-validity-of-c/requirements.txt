@@ -8,4 +8,5 @@ psutil
 pytest
 ruff
 black
+pyyaml
 matplotlib

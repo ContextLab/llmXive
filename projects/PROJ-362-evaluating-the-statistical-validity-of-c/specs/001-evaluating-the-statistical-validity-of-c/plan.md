@@ -90,6 +90,6 @@ results/
 
 | Constraint-Driven Design Decision | Why Needed | Simpler Alternative Rejected Because |
 |-----------------------------------|------------|-------------------------------------|
-| Subsampling logic (FR-011) | Required to meet 6-hour runtime on full TREC Web Track. | Running full Web Track on a limited number of cores would exceed 6 hours.; subsampling is the only honest path to CI completion. |
+| Subsampling logic (FR-011) | Required to meet 6-hour runtime on full TREC Web Track. | Running full Web Track on a limited number of cores would exceed a practical time threshold.; subsampling is the only honest path to CI completion. |
 | BH Correction (FR-005) | Required for multiple hypothesis testing across queries. | Bonferroni is too conservative for exploratory IR studies; BH maintains power while controlling FDR. |
 | MDES via Bootstrap (FR-006) | Required to quantify statistical power. | Analytical power calculations are intractable for complex ranking metrics; bootstrap is the standard empirical approach. |

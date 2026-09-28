@@ -1,9 +1,13 @@
-# Ruff configuration file (alternative to pyproject.toml)
-# This file is provided for environments that prefer separate config files.
-# Primary configuration is in pyproject.toml.
+# Ruff configuration file
+# Extends settings from pyproject.toml if needed, or stands alone
+# This file ensures ruff can be run explicitly via `ruff check .`
 
 extend = "pyproject.toml"
 
-[lint]
-# Additional ignores specific to this project if needed
-ignore = []
+# Specific overrides for this project if needed
+# Example: ignore specific rules for specific directories
+# [tool.ruff]
+# ignore = []
+
+# Ensure output is compatible with CI
+output-format = "full"

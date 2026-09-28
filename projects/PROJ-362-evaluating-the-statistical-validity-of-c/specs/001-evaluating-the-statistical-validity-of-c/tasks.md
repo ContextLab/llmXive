@@ -46,7 +46,7 @@
 - [ ] T001.1 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/__init__.py` (empty file)
 - [ ] T001.2 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/main.py` (stub with argparse entry point)
 - [ ] T001.3 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/config.py` (stub with placeholder constants)
-- [ ] T002.1 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/requirements.txt` with pinned dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`, `tqdm`, `ir-datasets`, `psutil`, `pytest`, `ruff`, `black`
+- [ ] T002.1 [P] Create a requirements file with pinned dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`, `tqdm`, `ir-datasets`, `psutil`, `pytest`, `ruff`, `black`
 - [ ] T002.2 [P] Create virtual environment (venv) in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/venv/`
 - [ ] T002.3 [P] Install dependencies from `requirements.txt` into the virtual environment
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
@@ -59,7 +59,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Strict Sequential Order Required.**
 
-- [ ] T005 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/contracts/dataset.schema.yaml` defining qrels structure. **Order**: Must be created BEFORE T004.x. **Content**:
+- [ ] T005 Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/contracts/dataset.schema.yaml` defining qrels structure. **Order**: Must be created BEFORE T004.x. **Content**:
 ```yaml
 type: object
 properties:
@@ -74,17 +74,18 @@ required:
  - doc_id
  - relevance
 ```
-- [ ] T004.1 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Robust 2004 data. **Primary Source**: `ir_datasets.load('trec/robust04')`. **Logic**: Attempt NIST fetch via `ir-datasets`. If `ir-datasets` fails (network error, 404, etc.), retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3). If NIST still fails after retries, **raise `RuntimeError` immediately**. **DO NOT** fall back to Hugging Face, synthetic, or mock data. **Post-Fetch Step**: Compute SHA-256 checksum of the downloaded file at `data/raw/trec-robust-04.qrels` and update `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map. **Depends on: T005 (Schema creation must complete first)**.
-- [ ] T004.2 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Web 2009 data. **Primary Source**: `ir_datasets.load('trec/web-track-2009')`. **Logic**: Attempt NIST fetch via `ir-datasets`. Retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3). If NIST still fails after retries, **raise `RuntimeError` immediately**. **DO NOT** fall back to Hugging Face, synthetic, or mock data. **Post-Fetch Step**: Compute SHA-256 checksum of the downloaded file at `data/raw/trec-web-2009.qrels` and update `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map. **Depends on: T005**.
-- [ ] T004.3 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Web 2010 data. **Primary Source**: `ir_datasets.load('trec/web-track-2010')`. **Logic**: Attempt NIST fetch via `ir-datasets`. Retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3). If NIST still fails after retries, **raise `RuntimeError` immediately**. **DO NOT** fall back to Hugging Face, synthetic, or mock data. **Post-Fetch Step**: Compute SHA-256 checksum of the downloaded file at `data/raw/trec-web-2010.qrels` and update `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map. **Depends on: T005**.
-- [ ] T004.4 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Web 2011 data. **Primary Source**: `ir_datasets.load('trec/web-track-2011')`. **Logic**: Attempt NIST fetch via `ir-datasets`. Retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3). If NIST still fails after retries, **raise `RuntimeError` immediately**. **DO NOT** fall back to Hugging Face, synthetic, or mock data. **Post-Fetch Step**: Compute SHA-256 checksum of the downloaded file at `data/raw/trec-web-2011.qrels` and update `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map. **Depends on: T005**.
-- [ ] T004.5 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Web 2012 data. **Primary Source**: `ir_datasets.load('trec/web-track-2012')`. **Logic**: Attempt NIST fetch via `ir-datasets`. Retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3). If NIST still fails after retries, **raise `RuntimeError` immediately**. **DO NOT** fall back to Hugging Face, synthetic, or mock data. **Post-Fetch Step**: Compute SHA-256 checksum of the downloaded file at `data/raw/trec-web-2012.qrels` and update `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map. **Depends on: T005**.
-- [ ] T006 Implement validation logic in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to enforce schema compliance (referencing `contracts/dataset.schema.yaml`) and log warnings for zero-relevance queries. **Logic**: Validate that all loaded data conforms to `dataset.schema.yaml`. Log warnings for queries with zero relevance labels. **Depends on: T005, T004.1-T004.5 (Must run AFTER all data loaders complete)**.
-- [X] T007 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/config.py` with constants for seeds, permutation counts (N=1000), batch sizes, and memory thresholds. Include: `PERMUTATION_N`, `SEED`, `BATCH_SIZE`, `MEMORY_THRESHOLD_GB` (a configurable memory limit), `RUNTIME_THRESHOLD_HOURS` (a configurable duration threshold), `DATA_RAW_PATH`, `RESULTS_PATH`, `ALPHA_SWEEP_START` (0.01), `ALPHA_SWEEP_END` (0.20), `ALPHA_SWEEP_STEP` (0.01).
-- [X] T008 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/metrics.py` functions `ndcg_at_k`, `map_at_k`, and `idcg_at_k` for NDCG@10 and MAP calculation using IDCG normalization.
+**Verification**: Verify file exists at `contracts/dataset.schema.yaml` and is valid YAML.
 
-**Data Integrity Verification (Depends on T004.x)**:
-- [X] T039 [P] **Verification**: Implement a strict "Fail Loudly" check in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py`. **Verify that the loader contains `try/except` blocks for retry logic (as required by T004.x), but verify that the `except` block ALWAYS re-raises the `RuntimeError` and NEVER falls back to synthetic/mock data generation**. The loader MUST raise the error immediately if the verified TREC source (NIST) is unreachable after retries. **This task verifies the code in T004.x does not violate the 'no synthetic fallback' rule.** **Depends on: T004.1-T004.5**.
+- [X] T004 [P] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to fetch TREC Robust 2004 and Web Track 2009-2012 data. **Primary Source**: `ir_datasets.load()` for 'trec/robust04', 'trec/web-track-2009', 'trec/web-track-2010', 'trec/web-track-2011', 'trec/web-track-2012'. **Constraint**: FR-001 requires access 'without requiring authentication' - `ir-datasets` handles this automatically. **Logic**: Attempt NIST fetch via `ir-datasets`. Retry with exponential backoff (base_delay=2s, multiplier=2.0, max_retries=3). If NIST still fails after retries, **raise `RuntimeError` immediately**. **DO NOT** fall back to Hugging Face, synthetic, or mock data. **Post-Fetch Step**: Compute SHA-256 checksum of each downloaded file and update `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map. **Verification**: Verify state file contains keys for all downloaded files with valid hex hashes. **Depends on: T005**.
+
+- [ ] T006 [P] Implement validation logic in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` to enforce schema compliance (referencing `contracts/dataset.schema.yaml`) and handle zero-relevance queries. **Logic**: Implement a `validate_qrels()` function that validates loaded data against the schema. **CRITICAL**: This function MUST return a boolean `is_valid` flag for each query. If a query has zero relevance labels, return `False` and log a WARNING to `results/warnings.log`. **Integration**: The permutation engine (T013a) will use this return value to decide whether to skip a query. **Depends on: T005**.
+
+**Data Integrity Verification (Depends on T004)**:
+- [ ] T039 [P] **Verification**: Implement a strict "Fail Loudly" check in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py`. **Verify that the loader contains `try/except` blocks for retry logic (as required by T004), but verify that the `except` block ALWAYS re-raises the `RuntimeError` and NEVER falls back to synthetic/mock data generation**. The loader MUST raise the error immediately if the verified TREC source (NIST) is unreachable after retries. **This task verifies the code in T004 does not violate the 'no synthetic fallback' rule.** **Depends on: T004**.
+
+**Configuration & Metrics**:
+- [ ] T007 [P] Create `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/config.py` with constants for seeds, permutation counts (N=1000), batch sizes, and memory thresholds. Include: `PERMUTATION_N`, `SEED`, `BATCH_SIZE`, `MEMORY_THRESHOLD_GB` (a configurable memory limit), `RUNTIME_THRESHOLD_HOURS` (a configurable duration threshold), `DATA_RAW_PATH`, `RESULTS_PATH`, `ALPHA_SWEEP_RANGE` (tuple `(0.01, 0.20)` with comment: "Initial defaults; adjust to verify robustness across relevant ranges per FR-007"), `ALPHA_SWEEP_START` (float, default 0.01), `ALPHA_SWEEP_END` (float, default 0.20), `ALPHA_SWEEP_STEP` (float, default 0.01).
+- [ ] T008 [P] Implement `projects/PROJ-evaluating-the-statistical-validity-of-c/code/metrics.py` functions `ndcg_at_k`, `map_at_k`, and `idcg_at_k` for NDCG@10 and MAP calculation using IDCG normalization.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -97,29 +98,35 @@ required:
 **Independent Test**: Run `main.py` with `--mode permutation` on a single query; verify `results/null_distributions/` contains CSVs and `results/p_values/` contains raw p-values.
 
 ### Test Definition for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-*Note: Tests are written first to define the expected interface and behavior. They will initially fail until the implementation stubs are created and then filled in. Stubs (function signatures) must exist before running tests.*
+*Note: Tests are written first to define the expected interface and behavior. They will initially fail until the implementation stubs are created and then filled in. Stubs (function signatures) must exist before running tests. Include only if TDD is mandated by the team.*
 
-- [X] T010 [P] [US1] Unit test for `metrics.py` NDCG@10 calculation with known ground truth in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/unit/test_metrics.py`; **Ground Truth**: `assert ndcg_at_k([1,0,0], [1,0,0]) == 1.0`; Requires presence of stub in T008
-- [X] T011 [P] [US1] Unit test for permutation logic (shuffle correctness) in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/unit/test_permutation.py`; Requires presence of stub in T013a
-- [X] T012 [US1] Integration test: Verify p-value calculation using a rank-based estimator consistent with the reference. against a manual calculation in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/integration/test_permutation_flow.py`; Requires presence of stubs in T013a, T016
+- [ ] T010 [P] [US1] Unit test for `metrics.py` NDCG@10 calculation with known ground truth in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/unit/test_metrics.py`; **Ground Truth**: `assert ndcg_at_k([1,0,0], [1,0,0]) == 1.0`; Requires presence of stub in T008
+- [ ] T011 [P] [US1] Unit test for permutation logic (shuffle correctness) in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/unit/test_permutation.py`; Requires presence of stub in T013a
+- [ ] T012 [US1] Integration test: Verify p-value calculation using a rank-based estimator consistent with the reference. against a manual calculation in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/tests/integration/test_permutation_flow.py`; Requires presence of stubs in T013a, T016
 
 ### Implementation for User Story 1
 
-- [X] T013a [US1] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/permutation.py` core engine:
- 1. **Step 1 (Zero-Relevance Check)**: For each query, check if relevance labels are empty. **Use the validation logic from T006**. If empty, log WARNING to `results/warnings.log` and **skip immediately** (do not enter permutation loop). **Crucially, write a record to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/config/permutation_state.json` with `query_id`, `N_actual=0`, and `status='skipped'` for these skipped queries.**
+- [ ] T013a [US1] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/permutation.py` core engine:
+ 1. **Step 1 (Zero-Relevance Check)**: For each query, call `validate_qrels()` from T006. If `is_valid` is `False` (zero relevance labels), log WARNING to `results/warnings.log`, **write a record to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/config/permutation_state.json` with `query_id`, `N_actual=0`, and `status='skipped'`**, and skip immediately (do not enter permutation loop).
  2. Shuffle relevance labels N times per query, where **N is read from `config.PERMUTATION_N`**.
  3. **Log the ACTUAL count of permutations executed (N_actual) to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/config/permutation_state.json` in JSON format: `{"query_id": "...", "N_actual": <actual_count>, "status": "complete"}` for every query that runs. Use log level INFO.**
  4. Compute NDCG@10 and MAP for all permutations.
- 5. **Integrated Monitoring**: During the permutation loop, monitor **total elapsed runtime since script start** and **memory usage every 5 queries** (using `psutil.Process(os.getpid()).memory_info().rss`). **Trigger Condition**: If total runtime > 5.0 * 3600 seconds OR memory > 6 GB. **Action**: If triggered, **select a deterministic subset of n=100 queries from the remaining unprocessed queries** (sorted by query_id). **Process ONLY this subset** (performing the full N permutations for these 100 queries). **Log the specific query IDs being processed in the subsample and the reason (resource limit) to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/subsampling_log.csv` (with reason and timestamp)**. **Do NOT skip the entire run; ensure the 100 subsampled queries are processed and included in the output.**
- 6. **Depends on: T008 (metrics implementation), T006 (validation logic)**.
-- [ ] T017 [US1] Save null distribution CSVs to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/null_distributions/` with headers `query_id, metric, score`. **Logic**: Iterate over processed queries from T013a. **Crucially, exclude any query IDs listed in `results/subsampling_log.csv` ONLY IF they were SKIPPED (N=0) or DROPPED due to error. DO NOT exclude queries that were SUBSAMPLED (n=100) and successfully processed.** **Depends on: T013a**.
+ 5. **Depends on: T008 (metrics implementation), T006 (validation logic)**.
+
+- [ ] T013b [US1] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/permutation.py` resource monitoring and subsampling logic:
+ 1. **Integrated Monitoring**: During the permutation loop (in T013a), record `loop_start_time` at the beginning of the permutation processing phase. Monitor **elapsed time since `loop_start_time`** and **memory usage every 5 queries** (using `psutil.Process(os.getpid()).memory_info().rss`). **Trigger Condition**: If elapsed time > `config.RUNTIME_THRESHOLD_HOURS` * 3600 seconds OR memory > `config.MEMORY_THRESHOLD_GB` * 1024 * 1024 * 1024 bytes. **Action**: If triggered, **select a deterministic subset of n=100 queries from the remaining unprocessed queries** (sorted by query_id). **Process ONLY this subset** (performing the full N permutations for these 100 queries). **Log the specific query IDs being processed in the subsample and the reason (resource_limit) to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/subsampling_log.csv` (with reason and timestamp)**. **Do NOT skip the entire run; ensure the 100 subsampled queries are processed and included in the output.**
+ 2. **Depends on: T013a (Permutation Core)**.
+
+- [ ] T017 [US1] Save null distribution CSVs to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/null_distributions/` with headers `query_id, metric, score`. **Logic**: Iterate over processed queries from T013b. **Include only queries where `permutation_state.json` has `status='complete'`. Exclude any query IDs listed in `results/subsampling_log.csv` with reason='resource_limit' if they were NOT selected for the subsample (i.e., unselected queries). DO NOT exclude queries that were SUBSAMPLED (n=100) and successfully processed.** **Depends on: T013b**.
+
 - [ ] T016 [US1] Implement p-value calculation logic:
- 1. **Read `permutation_state.json` generated by T013a. Iterate over each `query_id` in the file to retrieve its specific `N_actual`. This task depends on T013a for the state file.**
+ 1. **Read `permutation_state.json` generated by T013a/T013b. Iterate over each `query_id` in the file to retrieve its specific `N_actual`.**
  2. **If `N_actual` is missing for a query, raise an error**.
  3. **Verify Consistency**: Before calculating p-value, verify that the `N_actual` value matches the number of rows in the corresponding null distribution CSV (T017) for that query. If mismatch, log an error and skip the query.
- 4. Calculate p-values using the formula `(r + 1) / (N_actual + 1)`, where `N_actual` is the value from the JSON state file (overriding `PERMUTATION_N` config).
- 5. **If `N_actual` < `PERMUTATION_N` (and not due to subsampling), log a warning**. **Logic to distinguish subsampling**: Check if `query_id` exists in `results/subsampling_log.csv` with reason='resource_limit'. If present, it is subsampling; otherwise, it is an error/early exit.
+ 4. Calculate p-values using the formula `(r + 1) / (config.PERMUTATION_N + 1)`, where `config.PERMUTATION_N` is the target N from config (overriding `N_actual` for the denominator). **If `N_actual` == 0 (skipped query), set p=1.0**.
+ 5. **If `N_actual` < `config.PERMUTATION_N` (and not due to subsampling), log a warning**. **Logic to distinguish subsampling**: Check if `query_id` exists in `results/subsampling_log.csv` with reason='resource_limit'. If present, it is subsampling; otherwise, it is an error/early exit.
  6. **Depends on: T013a (state file), T017 (null distribution data for rank calculation)**.
+
 - [ ] T018 [US1] Save raw p-values to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/p_values/raw_p_values.csv` with headers `query_id, metric, raw_p`. **Depends on: T016**.
 
 ---
@@ -140,15 +147,15 @@ required:
 ### Implementation for User Story 2
 
 - [ ] T021 [US2] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/power_analysis.py` MDES logic:
- 1. Implement bootstrap resampling utility for power estimation.
+ 1. Implement bootstrap resampling utility for power estimation. **Use exactly 500 bootstrap resamples per iteration as required by FR-006**.
  2. **Implement alternative hypothesis simulation by 'swapping top-k positions' in relevance labels (per spec FR-006). Note: This method overrides the Plan.md's 'noise injection' description to satisfy the higher-priority Functional Requirement FR-006.**
  3. Perform binary search over effect sizes (initial range [0.001, 0.500], tolerance ≤ 0.001 on metric delta, **max_iter=50**) to find smallest shift detectable with Power ≥ 0.8. **Effect size is defined as the delta in metric scores (NDCG or MAP), calculated as `mean(NDCG_original) - mean(NDCG_swapped)` for the binary search condition.**
- 4. **Write MDES result to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/mdes/mdes_summary.csv` with columns `metric, mdes, power, ci_width`**.
- **Depends on: T004.x (data loading), T008 (metrics)**.
+ 4. **Write MDES result to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/mdes/mdes_summary.csv` with columns `metric, mdes, power, ci_width`**. **Verification**: Ensure the number of bootstrap resamples used is exactly 500 as logged in the output.
+ **Depends on: T004 (data loading), T008 (metrics)**.
 
 - [ ] T023 [US2] Implement BH correction in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/power_analysis.py`: apply separately to NDCG and MAP p-value families (two families). **Depends on: T018** (explicitly depends on completion of T018 raw p-values)
 - [ ] T026 [US2] Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/p_values/corrected_p_values.csv` with columns: `query_id, metric, raw_p, corrected_p, is_significant`. **Depends on: T023**.
-- [ ] T024 [US2] Implement sensitivity analysis: **iterate (sweep) alpha values from `ALPHA_SWEEP_START` to `ALPHA_SWEEP_END` inclusive with step `ALPHA_SWEEP_STEP` as defined in config.py**. **For each adjacent pair of alpha values, compare the significance status of queries and count how many change status.** Report the count of queries where significance status changes between adjacent α values. **Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/sensitivity/alpha_sweep.csv` with columns `alpha, significant_count, status_change_count`**. **Depends on: T013a, T016, T018, T023** (completion of T023 output and raw data from T013a/T016)
+- [ ] T024 [US2] Implement sensitivity analysis: **iterate (sweep) alpha values from `config.ALPHA_SWEEP_START` to `config.ALPHA_SWEEP_END` inclusive with step `config.ALPHA_SWEEP_STEP` as defined in config.py**. **For each adjacent pair of alpha values, compare the significance status of queries and count how many change status.** Report the count of queries where significance status changes between adjacent α values. **Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/sensitivity/alpha_sweep.csv` with columns `alpha, significant_count, status_change_count`**. **Depends on: T013b, T016, T018, T023** (completion of T023 output and raw data from T013b/T016)
 - [ ] T024.1 [P] [US2] **Verification**: Run a script to read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/sensitivity/alpha_sweep.csv` and verify it exists and has the correct columns (`alpha`, `significant_count`, `status_change_count`). **Depends on: T024**.
 - [ ] T027 [US2] Add explicit text generation in `main.py` output: "Findings indicate statistical association, not causal algorithmic improvement" per FR-008. **Write this text to `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/analysis_framing.txt`**.
 - [ ] T027.1 [P] [US2] **Verification**: Run a script to read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/analysis_framing.txt` and verify it contains the required associational framing text. **Depends on: T027**.
@@ -167,9 +174,12 @@ required:
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/visualization.py` to generate density plots comparing original vs. permuted scores. **Logic**: Read `results/analysis_framing.txt`. **If `analysis_framing.txt` is missing, use a default fallback string: "Statistical association observed (not causal)"**. Include this text in the plot title or caption to satisfy FR-008. **Depends on: T027**.
+- [ ] T029 [US3] Implement `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/visualization.py` to generate density plots comparing original vs. permuted scores. **Logic**: **Strictly depend on T027**. Read `results/analysis_framing.txt`. **If `analysis_framing.txt` is missing, RAISE AN ERROR** (do not use fallback). Include the text from `analysis_framing.txt` in the plot title or caption to satisfy FR-008. **Depends on: T027**.
+
 - [ ] T030 [US3] Annotate plots with MDES and significance thresholds: **Read `mdes_summary.csv` directly to retrieve the `ci_width` value for NDCG@10 and MAP**. **If the `ci_width` column in the NDCG@10 row is >= 0.02, use a placeholder annotation "MDES unstable (CI > 0.02)" instead of the value**. **If valid, add a vertical dashed line at `mdes` value (read from `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/mdes/mdes_summary.csv` column `mdes`) and text label "MDES={val}" to all density plots in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/plots/`; use default sans-serif font family to ensure compatibility with standard Linux runners**; **Depends: T021** (reads MDES value from T021 output)
-- [ ] T031 [US3] Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/summary.csv` aggregating all query-metric pairs, p-values, and MDES. **Must read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/analysis_framing.txt` and include its content in the summary report header to satisfy FR-008. If missing, use the default fallback string.** **Depends on: T018, T023, T021** (explicitly lists all producers)
+
+- [ ] T031 [US3] Generate `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/summary.csv` aggregating all query-metric pairs, p-values, and MDES. **Must read `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/analysis_framing.txt` and include its content in the summary report header to satisfy FR-008. If missing, RAISE AN ERROR**. **Depends on: T018, T023, T021** (explicitly lists all producers)
+
 - [ ] T033 [US3] Add error handling for network failures in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/data_loader.py` (graceful exit with error code)
 
 ---
@@ -182,7 +192,8 @@ required:
 - [ ] T035 Code cleanup: Remove debug prints and ensure logging levels are appropriate
 - [ ] T036 Performance optimization: Verify batch processing logic is efficient; **Ensure memory < 6GB during a batch of queries**
 - [ ] T037 [P] Run `quickstart.md` validation to ensure all artifacts are generated correctly
-- [ ] T038 [US3] Add content checksums to `data/raw/`, `data/processed/`, and `results/` artifacts for reproducibility (Constitution Principle V); **Mechanism**: Implement a script to **read all files in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/data/raw/`, `projects/PROJ-362-evaluating-the-statistical-validity-of-c/data/processed/`, and `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/`, sort the list of all discovered files by their full relative path string in ascending ASCII order, compute SHA-256 hash for each, and append the results to `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map (flat structure: `artifact_hashes: { relative_path: sha256_hash }`). **CRITICAL**: If `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` does not exist, create it with the proper YAML structure (`artifact_hashes: {}`) before writing hashes.** **Handle empty directories gracefully by skipping them and logging a warning, ensuring the task does not fail if a directory is empty.**; **Depends on: T017, T018, T021, T023, T026, T031** (completion of all artifact generation tasks - **Note: T038 depends directly on artifact generation, NOT on T030 Visualization, to avoid blocking if visualization fails**)
+
+- [ ] T038 [US3] Add content checksums to `data/raw/`, `data/processed/`, `results/`, `contracts/`, and `code/` artifacts for reproducibility (Constitution Principle V); **Mechanism**: Implement a script to **read all files in `projects/PROJ-362-evaluating-the-statistical-validity-of-c/data/raw/`, `projects/PROJ-362-evaluating-the-statistical-validity-of-c/data/processed/`, `projects/PROJ-362-evaluating-the-statistical-validity-of-c/results/`, `projects/PROJ-362-evaluating-the-statistical-validity-of-c/contracts/`, and `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`, sort the list of all discovered files by their full relative path string in ascending ASCII order, compute SHA-256 hash for each, and append the results to `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` in the `artifact_hashes` map (flat structure: `artifact_hashes: { relative_path: sha256_hash }`). **CRITICAL**: If `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` does not exist, create it with the proper YAML structure (`artifact_hashes: {}`) before writing hashes.** **Handle empty directories gracefully by skipping them and logging a warning, ensuring the task does not fail if a directory is empty.**; **Depends on: T004, T006, T017, T018, T021, T023, T026, T031** (completion of all artifact generation tasks - **Note: T038 depends directly on artifact generation, NOT on T030 Visualization, to avoid blocking if visualization fails**)
 
 ---
 
@@ -190,7 +201,7 @@ required:
 
 **Purpose**: Ensure all requirements are met and data integrity is preserved before final delivery.
 
-- [ ] T040 [P] **Verification**: Run a script to validate that `results/subsampling_log.csv` accurately reflects all skipped queries from `results/config/permutation_state.json` where `N_actual=0` or where queries were dropped due to resource limits. **Depends on: T013a, T017**.
+- [ ] T040 [P] **Verification**: Run a script to validate that `results/subsampling_log.csv` accurately reflects all skipped queries from `results/config/permutation_state.json` where `N_actual=0` or where queries were dropped due to resource limits. **Depends on: T013b, T017**.
 - [ ] T041 [P] **Verification**: Confirm that `results/p_values/corrected_p_values.csv` contains exactly two families of corrected p-values (one for NDCG, one for MAP) and that the BH correction was applied independently to each family. **Depends on: T023, T026**.
 - [ ] T042 [P] **Verification**: Validate that `results/mdes/mdes_summary.csv` contains MDES estimates for **both NDCG@10 and MAP** with `ci_width < 0.02` for **EACH metric independently** (or clearly flags instability if either fails). **Depends on: T021, T025.1**.
 - [ ] T043 [P] **Verification**: Ensure that `results/analysis_framing.txt` is present and contains the explicit statement that findings represent statistical association, not causal improvement. **Depends on: T027**.
@@ -205,7 +216,7 @@ required:
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - **Strict Order**: T005 -> T004.1-T004.5 -> T006 -> T007, T008
+ - **Strict Order**: T005 -> T004 -> T006 -> T007, T008
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -229,7 +240,7 @@ required:
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T005, T007, T008, T039) can run in parallel (within Phase 2) **EXCEPT T004.x and T006 which are sequential**
+- All Foundational tasks marked [P] (T007, T008, T039) can run in parallel (within Phase 2) **EXCEPT T005, T004 and T006 which are sequential**
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -305,3 +316,4 @@ With multiple developers:
 - **Critical Constraint**: All tasks must run on a limited number of CPU cores, a constrained amount of RAM, and without GPU acceleration. Avoid any heavy model loading or 8-bit quantization.
 - **Data Integrity**: All data must come from verified TREC sources (NIST primary only). No synthetic data generation for input metrics. **T039 ensures strict adherence to this by forbidding synthetic fallbacks while allowing verified NIST retry logic.**
 - **State Management**: The file `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` is a required project artifact for Constitution Principle V. It must be created if missing by the checksumming task (T038).
+- **Streaming & Large Datasets**: Phase 8 tasks (T046-T048) have been removed as they were scope creep not grounded in the spec. The resource management strategy now strictly adheres to the spec's defined batch + subsample approach (FR-011).

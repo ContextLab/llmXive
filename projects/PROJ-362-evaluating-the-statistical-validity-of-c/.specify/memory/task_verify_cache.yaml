@@ -4,13 +4,31 @@ T001:
   r: No evidence was presented showing that the directory `projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/`
     actually exists or contains any files; the claim is unsubstantiated. The required
     project root folder is missing from the provided artifacts.
-T004:
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data_loader.py` file or its contents were presented, so we cannot confirm\
-    \ that it fetches TREC Robust and Web data with retry logic, includes NIST archive\
-    \ fallbacks, or enforces CPU\u2011only execution as required. The necessary artifact\
-    \ is missing."
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or ruff section in `pyproject.toml`, or corresponding CI
+    integration scripts) are present in the provided evidence. Without these artifacts
+    the task of configuring ruff and black cannot be confirmed as completed.
+T004:
+  c: false
+  h: b3a5b51d7c8c2c6aef402b353e8a04c91795f9f73b7fca9cb63aeb61dcf679bd
+  r: "The provided `code/data_loader.py` contains only helper functions for schema\
+    \ loading and checksum computation; it does not include any logic that uses `ir_datasets.load()`\
+    \ to download the required TREC collections, nor does it implement the exponential\u2011\
+    backoff retry or raise a `RuntimeError` on failure. Moreover, the required state\
+    \ file `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml`\
+    \ is absent, so no artifact hashes are recorded. These missing pieces prevent\
+    \ the task from being considered complete."
+T006:
+  c: false
+  h: 947f662bae17f999439d3bbb1477565ee227f161094877a17431acd14accd7c4
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, and\
+    \ `code/data_loader.py` does not contain a `validate_qrels()` function that returns\
+    \ an `is_valid` flag per query and logs a warning for zero\u2011relevance queries.\
+    \ Consequently the schema\u2011based validation and zero\u2011relevance handling\
+    \ are not fully implemented."
 T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
