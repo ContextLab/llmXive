@@ -1,44 +1,10 @@
-T001a:
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact showing a `code/` directory was provided; the claim lacks any file
-    system evidence (e.g., a listing or screenshot) that `mkdir -p code` was executed,
-    so the required directory creation cannot be verified.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `data/` directory being created is provided; the implementer
-    did not supply any filesystem listing, script output, or screenshot confirming
-    that `mkdir -p data` was executed and the directory exists. The required artifact
-    is missing.
-T001c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `results/` directory being created is provided; the artifact
-    is missing, so the requirement to create the directory with `mkdir -p results`
-    is not satisfied.
-T001d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a `tests/` directory (or any listing showing it) is provided;
-    the claim cannot be verified from the given artifacts. The required directory
-    must be shown to exist (e.g., a directory listing or file within `tests/`).
-T003a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I looked for a `.flake8` configuration file in the repository (especially under\
-    \ a `code/` directory) containing the required settings (`max-line-length = 100`\
-    \ and `ignore = E501,W503,W504`). No such file was presented or referenced in\
-    \ the provided evidence, so the required artifact is missing. The implementer\
-    \ must add a non\u2011empty `.flake8` file with the specified options."
-T009:
-  c: false
-  h: 1619a04d0a47c31760634f8163eddfd2fa3555cda8fe75070f7b1ad612e7137d
-  r: "The provided `code/utils/logging_config.py` is truncated (the `emit` method\
-    \ and any logger\u2011setup code are missing) and does not show a concrete logger\
-    \ configured to write to `results/pipeline.log`. Additionally, the required `results/pipeline.log`\
-    \ file is absent. The artifact therefore does not fully satisfy the task\u2019\
-    s specifications."
+  r: "No `utils/checkpointing.py` file or its contents are presented; therefore the\
+    \ required functions (`save_state`, `load_state`, `delete_checkpoint`) with cross\u2011\
+    platform locking and atomic writes are not verified to exist. The task\u2019s\
+    \ deliverable is missing."
 T012a:
   c: true
   h: bb253b7df505af45bd78dc3e324293c1e19fd4ae9a53d277a093ff0d2d6665a0

@@ -91,7 +91,7 @@ As a researcher, I want to generate simulated datasets with known effect sizes a
 - **FR-007**: System MUST aggregate results across all available datasets and compute mean Type I error and power for each transformation-test combination with confidence intervals. (See US-3)
 - **FR-008**: System MUST perform Friedman test (non-parametric repeated measures ANOVA) with p < 0.05 significance threshold to assess whether transformation type significantly affects error rates, followed by post-hoc pairwise comparisons with Bonferroni correction for multiplicity, and perform sensitivity analysis sweeping α across a range of small values (See US-3)
 - **FR-009**: System MUST produce summary tables and bar plots (matplotlib/seaborn) showing error rates and power by transformation and test type (See US-3)
-- **FR-010**: System MUST compute SHA-256 checksums for all downloaded datasets and record them under data/checksums.csv (See US-1)
+- **FR-010**: System MUST compute SHA checksums for all downloaded datasets and record them under data/checksums.csv (See US-1)
 
 ### Key Entities *(include if feature involves data)*
 

@@ -1,27 +1,30 @@
-"""
-Script to create the 'data/' directory for the project.
-This satisfies task T001b: Create `data/` directory using `mkdir -p data`.
-"""
 import os
+import sys
 from pathlib import Path
 
 def main():
-    """Create the data directory if it does not exist."""
+    """
+    Create the 'data/' directory using mkdir -p logic and verify its existence.
+    This script fulfills task T001b: Create data/ directory and verify.
+    """
     project_root = Path(__file__).resolve().parent.parent
     data_dir = project_root / "data"
-    
-    if not data_dir.exists():
-        data_dir.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {data_dir}")
-    else:
-        print(f"Directory already exists: {data_dir}")
-    
-    # Ensure it's writable and list contents (or lack thereof)
+
+    # Create directory if it doesn't exist (mkdir -p equivalent)
     try:
-        files = list(data_dir.iterdir())
-        print(f"Contents of {data_dir}: {files}")
-    except PermissionError:
-        print(f"Warning: Cannot list contents of {data_dir} due to permissions.")
+        data_dir.mkdir(parents=True, exist_ok=True)
+        print(f"Successfully created or verified directory: {data_dir}")
+    except OSError as e:
+        print(f"Error creating directory {data_dir}: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    # Verify existence (test -d equivalent)
+    if not data_dir.is_dir():
+        print(f"Verification failed: {data_dir} is not a directory.", file=sys.stderr)
+        sys.exit(1)
+
+    print(f"Verification successful: {data_dir} exists and is a directory.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

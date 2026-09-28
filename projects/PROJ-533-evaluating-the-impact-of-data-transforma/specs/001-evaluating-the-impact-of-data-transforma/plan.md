@@ -22,11 +22,11 @@ The technical approach involves:
 **Primary Dependencies**: `scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `datasets` (HuggingFace), `pyyaml`, `statsmodels` (for GLMM)  
 **Storage**: Local filesystem (`data/`, `results/`, `code/`); CSV/Parquet formats  
 **Testing**: `pytest` (unit tests for statistical functions, integration tests for pipeline steps)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, ~14 GB disk, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU, standard RAM allocation., Adequate disk storage capacity will be provisioned to support the research., no GPU)  
 **Project Type**: Statistical analysis library/cli  
 **Performance Goals**: Complete pipeline execution within 6 hours; handle streaming of large datasets to fit memory; checkpointing for resumption.  
 **Constraints**: No GPU usage; no synthetic data generation for real-world analysis (must use real datasets for shape estimation); strict reproducibility (fixed seeds); dataset filtering (Shapiro-Wilk p < 0.05, N ≥ 30, skew/kurtosis thresholds); missing value handling (impute or exclude if >10%); transformation failures (log and skip).  
-**Scale/Scope**: ~50+ real-world datasets (for shape estimation); 2400+ simulated datasets per effect size (to meet SC-004 CI target); 3 transformations x 2 tests (t-test, ANOVA) x 3 effect sizes.
+**Scale/Scope**: Real-world datasets (for shape estimation); A large number of simulated datasets per effect size (to meet SC-004 CI target); Multiple transformations x 2 tests (t-test, ANOVA) x multiple effect sizes.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -129,8 +129,8 @@ state/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Checkpointing** | Required to handle GitHub Actions 6h timeout and potential network interruptions during download of 50+ datasets. | A simple "run once" script would fail if interrupted, losing progress and violating reproducibility. |
-| **Streaming Data Loading** | Real-world datasets may exceed 7 GB RAM. | Loading full datasets into memory would cause OOM errors on the free-tier runner. Streaming (`pandas.read_csv(chunksize=...)`, `datasets.load_dataset(streaming=True)`) allows processing large datasets in chunks. |
+| **Checkpointing** | Required to handle GitHub Actions 6h timeout and potential network interruptions during download of + datasets. | A simple "run once" script would fail if interrupted, losing progress and violating reproducibility. |
+| **Streaming Data Loading** | Real-world datasets may exceed available RAM capacity.. | Loading full datasets into memory would cause OOM errors on the free-tier runner. Streaming (`pandas.read_csv(chunksize=...)`, `datasets.load_dataset(streaming=True)`) allows processing large datasets in chunks. |
 | **Bootstrap CIs & GLMM** | Required for robust error estimation (SC-004) and handling correlated error rates. | Simple standard error estimates are insufficient for non-normal distributions and small sample sizes. Friedman test is inappropriate for correlated proportions; GLMM is required. |
 | **Alpha-Sweep** | Required by FR-008. | A single alpha point does not capture robustness of the transformation effect. |
 

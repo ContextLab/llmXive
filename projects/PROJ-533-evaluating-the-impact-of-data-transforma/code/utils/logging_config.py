@@ -1,193 +1,183 @@
-"""
-Logging configuration for the llmXive pipeline.
-
-Provides a JSON-formatted logger with file locking and atomic writes
-to ensure thread-safe and crash-safe logging to results/pipeline.log.
-"""
 import logging
 import os
 import json
 import fcntl
 import tempfile
+import platform
+import sys
+from typing import Optional, Dict, Any
 from pathlib import Path
-from typing import Any, Dict, Optional
+
+# Import cross-platform locking modules
+try:
+    import portalocker
+    HAS_PORTALOCKER = True
+except ImportError:
+    HAS_PORTALOCKER = False
+
+try:
+    import msvcrt
+    HAS_MSVCRT = True
+except ImportError:
+    HAS_MSVCRT = False
 
 
 class JSONFormatter(logging.Formatter):
-    """
-    Custom formatter that outputs log records as JSON lines.
-    Format: {"timestamp": "...", "level": "...", "message": "...", "data": {...}}
-    """
+    """Custom formatter that outputs JSON logs."""
+
     def format(self, record: logging.LogRecord) -> str:
-        log_entry = {
+        log_data = {
             "timestamp": self.formatTime(record, self.datefmt),
             "level": record.levelname,
             "message": record.getMessage(),
             "data": {}
         }
-        
-        # Attach extra fields if present
-        if hasattr(record, 'data') and isinstance(record.data, dict):
-            log_entry["data"] = record.data
-        
-        # Handle exception info if present
+
+        # Add extra fields if present
+        if hasattr(record, 'extra_data') and isinstance(record.extra_data, dict):
+            log_data["data"].update(record.extra_data)
+
+        # Add exception info if present
         if record.exc_info:
-            log_entry["data"]["exception"] = self.formatException(record.exc_info)
-        
-        return json.dumps(log_entry)
+            log_data["data"]["exception"] = self.formatException(record.exc_info)
+
+        return json.dumps(log_data)
 
 
 class AtomicFileHandler(logging.FileHandler):
     """
-    File handler that implements atomic writes and file locking.
-    
-    Writes are performed by writing to a temporary file in the same directory
-    and then renaming it to the target log file. This prevents corruption
-    if the process crashes during a write.
+    A logging handler that writes logs atomically using a temp file and rename.
+    Supports cross-platform file locking (fcntl on Linux, msvcrt on Windows, or portalocker).
     """
+
     def __init__(self, filename: str, mode: str = 'a', encoding: Optional[str] = None, delay: bool = False):
         super().__init__(filename, mode, encoding, delay)
         self.filename = filename
-        self.temp_filename = None
-        self.temp_file = None
         self.lock_file = None
-        
-    def _open_temp(self):
-        """Open a temporary file in the same directory for atomic write."""
-        dir_path = os.path.dirname(os.path.abspath(self.filename))
-        self.temp_file = tempfile.NamedTemporaryFile(
-            mode='w', 
-            dir=dir_path, 
-            prefix='.log_tmp_', 
-            delete=False, 
-            encoding=self.encoding
-        )
-        self.temp_filename = self.temp_file.name
-        
-    def acquire_lock(self):
-        """Acquire an exclusive lock on the log file."""
-        lock_path = f"{self.filename}.lock"
-        self.lock_file = open(lock_path, 'w')
-        try:
-            fcntl.flock(self.lock_file.fileno(), fcntl.LOCK_EX)
-        except Exception:
-            self.lock_file.close()
-            raise
-        
-    def release_lock(self):
-        """Release the lock on the log file."""
-        if self.lock_file:
-            try:
-                fcntl.flock(self.lock_file.fileno(), fcntl.LOCK_UN)
-                self.lock_file.close()
-            except Exception:
-                pass
-            finally:
-                self.lock_file = None
-        
+
     def emit(self, record: logging.LogRecord):
         """
-        Emit a record with atomic write and locking.
+        Emit a record.
+        Performs atomic write: write to temp file, then rename to target.
+        Handles file locking for concurrency.
         """
         try:
-            # Acquire lock
-            self.acquire_lock()
-            
-            # Open temp file
-            self._open_temp()
-            
-            # Format the message
             msg = self.format(record)
-            
-            # Write to temp file
-            self.temp_file.write(msg + '\n')
-            self.temp_file.flush()
-            os.fsync(self.temp_file.fileno())
-            
-            # Close temp file
-            self.temp_file.close()
-            
-            # Atomic rename
-            os.replace(self.temp_filename, self.filename)
-            
-            # Clear temp reference
-            self.temp_filename = None
-            
+            stream = self.stream
+
+            # Ensure directory exists
+            log_dir = os.path.dirname(self.filename)
+            if log_dir:
+                os.makedirs(log_dir, exist_ok=True)
+
+            # Determine lock mechanism
+            if HAS_PORTALOCKER:
+                # Use portalocker for cross-platform locking
+                with open(self.filename, 'a') as f:
+                    portalocker.lock(f, portalocker.LOCK_EX)
+                    try:
+                        # Write to temp file in same directory to ensure same filesystem for rename
+                        dir_name = os.path.dirname(self.filename) or '.'
+                        fd, temp_path = tempfile.mkstemp(dir=dir_name, prefix='.tmp_log_')
+                        try:
+                            with os.fdopen(fd, 'w', encoding=self.encoding) as temp_file:
+                                temp_file.write(msg + self.terminator)
+                            os.replace(temp_path, self.filename)
+                        except Exception:
+                            if os.path.exists(temp_path):
+                                os.unlink(temp_path)
+                            raise
+                    finally:
+                        portalocker.unlock(f)
+            elif platform.system() == 'Windows' and HAS_MSVCRT:
+                # Windows specific locking
+                with open(self.filename, 'a') as f:
+                    msvcrt.locking(f.fileno(), msvcrt.LK_LOCK, 1024)
+                    try:
+                        dir_name = os.path.dirname(self.filename) or '.'
+                        fd, temp_path = tempfile.mkstemp(dir=dir_name, prefix='.tmp_log_')
+                        try:
+                            with os.fdopen(fd, 'w', encoding=self.encoding) as temp_file:
+                                temp_file.write(msg + self.terminator)
+                            os.replace(temp_path, self.filename)
+                        except Exception:
+                            if os.path.exists(temp_path):
+                                os.unlink(temp_path)
+                            raise
+                    finally:
+                        msvcrt.locking(f.fileno(), msvcrt.LK_UNLCK, 1024)
+            else:
+                # Unix/Linux default (fcntl)
+                with open(self.filename, 'a') as f:
+                    try:
+                        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+                        try:
+                            dir_name = os.path.dirname(self.filename) or '.'
+                            fd, temp_path = tempfile.mkstemp(dir=dir_name, prefix='.tmp_log_')
+                            try:
+                                with os.fdopen(fd, 'w', encoding=self.encoding) as temp_file:
+                                    temp_file.write(msg + self.terminator)
+                                os.replace(temp_path, self.filename)
+                            except Exception:
+                                if os.path.exists(temp_path):
+                                    os.unlink(temp_path)
+                                raise
+                        finally:
+                            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+                    except Exception as e:
+                        # Fallback if flock fails (e.g., NFS issues), write directly
+                        # This is a safety net, but atomicity might be compromised
+                        stream.write(msg + self.terminator)
+                        stream.flush()
+
+        except (KeyboardInterrupt, SystemExit):
+            raise
         except Exception:
             self.handleError(record)
-        finally:
-            # Cleanup temp file if it still exists
-            if self.temp_filename and os.path.exists(self.temp_filename):
-                try:
-                    os.unlink(self.temp_filename)
-                except Exception:
-                    pass
-                
-            # Release lock
-            self.release_lock()
 
 
 def setup_pipeline_logger(
     name: str = "pipeline",
     log_file: str = "results/pipeline.log",
-    level: int = logging.INFO,
-    console_output: bool = False
+    level: int = logging.INFO
 ) -> logging.Logger:
     """
-    Configure and return a logger with JSON formatting, file locking, and atomic writes.
-    
+    Configures and returns a logger that writes JSON-formatted logs to a file.
+    Uses AtomicFileHandler for safe concurrent writes.
+
     Args:
-        name: Logger name
-        log_file: Path to the log file (relative to project root)
-        level: Logging level
-        console_output: Whether to also output to console
-        
+        name: Logger name.
+        log_file: Path to the log file (relative to project root).
+        level: Logging level.
+
     Returns:
-        Configured logger instance
+        Configured logger instance.
     """
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Avoid duplicate handlers if called multiple times
+    if logger.handlers:
+        return logger
+
     # Ensure log directory exists
     log_path = Path(log_file)
     log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Create logger
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates
-    if logger.handlers:
-        logger.handlers.clear()
-    
-    # Create file handler with atomic writes
-    file_handler = AtomicFileHandler(str(log_path), mode='a', encoding='utf-8')
-    file_handler.setFormatter(JSONFormatter())
-    file_handler.setLevel(level)
-    
-    logger.addHandler(file_handler)
-    
-    # Optional console handler
-    if console_output:
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(JSONFormatter())
-        console_handler.setLevel(level)
-        logger.addHandler(console_handler)
-        
+
+    # Create handler
+    handler = AtomicFileHandler(str(log_path))
+    handler.setFormatter(JSONFormatter())
+
+    logger.addHandler(handler)
     return logger
 
 
 def log_exclusion(logger: logging.Logger, dataset_id: str, reason: str, details: str) -> None:
-    """
-    Log a dataset exclusion event.
-    
-    Args:
-        logger: Logger instance
-        dataset_id: ID of the excluded dataset
-        reason: Reason for exclusion
-        details: Additional details
-    """
+    """Log a dataset exclusion event."""
     logger.info(
-        "Dataset excluded",
+        "Dataset Excluded",
         extra={
-            "data": {
+            "extra_data": {
                 "dataset_id": dataset_id,
                 "reason": reason,
                 "details": details
@@ -197,41 +187,25 @@ def log_exclusion(logger: logging.Logger, dataset_id: str, reason: str, details:
 
 
 def log_imputation_rate(logger: logging.Logger, dataset_id: str, variable: str, rate: float) -> None:
-    """
-    Log an imputation event.
-    
-    Args:
-        logger: Logger instance
-        dataset_id: ID of the dataset
-        variable: Variable name that was imputed
-        rate: Imputation rate (0.0 to 1.0)
-    """
+    """Log an imputation event."""
     logger.info(
-        "Imputation performed",
+        "Imputation Performed",
         extra={
-            "data": {
+            "extra_data": {
                 "dataset_id": dataset_id,
                 "variable": variable,
-                "rate": rate
+                "imputation_rate": rate
             }
         }
     )
 
 
 def log_transformation_intervention(logger: logging.Logger, dataset_id: str, transformation: str, reason: str) -> None:
-    """
-    Log a transformation intervention (e.g., log-shift applied).
-    
-    Args:
-        logger: Logger instance
-        dataset_id: ID of the dataset
-        transformation: Transformation applied
-        reason: Reason for intervention
-    """
+    """Log a transformation intervention."""
     logger.info(
-        "Transformation intervention",
+        "Transformation Intervention",
         extra={
-            "data": {
+            "extra_data": {
                 "dataset_id": dataset_id,
                 "transformation": transformation,
                 "reason": reason

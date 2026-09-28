@@ -3,69 +3,71 @@ import pytest
 from pathlib import Path
 import shutil
 
-# We need to import the function from the code directory
-# Adjusting sys.path to allow import from code/
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+from code.setup_results_dir import main
 
-from setup_results_dir import main
 
-def test_results_directory_creation(tmp_path):
-    """
-    Test that the setup_results_dir script creates the results directory.
-    We mock the project root by temporarily changing the working directory
-    or by patching the Path logic, but since the script uses __file__,
-    we test the behavior by ensuring the directory exists after running main
-    in a controlled environment.
-    
-    For this specific task (T001c), we verify that running the script
-    ensures the 'results' directory exists relative to the project root.
-    """
-    # Save original CWD
-    original_cwd = os.getcwd()
-    
-    try:
-        # Change to the temporary directory to simulate a fresh project root
-        # We need to create a structure that mimics the project:
-        # tmp_path (as root)
-        #   code/
-        #     setup_results_dir.py
-        # We will copy the script to tmp_path/code/ and run it
+class TestSetupResultsDir:
+    """Tests for the results directory creation task (T001c)."""
+
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        """Ensure results directory is clean before and after test."""
+        results_path = Path("results")
+        # Clean up if exists
+        if results_path.exists():
+            shutil.rmtree(results_path)
         
-        code_dir = tmp_path / "code"
-        code_dir.mkdir()
+        yield
         
-        # Copy the script to the temp code dir
-        script_source = Path(__file__).parent.parent / "code" / "setup_results_dir.py"
-        script_dest = code_dir / "setup_results_dir.py"
-        shutil.copy(script_source, script_dest)
+        # Teardown: remove created directory to keep state clean for other tests
+        if results_path.exists():
+            shutil.rmtree(results_path)
+
+    def test_creates_results_directory(self):
+        """Verify that running main() creates the results directory."""
+        results_path = Path("results")
         
-        # Change to the temp root
-        os.chdir(tmp_path)
+        # Directory should not exist initially (due to fixture teardown)
+        assert not results_path.exists()
         
-        # Execute the script
-        # We need to reload the module to pick up the new path context if we were importing,
-        # but here we just run the script logic. Since main() uses __file__ relative to the script,
-        # we need to ensure the script is run from the context where __file__ resolves correctly.
-        # The script calculates project_root as parent of __file__.
-        # If we run the script from tmp_path, __file__ will be tmp_path/code/setup_results_dir.py.
-        # project_root will be tmp_path.
+        # Run the setup function
+        exit_code = main()
         
-        # Execute the main function of the copied script
-        # We need to exec it or import it. Import is cleaner.
-        import importlib.util
-        spec = importlib.util.spec_from_file_location("setup_results_dir", script_dest)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        # Verify exit code is 0 (success)
+        assert exit_code == 0
         
-        # Now call main
-        module.main()
+        # Verify directory was created
+        assert results_path.exists()
+        assert results_path.is_dir()
+
+    def test_directory_is_writable(self):
+        """Verify that the created results directory is writable."""
+        results_path = Path("results")
         
-        # Verify the results directory exists
-        results_dir = tmp_path / "results"
-        assert results_dir.exists(), "The results directory was not created."
-        assert results_dir.is_dir(), "The results path exists but is not a directory."
+        # Run setup
+        main()
         
-    finally:
-        # Restore original CWD
-        os.chdir(original_cwd)
+        # Try to create a temporary test file
+        test_file = results_path / ".test_write_check"
+        try:
+            test_file.touch()
+            assert test_file.exists()
+        finally:
+            # Cleanup
+            if test_file.exists():
+                test_file.unlink()
+
+    def test_idempotent_creation(self):
+        """Verify that running main() multiple times does not cause errors."""
+        results_path = Path("results")
+        
+        # Run twice
+        exit_code_1 = main()
+        exit_code_2 = main()
+        
+        # Both should succeed
+        assert exit_code_1 == 0
+        assert exit_code_2 == 0
+        
+        # Directory should still exist
+        assert results_path.exists()
