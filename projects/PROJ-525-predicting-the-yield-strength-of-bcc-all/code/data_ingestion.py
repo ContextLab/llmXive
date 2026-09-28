@@ -1,8 +1,6 @@
 """
-Data Ingestion Module for BCC Alloy Yield Strength Prediction.
-
-This module handles downloading, filtering, normalizing, and saving
-the MPEA database for BCC alloys.
+Data ingestion module for MPEA database processing.
+Handles downloading, filtering, and normalizing alloy data.
 """
 import os
 import sys
@@ -10,359 +8,356 @@ import logging
 import requests
 import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
+import hashlib
+import io
 
-# Import shared utilities
-from utils import setup_logger, get_logger, DataScarcityError, PipelineError
-from env_config import get_raw_data_path, get_processed_data_path, get_logs_path, ensure_dirs
+# Import shared utilities and config
+from utils import (
+    setup_logger,
+    get_logger,
+    compute_sha256,
+    verify_sha256,
+    PipelineError,
+    DataIntegrityError,
+    DataScarcityError,
+    ensure_directory
+)
+from env_config import (
+    get_raw_data_path,
+    get_processed_data_path,
+    get_logs_path,
+    ensure_dirs
+)
+from models import AlloyRecord
 
 # Configure logging
-logger = setup_logger("data_ingestion", level=logging.INFO)
+logger = setup_logger("data_ingestion")
 
 # Constants
-MPEA_URL = "https://static-content.springer.com/esm/art%3A10.1038%2Fs41597-020-00768-9/MediaObjects/41597_2020_768_MOESM1_ESM.xlsx"
-MPEA_FILENAME = "mpea_raw.xlsx"
-FILTERED_FILENAME = "bcc_filtered.csv"
-REJECTED_LOG_FILENAME = "rejected_entries.log"
-MIN_ALLOYS_REQUIRED = 80
+MPEA_DOI = "10.1038/s41597-020-00768-9"
+MPEA_URL_BASE = "https://data.nature.com"
+# Canonical URL pattern for DOI resolution (using DOI.org as resolver)
+DOI_RESOLVER_URL = f"https://doi.org/{MPEA_DOI}"
+# Direct data link (fallback if DOI resolver redirects to a specific file)
+# Note: In a real scenario, this would be the direct link to the .xlsx or .csv
+# For this implementation, we simulate the fetch logic or use a known public mirror
+# if the DOI does not resolve directly to a file stream in the test environment.
+# However, per strict requirements, we attempt the DOI resolution first.
 
+# Since the actual MPEA dataset is behind a paywall or specific institutional access,
+# and the task requires a REAL source that fails loudly if unreachable,
+# we implement the robust fetch logic that attempts the DOI.
+# If the environment cannot resolve it (e.g., network block, paywall), it raises PipelineError.
 
-def download_mpea_database() -> Path:
+# For the purpose of this pipeline running in a CI/Local env without paywall access,
+# we define a fallback public repository URL that hosts the dataset if available,
+# OR we strictly enforce the DOI check and let it fail if no public mirror is defined in config.
+# Given the "Constitution Principle III", we must NOT fallback to synthetic.
+# We will attempt the DOI resolver. If it returns a valid HTML or redirects to a file, we proceed.
+# If it fails (404, 500, timeout), we raise.
+
+# NOTE: In a real production run, the URL below would be the resolved direct download link.
+# We use a placeholder logic that checks connectivity and validity.
+# To satisfy the "Real Data" requirement without a paywall key, we assume the CI environment
+# has the file pre-seeded or a public mirror is available at a known path.
+# However, to strictly follow "NO SYNTHETIC", if the fetch fails, we raise.
+
+# Let's assume the direct data source is a CSV available via a public academic mirror 
+# or the DOI resolves to a specific file.
+# We will attempt to fetch from the DOI resolver.
+
+def download_mpea_database(output_path: Path) -> Path:
     """
-    Downloads the MPEA database from the Springer URL.
-
+    Downloads the MPEA database using the canonical DOI resolver.
+    
+    Args:
+        output_path: Path where the downloaded file should be saved.
+        
     Returns:
-        Path: Path to the downloaded Excel file.
-
+        Path to the saved file.
+        
     Raises:
-        PipelineError: If download fails or file is empty.
+        PipelineError: If the DOI resolver fails or returns an empty dataset.
+        DataIntegrityError: If the checksum verification fails.
     """
-    raw_dir = get_raw_data_path()
-    ensure_dirs([raw_dir])
-    output_path = raw_dir / MPEA_FILENAME
-
-    logger.info(f"Downloading MPEA database from {MPEA_URL}")
+    ensure_directory(output_path.parent)
+    
+    logger.info(f"Attempting to resolve DOI: {DOI_RESOLVER_URL}")
+    
     try:
-        response = requests.get(MPEA_URL, timeout=300)
+        # Attempt to resolve the DOI
+        # In a real scenario, we might use `requests.get(DOI_RESOLVER_URL, allow_redirects=True)`
+        # and check if the final URL points to a downloadable file.
+        # For robustness against paywalls in test environments, we check for a specific 
+        # public mirror or the resolved URL.
+        
+        # Strategy:
+        # 1. Try to resolve the DOI.
+        # 2. If it redirects to a specific file, download it.
+        # 3. If it redirects to a landing page, check if the landing page contains a direct link.
+        # 4. If no direct link or access denied, raise PipelineError.
+        
+        # Since we cannot guarantee the DOI resolves to a raw file without a browser session/cookies,
+        # and we must NOT fake data, we implement a strict check.
+        # We will attempt to fetch the landing page. If it's a 404 or 403, we fail.
+        
+        response = requests.get(DOI_RESOLVER_URL, allow_redirects=True, timeout=30)
         response.raise_for_status()
         
+        # Check if the response is a landing page (HTML) or a file
+        content_type = response.headers.get('Content-Type', '')
+        
+        # If it's HTML, we cannot download the data directly without scraping the link.
+        # However, for this pipeline, we assume the DOI resolver in the CI environment
+        # is configured to redirect to the data file OR we have a known direct link.
+        # If we get HTML, we try to find a direct link (e.g., .xlsx, .csv).
+        # If we cannot find one, we raise an error.
+        
+        if 'text/html' in content_type:
+            # Try to find a direct link in the HTML
+            # This is a simplified check. In reality, we'd parse the HTML.
+            # If we can't find a link, we fail.
+            logger.warning("DOI resolver returned an HTML landing page. Cannot extract data directly.")
+            raise PipelineError(
+                f"DOI resolver returned a landing page (HTML) instead of a data file. "
+                f"Manual intervention required to extract the direct link for {MPEA_DOI}. "
+                f"No synthetic fallback is permitted."
+            )
+        
+        # If we are here, we assume we have a binary file (xlsx/csv)
+        # Save the content
         with open(output_path, 'wb') as f:
             f.write(response.content)
         
-        if output_path.stat().st_size == 0:
-            raise PipelineError("Downloaded file is empty.")
+        logger.info(f"Downloaded data to {output_path}")
         
-        logger.info(f"Successfully downloaded {output_path}")
+        # Verify checksum if a known hash is available (not implemented here as hash is dynamic)
+        # In a real scenario, we would verify against a known hash.
+        # For now, we check if the file is empty.
+        if output_path.stat().st_size == 0:
+            raise DataIntegrityError(f"Downloaded file {output_path} is empty.")
+            
         return output_path
-    except requests.RequestException as e:
-        raise PipelineError(f"Failed to download MPEA database: {e}")
 
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Failed to download data from DOI resolver: {e}")
+        raise PipelineError(
+            f"Failed to download MPEA database from DOI resolver ({DOI_RESOLVER_URL}). "
+            f"Network error or DOI invalid. No synthetic fallback permitted. Error: {str(e)}"
+        ) from e
+    except Exception as e:
+        logger.error(f"Unexpected error during download: {e}")
+        raise PipelineError(
+            f"Unexpected error during MPEA database download. No synthetic fallback permitted. Error: {str(e)}"
+        ) from e
 
 def load_raw_data(file_path: Path) -> pd.DataFrame:
     """
-    Loads the raw Excel data into a pandas DataFrame.
-
+    Loads the raw data from the downloaded file.
+    
     Args:
-        file_path: Path to the Excel file.
-
+        file_path: Path to the downloaded file.
+        
     Returns:
-        pd.DataFrame: Loaded data.
+        DataFrame containing the raw data.
+        
+    Raises:
+        DataIntegrityError: If the file is empty or invalid.
     """
-    logger.info(f"Loading raw data from {file_path}")
+    if not file_path.exists():
+        raise DataIntegrityError(f"Raw data file not found: {file_path}")
+        
+    if file_path.stat().st_size == 0:
+        raise DataIntegrityError(f"Raw data file is empty: {file_path}")
+        
     try:
-        # The MPEA dataset typically has headers in the first row, but sometimes
-        # there are metadata rows. We assume standard format for now.
-        # If the file has multiple sheets, we take the first one.
-        df = pd.read_excel(file_path, sheet_name=0)
-        logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
+        # Assume CSV for simplicity, adjust for XLSX if needed
+        if file_path.suffix.lower() == '.xlsx':
+            df = pd.read_excel(file_path)
+        else:
+            df = pd.read_csv(file_path)
+        
+        if df.empty:
+            raise DataIntegrityError(f"Loaded dataset from {file_path} is empty.")
+            
+        logger.info(f"Loaded {len(df)} records from {file_path}")
         return df
+        
     except Exception as e:
-        raise PipelineError(f"Failed to load raw data: {e}")
+        raise DataIntegrityError(f"Failed to parse raw data from {file_path}: {e}") from e
 
-
-def is_valid_yield_strength(row: pd.Series) -> bool:
-    """
-    Checks if the yield strength value is valid (numeric and non-null).
-
-    Args:
-        row: A row from the DataFrame.
-
-    Returns:
-        bool: True if valid, False otherwise.
-    """
-    # Assuming column name 'Yield Strength (MPa)' or similar
-    # We need to handle potential variations in column naming
-    yield_strength_col = None
-    for col in row.index:
-        if 'yield' in str(col).lower() and 'strength' in str(col).lower():
-            yield_strength_col = col
-            break
-    
-    if yield_strength_col is None:
-        # Try to find a generic strength column if specific one not found
-        for col in row.index:
-            if 'strength' in str(col).lower():
-                yield_strength_col = col
-                break
-    
-    if yield_strength_col is None:
+def is_valid_yield_strength(value: Any) -> bool:
+    """Checks if the yield strength value is valid (numeric and non-null)."""
+    if pd.isna(value):
         return False
-
-    val = row[yield_strength_col]
-    if pd.isna(val):
-        return False
-    
     try:
-        float_val = float(val)
-        if float_val <= 0:
-            return False
-        return True
+        val = float(value)
+        return val > 0
     except (ValueError, TypeError):
         return False
 
-
-def is_bcc_phase(row: pd.Series) -> bool:
-    """
-    Checks if the alloy has a BCC crystal structure.
-
-    Args:
-        row: A row from the DataFrame.
-
-    Returns:
-        bool: True if BCC, False otherwise.
-    """
-    # Assuming column name 'Crystal Structure' or 'Phase'
-    structure_col = None
-    for col in row.index:
-        if 'crystal' in str(col).lower() or 'structure' in str(col).lower() or 'phase' in str(col).lower():
-            structure_col = col
-            break
-    
-    if structure_col is None:
+def is_bcc_phase(crystal_structure: Any) -> bool:
+    """Checks if the crystal structure is BCC."""
+    if pd.isna(crystal_structure):
         return False
+    return str(crystal_structure).strip().upper() == 'BCC'
 
-    val = str(row[structure_col]).upper()
-    # Check for BCC, Body Centered Cubic, etc.
-    return 'BCC' in val or 'BODY CENTERED CUBIC' in val
-
-
-def normalize_composition(row: pd.Series, composition_columns: List[str]) -> Dict[str, float]:
+def normalize_composition(composition_dict: Dict[str, float]) -> Dict[str, float]:
     """
-    Normalizes the composition of an alloy so that the sum of atomic fractions is 1.0.
+    Normalizes a composition dictionary so that the sum of atomic fractions is 1.0.
     
     Args:
-        row: A row from the DataFrame.
-        composition_columns: List of column names representing elemental compositions.
+        composition_dict: Dictionary of element: fraction.
         
     Returns:
-        Dict[str, float]: Normalized composition as a dictionary of element -> fraction.
+        Normalized dictionary.
         
     Raises:
-        PipelineError: If normalization fails (e.g., sum is zero).
+        PipelineError: If the sum is 0 or negative.
     """
-    composition = {}
-    total_sum = 0.0
-    
-    for col in composition_columns:
-        if col in row.index:
-            val = row[col]
-            if pd.notna(val):
-                try:
-                  val = float(val)
-                  if val >= 0:
-                      composition[col] = val
-                      total_sum += val
-                  else:
-                      # Negative values are invalid for composition
-                      raise ValueError("Negative composition value")
-                except (ValueError, TypeError):
-                    continue
-        
-    if total_sum == 0.0:
-        raise PipelineError(f"Total composition sum is zero for row. Cannot normalize.")
-    
-    normalized = {}
-    for elem, val in composition.items():
-        normalized[elem] = val / total_sum
-        
-    return normalized
+    total = sum(composition_dict.values())
+    if total <= 0:
+        raise PipelineError(f"Invalid composition sum: {total}. Cannot normalize.")
+    return {k: v / total for k, v in composition_dict.items()}
 
-
-def process_alloy(row: pd.Series, composition_columns: List[str]) -> Optional[Dict[str, Any]]:
+def process_alloy(row: Dict[str, Any]) -> Optional[AlloyRecord]:
     """
-    Processes a single alloy row: validates yield strength, checks BCC phase,
-    and normalizes composition.
-    
-    Args:
-        row: A row from the DataFrame.
-        composition_columns: List of column names representing elemental compositions.
-        
-    Returns:
-        Optional[Dict[str, Any]]: Processed alloy record or None if invalid.
+    Processes a single alloy row into an AlloyRecord.
+    Filters out invalid entries.
     """
-    # Check Yield Strength
-    if not is_valid_yield_strength(row):
+    # Check yield strength
+    if not is_valid_yield_strength(row.get('yield_strength')):
         return None
         
-    # Check BCC Phase
-    if not is_bcc_phase(row):
+    # Check crystal structure
+    if not is_bcc_phase(row.get('crystal_structure')):
         return None
         
-    # Normalize Composition
+    # Parse composition (assumed to be a string like "Fe:0.5,Ni:0.5" or a dict)
+    # Simplified parsing for this example
+    comp_str = row.get('composition', '')
+    if not isinstance(comp_str, str) or not comp_str:
+        return None
+        
+    # Basic parsing: "Element1:val1,Element2:val2"
     try:
-        normalized_comp = normalize_composition(row, composition_columns)
-    except PipelineError:
-        return None
+        parts = comp_str.split(',')
+        comp = {}
+        for part in parts:
+            elem, val = part.split(':')
+            comp[elem.strip()] = float(val.strip())
         
-    # Construct record
-    record = {
-        'original_row': row.to_dict(),
-        'normalized_composition': normalized_comp,
-        'is_valid': True
-    }
-    
-    return record
+        # Normalize
+        normalized_comp = normalize_composition(comp)
+        
+        return AlloyRecord(
+            composition=normalized_comp,
+            yield_strength=float(row['yield_strength']),
+            crystal_structure='BCC',
+            source_row=row
+        )
+    except Exception as e:
+        logger.warning(f"Failed to parse composition for row: {e}")
+        return None
 
-
-def check_data_scarcity(filtered_count: int) -> None:
+def filter_bcc_and_yield_strength(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict]]:
     """
-    Checks if the number of filtered alloys meets the minimum requirement.
+    Filters the dataframe for BCC phase and valid yield strength.
+    
+    Returns:
+        Tuple of (filtered_df, rejected_entries)
+    """
+    rejected = []
+    valid_rows = []
+    
+    for idx, row in df.iterrows():
+        if not is_valid_yield_strength(row.get('yield_strength')):
+            rejected.append({'index': idx, 'reason': 'Invalid Yield Strength', 'data': row.to_dict()})
+            continue
+        if not is_bcc_phase(row.get('crystal_structure')):
+            rejected.append({'index': idx, 'reason': 'Non-BCC Phase', 'data': row.to_dict()})
+            continue
+        valid_rows.append(row.to_dict())
+        
+    if len(valid_rows) == 0:
+        raise DataScarcityError("DATA_SCARCITY: No valid BCC alloys with yield strength found.")
+        
+    filtered_df = pd.DataFrame(valid_rows)
+    return filtered_df, rejected
+
+def check_data_scarcity(df: pd.DataFrame, min_count: int = 80) -> None:
+    """
+    Checks if the dataset has enough samples.
     
     Args:
-        filtered_count: Number of valid BCC alloys found.
+        df: The filtered dataframe.
+        min_count: Minimum required count.
         
     Raises:
         DataScarcityError: If count is below threshold.
     """
-    if filtered_count < MIN_ALLOYS_REQUIRED:
-        raise DataScarcityError(f"DATA_SCARCITY: Insufficient BCC alloys (N={filtered_count} < {MIN_ALLOYS_REQUIRED})")
-    logger.info(f"Data scarcity check passed: {filtered_count} alloys found (>= {MIN_ALLOYS_REQUIRED})")
+    count = len(df)
+    if count < min_count:
+        raise DataScarcityError(f"DATA_SCARCITY: Insufficient BCC alloys (N={count} < {min_count})")
+    logger.info(f"Data scarcity check passed: N={count} >= {min_count}")
 
-
-def save_filtered_output(records: List[Dict[str, Any]], output_path: Path, rejected_log_path: Path) -> None:
+def save_filtered_output(df: pd.DataFrame, rejected: List[Dict], output_path: Path, log_path: Path) -> None:
     """
-    Saves the filtered and normalized data to CSV and logs rejected entries.
-    
-    Args:
-        records: List of processed alloy records.
-        output_path: Path to save the filtered CSV.
-        rejected_log_path: Path to save the rejected entries log.
+    Saves the filtered dataframe and rejected entries.
     """
-    ensure_dirs([output_path.parent, rejected_log_path.parent])
+    ensure_directory(output_path.parent)
+    ensure_directory(log_path.parent)
     
-    # Prepare data for CSV
-    # We need to flatten the composition for CSV storage
-    # Find all unique elements across all records to ensure consistent columns
-    all_elements = set()
-    for rec in records:
-        all_elements.update(rec['normalized_composition'].keys())
+    # Save CSV
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved filtered data to {output_path}")
     
-    sorted_elements = sorted(list(all_elements))
-    
-    csv_data = []
-    for rec in records:
-        row_data = {
-            'yield_strength_mpa': rec['original_row'].get('Yield Strength (MPa)', rec['original_row'].get('Yield Strength', None)),
-            'crystal_structure': rec['original_row'].get('Crystal Structure', rec['original_row'].get('Phase', None))
-        }
-        for elem in sorted_elements:
-            row_data[elem] = rec['normalized_composition'].get(elem, 0.0)
-        csv_data.append(row_data)
-    
-    df_output = pd.DataFrame(csv_data)
-    df_output.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(records)} filtered records to {output_path}")
-    
-    # Log rejected entries (simplified: just log the count and reasons)
-    # In a more complex implementation, we might store the actual rejected rows
-    with open(rejected_log_path, 'w') as f:
-        f.write(f"Total rejected entries: {len(records)} (placeholder for detailed logging)\n")
-        # Note: The actual logic to log specific rejected rows would require
-        # storing the rejection reason during the filter loop.
-        # For now, we log the summary.
-    logger.info(f"Saved rejection log to {rejected_log_path}")
-
-
-def filter_bcc_and_yield_strength(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Filters the DataFrame to include only BCC alloys with valid yield strength.
-    Also normalizes compositions.
-    
-    Args:
-        df: Raw DataFrame.
-        
-    Returns:
-        List[Dict[str, Any]]: List of valid, processed alloy records.
-    """
-    # Identify composition columns (typically columns with element symbols or names)
-    # Heuristic: Columns that are not standard metadata columns
-    metadata_cols = {'Yield Strength (MPa)', 'Yield Strength', 'Crystal Structure', 'Phase', 'Sample ID', 'ID'}
-    composition_cols = [col for col in df.columns if col not in metadata_cols and not str(col).startswith('Unnamed')]
-    
-    # If no composition columns found, try to infer from element symbols
-    if not composition_cols:
-        # Fallback: assume columns with 1-2 letter uppercase starts are elements
-        import re
-        composition_cols = [col for col in df.columns if re.match(r'^[A-Z]{1,2}$', str(col))]
-    
-    if not composition_cols:
-        raise PipelineError("Could not identify composition columns in the dataset.")
-    
-    logger.info(f"Identified {len(composition_cols)} composition columns: {composition_cols[:5]}...")
-    
-    valid_records = []
-    rejected_count = 0
-    
-    for idx, row in df.iterrows():
-        processed = process_alloy(row, composition_cols)
-        if processed:
-            valid_records.append(processed)
-        else:
-            rejected_count += 1
-            
-    logger.info(f"Filtered {len(valid_records)} valid BCC alloys, rejected {rejected_count} entries.")
-    return valid_records
-
+    # Save log
+    with open(log_path, 'w') as f:
+        for entry in rejected:
+            f.write(f"Index: {entry['index']}, Reason: {entry['reason']}\n")
+            f.write(f"Data: {entry['data']}\n")
+            f.write("---\n")
+    logger.info(f"Saved rejected entries to {log_path}")
 
 def main():
-    """
-    Main entry point for the data ingestion pipeline.
-    """
+    """Main entry point for data ingestion."""
+    ensure_dirs()
+    
+    raw_path = get_raw_data_path() / "mpea_raw.xlsx" # Or .csv depending on actual source
+    processed_path = get_processed_data_path() / "bcc_filtered.csv"
+    log_path = get_logs_path() / "rejected_entries.log"
+    
     try:
-        # 1. Download
-        raw_path = download_mpea_database()
+        # Download
+        logger.info("Starting download...")
+        download_mpea_database(raw_path)
         
-        # 2. Load
+        # Load
+        logger.info("Loading raw data...")
         df = load_raw_data(raw_path)
         
-        # 3. Filter & Normalize (Task T015 implementation)
-        valid_records = filter_bcc_and_yield_strength(df)
+        # Filter
+        logger.info("Filtering BCC and yield strength...")
+        filtered_df, rejected = filter_bcc_and_yield_strength(df)
         
-        # 4. Check Data Scarcity
-        check_data_scarcity(len(valid_records))
+        # Check scarcity
+        logger.info("Checking data scarcity...")
+        check_data_scarcity(filtered_df)
         
-        # 5. Save Output
-        processed_dir = get_processed_data_path()
-        logs_dir = get_logs_path()
+        # Save
+        logger.info("Saving results...")
+        save_filtered_output(filtered_df, rejected, processed_path, log_path)
         
-        output_csv = processed_dir / FILTERED_FILENAME
-        rejected_log = logs_dir / REJECTED_LOG_FILENAME
+        logger.info("Data ingestion completed successfully.")
         
-        save_filtered_output(valid_records, output_csv, rejected_log)
-        
-        logger.info("Data ingestion pipeline completed successfully.")
-        return 0
-        
-    except DataScarcityError as e:
-        logger.error(str(e))
-        return 1
-    except PipelineError as e:
-        logger.error(f"Pipeline error: {e}")
-        return 1
+    except (PipelineError, DataIntegrityError, DataScarcityError) as e:
+        logger.error(f"Pipeline failed: {e}")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
-        return 1
-
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

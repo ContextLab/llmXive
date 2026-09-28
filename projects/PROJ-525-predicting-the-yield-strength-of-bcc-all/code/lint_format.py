@@ -1,40 +1,96 @@
+"""
+Linting and Formatting Utility for PROJ-525.
+
+This module provides command-line interfaces to run Ruff and Black
+to ensure code quality and consistency across the project.
+"""
+
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-def run_command(cmd: list, cwd: Path = None) -> int:
-    """Runs a shell command and returns the exit code."""
+
+def run_command(cmd: list[str], description: str) -> bool:
+    """
+    Execute a shell command and report the result.
+
+    Args:
+        cmd: List of command arguments.
+        description: Human-readable description of the action.
+
+    Returns:
+        True if the command succeeded, False otherwise.
+    """
+    print(f"Running: {description}")
+    print(f"Command: {' '.join(cmd)}")
+
     try:
-        result = subprocess.run(cmd, cwd=cwd, check=False, capture_output=True, text=True)
-        if result.stdout:
-            print(result.stdout)
-        if result.stderr:
-            print(result.stderr, file=sys.stderr)
-        return result.returncode
-    except Exception as e:
-        print(f"Error running command: {e}", file=sys.stderr)
+        result = subprocess.run(
+            cmd,
+            check=True,
+            capture_output=False,
+            text=True
+        )
+        print(f"SUCCESS: {description} completed.\n")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: {description} failed with exit code {e.returncode}")
+        return False
+    except FileNotFoundError:
+        print(f"ERROR: Command not found. Ensure {' '.join(cmd[:2])} is installed.")
+        return False
+
+
+def main() -> int:
+    """
+    Main entry point for linting and formatting.
+
+    Usage:
+        python code/lint_format.py check   # Run linter and formatter in check mode
+        python code/lint_format.py fix     # Auto-fix issues where possible
+
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    if len(sys.argv) < 2:
+        print("Usage: python code/lint_format.py [check|fix]")
+        print("  check: Run linters/formatters in non-modifying mode.")
+        print("  fix:   Auto-fix linting errors and format code.")
         return 1
 
-def main():
-    """Entry point for linting and formatting."""
-    project_root = Path(__file__).resolve().parent.parent
-    code_dir = project_root / "code"
+    mode = sys.argv[1].lower()
+    project_root = Path(__file__).parent.parent
 
-    print("Running Ruff (Linting)...")
-    ruff_cmd = ["ruff", "check", str(code_dir)]
-    ruff_code = run_command(ruff_cmd, cwd=project_root)
+    # Change to project root to ensure config files are found
+    os.chdir(project_root)
 
-    print("\nRunning Black (Formatting)...")
-    black_cmd = ["black", "--check", str(code_dir)]
-    black_code = run_command(black_cmd, cwd=project_root)
+    success = True
 
-    if ruff_code == 0 and black_code == 0:
-        print("\nAll checks passed!")
-        sys.exit(0)
+    # 1. Run Black
+    black_cmd = ["black", "--check"] if mode == "check" else ["black", "."]
+    if mode == "fix":
+        # Black fixes in place, no --check flag
+        black_cmd = ["black", "."]
+
+    if not run_command(black_cmd, "Black Formatting"):
+        success = False
+
+    # 2. Run Ruff
+    ruff_cmd = ["ruff", "check"] if mode == "check" else ["ruff", "check", "--fix"]
+    if mode == "fix":
+        ruff_cmd = ["ruff", "check", "--fix"]
+
+    if not run_command(ruff_cmd, "Ruff Linting"):
+        success = False
+
+    if success:
+        print("All linting and formatting checks passed.")
+        return 0
     else:
-        print("\nSome checks failed.")
-        sys.exit(1)
+        print("Some checks failed. Please review the output above.")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

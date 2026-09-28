@@ -1,7 +1,3 @@
-"""
-Utility functions for the pipeline.
-Handles logging, checksums, and custom exceptions.
-"""
 import hashlib
 import logging
 import sys
@@ -9,62 +5,56 @@ import os
 from pathlib import Path
 from typing import Optional, Union
 
-def setup_logger(name: str, log_file: Optional[Union[str, Path]] = None, level: int = logging.INFO) -> logging.Logger:
-    """Set up a logger with console and optional file output."""
+def setup_logger(name: str) -> logging.Logger:
+    """Configure and return a logger."""
     logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates
-    logger.handlers.clear()
-
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    # File handler if specified
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        fh = logging.FileHandler(log_path)
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
     return logger
 
 def get_logger(name: str) -> logging.Logger:
-    """Get an existing logger or create a new one if it doesn't exist."""
+    """Get an existing logger or create a new one."""
     return logging.getLogger(name)
 
-def compute_sha256(file_path: Path) -> str:
-    """Compute the SHA256 hash of a file."""
+def compute_sha256(file_path: Union[str, Path]) -> str:
+    """Compute SHA-256 hash of a file."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {path}")
+    
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-def verify_sha256(file_path: Path, expected_hash: str) -> bool:
-    """Verify the SHA256 hash of a file against an expected value."""
-    return compute_sha256(file_path) == expected_hash.lower()
+def verify_sha256(file_path: Union[str, Path], expected_hash: str) -> bool:
+    """Verify a file's SHA-256 hash against an expected value."""
+    actual_hash = compute_sha256(file_path)
+    return actual_hash == expected_hash
 
-def compute_directory_checksum(dir_path: Path) -> str:
-    """Compute a checksum for a directory by hashing all file checksums."""
-    import hashlib
+def compute_directory_checksum(dir_path: Union[str, Path]) -> str:
+    """
+    Compute a checksum for a directory by hashing the sorted list of 
+    file paths and their individual hashes.
+    """
+    path = Path(dir_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Directory not found: {path}")
+    
     hasher = hashlib.sha256()
-    for root, _, files in sorted(os.walk(dir_path)):
-        for filename in sorted(files):
-            if filename == ".gitkeep":
-                continue
-            filepath = Path(root) / filename
-            try:
-                file_hash = compute_sha256(filepath)
-                hasher.update(file_hash.encode())
-            except (OSError, IOError):
-                continue
+    files = sorted([str(f.relative_to(path)) for f in path.rglob("*") if f.is_file()])
+    
+    for rel_path in files:
+        full_path = path / rel_path
+        file_hash = compute_sha256(full_path)
+        hasher.update(f"{rel_path}:{file_hash}".encode('utf-8'))
+    
     return hasher.hexdigest()
 
 class PipelineError(Exception):
@@ -87,17 +77,19 @@ class ValidationError(PipelineError):
     """Exception raised when validation fails."""
     pass
 
-def handle_error(error: Exception, logger: Optional[logging.Logger] = None) -> None:
-    """Handle an error by logging it and optionally raising."""
-    msg = str(error)
+def handle_error(e: Exception, logger: Optional[logging.Logger] = None) -> None:
+    """Handle an error by logging and potentially raising a specific exception."""
     if logger:
-        logger.error(msg)
+        logger.error(f"Error occurred: {e}", exc_info=True)
     else:
-        print(f"ERROR: {msg}", file=sys.stderr)
+        print(f"Error occurred: {e}", file=sys.stderr)
+    raise e
 
-def ensure_directory(path: Path) -> None:
+def ensure_directory(path: Union[str, Path]) -> Path:
     """Ensure a directory exists, creating it if necessary."""
-    path.mkdir(parents=True, exist_ok=True)
+    p = Path(path)
+    p.mkdir(parents=True, exist_ok=True)
+    return p
 
 def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
     """Safely divide two numbers, returning a default if division by zero occurs."""
@@ -105,10 +97,10 @@ def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> f
         return default
     return numerator / denominator
 
-def format_bytes(num_bytes: int) -> str:
-    """Format a byte count into a human-readable string."""
+def format_bytes(size: int) -> str:
+    """Format bytes into a human-readable string."""
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if num_bytes < 1024.0:
-            return f"{num_bytes:.2f} {unit}"
-        num_bytes /= 1024.0
-    return f"{num_bytes:.2f} PB"
+        if size < 1024.0:
+            return f"{size:.2f} {unit}"
+        size /= 1024.0
+    return f"{size:.2f} PB"

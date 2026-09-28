@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-28T01:46:09.819424+00:00'
+issue_number: 1427
+project_id: PROJ-525-predicting-the-yield-strength-of-bcc-all

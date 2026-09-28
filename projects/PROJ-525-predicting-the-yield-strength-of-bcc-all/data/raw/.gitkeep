@@ -1,2 +1,1 @@
-# This file ensures the raw data directory is tracked by git.
-# Real data files will be downloaded here by code/data_ingestion.py.
+# Placeholder to ensure directory is tracked by git
