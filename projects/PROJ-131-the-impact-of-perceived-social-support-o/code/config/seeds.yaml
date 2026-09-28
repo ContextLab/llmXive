@@ -1,2 +1,4 @@
-# Reproducible Random Seeds Configuration
+# Reproducibility Configuration
+# All random operations in this pipeline (imputation, bootstrapping, sampling)
+# must use this seed to ensure deterministic results.
 random_seed: 42

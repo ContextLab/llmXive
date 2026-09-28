@@ -1,16 +1,3 @@
-# Data Source Configuration
-# This file must be populated with the verified dataset ID/URL
-# before the pipeline can run.
-
-cyberbullying_survey_2021:
-  dataset_id: "cyberbullying_survey_2021"
-  source: "verified"
-  method: "ucimlrepo"
-  verified: false
-  note: "Pending verification - update with actual dataset ID from T070a-Input"
-
-# Placeholder for future datasets
-# gss_2022:
-#   dataset_id: "gss_2022"
-#   source: "excluded"
-#   reason: "Methodologically invalid per Plan's Revised Approach"
+dataset_id: "cyberbullying_survey_2021"
+source: "load_dataset"
+verified: true

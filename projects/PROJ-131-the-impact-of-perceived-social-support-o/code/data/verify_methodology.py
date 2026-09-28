@@ -1,155 +1,178 @@
-"""
-Task T074a: Verify Methodological Notes Alignment.
-
-Verifies that Section 5 'Methodological Notes' in spec.md:
-1. Contains the 'Revised Approach' rationale.
-2. Does NOT mention the 'Synthetic Cohort' (except in a rejection context).
-
-This is a verification-only task. It does not modify the spec.
-It exits with code 0 on success, or raises RuntimeError on failure.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
+import json
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger("verify_methodology")
+# Add project root to path to allow imports
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-def find_section_5(spec_path: Path) -> str | None:
+def find_section_5(file_path: Path) -> str:
     """
-    Reads the spec.md file and attempts to locate Section 5.
-    Returns the content of Section 5 if found, otherwise None.
+    Locate Section 5 'Methodological Notes' in the spec file.
+    Returns the text content of Section 5 or empty string if not found.
     """
-    if not spec_path.exists():
-        logger.error(f"Spec file not found at {spec_path}")
-        return None
+    if not file_path.exists():
+        logging.error(f"Spec file not found: {file_path}")
+        return ""
 
-    try:
-        content = spec_path.read_text(encoding='utf-8')
-    except Exception as e:
-        logger.error(f"Failed to read spec file: {e}")
-        return None
-
+    content = file_path.read_text(encoding='utf-8')
     lines = content.split('\n')
+    
     section_5_start = -1
     section_6_start = -1
-
-    # Look for Section 5 header (e.g., "## 5. Methodological Notes" or "## Section 5")
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-        if stripped.startswith('#') and '5' in stripped and 'Methodological' in stripped:
-            section_5_start = i
-        elif section_5_start != -1 and stripped.startswith('#') and ('6' in stripped or 'Section 6' in stripped):
-            section_6_start = i
-            break
-
-    if section_5_start == -1:
-        logger.error("Section 5 'Methodological Notes' not found in spec.md")
-        return None
-
-    # Extract section content
-    end_idx = section_6_start if section_6_start != -1 else len(lines)
-    section_5_content = '\n'.join(lines[section_5_start:end_idx])
-    return section_5_content
-
-def verify_alignment(section_content: str) -> tuple[bool, list[str]]:
-    """
-    Verifies the alignment of the section content.
-    Returns (is_aligned, list_of_issues).
-    """
-    issues = []
-    is_aligned = True
-
-    # Check 1: Must contain "Revised Approach"
-    if "Revised Approach" not in section_content:
-        issues.append("Missing 'Revised Approach' rationale.")
-        is_aligned = False
-    else:
-        logger.info("Found 'Revised Approach' rationale.")
-
-    # Check 2: Must NOT mention "Synthetic Cohort" (unless in a rejection context)
-    # We look for the phrase "Synthetic Cohort". If found, we check if it's in a rejection context.
-    # A simple heuristic: if "Synthetic Cohort" appears, check if it's preceded by "excluded", "deprecated", "removed", or "invalid".
-    # However, the task description says: "does not mention the 'Synthetic Cohort' (except in the rejection context)".
-    # To be safe, we will flag if "Synthetic Cohort" is found and not clearly marked as rejected.
-    # Given the strictness of the plan, we will treat any mention of "Synthetic Cohort" as a potential issue unless explicitly negated.
     
-    if "Synthetic Cohort" in section_content:
-        # Check for rejection context keywords nearby
-        lines = section_content.split('\n')
-        found_rejection = False
-        for line in lines:
-            if "Synthetic Cohort" in line:
-                lower_line = line.lower()
-                if any(kw in lower_line for kw in ["excluded", "deprecated", "removed", "invalid", "rejection", "not used", "abandoned"]):
-                    found_rejection = True
+    # Look for Section 5 header
+    for i, line in enumerate(lines):
+        if line.strip().startswith('## ') and 'Methodological Notes' in line:
+            section_5_start = i
+            # Find the next section (##) to mark end of Section 5
+            for j in range(i + 1, len(lines)):
+                if lines[j].strip().startswith('## '):
+                    section_6_start = j
                     break
-        
-        if not found_rejection:
-            issues.append("Mentions 'Synthetic Cohort' without clear rejection context.")
-            is_aligned = False
-        else:
-            logger.info("Found 'Synthetic Cohort' but it appears to be in a rejection context.")
+            break
+    
+    if section_5_start == -1:
+        logging.error("Section 5 'Methodological Notes' not found in spec.")
+        return ""
+    
+    if section_6_start == -1:
+        # Section 5 extends to end of file
+        return '\n'.join(lines[section_5_start:])
     else:
-        logger.info("No mention of 'Synthetic Cohort' found (aligned).")
+        return '\n'.join(lines[section_5_start:section_6_start])
 
-    return is_aligned, issues
+def verify_alignment(section_text: str) -> dict:
+    """
+    Verify that Section 5 contains the 'Revised Approach' rationale
+    and handles 'Synthetic Cohort' correctly (only in rejection context).
+    
+    Returns a dict with verification status and details.
+    """
+    result = {
+        'verified': True,
+        'has_revised_approach': False,
+        'synthetic_cohort_in_rejection_only': False,
+        'issues': []
+    }
+    
+    if not section_text:
+        result['verified'] = False
+        result['issues'].append("Section 5 text is empty")
+        return result
+    
+    # Check for "Revised Approach" text
+    revised_keywords = ["Revised Approach", "Single-Dataset", "single-dataset", "revised approach"]
+    found_revised = any(keyword.lower() in section_text.lower() for keyword in revised_keywords)
+    
+    if found_revised:
+        result['has_revised_approach'] = True
+        logging.info("Found 'Revised Approach' rationale in Section 5.")
+    else:
+        result['verified'] = False
+        result['issues'].append("Missing 'Revised Approach' rationale")
+        logging.error("Missing 'Revised Approach' rationale in Section 5.")
+    
+    # Check "Synthetic Cohort" occurrences
+    synthetic_cohort_count = section_text.lower().count("synthetic cohort")
+    
+    if synthetic_cohort_count == 0:
+        # If not mentioned at all, that's acceptable if it's not needed
+        result['synthetic_cohort_in_rejection_only'] = True
+        logging.info("'Synthetic Cohort' not mentioned in Section 5 (acceptable if not relevant).")
+    else:
+        # Must appear ONLY in rejection context
+        rejection_keywords = ["rejected", "rejection", "invalid", "excluded", "removed", "deprecated", "methodologically invalid"]
+        
+        # Check if every occurrence is near a rejection keyword
+        lines = section_text.split('\n')
+        all_in_rejection = True
+        
+        for line in lines:
+            if "synthetic cohort" in line.lower():
+                # Check if this line or nearby lines contain rejection context
+                line_lower = line.lower()
+                has_rejection_context = any(kw in line_lower for kw in rejection_keywords)
+                
+                if not has_rejection_context:
+                    # Check surrounding context (previous and next 2 lines)
+                    line_idx = lines.index(line)
+                    context_start = max(0, line_idx - 2)
+                    context_end = min(len(lines), line_idx + 3)
+                    context = ' '.join(lines[context_start:context_end]).lower()
+                    
+                    if not any(kw in context for kw in rejection_keywords):
+                        all_in_rejection = False
+                        result['issues'].append(f"'Synthetic Cohort' found outside rejection context: '{line.strip()}'")
+        
+        if all_in_rejection:
+            result['synthetic_cohort_in_rejection_only'] = True
+            logging.info("All mentions of 'Synthetic Cohort' are in rejection context.")
+        else:
+            result['verified'] = False
+            logging.error("Found 'Synthetic Cohort' outside of rejection context.")
+    
+    return result
 
 def main():
-    """Main entry point for the verification task."""
-    # Determine the path to spec.md relative to the project root
-    # Assuming the script is run from the project root or code/ directory
-    current_dir = Path.cwd()
-    # Try common locations
-    possible_paths = [
-        current_dir / "specs" / "001-social-support-resilience" / "spec.md",
-        current_dir / "specs" / "001-the-impact-of-perceived-social-support-o" / "spec.md",
-        current_dir / "project_root" / "specs" / "001-social-support-resilience" / "spec.md",
-    ]
+    """
+    Main entry point for verifying methodological notes alignment.
+    """
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('data/results/methodology_verification.log')
+        ]
+    )
     
-    spec_path = None
-    for p in possible_paths:
-        if p.exists():
-            spec_path = p
-            break
-
-    if spec_path is None:
-        # Fallback: look for spec.md in current directory tree
-        for root, _, files in os.walk(current_dir):
-            if "spec.md" in files:
-                candidate = Path(root) / "spec.md"
-                # Heuristic: pick the one in a specs directory
-                if "specs" in str(candidate):
-                    spec_path = candidate
-                    break
-        
-        if spec_path is None:
-            logger.error("Could not locate spec.md file.")
-            sys.exit(1)
-
-    logger.info(f"Checking spec file at: {spec_path}")
+    # Define paths
+    spec_path = Path("specs/001-social-support-resilience/spec.md")
+    output_path = Path("data/results/methodology_verification.json")
     
-    section_content = find_section_5(spec_path)
-    if section_content is None:
-        logger.error("Failed to extract Section 5.")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logging.info(f"Verifying methodological notes in: {spec_path}")
+    
+    # Find Section 5
+    section_text = find_section_5(spec_path)
+    
+    if not section_text:
+        logging.error("Failed to extract Section 5. Aborting verification.")
+        # Write failure result
+        result = {
+            'verified': False,
+            'error': 'Section 5 not found',
+            'issues': ['Section 5 not found in spec']
+        }
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
         sys.exit(1)
-
-    is_aligned, issues = verify_alignment(section_content)
-
-    if is_aligned:
-        logger.info("INFO: Methodological Notes verified.")
-        sys.exit(0)
+    
+    # Verify alignment
+    verification_result = verify_alignment(section_text)
+    
+    # Log final status
+    if verification_result['verified']:
+        logging.info("INFO: Methodological Notes verified.")
     else:
-        logger.error("ERROR: Methodological Notes mismatch.")
-        for issue in issues:
-            logger.error(f"  - {issue}")
-        # Do NOT attempt to edit the spec; just halt.
-        sys.exit(1)
+        logging.error("ERROR: Methodological Notes mismatch.")
+        for issue in verification_result['issues']:
+            logging.error(f"  - {issue}")
+    
+    # Write result to file
+    with open(output_path, 'w') as f:
+        json.dump(verification_result, f, indent=2)
+    
+    logging.info(f"Verification result written to: {output_path}")
+    
+    # Exit with appropriate code
+    sys.exit(0 if verification_result['verified'] else 1)
 
 if __name__ == "__main__":
     main()

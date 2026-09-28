@@ -1,30 +1,41 @@
-T001:
+T008:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directory hierarchy (`code/data`, `code/analysis`,
-    `code/config`, `code/tests`) is present in the provided artifacts; the implementer
-    did not supply any file or folder listing confirming that the project structure
-    was created. The task therefore remains unfinished.
-T002:
+  r: "No `main_pipeline.py` file or any code snippet was provided; thus there is no\
+    \ evidence that an entry\u2011point script orchestrating the modular pipeline\
+    \ steps was created. The required skeleton is missing, so the task is not satisfied."
+T013a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a Git repository (e.g., a `.git` directory, initial commit log,\
-    \ or any repository metadata) is provided. Without such artifacts, we cannot confirm\
-    \ that the project\u2019s Git repository was actually initialized."
-T003:
+  r: The submission contains no code, notebook, script, or data file demonstrating
+    that Multiple Imputation by Chained Equations (MICE) was applied to the predictor
+    matrix `['age','gender','education','income','social_support','harassment_severity']`.
+    Without any artifact showing the imputation process or resulting imputed dataset,
+    the requirement is not satisfied. The next implementer must provide a concrete
+    implementation (e.g., Python/R script using `mice`/`IterativeImputer`) and the
+    resulting imputed data.
+T013b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gitignore` file content was presented; the required file with the specified\
-    \ ignore patterns is missing from the evidence. The implementer must supply a\
-    \ non\u2011empty `.gitignore` that excludes `data/raw/`, `data/results/`, `__pycache__/`,\
-    \ and `*.pyc`."
-T017:
+  r: No code, notebook, script, or data file was provided that creates the `harassment_exposure`
+    binary variable from the imputed `harassment_severity`. Without an actual artifact
+    showing the derivation (e.g., a Python/R script, a CSV column, or documented output),
+    the requirement is not met. The next implementer must supply a concrete implementation
+    and its resulting output.
+T013d:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No logging implementation, configuration, or example log output was provided;
-    the claim lacks any artifact showing added comprehensive logging for the ingestion,
-    preprocessing, matching, and validation steps (including fallback decisions).
-    The required code/files are missing, so the task is not satisfied.
+  r: No code, script, notebook, or output file is provided that demonstrates listwise
+    deletion of rows with missing `depression`, `anxiety`, or `ptsd` after imputation
+    and derivation. Without such artifact, we cannot confirm the required handling
+    of outcome missingness was performed.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a textual description of the revised single\u2011\
+    dataset approach; no concrete artifact (e.g., validation script, cohort summary\
+    \ table, or data file) was supplied. Consequently, there is no evidence that the\
+    \ analysis cohort was actually validated as required."
 T019:
   c: false
   h: cfc7054afad0bc67260b2d9e20463b763235fc7cd034b571fbb659f6277b2c98
@@ -52,33 +63,42 @@ T028:
     \ coefficients from the baseline run (T020) and from each sensitivity analysis,\
     \ nor a computed table of their shifts, was provided. The implementer\u2019s response\
     \ contains only the task description and project spec, without the required output."
-T070b:
+T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., code output, notebook cell, or data preview) was provided\
-    \ showing that the dataset loaded in T070a\u2011Verify was inspected and that\
-    \ it contains a `platform` column. Without such evidence, we cannot confirm the\
-    \ requirement is satisfied. The next implementer must supply the actual inspection\
-    \ result (e.g., a printed list of columns or a screenshot) demonstrating the presence\
-    \ of the `platform` column."
+  r: "No content from `specs/001-social-support-resilience/spec.md` was provided,\
+    \ so we cannot verify that it includes the required \u201CDEPRECATED\u201D or\
+    \ \u201CREMOVED\u201D blocks for FR\u2011001/FR\u2011002 and the \u201CREVISED\u201D\
+    \ block for SC\u2011001. The necessary artifact is missing from the evidence."
 T072a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "The provided spec excerpt shows FR-001 and FR-002 marked as \u201C[REMOVED \u2026\
     ]\u201D and includes a \u201CValidation Criteria (Revised SC-001)\u201D section,\
     \ satisfying the required REMOVED and REVISED blocks."
+T072b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the file `specs/001-social-support-resilience/spec.md` being\
+    \ present or showing the required changes (removal of FR-001/FR-002 and the \u201C\
+    Synthetic Cohort\u201D narrative) was provided. The implementer\u2019s claim cannot\
+    \ be verified without the actual updated spec content."
 T073a:
   c: true
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "The provided `spec.md` excerpt includes the Data Dictionary table, and every\
     \ variable\u2019s Source entry is \u201CCyberbullying Survey 2021 (Sole Source)\u201D\
     \ (or derived from it), satisfying the verification requirement."
-T074a:
+T073b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided excerpt of `spec.md`\u2019s Section\u202F5 includes the \u201C\
-    Revised Approach\u201D rationale, but it explicitly mentions the \u201CSynthetic\
-    \ Cohort\u201D (e.g., \u201CThe dual-dataset matching approach \u2026 construct\
-    \ a \u2018Synthetic Cohort\u2019 \u2026\u201D). This violates the requirement\
-    \ that the section must not mention the Synthetic Cohort. The artifact therefore\
-    \ does not satisfy the task."
+  r: No actual `specs/001-social-support-resilience/spec.md` file content or diff
+    was provided, so we cannot verify that the Data Dictionary was updated as required.
+    The claim lacks concrete artifact evidence.
+T074b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No content from `specs/001-social-support-resilience/spec.md` (or any indication\
+    \ that Section\u202F5 was edited) was provided; without the updated specification\
+    \ file we cannot confirm the methodological notes were revised as required. The\
+    \ required artifact is missing."

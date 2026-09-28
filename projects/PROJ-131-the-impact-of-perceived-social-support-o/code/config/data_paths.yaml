@@ -1,30 +1,32 @@
 # Environment Configuration for Data Paths
-# Defines all directory paths relative to the project root.
-# Used by ingestion, preprocessing, and analysis modules to locate inputs/outputs.
-paths:
-  root: "."
-  data:
-    raw: "data/raw"
-    processed: "data/processed"
-    results: "data/results"
-    figures: "figures"
-  code:
-    config: "code/config"
-    scripts: "code/scripts"
-  logs:
-    pipeline: "data/results/pipeline_run.log"
-    ingestion: "data/results/ingestion.log"
-    preprocessing: "data/results/preprocessing.log"
-    analysis: "data/results/analysis.log"
+# Defines all relative paths used by the pipeline to locate inputs and outputs.
+# All paths are relative to the project root.
 
-# Specific file paths for critical artifacts
-artifacts:
-  cohort: "data/results/analysis_cohort.csv"
-  regression_results: "data/results/regression_results.csv"
-  sensitivity_results: "data/results/sensitivity_analysis.csv"
-  validation_report: "data/results/validation_report.json"
-  platform_status: "data/results/platform_status.json"
-  reproducibility_audit: "data/results/reproducibility_audit.json"
-  performance_report: "data/results/performance_report.json"
-  data_lineage: "data/results/data_lineage_report.md"
-  regression_summary: "data/results/regression_summary.md"
+# Raw data directory (downloaded datasets)
+raw_data_dir: "data/raw"
+
+# Results directory (processed data, models, reports)
+results_dir: "data/results"
+
+# Figures directory (visualizations)
+figures_dir: "data/figures"
+
+# Configuration directory
+config_dir: "code/config"
+
+# Logs directory
+logs_dir: "code/logs"
+
+# Specific file paths
+data_source_config: "code/config/data_sources.yaml"
+scale_config: "code/config/scales.yaml"
+bootstrap_config: "code/config/bootstrap_config.yaml"
+seeds_config: "code/config/seeds.yaml"
+
+# Output file paths
+analysis_cohort: "data/results/analysis_cohort.csv"
+regression_results: "data/results/regression_results.csv"
+sensitivity_analysis: "data/results/sensitivity_analysis.csv"
+regression_summary_report: "data/results/regression_summary.md"
+validation_report: "data/results/validation_report.json"
+pipeline_log: "data/results/pipeline_run.log"

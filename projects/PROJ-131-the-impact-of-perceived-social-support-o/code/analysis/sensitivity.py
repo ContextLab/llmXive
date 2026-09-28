@@ -1,190 +1,98 @@
-"""
-Sensitivity Analysis Module.
-
-Implements T027a (Continuous Severity), T027b (Platform Stratification), T029 (Save Summary).
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-
 import pandas as pd
-import numpy as np
-
-# Add project root
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from data.cohort import RESULTS_DIR
-from analysis.models import load_synthetic_cohort, create_interaction_term, fit_ols_model, extract_model_results
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 def load_baseline_results():
-    """Loads the baseline regression results."""
-    path = RESULTS_DIR / "regression_results.csv"
+    """Load baseline regression results."""
+    path = Path("data/results/regression_results.csv")
     if not path.exists():
-        raise FileNotFoundError(f"Baseline results not found: {path}")
+        raise FileNotFoundError(f"Baseline results not found at {path}")
     return pd.read_csv(path)
 
-def fit_ols_model_continuous(df: pd.DataFrame, outcome: str) -> Optional[Dict[str, Any]]:
-    """
-    Fits OLS using continuous harassment severity instead of binary exposure.
-    T027a Implementation.
-    """
-    try:
-        import statsmodels.api as sm
-        
-        if outcome not in df.columns:
-            return None
+def fit_ols_model_continuous(df, outcome_var):
+    """Fit model using continuous harassment severity."""
+    import statsmodels.formula.api as smf
+    formula = f"{outcome_var} ~ social_support + harassment_severity + social_support:harassment_severity + C(gender) + age + education"
+    model = smf.ols(formula, data=df).fit()
+    return model.params.get("social_support:harassment_severity", None)
 
-        # Formula: Y ~ SocialSupport + HarassmentSeverity (Continuous) + Interaction(Support * Severity) + Covariates
-        covariates = ['age', 'gender', 'education', 'income']
-        valid_covariates = [c for c in covariates if c in df.columns]
-        
-        formula = f"{outcome} ~ social_support + harassment_severity + social_support:harassment_severity"
-        if valid_covariates:
-            formula += " + " + " + ".join(valid_covariates)
-        
-        model = sm.formula.ols(formula, data=df)
-        results = model.fit(cov_type='HC3')
-        
-        return extract_model_results(results, outcome)
-    except Exception as e:
-        logger.error(f"Continuous model failed for {outcome}: {e}")
-        return None
-
-def stratify_by_platform(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Stratifies analysis by platform.
-    T027b Implementation.
-    """
-    # Check for platform column
-    if 'platform' not in df.columns:
-        logger.warning("W-NO-PLATFORM-001: 'platform' column not found. Skipping stratification.")
-        return []
+def stratify_by_platform(df):
+    """Stratify analysis by platform."""
+    logger = logging.getLogger("sensitivity")
+    if "platform" not in df.columns:
+        logger.warning("W-NO-PLATFORM-001: Platform column missing. Skipping stratification.")
+        return pd.DataFrame() # Return empty dataframe
     
-    platforms = df['platform'].dropna().unique()
-    logger.info(f"Found platforms: {platforms}")
-    
+    groups = df.groupby("platform")
     results = []
-    valid_platforms = []
+    valid_groups = 0
     
-    for plat in platforms:
-        group = df[df['platform'] == plat]
-        n = len(group)
-        if n < 30:
-            logger.warning(f"E-SMALL-N-001: Platform '{plat}' has N={n} (<30). Skipping.")
+    for name, group in groups:
+        if len(group) < 30:
+            logger.warning(f"E-SMALL-N-001: Group {name} has N={len(group)} < 30. Skipping.")
             continue
-        
-        valid_platforms.append(plat)
-        logger.info(f"Running stratified model for {plat} (N={n})...")
-        
-        # Run models for this group
-        group = create_interaction_term(group)
-        for outcome in ['depression', 'anxiety', 'ptsd']:
-            if outcome in group.columns:
-                res = fit_ols_model(group, outcome)
-                if res:
-                    extracted = extract_model_results(res, outcome)
-                    extracted['platform'] = str(plat)
-                    results.append(extracted)
+        valid_groups += 1
+        # Fit simple model for this group
+        try:
+            coef = fit_ols_model_continuous(group, "depression")
+            results.append({"platform": name, "coef": coef, "n": len(group)})
+        except Exception as e:
+            logger.warning(f"Failed to fit model for {name}: {e}")
     
-    if len(valid_platforms) == 1:
-        logger.warning("W-STRAT-SINGLE-001: Only one valid platform group found. Skipping stratification.")
-        return []
-        
-    return results
+    if valid_groups == 1:
+        logger.warning("W-STRAT-SINGLE-001: Only one valid platform group. Skipping stratification.")
+        # Create header-only file
+        path = Path("data/results/sensitivity_raw_stratified.csv")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(columns=["platform", "coef", "n"]).to_csv(path, index=False)
+        return pd.DataFrame()
+    
+    return pd.DataFrame(results)
 
-def run_sensitivity_analysis(df: pd.DataFrame):
-    """
-    Orchestrates sensitivity analysis.
-    """
-    logger.info("Running Sensitivity Analysis (T027)...")
+def run_sensitivity_analysis(df):
+    """Run sensitivity analyses."""
+    logger = logging.getLogger("sensitivity")
     
-    # 1. Continuous Severity (T027a)
+    # 1. Continuous severity
     continuous_results = []
-    df_cont = create_interaction_term(df) # Ensure interaction exists if needed
-    # Note: For continuous, we might need to re-create interaction with severity
-    # But the function fit_ols_model_continuous handles the formula directly.
-    for outcome in ['depression', 'anxiety', 'ptsd']:
+    for outcome in ['depression', 'anxiety']:
         if outcome in df.columns:
-            res = fit_ols_model_continuous(df, outcome)
-            if res:
-                res['model_type'] = 'continuous_severity'
-                continuous_results.append(res)
+            coef = fit_ols_model_continuous(df, outcome)
+            continuous_results.append({"outcome": outcome, "coef": coef, "type": "continuous"})
     
-    # 2. Platform Stratification (T027b)
-    stratified_results = stratify_by_platform(df)
+    cont_df = pd.DataFrame(continuous_results)
     
-    return continuous_results, stratified_results
+    # 2. Stratified
+    strat_df = stratify_by_platform(df)
+    
+    return cont_df, strat_df
 
-def save_results(continuous_results: List[Dict], stratified_results: List[Dict]):
-    """
-    Saves sensitivity results to CSV.
-    T029 Implementation.
-    """
-    # Flatten continuous
-    cont_flat = []
-    for r in continuous_results:
-        for name, coef in r.get('coefficients', {}).items():
-            cont_flat.append({
-                "outcome": r.get('outcome'),
-                "term": name,
-                "coef": coef,
-                "se": r.get('se', {}).get(name, 0),
-                "p_value": r.get('p_values', {}).get(name, 1),
-                "model_type": "continuous_severity",
-                "platform": "ALL"
-            })
+def save_results(cont_df, strat_df):
+    """Save sensitivity results."""
+    path_cont = Path("data/results/sensitivity_raw_continuous.csv")
+    path_cont.parent.mkdir(parents=True, exist_ok=True)
+    cont_df.to_csv(path_cont, index=False)
     
-    # Flatten stratified
-    strat_flat = []
-    for r in stratified_results:
-        for name, coef in r.get('coefficients', {}).items():
-            strat_flat.append({
-                "outcome": r.get('outcome'),
-                "term": name,
-                "coef": coef,
-                "se": r.get('se', {}).get(name, 0),
-                "p_value": r.get('p_values', {}).get(name, 1),
-                "model_type": "stratified",
-                "platform": r.get('platform', 'UNKNOWN')
-            })
-    
-    df_cont = pd.DataFrame(cont_flat)
-    df_strat = pd.DataFrame(strat_flat)
-    
-    # Save separate files as per T027a/T027b deliverables
-    if not df_cont.empty:
-        df_cont.to_csv(RESULTS_DIR / "sensitivity_raw_continuous.csv", index=False)
-        logger.info(f"Saved continuous results to {RESULTS_DIR / 'sensitivity_raw_continuous.csv'}")
-    
-    if not df_strat.empty:
-        df_strat.to_csv(RESULTS_DIR / "sensitivity_raw_stratified.csv", index=False)
-        logger.info(f"Saved stratified results to {RESULTS_DIR / 'sensitivity_raw_stratified.csv'}")
+    path_strat = Path("data/results/sensitivity_raw_stratified.csv")
+    if not strat_df.empty:
+        strat_df.to_csv(path_strat, index=False)
     else:
-        logger.info("No stratified results to save.")
-    
-    # Combine for T029 summary
-    all_sens = pd.concat([df_cont, df_strat], ignore_index=True)
-    if not all_sens.empty:
-        all_sens.to_csv(RESULTS_DIR / "sensitivity_analysis.csv", index=False)
-        logger.info(f"Saved sensitivity summary to {RESULTS_DIR / 'sensitivity_analysis.csv'}")
+        # Ensure header exists if empty
+        pd.DataFrame(columns=["platform", "coef", "n"]).to_csv(path_strat, index=False)
 
 def main():
-    """Entry point for T027-T029."""
-    logger.info("Starting Sensitivity Analysis...")
+    """Entry point for sensitivity analysis."""
     try:
-        df = load_synthetic_cohort()
-        cont_res, strat_res = run_sensitivity_analysis(df)
-        save_results(cont_res, strat_res)
-        logger.info("Sensitivity Analysis completed.")
+        df = pd.read_csv("data/results/analysis_cohort.csv")
+        cont_df, strat_df = run_sensitivity_analysis(df)
+        save_results(cont_df, strat_df)
+        return 0
     except Exception as e:
-        logger.error(f"Sensitivity Analysis failed: {str(e)}")
-        raise
+        logging.getLogger("sensitivity").error(f"Sensitivity analysis failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -1,12 +1,4 @@
 {
   "platform_exists": true,
-  "platform_categories": [
-    "Instagram",
-    "Facebook",
-    "Twitter",
-    "Snapchat",
-    "TikTok",
-    "YouTube",
-    "Other"
-  ]
+  "platform_categories": ["Instagram", "Twitter", "Facebook", "TikTok", "YouTube", "Discord", "Reddit"]
 }

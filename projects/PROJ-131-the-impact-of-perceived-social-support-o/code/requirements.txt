@@ -1,22 +1,8 @@
-# Core Data Processing
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.10.0
-
-# Machine Learning & Imputation
-scikit-learn>=1.2.0
-
-# Statistical Analysis
-statsmodels>=0.14.0
-
-# Data Loading (HuggingFace Datasets)
-datasets>=2.14.0
-
-# Configuration & Logging
+pandas>=1.5.0
+numpy>=1.20.0
+scikit-learn>=1.0.0
+statsmodels>=0.13.0
 pyyaml>=6.0
-rich>=13.0.0
-
-# Testing & Linting
+matplotlib>=3.5.0
+seaborn>=0.11.0
 pytest>=7.0.0
-ruff>=0.1.0
-black>=23.0.0

@@ -1,102 +1,112 @@
 """
-Verify Spec State (T041)
+T072a: Verify Spec Alignment (FR-001/FR-002)
 
-Confirms that `specs/001-social-support-resilience/spec.md` contains the required
-"DEPRECATED" blocks for FR-001/FR-002 and the "REVISED" block for SC-001.
-This task strictly reads the file and asserts presence of specific text markers.
-It does NOT modify the file.
+Verifies that specs/001-social-support-resilience/spec.md contains the required
+deprecation/revision blocks for FR-001/FR-002 and SC-001.
+Also ensures "Synthetic Cohort" does NOT appear outside the rejection section.
 """
 import os
 import sys
 import logging
 from pathlib import Path
 
-# Configure logging to stdout and file
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/results/spec_verification.log', mode='w')
-    ]
-)
+# Setup logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
 
-SPEC_PATH = Path("specs/001-social-support-resilience/spec.md")
-
-# Required markers indicating the "Revised Approach" per Plan
-REQUIRED_MARKERS = [
-    "DEPRECATED",
-    "FR-001",
-    "FR-002",
-    "REVISED",
-    "SC-001",
-    "Synthetic Cohort"  # Must be present in context of rejection/removal
-]
-
-# Specific phrases that confirm the revision status
-REQUIRED_PHRASES = [
-    "DEPRECATED",
-    "REVISED"
-]
-
-def verify_spec_alignment():
+def verify_spec_alignment() -> bool:
     """
-    Reads the spec.md file and verifies the presence of deprecation/revision markers.
+    Checks the spec.md file for alignment with the Plan's single-dataset approach.
+    
+    Returns:
+        bool: True if aligned, False if repair (T072b) is needed.
     """
-    logger.info(f"Checking spec file at: {SPEC_PATH.absolute()}")
-
-    if not SPEC_PATH.exists():
-        logger.error(f"ERROR: Spec file not found at {SPEC_PATH}. Aborting.")
+    spec_path = Path("specs/001-social-support-resilience/spec.md")
+    
+    if not spec_path.exists():
+        logger.error(f"Spec file not found at {spec_path}. Cannot verify alignment.")
         return False
 
-    try:
-        with open(SPEC_PATH, 'r', encoding='utf-8') as f:
-            content = f.read()
-    except Exception as e:
-        logger.error(f"ERROR: Could not read spec file: {e}")
+    content = spec_path.read_text()
+    
+    # Check for FR-001/FR-002 deprecation
+    # Accepting "REMOVED" or "DEPRECATED" labels
+    has_fr_deprecation = (
+        "FR-001" in content and ("REMOVED" in content or "DEPRECATED" in content)
+    )
+    has_sc_revised = "SC-001" in content and "REVISED" in content
+
+    logger.info(f"FR-001/FR-002 Deprecation Check: {'PASS' if has_fr_deprecation else 'FAIL'}")
+    logger.info(f"SC-001 Revision Check: {'PASS' if has_sc_revised else 'FAIL'}")
+
+    # Check for "Synthetic Cohort" outside rejection context
+    # We look for the phrase. If found, we must ensure it's in a rejection context.
+    # For simplicity in this verification, we check if the phrase exists at all.
+    # The task description says: "Also check that the phrase 'Synthetic Cohort' does NOT appear outside the 'Rejection' section."
+    # A strict check: count occurrences. If > 0, we need to verify context.
+    # However, the task says if it's found outside rejection, trigger repair.
+    # Let's assume if the phrase exists, it's risky unless we see a specific "Rejection" header nearby.
+    # Given the strictness, if the phrase exists, we flag it for manual review or repair if not clearly rejected.
+    
+    # Simpler heuristic for T072a: If "Synthetic Cohort" appears, it must be in a "Rejection" section.
+    # We will check if the string exists. If it does, we check if it's near a "Rejection" header.
+    # If we can't guarantee context, we fail the check to trigger T072b (which is safer).
+    
+    synthetic_cohort_count = content.count("Synthetic Cohort")
+    rejection_section_count = content.count("Rejection")
+    
+    # If the phrase exists but there's no "Rejection" section, it's definitely a fail.
+    # If both exist, we assume the text might be correct, but to be safe and trigger repair if ambiguous:
+    # The task says: "If the spec is NOT aligned (e.g., 'Synthetic Cohort' narrative found), log ERROR... and trigger T072b."
+    # So if the phrase exists at all, we treat it as a potential violation unless we can prove it's rejected.
+    # Let's be strict: if "Synthetic Cohort" appears, we assume it needs verification.
+    # But the task says "accepting both 'REMOVED' and 'DEPRECATED' labels" for FR-001/002.
+    # For Synthetic Cohort, the requirement is it must NOT appear outside rejection.
+    # If it appears at all, it's safer to say "Repair Needed" if we can't parse the markdown structure perfectly.
+    
+    # Let's try to find if "Synthetic Cohort" is in a rejection context.
+    # We look for "Rejection" or "rejected" near "Synthetic Cohort".
+    # Split into lines and check proximity.
+    lines = content.split('\n')
+    found_in_rejection = False
+    for i, line in enumerate(lines):
+        if "Synthetic Cohort" in line:
+            # Check nearby lines for rejection context
+            start = max(0, i - 5)
+            end = min(len(lines), i + 5)
+            context = ' '.join(lines[start:end]).lower()
+            if "reject" in context or "invalid" in context or "deprecated" in context:
+                found_in_rejection = True
+            else:
+                logger.warning(f"Found 'Synthetic Cohort' at line {i+1} without clear rejection context.")
+    
+    if synthetic_cohort_count > 0 and not found_in_rejection:
+        logger.error("ERROR: Spec state mismatch. 'Synthetic Cohort' found outside rejection context.")
         return False
 
-    # Check for the existence of required markers
-    missing_markers = []
-    for marker in REQUIRED_MARKERS:
-        if marker not in content:
-            missing_markers.append(marker)
-
-    if missing_markers:
-        logger.error(f"ERROR: Spec state mismatch. Missing required markers: {missing_markers}")
-        logger.error("The spec must contain 'DEPRECATED' blocks for FR-001/FR-002 and 'REVISED' block for SC-001.")
-        return False
-
-    # Additional check: Ensure "Synthetic Cohort" is mentioned in a context of removal/rejection
-    # (The Plan mandates exclusion, so the text should reflect that it was removed or is invalid)
-    if "Synthetic Cohort" not in content:
-        # It's possible the text says "removed" without the phrase "Synthetic Cohort" if fully cleaned,
-        # but usually the revision note references what is being revised.
-        # We will be lenient here as long as DEPRECATED/REVISED are present, 
-        # but log a warning if the specific term is missing entirely.
-        logger.warning("WARNING: 'Synthetic Cohort' phrase not found. Ensure the revision notes explicitly state the exclusion.")
-
-    # Verify specific phrasing if possible
-    if "DEPRECATED" in content and "REVISED" in content:
+    if has_fr_deprecation and has_sc_revised:
         logger.info("INFO: Spec state verified as per Plan requirements.")
-        logger.info("Found 'DEPRECATED' blocks for FR-001/FR-002.")
-        logger.info("Found 'REVISED' block for SC-001.")
         return True
     else:
-        logger.error("ERROR: Spec state mismatch. Could not find 'DEPRECATED' or 'REVISED' markers.")
+        logger.error("ERROR: Spec state mismatch. FR-001/FR-002 deprecation or SC-001 revision missing.")
         return False
 
 def main():
-    """
-    Entry point for T041 verification.
-    """
-    success = verify_spec_alignment()
-    if not success:
-        logger.error("Verification FAILED. The spec does not align with the Plan's Revised Approach.")
-        sys.exit(1)
+    """Entry point for T072a."""
+    logger.info("Starting T072a: Verify Spec Alignment (FR-001/FR-002)")
+    is_aligned = verify_spec_alignment()
+    
+    if not is_aligned:
+        logger.info("Spec alignment failed. Triggering T072b (Repair Spec Alignment).")
+        # In a real pipeline, this would call the repair function or set a flag.
+        # For this task, we just log and exit. The orchestrator handles the trigger.
+        sys.exit(1) # Exit with error to signal need for repair
     else:
-        logger.info("Verification PASSED.")
+        logger.info("Spec alignment verified. Skipping T072b.")
         sys.exit(0)
 
 if __name__ == "__main__":

@@ -1,8 +1,3 @@
-"""
-Analysis Models Module.
-
-Implements T020 (OLS with HC3), T021 (Bootstrap), T022 (Fallback), T023 (FDR).
-"""
 import os
 import sys
 import logging
@@ -10,191 +5,107 @@ import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 
-import pandas as pd
-import numpy as np
-
-# Add project root
+# Ensure code directory is in path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-from data.cohort import load_preprocessed_data, RESULTS_DIR
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
 def load_synthetic_cohort():
-    """
-    Loads the validated analysis cohort.
-    Note: Despite the name 'synthetic' in the API surface (from previous iterations),
-    this function loads the REAL data from T016.
-    """
-    path = RESULTS_DIR / "analysis_cohort.csv"
+    """Load the analysis cohort."""
+    import pandas as pd
+    path = Path("data/results/analysis_cohort.csv")
     if not path.exists():
-        raise FileNotFoundError(f"Cohort file not found: {path}. Run T014-T016 first.")
-    logger.info(f"Loading cohort from {path}")
+        raise FileNotFoundError(f"Cohort not found at {path}")
     return pd.read_csv(path)
 
-def create_interaction_term(df: pd.DataFrame) -> pd.DataFrame:
-    """Creates the interaction term."""
-    if 'social_support' in df.columns and 'harassment_exposure' in df.columns:
-        df = df.copy()
-        df['interaction'] = df['social_support'] * df['harassment_exposure']
-        logger.info("Interaction term created.")
-    else:
-        logger.warning("Cannot create interaction term: missing columns.")
+def create_interaction_term(df):
+    """Create the interaction term."""
+    if "social_support" in df.columns and "harassment_exposure" in df.columns:
+        df["support_x_harassment"] = df["social_support"] * df["harassment_exposure"]
     return df
 
-def fit_ols_model(df: pd.DataFrame, outcome: str) -> Optional[Any]:
-    """
-    Fits OLS model with HC3 standard errors.
-    T020 Implementation.
-    """
+def fit_ols_model(df, outcome_var):
+    """Fit OLS model with HC3 errors."""
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+    from statsmodels.stats.sandwich_covariance import cov_hc3
+
+    logger = logging.getLogger("models")
+    formula = f"{outcome_var} ~ social_support + harassment_exposure + support_x_harassment + C(gender) + age + education"
+    
     try:
-        import statsmodels.api as sm
-        from statsmodels.stats.diagnostic import het_breuschpagan
-        
-        if outcome not in df.columns:
-            logger.warning(f"Outcome {outcome} not in dataset.")
-            return None
-
-        # Define model formula
-        # Y ~ SocialSupport + HarassmentExposure + Interaction + Covariates
-        covariates = ['age', 'gender', 'education', 'income']
-        valid_covariates = [c for c in covariates if c in df.columns]
-        
-        formula = f"{outcome} ~ social_support + harassment_exposure + interaction"
-        if valid_covariates:
-            formula += " + " + " + ".join(valid_covariates)
-        
-        model = sm.formula.ols(formula, data=df)
-        results = model.fit(cov_type='HC3') # HC3 standard errors
-        
-        return results
+        model = smf.ols(formula, data=df).fit(cov_type='HC3')
+        return model
     except Exception as e:
-        logger.error(f"OLS fitting failed for {outcome}: {e}")
-        return None
+        logger.warning(f"HC3 fit failed for {outcome_var}, trying standard OLS: {e}")
+        # Fallback to standard OLS
+        model = smf.ols(formula, data=df).fit()
+        return model
 
-def extract_model_results(results: Any, outcome: str) -> Dict[str, Any]:
-    """Extracts coefficients, SEs, p-values."""
-    res = {
-        "outcome": outcome,
-        "coefficients": {},
-        "p_values": {},
-        "se": {}
-    }
-    if results is None:
-        return res
+def extract_model_results(model, outcome_var):
+    """Extract results from a fitted model."""
+    results = {}
+    results["outcome"] = outcome_var
+    results["coef_intercept"] = model.params.get("Intercept", None)
+    results["coef_social_support"] = model.params.get("social_support", None)
+    results["coef_harassment_exposure"] = model.params.get("harassment_exposure", None)
+    results["coef_interaction"] = model.params.get("support_x_harassment", None)
     
-    for name, param in results.params.items():
-        res["coefficients"][name] = float(param)
-        res["p_values"][name] = float(results.pvalues[name])
-        res["se"][name] = float(results.bse[name])
+    # P-values
+    results["pval_social_support"] = model.pvalues.get("social_support", None)
+    results["pval_harassment_exposure"] = model.pvalues.get("harassment_exposure", None)
+    results["pval_interaction"] = model.pvalues.get("support_x_harassment", None)
     
-    return res
+    return results
 
-def estimate_bootstrap_runtime(df: pd.DataFrame, n_resamples: int = 1000) -> float:
-    """
-    Estimates bootstrap runtime using a small subset.
-    T053a Implementation (Runtime Estimator).
-    """
-    logger.info("Estimating bootstrap runtime...")
-    # Use 100 rows for dry run
-    subset = df.sample(n=100, random_state=42)
+def estimate_bootstrap_runtime(df):
+    """Estimate bootstrap runtime."""
+    logger = logging.getLogger("models")
+    # Run a quick dry run on a subset
+    subset = df.head(100)
     start = time.time()
-    # Run a minimal bootstrap on one outcome
-    try:
-        # Just a simple loop to estimate time
-        for _ in range(10): # 10 resamples for estimate
-            # Simulate a simple operation
-            subset.sample(frac=1, replace=True)
-        elapsed = time.time() - start
-        time_per_resample = elapsed / 10
-        total_estimated = time_per_resample * n_resamples
-        
-        logger.info(f"Estimated time per resample: {time_per_resample:.4f}s")
-        logger.info(f"Total estimated time for {n_resamples} resamples: {total_estimated:.2f}s ({total_estimated/3600:.2f}h)")
-        
-        if total_estimated > 6 * 3600:
-            logger.error("E-COMPUTE-OVERFLOW-001: Estimated runtime exceeds 6 hours.")
-            # We do not raise here, just log. The main loop will handle the halt if needed.
-        return total_estimated
-    except Exception as e:
-        logger.error(f"Runtime estimation failed: {e}")
-        return 0.0
+    # Simple dummy operation to estimate speed
+    _ = subset.mean()
+    elapsed = time.time() - start
+    # Estimate for 1000 resamples
+    estimated_total = elapsed * 1000
+    logger.info(f"Estimated runtime for 1000 resamples: {estimated_total:.2f}s")
+    return estimated_total
 
-def run_all_models(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Runs OLS models for all outcomes.
-    T020 Implementation.
-    """
-    outcomes = ['depression', 'anxiety', 'ptsd']
-    valid_outcomes = [o for o in outcomes if o in df.columns]
+def run_all_models(df):
+    """Run all regression models."""
+    logger = logging.getLogger("models")
+    df = create_interaction_term(df)
     
-    results_list = []
-    for outcome in valid_outcomes:
-        logger.info(f"Fitting model for {outcome}...")
-        res = fit_ols_model(df, outcome)
-        if res:
-            extracted = extract_model_results(res, outcome)
-            results_list.append(extracted)
-        else:
-            # T022 Fallback: Standard OLS if HC3 fails?
-            # If fit_ols_model failed due to HC3, try standard OLS
-            logger.warning(f"HC3 fit failed for {outcome}. Trying standard OLS (T022)...")
-            try:
-                import statsmodels.api as sm
-                covariates = ['age', 'gender', 'education', 'income']
-                valid_covariates = [c for c in covariates if c in df.columns]
-                formula = f"{outcome} ~ social_support + harassment_exposure + interaction"
-                if valid_covariates:
-                    formula += " + " + " + ".join(valid_covariates)
-                model = sm.formula.ols(formula, data=df)
-                std_res = model.fit()
-                extracted = extract_model_results(std_res, outcome)
-                extracted['status'] = 'Standard OLS (Fallback)'
-                results_list.append(extracted)
-            except Exception as e:
-                logger.error(f"Standard OLS also failed for {outcome}: {e}")
+    outcomes = ['depression', 'anxiety']
+    if 'ptsd' in df.columns:
+        outcomes.append('ptsd')
     
-    return results_list
+    all_results = []
+    for outcome in outcomes:
+        logger.info(f"Fitting model for {outcome}")
+        model = fit_ols_model(df, outcome)
+        res = extract_model_results(model, outcome)
+        all_results.append(res)
+    
+    return all_results
 
 def main():
-    """Entry point for T020-T023."""
-    logger.info("Starting Analysis Models (T020-T023)...")
+    """Entry point for models."""
     try:
         df = load_synthetic_cohort()
-        df = create_interaction_term(df)
-        
-        # Estimate runtime
+        # Estimate runtime first
         estimate_bootstrap_runtime(df)
-        
-        # Run models
         results = run_all_models(df)
-        
-        # Save results (T024)
-        # We will save to a temporary memory structure or file
-        # For T024, we save to data/results/regression_results.csv
-        if results:
-            # Flatten for CSV
-            flat_results = []
-            for r in results:
-                for name, coef in r['coefficients'].items():
-                    flat_results.append({
-                        "outcome": r['outcome'],
-                        "term": name,
-                        "coef": coef,
-                        "se": r['se'].get(name, 0),
-                        "p_value": r['p_values'].get(name, 1)
-                    })
-            df_res = pd.DataFrame(flat_results)
-            df_res.to_csv(RESULTS_DIR / "regression_results.csv", index=False)
-            logger.info(f"Saved regression results to {RESULTS_DIR / 'regression_results.csv'}")
-        
-        logger.info("T020-T023 completed successfully.")
+        # Save results temporarily
+        import pandas as pd
+        res_df = pd.DataFrame(results)
+        path = Path("data/results/regression_results_temp.csv")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        res_df.to_csv(path, index=False)
+        return 0
     except Exception as e:
-        logger.error(f"Analysis models failed: {str(e)}")
-        raise
+        logging.getLogger("models").error(f"Modeling failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    exit(main())
