@@ -4,7 +4,7 @@
 **Spec**: `spec.md`
 
 ## Summary
-This plan implements a CPU-tractable pipeline to reconstruct Total Solar Irradiance (TSI) from historical Group Sunspot Numbers (GSN). It addresses the core research question regarding cycle-to-cycle variability by training non-linear regression models (Random Forest and Gaussian Process) using 'Cycle Phase' features (sin/cos of day-of-year) instead of categorical Cycle IDs to avoid overfitting on the limited satellite-era data (N=2 cycles). The pipeline validates generalization via Time-Block Cross-Validation (Train: Early 2000s to 2015, Test: Subsequent Period), applies the model to pre-satellite data (early historical period–2002), and rigorously compares results against the 2007 baseline and CMIP6 datasets. All findings are framed as associational, with statistical corrections for multiple comparisons. A dedicated Sensitivity Analysis phase addresses the inconsistency tolerance threshold requirements.
+This plan implements a CPU-tractable pipeline to reconstruct Total Solar Irradiance (TSI) from historical Group Sunspot Numbers (GSN). It addresses the core research question regarding cycle-to-cycle variability by training non-linear regression models (Random Forest and Gaussian Process) using 'Cycle Phase' features (sin/cos of day-of-year) instead of categorical Cycle IDs to avoid overfitting on the limited satellite-era data (N=2 cycles). The pipeline validates generalization via Time-Block Cross-Validation (Train: Early s to 2015, Test: Subsequent Period), applies the model to pre-satellite data (early historical period–2002), and rigorously compares results against the 2007 baseline and CMIP6 datasets. All findings are framed as associational, with statistical corrections for multiple comparisons. A dedicated Sensitivity Analysis phase addresses the inconsistency tolerance threshold requirements.
 
 ## Technical Context
 
@@ -96,7 +96,7 @@ data/
 
 3.  **Phase 2: Model Training & Validation (User Story 1)**
     *   Train RF and GP models using 'Cycle Phase' features (NOT categorical Cycle ID).
-    *   Execute Time-Block Cross-Validation (Train: 2003-2015, Test: Post-2015 period).
+    *   Execute Time-Block Cross-Validation (Train: Early 2000s to 2015, Test: Post-2015 period).
     *   Calculate RMSE, R² for the held-out block.
     *   Select best model based on generalization metrics.
 
@@ -106,7 +106,7 @@ data/
     *   Output `sensitivity_report.json`.
 
 5.  **Phase 3: Pre-Satellite Reconstruction (User Story 2)**
-    *   Apply trained model to 1610–2002 GSN.
+    *   Apply trained model to early GSN data.
     *   Generate uncertainty bands via prediction intervals.
     *   Perform bootstrap resampling for variance comparison (Maunder/Dalton/Modern).
 
