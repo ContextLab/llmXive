@@ -2927,3 +2927,283 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T11:58:28Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: timestep schedule linear spacing 0 to 1000
+  claim_id: c_511d35e0
+  context: 'T011: iterate through $TRACE_SET_SIZE ImageNet validation images with
+    a fixed timestep schedule (linear spacing from 0 to 1000)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a fixed timestep schedule with linear spacing from 0
+    to 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:02:29Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: routing tensor shape 100 100 num_blocks history_dim
+  claim_id: c_87269b98
+  context: 'T011: The .npy file MUST contain a 5D numpy array of shape [num_images=100,
+    num_timesteps=100, num_blocks, history_dim]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The routing weight matrices are recorded for every block and timestep,
+    resulting in a 5D numpy array of shape [num_images=100, num_timesteps=100, num_blocks,
+    history_dim].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:02:49Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: clustering null hypothesis threshold silhouette 0.25 clusters 2
+  claim_id: c_aefadb5b
+  context: 'T012: If for any block the clustering identifies < 2 clusters or a silhouette
+    score < 0.25, that block MUST default to a global average vector'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_null_hypothesis_threshold_silhouette_0.25_cluster
+  kind: magnitude
+  raw_text: Clustering logic defaults to a global average vector for a block if the
+    number of clusters is less than 2 or the silhouette score is less than 0.25.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:03:47Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: benchmark set 100 images indices 100 to 199
+  claim_id: c_f0e55a6e
+  context: 'T019: Run inference for both dynamic and static models on a set of 100
+    disjoint ImageNet validation images, starting from index 100'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The benchmark set consists of 100 disjoint ImageNet validation images
+    starting from index 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:04:16Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: hypothesis pass latency reduction 40% FID difference 0.1
+  claim_id: c_be3b6e71
+  context: 'T019: set hypothesis_status to PASS if latency_reduction_percent >= 40
+    AND fid_difference < 0.1'
+  evidence:
+    candidates:
+    - - Hypothesis pass latency reduction
+      - 40.0
+    - - FID difference
+      - 0.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_pass_latency_reduction_40%25_FID_difference_0.1
+  kind: magnitude
+  raw_text: The hypothesis status is set to PASS if latency reduction is greater than
+    or equal to 40% and FID difference is less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-28T08:04:56Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: statistical test 5 runs seeds 42 123 456 789 1011
+  claim_id: c_9704bb76
+  context: 'T025: Re-run the inference loop 5 times with different random seeds: [42,
+    123, 456, 789, 1011]'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical significance testing re-runs the inference loop 5 times with
+    random seeds [42, 123, 456, 789, 1011].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:05:25Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: statistical analysis benchmark set 500 images
+  claim_id: c_295abfad
+  context: 'T025: This task uses a benchmark set of 500 images (indices 0-499) to
+    ensure statistical power'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a benchmark set of 500 images (indices 0-499)
+    to ensure statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:05:56Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: bootstrap n_resamples 1000 percentile method
+  claim_id: c_551c0fff
+  context: 'T026: Use n_resamples=1000, a confidence interval calculated using the
+    percentile method'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The non-parametric bootstrap test uses n_resamples=1000 and the percentile
+    method for confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:06:29Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis thresholds 0.01 0.05 0.1
+  claim_id: c_83d3e67c
+  context: 'T027: Sweep the clustering.distance_threshold parameter over the concrete
+    set {0.01, 0.05, 0.1}'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps the clustering distance_threshold parameter
+    over the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:07:02Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis benchmark set 100 images
+  claim_id: c_1ef06282
+  context: 'T027: The benchmark set size for this sensitivity sweep is A set of images
+    (Notes clarify 100 images)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis benchmark set size is 100 images.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:07:52Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: FID inception v3 imagenet1k v1 weights
+  claim_id: c_db2b373e
+  context: 'T006: Implement FID calculation using a frozen, pre-trained Inception
+    network from torchvision.models.inception_v3 using Inception_V_Weights.IMAGENET1K_V1'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FID_inception_v3_imagenet1k_v1_weights
+  kind: entity_fact
+  raw_text: The FID calculation uses a frozen, pre-trained Inception network from
+    torchvision.models.inception_v3 with weights IMAGENET1K_V1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:08:31Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: model load 8bit float16
+  claim_id: c_f84df366
+  context: 'T005: MUST use load_in_8bit=True (via bitsandbytes) and torch.float16
+    precision'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Model_load_8bit_float16
+  kind: entity_fact
+  raw_text: The model is loaded using load_in_8bit=True and torch.float16 precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:09:02Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: default trace set size 100
+  claim_id: c_af0e5808
+  context: 'T008: TRACE_SET_SIZE=100 (default)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default TRACE_SET_SIZE is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:09:31Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: default benchmark set size 100
+  claim_id: c_ef9dbfa3
+  context: 'T008: BENCHMARK_SET_SIZE=100 (default)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default BENCHMARK_SET_SIZE is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:09:52Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: benchmark set start 100
+  claim_id: c_be179f95
+  context: 'T008: BENCHMARK_SET_START=100 (fixed integer). Note: BENCHMARK_SET_START=100
+    ensures disjointness from T011 (indices 0-99)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The BENCHMARK_SET_START is fixed at 100 to ensure disjointness from the
+    trace set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:10:15Z'
+- artifact_path: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c/tasks.md
+  attempts: 1
+  canonical: high fid degradation threshold 0.5
+  claim_id: c_9f384acc
+  context: 'T019: Must report high FID degradation (> 0.5) as a valid negative result'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_fid_degradation_threshold_0.5
+  kind: magnitude
+  raw_text: The benchmark results report high FID degradation if the value is greater
+    than 0.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T08:11:04Z'

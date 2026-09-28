@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T23:02:01.843665Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-907-llmxive-follow-up-extending-rethinking-c
-last_run_id: dd1a3730-0255-4f6e-88a4-e8ecb9fcda68
+last_run_id: 1e663180-69d9-41dc-a623-3c3b72672eac
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-907-llmxive-follow-up-extending-rethinking-c/specs/001-llmxive-follow-up-extending-rethinking-c
 title: 'llmXive follow-up: extending "Rethinking Cross-Layer Information Routing in
   Diffusion Transformers"'
-updated_at: '2026-09-24T11:58:29.048041Z'
+updated_at: '2026-09-28T08:11:07.938146Z'

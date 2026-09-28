@@ -1,3 +1,11 @@
+T011:
+  c: false
+  h: 2134dfb1f4387de11f814afd1c4e4410c5f07a1a1ad2e100391fe241464f5377
+  r: The required output files (`data/routing_cache/routing_aggregated.npy`, `data/results/memory_profile_raw.jsonl`,
+    and `data/results/tracing_log.jsonl`) are absent, so the implementation does not
+    demonstrably produce the mandated aggregated routing tensor and logs. The tracing
+    script exists but without evidence that it successfully runs and generates the
+    specified artifacts.
 T017:
   c: false
   h: 5439a9acc7939eae102461b42ac18f65594af7ccd4a9e3017cfd8489084cd7cc

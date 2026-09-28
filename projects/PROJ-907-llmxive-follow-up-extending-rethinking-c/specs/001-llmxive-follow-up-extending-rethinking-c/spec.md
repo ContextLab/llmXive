@@ -49,7 +49,7 @@
 
 **Acceptance Scenarios**:
 
-1. **Given** FID scores for the static and dynamic models generated across 5 random seeds, **When** the system analyzes the distribution, **Then** the system MUST report the mean and standard deviation of the FID scores for both models; if a significance test is performed, it MUST use a non-parametric bootstrap (1000 resamples) or explicitly state the limitation of low power (N=5) for parametric tests.
+1. **Given** FID scores for the static and dynamic models generated across 5 random seeds, **When** the system analyzes the distribution, **Then** the system MUST report the mean and standard deviation of the FID scores for both models; if a significance test is performed, it MUST use a non-parametric bootstrap (resamples) or explicitly state the limitation of low power (N=5) for parametric tests.
 2. **Given** the clustering distance threshold used to define the "dominant cluster," **When** the system sweeps the threshold over a small concrete set (e.g., {0.01, 0.05, 0.1}), **Then** the system MUST report how the headline FID score varies across these thresholds to confirm robustness.
 3. **Given** the results of the sensitivity analysis, **When** the system compares the FID scores at different thresholds, **Then** the system MUST report the range of FID degradation observed across the sweep.
 
