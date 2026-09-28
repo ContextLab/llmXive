@@ -1,5 +1,5 @@
 """
-Setup script for PROJ-357: The Impact of Visual Crowding on Facial Emotion Recognition Accuracy.
+Project Setup Script for PROJ-357-the-impact-of-visual-crowding-on-facial-
 
 This script creates the required directory structure for the project:
 - code/
@@ -7,20 +7,23 @@ This script creates the required directory structure for the project:
 - tests/
 - artifacts/
 - state/projects/
-
-It also initializes a .gitkeep file in each directory to ensure they are tracked
-by version control even if empty.
 """
+
 import os
 from pathlib import Path
 
 def setup_project_structure():
-    """Create the project directory structure."""
-    # Define the base project directory
-    base_dir = Path("projects/PROJ-357-the-impact-of-visual-crowding-on-facial-")
+    """
+    Creates the root project directory and all required subdirectories.
     
-    # Define subdirectories to create
-    subdirectories = [
+    Returns:
+        bool: True if successful, False otherwise.
+    """
+    # Define the project root directory
+    project_root = Path("projects/PROJ-357-the-impact-of-visual-crowding-on-facial-")
+    
+    # Define required subdirectories
+    required_dirs = [
         "code",
         "data",
         "tests",
@@ -28,25 +31,43 @@ def setup_project_structure():
         "state/projects"
     ]
     
-    # Create the base directory and subdirectories
-    base_dir.mkdir(parents=True, exist_ok=True)
-    
-    created_paths = []
-    for subdir in subdirectories:
-        full_path = base_dir / subdir
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_paths.append(str(full_path))
+    try:
+        # Create the project root directory
+        project_root.mkdir(parents=True, exist_ok=True)
+        print(f"Created project root: {project_root}")
         
-        # Create a .gitkeep file to ensure the directory is tracked by git
-        gitkeep_path = full_path / ".gitkeep"
-        gitkeep_path.touch()
-    
-    print(f"Project structure created successfully at: {base_dir}")
-    print(f"Created directories:")
-    for path in created_paths:
-        print(f"  - {path}")
-    
-    return True
+        # Create each required subdirectory
+        for dir_name in required_dirs:
+            dir_path = project_root / dir_name
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+        
+        # Create additional standard subdirectories for organization
+        additional_dirs = [
+            "data/raw",
+            "data/interim",
+            "data/processed",
+            "code/utils",
+            "code/analysis",
+            "tests/unit",
+            "tests/integration",
+            "figures"
+        ]
+        
+        for dir_name in additional_dirs:
+            dir_path = project_root / dir_name
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+        
+        print(f"\nProject structure successfully created at: {project_root}")
+        return True
+        
+    except Exception as e:
+        print(f"Error creating project structure: {e}")
+        return False
+
 
 if __name__ == "__main__":
-    setup_project_structure()
+    success = setup_project_structure()
+    if not success:
+        exit(1)

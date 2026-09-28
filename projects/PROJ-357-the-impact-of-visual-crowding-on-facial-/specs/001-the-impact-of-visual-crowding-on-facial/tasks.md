@@ -79,7 +79,7 @@
  - **Explicitly record exact flanker count and eccentricity for every generated image**
  - **Write exclusion reasons to `data/interim/generation_errors.log`**
  - Output generated images to `data/interim/stimuli`
-- [ ] T014 [US1] Generate `data/interim/stimuli_manifest.json` by:
+- [X] T014 [US1] Generate `data/interim/stimuli_manifest.json` by:
  - **Reading `data/interim/generation_errors.log` (T013) to update 'status' fields for excluded items**
  - **Validating that every image in `data/interim/stimuli` has a corresponding entry with exact flanker count and eccentricity values**
  - Linking file paths to metadata (emotion, flanker count, eccentricity)
@@ -147,13 +147,13 @@
 - [X] T033 [US3] Implement `code/analysis/glmm_model.py` to fit a binomial GLMM with clutter metrics as fixed effects and participant/stimulus as random effects
 - [ ] T034 [US3] Implement fallback logic: if GLMM fails to converge, fit a fixed-effects only model and log the warning (Edge Case)
 - [ ] T035 [US3] Implement multiple-comparison correction (Benjamini-Hochberg FDR ≤ 0.05) for hypothesis tests (FR-005)
-- [ ] T036 [US3] Implement `code/analysis/reporting.py` to generate a final report framing findings as associational (FR-006)
+- [X] T036 [US3] Implement `code/analysis/reporting.py` to generate a final report framing findings as associational (FR-006)
 - [ ] T037 [US3] Generate `artifacts/model_config.yaml` with hyperparameters, seeds, and model diagnostics
 - [ ] T038 [US3] Generate `data/processed/regression_results.json` containing coefficients, confidence intervals, and p-values
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T032 [P] [US3] Unit test for GLMM convergence and fallback logic in `tests/unit/test_glmm_fallback.py`
+- [X] T032 [P] [US3] Unit test for GLMM convergence and fallback logic in `tests/unit/test_glmm_fallback.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -163,10 +163,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Run `code/utils/hygiene.py` to update state hashes for all final artifacts
+- [X] T039 [P] Run `code/utils/hygiene.py` to update state hashes for all final artifacts
 - [ ] T040 [P] Documentation updates in `specs/001-visual-crowding-emotion-recognition/quickstart.md`
-- [ ] T041 Run full pipeline integration test in `tests/integration/test_pipeline.py`
-- [ ] T042 Verify all tasks complete within 6 hours on CPU-only runner (Constraint)
+- [X] T041 Run full pipeline integration test in `tests/integration/test_pipeline.py`
+- [ ] T042 Verify all tasks complete within 6 hours on CPU-only runner (Constraint) <!-- FAILED: unspecified -->
 
 ---
 

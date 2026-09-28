@@ -1,14 +1,14 @@
 status: none
-intent: download IA-Bench prompts, WISE-Verified prompts, MTLD lexical diversity reference,
-  CLIP mfaq dataset python package
+intent: download IA-Bench prompts WISE-Verified dataset MTLD lexical diversity CLIP
+  mfaq reference python package dataset
 required_fields:
 - prompt_id
-- raw_prompt_text
-- source_dataset
+- prompt_text
+- source
 - parse_tree_depth
 - clause_count
 - mtld_score
 - syntactic_complexity_score
-cache_key: 440b81ec743a4ed665f259034ebf527562386eca3abaa9dae87def271a0b8e24
-searched_at: '2026-09-25T15:55:25.157296+00:00'
+cache_key: 808638ab6feeae526fb6706b9c312eaed396897cadac26934da9af9c6b903553
+searched_at: '2026-09-28T03:30:41.543446+00:00'
 retry_count: 1

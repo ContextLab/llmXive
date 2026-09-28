@@ -1,82 +1,121 @@
-# Quickstart: The Impact of Visual Crowding on Facial Emotion Recognition Accuracy
+# Quickstart Guide: Visual Crowding & Facial Emotion Recognition
+
+This guide walks you through setting up the environment and running the full pipeline for the study on the impact of visual crowding on facial emotion recognition accuracy.
 
 ## Prerequisites
 
-- Python 3.11+
-- pip (package manager)
-- Git
-- Sufficient disk space (~ GB for RAVDESS + generated stimuli)
+- Python 3.9+
+- pip
+- A modern web browser (for viewing reports)
+- At least 14 GB of free disk space (for dataset and intermediate artifacts)
+- At least 8 GB RAM (recommended)
 
-## Installation
+## 1. Environment Setup
 
-1.  **Clone the Repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-357-the-impact-of-visual-crowding-on-facial-/
-    ```
+Clone the repository and navigate to the project root:
 
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-### Step 1: Download Data
-Download and cache the RAVDESS dataset.
 ```bash
-python code/utils/download.py --source ravdess
+git clone <repository-url>
+cd PROJ-357-the-impact-of-visual-crowding-on-facial-
 ```
-*Output*: `data/raw/ravdess.zip` and checksum file.
 
-### Step 2: Generate Stimuli
-Generate crowding stimuli with default parameters.
+Create a virtual environment and install dependencies:
+
 ```bash
-python code/utils/stimulus_gen.py --flanker-counts 1 3 5 --eccentricities 2 4 6
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
-*Output*: `data/interim/stimuli/` directory and `stimulus_manifest.json`.
 
-### Step 3: Compute Clutter Metrics
-Compute visual clutter metrics for all generated stimuli.
+## 2. Configuration
+
+The project uses `code/config.py` to manage environment variables and random seeds.
+Ensure your environment is set up correctly. The default RAVDESS dataset URL is verified in `code/utils/verify_ravdess.py`.
+
+## 3. Running the Pipeline
+
+The pipeline consists of several stages. You can run them sequentially or execute the master script.
+
+### Option A: Run the Master Pipeline Script
+
+The master script orchestrates the entire flow from data download to final report generation.
+
 ```bash
-python code/utils/clutter_metrics.py --input data/interim/stimuli/
+python code/run_full_pipeline.py
 ```
-*Output*: `data/processed/clutter_metrics.csv`.
 
-### Step 4: Simulate/Collect Human Data
-*(Note: Replace with actual data collection script if IRB approved. This command generates synthetic data for testing.)*
+*Note: If `run_full_pipeline.py` does not exist, run the stages manually as described below.*
+
+### Option B: Run Stages Manually
+
+#### Stage 1: Data Download & Preparation
+Downloads the RAVDESS dataset and extracts frames.
+
 ```bash
-python code/analysis/generate_synthetic_data.py --n-participants <NUM_PARTICIPANTS> --n-trials 1000
+python code/utils/download.py
+python code/utils/frame_extractor.py
 ```
-*Output*: `data/processed/human_judgments.csv`.
 
-### Step 5: Run Analysis
-Fit the GLMM and generate the report.
+#### Stage 2: Stimuli Generation
+Generates visual crowding stimuli with controlled parameters.
+
+```bash
+python code/utils/stimulus_gen.py
+python code/utils/stimuli_manifest.py
+python code/utils/manifest_validator.py
+```
+
+#### Stage 3: Clutter Metrics Computation
+Computes visual clutter metrics for generated stimuli.
+
+```bash
+python code/utils/clutter_metrics.py
+```
+
+#### Stage 4: Synthetic Human Data Collection
+Generates synthetic pilot data mimicking human judgments.
+
+```bash
+python code/analysis/pilot_runner.py
+python code/analysis/aggregate_judgments.py
+```
+
+#### Stage 5: Analysis & Reporting
+Fits the GLMM model and generates the final report.
+
 ```bash
 python code/analysis/glmm_model.py
+python code/analysis/reporting.py
 ```
-*Output*: `artifacts/regression_results.yaml`, `reports/analysis_report.md`.
 
-## Testing
+## 4. Output Artifacts
 
-Run the unit tests to verify the pipeline:
+After successful completion, the following artifacts will be available:
+
+- **Stimuli**: `data/interim/stimuli/` (Generated images)
+- **Manifest**: `data/interim/stimuli_manifest.json`
+- **Clutter Metrics**: `data/processed/clutter_metrics.csv`
+- **Human Judgments**: `data/processed/human_judgments.csv`
+- **Regression Results**: `data/processed/regression_results.json`
+- **Model Config**: `artifacts/model_config.yaml`
+- **Final Report**: `artifacts/final_report.md` (or similar, check `code/analysis/reporting.py`)
+
+## 5. Verification
+
+To verify the integrity of the generated artifacts, run the hygiene check:
+
 ```bash
-pytest tests/unit/ -v
+python code/utils/hygiene.py
 ```
 
-Run integration tests:
-```bash
-pytest tests/integration/ -v
-```
+This updates the state file with SHA256 checksums for all data and artifact directories.
 
 ## Troubleshooting
 
-- **Convergence Failure**: If the GLMM fails to converge, the script will automatically fall back to a fixed-effects model and log a warning. Check `artifacts/model_config.yaml` for details.
-- **Memory Error**: If you encounter memory errors, reduce the number of stimuli or participants in the configuration file (`code/config.py`).
-- **Missing RAVDESS**: Ensure the verified URL is accessible. If not, check your network or use a local copy placed in `data/raw/`.
+- **Memory Errors**: If you encounter memory errors during clutter metric computation, ensure you have at least 8GB RAM. The `clutter_metrics.py` script includes chunked processing logic.
+- **Dataset Download Failures**: Ensure you have a stable internet connection. The script attempts to fetch from the verified HuggingFace URL.
+- **GLMM Convergence**: If the GLMM fails to converge, the pipeline automatically falls back to a fixed-effects only model and logs a warning.
+
+## Next Steps
+
+Once the pipeline completes, review the `artifacts/final_report.md` for the associational analysis results and the `data/processed/validation_report.json` for metric correlations.

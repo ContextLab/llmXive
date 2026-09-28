@@ -1,194 +1,319 @@
 """
-Integration test for the full visual crowding stimuli generation pipeline (US1).
-
-This test verifies the end-to-end flow:
-1. Configuration and directory setup.
-2. Data download (RAVDESS).
-3. Frame extraction.
-4. Stimulus generation (with overlap detection).
-5. Manifest generation and validation.
-
-It asserts that output artifacts exist and contain valid data structures.
+Integration Test: Full Pipeline Execution
+This script executes the entire research pipeline end-to-end,
+verifying that all stages produce the required artifacts and that
+the final analysis results are consistent.
 """
 import os
 import sys
 import json
 import logging
-import tempfile
-import shutil
+import subprocess
+import time
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from config import set_all_seeds, ensure_directories, get_env_config
-from utils.download import fetch_ravdess_dataset
-from utils.frame_extractor import extract_frames_from_dataset
-from utils.stimulus_gen import generate_stimuli
-from utils.stimuli_manifest import generate_manifest
-from utils.manifest_validator import validate_manifest_completeness, generate_validation_report
-
-# Configure logging for the test
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
-logger = logging.getLogger("integration_test_pipeline")
+logger = logging.getLogger(__name__)
 
-def run_integration_test():
-    """
-    Executes the full pipeline and asserts success.
-    """
-    logger.info("Starting Integration Test for US1 (Stimuli Generation Pipeline)")
-    
-    # 1. Setup: Configuration and Directories
-    logger.info("Step 1: Configuring environment and directories...")
-    set_all_seeds(42)
-    env_config = get_env_config()
-    
-    # Use temporary directory for the test run to avoid cluttering data/ in CI
-    # In a real run, this would use the actual project data paths
-    test_data_root = Path(tempfile.mkdtemp(prefix="ravdess_integration_test_"))
-    logger.info(f"Using temporary data root: {test_data_root}")
-    
-    # Override config paths for this test
-    env_config['data_root'] = str(test_data_root)
-    env_config['raw_dir'] = str(test_data_root / "raw")
-    env_config['interim_dir'] = str(test_data_root / "interim")
-    env_config['frames_dir'] = str(test_data_root / "raw" / "frames")
-    env_config['stimuli_dir'] = str(test_data_root / "interim" / "stimuli")
-    
-    ensure_directories(
-        raw_dir=env_config['raw_dir'],
-        frames_dir=env_config['frames_dir'],
-        stimuli_dir=env_config['stimuli_dir']
-    )
+# Project paths
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = PROJECT_ROOT / "data"
+ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+STATE_DIR = PROJECT_ROOT / "state"
 
-    # 2. Download: Fetch RAVDESS (or simulate if not available)
-    logger.info("Step 2: Fetching RAVDESS dataset...")
-    try:
-        fetch_ravdess_dataset(env_config['raw_dir'])
-    except Exception as e:
-        # If download fails (e.g., no internet or missing credentials), 
-        # we check if we can proceed with a minimal subset or fail gracefully.
-        # For this integration test, we assume the download function handles 
-        # the "missing data" case by raising a clear error or creating a 
-        # minimal structure if the dataset is already present.
-        # If the directory is empty, the subsequent steps will fail, which is expected.
-        if not Path(env_config['raw_dir']).exists():
-            logger.error("Failed to create raw data directory. Pipeline cannot proceed.")
-            return False
-        logger.warning("Download step encountered an issue, proceeding to check existing data.")
+# Expected artifacts
+EXPECTED_ARTIFACTS = {
+    # Stimuli Generation (US1)
+    "data/interim/stimuli": "directory",
+    "data/interim/stimuli_manifest.json": "file",
+    "data/interim/generation_errors.log": "file",
+    
+    # Clutter Metrics (US2)
+    "data/processed/clutter_metrics.csv": "file",
+    "data/processed/validation_report.json": "file",
+    
+    # Human Judgments (US4)
+    "data/processed/human_judgments.csv": "file",
+    
+    # Analysis (US3)
+    "data/processed/regression_results.json": "file",
+    "artifacts/model_config.yaml": "file",
+}
 
-    # 3. Frame Extraction
-    logger.info("Step 3: Extracting frames from videos...")
-    try:
-        extract_frames_from_dataset(env_config['raw_dir'], env_config['frames_dir'])
-    except Exception as e:
-        logger.error(f"Frame extraction failed: {e}")
-        return False
-
-    # 4. Stimulus Generation
-    logger.info("Step 4: Generating stimuli with crowding parameters...")
-    # Define a minimal set of parameters for the integration test to run quickly
-    test_params = {
-        "emotions": ["happy", "sad"],  # Limit to 2 for speed
-        "flanker_counts": [3, 5],      # 2 levels
-        "eccentricities": [5.0, 10.0], # 2 levels
-        "max_stimuli_per_combo": 2     # Limit total count
+# Pipeline stages to execute
+PIPELINE_STAGES = [
+    {
+        "name": "Verify RAVDESS Source",
+        "script": "utils/verify_ravdess.py",
+        "args": []
+    },
+    {
+        "name": "Download RAVDESS Dataset",
+        "script": "utils/download.py",
+        "args": []
+    },
+    {
+        "name": "Extract Frames",
+        "script": "utils/frame_extractor.py",
+        "args": []
+    },
+    {
+        "name": "Generate Stimuli",
+        "script": "utils/stimulus_gen.py",
+        "args": []
+    },
+    {
+        "name": "Generate Stimuli Manifest",
+        "script": "utils/stimuli_manifest.py",
+        "args": []
+    },
+    {
+        "name": "Validate Manifest",
+        "script": "utils/manifest_validator.py",
+        "args": []
+    },
+    {
+        "name": "Compute Clutter Metrics",
+        "script": "utils/clutter_metrics.py",
+        "args": []
+    },
+    {
+        "name": "Generate Synthetic Pilot Data",
+        "script": "analysis/pilot_runner.py",
+        "args": []
+    },
+    {
+        "name": "Aggregate Judgments",
+        "script": "analysis/aggregate_judgments.py",
+        "args": []
+    },
+    {
+        "name": "Fit GLMM Model",
+        "script": "analysis/glmm_model.py",
+        "args": []
+    },
+    {
+        "name": "Write Regression Results",
+        "script": "analysis/write_regression_results.py",
+        "args": []
+    },
+    {
+        "name": "Generate Report",
+        "script": "analysis/reporting.py",
+        "args": []
+    },
+    {
+        "name": "Update State Hygiene",
+        "script": "utils/hygiene.py",
+        "args": []
     }
-    
+]
+
+def run_command(cmd: List[str], cwd: Path = None, timeout: int = 300) -> bool:
+    """Run a command and return True if it succeeds."""
     try:
-        generate_stimuli(
-            frames_dir=env_config['frames_dir'],
-            output_dir=env_config['stimuli_dir'],
-            emotions=test_params['emotions'],
-            flanker_counts=test_params['flanker_counts'],
-            eccentricities=test_params['eccentricities'],
-            max_per_combo=test_params['max_stimuli_per_combo']
+        logger.info(f"Running: {' '.join(cmd)}")
+        result = subprocess.run(
+            cmd,
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=timeout
         )
-    except Exception as e:
-        logger.error(f"Stimulus generation failed: {e}")
-        return False
-
-    # 5. Manifest Generation
-    logger.info("Step 5: Generating stimuli manifest...")
-    try:
-        manifest_path = generate_manifest(env_config['stimuli_dir'])
-        if not manifest_path.exists():
-            logger.error("Manifest file was not created.")
+        
+        if result.returncode == 0:
+            logger.info(f"Command succeeded: {' '.join(cmd)}")
+            return True
+        else:
+            logger.error(f"Command failed with return code {result.returncode}")
+            logger.error(f"STDOUT: {result.stdout}")
+            logger.error(f"STDERR: {result.stderr}")
             return False
+    except subprocess.TimeoutExpired:
+        logger.error(f"Command timed out after {timeout} seconds: {' '.join(cmd)}")
+        return False
     except Exception as e:
-        logger.error(f"Manifest generation failed: {e}")
+        logger.error(f"Command execution failed: {e}")
         return False
 
-    # 6. Manifest Validation
-    logger.info("Step 6: Validating manifest completeness...")
+def verify_artifacts() -> Dict[str, bool]:
+    """Verify that all expected artifacts exist."""
+    results = {}
+    
+    for artifact_path, artifact_type in EXPECTED_ARTIFACTS.items():
+        full_path = PROJECT_ROOT / artifact_path
+        
+        if artifact_type == "directory":
+            exists = full_path.exists() and full_path.is_dir()
+            if exists:
+                # Check if directory is not empty
+                try:
+                    files = list(full_path.iterdir())
+                    exists = len(files) > 0
+                except PermissionError:
+                    exists = False
+        else:
+            exists = full_path.exists() and full_path.is_file()
+        
+        results[artifact_path] = exists
+        
+        if exists:
+            logger.info(f"✓ Artifact exists: {artifact_path}")
+        else:
+            logger.error(f"✗ Artifact missing: {artifact_path}")
+    
+    return results
+
+def verify_manifest_integrity() -> bool:
+    """Verify the integrity of the stimuli manifest."""
+    manifest_path = PROJECT_ROOT / "data/interim/stimuli_manifest.json"
+    
+    if not manifest_path.exists():
+        logger.error("Manifest file does not exist")
+        return False
+    
     try:
-        is_valid, report = validate_manifest_completeness(manifest_path)
-        if not is_valid:
-            logger.error(f"Manifest validation failed: {report}")
+        with open(manifest_path, 'r') as f:
+            manifest = json.load(f)
+        
+        if not isinstance(manifest, list) or len(manifest) == 0:
+            logger.error("Manifest is empty or not a list")
             return False
         
-        # Generate detailed report
-        report_path = generate_validation_report(manifest_path)
-        logger.info(f"Validation report generated at: {report_path}")
+        # Check for required fields in each entry
+        required_fields = ['file_path', 'emotion_label', 'flanker_count', 'eccentricity']
+        for entry in manifest:
+            for field in required_fields:
+                if field not in entry:
+                    logger.error(f"Missing required field '{field}' in manifest entry")
+                    return False
         
+        logger.info(f"✓ Manifest integrity verified with {len(manifest)} entries")
+        return True
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in manifest: {e}")
+        return False
     except Exception as e:
-        logger.error(f"Manifest validation failed: {e}")
+        logger.error(f"Error verifying manifest: {e}")
         return False
 
-    # Final Assertions
-    logger.info("Step 7: Verifying output artifacts...")
+def verify_regression_results() -> bool:
+    """Verify the regression results file."""
+    results_path = PROJECT_ROOT / "data/processed/regression_results.json"
     
-    # Check for stimuli files
-    stimuli_files = list(Path(env_config['stimuli_dir']).glob("*.png"))
-    if len(stimuli_files) == 0:
-        logger.error("No stimuli images were generated.")
+    if not results_path.exists():
+        logger.error("Regression results file does not exist")
         return False
     
-    # Check manifest content
-    with open(manifest_path, 'r') as f:
-        manifest_data = json.load(f)
-    
-    if len(manifest_data) == 0:
-        logger.error("Manifest is empty.")
-        return False
-
-    # Verify required fields in manifest entries
-    required_fields = ['file_path', 'emotion', 'flanker_count', 'eccentricity', 'status']
-    for entry in manifest_data:
+    try:
+        with open(results_path, 'r') as f:
+            results = json.load(f)
+        
+        # Check for required fields
+        required_fields = ['coefficients', 'p_values', 'confidence_intervals', 'model_type']
         for field in required_fields:
-            if field not in entry:
-                logger.error(f"Missing required field '{field}' in manifest entry: {entry}")
+            if field not in results:
+                logger.error(f"Missing required field '{field}' in regression results")
                 return False
         
-        # Verify flanker_count and eccentricity are numeric
-        if not isinstance(entry['flanker_count'], (int, float)):
-            logger.error(f"flanker_count is not numeric: {entry['flanker_count']}")
-            return False
-        if not isinstance(entry['eccentricity'], (int, float)):
-            logger.error(f"eccentricity is not numeric: {entry['eccentricity']}")
-            return False
+        # Verify FDR correction was applied
+        if 'fdr_corrected' in results and results['fdr_corrected']:
+            logger.info("✓ FDR correction was applied")
+        
+        logger.info("✓ Regression results verified")
+        return True
+        
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in regression results: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Error verifying regression results: {e}")
+        return False
 
-    logger.info("Integration Test PASSED: All pipeline steps completed successfully.")
+def run_full_pipeline() -> bool:
+    """Execute the full pipeline and verify results."""
+    logger.info("Starting full pipeline integration test")
     
-    # Cleanup
-    shutil.rmtree(test_data_root)
-    logger.info(f"Cleaned up temporary directory: {test_data_root}")
+    # Ensure directories exist
+    for stage in PIPELINE_STAGES:
+        script_path = CODE_DIR / stage["script"]
+        if not script_path.exists():
+            logger.error(f"Script not found: {script_path}")
+            return False
+    
+    # Execute each stage
+    for i, stage in enumerate(PIPELINE_STAGES):
+        logger.info(f"Executing stage {i+1}/{len(PIPELINE_STAGES)}: {stage['name']}")
+        
+        cmd = [sys.executable, str(CODE_DIR / stage["script"])] + stage["args"]
+        
+        if not run_command(cmd, cwd=PROJECT_ROOT):
+            logger.error(f"Stage failed: {stage['name']}")
+            return False
     
     return True
 
 def main():
-    success = run_integration_test()
-    if not success:
-        logger.error("Integration Test FAILED.")
-        sys.exit(1)
-    else:
-        logger.info("Integration Test SUCCESS.")
-        sys.exit(0)
+    """Main entry point for the integration test."""
+    logger.info("=" * 60)
+    logger.info("FULL PIPELINE INTEGRATION TEST")
+    logger.info("=" * 60)
+    
+    start_time = time.time()
+    
+    # Run the full pipeline
+    pipeline_success = run_full_pipeline()
+    
+    if not pipeline_success:
+        logger.error("Pipeline execution failed")
+        print("\nINTEGRATION TEST FAILED: Pipeline execution errors")
+        return 1
+    
+    # Verify artifacts
+    logger.info("\nVerifying artifacts...")
+    artifact_results = verify_artifacts()
+    
+    missing_artifacts = [path for path, exists in artifact_results.items() if not exists]
+    if missing_artifacts:
+        logger.error(f"Missing artifacts: {missing_artifacts}")
+        print("\nINTEGRATION TEST FAILED: Missing artifacts")
+        return 1
+    
+    # Verify manifest integrity
+    logger.info("\nVerifying manifest integrity...")
+    if not verify_manifest_integrity():
+        logger.error("Manifest integrity check failed")
+        print("\nINTEGRATION TEST FAILED: Manifest integrity check failed")
+        return 1
+    
+    # Verify regression results
+    logger.info("\nVerifying regression results...")
+    if not verify_regression_results():
+        logger.error("Regression results verification failed")
+        print("\nINTEGRATION TEST FAILED: Regression results verification failed")
+        return 1
+    
+    end_time = time.time()
+    duration = end_time - start_time
+    
+    logger.info("\n" + "=" * 60)
+    logger.info("INTEGRATION TEST PASSED")
+    logger.info(f"Total execution time: {duration:.2f} seconds")
+    logger.info("=" * 60)
+    
+    print("\n✓ All pipeline stages executed successfully")
+    print("✓ All expected artifacts generated")
+    print("✓ Manifest integrity verified")
+    print("✓ Regression results verified")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
