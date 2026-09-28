@@ -1,40 +1,75 @@
-"""
-Setup script to initialize the project directory structure.
-Creates code/, tests/, data/, and results/ directories at the repository root.
-"""
 import os
 import sys
 from pathlib import Path
 
-def main():
-    # Determine the project root (parent of the code/ directory where this script lives)
-    # If run from code/, go up one level. If run from root, stay.
-    current_file = Path(__file__).resolve()
-    if current_file.parent.name == "code":
-        project_root = current_file.parent.parent
-    else:
-        project_root = current_file.parent
+def ensure_directory(path: str) -> bool:
+    """Ensure a directory exists, creating it if necessary."""
+    dir_path = Path(path)
+    if not dir_path.exists():
+        dir_path.mkdir(parents=True, exist_ok=True)
+        return True
+    return False
 
-    # Define required directories relative to project root
+def ensure_checksums_file() -> bool:
+    """Ensure the checksums.json file exists in data/."""
+    data_dir = Path("data")
+    checksums_file = data_dir / "checksums.json"
+    if not checksums_file.exists():
+        checksums_file.write_text("{}")
+        return True
+    return False
+
+def verify_structure() -> bool:
+    """Verify that the required directory structure exists."""
     required_dirs = [
         "code",
         "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
         "data",
+        "data/raw",
+        "data/processed",
         "results"
     ]
+    for dir_path in required_dirs:
+        if not Path(dir_path).exists():
+            print(f"ERROR: Directory {dir_path} does not exist.")
+            return False
+    return True
 
-    created_count = 0
-    for dir_name in required_dirs:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
-
-    print(f"\nSetup complete. {created_count} new directories created.")
-    return 0
+def main():
+    """Main entry point for directory setup."""
+    print("Setting up directory structure...")
+    
+    # Ensure all required directories exist
+    directories = [
+        "code",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "data",
+        "data/raw",
+        "data/processed",
+        "results"
+    ]
+    
+    for dir_path in directories:
+        ensure_directory(dir_path)
+        print(f"  Created/verified: {dir_path}")
+    
+    # Ensure checksums file exists
+    ensure_checksums_file()
+    print("  Created/verified: data/checksums.json")
+    
+    # Verify structure
+    if verify_structure():
+        print("Directory structure setup complete.")
+        return 0
+    else:
+        print("ERROR: Directory structure verification failed.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

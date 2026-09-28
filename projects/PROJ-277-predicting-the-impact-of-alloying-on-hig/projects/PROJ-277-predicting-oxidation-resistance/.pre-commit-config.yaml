@@ -1,20 +1,72 @@
+# Pre-commit configuration for PROJ-277: Predicting the Impact of Alloying on High-Temperature Oxidation Resistance
+# Enforces code quality standards (linting, formatting) before commits are accepted.
+# Usage: Install hooks with `pre-commit install` and run manually with `pre-commit run --all-files`.
+
 repos:
+  # Black: Uncompromised code formatter
   - repo: https://github.com/psf/black
-    rev: 24.4.2
+    rev: 24.3.0
     hooks:
       - id: black
-        language_version: python3
-        args: ["--line-length", "88"]
-  - repo: https://github.com/pycqa/flake8
+        name: Black Code Formatter
+        description: "Reformat Python code to conform to the Black style guide."
+        args: [--line-length=88, --target-version=py39]
+
+  # Flake8: Linting and style checking
+  - repo: https://github.com/PyCQA/flake8
     rev: 7.0.0
     hooks:
       - id: flake8
-        args: ["--max-line-length=88", "--extend-ignore=E203"]
+        name: Flake8 Linter
+        description: "Check for syntax errors, undefined names, and style guide violations."
+        args:
+          - --max-line-length=88
+          - --extend-ignore=E203,W503
+          - --exclude=.git,__pycache__,.venv,venenv,build,dist
+          - --count
+          - --show-source
+          - --statistics
+
+  # Isort: Sorts and organizes imports
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: Isort Import Sorter
+        description: "Sort Python imports alphabetically and group them by standard library, third-party, and local."
+        args:
+          - --profile=black
+          - --line-length=88
+
+  # Check-Yaml: Validates YAML syntax
+  - repo: https://github.com/PyCQA/pre-commit-hooks
+    rev: 2.0.0
+    hooks:
+      - id: check-yaml
+        name: Check YAML Syntax
+        description: "Ensure all YAML files are syntactically valid."
+        args: [--unsafe]
+
+  # Check-Toml: Validates TOML syntax (for pyproject.toml)
+  - repo: https://github.com/PyCQA/pre-commit-hooks
+    rev: 2.0.0
+    hooks:
+      - id: check-toml
+        name: Check TOML Syntax
+        description: "Ensure all TOML files are syntactically valid."
+
+  # End-of-file fixer: Ensures files end with a newline
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: 2.0.0
+    hooks:
+      - id: end-of-file-fixer
+        name: End-of-File Fixer
+        description: "Ensures that files end with a single newline."
+
+  # Trailing whitespace remover
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: 2.0.0
     hooks:
       - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-        args: ["--maxkb=5000"]
+        name: Trailing Whitespace Remover
+        description: "Removes trailing whitespace from all lines."

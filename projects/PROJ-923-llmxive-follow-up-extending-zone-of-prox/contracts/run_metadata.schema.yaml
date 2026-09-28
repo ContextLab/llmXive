@@ -1,153 +1,114 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Run Metadata Schema
 description: |
-  Schema defining the structure of run metadata for the ZPPO simulation pipeline.
-  This file captures the execution context, including seeds, timestamps, and
-  hyperparameters used during a specific simulation run. It serves as the
-  provenance record for reproducibility (Constitution Principle I).
+  Defines the structure for run metadata files capturing the execution context,
+  seeds, timestamps, and hyperparameters for reproducibility and audit trails.
+  This schema is the Single Source of Truth for T004b and is used by T007, T031, and T034.
 type: object
 required:
   - run_id
-  - timestamp_start
-  - timestamp_end
+  - timestamp
   - seed
   - hyperparameters
-  - config_version
 properties:
   run_id:
     type: string
-    description: Unique identifier for this simulation run (e.g., UUID or hash).
-    pattern: "^[a-zA-Z0-9_-]+$"
-  
-  timestamp_start:
+    description: Unique identifier for this specific run (e., UUID or generated hash).
+    pattern: "^[a-zA-Z0-9-]+$"
+  timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp when the run started.
-  
-  timestamp_end:
+    description: ISO 8601 timestamp of when the run started.
+  project_id:
     type: string
-    format: date-time
-    description: ISO 8601 timestamp when the run completed.
-  
+    description: Identifier of the project this run belongs to (e.g., PROJ-923-llmxive-follow-up-extending-zone-of-prox).
+    default: "PROJ-923-llmxive-follow-up-extending-zone-of-prox"
+  task_id:
+    type: string
+    description: The specific task ID being executed (e.g., T016, T023).
   seed:
     type: integer
     description: The primary random seed used for this run to ensure reproducibility.
-    minimum: 0
-  
   hyperparameters:
     type: object
-    description: All hyperparameters controlling the simulation behavior.
+    description: Dictionary of all hyperparameters used in this run.
     required:
-      - student_learning_rate
-      - noise_sigma
-      - confidence_threshold_reject
-      - confidence_threshold_accept
-      - max_cycles
+      - alpha
+      - sigma
+      - num_cycles
       - num_tasks
+      - num_seeds
+      - confidence_thresholds
     properties:
-      student_learning_rate:
+      alpha:
         type: number
-        description: Alpha parameter in the student confidence update formula.
-        minimum: 0
-        maximum: 1
-      
-      noise_sigma:
+        format: float
+        description: Learning rate / adaptation factor for confidence updates.
+        minimum: 0.0
+        maximum: 1.0
+      sigma:
         type: number
-        description: Standard deviation for Gaussian noise injection (FR-008).
-        minimum: 0
-      
-      confidence_threshold_reject:
-        type: number
-        description: Lower bound for 'fluctuating' confidence classification.
-        minimum: 0
-        maximum: 1
-      
-      confidence_threshold_accept:
-        type: number
-        description: Upper bound for 'fluctuating' confidence classification.
-        minimum: 0
-        maximum: 1
-      
-      max_cycles:
+        format: float
+        description: Standard deviation for Gaussian noise injection.
+        minimum: 0.0
+      num_cycles:
         type: integer
-        description: Maximum number of training cycles/buffer updates.
+        description: Number of training/simulation cycles to run.
         minimum: 1
-      
       num_tasks:
         type: integer
-        description: Number of MMLU tasks included in the batch run.
+        description: Number of tasks selected for the batch run.
         minimum: 1
-      
-      prompt_length_factor_alpha:
-        type: number
-        description: Weight for prompt length influence in learning dynamics.
-        minimum: 0
-      
-      cap_fallback_min_candidates:
+      num_seeds:
         type: integer
-        description: Minimum number of candidates to retain if pruning results in empty set (FR-007).
-        minimum: 0
-      
-      use_static_baseline:
+        description: Number of seeds used in the batch study (if applicable).
+        minimum: 1
+      confidence_thresholds:
+        type: object
+        description: Thresholds for CAP classification.
+        properties:
+          rejected_upper:
+            type: number
+            format: float
+            description: Upper bound for 'consistently rejected' category.
+            default: 0.1
+          accepted_lower:
+            type: number
+            format: float
+            description: Lower bound for 'consistently accepted' category.
+            default: 0.9
+        required:
+          - rejected_upper
+          - accepted_lower
+      noise_injection_enabled:
         type: boolean
-        description: Flag indicating if this is a static baseline run (True) or CAP run (False).
-  
-  config_version:
-    type: string
-    description: Version string of the configuration file used for this run.
-  
-  git_commit:
-    type: string
-    description: Git commit hash of the codebase at the time of the run.
-    pattern: "^[a-fA-F0-9]{7,40}$"
-    nullable: true
-  
-  execution_environment:
+        description: Flag indicating if per-step Gaussian noise is enabled.
+        default: true
+      cap_enabled:
+        type: boolean
+        description: Flag indicating if Confidence-Adaptive Pruning is enabled.
+        default: false
+  environment:
     type: object
-    description: Environment details for reproducibility.
+    description: Environment information for reproducibility.
     properties:
       python_version:
         type: string
-        description: Python version used (e.g., "3.10.12").
-      
       platform:
         type: string
-        description: Operating system platform.
-      
-      cpu_count:
-        type: integer
-        description: Number of CPU cores available.
-      
-      memory_gb:
-        type: number
-        description: Available RAM in GB.
-  
-  input_datasets:
-    type: object
-    description: References to input datasets used.
-    properties:
-      mmlu_subset:
-        type: string
-        description: Name of the MMLU subset used (e.g., "mmlu/logical_reasoning").
-      
-      held_out_set:
-        type: string
-        description: Name or path of the held-out test set.
-  
-  output_files:
-    type: object
-    description: Relative paths to output files generated by this run.
-    properties:
-      rollout_log:
-        type: string
-        description: Path to the generated rollout log (JSON/Parquet).
-      
-      convergence_curve:
-        type: string
-        description: Path to the convergence curve data (CSV).
-      
-      metrics_summary:
-        type: string
-        description: Path to the aggregated metrics file (CSV/JSON).
-
+      dependencies:
+        type: object
+        description: Key-value pairs of critical dependency versions.
+        additionalProperties:
+          type: string
+  status:
+    type: string
+    enum:
+      - started
+      - completed
+      - failed
+    description: Current status of the run.
+  error_message:
+    type: ["string", "null"]
+    description: Error message if the run failed.
 additionalProperties: false

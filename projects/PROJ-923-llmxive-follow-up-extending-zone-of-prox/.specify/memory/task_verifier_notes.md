@@ -8,4 +8,3 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T004b** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T004c** — declared artifact(s) missing/empty/invalid: schema.yaml
 - **T004d** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T009** — The required file `code/utils/state_store.py` is missing entirely, so no State Store utility was provided to manage the specified YAML project file. Without this implementation the task’s core requirement is unmet.

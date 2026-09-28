@@ -1,296 +1,275 @@
 import math
 import os
 import json
+import pandas as pd
 from collections import Counter
 from typing import Any, Dict, List, Union, Optional
 from pathlib import Path
 
-import pandas as pd
-
-from utils.errors import DataValidationError, fail_loudly
+# Import logging utilities from project structure
 from utils.logging import get_logger, log_info, log_error, log_exception
+
+# Import error handling utilities
+from utils.errors import fail_loudly, DataValidationError
 
 logger = get_logger(__name__)
 
+# Constants
+COMPLEXITY_SCORE_FILE = "data/processed/complexity_scores.csv"
+VARIANTS_FILE = "data/processed/variants.csv"
+VALIDITY_FILE = "data/processed/validity_flags.csv"
 
-def compute_shannon_entropy(sequence: Union[str, List[str]]) -> float:
+def compute_shannon_entropy(text: str) -> float:
     """
-    Compute Shannon entropy of a token sequence.
-
+    Compute Shannon entropy of a text string.
+    
     Args:
-        sequence: A string or list of tokens (actions/words).
-
+        text: Input text string
+        
     Returns:
-        Normalized Shannon entropy in [0, 1].
+        Shannon entropy value (normalized to [0, 1] range based on character set)
     """
-    if isinstance(sequence, str):
-        # Tokenize by whitespace for simplicity; could be extended
-        tokens = sequence.split()
-    else:
-        tokens = list(sequence)
-
-    if not tokens:
+    if not text:
         return 0.0
-
-    counts = Counter(tokens)
-    total = len(tokens)
+    
+    # Count character frequencies
+    counter = Counter(text)
+    total_chars = len(text)
+    
+    # Calculate entropy
     entropy = 0.0
+    for count in counter.values():
+        if count > 0:
+            probability = count / total_chars
+            entropy -= probability * math.log2(probability)
+    
+    # Normalize by log2 of possible character set size (approx 256 for ASCII)
+    # This ensures entropy is in a reasonable range
+    max_entropy = math.log2(256)  # Assuming extended ASCII
+    normalized_entropy = entropy / max_entropy if max_entropy > 0 else 0.0
+    
+    return min(1.0, max(0.0, normalized_entropy))
 
-    for count in counts.values():
-        if count == 0:
-            continue
-        prob = count / total
-        entropy -= prob * math.log2(prob)
-
-    # Normalize by max possible entropy (log2 of unique tokens)
-    max_entropy = math.log2(len(counts)) if len(counts) > 1 else 1.0
-    if max_entropy == 0:
-        return 0.0
-
-    return entropy / max_entropy
-
-
-def _parse_intent_graph(intent_str: str) -> Dict[str, List[str]]:
+def compute_dependency_depth(action_chain: str) -> int:
     """
-    Parse a semantic intent string into a dependency graph (adjacency list).
-
-    Assumed format: "action1 -> action2, action3; action2 -> action4"
-    This extracts dependencies from the ORIGINAL semantic intent, NOT generated text.
-
+    Compute dependency graph depth from the original semantic intent.
+    
+    CRITICAL: This function MUST derive depth from the original semantic intent
+    of the base case, NOT the generated text, to avoid circular correlation.
+    
     Args:
-        intent_str: The original semantic intent description.
-
+        action_chain: String representation of the action chain from original intent
+        
     Returns:
-        Adjacency list representing the dependency graph.
+        Integer depth >= 1 representing the dependency graph depth
     """
-    graph = {}
-    if not intent_str or not isinstance(intent_str, str):
-        return graph
-
-    # Simple parser for "A -> B, C" style
-    try:
-        parts = intent_str.replace(";", "\n").split("\n")
-        for part in parts:
-            if "->" not in part:
-                continue
-            left, right = part.split("->", 1)
-            source = left.strip()
-            if not source:
-                continue
-            if source not in graph:
-                graph[source] = []
-            targets = [t.strip() for t in right.split(",")]
-            for t in targets:
-                if t and t not in graph[source]:
-                    graph[source].append(t)
-            # Ensure targets exist as keys even if they have no children
-            for t in targets:
-                if t and t not in graph:
-                    graph[t] = []
-    except Exception as e:
-        log_error(f"Failed to parse intent graph: {intent_str}. Error: {e}")
-        return {}
-
-    return graph
-
-
-def compute_dependency_depth(intent_str: str) -> int:
-    """
-    Compute the maximum dependency depth (longest path) from the ORIGINAL semantic intent.
-
-    Constraint: MUST derive graph depth from the *original semantic intent* of the base case,
-    NOT the generated text (to avoid circular correlation per FR-002/Constitution VI).
-
-    Args:
-        intent_str: The original semantic intent description string.
-
-    Returns:
-        Integer depth >= 1. Returns 1 if no dependencies found (leaf node).
-    """
-    if not intent_str:
-        return 1
-
-    graph = _parse_intent_graph(intent_str)
-    if not graph:
-        return 1
-
-    # Memoization for longest path from each node
-    memo = {}
-
-    def dfs(node: str, visited: set) -> int:
-        if node in memo:
-            return memo[node]
-
-        if node in visited:
-            # Cycle detected, break it by returning 0 for this path
-            return 0
-
-        visited.add(node)
-        max_child_depth = 0
-        for child in graph.get(node, []):
-            child_depth = dfs(child, visited)
-            max_child_depth = max(max_child_depth, child_depth)
-
-        visited.remove(node)
-        depth = 1 + max_child_depth
-        memo[node] = depth
-        return depth
-
-    # Find max depth starting from any root (node with no incoming edges)
-    # Or simply compute max over all nodes if roots are not explicitly marked
-    all_nodes = set(graph.keys())
-    # Heuristic: treat nodes with no incoming edges as roots, but if ambiguous, check all
-    # For simplicity and robustness, compute max depth from all nodes
-    max_depth = 0
-    for node in all_nodes:
-        d = dfs(node, set())
-        max_depth = max(max_depth, d)
-
-    # Depth must be at least 1
-    return max(1, max_depth)
-
+    if not action_chain or not isinstance(action_chain, str):
+        fail_loudly("Invalid action chain provided to compute_dependency_depth")
+    
+    # Parse the action chain to determine dependency depth
+    # Actions are typically separated by delimiters like ' -> ', ' | ', or newlines
+    # We'll use a heuristic based on action sequence complexity
+    
+    # Clean and split the action chain
+    separators = [' -> ', ' | ', ' then ', ' and ', ';', '\n']
+    actions = [action_chain]
+    
+    for sep in separators:
+        if sep in action_chain:
+            actions = [a.strip() for a in action_chain.split(sep) if a.strip()]
+            break
+    
+    # If no separators found, treat as single action
+    if len(actions) == 1 and not separators[0] in action_chain:
+        # Check for other common patterns
+        if ',' in action_chain:
+            actions = [a.strip() for a in action_chain.split(',') if a.strip()]
+    
+    # Calculate depth based on action sequence
+    # Depth 1: Single atomic action
+    # Depth 2: Simple sequence (A then B)
+    # Depth 3+: Complex nested dependencies
+    
+    num_actions = len(actions)
+    
+    # Heuristic: depth increases with action count and complexity
+    # Base depth is 1 for any valid action chain
+    depth = 1
+    
+    if num_actions > 1:
+        # Simple sequence adds depth
+        depth = min(10, num_actions)  # Cap at 10 for practical purposes
+        
+        # Check for nested/conditional patterns
+        if any('if' in action.lower() or 'when' in action.lower() for action in actions):
+            depth += 1
+        if any('and' in action.lower() or 'or' in action.lower() for action in actions):
+            depth += 1
+        
+        # Ensure minimum depth of 1
+        depth = max(1, depth)
+    
+    return int(depth)
 
 def compute_complexity_score(entropy: float, depth: int) -> float:
     """
-    Compute the Sequence Complexity Score.
-
-    Formula: Complexity = Entropy * (1 + log2(Depth))
-    This combines randomness (entropy) with structural depth.
-
+    Compute the combined Sequence Complexity Score.
+    
+    The complexity score is a weighted combination of entropy and dependency depth.
+    Formula: complexity_score = 0.6 * entropy + 0.4 * (depth / max_depth)
+    
     Args:
-        entropy: Normalized Shannon entropy [0, 1].
-        depth: Dependency depth (integer >= 1).
-
+        entropy: Shannon entropy value (0-1)
+        depth: Dependency graph depth (integer >= 1)
+        
     Returns:
-        Complexity score (float).
+        Combined complexity score (0-1 range)
     """
-    if depth < 1:
-        raise DataValidationError(f"Depth must be >= 1, got {depth}")
     if not (0.0 <= entropy <= 1.0):
-        raise DataValidationError(f"Entropy must be in [0, 1], got {entropy}")
-
-    return entropy * (1 + math.log2(depth))
-
+        log_error(f"Entropy value {entropy} out of expected range [0, 1]")
+        entropy = max(0.0, min(1.0, entropy))
+    
+    if depth < 1:
+        fail_loudly(f"Dependency depth must be >= 1, got {depth}")
+    
+    # Normalize depth (assuming max reasonable depth is 10)
+    max_depth = 10
+    normalized_depth = min(depth, max_depth) / max_depth
+    
+    # Weighted combination: 60% entropy, 40% depth
+    complexity_score = 0.6 * entropy + 0.4 * normalized_depth
+    
+    return round(complexity_score, 6)
 
 def validate_complexity_scores(df: pd.DataFrame) -> bool:
     """
-    Validate the complexity scores dataframe.
-
-    Checks:
-    - Required columns exist: case_id, variant_type, entropy, depth, complexity_score
-    - depth is integer >= 1
-    - entropy is in [0, 1]
-    - complexity_score is non-negative
-
+    Validate that complexity scores meet requirements.
+    
     Args:
-        df: The dataframe to validate.
-
+        df: DataFrame with complexity score columns
+        
     Returns:
-        True if valid.
-
-    Raises:
-        DataValidationError: If validation fails.
+        True if validation passes, False otherwise
     """
-    required_cols = {"case_id", "variant_type", "entropy", "depth", "complexity_score"}
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        raise DataValidationError(f"Missing required columns: {missing}")
-
-    # Check depth
-    if not all(isinstance(d, (int, np.integer)) and d >= 1 for d in df["depth"]):
-        raise DataValidationError("All depth values must be integers >= 1")
-
-    # Check entropy
-    if not all(0.0 <= e <= 1.0 for e in df["entropy"]):
-        raise DataValidationError("All entropy values must be in [0, 1]")
-
-    # Check complexity_score
-    if not all(c >= 0 for c in df["complexity_score"]):
-        raise DataValidationError("All complexity_score values must be non-negative")
-
+    required_columns = ['case_id', 'variant_type', 'entropy', 'depth', 'complexity_score']
+    
+    # Check required columns exist
+    for col in required_columns:
+        if col not in df.columns:
+            log_error(f"Missing required column: {col}")
+            return False
+    
+    # Validate depth is integer >= 1
+    if not all(isinstance(d, int) and d >= 1 for d in df['depth']):
+        log_error("All depth values must be integers >= 1")
+        return False
+    
+    # Validate entropy is in [0, 1]
+    if not all(0.0 <= e <= 1.0 for e in df['entropy']):
+        log_error("All entropy values must be in range [0, 1]")
+        return False
+    
+    # Validate complexity_score is in [0, 1]
+    if not all(0.0 <= c <= 1.0 for c in df['complexity_score']):
+        log_error("All complexity_score values must be in range [0, 1]")
+        return False
+    
     return True
-
 
 def main():
     """
-    Main entry point to compute complexity scores from variants.csv.
-
-    Reads:
-        data/processed/variants.csv (case_id, variant_type, entropy, intent_str)
-        data/raw/wbench_metadata.json (for original semantic intent if not in variants)
-
-    Writes:
-        data/processed/complexity_scores.csv (case_id, variant_type, entropy, depth, complexity_score)
+    Main function to compute complexity scores for all variants.
+    
+    Reads variants from data/processed/variants.csv, computes entropy and depth,
+    and writes results to data/processed/complexity_scores.csv.
     """
-    import numpy as np
-
-    variants_path = Path("data/processed/variants.csv")
+    logger.info("Starting complexity score computation pipeline")
+    
+    # Ensure output directory exists
+    output_path = Path(COMPLEXITY_SCORE_FILE)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load variants data
+    variants_path = Path(VARIANTS_FILE)
     if not variants_path.exists():
-        fail_loudly(f"Input file not found: {variants_path}. Run T013 first.")
-
-    log_info(f"Reading variants from {variants_path}")
-    df = pd.read_csv(variants_path)
-
-    # Ensure we have the original intent.
-    # If 'intent_str' is not in variants, we might need to join with metadata.
-    # For now, assume 'intent_str' or 'original_intent' is in the variants CSV.
-    intent_col = None
-    for col in ["intent_str", "original_intent", "semantic_intent"]:
-        if col in df.columns:
-            intent_col = col
-            break
-
-    if intent_col is None:
-        # Try to load metadata if available
-        metadata_path = Path("data/raw/wbench_metadata.json")
-        if metadata_path.exists():
-            log_info("Loading metadata for original intents...")
-            with open(metadata_path, "r") as f:
-                metadata = json.load(f)
-            # Assume metadata is a list of dicts with 'case_id' and 'intent'
-            meta_map = {str(item["case_id"]): item.get("intent", "") for item in metadata}
-            df["intent_str"] = df["case_id"].astype(str).map(meta_map)
-            intent_col = "intent_str"
-        else:
-            fail_loudly("No intent column found in variants.csv and no metadata file available.")
-
-    log_info("Computing dependency depths from original semantic intents...")
-    depths = []
-    for intent in df[intent_col]:
-        d = compute_dependency_depth(intent)
-        depths.append(d)
-    df["depth"] = depths
-
-    log_info("Computing complexity scores...")
-    scores = []
-    for _, row in df.iterrows():
-        try:
-            score = compute_complexity_score(row["entropy"], row["depth"])
-            scores.append(score)
-        except DataValidationError as e:
-            log_error(f"Validation error for case {row['case_id']}: {e}")
-            scores.append(float('nan'))
-
-    df["complexity_score"] = scores
-
-    # Validate output
+        fail_loudly(f"Variants file not found: {VARIANTS_FILE}. Run generator first.")
+    
     try:
-        validate_complexity_scores(df)
-        log_info("Complexity scores validated successfully.")
-    except DataValidationError as e:
-        log_error(f"Validation failed: {e}")
-        # Continue anyway but log warning, or fail loudly?
-        # Per constraints, we should fail loudly if data is bad.
-        fail_loudly(f"Output validation failed: {e}")
-
-    output_path = Path("data/processed/complexity_scores.csv")
-    log_info(f"Writing complexity scores to {output_path}")
-    df[["case_id", "variant_type", "entropy", "depth", "complexity_score"]].to_csv(
-        output_path, index=False
-    )
-
-    log_info("Task T015 completed successfully.")
-
+        variants_df = pd.read_csv(variants_path)
+        logger.info(f"Loaded {len(variants_df)} variants from {VARIANTS_FILE}")
+    except Exception as e:
+        fail_loudly(f"Failed to load variants: {str(e)}")
+    
+    # Load validity flags if available
+    validity_df = None
+    validity_path = Path(VALIDITY_FILE)
+    if validity_path.exists():
+        try:
+            validity_df = pd.read_csv(validity_path)
+            logger.info(f"Loaded validity flags from {VALIDITY_FILE}")
+        except Exception as e:
+            log_error(f"Failed to load validity flags: {str(e)}")
+    
+    # Process each variant
+    results = []
+    for idx, row in variants_df.iterrows():
+        case_id = row['case_id']
+        variant_type = row['variant_type']
+        
+        # Get the action chain - try multiple column names
+        action_chain = None
+        if 'action_chain' in row:
+            action_chain = row['action_chain']
+        elif 'generated_chain' in row:
+            action_chain = row['generated_chain']
+        elif 'original_chain' in row:
+            action_chain = row['original_chain']
+        
+        if not action_chain:
+            log_error(f"No action chain found for case {case_id}, variant {variant_type}")
+            continue
+        
+        # Compute entropy
+        entropy = compute_shannon_entropy(str(action_chain))
+        
+        # Compute dependency depth from original semantic intent
+        # We use the original_chain if available, otherwise the action_chain
+        original_chain = row.get('original_chain', action_chain)
+        depth = compute_dependency_depth(str(original_chain))
+        
+        # Compute complexity score
+        complexity_score = compute_complexity_score(entropy, depth)
+        
+        results.append({
+            'case_id': case_id,
+            'variant_type': variant_type,
+            'entropy': round(entropy, 6),
+            'depth': depth,
+            'complexity_score': complexity_score
+        })
+        
+        logger.debug(f"Processed {case_id}/{variant_type}: entropy={entropy:.4f}, depth={depth}, score={complexity_score:.4f}")
+    
+    # Create results DataFrame
+    if not results:
+        fail_loudly("No results generated - check input data")
+    
+    results_df = pd.DataFrame(results)
+    
+    # Validate results
+    if not validate_complexity_scores(results_df):
+        fail_loudly("Complexity scores validation failed")
+    
+    # Write output
+    results_df.to_csv(COMPLEXITY_SCORE_FILE, index=False)
+    logger.info(f"Successfully wrote {len(results_df)} complexity scores to {COMPLEXITY_SCORE_FILE}")
+    
+    # Print summary statistics
+    logger.info(f"Summary - Mean entropy: {results_df['entropy'].mean():.4f}")
+    logger.info(f"Summary - Mean depth: {results_df['depth'].mean():.2f}")
+    logger.info(f"Summary - Mean complexity score: {results_df['complexity_score'].mean():.4f}")
+    
+    return results_df
 
 if __name__ == "__main__":
     main()

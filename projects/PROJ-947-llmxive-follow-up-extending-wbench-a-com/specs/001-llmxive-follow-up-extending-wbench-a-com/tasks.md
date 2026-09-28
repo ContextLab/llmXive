@@ -57,7 +57,7 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 [P] Setup data directory structure: `data/raw/`, `data/processed/`, `data/checksums.json` and verify existence via `ls`
-- [ ] T005 [P] Implement environment configuration management (seeds, model paths, limits) in `code/config.py`
+- [X] T005 [P] Implement environment configuration management (seeds, model paths, limits) in `code/config.py`
 - [X] T006 [P] Create base logging infrastructure with structured JSON output in `code/utils/logging.py`
 - [X] T007 Implement `code/data/verify_checksums.py` to validate downloaded artifacts against `data/checksums.json`
 - [X] T008 [P] Setup error handling wrappers in `code/utils/errors.py`: implement `fail_loudly()` and `skip_on_error()` functions that raise exceptions or skip with logs, explicitly forbidding synthetic fallbacks
@@ -87,7 +87,7 @@
 - [ ] T014 [US1] Implement `code/entropy/validator.py` for Task Validity Validator (Action Chain Check). **Input**: `data/processed/variants.csv`. **Algorithm**: Verify action chains are physically plausible. **Output**: `data/processed/validity_flags.csv` (columns: case_id, variant_type, is_valid). **Verify**: Unit test with known broken chain returns False.
 - [ ] T015 [US1] Implement `code/entropy/scorer.py` to compute Sequence Complexity Score. **Constraint**: MUST derive graph depth from the *original semantic intent* of the base case, NOT the generated text (to avoid circular correlation per FR-002/Constitution VI). **Output**: `data/processed/complexity_scores.csv` with columns [case_id, variant_type, entropy, depth, complexity_score]. **Verify**: Verify depth is integer >= 1 and matches manual trace for 1 sample.
 - [X] T016 [US1] Create pipeline script `code/entropy/run_pipeline.py` to generate variants and scores for the stratified sample (N=50 cases)
-- [ ] T017 [US1] Implement pre-run validation logic in `code/entropy/run_pipeline.py` to abort if variance of complexity scores < 0.05 (per SC-005)
+- [X] T017 [US1] Implement pre-run validation logic in `code/entropy/run_pipeline.py` to abort if variance of complexity scores < 0.05 (per SC-005)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,12 +101,12 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for RAM profiling utility in `tests/unit/inference/test_runner.py`
+- [X] T018 [P] [US2] Unit test for RAM profiling utility in `tests/unit/inference/test_runner.py`
 - [ ] T019 [P] [US2] Integration test for single-case inference with a CPU-compatible model in `tests/integration/inference/test_inference.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `code/inference/models.py` to register and validate CPU-only models (<7GB RAM) from HuggingFace
+- [X] T020 [P] [US2] Implement `code/inference/models.py` to register and validate CPU-only models (<7GB RAM) from HuggingFace
 - [ ] T021 [US2] Implement `code/inference/runner.py` with pre-flight RAM profiling; skip models exceeding GB limit. **Logic**: If video generation fails or exceeds RAM, use pre-validated CPU-compatible model metrics (proxy) or skip; DO NOT generate synthetic data. **Output**: Log error/skip. If proxy used, append row to `data/processed/inference_results.csv` with `status='proxy'` and NaN scores. **Verify**: Unit test: mock OOM error; assert CSV row exists with NaN scores.
 - [ ] T022 [US2] Implement logic to handle inference failures. **Output**: Append row to `data/processed/inference_results.csv` with `status='failed'`, `error_msg` column, and NaN scores. **Verify**: Unit test: mock OOM error; assert CSV row exists with NaN scores.
 - [ ] T023 [US2] Create pipeline script `code/inference/run_inference.py` to process a set of cases × 3 variants × N models

@@ -63,7 +63,7 @@
 - [X] T008 [P] Setup deterministic random seed management in `code/utils/seeds.py`. MUST implement a singleton pattern `get_rng(seed: int) -> numpy.random.Generator` to ensure reproducibility (Constitution Principle I) and statistical variance (FR-008). MUST be implemented before T026, T016, and T023.
 - [X] T026 [P] Implement per-step Gaussian noise injection in `code/utils/noise.py`. MUST define function `inject_noise(confidence: float, sigma: float = 0.05) -> float` to inject noise into confidence scores as per FR-008. DEPENDS on T008. MUST be implemented before T016 and T023.
 - [X] T013 [P] Implement MMLU held-out data loader in `code/data/loaders.py`. MUST fail loudly with clear error message if REAL training data is missing (NO synthetic fallback). HOWEVER, for held-out test data generation, if the specific MMLU subset is unavailable, MUST fall back to a synthetic expert distribution as per Spec Assumptions to ensure simulation resilience.
-- [ ] T009 [P] Implement State Store utility in `code/utils/state_store.py` to manage `state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml` (required for T021 to track historical confidence). DEPENDS on T004a-d.
+- [X] T009 [P] Implement State Store utility in `code/utils/state_store.py` to manage `state/projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox.yaml` (required for T021 to track historical confidence). DEPENDS on T004a-d.
 - [X] T021 [US2] Implement CAP classifier in `code/models/cap_classifier.py`. Calculates mean/variance of confidence, classifies as rejected (<0.1), fluctuating ([0.1, 0.9]), or accepted (>0.9). MUST explicitly exclude BOTH 'consistently rejected' (<0.1) AND 'consistently accepted' (>0.9) candidates from the prompt as per FR-003 and Constitution Principle VI, retaining only 'fluctuating' candidates. MUST implement fallback to full set if resulting set is empty per FR-007. MUST be implemented before T023. DEPENDS on T009.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -87,8 +87,8 @@
 
 - [X] T012 [P] [US1] Implement synthetic rollout log generator in `code/data/generators.py`. MUST implement explicit learning dynamics: student confidence updates based on 'expert gap' and 'prompt length' variables as defined in Plan Step 1. Formula: `new_conf = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor)`. Includes LLM/VLM tasks, confidence scores, ground truth.
 - [X] T014 [US1] Implement static NCQ generator in `code/loops/base_zppo.py` (includes all known failure modes for every step)
-- [ ] T015 [US1] Implement simulated student model in `code/models/student_sim.py`. MUST implement confidence update logic using the formula from T012.
-- [ ] T016 [US1] Implement static ZPPO training loop in `code/loops/base_zppo.py`. A fixed number of buffer cycles, records accuracy per cycle. MUST include per-step Gaussian noise injection (σ=0.05) into confidence scores as defined in T026. DEPENDS on T008 and T026.
+- [X] T015 [US1] Implement simulated student model in `code/models/student_sim.py`. MUST implement confidence update logic using the formula from T012.
+- [X] T016 [US1] Implement static ZPPO training loop in `code/loops/base_zppo.py`. A fixed number of buffer cycles, records accuracy per cycle. MUST include per-step Gaussian noise injection (σ=0.05) into confidence scores as defined in T026. DEPENDS on T008 and T026.
 - [ ] T018 [US1] Implement single-run simulation ENGINE for baseline in `code/main.py`. This task implements the internal function `run_baseline_simulation(seed)` to execute a single baseline simulation cycle (to be called by the batch runner T031). It does NOT handle CLI argument parsing or batch orchestration; it strictly returns the convergence curve data structure.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -254,7 +254,7 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Data Integrity**: All data loaders must use real sources (MMLU via `datasets`, synthetic via seeded generators). NO synthetic fallbacks for training data; synthetic expert fallback allowed for held-out test data per spec Assumptions.
-- **Compute Constraints**: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM). [UNRESOLVED-CLAIM: c_0c8ab567 — status=not_enough_info] Use streaming for MMLU if needed.
+- **Compute Constraints**: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM). Use streaming for MMLU if needed.
 - **Noise Injection**: Per-step noise (FR-008) is handled in T026 within the loops, applied to both baseline and CAP variants. T026 MUST be completed before T016/T023.
 - **CAP Logic**: T021/T022 explicitly handle exclusion of 'consistently accepted' (>0.9) and 'consistently rejected' (<0.1), and 'all pruned' fallback.
 - **State Management**: T009 is required to persist historical confidence scores for the CAP classifier (T021) to calculate mean/variance across cycles.

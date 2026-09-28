@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: Execute `mkdir -p code/data code/models code/analysis code/utils data/raw data/processed results tests` and create empty `__init__.py` files in each `code/` subdirectory.
-- [ ] T002 Initialize Python 3.11 project: Create `code/requirements.txt` with pinned versions for `torch==2.1.0 `, `torch-geometric==2.4.0 `, `rdkit==2023.9.5 `, `scikit-learn==1.3.2 `, `pandas==2.1.4 `, `pyyaml==6.0.1 `, `requests==2.31.0 `. Verify installation with `pip install -r code/requirements.txt --dry-run`. Ensure the environment uses Python.
+- [X] T002 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_ec306691 — status=not_enough_info] project: Create `code/requirements.txt` with pinned versions for `{{claim:c_dc22c00d}} `, `torch-geometric==2.4.0 [UNRESOLVED-CLAIM: c_8102081a — status=not_enough_info] `, `{{claim:c_22d5dbc4}} `, `scikit-learn==1.3.2 [UNRESOLVED-CLAIM: c_e4be7ae0 — status=not_enough_info] `, `{{claim:c_f4e6ec6d}} `, `{{claim:c_f954c24c}} `, `{{claim:c_8d0fe271}} `. Verify installation with `pip install -r code/requirements.txt --dry-run`. Ensure the environment uses Python. <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools: Create `.ruff.toml` and `pyproject.toml` (for black) with standard configuration.
 
 ---
@@ -57,11 +57,11 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 [P] Implement `code/utils/config.py`: Define `SEED`, `DEVICE` (force 'cpu'), and path constants.
+- [X] T004 [P] Implement `code/utils/config.py`: Define `SEED`, `DEVICE` (force 'cpu'), and path constants.
 - [X] T005 [P] Implement `code/utils/logger.py`: Define `setup_logger()` returning a logger that writes to `code/logs/app.log` and stdout.
 - [X] T006 [P] Implement `code/utils/data_loader.py`: Define `load_csv(path: str) -> pd.DataFrame` and `save_csv(df: pd.DataFrame, path: str) -> None`.
-- [ ] T007 Setup `state.yaml` for artifact checksums and version tracking: Create initial `state.yaml` with empty `artifact_hashes` map.
-- [X] T008 [P] Implement `code/utils/retry_utils.py`: Define `retry_request(url, max_retries=3, backoff_factor=2)` for exponential backoff.
+- [X] T007 Setup `state.yaml` for artifact checksums and version tracking: Create initial `state.yaml` with empty `artifact_hashes` map.
+- [X] T008 [P] Implement `code/utils/retry_utils.py`: Define `retry_request(url, max_retries=3 [UNRESOLVED-CLAIM: c_92cab42c — status=not_enough_info], backoff_factor=2 [UNRESOLVED-CLAIM: c_88167ef9 — status=not_enough_info])` for exponential backoff.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -93,11 +93,11 @@ Examples of foundational tasks (adjust based on your project):
  *(Depends on T010)*
 - [X] T012 [US1] Implement `code/data/preprocess.py`: Compute atom features (atomic number, hybridization) and bond features (type, aromaticity) for each molecule.
  *(Depends on T011)*
-- [ ] T013 [US1] Implement `code/data/preprocess.py`: Handle invalid SMILES by logging to `failed_molecules.log` with format `SMILES: <string> | Error: <message>` and excluding from training set.
+- [X] T013 [US1] Implement `code/data/preprocess.py`: Handle invalid SMILES by logging to `failed_molecules.log` with format `SMILES: <string> | Error: <message>` and excluding from training set.
  *(Depends on T012)*
-- [ ] T014 [US1] Implement `code/data/preprocess.py`: Export standardized data to `data/processed/graph_data.pt` (PyTorch Geometric format) and `data/processed/cleaned_data.csv`.
+- [X] T014 [US1] Implement `code/data/preprocess.py`: Export standardized data to `data/processed/graph_data.pt` (PyTorch Geometric format) and `data/processed/cleaned_data.csv`.
  *(Depends on T013)*
-- [ ] T015 [P] [US1] Unit test: Verify salt removal and tautomer canonicalization on known edge cases in `tests/unit/test_preprocess.py` (use mock/static test data).
+- [X] T015 [P] [US1] Unit test: Verify salt removal and tautomer canonicalization on known edge cases in `tests/unit/test_preprocess.py` (use mock/static test data).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,8 +111,8 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T016 [P] [US2] Implement `code/data/split.py`: Extract Bemis-Murcko scaffolds and perform scaffold-aware 5-fold cross-validation split (FR-004).
-- [ ] T017 [P] [US2] Implement `code/models/gcn.py`: Define GCN architecture (≤2 layers, hidden size 128) optimized for CPU execution (FR-003).
+- [X] T016 [P] [US2] Implement `code/data/split.py`: Extract Bemis-Murcko scaffolds and perform scaffold-aware 5-fold cross-validation split [UNRESOLVED-CLAIM: c_0d3eaf76 — status=not_enough_info] (FR-004).
+- [X] T017 [P] [US2] Implement `code/models/gcn.py`: Define GCN architecture (≤2 layers, hidden size 128 [UNRESOLVED-CLAIM: c_2a2459f7 — status=not_enough_info]) optimized for CPU execution (FR-003).
 - [ ] T018 [P] [US2] Implement `code/models/rf.py`: Generate Morgan fingerprints and train Random Forest baseline (FR-005).
  *(Note: File name corrected to match plan.md structure)*
 - [ ] T019 [US2] Implement `code/models/train.py`:
@@ -152,13 +152,13 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Extract substructures (motifs) contributing to high PCE predictions and summarize recurring patterns.
 
-**Independent Test**: Run `code/analysis/interpret.py` on a held-out high-PCE molecule to verify output of ranked subgraphs with importance scores and a summary of top-5 recurring motifs.
+**Independent Test**: Run `code/analysis/interpret.py` on a held-out high-PCE molecule to verify output of ranked subgraphs with importance scores and a summary of top-5 recurring motifs [UNRESOLVED-CLAIM: c_82e1e844 — status=not_enough_info].
 
 ### Implementation for User Story 3
 
 - [ ] T026 [P] [US3] Implement `code/analysis/interpret.py`: Apply Integrated Gradients (or attention weights) to GCN predictions to generate node-level importance scores (FR-007).
  *Note: If Integrated Gradients fails due to CPU constraints (timeout or memory error), automatically switch to Random Forest feature importance (Spec Assumptions).*
- *Critical Verification: If the fallback method is used, verify that it produces at least 5 distinct (non-isomorphic) substructures. If it fails to produce 5, log a CRITICAL error and halt execution to satisfy SC-005.*
+ *Critical Verification: If the fallback method is used, verify that it produces at least 5 distinct (non-isomorphic) substructures [UNRESOLVED-CLAIM: c_b83878e1 — status=not_enough_info]. If it fails to produce 5, log a CRITICAL error and halt execution to satisfy SC-005.*
 - [ ] T027 [US3] Implement `code/analysis/interpret.py`: Extract subgraphs from high-importance nodes and aggregate recurring motifs across the dataset.
 - [ ] T028 [US3] Implement `code/analysis/interpret.py`: Perform graph isomorphism check to ensure identified motifs are distinct (non-isomorphic) (SC-005). Save unique motifs to `results/motifs_unique_temp.pt`.
  *(Note: Do NOT update metrics.json here; T030 will handle the update.)*
@@ -191,7 +191,7 @@ Examples of foundational tasks (adjust based on your project):
 
 - [ ] T033 [P] Documentation: Update `README.md` to include a "Usage" section with the command `python code/main.py`.
 - [ ] T034 [P] Code Quality: Apply `black` formatting and `ruff --fix` to all files in `code/`.
-- [ ] T035 [P] Performance: Implement batch processing in `code/models/train.py` to ensure peak memory usage < 6GB.
+- [ ] T035 [P] Performance: Implement batch processing in `code/models/train.py` to ensure peak memory usage < 6GB [UNRESOLVED-CLAIM: c_5876e4dd — status=not_enough_info].
 - [ ] T036 [P] Testing: Add `tests/unit/test_stats.py::test_ttest` and `test_cohens_d` to verify robustness checks in T022.
 - [ ] T037 Run `quickstart.md` validation to ensure full pipeline reproducibility.
 - [ ] T038 Verify `data/outputs/metrics.json` schema compliance with `contracts/model_output.schema.yaml`.

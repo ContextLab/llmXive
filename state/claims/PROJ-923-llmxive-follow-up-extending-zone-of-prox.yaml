@@ -557,3 +557,95 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-11T17:09:31Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Student confidence update formula uses expert gap and prompt length factor
+  claim_id: c_af3535e2
+  context: 'T012 [P] [US1] Implement synthetic rollout log generator in code/data/generators.py.
+    MUST implement explicit learning dynamics: student confidence updates based on
+    ''expert gap'' and ''prompt length'' variables as defined in Plan Step 1. Formula:
+    new_conf = current_conf + alpha * (expert_conf - current_conf) * (1 - prompt_length_factor).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Formula: new_conf = current_conf + alpha * (expert_conf - current_conf)
+    * (1 - prompt_length_factor).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:35:18Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Batch runner selects 10 tasks deterministically from MMLU
+  claim_id: c_484c5b56
+  context: T031 [US3] Create batch runner script in code/main.py. ... MUST select
+    the 10 tasks deterministically (first 10 subjects alphabetically from MMLU, or
+    random sample with seed=42 if order is non-deterministic).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST select the 10 tasks deterministically (first 10 subjects alphabetically
+    from MMLU, or random sample with seed=42 if order is non-deterministic).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:35:50Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Batch runner generates batch_results.csv with specific columns
+  claim_id: c_9dc1598c
+  context: T031 [US3] Create batch runner script in code/main.py. ... MUST generate
+    output file data/metrics/batch_results.csv with columns [task_id, seed, aucc,
+    final_accuracy, prompt_length_avg].
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_runner_generates_batch_results.csv_with_specific_colum
+  kind: entity_fact
+  raw_text: MUST generate output file data/metrics/batch_results.csv with columns
+    [task_id, seed, aucc, final_accuracy, prompt_length_avg].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:36:21Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Simulation must complete within 6 hours on CPU with 2 cores and 7GB RAM
+  claim_id: c_5fca4f75
+  context: 'Compute Constraints: Simulation must complete within 6 hours on CPU (2
+    cores, 7GB RAM). Use streaming for MMLU if needed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Simulation must complete within 6 hours on CPU (2 cores, 7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:36:41Z'
+- artifact_path: projects/PROJ-923-llmxive-follow-up-extending-zone-of-prox/specs/001-llmxive-follow-up-extending-zone-of-prox/tasks.md
+  attempts: 1
+  canonical: Main.py batch execution flow reduced to less than 200 lines
+  claim_id: c_2fb6dc27
+  context: T035c [P] Update code/main.py to modularize batch execution flow, reducing
+    file length to < 200 lines
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Main.py_batch_execution_flow_reduced_to_less_than_200_lines
+  kind: magnitude
+  raw_text: T035c [P] Update code/main.py to modularize batch execution flow, reducing
+    file length to < 200 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:37:27Z'

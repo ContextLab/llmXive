@@ -1,55 +1,71 @@
+"""
+Configuration module for the DSSC project.
+Defines global constants and path utilities.
+"""
 import os
 import sys
 from pathlib import Path
 from typing import Dict, Any
 
-# Ensure project root is in path for imports if running from code/
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Global Constants
+SEED = 42
+DEVICE = "cpu"  # Force CPU execution as per constraints
+
+# Path Constants
+ROOT = Path(__file__).parent.parent.parent
+CODE_DIR = ROOT / "code"
+DATA_DIR = ROOT / "data"
+RESULTS_DIR = ROOT / "results"
+TESTS_DIR = ROOT / "tests"
+LOGS_DIR = ROOT / "code" / "logs"
+
+RAW_DATA_DIR = DATA_DIR / "raw"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+OUTPUTS_DIR = DATA_DIR / "outputs"
+FIGURES_DIR = RESULTS_DIR / "figures"
+MODEL_ARTIFACTS_DIR = RESULTS_DIR / "model_artifacts"
+
+# Checksums (Static, hardcoded as per T010 requirement)
+# Note: This is a placeholder. In a real scenario, the researcher would provide the actual checksum.
+# For T015, we just need the structure to exist.
+EXPECTED_DATASET_CHECKSUM = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
 
 def get_config() -> Dict[str, Any]:
     """
-    Returns the project configuration dictionary.
-    Defines paths and parameters for the pipeline.
+    Returns a dictionary containing all configuration values.
     """
-    root = Path(__file__).resolve().parent.parent.parent
-    
-    config = {
-        'paths': {
-            'root': root,
-            'code': root / 'code',
-            'data': root / 'data',
-            'data_raw': root / 'data' / 'raw',
-            'data_processed': root / 'data' / 'processed',
-            'results': root / 'results',
-            'logs': root / 'code' / 'logs',
-            'raw_data': root / 'data' / 'raw' / 'dssc_dataset.csv',
-            'processed_data': root / 'data' / 'processed',
+    return {
+        "seed": SEED,
+        "device": DEVICE,
+        "paths": {
+            "root": str(ROOT),
+            "code": str(CODE_DIR),
+            "data": str(DATA_DIR),
+            "raw": str(RAW_DATA_DIR),
+            "processed": str(PROCESSED_DATA_DIR),
+            "results": str(RESULTS_DIR),
+            "logs": str(LOGS_DIR),
+            "models": str(MODEL_ARTIFACTS_DIR),
         },
-        'params': {
-            'seed': 42,
-            'device': 'cpu',  # Force CPU as per constraints
-            'salt_pattern': '[#1,#6,#7,#8,#9,#15,#16,#17,#35,#53]', # Placeholder for RDKit default
+        "checksums": {
+            "dataset": EXPECTED_DATASET_CHECKSUM,
         }
     }
-    
-    return config
 
-def ensure_dirs(config: Dict[str, Any]) -> None:
+def ensure_dirs() -> None:
     """
-    Creates necessary directories defined in the config if they don't exist.
+    Ensures all required directories exist.
     """
-    paths = config['paths']
-    
-    dirs_to_create = [
-        paths['data_raw'],
-        paths['data_processed'],
-        paths['results'],
-        paths['logs']
+    dirs = [
+        RAW_DATA_DIR,
+        PROCESSED_DATA_DIR,
+        OUTPUTS_DIR,
+        RESULTS_DIR,
+        MODEL_ARTIFACTS_DIR,
+        FIGURES_DIR,
+        LOGS_DIR,
+        TESTS_DIR,
     ]
-    
-    for dir_path in dirs_to_create:
-        dir_path.mkdir(parents=True, exist_ok=True)
-        if not dir_path.exists():
-            raise OSError(f"Failed to create directory: {dir_path}")
+    for d in dirs:
+        if not d.exists():
+            d.mkdir(parents=True)

@@ -278,25 +278,6 @@
   updated_at: '2026-07-09T22:18:38Z'
 - artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
   attempts: 1
-  canonical: Download dssc_dataset.csv from Zenodo Record ID 10.5281/zenodo.4921127
-  claim_id: c_1a86e3a8
-  context: 'Phase 3: User Story 1 - Data Acquisition and Pre-processing Pipeline.
-    Task T009: Implement code/data/download.py (Download Only).'
-  evidence:
-    ok: false
-    reason: cited source unreadable (resolved but no open-access full text); cannot
-      substantiate
-  kind: citation
-  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
-    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-09T22:18:41Z'
-- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
-  attempts: 1
   canonical: Project environment uses Python 3.11
   claim_id: c_b79a74c5
   context: 'Phase 1: Setup. Task T002: Initialize Python 3.11 project.'
@@ -411,3 +392,587 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-09T22:23:49Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Download dssc_dataset.csv from Zenodo record 10.5281/zenodo.4921127 by
+    Nazeer et al.
+  claim_id: c_52815a94
+  context: 'Phase 3, Task T009: Implement code/data/download.py (Download Only): Download
+    dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:52:43Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Download dssc_dataset.csv from Zenodo Record ID 10.5281/zenodo.4921127
+  claim_id: c_e6a6e5e6
+  context: 'Implement code/data/download.py (Download Only): Download dssc_dataset.csv
+    from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127, DOI: 10.5281/zenodo.4921127)
+    to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:53:11Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Download dssc_dataset.csv from Zenodo Record ID 10.5281/zenodo.4921127
+    by Nazeer et al.
+  claim_id: c_8d2a7de0
+  context: Task T009 requires downloading the dataset from a specific Zenodo record
+    identified by Nazeer et al.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:53:37Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 0
+  canonical: Create requirements.txt with torch 2.1.0, torch-geometric 2.4.0, rdkit
+    2023.9.5, scikit-learn 1.3.2, pandas 2.1.4
+  claim_id: c_3325b3c1
+  context: 'Phase 1: Setup. Task T002: Initialize Python 3.11 project.'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Create code/requirements.txt with pinned versions for torch==2.1.0, torch-geometric==2.4.0,
+    rdkit==2023.9.5, scikit-learn==1.3.2, pandas==2.1.4, pyyaml==6.0.1, requests==2.31.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T12:53:49Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 2
+  canonical: Download dssc_dataset.csv from Zenodo Record ID 10.5281/zenodo.4921127
+  claim_id: c_1a86e3a8
+  context: 'Phase 3: User Story 1 - Data Acquisition and Pre-processing Pipeline.
+    Task T009: Implement code/data/download.py (Download Only).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:53:51Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: DSSC dataset available on Zenodo under Record ID 10.5281/zenodo.4921127
+  claim_id: c_bb189a6e
+  context: 'T009 [US1] Implement code/data/download.py (Download Only): 1. Download
+    dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:54:55Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: PyTorch version 2.1.0 pinned in requirements
+  claim_id: c_dc22c00d
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for torch==2.1.0 , torch-geometric==2.4.0 , rdkit==2023.9.5 ,
+    scikit-learn==1.3.2 , pandas==2.1.4 , pyyaml==6.0.1 , requests==2.31.0 .'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: torch==2.1.0
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T12:54:55Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: PyTorch Geometric version 2.4.0 pinned in requirements
+  claim_id: c_55217cd1
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for torch==2.1.0 , torch-geometric==2.4.0 , rdkit==2023.9.5 ,
+    scikit-learn==1.3.2 , pandas==2.1.4 , pyyaml==6.0.1 , requests==2.31.0 .'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch-geometric==2.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:55:29Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: RDKit version 2023.9.5 pinned in requirements
+  claim_id: c_22d5dbc4
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for torch==2.1.0 , torch-geometric==2.4.0 , rdkit==2023.9.5 ,
+    scikit-learn==1.3.2 , pandas==2.1.4 , pyyaml==6.0.1 , requests==2.31.0 .'
+  evidence:
+    asserted: '2023.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: rdkit==2023.9.5
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T12:55:29Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Scikit-learn version 1.3.2 pinned in requirements
+  claim_id: c_b0884417
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for torch==2.1.0 , torch-geometric==2.4.0 , rdkit==2023.9.5 ,
+    scikit-learn==1.3.2 , pandas==2.1.4 , pyyaml==6.0.1 , requests==2.31.0 .'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:55:53Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Pandas version 2.1.4 pinned in requirements
+  claim_id: c_f4e6ec6d
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for torch==2.1.0 , torch-geometric==2.4.0 , rdkit==2023.9.5 ,
+    scikit-learn==1.3.2 , pandas==2.1.4 , pyyaml==6.0.1 , requests==2.31.0 .'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pandas==2.1.4
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T12:55:53Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: PyYAML version 6.0.1 pinned in requirements
+  claim_id: c_f954c24c
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for torch==2.1.0 , torch-geometric==2.4.0 , rdkit==2023.9.5 ,
+    scikit-learn==1.3.2 , pandas==2.1.4 , pyyaml==6.0.1 , requests==2.31.0 .'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T12:55:53Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Requests version 2.31.0 pinned in requirements
+  claim_id: c_8d0fe271
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for torch==2.1.0 , torch-geometric==2.4.0 , rdkit==2023.9.5 ,
+    scikit-learn==1.3.2 , pandas==2.1.4 , pyyaml==6.0.1 , requests==2.31.0 .'
+  evidence:
+    asserted: '2.31'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: requests==2.31.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T12:55:53Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11
+  claim_id: c_2ce80826
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for torch==2.1.0 , torch-geometric==2.4.0 , rdkit==2023.9.5 ,
+    scikit-learn==1.3.2 , pandas==2.1.4 , pyyaml==6.0.1 , requests==2.31.0 .'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:56:26Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Download dssc_dataset.csv from Zenodo record 10.5281/zenodo.4921127
+  claim_id: c_834bd19c
+  context: 'T009 [US1] Implement code/data/download.py (Download Only): 1. Download
+    dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:57:41Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: torch-geometric version 2.4.0
+  claim_id: c_34315b17
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for ... torch-geometric==2.4.0 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch-geometric==2.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:57:41Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_fd34af93
+  context: 'T002 Initialize Python 3.11 project: Create code/requirements.txt with
+    pinned versions for ... scikit-learn==1.3.2 ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:57:41Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: DSSC dataset from Nazeer et al. hosted on Zenodo with DOI 10.5281/zenodo.4921127
+  claim_id: c_166a8422
+  context: 'T009 [US1] Implement `code/data/download.py` (Download Only): 1. Download
+    `dssc_dataset.csv` from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127) to `data/raw/dssc_dataset.csv`.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download `dssc_dataset.csv` from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T12:59:29Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: Download dssc_dataset.csv from Zenodo record 10.5281/zenodo.4921127 by
+    Nazeer et al.
+  claim_id: c_2ad73498
+  context: Task T009 specifies downloading the dataset from Zenodo with the specific
+    Record ID and DOI provided.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download `dssc_dataset.csv` from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:00:16Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: dssc dataset from zenodo record 10.5281/zenodo.4921127 by Nazeer et al.
+  claim_id: c_8d8bec56
+  context: 'Implement code/data/download.py (Download Only): Download dssc_dataset.csv
+    from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127, DOI: 10.5281/zenodo.4921127)
+    to data/raw/dssc_dataset.csv.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: 'Download dssc_dataset.csv from Zenodo (Nazeer et al., Record ID: 10.5281/zenodo.4921127,
+    DOI: 10.5281/zenodo.4921127)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:01:44Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: torch-geometric version 2.4.0
+  claim_id: c_8102081a
+  context: Create code/requirements.txt with pinned versions for ... torch-geometric==2.4.0
+    ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch-geometric==2.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:01:44Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.2
+  claim_id: c_e4be7ae0
+  context: Create code/requirements.txt with pinned versions for ... scikit-learn==1.3.2
+    ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:01:44Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: project uses python 3.11
+  claim_id: c_ec306691
+  context: 'Initialize Python 3.11 project: Create code/requirements.txt with pinned
+    versions ... Ensure the environment uses Python.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:02:08Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: retry request max retries set to 3
+  claim_id: c_92cab42c
+  context: Define retry_request(url, max_retries=3, backoff_factor=2) for exponential
+    backoff.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max_retries=3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:03:00Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: retry request backoff factor set to 2
+  claim_id: c_88167ef9
+  context: Define retry_request(url, max_retries=3, backoff_factor=2) for exponential
+    backoff.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: backoff_factor=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:03:32Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: scaffold-aware 5-fold cross-validation split
+  claim_id: c_0d3eaf76
+  context: Extract Bemis-Murcko scaffolds and perform scaffold-aware 5-fold cross-validation
+    split (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 5-fold cross-validation split
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:04:12Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: gcn hidden size 128
+  claim_id: c_2a2459f7
+  context: "Define GCN architecture (\u22642 layers, hidden size 128) optimized for\
+    \ CPU execution (FR-003)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hidden size 128
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:04:37Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: batch processing ensures peak memory usage below 6gb
+  claim_id: c_5876e4dd
+  context: Implement batch processing in code/models/train.py to ensure peak memory
+    usage < 6GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Batch_processing_ensures_peak_memory_usage_below_6gb
+  kind: entity_fact
+  raw_text: peak memory usage < 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:05:02Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: training completes within 6 hours on cpu
+  claim_id: c_cc656ffa
+  context: "Run code/models/train.py to verify completion within 6 hours, production\
+    \ of model artifacts, and output of results/metrics.json containing MAE, RMSE,\
+    \ R\xB2, and statistical test results."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training completes within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:05:39Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: fallback method produces at least 5 distinct non-isomorphic substructures
+  claim_id: c_b83878e1
+  context: 'Critical Verification: If the fallback method is used, verify that it
+    produces at least 5 distinct (non-isomorphic) substructures. If it fails to produce
+    5, log a CRITICAL error and halt execution to satisfy SC-005.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_method_produces_at_least_5_distinct_non-isomorphic
+  kind: magnitude
+  raw_text: at least 5 distinct (non-isomorphic) substructures
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:06:05Z'
+- artifact_path: projects/PROJ-158-investigating-the-correlation-between-mo/specs/001-investigating-the-correlation-between-mo/tasks.md
+  attempts: 1
+  canonical: summary of top 5 recurring motifs
+  claim_id: c_82e1e844
+  context: Run code/analysis/interpret.py on a held-out high-PCE molecule to verify
+    output of ranked subgraphs with importance scores and a summary of top-5 recurring
+    motifs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: top-5 recurring motifs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T13:07:06Z'

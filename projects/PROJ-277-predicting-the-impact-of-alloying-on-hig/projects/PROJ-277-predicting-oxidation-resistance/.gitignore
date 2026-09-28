@@ -1,8 +1,12 @@
-# Python
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -19,40 +23,70 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
-# Virtual Environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
 venv/
 ENV/
-env/
-.venv/
-
-# IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+env.bak/
+venv.bak/
 
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# Data & Logs
-data/raw/
-data/processed/
-logs/
-!.gitkeep
+# pyenv
+.python-version
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-.mypy_cache/
+# Cython debug symbols
+cython_debug/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
 # Project specific
-.pre-commit-config.yaml
-pyproject.toml.bak
+projects/PROJ-277-predicting-oxidation-resistance/logs/
+projects/PROJ-277-predicting-oxidation-resistance/data/raw/
+projects/PROJ-277-predicting-oxidation-resistance/data/processed/
+projects/PROJ-277-predicting-oxidation-resistance/data/interim/
+
+# My models and artifacts
+*.pth
+*.h5
+*.pkl
+*.joblib
+models/
+figures/
+
+# Secrets
+.env.local
+secrets.json

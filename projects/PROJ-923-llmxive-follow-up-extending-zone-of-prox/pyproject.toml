@@ -5,13 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-zppo-extension"
 version = "0.1.0"
-description = "Follow-up: Extending 'Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradient'"
+description = "Extension of Zone of Proximal Policy Optimization with Confidence-Adaptive Pruning"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
-authors = [
-    {name = "llmXive Team"}
-]
 dependencies = [
     "numpy",
     "pandas",
@@ -21,50 +17,46 @@ dependencies = [
     "datasets",
     "pytest",
     "scipy",
+    "jsonschema",
     "matplotlib",
-    "jsonschema"
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
-    "pytest-cov",
-    "mypy"
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
+target-version = ['py39']
+include = "code/"
+exclude = "data/"
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = [
+    "E",  # pycodes
+    "F",  # flake8
+    "I",  # isort
+    "W",  # warnings
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "F401", # Unused imports (sometimes needed for API surface)
+]
+exclude = [
+    "data/*",
+    "state/*",
+    "tests/__pycache__/*",
+    "*/__pycache__/*",
+]
+
+[tool.ruff.per-Target-version]
+py39 = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning"
-]
-
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-check_untyped_defs = false
+pythonpath = ["code"]
+addopts = "-v --strict-mode"

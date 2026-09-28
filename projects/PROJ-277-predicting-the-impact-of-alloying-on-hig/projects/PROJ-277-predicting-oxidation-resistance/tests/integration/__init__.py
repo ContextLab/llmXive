@@ -1,1 +1,1 @@
-# Package marker
+# Integration tests package

@@ -21,26 +21,31 @@ T003:
     \ `pre-commit-config.yaml` at the repository root is irrelevant to this task."
 T013:
   c: false
-  h: 0b3b8c286521b065a6ca5aa0e0ac2ed242a10918b38c6efe380bb7189bf4c665
-  r: "The required source file `code/entropy/generator.py` is missing, so there is\
-    \ no implementation of the token\u2011reweighting/resampling algorithm, no convergence\
-    \ logic, and no `ConvergenceError` handling to satisfy the unit\u2011test requirement.\
-    \ While the CSV and JSON outputs exist, without the generator module the task\
-    \ is not genuinely completed."
+  h: 9c0089065ae4e8cfce38db96de9a210e24768842437d80fcd7058be61bfb0da5
+  r: "The provided `code/entropy/generator.py` is truncated (ends abruptly at `new_tokens.append(list`)\
+    \ and does not contain the full generation logic, nor any code that writes `data/processed/variants.csv`\
+    \ or `data/processed/generation_logs.json`. Both required output files are missing\
+    \ from the repository. Consequently the task\u2019s functional and output requirements\
+    \ are not satisfied."
 T014:
   c: false
-  h: d7e163c8e2a637c35d833a01465d76a8af10f30808f4fc2f5fff3dd64f5d05a5
-  r: "The `validity_flags.csv` file is absent, and the provided `validator.py` expects\
-    \ an `action_chain` column that does not exist in the supplied `variants.csv`\
-    \ (which has `generated_chain` instead). Moreover, the script is truncated before\
-    \ any logic that reads the CSV, validates rows, and writes the required output,\
-    \ so the task\u2019s output artifact is not produced."
+  h: f1306cf786cc789fd143de98de3e90149ad886ab25b59e35f945fe9de5bc06f2
+  r: "The required input file `data/processed/variants.csv` and the expected output\
+    \ `data/processed/validity_flags.csv` are both absent, and the provided `code/entropy/validator.py`\
+    \ is truncated, so we cannot verify that it reads the input, validates chains,\
+    \ and writes the correct CSV with the specified columns. The task\u2019s core\
+    \ artifacts are missing."
 T015:
   c: false
-  h: 8d12576a5775801ef127bfdbdb446ed37ad0070ff4eaa6dbe04eb1c1c4c4615b
-  r: The repository contains `code/entropy/scorer.py`, but the provided excerpt ends
-    before any logic that computes a combined complexity score or writes the required
-    `data/processed/complexity_scores.csv`. Moreover, the CSV file does not exist
-    at all, so the primary output artifact is missing. The implementer must add the
-    missing functionality (depth calculation, score aggregation, CSV generation) and
-    produce the specified CSV file.
+  h: f297a40317318436e1faad699897abd2f21d3c3639c052013b8e5f986039074c
+  r: The repository contains a `code/entropy/scorer.py` file, but it is truncated
+    and does not show any logic that writes the required `data/processed/complexity_scores.csv`
+    with the specified columns. Moreover, the `complexity_scores.csv` file is missing
+    entirely, so the primary output artifact does not exist. The task therefore remains
+    unfinished.
+T019:
+  c: false
+  h: 29480e40b96ad67001a0f62667c2e96c5e65b0c3890556d2127ea51bd303b8a5
+  r: "The required file `tests/integration/inference/test_inference.py` does not exist\
+    \ in the repository, so the integration test cannot be verified or run. The task\u2019\
+    s core artifact is missing."

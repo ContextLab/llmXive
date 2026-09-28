@@ -1,93 +1,79 @@
 $schema: http://json-schema.org/draft-07/schema#
+$id: aggregated_metrics
 title: Aggregated Metrics Schema
 description: >
-  Schema for aggregated metrics resulting from ZPPO and CAP-ZPPO simulation runs.
-  This schema defines the structure for AUCC (Area Under the Convergence Curve),
-  final accuracy, and prompt length statistics used in comparative analysis.
+  Schema for storing aggregated metrics resulting from ZPPO and CAP-ZPPO simulation runs.
+  Includes Area Under the Convergence Curve (AUCC), final accuracy, and prompt length statistics.
+  Used by T031 (batch runner) and T033 (validation).
 type: object
 required:
   - task_id
   - seed
   - aucc
   - final_accuracy
-  - prompt_length_stats
-  - run_metadata
+  - prompt_length_avg
+  - run_timestamp
+  - version
 properties:
   task_id:
     type: string
-    description: Identifier for the specific task or subject (e.g., MMLU subject code).
+    description: Identifier of the MMLU task or simulation subject (e., "mmlu:formal_logic").
+    minLength: 1
   seed:
     type: integer
     description: Random seed used for this simulation run to ensure reproducibility.
+    minimum: 0
   aucc:
     type: number
-    description: >
-      Area Under the Convergence Curve (AUCC). Calculated using the trapezoidal rule
-      over the accuracy vs. cycle curve. Represents data efficiency.
+    format: float
+    description: Area Under the Convergence Curve (AUCC).
     minimum: 0.0
     maximum: 1.0
+    multipleOf: 0.0001
   final_accuracy:
     type: number
-    description: Accuracy of the student model at the final training cycle.
+    format: float
+    description: Final accuracy achieved at the last cycle of the simulation.
     minimum: 0.0
     maximum: 1.0
-  prompt_length_stats:
+    multipleOf: 0.0001
+  prompt_length_avg:
+    type: number
+    format: float
+    description: Average prompt length (number of negative candidates included) across all cycles.
+    minimum: 0.0
+  prompt_length_std:
+    type: number
+    format: float
+    description: Standard deviation of prompt lengths across cycles (optional, for deeper analysis).
+    minimum: 0.0
+  num_cycles:
+    type: integer
+    description: Total number of training cycles in this simulation.
+    minimum: 1
+  model_variant:
+    type: string
+    description: The variant of the simulation run (e., "static_baseline", "cap_zppo").
+    enum:
+      - static_baseline
+      - cap_zppo
+  run_timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when this run was executed.
+  version:
+    type: string
+    description: Version of the schema used to validate this record.
+    enum:
+      - "1.0.0"
+  metadata:
     type: object
-    description: Statistical summary of prompt lengths (number of negative candidates) across cycles.
-    required:
-      - average
-      - min
-      - max
-      - std_dev
+    description: Optional additional metadata for the run.
     properties:
-      average:
-        type: number
-        description: Mean number of candidates in the NCQ prompt across all cycles.
-      min:
-        type: integer
-        description: Minimum number of candidates observed in any single cycle.
-      max:
-        type: integer
-        description: Maximum number of candidates observed in any single cycle.
-      std_dev:
-        type: number
-        description: Standard deviation of the prompt lengths across cycles.
-  run_metadata:
-    type: object
-    description: Metadata about the run environment and configuration.
-    required:
-      - timestamp
-      - config_hash
-      - baseline_or_cap
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp when the aggregation was performed.
       config_hash:
         type: string
-        description: SHA-256 hash of the configuration used for this run.
-      baseline_or_cap:
+        description: SHA-256 hash of the configuration used.
+      notes:
         type: string
-        enum:
-          - baseline
-          - cap
-        description: Indicates whether this metric comes from the static baseline or CAP-ZPPO loop.
-  additional_metrics:
-    type: object
-    description: Optional dictionary for any extra metrics not covered by the standard fields.
-    additionalProperties: true
-examples:
-  - task_id: "mmlu_high_school_math"
-    seed: 42
-    aucc: 0.785
-    final_accuracy: 0.92
-    prompt_length_stats:
-      average: 15.4
-      min: 5
-      max: 30
-      std_dev: 4.2
-    run_metadata:
-      timestamp: "2023-10-27T10:00:00Z"
-      config_hash: "a1b2c3d4..."
-      baseline_or_cap: "cap"
+        description: Free-form notes about the run.
+additionalProperties: false

@@ -1,1 +1,1 @@
-# Integration tests for llmXive sequence complexity analysis
+# Integration test package for llmXive pipeline

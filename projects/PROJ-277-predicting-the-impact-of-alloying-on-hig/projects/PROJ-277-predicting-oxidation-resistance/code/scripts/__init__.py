@@ -1,1 +1,1 @@
-# Package marker
+# Scripts package

@@ -6,3 +6,4 @@ pandas==2.1.4
 pyyaml==6.0.1
 requests==2.31.0
 numpy==1.24.3
+torch-scatter==2.1.2

@@ -1,1 +1,1 @@
-# Package marker
+# Contract tests package

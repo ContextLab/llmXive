@@ -1,109 +1,191 @@
 """
-Unit tests for code/entropy/generator.py
+Unit tests for the entropy generator module.
+
+Tests cover:
+- Tokenization and chain conversion
+- Entropy adjustment logic
+- Variant generation with convergence
+- ConvergenceError handling
 """
 import pytest
-import math
+import os
+import sys
 import json
-import pandas as pd
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import pandas as pd
+import numpy as np
 
-# Import the module under test
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
 from entropy.generator import (
+    _tokenize_chain,
+    _chain_to_string,
+    _reweight_tokens,
+    _adjust_entropy,
     generate_variant,
-    reweight_and_resample,
-    compute_entropy_of_tokens,
-    tokenize_chain,
-    ConvergenceError,
-    TARGET_ENTROPY_RANGES
+    ConvergenceError
 )
-from utils.errors import ConvergenceError as CoreConvergenceError
+from entropy.scorer import compute_shannon_entropy
 
+class TestTokenization:
+    """Test tokenization utilities."""
 
-class TestTokenizeChain:
-    def test_simple_tokenization(self):
-        chain = "move left pick up box"
-        tokens = tokenize_chain(chain)
-        assert tokens == ["move", "left", "pick", "up", "box"]
-    
-    def test_empty_chain(self):
-        tokens = tokenize_chain("")
-        assert tokens == []
+    def test_tokenize_chain_basic(self):
+        """Test basic tokenization."""
+        chain = "move left, grab object, lift up"
+        tokens = _tokenize_chain(chain)
+        assert len(tokens) > 0
+        assert "move" in tokens
+        assert "left" in tokens
 
+    def test_tokenize_chain_empty(self):
+        """Test empty chain handling."""
+        assert _tokenize_chain("") == []
+        assert _tokenize_chain(None) == []
 
-class TestComputeEntropyOfTokens:
-    def test_uniform_distribution(self):
-        # 2 tokens, 50/50 -> entropy = 1.0
-        tokens = ["a", "b"]
-        entropy = compute_entropy_of_tokens(tokens)
-        assert math.isclose(entropy, 1.0, rel_tol=1e-5)
-    
-    def test_skewed_distribution(self):
-        # 1 'a', 3 'b' -> p(a)=0.25, p(b)=0.75
-        tokens = ["a", "b", "b", "b"]
-        entropy = compute_entropy_of_tokens(tokens)
-        # -0.25*log2(0.25) - 0.75*log2(0.75) = 0.5 + 0.311 = 0.811
-        expected = -0.25 * math.log2(0.25) - 0.75 * math.log2(0.75)
-        assert math.isclose(entropy, expected, rel_tol=1e-5)
-    
-    def test_single_token(self):
-        tokens = ["a"]
-        entropy = compute_entropy_of_tokens(tokens)
-        assert entropy == 0.0
-    
-    def test_empty_tokens(self):
-        tokens = []
-        entropy = compute_entropy_of_tokens(tokens)
-        assert entropy == 0.0
+    def test_chain_to_string(self):
+        """Test conversion back to string."""
+        tokens = ["move", "left", "grab"]
+        chain = _chain_to_string(tokens)
+        assert isinstance(chain, str)
+        assert "move" in chain
 
+class TestReweighting:
+    """Test token reweighting logic."""
 
-class TestReweightAndResample:
-    def test_convergence_high_entropy_target(self):
-        # Start with low entropy (all same), target high
-        # Note: This is a simplified test. The actual logic depends on the reweighting strategy.
-        # We test that it returns within max iterations if possible.
-        tokens = ["a", "a", "a", "a"]
-        target = 0.8
-        new_tokens, iters = reweight_and_resample(tokens, target, 0.0, "high")
-        assert iters <= 20
-        assert len(new_tokens) > 0
-    
-    def test_convergence_low_entropy_target(self):
-        # Start with high entropy, target low
+    def test_reweight_increase_entropy(self):
+        """Test entropy increase with factor > 1."""
+        tokens = ["a", "a", "a", "b"]
+        reweighted = _reweight_tokens(tokens, 1.5)
+        # Should have more variety or at least not less
+        assert len(reweighted) == len(tokens)
+
+    def test_reweight_decrease_entropy(self):
+        """Test entropy decrease with factor < 1."""
         tokens = ["a", "b", "c", "d"]
-        target = 0.2
-        new_tokens, iters = reweight_and_resample(tokens, target, 1.0, "low")
-        assert iters <= 20
+        reweighted = _reweight_tokens(tokens, 0.5)
+        assert len(reweighted) == len(tokens)
 
+    def test_reweight_empty(self):
+        """Test empty token list."""
+        assert _reweight_tokens([], 1.0) == []
 
-class TestGenerateVariant:
-    def test_generate_low_variant(self):
-        row = {"case_id": "test_001"}
-        tokens = ["a", "b", "c", "d", "e"] # High entropy base
-        variant_chain, entropy, iters = generate_variant(row, "low", tokens)
-        assert iters >= 0
-        assert entropy < 0.3 or iters >= 20 # Should converge or hit max
-        assert isinstance(variant_chain, str)
-    
-    def test_generate_high_variant(self):
-        row = {"case_id": "test_002"}
-        tokens = ["a", "a", "a", "a"] # Low entropy base
-        variant_chain, entropy, iters = generate_variant(row, "high", tokens)
-        assert iters >= 0
-        assert entropy > 0.7 or iters >= 20
-        assert isinstance(variant_chain, str)
-    
+class TestEntropyAdjustment:
+    """Test entropy adjustment factor calculation."""
+
+    def test_adjust_below_target(self):
+        """Test adjustment when entropy is below target range."""
+        factor = _adjust_entropy(0.1, (0.3, 0.7))
+        assert factor > 1.0  # Should increase entropy
+
+    def test_adjust_above_target(self):
+        """Test adjustment when entropy is above target range."""
+        factor = _adjust_entropy(0.9, (0.3, 0.7))
+        assert factor < 1.0  # Should decrease entropy
+
+    def test_adjust_in_range(self):
+        """Test adjustment when already in range."""
+        factor = _adjust_entropy(0.5, (0.3, 0.7))
+        # Should be close to 1.0 for minor adjustment
+        assert 0.9 <= factor <= 1.1
+
+class TestVariantGeneration:
+    """Test full variant generation pipeline."""
+
+    def test_generate_low_entropy(self):
+        """Test generating low entropy variant."""
+        base_chain = "move left, move right, move left, move right, grab, grab"
+        chain, entropy, iterations = generate_variant(
+            "test_case", base_chain, "low", max_iter=20
+        )
+        assert entropy < 0.3
+        assert iterations <= 20
+        assert isinstance(chain, str)
+        assert len(chain) > 0
+
+    def test_generate_medium_entropy(self):
+        """Test generating medium entropy variant."""
+        base_chain = "a b c d e f g h i j k l m n o p"
+        chain, entropy, iterations = generate_variant(
+            "test_case", base_chain, "medium", max_iter=20
+        )
+        assert 0.3 <= entropy <= 0.7
+        assert iterations <= 20
+
+    def test_generate_high_entropy(self):
+        """Test generating high entropy variant."""
+        base_chain = "a a a a a a a a"
+        chain, entropy, iterations = generate_variant(
+            "test_case", base_chain, "high", max_iter=20
+        )
+        assert entropy > 0.7
+        assert iterations <= 20
+
+    def test_invalid_variant_type(self):
+        """Test error on invalid variant type."""
+        with pytest.raises(Exception):
+            generate_variant("test", "a b c", "invalid_type")
+
+    def test_empty_base_chain(self):
+        """Test error on empty base chain."""
+        with pytest.raises(Exception):
+            generate_variant("test", "", "low")
+
+class TestConvergenceError:
+    """Test ConvergenceError handling."""
+
     def test_convergence_error_raised(self):
-        # Force a scenario where convergence is impossible
-        # e.g., single token input trying to reach high entropy
-        # The function logic handles single token by returning base or raising.
-        # We test the explicit raise path if we can construct one.
-        # In the current implementation, single token returns base and logs warning.
-        # To test the raise, we need a case that fails the loop.
-        # We can mock the loop to force it.
+        """Test that ConvergenceError is raised when max_iter exceeded."""
+        # Create a pathological case that won't converge
+        # Use a very restrictive max_iter to force failure
+        base_chain = "a"
         
-        # Instead, we test the logic that if max_iter is reached and not converged,
-        # it raises (unless single token).
-        # We will test the exception class existence and basic raising.
-        with pytest.raises(ConvergenceError):
-            raise ConvergenceError("Test convergence failure")
+        # This should fail to converge with max_iter=1
+        with pytest.raises(ConvergenceError) as exc_info:
+            generate_variant("test_case", base_chain, "high", max_iter=1)
+        
+        assert "Failed to converge" in str(exc_info.value)
+        assert "test_case" in str(exc_info.value)
+
+    def test_convergence_error_message(self):
+        """Test ConvergenceError message content."""
+        base_chain = "a"
+        
+        try:
+            generate_variant("case_123", base_chain, "high", max_iter=1)
+            assert False, "Should have raised ConvergenceError"
+        except ConvergenceError as e:
+            error_msg = str(e)
+            assert "case_123" in error_msg
+            assert "high" in error_msg
+            assert "Failed to converge" in error_msg
+
+class TestIntegration:
+    """Integration tests for the generator module."""
+
+    def test_entropy_range_validity(self):
+        """Test that all generated variants fall within expected ranges."""
+        base_chain = "action1 action2 action3 action4 action5"
+        
+        variants = {}
+        for vtype in ['low', 'medium', 'high']:
+            chain, entropy, _ = generate_variant("test", base_chain, vtype)
+            variants[vtype] = entropy
+        
+        assert variants['low'] < 0.3
+        assert 0.3 <= variants['medium'] <= 0.7
+        assert variants['high'] > 0.7
+
+    def test_consistent_results_with_seed(self):
+        """Test that results are reproducible with fixed seed."""
+        import random
+        random.seed(42)
+        chain1, entropy1, _ = generate_variant("test", "a b c d", "medium")
+        
+        random.seed(42)
+        chain2, entropy2, _ = generate_variant("test", "a b c d", "medium")
+        
+        assert chain1 == chain2
+        assert abs(entropy1 - entropy2) < 1e-10

@@ -1,18 +1,3 @@
-"""
-Task Validity Validator (Action Chain Check) for WBench Sequence Variants.
-
-This module validates that generated action chains are physically plausible.
-It reads variant data from `data/processed/variants.csv`, checks the action
-sequences for physical plausibility, and outputs validity flags to
-`data/processed/validity_flags.csv`.
-
-Plausibility checks include:
-1. Action sequence is not empty.
-2. Action types are valid (e.g., 'move', 'pick', 'place', 'push').
-3. No impossible immediate sequences (e.g., 'place' before 'pick').
-4. Coordinate changes are within physical bounds (if coordinates present).
-"""
-
 import os
 import sys
 import json
@@ -20,201 +5,157 @@ import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Any, Set
 
-# Import from project utils
-from utils.logging import get_logger, log_info, log_error, log_exception
+from utils.logging import get_logger, log_info, log_error, fail_loudly
 from utils.errors import DataValidationError
-
-# Constants
-VALID_ACTION_TYPES: Set[str] = {"move", "pick", "place", "push", "pull", "rotate", "drop"}
-REQUIRED_COLUMNS: List[str] = ["case_id", "variant_type", "action_chain"]
-OUTPUT_DIR: Path = Path("data/processed")
-OUTPUT_FILE: Path = OUTPUT_DIR / "validity_flags.csv"
-INPUT_FILE: Path = OUTPUT_DIR / "variants.csv"
 
 logger = get_logger(__name__)
 
+# Pre-defined set of physically plausible actions based on WBench ontology.
+# This serves as the reference for the "Action Chain Check".
+# In a real-world scenario, this might be loaded from a spec file or ontology.
+VALID_ACTION_SET: Set[str] = {
+    "move", "grab", "release", "place", "push", "pull",
+    "lift", "lower", "rotate", "tilt", "open", "close",
+    "stack", "unstack", "pour", "scoop", "cut", "join",
+    "wait", "idle", "navigate", "approach", "retreat"
+}
 
-def _parse_action_chain(action_chain_str: str) -> List[Dict[str, Any]]:
+# Invalid or physically impossible action sequences (examples)
+# Used to detect obvious logical breaks if we were doing sequence logic.
+# For this task, we focus on: 1. Valid action tokens, 2. Non-empty chains.
+INVALID_PATTERNS = [
+    "grab release",  # Grabbing without moving usually invalid in sequence context unless immediate
+    "move move move", # Redundant moves might be valid but we check for semantic breaks
+]
+
+def validate_action_chain(chain: str, case_id: str) -> Dict[str, Any]:
     """
-    Parse the action chain string (JSON) into a list of action dictionaries.
+    Validates a single action chain string for physical plausibility.
+
+    Algorithm:
+    1. Split chain into individual actions (assuming space-separated or comma-separated).
+    2. Check if every action exists in the VALID_ACTION_SET.
+    3. Check if the chain is non-empty.
+    4. (Optional) Check for obvious invalid patterns (e.g., "release" before "grab").
 
     Args:
-        action_chain_str: JSON string representing the action chain.
+        chain: The action chain string (e.g., "move grab place release").
+        case_id: Identifier for the case being validated (for logging).
 
     Returns:
-        List of action dictionaries.
-
-    Raises:
-        DataValidationError: If parsing fails or format is invalid.
+        Dict with keys:
+            - is_valid (bool): True if chain passes all checks.
+            - error_reason (str or None): Explanation if invalid.
     """
-    if not action_chain_str or not isinstance(action_chain_str, str):
-        raise DataValidationError("Action chain is empty or not a string.")
+    if not chain or not isinstance(chain, str):
+        return {"is_valid": False, "error_reason": "Chain is empty or not a string"}
+
+    # Normalize: split by space or comma
+    tokens = [t.strip() for t in chain.replace(",", " ").split() if t.strip()]
+
+    if not tokens:
+        return {"is_valid": False, "error_reason": "No valid tokens found in chain"}
+
+    invalid_tokens = []
+    for token in tokens:
+        if token not in VALID_ACTION_SET:
+            invalid_tokens.append(token)
+
+    if invalid_tokens:
+        return {
+            "is_valid": False,
+            "error_reason": f"Invalid action tokens found: {invalid_tokens}"
+        }
+
+    # Basic sequence logic check: "release" cannot happen before "grab"
+    # unless there was a "move" to an object first? Simplified:
+    # We enforce that 'release' must be preceded by 'grab' or 'lift' or 'place'
+    # within the chain context.
+    # For strict physical plausibility:
+    # - 'release' requires a prior 'grab' or 'lift' that hasn't been released.
+    # - 'place' requires 'grab' or 'lift'.
+
+    has_grabbed = False
+    for i, token in enumerate(tokens):
+        if token in ["grab", "lift", "scoop"]:
+            has_grabbed = True
+        elif token == "release":
+            if not has_grabbed:
+                return {
+                    "is_valid": False,
+                    "error_reason": f"Action 'release' at index {i} without prior grab/lift"
+                }
+            has_grabbed = False # Released, so no longer holding
+        elif token == "place":
+            if not has_grabbed:
+                return {
+                    "is_valid": False,
+                    "error_reason": f"Action 'place' at index {i} without prior grab/lift"
+                }
+            has_grabbed = False
+
+    return {"is_valid": True, "error_reason": None}
+
+def validate_variants(input_path: str, output_path: str) -> None:
+    """
+    Reads variants.csv, validates each action chain, and writes validity_flags.csv.
+
+    Input CSV Expected Columns:
+        - case_id: Unique identifier
+        - variant_type: Low, Medium, High
+        - generated_chain: The action chain string (mapped from task description's 'action_chain' concept)
+
+    Output CSV Columns:
+        - case_id
+        - variant_type
+        - is_valid (boolean)
+
+    Args:
+        input_path: Path to data/processed/variants.csv
+        output_path: Path to data/processed/validity_flags.csv
+    """
+    logger.info(f"Starting validation for {input_path}")
+
+    if not os.path.exists(input_path):
+        fail_loudly(f"Input file not found: {input_path}. Run generation pipeline first.")
 
     try:
-        chain = json.loads(action_chain_str)
-        if not isinstance(chain, list):
-            raise DataValidationError("Action chain must be a JSON list.")
-        if len(chain) == 0:
-            raise DataValidationError("Action chain cannot be empty.")
-        return chain
-    except json.JSONDecodeError as e:
-        raise DataValidationError(f"Failed to parse action chain JSON: {e}")
+        df = pd.read_csv(input_path)
+    except Exception as e:
+        fail_loudly(f"Failed to read CSV: {e}")
 
+    # Identify the column containing the action chain.
+    # Task T013 output 'variants.csv' has 'generated_chain'.
+    # Task T014 description mentions 'action_chain' column.
+    # We check for 'generated_chain' first, then 'action_chain'.
+    chain_col = None
+    if 'generated_chain' in df.columns:
+        chain_col = 'generated_chain'
+    elif 'action_chain' in df.columns:
+        chain_col = 'action_chain'
+    else:
+        fail_loudly(
+            f"Input CSV missing required chain column. "
+            f"Expected 'generated_chain' or 'action_chain'. "
+            f"Found columns: {list(df.columns)}"
+        )
 
-def _validate_action_types(chain: List[Dict[str, Any]]) -> bool:
-    """
-    Check if all actions in the chain have valid types.
+    logger.info(f"Using chain column: {chain_col}")
 
-    Args:
-        chain: List of action dictionaries.
-
-    Returns:
-        True if all types are valid, False otherwise.
-    """
-    for i, action in enumerate(chain):
-        if not isinstance(action, dict):
-            return False
-        action_type = action.get("type")
-        if action_type not in VALID_ACTION_TYPES:
-            logger.warning(f"Invalid action type '{action_type}' at index {i}")
-            return False
-    return True
-
-
-def _validate_sequence_logic(chain: List[Dict[str, Any]]) -> bool:
-    """
-    Check for physically impossible sequences (e.g., placing before picking).
-
-    Args:
-        chain: List of action dictionaries.
-
-    Returns:
-        True if sequence logic is valid, False otherwise.
-    """
-    held_object = None
-
-    for i, action in enumerate(chain):
-        action_type = action.get("type")
-
-        if action_type == "pick":
-            # Can only pick if not holding anything (simplified model)
-            # or if we assume multi-object holding is not supported yet
-            if held_object is not None:
-                logger.warning(f"Attempted 'pick' while holding '{held_object}' at index {i}")
-                return False
-            # Assume pick sets held_object (simplified: just check logic flow)
-            held_object = action.get("object", "unknown")
-
-        elif action_type == "place":
-            if held_object is None:
-                logger.warning(f"Attempted 'place' without holding an object at index {i}")
-                return False
-            held_object = None
-
-        elif action_type == "drop":
-            # Drop is similar to place but implies loss of control; requires object
-            if held_object is None:
-                logger.warning(f"Attempted 'drop' without holding an object at index {i}")
-                return False
-            held_object = None
-
-        # Other actions like 'move', 'push', 'pull' do not change held state
-        # in this simplified model, or depend on specific object context.
-
-    return True
-
-
-def _validate_coordinates(chain: List[Dict[str, Any]]) -> bool:
-    """
-    Check if coordinates (if present) are within physical bounds.
-
-    Args:
-        chain: List of action dictionaries.
-
-    Returns:
-        True if coordinates are valid, False otherwise.
-    """
-    # Define bounds (example: 0 to 1000 units)
-    MIN_COORD = 0.0
-    MAX_COORD = 1000.0
-
-    for i, action in enumerate(chain):
-        if "position" in action:
-            pos = action["position"]
-            if isinstance(pos, (list, tuple)) and len(pos) >= 2:
-                x, y = pos[0], pos[1]
-                if not (MIN_COORD <= x <= MAX_COORD and MIN_COORD <= y <= MAX_COORD):
-                    logger.warning(f"Coordinates ({x}, {y}) out of bounds at index {i}")
-                    return False
-            elif isinstance(pos, dict):
-                x = pos.get("x")
-                y = pos.get("y")
-                if x is not None and y is not None:
-                    if not (MIN_COORD <= x <= MAX_COORD and MIN_COORD <= y <= MAX_COORD):
-                        logger.warning(f"Coordinates ({x}, {y}) out of bounds at index {i}")
-                        return False
-    return True
-
-
-def validate_action_chain(action_chain_str: str) -> bool:
-    """
-    Main validation function for a single action chain.
-
-    Args:
-        action_chain_str: JSON string of the action chain.
-
-    Returns:
-        True if the chain is physically plausible, False otherwise.
-    """
-    try:
-        chain = _parse_action_chain(action_chain_str)
-    except DataValidationError as e:
-        log_error(f"Validation failed: {e}")
-        return False
-
-    if not _validate_action_types(chain):
-        return False
-
-    if not _validate_sequence_logic(chain):
-        return False
-
-    if not _validate_coordinates(chain):
-        return False
-
-    return True
-
-
-def validate_variants(input_path: Path = INPUT_FILE, output_path: Path = OUTPUT_FILE) -> pd.DataFrame:
-    """
-    Load variants, validate action chains, and save validity flags.
-
-    Args:
-        input_path: Path to the input variants CSV.
-        output_path: Path to the output validity flags CSV.
-
-    Returns:
-        DataFrame containing validity flags.
-    """
-    if not input_path.exists():
-        fail_loudly(f"Input file not found: {input_path}")
-
-    log_info(f"Loading variants from {input_path}")
-    df = pd.read_csv(input_path)
-
-    # Check required columns
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
-    if missing_cols:
-        fail_loudly(f"Missing required columns in input: {missing_cols}")
-
-    log_info(f"Validating {len(df)} action chains...")
     results = []
+    failed_count = 0
 
-    for idx, row in df.iterrows():
-        case_id = row["case_id"]
-        variant_type = row["variant_type"]
-        action_chain = row["action_chain"]
+    for _, row in df.iterrows():
+        case_id = row['case_id']
+        variant_type = row['variant_type']
+        chain_str = str(row[chain_col])
 
-        is_valid = validate_action_chain(action_chain)
+        validation_result = validate_action_chain(chain_str, case_id)
+        is_valid = validation_result['is_valid']
+
+        if not is_valid:
+            failed_count += 1
+            log_error(f"Validation failed for {case_id} ({variant_type}): {validation_result['error_reason']}")
 
         results.append({
             "case_id": case_id,
@@ -222,30 +163,33 @@ def validate_variants(input_path: Path = INPUT_FILE, output_path: Path = OUTPUT_
             "is_valid": is_valid
         })
 
-        if not is_valid:
-            log_warning(f"Invalid chain for case {case_id}, variant {variant_type}")
-
-    validity_df = pd.DataFrame(results)
+    # Create output DataFrame
+    output_df = pd.DataFrame(results)
 
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
-    log_info(f"Saving validity flags to {output_path}")
-    validity_df.to_csv(output_path, index=False)
-
-    return validity_df
-
+    output_df.to_csv(output_path, index=False)
+    logger.info(f"Validation complete. Wrote {len(output_df)} rows to {output_path}")
+    logger.info(f"Total valid: {output_df['is_valid'].sum()}, Invalid: {failed_count}")
 
 def main():
-    """Entry point for the validator script."""
-    try:
-        log_info("Starting Task Validity Validator (T014)")
-        df = validate_variants()
-        log_info(f"Validation complete. Total valid: {df['is_valid'].sum()}, invalid: {(~df['is_valid']).sum()}")
-    except Exception as e:
-        log_exception(e)
-        fail_loudly(f"Validator failed: {e}")
+    """Main entry point for the validator script."""
+    # Default paths relative to project root
+    # We assume running from project root or setting CWD correctly
+    base_dir = Path(__file__).resolve().parent.parent
+    input_file = base_dir / "data" / "processed" / "variants.csv"
+    output_file = base_dir / "data" / "processed" / "validity_flags.csv"
 
+    # Allow override via command line args
+    if len(sys.argv) > 1:
+        input_file = Path(sys.argv[1])
+    if len(sys.argv) > 2:
+        output_file = Path(sys.argv[2])
+
+    validate_variants(str(input_file), str(output_file))
 
 if __name__ == "__main__":
     main()

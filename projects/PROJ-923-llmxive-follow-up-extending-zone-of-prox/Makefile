@@ -1,36 +1,26 @@
-# Makefile for llmXive ZPPPO Extension
-# Provides shortcuts for common development tasks
+.PHONY: lint format check all clean
 
-.PHONY: install lint format test clean
+# Linting and Formatting
+LINT_CMD := ruff check code/
+FORMAT_CMD := black --check code/
+FORMAT_WRITE_CMD := black code/
 
-# Install dependencies
-install:
-    pip install -e ".[dev]"
-    pre-commit install
-
-# Run linter (ruff)
 lint:
-    ruff check .
+    $(LINT_CMD)
 
-# Run formatter (ruff format or black)
 format:
-    ruff format .
-    # If using black: black .
+    $(FORMAT_CMD)
 
-# Run tests
-test:
-    pytest tests/ -v
+format-write:
+    $(FORMAT_WRITE_CMD)
 
-# Run full CI checks (lint + format + test)
-ci: lint format test
+check: lint format
 
-# Clean build artifacts
 clean:
-    find . -type d -name "__pycache__" -exec rm -rf {} +
-    find . -type d -name "*.egg-info" -exec rm -rf {} +
-    find . -type d -name ".pytest_cache" -exec rm -rf {} +
-    find . -type d -name ".ruff_cache" -exec rm -rf {} +
-    find . -type d -name "build" -exec rm -rf {} +
-    find . -type d -name "dist" -exec rm -rf {} +
-    find . -type f -name "*.pyc" -delete
-    rm -rf .coverage htmlcov/
+    find . -type d -name "__pycache__" -exec rm -rf {} + || true
+    find . -type d -name "*.egg-info" -exec rm -rf {} + || true
+    find . -type f -name "*.pyc" -delete || true
+    find . -type f -name ".DS_Store" -delete || true
+    rm -rf .pytest_cache .ruff_cache data/metrics/*.csv state/projects/*.yaml 2>/dev/null || true
+
+all: check

@@ -1,23 +1,55 @@
-# llmXive Follow-up: Extending "Zone of Proximal Policy Optimization"
+# llmXive Follow-up: Extending Zone of Proximal Policy Optimization
 
-This project implements a follow-up study to the ZPPO paper, introducing Confidence-Adaptive Pruning (CAP) to improve data efficiency.
+## Project Setup
 
-## Setup
+This project implements a simulation of the ZPPO training loop with Confidence-Adaptive Pruning (CAP).
+
+### Prerequisites
+
+- Python 3.9+
+- pip
+
+### Installation
+
+1. Create a virtual environment:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate
+ ```
+
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+### Development Tools
+
+This project uses `black` for formatting and `ruff` for linting.
+
+### Running Linters and Formatters
+
 ```bash
-pip install -r requirements.txt
+# Check formatting
+make format
+
+# Auto-fix formatting
+make format-write
+
+# Check linting
+make lint
+
+# Run all checks
+make check
 ```
 
-## Running the Pipeline
+### Running Tests
+
 ```bash
-python code/main.py --num-seeds 10 --num-tasks 10
+pytest tests/
 ```
 
-## Project Structure
-- `code/`: Source code
-- `contracts/`: Schema definitions
-- `data/`: Generated data and metrics
-- `specs/`: Feature specifications
-- `tests/`: Unit and integration tests
+### Running the Simulation
 
-## License
-MIT
+```bash
+python code/main.py --runs 10 --seeds 10
+```

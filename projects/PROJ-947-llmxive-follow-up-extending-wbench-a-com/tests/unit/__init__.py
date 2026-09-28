@@ -1,1 +1,1 @@
-# Unit tests for llmXive sequence complexity analysis
+# Unit test package for llmXive pipeline

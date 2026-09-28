@@ -1,110 +1,111 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Convergence Result Schema
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Convergence Result Schema"
 description: >
-  Schema defining the structure of convergence result data for the ZPPO and CAP-ZPPO simulations.
-  This file captures per-cycle performance metrics and prompt content evolution to analyze
-  how the model's accuracy converges and how the prompt composition changes over training cycles.
+  Defines the structure for per-cycle convergence data in the ZPPO simulation.
+  This schema tracks the evolution of student performance and prompt content
+  over training cycles to analyze convergence behavior.
 type: object
 required:
   - run_id
-  - seed
   - task_id
-  - simulation_type
+  - seed
   - cycles
+  - start_time
+  - end_time
   - total_cycles
-  - final_accuracy
-  - aucc
-  - avg_prompt_length
 properties:
   run_id:
     type: string
-    description: Unique identifier for this simulation run.
-  seed:
-    type: integer
-    description: Random seed used for reproducibility.
+    description: "Unique identifier for this simulation run"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  
   task_id:
     type: string
-    description: Identifier of the specific task (e.g., MMLU subject) being simulated.
-  simulation_type:
+    description: "Identifier of the task being simulated (e.g., MMLU subject)"
+    pattern: "^[a-zA-Z0-9_-]+$"
+  
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility"
+    minimum: 0
+  
+  start_time:
     type: string
-    enum:
-      - static_baseline
-      - cap_adaptive
-    description: Type of simulation run (Static ZPPO or CAP-ZPPO).
+    format: date-time
+    description: "ISO 8601 timestamp when the simulation started"
+  
+  end_time:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp when the simulation ended"
+  
+  total_cycles:
+    type: integer
+    description: "Total number of training cycles executed"
+    minimum: 1
+  
   cycles:
     type: array
-    description: List of per-cycle results tracking convergence dynamics.
+    description: "Array of per-cycle results ordered by cycle index"
+    minItems: 1
     items:
       type: object
       required:
-        - cycle_number
+        - cycle_index
         - accuracy
+        - prompt_content
         - prompt_length
-        - prompt_content_summary
-        - negative_candidates_count
+        - candidate_count
+        - timestamp
       properties:
-        cycle_number:
+        cycle_index:
           type: integer
-          description: The index of the training cycle (0-indexed).
+          description: "Zero-based index of the cycle"
+          minimum: 0
+        
         accuracy:
           type: number
-          format: float
+          description: "Student accuracy on the held-out test set for this cycle"
           minimum: 0.0
           maximum: 1.0
-          description: Student accuracy on the held-out test set for this cycle.
+        
+        prompt_content:
+          type: string
+          description: "The actual NCQ prompt content used in this cycle (truncated or full)"
+          maxLength: 65536
+        
         prompt_length:
           type: integer
-          description: Number of negative candidates included in the NCQ prompt for this cycle.
-        prompt_content_summary:
-          type: object
-          description: Summary of the prompt content to track pruning behavior.
-          required:
-            - total_candidates_available
-            - candidates_pruned_rejected
-            - candidates_pruned_accepted
-            - candidates_included
-          properties:
-            total_candidates_available:
-              type: integer
-              description: Total number of negative candidates available in the buffer.
-            candidates_pruned_rejected:
-              type: integer
-              description: Number of candidates pruned due to 'consistently rejected' status (confidence < 0.1).
-            candidates_pruned_accepted:
-              type: integer
-              description: Number of candidates pruned due to 'consistently accepted' status (confidence > 0.9).
-            candidates_included:
-              type: integer
-              description: Number of candidates actually included in the final prompt (should match prompt_length).
-        negative_candidates_count:
+          description: "Number of tokens/characters in the prompt"
+          minimum: 1
+        
+        candidate_count:
           type: integer
-          description: Redundant count of candidates in prompt for quick indexing (matches prompt_length).
-  total_cycles:
-    type: integer
-    description: Total number of cycles executed in this run.
-  final_accuracy:
-    type: number
-    format: float
-    minimum: 0.0
-    maximum: 1.0
-    description: Accuracy achieved in the final cycle.
-  aucc:
-    type: number
-    format: float
-    description: Area Under the Convergence Curve (AUCC), calculated as the trapezoidal integration of accuracy over cycles.
-  avg_prompt_length:
-    type: number
-    format: float
-    description: Average number of negative candidates in the prompt across all cycles.
+          description: "Number of negative candidates included in the prompt"
+          minimum: 0
+        
+        timestamp:
+          type: string
+          format: date-time
+          description: "ISO 8601 timestamp when this cycle completed"
+      
+      additionalProperties: false
+  
   metadata:
     type: object
-    description: Optional metadata about the run environment.
+    description: "Optional additional metadata about the run"
     properties:
-      timestamp:
+      model_variant:
         type: string
-        format: date-time
-        description: ISO 8601 timestamp of when the run was completed.
-      config_snapshot:
-        type: object
-        description: Snapshot of relevant hyperparameters used (e.g., alpha, noise_sigma).
+        enum:
+          - static_zppo
+          - cap_zppo
+        description: "Which ZPPO variant was executed"
+      config_path:
+        type: string
+        description: "Path to the configuration file used"
+      notes:
+        type: string
+        description: "Any additional notes about the run"
+    additionalProperties: true
 additionalProperties: false

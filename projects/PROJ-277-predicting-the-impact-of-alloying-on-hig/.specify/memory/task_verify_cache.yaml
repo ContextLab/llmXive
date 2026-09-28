@@ -37,3 +37,10 @@ T019:
   r: The required artifact `projects/PROJ-277-predicting-oxidation-resistance/tests/contract/test_gap_analysis.py`
     does not exist on disk, so no contract test for gap analysis schema validation
     is present. The task is therefore not fulfilled.
+T020:
+  c: false
+  h: 6af81eef96f30ea2d7985c9d2aeb2f6aea9a926d2cd8992209cec3f56e87ab58
+  r: "The required integration test file `tests/integration/test_gap_analysis.py`\
+    \ does not exist in the repository, so no test code is present to verify the gap\
+    \ analysis behavior with insufficient data. The task\u2019s primary artifact is\
+    \ missing."

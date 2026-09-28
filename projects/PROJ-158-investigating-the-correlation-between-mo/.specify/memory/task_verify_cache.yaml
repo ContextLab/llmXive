@@ -1,0 +1,14 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory tree or `__init__.py` files are presented in the evidence; the\
+    \ required `code/data`, `code/models`, `code/analysis`, `code/utils`, `data/raw`,\
+    \ `data/processed`, `results`, and `tests` folders (with empty `__init__.py` in\
+    \ each `code/` subdirectory) are not shown, so the task\u2019s structural requirement\
+    \ is not satisfied."
+T003:
+  c: false
+  h: 9a04de4a0eb34b58dc5d674e62299dd7e7e622c2587821d0b91b5c74ee61cffc
+  r: The `pyproject.toml` file with a Black configuration is present, but the required
+    `.ruff.toml` (or `ruff.toml`) file is missing entirely, so the linting tool configuration
+    is not provided. The task therefore remains unfinished.
