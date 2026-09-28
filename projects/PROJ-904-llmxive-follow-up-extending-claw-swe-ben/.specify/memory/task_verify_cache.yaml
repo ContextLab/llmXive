@@ -54,3 +54,11 @@ T029:
     \ and there is no code snippet or description showing a GLM with a binomial link\
     \ that tests the interaction between \u201Ccontext strategy\u201D and \u201Cmodel\
     \ size\u201D. The required artifact is missing, so the task is not satisfied."
+T046:
+  c: false
+  h: 2cc2580424cf41a6d8b27f1fe923242e9dd20f03bfae6d553acd4321dcf495e9
+  r: "The `threshold_validator.py` file is truncated (e.g., `def main()` lacks a body\
+    \ and no `if __name__ == \"__main__\"` guard), so it cannot be executed, and the\
+    \ required dataset `data/filtered_swe_bench_v1.parquet` is absent, preventing\
+    \ any row\u2011count check. Both the script implementation and the data file need\
+    \ to be completed for the task to be satisfied."

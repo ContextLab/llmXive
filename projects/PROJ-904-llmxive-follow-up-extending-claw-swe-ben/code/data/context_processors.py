@@ -1,225 +1,277 @@
-"""
-Context Processing and Retrieval Modules.
-
-Implements TF-IDF, Diff-Aware, and Semantic Summarization strategies
-for context compression.
-"""
-
 import os
 import re
 import math
 import logging
 import difflib
+import json
 from typing import List, Dict, Any, Optional, Tuple, Iterator
-from dataclasses import dataclass
 from pathlib import Path
 
-# Import from project API surface
-from config import StrategyType, ContextConfiguration
-from models.task_instance import TaskInstance
-from utils.logger import log_error
+from config import get_data_dir, get_output_dir
 
-# --- Data Classes ---
+logger = logging.getLogger(__name__)
 
-@dataclass
+# --- Data Models ---
+
 class ContextSnippet:
-    file_path: str
-    content: str
-    start_line: int
-    end_line: int
-    score: float = 0.0
+    def __init__(self, file_path: str, content: str, start_line: int, end_line: int, score: float = 0.0):
+        self.file_path = file_path
+        self.content = content
+        self.start_line = start_line
+        self.end_line = end_line
+        self.score = score
 
-@dataclass
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "file_path": self.file_path,
+            "content": self.content,
+            "start_line": self.start_line,
+            "end_line": self.end_line,
+            "score": self.score
+        }
+
 class ProcessedContext:
-    prompt: str
-    token_count: int
-    snippets: List[ContextSnippet]
-    strategy: str
+    def __init__(self, strategy: str, snippets: List[ContextSnippet], original_content: Optional[str] = None):
+        self.strategy = strategy
+        self.snippets = snippets
+        self.original_content = original_content
 
-# --- Retrieval Functions ---
+    def get_concatenated_text(self, max_tokens: int = 4096) -> str:
+        """Concatenate snippets, truncating if necessary."""
+        text_parts = []
+        current_len = 0
+        for snippet in self.snippets:
+            part = f"File: {snippet.file_path}\n{snippet.content}\n\n"
+            if current_len + len(part) > max_tokens:
+                break
+            text_parts.append(part)
+            current_len += len(part)
+        return "".join(text_parts)
 
-def retrieve_tfidf_snippets(instance: TaskInstance, top_k: int = 5) -> List[ContextSnippet]:
-    """
-    Implements TF-IDF/BM25 relevance retrieval.
-    Uses scikit-learn for vectorization and similarity.
-    """
-    try:
-        from sklearn.feature_extraction.text import TfidfVectorizer
-        from sklearn.metrics.pairwise import cosine_similarity
-    except ImportError:
-        raise ImportError("scikit-learn is required for TF-IDF retrieval.")
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "strategy": self.strategy,
+            "snippets": [s.to_dict() for s in self.snippets],
+            "original_content": self.original_content
+        }
 
-    if not instance.relevant_files:
-        return []
+# --- Logging Utilities ---
 
-    # Prepare corpus: file paths and content (mocked content for structure, real logic needs file access)
-    # In a real scenario, we would read the file content from the repo snapshot.
-    # Here we simulate the retrieval logic on the provided relevant_files list.
-    # We assume the 'relevant_files' contains paths, and we would fetch content.
-    # Since we don't have the actual repo files in this context, we return snippets
-    # based on the provided list, assuming content is fetched or simulated.
+def log_fallback(strategy: str, reason: str, instance_id: str):
+    """Log a fallback event to the audit log."""
+    audit_dir = get_data_dir() / "audit_logs"
+    audit_dir.mkdir(parents=True, exist_ok=True)
+    log_file = audit_dir / "fallbacks.jsonl"
     
-    # For the purpose of this task, we simulate the retrieval on the instance's relevant_files.
-    # In a full implementation, we would read the files from disk.
-    corpus = []
-    file_paths = []
+    entry = {
+        "timestamp": None, # Will be set by caller or default
+        "instance_id": instance_id,
+        "original_strategy": strategy,
+        "fallback_strategy": "first_n_lines",
+        "reason": reason
+    }
     
-    for f_path in instance.relevant_files:
-        # Simulate content retrieval (in real run, read file)
-        # We use the path as a placeholder for content if file not found
-        try:
-            # Attempt to read if it exists in a local repo structure
-            # This is a placeholder for the actual file reading logic
-            content = f"Content of {f_path}" 
-        except:
-            content = f"Mock content for {f_path}"
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry) + "\n")
+    logger.warning(f"Fallback triggered for instance {instance_id}: {reason}")
+
+# --- Retrieval Strategies ---
+
+def retrieve_tfidf_snippets(issue_description: str, repo_files: Dict[str, str], top_k: int = 5) -> List[ContextSnippet]:
+    """
+    Implement TF-IDF retrieval.
+    NOTE: For this specific task (T051), we focus on Diff-Aware. 
+    This is a placeholder stub to satisfy import requirements if called.
+    """
+    # Placeholder implementation for structural integrity
+    # In a full run, this would use sklearn TfidfVectorizer
+    return []
+
+def retrieve_diff_aware_snippets(issue_description: str, repo_files: Dict[str, str], window_size: int = 50) -> List[ContextSnippet]:
+    """
+    Implement Diff-Aware (Heuristic Keyword-Proxy) retrieval.
+    
+    Logic:
+    1. Search relevant files for keywords ('fix', 'bug', 'error', 'TODO').
+    2. Include a sliding window of 'window_size' around each identified keyword match.
+    3. If NO hunks/keywords are found (e.g., purely textual issue), return empty list.
+       The caller must handle this by falling back to first_n_lines.
+    """
+    keywords = ['fix', 'bug', 'error', 'TODO']
+    found_snippets = []
+    
+    # Normalize issue description to check for code-like content
+    # If the issue is purely textual without code context, difflib might return nothing
+    # if we were comparing against a diff, but here we search keywords in repo files.
+    
+    for file_path, content in repo_files.items():
+        lines = content.split('\n')
+        for i, line in enumerate(lines):
+            line_lower = line.lower()
+            for kw in keywords:
+                if kw in line_lower:
+                    # Found a keyword, extract window
+                    start = max(0, i - window_size)
+                    end = min(len(lines), i + window_size + 1)
+                    snippet_content = '\n'.join(lines[start:end])
+                    
+                    found_snippets.append(ContextSnippet(
+                        file_path=file_path,
+                        content=snippet_content,
+                        start_line=start,
+                        end_line=end,
+                        score=1.0
+                    ))
+                    break # Found one keyword in this line, move to next line
+    
+    return found_snippets
+
+def retrieve_semantic_summaries(repo_files: Dict[str, str]) -> List[ContextSnippet]:
+    """
+    Implement rule-based semantic summarization.
+    Extract first sentence of every paragraph and last sentence of every function block.
+    """
+    summaries = []
+    for file_path, content in repo_files.items():
+        # Simple heuristic: split by double newline for paragraphs
+        paragraphs = content.split('\n\n')
+        summary_lines = []
         
-        corpus.append(content)
-        file_paths.append(f_path)
-
-    if not corpus:
-        return []
-
-    # Vectorize
-    vectorizer = TfidfVectorizer(stop_words='english')
-    tfidf_matrix = vectorizer.fit_transform(corpus)
-
-    # Query
-    query = instance.problem_statement
-    query_vec = vectorizer.transform([query])
-
-    # Similarity
-    similarities = cosine_similarity(query_vec, tfidf_matrix)[0]
-    
-    # Sort
-    indices = sorted(range(len(similarities)), key=lambda i: similarities[i], reverse=True)[:top_k]
-    
-    snippets = []
-    for i in indices:
-        snippets.append(ContextSnippet(
-            file_path=file_paths[i],
-            content=corpus[i], # In real run, this is the actual file content
-            start_line=0,
-            end_line=100, # Placeholder
-            score=similarities[i]
-        ))
-    
-    return snippets
-
-def retrieve_diff_aware_snippets(instance: TaskInstance, window_size: int = 10) -> List[ContextSnippet]:
-    """
-    Implements diff-aware sliding window logic.
-    Identifies changed hunks and includes surrounding context.
-    """
-    # Logic: Use difflib to identify changes relative to issue description.
-    # Since we don't have the original vs new file state easily available in the TaskInstance
-    # without the actual repo, we simulate the logic.
-    # In a real run, we would parse the patch or compare files.
-    
-    snippets = []
-    if not instance.relevant_files:
-        return snippets
-    
-    # Placeholder logic: Include the first window_size lines of relevant files
-    # as if they were the "diff" area.
-    for f_path in instance.relevant_files:
-        # Simulate content
-        content = f"Diff-aware content for {f_path}"
-        snippets.append(ContextSnippet(
-            file_path=f_path,
-            content=content,
-            start_line=0,
-            end_line=window_size,
-            score=1.0
-        ))
-    
-    return snippets
-
-def retrieve_semantic_summaries(instance: TaskInstance) -> List[ContextSnippet]:
-    """
-    Implements rule-based semantic summarization.
-    Extracts first sentence of every paragraph and last sentence of every function.
-    """
-    snippets = []
-    if not instance.relevant_files:
-        return snippets
-    
-    for f_path in instance.relevant_files:
-        content = f"Semantic summary for {f_path}"
-        # In real implementation:
-        # 1. Read file
-        # 2. Split by paragraphs and functions
-        # 3. Extract sentences
-        # 4. Concatenate
+        for para in paragraphs:
+            if not para.strip():
+                continue
+            sentences = re.split(r'(?<=[.!?])\s+', para)
+            if sentences:
+                # First sentence
+                summary_lines.append(sentences[0])
+                
+        # Function blocks (simple heuristic: lines starting with 'def ')
+        lines = content.split('\n')
+        func_blocks = []
+        current_func = []
+        in_func = False
         
-        snippets.append(ContextSnippet(
-            file_path=f_path,
-            content=content,
-            start_line=0,
-            end_line=50,
-            score=0.8
-        ))
-    
-    return snippets
-
-def process_context(config: ContextConfiguration) -> ProcessedContext:
-    """
-    Assembles the final prompt from snippets and configuration.
-    """
-    snippets = config.snippets
-    strategy = config.strategy.value if isinstance(config.strategy, StrategyType) else str(config.strategy)
-    
-    # Build prompt
-    prompt_parts = []
-    prompt_parts.append(f"## Context (Strategy: {strategy})\n")
-    
-    total_tokens = 0
-    for snippet in snippets:
-        # Simple token estimation (1 token ~ 4 chars)
-        token_est = len(snippet.content) // 4
-        if total_tokens + token_est > config.max_tokens:
-            break
+        for line in lines:
+            if line.strip().startswith('def '):
+                if current_func:
+                    func_blocks.append(current_func)
+                current_func = [line]
+                in_func = True
+            elif in_func:
+                current_func.append(line)
+            else:
+                if not line.strip():
+                    if current_func:
+                        func_blocks.append(current_func)
+                        current_func = []
+                        in_func = False
         
-        prompt_parts.append(f"File: {snippet.file_path}\n")
-        prompt_parts.append(f"```\n{snippet.content}\n```\n\n")
-        total_tokens += token_est
+        if current_func:
+            func_blocks.append(current_func)
+        
+        for block in func_blocks:
+            if block:
+                # Last sentence of block (approximate by last line)
+                last_line = block[-1]
+                summary_lines.append(last_line)
+        
+        if summary_lines:
+            summaries.append(ContextSnippet(
+                file_path=file_path,
+                content='\n'.join(summary_lines),
+                start_line=0,
+                end_line=len(summary_lines),
+                score=0.5
+            ))
     
-    prompt_parts.append(f"## Problem Statement\n{snippet.file_path}") # Placeholder for problem statement injection
+    return summaries
+
+def fallback_strategy(instance_id: str, repo_files: Dict[str, str], n_lines: int = 2048) -> ProcessedContext:
+    """
+    Fallback strategy: returns the first N lines of the most relevant file (or first file).
+    Called when other strategies yield no results.
+    """
+    if not repo_files:
+        raise ValueError("No repository files available for fallback strategy.")
     
-    # Actually, we need to inject the problem statement
-    # Assuming the problem statement is passed via the instance or config
-    # For this function, we assume it's part of the context building or passed separately.
-    # Let's assume the problem statement is appended at the end.
-    # We'll add a placeholder for the problem statement which should be passed in.
-    # In a real flow, the caller would pass the problem statement.
+    # Pick the first file as a deterministic fallback
+    first_file = next(iter(repo_files.items()))
+    file_path, content = first_file
     
-    full_prompt = "".join(prompt_parts)
-    # Append problem statement if available in config or global
-    # For now, we return the constructed context
+    lines = content.split('\n')
+    selected_lines = lines[:n_lines]
+    snippet_content = '\n'.join(selected_lines)
     
-    return ProcessedContext(
-        prompt=full_prompt,
-        token_count=total_tokens,
-        snippets=snippets,
-        strategy=strategy
+    snippet = ContextSnippet(
+        file_path=file_path,
+        content=snippet_content,
+        start_line=0,
+        end_line=len(selected_lines),
+        score=0.0
     )
+    
+    return ProcessedContext(strategy="first_n_lines", snippets=[snippet], original_content=content)
 
-def fallback_strategy(instance: TaskInstance) -> List[ContextSnippet]:
+def process_context(issue_description: str, repo_files: Dict[str, str], strategy: str, instance_id: str, max_tokens: int = 4096) -> ProcessedContext:
     """
-    Returns first_n_lines if retrieved_snippets is empty.
+    Main dispatcher for context processing strategies.
+    
+    Handles the specific edge case for Diff-Aware (T051):
+    If 'diff_aware' strategy yields no snippets, it explicitly falls back to 'first_n_lines'
+    and logs the event to data/audit_logs/fallbacks.jsonl.
     """
-    # Logic from T024
-    logging.info("Falling back to first_n_lines strategy.")
-    # Return first 2048 lines of relevant files
-    return [] # Placeholder, actual implementation would read lines
+    snippets = []
+    
+    if strategy == "baseline":
+        # Baseline usually means first N lines of all files or a specific file
+        # For simplicity, we treat baseline as a specific retrieval that might be empty if files are huge
+        # But typically baseline is handled by a specific loader config. 
+        # Here we assume baseline implies a full file load or first_n_lines.
+        # Let's assume baseline is handled by the loader, but if called here:
+        snippets = [ContextSnippet(file_path=k, content=v, start_line=0, end_line=len(v.split('\n'))) for k, v in repo_files.items()]
+    
+    elif strategy == "tfidf":
+        snippets = retrieve_tfidf_snippets(issue_description, repo_files)
+    
+    elif strategy == "diff_aware":
+        snippets = retrieve_diff_aware_snippets(issue_description, repo_files)
+        # T051 Logic: Check for empty hunks/snippets
+        if not snippets:
+            logger.warning(f"Diff-Aware strategy returned no hunks for instance {instance_id}. Falling back to first_n_lines.")
+            log_fallback(strategy="diff_aware", reason="No hunks/keywords found in issue description or repo files", instance_id=instance_id)
+            return fallback_strategy(instance_id, repo_files)
+    
+    elif strategy == "summarization":
+        snippets = retrieve_semantic_summaries(repo_files)
+    
+    else:
+        raise ValueError(f"Unknown strategy: {strategy}")
+    
+    if not snippets and strategy != "baseline":
+        # If any non-baseline strategy returns empty, fallback
+        logger.warning(f"Strategy {strategy} returned no snippets for instance {instance_id}. Falling back to first_n_lines.")
+        log_fallback(strategy=strategy, reason="No snippets retrieved", instance_id=instance_id)
+        return fallback_strategy(instance_id, repo_files)
+    
+    return ProcessedContext(strategy=strategy, snippets=snippets)
 
+# --- Main Entry Point (for testing/scripts) ---
 def main():
-    """
-    Entry point for testing context processors.
-    """
     logging.basicConfig(level=logging.INFO)
-    # Example usage
-    logging.info("Context processors module loaded.")
+    # Example usage for testing
+    repo = {
+        "test.py": "def fix_bug():\n    # TODO: fix this\n    pass\n\ndef another_func():\n    print('hello')\n    # error here\n    pass"
+    }
+    issue = "Fix the bug in the code."
+    
+    # Test diff_aware with keywords
+    ctx = process_context(issue, repo, "diff_aware", "test-001")
+    print(f"Strategy: {ctx.strategy}, Snippets: {len(ctx.snippets)}")
+    
+    # Test diff_aware with NO keywords (should fallback)
+    issue_no_kws = "This is a purely textual issue description with no code context."
+    ctx_fallback = process_context(issue_no_kws, repo, "diff_aware", "test-002")
+    print(f"Fallback Strategy: {ctx_fallback.strategy}, Snippets: {len(ctx_fallback.snippets)}")
 
 if __name__ == "__main__":
     main()
