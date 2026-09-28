@@ -61,7 +61,7 @@
 - [X] T007 Setup `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/config.py` for resolutions (30, 60, 120, 240, 480), seeds (seed=42), and paths.
 - [X] T008 [P] Implement error handling and retry logic with exponential backoff in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py`.
 - [X] T009 [P] [US1] Implement checksumming and metadata validation utilities in `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/utils.py::checksum_file`.
-- [ ] T010 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py::estimate_lambda(sample_path)` to estimate spatial lag parameter ($\lambda$) via MLE on a **[deferred] random sample (seed=42)** of the 30m data located at `data/raw/`. **Output**: Save fixed $\lambda$ value to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/calibration_lambda.json`. <!-- FAILED: unspecified -->
+- [ ] T010 [US2] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/calibration.py::estimate_lambda(sample_path)` to estimate spatial lag parameter ($\lambda$) via MLE on a **[deferred] random sample (seed=42)** of the 30m data located at `data/raw/`. **Output**: Save fixed $\lambda$ value to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/calibration_lambda.json`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -130,7 +130,7 @@
 ### Implementation for User Story 3
 
 - [X] T028 [P] [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py` to generate Power-vs-Resolution curve.
-- [ ] T029 [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py::find_threshold(power_csv_path)` which returns the resolution string (e.g., '240m') where power < 0.80, and writes this to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/threshold_report.txt`.
+- [X] T029 [US3] Implement `projects/PROJ-421-assessing-the-impact-of-data-resolution-/code/visualization.py::find_threshold(power_csv_path)` which returns the resolution string (e.g., '240m') where power < 0.80, and writes this to `projects/PROJ-421-assessing-the-impact-of-data-resolution-/data/results/threshold_report.txt`.
 - [ ] T030 [US3] Calculate Type II error delta (1 - power) relative to 30m baseline.
 - [ ] T031 [US3] Implement sensitivity analysis: sweep resolution aggregation factor by ±10% around inflection point. Verify the threshold does not vary by more than **one resolution step** (defined as the transition between adjacent levels in the geometric series, e.g., 30m->60m, 60m->120m).
 - [ ] T032 [US3] Generate sensitivity analysis report confirming threshold stability.
@@ -147,11 +147,11 @@
 
 - [ ] T035 [P] Documentation updates in `docs/` and `README.md`.
 - [ ] T036 Code cleanup and refactoring.
-- [ ] T037 Performance optimization (verify < 6h runtime on CPU-only runner). <!-- ATOMIZE: requested -->
-- [~] T038 [P] Additional unit tests in `tests/unit/`.
+- [ ] T037 Performance optimization (verify < 6h runtime on CPU-only runner). <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T038 [P] Additional unit tests in `tests/unit/`.
 - [X] T039 [P] Execute Reference-Validator Agent to confirm NLCD URLs (verified HuggingFace/proxy URLs) are reachable and match primary sources (Title-token-overlap ≥ 0.7 where applicable) using command: `python -m code.reference_validator --input data/ --config code/config.py`.
-- [~] T040 Run full pipeline on GitHub Actions runner to verify < 6h runtime and < 7GB RAM. <!-- ATOMIZE: requested -->
-- [~] T041 Run `quickstart.md` validation.
+- [ ] T040 Run full pipeline on GitHub Actions runner to verify < 6h runtime and < 7GB RAM. <!-- ATOMIZE: requested -->
+- [ ] T041 Run `quickstart.md` validation.
 
 ---
 

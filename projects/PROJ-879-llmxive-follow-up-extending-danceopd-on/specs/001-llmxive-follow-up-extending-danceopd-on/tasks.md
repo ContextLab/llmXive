@@ -66,7 +66,7 @@
 - [X] T007 Setup data directories: `data/raw/`, `data/processed/`, `data/results/` in the project root.
 - [X] T008 [P] Implement weight manifest verification logic in `code/utils/check_weights.py`. **Logic**: 1. Initialize manifest if missing. 2. Verify checksums against manifest. 3. Handle missing files by raising an error.
  - **Dependency**: Consolidated from T008a, T008b, T008c.
-- [X] T012c [P] Initialize CLIP model for metrics in `code/utils/models.py`. **Model**: `ViT-B/32`. **Device**: Explicitly set `device='cpu'`. **Note**: This task MUST complete before T012b starts.
+- [X] T012c [P] Initialize CLIP model for metrics in `code/utils/models.py`. **Model**: `ViT-B/32 (2304.08480, https://arxiv.org/abs/2304.08480)`. **Device**: Explicitly set `device='cpu'`. **Note**: This task MUST complete before T012b starts.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -101,14 +101,14 @@
  - **Feature Extraction**: For each sample, extract `noise_level` and **`prompt_embedding`** using the CLIP model from T012c.
  - **Output Schema**: Write `data/processed/combined_samples.parquet` with columns: `image_path` (str, absolute path to raw image), `noise_level` (float), `prompt_embedding` (list[float32]).
  - **Deliverable**: `data/processed/combined_samples.parquet` exists and contains valid image paths, noise levels, and prompt embeddings.
-- [ ] T013a [US1] **Generate Teacher Ground Truth**. Implement `code/00_teacher_inference.py` to run the pre-trained DanceOPD teacher model on the sampled data (from T012b) to generate ground truth routing labels and velocity vectors.
+- [X] T013a [US1] **Generate Teacher Ground Truth**. Implement `code/00_teacher_inference.py` to run the pre-trained DanceOPD teacher model on the sampled data (from T012b) to generate ground truth routing labels and velocity vectors.
  - **Context**: This task executes the teacher model on a scaled-down subset (N=2500).
  - **Input Logic**: Load `data/processed/combined_samples.parquet`. For each row, load the **raw image** from `image_path`. **Validation**: Verify `image_path` is absolute and file exists before loading. Pass raw image + embeddings to the teacher model.
  - **Output Schema**: Write `data/processed/teacher_ground_truth.parquet` with columns: `prompt_embedding` (list[float32]), `noise_level` (float), `routing_label` (str, expert ID), `velocity_vector` (list[float32]).
  - **Constraint**: If CPU inference fails to produce ≥1,000 valid samples, **exit with code 1** (fail loud). Do NOT generate an empty file. This enforces the FR-001 minimum sample requirement.
  - **Filtering**: During inference, detect 'undefined routing paths'. **Strict Exclusion**: If `routing_label` is not in the known expert ID set, **exclude** the sample. **Log** the `image_path` and `prompt_embedding` of these samples to `data/results/undefined_routing_log.json`. **DO NOT** assign a default label unless `USE_FALLBACK_LABEL` is explicitly set to `True` in `config.py` (and even then, log it heavily). If exclusion reduces the dataset below a sufficient threshold for analysis, **fail loud** (exit with a non-zero status).
  - **Deliverable**: `data/processed/teacher_ground_truth.parquet` (must contain ≥1000 rows or task fails) and `data/results/undefined_routing_log.json`.
-- [ ] T013c [US1] **Handle Teacher Inference Resource Constraints**. Implement logic in `code/00_teacher_inference.py` to handle the case where the teacher model inference exceeds CPU limits (Assumption A1).
+- [X] T013c [US1] **Handle Teacher Inference Resource Constraints**. Implement logic in `code/00_teacher_inference.py` to handle the case where the teacher model inference exceeds CPU limits (Assumption A1).
  - **Rationale**: Spec Assumption A1 states that if the teacher model runs on a separate GPU or if CPU limits are hit, a pre-computed teacher dataset may be used. This task ensures that if the CPU inference fails due to time/memory, the pipeline can gracefully stop or switch to a pre-computed teacher dataset if available, without skipping the raw data fetch (T042).
  - **Logic**: If T013a fails due to timeout or memory, check for `PRE_COMPUTED_TEACHER_DATA_DIR`. If present, load the pre-computed `teacher_ground_truth.parquet`. If not, **exit with code 1**. **Do NOT** fall back to synthetic data.
  - **Deliverable**: `data/processed/teacher_ground_truth.parquet` (either generated or loaded from pre-computed source).
@@ -144,15 +144,15 @@
  - **Enforce CPU**: Ensure no GPU usage in data loading (default behavior).
  - **Verification**: Verify `data/processed/train_split.parquet` and `data/processed/test_split.parquet` exist, are valid Parquet files, and contain the expected columns with non-zero row counts.
  - **Deliverable**: `data/processed/train_split.parquet` and `data/processed/test_split.parquet`.
-- [ ] T021a [US2] **Train Single Decision Tree**. Implement a function in `code/01_train_trees.py` to train a single `DecisionTreeClassifier` (scikit‑learn, CPU) for a given `max_depth`.
+- [X] T021a [US2] **Train Single Decision Tree**. Implement a function in `code/01_train_trees.py` to train a single `DecisionTreeClassifier` (scikit‑learn, CPU) for a given `max_depth`.
  - **Logic**: Train a tree for a specific depth `d`.
  - **Enforce CPU**: Explicitly set `device='cpu'` in scikit-learn (default) and ensure no PyTorch GPU tensors are used.
  - **Overfitting Check**: Calculate `train_accuracy` and `test_accuracy`. If difference > 0.1, log warning to `data/results/overfitting_log.json`. **Constraint**: The final analysis MUST use ONLY `test_accuracy`.
  - **Deliverable**: A single model saved to `models/trained_trees/` and accuracy metrics.
-- [ ] T021b [US2] **Run Training Loop for Decision Trees**. Implement a loop in `code/01_train_trees.py` to call T021a for `max_depth` values **range(2, 21)** (step 1).
+- [X] T021b [US2] **Run Training Loop for Decision Trees**. Implement a loop in `code/01_train_trees.py` to call T021a for `max_depth` values **range(2, 21)** (step 1).
  - **Logic**: Train a tree for each depth `d` in the range 2 to 20 to capture the saturation point and adhere to the "low-complexity" constraint (Constitution Principle VI).
  - **Deliverable**: A set of models saved to `models/trained_trees/` and a unified results table showing `max_depth` vs. `routing_accuracy` saved to `data/results/tree_accuracy.csv`.
-- [ ] T021c [US2] **Train Random Forests (Constitution VI Compliance)**. Implement a loop in `code/01_train_trees.py` to train `RandomForestClassifier` models with varying `n_estimators` (e., 10, 50, 100, 200) on the same dataset.
+- [X] T021c [US2] **Train Random Forests (Constitution VI Compliance)**. Implement a loop in `code/01_train_trees.py` to train `RandomForestClassifier` models with varying `n_estimators` (e., 10, 50, 100, 200) on the same dataset.
  - **Rationale**: Constitution Principle VI mandates varying `max_depth` AND using tree count for Random Forests to fully address the "theoretical compressibility" hypothesis.
  - **Logic**: Train a Random Forest for each `n_estimators` value. Calculate `train_accuracy` and `test_accuracy`. Log overfitting warnings if applicable.
  - **Deliverable**: A set of models saved to `models/trained_random_forests/` and a results table showing `n_estimators` vs. `routing_accuracy` saved to `data/results/forest_accuracy.csv`.
@@ -177,21 +177,21 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029b [US3] **Load Expert Field Logic**. Implement `code/models/expert_loader.py` to load the individual expert field weights and logic from the teacher model package.
+- [X] T029b [US3] **Load Expert Field Logic**. Implement `code/models/expert_loader.py` to load the individual expert field weights and logic from the teacher model package.
  - **Dependency**: None (Foundational).
  - **Logic**: Extract and cache the specific expert field modules required for re-inference.
  - **Deliverable**: Loaded expert field objects available to T029a.
-- [ ] T029c [US3] **Implement CPU-only Euler Integrator**. Implement `code/models/euler.py` to accept `velocity_vector`, `noise_level`, and `expert_type`, use a fixed step size and step count, and invoke the specific expert field logic to generate the image.
+- [X] T029c [US3] **Implement CPU-only Euler Integrator**. Implement `code/models/euler.py` to accept `velocity_vector`, `noise_level`, and `expert_type`, use a fixed step size and step count, and invoke the specific expert field logic to generate the image.
  - **Dependency**: Depends on T029b (Expert Fields Loaded).
  - **Logic**: Implement the Euler integration loop with noise injection: `x_{t+1} = x_t + step_size * v_t + sqrt(step_size) * noise`. **Parameters**: `step_size=0.1`, `steps=10`.
  - **Deliverable**: `code/models/euler.py` with function `integrate(velocity_vector, noise_level, expert_type) -> image`.
-- [ ] T029a [US3] **Generate Velocity Vectors from Tree Routing**. Implement `code/models/expert_reinference.py` to generate velocity vectors based on tree predictions.
+- [X] T029a [US3] **Generate Velocity Vectors from Tree Routing**. Implement `code/models/expert_reinference.py` to generate velocity vectors based on tree predictions.
  - **Dependency**: Depends on T029b (Expert Fields Loaded), T014 (Final Dataset), and T021b/T021c/T021d (Trained Trees/Forests).
  - **Input**: `routing_label` (predicted by tree), `prompt_embedding`, `noise_level`. **Note**: Do NOT use `image_path` for vector generation; the vector is a function of the routing decision and input state.
  - **Logic**: Load the specific expert field logic/weights (from T029b) corresponding to the `routing_label`. **Validation**: If `routing_label` is not in the loaded expert fields, raise an exception. **Re-run the expert field** using the tree-predicted routing label and input state (`prompt_embedding`, `noise_level`) to generate a **NEW velocity_vector**. The expert field function signature is explicitly: `expert_field(routing_label, prompt_embedding, noise_level) -> velocity_vector`.
  - **Verification**: Verify that the generated `velocity_vector` differs from the teacher's pre-computed vector for at least some samples (indicating routing change impact).
  - **Deliverable**: `velocity_vector` for each sample, saved to `data/processed/tree_predicted_vectors.parquet`.
-- [ ] T028a [US3] **Generate Teacher and Tree Images (Pilot)**. Implement `code/02_evaluate_fidelity.py` to generate images for BOTH the Teacher baseline and the Tree-predicted routing for a **Pilot** sample size (N=50).
+- [X] T028a [US3] **Generate Teacher and Tree Images (Pilot)**. Implement `code/02_evaluate_fidelity.py` to generate images for BOTH the Teacher baseline and the Tree-predicted routing for a **Pilot** sample size (N=50). <!-- FAILED: unspecified -->
  - **Dependency**: Depends on T020 (Data Split), T021b/T021c/T021d (Trained Trees), T029b (Expert Fields Loaded), T029a (Velocity Generation), T029c (Euler Integrator).
  - **Logic**: Iterate through the first 50 samples of the test set. For each sample:
  1. **Teacher Baseline**: **Load** `routing_label` and `velocity_vector` from `data/processed/teacher_ground_truth_filtered.parquet` (pre-computed). Generate image using Euler integrator (T029c).

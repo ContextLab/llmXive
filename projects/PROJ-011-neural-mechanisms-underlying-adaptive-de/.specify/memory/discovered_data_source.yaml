@@ -1,18 +1,14 @@
 status: none
-intent: OpenNeuro ds003694 fMRI social feedback python package dataset
+intent: OpenNeuro ds003694 fMRI dataset download and openneuro-py python package dataset
 required_fields:
-- subject_id
+- participant_id
 - session_id
-- run_id
+- run_number
 - bold_nifti_path
-- tr
-- te
-- motion_parameters
-- behavioral_trial
-- condition
-- reaction_time
-- response
-- event_onset
-cache_key: 8b6aeabd8f40babe9c8a19d18f29c74583b320db60dd8d9c29d009c77a0802fc
-searched_at: '2026-09-21T16:18:23.961743+00:00'
+- behavioral_csv_path
+- motion_parameters_file
+- timepoints
+- roi_definitions
+cache_key: 68e4e87db73fafbacd376b4a9a169d5d0d79eae2ea65e0cd1afb56e414fe3db2
+searched_at: '2026-09-28T09:46:29.930142+00:00'
 retry_count: 1

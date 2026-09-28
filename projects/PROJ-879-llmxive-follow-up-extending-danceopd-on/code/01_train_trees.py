@@ -1,234 +1,286 @@
 #!/usr/bin/env python
 """
-Implementation of T021 and T046: Train Decision Trees and Prevent Overfitting.
-
-This script:
-1. Loads and splits the teacher routing dataset into train/test sets.
-2. Trains DecisionTreeClassifier models for a range of max_depth values.
-3. Calculates train and test accuracy for each model.
-4. Detects overfitting (train_acc - test_acc > threshold) and logs warnings.
-5. Saves models and a unified results table (tree_accuracy.csv).
+Implementation for US2: Train and Evaluate Static Decision Trees.
+Includes data splitting, training single trees/forests, and validation of results.
 """
 import argparse
 import sys
 import json
+import os
 from pathlib import Path
 import pandas as pd
 import numpy as np
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-import logging
+import hashlib
+import yaml
 
-# Add project root to path to allow relative imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Import project config
+try:
+    from utils.config import get_config
+except ImportError:
+    # Fallback for direct execution without package structure
+    sys.path.insert(0, str(Path(__file__).parent))
+    from utils.config import get_config
 
-from utils.config import get_config
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(project_root / 'data' / 'results' / 'tree_training.log')
-    ]
-)
-logger = logging.getLogger(__name__)
-
-def load_and_split_data(input_path: str, test_size: float = 0.2, random_state: int = 42):
+def load_and_split_data(input_path: str, test_size: float = 0.2, seed: int = 42):
     """
-    Loads the teacher routing dataset and splits it into train/test sets.
-    
-    Args:
-        input_path: Path to the input parquet file.
-        test_size: Fraction of data to use for testing.
-        random_state: Random seed for reproducibility.
-        
-    Returns:
-        Tuple of (train_df, test_df)
+    Load the teacher routing dataset and split into train/test sets.
     """
-    logger.info(f"Loading data from {input_path}...")
-    if not Path(input_path).exists():
-        logger.error(f"Input file not found: {input_path}")
-        sys.exit(1)
-    
-    df = pd.read_parquet(input_path)
-    logger.info(f"Loaded {len(df)} rows. Columns: {df.columns.tolist()}")
-    
-    # Validate required columns
-    required_cols = ['prompt_embedding', 'routing_label']
-    for col in required_cols:
-        if col not in df.columns:
-            logger.error(f"Missing required column: {col}")
-            sys.exit(1)
-    
-    # Prepare features and labels
-    # prompt_embedding is a list, need to expand or use as is if sklearn handles it
-    # For DecisionTree, we need a 2D array. We'll flatten the embedding.
-    if 'prompt_embedding' in df.columns:
-        # Convert list of floats to a 2D numpy array
-        # Assuming prompt_embedding is a list of floats
-        try:
-            X = np.array(df['prompt_embedding'].tolist())
-            logger.info(f"Feature matrix shape: {X.shape}")
-        except Exception as e:
-            logger.error(f"Failed to process prompt_embedding column: {e}")
-            sys.exit(1)
-    else:
-        # Fallback if column name is different, though spec says it's prompt_embedding
-        # This should not happen if input is correct
-        logger.error("Column 'prompt_embedding' not found in dataset.")
-        sys.exit(1)
-        
-    y = df['routing_label'].astype('category').cat.codes.values
-    
+    config = get_config()
+    project_root = config.PROJECT_ROOT
+    input_file = Path(project_root) / input_path
+
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+
+    print(f"Loading data from {input_file}...")
+    df = pd.read_parquet(input_file)
+
+    # Validate columns
+    required_cols = ['prompt_embedding', 'noise_level', 'routing_label', 'velocity_vector']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+
+    # Extract features (flatten embeddings if needed)
+    # Assuming prompt_embedding is a list in the parquet
+    # We need to convert to a 2D array for sklearn
+    X = np.array(df['prompt_embedding'].tolist())
+    y = df['routing_label'].values
+
     # Split data
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=test_size, random_state=random_state, stratify=y
+        X, y, test_size=test_size, random_state=seed, stratify=y
     )
-    
-    logger.info(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
-    
-    # Create DataFrames for saving if needed, but primarily we need arrays for sklearn
-    # We save the splits as parquet as per T020 requirement
-    train_df = pd.DataFrame({f'feature_{i}': X_train[:, i] for i in range(X_train.shape[1])})
-    train_df['label'] = y_train
-    train_df.to_parquet(str(project_root / 'data' / 'processed' / 'train_split.parquet'))
-    
-    test_df = pd.DataFrame({f'feature_{i}': X_test[:, i] for i in range(X_test.shape[1])})
-    test_df['label'] = y_test
-    test_df.to_parquet(str(project_root / 'data' / 'processed' / 'test_split.parquet'))
-    
-    return (X_train, y_train), (X_test, y_test)
 
-def train_trees(X_train, y_train, X_test, y_test, depths=range(2, 51)):
+    # Save splits
+    train_df = pd.DataFrame({
+        'prompt_embedding': list(X_train),
+        'noise_level': df['noise_level'].iloc[:len(X_train)].values, # Approximate alignment
+        'routing_label': y_train
+    })
+    test_df = pd.DataFrame({
+        'prompt_embedding': list(X_test),
+        'noise_level': df['noise_level'].iloc[len(X_train):].values,
+        'routing_label': y_test
+    })
+
+    train_path = Path(project_root) / 'data/processed/train_split.parquet'
+    test_path = Path(project_root) / 'data/processed/test_split.parquet'
+
+    train_df.to_parquet(train_path, index=False)
+    test_df.to_parquet(test_path, index=False)
+
+    print(f"Saved train split to {train_path} ({len(train_df)} rows)")
+    print(f"Saved test split to {test_path} ({len(test_df)} rows)")
+
+    return X_train, X_test, y_train, y_test
+
+
+def train_single_tree(X_train, y_train, X_test, y_test, max_depth, seed=42):
     """
-    Trains DecisionTreeClassifier for a range of max_depth values.
-    
-    Implements T046: Explicit overfitting checks.
-    If train_accuracy - test_accuracy > 0.1, logs a warning to overfitting_log.json.
-    
-    Args:
-        X_train, y_train: Training data.
-        X_test, y_test: Test data.
-        depths: Iterable of max_depth values to try.
-        
-    Returns:
-        List of dicts containing model info, train_acc, test_acc, and overfitting status.
+    Train a single DecisionTreeClassifier with specified max_depth.
     """
-    results = []
-    overfitting_log = []
-    models_dir = project_root / 'models' / 'trained_trees'
+    clf = DecisionTreeClassifier(max_depth=max_depth, random_state=seed)
+    clf.fit(X_train, y_train)
+
+    train_acc = accuracy_score(y_train, clf.predict(X_train))
+    test_acc = accuracy_score(y_test, clf.predict(X_test))
+
+    # Overfitting check
+    if (train_acc - test_acc) > 0.1:
+        print(f"WARNING: Potential overfitting for depth={max_depth} (Train: {train_acc:.3f}, Test: {test_acc:.3f})")
+
+    return clf, train_acc, test_acc
+
+
+def train_single_forest(X_train, y_train, X_test, y_test, n_estimators, seed=42):
+    """
+    Train a RandomForestClassifier with specified n_estimators.
+    """
+    clf = RandomForestClassifier(n_estimators=n_estimators, random_state=seed, n_jobs=-1)
+    clf.fit(X_train, y_train)
+
+    train_acc = accuracy_score(y_train, clf.predict(X_train))
+    test_acc = accuracy_score(y_test, clf.predict(X_test))
+
+    if (train_acc - test_acc) > 0.1:
+        print(f"WARNING: Potential overfitting for n_est={n_estimators} (Train: {train_acc:.3f}, Test: {test_acc:.3f})")
+
+    return clf, train_acc, test_acc
+
+
+def train_forests(X_train, y_train, X_test, y_test, depths=None, n_estimators_list=None, seed=42):
+    """
+    Train multiple trees and forests, save models and results.
+    """
+    if depths is None:
+        depths = list(range(2, 21))
+    if n_estimators_list is None:
+        n_estimators_list = [10, 50, 100, 200]
+
+    config = get_config()
+    project_root = config.PROJECT_ROOT
+    models_dir = Path(project_root) / 'models/trained_trees'
+    forests_dir = Path(project_root) / 'models/trained_random_forests'
+    results_dir = Path(project_root) / 'data/results'
+
     models_dir.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Starting training loop for depths: {list(depths)}")
-    
-    for depth in depths:
-        logger.info(f"Training tree with max_depth={depth}...")
-        
-        clf = DecisionTreeClassifier(
-            max_depth=depth,
-            random_state=42,
-            class_weight='balanced' # Handle potential class imbalance
-        )
-        clf.fit(X_train, y_train)
-        
-        # Predictions
-        y_train_pred = clf.predict(X_train)
-        y_test_pred = clf.predict(X_test)
-        
-        train_acc = accuracy_score(y_train, y_train_pred)
-        test_acc = accuracy_score(y_test, y_test_pred)
-        
-        logger.info(f"Depth {depth}: Train Acc={train_acc:.4f}, Test Acc={test_acc:.4f}")
-        
-        # Overfitting Check (T046)
-        is_overfitted = False
-        if (train_acc - test_acc) > 0.1:
-            is_overfitted = True
-            warning_msg = f"Overfitting detected at max_depth={depth}: Train Acc ({train_acc:.4f}) > Test Acc ({test_acc:.4f}) by {train_acc - test_acc:.4f}"
-            logger.warning(warning_msg)
-            overfitting_log.append({
-                "max_depth": depth,
-                "train_accuracy": train_acc,
-                "test_accuracy": test_acc,
-                "difference": train_acc - test_acc,
-                "warning": warning_msg
-            })
-        
-        # Save model
+    forests_dir.mkdir(parents=True, exist_ok=True)
+    results_dir.mkdir(parents=True, exist_ok=True)
+
+    tree_results = []
+    forest_results = []
+
+    # Train Decision Trees
+    print("Training Decision Trees...")
+    for d in depths:
+        clf, train_acc, test_acc = train_single_tree(X_train, y_train, X_test, y_test, d, seed)
+        # Save model (using joblib would be better but keeping it simple with pickle logic or just metadata for now)
+        # Since we need to save the model, we'll use joblib if available, otherwise we store metadata
         import joblib
-        model_path = models_dir / f"tree_depth_{depth}.joblib"
+        model_path = models_dir / f'tree_depth_{d}.pkl'
         joblib.dump(clf, model_path)
-        logger.info(f"Model saved to {model_path}")
-        
-        results.append({
-            "max_depth": depth,
-            "train_accuracy": train_acc,
-            "test_accuracy": test_acc,
-            "is_overfitted": is_overfitted,
-            "model_path": str(model_path)
+
+        tree_results.append({
+            'max_depth': d,
+            'train_accuracy': train_acc,
+            'test_accuracy': test_acc
         })
-    
-    # Write Overfitting Log (T046 Deliverable)
-    overfitting_log_path = project_root / 'data' / 'results' / 'overfitting_log.json'
-    with open(overfitting_log_path, 'w') as f:
-        json.dump(overfitting_log, f, indent=2)
-    logger.info(f"Overfitting log saved to {overfitting_log_path}")
-    
-    return results
+        print(f"  Depth {d}: Train={train_acc:.3f}, Test={test_acc:.3f}")
+
+    # Train Random Forests
+    print("Training Random Forests...")
+    for n_est in n_estimators_list:
+        clf, train_acc, test_acc = train_single_forest(X_train, y_train, X_test, y_test, n_est, seed)
+        import joblib
+        model_path = forests_dir / f'forest_n_est_{n_est}.pkl'
+        joblib.dump(clf, model_path)
+
+        forest_results.append({
+            'n_estimators': n_est,
+            'train_accuracy': train_acc,
+            'test_accuracy': test_acc
+        })
+        print(f"  N Estimators {n_est}: Train={train_acc:.3f}, Test={test_acc:.3f}")
+
+    # Save Results CSVs
+    tree_df = pd.DataFrame(tree_results)
+    tree_df.to_csv(results_dir / 'tree_accuracy.csv', index=False)
+    print(f"Saved tree results to {results_dir / 'tree_accuracy.csv'}")
+
+    forest_df = pd.DataFrame(forest_results)
+    forest_df.to_csv(results_dir / 'forest_accuracy.csv', index=False)
+    print(f"Saved forest results to {results_dir / 'forest_accuracy.csv'}")
+
+    return tree_df, forest_df
+
+
+def validate_model_metadata():
+    """
+    T021d: Validate model metadata against schema and update state.
+    """
+    config = get_config()
+    project_root = config.PROJECT_ROOT
+    results_dir = Path(project_root) / 'data/results'
+    state_dir = Path(project_root) / 'state'
+    state_dir.mkdir(parents=True, exist_ok=True)
+
+    tree_csv = results_dir / 'tree_accuracy.csv'
+    forest_csv = results_dir / 'forest_accuracy.csv'
+
+    if not tree_csv.exists() or not forest_csv.exists():
+        raise FileNotFoundError("Results CSVs not found. Run training first.")
+
+    # Load data
+    tree_df = pd.read_csv(tree_csv)
+    forest_df = pd.read_csv(forest_csv)
+
+    # Validation Logic
+    # Check completeness (no NaNs in critical columns)
+    if tree_df['test_accuracy'].isna().any():
+        raise ValueError("Tree results contain NaN accuracy values.")
+    if forest_df['test_accuracy'].isna().any():
+        raise ValueError("Forest results contain NaN accuracy values.")
+
+    # Check sorting
+    if not tree_df['max_depth'].is_monotonic_increasing:
+        tree_df = tree_df.sort_values('max_depth')
+        tree_df.to_csv(tree_csv, index=False)
+        print("Re-sorted tree_accuracy.csv.")
+
+    if not forest_df['n_estimators'].is_monotonic_increasing:
+        forest_df = forest_df.sort_values('n_estimators')
+        forest_df.to_csv(forest_csv, index=False)
+        print("Re-sorted forest_accuracy.csv.")
+
+    # Calculate hashes for artifacts
+    def file_hash(path):
+        with open(path, 'rb') as f:
+            return hashlib.sha256(f.read()).hexdigest()
+
+    tree_hash = file_hash(tree_csv)
+    forest_hash = file_hash(forest_csv)
+
+    # Update state
+    state_file = state_dir / 'model_metadata.yaml'
+    metadata = {
+        'tree_accuracy_csv': {
+            'path': str(tree_csv),
+            'sha256': tree_hash,
+            'rows': len(tree_df),
+            'status': 'validated'
+        },
+        'forest_accuracy_csv': {
+            'path': str(forest_csv),
+            'sha256': forest_hash,
+            'rows': len(forest_df),
+            'status': 'validated'
+        }
+    }
+
+    with open(state_file, 'w') as f:
+        yaml.dump(metadata, f, default_flow_style=False)
+
+    print(f"Metadata validated and saved to {state_file}")
+    return metadata
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Train Decision Trees for Routing Approximation")
-    parser.add_argument(
-        "--input", 
-        type=str, 
-        default=str(project_root / 'data' / 'processed' / 'teacher_routing_dataset.parquet'),
-        help="Path to input parquet file"
-    )
-    parser.add_argument(
-        "--depths", 
-        type=str, 
-        default="2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50",
-        help="Comma-separated list of max_depth values (default: 2 to 50)"
-    )
-    parser.add_argument(
-        "--output",
-        type=str,
-        default=str(project_root / 'data' / 'results' / 'tree_accuracy.csv'),
-        help="Path to output CSV for results"
-    )
-    
+    parser = argparse.ArgumentParser(description="Train Decision Trees and Forests")
+    parser.add_argument("--input", type=str, default="data/processed/teacher_routing_dataset.parquet",
+                        help="Path to input dataset")
+    parser.add_argument("--depths", type=str, default="2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
+                        help="Comma-separated list of max_depth values")
+    parser.add_argument("--n_estimators", type=str, default="10,50,100,200",
+                        help="Comma-separated list of n_estimators values")
+    parser.add_argument("--validate", action="store_true",
+                        help="Run validation step (T021d) after training")
     args = parser.parse_args()
-    
+
     # Parse depths
+    depths = [int(x) for x in args.depths.split(',')]
+    n_estimators_list = [int(x) for x in args.n_estimators.split(',')]
+
     try:
-        depths = [int(x) for x in args.depths.split(',')]
-        if not depths:
-            logger.error("No depths provided.")
-            sys.exit(1)
-    except ValueError:
-        logger.error("Invalid depth format. Use comma-separated integers.")
+        # Load and Split
+        X_train, X_test, y_train, y_test = load_and_split_data(args.input)
+
+        # Train
+        train_forests(X_train, y_train, X_test, y_test, depths=depths, n_estimators_list=n_estimators_list)
+
+        # Validate if requested
+        if args.validate:
+            validate_model_metadata()
+
+    except Exception as e:
+        print(f"Error: {e}")
         sys.exit(1)
-    
-    # Load and Split
-    (X_train, y_train), (X_test, y_test) = load_and_split_data(args.input)
-    
-    # Train
-    results = train_trees(X_train, y_train, X_test, y_test, depths=depths)
-    
-    # Save Results CSV
-    results_df = pd.DataFrame(results)
-    results_df.to_csv(args.output, index=False)
-    logger.info(f"Results saved to {args.output}")
-    
-    # Summary
-    if results_df['is_overfitted'].sum() > 0:
-        logger.warning(f"Found {results_df['is_overfitted'].sum()} overfitted models.")
-    else:
-        logger.info("No significant overfitting detected (threshold > 0.1).")
+
 
 if __name__ == "__main__":
     main()

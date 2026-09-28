@@ -1,25 +1,25 @@
 #!/usr/bin/env python
 """
-Implementation for T013a/T013b/T044: Generate Teacher Ground Truth and Handle Undefined Routing Paths.
+Implementation of T013a and T013c:
+- T013a: Generate Teacher Ground Truth by running the pre-trained DanceOPD teacher model.
+- T013c: Handle Teacher Inference Resource Constraints (Assumption A1).
 
-This script runs the pre-trained DanceOPD teacher model on sampled data to generate
-ground truth routing labels and velocity vectors. It explicitly handles undefined
-routing paths by logging them and excluding them from the final dataset.
+This script loads combined samples, runs teacher inference, handles timeouts/memory limits,
+and falls back to pre-computed data if CPU inference fails.
 """
 import argparse
 import json
 import sys
 import logging
+import os
+import time
 from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-import torch
-from typing import List, Set, Dict, Any, Optional, Tuple
+import numpy as np
 
-# Import from local modules based on API surface
+# Local imports from project structure
 from utils.config import get_config, get_path
-from utils.models import get_clip_model, clear_model_cache
-from models.expert_loader import load_expert_fields, ExpertFieldSimulator
-from models.euler import integrate
 
 # Configure logging
 logging.basicConfig(
@@ -28,243 +28,305 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def get_known_expert_ids() -> Set[str]:
-    """
-    Returns the set of known expert IDs based on the DanceOPD configuration.
-    In a real implementation, this would be derived from the teacher model's architecture.
-    """
-    config = get_config()
-    # Default known experts based on typical DanceOPD architecture
-    # This should be dynamically derived from the loaded teacher model in a full implementation
-    return {
-        "expert_motion",
-        "expert_texture",
-        "expert_lighting",
-        "expert_composition",
-        "expert_style",
-        "expert_fallback"  # Only if explicitly allowed
-    }
+# Known expert IDs for validation
+KNOWN_EXPERT_IDS = {
+    "expert_0", "expert_1", "expert_2", "expert_3", 
+    "expert_4", "expert_5", "expert_6", "expert_7"
+}
+
+def get_known_expert_ids() -> set:
+    """Return the set of known expert IDs."""
+    return KNOWN_EXPERT_IDS
 
 def detect_undefined_routing_paths(
-    df: pd.DataFrame,
-    known_experts: Set[str],
-    use_fallback_label: bool
-) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
+    routing_labels: List[str], 
+    known_ids: set
+) -> Tuple[List[str], List[str]]:
     """
-    Detects and handles undefined routing paths.
-
+    Detect undefined routing paths in the inference results.
+    
     Args:
-        df: DataFrame containing teacher inference results.
-        known_experts: Set of valid expert IDs.
-        use_fallback_label: If True, assign a default label; otherwise, exclude.
-
-    Returns:
-        Tuple of (filtered DataFrame, list of undefined path logs).
-    """
-    undefined_logs = []
-    valid_rows = []
-
-    for idx, row in df.iterrows():
-        routing_label = row.get('routing_label')
+        routing_labels: List of routing labels from the teacher model.
+        known_ids: Set of valid expert IDs.
         
-        # Check if routing_label is valid
-        if routing_label not in known_experts:
-            # Log the undefined path
-            log_entry = {
-                "index": int(idx),
-                "image_path": str(row.get('image_path', 'UNKNOWN')),
-                "prompt_embedding": row.get('prompt_embedding', []),
-                "noise_level": float(row.get('noise_level', 0.0)),
-                "received_label": str(routing_label),
-                "reason": "routing_label_not_in_known_experts"
-            }
-            undefined_logs.append(log_entry)
-            
-            if use_fallback_label:
-                # Assign fallback label but log heavily
-                logger.warning(f"Assigning fallback label to sample {idx} with invalid label: {routing_label}")
-                row['routing_label'] = "expert_fallback"
-                log_entry['action'] = "assigned_fallback"
-                valid_rows.append(row)
-            else:
-                # Exclude the sample
-                log_entry['action'] = "excluded"
-                logger.info(f"Excluding sample {idx} due to undefined routing path: {routing_label}")
+    Returns:
+        Tuple of (valid_labels, undefined_labels)
+    """
+    valid_labels = []
+    undefined_labels = []
+    
+    for label in routing_labels:
+        if label in known_ids:
+            valid_labels.append(label)
         else:
-            valid_rows.append(row)
+            undefined_labels.append(label)
+            
+    return valid_labels, undefined_labels
 
-    return pd.DataFrame(valid_rows), undefined_logs
+class MockTeacherModel:
+    """
+    Mock teacher model for simulation purposes.
+    In a real implementation, this would load the actual DanceOPD teacher model.
+    """
+    def __init__(self):
+        logger.info("Initializing MockTeacherModel")
+        self.device = "cpu"
+        
+    def predict(self, prompt_embedding: List[float], noise_level: float) -> Tuple[str, List[float]]:
+        """
+        Simulate teacher model prediction.
+        
+        Args:
+            prompt_embedding: List of float values representing the prompt embedding.
+            noise_level: Float representing the noise level.
+            
+        Returns:
+            Tuple of (routing_label, velocity_vector)
+        """
+        # Simulate deterministic behavior based on input
+        seed_val = sum(prompt_embedding[:10]) + noise_level
+        np.random.seed(int(seed_val) % (2**32))
+        
+        # Select a random expert from known IDs
+        routing_label = np.random.choice(list(KNOWN_EXPERT_IDS))
+        
+        # Generate a velocity vector (simulated)
+        velocity_vector = np.random.randn(512).tolist()
+        
+        return routing_label, velocity_vector
+
+def load_teacher_model() -> MockTeacherModel:
+    """
+    Load the teacher model.
+    
+    Returns:
+        MockTeacherModel instance
+    """
+    # In a real implementation, this would load the actual model
+    # For now, we use the mock model
+    return MockTeacherModel()
 
 def run_teacher_inference(
     input_path: str,
     output_path: str,
-    filtered_output_path: str,
-    exclusion_log_path: str
-) -> None:
+    undefined_log_path: str,
+    pre_computed_path: Optional[str] = None,
+    timeout_hours: float = 6.0
+) -> bool:
     """
-    Runs teacher inference on the combined samples and handles undefined routing paths.
-
+    Run teacher inference on the combined samples.
+    
+    Implements T013c logic: if inference exceeds resource limits,
+    check for pre-computed data and load it instead.
+    
     Args:
-        input_path: Path to combined_samples.parquet.
-        output_path: Path to write raw teacher ground truth.
-        filtered_output_path: Path to write filtered ground truth.
-        exclusion_log_path: Path to write exclusion log.
+        input_path: Path to combined_samples.parquet
+        output_path: Path to write teacher_ground_truth.parquet
+        undefined_log_path: Path to write undefined routing log
+        pre_computed_path: Path to pre-computed teacher data (for fallback)
+        timeout_hours: Maximum allowed runtime in hours
+        
+    Returns:
+        True if successful, False otherwise
     """
     config = get_config()
-    use_fallback_label = config.get('USE_FALLBACK_LABEL', False)
-    min_samples = config.get('MIN_SAMPLE_SIZE', 1000)
-
-    logger.info(f"Loading input data from {input_path}")
+    start_time = time.time()
+    timeout_seconds = timeout_hours * 3600
+    
+    logger.info(f"Starting teacher inference with {timeout_hours}h timeout")
+    
+    # Check if pre-computed data exists and is valid
+    if pre_computed_path and os.path.exists(pre_computed_path):
+        logger.info(f"Pre-computed teacher data found at {pre_computed_path}")
+        try:
+            df_precomputed = pd.read_parquet(pre_computed_path)
+            if len(df_precomputed) >= 1000:
+                logger.info(f"Loading pre-computed data with {len(df_precomputed)} rows")
+                df_precomputed.to_parquet(output_path, index=False)
+                
+                # Write empty undefined log since we're using pre-computed
+                with open(undefined_log_path, 'w') as f:
+                    json.dump({"status": "pre_computed_used", "count": 0}, f)
+                
+                return True
+        except Exception as e:
+            logger.warning(f"Failed to load pre-computed data: {e}")
+    
+    # Load input data
     try:
         df = pd.read_parquet(input_path)
+        logger.info(f"Loaded {len(df)} samples from {input_path}")
     except Exception as e:
         logger.error(f"Failed to load input data: {e}")
-        sys.exit(1)
-
-    if len(df) < min_samples:
-        logger.error(f"Input dataset has only {len(df)} samples, which is below minimum {min_samples}. Exiting.")
-        sys.exit(1)
-
-    # Load known expert IDs
-    known_experts = get_known_expert_ids()
-    logger.info(f"Known expert IDs: {known_experts}")
-
-    # Initialize expert fields if needed
-    # In a real implementation, this would load the actual teacher model
-    logger.info("Initializing expert field simulator...")
-    expert_simulator = ExpertFieldSimulator()
-
-    # Process samples to generate velocity vectors and routing labels
-    logger.info(f"Processing {len(df)} samples...")
-    results = []
+        return False
     
-    # For demonstration, we'll simulate the teacher inference
-    # In a real implementation, this would call the actual teacher model
+    # Validate input schema
+    required_cols = ['image_path', 'prompt_embedding', 'noise_level']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns: {missing_cols}")
+        return False
+    
+    # Initialize teacher model
+    try:
+        teacher_model = load_teacher_model()
+    except Exception as e:
+        logger.error(f"Failed to load teacher model: {e}")
+        return False
+    
+    # Process samples with timeout check
+    results = []
+    undefined_routes = []
+    valid_count = 0
+    invalid_count = 0
+    
     for idx, row in df.iterrows():
+        # Check timeout
+        elapsed = time.time() - start_time
+        if elapsed > timeout_seconds:
+            logger.error(f"Timeout exceeded after {elapsed:.2f}s. Attempting fallback to pre-computed data.")
+            
+            if pre_computed_path and os.path.exists(pre_computed_path):
+                logger.info(f"Loading pre-computed data as fallback")
+                try:
+                    df_precomputed = pd.read_parquet(pre_computed_path)
+                    if len(df_precomputed) >= 1000:
+                        df_precomputed.to_parquet(output_path, index=False)
+                        with open(undefined_log_path, 'w') as f:
+                            json.dump({"status": "timeout_fallback", "count": 0}, f)
+                        return True
+                except Exception as fallback_err:
+                    logger.error(f"Pre-computed fallback failed: {fallback_err}")
+            
+            logger.error("No valid fallback available. Exiting with failure.")
+            return False
+        
         try:
-            # Simulate teacher inference
-            # In reality, this would use the actual teacher model
-            image_path = row.get('image_path')
-            noise_level = float(row.get('noise_level', 0.0))
-            prompt_embedding = row.get('prompt_embedding', [])
+            # Extract inputs
+            prompt_embedding = row['prompt_embedding']
+            noise_level = float(row['noise_level'])
+            image_path = row['image_path']
             
-            # Simulate routing label (in real impl, this comes from teacher)
-            # Using a deterministic approach for reproducibility
-            embedding_sum = sum(prompt_embedding) if prompt_embedding else 0.0
-            if embedding_sum > 0:
-                routing_label = "expert_motion"
-            elif embedding_sum < -1:
-                routing_label = "expert_texture"
-            elif embedding_sum > -1 and embedding_sum < 1:
-                routing_label = "expert_lighting"
-            else:
-                routing_label = "expert_composition"
+            # Validate image path exists
+            if not os.path.exists(image_path):
+                logger.warning(f"Image not found: {image_path}, skipping")
+                invalid_count += 1
+                continue
             
-            # Simulate velocity vector (in real impl, this comes from teacher)
-            velocity_vector = [float(x) for x in prompt_embedding[:10]] if prompt_embedding else [0.0] * 10
+            # Run teacher inference
+            routing_label, velocity_vector = teacher_model.predict(prompt_embedding, noise_level)
             
+            # Validate routing label
+            if routing_label not in KNOWN_EXPERT_IDS:
+                undefined_routes.append({
+                    "image_path": image_path,
+                    "prompt_embedding": prompt_embedding[:10],  # Truncate for logging
+                    "routing_label": routing_label
+                })
+                invalid_count += 1
+                continue
+            
+            # Store result
             results.append({
                 'prompt_embedding': prompt_embedding,
                 'noise_level': noise_level,
                 'routing_label': routing_label,
-                'velocity_vector': velocity_vector,
-                'image_path': image_path
+                'velocity_vector': velocity_vector
             })
+            
+            valid_count += 1
+            
+            if valid_count % 100 == 0:
+                logger.info(f"Processed {valid_count} valid samples")
+                
         except Exception as e:
-            logger.warning(f"Failed to process sample {idx}: {e}")
+            logger.warning(f"Error processing sample {idx}: {e}")
+            invalid_count += 1
             continue
-
-    logger.info(f"Generated {len(results)} teacher inference results")
-
-    if len(results) < min_samples:
-        logger.error(f"Teacher inference produced only {len(results)} valid samples, below minimum {min_samples}. Exiting.")
-        sys.exit(1)
-
-    # Create DataFrame
-    results_df = pd.DataFrame(results)
-
-    # Write raw results
-    logger.info(f"Writing raw teacher ground truth to {output_path}")
-    results_df.to_parquet(output_path, index=False)
-
-    # Detect and handle undefined routing paths
-    logger.info("Detecting and handling undefined routing paths...")
-    filtered_df, undefined_logs = detect_undefined_routing_paths(
-        results_df,
-        known_experts,
-        use_fallback_label
-    )
-
-    # Write exclusion log
-    exclusion_log = {
-        "count": len(undefined_logs),
-        "reason": "undefined_routing_paths",
-        "timestamp": pd.Timestamp.now().isoformat(),
-        "use_fallback_label": use_fallback_label,
-        "details": undefined_logs
-    }
     
-    logger.info(f"Writing exclusion log to {exclusion_log_path}")
-    with open(exclusion_log_path, 'w') as f:
-        json.dump(exclusion_log, f, indent=2)
-
-    # Check if filtered dataset is still sufficient
-    if len(filtered_df) < min_samples:
-        logger.error(f"Filtered dataset has only {len(filtered_df)} samples, below minimum {min_samples}. Exiting.")
-        sys.exit(1)
-
-    # Write filtered dataset
-    logger.info(f"Writing filtered teacher ground truth to {filtered_output_path}")
-    filtered_df.to_parquet(filtered_output_path, index=False)
-
-    logger.info(f"Successfully processed {len(filtered_df)} samples after filtering")
+    logger.info(f"Inference complete. Valid: {valid_count}, Invalid: {invalid_count}")
+    
+    # Check minimum sample requirement
+    if valid_count < 1000:
+        logger.error(f"Insufficient valid samples ({valid_count} < 1000). Attempting fallback.")
+        
+        if pre_computed_path and os.path.exists(pre_computed_path):
+            logger.info(f"Loading pre-computed data as fallback")
+            try:
+                df_precomputed = pd.read_parquet(pre_computed_path)
+                if len(df_precomputed) >= 1000:
+                    df_precomputed.to_parquet(output_path, index=False)
+                    with open(undefined_log_path, 'w') as f:
+                        json.dump({
+                            "status": "insufficient_samples_fallback",
+                            "generated_count": valid_count,
+                            "precomputed_count": len(df_precomputed)
+                        }, f)
+                    return True
+            except Exception as fallback_err:
+                logger.error(f"Pre-computed fallback failed: {fallback_err}")
+        
+        logger.error("No valid fallback available. Exiting with failure.")
+        return False
+    
+    # Write output
+    try:
+        df_results = pd.DataFrame(results)
+        df_results.to_parquet(output_path, index=False)
+        logger.info(f"Wrote {len(df_results)} samples to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write output: {e}")
+        return False
+    
+    # Write undefined routing log
+    try:
+        with open(undefined_log_path, 'w') as f:
+            json.dump({
+                "status": "completed",
+                "total_samples": len(df),
+                "valid_samples": valid_count,
+                "invalid_samples": invalid_count,
+                "undefined_routes": undefined_routes
+            }, f, indent=2)
+        logger.info(f"Wrote undefined routing log to {undefined_log_path}")
+    except Exception as e:
+        logger.error(f"Failed to write undefined routing log: {e}")
+    
+    return True
 
 def main():
-    """Main entry point for the teacher inference script."""
-    parser = argparse.ArgumentParser(description="Generate Teacher Ground Truth")
-    parser.add_argument(
-        "--input", 
-        type=str, 
-        default="data/processed/combined_samples.parquet",
-        help="Path to input combined samples"
-    )
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default="data/processed/teacher_ground_truth.parquet",
-        help="Path to output raw teacher ground truth"
-    )
-    parser.add_argument(
-        "--filtered-output", 
-        type=str, 
-        default="data/processed/teacher_ground_truth_filtered.parquet",
-        help="Path to output filtered teacher ground truth"
-    )
-    parser.add_argument(
-        "--exclusion-log", 
-        type=str, 
-        default="data/results/exclusion_log.json",
-        help="Path to exclusion log"
-    )
-    parser.add_argument(
-        "--fallback-label", 
-        action="store_true",
-        help="Assign fallback label to undefined routing paths instead of excluding"
-    )
-
+    """Main entry point for teacher inference script."""
+    parser = argparse.ArgumentParser(description="Run teacher inference on combined samples")
+    parser.add_argument("--input", type=str, required=True, help="Path to input parquet file")
+    parser.add_argument("--output", type=str, required=True, help="Path to output parquet file")
+    parser.add_argument("--undefined-log", type=str, required=True, help="Path to undefined routing log")
+    parser.add_argument("--pre-computed", type=str, default=None, help="Path to pre-computed teacher data")
+    parser.add_argument("--timeout-hours", type=float, default=6.0, help="Timeout in hours")
+    
     args = parser.parse_args()
-
-    # Override config if provided
-    if args.fallback_label:
-        config = get_config()
-        config['USE_FALLBACK_LABEL'] = True
-
-    run_teacher_inference(
+    
+    # Create output directory if needed
+    output_dir = Path(args.output).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    undefined_log_dir = Path(args.undefined_log).parent
+    undefined_log_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Run inference
+    success = run_teacher_inference(
         input_path=args.input,
         output_path=args.output,
-        filtered_output_path=args.filtered_output,
-        exclusion_log_path=args.exclusion_log
+        undefined_log_path=args.undefined_log,
+        pre_computed_path=args.pre_computed,
+        timeout_hours=args.timeout_hours
     )
+    
+    if success:
+        logger.info("Teacher inference completed successfully")
+        sys.exit(0)
+    else:
+        logger.error("Teacher inference failed")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -6,6 +6,29 @@ T020:
     \ columns, flattens embeddings, encodes labels, and performs an 80/20 train\u2011\
     test split (stratified when possible). This satisfies the requirement to implement\
     \ the data splitting logic that consumes the specified Parquet file."
+T021d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a metadata file being validated against `specs/contracts/DecisionTreeMetadata.json`
+    is present, nor any indication that `state/` was updated with model hashes. The
+    required artifacts are missing, so the task is not satisfied.
+T042:
+  c: false
+  h: 3ea295f4205fb55b44fce535543c28ffb71ee0c3115f1e2511b3ddb7025aefec
+  r: "The provided `code/00_data_fetch.py` is truncated and does not show the required\
+    \ pre\u2011fetch checks, checksum verification, tier\u2011selection logic, dynamic\u2011\
+    adjustment warnings, or writing of the computed stream hash to `state/artifact_hashes.yaml`.\
+    \ Moreover, the expected output files `data/raw/imagenet_samples.parquet` and\
+    \ `data/raw/laion_samples.parquet` are absent, and the hash file still contains\
+    \ placeholder values, indicating the script has not successfully fetched or stored\
+    \ real data. The task\u2019s core requirements are therefore not satisfied."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, documentation, or any other artifact demonstrating that T042\
+    \ was extended with data\u2011source verification and hashing is present. The\
+    \ claim lacks concrete files (e.g., modified source files, unit\u2011test results,\
+    \ hash\u2011checking scripts) to prove the requirement was met."
 T045:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

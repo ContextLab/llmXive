@@ -58,7 +58,7 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [X] T004 Setup `code/utils/io.py` for robust file loading and CSV/JSON parsing
+- [ ] T004 Setup `code/utils/io.py` for robust file loading and CSV/JSON parsing
 - [X] T005 [P] Implement `code/utils/hashing.py` for `sha256sum` computation (utility function only)
 - [X] T006 [P] Setup `code/utils/config.py` for environment configuration and seed management (numpy/pymc)
 - [X] T006b [P] Implement `code/utils/runtime_estimator.py` to estimate runtime for MCMC sampling based on N and sample count. **Must be used by T024**.
@@ -86,14 +86,14 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 1
 
 - [X] T012 [P] [US1] Implement `code/preprocessing/data_validation.py` to verify presence of NIfTI and behavioral logs (private_belief, social_feedback, choice). **Updated**: Must explicitly verify ds003694 file structure (`sub-*/func/sub-*_task-social_bold.nii.gz`, `sub-*/beh/sub-*_task-social_beh.tsv`) and raise `FileNotFoundError` if missing. **Must run before T013**.
-- [X] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro **ds003694** using `openneuro-py`. **CRITICAL SAFETY**: Must raise `FileNotFoundError` or `ConnectionError` immediately if fetch fails. **NO** `try/except` blocks that fall back to synthetic/mock data. If fetch fails, the run must FAIL LOUDLY. Include logic to exclude participants with missing assets (NIfTI, logs, motion) and write reasons to `state/exclusions.yaml`. **Must run after T012**.
+- [ ] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro **ds003694** using `openneuro-py`. **CRITICAL SAFETY**: Must raise `FileNotFoundError` or `ConnectionError` immediately if fetch fails. **NO** `try/except` blocks that fall back to synthetic/mock data. If fetch fails, the run must FAIL LOUDLY. Include logic to exclude participants with missing assets (NIfTI, logs, motion) and write reasons to `state/exclusions.yaml`. **Must run after T012**.
 - [X] T014 [US1] Implement `code/preprocessing/motion_correction.py` using **lightweight `nilearn` pipelines** (specifically `nilearn.image.resample_img`, `nilearn.preprocessing.clean_img`) for motion correction and normalization. **Do NOT use custom `scipy.optimize` implementations**. Must document all parameters used in `data/reports/motion_params.yaml`. **Must run after T013**.
 - [X] T014b [US1] Implement `code/preprocessing/validate_motion_correction.py` to validate the output of T014 against standard `nilearn` defaults and ensure parameters are documented. **Must run after T014**.
 - [X] T015 [US1] Implement `code/preprocessing/normalization.py` for spatial normalization to MNI space using `nilearn` with `MNI152NLin2009cAsym` template and `affine` registration.
 - [X] T016 [US1] Implement `code/preprocessing/smoothing.py` for spatial smoothing with a moderate kernel width.
 - [X] T017 [US1] Implement `code/preprocessing/roi_extraction.py` to extract BOLD signals from dlPFC, ventral striatum, and ACC masks using the **Harvard-Oxford Atlas** (specific coordinates defined in config). **CRITICAL SAFETY**: Must implement streaming/chunked processing (e.g., 50 timepoints at a time) to ensure memory usage stays < 6GB. Log the chunking strategy used. **Must run after T049**.
 - [X] T018 [US1] Implement `code/preprocessing/qc_filter.py` to **enforce** exclusion of participants with >10% volumes exceeding 3mm translation (SC-001). **Must strictly prevent** these participants from being processed in downstream tasks. Log reasons to `state/exclusions.yaml`. **This is a hard gate before any downstream processing**.
-- [X] T018b [US1] Implement `code/preprocessing/qc_reporter.py` to calculate the final exclusion rate against the SC-001 threshold (10% volumes > 3mm) using the **enforced** set from T018, and **generate `data/reports/qc_summary.json`** with stability metrics. **Must also generate `state/exclusions.yaml`** containing the list of excluded participant IDs and reasons. **Must run after T018**.
+- [ ] T018b [US1] Implement `code/preprocessing/qc_reporter.py` to calculate the final exclusion rate against the SC-001 threshold (10% volumes > 3mm) using the **enforced** set from T018, and **generate `data/reports/qc_summary.json`** with stability metrics. **Must also generate `state/exclusions.yaml`** containing the list of excluded participant IDs and reasons. **Must run after T018**.
  - **Artifact Schema**: `data/reports/qc_summary.json` must contain:
  ```json
  {
@@ -112,7 +112,7 @@ Examples of foundational tasks (adjust based on your project):
    - sub-02: "missing behavioral logs"
  ```
  - **Verification**: Task must verify that `data/reports/qc_summary.json` and `state/exclusions.yaml` exist, are valid, and contain all required keys before marking as complete.
- - [X] T019 [US1] Create `code/main.py` entry point (setup only) - initializes config and logging, does not run pipeline logic yet.
+ - [ ] T019 [US1] Create `code/main.py` entry point (setup only) - initializes config and logging, does not run pipeline logic yet.
 - [X] T049 [US1] Implement `code/preprocessing/streaming_loader.py` to load OpenNeuro ds003694 files from `data/raw` using `nibabel` and `nilearn` in chunks (e.g., 50 timepoints or 1 participant at a time). **Must process the full dataset** in chunks to compute motion statistics and ROI signals without loading all data into RAM. **Must log** the exact chunking strategy and total participants processed. **If** the full dataset cannot be processed within the 6h/GB RAM limit, **then** this task must implement a well-defined sampling strategy (e.g., `itertools.islice` first N=30 participants with a fixed seed) and explicitly document the sample size and power limitation in `data/reports/sampling_policy.json`. **Do NOT** use a synthetic or toy dataset as a fallback. **Must run after T013, before T017**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -132,7 +132,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [X] T023 [P] [US2] Implement `code/modeling/synthetic_data_generator.py` to create ground-truth behavioral data for validation.
+- [ ] T023 [P] [US2] Implement `code/modeling/synthetic_data_generator.py` to create ground-truth behavioral data for validation.
  - **Deliverables**: A CSV file `data/synthetic/ground_truth.csv` with columns: `subject_id`, `true_alpha`, `true_precision`, `generated_choices`.
  - **Verification**: The model (T024) must recover `true_alpha` within ±0.1 of the ground truth for ≥90% of synthetic subjects.
 - [X] T024a [US2] Implement `code/modeling/n_valid_calculator.py` to read `state/exclusions.yaml` (from T018b) and calculate `N_valid` (participants passing motion QC). Write `N_valid` to `state/n_valid.yaml`. **Must run after T018b**.
@@ -143,7 +143,7 @@ Examples of foundational tasks (adjust based on your project):
  - Generate `data/models/convergence_report.json`. **Must run after T025**.
  - **Note**: This task reports the rate against `N_valid`. Non-converging participants are excluded from subsequent analysis in T025c, but the rate metric itself uses the original `N_valid` as per SC-002.
 - [X] T025c [US2] Implement `code/modeling/failure_handler.py` to handle convergence failure: if a participant fails to converge after 3 restarts, **exclude them from the dataset used in T027** and flag them for sensitivity analysis in `data/models/failure_log.json`. **Do NOT raise a fatal error**. **Must run after T025b**.
-- [X] T028 [US2] Implement `code/main.py` logic for P2 integration: Read convergence reports (T025b), filter non-converging participants (via T025c), and prepare valid participant list for T027. **Sequential Dependency: Must run after T025b, before T027**.
+- [ ] T028 [US2] Implement `code/main.py` logic for P2 integration: Read convergence reports (T025b), filter non-converging participants (via T025c), and prepare valid participant list for T027. **Sequential Dependency: Must run after T025b, before T027**.
  - **Artifact**: Must generate `state/valid_participants.yaml` containing the list of participant IDs that passed both motion QC and model convergence.
  - **Verification**: Unit test must verify that participants listed in `data/models/failure_log.json` are NOT present in `state/valid_participants.yaml`.
 - [X] T027 [US2] Create `code/modeling/model_output.py` to save individual alpha parameters and group-level hyperparameters to `data/models/` for valid participants only (input filtered by T028).
