@@ -20,7 +20,7 @@ MMN amplitude must be calculated as the mean difference wave (Deviant - Standard
 ### FR-005: Behavioral Alignment (UPDATED)
 Behavioral accuracy must be aligned with neural data using **Lagged Alignment**.
 - **Method**: The MMN amplitude is calculated over a preceding window of trials (t-N to t-M) and aligned to the subsequent multi-trial accuracy block (t to t+n).
-- **Exclusion**: Subjects identified as "underpowered" (fewer than 20 valid subjects in the cohort or insufficient trials per block) must be explicitly excluded from the primary GLMM input data.
+- **Exclusion**: Subjects identified as "underpowered" (fewer than a sufficient number of valid subjects in the cohort or insufficient trials per block) must be explicitly excluded from the primary GLMM input data.
 - **Fallback**: If behavioral logs are missing, the system defaults to "Stimulus-Driven" analysis mode.
 
 ### FR-006: Statistical Modeling (UPDATED)
@@ -65,7 +65,7 @@ Automatically determine analysis mode ("Error-Signal" or "Stimulus-Driven") base
 **So that** I can correlate neural predictive errors with learning performance.
 **Acceptance Criteria**:
 - MMN calculated at CP and left/right central electrodes (early latency window).
-- **Lagged Alignment** applied: 50-trial source window mapped to subsequent accuracy block.
+- **Lagged Alignment** applied: A source window mapped to a subsequent accuracy block.
 - Underpowered subjects explicitly excluded from the aligned dataset.
 - Output `data/aligned_data.csv` contains time-series of MMN and accuracy.
 
