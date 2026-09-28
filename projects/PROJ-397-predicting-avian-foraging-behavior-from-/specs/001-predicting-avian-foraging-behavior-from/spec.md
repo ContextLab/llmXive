@@ -13,7 +13,7 @@ The research pipeline extracts eBird Basic Dataset (EBD) occurrence records for 
 
 **Why this priority**: This forms the foundational dataset without which no analysis can proceed. It is independently testable by verifying that the species selection rule (top by count) is executed, filtering criteria (≥50 observations per species) are correctly applied, and that merged records contain all required fields (species_id, foraging_guild, land_cover_proportions).
 
-**Independent Test**: Can be fully tested by running the data extraction script and validating that: (1) the top 25 species by record count were selected; (2) species with <50 observations were excluded; and (3) the output CSV contains complete land cover proportions and assigned foraging guilds for all retained records.
+**Independent Test**: Can be fully tested by running the data extraction script and validating that: (1) A representative subset of the most frequently recorded species was selected.; (2) species with <50 observations were excluded; and (3) the output CSV contains complete land cover proportions and assigned foraging guilds for all retained records.
 
 **Acceptance Scenarios**:
 

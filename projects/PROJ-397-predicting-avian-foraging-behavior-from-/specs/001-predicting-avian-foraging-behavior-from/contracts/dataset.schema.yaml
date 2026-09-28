@@ -1,69 +1,65 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "MergedObservationsSchema"
-description: "Schema for the merged eBird and NLCD dataset used for training."
-type: object
+description: "Schema for the merged eBird and NLCD dataset used in analysis."
+type: "object"
 properties:
-  obs_id:
-    type: string
-    description: "Unique identifier for the observation."
   species_id:
-    type: string
-    description: "eBird species code (e.g., AMRO)."
-  species_common:
-    type: string
-    description: "Common name of the species."
-  observation_date:
-    type: string
-    format: date
-    description: "Date of observation (YYYY-MM-DD)."
-  latitude:
-    type: number
-    description: "Latitude in WGS84."
-  longitude:
-    type: number
-    description: "Longitude in WGS84."
+    type: "string"
+    description: "Unique identifier for the bird species."
   foraging_guild:
-    type: string
+    type: "string"
     enum:
       - "ground"
       - "canopy"
       - "aerial"
-    description: "Foraging guild label assigned from external literature."
-  forest_prop:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Proportion of forest cover in 100m buffer."
-  grassland_prop:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Proportion of grassland cover in 100m buffer."
-  wetland_prop:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Proportion of wetland cover in 100m buffer."
-  urban_prop:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Proportion of urban cover in 100m buffer."
-  other_prop:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Proportion of other land cover in 100m buffer."
+    description: "Foraging strategy assigned to the species."
+  forest_proportion:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of forest cover within 100m buffer."
+  grassland_proportion:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of grassland cover within 100m buffer."
+  wetland_proportion:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of wetland cover within 100m buffer."
+  urban_proportion:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of urban cover within 100m buffer."
+  other_proportion:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of other land cover within 100m buffer."
+  latitude:
+    type: "number"
+    description: "Latitude of the observation point."
+  longitude:
+    type: "number"
+    description: "Longitude of the observation point."
+  observation_date:
+    type: "string"
+    format: "date"
+    description: "Date of the observation."
 required:
-  - obs_id
   - species_id
-  - species_common
+  - foraging_guild
+  - forest_proportion
+  - grassland_proportion
+  - wetland_proportion
+  - urban_proportion
+  - other_proportion
   - latitude
   - longitude
-  - foraging_guild
-  - forest_prop
-  - grassland_prop
-  - wetland_prop
-  - urban_prop
-  - other_prop
+  - observation_date
 additionalProperties: false
+constraints:
+  - "Sum of all proportion fields must be approximately unity (tolerance 0.01)."
+  - "Only species with >= 50 observations are included."

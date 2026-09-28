@@ -1,69 +1,73 @@
-# Data Model: Predicting Avian Foraging Guilds
+# Data Model: Predicting Avian Foraging Guilds from Public eBird Data and Land Cover Maps
 
-## Entities & Relationships
+## Entity Definitions
 
 ### 1. ObservationRecord
 Represents a single eBird sighting.
-- **Attributes**:
-  - `obs_id`: Unique identifier (derived from EBD row index or UUID).
-  - `species_id`: eBird species code (e.g., "AMRO", "HOMI").
-  - `species_common`: Common name (e.g., "American Robin").
-  - `observation_date`: Date of observation (YYYY-MM-DD).
-  - `latitude`: Decimal degrees (WGS84).
-  - `longitude`: Decimal degrees (WGS84).
-  - `foraging_guild`: Categorical (ground, canopy, aerial). *Derived from external lookup.*
-  - `land_cover_proportions`: Nested object or flattened columns (see below).
+- `species_id` (str): Unique species identifier (mapped from `common_name`).
+- `observation_date` (str): ISO 8601 date.
+- `latitude` (float): Decimal degrees (WGS84).
+- `longitude` (float): Decimal degrees (WGS84).
+- `source` (str): "eBird".
 
 ### 2. LandCoverProfile
-Derived from NLCD 2019, represents the habitat composition at an observation location.
-- **Attributes**:
-  - `location_id`: Links to `ObservationRecord.obs_id`.
-  - `forest_prop`: Float (0.0 - 1.0).
-  - `grassland_prop`: Float (0.0 - 1.0).
-  - `wetland_prop`: Float (0.0 - 1.0).
-  - `urban_prop`: Float (0.0 - 1.0).
-  - `other_prop`: Float (0.0 - 1.0). (Remainder).
-  - `source_raster`: "NLCD_2019".
-  - `buffer_radius_m`: 100.
+Represents the land cover composition at a location.
+- `location_id` (str): Unique identifier for the observation point.
+- `forest_proportion` (float): Fraction [0.0, 1.0].
+- `grassland_proportion` (float): Fraction [0.0, 1.0].
+- `wetland_proportion` (float): Fraction [0.0, 1.0].
+- `urban_proportion` (float): Fraction [0.0, 1.0].
+- `other_proportion` (float): Fraction [0.0, 1.0].
+- *Constraint*: Sum of proportions = 1.0.
 
-### 3. SpeciesHabitatProfile (Aggregated)
-**New Entity**: Represents the aggregated land cover profile for a single species, used for modeling.
-- **Attributes**:
-  - `species_id`: eBird species code.
-  - `species_common`: Common name.
-  - `foraging_guild`: Categorical (ground, canopy, aerial).
-  - `mean_forest_prop`: Float (0.0 - 1.0).
-  - `mean_grassland_prop`: Float (0.0 - 1.0).
-  - `mean_wetland_prop`: Float (0.0 - 1.0).
-  - `mean_urban_prop`: Float (0.0 - 1.0).
-  - `mean_other_prop`: Float (0.0 - 1.0).
-  - `n_observations`: Integer (count of observations used for aggregation).
+### 3. ForagingGuild
+Categorical label assigned to a species.
+- `species_id` (str): Unique species identifier.
+- `guild` (enum): "ground", "canopy", "aerial".
+- `source` (str): "Birds of the World" (via dynamic lookup).
 
-### 4. ModelOutput
-Results of the Random Forest classification.
-- **Attributes**:
-  - `model_id`: Hash of code + data.
-  - `random_seed`: Integer.
-  - `balanced_accuracy`: Float.
-  - `f1_ground`: Float.
-  - `f1_canopy`: Float.
-  - `f1_aerial`: Float.
-  - `feature_importance`: Dictionary mapping feature names to scores.
-  - `permutation_p_value`: Float.
+### 4. MergedObservation
+The primary analysis dataset (raw).
+- `species_id` (str)
+- `foraging_guild` (enum)
+- `forest_proportion` (float)
+- `grassland_proportion` (float)
+- `wetland_proportion` (float)
+- `urban_proportion` (float)
+- `other_proportion` (float)
+- `observation_date` (str)
+- `latitude` (float)
+- `longitude` (float)
+
+### 5. SpeciesProfile (Aggregated & Transformed)
+Aggregated data for model training and permutation testing.
+- `species_id` (str)
+- `foraging_guild` (enum)
+- `mean_forest` (float)
+- `mean_grassland` (float)
+- `mean_wetland` (float)
+- `mean_urban` (float)
+- `mean_other` (float)
+- `observation_count` (int)
+- `clr_forest` (float): CLR transformed forest proportion.
+- `clr_grassland` (float): CLR transformed grassland proportion.
+- `clr_wetland` (float): CLR transformed wetland proportion.
+- `clr_urban` (float): CLR transformed urban proportion.
+- `clr_other` (float): CLR transformed other proportion.
 
 ## Data Flow
 
-1. **Raw EBD** -> `download_ebd.py` -> **Raw CSV**
-2. **Raw NLCD** -> `download_nlcd.py` -> **Raw ZIP/GeoTIFF**
-3. **Raw CSV** + **Raw GeoTIFF** + **Guild Lookup** -> `merge_and_buffer.py` -> **Processed CSV** (`merged_observations.csv`)
-4. **Processed CSV** -> `aggregate.py` -> **Species Profiles** (`species_profiles.csv`)
-5. **Species Profiles** -> `train.py` -> **Model Artifact** (`.pkl`) + **Metrics JSON**
-6. **Model Artifact** + **Species Profiles** -> `evaluate.py` -> **Permutation Results**
-7. **Model Artifact** + **Species Profiles** -> `viz/*.py` -> **PNG/GeoJSON**
+1.  **Raw EBD** -> `download_ebd.py` -> **Raw CSV**.
+2.  **Raw CSV** -> `load_and_count.py` -> `select_top_species.py` -> **Filtered EBD**.
+3.  **Filtered EBD** + **NLCD Raster** -> `calculate_100m_buffers.py` -> **LandCoverProfile**.
+4.  **Filtered EBD** + **Guild Mapping** -> `join_guild_labels.py` -> **MergedObservation**.
+5.  **MergedObservation** -> `aggregate.py` -> `transform_clr.py` -> **SpeciesProfile**.
+6.  **SpeciesProfile** -> `train.py` -> **Model**.
+7.  **SpeciesProfile** -> `stratified_permutation.py` -> **Null Distribution**. *Note: Permutation test uses SpeciesProfile, not MergedObservation.*
 
-## Storage Formats
+## Schema Constraints
 
-- **Raw Data**: CSV (EBD), ZIP (NLCD).
-- **Processed Data**: CSV (tabular), GeoJSON (spatial maps).
-- **Metadata**: YAML (`data/metadata.yaml`).
-- **Models**: Pickle (`.pkl`) or Joblib (`.joblib`).
+- **Missing Data**: Observations with invalid coordinates or missing land cover data are dropped.
+- **Filtering**: Species with `observation_count` < 50 are excluded from `MergedObservation` and `SpeciesProfile`.
+- **Proportions**: All land cover proportions must be non-negative and sum to 1.0 (within floating point tolerance).
+- **CLR Transformation**: CLR values are derived from proportions; sum of CLR values is not constrained to 1.0.

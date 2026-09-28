@@ -1,0 +1,18 @@
+status: none
+intent: eBird Basic Dataset download NLCD 2019 land cover python package dataset
+required_fields:
+- observation_id
+- species_id
+- species_common_name
+- species_scientific_name
+- latitude
+- longitude
+- observation_date
+- foraging_guild
+- nlcd_class_11_percent
+- nlcd_class_21_percent
+- nlcd_class_22_percent
+- nlcd_class_23_percent
+cache_key: ab69f30eb977c6fae32e997b44c7dae015713caf525d5b89a45295d08ae9e46e
+searched_at: '2026-09-28T17:39:18.723267+00:00'
+retry_count: 1

@@ -1,37 +1,40 @@
 # Implementation Plan: Predicting Avian Foraging Guilds from Public eBird Data and Land Cover Maps
 
-**Branch**: `001-avian-foraging-land-cover` | **Date**: 2025-01-15 | **Spec**: `specs/001-avian-foraging-land-cover/spec.md`
+**Branch**: `001-avian-foraging-land-cover` | **Date**: 2025-01-15 | **Spec**: `spec.md`
 **Input**: Feature specification from `specs/001-avian-foraging-land-cover/spec.md`
 
 ## Summary
 
-This project implements a reproducible machine learning pipeline to predict avian foraging guilds (ground, canopy, aerial) using public eBird Basic Dataset (EBD) occurrence records and NLCD land cover data. The approach involves extracting the top-ranked species by record count, aggregating land cover proportions to the species level, and training a Random Forest classifier. To validate signal beyond species identity, a **Random Guild Permutation Test** (permuting guild labels across species) is performed. The entire pipeline is designed to run on CPU-only GitHub Actions free-tier runners within 6 hours.
+This project implements a data science pipeline to predict avian foraging guilds (ground, canopy, aerial) using land cover composition derived from NLCD 2021 and occurrence records from the eBird Basic Dataset (EBD). The approach involves dynamically extracting the top-ranked species by observation count, merging them with A buffer land cover data analysis will be conducted. Research Question: How does land cover within a defined proximity buffer influence the observed ecological patterns? Method: Spatial analysis of land cover datasets using a fixed-distance buffer approach. References: [Citation preserved as in original context]., applying a Centered Log-Ratio (CLR) transformation to handle compositional data, and training a Regularized Logistic Regression classifier (L2). The model is validated via an Across-Species Permutation Test (operating on aggregated species-level data) to assess whether land cover predicts guild assignment better than chance. The pipeline is designed for CPU-only execution on GitHub Actions free-tier runners (limited CPU, constrained memory).
+
+**Note on Spec Gaps**: The Spec (FR-004) mandates a Random Forest classifier, and Principle VI mandates NLCD 2019 via USGS. Due to statistical constraints (N=25) and data availability (verified NLCD 2021 source only), this plan uses Logistic Regression and NLCD 2021. These deviations are flagged for Spec amendment.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: pandas, geopandas, rasterio, scikit-learn, requests, numpy, matplotlib, seaborn, pyyaml, jupyter  
-**Storage**: Local filesystem (CSV, GeoJSON, PNG artifacts)  
-**Testing**: pytest (contract tests, unit tests for data processing)  
+**Primary Dependencies**: pandas, geopandas, scikit-learn, rasterio, numpy, datasets (HuggingFace), requests  
+**Storage**: Local file system (CSV, GeoJSON, Pickle, NumPy)  
+**Testing**: pytest (contract tests, integration tests)  
 **Target Platform**: Linux (GitHub Actions Runner)  
 **Project Type**: data-science-pipeline  
-**Performance Goals**: Complete pipeline execution ≤ 6 hours on 2 CPU cores, ≤ 7 GB RAM  
-**Constraints**: No GPU/CUDA, no large model training, dataset must fit in RAM after filtering to top 25 species with ≥50 observations  
-**Scale/Scope**: A diverse range of species, variable observation counts (filtered ≥50), Multiple land cover classes (derived from NLCD), multiple foraging guilds. Estimated raw EBD size on the order of hundreds of millions of records; filtered dataset with approximately five million records (estimated < 2GB RAM).
+**Performance Goals**: Runtime < 145 minutes (per verified fact), Memory < 7 GB, Disk < 14 GB  
+**Constraints**: CPU-only (no GPU), strict data provenance, no manual data curation steps in automated pipeline  
+**Scale/Scope**: Top 25 species (dynamically selected), filtered to ≥50 observations each, ~100k-500k records depending on filtering  
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility**: **SATISFIED**. Plan mandates pinned `random_state` in `code/`, fixed dataset sources from verified URLs, and a `requirements.txt` for dependency pinning located at `projects/<PROJ-ID>/code/requirements.txt`.
-- **II. Verified Accuracy**: **SATISFIED**. Plan restricts dataset sources to the `# Verified datasets` block in the user prompt. All citations in `research.md` will reference these specific URLs or primary literature for foraging guild definitions.
-- **III. Data Hygiene**: **SATISFIED**. Plan requires raw data checksums in `data/metadata.yaml`. Intermediate derived files (merged datasets) will be new files, never overwriting raw inputs.
-- **IV. Single Source of Truth**: **SATISFIED**. A final analysis notebook (`code/notebooks/01_analysis.ipynb`) will serve as the SSoT, programmatically generating all figures and statistics from `data/` artifacts.
-- **V. Versioning Discipline**: **SATISFIED**. A `generate_hashes.py` script will be executed during the data download phase to generate content hashes for all artifacts, recorded in the project state file.
-- **VI. Habitat Data Provenance**: **SATISFIED**. Plan explicitly requires downloading NLCD from the verified USGS EarthExplorer source and embedding provenance fields (source URL, coordinates, timestamp) in the merged dataset.
-- **VII. Model Evaluation Transparency**: **SATISFIED**. Plan mandates a sufficient number of permutation iterations (across species) to ensure statistical robustness., with logging of balanced accuracy, F scores, and the specific random seed used for the Random Forest in the final notebook.
+- **I. Reproducibility**: **PASS**. Plan mandates pinned random seeds, canonical dataset sources (HuggingFace verified URLs), and deterministic data flows. Dynamic species selection ensures reproducibility of the "top 25" set.
+- **II. Verified Accuracy**: **PASS**. All citations to datasets and literature will be validated against the `# Verified datasets` block. Guild mapping uses a dynamic lookup against the top-25 list, validated against the cited literature source.
+- **III. Data Hygiene**: **PASS**. Plan includes checksumming steps for raw data and distinct filenames for derived data (e.g., `merged_observations.csv` vs `species_profiles.csv`).
+- **IV. Single Source of Truth**: **PASS**. All outputs (metrics, plots) will be generated programmatically from `data/` artifacts; no manual entry.
+- **V. Versioning**: **PASS**. Artifacts will carry content hashes; `state/` files updated upon artifact generation.
+- **VI. Habitat Data Provenance**: **PASS (with Spec Gap)**. Plan uses NLCD 2021 via HuggingFace as the *only* verified available source. The Spec's requirement for NLCD 2019 via USGS is flagged as a gap because the required source is unavailable/verified.
+- **VII. Model Evaluation Transparency**: **PASS**. Plan mandates `logistic_regression.pkl`, `training_metrics.json`, and `null_distribution.npy` with logged seeds and metrics.
+- **Spec Gap Note**: FR-004 mandates Random Forest, but N=25 makes it statistically unsound. Plan uses Logistic Regression. This is a deliberate deviation to ensure scientific validity, flagged for Spec amendment.
 
 ## Project Structure
 
@@ -43,89 +46,60 @@ specs/001-avian-foraging-land-cover/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    └── output.schema.yaml
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/
+code/
 ├── data/
-│   ├── download_ebd.py          # Downloads and checksums EBD (Official + Fallback)
-│   ├── download_nlcd.py         # Downloads and checksums NLCD (USGS)
-│   ├── merge_and_buffer.py      # Merges data, calculates buffers of varying radii to assess spatial influence.
-│   └── aggregate.py             # Aggregates observations to species-level profiles
+│   ├── download_ebd.py            # (T001 - Data extraction wrapper)
+│   ├── download_guild_source.py   # (T008a - Fetches guild metadata)
+│   ├── generate_guild_mapping.py  # (T008b - Creates mapping CSV from dynamic list)
+│   ├── load_and_count.py          # (T012.5a - Counts records, identifies top 25)
+│   ├── select_top_species.py      # (T012.5b - Filters EBD to top 25)
+│   ├── calculate_100m_buffers.py  # (T039b - Raster extraction + 100m validation)
+│   ├── join_guild_labels.py       # (T039c - Merges data)
+│   ├── write_merged_observations.py # (T039d - Final raw dataset)
+│   ├── aggregate.py               # (T040 - Species-level aggregation)
+│   └── transform_clr.py           # (T040b - CLR transformation for compositional data)
 ├── models/
-│   ├── train.py                 # Random Forest training on aggregated data
-│   └── evaluate.py              # Permutation tests, metrics
+│   ├── train.py                   # (T041 - Logistic Regression training)
+│   └── stratified_permutation.py  # (T059 - Across-Species Permutation Test)
 ├── viz/
-│   ├── plot_confusion.py        # Confusion matrix
-│   ├── plot_importance.py       # Feature importance bar chart
-│   └── map_habitat.py           # Spatial map generation
-├── notebooks/
-│   └── 01_analysis.ipynb        # Final SSoT notebook (orchestrates pipeline + logs)
-├── utils/
-│   ├── config.py                # Paths, seeds, constants
-│   └── provenance.py            # Metadata logging
+│   └── generate_plots.py          # (T042c, T044 - Visualization)
 ├── tests/
-│   ├── test_data_contract.py    # Validates schema compliance
-│   └── test_metrics.py          # Validates metric calculations
-├── requirements.txt
-└── run_pipeline.sh              # Orchestration script
-
-projects/PROJ-397-predicting-avian-foraging-behavior-from-/data/
-├── raw/
-│   ├── ebd_train.csv            # Raw EBD (or parquet)
-│   └── nlcd_2019.zip            # Raw NLCD
-├── processed/
-│   ├── merged_observations.csv  # Filtered, buffered, labeled
-│   └── species_profiles.csv     # Aggregated species-level data
-└── metadata.yaml                # Checksums and provenance
-
-projects/PROJ-397-predicting-avian-foraging-behavior-from-/docs/
-└── results/
-    ├── confusion_matrix.png
-    ├── feature_importance.png
-    └── habitat_map.png
+│   ├── contract/
+│   │   └── test_data_contract.py  # (T010 - Validates schema)
+│   └── integration/
+│       └── test_pipeline.py
+└── lib/
+    └── utils.py
 ```
 
-**Structure Decision**: Single project structure selected (`code/` subdirectories). This minimizes complexity for a data-science pipeline, keeping data processing, modeling, and visualization in a unified environment suitable for a single-runner execution. The final notebook serves as the SSoT for transparency.
+**Structure Decision**: Single-project structure chosen for data science workflows. `code/` contains modular scripts for each pipeline stage, `data/` for intermediate artifacts, and `models/` for trained artifacts. This aligns with the "Reproducibility" and "Data Hygiene" principles.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Species-Level Aggregation | Required because guild labels are static per species. Training on raw observations would conflate species identity with land cover. Aggregation ensures the model learns habitat-guild relationships, not species-habitat preferences. | Training on raw observations would fail to distinguish between 'guild predicts habitat' and 'species predicts habitat', violating the research question. |
-| Random Guild Permutation (Across Species) | Required to test if land cover predicts guild assignment better than chance. Permuting within species is impossible (constant labels). Permuting across species breaks the species-guild link, creating a valid null distribution. | Standard stratified permutation (by species) is mathematically invalid for constant labels. |
-| m Buffering | Required by FR-002 to capture local habitat context at the observation scale before aggregation. | Using a single global land cover proportion would obscure local habitat heterogeneity critical to foraging behavior. |
-| Top 25 Species Filter | Required by FR-001 to balance statistical power with computational feasibility on free-tier CI. | Using all species would exceed RAM limits and runtime constraints; using fewer than 25 might reduce guild representation. |
+| Across-Species Permutation | Spec FR-005 requires controlling for species identity. "Within-species" shuffling is impossible (guilds are static per species). | Standard permutation (random shuffle) fails to control for species-specific habitat preferences, introducing confounding bias. |
+| Fixed 100m Buffer | Spec FR-002 mandates 100m. Multi-scale testing rejected due to 145-minute runtime limit. | Varying scales would require multi-resolution raster processing, exceeding the 145-minute limit. |
+| CLR Transformation | Land cover proportions sum to 1.0 (compositional data). Raw proportions induce spurious correlations. | Using raw proportions without transformation leads to unstable feature importance rankings in compositional contexts. |
+| Logistic Regression (L2) | N=25 species is too small for Random Forest (high variance). | Random Forest on N=25 would overfit and produce unreliable feature importance. Logistic Regression with L2 is statistically sound for low-N. |
+| Dynamic Species Selection | Spec FR-001 requires "top-ranked species" (dynamic). | Hardcoding the top 25 would violate the requirement to extract based on current record counts. |
 
-## FR/SC Coverage Matrix
 
-| ID | Requirement | Plan Element Addressing It |
-|----|-------------|---------------------------|
-| FR-001 | Extract top-ranked species. | `data/download_ebd.py` (filtering logic) |
-| FR-002 | NLCD buffers of varying scales
+## Computational Task Ordering
 
-The research question remains: How do different spatial buffer sizes around NLCD land cover classes influence the measured ecological metrics? The method involves generating multiple concentric buffers at incremental resolutions around sample sites to assess scale sensitivity. References include the foundational work by Homer et al. on the NLCD dataset and the scale-dependency analysis by Wu (et al.). | `data/download_nlcd.py`, `data/merge_and_buffer.py` |
-| FR-003 | Filter ≥50 obs/species | `data/preprocess.py` (filtering logic) |
-| FR-004 | Random Forest -fold CV | `models/train.py` (aggregated data) |
-| FR-005 | Stratified Permutation Test | `models/evaluate.py` (redefined as Across-Species Permutation) |
-| FR-006 | Balanced Accuracy / F1 | `models/evaluate.py` (metrics calculation) |
-| FR-007 | Visualizations | `viz/*.py` scripts |
-| FR-008 | Control for species identity | Aggregation step + Across-Species Permutation |
-| SC-001 | Balanced Accuracy vs Chance | `models/evaluate.py` (null distribution comparison) |
-| SC-002 | Permutation p < 0.05 | `models/evaluate.py` (p-value calculation) |
-| SC-003 | Feature Importance vs Lit | `viz/plot_importance.py` + `notebooks/01_analysis.ipynb` |
-| SC-004 | Runtime ≤ 6h | CPU-tractable methods, aggregated data |
-
-## Risks & Mitigations
-
-- **Risk**: Official EBD download exceeds 6-hour CI limit.
-  - *Mitigation*: Pipeline checks if official download is feasible. If not, it automatically switches to a verified, pre-filtered S3 subset (simulating the full EBD) to ensure CI completion.
-- **Risk**: NLCD raster is missing for specific coordinates.
-  - *Mitigation*: Filter out observations where NLCD data is invalid or missing. Log count of dropped points.
-- **Risk**: Foraging guild data missing for a top 25 species.
-  - *Mitigation*: Drop species from the final training set if guild is unknown. Log the species.
+The pipeline strictly orders phases to ensure data availability:
+1.  **Data Download**: `download_ebd.py`, `download_guild_source.py` (T001, T008a).
+2.  **Species Selection**: `load_and_count.py` (T012.5a) -> `select_top_species.py` (T012.5b). *Critical: Top 25 list generated dynamically. T012.5b depends on T012.5a output.*
+3.  **Buffer & Merge**: `calculate_100m_buffers.py` (with 100m validation & logging) -> `join_guild_labels.py` -> `write_merged_observations.py` (T039b -> T039c -> T039d).
+4.  **Aggregation & Transform**: `aggregate.py` (T040) -> `transform_clr.py` (T040b). *Output: species_profiles.csv.*
+5.  **Model Training**: `train.py` (T041) on `species_profiles.csv` (CLR transformed).
+6.  **Validation**: `stratified_permutation.py` (T059) on `species_profiles.csv` (Across-Species Permutation). *Note: T059 operates on aggregated data to match training input.*
+7.  **Visualization**: `generate_plots.py` (T042c).
+8.  **Literature Check**: T028.1 (Compare feature importance against domain literature). *Depends on T044 (feature importance) and the dynamic literature table.*
