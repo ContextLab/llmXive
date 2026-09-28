@@ -4,9 +4,9 @@ import hashlib
 import yaml
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, List
+from typing import Dict, List, Any, Optional
 
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -14,103 +14,116 @@ def compute_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def compute_directory_hash(dir_path: Path) -> str:
-    """
-    Compute a deterministic SHA-256 hash of an entire directory tree.
-    Files are sorted by relative path to ensure determinism.
-    """
+def compute_directory_hash(directory_path: str) -> str:
+    """Compute a combined SHA-256 hash for all files in a directory tree."""
+    sha256_hash = hashlib.sha256()
+    dir_path = Path(directory_path)
     if not dir_path.exists():
-        return ""
+        raise FileNotFoundError(f"Directory not found: {directory_path}")
     
-    hasher = hashlib.sha256()
-    # Collect all files, sorted by relative path for determinism
-    files = []
-    for root, _, filenames in os.walk(dir_path):
-        for filename in filenames:
-            if filename.endswith('.pyc') or filename == '.gitkeep':
-                continue
-            full_path = Path(root) / filename
-            rel_path = full_path.relative_to(dir_path)
-            files.append((str(rel_path), full_path))
-    
-    files.sort(key=lambda x: x[0])
-    
-    for rel_path, full_path in files:
-        # Hash the relative path first
-        hasher.update(rel_path.encode('utf-8'))
-        # Then hash the file content
-        hasher.update(compute_sha256(full_path).encode('utf-8'))
-    
-    return hasher.hexdigest()
+    # Sort files to ensure deterministic ordering
+    files = sorted(dir_path.rglob("*"))
+    for file_path in files:
+        if file_path.is_file():
+            # Include relative path in hash calculation for uniqueness
+            relative_path = str(file_path.relative_to(dir_path))
+            sha256_hash.update(relative_path.encode('utf-8'))
+            with open(file_path, "rb") as f:
+                for byte_block in iter(lambda: f.read(4096), b""):
+                    sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def collect_all_artifact_hashes(data_dir: Path) -> Dict[str, str]:
-    """Collect hashes for all relevant data directories."""
-    hashes = {}
+def compute_sha256_string(data: str) -> str:
+    """Compute SHA-256 hash of a string."""
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+
+def collect_all_artifact_hashes(data_dir: str) -> Dict[str, str]:
+    """Collect SHA-256 hashes for all files in the data directory tree."""
+    artifacts = {}
+    data_path = Path(data_dir)
+    if not data_path.exists():
+        raise FileNotFoundError(f"Data directory not found: {data_dir}")
     
-    if (data_dir / "raw").exists():
-        hashes["raw"] = compute_directory_hash(data_dir / "raw")
-    
-    if (data_dir / "processed").exists():
-        hashes["processed"] = compute_directory_hash(data_dir / "processed")
-    
-    if (data_dir / "results").exists():
-        hashes["results"] = compute_directory_hash(data_dir / "results")
-    
-    return hashes
+    for file_path in sorted(data_path.rglob("*")):
+        if file_path.is_file():
+            relative_path = str(file_path.relative_to(data_path))
+            artifacts[relative_path] = compute_sha256(str(file_path))
+    return artifacts
 
 def update_state_registry(
-    state_path: Path, 
-    data_dir: Path,
-    reproducibility_hash: str
+    state_file_path: str,
+    reproducibility_hash: str,
+    final_verification_timestamp: str,
+    additional_artifacts: Optional[Dict[str, str]] = None
 ) -> None:
     """
-    Update the project state registry with final verification data.
+    Update the project state registry with the final reproducibility hash
+    and verification timestamp.
     
     Args:
-        state_path: Path to the state YAML file
-        data_dir: Path to the data directory (to compute directory hash)
-        reproducibility_hash: The pre-computed hash of the entire data tree
+        state_file_path: Path to the state YAML file
+        reproducibility_hash: SHA-256 hash of the entire data directory
+        final_verification_timestamp: ISO8601 timestamp string
+        additional_artifacts: Optional dict of additional artifact hashes to include
     """
+    state_path = Path(state_file_path)
     if not state_path.exists():
-        raise FileNotFoundError(f"State file not found: {state_path}")
+        raise FileNotFoundError(f"State file not found: {state_file_path}")
     
-    with open(state_path, 'r') as f:
+    # Load existing state
+    with open(state_path, "r") as f:
         state_data = yaml.safe_load(f)
     
-    # Update with final verification data
-    state_data['final_verification'] = {
-        'reproducibility_hash': reproducibility_hash,
-        'final_verification_timestamp': datetime.utcnow().isoformat() + 'Z',
-        'data_artifact_hashes': collect_all_artifact_hashes(data_dir)
-    }
+    # Update with new fields
+    state_data["reproducibility_hash"] = reproducibility_hash
+    state_data["final_verification_timestamp"] = final_verification_timestamp
     
-    # Ensure project metadata is up to date
-    state_data['last_updated'] = datetime.utcnow().isoformat() + 'Z'
+    if additional_artifacts:
+        if "artifact_hashes" not in state_data:
+            state_data["artifact_hashes"] = {}
+        state_data["artifact_hashes"].update(additional_artifacts)
     
-    with open(state_path, 'w') as f:
+    # Write back
+    with open(state_path, "w") as f:
         yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
 
 def main():
-    """CLI entry point for finalizing state registry."""
+    """Main entry point for finalizing the state registry."""
     project_root = Path(__file__).parent.parent.parent
     state_file = project_root / "state" / "projects" / "PROJ-866-llmxive-follow-up-extending-foundation-p.yaml"
     data_dir = project_root / "data"
     
     if not state_file.exists():
-        print(f"Error: State file not found at {state_file}")
+        print(f"Error: State file not found: {state_file}")
         sys.exit(1)
     
     if not data_dir.exists():
-        print(f"Error: Data directory not found at {data_dir}")
+        print(f"Error: Data directory not found: {data_dir}")
         sys.exit(1)
     
-    # Compute the full directory hash
-    reproducibility_hash = compute_directory_hash(data_dir)
-    print(f"Computed reproducibility hash: {reproducibility_hash}")
-    
-    # Update the state registry
-    update_state_registry(state_file, data_dir, reproducibility_hash)
-    print(f"Successfully updated state registry at {state_file}")
+    try:
+        # Compute reproducibility hash
+        print(f"Computing reproducibility hash for {data_dir}...")
+        reproducibility_hash = compute_directory_hash(str(data_dir))
+        
+        # Generate timestamp
+        final_verification_timestamp = datetime.utcnow().isoformat() + "Z"
+        
+        # Update state registry
+        print(f"Updating state registry at {state_file}...")
+        update_state_registry(
+            str(state_file),
+            reproducibility_hash,
+            final_verification_timestamp
+        )
+        
+        print(f"State registry updated successfully.")
+        print(f"Reproducibility Hash: {reproducibility_hash}")
+        print(f"Final Verification Timestamp: {final_verification_timestamp}")
+        
+    except Exception as e:
+        print(f"Error updating state registry: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

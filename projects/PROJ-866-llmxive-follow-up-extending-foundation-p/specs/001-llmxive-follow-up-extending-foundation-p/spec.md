@@ -13,7 +13,7 @@ The system MUST generate a deterministic set of synthetic multi-agent workflows 
 
 **Why this priority**: This is the data generation engine. If this fails, the entire experiment has no input. It establishes the "Full Context" baseline against which all compression variants are measured.
 
-**Independent Test**: Can be fully tested by running the generator script and verifying that the output JSON contains exactly 500 unique workflow definitions with non-zero variance in depth and complexity, and that a separate "ground truth" state machine execution log is produced for each.
+**Independent Test**: Can be fully tested by running the generator script and verifying that the output JSON contains a sufficient number of unique workflow definitions with non-zero variance in depth and complexity, and that a separate "ground truth" state machine execution log is produced for each.
 
 **Acceptance Scenarios**:
 

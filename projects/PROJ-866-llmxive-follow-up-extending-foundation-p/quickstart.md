@@ -1,124 +1,128 @@
-# Quickstart Guide: llmXive Automated Science Pipeline
-
-This guide provides the commands to run the full llmXive pipeline, including data generation, execution, analysis, and verification.
+# llmXive Quickstart Guide
 
 ## Prerequisites
 
 - Python 3.11+
-- Required packages installed (see `requirements.txt`)
-- Project root directory
+- Installed dependencies (see `requirements.txt`)
+
+## Project Structure
+
+- `code/`: Source code
+- `data/`: Data directories
+ - `data/raw/`: Generated workflows
+ - `data/processed/`: Execution logs
+ - `data/results/`: Analysis outputs
+- `tests/`: Test suite
+- `state/`: State registry
 
 ## Running the Full Pipeline
 
-### 1. Generate Synthetic Workflows
+The full pipeline can be executed using the main orchestrator:
 
-Generate 500 synthetic workflows with deterministic seeding:
+```bash
+python code/main.py --generate --compress --analyze
+```
+
+This command will:
+1. Generate synthetic workflows (T012)
+2. Execute full context validation (T014)
+3. Execute compressed context variants (T021)
+4. Analyze trade-offs and identify thresholds (T029-T031)
+
+## Individual Component Execution
+
+If you need to run individual components, use the following commands:
+
+### Generate Workflows
 
 ```bash
 python code/generators/synthetic_workflow.py --count 500 --seed 42 --output data/raw/workflows.json
 ```
 
-### 2. Execute Full Context Validation
-
-Run the full context execution engine on all generated workflows:
+### Full Context Execution
 
 ```bash
 python code/engines/full_context.py --workflow data/raw/workflows.json --output data/processed/full_context_logs.json
 ```
 
-### 3. Execute Compressed Context Variants
-
-Run compressed context execution with multiple depth levels:
+### Compressed Context Execution
 
 ```bash
-python code/engines/compressed_context.py --workflow data/raw/workflows.json --depth 2 --output data/processed/compressed_depth_2.json
-python code/engines/compressed_context.py --workflow data/raw/workflows.json --depth 4 --output data/processed/compressed_depth_4.json
-python code/engines/compressed_context.py --workflow data/raw/workflows.json --depth 6 --output data/processed/compressed_depth_6.json
-python code/engines/compressed_context.py --workflow data/raw/workflows.json --depth 8 --output data/processed/compressed_depth_8.json
-python code/engines/compressed_context.py --workflow data/raw/workflows.json --depth 10 --output data/processed/compressed_depth_10.json
+python code/engines/compressed_context.py --workflow data/raw/workflows.json --depths 1 2 4 6 8 10 12 14 16 18 20 --output data/processed/compressed_context_logs.json
 ```
 
-### 4. Run Trade-off Analysis
-
-Perform the full trade-off analysis including regression, threshold detection, and corrections:
+### Analysis
 
 ```bash
 python code/analysis/tradeoff_model.py --full data/processed/full_context_logs.json --compressed data/processed/compressed_context_logs.json
 ```
 
-### 5. Apply Bonferroni Correction
-
-Apply multiple comparison corrections to the regression results:
+### Verify Invalid Workflow Exclusion (T067)
 
 ```bash
-python code/analysis/bonferroni_correction.py --input data/processed/regression_stats.json --output data/processed/corrected_pvalues.json
+python code/utils/verify_invalid_workflow_exclusion.py
 ```
 
-### 6. Detect Threshold with Confidence Intervals
+This script verifies that all workflows marked as `is_valid=false` in `data/raw/` are correctly excluded from the final analysis in `data/results/tradeoff_curve.csv` and `data/results/threshold_ci.json`.
 
-Identify the safe operating zone threshold:
+### Bonferroni Correction
 
 ```bash
-python code/analysis/threshold_detection.py --full data/processed/full_context_logs.json --compressed data/processed/compressed_context_logs.json --output data/results/threshold_ci.json
+python code/analysis/bonferroni_correction.py --input data/processed/pairwise_comparison_results.json --output data/processed/corrected_pvalues.json
 ```
 
-### 7. Generate Regression Data
-
-Create the CSV file for regression analysis:
+### Threshold Detection
 
 ```bash
-python code/analysis/generate_regression_data.py --processed data/processed/ --output data/results/tradeoff_curve.csv
+python code/analysis/threshold_detection.py --input data/processed/tradeoff_curve.csv --output data/results/threshold_ci.json
 ```
 
-### 8. Run Data Hygiene Audit
+## Verification Steps
 
-Verify data integrity and derivation consistency:
+1. **Reproducibility Check**:
+ ```bash
+ python code/utils/reproducibility_checker.py --run1 data/run1 --run2 data/run2
+ ```
 
-```bash
-python code/utils/data_hygiene_audit.py
-```
+2. **Data Consistency Check**:
+ ```bash
+ python code/utils/verify_data_consistency.py
+ ```
 
-## Expected Output Files
+3. **Invalid Workflow Exclusion Check**:
+ ```bash
+ python code/utils/verify_invalid_workflow_exclusion.py
+ ```
+
+## Expected Outputs
 
 After running the full pipeline, the following files should be present:
 
-- `data/raw/workflows.json` - Generated synthetic workflows
-- `data/processed/full_context_logs.json` - Full context execution logs
-- `data/processed/compressed_depth_*.json` - Compressed context execution logs
-- `data/processed/corrected_pvalues.json` - Bonferroni-corrected p-values
-- `data/results/tradeoff_curve.csv` - Regression curve data
-- `data/results/threshold_ci.json` - Threshold detection results with confidence intervals
-- `data/results/data_hygiene_audit.json` - Data hygiene audit report
-
-## Verification
-
-To verify the pipeline ran correctly:
-
-1. Check that all output files exist in their expected locations
-2. Run the data hygiene audit to ensure data integrity
-3. Verify that the threshold CI file contains valid confidence intervals
-4. Confirm that the trade-off curve CSV has the expected columns
+- `data/raw/workflows.json`: Generated workflows
+- `data/processed/full_context_logs.json`: Full context execution logs
+- `data/processed/compressed_context_logs.json`: Compressed context execution logs
+- `data/processed/binned_data.json`: Binned data for analysis
+- `data/processed/pairwise_comparison_results.json`: Pairwise comparison results
+- `data/processed/corrected_pvalues.json`: Corrected p-values
+- `data/results/tradeoff_curve.csv`: Trade-off curve data
+- `data/results/threshold_ci.json`: Threshold confidence interval
+- `data/results/glmm_diagnostics.json`: GLMM diagnostics
+- `data/results/invalid_workflow_exclusion_report.json`: T067 verification report
 
 ## Troubleshooting
 
-If you encounter errors:
+If you encounter issues:
 
-- Ensure all required packages are installed (`pip install -r requirements.txt`)
-- Verify that input files exist in the expected locations
-- Check that the output directories (`data/raw/`, `data/processed/`, `data/results/`) exist
-- Review the error messages for specific issues with file paths or data formats
-
-## Parallel Execution
-
-For faster execution, you can run independent tasks in parallel:
-
-- Steps 1 (Generate) can be run independently
-- Steps 2-3 (Execution) can be parallelized across different depth levels
-- Steps 4-7 (Analysis) should be run sequentially as they depend on previous outputs
+1. Ensure all dependencies are installed: `pip install -r requirements.txt`
+2. Check that `data/` directories exist and are writable
+3. Verify that the seed is consistent for reproducibility
+4. Check logs in `data/processed/` for specific error messages
 
 ## Notes
 
-- All commands use relative paths from the project root
-- The `--seed` parameter ensures deterministic results for reproducibility
-- The pipeline is designed to handle edge cases (single-node graphs, depth=0) gracefully
-- Data hygiene audit is critical for ensuring research integrity
+- All commands assume execution from the project root directory
+- The `--generate` flag triggers workflow generation
+- The `--compress` flag triggers compressed context execution
+- The `--analyze` flag triggers statistical analysis
+- Invalid workflows are automatically filtered during analysis
+- Edge cases (single-node graphs, depth=0) are logged separately

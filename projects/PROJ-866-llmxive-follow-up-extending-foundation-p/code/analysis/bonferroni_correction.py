@@ -5,36 +5,12 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 import numpy as np
 
-# Constants
-DATA_PROCESSED_DIR = Path("data/processed")
-DATA_RESULTS_DIR = Path("data/results")
-
-def load_regression_stats(input_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def load_regression_stats(input_path: Path) -> Dict[str, Any]:
     """
-    Load regression statistics from the trade-off curve data.
+    Load regression statistics from input file.
     """
-    if input_path is None:
-        input_path = DATA_RESULTS_DIR / "tradeoff_curve.csv"
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Regression data not found: {input_path}")
-    
-    stats = []
-    with open(input_path, 'r') as f:
-        # Skip header
-        next(f)
-        for line in f:
-            parts = line.strip().split(',')
-            if len(parts) >= 5:
-                stats.append({
-                    'reduction_pct': float(parts[0]),
-                    'error_rate': float(parts[1]),
-                    'depth': float(parts[2]),
-                    'ci_lower': float(parts[3]),
-                    'ci_upper': float(parts[4])
-                })
-    
-    return stats
+    with open(input_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 def bonferroni_correction(p_values: List[float], k: int) -> List[float]:
     """
@@ -42,89 +18,73 @@ def bonferroni_correction(p_values: List[float], k: int) -> List[float]:
     
     Args:
         p_values: List of raw p-values
-        k: Number of comparisons (number of p-values)
+        k: Number of comparisons (dynamic based on data)
     
     Returns:
         List of corrected p-values
     """
-    if not p_values:
-        return []
+    if k == 0:
+        return p_values
     
-    corrected = []
-    for p in p_values:
-        corrected_p = min(p * k, 1.0)
-        corrected.append(corrected_p)
-    
+    alpha = 0.05 / k
+    corrected = [min(p * k, 1.0) for p in p_values]
     return corrected
 
-def apply_bonferroni_to_covariates(stats: List[Dict[str, Any]]) -> Dict[str, Any]:
+def apply_bonferroni_to_covariates(stats: Dict[str, Any]) -> Dict[str, float]:
     """
-    Apply Bonferroni correction to statistical tests on covariates.
-    
-    This function simulates pairwise comparisons between different reduction percentages.
-    In a real implementation, this would use actual statistical tests.
+    Apply Bonferroni correction to covariate p-values.
     """
-    if len(stats) < 2:
-        return {'corrected_pvalues': [], 'k': 0}
+    p_values = stats.get("p_values", [])
+    k = len(p_values)  # Dynamic k based on number of covariates
     
-    # Generate simulated p-values for pairwise comparisons
-    # In a real implementation, these would come from actual statistical tests
-    n_comparisons = len(stats) * (len(stats) - 1) // 2
-    raw_p_values = np.random.uniform(0.01, 0.5, n_comparisons).tolist()
-    
-    # Apply Bonferroni correction
-    corrected_p_values = bonferroni_correction(raw_p_values, n_comparisons)
+    corrected = bonferroni_correction(p_values, k)
     
     return {
-        'corrected_pvalues': corrected_p_values,
-        'k': n_comparisons,
-        'raw_pvalues': raw_p_values,
-        'method': 'bonferroni'
+        "raw_p_values": p_values,
+        "corrected_p_values": corrected,
+        "k": k,
+        "alpha": 0.05 / k if k > 0 else 1.0
     }
 
-def save_corrected_pvalues(
-    correction_result: Dict[str, Any], 
-    output_path: Optional[Path] = None
-) -> None:
+def save_corrected_pvalues(result: Dict[str, Any], output_path: Path) -> None:
     """
-    Save corrected p-values to JSON file.
+    Save corrected p-values to output file.
     """
-    if output_path is None:
-        output_path = DATA_PROCESSED_DIR / "corrected_pvalues.json"
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        json.dump(correction_result, f, indent=2)
-    
-    print(f"Saved corrected p-values to {output_path}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(result, f, indent=2)
 
 def main():
     """
-    Main function to run Bonferroni correction.
+    CLI entry point for Bonferroni correction.
     """
-    print("Loading regression statistics...")
+    import argparse
     
-    try:
-        stats = load_regression_stats()
-    except FileNotFoundError as e:
-        print(f"Error: {e}", file=sys.stderr)
+    parser = argparse.ArgumentParser(description="Apply Bonferroni correction to pairwise comparisons")
+    parser.add_argument("--input", type=str, required=True, help="Input file with pairwise comparison results")
+    parser.add_argument("--output", type=str, required=True, help="Output file for corrected p-values")
+    
+    args = parser.parse_args()
+    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    if not input_path.exists():
+        print(f"Error: Input file not found: {args.input}", file=sys.stderr)
         sys.exit(1)
     
-    if not stats:
-        print("No regression statistics found.", file=sys.stderr)
-        sys.exit(1)
+    # Load stats
+    stats = load_regression_stats(input_path)
     
-    print(f"Loaded {len(stats)} regression data points")
-    
-    # Apply Bonferroni correction
-    print("Applying Bonferroni correction...")
-    correction_result = apply_bonferroni_to_covariates(stats)
+    # Apply correction
+    result = apply_bonferroni_to_covariates(stats)
     
     # Save results
-    save_corrected_pvalues(correction_result)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    save_corrected_pvalues(result, output_path)
     
-    print(f"Bonferroni correction complete. {correction_result['k']} comparisons tested.")
+    print(f"Bonferroni correction applied. Saved to {args.output}")
+    print(f"Number of comparisons: {result['k']}")
+    print(f"Corrected alpha: {result['alpha']}")
 
 if __name__ == "__main__":
     main()

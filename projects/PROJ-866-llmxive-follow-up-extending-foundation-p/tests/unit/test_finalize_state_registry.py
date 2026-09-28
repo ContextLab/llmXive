@@ -1,99 +1,149 @@
 import os
+import sys
 import tempfile
-import hashlib
 import yaml
+import hashlib
 from pathlib import Path
 import pytest
 
-# Import the module under test
-# Adjust import path based on project structure
-sys_path_backup = __import__('sys').path.copy()
-try:
-    __import__('sys').path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
-    from utils.finalize_state_registry import compute_sha256, collect_all_artifact_hashes, update_state_registry
-finally:
-    __import__('sys').path = sys_path_backup
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
-def test_compute_sha256():
-    """Test SHA-256 computation for a known string."""
+from utils.finalize_state_registry import (
+    compute_sha256,
+    compute_directory_hash,
+    collect_all_artifact_hashes,
+    update_state_registry
+)
+
+def test_compute_sha256_file():
+    """Test SHA-256 computation for a file."""
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
         f.write("test content")
-        temp_path = Path(f.name)
-
+        temp_path = f.name
+    
     try:
-        hash_result = compute_sha256(temp_path)
-        # Expected hash for "test content"
-        expected = hashlib.sha256(b"test content").hexdigest()
-        assert hash_result == expected
-    finally:
-        temp_path.unlink()
-
-def test_collect_all_artifact_hashes():
-    """Test collection of hashes from a directory structure."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
+        # Compute expected hash manually
+        expected_hash = hashlib.sha256(b"test content").hexdigest()
+        actual_hash = compute_sha256(temp_path)
         
-        # Create test files
-        file1 = tmp_path / "subdir" / "file1.txt"
-        file1.parent.mkdir(parents=True, exist_ok=True)
+        assert actual_hash == expected_hash
+    finally:
+        os.unlink(temp_path)
+
+def test_compute_sha256_empty_file():
+    """Test SHA-256 computation for an empty file."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+        temp_path = f.name
+    
+    try:
+        expected_hash = hashlib.sha256(b"").hexdigest()
+        actual_hash = compute_sha256(temp_path)
+        
+        assert actual_hash == expected_hash
+    finally:
+        os.unlink(temp_path)
+
+def test_compute_directory_hash():
+    """Test directory hash computation."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create some files
+        file1 = Path(tmpdir) / "file1.txt"
         file1.write_text("content1")
         
-        file2 = tmp_path / "file2.txt"
+        file2 = Path(tmpdir) / "file2.txt"
         file2.write_text("content2")
+        
+        subdir = Path(tmpdir) / "subdir"
+        subdir.mkdir()
+        file3 = subdir / "file3.txt"
+        file3.write_text("content3")
+        
+        # Compute hash
+        dir_hash = compute_directory_hash(tmpdir)
+        
+        # Should be a valid hex string
+        assert len(dir_hash) == 64
+        assert all(c in '0123456789abcdef' for c in dir_hash)
 
-        artifacts = collect_all_artifact_hashes(tmp_path)
-        
-        assert len(artifacts) == 2
-        assert "subdir/file1.txt" in artifacts
-        assert "file2.txt" in artifacts
-        
-        # Verify hashes are correct
-        expected_hash1 = hashlib.sha256(b"content1").hexdigest()
-        expected_hash2 = hashlib.sha256(b"content2").hexdigest()
-        
-        assert artifacts["subdir/file1.txt"] == expected_hash1
-        assert artifacts["file2.txt"] == expected_hash2
-
-def test_update_state_registry_creates_new():
-    """Test that update_state_registry creates a new file if it doesn't exist."""
+def test_compute_directory_hash_deterministic():
+    """Test that directory hash is deterministic."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        state_file = Path(tmpdir) / "state.yaml"
-        artifacts = {"test.txt": "abc123"}
+        # Create files
+        file1 = Path(tmpdir) / "file1.txt"
+        file1.write_text("content1")
         
-        update_state_registry(state_file, artifacts)
+        file2 = Path(tmpdir) / "file2.txt"
+        file2.write_text("content2")
         
-        assert state_file.exists()
-        with open(state_file, "r") as f:
-            data = yaml.safe_load(f)
+        # Compute hash twice
+        hash1 = compute_directory_hash(tmpdir)
+        hash2 = compute_directory_hash(tmpdir)
         
-        assert "artifact_hashes" in data
-        assert data["artifact_hashes"] == artifacts
-        assert "updated_at" in data
+        assert hash1 == hash2
 
-def test_update_state_registry_updates_existing():
-    """Test that update_state_registry updates an existing file."""
+def test_collect_all_artifact_hashes():
+    """Test collection of artifact hashes."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        state_file = Path(tmpdir) / "state.yaml"
+        # Create files
+        file1 = Path(tmpdir) / "file1.txt"
+        file1.write_text("content1")
         
-        # Create initial state
-        initial_data = {
-            "existing_key": "existing_value",
-            "artifact_hashes": {"old.txt": "old_hash"}
+        file2 = Path(tmpdir) / "file2.txt"
+        file2.write_text("content2")
+        
+        hashes = collect_all_artifact_hashes(tmpdir)
+        
+        assert len(hashes) == 2
+        assert "file1.txt" in hashes
+        assert "file2.txt" in hashes
+
+def test_update_state_registry():
+    """Test updating state registry."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create state file
+        state_file = Path(tmpdir) / "state.yaml"
+        initial_state = {
+            "project_id": "test-project",
+            "artifact_hashes": {"existing": "hash123"}
         }
-        with open(state_file, "w") as f:
-            yaml.dump(initial_data, f)
+        with open(state_file, 'w') as f:
+            yaml.dump(initial_state, f)
         
-        # Update with new artifacts
-        new_artifacts = {"new.txt": "new_hash"}
-        update_state_registry(state_file, new_artifacts)
+        # Create data directory
+        data_dir = Path(tmpdir) / "data"
+        data_dir.mkdir()
+        (data_dir / "test.txt").write_text("test")
         
-        with open(state_file, "r") as f:
-            data = yaml.safe_load(f)
+        # Update registry
+        success = update_state_registry(str(state_file), str(data_dir))
         
-        # Verify existing data is preserved
-        assert data["existing_key"] == "existing_value"
-        # Verify new artifacts replace old ones
-        assert data["artifact_hashes"] == new_artifacts
-        assert "updated_at" in data
-        # Verify timestamp is updated (should be different from initial creation)
-        assert data["updated_at"] != initial_data.get("updated_at", "")
+        assert success
+        
+        # Verify update
+        with open(state_file, 'r') as f:
+            updated_state = yaml.safe_load(f)
+        
+        assert 'reproducibility_hash' in updated_state
+        assert 'final_verification_timestamp' in updated_state
+        assert len(updated_state['reproducibility_hash']) == 64
+        assert 'artifact_hashes' in updated_state
+
+def test_update_state_registry_nonexistent_file():
+    """Test updating non-existent state file."""
+    success = update_state_registry("/nonexistent/path/state.yaml", "/nonexistent/data")
+    assert not success
+
+def test_update_state_registry_invalid_yaml():
+    """Test updating file with invalid YAML."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create invalid YAML
+        state_file = Path(tmpdir) / "state.yaml"
+        state_file.write_text("invalid: yaml: content: [")
+        
+        # Create data directory
+        data_dir = Path(tmpdir) / "data"
+        data_dir.mkdir()
+        
+        success = update_state_registry(str(state_file), str(data_dir))
+        assert not success

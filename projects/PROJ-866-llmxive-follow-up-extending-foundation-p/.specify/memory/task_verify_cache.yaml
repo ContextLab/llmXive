@@ -63,10 +63,55 @@ T037a:
   r: No evidence of a `ruff check --fix` run, no linting report, and no modified files
     in the `code/` directory are provided; thus the required code cleanup artifact
     is missing.
+T051:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `state/projects/...yaml` file was presented; the claim lacks any evidence
+    of the required `reproducibility_hash` and `final_verification_timestamp` keys
+    being added. The implementer must provide the actual YAML file with those fields
+    populated.
+T051#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `state/projects/PROJ-866-...yaml` file is provided, nor any evidence\
+    \ (e.g., file diff, content snippet, commit hash) showing the required `reproducibility_hash`\
+    \ and `final_verification_timestamp` keys have been added. The implementer\u2019\
+    s claim lacks the actual artifact, so the task is not satisfied."
 T059:
   c: false
-  h: bcd17ab4d26fd9419e5c6dc5b7bb83d967d0c74de5ba94eac0a8ccd2eeb153b0
-  r: "The `compressed_context.py` file shows no code that checks `context_reduction_pct`\
-    \ or `status`, nor any logging to `data/processed/edge_cases.log`. Additionally,\
-    \ the required `data/processed/edge_cases.log` file does not exist. The task\u2019\
-    s explicit edge\u2011case logging requirement is therefore unmet."
+  h: 27951d9e01a68839c93e632b71f14ff3b53d51b81040403c465b7baf35efe1d1
+  r: "The repository contains a `_log_edge_case` helper in `compressed_context.py`,\
+    \ but the required `data/processed/edge_cases.log` file does not exist, and there\
+    \ is no evidence that the helper is invoked for workflows with `context_reduction_pct=\"\
+    [deferred]\"` or `status=\"edge_case\"`. The task\u2019s logging requirement is\
+    \ therefore not fulfilled."
+T062:
+  c: false
+  h: a67c6dcce631f8e4498505f6b137735128615b250f7a44c44c2b139f7d784379
+  r: "The repository contains the `verify_data_consistency.py` script, but the required\
+    \ output file `data/results/data_consistency_report.json` is missing, and the\
+    \ provided script excerpt is truncated before any aggregation or JSON\u2011writing\
+    \ logic, so we cannot confirm it produces the specified keys (`total_workflows`,\
+    \ `valid_workflows`, `logs_found`, `analysis_entries`, `consistency_status`).\
+    \ The task\u2019s core output is therefore not demonstrated."
+T065:
+  c: false
+  h: 35d512502501fe51b1a0e4ed3df1bb718a56eb0e795be6be32a2d8398aa4461f
+  r: "The required file `data/results/reproducibility_report.json` is missing, so\
+    \ no breakdown of discrepancies, hashes, or timestamps is provided. The task\u2019\
+    s core deliverable is absent."
+T067:
+  c: false
+  h: 99db470276d3249a7be659fa37e32e7208b7097aa6f4b7367ecf34354cb92dfc
+  r: "The required output files `data/results/tradeoff_curve.csv` and `data/results/threshold_ci.json`\
+    \ are missing, so there is no evidence that the verification script was run or\
+    \ that invalid workflows were excluded. Without these artifacts the task\u2019\
+    s requirement is not satisfied."
+T068:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `README.md` file or excerpt showing the new \u201CReproducibility\
+    \ and Verification\u201D section is provided; the evidence contains only the task\
+    \ description and specifications, without the required documentation changes.\
+    \ The implementer must add the requested section to the README and supply the\
+    \ updated file."
