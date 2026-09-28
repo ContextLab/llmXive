@@ -1,63 +1,66 @@
-# Quickstart: The Effect of Priming on Prosocial Behavior (Association Study)
+# Quickstart: The Effect of Priming on Prosocial Behavior
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip`
-- Access to GitHub Actions (for CI execution) or a local environment with internet access.
+*   Python 3.11+
+*   `pip`
+*   Internet connection (for API access and package installation)
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    cd projects/PROJ-050-the-effect-of-priming-on-prosocial-behav
-    ```
-
+1.  **Clone the repository** (if not already done).
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
-
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
 
-## Execution Steps
+## Running the Pipeline
 
-### Step 1: Data Ingestion
-Run the ingestion script to fetch, filter, and anonymize data.
+The pipeline is executed in sequential steps.
+
+### Step 1: Ingest and Anonymize
+Fetches data from Hugging Face, classifies threads, and anonymizes users.
 ```bash
 python code/01_ingest.py
 ```
-- **Output**: `data/processed/anonymized.csv`, `data/processed/raw_counts.json`.
-- **Note**: This step may take time depending on the dataset size. It uses streaming to stay within memory limits.
+*Outputs*: `data/raw/hf_dump.jsonl`, `data/processed/anonymized.csv`, `data/processed/raw_counts.json`.
 
-### Step 2: Scoring & Validation
-Run the scoring script to compute sentiment and keyword counts.
+### Step 2: Score Comments
+Computes VADER scores and prosocial intent counts (using distinct lexicon).
 ```bash
 python code/02_score.py
 ```
-- **Output**: `data/processed/scored.csv`, `data/annotations/validation_report.json`.
-- **Note**: This step includes the validation logic for the N=200 sample.
+*Outputs*: `data/processed/scored.csv`.
 
-### Step 3: Statistical Analysis
-Run the analysis script to fit the GLMM.
+### Step 3: Validate (Human Annotation)
+Generates the sample for human annotation and computes Kappa (requires `data/processed/annotations.csv` to be populated by real human annotators).
 ```bash
-python code/03_analyze.py
+python code/03_validate.py
 ```
-- **Output**: `artifacts/results.json`, `artifacts/figures/glmm_plot.png`.
-- **Success Check**: The script will exit with code 0 only if the model converges and `p-value < 0.05`. Otherwise, it will report the specific failure (convergence or significance).
+*Outputs*: `data/processed/validation_report.json`.
 
-### Step 4: Verification
-Run the test suite to ensure all unit tests pass (including T011, T012, T015b).
+### Step 4: Statistical Analysis
+Fits the Linear Mixed Model (without `user_tenure`) and outputs results.
 ```bash
-pytest tests/
+python code/04_analyze.py
+```
+*Outputs*: `data/processed/model_results.json`, `figures/priming_effect.png`.
+
+## Testing
+
+Run the unit tests to ensure logic correctness (including T011 and T012):
+```bash
+pytest tests/unit/
 ```
 
 ## Troubleshooting
 
-- **Convergence Failure**: If the GLMM fails to converge, check the data for outliers or try reducing the sample size (if N is too large) or increasing the number of iterations in `code/03_analyze.py`.
-- **Data Fetching Errors**: If the HuggingFace dataset is unavailable, check the `research.md` for alternative verified sources or ensure internet connectivity.
-- **Memory Errors**: If you encounter OOM errors, ensure `streaming=True` is used in the ingestion step and that no intermediate dataframes are duplicated in memory.
+*   **API Rate Limits**: If `01_ingest.py` fails, wait 60 seconds and retry. The script includes built-in retry logic.
+*   **Convergence Failure**: If the LMM fails to converge, check `code/04_analyze.py` for the fallback optimizer settings.
+*   **Missing Data**: If N < 4,000 per group, the script will log a warning and proceed with available data.
+*   **User Tenure**: Note that `user_tenure` is not included in the model due to data unavailability.

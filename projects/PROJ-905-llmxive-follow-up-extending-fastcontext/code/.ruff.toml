@@ -1,9 +1,5 @@
-# Ruff configuration for llmXive project
-line-length = 88
-target-version = "py311"
-
 [lint]
 select = ["E", "F", "I", "W"]
 
-[lint.isort]
-known-first-party = ["code"]
+[target-version]
+py = "py3"

@@ -1,48 +1,36 @@
-# Ruff configuration for llmXive project
-# Aligns with black formatting and project standards
+# This file provides an alternative entry point for ruff if needed,
+# though pyproject.toml is the primary configuration source.
+# It mirrors the settings in pyproject.toml for environments that
+# prefer a dedicated config file.
 
-[lint]
-# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
-select = ["E", "F", "I", "W"]
+line-length = 88
+target-version = "py311"
 
-# Ignore specific rules if necessary
-ignore = []
-
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude specific files/directories
-extend-exclude = [
-    "__pycache__",
-    ".git",
-    ".venv",
-    "venv",
-    "data",
-    "models",
-    "docs",
-    "build",
-    "dist"
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
 ]
 
-# Line length for linting (must match black)
-line-length = 88
+exclude = [
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "__pycache__",
+]
 
-[lint.per-file-ignores]
-# Ignore specific rules for test files if needed
-"tests/**/*.py" = ["E501"]
-
-[lint.isort]
-# Configuration for import sorting to match black
-known-first-party = ["scripts"]
-force-single-line = false
+[isort]
+known-first-party = ["code", "scripts", "config"]
 force-sort-within-sections = false
-order-by-type = true
-relative-imports-order = "closest-to-furthest"
-
-[format]
-# Black-compatible formatting settings
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+lines-after-imports = 2
+combine-as-imports = true

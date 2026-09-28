@@ -8,12 +8,13 @@
   },
   "outputs": {
     "file": "data/processed/anonymized.csv",
-    "columns": ["comment_id", "thread_id", "user_id_hash", "body", "thread_type", "user_tenure"],
+    "columns": ["comment_id", "thread_id", "user_id_hash", "body", "thread_type", "subreddit"],
     "constraints": [
       "No plaintext usernames",
       "No raw timestamps (created_utc) in output",
       "At least 3 distinct subreddits",
-      "raw_vs_fetched_count metric included in raw_counts.json"
+      "raw_vs_fetched_count metric included in raw_counts.json",
+      "user_tenure is NOT included"
     ]
   }
 }

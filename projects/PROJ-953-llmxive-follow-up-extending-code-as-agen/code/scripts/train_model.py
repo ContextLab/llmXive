@@ -1,6 +1,9 @@
 """
-Train predictive models on structural features to determine the need for dynamic execution.
-Implements Logistic Regression and Random Forest models (CPU-only).
+Train predictive models to determine the need for dynamic execution based on structural features.
+
+This script loads the processed features dataset, splits it into training and validation sets,
+trains Logistic Regression and Random Forest models, and evaluates their performance.
+All operations are CPU-only with fixed random seeds for reproducibility.
 """
 import os
 import sys
@@ -9,266 +12,225 @@ import pickle
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Tuple, Dict, Any, List, Optional
+from typing import Tuple, Dict, Any, Optional
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, f1_score, confusion_matrix
+from sklearn.metrics import classification_report, f1_score, roc_auc_score
 from sklearn.preprocessing import StandardScaler
 import warnings
 
-# Suppress specific warnings for cleaner output during training
-warnings.filterwarnings('ignore', category=UserWarning)
-warnings.filterwarnings('ignore', category=FutureWarning)
+# Suppress specific sklearn warnings for cleaner output
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
 
-# Project paths
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = BASE_DIR / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-MODELS_DIR = BASE_DIR / "models"
-FEATURES_FILE = PROCESSED_DIR / "features.csv"
-
-# Random seed for reproducibility
+# Constants
 RANDOM_SEED = 42
+TARGET_COLUMN = "dynamic_execution_outcome"
+FEATURE_COLUMNS = [
+    "dependency_depth",
+    "cyclomatic_complexity",
+    "lines_of_code",
+    "semantic_complexity_score"
+]
+# Map outcome labels to binary: 1 = Need Dynamic (Fail/Timeout), 0 = Pass
+# Based on FR-003 and FR-005 context: we predict "Need Dynamic Execution" (i.e., likely to fail or timeout)
+# "Pass" -> 0 (Safe to skip dynamic? Or rather, outcome is known safe)
+# "Fail", "Timeout", "Unparseable" -> 1 (Need dynamic/inspection)
+# Note: The specific mapping logic depends on the exact definition of "Need Dynamic".
+# Assuming: We want to predict if the task will NOT pass (Fail/Timeout/Unparseable).
+LABEL_MAPPING = {
+    "Pass": 0,
+    "Fail": 1,
+    "Timeout": 1,
+    "Unparseable": 1
+}
 
-def load_features() -> pd.DataFrame:
-    """Load the features dataset generated in previous steps."""
-    if not FEATURES_FILE.exists():
-        raise FileNotFoundError(f"Features file not found: {FEATURES_FILE}. "
-                                "Please run feature extraction tasks (T019-T024) first.")
-    
-    df = pd.read_csv(FEATURES_FILE)
-    
-    # Ensure required columns exist
-    required_cols = ['dependency_depth', 'cyclomatic_complexity', 'lines_of_code', 
-                     'semantic_complexity_score', 'dynamic_execution_outcome']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in features file: {missing_cols}")
-    
-    # Handle 'Unparseable' tasks if present (they should have been filtered or marked)
-    # For training, we typically exclude unparseable tasks or handle them specifically.
-    # Assuming 'dynamic_execution_outcome' contains 'Pass', 'Fail', 'Timeout', 'Unparseable'
-    # We will filter out 'Unparseable' for model training as they lack structural metrics.
-    parseable_mask = df['dynamic_execution_outcome'] != 'Unparseable'
-    df = df[parseable_mask].reset_index(drop=True)
-    
-    if df.empty:
-        raise ValueError("No parseable tasks found in features dataset for training.")
-    
+def load_features(csv_path: str) -> pd.DataFrame:
+    """Load the features CSV file."""
+    path = Path(csv_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Features file not found at {csv_path}")
+    df = pd.read_csv(path)
     return df
 
-def prepare_train_val_split(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
+def prepare_train_val_split(df: pd.DataFrame, test_size: float = 0.2) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Split data into training and validation sets with fixed random seed.
-    Target variable: 'need_dynamic' derived from 'dynamic_execution_outcome'.
+    Split the dataframe into training and validation sets.
+    Uses a fixed random seed for reproducibility.
     """
-    # Define target: 1 if outcome is 'Fail' or 'Timeout' (needs dynamic check), 0 if 'Pass'
-    # This aligns with the goal: predict if static analysis is insufficient (i.e., dynamic needed)
-    # If the outcome is 'Fail' or 'Timeout', we assume dynamic execution was necessary to catch it.
-    # If 'Pass', static might have been sufficient (or it passed anyway).
-    # We map: Pass -> 0 (No dynamic needed), Fail/Timeout -> 1 (Dynamic needed)
+    # Ensure target column exists
+    if TARGET_COLUMN not in df.columns:
+        raise ValueError(f"Target column '{TARGET_COLUMN}' not found in features.")
     
-    def map_target(outcome: str) -> int:
-        if outcome in ['Fail', 'Timeout']:
-            return 1
-        elif outcome == 'Pass':
-            return 0
-        else:
-            # Should be filtered out already, but just in case
-            return -1
+    # Filter out rows where target is not mappable (e.g., empty strings) if any
+    valid_mask = df[TARGET_COLUMN].isin(LABEL_MAPPING.keys())
+    df_valid = df[valid_mask].copy()
+    
+    if len(df_valid) == 0:
+        raise ValueError("No valid rows found for training after filtering.")
 
-    df['need_dynamic'] = df['dynamic_execution_outcome'].apply(map_target)
-    
-    # Remove any rows where mapping failed (should be none after filtering)
-    df = df[df['need_dynamic'] != -1].reset_index(drop=True)
-    
-    if len(df) < 2:
-        raise ValueError("Insufficient data for train/val split.")
-
-    # Features to use for training
-    feature_cols = ['dependency_depth', 'cyclomatic_complexity', 'lines_of_code', 'semantic_complexity_score']
-    # Ensure no NaNs in features
-    df = df.dropna(subset=feature_cols)
-    
-    X = df[feature_cols].values
-    y = df['need_dynamic'].values
-    
-    # Split with fixed seed
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.2, random_state=RANDOM_SEED, stratify=y if len(np.unique(y)) > 1 else None
+    train_df, val_df = train_test_split(
+        df_valid, 
+        test_size=test_size, 
+        random_state=RANDOM_SEED, 
+        stratify=df_valid[TARGET_COLUMN]
     )
-    
-    return X_train, X_val, y_train, y_val
+    return train_df, val_df
 
-def train_logistic_regression(X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray) -> Tuple[Any, Dict[str, float]]:
-    """Train a Logistic Regression model (CPU-only)."""
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_val_scaled = scaler.transform(X_val)
-    
-    # Train model with fixed seed
+def train_logistic_regression(X_train: np.ndarray, y_train: np.ndarray) -> LogisticRegression:
+    """Train a Logistic Regression model."""
     model = LogisticRegression(
         random_state=RANDOM_SEED, 
         max_iter=1000, 
         solver='lbfgs',
         class_weight='balanced' # Handle potential class imbalance
     )
-    model.fit(X_train_scaled, y_train)
-    
-    # Evaluate
-    y_pred = model.predict(X_val_scaled)
-    report = classification_report(y_val, y_pred, output_dict=True, zero_division=0)
-    
-    metrics = {
-        'model_type': 'LogisticRegression',
-        'val_f1': report['weighted avg']['f1-score'],
-        'val_accuracy': report['accuracy'],
-        'coef': model.coef_.tolist(),
-        'intercept': model.intercept_.tolist(),
-        'feature_names': ['dependency_depth', 'cyclomatic_complexity', 'lines_of_code', 'semantic_complexity_score']
-    }
-    
-    return model, metrics
+    model.fit(X_train, y_train)
+    return model
 
-def train_random_forest(X_train: np.ndarray, y_train: np.ndarray, X_val: np.ndarray, y_val: np.ndarray) -> Tuple[Any, Dict[str, float]]:
-    """Train a Random Forest model (CPU-only)."""
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_val_scaled = scaler.transform(X_val)
-    
-    # Train model with fixed seed
+def train_random_forest(X_train: np.ndarray, y_train: np.ndarray) -> RandomForestClassifier:
+    """Train a Random Forest model."""
     model = RandomForestClassifier(
-        n_estimators=100, 
-        random_state=RANDOM_SEED, 
-        n_jobs=1, # CPU only, single job for reproducibility in this context
-        class_weight='balanced'
+        n_estimators=100,
+        random_state=RANDOM_SEED,
+        class_weight='balanced',
+        n_jobs=-1
     )
-    model.fit(X_train_scaled, y_train)
-    
-    # Evaluate
-    y_pred = model.predict(X_val_scaled)
-    report = classification_report(y_val, y_pred, output_dict, zero_division=0)
-    
+    model.fit(X_train, y_train)
+    return model
+
+def evaluate_model(model, X_test: np.ndarray, y_test: np.ndarray, model_name: str) -> Dict[str, Any]:
+    """Evaluate model performance and return metrics."""
+    y_pred = model.predict(X_test)
+    y_proba = model.predict_proba(X_test)[:, 1] if hasattr(model, "predict_proba") else None
+
+    report = classification_report(y_test, y_pred, output_dict=True)
     metrics = {
-        'model_type': 'RandomForest',
-        'val_f1': report['weighted avg']['f1-score'],
-        'val_accuracy': report['accuracy'],
-        'feature_importances': model.feature_importances_.tolist(),
-        'feature_names': ['dependency_depth', 'cyclomatic_complexity', 'lines_of_code', 'semantic_complexity_score']
+        "model_name": model_name,
+        "f1_score": f1_score(y_test, y_pred),
+        "accuracy": report["accuracy"],
+        "precision": report["1"]["precision"],
+        "recall": report["1"]["recall"],
+        "fpr": 1 - report["0"]["recall"], # False Positive Rate for class 0
     }
     
-    return model, metrics
+    if y_proba is not None:
+        try:
+            metrics["roc_auc"] = roc_auc_score(y_test, y_proba)
+        except ValueError:
+            metrics["roc_auc"] = None # Handle case with only one class
 
-def evaluate_model(model: Any, X_val: np.ndarray, y_val: np.ndarray, model_type: str) -> Dict[str, Any]:
-    """Perform detailed evaluation including confusion matrix."""
-    y_pred = model.predict(X_val)
-    cm = confusion_matrix(y_val, y_pred)
-    report = classification_report(y_val, y_pred, output_dict=True, zero_division=0)
-    
-    # Calculate False Negative Rate (FNR)
-    # FNR = FN / (FN + TP)
-    # In our binary classification: 1 = Fail/Timeout (Need Dynamic), 0 = Pass
-    # False Negative: Predicted 0 (Pass) but actual was 1 (Fail/Timeout) -> Critical for safety
-    tn, fp, fn, tp = cm.ravel() if cm.shape == (2, 2) else (0, 0, 0, 0)
-    fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
-    
-    return {
-        'model_type': model_type,
-        'confusion_matrix': {'TN': int(tn), 'FP': int(fp), 'FN': int(fn), 'TP': int(tp)},
-        'false_negative_rate': float(fnr),
-        'classification_report': report
-    }
+    return metrics
 
-def calculate_correlation_coefficient(df: pd.DataFrame, feature_cols: List[str], target_col: str) -> Dict[str, float]:
-    """Calculate Pearson correlation between each feature and the target."""
-    correlations = {}
-    for col in feature_cols:
-        if col in df.columns and target_col in df.columns:
-            corr = df[col].corr(df[target_col])
-            correlations[col] = float(corr) if not np.isnan(corr) else 0.0
-    return correlations
-
-def run_training_pipeline():
-    """Main execution pipeline for model training."""
-    print(f"Loading features from {FEATURES_FILE}...")
-    df = load_features()
-    print(f"Loaded {len(df)} parseable tasks.")
+def calculate_correlation_coefficient(features_df: pd.DataFrame, target_series: pd.Series) -> float:
+    """
+    Calculate the correlation coefficient between structural features and execution necessity.
+    Returns the average absolute correlation across all numeric features.
+    """
+    # Select only numeric columns that are in the feature list
+    numeric_features = features_df.select_dtypes(include=[np.number]).columns
+    correlations = []
     
+    for col in numeric_features:
+        if col != TARGET_COLUMN:
+            corr = features_df[col].corr(target_series)
+            if not np.isnan(corr):
+                correlations.append(abs(corr))
+    
+    return np.mean(correlations) if correlations else 0.0
+
+def run_training_pipeline(csv_path: str, output_dir: str) -> Dict[str, Any]:
+    """
+    Main pipeline: Load data, split, train models, evaluate, and save results.
+    """
+    print(f"Loading features from {csv_path}...")
+    df = load_features(csv_path)
+    
+    # Prepare data
     print("Preparing train/validation split...")
-    X_train, X_val, y_train, y_val = prepare_train_val_split(df)
-    print(f"Training set size: {len(y_train)}, Validation set size: {len(y_val)}")
+    train_df, val_df = prepare_train_val_split(df)
     
-    # Scale features
+    # Map labels
+    train_df['label'] = train_df[TARGET_COLUMN].map(LABEL_MAPPING)
+    val_df['label'] = val_df[TARGET_COLUMN].map(LABEL_MAPPING)
+    
+    # Prepare features and targets
+    # Ensure all feature columns exist
+    missing_cols = [c for c in FEATURE_COLUMNS if c not in train_df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required feature columns: {missing_cols}")
+    
+    X_train = train_df[FEATURE_COLUMNS].values
+    y_train = train_df['label'].values
+    X_val = val_df[FEATURE_COLUMNS].values
+    y_val = val_df['label'].values
+    
+    # Standardize features
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_val_scaled = scaler.transform(X_val)
     
-    results = {
-        'random_seed': RANDOM_SEED,
-        'dataset_size': len(df),
-        'train_size': len(y_train),
-        'val_size': len(y_val),
-        'models': {}
+    # Train models
+    print("Training Logistic Regression...")
+    lr_model = train_logistic_regression(X_train_scaled, y_train)
+    
+    print("Training Random Forest...")
+    rf_model = train_random_forest(X_train_scaled, y_train)
+    
+    # Evaluate
+    print("Evaluating models...")
+    lr_metrics = evaluate_model(lr_model, X_val_scaled, y_val, "LogisticRegression")
+    rf_metrics = evaluate_model(rf_model, X_val_scaled, y_val, "RandomForest")
+    
+    # Calculate correlation
+    corr_coef = calculate_correlation_coefficient(df, df['label'])
+    
+    # Save artifacts
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Save models and scaler
+    with open(output_path / "logistic_regression.pkl", "wb") as f:
+        pickle.dump(lr_model, f)
+    with open(output_path / "random_forest.pkl", "wb") as f:
+        pickle.dump(rf_model, f)
+    with open(output_path / "scaler.pkl", "wb") as f:
+        pickle.dump(scaler, f)
+    
+    # Save metrics report
+    report = {
+        "random_seed": RANDOM_SEED,
+        "train_size": len(train_df),
+        "val_size": len(val_df),
+        "logistic_regression": lr_metrics,
+        "random_forest": rf_metrics,
+        "correlation_coefficient": float(corr_coef),
+        "feature_columns": FEATURE_COLUMNS,
+        "label_mapping": LABEL_MAPPING
     }
     
-    # Train Logistic Regression
-    print("\nTraining Logistic Regression...")
-    lr_model, lr_metrics = train_logistic_regression(X_train, y_train, X_val, y_val)
-    lr_eval = evaluate_model(lr_model, X_val_scaled, y_val, 'LogisticRegression')
-    results['models']['LogisticRegression'] = {**lr_metrics, **lr_eval}
-    print(f"LR F1: {lr_metrics['val_f1']:.4f}, FNR: {lr_eval['false_negative_rate']:.4f}")
+    report_path = output_path / "model_training_report.json"
+    with open(report_path, "w") as f:
+        json.dump(report, f, indent=2)
     
-    # Train Random Forest
-    print("\nTraining Random Forest...")
-    rf_model, rf_metrics = train_random_forest(X_train, y_train, X_val, y_val)
-    rf_eval = evaluate_model(rf_model, X_val_scaled, y_val, 'RandomForest')
-    results['models']['RandomForest'] = {**rf_metrics, **rf_eval}
-    print(f"RF F1: {rf_metrics['val_f1']:.4f}, FNR: {rf_eval['false_negative_rate']:.4f}")
+    print(f"Training complete. Report saved to {report_path}")
+    print(f"Logistic Regression F1: {lr_metrics['f1_score']:.4f}")
+    print(f"Random Forest F1: {rf_metrics['f1_score']:.4f}")
     
-    # Calculate correlations
-    feature_cols = ['dependency_depth', 'cyclomatic_complexity', 'lines_of_code', 'semantic_complexity_score']
-    df['need_dynamic'] = df['dynamic_execution_outcome'].apply(lambda x: 1 if x in ['Fail', 'Timeout'] else 0)
-    correlations = calculate_correlation_coefficient(df, feature_cols, 'need_dynamic')
-    results['feature_correlations'] = correlations
-    print("\nFeature Correlations:", correlations)
-    
-    # Save results
-    results_file = PROCESSED_DIR / "model_training_results.json"
-    with open(results_file, 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"\nTraining results saved to {results_file}")
-    
-    # Save best model (Random Forest usually performs better on this type of data)
-    # We will save the RF model and the scaler
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    model_path = MODELS_DIR / "decision_boundary.pkl"
-    
-    model_artifact = {
-        'model': rf_model,
-        'scaler': scaler,
-        'model_type': 'RandomForest',
-        'best_f1': rf_metrics['val_f1'],
-        'fnr': rf_eval['false_negative_rate']
-    }
-    
-    with open(model_path, 'wb') as f:
-        pickle.dump(model_artifact, f)
-    print(f"Best model saved to {model_path}")
-    
-    return results
+    return report
 
 def main():
-    """Entry point for the script."""
-    try:
-        run_training_pipeline()
-        print("\nTraining pipeline completed successfully.")
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
+    # Default paths relative to project root
+    project_root = Path(__file__).resolve().parents[2]
+    features_path = project_root / "data" / "processed" / "features.csv"
+    models_dir = project_root / "models"
+    
+    if not features_path.exists():
+        print(f"Error: Features file not found at {features_path}")
         sys.exit(1)
-    except Exception as e:
-        print(f"Unexpected error during training: {e}")
-        sys.exit(1)
+    
+    run_training_pipeline(str(features_path), str(models_dir))
 
 if __name__ == "__main__":
     main()

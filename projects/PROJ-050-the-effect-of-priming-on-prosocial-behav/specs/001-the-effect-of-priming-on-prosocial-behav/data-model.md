@@ -1,56 +1,44 @@
-# Data Model: The Effect of Priming on Prosocial Behavior (Association Study)
+# Data Model: The Effect of Priming on Prosocial Behavior
 
-## Entity Definitions
+## Entities & Relationships
 
-### 1. Thread
-Represents the parent post that may contain the "prime".
-- **Attributes**:
-  - `thread_id` (str): Unique identifier (e.g., `t3_xxxxx`).
-  - `title` (str): The text of the post.
-  - `subreddit` (str): Subreddit name (e.g., `AskReddit`).
-  - `thread_type` (str): Classification result (`'Prime'` or `'Control'`).
-    - *Logic*: `Prime` if `title` matches regex `/(thank|help|support|care)/i`.
-  - `created_utc` (float): Unix timestamp of creation (used for tenure calculation, **then discarded**).
+### Thread (Parent)
+Represents the Reddit post that provides the "Prime" or "Control" condition.
+*   `thread_id` (string): Unique identifier (e.g., `t3_abc123`).
+*   `title` (string): The title of the post (used for regex classification).
+*   `subreddit` (string): The subreddit name (e.g., "AskReddit").
+*   `thread_type` (string): Enum: `['Prime', 'Control']`. Derived from title regex.
 
-### 2. Comment
-Represents the user response being analyzed.
-- **Attributes**:
-  - `comment_id` (str): Unique identifier (e.g., `t1_xxxxx`).
-  - `user_id` (str): SHA-256 hash of the original username (anonymized).
-  - `thread_id` (str): Foreign key to `Thread`.
-  - `body` (str): The text of the comment.
-  - `vader_score` (float): Compound sentiment score from VADER (-1 to 1).
-  - `prosocial_keyword_count` (int): Count of prosocial keywords in `body`.
-  - `user_tenure` (float): Days between user creation (or first comment) and comment creation. **This is a derived relative metric; raw timestamps are not stored.**
-  - `subreddit` (str): Subreddit name (denormalized for the model).
+### Comment (Child)
+Represents the user reply, the unit of analysis.
+*   `comment_id` (string): Unique identifier (e.g., `t1_xyz789`).
+*   `user_id` (string): SHA-256 hash of the original username.
+*   `thread_id` (string): Foreign key to `Thread`.
+*   `text` (string): The comment body (truncated or cleaned if necessary).
+*   `vader_compound` (float): VADER sentiment score.
+*   `prosocial_intent_score` (float): Count of prosocial words from a **distinct** lexicon (excluding prime words).
+*   `thread_length` (integer): Character or word count of the comment.
+*   **Note**: `user_tenure` is **removed** from the dataset and model due to data infeasibility.
 
 ## Data Flow
 
-1.  **Raw Ingestion**: `data/raw/pushshift_raw.jsonl` (or similar).
-2.  **Anonymization & Filtering**:
-    - Filter by subreddit and date.
-    - Hash `user_id`.
-    - Calculate `user_tenure` using `created_utc` and `author_created_utc` (or proxy).
-    - **Discard** `created_utc` and `author_created_utc` from the output.
-    - Output: `data/processed/anonymized.csv`.
-3.  **Scoring**:
-    - Apply VADER and Keyword Count.
-    - Output: `data/processed/scored.csv`.
-4.  **Annotation Sample**:
-    - Randomly select a subset of rows.
-    - Output: `data/annotations/sample_200.csv` (for manual review) and `data/annotations/labels.json` (simulated or loaded).
-5.  **Analysis**:
-    - Load `scored.csv`.
-    - Fit GLMM.
-    - Output: `artifacts/results.json`.
+1.  **Raw Ingestion**: `data/raw/hf_dump.jsonl` (Original Hugging Face data).
+2.  **Anonymization**: `data/processed/anonymized.csv` (SHA-256 hashed, timestamps removed).
+3.  **Scoring**: `data/processed/scored.csv` (Added VADER and distinct prosocial counts).
+4.  **Validation**: `data/processed/annotations.csv` (Human labels).
+5.  **Analysis**: `data/processed/model_results.json` (LMM coefficients, p-values).
 
-## Data Constraints
+## Constraints & Invariants
 
-- **Anonymity**: `user_id` must never appear in plaintext.
-- **Missing Data**: If `user_tenure` cannot be calculated (missing creation date), the value will be set to `NaN` and the model will handle missingness (e.g., imputation with mean or exclusion, documented in code).
-- **N Limits**: If `Prime` or `Control` groups have < 100 samples, the model will fail to converge. The pipeline will report this as a "Data Insufficiency" error.
+*   **Uniqueness**: `comment_id` is unique.
+*   **Referential Integrity**: Every `comment.thread_id` must exist in `Thread`.
+*   **Privacy**: No raw usernames or exact timestamps in `data/processed`.
+*   **Completeness**: `prosocial_intent_score` >= 0.
+*   **Range**: `vader_compound` in [-1, 1].
+*   **Lexicon Independence**: The prosocial lexicon **must not** contain the prime words ('thank', 'help', 'support', 'care').
 
-## Schema Validation
+## Derived Fields
 
-The `data/processed/scored.csv` must conform to `contracts/scored_data.schema.yaml`.
-The `artifacts/results.json` must conform to `contracts/model_results.schema.yaml`.
+*   `thread_type`: `1` if `re.search(r'(thank|help|support|care)', title, re.I)` else `0`.
+*   `prosocial_intent_score`: `sum(1 for word in text.split() if word.lower() in DISTINCT_LEXICON)`.
+*   `thread_length`: `len(text)`.

@@ -1,82 +1,70 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Results Schema
-description: "Schema for the JSON output of the statistical analysis."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LMM Analysis Results"
+description: "Schema for the output of the Linear Mixed Model analysis."
 type: object
 properties:
-  model_summary:
+  model_info:
     type: object
-    description: "Summary of the LMM fit."
     properties:
       formula:
         type: string
-        description: "The formula used for the model."
+        description: "The LMM formula used."
+      converged:
+        type: boolean
+        description: "Whether the model converged."
       n_obs:
         type: integer
         description: "Number of observations."
       n_groups:
-        type: integer
-        description: "Number of random effect groups (users)."
-      AIC:
-        type: number
-        description: "Akaike Information Criterion."
-      BIC:
-        type: number
-        description: "Bayesian Information Criterion."
-      log_likelihood:
-        type: number
-        description: "Log-likelihood value."
+        type: object
+        description: "Number of groups per random effect."
+        properties:
+          subreddit:
+            type: integer
+          user_id:
+            type: integer
+    required:
+      - formula
+      - converged
+      - n_obs
   fixed_effects:
+    type: array
+    description: "Fixed effect coefficients and statistics."
+    items:
+      type: object
+      properties:
+        term:
+          type: string
+        estimate:
+          type: number
+        std_error:
+          type: number
+        t_value:
+          type: number
+        p_value:
+          type: number
+      required:
+        - term
+        - estimate
+        - p_value
+  primary_hypothesis:
     type: object
-    description: "Fixed effect coefficients."
+    description: "Result for the primary hypothesis (thread_type effect)."
     properties:
-      intercept:
-        type: object
-        properties:
-          coef:
-            type: number
-          std_err:
-            type: number
-          p_value:
-            type: number
-      thread_type:
-        type: object
-        properties:
-          coef:
-            type: number
-          std_err:
-            type: number
-          p_value:
-            type: number
-    required:
-      - intercept
-      - thread_type
-  random_effects:
-    type: object
-    description: "Random effect variance components."
-    properties:
-      user_id_variance:
+      term:
+        type: string
+        const: "thread_type"
+      p_value:
         type: number
-        minimum: 0
-      residual_variance:
-        type: number
-        minimum: 0
+      is_significant:
+        type: boolean
+        description: "True if p_value < 0.05."
     required:
-      - user_id_variance
-      - residual_variance
-  validation:
-    type: object
-    description: "Validation metrics."
-    properties:
-      kappa:
-        type: number
-        description: "Cohen's Kappa score."
-        minimum: 0
-        maximum: 1
-    required:
-      - kappa
+      - term
+      - p_value
+      - is_significant
 required:
-  - model_summary
+  - model_info
   - fixed_effects
-  - random_effects
-  - validation
+  - primary_hypothesis
 additionalProperties: false

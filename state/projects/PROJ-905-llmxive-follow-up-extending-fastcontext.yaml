@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T22:43:35.826168Z'
-current_stage: in_progress
+current_stage: planned
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-905-llmxive-follow-up-extending-fastcontext
-last_run_id: 9e6e3fba-4b5f-4691-ab4f-96685c99ff3b
+last_run_id: 8fcaf731-1365-4533-aafc-7d9b02af243a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-905-llmxive-follow-up-extending-fastcontext/specs/001-llmxive-follow-up-extending-fastcontext
 title: 'llmXive follow-up: extending "FastContext: Training Efficient Repository Explorer
   for Coding Agents"'
-updated_at: '2026-07-26T20:11:15.297580Z'
+updated_at: '2026-09-28T19:05:42.253664Z'

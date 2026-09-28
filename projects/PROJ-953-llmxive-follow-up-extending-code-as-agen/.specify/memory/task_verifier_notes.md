@@ -15,3 +15,6 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T025** — No artifact (e.g., updated script, test, or modified `features.csv` with validation logic) was provided, and there is no evidence of code that checks for missing metric values. Without a concrete implementation or proof that the CSV now contains no missing entries, the task requirement is not satisfied.
 - **T028** — declared artifact(s) missing/empty/invalid: scripts/train_model.py
 - **T031** — declared artifact(s) missing/empty/invalid: data/processed/threshold_sweep.json
+- **T030** — declared artifact(s) missing/empty/invalid: models/decision_boundary.pkl
+- **T032** — No code, script, or configuration file implementing the “unsafe for static‑only classification” flagging logic is present; the only evidence is a high‑level specification without any concrete artifact. The required implementation artifact is missing.
+- **T033** — No artifact containing the calculated correlation coefficient (e.g., a CSV, JSON, or report with the numeric value and any supporting analysis) was provided. The claim lacks any actual output file or code that performs the correlation computation, so the requirement is not satisfied.

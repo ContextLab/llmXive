@@ -1,60 +1,47 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Anonymized Reddit Comments Dataset
-description: "Schema for the processed anonymized dataset used in the priming study."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Anonymized Reddit Comment Dataset"
+description: "Schema for the processed, anonymized Reddit comments used in the priming study. Note: user_tenure is removed."
 type: object
 properties:
   comment_id:
     type: string
-    description: "Unique identifier for the comment."
-  user_id_hash:
+    description: "Unique identifier for the comment (e.g., t1_xyz)."
+  user_id:
     type: string
-    description: "SHA-256 hash of the user ID."
+    description: "SHA-256 hash of the original username."
     pattern: "^[a-f0-9]{64}$"
   thread_id:
     type: string
-    description: "Parent post ID."
-  body:
-    type: string
-    description: "The text content of the comment."
+    description: "Unique identifier for the parent thread."
   thread_type:
     type: string
+    description: "Classification of the thread."
     enum:
       - "Prime"
       - "Control"
-    description: "Classification of the thread context."
-  prosocial_count:
-    type: integer
-    minimum: 0
-    description: "Count of prosocial keywords found."
+  text:
+    type: string
+    description: "The text content of the comment."
   vader_compound:
     type: number
+    description: "VADER sentiment compound score."
     minimum: -1
     maximum: 1
-    description: "VADER compound sentiment score."
-  vader_pos:
-    type: number
+  prosocial_intent_score:
+    type: integer
+    description: "Count of prosocial keywords from a distinct lexicon (excluding prime words)."
     minimum: 0
-    maximum: 1
-    description: "VADER positive proportion."
-  vader_neu:
-    type: number
+  thread_length:
+    type: integer
+    description: "Character length of the comment."
     minimum: 0
-    maximum: 1
-    description: "VADER neutral proportion."
-  vader_neg:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "VADER negative proportion."
 required:
   - comment_id
-  - user_id_hash
+  - user_id
   - thread_id
-  - body
   - thread_type
-  - prosocial_count
+  - text
   - vader_compound
-  - vader_pos
-  - vader_neu
-  - vader_neg
+  - prosocial_intent_score
+  - thread_length
 additionalProperties: false

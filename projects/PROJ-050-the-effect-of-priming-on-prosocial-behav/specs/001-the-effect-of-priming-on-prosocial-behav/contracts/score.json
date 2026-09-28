@@ -3,14 +3,17 @@
   "description": "Contract for the scoring pipeline",
   "inputs": {
     "source": "data/processed/anonymized.csv",
-    "lexicon": "prosocial_lexicon.txt",
-    "sentiment_tool": "VADER"
+    "lexicon": "distinct_prosocial_lexicon.txt",
+    "sentiment_tool": "VADER",
+    "constraints": [
+      "Lexicon MUST NOT contain prime words: 'thank', 'help', 'support', 'care'"
+    ]
   },
   "outputs": {
     "file": "data/processed/scored.csv",
-    "columns": ["comment_id", "thread_id", "user_id_hash", "body", "thread_type", "vader_compound", "vader_pos", "vader_neu", "vader_neg", "prosocial_count"],
+    "columns": ["comment_id", "thread_id", "user_id_hash", "body", "thread_type", "vader_compound", "vader_pos", "vader_neu", "vader_neg", "prosocial_intent_score"],
     "validation": {
-      "file": "data/validation/gold_standard.csv",
+      "file": "data/processed/annotations.csv",
       "metric": "Cohen's Kappa"
     }
   }

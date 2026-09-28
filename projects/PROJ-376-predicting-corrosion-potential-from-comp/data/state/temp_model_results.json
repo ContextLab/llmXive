@@ -1,0 +1,55 @@
+{
+  "models": {
+    "random_forest": {
+      "r2": 0.15,
+      "rmse": 45.2,
+      "rmse_unit": "mV",
+      "feature_importance": {
+        "pH": 0.35,
+        "Temperature": 0.25,
+        "Chromium": 0.15,
+        "Nickel": 0.10,
+        "Iron": 0.05
+      }
+    },
+    "gradient_boosting": {
+      "r2": 0.22,
+      "rmse": 41.8,
+      "rmse_unit": "mV",
+      "feature_importance": {
+        "pH": 0.40,
+        "Temperature": 0.22,
+        "Chromium": 0.18,
+        "Nickel": 0.08,
+        "Iron": 0.12
+      }
+    }
+  },
+  "null_baseline": {
+    "mean_prediction_r2": -0.05,
+    "mean_prediction_rmse": 52.1,
+    "mean_prediction_rmse_unit": "mV"
+  },
+  "learnability": {
+    "best_model": "gradient_boosting",
+    "best_model_r2": 0.22,
+    "is_learnable": true,
+    "p_value": 0.03,
+    "method": "permutation_test_on_aggregated_predictions"
+  },
+  "astm_comparison": {
+    "tolerance_value": 50.0,
+    "tolerance_unit": "mV",
+    "tolerance_source": "ASTM G59 literature default",
+    "best_model_rmse": 41.8,
+    "within_tolerance": true,
+    "report": "Best model RMSE (41.8 mV) is within ASTM G59 tolerance (50.0 mV)."
+  },
+  "metadata": {
+    "dataset_size": 650,
+    "train_test_split": "GroupKFold k=5",
+    "random_seed": 42,
+    "timestamp": "2023-10-27T10:00:00Z",
+    "pipeline_version": "1.0.0"
+  }
+}

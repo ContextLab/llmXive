@@ -1,14 +1,14 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "GLMM Model Results Schema"
-description: "Schema for the output of the Generalized Linear Mixed Model analysis."
+title: "LMM Model Results Schema"
+description: "Schema for the output of the Linear Mixed Model analysis. Note: user_tenure is removed from the model."
 type: "object"
 properties:
   model_formula:
     type: "string"
-    description: "The formula used for the GLMM."
+    description: "The formula used for the LMM (without user_tenure)."
   model_family:
     type: "string"
-    enum: ["Poisson", "NegativeBinomial"]
+    enum: ["Gaussian"]
     description: "Distribution family used."
   convergence_status:
     type: "string"
@@ -32,7 +32,7 @@ properties:
             type: "number"
             minimum: 0.0
             maximum: 1.0
-            description: "P-value for the thread_type effect."
+            description: "P-value for the thread_type effect (associational)."
         required:
           - estimate
           - std_error
@@ -50,20 +50,6 @@ properties:
           - estimate
           - std_error
           - p_value
-      user_tenure:
-        type: "object"
-        properties:
-          estimate:
-            type: "number"
-          std_error:
-            type: "number"
-          p_value:
-            type: "number"
-        required:
-          - estimate
-          - std_error
-          - p_value
-        description: "Optional if data missing."
     required:
       - thread_type
       - thread_length
@@ -81,7 +67,7 @@ properties:
       - user_id_variance
   success:
     type: "boolean"
-    description: "True if converged and p-value < 0.05."
+    description: "True if converged and p-value < 0.05 (associational significance)."
 required:
   - model_formula
   - model_family

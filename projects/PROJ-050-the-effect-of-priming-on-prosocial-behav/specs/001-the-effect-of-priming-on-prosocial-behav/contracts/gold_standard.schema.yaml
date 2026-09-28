@@ -8,21 +8,14 @@ properties:
   rater_id:
     type: "string"
     description: "Unique identifier for the human rater."
-  label_prosocial:
+  label_prosocial_intent:
     type: "integer"
     enum:
       - 0
       - 1
-    description: "Binary label for prosocial action."
-  label_neg:
-    type: "integer"
-    enum:
-      - 0
-      - 1
-    description: "Binary label for negative sentiment."
+    description: "Binary label for prosocial intent."
 required:
   - comment_id
   - rater_id
-  - label_prosocial
-  - label_neg
+  - label_prosocial_intent
 additionalProperties: false

@@ -1,25 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides only a textual description of the required folder hierarchy,
-    but no actual artifact (e.g., a directory listing, screenshot, or repository view)
-    demonstrating that the `code/`, `data/`, `data/raw/`, `data/processed/`, `data/logs/`,
-    `state/`, `contracts/`, `config/`, `code/data/`, `code/models/`, `code/utils/`,
-    and `code/tests/` directories have been created. Without concrete evidence of
-    these directories existing, the task requirement is not satisfied.
-T007:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code files or class definitions for `AlloyRecord`, `EnvironmentRecord`, or
-    `CorrosionMeasurement` were provided; the artifact section contains no concrete
-    implementation, so the required data model classes are missing.
-T008:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No configuration files, scripts, or documentation for managing random seeds and
-    file paths were provided; the claim lacks any tangible artifact demonstrating
-    that environment configuration management has been set up. The required setup
-    is missing.
 T014:
   c: false
   h: 35688c093cd19527092260ecbac388114910d20dabc1b10ce279a6ca4901f73f

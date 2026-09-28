@@ -1,14 +1,17 @@
 status: none
-intent: download pushshift reddit comment dataset python package psaw pushshift-py
-  python package dataset
+intent: download pushshift reddit comments dataset from HuggingFace python package
+  dataset
 required_fields:
 - comment_id
-- subreddit
-- created_utc
-- author
 - body
+- author
+- created_utc
+- subreddit
+- score
+- parent_id
 - link_id
-- submission_title
-cache_key: 85ef350e64c63237b5b220ffacd75c21d2d54eb8da785f14970d4d8e2b8ea60f
-searched_at: '2026-09-20T10:42:21.446987+00:00'
+- title
+- author_created_utc
+cache_key: 93322c2cb9d468c91e81c1266fc96ad3f75fb4bb28f2333a1c29ba6d0bc3f06d
+searched_at: '2026-09-28T19:25:03.519279+00:00'
 retry_count: 1

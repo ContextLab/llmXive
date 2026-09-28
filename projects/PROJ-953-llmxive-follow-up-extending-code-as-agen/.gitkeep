@@ -1,1 +1,2 @@
-# This file ensures the root directory is tracked if needed.
+# This file ensures the directory exists in the repository.
+# No actual content is needed here.

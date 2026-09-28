@@ -13,7 +13,7 @@ This project implements a comparative assessment of three lightweight Uncertaint
 **Primary Dependencies**: `torch` (CPU-only build), `gpytorch` (for Sparse GP), `pandas`, `numpy`, `scikit-learn`, `datasets` (Hugging Face), `pyyaml`, `pytest`, `scipy`  
 **Storage**: Local file system (`data/raw`, `data/processed`, `results/`) for intermediate CSVs/Parquets and model checkpoints.  
 **Testing**: `pytest` with `conftest.py` for fixtures; integration tests for pipeline timeout enforcement.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multiple CPU cores, several GB RAM).  
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: Total pipeline runtime ≤ 5 hours; Deep Ensemble training ≤ 30 mins; UQ evaluation ≤ 20 mins per property.  
 **Constraints**: 
@@ -72,7 +72,7 @@ code/
 │   └── validation.py        # Generates validation_report.json
 ├── models/
 │   ├── baseline_nn.py       # A neural network with a heteroscedastic head and a configurable number of hidden layers., ≤10k params
-│   ├── deep_ensemble.py     # 5x NN training
+│   ├── deep_ensemble.py     # x NN training
 │   ├── mc_dropout.py        # MC Dropout inference wrapper
 │   └── sparse_gp.py         # PCA + Sparse GP with GPyTorch
 ├── eval/

@@ -1,243 +1,373 @@
 """
-Configuration management module for the corrosion potential prediction pipeline.
-Handles random seeds, file paths, and environment configuration.
-"""
+Environment configuration management for random seeds and file paths.
 
+This module provides a centralized configuration system for the corrosion prediction
+pipeline, handling random seed management, path resolution, and configuration
+persistence.
+"""
 import os
 import random
 import yaml
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-from dataclasses import dataclass, field
-
+from dataclasses import dataclass, field, asdict
 from utils.logging import get_logger
 from utils.exceptions import CorrosionPipelineError
 
 logger = get_logger(__name__)
 
+
 @dataclass
 class ProjectConfig:
-    """Holds all project-wide configuration settings."""
-    random_seeds: Dict[str, int] = field(default_factory=dict)
-    file_paths: Dict[str, str] = field(default_factory=dict)
-    data_sources: Dict[str, Any] = field(default_factory=dict)
-    processing: Dict[str, Any] = field(default_factory=dict)
-    model_training: Dict[str, Any] = field(default_factory=dict)
-    validation: Dict[str, Any] = field(default_factory=dict)
-
+    """Dataclass holding all project configuration parameters."""
+    
+    # Random seed configuration
+    random_seed: int = 42
+    
+    # Path configurations
+    project_root: str = ""
+    data_root: str = "data"
+    code_root: str = "code"
+    config_root: str = "config"
+    state_root: str = "state"
+    contracts_root: str = "contracts"
+    logs_root: str = "data/logs"
+    
+    # Subdirectory paths (relative to data_root)
+    data_raw: str = "data/raw"
+    data_processed: str = "data/processed"
+    data_figures: str = "data/figures"
+    data_interpretability: str = "data/processed/interpretability"
+    logs_diagnostics: str = "data/logs/diagnostics"
+    
+    # Specific file paths (relative to their root)
+    pipeline_log: str = "data/logs/pipeline.log"
+    count_report: str = "data/logs/diagnostics/count_report.txt"
+    split_validation: str = "data/logs/split_validation.json"
+    model_results: str = "data/processed/model_results.json"
+    processed_dataset: str = "data/processed/corrosion_dataset.parquet"
+    split_indices: str = "data/processed/split_indices.json"
+    verified_datasets_config: str = "config/verified_datasets.yaml"
+    astm_tolerance_config: str = "config/astm_g59_tolerance.yaml"
+    
+    # Feature flags
+    use_streaming: bool = True
+    strict_validation: bool = True
+    log_all_exclusions: bool = True
+    
+    # Model training parameters
+    random_forest_n_estimators: int = 100
+    gradient_boosting_n_estimators: int = 100
+    groupkfold_k: int = 5
+    permutation_test_permutations: int = 1000
+    
+    # Data thresholds
+    minimum_records: int = 500
+    minimum_alloy_designations: int = 10
+    
     def __post_init__(self):
-        # Set defaults if not provided
-        if not self.random_seeds:
-            self.random_seeds = {
-                'global_seed': 42,
-                'train_test_split_seed': 42,
-                'model_training_seed': 42,
-                'permutation_test_seed': 42
-            }
-        if not self.file_paths:
-            self.file_paths = {
-                'raw_data_dir': 'data/raw',
-                'processed_data_dir': 'data/processed',
-                'log_dir': 'data/logs',
-                'state_dir': 'state',
-                'figures_dir': 'figures',
-                'processed_dataset_path': 'data/processed/corrosion_dataset.parquet',
-                'model_results_path': 'data/processed/model_results.json',
-                'pipeline_log_path': 'data/logs/pipeline.log'
-            }
+        """Initialize project_root if not set."""
+        if not self.project_root:
+            # Try to detect from current working directory
+            self.project_root = str(Path.cwd())
+            logger.info(f"Auto-detected project root: {self.project_root}")
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert config to dictionary."""
+        return asdict(self)
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ProjectConfig":
+        """Create config from dictionary."""
+        return cls(**data)
+
 
 class ConfigManager:
-    """Manages loading, saving, and accessing project configuration."""
-
-    _instance: Optional['ConfigManager'] = None
+    """Manages configuration loading, saving, and retrieval."""
+    
+    _instance = None
     _config: Optional[ProjectConfig] = None
-
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-
+    
     def __init__(self):
-        if self._config is None:
-            self._config = self._load_config()
-
+        if self._instance is not None:
+            raise RuntimeError("ConfigManager is singleton. Use get_config() instead.")
+        
+        self._config = None
+        self._config_path: Optional[Path] = None
+        
     @classmethod
-    def _load_config(cls, config_path: Optional[str] = None) -> ProjectConfig:
-        """Load configuration from YAML file."""
+    def get_instance(cls) -> "ConfigManager":
+        """Get singleton instance."""
+        if cls._instance is None:
+            cls._instance = ConfigManager()
+        return cls._instance
+    
+    def initialize(self, config_path: Optional[Path] = None) -> ProjectConfig:
+        """
+        Initialize configuration from file or defaults.
+        
+        Args:
+            config_path: Path to YAML config file. If None, uses defaults.
+        
+        Returns:
+            Loaded or default ProjectConfig instance.
+        """
         if config_path is None:
-            config_path = "config/pipeline_config.yaml"
-
-        config_path = Path(config_path)
-
-        if not config_path.exists():
-            raise CorrosionPipelineError(
-                f"Configuration file not found: {config_path}. "
-                "Please ensure config/pipeline_config.yaml exists."
-            )
-
-        try:
-            with open(config_path, 'r', encoding='utf-8') as f:
-                config_data = yaml.safe_load(f)
-
-            return ProjectConfig(
-                random_seeds=config_data.get('random_seeds', {}),
-                file_paths=config_data.get('file_paths', {}),
-                data_sources=config_data.get('data_sources', {}),
-                processing=config_data.get('processing', {}),
-                model_training=config_data.get('model_training', {}),
-                validation=config_data.get('validation', {})
-            )
-        except yaml.YAMLError as e:
-            raise CorrosionPipelineError(f"Failed to parse config file: {e}")
-
-    def get_config(self) -> ProjectConfig:
-        """Return the current configuration."""
+            # Default path
+            config_path = Path("config/pipeline_config.yaml")
+        else:
+            config_path = Path(config_path)
+        
+        self._config_path = config_path
+        
+        if config_path.exists():
+            logger.info(f"Loading configuration from {config_path}")
+            try:
+                with open(config_path, "r") as f:
+                    config_data = yaml.safe_load(f)
+                self._config = ProjectConfig.from_dict(config_data)
+            except Exception as e:
+                logger.warning(f"Failed to load config from {config_path}: {e}")
+                logger.info("Using default configuration")
+                self._config = ProjectConfig()
+        else:
+            logger.info(f"Config file {config_path} not found. Using defaults.")
+            self._config = ProjectConfig()
+        
         return self._config
+    
+    def get_config(self) -> ProjectConfig:
+        """Get current configuration."""
+        if self._config is None:
+            self.initialize()
+        return self._config
+    
+    def save_config(self, config: Optional[ProjectConfig] = None, 
+                   path: Optional[Path] = None) -> Path:
+        """
+        Save configuration to YAML file.
+        
+        Args:
+            config: Config to save. If None, uses current config.
+            path: Output path. If None, uses default path.
+        
+        Returns:
+            Path to saved config file.
+        """
+        if config is None:
+            config = self.get_config()
+        
+        if path is None:
+            if self._config_path is None:
+                path = Path("config/pipeline_config.yaml")
+            else:
+                path = self._config_path
+        else:
+            path = Path(path)
+        
+        # Ensure directory exists
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(path, "w") as f:
+            yaml.dump(config.to_dict(), f, default_flow_style=False, indent=2)
+        
+        logger.info(f"Configuration saved to {path}")
+        return path
 
-    def update_config(self, updates: Dict[str, Any]):
-        """Update configuration with new values."""
-        for key, value in updates.items():
-            if hasattr(self._config, key):
-                current = getattr(self._config, key)
-                if isinstance(current, dict) and isinstance(value, dict):
-                    current.update(value)
-                else:
-                    setattr(self._config, key, value)
-        logger.info(f"Configuration updated: {list(updates.keys())}")
-
-    def save_config(self, output_path: Optional[str] = None):
-        """Save current configuration to YAML file."""
-        if output_path is None:
-            output_path = "config/pipeline_config.yaml"
-
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        config_dict = {
-            'random_seeds': self._config.random_seeds,
-            'file_paths': self._config.file_paths,
-            'data_sources': self._config.data_sources,
-            'processing': self._config.processing,
-            'model_training': self._config.model_training,
-            'validation': self._config.validation
-        }
-
-        with open(output_path, 'w', encoding='utf-8') as f:
-            yaml.dump(config_dict, f, default_flow_style=False, sort_keys=False)
-
-        logger.info(f"Configuration saved to {output_path}")
 
 # Global config manager instance
-_config_manager = None
+_config_manager = ConfigManager.get_instance()
+
 
 def get_config() -> ProjectConfig:
-    """Get the global configuration instance."""
-    global _config_manager
-    if _config_manager is None:
-        _config_manager = ConfigManager()
+    """Get the global project configuration."""
     return _config_manager.get_config()
 
-def set_random_seed(seed: Optional[int] = None, seed_name: str = 'global_seed') -> int:
+
+def set_random_seed(seed: Optional[int] = None) -> int:
     """
-    Set random seed for reproducibility.
-
+    Set random seed for reproducibility across all libraries.
+    
     Args:
-        seed: The seed value. If None, uses the value from config.
-        seed_name: The name of the seed in config (default: 'global_seed')
-
+        seed: Seed value. If None, uses config value.
+        
     Returns:
         The seed value that was set.
     """
-    config = get_config()
-
     if seed is None:
-        seed = config.random_seeds.get(seed_name, 42)
-
+        seed = get_config().random_seed
+    
+    # Set for Python
     random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-
-    logger.info(f"Random seed set to {seed} ({seed_name})")
+    
+    # Set for numpy (if available)
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        logger.debug("numpy not available, skipping numpy seed")
+    
+    # Set for PyTorch (if available)
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        logger.debug("torch not available, skipping torch seed")
+    
+    logger.info(f"Random seed set to {seed}")
     return seed
+
 
 def get_path(key: str) -> Path:
     """
-    Get a file path from configuration.
-
+    Get a path from configuration by key.
+    
     Args:
-        key: The key in file_paths configuration
-
+        key: Configuration key (e.g., 'data_root', 'pipeline_log')
+        
     Returns:
-        Path object for the configured path
+        Absolute Path object.
+        
+    Raises:
+        CorrosionPipelineError: If key not found in config.
     """
     config = get_config()
-    path_str = config.file_paths.get(key)
+    config_dict = config.to_dict()
+    
+    if key not in config_dict:
+        raise CorrosionPipelineError(f"Configuration key '{key}' not found")
+    
+    path_str = config_dict[key]
+    
+    # If path is absolute, use as-is
+    if path_str.startswith("/"):
+        return Path(path_str)
+    
+    # Otherwise, make relative to project_root
+    project_root = Path(config.project_root)
+    return project_root / path_str
 
-    if path_str is None:
-        raise CorrosionPipelineError(f"Path key not found in config: {key}")
 
-    return Path(path_str)
+def get_data_path(subpath: Optional[str] = None) -> Path:
+    """
+    Get the data root or a subpath within data.
+    
+    Args:
+        subpath: Optional subpath relative to data root.
+        
+    Returns:
+        Absolute Path object.
+    """
+    data_root = get_path("data_root")
+    if subpath:
+        return data_root / subpath
+    return data_root
 
-def get_data_path() -> Path:
-    """Get the raw data directory path."""
-    return get_path('raw_data_dir')
 
-def get_processed_data_path() -> Path:
-    """Get the processed data directory path."""
-    return get_path('processed_data_dir')
+def get_processed_data_path(filename: str) -> Path:
+    """Get path to a processed data file."""
+    return get_path("data_processed") / filename
 
-def get_log_path() -> Path:
-    """Get the log directory path."""
-    return get_path('log_dir')
 
-def save_config(output_path: Optional[str] = None):
-    """Save configuration to file."""
-    ConfigManager().save_config(output_path)
+def get_log_path(filename: str) -> Path:
+    """Get path to a log file."""
+    return get_path("logs_root") / filename
 
-def update_config(updates: Dict[str, Any]):
-    """Update configuration values."""
-    ConfigManager().update_config(updates)
 
-# Convenience functions for common paths
+def get_config_path(filename: str) -> Path:
+    """Get path to a config file."""
+    return get_path("config_root") / filename
+
+
+def get_state_path(filename: str) -> Path:
+    """Get path to a state file."""
+    return get_path("state_root") / filename
+
+
+def get_contracts_path(filename: str) -> Path:
+    """Get path to a contract file."""
+    return get_path("contracts_root") / filename
+
+
+# Specific path getters for common files
 def get_processed_dataset_path() -> Path:
-    """Get the path to the processed dataset."""
-    return get_path('processed_dataset_path')
+    """Get path to the processed corrosion dataset."""
+    return get_path("processed_dataset")
+
 
 def get_model_results_path() -> Path:
-    """Get the path to model results."""
-    return get_path('model_results_path')
+    """Get path to model results JSON."""
+    return get_path("model_results")
+
 
 def get_pipeline_log_path() -> Path:
-    """Get the path to the pipeline log."""
-    return get_path('pipeline_log_path')
+    """Get path to the pipeline log."""
+    return get_path("pipeline_log")
+
 
 def get_split_indices_path() -> Path:
-    """Get the path to split indices."""
-    return get_path('split_indices_path')
+    """Get path to split indices JSON."""
+    return get_path("split_indices")
+
 
 def get_split_validation_path() -> Path:
-    """Get the path to split validation results."""
-    return get_path('split_validation_path')
+    """Get path to split validation JSON."""
+    return get_path("split_validation")
+
 
 def get_diagnostics_path() -> Path:
-    """Get the diagnostics directory path."""
-    return get_path('diagnostics_path')
+    """Get path to diagnostics directory."""
+    return get_path("logs_diagnostics")
+
 
 def get_count_report_path() -> Path:
-    """Get the count report file path."""
-    return get_path('count_report_path')
+    """Get path to count report file."""
+    return get_path("count_report")
+
 
 def get_figures_path() -> Path:
-    """Get the figures directory path."""
-    return get_path('figures_dir')
+    """Get path to figures directory."""
+    return get_path("data_figures")
+
 
 def get_interpretability_path() -> Path:
-    """Get the interpretability results directory path."""
-    return get_path('interpretability_dir')
+    """Get path to interpretability directory."""
+    return get_path("data_interpretability")
+
 
 def get_astm_tolerance_config_path() -> Path:
-    """Get the ASTM G59 tolerance configuration path."""
-    return get_path('astm_tolerance_config')
+    """Get path to ASTM tolerance config."""
+    return get_path("astm_tolerance_config")
+
 
 def get_verified_datasets_config_path() -> Path:
-    """Get the verified datasets configuration path."""
-    return get_path('verified_datasets_config')
+    """Get path to verified datasets config."""
+    return get_path("verified_datasets_config")
+
+
+def save_config(config: Optional[ProjectConfig] = None, 
+               path: Optional[Path] = None) -> Path:
+    """Save configuration to YAML."""
+    return _config_manager.save_config(config, path)
+
+
+def update_config(key: str, value: Any) -> None:
+    """
+    Update a single configuration value.
+    
+    Args:
+        key: Configuration key to update.
+        value: New value.
+    """
+    config = get_config()
+    config_dict = config.to_dict()
+    
+    if key not in config_dict:
+        raise CorrosionPipelineError(f"Configuration key '{key}' not found")
+    
+    setattr(config, key, value)
+    _config_manager._config = config
+    logger.info(f"Updated config: {key} = {value}")
