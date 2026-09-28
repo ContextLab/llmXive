@@ -1,81 +1,56 @@
-"""
-Initialize the exclusion log file for the SN1 rate constant pipeline.
-
-This script creates the `data/processed/exclusion_raw.log` CSV file with the
-required headers: `row_index`, `reason`, `original_smiles`.
-
-It ensures the file exists before downstream tasks (T011c, T012, T013) attempt
-to append exclusion records.
-"""
-
 import os
 import sys
 import logging
 from pathlib import Path
-
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
 from config import ensure_dirs, DataConfig
 from utils.logger import get_logger
 
-
 def initialize_exclusion_log():
     """
-    Create the exclusion log CSV file with headers if it does not exist.
-
-    Returns:
-        Path: The path to the created/existing exclusion log file.
-
-    Raises:
-        RuntimeError: If the file cannot be created or written to.
+    Initialize the exclusion log file with the required header.
+    This ensures the file exists and is ready for appending by downstream tasks.
     """
     config = DataConfig()
-    output_dir = Path(config.processed_dir)
-    output_file = output_dir / "exclusion_raw.log"
-
-    # Ensure the directory exists
+    output_path = Path(config.processed_dir) / "exclusion_raw.log"
+    
+    # Ensure directory exists
     ensure_dirs()
-
+    
+    # Setup logger
     logger = get_logger("init_exclusion_log")
-
+    
     # Check if file already exists
-    if output_file.exists():
-        logger.info(f"Exclusion log already exists at {output_file}. Skipping creation.")
-        # Optional: Validate headers if it exists?
-        # For now, we assume if it exists, it's valid or will be handled by upstream logic.
-        return output_file
-
+    if output_path.exists():
+        logger.warning(f"Exclusion log {output_path} already exists. Overwriting to ensure clean state.")
+    else:
+        logger.info(f"Creating new exclusion log at {output_path}")
+    
+    # Write header explicitly
+    # Using CSV format as per schema: row_index,reason,original_smiles
     try:
-        # Create the file with headers
-        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
             f.write("row_index,reason,original_smiles\n")
-
-        logger.info(f"Successfully initialized exclusion log at {output_file}")
-        return output_file
-
-    except IOError as e:
-        logger.error(f"Failed to create exclusion log at {output_file}: {e}")
-        raise RuntimeError(f"Failed to initialize exclusion log: {e}")
-
+        logger.info("Successfully initialized exclusion log with headers.")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to initialize exclusion log: {e}")
+        return False
 
 def main():
     """
-    Main entry point for the exclusion log initialization script.
+    Entry point for the script.
     """
     logger = get_logger("init_exclusion_log")
     logger.info("Starting exclusion log initialization...")
-
-    try:
-        initialize_exclusion_log()
+    
+    success = initialize_exclusion_log()
+    
+    if success:
         logger.info("Exclusion log initialization completed successfully.")
-        return 0
-    except Exception as e:
-        logger.error(f"Exclusion log initialization failed: {e}")
-        return 1
-
+        sys.exit(0)
+    else:
+        logger.error("Exclusion log initialization failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

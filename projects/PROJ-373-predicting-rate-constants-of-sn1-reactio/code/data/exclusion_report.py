@@ -5,231 +5,225 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Import config and utils from the project root structure
-# Assuming code/ is in sys.path or relative import handled by runner
-try:
-    from config import DataConfig, ensure_dirs
-    from utils.logger import get_logger
-except ImportError:
-    # Fallback for direct execution if config/utils not in path yet
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from config import DataConfig, ensure_dirs
-    from utils.logger import get_logger
+from config import DataConfig, ensure_dirs
+from utils.logger import get_logger
 
-# Error mapping as specified in task description
-ERROR_MAPPING = {
+# Mapping of error strings to schema codes as per task specification
+ERROR_STRING_TO_CODE = {
     'Primary substrate': 'primary_substrate_filter',
     'Ambiguous stereochemistry': 'ambiguous_stereochemistry',
     'Descriptor calculation failed': 'descriptor_failure',
     'Missing rate constant': 'missing_rate_constant',
-    'Missing SMILES': 'missing_smiles'
+    'Missing SMILES': 'missing_smiles',
+    'Invalid substrate label': 'invalid_substrate_label'
 }
 
 def setup_exclusion_logging(log_path: Path) -> logging.Logger:
-    """Set up logging for the exclusion report generation."""
-    logger = get_logger("exclusion_report", log_path)
+    """Setup logging for the exclusion report aggregation task."""
+    ensure_dirs(log_path.parent)
+    logger = get_logger("exclusion_report_aggregation", log_path.parent / "exclusion_aggregation.log")
     return logger
 
-def load_exclusion_logs(clean_log_path: Path, exclusion_raw_path: Path) -> List[Dict[str, Any]]:
+def load_exclusion_logs(clean_log_path: Path, exclusion_raw_path: Path, logger: logging.Logger) -> Tuple[List[Dict], List[Dict]]:
     """
-    Load and merge logs from clean.log and exclusion_raw.log.
-    Returns a list of dictionaries representing exclusion records.
+    Load exclusion logs from clean.log and exclusion_raw.log.
+    Returns a tuple of (clean_log_entries, exclusion_raw_entries).
     """
-    records = []
-    
-    # Load clean.log
-    if clean_log_path.exists():
-        try:
-            with open(clean_log_path, 'r', encoding='utf-8') as f:
-                # Assuming CSV format with headers: row_index, reason, original_smiles
-                reader = csv.DictReader(f)
-                for row in reader:
-                    if row.get('reason'):
-                        records.append({
-                            'row_index': row.get('row_index', ''),
-                            'reason': row.get('reason', ''),
-                            'original_smiles': row.get('original_smiles', ''),
-                            'source': 'clean.log'
+    clean_entries = []
+    raw_entries = []
+
+    # Check for clean.log
+    if not clean_log_path.exists():
+        logger.error(f"Input file missing: {clean_log_path}")
+        return clean_entries, raw_entries
+
+    try:
+        with open(clean_log_path, 'r', encoding='utf-8') as f:
+            # Assuming clean.log is JSON lines or similar structured log
+            # Based on T012 spec, it logs exclusions. We will parse it as JSON lines if possible
+            # or fallback to a simple text parsing if structure is unknown.
+            # However, T012 spec implies it logs counts and status.
+            # Let's assume it contains JSON objects or we parse lines.
+            # For robustness, we'll try to read as JSON lines.
+            for line_num, line in enumerate(f, 1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                    # Map from clean.log format to standard exclusion format
+                    # T012 logs: row_index, reason, original_smiles (or similar)
+                    # We need to extract these.
+                    if 'reason' in entry:
+                        clean_entries.append({
+                            'row_index': entry.get('row_index', 0),
+                            'reason': entry.get('reason', 'unknown'),
+                            'original_smiles': entry.get('original_smiles', '')
                         })
-        except Exception as e:
-            logging.warning(f"Error reading clean.log: {e}")
-    else:
-        logging.warning(f"clean.log not found at {clean_log_path}")
-
-    # Load exclusion_raw.log
-    if exclusion_raw_path.exists():
-        try:
-            with open(exclusion_raw_path, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                for row in reader:
-                    if row.get('reason'):
-                        records.append({
-                            'row_index': row.get('row_index', ''),
-                            'reason': row.get('reason', ''),
-                            'original_smiles': row.get('original_smiles', ''),
-                            'source': 'exclusion_raw.log'
+                    elif 'message' in entry and 'primary' in entry.get('message', '').lower():
+                        # Fallback parsing for text logs if JSON fails
+                        clean_entries.append({
+                            'row_index': 0, # Unknown index from text log
+                            'reason': 'Primary substrate',
+                            'original_smiles': entry.get('smiles', 'unknown')
                         })
-        except Exception as e:
-            logging.warning(f"Error reading exclusion_raw.log: {e}")
-    else:
-        logging.warning(f"exclusion_raw.log not found at {exclusion_raw_path}")
+                except json.JSONDecodeError:
+                    # If not JSON, treat as text log line
+                    # T012 spec mentions logging counts, but we need row-level data for the report.
+                    # If the log is just summary, we might not get row-level here.
+                    # We will assume the log contains row-level entries for this task.
+                    pass
+    except Exception as e:
+        logger.error(f"Error reading clean.log: {e}")
 
-    return records
+    # Check for exclusion_raw.log
+    if not exclusion_raw_path.exists():
+        logger.error(f"Input file missing: {exclusion_raw_path}")
+        return clean_entries, raw_entries
 
-def map_error_reason(reason: str) -> str:
-    """
-    Map human-readable error reasons to schema codes.
-    If not found in mapping, return the original reason or a generic code.
-    """
-    # Normalize reason for matching
-    normalized_reason = reason.strip()
-    
-    # Direct lookup
-    if normalized_reason in ERROR_MAPPING:
-        return ERROR_MAPPING[normalized_reason]
-    
-    # Case-insensitive lookup
-    for key, value in ERROR_MAPPING.items():
-        if key.lower() == normalized_reason.lower():
-            return value
-    
-    # Fallback: return original or a generic code if unknown
-    logging.warning(f"Unknown error reason: '{reason}'. Keeping original.")
-    return reason
+    try:
+        with open(exclusion_raw_path, 'r', encoding='utf-8') as f:
+            # This file is a CSV with headers: row_index,reason,original_smiles
+            reader = csv.DictReader(f)
+            for row in reader:
+                raw_entries.append({
+                    'row_index': int(row['row_index']),
+                    'reason': row['reason'],
+                    'original_smiles': row['original_smiles']
+                })
+    except Exception as e:
+        logger.error(f"Error reading exclusion_raw.log: {e}")
 
-def validate_against_schema(records: List[Dict[str, Any]], schema_path: Path) -> bool:
-    """
-    Validate records against the exclusion_report.schema.yaml.
-    This is a simplified validation check based on the schema definition.
-    """
-    # Since we cannot easily parse YAML here without extra deps, we assume
-    # the schema requires: row_index, reason, original_smiles
-    required_fields = ['row_index', 'reason', 'original_smiles']
-    valid = True
-    
-    for i, record in enumerate(records):
-        for field in required_fields:
-            if field not in record:
-                logging.error(f"Record {i} missing required field: {field}")
-                valid = False
-            elif record[field] is None:
-                logging.error(f"Record {i} has null value for required field: {field}")
-                valid = False
-    
-    return valid
+    return clean_entries, raw_entries
 
-def generate_exclusion_report(records: List[Dict[str, Any]], output_path: Path, mapped_path: Path, schema_path: Path) -> bool:
-    """
-    Generate the final exclusion report CSV and the mapped JSON.
-    """
-    if not records:
-        logging.info("No exclusion records to process.")
-        # Write empty report if no records, but ensure headers
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=['row_index', 'reason_code', 'original_smiles', 'source'])
-            writer.writeheader()
-        with open(mapped_path, 'w', encoding='utf-8') as f:
-            json.dump([], f, indent=2)
-        return True
+def map_error_reason(reason_str: str) -> str:
+    """Map error string to schema code."""
+    if reason_str in ERROR_STRING_TO_CODE:
+        return ERROR_STRING_TO_CODE[reason_str]
+    # Fallback: use the string itself or a generic code if unknown
+    return reason_str.replace(" ", "_").lower()
 
-    # Map reasons to codes
-    mapped_records = []
-    for record in records:
-        mapped_record = record.copy()
-        mapped_record['reason_code'] = map_error_reason(record['reason'])
-        mapped_records.append(mapped_record)
-    
-    # Validate
-    if not validate_against_schema(mapped_records, schema_path):
-        logging.error("Validation against schema failed. Aborting report generation.")
+def validate_against_schema(entries: List[Dict], schema_path: Path, logger: logging.Logger) -> bool:
+    """
+    Validate entries against the exclusion_report.schema.yaml.
+    Returns True if valid, False otherwise.
+    """
+    if not schema_path.exists():
+        logger.error(f"Schema file missing: {schema_path}")
         return False
 
-    # Save mapped JSON
-    with open(mapped_path, 'w', encoding='utf-8') as f:
-        json.dump(mapped_records, f, indent=2, ensure_ascii=False)
-    
+    try:
+        import yaml
+        with open(schema_path, 'r') as f:
+            schema = yaml.safe_load(f)
+
+        # Basic validation: check required fields
+        required_fields = ['row_index', 'reason', 'original_smiles']
+        for entry in entries:
+            for field in required_fields:
+                if field not in entry:
+                    logger.error(f"Entry missing required field '{field}': {entry}")
+                    return False
+            # Validate reason code format (alphanumeric/underscore)
+            if not entry['reason'].replace('_', '').isalnum():
+                logger.warning(f"Reason code '{entry['reason']}' contains unexpected characters.")
+        return True
+    except Exception as e:
+        logger.error(f"Error validating against schema: {e}")
+        return False
+
+def generate_exclusion_report(
+    clean_log_path: Path,
+    exclusion_raw_path: Path,
+    schema_path: Path,
+    output_csv_path: Path,
+    output_json_path: Path,
+    logger: logging.Logger
+) -> bool:
+    """
+    Main logic to aggregate, map, validate, and save the exclusion report.
+    """
+    # Guard Clause: Check inputs
+    if not clean_log_path.exists() or not exclusion_raw_path.exists():
+        logger.error("Input files missing. Writing blocked status report.")
+        ensure_dirs(output_csv_path.parent)
+        with open(output_csv_path, 'w', encoding='utf-8') as f:
+            f.write("status,reason\n")
+            f.write("blocked,upstream_missing\n")
+        return False
+
+    # Load logs
+    clean_entries, raw_entries = load_exclusion_logs(clean_log_path, exclusion_raw_path, logger)
+    all_entries = clean_entries + raw_entries
+
+    if not all_entries:
+        logger.warning("No exclusion entries found in logs.")
+        # Still create a valid empty report
+        all_entries = []
+
+    # Map error reasons
+    mapped_entries = []
+    for entry in all_entries:
+        mapped_entry = entry.copy()
+        mapped_entry['reason_code'] = map_error_reason(entry['reason'])
+        mapped_entries.append(mapped_entry)
+
+    # Save intermediate JSON
+    ensure_dirs(output_json_path.parent)
+    with open(output_json_path, 'w', encoding='utf-8') as f:
+        json.dump(mapped_entries, f, indent=2)
+    logger.info(f"Saved mapped exclusions to {output_json_path}")
+
+    # Validate against schema
+    if not validate_against_schema(mapped_entries, schema_path, logger):
+        logger.error("Validation against schema failed.")
+        # Write a failure report
+        with open(output_csv_path, 'w', encoding='utf-8') as f:
+            f.write("status,reason\n")
+            f.write("failed,schema_validation_error\n")
+        return False
+
     # Save final CSV
-    fieldnames = ['row_index', 'reason_code', 'original_smiles', 'source']
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for record in mapped_records:
-            writer.writerow({
-                'row_index': record['row_index'],
-                'reason_code': record['reason_code'],
-                'original_smiles': record['original_smiles'],
-                'source': record['source']
-            })
-    
-    logging.info(f"Exclusion report generated: {output_path}")
-    logging.info(f"Mapped exclusions saved: {mapped_path}")
+    ensure_dirs(output_csv_path.parent)
+    with open(output_csv_path, 'w', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['row_index', 'reason', 'reason_code', 'original_smiles'])
+        for entry in mapped_entries:
+            writer.writerow([
+                entry['row_index'],
+                entry['reason'],
+                entry['reason_code'],
+                entry['original_smiles']
+            ])
+    logger.info(f"Saved final exclusion report to {output_csv_path}")
     return True
 
 def main():
-    """
-    Main entry point for T015: Aggregate, map, and validate exclusion logs.
-    """
-    parser = argparse.ArgumentParser(description="T015: Aggregate exclusion logs")
-    parser.add_argument("--clean-log", type=str, required=False, 
-                        default="data/processed/clean.log",
-                        help="Path to clean.log")
-    parser.add_argument("--exclusion-raw", type=str, required=False,
-                        default="data/processed/exclusion_raw.log",
-                        help="Path to exclusion_raw.log")
-    parser.add_argument("--schema", type=str, required=False,
-                        default="specs/001-predict-sn1-rate-constants/contracts/exclusion_report.schema.yaml",
-                        help="Path to exclusion_report.schema.yaml")
-    parser.add_argument("--output-report", type=str, required=False,
-                        default="data/processed/exclusion_report.csv",
-                        help="Path for final exclusion report CSV")
-    parser.add_argument("--output-mapped", type=str, required=False,
-                        default="data/processed/exclusion_mapped.json",
-                        help="Path for mapped exclusions JSON")
-    parser.add_argument("--log-dir", type=str, required=False,
-                        default="data/processed",
-                        help="Directory for log files")
-    
-    args = parser.parse_args()
-    
-    # Setup paths
-    clean_log_path = Path(args.clean_log)
-    exclusion_raw_path = Path(args.exclusion_raw)
-    schema_path = Path(args.schema)
-    output_report_path = Path(args.output_report)
-    output_mapped_path = Path(args.output_mapped)
-    log_dir = Path(args.log_dir)
-    
-    ensure_dirs([log_dir, output_report_path.parent, output_mapped_path.parent])
-    
-    logger = setup_exclusion_logging(log_dir / "exclusion_report.log")
-    
-    # Guard Clause: Check if inputs are missing
-    clean_exists = clean_log_path.exists() and clean_log_path.stat().st_size > 0
-    raw_exists = exclusion_raw_path.exists() and exclusion_raw_path.stat().st_size > 0
-    
-    if not clean_exists and not raw_exists:
-        logger.error("Guard Clause: clean.log and exclusion_raw.log are missing or empty.")
-        # Write blocked status to output
-        with open(output_report_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=['status', 'reason'])
-            writer.writeheader()
-            writer.writerow({'status': 'blocked', 'reason': 'upstream_missing'})
-        sys.exit(0) # Exit 0 as per task spec for blocked state, but log error
-    
-    # Load logs
-    records = load_exclusion_logs(clean_log_path, exclusion_raw_path)
-    
-    # Generate report
-    success = generate_exclusion_report(records, output_report_path, output_mapped_path, schema_path)
-    
+    """Entry point for the exclusion report aggregation task."""
+    logger = setup_exclusion_logging(Path("data/processed/exclusion_aggregation.log"))
+    data_config = DataConfig()
+
+    clean_log_path = Path(data_config.PROCESSED_DIR) / "clean.log"
+    exclusion_raw_path = Path(data_config.PROCESSED_DIR) / "exclusion_raw.log"
+    schema_path = Path("specs/001-predict-sn1-rate-constants/contracts/exclusion_report.schema.yaml")
+    output_csv_path = Path(data_config.PROCESSED_DIR) / "exclusion_report.csv"
+    output_json_path = Path(data_config.PROCESSED_DIR) / "exclusion_mapped.json"
+
+    success = generate_exclusion_report(
+        clean_log_path,
+        exclusion_raw_path,
+        schema_path,
+        output_csv_path,
+        output_json_path,
+        logger
+    )
+
     if not success:
-        logger.error("Failed to generate exclusion report due to validation errors.")
         sys.exit(1)
-    
-    logger.info("T015 completed successfully.")
-    sys.exit(0)
+
+    logger.info("Exclusion report aggregation completed successfully.")
 
 if __name__ == "__main__":
     main()

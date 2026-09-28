@@ -5,19 +5,20 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 
-# Add parent directory to path for imports if running as script
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import yaml
 
 from config import DataConfig
 from utils.logger import get_logger
-import yaml
 
-def setup_validation_logger(log_path: Path) -> logging.Logger:
-    """Setup logging for the validation script."""
-    logger = get_logger("exclusion_validation", log_path)
+
+def setup_validation_logger() -> logging.Logger:
+    """Setup logging for exclusion schema validation."""
+    logger = get_logger("exclusion_schema_validation")
+    logger.setLevel(logging.INFO)
     return logger
+
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
     """Load the exclusion report schema from YAML."""
@@ -26,172 +27,168 @@ def load_schema(schema_path: Path) -> Dict[str, Any]:
     
     with open(schema_path, 'r') as f:
         schema = yaml.safe_load(f)
+    
     return schema
 
-def validate_row(row: Dict[str, str], schema: Dict[str, Any]) -> Optional[str]:
+
+def validate_row(row: Dict[str, Any], schema: Dict[str, Any], row_index: int) -> List[str]:
     """
     Validate a single row against the schema.
-    Returns None if valid, or an error message string if invalid.
-    
-    Expected schema structure based on T006C:
-    - row_index: integer
-    - reason: string (error code)
-    - original_smiles: string
+    Returns a list of error messages if validation fails, empty list otherwise.
     """
-    required_fields = ['row_index', 'reason', 'original_smiles']
+    errors = []
+    schema_properties = schema.get("properties", {})
     
-    # Check for missing fields
+    required_fields = schema.get("required", [])
+    
+    # Check required fields
     for field in required_fields:
         if field not in row or row[field] is None:
-            return f"Missing required field: {field}"
+            errors.append(f"Row {row_index}: Missing required field '{field}'")
     
-    # Validate row_index is an integer
-    try:
-        int(row['row_index'])
-    except ValueError:
-        return f"row_index is not an integer: {row['row_index']}"
+    # Validate field types and constraints
+    for field, value in row.items():
+        if field not in schema_properties:
+            # Optional field not in schema, or schema mismatch
+            continue
+        
+        field_schema = schema_properties[field]
+        
+        # Check type
+        expected_type = field_schema.get("type")
+        if expected_type == "integer":
+            if not isinstance(value, int):
+                # Allow string if it looks like an integer, but strict check preferred
+                try:
+                    int(value)
+                except ValueError:
+                    errors.append(f"Row {row_index}: Field '{field}' must be integer, got {type(value)}")
+        elif expected_type == "string":
+            if not isinstance(value, str):
+                errors.append(f"Row {row_index}: Field '{field}' must be string, got {type(value)}")
+        
+        # Check pattern/constraints if defined
+        if "pattern" in field_schema and isinstance(value, str):
+            import re
+            if not re.match(field_schema["pattern"], value):
+                errors.append(f"Row {row_index}: Field '{field}' does not match pattern '{field_schema['pattern']}'")
+        
+        if "enum" in field_schema:
+            if value not in field_schema["enum"]:
+                errors.append(f"Row {row_index}: Field '{field}' value '{value}' not in allowed values {field_schema['enum']}")
     
-    # Validate reason is not empty
-    if not row['reason'] or not str(row['reason']).strip():
-        return "reason field is empty"
-    
-    # Validate original_smiles is not empty
-    if not row['original_smiles'] or not str(row['original_smiles']).strip():
-        return "original_smiles field is empty"
-    
-    return None
+    return errors
 
-def validate_exclusion_log(
-    input_path: Path,
-    schema_path: Path,
-    output_path: Path,
-    logger: logging.Logger
-) -> bool:
+
+def validate_exclusion_log(log_path: Path, schema_path: Path, output_path: Path) -> bool:
     """
-    Load the exclusion log, validate each row against the schema,
-    and write a validation report.
-    
+    Validate the exclusion log against the schema.
+    Writes validation results to the output log.
     Returns True if all rows are valid, False otherwise.
     """
-    logger.info(f"Loading exclusion log from: {input_path}")
-    logger.info(f"Loading schema from: {input_path}")
+    logger = setup_validation_logger()
+    logger.info(f"Validating exclusion log: {log_path}")
+    logger.info(f"Using schema: {schema_path}")
     
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
+    if not log_path.exists():
+        logger.error(f"Exclusion log not found: {log_path}")
+        # Write error status to output
+        with open(output_path, 'w') as f:
+            f.write("status: FAIL\nreason: input_missing\n")
         return False
     
     schema = load_schema(schema_path)
-    logger.info(f"Schema loaded successfully: {schema}")
-    
+    validation_errors = []
     valid_count = 0
-    invalid_count = 0
-    errors = []
+    total_count = 0
     
-    with open(input_path, 'r', newline='') as infile:
+    with open(log_path, 'r', newline='') as infile, open(output_path, 'w', newline='') as outfile:
         reader = csv.DictReader(infile)
+        writer = csv.writer(outfile)
         
-        # Verify header matches expected schema
-        expected_headers = ['row_index', 'reason', 'original_smiles']
-        if reader.fieldnames != expected_headers:
-            logger.warning(f"Header mismatch. Expected: {expected_headers}, Got: {reader.fieldnames}")
-            # Continue validation but log the warning
+        # Write header for validation log
+        writer.writerow(["row_index_in_file", "validation_status", "error_details"])
         
-        for idx, row in enumerate(reader):
-            error = validate_row(row, schema)
-            if error:
-                invalid_count += 1
-                errors.append({
-                    'row_index': idx,
-                    'error': error,
-                    'row_data': row
-                })
-                logger.error(f"Row {idx} validation failed: {error}")
+        for row_index, row in enumerate(reader, start=1):
+            total_count += 1
+            row_errors = validate_row(row, schema, row_index)
+            
+            if row_errors:
+                validation_errors.extend(row_errors)
+                writer.writerow([row_index, "FAIL", "; ".join(row_errors)])
             else:
                 valid_count += 1
+                writer.writerow([row_index, "PASS", ""])
     
-    # Write validation report
-    logger.info(f"Validation complete. Valid: {valid_count}, Invalid: {invalid_count}")
+    logger.info(f"Validation complete. Total: {total_count}, Valid: {valid_count}, Errors: {len(validation_errors)}")
     
-    with open(output_path, 'w', newline='') as outfile:
-        writer = csv.DictWriter(outfile, fieldnames=['row_index', 'validation_status', 'error_message'])
-        writer.writeheader()
+    if validation_errors:
+        logger.error("Validation failed with errors:")
+        for err in validation_errors[:10]:  # Log first 10 errors
+            logger.error(f"  - {err}")
+        if len(validation_errors) > 10:
+            logger.error(f"  ... and {len(validation_errors) - 10} more errors")
         
-        # Write summary
-        writer.writerow({
-            'row_index': 'SUMMARY',
-            'validation_status': 'COMPLETE',
-            'error_message': f"Total rows: {valid_count + invalid_count}, Valid: {valid_count}, Invalid: {invalid_count}"
-        })
-        
-        # Write individual results
-        for error_entry in errors:
-            writer.writerow({
-                'row_index': error_entry['row_index'],
-                'validation_status': 'INVALID',
-                'error_message': error_entry['error']
-            })
-        
-        # Write valid rows (optional, for completeness)
-        # In a full implementation, we might want to list valid rows too
-    
-    success = invalid_count == 0
-    if success:
-        logger.info("All rows validated successfully.")
+        # Write failure status
+        with open(output_path, 'a') as f:
+            f.write(f"\nstatus: FAIL\nreason: schema_violation\ncount: {len(validation_errors)}\n")
+        return False
     else:
-        logger.error(f"Validation failed for {invalid_count} rows.")
-    
-    return success
+        logger.info("All rows validated successfully.")
+        # Write success status
+        with open(output_path, 'a') as f:
+            f.write(f"\nstatus: PASS\ncount: {total_count}\n")
+        return True
+
 
 def main():
-    """Main entry point for the exclusion log schema validation."""
+    """Main entry point for exclusion schema validation."""
     parser = argparse.ArgumentParser(description="Validate exclusion log against schema")
     parser.add_argument(
-        '--input',
+        "--log-path",
         type=str,
-        default='data/processed/exclusion_raw.log',
-        help='Path to the exclusion log file'
+        default="data/processed/exclusion_raw.log",
+        help="Path to the exclusion log file to validate"
     )
     parser.add_argument(
-        '--schema',
+        "--schema-path",
         type=str,
-        default='specs/001-predict-sn1-rate-constants/contracts/exclusion_report.schema.yaml',
-        help='Path to the schema YAML file'
+        default="specs/001-predict-sn1-rate-constants/contracts/exclusion_report.schema.yaml",
+        help="Path to the schema YAML file"
     )
     parser.add_argument(
-        '--output',
+        "--output-path",
         type=str,
-        default='data/processed/exclusion_validation.log',
-        help='Path to write the validation report'
+        default="data/processed/exclusion_validation.log",
+        help="Path to write validation results"
     )
     
     args = parser.parse_args()
     
-    input_path = Path(args.input)
-    schema_path = Path(args.schema)
-    output_path = Path(args.output)
+    log_path = Path(args.log_path)
+    schema_path = Path(args.schema_path)
+    output_path = Path(args.output_path)
     
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    logger = setup_validation_logger(output_path.parent / 'validation.log')
-    logger.info("Starting exclusion log schema validation")
+    # Check guard clause: schema must exist
+    if not schema_path.exists():
+        logger = setup_validation_logger()
+        logger.error(f"Schema file missing: {schema_path}")
+        # Write error to output
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            f.write("status: FAIL\nreason: schema_missing\n")
+        sys.exit(1)
     
-    try:
-        success = validate_exclusion_log(input_path, schema_path, output_path, logger)
-        
-        if not success:
-            logger.error("Validation failed. Exiting with code 1.")
-            sys.exit(1)
-        else:
-            logger.info("Validation passed. Exiting with code 0.")
-            sys.exit(0)
-            
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
+    success = validate_exclusion_log(log_path, schema_path, output_path)
+    
+    if not success:
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during validation: {e}")
-        sys.exit(1)
+    
+    sys.exit(0)
+
 
 if __name__ == "__main__":
     main()

@@ -6,175 +6,176 @@ import argparse
 import subprocess
 import time
 from pathlib import Path
-from typing import Dict, Any, Optional
-
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from config import ensure_dirs, DataConfig, TrainingConfig
+from config import ensure_dirs, AnalysisConfig
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-# Constants
-TIMEOUT_SECONDS = 6 * 3600  # 6 hours in seconds
-DATA_PATH = "data/processed/cleaned_sn1.csv"
-OUTPUT_PATH = "artifacts/feasibility_test_log.json"
-
 def count_rows(file_path: str) -> int:
-    """Count rows in a CSV file efficiently."""
+    """Count rows in a CSV file."""
+    import pandas as pd
     if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Input file not found: {file_path}")
-    
-    count = 0
-    with open(file_path, 'r') as f:
-        # Skip header
-        next(f, None)
-        for line in f:
-            count += 1
-    return count
+        return 0
+    df = pd.read_csv(file_path)
+    return len(df)
 
-def run_command_with_timeout(cmd: list, timeout: int, cwd: str = None) -> Dict[str, Any]:
-    """Run a command with a timeout using subprocess."""
+def run_command_with_timeout(command: list, timeout_seconds: int, cwd: str = None) -> tuple:
+    """
+    Run a command with a timeout using subprocess.
+    Returns (return_code, stdout, stderr, timed_out)
+    """
     start_time = time.time()
-    result = {
-        'success': False,
-        'exit_code': None,
-        'runtime_seconds': 0,
-        'error': None,
-        'timed_out': False
-    }
-    
     try:
-        process = subprocess.run(
-            cmd,
-            cwd=cwd,
+        result = subprocess.run(
+            command,
+            timeout=timeout_seconds,
             capture_output=True,
             text=True,
-            timeout=timeout
+            cwd=cwd
         )
-        result['exit_code'] = process.returncode
-        result['runtime_seconds'] = time.time() - start_time
-        result['success'] = (process.returncode == 0)
-        if process.stderr:
-            result['error'] = process.stderr
+        elapsed = time.time() - start_time
+        return result.returncode, result.stdout, result.stderr, False, elapsed
     except subprocess.TimeoutExpired as e:
-        result['timed_out'] = True
-        result['runtime_seconds'] = timeout
-        result['error'] = f"Command timed out after {timeout} seconds"
-        logger.error(f"Command timed out: {e}")
-    except Exception as e:
-        result['error'] = str(e)
-        logger.error(f"Command failed: {e}")
-    
-    return result
+        elapsed = time.time() - start_time
+        # Handle partial output if available
+        stdout = e.stdout.decode() if e.stdout else ""
+        stderr = e.stderr.decode() if e.stderr else ""
+        return -1, stdout, stderr, True, elapsed
 
-def run_full_pipeline(max_configs: Optional[int] = None) -> Dict[str, Any]:
-    """Run the full pipeline with optional max_configs limit."""
-    cmd = [sys.executable, "code/main.py"]
+def run_full_pipeline(config_path: str = None, max_configs: int = None) -> tuple:
+    """
+    Run the full pipeline via main.py with dynamic budgeting.
+    Returns (return_code, stdout, stderr, timed_out, runtime)
+    """
+    # Determine max configs based on dataset size
+    cleaned_data_path = "data/processed/cleaned_sn1.csv"
+    n_rows = count_rows(cleaned_data_path)
     
+    if n_rows >= 2000:
+        # Reduce hyperparameter search configurations if dataset is large
+        if max_configs is None:
+            max_configs = 10  # Reduced limit for large datasets
+        logger.info(f"Large dataset detected ({n_rows} rows). Reducing HP search to {max_configs} configs.")
+    else:
+        if max_configs is None:
+            max_configs = 50  # Default limit for smaller datasets
+
+    # Build command
+    cmd = ["python", "code/main.py"]
     if max_configs is not None:
-        cmd.append(f"--max-configs={max_configs}")
+        cmd.extend(["--max-configs", str(max_configs)])
     
     logger.info(f"Running pipeline with command: {' '.join(cmd)}")
-    return run_command_with_timeout(cmd, TIMEOUT_SECONDS)
+    
+    # Run with timeout (6 hours = 21600 seconds, but we use a safety margin)
+    timeout_limit = 21600  # 6 hours
+    return_code, stdout, stderr, timed_out, runtime = run_command_with_timeout(cmd, timeout_limit)
+    
+    return return_code, stdout, stderr, timed_out, runtime
 
-def verify_artifacts() -> Dict[str, bool]:
-    """Verify that all required artifacts exist."""
+def verify_artifacts() -> dict:
+    """Verify that all required artifacts exist after pipeline run."""
     required_artifacts = [
         "data/processed/cleaned_sn1.csv",
         "data/processed/exclusion_report.csv",
         "artifacts/best_model.pt",
         "artifacts/metrics.json",
-        "artifacts/final_report.md"
+        "artifacts/feasibility_test_log.json"
     ]
     
-    verification = {}
-    for artifact in required_artifacts:
-        exists = os.path.exists(artifact) and os.path.getsize(artifact) > 0
-        verification[artifact] = exists
-        if not exists:
-            logger.warning(f"Missing or empty artifact: {artifact}")
+    results = {}
+    all_exist = True
     
-    return verification
+    for artifact in required_artifacts:
+        exists = os.path.exists(artifact)
+        results[artifact] = exists
+        if not exists:
+            all_exist = False
+            logger.warning(f"Missing artifact: {artifact}")
+    
+    return {"all_exist": all_exist, "details": results}
 
-def evaluate_sc002(runtime_seconds: float) -> str:
-    """Evaluate Success Criterion 002: Runtime <= 6 hours."""
-    if runtime_seconds <= TIMEOUT_SECONDS:
-        return "PASS"
+def evaluate_sc002(runtime: float, status: str) -> dict:
+    """
+    Evaluate Success Criterion 002 (runtime <= 6 hours).
+    Returns dict with status and details.
+    """
+    max_runtime_hours = 6.0
+    max_runtime_seconds = max_runtime_hours * 3600
+    
+    if status == "TIMEOUT":
+        sc_status = "FAIL"
+        reason = "Runtime exceeded timeout limit"
+    elif runtime > max_runtime_seconds:
+        sc_status = "FAIL"
+        reason = f"Runtime ({runtime:.2f}s) exceeded limit ({max_runtime_seconds}s)"
     else:
-        return "FAIL"
+        sc_status = "PASS"
+        reason = f"Runtime ({runtime:.2f}s) within limit ({max_runtime_seconds}s)"
+    
+    return {
+        "sc_id": "SC-002",
+        "status": sc_status,
+        "reason": reason,
+        "runtime_seconds": runtime,
+        "limit_seconds": max_runtime_seconds
+    }
 
 def main():
-    parser = argparse.ArgumentParser(description="Run final feasibility validation")
-    parser.add_argument("--max-configs", type=int, default=None,
-                      help="Maximum number of hyperparameter configurations to search")
-    parser.add_argument("--input", type=str, default=DATA_PATH,
-                      help="Path to input dataset")
-    parser.add_argument("--output", type=str, default=OUTPUT_PATH,
-                      help="Path to output log file")
+    parser = argparse.ArgumentParser(description="Feasibility test runner for T040")
+    parser.add_argument("--config-path", type=str, default=None, help="Path to config file")
+    parser.add_argument("--max-configs", type=int, default=None, help="Max HP search configurations")
     args = parser.parse_args()
 
     ensure_dirs()
     
-    logger.info("Starting feasibility validation run (T040)")
+    logger.info("Starting feasibility test run (T040)...")
     
-    # Step 1: Count rows and determine budgeting
-    try:
-        row_count = count_rows(args.input)
-        logger.info(f"Input dataset contains {row_count} rows")
-    except FileNotFoundError as e:
-        error_result = {
-            'status': 'ERROR',
-            'reason': 'input_missing',
-            'message': str(e),
-            'sc002_status': 'FAIL',
-            'artifacts_verified': False,
-            'runtime_seconds': 0
-        }
-        with open(args.output, 'w') as f:
-            json.dump(error_result, f, indent=2)
-        sys.exit(1)
-
-    # Step 2: Determine max_configs if not provided
-    max_configs = args.max_configs
-    if max_configs is None and row_count >= 2000:
-        max_configs = 10  # Reduced for large datasets
-        logger.info(f"Dataset size >= 2000 rows. Reducing hyperparameter search to {max_configs} configs")
+    # Run full pipeline
+    return_code, stdout, stderr, timed_out, runtime = run_full_pipeline(
+        config_path=args.config_path,
+        max_configs=args.max_configs
+    )
     
-    # Step 3: Run pipeline with timeout
-    pipeline_result = run_full_pipeline(max_configs)
+    # Verify artifacts
+    artifact_verification = verify_artifacts()
     
-    # Step 4: Evaluate SC-002
-    sc002_status = evaluate_sc002(pipeline_result['runtime_seconds'])
+    # Evaluate SC-002
+    if timed_out:
+        pipeline_status = "TIMEOUT"
+    elif return_code != 0:
+        pipeline_status = "FAILURE"
+    else:
+        pipeline_status = "SUCCESS"
     
-    # Step 5: Verify artifacts if pipeline succeeded
-    artifacts_verified = False
-    if pipeline_result['success']:
-        artifacts_verified = all(verify_artifacts().values())
+    sc002_result = evaluate_sc002(runtime, pipeline_status)
     
-    # Step 6: Compile final result
-    final_result = {
-        'status': 'SUCCESS' if pipeline_result['success'] and artifacts_verified else 'FAILURE',
-        'runtime_seconds': pipeline_result['runtime_seconds'],
-        'timed_out': pipeline_result['timed_out'],
-        'exit_code': pipeline_result['exit_code'],
-        'sc002_status': sc002_status,
-        'row_count': row_count,
-        'max_configs_used': max_configs,
-        'artifacts_verified': artifacts_verified,
-        'error': pipeline_result.get('error'),
-        'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")
+    # Compile final log
+    feasibility_log = {
+        "task_id": "T040",
+        "pipeline_status": pipeline_status,
+        "return_code": return_code,
+        "runtime_seconds": runtime,
+        "timed_out": timed_out,
+        "sc002_evaluation": sc002_result,
+        "artifact_verification": artifact_verification,
+        "stdout_sample": stdout[:500] if stdout else "",
+        "stderr_sample": stderr[:500] if stderr else ""
     }
     
-    # Step 7: Write output
-    with open(args.output, 'w') as f:
-        json.dump(final_result, f, indent=2)
+    # Save feasibility log
+    output_path = "artifacts/feasibility_test_log.json"
+    with open(output_path, "w") as f:
+        json.dump(feability_log, f, indent=2)
     
-    logger.info(f"Feasibility test completed. Status: {final_result['status']}")
-    logger.info(f"SC-002 (Runtime <= 6h): {sc002_status}")
+    logger.info(f"Feability test log saved to {output_path}")
     
-    if not pipeline_result['success'] or not artifacts_verified:
+    if not artifact_verification["all_exist"] or return_code != 0:
+        logger.error("Feability test failed: artifacts missing or pipeline failed.")
         sys.exit(1)
+    
+    logger.info("Feability test completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()

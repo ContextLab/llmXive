@@ -1,29 +1,18 @@
-T011e:
+T011c:
   c: false
-  h: 0b6889ebcc584e61a441905ed082d6283463dabb5fc323f5349211958102e672
-  r: The provided `code/data/mapping.py` does not rename the `smiles` column to `SMILES`
-    as required, and the expected output files (`data/processed/intermediate_sn1.csv`
-    and `data/processed/exclusion_raw.log`) are absent from the repository. The task
-    therefore remains unfinished.
-T012:
+  h: e07ce35b97738448c1f8b6d6f2564e82793d78ca07dd81da020cca19198d3fac
+  r: "The provided `code/data/download.py` is truncated and does not contain the required\
+    \ logic to read `data/processed/.pipeline_status`, exit on \u201CABORTED\u201D\
+    , or write the downloaded data to `data/raw/sn1_raw.parquet`. Moreover, the expected\
+    \ output file `data/raw/sn1_raw.parquet` is absent. The task\u2019s core requirements\
+    \ are therefore not satisfied."
+T013b:
   c: false
-  h: 29bfafd62465a8664039075e9f4121ca00b37a6a8eb6bf56dab17ad2d3f5d954
-  r: 'The repository lacks the required data artifacts: `data/processed/intermediate_sn1.csv`,
-    `data/processed/clean.log`, `data/processed/.pipeline_status`, and `data/processed/cleaned_intermediate.csv`
-    are all missing. Moreover, the provided `code/data/clean.py` is truncated and
-    does not show the full implementation of the guard clauses, logging, and SMILES
-    canonicalization required by the task. The necessary output files and complete
-    script are absent, so the task is not genuinely completed.'
-T013:
-  c: false
-  h: fbc78955969ad3db5327403e317c43ebbcfc18d235b8bfaae36468b7ef35a2e0
-  r: "The repository contains a partially\u2011implemented `code/data/descriptors.py`,\
-    \ but the file ends abruptly and does not show logic for appending failures to\
-    \ `data/processed/exclusion_raw.log` (with header) or writing the final `data/processed/descriptors.csv`.\
-    \ Moreover, both `data/processed/exclusion_raw.log` and `data/processed/descriptors.csv`\
-    \ are absent from the project, so the required outputs are not present. The implementer\
-    \ must complete the script to handle failures, ensure the log header, write the\
-    \ descriptors CSV, and verify the files are created."
+  h: 42de1aff23f1b9ab6251b393cf7bc7eca465d89482dab37d85e796fb9cecaf87
+  r: The required schema file (`exclusion_report.schema.yaml` / `schema.yaml`) is
+    absent, and the expected output `data/processed/exclusion_validation.log` was
+    not created. Consequently the validation step could not be performed and no error
+    log was provided.
 T014:
   c: false
   h: 3176bb70497e154977dca378ac6f299c91618c9e02d680068d4e0e63bee473b6
@@ -33,6 +22,14 @@ T014:
     \ JSON report) and therefore does not actually perform the full end\u2011to\u2011\
     end split as specified. The task must provide the cleaned dataset, generate and\
     \ store the train/val/test CSVs, and produce the JSON report."
+T015:
+  c: false
+  h: e2afedbc64160d9eb952b61e3ccaf41987dc954db999a90e264da8e22061ebe4
+  r: "The required input `data/processed/clean.log` is missing, and the guard\u2011\
+    clause output `data/processed/exclusion_report.csv` was never created. Additionally,\
+    \ the expected artifacts `exclusion_mapped.json` and the validation schema file\
+    \ are absent. Consequently the task\u2019s merging, mapping, validation, and reporting\
+    \ steps were not performed."
 T023:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -40,6 +37,15 @@ T023:
     \ showing the required columns or top\u201110 configurations was provided. The\
     \ evidence needed to confirm that the CSV exists, is non\u2011empty, and contains\
     \ the specified fields is missing."
+T028:
+  c: false
+  h: b96c484cb05faa0ac2b698170e56c925771c3252df4d9dbbeabe0837e854ce7f
+  r: "The required input file `data/processed/cleaned_sn1.csv` is missing, and no\
+    \ `artifacts/collinearity_report.json` was generated. Moreover, the provided `collinearity.py`\
+    \ raises a `FileNotFoundError` instead of logging a blocked status JSON as specified,\
+    \ and the code is truncated before showing the VIF calculation and JSON report\
+    \ generation. The task\u2019s guard\u2011clause behavior and final report format\
+    \ are therefore not satisfied."
 T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -57,3 +63,11 @@ T039:
     \ is a final comprehensive report that combines them and includes the explicit\
     \ SC\u2011001 to SC\u2011005 pass/fail table. Without these artifacts, the task\u2019\
     s core requirement cannot be verified."
+T040:
+  c: false
+  h: fdadd2c98004a4a4df3c24825fed543047c62c94e77ab112eb9dd9850bcf7508
+  r: "The required `data/processed/cleaned_sn1.csv` does not exist, so the dynamic\
+    \ budgeting step cannot be performed, and no end\u2011to\u2011end run of `main.py`\
+    \ is shown. There is no `artifacts/feasibility_test_log.json`, no subprocess\u2011\
+    based timeout implementation, and no evidence that the pipeline was executed or\
+    \ that SC\u2011002 was verified. The task therefore remains unfinished."

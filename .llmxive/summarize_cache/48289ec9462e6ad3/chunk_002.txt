@@ -1,0 +1,2 @@
+- Semi-empirical quantum chemical calculations are out of scope for the initial MVP due to computational constraints but may be added as an optional feature in future iterations if hardware allows.
+- NIST/Reaxys/UCI are excluded as primary sources because the provided URLs in the project's verified block are non-kinetic (cybersecurity embeddings). HuggingFace is the sole primary source.
