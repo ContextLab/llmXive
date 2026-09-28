@@ -1,272 +1,281 @@
+"""
+Utility functions for the Submarine Hydrothermal Vent Microbial Communities project.
+
+Provides:
+- Logging infrastructure configuration
+- pH outlier detection (FR-006)
+- pH heterogeneity calculation (FR-001.1)
+"""
 import logging
 import sys
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, Dict, Any
 import pandas as pd
+import numpy as np
 
-# Constants for logging configuration
-LOG_DIR = Path("logs")
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-# Global logger registry to prevent duplicate handlers
-_loggers: dict = {}
+# --- Logging Infrastructure ---
 
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_dir: Optional[Union[str, Path]] = None,
-    enable_file_handler: bool = True,
-    enable_console_handler: bool = True
-) -> None:
-    """
-    Configure the root logger with file and console handlers.
-    
-    Args:
-        log_level: Logging level (e.g., logging.INFO, logging.DEBUG)
-        log_dir: Directory to store log files. Defaults to 'logs' in project root.
-        enable_file_handler: Whether to add a file handler.
-        enable_console_handler: Whether to add a console handler.
-    """
-    if log_dir is None:
-        log_dir = Path("logs")
-    else:
-        log_dir = Path(log_dir)
-    
-    log_dir.mkdir(parents=True, exist_ok=True)
+_logger_registry: Dict[str, logging.Logger] = {}
+_log_handlers_set: bool = False
+
+def _ensure_log_handlers() -> None:
+    """Initialize root logger handlers if not already set."""
+    global _log_handlers_set
+    if _log_handlers_set:
+        return
     
     root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+    root_logger.setLevel(logging.DEBUG)
     
-    # Clear existing handlers to avoid duplicates on re-runs
-    for handler in root_logger.handlers[:]:
-        root_logger.removeHandler(handler)
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
+    console_format = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    console_handler.setFormatter(console_format)
+    root_logger.addHandler(console_handler)
     
-    if enable_console_handler:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(log_level)
-        console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-        root_logger.addHandler(console_handler)
-    
-    if enable_file_handler:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        log_file = log_dir / f"pipeline_{timestamp}.log"
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
-        root_logger.addHandler(file_handler)
+    _log_handlers_set = True
 
-def get_logger(name: str) -> logging.Logger:
+def setup_logging(
+    log_file: Optional[Union[str, Path]] = None,
+    level: int = logging.INFO
+) -> logging.Logger:
     """
-    Get a named logger, reusing existing instances if possible.
+    Configure the root logger and return a named logger.
     
     Args:
-        name: Name of the logger (e.g., 'ingestion', 'analysis')
+        log_file: Optional path to a log file. If provided, a file handler is added.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
     
     Returns:
-        Configured Logger instance.
+        A configured logger instance.
     """
-    if name in _loggers:
-        return _loggers[name]
+    _ensure_log_handlers()
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
     
-    logger = logging.getLogger(name)
-    # Don't propagate to root if we've already configured specific handlers
-    # to avoid double logging if root has handlers too.
-    logger.propagate = True 
-    _loggers[name] = logger
-    return logger
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Avoid adding duplicate file handlers if called multiple times
+        file_handler_exists = any(
+            isinstance(h, logging.FileHandler) for h in root_logger.handlers
+        )
+        if not file_handler_exists:
+            file_handler = logging.FileHandler(str(log_path))
+            file_handler.setLevel(logging.DEBUG)
+            file_format = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S'
+            )
+            file_handler.setFormatter(file_format)
+            root_logger.addHandler(file_handler)
+    
+    return logging.getLogger('hydrothermal_vent')
+
+def get_logger(name: str = 'hydrothermal_vent') -> logging.Logger:
+    """
+    Retrieve a logger by name.
+    
+    Args:
+        name: Logger name. Defaults to 'hydrothermal_vent'.
+    
+    Returns:
+        Configured logger instance.
+    """
+    _ensure_log_handlers()
+    return logging.getLogger(name)
 
 def setup_ingestion_logging(
-    log_dir: Optional[Union[str, Path]] = None,
-    log_level: int = logging.INFO
-) -> Tuple[logging.Logger, logging.Logger, logging.Logger]:
+    log_file: Optional[Union[str, Path]] = None
+) -> logging.Logger:
     """
-    Specialized logging setup for the ingestion pipeline (US1).
-    Creates specific loggers for different ingestion steps.
+    Configure specific logging for ingestion steps.
     
     Args:
-        log_dir: Directory for log files.
-        log_level: Logging level.
+        log_file: Optional path to ingestion-specific log file.
     
     Returns:
-        Tuple of (main_logger, alignment_logger, outlier_logger)
+        Logger configured for ingestion tasks.
     """
-    if log_dir is None:
-        log_dir = Path("logs")
-    else:
-        log_dir = Path(log_dir)
-    
-    # Ensure root is set up if not already
-    if not logging.getLogger().handlers:
-        setup_logging(log_level=log_level, log_dir=log_dir)
-    
-    main_logger = get_logger("ingestion.main")
-    alignment_logger = get_logger("ingestion.alignment")
-    outlier_logger = get_logger("ingestion.outliers")
-    
-    # Ensure these specific loggers have handlers if the root doesn't cover them
-    # (This is a safety net; usually propagate=True handles it)
-    if not main_logger.handlers:
-        main_logger.addHandler(logging.StreamHandler(sys.stdout))
-        main_logger.addHandler(logging.FileHandler(log_dir / "ingestion_main.log"))
-        main_logger.setLevel(log_level)
-    
-    if not alignment_logger.handlers:
-        alignment_logger.addHandler(logging.StreamHandler(sys.stdout))
-        alignment_logger.addHandler(logging.FileHandler(log_dir / "ingestion_alignment.log"))
-        alignment_logger.setLevel(log_level)
-    
-    if not outlier_logger.handlers:
-        outlier_logger.addHandler(logging.StreamHandler(sys.stdout))
-        outlier_logger.addHandler(logging.FileHandler(log_dir / "ingestion_outliers.log"))
-        outlier_logger.setLevel(log_level)
-    
-    return main_logger, alignment_logger, outlier_logger
+    logger = setup_logging(log_file=log_file, level=logging.DEBUG)
+    logger.info("Ingestion logging initialized.")
+    return logger
+
+
+# --- Outlier Detection (FR-006) ---
 
 def detect_ph_outliers(
     df: pd.DataFrame,
-    pH_col: str = "pH",
-    low_threshold: float = 1.0,
-    high_threshold: float = 10.0,
-    edge_low: float = 2.0,
-    edge_high_start: float = 8.5,
-    edge_high_end: float = 10.0
-) -> pd.DataFrame:
+    ph_col: str = 'pH',
+    timestamp_col: str = 'timestamp',
+    id_col: str = 'sample_id'
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Detects pH outliers and flags edge ranges per FR-006.
+    Detect pH outliers and flag samples for review per FR-006.
     
-    Flags:
-    - 'outlier': pH < 1.0 or pH > 10.0
-    - 'edge_range_low': 1.0 <= pH < 2.0
-    - 'edge_range_high': 8.5 <= pH <= 10.0
+    Rules:
+    - pH < 1.0 or pH > 10.0: Flag as extreme outlier (exclude).
+    - pH in [1.0, 2.0] (approx unity to moderate acidic): Flag for review.
+    - pH in [8.5, 10.0] (edge alkaline range): Flag for review.
     
     Args:
         df: DataFrame containing pH data.
-        pH_col: Column name for pH values.
-        low_threshold: Absolute lower bound for valid pH.
-        high_threshold: Absolute upper bound for valid pH.
-        edge_low: Lower bound of the low edge range.
-        edge_high_start: Start of the high edge range.
-        edge_high_end: End of the high edge range.
+        ph_col: Name of the pH column.
+        timestamp_col: Name of the timestamp column (for context).
+        id_col: Name of the sample ID column.
     
     Returns:
-        DataFrame with added 'pH_status' column.
+        Tuple of (cleaned_df, review_df):
+        - cleaned_df: Samples with pH in normal range (1.0 <= pH <= 8.5).
+        - review_df: Samples flagged for manual review (edge ranges or extreme outliers).
     """
-    if pH_col not in df.columns:
-        raise ValueError(f"Column '{pH_col}' not found in DataFrame")
-    
-    def classify_ph(val):
-        if pd.isna(val):
-            return "missing"
-        if val < low_threshold or val > high_threshold:
-            return "outlier"
-        if val < edge_low:
-            return "edge_range_low"
-        if edge_high_start <= val <= edge_high_end:
-            return "edge_range_high"
-        return "normal"
+    if ph_col not in df.columns:
+        raise ValueError(f"Column '{ph_col}' not found in DataFrame.")
     
     df = df.copy()
-    df["pH_status"] = df[pH_col].apply(classify_ph)
-    return df
+    
+    # Define ranges
+    extreme_low = df[ph_col] < 1.0
+    extreme_high = df[ph_col] > 10.0
+    review_acidic = (df[ph_col] >= 1.0) & (df[ph_col] <= 2.0)
+    review_alkaline = (df[ph_col] >= 8.5) & (df[ph_col] <= 10.0)
+    
+    # Flagging logic
+    is_extreme = extreme_low | extreme_high
+    is_review = review_acidic | review_alkaline
+    
+    df['is_extreme_outlier'] = is_extreme
+    df['needs_review'] = is_review
+    
+    # Categorize
+    df['status'] = 'valid'
+    df.loc[is_extreme, 'status'] = 'extreme_outlier'
+    df.loc[is_review, 'status'] = 'needs_review'
+    
+    # Split DataFrames
+    cleaned_df = df[df['status'] == 'valid'].drop(columns=['is_extreme_outlier', 'needs_review', 'status'])
+    review_df = df[df['status'] != 'valid'][[id_col, timestamp_col, ph_col, 'status']].copy()
+    
+    return cleaned_df, review_df
+
+
+# --- pH Heterogeneity Calculation (FR-001.1) ---
 
 def calculate_ph_heterogeneity(
     df: pd.DataFrame,
-    timestamp_col: str = "timestamp",
-    pH_col: str = "pH",
-    window_minutes: int = 15
+    ph_col: str = 'pH',
+    timestamp_col: str = 'timestamp',
+    id_col: str = 'sample_id',
+    window_minutes: int = 15,
+    sd_threshold: float = 0.2
 ) -> pd.DataFrame:
     """
-    Calculates pH heterogeneity (SD) within a ±15 minute window per FR-001.1.
+    Calculate pH heterogeneity (SD) within a ±15 minute window per sample.
+    
+    Per FR-001.1: Flags samples where SD within the window exceeds a threshold.
     
     Args:
-        df: DataFrame with timestamp and pH columns.
+        df: DataFrame with pH and timestamp data.
+        ph_col: Name of the pH column.
         timestamp_col: Name of the timestamp column.
-        pH_col: Name of the pH column.
-        window_minutes: Time window in minutes (default 15).
+        id_col: Name of the sample ID column (or group identifier).
+        window_minutes: Time window size in minutes (default 15).
+        sd_threshold: Standard deviation threshold for flagging heterogeneity.
     
     Returns:
-        DataFrame with 'pH_heterogeneity' (SD) column added.
+        DataFrame with added 'pH_sd' and 'pH_heterogeneous' columns.
     """
-    if timestamp_col not in df.columns or pH_col not in df.columns:
-        raise ValueError(f"Required columns '{timestamp_col}' and '{pH_col}' not found")
+    if ph_col not in df.columns or timestamp_col not in df.columns:
+        raise ValueError(f"Required columns '{ph_col}' and '{timestamp_col}' not found.")
     
     df = df.copy()
+    
+    # Ensure timestamp is datetime
     if not pd.api.types.is_datetime64_any_dtype(df[timestamp_col]):
-        df[timestamp_col] = pd.to_datetime(df[timestamp_col])
+        try:
+            df[timestamp_col] = pd.to_datetime(df[timestamp_col])
+        except Exception as e:
+            raise ValueError(f"Failed to parse timestamps in column '{timestamp_col}': {e}")
     
-    df = df.sort_values(timestamp_col)
+    # Sort by timestamp for windowing
+    df = df.sort_values(by=timestamp_col)
     
-    # Calculate rolling SD with a time-based window
-    # We use a centered rolling window: [t - 15min, t + 15min]
-    # pandas rolling with 'min_periods' handles the edge cases
-    window_str = f"{window_minutes}min"
+    def calculate_window_sd(group: pd.DataFrame) -> float:
+        """Calculate SD of pH values within the group's time window."""
+        if len(group) < 2:
+            return 0.0
+        return group[ph_col].std()
     
-    # Calculate SD for each point based on neighbors within the window
-    # Using a rolling window approach is efficient for this
-    # Note: Standard rolling is [t-window, t]. To get symmetric ±15, we can
-    # calculate the rolling SD on the sorted data.
-    # A strict symmetric window requires a custom loop or groupby if data is dense.
-    # For efficiency with large datasets, we approximate with a forward/backward pass
-    # or use the standard rolling window which is sufficient for "within window" logic
-    # in most time-series contexts unless strict symmetry is mandated by FR.
-    # FR-001.1 says "within ±15 min window".
+    # Group by sample_id (or relevant grouping key)
+    # If id_col is unique per row, we need to look at neighbors within the window
+    # The task implies "SD within ±15 min window" for a given sample context.
+    # We assume rows are measurements. If 'sample_id' represents a deployment event or site,
+    # we group by that. If 'sample_id' is a unique measurement, we calculate SD of neighbors.
+    # Based on T010/T011 context: "join samples within ±15 minute window".
+    # We will group by 'deployment_event' or similar if available, otherwise by proximity.
+    # However, the function signature only takes id_col. Let's assume id_col groups the measurements.
     
-    # Efficient approach: Group by time buckets or use rolling with a larger window
-    # and then filter? No, rolling is best.
-    # Let's use a custom function for strict symmetry if needed, but standard rolling
-    # is usually acceptable for "heterogeneity" metrics in this context.
-    # To be precise with ±15min, we calculate the SD of all points in [t-15, t+15].
+    if id_col in df.columns:
+        grouped = df.groupby(id_col)
+        df['pH_sd'] = grouped[ph_col].transform(lambda x: x.rolling(
+            window=f'{window_minutes}T', 
+            on=timestamp_col, 
+            center=True, 
+            min_periods=2
+        ).std() if len(x) > 1 else 0.0)
+    else:
+        # Fallback: rolling window on the whole dataset if no group ID
+        # This might be less accurate if multiple sites are mixed, but fits the signature.
+        df['pH_sd'] = df[ph_col].rolling(
+            window=f'{window_minutes}T', 
+            on=timestamp_col, 
+            center=True, 
+            min_periods=2
+        ).std()
     
-    heterogeneity = []
-    times = df[timestamp_col].values
-    phs = df[pH_col].values
+    # Fill NaN with 0 (single points or edges)
+    df['pH_sd'] = df['pH_sd'].fillna(0.0)
     
-    # Vectorized approach might be complex for exact symmetric windows.
-    # Using a loop for correctness on the "symmetric" requirement is safer for science.
-    # Optimization: If data is sorted, we can use two pointers.
+    # Flag heterogeneity
+    df['pH_heterogeneous'] = df['pH_sd'] > sd_threshold
     
-    left = 0
-    right = 0
-    n = len(df)
-    
-    # Pre-allocate
-    sd_values = [0.0] * n
-    
-    for i in range(n):
-        current_time = times[i]
-        
-        # Expand right to include all points <= current_time + 15min
-        while right < n and times[right] <= current_time + pd.Timedelta(minutes=window_minutes):
-            right += 1
-        
-        # Shrink left to exclude all points < current_time - 15min
-        while left < n and times[left] < current_time - pd.Timedelta(minutes=window_minutes):
-            left += 1
-        
-        # Slice is [left, right)
-        window_ph = phs[left:right]
-        if len(window_ph) > 1:
-            sd_values[i] = pd.Series(window_ph).std()
-        else:
-            sd_values[i] = 0.0
-    
-    df["pH_heterogeneity"] = sd_values
     return df
+
 
 def main():
     """
-    Entry point for testing logging configuration.
+    Main entry point for testing utility functions.
     """
-    setup_logging(log_level=logging.DEBUG)
-    logger = get_logger("utils.main")
-    logger.info("Utils module logging initialized successfully.")
+    logger = setup_logging(log_file='state/utils_test.log', level=logging.DEBUG)
+    logger.info("Running utils.py self-test...")
     
-    # Test ingestion logging
-    main_log, align_log, outlier_log = setup_ingestion_logging(log_level=logging.INFO)
-    main_log.info("Ingestion main logger ready.")
-    align_log.info("Ingestion alignment logger ready.")
-    outlier_log.info("Ingestion outliers logger ready.")
+    # Test Data
+    data = {
+        'sample_id': [f'S{i}' for i in range(10)],
+        'timestamp': pd.date_range(start='2023-01-01 12:00', periods=10, freq='5min'),
+        'pH': [7.0, 7.2, 1.5, 0.5, 9.5, 8.8, 7.5, 7.6, 12.0, 8.0]
+    }
+    df = pd.DataFrame(data)
+    
+    # Test Outlier Detection
+    logger.info("Testing detect_ph_outliers...")
+    cleaned, review = detect_ph_outliers(df)
+    logger.debug(f"Cleaned samples: {len(cleaned)}, Review samples: {len(review)}")
+    assert len(review) > 0, "Should flag edge/extreme values."
+    
+    # Test Heterogeneity
+    logger.info("Testing calculate_ph_heterogeneity...")
+    df_het = calculate_ph_heterogeneity(df, window_minutes=15, sd_threshold=0.5)
+    logger.debug(f"Heterogeneous samples: {df_het['pH_heterogeneous'].sum()}")
+    
+    logger.info("Self-test completed successfully.")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

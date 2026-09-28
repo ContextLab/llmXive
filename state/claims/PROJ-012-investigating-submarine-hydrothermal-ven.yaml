@@ -1,0 +1,33 @@
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: pH variation range 3.5 to 8.1 in Gupta et al. 2023 dataset
+  claim_id: c_46b7ec80
+  context: This dataset provides the necessary variation in pH (3.5 to 8.1) and temperature
+    required to test the correlation hypotheses (US1, US2).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset provides variation in pH from 3.5 to 8.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T20:57:13Z'
+- artifact_path: projects/PROJ-012-investigating-submarine-hydrothermal-ven/research.md
+  attempts: 1
+  canonical: OOI sensor data temporal resolution 15 minutes
+  claim_id: c_66c82f92
+  context: Provides high-resolution temporal data (15-min intervals) required for
+    the temporal alignment logic (US1) and the calculation of pH heterogeneity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Environmental sensor logs provide high-resolution temporal data at 15-minute
+    intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T20:58:13Z'

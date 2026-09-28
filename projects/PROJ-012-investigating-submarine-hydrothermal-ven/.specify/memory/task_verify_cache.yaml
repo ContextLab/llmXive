@@ -1,3 +1,24 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directories (`data/raw/`, `data/processed/`, `code/`,\
+    \ `tests/`, `state/`, `results/figures/`) being present or populated is provided;\
+    \ the implementer\u2019s claim cannot be verified. The task remains unfinished\
+    \ until the full project folder hierarchy is created."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No conda/mamba environment file, installation script, or verification output\
+    \ showing QIIME\u202F2 installed and the CLI usable is present. The required artifact\
+    \ (evidence of a functional QIIME\u202F2 installation/configuration) is missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `black` settings, or a `pre-commit` hook) are present in the provided evidence,\
+    \ so the requirement to configure `ruff` and `black` is not satisfied. The implementer\
+    \ must add the appropriate configuration artifacts and ensure they are non\u2011\
+    empty and correctly set up."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -6,3 +27,10 @@ T025:
     \ Without a concrete file or snippet containing this flag, the requirement is\
     \ not satisfied. The implementer must supply the actual output (e.g., CSV, JSON,\
     \ or document) that includes the required metadata flag."
+T049:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file containing concrete real\u2011world data source URLs or\
+    \ package IDs was provided; the implementer only gave a task description without\
+    \ the required documentation, so the exact NCBI SRA Run IDs or sensor log repository\
+    \ links are missing."

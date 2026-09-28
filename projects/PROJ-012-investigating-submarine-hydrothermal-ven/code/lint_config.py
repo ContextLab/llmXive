@@ -1,241 +1,155 @@
 """
-Linting and Formatting Configuration and Execution Module.
-
-This module provides functions to ensure ruff and black configurations exist,
-and to run linting, formatting, and import sorting (isort) on the project codebase.
+Configuration and execution helpers for linting (ruff) and formatting (black/isort).
 """
-
 import os
 import subprocess
 import sys
 from pathlib import Path
+import logging
 
-try:
-    import tomli
-    import tomli_w
-except ImportError:
-    print("Error: 'tomli' and 'tomli_w' are required for config management. "
-          "Please install them: pip install tomli tomli_w")
-    sys.exit(1)
+logger = logging.getLogger(__name__)
 
-
-def ensure_ruff_config() -> Path:
-    """
-    Ensure a valid .ruff.toml configuration file exists in the project root.
-    If it doesn't exist, create a default one.
+def ensure_ruff_config() -> bool:
+    """Verify that ruff configuration exists in pyproject.toml."""
+    root = Path.cwd()
+    pyproject = root / "pyproject.toml"
+    if not pyproject.exists():
+        logger.error("pyproject.toml not found in current directory.")
+        return False
     
-    Returns:
-        Path: The path to the ruff config file.
-    """
-    config_path = Path("pyproject.toml")
-    default_config = {
-        "tool": {
-            "ruff": {
-                "line-length": 88,
-                "target-version": "py311",
-                "select": [
-                    "E",   # pycodestyle errors
-                    "W",   # pycodestyle warnings
-                    "F",   # Pyflakes
-                    "I",   # isort
-                    "C",   # flake8-comprehensions
-                    "B",   # flake8-bugbear
-                ],
-                "ignore": [
-                    "E501", # line too long (handled by black)
-                    "B008", # do not perform function calls in argument defaults
-                ],
-                "exclude": [
-                    ".git",
-                    "__pycache__",
-                    ".tox",
-                    "build",
-                    "dist",
-                    ".eggs",
-                    "*.egg-info",
-                ],
-                "per-file-ignores": {
-                    "tests/*": ["E501", "S101"], # Allow assert in tests
-                },
-            }
-        }
-    }
-
-    if not config_path.exists():
-        print(f"Creating default ruff configuration at {config_path}...")
-        with open(config_path, "wb") as f:
-            tomli_w.dump(default_config, f)
-        return config_path
-
-    # Verify it has ruff config, if not, update it
-    try:
-        with open(config_path, "rb") as f:
-            config = tomli.load(f)
-        
-        if "tool" not in config or "ruff" not in config["tool"]:
-            print(f"Updating {config_path} with ruff configuration...")
-            config["tool"] = config.get("tool", {})
-            config["tool"]["ruff"] = default_config["tool"]["ruff"]
-            with open(config_path, "wb") as f:
-                tomli_w.dump(config, f)
-    except Exception as e:
-        print(f"Warning: Could not read/update {config_path}: {e}")
-        # Fallback to creating a separate .ruff.toml
-        ruff_path = Path(".ruff.toml")
-        if not ruff_path.exists():
-            with open(ruff_path, "w") as f:
-                f.write("# Default Ruff Configuration\n")
-                f.write("line-length = 88\n")
-                f.write("target-version = \"py311\"\n")
-            return ruff_path
-        
-    return config_path
-
-
-def ensure_black_config() -> Path:
-    """
-    Ensure a valid black configuration exists in the project root (usually in pyproject.toml).
+    content = pyproject.read_text()
+    if "[tool.ruff]" not in content:
+        logger.error("Ruff configuration section [tool.ruff] missing in pyproject.toml.")
+        return False
     
-    Returns:
-        Path: The path to the config file.
-    """
-    config_path = Path("pyproject.toml")
-    default_black_config = {
-        "tool": {
-            "black": {
-                "line-length": 88,
-                "target-version": ["py311"],
-                "include": r"code/.*\.py$",
-                "exclude": r"/(\.git|\.tox|build|dist|\.eggs|.*\.egg-info)/",
-            }
-        }
-    }
+    logger.info("Ruff configuration found.")
+    return True
 
-    if not config_path.exists():
-        print(f"Creating default black configuration at {config_path}...")
-        with open(config_path, "wb") as f:
-            tomli_w.dump(default_black_config, f)
-        return config_path
-
-    try:
-        with open(config_path, "rb") as f:
-            config = tomli.load(f)
-        
-        if "tool" not in config or "black" not in config["tool"]:
-            print(f"Updating {config_path} with black configuration...")
-            config["tool"] = config.get("tool", {})
-            config["tool"]["black"] = default_black_config["tool"]["black"]
-            with open(config_path, "wb") as f:
-                tomli_w.dump(config, f)
-    except Exception as e:
-        print(f"Warning: Could not read/update {config_path}: {e}")
-
-    return config_path
-
-
-def run_isort() -> int:
-    """
-    Run isort to sort imports.
+def ensure_black_config() -> bool:
+    """Verify that black configuration exists in pyproject.toml."""
+    root = Path.cwd()
+    pyproject = root / "pyproject.toml"
+    if not pyproject.exists():
+        logger.error("pyproject.toml not found in current directory.")
+        return False
     
-    Returns:
-        int: Return code (0 for success).
-    """
+    content = pyproject.read_text()
+    if "[tool.black]" not in content:
+        logger.error("Black configuration section [tool.black] missing in pyproject.toml.")
+        return False
+    
+    logger.info("Black configuration found.")
+    return True
+
+def run_isort() -> bool:
+    """Run isort to sort imports."""
+    logger.info("Running isort...")
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "isort", "code/", "tests/"],
+            [sys.executable, "-m", "isort", "."],
             check=True,
             capture_output=True,
             text=True
         )
-        print("isort output:")
-        print(result.stdout)
-        return result.returncode
+        if result.stdout:
+            logger.info(result.stdout)
+        if result.stderr:
+            logger.warning(result.stderr)
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"isort error: {e.stderr}")
-        return e.returncode
+        logger.error(f"isort failed: {e}")
+        logger.error(f"stderr: {e.stderr}")
+        return False
     except FileNotFoundError:
-        print("Error: 'isort' not found. Please install it: pip install isort")
-        return 1
+        logger.error("isort not found. Please install it: pip install isort")
+        return False
 
-
-def run_lint() -> int:
-    """
-    Run ruff linter.
-    
-    Returns:
-        int: Return code (0 for success).
-    """
-    ensure_ruff_config()
+def run_lint() -> bool:
+    """Run ruff to check for linting errors."""
+    logger.info("Running ruff lint...")
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "ruff", "check", "code/", "tests/"],
-            check=False, # We want to see the output even if there are errors
+            [sys.executable, "-m", "ruff", "check", "."],
+            check=True,
             capture_output=True,
             text=True
         )
-        print("Ruff Lint Output:")
         if result.stdout:
-            print(result.stdout)
+            logger.info(result.stdout)
         if result.stderr:
-            print(result.stderr)
-        return result.returncode
+            logger.warning(result.stderr)
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Ruff found linting errors:")
+        logger.error(f"stdout: {e.stdout}")
+        # Returning False here to indicate lint failure, but not crashing the script
+        return False
     except FileNotFoundError:
-        print("Error: 'ruff' not found. Please install it: pip install ruff")
-        return 1
+        logger.error("ruff not found. Please install it: pip install ruff")
+        return False
 
-
-def run_format() -> int:
-    """
-    Run black formatter.
-    
-    Returns:
-        int: Return code (0 for success).
-    """
-    ensure_black_config()
+def run_format() -> bool:
+    """Run black to format code."""
+    logger.info("Running black format...")
     try:
         result = subprocess.run(
-            [sys.executable, "-m", "black", "code/", "tests/"],
-            check=False,
+            [sys.executable, "-m", "black", "."],
+            check=True,
             capture_output=True,
             text=True
         )
-        print("Black Format Output:")
         if result.stdout:
-            print(result.stdout)
+            logger.info(result.stdout)
         if result.stderr:
-            print(result.stderr)
-        return result.returncode
+            logger.warning(result.stderr)
+        return True
+    except subprocess.CalledProcessError as e:
+        logger.error(f"Black failed: {e}")
+        logger.error(f"stderr: {e.stderr}")
+        return False
     except FileNotFoundError:
-        print("Error: 'black' not found. Please install it: pip install black")
-        return 1
+        logger.error("black not found. Please install it: pip install black")
+        return False
 
+def main() -> None:
+    """Main entry point to run linting and formatting checks."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
 
-def main():
-    """
-    Main entry point for running linting and formatting tools.
-    """
-    print("=== Linting and Formatting Configuration ===")
+    logger.info("Starting lint and format configuration checks...")
+
+    # Verify configs exist
+    if not ensure_ruff_config():
+        logger.error("Ruff configuration check failed. Exiting.")
+        sys.exit(1)
     
-    # Ensure configs exist
-    ensure_ruff_config()
-    ensure_black_config()
+    if not ensure_black_config():
+        logger.error("Black configuration check failed. Exiting.")
+        sys.exit(1)
+
+    logger.info("Configuration checks passed.")
+
+    # Run linter (non-fatal if errors found, just logs them)
+    lint_success = run_lint()
     
-    print("\n--- Running isort ---")
-    isort_code = run_isort()
+    # Run formatter
+    format_success = run_format()
+
+    # Run isort
+    isort_success = run_isort()
+
+    if not lint_success:
+        logger.warning("Linting issues found. Please fix them manually or run 'ruff check --fix .'")
     
-    print("\n--- Running Black ---")
-    black_code = run_format()
-    
-    print("\n--- Running Ruff Lint ---")
-    ruff_code = run_lint()
-    
-    if isort_code == 0 and black_code == 0 and ruff_code == 0:
-        print("\n✅ All linting and formatting checks passed!")
-        return 0
+    if format_success and isort_success:
+        logger.info("Formatting and import sorting completed successfully.")
     else:
-        print("\n❌ Some checks failed. Please review the output above.")
-        return 1
+        logger.error("Formatting or import sorting failed.")
+        sys.exit(1)
 
+    logger.info("Linting and formatting pipeline finished.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
