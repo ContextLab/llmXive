@@ -1,6 +1,5 @@
-'|benchmark humaneval limited sample size study':
-  quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems, collected
-    from various online educational websites.'
-  source_id: Language model benchmark
-  url: https://en.wikipedia.org/wiki/Language_model_benchmark
+'|contain dataset humaneval problem':
+  quote: manEval (Chen et al., 2021) with 164 tasks,
+  source_id: '2410.12381'
+  url: https://arxiv.org/abs/2410.12381
   value: '164'

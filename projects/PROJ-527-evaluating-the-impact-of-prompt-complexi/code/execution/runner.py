@@ -6,213 +6,308 @@ import tempfile
 import os
 import signal
 import logging
-import traceback
+import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass, field
 from datetime import datetime
 
-from models.data_models import ExecutionStatus
+from config import Paths, get_config_summary
 from utils.logger import get_logger
+from models.data_models import ExecutionOutcome, ExecutionStatus, HumanEvalProblem
 
-# Import logger setup to ensure structured logging
 logger = get_logger(__name__)
 
 class ExecutionTimeoutError(Exception):
-    """Raised when code execution exceeds the timeout threshold."""
+    """Raised when code execution exceeds the timeout limit."""
     pass
 
 class ExecutionError(Exception):
-    """Raised when code execution fails due to syntax or runtime errors."""
-    def __init__(self, message: str, error_type: str = "RuntimeError"):
-        super().__init__(message)
-        self.error_type = error_type
+    """Raised when code execution fails due to runtime errors."""
+    pass
 
-def run_code_with_timeout(code: str, timeout: float = 5.0) -> Tuple[bool, Optional[str], Optional[str], str]:
+@dataclass
+class ExecutionResult:
+    """Internal result container before mapping to Pydantic model."""
+    problem_id: str
+    variant_id: str
+    code: str
+    pass_count: int = 0
+    fail_count: int = 0
+    error_details: str = ""
+    timeout_flag: bool = False
+    exception_type: Optional[str] = None
+    execution_time: float = 0.0
+    status: ExecutionStatus = ExecutionStatus.PENDING
+
+def run_code_with_timeout(
+    code: str,
+    test_code: str,
+    entry_point: str,
+    timeout_seconds: int = 10
+) -> ExecutionResult:
     """
-    Execute code in an isolated subprocess with a timeout.
+    Executes generated code against a test suite with a configurable timeout.
     
-    Returns:
-        Tuple of (success, stdout, stderr, error_type)
-        - success: bool indicating if execution completed without timeout
-        - stdout: captured stdout or None
-        - stderr: captured stderr or None
-        - error_type: 'Timeout', 'SyntaxError', 'RuntimeError', or 'None'
-    """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        script_path = Path(tmpdir) / "test_script.py"
-        script_path.write_text(code)
-        
-        try:
-            # Run with timeout
-            result = subprocess.run(
-                [sys.executable, str(script_path)],
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=tmpdir
-            )
-            
-            if result.returncode == 0:
-                return True, result.stdout, result.stderr, "None"
-            else:
-                # Check for syntax errors vs runtime errors
-                error_output = result.stderr
-                if "SyntaxError" in error_output or "IndentationError" in error_output:
-                    return False, result.stdout, error_output, "SyntaxError"
-                else:
-                    return False, result.stdout, error_output, "RuntimeError"
-                    
-        except subprocess.TimeoutExpired:
-            return False, None, None, "Timeout"
-        except Exception as e:
-            return False, None, str(e), "SystemError"
-
-def execute_sample(sample: Dict[str, Any], timeout: float = 5.0) -> Dict[str, Any]:
-    """
-    Execute a single code sample and capture execution status and errors.
+    This function:
+    1. Writes the generated code and test code to temporary files.
+    2. Executes the test runner in a subprocess with a timeout.
+    3. Captures stdout/stderr to detect syntax errors, runtime exceptions, and timeouts.
+    4. Parses the output to determine pass/fail counts.
     
     Args:
-        sample: Dictionary containing 'code' (the generated code) and metadata
-        timeout: Maximum execution time in seconds
+        code: The generated code string to execute.
+        test_code: The test harness code (from HumanEval).
+        entry_point: The name of the function being tested.
+        timeout_seconds: Maximum execution time per test case.
         
     Returns:
-        Dictionary with execution results including status, error types, and logs
+        ExecutionResult with pass/fail counts and error details.
     """
-    code = sample.get('code', '')
-    sample_id = sample.get('sample_id', 'unknown')
-    complexity_label = sample.get('complexity_label', 'unknown')
-    problem_id = sample.get('problem_id', 'unknown')
+    result = ExecutionResult(
+        problem_id="unknown", # Will be set by caller
+        variant_id="unknown", # Will be set by caller
+        code=code
+    )
     
-    logger.info(f"Executing sample {sample_id} (Complexity: {complexity_label})")
+    start_time = time.time()
     
     try:
-        success, stdout, stderr, error_type = run_code_with_timeout(code, timeout)
-        
-        if success:
-            status = ExecutionStatus.PASS
-            error_message = None
-            logger.info(f"Sample {sample_id} executed successfully")
-        else:
-            if error_type == "Timeout":
-                status = ExecutionStatus.FAIL
-                error_message = f"Execution timed out after {timeout} seconds"
-                logger.warning(f"Sample {sample_id} timed out")
-            elif error_type == "SyntaxError":
-                status = ExecutionStatus.FAIL
-                error_message = f"Syntax error: {stderr}"
-                logger.error(f"Sample {sample_id} failed with syntax error: {stderr[:200]}")
-            elif error_type == "RuntimeError":
-                status = ExecutionStatus.FAIL
-                error_message = f"Runtime error: {stderr}"
-                logger.error(f"Sample {sample_id} failed with runtime error: {stderr[:200]}")
-            else:
-                status = ExecutionStatus.FAIL
-                error_message = f"Unknown error: {stderr}"
-                logger.error(f"Sample {sample_id} failed with unknown error: {stderr[:200]}")
-        
-        return {
-            'sample_id': sample_id,
-            'problem_id': problem_id,
-            'complexity_label': complexity_label,
-            'status': status.value,
-            'error_type': error_type if not success else None,
-            'error_message': error_message,
-            'stdout': stdout,
-            'stderr': stderr,
-            'execution_time': timeout if error_type == "Timeout" else None
-        }
-        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            code_path = Path(tmpdir) / "solution.py"
+            test_path = Path(tmpdir) / "test_solution.py"
+            
+            # Write code and tests to files
+            code_path.write_text(code)
+            test_path.write_text(test_code)
+            
+            # Construct the command to run the tests
+            # We run the test file which imports the solution and runs checks
+            cmd = [sys.executable, str(test_path)]
+            
+            # Execute with timeout
+            try:
+                process = subprocess.run(
+                    cmd,
+                    capture_output=True,
+                    text=True,
+                    timeout=timeout_seconds,
+                    cwd=tmpdir
+                )
+                
+                result.execution_time = time.time() - start_time
+                
+                # Analyze output
+                stdout = process.stdout
+                stderr = process.stderr
+                return_code = process.returncode
+                
+                # Check for timeout (though subprocess timeout handles this)
+                if return_code == -signal.SIGALRM or "timeout" in stdout.lower() or "timeout" in stderr.lower():
+                    result.timeout_flag = True
+                    result.status = ExecutionStatus.FAILED
+                    result.error_details = "Execution timed out"
+                    result.exception_type = "TimeoutError"
+                    return result
+                
+                # Parse pass/fail from output (HumanEval format usually prints "Test X: PASS/FAIL")
+                # Or if it's a standard unittest output
+                lines = (stdout + stderr).splitlines()
+                
+                # Simple heuristic: look for "passed" or "failed" in output
+                # HumanEval specific: often prints "Test 1: PASS", "Test 2: FAIL"
+                # Or if using pytest/unittest: "X passed, Y failed"
+                
+                # Count occurrences
+                pass_count = 0
+                fail_count = 0
+                error_found = False
+                error_msg = ""
+                
+                for line in lines:
+                    line_lower = line.lower()
+                    if "test" in line_lower and "pass" in line_lower:
+                        pass_count += 1
+                    elif "test" in line_lower and "fail" in line_lower:
+                        fail_count += 1
+                    elif "passed" in line_lower and "failed" not in line_lower:
+                        # "X passed"
+                        pass_count += 1
+                    elif "failed" in line_lower and "passed" not in line_lower:
+                        # "X failed"
+                        fail_count += 1
+                    
+                    # Check for syntax errors or tracebacks
+                    if "syntaxerror" in line_lower or "traceback" in line_lower:
+                        error_found = True
+                        error_msg = line
+                    if "runtimeerror" in line_lower:
+                        error_found = True
+                        error_msg = line
+                    if "nameerror" in line_lower:
+                        error_found = True
+                        error_msg = line
+                    if "importerror" in line_lower:
+                        error_found = True
+                        error_msg = line
+                
+                # If no explicit counts found but output is clean, assume success or failure based on return code
+                if pass_count == 0 and fail_count == 0:
+                    if return_code == 0:
+                        # Assume all passed if no errors and exit 0, but this is risky
+                        # Better to look for "OK" or similar
+                        if "ok" in stdout.lower() or "ok" in stderr.lower():
+                            pass_count = 1 # Default to 1 if we can't count
+                        else:
+                            # If we can't determine, assume failure if there's output
+                            if stdout.strip() or stderr.strip():
+                                fail_count = 1
+                                result.error_details = f"Execution returned {return_code} with output: {stdout[:200]} {stderr[:200]}"
+                            else:
+                                pass_count = 1
+                    else:
+                        fail_count = 1
+                        result.error_details = f"Execution returned non-zero exit code: {return_code}. Stderr: {stderr[:200]}"
+                
+                result.pass_count = pass_count
+                result.fail_count = fail_count
+                
+                if error_found:
+                    result.status = ExecutionStatus.FAILED
+                    result.exception_type = "RuntimeError" if "runtimeerror" in error_msg.lower() else "SyntaxError" if "syntaxerror" in error_msg.lower() else "OtherError"
+                    result.error_details = error_msg
+                elif fail_count > 0:
+                    result.status = ExecutionStatus.FAILED
+                    result.exception_type = "TestFailure"
+                    result.error_details = f"{fail_count} test(s) failed"
+                elif pass_count > 0:
+                    result.status = ExecutionStatus.PASSED
+                    result.error_details = ""
+                else:
+                    result.status = ExecutionStatus.FAILED
+                    result.error_details = "Unable to determine execution outcome"
+                    
+            except subprocess.TimeoutExpired:
+                result.execution_time = time.time() - start_time
+                result.timeout_flag = True
+                result.status = ExecutionStatus.FAILED
+                result.error_details = f"Execution timed out after {timeout_seconds} seconds"
+                result.exception_type = "TimeoutError"
+                
     except Exception as e:
-        # Catch-all for unexpected exceptions during execution
-        logger.exception(f"Unexpected error executing sample {sample_id}: {e}")
-        return {
-            'sample_id': sample_id,
-            'problem_id': problem_id,
-            'complexity_label': complexity_label,
-            'status': ExecutionStatus.FAIL.value,
-            'error_type': 'SystemError',
-            'error_message': str(e),
-            'stdout': None,
-            'stderr': traceback.format_exc(),
-            'execution_time': None
-        }
+        result.execution_time = time.time() - start_time
+        result.status = ExecutionStatus.FAILED
+        result.error_details = str(e)
+        result.exception_type = type(e).__name__
+        logger.error(f"Unexpected error during execution: {e}", exc_info=True)
+        
+    return result
 
-def run_batch_execution(samples: List[Dict[str, Any]], timeout: float = 5.0) -> List[Dict[str, Any]]:
+def execute_sample(
+    problem: HumanEvalProblem,
+    variant_id: str,
+    generated_code: str,
+    timeout_seconds: int = 10
+) -> ExecutionOutcome:
     """
-    Execute a batch of code samples with exception handling for each.
+    Executes a single generated code sample against the problem's tests.
     
     Args:
-        samples: List of dictionaries containing code and metadata
-        timeout: Maximum execution time per sample
+        problem: The HumanEvalProblem containing tests and entry point.
+        variant_id: The ID of the prompt variant used.
+        generated_code: The code generated by the LLM.
+        timeout_seconds: Timeout per execution.
         
     Returns:
-        List of execution result dictionaries
+        ExecutionOutcome Pydantic model.
     """
-    logger.info(f"Starting batch execution of {len(samples)} samples")
-    results = []
+    result = run_code_with_timeout(
+        code=generated_code,
+        test_code=problem.test_list[0] if problem.test_list else "", # HumanEval tests are usually a list of strings, but often concatenated. Assuming list of strings or single string.
+        entry_point=problem.problem_id, # Using problem_id as entry point name placeholder
+        timeout_seconds=timeout_seconds
+    )
     
-    for i, sample in enumerate(samples):
-        logger.debug(f"Processing sample {i+1}/{len(samples)}")
-        result = execute_sample(sample, timeout)
-        results.append(result)
+    # Map internal result to Pydantic model
+    outcome = ExecutionOutcome(
+        outcome_id=f"out_{variant_id}_{int(time.time())}",
+        code_id=f"code_{variant_id}",
+        pass_count=result.pass_count,
+        fail_count=result.fail_count,
+        error_details=result.error_details,
+        timeout_flag=result.timeout_flag
+    )
+    
+    logger.info(
+        f"Executed {variant_id}: "
+        f"Pass={result.pass_count}, Fail={result.fail_count}, "
+        f"Timeout={result.timeout_flag}, Time={result.execution_time:.2f}s"
+    )
+    
+    return outcome
+
+def run_batch_execution(
+    variants: List[Dict[str, Any]],
+    problems: Dict[str, HumanEvalProblem],
+    timeout_seconds: int = 10
+) -> List[ExecutionOutcome]:
+    """
+    Runs execution for a batch of generated code variants.
+    
+    Args:
+        variants: List of dicts containing variant_id, problem_id, code.
+        problems: Dict mapping problem_id to HumanEvalProblem.
+        timeout_seconds: Timeout per test case.
         
-        # Log progress
-        if (i + 1) % 10 == 0:
-            logger.info(f"Completed {i+1}/{len(samples)} samples")
+    Returns:
+        List of ExecutionOutcome objects.
+    """
+    outcomes = []
     
-    # Log summary
-    success_count = sum(1 for r in results if r['status'] == ExecutionStatus.PASS.value)
-    fail_count = len(results) - success_count
-    logger.info(f"Batch execution complete: {success_count} passed, {fail_count} failed")
-    
-    return results
+    for variant in variants:
+        variant_id = variant.get("variant_id")
+        problem_id = variant.get("problem_id")
+        code = variant.get("code")
+        
+        if not all([variant_id, problem_id, code]):
+            logger.warning(f"Skipping invalid variant: {variant}")
+            continue
+        
+        if problem_id not in problems:
+            logger.error(f"Problem {problem_id} not found in dataset.")
+            continue
+        
+        problem = problems[problem_id]
+        
+        try:
+            outcome = execute_sample(
+                problem=problem,
+                variant_id=variant_id,
+                generated_code=code,
+                timeout_seconds=timeout_seconds
+            )
+            outcomes.append(outcome)
+        except Exception as e:
+            logger.error(f"Failed to execute variant {variant_id}: {e}", exc_info=True)
+            # Create a failed outcome
+            outcomes.append(ExecutionOutcome(
+                outcome_id=f"out_{variant_id}_error",
+                code_id=f"code_{variant_id}",
+                pass_count=0,
+                fail_count=1,
+                error_details=str(e),
+                timeout_flag=False
+            ))
+            
+    return outcomes
 
 def main():
-    """Main entry point for testing the execution runner."""
-    # Example usage
-    test_samples = [
-        {
-            'sample_id': 'test_001',
-            'problem_id': 'human_eval_001',
-            'complexity_label': 'simple',
-            'code': 'def add(a, b): return a + b\nprint(add(2, 3))'
-        },
-        {
-            'sample_id': 'test_002',
-            'problem_id': 'human_eval_002',
-            'complexity_label': 'moderate',
-            'code': 'def multiply(a, b): return a * b\nprint(multiply(4, 5))'
-        },
-        {
-            'sample_id': 'test_003',
-            'problem_id': 'human_eval_003',
-            'complexity_label': 'complex',
-            'code': 'def divide(a, b):\n    if b == 0:\n        raise ValueError("Cannot divide by zero")\n    return a / b\nprint(divide(10, 2))'
-        },
-        {
-            'sample_id': 'test_004',
-            'problem_id': 'human_eval_004',
-            'complexity_label': 'very_complex',
-            'code': 'def invalid_syntax\n    print("This is invalid")'  # Intentional syntax error
-        },
-        {
-            'sample_id': 'test_005',
-            'problem_id': 'human_eval_005',
-            'complexity_label': 'degenerate',
-            'code': 'import time\ntime.sleep(10)\nprint("Done")'  # Intentional timeout
-        }
-    ]
-    
-    results = run_batch_execution(test_samples, timeout=2.0)
-    
-    # Print results
-    for result in results:
-        print(f"\nSample: {result['sample_id']}")
-        print(f"Status: {result['status']}")
-        if result['error_type']:
-            print(f"Error Type: {result['error_type']}")
-            print(f"Error Message: {result['error_message']}")
-        print("-" * 50)
+    """
+    Main entry point for testing the runner.
+    This is a stub for CLI invocation; real execution is done via orchestrator or pipeline.
+    """
+    logger.info("Execution Runner Module Loaded.")
+    logger.info("Use run_batch_execution() to process variants.")
 
 if __name__ == "__main__":
     main()

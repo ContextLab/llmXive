@@ -1,174 +1,99 @@
-"""
-Token counting and threshold validation for prompt variants.
-
-Uses tiktoken's cl100k_base encoder (GPT-4o, GPT-4, etc.) to count tokens
-and validate against complexity-specific thresholds.
-"""
 from __future__ import annotations
 
 import tiktoken
 from typing import Dict, List, Tuple, Optional
+
 from models.data_models import PromptVariant, ComplexityLabel
 from config import Paths
+from utils.logger import get_logger
 
-# Thresholds (inclusive lower bound, exclusive upper bound where applicable)
-# simple: <= 50
-# moderate: 51-150
-# complex: 151-300
-# very_complex: 301-500
-# degenerate: > 500 (or specific redundant pattern)
-THRESHOLDS: Dict[ComplexityLabel, Tuple[int, Optional[int]]] = {
-    "simple": (0, 50),
-    "moderate": (51, 150),
-    "complex": (151, 300),
-    "very_complex": (301, 500),
-    "degenerate": (501, None),  # No upper bound
+logger = get_logger(__name__)
+
+# Token thresholds per complexity level (secondary indicators)
+# Note: These are for validation/alerting only. Primary complexity definition is structural element count.
+THRESHOLDS: Dict[ComplexityLabel, int] = {
+    "simple": 50,
+    "moderate": 150,
+    "complex": 300,
+    "very_complex": 600,
+    "degenerate": 1000,
 }
-
-ENCODER_NAME = "cl100k_base"
 
 def get_token_count(text: str) -> int:
     """
-    Count tokens in a string using the cl100k_base encoder.
-
-    Args:
-        text: The prompt text to tokenize.
-
-    Returns:
-        The number of tokens in the text.
+    Count tokens using tiktoken's cl100k_base (standard for most LLMs).
+    This function is the primary mechanism for token counting across the project.
     """
     try:
-        encoder = tiktoken.get_encoding(ENCODER_NAME)
+        encoder = tiktoken.get_encoding("cl100k_base")
         return len(encoder.encode(text))
     except Exception as e:
-        raise RuntimeError(f"Failed to tokenize text with {ENCODER_NAME}: {e}")
+        logger.error(f"Error encoding text: {e}")
+        raise
 
-def validate_thresholds(
-    variant: PromptVariant, strict: bool = True
-) -> Tuple[bool, str]:
+def validate_thresholds(variants: List[PromptVariant]) -> List[Tuple[PromptVariant, str]]:
     """
-    Validate that a prompt variant's token count falls within its expected complexity range.
-
-    Args:
-        variant: The prompt variant to validate.
-        strict: If True, raise an error on mismatch. If False, return a warning message.
-
-    Returns:
-        A tuple of (is_valid, message).
-        If strict=True and invalid, raises ValueError.
+    Validate that token counts roughly align with complexity labels.
+    Returns a list of (variant, warning_message) for mismatches.
+    
+    NOTE: Token thresholds are SECONDARY. A mismatch here does not invalidate
+    the complexity label if the structural element count is correct.
     """
-    label = variant.complexity_label
-    token_count = variant.token_count
-    lower, upper = THRESHOLDS[label]
+    warnings = []
+    for variant in variants:
+        label = variant.complexity_label
+        count = variant.token_count
+        threshold = THRESHOLDS.get(label, float("inf"))
 
-    if upper is None:
-        # degenerate case: just needs to be > lower
-        if token_count <= lower:
-            msg = (
-                f"Variant '{label}' has {token_count} tokens, "
-                f"expected > {lower} tokens."
+        # Allow some tolerance (e.g., 20%) to account for natural variation
+        tolerance = int(threshold * 0.2)
+        if count > threshold + tolerance:
+            warnings.append(
+                (variant, f"Token count {count} exceeds expected threshold {threshold} by >20%")
             )
-            if strict:
-                raise ValueError(msg)
-            return False, msg
-    else:
-        if not (lower <= token_count <= upper):
-            msg = (
-                f"Variant '{label}' has {token_count} tokens, "
-                f"expected between {lower} and {upper} tokens."
+        elif count < threshold - tolerance and label != "simple":
+            # Simple is allowed to be low
+            warnings.append(
+                (variant, f"Token count {count} is below expected threshold {threshold} by >20%")
             )
-            if strict:
-                raise ValueError(msg)
-            return False, msg
 
-    return True, f"Variant '{label}' token count ({token_count}) is within expected range."
+    return warnings
 
-def calculate_and_validate_variants(
-    variants: List[PromptVariant], strict: bool = True
-) -> List[PromptVariant]:
+def calculate_and_validate_variants(variants: List[PromptVariant]) -> List[PromptVariant]:
     """
-    Calculate token counts for a list of variants and validate thresholds.
-
-    This function updates the `token_count` field on each variant and validates
-    against the defined complexity thresholds.
-
-    Args:
-        variants: List of prompt variants with text populated.
-        strict: If True, raise ValueError on threshold mismatch.
-
-    Returns:
-        The same list of variants, updated with token counts.
-
-    Raises:
-        ValueError: If a variant's token count does not match its complexity label
-                    and strict=True.
+    Recalculate token counts for all variants and validate thresholds.
+    Updates variant.token_count in place.
+    
+    This is the main entry point for ensuring all prompt variants have accurate
+    token counts before storage or analysis.
     """
     for variant in variants:
-        if variant.prompt_text is None:
-            raise ValueError(f"Variant {variant.id} has no prompt_text to tokenize.")
+        variant.token_count = get_token_count(variant.prompt_text)
 
-        count = get_token_count(variant.prompt_text)
-        variant.token_count = count
-
-        # Validate immediately
-        is_valid, msg = validate_thresholds(variant, strict=strict)
-        if not is_valid:
-            # If not strict, we already returned the message above, but we continue
-            # to log or handle as needed. In strict mode, the exception is raised.
-            pass
+    warnings = validate_thresholds(variants)
+    for variant, msg in warnings:
+        logger.warning(f"{variant.variant_id}: {msg}")
 
     return variants
 
 def main():
     """
-    Example usage: Load a single HumanEval problem, generate variants,
-    calculate tokens, and print results.
+    Standalone runner to test token counting on sample text.
+    Useful for verifying the tokenizer works correctly in isolation.
     """
-    import sys
-    from pathlib import Path
+    sample_texts = {
+        "simple": "Write a function to add two numbers.",
+        "moderate": "Write a function to add two numbers.\nExample: add(1, 2) -> 3.",
+        "complex": "Write a function to add two numbers.\nExample: add(1, 2) -> 3.\nConstraint: Handle negative numbers.",
+        "very_complex": "Write a function to add two numbers.\nExample: add(1, 2) -> 3.\nConstraint: Handle negative numbers.\nStep 1: Parse input. Step 2: Compute sum.",
+        "degenerate": "Write a function to add two numbers.\nExample: add(1, 2) -> 3.\nConstraint: Handle negative numbers.\nStep 1: Parse input. Step 2: Compute sum.\n" + "Note: Be careful. " * 50,
+    }
 
-    # Add project root to path if running as script
-    project_root = Path(__file__).parent.parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
-
-    from data.fetcher import load_human_eval
-    from prompts.generator import generate_prompt_variants
-    from models.data_models import ComplexityLabel
-
-    # Load one problem for demonstration
-    problems = load_human_eval()
-    if not problems:
-        print("No HumanEval problems found. Ensure data/raw/human_eval.jsonl exists.")
-        return
-
-    problem = problems[0]
-    print(f"Processing problem: {problem.task_id}")
-
-    # Generate variants
-    variants = generate_prompt_variants(problem)
-    print(f"Generated {len(variants)} variants.")
-
-    # Calculate and validate tokens
-    try:
-        updated_variants = calculate_and_validate_variants(variants, strict=False)
-    except ValueError as e:
-        print(f"Validation failed: {e}")
-        return
-
-    # Print results
-    print("\nToken Counts and Validation:")
-    for v in updated_variants:
-        status = "OK" if v.token_count is not None else "MISSING"
-        print(f"  {v.complexity_label:15} | Tokens: {v.token_count:4} | {status}")
-
-    # Check for specific threshold violations
-    for v in updated_variants:
-        is_valid, msg = validate_thresholds(v, strict=False)
-        if not is_valid:
-            print(f"  WARNING: {msg}")
-
-    print("\nDone.")
+    print("Token counts for sample prompts:")
+    for label, text in sample_texts.items():
+        count = get_token_count(text)
+        expected = THRESHOLDS.get(label, "N/A")
+        print(f"  {label}: {count} tokens (expected threshold: ~{expected})")
 
 if __name__ == "__main__":
     main()

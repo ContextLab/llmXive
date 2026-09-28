@@ -1,6 +1,7 @@
 """
 LLM Client with caching support for performance optimization.
 Implements a simple in-memory and disk-based cache to avoid redundant API calls.
+Supports HuggingFace Inference API and local GGUF models via Ollama (CPU only).
 """
 import os
 import time
@@ -19,14 +20,31 @@ class LLMClientError(Exception):
     pass
 
 class LLMClient:
-    def __init__(self, api_key: Optional[str] = None, model: str = "meta-llama/Meta-Llama-3-8B-Instruct"):
-        self.api_key = api_key or get_env_var("HF_API_KEY")
-        if not self.api_key:
-            raise LLMClientError("HF_API_KEY environment variable is required.")
-        
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        model: str = "meta-llama/Meta-Llama-3-8B-Instruct",
+        use_ollama: bool = False,
+        ollama_url: str = "http://localhost:11434",
+        ollama_model: str = "llama3:8b"
+    ):
+        self.use_ollama = use_ollama
         self.model = model
-        self.base_url = "https://api-inference.huggingface.co/models/"
-        
+        self.ollama_model = ollama_model
+        self.ollama_url = ollama_url
+
+        if self.use_ollama:
+            # Ollama setup (CPU only, no API key needed typically)
+            self.base_url = f"{self.ollama_url}/api/generate"
+            logger.info(f"Initialized Ollama client for model: {self.ollama_model}")
+        else:
+            # HuggingFace Inference API setup
+            self.api_key = api_key or get_env_var("HF_API_KEY")
+            if not self.api_key:
+                raise LLMClientError("HF_API_KEY environment variable is required for HF Inference API.")
+            self.base_url = "https://api-inference.huggingface.co/models/"
+            logger.info(f"Initialized HuggingFace client for model: {self.model}")
+
         # Caching setup
         self.cache_dir = Paths.STATE_DIR / "llm_cache"
         self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -61,13 +79,13 @@ class LLMClient:
         key_str = f"{normalized}|{temperature}"
         return hashlib.sha256(key_str.encode()).hexdigest()
 
-    def _query_api(self, prompt: str, temperature: float = 0.0, max_tokens: int = 1024) -> str:
-        """Perform the actual API request."""
+    def _query_hf_api(self, prompt: str, temperature: float = 0.0, max_tokens: int = 1024) -> str:
+        """Perform the actual HuggingFace API request."""
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json"
         }
-        
+
         payload = {
             "inputs": prompt,
             "parameters": {
@@ -87,26 +105,58 @@ class LLMClient:
             )
             response.raise_for_status()
             result = response.json()
-            
+
             if isinstance(result, list) and len(result) > 0:
                 return result[0].get("generated_text", "")
             elif isinstance(result, dict) and "generated_text" in result:
                 return result["generated_text"]
             else:
                 raise LLMClientError(f"Unexpected API response format: {result}")
-                
+
         except requests.exceptions.Timeout:
             raise LLMClientError("API request timed out.")
         except requests.exceptions.RequestException as e:
             raise LLMClientError(f"API request failed: {str(e)}")
 
+    def _query_ollama(self, prompt: str, temperature: float = 0.0, max_tokens: int = 1024) -> str:
+        """Perform the actual Ollama API request (CPU only)."""
+        payload = {
+            "model": self.ollama_model,
+            "prompt": prompt,
+            "options": {
+                "num_predict": max_tokens,
+                "temperature": temperature
+            },
+            "stream": False
+        }
+
+        try:
+            response = requests.post(
+                self.base_url,
+                json=payload,
+                timeout=120
+            )
+            response.raise_for_status()
+            result = response.json()
+
+            if "response" in result:
+                return result["response"]
+            else:
+                raise LLMClientError(f"Unexpected Ollama response format: {result}")
+
+        except requests.exceptions.Timeout:
+            raise LLMClientError("Ollama request timed out.")
+        except requests.exceptions.RequestException as e:
+            raise LLMClientError(f"Ollama request failed: {str(e)}")
+
     def generate(self, prompt: str, temperature: float = 0.0, max_tokens: int = 1024) -> str:
         """
         Generate text with caching support.
         Returns cached result if available, otherwise queries API and caches.
+        Supports both HuggingFace Inference API and Ollama (local GGUF).
         """
         cache_key = self._get_cache_key(prompt, temperature)
-        
+
         if cache_key in self.cache:
             cached_entry = self.cache[cache_key]
             # Optional: Add TTL check here if needed
@@ -114,14 +164,18 @@ class LLMClient:
             return cached_entry["response"]
 
         logger.debug(f"Cache miss for prompt (key: {cache_key[:8]}...), querying API...")
-        response = self._query_api(prompt, temperature, max_tokens)
-        
+
+        if self.use_ollama:
+            response = self._query_ollama(prompt, temperature, max_tokens)
+        else:
+            response = self._query_hf_api(prompt, temperature, max_tokens)
+
         # Update cache
         self.cache[cache_key] = {
             "response": response,
             "timestamp": time.time()
         }
-        
+
         # Periodic save to avoid data loss on crash
         if len(self.cache) % 10 == 0:
             self._save_cache()
@@ -129,5 +183,18 @@ class LLMClient:
         return response
 
 def get_client() -> LLMClient:
-    """Factory function to get a configured LLM client."""
-    return LLMClient()
+    """
+    Factory function to get a configured LLM client.
+    Checks environment variables to decide between HF API and Ollama.
+    """
+    use_ollama = os.getenv("USE_OLLAMA", "false").lower() == "true"
+    model_name = os.getenv("LLM_MODEL", "meta-llama/Meta-Llama-3-8B-Instruct")
+    ollama_model = os.getenv("OLLAMA_MODEL", "llama3:8b")
+
+    if use_ollama:
+        return LLMClient(
+            use_ollama=True,
+            ollama_model=ollama_model
+        )
+    else:
+        return LLMClient(model=model_name)

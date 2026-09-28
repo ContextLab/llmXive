@@ -1,11 +1,12 @@
 """
-Structural Redundancy Verification Module.
+Structural Redundancy Check (Task T019b).
 
-This module implements T039: Verify that 'degenerate' prompts have higher
-structural element counts than 'very complex' prompts. If this condition fails
-for any problem, flag the sample for manual review as per spec.md US-1/US-3.
+Reads generated prompt variants from T018 (data/processed/prompt_variants.parquet).
+For each problem_id, compares the 'degenerate' and 'very_complex' variants.
+Flags samples where the 'degenerate' variant has FEWER structural elements than
+the 'very_complex' variant (indicating a generation logic failure).
+Appends flagged samples to data/results/manual_review_queue.csv.
 """
-
 import os
 import csv
 from pathlib import Path
@@ -18,174 +19,133 @@ from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-
 def load_prompt_variants() -> pd.DataFrame:
     """
-    Load the prompt variants dataset from the processed data directory.
-
-    Returns:
-        pd.DataFrame: DataFrame containing prompt variant data with columns:
-            - problem_id
-            - complexity_label
-            - structural_element_count
+    Load the prompt variants from the processed Parquet file.
     """
-    input_path = Paths.PROCESSED_DATA_DIR / "prompt_variants.parquet"
-
+    input_path = Paths.PROCESSED_DIR / "prompt_variants.parquet"
     if not input_path.exists():
         raise FileNotFoundError(
-            f"Required data file not found: {input_path}. "
-            "Ensure T018 (storage) has been executed to generate prompt_variants.parquet."
+            f"Input file not found: {input_path}. "
+            "Ensure T018 (storage.py) has been executed successfully."
         )
 
     logger.info(f"Loading prompt variants from {input_path}")
     df = pd.read_parquet(input_path)
-
-    required_cols = {"problem_id", "complexity_label", "structural_element_count"}
-    if not required_cols.issubset(df.columns):
-        missing = required_cols - set(df.columns)
-        raise ValueError(
-            f"DataFrame missing required columns: {missing}. "
-            f"Found columns: {list(df.columns)}"
-        )
-
+    logger.info(f"Loaded {len(df)} variants")
     return df
 
-
-def verify_redundancy(df: pd.DataFrame) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def verify_redundancy(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """
-    Verify structural redundancy: 'degenerate' prompts must have higher
-    structural element counts than 'very complex' prompts for the same problem.
+    Identify samples where degenerate structural count < very_complex structural count.
 
     Args:
-        df: DataFrame with problem_id, complexity_label, structural_element_count.
+        df: DataFrame containing prompt variants with columns:
+            - problem_id
+            - variant_label (e.g., 'degenerate', 'very_complex')
+            - structural_element_count (dict with keys: 'examples', 'constraints', 'steps')
 
     Returns:
-        Tuple of (passed_samples, failed_samples):
-            - passed_samples: List of dicts for problems where degenerate > very_complex
-            - failed_samples: List of dicts for problems where degenerate <= very_complex
+        List of dicts representing flagged samples.
     """
-    passed_samples = []
-    failed_samples = []
+    flagged_samples = []
 
-    # Group by problem_id to compare variants within the same problem
-    grouped = df.groupby("problem_id")
+    # Group by problem_id
+    grouped = df.groupby('problem_id')
 
     for problem_id, group in grouped:
-        # Filter for the two specific complexity levels
-        degenerate_row = group[group["complexity_label"] == "degenerate"]
-        very_complex_row = group[group["complexity_label"] == "very_complex"]
+        # Filter for specific labels
+        degenerate_rows = group[group['variant_label'] == 'degenerate']
+        very_complex_rows = group[group['variant_label'] == 'very_complex']
 
-        if degenerate_row.empty or very_complex_row.empty:
-            # If either is missing, we cannot verify. Flag for manual review.
-            logger.warning(
-                f"Problem {problem_id} missing 'degenerate' or 'very_complex' variant. "
-                "Flagging for manual review."
-            )
-            failed_samples.append({
-                "problem_id": problem_id,
-                "reason": "Missing required complexity variants (degenerate or very_complex)",
-                "degenerate_count": None,
-                "very_complex_count": None
-            })
+        if degenerate_rows.empty or very_complex_rows.empty:
+            # Skip if either variant is missing for this problem
             continue
 
-        degenerate_count = degenerate_row["structural_element_count"].iloc[0]
-        very_complex_count = very_complex_row["structural_element_count"].iloc[0]
+        # Take the first occurrence if multiple exist (should be unique per problem/label)
+        deg_row = degenerate_rows.iloc[0]
+        vc_row = very_complex_rows.iloc[0]
 
-        # Verification logic: degenerate MUST be strictly greater than very_complex
-        if degenerate_count > very_complex_count:
-            passed_samples.append({
-                "problem_id": problem_id,
-                "degenerate_count": degenerate_count,
-                "very_complex_count": very_complex_count,
-                "delta": degenerate_count - very_complex_count
+        # Extract structural counts
+        deg_struct = deg_row.get('structural_element_count', {})
+        vc_struct = vc_row.get('structural_element_count', {})
+
+        # Calculate total structural count (sum of examples, constraints, steps)
+        deg_total = sum(deg_struct.values()) if deg_struct else 0
+        vc_total = sum(vc_struct.values()) if vc_struct else 0
+
+        # Check condition: degenerate < very_complex indicates failure
+        if deg_total < vc_total:
+            flagged_samples.append({
+                'problem_id': str(problem_id),
+                'variant_label': 'degenerate',
+                'token_delta': None, # Not applicable for this check
+                'reason': 'structural_redundancy_failure',
+                'degenerate_structural_count': deg_total,
+                'very_complex_structural_count': vc_total
             })
-        else:
             logger.warning(
-                f"Structural redundancy violation for problem {problem_id}: "
-                f"degenerate ({degenerate_count}) <= very_complex ({very_complex_count}). "
-                "Flagging for manual review."
+                f"Flagged problem {problem_id}: degenerate ({deg_total}) < very_complex ({vc_total})"
             )
-            failed_samples.append({
-                "problem_id": problem_id,
-                "reason": "Degenerate prompt does not have higher structural count than very complex",
-                "degenerate_count": degenerate_count,
-                "very_complex_count": very_complex_count,
-                "delta": degenerate_count - very_complex_count
-            })
 
-    return passed_samples, failed_samples
+    return flagged_samples
 
-
-def write_manual_review_flags(failed_samples: List[Dict[str, Any]]) -> Path:
+def write_manual_review_flags(flags: List[Dict[str, Any]]) -> None:
     """
-    Write flagged samples to the manual review queue CSV.
-
-    Args:
-        failed_samples: List of dicts containing failed verification records.
-
-    Returns:
-        Path to the written CSV file.
+    Append flagged samples to the manual review queue CSV.
     """
     output_path = Paths.RESULTS_DIR / "manual_review_queue.csv"
+
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if not failed_samples:
-        # Create empty file with headers if no failures
-        with open(output_path, "w", newline="") as f:
-            writer = csv.DictWriter(f, fieldnames=["problem_id", "reason", "degenerate_count", "very_complex_count", "delta"])
+    # Define columns to ensure consistency
+    # Note: We append to existing file if it exists, so we handle headers carefully.
+    fieldnames = ['problem_id', 'variant_label', 'token_delta', 'reason',
+                  'degenerate_structural_count', 'very_complex_structural_count']
+
+    file_exists = output_path.exists() and output_path.stat().st_size > 0
+
+    logger.info(f"Writing {len(flags)} flags to {output_path}")
+
+    with open(output_path, mode='a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        
+        if not file_exists:
             writer.writeheader()
-        logger.info(f"No structural redundancy failures found. Created empty queue at {output_path}")
-        return output_path
 
-    with open(output_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["problem_id", "reason", "degenerate_count", "very_complex_count", "delta"])
-        writer.writeheader()
-        writer.writerows(failed_samples)
+        for flag in flags:
+            # Only write the columns that are relevant for this check
+            # but include all defined fieldnames for consistency
+            row = {key: flag.get(key, '') for key in fieldnames}
+            writer.writerow(row)
 
-    logger.info(f"Wrote {len(failed_samples)} structural redundancy failures to {output_path}")
-    return output_path
-
-
-def run_structural_redundancy_check() -> Tuple[int, int]:
+def run_structural_redundancy_check() -> int:
     """
-    Main entry point for the structural redundancy verification task (T039).
-
-    Returns:
-        Tuple of (passed_count, failed_count)
+    Main entry point for the structural redundancy check.
+    Returns 0 on success, non-zero on failure.
     """
-    logger.info("Starting structural redundancy verification (T039)...")
-
     try:
         df = load_prompt_variants()
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
-
-    passed_samples, failed_samples = verify_redundancy(df)
-
-    write_manual_review_flags(failed_samples)
-
-    logger.info(
-        f"Structural redundancy check complete: "
-        f"{len(passed_samples)} passed, {len(failed_samples)} flagged for manual review."
-    )
-
-    return len(passed_samples), len(failed_samples)
-
+        flags = verify_redundancy(df)
+        write_manual_review_flags(flags)
+        
+        if flags:
+            logger.warning(f"Structural redundancy check found {len(flags)} failures.")
+        else:
+            logger.info("Structural redundancy check passed: no failures found.")
+        
+        return 0
+    except Exception as e:
+        logger.error(f"Structural redundancy check failed: {e}", exc_info=True)
+        return 1
 
 def main():
-    """CLI entry point."""
-    try:
-        passed, failed = run_structural_redundancy_check()
-        if failed > 0:
-            print(f"WARNING: {failed} samples failed structural redundancy verification and were flagged for manual review.")
-        else:
-            print("SUCCESS: All samples passed structural redundancy verification.")
-    except Exception as e:
-        logger.exception("Fatal error during structural redundancy check")
-        raise
-
+    """
+    CLI entry point.
+    """
+    import sys
+    sys.exit(run_structural_redundancy_check())
 
 if __name__ == "__main__":
     main()

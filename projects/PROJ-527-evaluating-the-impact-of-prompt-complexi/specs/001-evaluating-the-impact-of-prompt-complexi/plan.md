@@ -152,7 +152,7 @@ projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/
 The following phases address the specific task ordering concerns (T060/T061 dependency on T013/T014) and the rejected tasks (T001, T002, T009).
 
 ### Phase 0: Data Acquisition, Validation & State Setup
-- **T013 (Prompt Generation Logic)**: Implement logic to generate the 5 complexity tiers **based on structural elements** (examples, constraints). **Addresses FR-001**.
+- **T013 (Prompt Generation Logic)**: Implement logic to generate multiple complexity tiers **based on structural elements** (examples, constraints). **Addresses FR-001**.
 - **T014 (Data Loader)**: Implement `code/data/loader.py` using the verified `human-eval` package. **Addresses FR-002**.
 - **T018 (Data Persistence/State File)**: Implement `code/utils/versioning.py` to write `state/...yaml` (Fixes T009). **Must run before T009**.
 - **T001 (Spec Edit)**: Verified complete (see Pre-Phase Checklist).

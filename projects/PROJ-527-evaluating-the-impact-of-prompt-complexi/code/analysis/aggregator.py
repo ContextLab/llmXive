@@ -66,6 +66,7 @@ def calculate_pass_rates(
     for label in complexity_labels:
         subset = df[df['complexity_label'] == label]
         total = len(subset)
+        # Count rows where execution_status is exactly 'pass'
         passed = subset[subset['execution_status'] == 'pass'].shape[0]
         failed = total - passed
         pass_rate = passed / total if total > 0 else 0.0

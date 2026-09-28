@@ -26,6 +26,7 @@ def get_state_file_path() -> Path:
     """
     project_id = get_project_id()
     state_dir = Paths.STATE_DIR / "projects"
+    # CRITICAL: Ensure directory exists before writing file
     state_dir.mkdir(parents=True, exist_ok=True)
     return state_dir / f"{project_id}.yaml"
 
@@ -42,12 +43,13 @@ def load_state_file() -> Dict[str, Any]:
         with open(state_path, 'r', encoding='utf-8') as f:
             state = yaml.safe_load(f) or {}
     else:
+        # Initialize with required structure per task spec
         state = {
             "project_id": get_project_id(),
+            "version": "1.0.0",
             "created_at": datetime.utcnow().isoformat(),
-            "updated_at": None,
-            "artifact_hashes": {},
-            "metadata": {}
+            "updated_at": datetime.utcnow().isoformat(),
+            "artifact_hashes": {}
         }
     return state
 
@@ -73,6 +75,8 @@ def compute_artifact_checksums(data_dir: Optional[Path] = None) -> Dict[str, str
     """
     Compute cryptographic hashes for all files in the data directory.
 
+    Excludes temporary files and raw datasets (focus on processed and result artifacts).
+
     Args:
         data_dir: Optional path to data directory. Defaults to Paths.DATA_DIR.
 
@@ -91,6 +95,13 @@ def compute_artifact_checksums(data_dir: Optional[Path] = None) -> Dict[str, str
         for file in files:
             file_path = Path(root) / file
             relative_path = file_path.relative_to(Paths.PROJECT_ROOT)
+            
+            # Exclude raw datasets and temporary files
+            if "data/raw" in str(relative_path):
+                continue
+            if file.endswith('.tmp') or file.endswith('.log'):
+                continue
+
             try:
                 file_hash = compute_sha256(file_path)
                 hashes[str(relative_path)] = file_hash
@@ -113,7 +124,10 @@ def update_state_file(state: Dict[str, Any], new_hashes: Dict[str, str]) -> Path
         Path: Path to the updated state file.
     """
     state_path = get_state_file_path()
+    
+    # Update hashes
     state["artifact_hashes"] = new_hashes
+    # Update timestamp on every run
     state["updated_at"] = datetime.utcnow().isoformat()
 
     with open(state_path, 'w', encoding='utf-8') as f:

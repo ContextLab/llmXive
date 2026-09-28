@@ -1,151 +1,149 @@
 """
-Collinearity check between prompt token count and structural element count.
+Collinearity Check Module (T020a)
 
-This module implements FR-013: diagnose collinearity between the two primary
-complexity metrics before statistical modeling. High collinearity would
-invalidate separate coefficient estimates in the LMM.
+Implements the correlation check between token count and structural element count
+to diagnose potential collinearity (FR-013).
+Writes the correlation coefficient to data/results/analysis_summary.csv.
 """
 import os
 import csv
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 import pandas as pd
 from scipy import stats
+
 from config import Paths
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-
 def calculate_collinearity(
-    variants_df: pd.DataFrame,
-    token_col: str = "prompt_token_count",
-    struct_col: str = "structural_element_count"
-) -> Dict[str, Any]:
+    variants_path: Optional[Path] = None
+) -> Dict[str, float]:
     """
-    Calculate Pearson correlation and p-value between token count and structural count.
-    
+    Calculate Pearson correlation between token_count and structural_element_count.
+
     Args:
-        variants_df: DataFrame containing prompt variants with token and structural counts.
-        token_col: Column name for prompt token counts.
-        struct_col: Column name for structural element counts.
-        
+        variants_path: Path to the parquet file containing prompt variants.
+                       Defaults to Paths.PROCESSED / 'prompt_variants.parquet'.
+
     Returns:
-        Dictionary with correlation coefficient, p-value, and sample size.
-        
-    Raises:
-        ValueError: If columns are missing or data is invalid.
+        Dictionary containing:
+            - 'pearson_r': Pearson correlation coefficient
+            - 'p_value': P-value for the hypothesis test
+            - 'n_samples': Number of samples used
     """
-    if token_col not in variants_df.columns:
-        raise ValueError(f"Column '{token_col}' not found in DataFrame")
-    if struct_col not in variants_df.columns:
-        raise ValueError(f"Column '{struct_col}' not found in DataFrame")
-        
-    # Drop rows with missing values
-    valid_data = variants_df[[token_col, struct_col]].dropna()
-    n = len(valid_data)
-    
-    if n < 2:
-        raise ValueError(f"Insufficient data points for correlation (n={n})")
-        
-    tokens = valid_data[token_col].values
-    structure = valid_data[struct_col].values
-    
+    if variants_path is None:
+        variants_path = Paths.PROCESSED / "prompt_variants.parquet"
+
+    if not variants_path.exists():
+        raise FileNotFoundError(
+            f"Prompt variants file not found at {variants_path}. "
+            "Ensure T018 (storage) has been executed successfully."
+        )
+
+    logger.info(f"Loading prompt variants from {variants_path}")
+    df = pd.read_parquet(variants_path)
+
+    # Ensure required columns exist
+    required_cols = ["token_count", "structural_element_count"]
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(
+            f"Missing required columns in {variants_path}: {missing}"
+        )
+
+    # Drop rows with NaN in relevant columns
+    clean_df = df.dropna(subset=required_cols)
+    n_samples = len(clean_df)
+
+    if n_samples < 2:
+        logger.warning(
+            f"Insufficient samples ({n_samples}) to calculate correlation."
+        )
+        return {
+            "pearson_r": 0.0,
+            "p_value": 1.0,
+            "n_samples": n_samples
+        }
+
+    x = clean_df["token_count"]
+    y = clean_df["structural_element_count"]
+
     # Calculate Pearson correlation
-    correlation, p_value = stats.pearsonr(tokens, structure)
-    
+    r, p_value = stats.pearsonr(x, y)
+
     logger.info(
-        f"Collinearity check: r={correlation:.4f}, p={p_value:.4e}, n={n}"
+        f"Collinearity Check Results: "
+        f"r={r:.4f}, p={p_value:.4e}, n={n_samples}"
     )
-    
-    # Interpret collinearity severity
-    if abs(correlation) > 0.8:
-        severity = "HIGH"
-    elif abs(correlation) > 0.5:
-        severity = "MODERATE"
-    else:
-        severity = "LOW"
-        
+
     return {
-        "correlation_coefficient": correlation,
-        "p_value": p_value,
-        "sample_size": n,
-        "severity": severity,
-        "token_mean": float(tokens.mean()),
-        "token_std": float(tokens.std()),
-        "struct_mean": float(structure.mean()),
-        "struct_std": float(structure.std())
+        "pearson_r": float(r),
+        "p_value": float(p_value),
+        "n_samples": int(n_samples)
     }
 
-
 def write_summary_to_csv(
-    results: Dict[str, Any],
+    results: Dict[str, float],
     output_path: Optional[Path] = None
 ) -> Path:
     """
-    Write collinearity results to CSV file.
-    
+    Write the correlation results to data/results/analysis_summary.csv.
+
+    If the file exists, it appends a new row. If not, it creates the file
+    with headers.
+
     Args:
-        results: Dictionary from calculate_collinearity().
-        output_path: Optional path for output file. Defaults to 
-                    data/results/analysis_summary.csv.
-                    
+        results: Dictionary containing correlation metrics.
+        output_path: Path to the output CSV. Defaults to Paths.RESULTS / 'analysis_summary.csv'.
+
     Returns:
-        Path to the written CSV file.
+        Path to the written file.
     """
     if output_path is None:
-        output_path = Paths.RESULTS_DIR / "analysis_summary.csv"
-        
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Convert results to DataFrame for CSV writing
-    df = pd.DataFrame([results])
-    df.to_csv(output_path, index=False)
-    
-    logger.info(f"Wrote collinearity summary to {output_path}")
-    return output_path
+        output_path = Paths.RESULTS / "analysis_summary.csv"
 
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Prepare row data
+    row = {
+        "test_type": "collinearity_check",
+        "test_statistic": results["pearson_r"],
+        "p_value": results["p_value"],
+        "effect_size": results["pearson_r"], # Using r as effect size for correlation
+        "corrected_p_value": results["p_value"], # No correction needed for single test
+        "covariate_adjusted_p_value": None,
+        "correlation_coefficient": results["pearson_r"],
+        "n_samples": results["n_samples"]
+    }
+
+    # Check if file exists to determine if headers are needed
+    file_exists = output_path.exists()
+    headers = list(row.keys())
+
+    with open(output_path, mode="a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(row)
+
+    logger.info(f"Wrote collinearity check results to {output_path}")
+    return output_path
 
 def main() -> None:
     """
-    Main entry point: load prompt variants, calculate collinearity, write results.
-    
-    This script is designed to be run as:
-        python code/analysis/collinearity_check.py
-        
-    It reads from data/processed/prompt_variants.parquet and writes to
-    data/results/analysis_summary.csv.
+    Main entry point for the collinearity check task (T020a).
+    Loads data, calculates correlation, and writes results to CSV.
     """
-    from data.storage import load_variants_from_parquet
-    
-    logger.info("Starting collinearity check analysis")
-    
-    # Load prompt variants
-    variants_path = Paths.PROCESSED_DIR / "prompt_variants.parquet"
-    if not variants_path.exists():
-        raise FileNotFoundError(
-            f"Prompt variants file not found: {variants_path}. "
-            "Run data generation pipeline first."
-        )
-        
-    variants_df = load_variants_from_parquet(variants_path)
-    logger.info(f"Loaded {len(variants_df)} prompt variants")
-    
-    # Calculate collinearity
-    results = calculate_collinearity(variants_df)
-    
-    # Write results
-    output_path = write_summary_to_csv(results)
-    
-    # Log severity warning if high collinearity
-    if results["severity"] == "HIGH":
-        logger.warning(
-            f"HIGH collinearity detected (r={results['correlation_coefficient']:.4f}). "
-            "Consider combining metrics or using PCA for downstream analysis."
-        )
-        
-    logger.info("Collinearity check complete")
-
+    try:
+        results = calculate_collinearity()
+        output_file = write_summary_to_csv(results)
+        logger.info(f"Task T020a completed successfully. Output: {output_file}")
+    except Exception as e:
+        logger.error(f"Task T020a failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

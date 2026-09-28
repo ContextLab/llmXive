@@ -1,56 +1,78 @@
-# Quickstart Guide
+# Quickstart Guide: Prompt Complexity Evaluation
 
-This guide outlines how to run the full evaluation pipeline for project PROJ-527.
+This guide outlines the steps to run the full pipeline for evaluating the impact of prompt complexity on LLM code generation.
 
 ## Prerequisites
 
 - Python 3.11+
-- Dependencies installed via `pip install -r requirements.txt`
-- HuggingFace Inference API token set in `HF_API_TOKEN` environment variable
+- `pip install -r requirements.txt`
 
-## Running the Pipeline
+## Project Structure
 
-The main entry point is `code/main.py`. It orchestrates the entire workflow:
-1. Fetches the HumanEval dataset.
-2. Generates prompt variants of varying complexity.
-3. Queries the LLM to generate code.
-4. Executes the generated code against unit tests.
-5. Performs statistical analysis on the results.
+- `code/`: Source code
+- `data/raw/`: Raw datasets (HumanEval)
+- `data/processed/`: Processed data (prompt variants, execution results)
+- `data/results/`: Final analysis results and reports
+- `state/`: Project state and versioning info
 
-### Full Run
+## Execution Steps
 
-```bash
-python code/main.py
-```
+The pipeline is designed to be run sequentially. Each step produces artifacts required by the next.
 
-### Run with a Subset (Sample Size)
+1. **Setup**: Ensure directories exist.
+ ```bash
+ python code/setup_data_directories.py
+ ```
 
-To test quickly or run within time limits, specify a sample size:
+2. **Fetch Data**: Download HumanEval dataset.
+ ```bash
+ python code/data/loader.py
+ ```
 
-```bash
-python code/main.py --sample-size 10
-```
+3. **Generate Prompts**: Create complexity variants.
+ ```bash
+ python code/prompts/generator.py
+ ```
 
-### Skip Data Fetching
+4. **Tokenize**: Count tokens and validate thresholds.
+ ```bash
+ python code/prompts/tokenizer.py
+ ```
 
-If the dataset is already downloaded, you can skip the fetch step:
+5. **Query LLM**: Generate code for each variant.
+ ```bash
+ python code/llm/orchestrator.py
+ ```
 
-```bash
-python code/main.py --skip-fetch
-```
+6. **Store Results**: Save generated code and metadata to Parquet.
+ ```bash
+ python code/data/storage.py
+ ```
 
-## Output Artifacts
+7. **Execute Tests**: Run generated code against HumanEval tests.
+ ```bash
+ python code/execution/write_results.py
+ ```
 
-After successful execution, the following files will be available:
+8. **Analyze**: Perform statistical analysis and visualization.
+ ```bash
+ python code/analysis/stats.py
+ python code/analysis/viz.py
+ ```
 
-- `data/processed/prompt_variants.parquet`: Generated prompts and metadata.
-- `data/results/execution_outcomes.csv`: Pass/fail results per complexity level.
-- `data/results/analysis_summary.csv`: Statistical test results (LMM, p-values, effect sizes).
-- `data/results/sensitivity_analysis.csv`: Sensitivity analysis results.
-- `figures/complexity_performance_curve.png`: Visualization of performance vs. complexity.
+9. **Versioning**: Update project state.
+ ```bash
+ python code/utils/versioning.py
+ ```
+
+## Expected Outputs
+
+- `data/processed/prompt_variants.parquet`: Generated prompts and code.
+- `data/results/execution_outcomes.csv`: Pass/fail rates per complexity.
+- `data/results/analysis_summary.csv`: Statistical test results.
+- `figures/`: Generated plots.
 
 ## Troubleshooting
 
-- **Missing API Token**: Ensure `HF_API_TOKEN` is set in your environment.
-- **Timeouts**: If execution times out, reduce `--sample-size`.
-- **File Paths**: Ensure you are running commands from the project root directory.
+- If `data/processed/prompt_variants.parquet` is missing, ensure `code/data/storage.py` was run after `code/llm/orchestrator.py`.
+- If `data/results/execution_outcomes.csv` is missing, ensure `code/execution/write_results.py` was run.

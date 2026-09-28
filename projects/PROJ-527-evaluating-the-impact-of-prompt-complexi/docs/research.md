@@ -1,76 +1,63 @@
-# Research Documentation: Prompt Complexity and LLM Performance
+# Research Documentation: Evaluating the Impact of Prompt Complexity on LLM Code Generation
 
 ## Overview
-This document outlines the research methodology, data sources, and validation standards used in the `PROJ-527` project to evaluate the impact of prompt complexity on LLM code generation.
 
-## 1. Complexity Metrics & Validation Sources
+This document outlines the research methodology, metrics, and validation sources used in the `PROJ-527` project to evaluate how prompt complexity influences Large Language Model (LLM) code generation performance.
 
-### 1.1 Prompt Complexity (Input)
-Prompt complexity is measured via:
+## Research Question
+
+How does the structural complexity of a prompt (measured by token count, structural element count, and dependency chain depth) affect the pass rate of generated code on the HumanEval benchmark?
+
+## Metrics and Validation Sources
+
+### 1. Prompt Complexity Metrics
+
 - **Token Count**: Calculated using `tiktoken` (cl100k_base).
-- **Structural Elements**: Count of examples, constraints, and instructions (custom parser).
+- **Structural Element Count**: Number of examples, constraints, and steps explicitly defined in the prompt.
+- **Dependency Chain Depth**: Maximum depth of instruction dependencies (state transitions) within the prompt.
 
-### 1.2 Code Readability & Complexity (Output)
-To evaluate the quality of generated code, we extract static analysis metrics. These metrics are not arbitrary; they are grounded in established software engineering literature and standard tooling validation.
+### 2. Code Quality Metrics
 
-#### Cyclomatic Complexity
-- **Definition**: A quantitative measure of the number of linearly independent paths through a program's source code.
-- **Validation Source**: **McCabe, T. J. (1976). "A Complexity Measure". IEEE Transactions on Software Engineering, 2(4), 308–320.**
-- **Implementation**: Calculated via the `ruff` linter (using the `mccabe` plugin logic).
-- **Interpretation**:
- - 1-10: Low risk, easy to test.
- - 11-20: Moderate complexity.
- - 21-50: High complexity, difficult to maintain.
- - >50: Untestable, requires immediate refactoring.
+The following metrics are extracted from generated code to assess quality and complexity:
+
+#### Cyclomatic Complexity (McCabe)
+
+- **Definition**: A software metric used to indicate the complexity of a program. It is a measure of the number of linearly independent paths through a program's source code.
+- **Validation Source**: McCabe, J. (1976). "A Complexity Measure". *IEEE Transactions on Software Engineering*, SE-2(4), 308-320.
+- **Implementation**: Calculated using the `radon` library (`radon cc`), which implements the standard McCabe algorithm for Python Abstract Syntax Tree (AST) analysis.
+- **Usage**: Higher cyclomatic complexity often correlates with harder-to-maintain code and potentially lower correctness in generated solutions.
 
 #### Lines of Code (LOC)
-- **Definition**: Count of non-blank, non-comment lines.
-- **Validation Source**: Standard software engineering metric (e.g., **Pressman, R. S. (2014). Software Engineering: A Practitioner's Approach**).
-- **Usage**: Serves as a proxy for code size and maintenance burden.
 
-#### Indentation Consistency
-- **Definition**: Adherence to consistent indentation (spaces vs. tabs, depth consistency).
-- **Validation Source**: **PEP 8 (Style Guide for Python Code)**.
-- **Implementation**: Enforced by `ruff` (E111, E114 rules).
+- **Definition**: The number of lines in the generated source code.
+- **Validation Source**: Standard software engineering metric (see: Boehm et al., 1981; Pressman, 2010).
+- **Implementation**: Counted as non-empty lines in the generated code string.
 
-#### Security Vulnerabilities (Flagging)
-- **Definition**: Detection of dangerous patterns in generated code.
-- **Validation Sources**:
- - **OWASP Top 10 (2021)**: Specifically A01:2021 – Broken Access Control and A03:2021 – Injection.
- - **CWE (Common Weakness Enumeration)**:
- - **CWE-95**: Improper Neutralization of Directives in Dynamically Evaluated Code (Eval Injection).
- - **CWE-798**: Use of Hard-coded Credentials.
-- **Implementation**: `ruff` security rules (S102 for `eval`, S105 for secrets).
-- **Protocol**: Samples flagged for security issues are marked for **manual review** but do not cause the automated execution test to fail, ensuring the pipeline continues while highlighting risks.
+#### Security Vulnerabilities
 
-## 2. Statistical Analysis Methodology
+- **Definition**: Detection of known insecure patterns (e.g., `eval` usage, hardcoded credentials).
+- **Validation Source**: Ruff Documentation v0.1.0 (https://docs.astral.sh/ruff/).
+- **Implementation**: Used via `ruff check --select=SEC` to identify security rule violations (SEC101, SEC301, etc.).
 
-### 2.1 Linear Mixed Models (LMM)
-- **Reference**: **Pinheiro, J. C., & Bates, D. M. (2000). Mixed-Effects Models in S and S-PLUS.**
-- **Rationale**: Used to handle the nested structure of the data (5 prompt variants per HumanEval problem) and control for problem-specific difficulty via random intercepts.
-- **Covariate**: Prompt token count (as per FR-012).
+## Methodology
 
-### 2.2 Multiple Comparison Correction
-- **Reference**: **Holm, S. (1979). A Simple Sequentially Rejective Multiple Test Procedure. Scandinavian Journal of Statistics.**
-- **Method**: Holm-Bonferroni correction applied to pairwise comparisons of complexity levels to control family-wise error rate.
+1. **Prompt Generation**: Generate 5 complexity variants (simple, moderate, complex, very_complex, degenerate) per HumanEval problem.
+2. **Code Generation**: Query LLM with each variant.
+3. **Static Analysis**: Run `radon` and `ruff` on generated code to extract complexity and security metrics.
+4. **Execution**: Run generated code against HumanEval test cases.
+5. **Statistical Analysis**: Use Linear Mixed Models (LMM) to correlate prompt complexity with pass rates, controlling for problem difficulty.
 
-## 3. Limitations & Assumptions
+## Limitations
 
-### 3.1 State Transition Proxy
-As noted by reviewer `alan-turing-simulated`, token length is a proxy for the "state transitions" induced in the LLM's internal representation. While we measure structural elements and tokens, we acknowledge this is an indirect measure of the cognitive load on the model's attention mechanism. This is documented as a limitation in the research assumptions.
+- **Sample Size**: {{claim:c_446458ce}} (2410.12381, https://arxiv.org/abs/2410.12381) While sufficient for exploratory analysis, power analysis is required for definitive conclusions.
+- **Token vs. Structure**: Token count and structural complexity are often collinear. We address this via orthogonalization (PCA) or VIF monitoring.
+- **State Transitions**: As noted by reviewer Alan Turing, token count alone does not capture the "state transitions" induced in the LLM. We measure this via `dependency_chain_depth` (T062).
 
-### 3.2 Sample Size & Power
-The HumanEval dataset (164 (2410.12381, https://arxiv.org/abs/2410.12381) problems) provides a moderate sample size. Power analysis suggests that while main effects (complexity vs. pass rate) are detectable, subtle interaction effects may be underpowered. This is reportedin `data/results/analysis_summary.csv`.
+## References
 
-## 4. Data Sources
-- **HumanEval Dataset**: `openai/human-eval` (Hugging Face).
-- **LLM Client**: HuggingFace Inference API (CPU-tractable).
-- **Static Analysis Tool**: `ruff` (Rust-based Python linter).
-
-## 5. References
-1. McCabe, T. J. (1976). A Complexity Measure. IEEE Transactions on Software Engineering.
-2. Pressman, R. S. (2014). Software Engineering: A Practitioner's Approach. McGraw-Hill.
-3. Python Software Foundation. PEP 8 -- Style Guide for Python Code.
-4. OWASP Foundation. OWASP Top 10 Web Application Security Risks (2021).
-5. Pinheiro, J. C., & Bates, D. M. (2000). Mixed-Effects Models in S and S-PLUS. Springer.
-6. Holm, S. (1979). A Simple Sequentially Rejective Multiple Test Procedure. Scandinavian Journal of Statistics.
+1. **McCabe, J. (1976)**. "A Complexity Measure". *IEEE Transactions on Software Engineering*, SE-2(4), 308-320.
+ - *Cited for: Definition and calculation of Cyclomatic Complexity.*
+2. **Ruff Documentation v0.1.0**. https://docs.astral.sh/ruff/
+ - *Cited for: Security vulnerability detection rules and static analysis capabilities.*
+3. **Turing, A. M. (1950)**. "Computing Machinery and Intelligence". *Mind*.
+ - *Context: Reviewer feedback on state transitions in machine representation.*

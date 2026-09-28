@@ -1116,3 +1116,661 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T19:13:04Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity validation cites McCabe 1976
+  claim_id: c_eb763143
+  context: Phase 4 Implementation for User Story 2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T027b cites 'McCabe, J. (1976). A Complexity Measure. IEEE Transactions
+    on Software Engineering.' as the validation source for extracted metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T01:54:48Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Static analysis validation cites Ruff Documentation v0.1.0
+  claim_id: c_348d49a5
+  context: Phase 4 Implementation for User Story 2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T027b cites 'Ruff Documentation v0.1.0' as the validation source for extracted
+    metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T01:55:22Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Token delta threshold for manual review is 100 tokens
+  claim_id: c_3d15ce7e
+  context: Phase 3 Implementation for User Story 1
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Token_delta_threshold_for_manual_review_is_100_tokens
+  kind: magnitude
+  raw_text: T019a flags samples if the absolute token delta between degenerate and
+    very_complex variants is less than 100.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T01:55:43Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Collinearity mitigation triggered when VIF exceeds 5
+  claim_id: c_0f7832d1
+  context: Phase 3 Implementation for User Story 1
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_mitigation_triggered_when_VIF_exceeds_5
+  kind: magnitude
+  raw_text: T020b mitigates collinearity if VIF is greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T01:56:15Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: T027b cites McCabe 1976 for cyclomatic complexity validation
+  claim_id: c_c8d1bb71
+  context: Implementation details for Task T027b regarding documentation of validation
+    sources for static analysis metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T027b cites 'McCabe, J. (1976). A Complexity Measure. IEEE Transactions
+    on Software Engineering.' as the validation source for cyclomatic complexity metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T01:58:37Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: T027b cites Ruff Documentation v0.1.0 for validation
+  claim_id: c_902f3b4c
+  context: Implementation details for Task T027b regarding documentation of validation
+    sources for static analysis metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: T027b cites 'Ruff Documentation v0.1.0' as the validation source for extracted
+    static analysis metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T01:59:04Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_6dcd71d8
+  context: 'Initialize Python 3.11 project with dependencies: datasets, tiktoken,
+    scikit-learn, statsmodels, pandas, ruff, requests, pyyaml, networkx in requirements.txt'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:02:17Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset loaded via human-eval package
+  claim_id: c_f71d1305
+  context: Implement code/data/loader.py to load HumanEval dataset using the verified
+    human-eval package (not custom download).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HumanEval_dataset_loaded_via_human-eval_package
+  kind: entity_fact
+  raw_text: The HumanEval dataset is loaded using the human-eval package.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:02:43Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Simple prompt threshold 50 tokens
+  claim_id: c_91374e62
+  context: "Note: Token thresholds (simple \u2264 50, etc.) are SECONDARY indicators;\
+    \ the primary definition of complexity is structural element count."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Token thresholds for prompt complexity are defined as simple \u2264 50\
+    \ tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:02:43Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha 0.05 divided by number of tests
+  claim_id: c_9cdecafa
+  context: "Implement multiple-comparison correction in code/analysis/stats.py using\
+    \ Bonferroni or Holm-Bonferroni with adjusted significance threshold (\u03B1 \u2264\
+    \ 0.05 / number of tests)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The significance threshold for multiple-comparison correction is adjusted\
+    \ to \u03B1 \u2264 0.05 divided by the number of tests."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:02:43Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis shifted thresholds 10 tokens
+  claim_id: c_c864ac43
+  context: "Implement sensitivity analysis in code/analysis/stats.py to re-bin data\
+    \ using shifted thresholds (\xB110 tokens) and report variance in pass rates."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis re-bins data using shifted thresholds of \xB110\
+    \ tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:03:10Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Positional sensitivity shifted thresholds 5 tokens
+  claim_id: c_ae86543e
+  context: "Re-bin data based on shifted thresholds (e.g., \xB15 tokens) and analyze\
+    \ variance in pass rates."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Positional sensitivity analysis re-bins data based on shifted thresholds\
+    \ of \xB15 tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:03:39Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity runner.py less than 10
+  claim_id: c_ff2baf5c
+  context: Reduce cyclomatic complexity of runner.py to < 10 and refactor code/execution/runner.py
+    and code/analysis/stats.py to separate concerns.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cyclomatic_complexity_runner.py_less_than_10
+  kind: magnitude
+  raw_text: The cyclomatic complexity of runner.py is targeted to be less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:04:00Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime 6 hours on CPU
+  claim_id: c_4fc4906d
+  context: "Performance optimization to ensure full pipeline runs within \u22646 hours\
+    \ on CPU: Profile main.py and implement caching for LLM queries."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline is targeted to run within 6 hours on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:04:25Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Runtime optimization subset 20 problems
+  claim_id: c_365bc715
+  context: 'Scope: Run on a subset of HumanEval problems. Stop Condition: Stop after
+    a predetermined time limit if the subset is not fully processed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime optimization targets a subset of 20 HumanEval problems.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:04:50Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Token delta flagging threshold 100
+  claim_id: c_1ce39e80
+  context: Flag the sample if abs(token_delta) < 100 OR if degenerate_token_count
+    < very_complex_token_count.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Token_delta_flagging_threshold_100
+  kind: magnitude
+  raw_text: The token delta flagging logic flags samples if the absolute difference
+    between degenerate and very_complex token counts is less than 100.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:05:11Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity source McCabe 1976
+  claim_id: c_cdca1efd
+  context: Add comments in static_analysis.py and entries in research.md citing 'McCabe,
+    J. (1976). A Complexity Measure. IEEE Transactions on Software Engineering.' as
+    the validation sources.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation source for cyclomatic complexity is cited as McCabe, J.
+    (1976). A Complexity Measure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:05:32Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Ruff documentation source v0.1.0
+  claim_id: c_6df2584f
+  context: Add comments in static_analysis.py and entries in research.md citing ...
+    and 'Ruff Documentation v0.1.0' as the validation sources for the extracted metrics.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation source for static analysis metrics is cited as Ruff Documentation
+    v0.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:05:57Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: run ruff to extract cyclomatic complexity lines of code and indentation
+    consistency
+  claim_id: c_4d96783b
+  context: 'Phase 4: User Story 2 - Execute Unit Tests and Collect Pass/Fail Rates.
+    Implementation for User Story 2 includes T026.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_ruff_to_extract_cyclomatic_complexity_lines_of_code_and
+  kind: entity_fact
+  raw_text: Implement `code/execution/static_analysis.py` to run `ruff` on generated
+    code and extract cyclomatic complexity, lines of code, and indentation consistency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:16:39Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: cite McCabe 1976 and Ruff Documentation v0.1.0 as validation sources
+    for metrics
+  claim_id: c_90eb8b47
+  context: 'Phase 4: User Story 2. Task T027b requires documenting validation sources
+    for cyclomatic complexity and lines of code.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add comments in `static_analysis.py` and entries in `research.md` citing
+    'McCabe, J. (1976). A Complexity Measure. IEEE Transactions on Software Engineering.'
+    and 'Ruff Documentation v0.1.0' as the validation sources for the extracted metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:17:03Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 0
+  canonical: HumanEval dataset contains 164 problems
+  claim_id: c_446458ce
+  context: The HumanEval dataset contains 164 problems. While sufficient for exploratory
+    analysis, power analysis is required for definitive conclusions.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: manEval (Chen et al., 2021) with 164 tasks,
+      source_id: '2410.12381'
+      url: https://arxiv.org/abs/2410.12381
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: The HumanEval dataset contains 164 problems.
+  resolved_value: '164'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T02:36:57Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: McCabe J published A Complexity Measure in IEEE Transactions on Software
+    Engineering SE-2(4) 308-320 in 1976
+  claim_id: c_14458bb5
+  context: 'Validation Source: McCabe, J. (1976). ''A Complexity Measure''. IEEE Transactions
+    on Software Engineering, SE-2(4), 308-320.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cyclomatic Complexity (McCabe) was published by McCabe, J. (1976) in 'A
+    Complexity Measure', IEEE Transactions on Software Engineering, SE-2(4), 308-320.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:37:29Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: Lines of Code metric validated by Boehm et al 1981 and Pressman 2010
+  claim_id: c_9de1916d
+  context: 'Validation Source: Standard software engineering metric (see: Boehm et
+    al., 1981; Pressman, 2010).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Lines of Code (LOC) validation sources include Boehm et al., 1981 and
+    Pressman, 2010.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:37:47Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/docs/research.md
+  attempts: 1
+  canonical: Security Vulnerabilities detection source is Ruff Documentation v0.1.0
+  claim_id: c_322808da
+  context: 'Validation Source: Ruff Documentation v0.1.0 (https://docs.astral.sh/ruff/).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Security Vulnerabilities detection source is Ruff Documentation v0.1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:38:17Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Extract cyclomatic complexity using radon cc and lines of code using
+    wc -l or split
+  claim_id: c_d0880c96
+  context: 'Phase 4: User Story 2 - Execute Unit Tests and Collect Pass/Fail Rates
+    (Priority: P2) Implementation for User Story 2 - T026'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_cyclomatic_complexity_using_radon_cc_and_lines_of_co
+  kind: entity_fact
+  raw_text: 'Implement `code/execution/static_analysis.py` to run `ruff` on generated
+    code and extract metrics: cyclomatic complexity (using `radon cc`), lines of code
+    (using `wc -l` or `len(code.split(''\n''))`), and indentation consistency.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:42:22Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Cite McCabe 1976 and Ruff Documentation v0.1.0 as validation sources
+    for extracted metrics
+  claim_id: c_751b4ba4
+  context: 'Phase 4: User Story 2 - Implementation for User Story 2 - T027b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add comments in `static_analysis.py` and entries in `research.md` citing
+    'McCabe, J. (1976). A Complexity Measure. IEEE Transactions on Software Engineering.'
+    and 'Ruff Documentation v0.1.0' as the validation sources for the extracted metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:42:23Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Define problem difficulty as the pass rate of the canonical solution
+    in HumanEval
+  claim_id: c_c43f8736
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T033'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Define_problem_difficulty_as_the_pass_rate_of_the_canonical
+  kind: entity_fact
+  raw_text: Define 'problem difficulty' as the pass rate of the canonical solution
+    (available in HumanEval).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:43:28Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Exclude problems with perfect or impossible canonical pass rates from
+    random intercept grouping in LMM
+  claim_id: c_8cfc05be
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T033'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_problems_with_perfect_or_impossible_canonical_pass_r
+  kind: entity_fact
+  raw_text: If the canonical pass rate is at the extreme boundaries of the possible
+    range (perfect or impossible), exclude the problem from the random intercept grouping
+    for that specific problem to avoid variance estimation issues in the LMM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:43:55Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Use Bonferroni or Holm-Bonferroni correction with adjusted significance
+    threshold alpha <= 0.05 divided by number of tests
+  claim_id: c_8e381846
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T034'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement multiple-comparison correction in `code/analysis/stats.py`\
+    \ using Bonferroni or Holm-Bonferroni with adjusted significance threshold (\u03B1\
+    \ \u2264 0.05 / number of tests)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:43:55Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Re-bin data using shifted thresholds plus or minus 10 tokens and report
+    variance in pass rates
+  claim_id: c_8aa2b445
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T036'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis in `code/analysis/stats.py` to re-bin\
+    \ data using shifted thresholds (\xB110 tokens) and report variance in pass rates."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:44:27Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Generate complexity vs performance curves with statistical confidence
+    intervals calculated via bootstrap or standard error
+  claim_id: c_f13e06ed
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T037'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_complexity_vs_performance_curves_with_statistical_c
+  kind: entity_fact
+  raw_text: Implement `code/analysis/viz.py` to generate complexity vs. performance
+    curves with statistical confidence intervals (calculated via bootstrap or standard
+    error) and inflection points identified.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:44:54Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Calculate effect sizes using Cohen's d and eta-squared with standard
+    interpretation thresholds
+  claim_id: c_33752521
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T038'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_effect_sizes_using_Cohen%27s_d_and_eta-squared_with
+  kind: entity_fact
+  raw_text: Implement effect size calculation (Cohen's d, eta-squared) with standard
+    interpretation thresholds for small, medium, and large effects.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:47:15Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Test if dependency chain depth is a stronger predictor of code generation
+    failure than token count using regression analysis
+  claim_id: c_79f51e71
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T064'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_if_dependency_chain_depth_is_a_stronger_predictor_of_co
+  kind: entity_fact
+  raw_text: Implement regression analysis in `code/analysis/stats.py` to test the
+    hypothesis that dependency chain depth is a stronger predictor of code generation
+    failure than token count.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:47:42Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Compare model fit AIC BIC of Token Count only Structural Elements only
+    Dependency Depth only and Combined model
+  claim_id: c_1efbe3fb
+  context: 'Phase 5: User Story 3 - Implementation for User Story 3 - T064'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compare model fit (AIC/BIC) of: (1) Token Count only, (2) Structural
+    Elements only, (3) Dependency Depth only, (4) Combined model.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:48:17Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Reduce cyclomatic complexity of runner.py to less than 10
+  claim_id: c_a644cae3
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T044'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_cyclomatic_complexity_of_runner.py_to_less_than_10
+  kind: magnitude
+  raw_text: Reduce cyclomatic complexity of `runner.py` to < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:48:47Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Ensure full pipeline runs within 6 hours on CPU
+  claim_id: c_e60d6dbb
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T045'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Performance optimization to ensure full pipeline runs within \u22646\
+    \ hours on CPU."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:48:47Z'
+- artifact_path: projects/PROJ-527-evaluating-the-impact-of-prompt-complexi/specs/001-evaluating-the-impact-of-prompt-complexi/tasks.md
+  attempts: 1
+  canonical: Stop after 18000 seconds if subset is not fully processed
+  claim_id: c_f574a548
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T045'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stop after a reasonable duration (use `signal.alarm(18000)`) if the subset
+    is not fully processed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T02:49:23Z'

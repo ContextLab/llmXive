@@ -1,5 +1,5 @@
 """
-Tests for project structure initialization.
+Tests for Task T002: Project Structure Creation.
 """
 import os
 import tempfile
@@ -7,62 +7,65 @@ import shutil
 from pathlib import Path
 import sys
 
-# Add the code directory to the path to allow imports
+# Add the code directory to the path so we can import the module
+# Assuming tests are in tests/ and code is in code/
 code_dir = Path(__file__).parent.parent / "code"
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
-from setup_project_structure import main
+from setup_project_structure import create_project_structure
 
-def test_creates_directories():
-    """Test that the script creates the required directory structure."""
-    # Create a temporary directory to simulate project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        
-        # Create a mock 'code' directory structure to trick the script
-        mock_code_dir = tmp_path / "code"
-        mock_code_dir.mkdir()
-        mock_script = mock_code_dir / "setup_project_structure.py"
-        mock_script.touch()
-        
-        # We need to temporarily replace __file__ behavior or modify the script logic
-        # Since we can't easily mock __file__ in a subprocess, we will test the logic directly
-        # by importing the function and checking directory creation logic manually
-        # Or, we can run the script in a controlled environment.
-        
-        # Let's refactor the test to directly verify the directory list logic
-        # by replicating the logic in the test without relying on __file__ resolution
-        
-        expected_dirs = [
-            tmp_path / "code",
-            tmp_path / "tests",
-            tmp_path / "data" / "raw",
-            tmp_path / "data" / "processed",
-            tmp_path / "data" / "results",
-            tmp_path / "state",
-        ]
-        
-        # Verify they don't exist yet (except code which we created)
-        for d in expected_dirs:
-            if d != tmp_path / "code":
-                assert not d.exists(), f"Directory {d} should not exist before test"
-        
-        # We cannot easily run 'main()' because it relies on __file__ resolution
-        # which points to the real file location, not the temp one.
-        # Instead, we verify the directory list logic by checking the source code
-        # or by mocking the Path resolution.
-        
-        # For this task, we assume the script logic is correct based on the implementation.
-        # A more robust test would involve patching Path(__file__).resolve().parent.parent
-        # But for now, we ensure the directories can be created manually as the script intends.
-        
-        # Create them manually to verify they are valid paths
-        for d in expected_dirs:
-            d.mkdir(parents=True, exist_ok=True)
-            assert d.exists(), f"Directory {d} should exist after creation"
-        
-        print("Test passed: Directories can be created as expected.")
+def test_creates_required_directories():
+    """
+    Verify that create_project_structure creates the required directories.
+    """
+    # Create a temporary directory to act as the project root
+    with tempfile.TemporaryDirectory() as temp_dir:
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(temp_dir)
+            
+            # Call the function
+            create_project_structure()
+            
+            # Verify directories exist
+            required_dirs = [
+                "code",
+                "tests",
+                "data/raw",
+                "data/processed",
+                "data/results",
+                "state/projects",
+            ]
+            
+            for dir_path in required_dirs:
+                full_path = Path(temp_dir) / dir_path
+                assert full_path.exists(), f"Directory {dir_path} was not created."
+                assert full_path.is_dir(), f"{dir_path} exists but is not a directory."
+                
+        finally:
+            os.chdir(original_cwd)
 
-if __name__ == "__main__":
-    test_creates_directories()
+def test_handles_existing_directories():
+    """
+    Verify that the function does not fail if directories already exist.
+    """
+    with tempfile.TemporaryDirectory() as temp_dir:
+        original_cwd = os.getcwd()
+        try:
+            os.chdir(temp_dir)
+            
+            # Pre-create some directories
+            Path(temp_dir, "code").mkdir()
+            Path(temp_dir, "data", "raw").mkdir(parents=True)
+            
+            # Call the function
+            # It should not raise an exception
+            create_project_structure()
+            
+            # Verify they still exist
+            assert Path(temp_dir, "code").exists()
+            assert Path(temp_dir, "data", "raw").exists()
+            
+        finally:
+            os.chdir(original_cwd)
