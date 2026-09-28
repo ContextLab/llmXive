@@ -1,0 +1,49 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`src/lib/`, `src/metrics/`, `src/experiment/`,
+    `src/analysis/`, `tests/`) is presented; the implementer did not provide any file
+    listings or screenshots showing that the structure exists. The task remains unfinished
+    until the full directory hierarchy is created and verified.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listings or file system evidence were provided showing that the
+    required folders (`data/stimuli/`, `data/processed/`, `data/measurements/`, `data/raw/`)
+    actually exist; thus the claim cannot be verified. The implementer must create
+    and show the directory structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, or related setup scripts) are presented
+    in the provided evidence, so the claim that linting (ruff) and formatting (black)
+    have been configured cannot be verified. The required artifacts are missing.
+T012:
+  c: false
+  h: 555b6557cfd5fd4474afaa3427ac25471a3a20cfeeaccbda5b31cfdffcf28be7
+  r: The required file `data/measurements/human_ratings.csv` does not exist, so no
+    ratings are persisted and the column requirements cannot be verified. The task
+    is therefore not satisfied.
+T019:
+  c: false
+  h: 325c4a1f1bba74d0eb2282384785a78aec705fc002fbb6fa2a5043223bffb171
+  r: "The required output files `data/processed/metrics.csv` and `data/derived/performance_log.txt`\
+    \ are absent, so the pipeline does not produce the mandated artifacts (CSV adhering\
+    \ to the BackgroundFrame schema and a performance log with timing/RAM stats).\
+    \ Without these files, the task\u2019s deliverables are not fulfilled."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, or documentation was provided showing that the system sets `object_count
+    = 0` for images where the object detector finds no objects. The required artifact
+    (e.g., updated detection pipeline, unit test, or example output) is missing, so
+    the requirement is not satisfied.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data file, correlation result, or flagging mechanism was provided;\
+    \ the claim lacks any tangible artifact (e.g., script rerunning the correlation\
+    \ on the full pilot dataset, a printed Pearson\u202Fr value, or a generated report/flag).\
+    \ Consequently the requirement to re\u2011run the correlation and flag r\u202F\
+    <\u202F0.5 is not demonstrated."

@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "visual-complexity-cognitive-load"
+version = "0.1.0"
+description = "Automated science pipeline for visual complexity impact on cognitive load"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "ultralytics",
+    "opencv-python-headless",
+    "statsmodels",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "pillow",
+    "requests",
+    "streamlit",
+    "ruff",
+    "black",
+]
+
+[tool.ruff]
+# Same as .ruff.toml but for completeness in pyproject
+lint.select = ["E", "W", "F", "I", "B", "C4", "UP"]
+lint.ignore = ["E501", "B008"]
+lint.fixable = ["ALL"]
+lint.unfixable = []
+lint.exclude = [
+    ".bzr", ".direnv", ".eggs", ".git", ".git-rewrite", ".hg",
+    ".mypy_cache", ".nox", ".pants.d", ".pytype", ".ruff_cache",
+    ".svn", ".tox", ".venv", "__pypackages__", "_build", "buck-out",
+    "build", "dist", "node_modules", "venv", "data", "docs",
+]
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | docs
+)/
+'''

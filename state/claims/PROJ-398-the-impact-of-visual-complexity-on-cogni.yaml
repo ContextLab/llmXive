@@ -382,3 +382,200 @@
   source_type: external
   status: verified
   updated_at: '2026-09-24T21:44:05Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit small cohort of 20 participants
+  claim_id: c_05efdfef
+  context: User Story 0 aims to recruit a small cohort (n=20) to rate background images
+    for perceived visual complexity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:39:52Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from HuggingFace video-conference-backgrounds
+    train split
+  claim_id: c_c0752b7f
+  context: Task T014a fetches and archives the first 500 items from the 'train' split
+    of the HuggingFace video-conference-backgrounds dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: It downloads the first 500 items from the 'train' split of the HuggingFace
+    video-conference-backgrounds dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:40:19Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit between 50 and 100 participants
+  claim_id: c_8f6d4924
+  context: "User Story 4 plans to recruit n=50\u2011100 participants for the main\
+    \ study."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit n=50\u2011100 participants, run the deployed app (from T011d),\
+    \ and store all collected data in data/measurements/raw/main_study_sessions.csv."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:40:42Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Recruit 20 participants for pilot study
+  claim_id: c_d05cf9c6
+  context: "Goal: Recruit a small cohort (n=20) to rate background images for perceived\
+    \ visual complexity to validate automated metrics (SC\u2011001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:42:43Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from video-conference-backgrounds train split
+  claim_id: c_944427ba
+  context: "Implement src/metrics/fetch_and_archive.py as a one-time setup script\
+    \ (not part of the standard runtime pipeline). It downloads the first 500 items\
+    \ from the 'train' split of the HuggingFace video-conference-backgrounds dataset,\
+    \ computes SHA\u2011256 checksums, and stores them in data/stimuli/raw/."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads the first 500 items from the 'train' split of the HuggingFace
+    video-conference-backgrounds dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:42:43Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: Recruit 50 to 100 participants for main study
+  claim_id: c_e53ceed2
+  context: "Conduct Main Study: Recruit n=50\u2011100 participants, run the deployed\
+    \ app (from T011d), and store all collected data in data/measurements/raw/main_study_sessions.csv\
+    \ flagged as \u201CReal Human Data\u201D."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit n=50\u2011100 participants, run the deployed app, and store all\
+    \ collected data in data/measurements/raw/main_study_sessions.csv"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:42:43Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from train split of video-conference-backgrounds
+    dataset
+  claim_id: c_fb34b4b6
+  context: Implemented as a one-time setup script in T014a to fetch and archive real
+    stimuli for the pilot study.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: downloads the first 500 items from the 'train' split of the HuggingFace
+    video-conference-backgrounds dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:44:20Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from train split of video-conference-backgrounds
+    dataset
+  claim_id: c_0c93256b
+  context: "Implement src/metrics/fetch_and_archive.py as a one-time setup script\
+    \ that downloads the first 500 items from the 'train' split of the HuggingFace\
+    \ video-conference-backgrounds dataset, computes SHA\u2011256 checksums, and stores\
+    \ them in data/stimuli/raw/"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: It downloads the first 500 items from the 'train' split of the HuggingFace
+    `video-conference-backgrounds` dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:45:43Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: download first 500 items from train split of video-conference-backgrounds
+    dataset
+  claim_id: c_e0ffe7ba
+  context: Implement src/metrics/fetch_and_archive.py as a one-time setup script that
+    downloads the first 500 items from the 'train' split of the HuggingFace video-conference-backgrounds
+    dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: It downloads the first 500 items from the 'train' split of the HuggingFace
+    video-conference-backgrounds dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:46:11Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit small cohort of 20 participants
+  claim_id: c_40e2e667
+  context: 'Goal: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity to validate automated metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recruit a small cohort (n=20) to rate background images for perceived
+    visual complexity
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:46:11Z'
+- artifact_path: projects/PROJ-398-the-impact-of-visual-complexity-on-cogni/specs/001-the-impact-of-visual-complexity-on-cogni/tasks.md
+  attempts: 1
+  canonical: recruit 50 to 100 participants for main study
+  claim_id: c_1dc40b85
+  context: "User Story 4 \u2013 Conduct Main Study: Recruit n=50\u2011100 participants,\
+    \ run the deployed app, and store all collected data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Recruit n=50\u2011100 participants, run the deployed app (from T011d),\
+    \ and store all collected data in data/measurements/raw/main_study_sessions.csv"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T19:46:11Z'

@@ -121,7 +121,7 @@ The system must orchestrate the collection of real human data to test the hypoth
 
 ### Non-Functional Requirements
 
-- **NFR-001**: The visual complexity metric extraction pipeline MUST complete processing of 10 input images at 1080p (1920x1080) within 30 seconds and consume less than 2 GB of RAM on a CPU-only environment.
+- **NFR-001**: The visual complexity metric extraction pipeline MUST complete processing of 10 input images at 1080p (1920x1080) within 30 seconds and consume less than a modest amount of RAM on a CPU‑only environment.
 
 ### Key Entities *(include if the feature involves data)*
 

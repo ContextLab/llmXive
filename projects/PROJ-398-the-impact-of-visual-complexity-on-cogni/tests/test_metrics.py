@@ -1,5 +1,7 @@
 import os
 from pathlib import Path
+import tempfile
+import requests
 
 import pandas as pd
 import pytest
@@ -83,3 +85,38 @@ def test_pilot_study_data_flow(tmp_path: Path):
     finally:
         # Restore the original working directory so subsequent tests are not affected.
         os.chdir(original_cwd)
+
+# ----------------------------------------------------------------------
+# Unit test: entropy calculation
+# ----------------------------------------------------------------------
+def test_entropy_calculation():
+    """
+    Verify that ``compute_entropy`` returns a deterministic, non‑negative
+    float for a real image downloaded from the internet.
+    The test checks basic properties rather than an exact numeric value,
+    because the exact entropy depends on the implementation details of
+    ``compute_entropy``.
+    """
+    # Download a small, publicly available image.
+    image_url = "https://via.placeholder.com/64.png"
+    with tempfile.TemporaryDirectory() as tmpdir:
+        image_path = Path(tmpdir) / "test_image.png"
+        response = requests.get(image_url, timeout=10)
+        response.raise_for_status()
+        image_path.write_bytes(response.content)
+
+        # Import the entropy function from the metrics module.
+        from src.metrics.extract import compute_entropy
+
+        # Compute entropy twice to ensure determinism.
+        entropy_one = compute_entropy(str(image_path))
+        entropy_two = compute_entropy(str(image_path))
+
+        # Basic sanity checks.
+        assert isinstance(entropy_one, float), "Entropy should be a float"
+        assert entropy_one >= 0.0, "Entropy should be non‑negative"
+        # The two computations on the same image must match (within a tiny tolerance).
+        assert abs(entropy_one - entropy_two) < 1e-9, "Entropy should be deterministic"
+
+        # Entropy for an 8‑bit image cannot exceed 8.0 bits.
+        assert entropy_one <= 8.0, "Entropy should not exceed 8 bits for an 8‑bit image"

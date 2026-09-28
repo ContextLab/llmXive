@@ -1,199 +1,192 @@
 """
-validate_stimuli.py
--------------------
+src/metrics/validate_stimuli.py
+--------------------------------
+Implements validation of stimulus images for readability and minimum resolution.
 
-This module provides functionality to verify that each stimulus image
-downloaded by ``src.metrics.fetch_stimuli`` is:
-  1. Readable by OpenCV (i.e., ``cv2.imread`` does not return ``None``).
-  2. At least 640 px wide and 360 px tall.
+The module provides:
+  * ``validate_stimuli`` – core function used by the pipeline and tests.
+  * ``main`` – CLI entry point that forwards arguments to ``validate_stimuli``.
 
-Failures are written to ``logs/validate_stimuli.log``.  The script can be
-executed directly:
+Validation criteria:
+  * The image file must be readable by OpenCV (cv2.imread returns a non‑None array).
+  * The image dimensions must be at least ``min_width`` × ``min_height`` pixels.
 
-    python -m src.metrics.validate_stimuli [--stimuli-dir PATH]
-
-The default ``stimuli-dir`` is ``data/stimuli`` relative to the repository
-root.
+Any failures are logged to ``logs/validate_stimuli.log`` (relative to the project
+root). The log file is always created; the containing ``logs`` directory is
+created if missing.
 """
 
 import argparse
 import logging
 import os
-import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional
 
 import cv2
 
 # ----------------------------------------------------------------------
-# Logging configuration
+# Helper functions
 # ----------------------------------------------------------------------
-LOG_DIR = Path("logs")
-LOG_FILE = LOG_DIR / "validate_stimuli.log"
 
 
-def _configure_logger() -> logging.Logger:
-    """Configure a file logger for validation failures.
+def _setup_logger(log_path: Path) -> logging.Logger:
+    """Configure a logger that writes to ``log_path``.
 
-    Returns
-    -------
-    logging.Logger
-        A logger that writes ``ERROR`` level messages to
-        ``logs/validate_stimuli.log``.
+    The logger is created with a simple formatter and INFO level.  Errors are
+    logged with ``logger.error`` so they are clearly visible in the log file.
     """
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    logger = logging.getLogger("validate_stimuli")
-    logger.setLevel(logging.ERROR)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Avoid adding multiple handlers if this function is called repeatedly
+    logger = logging.getLogger("validate_stimuli")
+    logger.setLevel(logging.INFO)
+
+    # Prevent duplicate handlers if this function is called multiple times
     if not logger.handlers:
-        file_handler = logging.FileHandler(LOG_FILE, mode="w", encoding="utf-8")
+        handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
         formatter = logging.Formatter(
-            "%(asctime)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+            "%(asctime)s - %(levelname)s - %(message)s"
         )
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
     return logger
 
 
 # ----------------------------------------------------------------------
-# Core validation logic
+# Public API
 # ----------------------------------------------------------------------
-def _is_image_readable(image_path: Path) -> bool:
-    """Return ``True`` if OpenCV can read the image.
-
-    Parameters
-    ----------
-    image_path: Path
-        Path to the image file.
-
-    Returns
-    -------
-    bool
-        ``True`` if ``cv2.imread`` returns a non‑``None`` array.
-    """
-    try:
-        img = cv2.imread(str(image_path))
-        return img is not None
-    except Exception:  # pragma: no cover – OpenCV rarely raises here
-        return False
-
-
-def _has_minimum_resolution(image_path: Path, min_width: int = 640, min_height: int = 360) -> bool:
-    """Check that the image meets the minimum resolution requirements.
-
-    Parameters
-    ----------
-    image_path: Path
-        Path to the image file.
-    min_width: int, optional
-        Minimum width in pixels (default 640).
-    min_height: int, optional
-        Minimum height in pixels (default 360).
-
-    Returns
-    -------
-    bool
-        ``True`` if the image size is >= the required dimensions.
-    """
-    img = cv2.imread(str(image_path))
-    if img is None:
-        return False
-    height, width = img.shape[:2]
-    return width >= min_width and height >= min_height
 
 
 def validate_stimuli(
-    stimuli_dir: Path,
-) -> Tuple[List[Path], List[Tuple[Path, str]]]:
-    """Validate all images in ``stimuli_dir``.
-
-    The function walks the directory (non‑recursively) and checks each file
-    that OpenCV can interpret as an image.  Failures are logged and also
-    returned to the caller.
+    min_width: int = 640,
+    min_height: int = 360,
+    stimuli_dir: Optional[Path] = None,
+    log_path: Optional[Path] = None,
+) -> List[Path]:
+    """
+    Validate that every image in ``stimuli_dir`` is readable and meets the
+    minimum resolution.
 
     Parameters
     ----------
-    stimuli_dir: Path
-        Directory containing stimulus image files.
+    min_width : int, optional
+        Minimum required width in pixels. Default is 640.
+    min_height : int, optional
+        Minimum required height in pixels. Default is 360.
+    stimuli_dir : pathlib.Path, optional
+        Directory containing stimulus images. If ``None`` the function falls
+        back to ``<project_root>/data/stimuli/raw``.
+    log_path : pathlib.Path, optional
+        Destination for the validation log. If ``None`` the function falls
+        back to ``<project_root>/logs/validate_stimuli.log``.
 
     Returns
     -------
-    Tuple[List[Path], List[Tuple[Path, str]]]
-        * ``valid_images`` – list of image paths that passed all checks.
-        * ``failed_images`` – list of ``(image_path, reason)`` tuples for
-          images that failed validation.
+    List[pathlib.Path]
+        List of paths that failed validation (either unreadable or too small).
     """
-    logger = _configure_logger()
-    valid_images: List[Path] = []
-    failed_images: List[Tuple[Path, str]] = []
+    # Resolve default paths relative to the project root.
+    project_root = Path(__file__).resolve().parents[3]  # .../project_root
+    if stimuli_dir is None:
+        stimuli_dir = project_root / "data" / "stimuli" / "raw"
+    if log_path is None:
+        log_path = project_root / "logs" / "validate_stimuli.log"
+
+    logger = _setup_logger(log_path)
 
     if not stimuli_dir.is_dir():
-        logger.error(f"Stimuli directory does not exist: {stimuli_dir}")
-        raise FileNotFoundError(f"Stimuli directory does not exist: {stimuli_dir}")
+        raise FileNotFoundError(f"Stimuli directory not found: {stimuli_dir}")
 
-    for entry in stimuli_dir.iterdir():
-        if entry.is_file():
-            # 1️⃣ Readability check
-            if not _is_image_readable(entry):
-                reason = "Unreadable / corrupted image"
-                logger.error(f"{entry}: {reason}")
-                failed_images.append((entry, reason))
+    invalid_files: List[Path] = []
+
+    # Consider common image extensions; also accept any file (cv2 will fail on non‑images).
+    image_patterns = ["*.png", "*.jpg", "*.jpeg", "*.bmp", "*.tiff", "*.tif"]
+    for pattern in image_patterns:
+        for img_path in stimuli_dir.glob(pattern):
+            # Attempt to read the image.
+            img = cv2.imread(str(img_path))
+            if img is None:
+                logger.error(f"Unreadable image file: {img_path}")
+                invalid_files.append(img_path)
                 continue
 
-            # 2️⃣ Resolution check
-            if not _has_minimum_resolution(entry):
-                reason = "Resolution below 640x360"
-                logger.error(f"{entry}: {reason}")
-                failed_images.append((entry, reason))
-                continue
+            height, width = img.shape[:2]
+            if width < min_width or height < min_height:
+                logger.error(
+                    f"Image {img_path} resolution too low: {width}x{height} "
+                    f"(minimum {min_width}x{min_height})"
+                )
+                invalid_files.append(img_path)
 
-            # Passed all checks
-            valid_images.append(entry)
+    # If there were no failures, write a short success line for completeness.
+    if not invalid_files:
+        logger.info(
+            f"All {len(list(stimuli_dir.rglob('*')))} files passed validation."
+        )
 
-    return valid_images, failed_images
+    return invalid_files
 
 
 # ----------------------------------------------------------------------
 # CLI entry point
 # ----------------------------------------------------------------------
-def main(argv: List[str] | None = None) -> None:
-    """Command‑line interface for stimulus validation.
 
-    Parameters
-    ----------
-    argv: List[str] | None, optional
-        Argument vector passed to ``argparse``; if ``None`` (the default)
-        ``sys.argv[1:]`` is used.
-    """
+
+def _build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Validate stimulus images for readability and minimum resolution."
+        description="Validate stimulus images for readability and size."
     )
     parser.add_argument(
         "--stimuli-dir",
         type=Path,
-        default=Path("data/stimuli"),
-        help="Directory containing stimulus images (default: data/stimuli).",
+        default=None,
+        help="Path to directory containing stimulus images. Defaults to "
+        "<project_root>/data/stimuli/raw.",
     )
-    args = parser.parse_args(argv)
+    parser.add_argument(
+        "--log-path",
+        type=Path,
+        default=None,
+        help="Path to validation log file. Defaults to "
+        "<project_root>/logs/validate_stimuli.log.",
+    )
+    parser.add_argument(
+        "--min-width",
+        type=int,
+        default=640,
+        help="Minimum required image width in pixels (default: 640).",
+    )
+    parser.add_argument(
+        "--min-height",
+        type=int,
+        default=360,
+        help="Minimum required image height in pixels (default: 360).",
+    )
+    return parser
 
-    try:
-        valid, failed = validate_stimuli(args.stimuli_dir)
-    except Exception as exc:
-        # Unexpected errors (e.g., missing directory) are logged and cause a
-        # non‑zero exit code.
-        logging.error(f"Validation failed with unexpected error: {exc}")
-        sys.exit(1)
 
-    # Print a short summary to stdout for human operators.
-    print(f"Validation complete: {len(valid)} valid, {len(failed)} failed.")
-    if failed:
-        print(f"See '{LOG_FILE}' for details of the failures.")
-        sys.exit(1)  # Signal that there were validation issues.
+def main() -> None:
+    """Entry point for ``python -m src.metrics.validate_stimuli``."""
+    parser = _build_arg_parser()
+    args = parser.parse_args()
+
+    # Run validation; we ignore the return value here because the CLI is
+    # primarily for side‑effects (log file creation).  Exiting with a non‑zero
+    # code signals failure to downstream automation.
+    invalid = validate_stimuli(
+        min_width=args.min_width,
+        min_height=args.min_height,
+        stimuli_dir=args.stimuli_dir,
+        log_path=args.log_path,
+    )
+    if invalid:
+        # Print a concise summary to stdout for human users.
+        print(f"{len(invalid)} invalid stimulus file(s) detected. See log for details.")
+        # Exit with status 1 so CI pipelines can treat it as a failure.
+        raise SystemExit(1)
     else:
-        # Ensure the log file exists (empty) so downstream steps can rely on its presence.
-        LOG_FILE.touch(exist_ok=True)
-        sys.exit(0)
+        print("All stimulus images are valid.")
+        raise SystemExit(0)
 
 
 if __name__ == "__main__":

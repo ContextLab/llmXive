@@ -1,205 +1,237 @@
 """
-Pilot Interface for collecting human visual complexity ratings.
+src/experiment/pilot_interface.py
 
-This module provides:
-- ensure_output_dir(): Guarantees the existence of the directory where
-  human ratings are persisted.
-- list_stimuli_images(): Returns a list of image file paths from the
-  `data/stimuli/` directory (used by the Streamlit UI to present stimuli).
-- append_rating(image_id: str, participant_id: str, complexity_score: int):
-  Persists a single rating to `data/measurements/human_ratings.csv` with
-  columns ``image_id, participant_id, complexity_score``.  The function is
-  idempotent with respect to the header – it creates the file with a header
-  if it does not exist and appends subsequent rows.
-- main(): Streamlit entry‑point that displays the stimuli, collects ratings,
-  and stores them using ``append_rating``.
+Streamlit interface for the local pilot study.
+
+The module provides a small Streamlit app that iterates over a directory of
+stimulus images, presents each image to the participant, and records a
+perceived visual‑complexity rating.  Ratings are persisted to a CSV file
+under ``data/measurements/human_ratings.csv``.  The helper functions are
+deliberately small and test‑able without launching Streamlit, allowing the
+unit‑ and integration‑tests in ``tests/test_pilot_interface.py`` to verify
+behaviour.
+
+Functions
+----------
+* ``ensure_output_dir()`` – creates the directory that will hold the ratings
+  CSV (``data/measurements``) and returns the ``Path``.
+* ``list_stimuli_images(stimuli_dir)`` – returns a sorted list of image
+  ``Path`` objects (PNG/JPG/JPEG) found in ``stimuli_dir``.
+* ``load_existing_ratings(ratings_path)`` – loads the CSV if it exists,
+  otherwise returns an empty ``pandas.DataFrame`` with the required columns.
+* ``append_rating(ratings_path, image_id, participant_id, score)`` – appends a
+  single rating row to the CSV, creating the file with a header if necessary.
+* ``main()`` – Streamlit entry‑point that wires the above helpers together.
 """
 
 import csv
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
 # ----------------------------------------------------------------------
-# Configuration constants
+# Configuration constants (project‑relative)
 # ----------------------------------------------------------------------
-# Root of the repository (two levels up from this file)
-REPO_ROOT = Path(__file__).resolve().parents[2]
-
-# Directory where raw stimulus images are stored
-STIMULI_DIR = REPO_ROOT / "data" / "stimuli"
-
-# Output CSV for human ratings
-RATINGS_CSV = REPO_ROOT / "data" / "measurements" / "human_ratings.csv"
+RATINGS_DIR = Path("data/measurements")
+RATINGS_FILE = RATINGS_DIR / "human_ratings.csv"
+DEFAULT_STIMULI_DIR = Path("data/stimuli/raw")
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".bmp", ".tiff"}
 
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
-def ensure_output_dir() -> None:
-    """
-    Ensure that the directory for the human ratings CSV exists.
-    Creates ``data/measurements`` if it does not already exist.
-    """
-    output_dir = RATINGS_CSV.parent
-    output_dir.mkdir(parents=True, exist_ok=True)
 
 
-def list_stimuli_images() -> List[Path]:
+def ensure_output_dir() -> Path:
     """
-    Return a list of image file paths in the stimuli directory.
-    Only files with typical image extensions are returned.
-    """
-    if not STIMULI_DIR.is_dir():
-        raise FileNotFoundError(f"Stimuli directory not found: {STIMULI_DIR}")
+    Ensure that the directory for storing human rating CSV files exists.
 
-    image_extensions = {".png", ".jpg", ".jpeg", ".bmp", ".gif", ".tiff"}
-    return [
-        p
-        for p in STIMULI_DIR.iterdir()
-        if p.is_file() and p.suffix.lower() in image_extensions
-    ]
+    Returns
+    -------
+    Path
+        The absolute path to the ratings directory.
+    """
+    RATINGS_DIR.mkdir(parents=True, exist_ok=True)
+    return RATINGS_DIR
 
 
-def _initialize_csv() -> None:
+def list_stimuli_images(stimuli_dir: Path) -> List[Path]:
     """
-    Create the CSV file with a header if it does not already exist.
-    This helper is called by ``append_rating`` before writing rows.
-    """
-    if not RATINGS_CSV.exists():
-        ensure_output_dir()
-        with RATINGS_CSV.open(mode="w", newline="", encoding="utf-8") as f:
-            writer = csv.writer(f)
-            writer.writerow(["image_id", "participant_id", "complexity_score"])
-
-
-def append_rating(image_id: str, participant_id: str, complexity_score: int) -> None:
-    """
-    Persist a single human rating to the CSV file.
+    List all image files in ``stimuli_dir`` that match known image extensions.
 
     Parameters
     ----------
-    image_id: str
-        Identifier of the stimulus image (typically the filename without
-        extension).
-    participant_id: str
-        Unique identifier for the participant (e.g., a UUID or short code).
-    complexity_score: int
-        Rating given by the participant on the 1‑10 scale.
+    stimuli_dir : Path
+        Directory containing stimulus images.
 
-    The function writes a new row to ``data/measurements/human_ratings.csv``.
-    It creates the file with a header if it does not already exist.
+    Returns
+    -------
+    List[Path]
+        Sorted list of image file paths.
     """
-    # Basic validation
-    if not isinstance(image_id, str) or not image_id:
-        raise ValueError("image_id must be a non‑empty string")
-    if not isinstance(participant_id, str) or not participant_id:
-        raise ValueError("participant_id must be a non‑empty string")
-    if not isinstance(complexity_score, int):
-        raise ValueError("complexity_score must be an integer")
-    if not (1 <= complexity_score <= 10):
-        raise ValueError("complexity_score must be between 1 and 10 inclusive")
+    if not stimuli_dir.is_dir():
+        raise FileNotFoundError(f"Stimuli directory not found: {stimuli_dir}")
 
-    _initialize_csv()
+    images = [
+        p
+        for p in stimuli_dir.iterdir()
+        if p.is_file() and p.suffix.lower() in IMAGE_EXTENSIONS
+    ]
+    # Sort for deterministic ordering (important for tests)
+    images.sort()
+    return images
 
-    # Append the rating
-    with RATINGS_CSV.open(mode="a", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow([image_id, participant_id, complexity_score])
+
+def load_existing_ratings(ratings_path: Path) -> pd.DataFrame:
+    """
+    Load existing human ratings from ``ratings_path`` if the file exists.
+
+    Parameters
+    ----------
+    ratings_path : Path
+        Path to the CSV file containing previously collected ratings.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with columns ``image_id``, ``participant_id``, ``complexity_score``.
+        Returns an empty DataFrame with those columns if the file does not exist.
+    """
+    if ratings_path.is_file():
+        df = pd.read_csv(ratings_path)
+    else:
+        df = pd.DataFrame(
+            columns=["image_id", "participant_id", "complexity_score"]
+        )
+    return df
+
+
+def append_rating(
+    ratings_path: Path,
+    image_id: str,
+    participant_id: str,
+    score: int,
+) -> None:
+    """
+    Append a single rating row to the CSV file.
+
+    The function creates the file (with a header) if it does not already exist.
+
+    Parameters
+    ----------
+    ratings_path : Path
+        Destination CSV file.
+    image_id : str
+        Identifier of the stimulus image (typically the filename stem).
+    participant_id : str
+        Identifier for the participant (e.g., a UUID or short string).
+    score : int
+        Complexity rating supplied by the participant.
+    """
+    # Ensure the parent directory exists
+    ratings_path.parent.mkdir(parents=True, exist_ok=True)
+
+    file_exists = ratings_path.is_file()
+    with ratings_path.open("a", newline="", encoding="utf-8") as csvfile:
+        writer = csv.writer(csvfile)
+        if not file_exists:
+            # Write header
+            writer.writerow(["image_id", "participant_id", "complexity_score"])
+        writer.writerow([image_id, participant_id, score])
 
 
 # ----------------------------------------------------------------------
 # Streamlit UI
 # ----------------------------------------------------------------------
+
+
 def main() -> None:
     """
-    Streamlit application entry point.
+    Streamlit entry point for the pilot interface.
 
-    The UI presents each stimulus image sequentially and asks the
-    participant to provide a complexity rating (1‑10).  After a rating
-    is submitted, it is persisted via ``append_rating``.
+    The UI walks the participant through each stimulus image, asks for a
+    rating via a slider (1‑10), and records the response.  The participant
+    identifier is collected once at the top of the session.
     """
     st.title("Visual Complexity Pilot Study")
-    st.markdown(
+    st.write(
         """
-        Please rate the visual complexity of each background image on a scale
-        from **1 (very simple)** to **10 (very complex)**.
+        This short study asks you to rate the visual complexity of each background
+        image. Please provide a unique participant ID (e.g., your initials or a short
+        code) so that your responses can be linked together.
         """
     )
 
-    # Participant ID – generated once per session
-    if "participant_id" not in st.session_state:
-        # A simple UUID without hyphens for readability
-        st.session_state.participant_id = (
-            __import__("uuid").uuid4().hex[:12]
-        )
-        st.sidebar.success(
-            f"Your participant ID: {st.session_state.participant_id}"
-        )
+    # ------------------------------------------------------------------
+    # Participant ID
+    # ------------------------------------------------------------------
+    participant_id = st.text_input("Participant ID", value="", max_chars=20)
+    if not participant_id:
+        st.warning("Please enter a participant ID to begin.")
+        st.stop()
 
-    # Load stimuli
+    # ------------------------------------------------------------------
+    # Prepare data
+    # ------------------------------------------------------------------
+    ensure_output_dir()
+    stimuli_dir = DEFAULT_STIMULI_DIR
     try:
-        stimuli = list_stimuli_images()
+        images = list_stimuli_images(stimuli_dir)
     except FileNotFoundError as exc:
         st.error(str(exc))
-        return
+        st.stop()
 
-    if not stimuli:
-        st.warning("No stimulus images found in the stimuli directory.")
-        return
+    if not images:
+        st.error(f"No stimulus images found in `{stimuli_dir}`.")
+        st.stop()
 
-    # Navigation state
-    if "current_index" not in st.session_state:
-        st.session_state.current_index = 0
+    # Session state for navigation
+    if "current_idx" not in st.session_state:
+        st.session_state.current_idx = 0
 
-    idx = st.session_state.current_index
-    image_path = stimuli[idx]
+    idx = st.session_state.current_idx
+    current_image_path = images[idx]
 
-    # Display image
-    st.image(str(image_path), caption=image_path.name, use_column_width=True)
+    # ------------------------------------------------------------------
+    # Display current image and collect rating
+    # ------------------------------------------------------------------
+    st.subheader(f"Image {idx + 1} of {len(images)}")
+    st.image(str(current_image_path), use_column_width=True)
 
-    # Rating widget
     rating = st.slider(
-        "Complexity rating (1‑10)", min_value=1, max_value=10, value=5, key="rating_slider"
+        "Rate the visual complexity (1 = very simple, 10 = very complex)",
+        min_value=1,
+        max_value=10,
+        value=5,
     )
 
-    # Submit button
     if st.button("Submit rating"):
-        image_id = image_path.stem  # filename without extension
-        append_rating(
-            image_id=image_id,
-            participant_id=st.session_state.participant_id,
-            complexity_score=rating,
-        )
-        st.success(f"Rating for **{image_path.name}** saved.")
+        # Record the rating
+        image_id = current_image_path.stem
+        append_rating(RATINGS_FILE, image_id, participant_id, rating)
 
         # Move to next image
-        if idx + 1 < len(stimuli):
-            st.session_state.current_index = idx + 1
+        if idx + 1 < len(images):
+            st.session_state.current_idx = idx + 1
             st.experimental_rerun()
         else:
-            st.balloons()
             st.success("Thank you! You have completed all ratings.")
-            # Reset for a new participant if desired
-            del st.session_state.current_index
+            st.balloons()
+            # Reset index for a possible new participant
+            st.session_state.current_idx = 0
 
-# When the module is executed directly, launch the Streamlit app.
+    # ------------------------------------------------------------------
+    # Debug / progress information (optional, can be hidden)
+    # ------------------------------------------------------------------
+    if st.checkbox("Show progress (debug)"):
+        df = load_existing_ratings(RATINGS_FILE)
+        st.write("Current ratings file preview:")
+        st.dataframe(df)
+
+
 if __name__ == "__main__":
-    # Streamlit expects the script to be run via `streamlit run <script>`.
-    # However, for convenience during development we allow a direct call.
-    # This will invoke Streamlit's CLI programmatically.
-    import sys
-
-    if "streamlit" in sys.modules:
-        # Already running under Streamlit
-        main()
-    else:
-        # Launch Streamlit as a subprocess
-        import subprocess
-
-        subprocess.run(
-            ["streamlit", "run", __file__],
-            check=True,
-        )
+    # Allow running the script directly (`python pilot_interface.py`)
+    main()
