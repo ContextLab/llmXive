@@ -1,3 +1,7 @@
+"""
+Module to save Spearman correlation results to a CSV file.
+This task (T026) implements the saving of correlation results.
+"""
 import os
 import sys
 import pandas as pd
@@ -5,88 +9,82 @@ import numpy as np
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
 
-# Import from existing API surface
-from config import ensure_directories, INPUT_PATHS, SAMPLE_LIMIT
+# Import from sibling modules based on API surface
+from config import ensure_directories
 from logging_config import get_logger, log_provenance, log_warning
-from analysis import load_processed_data, compute_spearman_correlation
 
 logger = get_logger(__name__)
 
-def save_correlation_results(
-    r_value: float,
-    p_value: float,
-    n_obs: int,
-    output_path: Path
-) -> None:
+def save_correlation_results(r_value: float, p_value: float, n_obs: int, output_path: str) -> None:
     """
-    Save correlation results to a CSV file.
+    Saves the correlation results to a CSV file.
 
     Args:
-        r_value: Spearman correlation coefficient
-        p_value: P-value from the correlation test
-        n_obs: Number of observations used in the calculation
-        output_path: Path to save the CSV file
+        r_value: The Spearman correlation coefficient.
+        p_value: The p-value of the correlation test.
+        n_obs: The number of observations.
+        output_path: The path where the CSV file will be saved.
     """
-    # Ensure output directory exists
-    ensure_directories()
+    # Ensure the output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    # Create DataFrame with required schema
-    results_df = pd.DataFrame([{
-        'r_value': float(r_value),
-        'p_value': float(p_value),
-        'n_obs': int(n_obs)
-    }])
+    # Create a DataFrame with the results
+    results_df = pd.DataFrame({
+        'r_value': [r_value],
+        'p_value': [p_value],
+        'n_obs': [n_obs]
+    })
 
     # Save to CSV
     results_df.to_csv(output_path, index=False)
-    logger.info(f"Saved correlation results to {output_path}")
-    log_provenance(
-        action="save_correlation_results",
-        details=f"Saved r={r_value:.4f}, p={p_value:.4f}, n={n_obs} to {output_path}"
-    )
+    logger.info(f"Correlation results saved to {output_path}")
+    log_provenance(f"Saved correlation results: r={r_value}, p={p_value}, n={n_obs}")
 
-def run_save_correlation_pipeline() -> Tuple[float, float, int]:
+def run_save_correlation_pipeline(
+    r_value: float,
+    p_value: float,
+    n_obs: int,
+    output_path: Optional[str] = None
+) -> None:
     """
-    Run the pipeline to compute and save correlation results.
+    Runs the pipeline to save correlation results.
 
-    Returns:
-        Tuple of (r_value, p_value, n_obs)
+    Args:
+        r_value: The Spearman correlation coefficient.
+        p_value: The p-value of the correlation test.
+        n_obs: The number of observations.
+        output_path: Optional custom output path. Defaults to 'data/processed/correlation_results.csv'.
     """
-    logger.info("Starting correlation results save pipeline")
+    if output_path is None:
+        output_path = "data/processed/correlation_results.csv"
 
-    # Load processed data
-    data = load_processed_data()
+    logger.info(f"Starting correlation results save pipeline to {output_path}")
+    
+    # Validate inputs
+    if not isinstance(r_value, (int, float)):
+        raise TypeError(f"r_value must be a number, got {type(r_value)}")
+    if not isinstance(p_value, (int, float)):
+        raise TypeError(f"p_value must be a number, got {type(p_value)}")
+    if not isinstance(n_obs, int):
+        raise TypeError(f"n_obs must be an integer, got {type(n_obs)}")
+    
+    if n_obs <= 0:
+        raise ValueError(f"n_obs must be positive, got {n_obs}")
 
-    if data.empty:
-        raise ValueError("No data available for correlation analysis.")
-
-    # Compute Spearman correlation between shannon_index and fluid_intelligence
-    r_value, p_value, n_obs = compute_spearman_correlation(
-        data,
-        'shannon_index',
-        'fluid_intelligence'
-    )
-
-    logger.info(f"Computed correlation: r={r_value:.4f}, p={p_value:.4f}, n={n_obs}")
-
-    # Define output path
-    output_path = Path(INPUT_PATHS['processed_output_dir']) / 'correlation_results.csv'
-
-    # Save results
     save_correlation_results(r_value, p_value, n_obs, output_path)
-
-    return r_value, p_value, n_obs
+    logger.info("Correlation results save pipeline completed successfully")
 
 def main():
-    """Main entry point for the correlation results save script."""
-    try:
-        r, p, n = run_save_correlation_pipeline()
-        print(f"Successfully saved correlation results: r={r}, p={p}, n={n}")
-        sys.exit(0)
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        print(f"Error: {e}")
-        sys.exit(1)
+    """
+    Main entry point for the script.
+    This script is intended to be called by the analysis pipeline or main.py.
+    It expects the correlation values to be passed or retrieved from a previous step.
+    For direct execution, it will log a message indicating it needs parameters.
+    """
+    logger.info("save_correlation_results.py executed directly. Use as a module.")
+    print("This module is designed to be imported and called with specific values.")
+    print("Example: from save_correlation_results import run_save_correlation_pipeline")
+    print("         run_save_correlation_pipeline(r=0.5, p=0.01, n=100)")
 
 if __name__ == "__main__":
     main()

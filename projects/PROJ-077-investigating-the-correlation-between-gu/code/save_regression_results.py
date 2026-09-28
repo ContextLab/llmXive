@@ -1,19 +1,6 @@
 """
-Save regression summary results to CSV.
-
-This module implements T027: Save regression summary (coefficient, std_err, p-value)
-to data/processed/regression_results.csv.
-
-It expects the regression results to be available in memory (typically returned
-from the analysis pipeline) or loaded from a temporary source if the pipeline
-was split. For this implementation, it assumes the regression model results
-are passed in or retrieved from the analysis module's state.
-
-To run standalone (for testing):
-    python code/save_regression_results.py
-
-This will attempt to run the analysis pipeline first to generate the data,
-then save the results.
+Module to save regression results to CSV.
+Implements T027: Save regression summary with coefficient, std_err, p_value.
 """
 import os
 import sys
@@ -22,145 +9,104 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
 from config import ensure_directories, INPUT_PATHS, SAMPLE_LIMIT
 from logging_config import get_logger, log_provenance, log_warning, log_pipeline_start, log_pipeline_end
-from analysis import run_analysis_pipeline, load_processed_data
 
 logger = get_logger(__name__)
 
-# Output path for regression results
-REGRESSION_RESULTS_PATH = Path("data/processed/regression_results.csv")
-
-def load_regression_results_from_analysis() -> pd.DataFrame:
+def load_regression_results_from_analysis() -> Optional[pd.DataFrame]:
     """
-    Run the analysis pipeline to get regression results and return them as a DataFrame.
-
-    This function orchestrates the loading of data and running the regression
-    analysis to produce the results needed for T027.
-
+    Load regression results from the analysis module's output.
+    Since T023 (run_multivariate_regression) writes to data/processed/regression_results.csv,
+    we read that file here to validate and re-save if necessary, or return the DataFrame
+    if T023 has already populated it in memory (though the spec says T023 writes to disk).
+    
+    For T027, we assume T023 has run and written the file. We load it, validate, and ensure
+    it is saved correctly.
+    
     Returns:
-        pd.DataFrame: DataFrame containing regression results with columns:
-            - predictor: Name of the predictor variable
-            - coefficient: Estimated regression coefficient
-            - std_err: Standard error of the coefficient
-            - p_value: P-value for the coefficient
-            - conf_int_lower: Lower bound of 95% confidence interval
-            - conf_int_upper: Upper bound of 95% confidence interval
+        DataFrame with columns: coefficient, std_err, p_value, or None if not found.
     """
-    logger.info("Loading processed data for regression analysis...")
-    df = load_processed_data()
+    output_path = "data/processed/regression_results.csv"
+    
+    if not os.path.exists(output_path):
+        logger.warning(f"Regression results file not found at {output_path}. "
+                       "This may indicate T023 has not run yet.")
+        return None
+    
+    try:
+        df = pd.read_csv(output_path)
+        logger.info(f"Loaded regression results from {output_path} with {len(df)} rows.")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load regression results: {e}")
+        return None
 
-    if df is None or df.empty:
-        raise ValueError("Processed data is empty or not found. Cannot run regression.")
-
-    logger.info(f"Loaded {len(df)} records for regression analysis.")
-
-    # Run the full analysis pipeline which includes regression
-    logger.info("Running analysis pipeline to generate regression results...")
-    analysis_results = run_analysis_pipeline(df)
-
-    if 'regression_results' not in analysis_results:
-        raise KeyError("Regression results not found in analysis output. "
-                       "Ensure T023 (multivariate regression) was executed successfully.")
-
-    return analysis_results['regression_results']
-
-def save_regression_results(results_df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
+def save_regression_results(df: pd.DataFrame, output_path: str = "data/processed/regression_results.csv") -> bool:
     """
-    Save regression results to CSV file.
-
+    Save the regression results DataFrame to CSV with the exact required columns:
+    coefficient, std_err, p_value.
+    
     Args:
-        results_df: DataFrame containing regression results
-        output_path: Optional custom output path. Defaults to REGRESSION_RESULTS_PATH.
-
+        df: DataFrame containing regression results.
+        output_path: Path to save the CSV file.
+        
     Returns:
-        Path: The path where results were saved
-
-    Raises:
-        ValueError: If results_df is empty or missing required columns
+        True if saved successfully, False otherwise.
     """
-    if output_path is None:
-        output_path = REGRESSION_RESULTS_PATH
+    try:
+        # Ensure the output directory exists
+        ensure_directories()
+        
+        # Validate that required columns exist
+        required_cols = ['coefficient', 'std_err', 'p_value']
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        
+        if missing_cols:
+            raise ValueError(f"Missing required columns in regression results: {missing_cols}")
+        
+        # Select only the required columns in the correct order
+        result_df = df[required_cols].copy()
+        
+        # Save to CSV
+        result_df.to_csv(output_path, index=False)
+        logger.info(f"Saved regression results to {output_path} with {len(result_df)} rows.")
+        log_provenance(f"Regression results saved to {output_path}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to save regression results: {e}")
+        return False
 
-    # Ensure output directory exists
-    ensure_directories()
-
-    # Validate required columns
-    required_cols = ['coefficient', 'std_err', 'p_value']
-    missing_cols = [col for col in required_cols if col not in results_df.columns]
-    if missing_cols:
-        raise ValueError(f"Regression results missing required columns: {missing_cols}")
-
-    # Ensure 'predictor' column exists for clarity
-    if 'predictor' not in results_df.columns:
-        # If predictor names are in index, reset index and name the column
-        if results_df.index.name is None:
-            results_df = results_df.reset_index()
-            results_df.columns = ['predictor'] + list(results_df.columns[1:])
-        else:
-            results_df = results_df.reset_index()
-
-    # Save to CSV
-    results_df.to_csv(output_path, index=False)
-    logger.info(f"Saved regression results to {output_path}")
-    log_provenance(f"Regression results saved: {output_path}", 
-                  {"rows": len(results_df), "columns": list(results_df.columns)})
-
-    return output_path
-
-def run_save_regression_pipeline() -> Path:
+def run_save_regression_pipeline() -> bool:
     """
-    Main entry point for the regression results saving pipeline.
-
-    This function:
-    1. Loads processed data
-    2. Runs the analysis pipeline to generate regression results
-    3. Saves the results to CSV
-
+    Run the pipeline to load and save regression results.
+    
     Returns:
-        Path: Path to the saved CSV file
+        True if the pipeline completed successfully, False otherwise.
     """
     log_pipeline_start("save_regression_results")
-
-    try:
-        # Get regression results from analysis
-        results_df = load_regression_results_from_analysis()
-
-        # Save to CSV
-        output_path = save_regression_results(results_df)
-
-        log_pipeline_end("save_regression_results", status="success")
-        return output_path
-
-    except Exception as e:
-        log_warning(f"Failed to save regression results: {str(e)}")
-        log_pipeline_end("save_regression_results", status="failed", error=str(e))
-        raise
+    
+    # Load results from the analysis output
+    df = load_regression_results_from_analysis()
+    
+    if df is None:
+        log_warning("No regression results found to save. Ensure T023 (run_multivariate_regression) has run.")
+        log_pipeline_end("save_regression_results", success=False)
+        return False
+    
+    # Save the results
+    success = save_regression_results(df)
+    
+    log_pipeline_end("save_regression_results", success=success)
+    return success
 
 def main():
     """
-    Command-line entry point.
+    Entry point for the save regression results script.
     """
-    print("Starting regression results saving pipeline...")
-    try:
-        output_path = run_save_regression_pipeline()
-        print(f"Success! Regression results saved to: {output_path}")
-        
-        # Display summary
-        df = pd.read_csv(output_path)
-        print(f"\nRegression Results Summary:")
-        print(f"  Total predictors: {len(df)}")
-        print(f"  Columns: {list(df.columns)}")
-        print(f"\nFirst few rows:")
-        print(df.head())
-        
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        sys.exit(1)
+    success = run_save_regression_pipeline()
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

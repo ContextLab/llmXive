@@ -47,34 +47,33 @@ T020b:
     implementing this logic is missing.
 T022:
   c: false
-  h: 4dbc9a71e056eb8e3c9ad5580c7c6e1dee9f63fa6896d4baaf16fbf0d4b353cf
-  r: "The provided `code/analysis.py` lacks any checks that the `shannon_index` input\
-    \ is raw integer counts or that it isn\u2019t CLR\u2011transformed, and it does\
-    \ not raise a `ValueError` for such cases. Moreover, the required output file\
-    \ `data/processed/correlation_results.csv` does not exist, so the correlation\
-    \ results are never saved with the specified columns (`r_value`, `p_value`, `n_obs`)."
+  h: b07c6198e3e49325fecfb0faf5ec292ec3d04cbaaa5ca1186986926f5139fb20
+  r: "The repository lacks `data/processed/correlation_results.csv`, and the provided\
+    \ `code/analysis.py` snippet does not contain any implementation of the required\
+    \ Spearman rank correlation (no function checking raw counts, raising `ValueError`,\
+    \ or writing the `r_value`, `p_value`, `n_obs` columns). The task\u2019s core\
+    \ functionality and output file are missing."
 T023:
   c: false
-  h: 07b9c4105e6198d18e8954cc2209df9eb1f6e32ea8b9c8f0d55e975e9732ac94
-  r: "The `code/analysis.py` file is truncated and does not contain a complete `run_multivariate_regression`\
-    \ implementation (no statsmodels OLS, no DQS handling, no CSV output). Moreover,\
-    \ the required output file `data/processed/regression_results.csv` is missing.\
-    \ The task\u2019s requirements are therefore not met."
+  h: 7936018b42afb012c031cf3e07c04f5da396d85506daad1aaad6eae5f4042136
+  r: "The provided `code/analysis.py` contains no multivariate regression logic, no\
+    \ handling of the DQS column, and does not write `data/processed/regression_results.csv`.\
+    \ Moreover, the required `regression_results.csv` file is absent from the repository.\
+    \ The task\u2019s core requirements are therefore unmet."
 T024:
   c: false
-  h: c0bc70ff8c16d68ead5ec6e24854338317668e2129a2331fccbe0cc72cd13ef2
-  r: "The provided `code/analysis.py` snippet ends abruptly and contains no function\
-    \ that computes VIF, logs warnings for VIF\u202F>\u202F5, or writes results to\
-    \ `data/processed/vif_results.json`. Moreover, the required `data/processed/vif_results.json`\
-    \ file does not exist. The task\u2019s core functionality and output artifact\
-    \ are missing."
-T025b:
+  h: 44db0b5b419c35653c6a297dff66f65bcd88b5bf6ccee7d6d828b509e681d9a2
+  r: The repository contains a `calculate_vif` implementation and a `save_vif_results`
+    function that would write `data/processed/vif_results.json`, but the JSON file
+    is not present on disk, and the provided code snippet does not show the function
+    being invoked to generate it. Hence the required output artifact is missing.
+T029c:
   c: false
-  h: 59fba031e67ffdbd4042c8fc521066b513fa3f9e10c4f8eb7a230e0acb1b1404
-  r: "The required artifact `data/processed/regression_diagnostics.json` does not\
-    \ exist, and the provided `code/analysis.py` excerpt does not contain any implementation\
-    \ of a Shapiro\u2011Wilk test on OLS residuals or logic to write a JSON diagnostics\
-    \ report. The task\u2019s core requirement is therefore unmet."
+  h: 60e926dab6fa4c8c5f29737c07d175a4830414a68215d008b53e021b99b7f947
+  r: "The `code/analysis.py` file shown does not contain any implementation of a Shapiro\u2011\
+    Wilk test on Lasso residuals nor code that writes a JSON report to `data/processed/lasso_diagnostics.json`.\
+    \ Moreover, the required `lasso_diagnostics.json` file is absent from the repository.\
+    \ The task\u2019s core requirement is therefore not satisfied."
 T052:
   c: false
   h: 1f16545d81d59cbc65c846ea3a30929f36f5a572cabaccfcf2154afd921017a7

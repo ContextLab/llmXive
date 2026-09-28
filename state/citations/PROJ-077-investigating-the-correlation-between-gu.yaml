@@ -20,7 +20,7 @@
   verification_status: pending
   verified_against_url: https://www.ukbiobank.ac.uk/
   verified_at: '2026-09-27T07:17:00.162641Z'
-- artifact_hash: 649608d394e58edc6d2ad6b786e5af6c215faf4677cfbca7f6e0bc6b04587889
+- artifact_hash: 43625e1b051cbe29912fc8b2935927a7f8b3b771cc6fbf42dae9fc6f31f553f5
   artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/README.md
   cite_id: c-001
   cited_authors: []
@@ -30,4 +30,15 @@
   value: https://www.ukbiobank.ac.uk/
   verification_status: pending
   verified_against_url: https://www.ukbiobank.ac.uk/
-  verified_at: '2026-09-28T16:12:21.831662Z'
+  verified_at: '2026-09-28T16:50:40.413571Z'
+- artifact_hash: 2309080f379d704922e5824b20490a6f6bef71c03fdf7edd3581297a2a8987ec
+  artifact_path: projects/PROJ-077-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.ukbiobank.ac.uk/
+  verification_status: pending
+  verified_against_url: https://www.ukbiobank.ac.uk/
+  verified_at: '2026-09-28T17:42:39.513986Z'

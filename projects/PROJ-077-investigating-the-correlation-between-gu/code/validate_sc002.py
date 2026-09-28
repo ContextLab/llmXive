@@ -39,20 +39,31 @@ def validate_sc002(input_path: Path) -> bool:
     df = pd.read_csv(input_path)
     
     # Check required columns
-    required_cols = ['predictor', 'coefficient', 'p-value']
+    # The task description mentions 'p-value', but analysis.py T027 produces 'p_value'.
+    # We handle both to ensure robustness against the actual output format.
+    required_cols = ['predictor', 'coefficient']
     missing_cols = [col for col in required_cols if col not in df.columns]
     if missing_cols:
         raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
-        
+    
+    # Normalize p-value column name
+    p_val_col = None
+    for col in ['p-value', 'p_value', 'pval']:
+        if col in df.columns:
+            p_val_col = col
+            break
+    
+    if p_val_col is None:
+        raise ValueError(f"Missing p-value column in {input_path}. Expected one of: 'p-value', 'p_value', 'pval'")
+    
     # Identify the Shannon predictor row
     # The predictor column should contain the name of the Shannon index variable
     shannon_rows = df[df['predictor'].str.contains('shannon', case=False, na=False)]
     
     if shannon_rows.empty:
-        raise ValueError(f"No rows found for 'shannon' predictor in {input_path}")
+        raise ValueError(f"No rows found for 'shannon' predictor in {input_path}. Available predictors: {df['predictor'].tolist()}")
         
     # Validate coefficient is float
-    # Pandas usually reads numbers as float, but we explicitly check for NaN or non-numeric
     try:
         shannon_coeff = shannon_rows['coefficient'].iloc[0]
         float(shannon_coeff)
@@ -60,7 +71,7 @@ def validate_sc002(input_path: Path) -> bool:
         raise ValueError(f"Invalid coefficient value for Shannon predictor: {shannon_coeff}")
         
     # Validate p-value < 0.05
-    p_val = shannon_rows['p-value'].iloc[0]
+    p_val = shannon_rows[p_val_col].iloc[0]
     try:
         p_val_float = float(p_val)
     except (ValueError, TypeError):
