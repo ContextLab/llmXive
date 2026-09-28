@@ -1,13 +1,14 @@
 status: none
-intent: download Common Crawl language subset and WALS typology data as python package
-  dataset
+intent: download Common Crawl language subset token frequencies and WALS typological
+  features python package dataset
 required_fields:
 - token
 - frequency
 - language_code
-- wals_language_iso
+- wals_feature_id
 - wals_feature_name
-- wals_feature_value
-cache_key: 3cf3358b434b2fb2f6b50c0ef5ac71dd0131bd87c89ade66d8939ecc00f492f0
-searched_at: '2026-09-27T06:13:33.368874+00:00'
+- wals_value
+- language_iso
+cache_key: 0dfbfde7a97577bb9ff47caa97e77bfabea2e9c1a3ca69e8468293737d7902a6
+searched_at: '2026-09-28T19:25:29.209378+00:00'
 retry_count: 1
