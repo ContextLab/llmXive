@@ -1,3 +1,13 @@
+2|openml:
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'
+'|bin histogram power':
+  quote: arXiv:2109.06612v1 [cs.HC] 14 Sep 2021
+  source_id: '2109.06612'
+  url: https://arxiv.org/abs/2109.06612
+  value: '20'
 '|runtime':
   quote: The film's storyline draws loose inspiration from multiple real-life geopolitical
     events and conflicts in South Asia, including the 1999 IC-814 hijacking, the 2001

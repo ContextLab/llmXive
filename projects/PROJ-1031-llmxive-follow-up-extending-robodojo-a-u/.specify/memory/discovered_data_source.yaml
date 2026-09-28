@@ -1,15 +1,15 @@
 status: none
-intent: download RoboDojo task specifications dataset pip install python package dataset
+intent: RoboDojo dataset for symbolic planning task specifications and visual observations
+  python package dataset
 required_fields:
 - task_id
 - task_name
-- semantic_embedding
+- task_specification_description
+- semantic_embeddings
+- visual_observation_images
 - object_affordances
-- initial_symbolic_state
-- goal_symbolic_state
-- symbolic_predicates
-- task_graph
-- metadata_timestamp
-cache_key: 2bf625897da3be0bfe31a09b869cffd004bd9d9a13f28095c7d6e02000f3563d
-searched_at: '2026-09-03T13:15:17.728372+00:00'
+- symbolic_state_predicates
+- environment_metadata
+cache_key: 752d34ab9987194a6df0f174a6ac8cea1149e3e1c480bf661f934e55869a163b
+searched_at: '2026-09-28T00:55:34.286403+00:00'
 retry_count: 1

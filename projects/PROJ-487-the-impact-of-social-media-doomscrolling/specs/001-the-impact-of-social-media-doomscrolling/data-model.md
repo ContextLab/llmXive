@@ -1,59 +1,31 @@
 # Data Model: The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety
 
-## Entities
+## Entity Definitions
 
 ### TimeSeriesRecord
-
 Represents a single day's aggregated value for a specific metric.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `date` | `str` (YYYY-MM-DD) | The date of the record. |
-| `value` | `float` | The aggregated value (event count or search volume). |
-| `source` | `str` | The source of the data ("GDELT" or "Google Trends"). |
-| `is_stationary` | `bool` | Flag indicating if the series is stationary after preprocessing. |
-| `is_normalized` | `bool` | Flag indicating if the series is z-score normalized. |
-
-### BatchMetadata
-
-Tracks batch file naming and checksums for data hygiene.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `batch_id` | `str` | Unique identifier for the batch (e.g., "2020-01"). |
-| `file_path` | `str` | Path to the raw batch file. |
-| `checksum` | `str` | SHA256 checksum of the file. |
-| `start_date` | `str` | Start date of the batch. |
-| `end_date` | `str` | End date of the batch. |
-| `source_type` | `str` | "S3_Bulk" or "API_Pilot". |
+*   `date`: `YYYY-MM-DD` (String) - The date of the record.
+*   `value`: `float` - The aggregated metric value (EventCount or Search Volume).
+*   `source`: `string` - Identifier for the data source (e.g., "GDELT", "GoogleTrends").
+*   `is_zero_event`: `boolean` - True if the value is explicitly 0 (valid zero), False if interpolated.
 
 ### AnalysisResult
-
 Represents the output of a statistical test.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `metric` | `str` | The metric being tested (e.g., "Granger Causality", "Correlation"). |
-| `coefficient` | `float` | The test statistic (e.g., correlation coefficient, F-statistic). |
-| `p_value` | `float` | The p-value of the test. |
-| `lag` | `int` | The lag window used (if applicable). |
-| `significance_flag` | `bool` | True if p < 0.01 (Bonferroni) OR p < 0.05 (FDR). |
-| `stationarity_status` | `str` | "stationary" or "non-stationary". |
-| `variance_stable` | `bool` | True if ARCH-LM test indicates stable variance. |
+*   `metric`: `string` - Name of the test (e.g., "Pearson", "Granger").
+*   `coefficient`: `float` - The calculated coefficient (r or F-stat).
+*   `p_value`: `float` - The p-value of the test.
+*   `lag`: `integer` - The lag window used (for Granger).
+*   `significance_flag`: `boolean` - True if p < alpha (corrected).
+*   `stationarity_status`: `string` - "stationary" or "non_stationary".
 
 ## Data Flow
 
-1. **Raw Data**: Fetched from GDELT (S3/API) and Google Trends, stored in `data/raw/`.
-2. **Batch Metadata**: Recorded in `data/raw/batch_metadata.json` for checksums.
-3. **Aligned Data**: Merged and aligned to daily timestamps, stored in `data/processed/aligned_timeseries.csv`.
-4. **Stationary Data**: Differenced and normalized, stored in `data/processed/stationary_timeseries.csv`.
-5. **Results**: Statistical test results stored in `data/reports/analysis_results.json`.
+1.  **Raw Ingestion**: `fetch_gdelt.py` and `fetch_trends.py` generate `data/raw/news_volume.csv` and `data/raw/anxiety_trends.csv`.
+2.  **Preprocessing**: `preprocess_data.py` aligns timestamps, handles missing values, tests stationarity, and outputs `data/processed/aligned_timeseries.csv`.
+3.  **Analysis**: `run_analysis.py` consumes the processed file and generates `data/reports/analysis_results.json` and `data/reports/plots/`.
 
-## Constraints
+## Schema Contracts
 
-- **Date Range**: 2020-01-01 to 2023-12-31.
-- **Completeness**: ≥ 95% of days must have valid values.
-- **Stationarity**: All time series must be stationary (ADF p < 0.05) before analysis.
-- **Normalization**: All time series must be z-score normalized before correlation/Granger tests.
-- **Predictor**: Primary predictor is **Negative News Impact Score** (Volume * |Tone|). AVGTONE is descriptive only.
-- **Variance**: ARCH-LM test must indicate stable variance before Pearson correlation.
+The data model is enforced by the following schemas:
+*   `contracts/dataset.schema.yaml`: Validates the structure of the aligned time-series data.
+*   `contracts/output.schema.yaml`: Validates the structure of the analysis results.

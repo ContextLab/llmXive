@@ -1,26 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: ComputeMetric
-description: "Schema for CPU tractability metrics collected during symbolic planner execution."
-type: object
+title: "ComputeMetric"
+description: "Record of CPU cycles, memory usage, and wall-clock time for a specific task execution."
+type: "object"
 properties:
+  metric_id:
+    type: "string"
+    description: "Unique identifier for the metric entry."
   task_id:
-    type: string
-    description: "Unique identifier for the task being measured."
-  cpu_cycles:
-    type: integer
-    description: "Estimated CPU cycles consumed during planning."
-    minimum: 0
-  ram_mb:
-    type: number
-    description: "Peak RAM usage in megabytes during planning."
-    minimum: 0.0
-  wall_clock_s:
-    type: number
-    description: "Total wall-clock time in seconds for planning."
-    minimum: 0.0
+    type: "string"
+    description: "Reference to the task specification."
+  phase:
+    type: "string"
+    enum:
+      - "Planning"
+      - "Execution"
+      - "Total"
+    description: "Phase of the pipeline being measured."
+  cpu_usage_pct:
+    type: "number"
+    description: "CPU usage percentage."
+  memory_mb:
+    type: "number"
+    description: "Memory usage in megabytes."
+  wall_clock_seconds:
+    type: "number"
+    description: "Wall-clock time in seconds."
+  graph_type:
+    type: "string"
+    description: "The type of graph used for this metric (for ablation)."
 required:
+  - metric_id
   - task_id
-  - cpu_cycles
-  - ram_mb
-  - wall_clock_s
+  - phase
+  - cpu_usage_pct
+  - memory_mb
+  - wall_clock_seconds
+  - graph_type
 additionalProperties: false

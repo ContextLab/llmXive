@@ -1,82 +1,94 @@
 # Research: llmXive Follow-up: Extending RoboDojo with Symbolic Abstractions
 
-## 1. Research Question & Hypothesis
+## Research Question
+To what extent is high-fidelity continuous physics simulation necessary for successful long-horizon robot manipulation planning, and can topological symbolic abstractions alone suffice to bridge the sim-to-real gap in generalist policies?
 
-**Primary Question**: To what extent is high-fidelity continuous physics simulation necessary for successful long-horizon robot manipulation planning, and can topological symbolic abstractions alone suffice to bridge the sim-to-real gap in generalist policies?
+## Dataset Strategy
 
-**Null Hypothesis ($H_0$)**: There is no statistically significant difference in task completion success rates between the high-fidelity RoboDojo Neural Policy baseline and the proposed CPU-tractable Symbolic-Dojo approach (Wilcoxon signed-rank test, $\alpha = 0.05$).
+| Dataset Name | Source URL (Verified) | Usage | Accessibility |
+| :--- | :--- | :--- | :--- |
+| **RoboDojo (LERobot v3.0)** | `https://huggingface.co/datasets/OpenMOSS-Team/robodojo-lerobot-v3.0/resolve/main/data/chunk-000/file-000.parquet` | Primary source for task specifications, visual observations, and ground-truth trajectories. | **Open** (Direct download via `datasets` library). |
+| **RoboDojo (Benchmark)** | `https://huggingface.co/datasets/RoboDojo-Benchmark/RoboDojo/resolve/main/data/RoboDojo_ee_lerobot_v30_video/data/chunk-000/file-000.parquet` | Secondary verification of task definitions and video frames. | **Open** (Direct download). |
+| **RoboDojo Assets (BUILD_COMPLETE)** | `https://huggingface.co/datasets/didfd/robodojo-assets-packed/resolve/main/BUILD_COMPLETE.json` | Task metadata and success criteria definitions. | **Open** (Direct download). |
 
-**Alternative Hypothesis ($H_1$)**: The Symbolic-Dojo approach results in a statistically significant reduction in success rate (indicating physics fidelity is necessary) OR a significant reduction in compute overhead with no significant reduction in success rate (indicating symbolic abstractions suffice).
+**Strategy**:
+1.  **Streaming**: Use `datasets.load_dataset(..., streaming=True)` to avoid loading the full dataset into RAM on the GitHub Actions runner.
+2.  **Sampling**: For the initial feasibility test, sample a representative subset of tasks (as per spec) to ensure the pipeline runs within the CI time limit.
+3.  **No Gated Data**: The plan strictly avoids ADNI, HCP, or other gated datasets. The RoboDojo dataset is fully open and verified.
 
-## 2. Dataset Strategy
+## Methodology
 
-The project relies on the **RoboDojo Benchmark** dataset, which provides both simulation task specifications and real-world execution videos.
+### 1. Semantic Embedding Generation (FR-001, FR-002)
+- **Model**: Frozen MobileViT (CPU-optimized).
+- **Process**: Extract frames from RoboDojo video streams. Pass through MobileViT to generate high-level vectors.
+- **Constraint**: No fine-tuning of the vision encoder; only frozen inference to ensure CPU tractability.
+- **Mapping Validation**: A critical step is added to validate the accuracy of the mapping from continuous embeddings to discrete `SymbolicState` predicates. If the mapping is noisy, the "Planner Infeasibility" metric is confounded by "Encoder Ambiguity". We will report the mapping accuracy as a separate metric.
+- **Output**: `SemanticEmbedding` vector (stripped of continuous physics dynamics).
 
-| Dataset Component | Source URL (Verified) | Usage | Access Method |
-|:--- |:--- |:--- |:--- |
-| **Simulation Tasks** | ` | Source of task definitions for the Oracle control and initial state generation. | `datasets.load_dataset(..., streaming=True)` |
-| **Real-World Tasks** | ` | Ground truth for real-world execution validation (US-2). Contains **raw video frames**. | `datasets.load_dataset(..., streaming=True)` |
-| **Task Metadata** | ` | Mapping of task IDs to success criteria and affordance graphs. | `hf_hub_download` |
+### 2. Symbolic State Mapping (FR-002, FR-003)
+- **Graph Construction**: Map embeddings to `SymbolicState` nodes representing object affordances (e.g., `Graspable`, `Stable`, `Connected`).
+- **Abstraction**: Explicitly exclude continuous variables (friction, mass, exact pose) in favor of topological relations.
+- **Validation**: Validate against `SymbolicState` schema (Contract T005a).
 
-**Dataset Version**: `RoboDojo-Benchmark/RoboDojo` (Commit: `v3.0.1`). This version is verified to contain the specific task subset required for this study.
+### 3. Symbolic Planning (FR-003, US-1)
+- **Algorithm**: A* Search or MCTS (Monte Carlo Tree Search).
+- **Goal**: Generate a sequence of discrete sub-goals (ActionSequence) from Start State to Goal State.
+- **Constraint**: Must execute on CPU within 60s per task.
+- **Fallback**: If A* fails (state space too large), switch to MCTS with a fixed depth limit.
 
-**Data Availability Assessment**:
-- **Open Source**: Both datasets are publicly available on Hugging Face without authentication or data-use agreements.
-- **Feasibility**: The parquet files are streamed directly. The total size of the specific tasks is well within the available disk and RAM limits when processed in chunks.
-- **Variable Fit**: The dataset contains **raw visual observations (video frames)** and ground-truth task labels. The plan explicitly extracts visual features via `vision_encoder.py` to generate `SemanticEmbedding` (FR-001) and uses the metadata to define `SymbolicState` predicates (FR-002). No continuous physics variables (friction coefficients, mass) are required from the dataset for the symbolic layer, aligning with the "Simulation Fidelity Independence" principle.
-- **Task Selection**: A `task_selection.py` script filters the dataset for the specific 18 task IDs before processing to ensure consistency.
+### 4. Execution & Failure Detection (FR-004, FR-006, T024)
+- **Oracle Executor (FR-010, US-4)**: A **deterministic, non-physics rule-based verifier**. It checks if the generated symbolic sequence matches the ground-truth task graph topology. It does *not* simulate physics.
+    - **Logic**: The Oracle is a static "Ground-Truth Graph Matcher". It validates if a proposed sequence is a valid path in the known task graph.
+    - **If Oracle Rejects**: The planner failed to find a valid topological path. This is labeled **"Planner Infeasibility"**. (Note: A perfect matcher on a valid task graph should not reject a valid path; rejection implies the planner's output was invalid).
+    - **If Oracle Accepts**: The plan is logically valid (topologically feasible).
+- **Real-World Executor (FR-004, US-2)**: Uses adapted RoboDojo weights to execute the plan in the real environment.
+    - **If Oracle Accepts but Real-World Fails**: The low-level controller could not bridge the gap. This is labeled **"Controller Execution Failure"**.
+- **Failure Logic**: Explicitly distinguishes between Planner Infeasibility and Controller Execution Failure.
+- **Logging**: Write to `data/interim/execution_logs.parquet` with columns: `task_id`, `step`, `outcome`, `failure_mode`.
 
-**Handling Missing Data**:
-- If a specific task ID is missing from the real-world subset, the system will skip that task and log a "Data Gap" warning. The statistical analysis will proceed with $N < 18$, adjusting the power analysis accordingly.
+### 5. Statistical Analysis (FR-005, US-3)
+- **Test**: Wilcoxon signed-rank test (non-parametric, paired).
+- **Hypothesis**: $H_0$: Median difference in success rates (Symbolic vs. Baseline) = 0.
+- **Significance**: $\alpha = 0.05$ (Source: Replication crisis, https://en.wikipedia.org/wiki/Replication_crisis).
+- **Metrics**:
+    - Success Rate (Symbolic vs. Baseline).
+    - Compute Overhead Reduction (%).
+    - Physics Fidelity Gap (Oracle Success - Real Success).
+    - **Catastrophic Failure Rate**: % of tasks with complete abandonment (SC-005).
+- **Control for Confounds**:
+    - **Neural Policy Abstraction Proxy**: To isolate the "planning" variable from the "execution" variable, the study will run the Neural Policy in the RoboDojo simulation environment. The resulting continuous trajectories will be segmented and clustered to extract a discrete sequence of sub-goals (a "high-level trace"). This trace is then validated against the Oracle. This creates a **(Neural+Oracle)** control group, allowing for a fair comparison of the *planning* capability of the Symbolic vs. Neural approaches, independent of the execution fidelity.
+    - The final comparison is between (Symbolic+Real) and (Neural+Real), with the (Neural+Oracle) and (Symbolic+Oracle) groups providing the isolation of the planning variable.
 
-## 3. Methodology
+## Power Analysis & Sample Size Justification
 
-### 3.1. Symbolic Abstraction Layer (CPU-Tractable)
-1. **Vision Encoding**: Input video frames (raw) are passed through a frozen **MobileViT** encoder (CPU-optimized) to generate high-dimensional semantic embeddings. This strips continuous dynamics.
-2. **State Mapping**: Embeddings are mapped to a discrete `SymbolicState` graph using a **deterministic thresholding** function (e.g., `pred > 0.6` implies `graspable`).
- - **Conflict Resolution**: If multiple predicates are active, the system prioritizes "safety" predicates (e.g., `blocked` overrides `graspable`).
- - **Ambiguity Logging**: If a predicate score is between 0.4 and 0.6, the system logs an "Ambiguity Warning" but proceeds with the most likely state.
- - **Calibration**: Thresholds are set using a validation set (a subset of tasks) in Phase 0.5.
-3. **Planning**: A **A* (A-Star)** planner operates on the discrete graph.
- - *Search Space*: Nodes = `SymbolicState`, Edges = Discrete Actions.
- - *Heuristic*: Admissible heuristic based on graph distance to goal state.
- - *Constraint*: Must complete within 60s on 2-core CPU.
+- **Sample Size**: N=18 tasks.
+- **Limitation**: With N=18, the Wilcoxon signed-rank test has low statistical power to detect small effect sizes.
+- **Mitigation**: The study is explicitly framed as exploratory for N=18. We will report effect sizes (e.g., rank-biserial correlation) alongside p-values. A power analysis will be conducted to determine the minimum detectable effect size at $\alpha=0.05$ and power=0.80. If the effect size is too small to be detected with N=18, this limitation will be highlighted in the final report.
+- **Minimum Detectable Effect**: For N=18, $\alpha=0.05$, Power=0.80, the minimum detectable effect size (rank-biserial correlation) is approximately 0.55. Effects smaller than this may result in a Type II error (failing to reject a false null hypothesis).
 
-### 3.2. Execution & Validation
-1. **Sim-to-Real Adapter (FR-009)**:
- - **Protocol**: "Frozen Feature + Linear Probe". The MobileViT backbone is frozen; a linear layer is trained on the 14-task subset to map embeddings to control parameters.
- - **Validation**: A subset of hold-out tasks is used to verify generalization before final training on all 18.
-2. **Real-World Execution**: The generated `ActionSequence` is executed by the **Adapted Low-Level Controller**.
- - *Failure Logging*: If execution fails, the system logs the step index and classifies the failure as "Planner Infeasibility" (wrong plan) or "Controller Execution Failure" (plan correct, execution failed).
-3. **Oracle Control (Diagnostic Only)**:
- - **Definition**: A "Perfect Low-Level Executor" (simulated ground-truth in a high-fidelity physics engine).
- - **Purpose**: To measure the theoretical maximum success rate of the symbolic planner *if* the controller were perfect.
- - **Limitation**: The Oracle success rate is expected to be near-perfect. The "Physics Fidelity Gap" ($1 - Success_{RealWorld}$) is a diagnostic of the *controller's* domain shift failure, not a validation of the planner's physics necessity. The primary hypothesis test (SC-001) relies **only** on Real-World execution.
+## Compute Feasibility (CPU-First)
 
-### 3.3. Statistical Analysis
-1. **Comparison**: Paired success rates (Symbolic vs. Baseline) across multiple tasks.
-2. **Test**: **Wilcoxon signed-rank test** (non-parametric, suitable for small $N=18$ and non-normal distributions).
- - $H_0$: Median difference = 0.
- - Significance level: $\alpha = 0.05$.
- - **Effect Size**: Rank-biserial correlation will be reported alongside p-values to account for low power.
-3. **Compute Metrics**: Percentage reduction in CPU cycles and wall-clock time compared to the GPU baseline.
-4. **Catastrophic Failure Rate**: Calculate the percentage of tasks failing due to "Hardware Error" or "Timeout". Compare to the 5% threshold (SC-005).
-5. **Physics Fidelity Gap**: $Gap = Success_{Oracle} - Success_{RealWorld}$. (Diagnostic only).
+- **Vision Encoder**: MobileViT is lightweight and runs on CPU. Quantization (int8) will be applied if memory > 6GB.
+- **Planner**: A*/MCTS on a graph of <1000 nodes is trivial for 2 CPU cores.
+- **Data**: Streaming Parquet avoids OOM.
+- **No GPU Required**: The entire pipeline (planning, encoding, stats) is designed to run on the GitHub Actions free-tier (multi-core CPU, sufficient RAM).
+- **Escape Hatch**: None required. If the "Perfect Executor" simulation becomes too heavy, it will be simplified to a deterministic rule-based simulator rather than a full physics engine, as the goal is to isolate the *planner*, not the physics fidelity.
 
-## 4. Statistical Rigor & Limitations
+## Risks & Mitigations
 
-- **Multiple Comparisons**: Only one primary hypothesis test (Wilcoxon) is performed on the main metric (success rate). No family-wise error correction is needed as the test is singular.
-- **Power Analysis**: With $N=18$ paired samples, the power to detect a large effect size ($d_z \approx 0.8$) at $\alpha=0.05$ is approximately 0.75. The study is **underpowered** to detect small effects. This limitation is explicitly acknowledged in the final report. Effect sizes will be reported to provide context.
-- **Causal Inference**: This is an observational comparison of two methods on the same tasks. No randomization of tasks is performed (all tasks are used). Claims are framed as "comparative performance" rather than causal effects of the method on the robot's physical properties.
-- **Collinearity**: The `SymbolicState` predicates are defined as topological relationships. Collinearity between predicates (e.g., `graspable` and `placeable`) is acknowledged but handled descriptively; the planner treats them as distinct logical nodes.
-- **Measurement Validity**: MobileViT is a standard, validated architecture for mobile/efficient vision. The RoboDojo benchmark provides validated task definitions and success criteria.
+| Risk | Impact | Mitigation |
+| :--- | :--- | :--- |
+| **Ambiguous Embeddings** | Planner cannot map to unique state. | Implement a "Manual Review" flag in the logging system; if >5% ambiguous, report as "Encoder Ambiguity" (confound) rather than Planner Infeasibility. |
+| **Real-World Failure Rate** | High failure rate obscures planner performance. | Use the Oracle Executor to separate planner failure from controller failure (FR-010). |
+| **Compute Time** | >6 hours for 18 tasks. | Parallelize task execution (if runner allows) or reduce task count to a minimal set for initial validation. |
+| **Data Access** | HuggingFace rate limits. | Use `datasets` library with caching and retries. |
+| **Statistical Power** | N=18 may be insufficient to detect small effects. | Acknowledge limitation in report; focus on effect size estimation rather than strict significance. |
 
-## 5. Decision Rationale
+## Decision Rationale
 
-| Decision | Rationale |
-|:--- |:--- |
-| **CPU-First Planning** | The core hypothesis is about reducing computational barriers. A GPU-based planner would invalidate the "CPU-tractable" claim. |
-| **Streaming Data** | The full RoboDojo dataset may exceed RAM. Streaming ensures the full dataset is used without OOM errors, adhering to the "Data Hygiene" and "Compute Feasibility" constraints. |
-| **Oracle Control** | Essential to isolate the "Physics Fidelity Gap" as a controller diagnostic. Without it, a failure in real-world execution could be misattributed to the planner rather than the controller. |
-| **Wilcoxon Test** | With $N=18$, normality assumptions for a t-test are weak. Wilcoxon is robust for small sample sizes and ordinal/binary success data. |
-| **Split-Data Adaptation** | Prevents the confound of overfitting the controller to the test set, ensuring the success rate reflects the planner's logic, not the controller's memorization. |
+- **Why A*/MCTS?** A* is optimal for small graphs; MCTS is robust for larger, uncertain state spaces. Both are CPU-tractable.
+- **Why MobileViT?** It is the smallest viable transformer for visual encoding that can run on CPU without quantization artifacts.
+- **Why Wilcoxon?** Success rates are binary (0/1) and non-normally distributed; Wilcoxon is the standard for paired non-parametric data.
+- **Why Rule-Based Oracle?** Using a physics-based Oracle would conflate planner validity with physics fidelity. A rule-based graph matcher isolates the *planner's* logical correctness, which is the core hypothesis.
+- **Why Explicit Power Analysis?** To avoid Type II errors and ensure the study's limitations are transparently reported.
+- **Why Neural Policy Abstraction Proxy?** To isolate the "planning" variable from the "execution" variable, enabling a scientifically sound comparison between Symbolic and Neural planning capabilities.

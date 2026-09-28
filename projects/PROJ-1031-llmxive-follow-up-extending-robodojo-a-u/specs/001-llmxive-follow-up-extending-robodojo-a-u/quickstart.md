@@ -2,76 +2,94 @@
 
 ## Prerequisites
 
-- Python 3.11 or higher
+- Python 3.11+
 - Git
-- Access to Hugging Face (no token required for public datasets, but recommended for rate limits)
-- (Optional) A physical robot arm for real-world execution (simulation mode available for testing logic).
+- Access to HuggingFace (for RoboDojo dataset)
 
 ## Installation
 
-1. **Clone the repository**
- ```bash
- git clone
- cd llmxive-follow-up
- ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-1031-llmxive-follow-up-extending-robodojo-a-u
+    ```
 
-2. **Create a virtual environment**
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**
- ```bash
- pip install -r code/requirements.txt
- ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins all versions and includes `torch`, `transformers`, `polars`, `scipy`.*
 
-4. **Verify dataset access**
- Ensure you can access the Hugging Face datasets (Commit v3.0.1):
- ```bash
- python -c "from datasets import load_dataset; print(load_dataset('RoboDojo-Benchmark/RoboDojo', split='train', streaming=True))"
- ```
+4.  **Configure linting/formatting** (T002):
+    ```bash
+    # Install ruff and black
+    pip install ruff black
+    # Run initial check
+    ruff check code/
+    black --check code/
+    ```
 
 ## Running the Pipeline
 
-### Option 1: Symbolic Planning Only (CPU Test)
-Tests the planner on a set of tasks without real-world execution.
+### 1. Download Data
+The script automatically streams data from the verified HuggingFace URLs. No manual download required.
 ```bash
-python code/main.py --mode planning --tasks 18 --max-time 60
+python code/main.py --stage download
 ```
-*Output*: `data/interim/planning_results.json`, logs in `logs/planning.log`.
+*Output: `data/raw/` with checksums.*
 
-### Option 2: Full Execution (Real-World + Oracle)
-Requires a connected robot or a configured simulation environment for the Oracle.
+### 2. Generate Embeddings & States
 ```bash
-python code/main.py --mode full --tasks 18 --oracle
+python code/main.py --stage embed --tasks 18
 ```
-*Output*: `data/interim/execution_logs.parquet`, `data/final/results.csv`.
+*Output: `data/interim/semantic_embeddings.parquet`, `data/interim/symbolic_states.parquet`.*
 
-### Option 3: Statistical Analysis Only
-Runs the Wilcoxon test and generates the report from existing logs.
+### 3. Run Symbolic Planner
 ```bash
-python code/main.py --mode analysis --input data/interim/execution_logs.parquet
+python code/main.py --stage plan --tasks 18
 ```
-*Output*: `data/final/statistical_report.txt`, `data/final/figures/`.
+*Output: `data/interim/action_sequences.parquet`.*
 
-### Option 4: Ablation Study
-Runs the planner with different state representations.
+### 4. Execute & Log (Oracle & Real)
 ```bash
-python code/main.py --mode ablation --tasks 18
+python code/main.py --stage execute --mode oracle  # Test T010
+python code/main.py --stage execute --mode real    # Test T024, T026
 ```
-*Output*: `data/interim/ablation_results.parquet`.
+*Output: `data/interim/execution_logs.parquet` (with failure modes).*
+
+### 5. Statistical Analysis
+```bash
+python code/main.py --stage analyze
+```
+*Output: `data/reports/statistical_analysis.json`, `data/reports/final_report.md`.*
 
 ## Verification
 
-To verify the system is working correctly:
+### Check Data Integrity
+```bash
+python code/utils/io.py --verify-checksums
+```
 
-1. **Check Memory Usage**: Run `python code/main.py --mode planning --tasks 1` and monitor RAM. It should stay within acceptable memory limits.
-2. **Check Planner Speed**: Ensure the planner outputs a sequence within 60 seconds for a single task.
-3. **Check Schema Validation**: Run `pytest tests/contract/` to ensure all generated data matches the `contracts/` schemas.
+### Run Tests
+```bash
+pytest code/tests/ -v
+```
+
+### Lint & Format
+```bash
+ruff check code/ --fix
+black code/
+```
 
 ## Troubleshooting
 
-- **OOM Error**: Reduce the `--batch-size` in `config.py` or enable `streaming=True` explicitly.
-- **Dataset Download Failed**: Check your internet connection and Hugging Face status.
-- **Planner Timeout**: Increase `--max-time` in the command line, but note this violates the 60s constraint for the primary metric.
+- **OOM Error**: Ensure `streaming=True` is used in `datasets.load_dataset`. Reduce `--tasks` count.
+- **Planner Timeout**: Increase `--timeout` flag or switch to MCTS with lower depth.
+- **Missing Logs**: Check `data/interim/execution_logs.parquet` exists. If not, re-run `--stage execute`.
+- **Mapping Ambiguity**: If `mapping_accuracy` is low, check the `semantic_encoder.py` configuration or reduce task complexity.

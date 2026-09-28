@@ -1,10 +1,3 @@
-T011:
-  c: false
-  h: a219ab33add7e7a7c50c272ab45b70b17b44ebc3bcbf4a0a9a3a21029484eb5d
-  r: The test script `tests/contract/test_schemas.py` is present, but the required
-    artifacts `data/raw/openml_metadata_filtered.json` and `contracts/dataset_metadata.schema.yaml`
-    do not exist, causing the test to be skipped or fail. Without these files the
-    contract validation cannot be performed.
 T015:
   c: false
   h: 4a47fe0244967c92bb0cc1489b8752ff218e8cba810215ff6ce3702061250a7e
@@ -20,12 +13,13 @@ T016:
     \ is missing, so the task is not satisfied."
 T019:
   c: false
-  h: 918c76c1d1b5a5f0d7572f41af13bdb366c21c11d0bc8eb86758d95865735da3
-  r: "The provided `tests/contract/test_schemas.py` contains a test for `openml_metadata_filtered.json`\
-    \ against `dataset_metadata.schema.yaml`, not the required `test_extracted_params_schema`\
-    \ for `data/processed/extracted_params.json`. Moreover, the `data/processed/extracted_params.json`\
-    \ file and the `contracts/extracted_params.schema.yaml` schema are both missing.\
-    \ The task\u2019s required artifacts are absent, so the requirement is not satisfied."
+  h: 221d54a479ea4e5f5b66b2d51681bad743da942811ba5bc192ebac5cd4d03243
+  r: The required `data/processed/extracted_params.json` file does not exist, and
+    the schema `contracts/extracted_params.schema.yaml` is also missing. Moreover,
+    the provided `tests/contract/test_schemas.py` snippet is truncated and does not
+    show a `test_extracted_params_schema` implementation, so the contract test cannot
+    actually validate the missing artifacts. These essential artifacts must be created
+    and the test completed for the task to be considered done.
 T021:
   c: false
   h: 40efad785569eb38931520f38b48bb1c83b0de1750e2351146f8313d6f8a48db
@@ -76,3 +70,28 @@ T030:
     \ against `contracts/report.schema.yaml`. Moreover, the required `data/processed/audit_report.json`\
     \ and `contracts/report.schema.yaml` files are missing entirely. The task\u2019\
     s contract test and target artifacts are therefore not present."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or test output was provided that shows entries with `metric_type\
+    \ \"F\"` are converted to Cohen\u2019s\u202Fd, that power values are clamped to\
+    \ \u2264\u202F1.0, or that a warning is logged. The required implementation artifact\
+    \ is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `audit_report.md` file or its contents were provided, and there is no evidence
+    that a mandatory disclaimer was appended to the end of such a file. The required
+    artifact is missing, so the task is not satisfied.
+T037:
+  c: false
+  h: dc67c1d14774336c9370312d7fb1b48f8587d8fb1035f71c0ca52f9a07b22ef4
+  r: "The required file `data/processed/audit_report.md` does not exist, so the final\
+    \ audit report was not assembled as specified. The task\u2019s primary deliverable\
+    \ is missing."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of `quickstart.md`, the `./run_pipeline.sh` execution, the generated
+    `audit_report.md`, or a checksum comparison is provided. The required artifacts
+    and verification steps are missing, so the task is not satisfied.

@@ -1,11 +1,3 @@
-T014:
-  c: false
-  h: 3afe920382a3ec6614aad9be7e8acec477ec60b6e427fb2f0b586c525468631b
-  r: "The provided `verify_us1.py` defines the correlation logic but the required\
-    \ output file `data/results/us1_verification.json` does not exist, and the truncated\
-    \ `run_verification_and_save` function does not show that results are written\
-    \ in the specified schema. Consequently the task\u2019s core requirement of persisting\
-    \ verification results is unmet."
 T024:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -14,37 +6,31 @@ T024:
     \ imputation runs or infinite estimates are detected and flagged. The implementer\
     \ must supply the updated `pipeline.py` with the appropriate checks and error\
     \ messages."
-T028:
-  c: false
-  h: d1f6bb604787cc5b2467d50ba97569bfd8ce9618b38f2b35424c9db685f3fd0a
-  r: "The provided `run_statistical_test` function is only partially implemented (truncated),\
-    \ never reads `data/results/simulation_summary.csv`, does not write the required\
-    \ JSON output, and the referenced `simulation_summary.csv` and `statistical_test_results.json`\
-    \ files are absent. The task\u2019s full decision\u2011tree logic and mandatory\
-    \ bootstrap CI handling are not present."
 T029b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No code, script, or data file was presented that calls `regenerate_ground_truth(seed,\
     \ beta)` nor stores the resulting `tau_true`, `alpha`, and `beta` in per\u2011\
     run data. Without such an artifact, the requirement is not satisfied."
-T029c:
-  c: false
-  h: 0a1f7ec409db775305ffaba09c7a681192e6689e55651b32540a20d4d17b7717
-  r: "The required output file `data/results/simulation_summary.csv` is missing, so\
-    \ no aggregation, schema compliance, or coverage_rate calculation can be verified.\
-    \ The task\u2019s core artifact does not exist."
 T042a:
   c: false
-  h: becadc0e6307c863c79050f1cb9bf1974c115833068b3721d4702d8fd661278a
-  r: "The required `data/results/simulation_summary.csv` is absent, so the script\
-    \ cannot read any data, and the claimed `docs/paper/bias_vs_beta.png` is only\
-    \ a placeholder text (401\u202Fbytes) rather than a real plot image generated\
-    \ from the CSV. Both essential artifacts are missing or invalid."
+  h: eeb1362736c29af91ffb54f7553d528094311d91b13c039ebf93fc599dd844a4
+  r: The required output image `docs/paper/bias_vs_beta.png` does not exist, and the
+    source data file `data/results/simulation_summary.csv` is also missing. Moreover,
+    the provided `plot_bias.py` script is truncated (ends abruptly at `except Exception`)
+    and cannot be executed to generate the plot. The task therefore remains unfinished.
 T042b:
   c: false
-  h: aea3d388711abdc669eb1bcb5bde3fad36eab55d1c4332ca5ad3a16817748489
-  r: The required output artifacts (`docs/paper/coverage_vs_beta.pdf`, `data/results/simulation_summary.csv`,
-    and `docs/paper/coverage_regression.json`) are all absent, so the regression test
-    and figure generation have not been produced. The script exists, but without the
-    data and generated files the task is not fulfilled.
+  h: 08201bbaec4a0506ded46b1ad0b54fd0e4a15adca7feaf8191207da0aee4f0ae
+  r: "The required output files `docs/paper/coverage_vs_beta.pdf`, `data/results/simulation_summary.csv`,\
+    \ and `docs/paper/coverage_regression.json` are all missing, and the provided\
+    \ script does not generate a JSON file or embed the p\u2011value in a figure caption\
+    \ as required. Consequently the regression test result is not recorded in the\
+    \ expected artifact."
+T042c:
+  c: false
+  h: a0d241588c0d2ff2dad839016dc55aa3e48b5b86b0285d64d3890100dd4a3cd3
+  r: The required output file `docs/paper/bias_distributions.png` does not exist,
+    and the source data `data/results/simulation_summary.csv` is also missing, so
+    the script cannot have produced the plot. The script itself is present, but there
+    is no evidence that it was run successfully on real data.

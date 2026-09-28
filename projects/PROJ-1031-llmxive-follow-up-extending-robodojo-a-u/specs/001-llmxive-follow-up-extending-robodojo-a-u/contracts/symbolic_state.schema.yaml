@@ -1,34 +1,39 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "SymbolicState"
-description: "Schema for the symbolic state representation used in the RoboDojo extension."
+description: "Discrete state in PDDL-like format representing object affordances and connectivity."
 type: "object"
 properties:
   state_id:
     type: "string"
-    description: "Unique identifier for the symbolic state."
+    description: "Unique identifier for the state."
+  task_id:
+    type: "string"
+    description: "Reference to the task specification."
   predicates:
     type: "array"
-    description: "List of boolean predicates describing the current state."
     items:
       type: "string"
+    description: "List of logical predicates (e.g., 'Graspable(A)', 'On(A, B)')."
   affordances:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of available actions for objects in this state."
+  connectivity_graph:
     type: "object"
-    description: "Dictionary mapping object identifiers to lists of available actions (affordances)."
+    description: "Adjacency list representation of object connectivity."
     additionalProperties:
       type: "array"
       items:
         type: "string"
-  connectivity:
-    type: "array"
-    description: "List of state IDs that are reachable from this state."
-    items:
-      type: "string"
-  replan_support:
-    type: "boolean"
-    description: "Flag indicating if this state supports replanning logic."
+  graph_type:
+    type: "string"
+    description: "The type of graph used for this state (for ablation)."
 required:
-  - "state_id"
-  - "predicates"
-  - "affordances"
-  - "connectivity"
-  - "replan_support"
+  - state_id
+  - task_id
+  - predicates
+  - affordances
+  - connectivity_graph
+  - graph_type
+additionalProperties: false

@@ -2,88 +2,48 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip`
-- Access to GDELT API (no authentication required for basic queries) or AWS S3 (public bucket)
-- Access to Google Trends (via `pytrends`)
+*   Python 3.11+
+*   `pip`
+*   Access to the GDELT API (public) and Google Trends (no key required, but session limits apply).
 
 ## Installation
 
-1. Clone the repository and navigate to the project directory:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-487-the-impact-of-social-media-doomscrolling
-   ```
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-2. Create a virtual environment and install dependencies:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
-   ```
+## Running the Pipeline
 
-## Data Fetching
-
-Run the data fetching scripts to retrieve raw data:
+The pipeline is executed via the main script:
 
 ```bash
-# For pilot validation (API)
-python code/data/fetch_gdelt.py --start 2020-01-01 --end 2020-01-31 --mode pilot
-# For full dataset (S3 Bulk)
-python code/data/fetch_gdelt.py --start 2020-01-01 --end 2023-12-31 --mode bulk
-python code/data/fetch_trends.py --start 2020-01-01 --end 2023-12-31
+python code/main.py
 ```
 
-This will generate:
-- `data/raw/gdelt_events.csv`
-- `data/raw/google_trends.csv`
+### Configuration
 
-## Preprocessing
+The pipeline uses default parameters defined in `code/config.py`:
+*   **Date Range**: 2020-01-01 to 2023-12-31
+*   **Lag Windows**: [1, 2, 3, 7, 14]
+*   **Alpha**: 0.05 (Bonferroni corrected to 0.01)
 
-Run the preprocessing script to align, check stationarity, and normalize data:
+### Expected Outputs
 
-```bash
-python code/data/alignment.py
-```
-
-This will generate:
-- `data/processed/aligned_timeseries.csv`
-- `data/processed/stationarity_check.csv`
-
-## Analysis
-
-Run the analysis script to compute correlations, Granger causality, and sensitivity analysis:
-
-```bash
-python code/analysis/granger.py
-```
-
-This will generate:
-- `data/reports/analysis_results.json`
-- `data/reports/plots/` (directory with generated plots)
-
-## Reporting
-
-Generate the final report:
-
-```bash
-python code/main.py --generate-report
-```
-
-This will produce:
-- `data/reports/final_report.pdf` (or `.html`)
-
-## Validation
-
-Run the test suite to ensure everything is working correctly:
-
-```bash
-pytest code/tests/ -v
-```
+*   `data/raw/news_volume.csv`: Raw GDELT event counts.
+*   `data/raw/anxiety_trends.csv`: Raw Google Trends data.
+*   `data/processed/aligned_timeseries.csv`: Cleaned, aligned, and stationary data.
+*   `data/reports/analysis_results.json`: Statistical results.
+*   `data/reports/report.html`: Final visualization and summary report.
 
 ## Troubleshooting
 
-- **API Errors**: If GDELT API returns errors, the script will retry up to 3 times with exponential backoff. If it still fails, check your internet connection or the GDELT API status.
-- **Data Completeness**: If data completeness is < 95%, the pipeline will exit with an error. Check the raw data files for missing dates.
-- **Stationarity**: If the data is non-stationary, the pipeline will apply detrending and differencing until it is stationary. If it cannot be made stationary, check the data for anomalies.
-- **Keyword Volatility**: If the pilot correlation check fails (r < 0.7), the script will automatically switch to fallback keywords.
+*   **API Rate Limits**: If Google Trends returns a 429 error, the script includes retry logic with exponential backoff.
+*   **Missing Data**: If data completeness is < 95%, the script exits with a non-zero status code.
+*   **Non-Stationarity**: If differencing does not achieve stationarity after 3 attempts, the script logs a warning and proceeds with caution.

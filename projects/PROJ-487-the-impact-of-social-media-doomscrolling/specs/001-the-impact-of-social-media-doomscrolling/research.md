@@ -1,65 +1,102 @@
 # Research: The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety
 
-## Summary
+## Summary of Research
 
-This research phase investigates the statistical relationship between **aggregate negative news impact** (a weighted metric of volume and sentiment intensity) and anticipatory anxiety. The study uses GDELT `EventCount` (volume of negative events) weighted by `|AVGTONE|` (sentiment severity) to create the **"Negative News Impact Score"** as a proxy for news exposure. Google Trends search volume for anxiety-related keywords is used as a proxy for population-level anticipatory anxiety. The primary analysis focuses on the **impact score**, ensuring construct validity.
+This research investigates the relationship between the volume of negative news publications and population-level anticipatory anxiety. The study utilizes aggregate news volume as a proxy for "news exposure" and search trend volume for "anticipatory anxiety." The analysis focuses on time-series correlation, cointegration, and Granger causality to determine if news volume predicts subsequent anxiety trends. Crucially, the study acknowledges the observational nature of the data and frames results as predictive associations rather than causal claims.
 
 ## Dataset Strategy
 
-| Dataset | Source | Verified URL/Loader | Description |
+### Verified Datasets
+
+The following datasets are the primary sources for this analysis. They are selected based on their public availability and programmatic accessibility, ensuring reproducibility on a CI runner.
+
+| Dataset Name | Description | Source URL | Access Method |
 |:--- |:--- |:--- |:--- |
-| **GDELT Negative Impact Score** | GDELT Project | ` (Verified via `requests` with retry logic) OR `s3://gdelt-bucket` (Bulk) | Daily count of events with negative sentiment (Tone=-100..-50) weighted by severity. Used as the primary predictor variable. |
-| **Google Trends Anxiety** | Google Trends | `pytrends` library (Verified via `pytrends` integration) OR Zenodo Record ID: 12345 (Verified Archive) | Daily relative search volume for keywords: "anticipatory anxiety", "worry about future". Used as the outcome variable. |
-| **GDELT AVGTONE (Descriptive)** | GDELT Project | ` (Verified via `requests`) | Average sentiment tone (-100 to +100). Used for descriptive context and robustness checks only. |
+| **GDELT 2.0 GKG 2.0** | Global news events with sentiment scores and event counts. Used for `EventCount` of negative sentiment events. | ` (AWS S3 Public Bucket) | `s3fs` / `wget` bulk download |
+| **Google Trends** | Relative search interest for keywords related to anxiety. | ` | `pytrends` library (Session-based) |
 
-**Note on GDELT Access**: The GDELT API endpoint ` is the canonical source for pilot validation. For the full 2020-2023 range, the plan uses the **GDELT GKG 2.0 bulk download** from the public AWS S3 bucket to avoid rate limits. The `EventQuery` API is used with `Tone=-100..-50` to filter for negative sentiment events.
+### Data Acquisition Plan
 
-**Note on Google Trends**: The `pytrends` library is the verified programmatic loader for Google Trends data. A pilot validation step will verify data stability. If `pytrends` fails or returns incomplete data, a fallback strategy (verified archive Zenodo Record ID: 12345 or `OpenTrends` API) will be triggered to ensure reproducibility.
+1. **GDELT Data**:
+ * **Strategy**: Bulk download of GDELT 2.0 GKG 2.0 files from the public AWS S3 bucket for the range [2020-01-01, 2023-12-31].
+ * **Query**: Filter for `EventCount` where `AvgTone` < 0.
+ * **Frequency**: Daily aggregation.
+ * **Validation**: Check for non-empty rows and date continuity.
+2. **Google Trends Data**:
+ * **Keywords**: "anticipatory anxiety", "worry about future".
+ * **Fallback Keywords**: "stress about future", "pandemic fear" (if primary keywords yield insufficient volume).
+ * **Method**: Fetch daily time-series data.
+ * **Keyword Stability Check**: Verify that selected keywords yield non-zero data for >5% of the time range. If a keyword fails, switch to the next fallback. This replaces the impossible "pilot validation against a known baseline" with an empirical volume check and literature-based construct validity.
+ * **Literature Validation**: The choice of keywords is supported by literature (e.g., *Salathé et al., 2012*) which validates Google Trends search volume as a proxy for public concern/anxiety.
 
-## Methodology
+### Missing Data Handling
 
-### 1. Data Acquisition
-- **GDELT**: Fetch daily `EventCount` for negative sentiment events (Tone=-100..-50) from 2020-01-01 to 2023-12-31 using **AWS S3 bulk download** (GKG 2.0).
-- **Google Trends**: Fetch daily relative search volume for "anticipatory anxiety" and "worry about future" for the same period.
-- **Keyword Validation**: Perform a pilot correlation check against a known anxiety proxy (e.g., 'pandemic fear'). If r < 0.7, trigger fallback keywords automatically.
-- **Validation**: Check for data completeness (≥ 95% of days). If < 95%, the pipeline exits with an error.
+* **Gaps**: If a specific day has zero events in GDELT, it is recorded as `0` (valid zero).
+* **Nulls**: If the API returns a null/missing value for a day, linear interpolation is applied **only** to non-zero gaps. Zero-event days are preserved.
+* **Threshold**: If data completeness (valid days / total days) < 95% after interpolation, the pipeline exits with an error (SC-001).
 
-### 2. Data Preprocessing
-- **Alignment**: Align both time series to a common daily timestamp (intersection of dates).
-- **Missing Values**: **Forward-fill (locf)** as the primary imputation method. Max gap > 3 days triggers exclusion. Linear interpolation is discarded from the primary pipeline and only used for sensitivity reporting.
-- **Stationarity**:
- 1. Perform Augmented Dickey-Fuller (ADF) test.
- 2. If non-stationary (p ≥ 0.05), apply **Detrending/Seasonal Decomposition** first.
- 3. If still non-stationary, apply **Zivot-Andrews test** to detect structural breaks.
- 4. If break detected, use log-differencing or segmented regression.
- 5. If no break, apply max 2 differences.
-- **Variance Check**: Perform ARCH-LM test on differenced series. If significant, apply GARCH modeling or robust standard errors.
-- **Normalization**: Z-score normalization (mean=0, std=1) for both series.
+## Methodological Rigor
 
-### 3. Statistical Analysis
-- **Correlation**: Compute Pearson and Spearman correlation coefficients on **differenced** series (post-ARCH check).
-- **Granger Causality**: Perform Granger causality tests for a range of lags.
-- **Correction**: Apply **Benjamini-Hochberg (FDR)** as the primary correction method. Bonferroni used as a secondary check.
-- **Sensitivity Analysis**: Sweep lag windows {Short: 1-3, Medium: 7, Long: 14}. Report significance rate: `(count of significant lags / total lags in window) * [deferred]`.
-- **Reporting**: Generate plots (lag plots, correlation heatmaps) and a summary report (PDF/HTML).
+### Statistical Methods
 
-## Statistical Rigor & Constraints
+1. **Stationarity Check (ADF Test)**:
+ * **Protocol**:
+ 1. **Seasonal Differencing**: Apply first-order differencing with lag=7 to address weekly news cycles.
+ 2. **ADF Test**: Test for stationarity.
+ 3. **STL Decomposition**: If non-stationary, apply STL (Seasonal-Trend decomposition using Loess) to remove trend and seasonality.
+ 4. **Simple Differencing**: If STL fails, apply simple first-order differencing.
+ * **Threshold**: p < 0.05 required for stationarity.
+ * **Action**: Document the number of differences and method applied.
 
-- **Multiple Comparison Correction**: **Benjamini-Hochberg (FDR)** applied as the primary method to account for dependency between lag tests. Bonferroni used as a secondary conservative check.
-- **Sample Size**: The time series length (approx. [deferred] days) is sufficient for Granger causality tests (minimum N ≥ 20).
-- **Causal Claims**: No causal claims will be made. Results are framed as associational predictive relationships due to the observational nature of the data.
-- **Collinearity**: If predictors are definitionally related, descriptive reporting will be used, and collinearity will be acknowledged.
-- **Variance Stability**: ARCH-LM test ensures variance is stable before Pearson correlation.
+2. **Cointegration & ECM**:
+ * **Check**: Test if the original (non-differenced) series are cointegrated (Engle-Granger or Johansen).
+ * **Logic**:
+ * **If Cointegrated**: The relationship exists in levels. Use an **Error Correction Model (ECM)** to capture both short-term dynamics and long-run equilibrium.
+ * **If Not Cointegrated**: Proceed with differenced series for Granger Causality.
+ * **Rationale**: This prevents "blind differencing" which destroys long-run level information if a true cointegrating relationship exists.
+
+3. **Correlation Analysis**:
+ * **Metrics**: Pearson (linear) and Spearman (monotonic) correlation coefficients.
+ * **Significance**: p-values calculated.
+
+4. **Granger Causality**:
+ * **Method**: Vector Autoregression (VAR) based Granger causality test.
+ * **Lag Windows**: 1, 2, 3, 7, 14 days.
+ * **Interpretation**: Framed as "predictive power" rather than causality.
+ * **Correction**: **Holm-Bonferroni correction** applied for multiple comparisons (5 tests). This is more appropriate than Bonferroni for dependent (nested) hypotheses. Adjusted alpha is calculated step-down.
+
+5. **Sensitivity Analysis**:
+ * Sweep lag windows to report stability of significance.
+
+6. **Variance Stability**:
+ * **ARCH-LM Test**: Perform Autoregressive Conditional Heteroskedasticity Lagrange Multiplier test on residuals to check for stable variance.
+
+### Statistical Rigor Checklist
+
+* **Multiple Comparison Correction**: **Yes**, Holm-Bonferroni correction applied to Granger causality results across 5 lag windows.
+* **Sample Size/Power**: The dataset covers a multi-year period spanning approximately four years. This is sufficient for time-series analysis with 14 lags (N >> max lag). Power limitation is acknowledged if the effective sample size drops significantly after differencing.
+* **Causal Inference**: **No causal claims**. The study is observational. Results are framed as "predictive associations" due to lack of randomization.
+* **Measurement Validity**: GDELT `EventCount` is a validated proxy for news volume. Google Trends data is a validated proxy for public concern/anxiety (cited in literature, e.g., *Salathé et al., 2012*).
+* **Collinearity**: Not applicable for simple bivariate analysis, but if covariates are added later, Variance Inflation Factor (VIF) will be checked.
+* **Construct Validity**: Acknowledged gap between GDELT "EventCount" and psychological "negativity". The analysis measures "aggregate negative event volume" as a proxy.
+
+### Confounding & Interpretation
+
+* **Information Exposure Confound**: High news volume may cause high search volume simply because people search for what they read (information exposure). The analysis risks validating a tautology: "More news coverage leads to more news-related searches."
+* **Mitigation**: Results are strictly framed as "predictive associations" and "news volume impact on search trends," not direct psychological causation. The study does not claim to measure the internal state of "anticipatory anxiety" directly, but rather the population-level search behavior associated with it.
 
 ## Compute Feasibility
 
-- **CPU-First**: All operations are lightweight and will run on a multi-core CPU runner.
-- **Memory**: Data is processed in monthly batches (or via bulk download) to stay within the available RAM limit.
-- **Runtime**: Estimated runtime is within a reasonable duration.
+* **CPU-First**: All operations (fetching, pandas manipulation, statsmodels, arch) are CPU-bound and efficient.
+* **Memory**: The dataset (of moderate size) fits easily in RAM.
+* **Time**: Estimated runtime < 1 hour on a 2-core CPU.
+* **GPU**: Not required. No deep learning models are used.
 
 ## Decision/Rationale
 
-- **CPU vs. GPU**: CPU is sufficient for all statistical tests. No GPU is needed.
-- **Data Source**: GDELT EventQuery API (pilot) and AWS S3 bulk download (full) are the verified sources. Fallback strategies are in place for instability.
-- **Statistical Method**: Granger causality is chosen for its ability to capture temporal predictive relationships. FDR is used to meet SC-002 requirements while accounting for lag dependency.
-- **Construct Validity**: Primary predictor is **Negative News Impact Score** (Volume * |Tone|) as per FR-001. AVGTONE is used only for descriptive context.
+* **Why GDELT S3?** It provides the only global, daily, programmatic time-series of news volume with sentiment scoring. Bulk download avoids API rate limits.
+* **Why Google Trends?** It is the most accessible proxy for population-level anxiety search behavior.
+* **Why CPU?** The statistical methods (correlation, Granger, ECM) do not require GPU acceleration.
+* **Why Holm-Bonferroni?** To control the family-wise error rate when testing 5 dependent lag hypotheses.
+* **Why STL/Seasonal Diff?** To handle weekly news cycles that simple differencing misses.
+* **Why Cointegration/ECM?** To preserve long-run level relationships if they exist, avoiding the destruction of signal by blind differencing.

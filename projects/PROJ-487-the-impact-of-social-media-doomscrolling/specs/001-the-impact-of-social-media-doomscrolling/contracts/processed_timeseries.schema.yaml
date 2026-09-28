@@ -18,11 +18,20 @@ properties:
   variance_stable:
     type: "boolean"
     description: "True if ARCH-LM test indicates stable variance"
+  cointegrated:
+    type: "boolean"
+    description: "True if the original series were found to be cointegrated"
+  method_applied:
+    type: "string"
+    enum: ["seasonal_diff", "stl", "simple_diff", "ecm"]
+    description: "Method used to achieve stationarity or model the relationship"
 required:
   - date
   - news_impact_z
   - anxiety_search_z
   - completeness_flag
   - variance_stable
+  - cointegrated
+  - method_applied
 additionalProperties: false
-description: "Schema for the final aligned and normalized time-series dataset."
+description: "Schema for the final aligned and normalized time-series dataset, including cointegration and variance stability flags."

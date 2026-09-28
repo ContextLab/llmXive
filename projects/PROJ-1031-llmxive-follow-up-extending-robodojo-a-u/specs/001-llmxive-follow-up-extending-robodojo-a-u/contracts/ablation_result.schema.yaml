@@ -3,6 +3,9 @@ title: "AblationResult"
 description: "Schema for ablation study results comparing different state representation levels."
 type: "object"
 properties:
+  ablation_id:
+    type: "string"
+    description: "Unique identifier for the ablation run."
   graph_type:
     type: "string"
     description: "The type of graph used in the ablation (e.g., 'Full Affordance Graph', 'Simplified Connectivity Graph')."
@@ -14,8 +17,15 @@ properties:
   compute_overhead:
     type: "number"
     description: "The compute overhead (e.g., percentage increase or absolute time) introduced by this configuration."
+  catastrophic_failure_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "The rate of catastrophic failures (complete task abandonment) for this configuration."
 required:
+  - "ablation_id"
   - "graph_type"
   - "success_rate"
   - "compute_overhead"
+  - "catastrophic_failure_rate"
 additionalProperties: false

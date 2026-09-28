@@ -5,147 +5,107 @@ from typing import Tuple, Any, Dict, List, Optional
 import numpy as np
 import pandas as pd
 from scipy import stats
-import logging
-
-# Configure logging for warnings about failed correlations
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-# Ensure the output directory exists
-OUTPUT_DIR = "data/results"
-OUTPUT_FILE = os.path.join(OUTPUT_DIR, "us1_verification.json")
 
 def compute_run_id(seed: int, beta: float) -> str:
-    """
-    Define run_id as a SHA-256 hash of the string f"{seed}_{beta}".
-    """
-    input_str = f"{seed}_{beta}"
-    return hashlib.sha256(input_str.encode('utf-8')).hexdigest()
+    """Compute SHA-256 hash of seed_beta string."""
+    data = f"{seed}_{beta}"
+    return hashlib.sha256(data.encode()).hexdigest()
 
-def verify_mnar_correlation(
-    mask: np.ndarray,
-    complete_y: np.ndarray,
-    seed: int,
-    beta: float
-) -> Dict[str, Any]:
+def verify_mnar_correlation(mask_data: np.ndarray, complete_y: np.ndarray) -> Tuple[float, float]:
     """
-    Calculate Spearman rho between M (mask) and the generated complete Y (before masking).
+    Calculate Spearman correlation between mask and complete Y.
+    Returns (rho, p_value).
+    """
+    # Ensure arrays are 1D
+    mask_flat = mask_data.flatten()
+    y_flat = complete_y.flatten()
     
-    Args:
-        mask: Binary numpy array (0/1) indicating missingness.
-        complete_y: The original outcome variable before masking.
-        seed: Random seed used for generation.
-        beta: The MNAR parameter used.
-    
-    Returns:
-        Dictionary with run_id, correlation, p_value, and status.
+    # Remove pairs where mask is NaN if any (should not happen if mask is boolean/0-1)
+    valid_indices = ~np.isnan(mask_flat) & ~np.isnan(y_flat)
+    if np.sum(valid_indices) < 10:
+        return 0.0, 1.0 # Not enough data
+        
+    rho, p_value = stats.spearmanr(mask_flat[valid_indices], y_flat[valid_indices])
+    return rho, p_value
+
+def run_verification_and_save(seed: int, beta: float, mask_data: np.ndarray, 
+                              complete_y: np.ndarray, output_path: str) -> Dict[str, Any]:
+    """
+    Run verification and save results to JSON.
+    If multiple runs are called, this function appends or overwrites.
+    For T014 requirement: Process all runs. If rho > 0.5 and p < 0.01 -> passed, else failed.
     """
     run_id = compute_run_id(seed, beta)
+    rho, p_value = verify_mnar_correlation(mask_data, complete_y)
     
-    # Filter out cases where mask is all 0 or all 1 to avoid undefined correlation
-    if len(np.unique(mask)) < 2:
-        logger.warning(f"Run {run_id}: Mask is constant (all 0 or all 1). Cannot compute correlation.")
-        return {
-            "run_id": run_id,
-            "correlation": 0.0,
-            "p_value": 1.0,
-            "status": "failed",
-            "seed": seed,
-            "beta": beta,
-            "reason": "constant_mask"
-        }
-
-    # Calculate Spearman correlation
-    try:
-        rho, p_value = stats.spearmanr(mask, complete_y)
-        
-        # Handle NaN results (e.g., if variance is zero despite check above)
-        if np.isnan(rho):
-            rho = 0.0
-            p_value = 1.0
-            
-    except Exception as e:
-        logger.error(f"Run {run_id}: Error calculating correlation: {e}")
-        rho = 0.0
-        p_value = 1.0
-
-    # Determine status based on thresholds
-    # Passed: rho > 0.5 AND p < 0.01
-    # Failed: otherwise (but DO NOT discard the run)
-    if rho > 0.5 and p_value < 0.01:
-        status = "passed"
-    else:
-        status = "failed"
-        logger.warning(
-            f"Run {run_id}: MNAR verification failed. "
-            f"Spearman rho={rho:.4f}, p-value={p_value:.4f}. "
-            f"Thresholds: rho > 0.5, p < 0.01. "
-            f"Proceeding with run despite failure."
-        )
-
-    return {
+    status = "passed" if (rho > 0.5 and p_value < 0.01) else "failed"
+    
+    # Log warning if failed but do not discard
+    if status == "failed":
+        print(f"Warning: Verification failed for run_id={run_id} (rho={rho:.4f}, p={p_value:.4f})")
+    
+    result = {
         "run_id": run_id,
+        "seed": seed,
+        "beta": beta,
         "correlation": float(rho),
         "p_value": float(p_value),
-        "status": status,
-        "seed": seed,
-        "beta": beta
+        "status": status
     }
-
-def run_verification_and_save(
-    runs_data: List[Dict[str, Any]],
-    output_path: Optional[str] = None
-) -> List[Dict[str, Any]]:
-    """
-    Process multiple runs, calculate correlations, and save results to JSON.
-    
-    Args:
-        runs_data: List of dictionaries, each containing 'mask', 'complete_y', 'seed', 'beta'.
-        output_path: Path to save the results JSON. Defaults to data/results/us1_verification.json.
-    
-    Returns:
-        List of verification result dictionaries.
-    """
-    if output_path is None:
-        output_path = OUTPUT_FILE
     
     # Ensure directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    results = []
+    # Load existing results if file exists, then append/update
+    results_list = []
+    if os.path.exists(output_path):
+        try:
+            with open(output_path, 'r') as f:
+                content = f.read().strip()
+                if content:
+                    # Assume it's a list of objects or a single object
+                    data = json.loads(content)
+                    if isinstance(data, list):
+                        results_list = data
+                    elif isinstance(data, dict):
+                        results_list = [data]
+        except json.JSONDecodeError:
+            results_list = []
     
-    for run_data in runs_data:
-        mask = run_data.get('mask')
-        complete_y = run_data.get('complete_y')
-        seed = run_data.get('seed')
-        beta = run_data.get('beta')
-        
-        if mask is None or complete_y is None or seed is None or beta is None:
-            logger.error(f"Missing required fields in run data. Skipping run.")
-            continue
-        
-        result = verify_mnar_correlation(mask, complete_y, seed, beta)
-        results.append(result)
+    # Check if run_id already exists to avoid duplicates
+    existing_ids = {r.get('run_id') for r in results_list}
+    if run_id not in existing_ids:
+        results_list.append(result)
     
-    # Save results to JSON
+    # Write back
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Verification results saved to {output_path}")
-    return results
+        json.dump(results_list, f, indent=2)
+        
+    return result
 
 def main():
-    """
-    Entry point for verification script.
-    This function is intended to be called by the main orchestration loop (T029a).
-    It expects to receive data from the simulation runs.
-    For standalone testing, it can generate dummy data to verify the logic.
-    """
-    # This function is primarily a wrapper for the orchestration loop.
-    # The actual data population happens in T029a (main.py).
-    # If run standalone for testing purposes:
-    print("Verify US1 script loaded. Call run_verification_and_save() with simulation data.")
-    pass
+    """CLI entry point for verification (optional, mostly used internally)."""
+    parser = argparse.ArgumentParser(description='Verify MNAR correlation')
+    parser.add_argument('--seed', type=int, required=True)
+    parser.add_argument('--beta', type=float, required=True)
+    parser.add_argument('--mask-file', type=str, required=True)
+    parser.add_argument('--y-file', type=str, required=True)
+    parser.add_argument('--output', type=str, default='data/results/us1_verification.json')
+    
+    args = parser.parse_args()
+    
+    mask_data = np.load(args.mask_file)
+    complete_y = np.load(args.y_file)
+    
+    run_verification_and_save(
+        seed=args.seed,
+        beta=args.beta,
+        mask_data=mask_data,
+        complete_y=complete_y,
+        output_path=args.output
+    )
+    print(f"Verification saved to {args.output}")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    import argparse
     main()

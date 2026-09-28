@@ -1,9 +1,5 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Extracted Statistical Parameters
-description: |
-  Schema for the extracted statistical parameters from publication parsing.
-  Used by T019 contract test to validate data/processed/extracted_params.json.
 type: array
+description: List of extracted statistical parameters from publications
 items:
   type: object
   required:
@@ -16,48 +12,42 @@ items:
   properties:
     dataset_id:
       type: integer
-      description: Unique identifier of the OpenML dataset.
+      description: Unique identifier of the OpenML dataset
     sample_size:
       type: integer
-      description: Extracted sample size (N).
+      description: Number of samples (N) extracted from the publication
     effect_size:
       type: number
-      description: Extracted effect size value (e.g., Cohen's d or F-statistic).
+      description: The extracted effect size value (Cohen's d or F-statistic)
     metric_type:
       type: string
-      description: Type of metric extracted (e.g., "Cohen's d", "F").
+      description: Type of metric extracted (e.g., "Cohen's d", "F")
       enum:
         - "Cohen's d"
         - "F"
-        - "unknown"
     degrees_of_freedom:
-      type: array
-      items:
-        type: integer
-      minItems: 2
-      maxItems: 2
-      description: Degrees of freedom (df1, df2) for F-statistics. Optional.
+      type: integer
+      description: Degrees of freedom (only applicable for F-statistic)
+      nullable: true
     source_url:
       type: string
-      description: URL of the publication or abstract where the data was extracted.
+      description: URL of the publication or DOI where data was extracted from
     source_type:
       type: string
-      description: Source of the extraction (e.g., "full_text", "abstract").
+      description: Source of the extracted text
       enum:
         - "full_text"
         - "abstract"
-        - "unknown"
     status:
       type: string
-      description: Status of the extraction process.
+      description: Extraction status
       enum:
         - "success"
         - "paywalled"
         - "unparseable"
-        - "insufficient_data"
+        - "insufficient data"
         - "fetch_failed"
-    extracted_at:
-      type: string
-      format: date-time
-      description: ISO 8601 timestamp of the extraction.
-  additionalProperties: false
+    degrees_of_freedom:
+      type: integer
+      description: Degrees of freedom for F-statistic
+      nullable: true

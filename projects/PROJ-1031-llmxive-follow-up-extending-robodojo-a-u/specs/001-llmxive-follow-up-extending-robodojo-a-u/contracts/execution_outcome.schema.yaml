@@ -1,29 +1,47 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ExecutionOutcome
-description: Schema for execution outcome validation as defined in T005b.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExecutionOutcome"
+description: "Binary record of a task execution in the real-world environment, including failure mode label."
+type: "object"
 properties:
+  log_id:
+    type: "string"
+    description: "Unique identifier for the log entry."
   task_id:
-    type: string
-    description: Unique identifier for the task.
-  success:
-    type: boolean
-    description: Whether the task execution was successful.
+    type: "string"
+    description: "Reference to the task specification."
+  step_index:
+    type: "integer"
+    description: "Index of the step in the action sequence where the event occurred."
+  outcome:
+    type: "string"
+    enum:
+      - "Success"
+      - "Failure"
+    description: "Binary outcome of the execution."
   failure_mode:
-    type: ["string", "null"]
-    description: The mode of failure if success is false.
+    type: "string"
     enum:
       - "Planner Infeasibility"
       - "Controller Execution Failure"
-      - "Hardware Error"
-      - "Timeout"
-      - null
+      - "Encoder Ambiguity"
+      - "None"
+    description: "Classification of the failure reason."
   timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the execution outcome.
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the event."
+  error_details:
+    type: ["string", "null"]
+    description: "Optional details about the error."
+  graph_type:
+    type: "string"
+    description: "The type of graph used for this execution (for ablation)."
 required:
+  - log_id
   - task_id
-  - success
+  - step_index
+  - outcome
   - failure_mode
   - timestamp
+  - graph_type
+additionalProperties: false
