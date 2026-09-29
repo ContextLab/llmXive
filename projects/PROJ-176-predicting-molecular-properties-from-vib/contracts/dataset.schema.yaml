@@ -1,125 +1,148 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Preprocessed Molecular Dataset Schema
-description: >
-  Schema for the aligned and preprocessed molecular dataset combining QM9 properties
-  and IR spectra, stored as data/preprocessed/aligned_molecules.npz.
+# Schema for aligned preprocessed molecular dataset
+# Generated for PROJ-176-predicting-molecular-properties-from-vib
+# Task: T008
 type: object
+description: "Aligned molecular dataset containing IR spectra and target properties"
 required:
   - metadata
-  - data
+  - molecules
+  - spectra
+  - properties
 properties:
   metadata:
     type: object
+    description: "Dataset provenance and processing parameters"
     required:
-      - source_datasets
+      - created_at
+      - source_qm9
+      - source_ir
       - alignment_key
       - preprocessing_steps
-      - dft_functional
-      - dft_basis_set
-      - grid_range
-      - grid_step
-      - smoothing_sigma
-      - normalization_method
-      - sample_count
-      - created_at
-      - version
+      - total_molecules
     properties:
-      source_datasets:
-        type: array
-        description: List of source dataset names used to generate this file.
-        items:
-          type: string
-        enum:
-          - QM9
-          - IR-Spectra
-      alignment_key:
-        type: string
-        description: The key used to join datasets.
-        const: InChIKey
-      preprocessing_steps:
-        type: array
-        description: Ordered list of preprocessing operations applied.
-        items:
-          type: string
-        enum:
-          - inner_join
-          - interpolation
-          - gaussian_smoothing
-          - unit_area_normalization
-          - property_filtering
-          - metadata_check
-      dft_functional:
-        type: string
-        description: DFT functional used for property calculation (e.g., B3LYP).
-      dft_basis_set:
-        type: string
-        description: DFT basis set used (e.g., 6-31G*).
-      grid_range:
-        type: array
-        description: Wavenumber range [min, max] in cm^-1.
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-      grid_step:
-        type: number
-        description: Step size of the wavenumber grid in cm^-1.
-      smoothing_sigma:
-        type: number
-        description: Standard deviation for Gaussian smoothing in cm^-1.
-      normalization_method:
-        type: string
-        description: Method used for normalizing spectra.
-        const: unit_area
-      sample_count:
-        type: integer
-        description: Number of molecules in the final dataset.
-        minimum: 1
       created_at:
         type: string
-        description: ISO 8601 timestamp of dataset creation.
-      version:
+        format: date-time
+        description: "ISO 8601 timestamp of dataset creation"
+      source_qm9:
         type: string
-        description: Schema version of this dataset.
-  data:
-    type: object
-    description: Numpy arrays stored in the .npz file.
-    properties:
-      InChIKeys:
+        description: "Source dataset identifier for QM9 (e. g., 'qm9_v1.0')"
+      source_ir:
+        type: string
+        description: "Source dataset identifier for IR spectra"
+      alignment_key:
+        type: string
+        const: "InChIKey"
+        description: "Key used to join datasets"
+      preprocessing_steps:
         type: array
-        description: List of InChIKey strings.
         items:
           type: string
+        description: "List of preprocessing steps applied"
+      total_molecules:
+        type: integer
+        minimum: 1
+        description: "Number of molecules in the final aligned dataset"
+      dft_functional:
+        type: string
+        description: "DFT functional used for property calculation"
+      dft_basis_set:
+        type: string
+        description: "DFT basis set used for property calculation"
+      coverage_audit_pvalue:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "KS-test p-value for coverage audit"
+      coverage_audit_warning:
+        type: boolean
+        description: "True if p < 0.05 indicating potential selection bias"
+  molecules:
+    type: array
+    description: "List of unique molecules in the dataset"
+    items:
+      type: object
+      required:
+        - inchi_key
+        - molecule_id
+      properties:
+        inchi_key:
+          type: string
+          description: "Standard InChIKey for molecular identification"
+        molecule_id:
+          type: integer
+          description: "Internal index in the dataset arrays"
+  spectra:
+    type: object
+    description: "Preprocessed IR spectra data"
+    required:
+      - wavenumbers
+      - intensity_matrix
+      - grid_unit
+      - smoothing_sigma
+    properties:
       wavenumbers:
         type: array
-        description: 1D array of wavenumber values (cm^-1).
         items:
           type: number
-      ir_spectra:
+        description: "1D array of wavenumbers (cm^-1) on fixed grid"
+      intensity_matrix:
         type: array
-        description: 2D array of IR spectra (N_samples x N_wavenumbers).
         items:
-          type: number
+          type: array
+          items:
+            type: number
+        description: "2D array [n_molecules x n_wavenumbers] of normalized intensities"
+      grid_unit:
+        type: string
+        const: "cm^-1"
+        description: "Unit of wavenumber axis"
+      smoothing_sigma:
+        type: number
+        const: 2.0)
+        description: "Sigma value for Gaussian smoothing"
+      normalization_method:
+        type: string
+        const: "unit_area"
+        description: "Method used for spectrum normalization"
+  properties:
+    type: object
+    description: "Target molecular properties for regression"
+    required:
+      - dipole_moment
+      - polarizability
+      - homo_lumo_gap
+      - units
+    properties:
       dipole_moment:
         type: array
-        description: 1D array of dipole moments (Debye).
         items:
           type: number
+        description: "Dipole moment values (D)"
       polarizability:
         type: array
-        description: 1D array of polarizability (Angstrom^3).
         items:
           type: number
+        description: "Polarizability values (Angstrom^3)"
       homo_lumo_gap:
         type: array
-        description: 1D array of HOMO-LUMO gaps (eV).
         items:
           type: number
-      dft_metadata:
-        type: array
-        description: 2D array of DFT metadata flags (e.g., functional mismatch).
-        items:
-          type: integer
-        description: >
-          Optional: Metadata flags for domain shift detection.
-          0 = match, 1 = domain shift candidate.
+        description: "HOMO-LUMO gap values (eV)"
+      units:
+        type: object
+        required:
+          - dipole
+          - polarizability
+          - gap
+        properties:
+          dipole:
+            type: string
+            const: "D"
+          polarizability:
+            type: string
+            const: "Angstrom^3"
+          gap:
+            type: string
+            const: "eV"
+additionalProperties: false

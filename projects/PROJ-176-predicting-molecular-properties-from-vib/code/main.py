@@ -3,81 +3,83 @@ import sys
 import logging
 import os
 from pathlib import Path
-
 from utils.logging_utils import setup_logging, get_logger
-
-logger = get_logger(__name__)
-
-def cmd_download(args):
-    """Execute the download and alignment pipeline."""
-    logger.info("Starting download command...")
-    from data.download import main as download_main
-    download_main()
-    logger.info("Download command finished.")
-
-def cmd_preprocess(args):
-    """Execute the preprocessing pipeline."""
-    logger.info("Starting preprocessing command...")
-    from data.preprocess import main as preprocess_main
-    preprocess_main()
-    logger.info("Preprocessing command finished.")
-
-def cmd_train(args):
-    """Execute the training pipeline."""
-    logger.info("Starting training command...")
-    from models.trainer import main as train_main
-    train_main()
-    logger.info("Training command finished.")
-
-def cmd_evaluate(args):
-    """Execute the evaluation pipeline."""
-    logger.info("Starting evaluation command...")
-    from evaluation.evaluate import main as eval_main
-    eval_main()
-    logger.info("Evaluation command finished.")
-
-def cmd_validate(args):
-    """Execute the validation pipeline."""
-    logger.info("Starting validation command...")
-    from evaluation.validate import main as val_main
-    val_main()
-    logger.info("Validation command finished.")
+from utils.timeout_wrapper import enforce_timeout
+from utils.update_state import update_task_state
+from data.download import main as download_main
+from data.preprocess import main as preprocess_main
+from models.trainer import main as train_main
+from evaluation.evaluate import main as evaluate_main
+from evaluation.validate import main as validate_main
 
 def main():
-    parser = argparse.ArgumentParser(description="Molecular Properties Prediction Pipeline")
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    parser = argparse.ArgumentParser(
+        description="llmXive Molecular Property Prediction Pipeline"
+    )
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Download
-    parser_download = subparsers.add_parser('download', help='Download and align data')
-    parser_download.set_defaults(func=cmd_download)
+    download_parser = subparsers.add_parser("download", help="Download QM9 and IR spectra")
+    download_parser.add_argument("--data-dir", type=str, default="data/raw", help="Directory to save raw data")
 
     # Preprocess
-    parser_preprocess = subparsers.add_parser('preprocess', help='Preprocess data')
-    parser_preprocess.set_defaults(func=cmd_preprocess)
+    preprocess_parser = subparsers.add_parser("preprocess", help="Preprocess and align data")
+    preprocess_parser.add_argument("--input-dir", type=str, default="data/raw", help="Input raw data directory")
+    preprocess_parser.add_argument("--output-dir", type=str, default="data/preprocessed", help="Output preprocessed data directory")
 
     # Train
-    parser_train = subparsers.add_parser('train', help='Train model')
-    parser_train.set_defaults(func=cmd_train)
+    train_parser = subparsers.add_parser("train", help="Train the CNN model")
+    train_parser.add_argument("--data-path", type=str, default="data/preprocessed/aligned_data.npz", help="Path to preprocessed data")
+    train_parser.add_argument("--output-dir", type=str, default="models", help="Directory to save model checkpoints")
+    train_parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs")
+    train_parser.add_argument("--timeout", type=int, default=300, help="Timeout in seconds")
 
     # Evaluate
-    parser_evaluate = subparsers.add_parser('evaluate', help='Evaluate model')
-    parser_evaluate.set_defaults(func=cmd_evaluate)
+    eval_parser = subparsers.add_parser("evaluate", help="Evaluate the trained model")
+    eval_parser.add_argument("--model-path", type=str, default="models/model_best.pt", help="Path to model checkpoint")
+    eval_parser.add_argument("--data-path", type=str, default="data/preprocessed/aligned_data.npz", help="Path to test data")
+    eval_parser.add_argument("--output-dir", type=str, default="results", help="Directory to save evaluation results")
 
     # Validate
-    parser_validate = subparsers.add_parser('validate', help='Validate model')
-    parser_validate.set_defaults(func=cmd_validate)
+    validate_parser = subparsers.add_parser("validate", help="Validate on independent data")
+    validate_parser.add_argument("--model-path", type=str, default="models/model_best.pt", help="Path to model checkpoint")
+    validate_parser.add_argument("--external-data", type=str, default=None, help="Path to external validation data")
+    validate_parser.add_argument("--output-dir", type=str, default="results", help="Directory to save validation results")
 
     args = parser.parse_args()
-
-    if args.command is None:
+    if not args.command:
         parser.print_help()
         sys.exit(1)
 
-    # Setup global logging
-    log_path = Path("logs/pipeline.log")
-    setup_logging(log_file=log_path, level=logging.INFO)
+    # Setup logging
+    log_dir = Path("logs")
+    log_dir.mkdir(exist_ok=True)
+    logger = setup_logging(level=logging.INFO)
 
-    args.func(args)
+    logger.info(f"Executing command: {args.command}")
+
+    try:
+        if args.command == "download":
+            download_main(args.data_dir)
+        elif args.command == "preprocess":
+            preprocess_main(args.input_dir, args.output_dir)
+        elif args.command == "train":
+            # Wrap training in timeout
+            def run_train():
+                train_main(args.data_path, args.output_dir, args.epochs)
+            enforce_timeout(run_train, timeout_seconds=args.timeout)
+        elif args.command == "evaluate":
+            evaluate_main(args.model_path, args.data_path, args.output_dir)
+        elif args.command == "validate":
+            validate_main(args.model_path, args.external_data, args.output_dir)
+        
+        # Update state on success
+        update_task_state(args.command, "completed")
+        
+    except Exception as e:
+        logger.error(f"Error executing {args.command}: {e}")
+        update_task_state(args.command, "failed")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

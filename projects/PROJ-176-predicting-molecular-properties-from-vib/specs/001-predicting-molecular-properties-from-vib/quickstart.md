@@ -10,21 +10,21 @@
 ## Installation
 
 1. **Clone the repository** (or navigate to the project root).
-   ```bash
-   cd projects/PROJ-176-predicting-molecular-properties-from-vib
-   ```
+ ```bash
+ cd projects/PROJ-176-predicting-molecular-properties-from-vib
+ ```
 
 2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
 3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with GitHub Actions free-tier runners.*
+ ```bash
+ pip install -r code/requirements.txt
+ ```
+ *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with GitHub Actions free-tier runners.*
 
 ## Data Download & Preprocessing
 
@@ -35,9 +35,25 @@ python code/main.py --step download
 python code/main.py --step preprocess
 ```
 
-- **Output**: `data/processed/aligned_dataset.npz`
+- **Output**: `data/preprocessed/aligned_dataset.npz`
 - **Expected Time**: 10-20 minutes (depends on network speed).
 - **Verification**: The script will print the number of molecules successfully aligned and report any selection bias detected.
+
+### Data Download Details
+
+The `download` step fetches data from the following verified sources:
+- **QM9**: Downloaded via the `datasets` library (Hugging Face) or direct URL as defined in `code/data/download.py`.
+- **IR-Spectra**: Downloaded from the specified external repository.
+
+### Preprocessing Steps
+
+The `preprocess` step performs the following transformations:
+1. **Alignment**: Inner join of QM9 and IR-spectra datasets on `InChIKey`.
+2. **Interpolation**: Spectra are interpolated to a fixed grid (mid-infrared region, unit wavenumber spacing).
+3. **Smoothing**: Gaussian smoothing applied with $\sigma = 2 \text{ cm}^{-1}$.
+4. **Normalization**: Unit area normalization applied to spectra.
+5. **Filtering**: Molecules missing dipole, polarizability, or HOMO-LUMO gap are removed.
+6. **Audit**: Coverage audit (KS-test) performed to detect selection bias.
 
 ## Training the Model
 
@@ -51,6 +67,21 @@ python code/main.py --step train
 - **Expected Time**: 1-3 hours (depending on batch size and epochs).
 - **Monitoring**: Use `tensorboard --logdir=runs` to view loss curves.
 - **Timeout**: The process will automatically terminate if it exceeds a predefined time limit.
+
+### Hyperparameters
+
+The following hyperparameters are used during model training:
+
+| Parameter | Value | Description |
+|:--- |:--- |:--- |
+| **Learning Rate** | `1e-3` | Initial learning rate for Adam optimizer |
+| **Patience** | `10` | Early stopping patience (monitoring `val_loss`) |
+| **Kernel Size (Block 1)** | `9` | First convolutional block kernel size |
+| **Filters (Block 1)** | `64` | Number of filters in first block |
+| **Kernel Sizes (Blocks 2-3)** | `6` | Subsequent convolutional block kernel sizes |
+| **Optimizer** | `Adam` | Optimizer type |
+| **Device** | `CPU` | Execution device (CUDA disabled) |
+| **Smoothing $\sigma$** | `2` | Gaussian smoothing standard deviation ($cm^{-1}$) |
 
 ## Evaluation
 

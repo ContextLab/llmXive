@@ -1,10 +1,3 @@
-T014:
-  c: false
-  h: f7f6cdfc72a92e0f3d59e33f0b33fe386c125bc2ab156922745fecb4032a52f4
-  r: "The repository contains `code/run_data_gen.py`, but the required output file\
-    \ `data/raw/sample_validation.csv` is absent, so the script\u2019s intended result\
-    \ is not present. Without the CSV (with the specified columns and checksum), the\
-    \ task\u2019s core requirement is unmet."
 T021c:
   c: false
   h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b

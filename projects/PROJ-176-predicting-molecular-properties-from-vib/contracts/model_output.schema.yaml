@@ -1,95 +1,158 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Checkpoint and Output Schema
-description: >
-  Schema for the saved model checkpoint (model_best.pt) and its associated
-  inference outputs. This defines the structure of the model architecture
-  and the expected format of prediction results.
+# Schema for model training outputs and checkpoints
+# Generated for PROJ-176-predicting-molecular-properties-from-vib
+# Task: T008
 type: object
+description: "Model training artifacts including checkpoint and metadata"
 required:
-  - model_config
-  - training_config
-  - weights
+  - checkpoint
+  - training_metadata
+  - architecture_spec
 properties:
-  model_config:
+  checkpoint:
     type: object
-    description: Configuration of the 1D CNN architecture.
+    description: "PyTorch model state and optimizer state"
     required:
-      - model_type
-      - input_dim
-      - output_dims
-      - kernel_sizes
-      - num_filters
-      - num_blocks
+      - model_state_dict
+      - optimizer_state_dict
+      - epoch
+      - best_val_loss
     properties:
-      model_type:
+      model_state_dict:
+        type: object
+        description: "State dictionary of the CNN model"
+      optimizer_state_dict:
+        type: object
+        description: "State dictionary of the optimizer"
+      epoch:
+        type: integer
+        minimum: 0
+        description: "Epoch number when checkpoint was saved"
+      best_val_loss:
+        type: number
+        description: "Best validation loss achieved"
+      early_stopping_patience:
+        type: integer
+        const: 10
+        description: "Patience parameter for early stopping"
+      patience_count:
+        type: integer
+        description: "Current patience count at save time"
+  training_metadata:
+    type: object
+    description: "Training configuration and runtime statistics"
+    required:
+      - hyperparameters
+      - data_splits
+      - runtime_info
+    properties:
+      hyperparameters:
+        type: object
+        required:
+          - learning_rate
+          - batch_size
+          - patience
+          - kernel_sizes
+          - num_filters
+        properties:
+          learning_rate:
+            type: number
+            const: 0.001
+          batch_size:
+            type: integer
+            minimum: 1
+          patience:
+            type: integer
+            const: 10
+          kernel_sizes:
+            type: array
+            items:
+              type: integer
+            description: "Kernel sizes for convolutional blocks"
+          num_filters:
+            type: integer
+            const: 64
+          optimizer:
+            type: string
+            const: "Adam"
+          loss_weighting:
+            type: string
+            description: "Strategy for weighting multi-task loss"
+      data_splits:
+        type: object
+        required:
+          - train
+          - val
+          - test
+        properties:
+          train:
+            type: integer
+            minimum: 0
+          val:
+            type: integer
+            minimum: 0
+          test:
+            type: integer
+            minimum: 0
+      runtime_info:
+        type: object
+        required:
+          - start_time
+          - end_time
+          - device
+        properties:
+          start_time:
+            type: string
+            format: date-time
+          end_time:
+            type: string
+            format: date-time
+          device:
+            type: string
+            const: "cpu"
+          total_runtime_seconds:
+            type: number
+            minimum: 0
+  architecture_spec:
+    type: object
+    description: "Detailed model architecture specification"
+    required:
+      - type
+      - blocks
+      - heads
+      - activation
+      - pooling
+    properties:
+      type:
         type: string
-        const: MolecularPropertyCNN
-      input_dim:
-        type: integer
-        description: Input dimension (number of wavenumbers).
-      output_dims:
-        type: array
-        description: Output dimensions for each regression head.
-        items:
-          type: integer
-        enum:
-          - 1
-      kernel_sizes:
-        type: array
-        description: Kernel sizes for the three convolutional blocks.
-        items:
-          type: integer
-        const: [9, 64, 9] # Based on T025 spec: kernel sizes 9, 64, 9
-      num_filters:
-        type: integer
-        description: Number of filters per block.
-      num_blocks:
+        const: "1D_CNN_MultiTask"
+      blocks:
         type: integer
         const: 3
-      device:
-        type: string
-        description: Device used for training (CPU only enforced).
-        const: cpu
-  training_config:
-    type: object
-    description: Hyperparameters and settings used during training.
-    required:
-      - optimizer
-      - learning_rate
-      - patience
-      - loss_weights
-      - epochs_trained
-    properties:
-      optimizer:
-        type: string
-        const: Adam
-      learning_rate:
-        type: number
-        const: 0.001
-      patience:
-        type: integer
-        description: Patience for early stopping.
-        const: 10
-      loss_weights:
+        description: "Number of convolutional blocks"
+      heads:
         type: array
-        description: Weights for the weighted sum of losses from 3 heads.
         items:
-          type: number
-        minItems: 3
-        maxItems: 3
-      epochs_trained:
-        type: integer
-        description: Number of epochs the model was trained for.
-      seed:
-        type: integer
-        description: Random seed used for reproducibility.
-  weights:
-    type: object
-    description: State dictionary of the model weights.
-    properties:
-      state_dict:
-        type: object
-        description: PyTorch state dictionary.
-      hash:
+          type: object
+          required:
+            - name
+            - output_dim
+          properties:
+            name:
+              type: string
+              enum:
+                - dipole
+                - polarizability
+                - holo_lumo_gap
+            output_dim:
+              type: integer
+              const: 1
+      activation:
         type: string
-        description: SHA-256 hash of the weights for integrity verification.
+        const: "ReLU"
+      pooling:
+        type: string
+        const: "MaxPool1d"
+      input_dim:
+        type: integer
+        description: "Length of input spectrum grid"
+additionalProperties: false

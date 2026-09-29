@@ -1,45 +1,49 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Evaluation Results Schema
-description: >
-  Schema for the JSON report generated after model evaluation (results/evaluation_metrics.json).
-  Contains metrics per property and results of statistical significance tests.
+# Schema for model evaluation and validation results
+# Generated for PROJ-176-predicting-molecular-properties-from-vib
+# Task: T008
 type: object
+description: "Evaluation metrics and statistical test results"
 required:
   - metadata
   - metrics
   - statistical_tests
+  - validation_status
 properties:
   metadata:
     type: object
+    description: "Evaluation run context"
     required:
-      - model_path
-      - dataset_path
-      - split
-      - timestamp
-      - version
+      - evaluated_at
+      - model_checkpoint_path
+      - dataset_split
+      - evaluation_type
     properties:
-      model_path:
+      evaluated_at:
         type: string
-        description: Relative path to the model checkpoint used.
-      dataset_path:
+        format: date-time
+      model_checkpoint_path:
         type: string
-        description: Relative path to the dataset used for evaluation.
-      split:
+        description: "Relative path to the model checkpoint used"
+      dataset_split:
         type: string
-        description: The data split used (e.g., test, validation).
         enum:
           - test
           - validation
+          - external
+        description: "Which dataset split was evaluated"
+      evaluation_type:
+        type: string
+        enum:
+          - primary
+          - secondary
           - independent
-      timestamp:
-        type: string
-        description: ISO 8601 timestamp of evaluation.
-      version:
-        type: string
-        description: Schema version.
+        description: "Type of evaluation performed"
+      total_samples:
+        type: integer
+        minimum: 1
   metrics:
     type: object
-    description: Performance metrics for each target property.
+    description: "Regression performance metrics per property"
     required:
       - dipole_moment
       - polarizability
@@ -50,50 +54,58 @@ properties:
         required:
           - mae
           - r2
-          - n_samples
+          - rmse
         properties:
           mae:
             type: number
-            description: Mean Absolute Error (Debye).
+            minimum: 0
+            description: "Mean Absolute Error (D)"
           r2:
             type: number
-            description: R-squared score.
-          n_samples:
-            type: integer
-            description: Number of samples.
+            description: "R-squared score"
+          rmse:
+            type: number
+            minimum: 0
+            description: "Root Mean Square Error (D)"
       polarizability:
         type: object
         required:
           - mae
           - r2
-          - n_samples
+          - rmse
         properties:
           mae:
             type: number
-            description: Mean Absolute Error (Angstrom^3).
+            minimum: 0
+            description: "Mean Absolute Error (Angstrom^3)"
           r2:
             type: number
-            description: R-squared score.
-          n_samples:
-            type: integer
-      homo_lumo_gap:
+            description: "R-squared score"
+          rmse:
+            type: number
+            minimum: 0
+            description: "Root Mean Square Error (Angstrom^3)"
+      holo_lumo_gap:
         type: object
         required:
           - mae
           - r2
-          - n_samples
+          - rmse
         properties:
           mae:
             type: number
-            description: Mean Absolute Error (eV).
+            minimum: 0
+            description: "Mean Absolute Error (eV)"
           r2:
             type: number
-            description: R-squared score.
-          n_samples:
-            type: integer
+            description: "R-squared score"
+          rmse:
+            type: number
+            minimum: 0
+            description: "Root Mean Square Error (eV)"
   statistical_tests:
     type: object
-    description: Results of statistical hypothesis tests.
+    description: "Results of statistical hypothesis tests"
     required:
       - paired_ttest
       - tost_equivalence
@@ -101,88 +113,164 @@ properties:
     properties:
       paired_ttest:
         type: object
-        description: Paired-sample t-test results (null: mean error = 0).
+        description: "Paired t-test for mean error = 0"
         required:
-          - dipole_moment
+          - dipole
           - polarizability
-          - homo_lumo_gap
+          - holo_lumo_gap
         properties:
-          dipole_moment:
+          dipole:
             type: object
+            required:
+              - statistic
+              - p_value
+              - null_hypothesis_rejected
             properties:
               statistic:
                 type: number
-              pvalue:
+              p_value:
                 type: number
-              null_hypothesis:
-                type: string
-                const: mean_error_is_zero
+                minimum: 0
+                maximum: 1
+              null_hypothesis_rejected:
+                type: boolean
+                description: "True if p < 0.05"
           polarizability:
             type: object
+            required:
+              - statistic
+              - p_value
+              - null_hypothesis_rejected
             properties:
               statistic:
                 type: number
-              pvalue:
+              p_value:
                 type: number
-              null_hypothesis:
-                type: string
-                const: mean_error_is_zero
-          homo_lumo_gap:
+                minimum: 0
+                maximum: 1
+              null_hypothesis_rejected:
+                type: boolean
+          holo_lumo_gap:
             type: object
+            required:
+              - statistic
+              - p_value
+              - null_hypothesis_rejected
             properties:
               statistic:
                 type: number
-              pvalue:
+              p_value:
                 type: number
-              null_hypothesis:
-                type: string
-                const: mean_error_is_zero
+                minimum: 0
+                maximum: 1
+              null_hypothesis_rejected:
+                type: boolean
       tost_equivalence:
         type: object
-        description: TOST equivalence test results.
+        description: "Two One-Sided Tests for equivalence"
+        required:
+          - equivalence_margin
+          - results
         properties:
-          dipole_moment:
+          equivalence_margin:
+            type: number
+            description: "Equivalence margin used for TOST"
+          results:
             type: object
+            required:
+              - dipole
+              - polarizability
+              - holo_lumo_gap
             properties:
-              pvalue_low:
-                type: number
-              pvalue_high:
-                type: number
-              equivalence_margin:
-                type: number
-          polarizability:
-            type: object
-            properties:
-              pvalue_low:
-                type: number
-              pvalue_high:
-                type: number
-              equivalence_margin:
-                type: number
-          homo_lumo_gap:
-            type: object
-            properties:
-              pvalue_low:
-                type: number
-              pvalue_high:
-                type: number
-              equivalence_margin:
-                type: number
+              dipole:
+                type: object
+                required:
+                  - p_value_lower
+                  - p_value_upper
+                  - equivalent
+                properties:
+                  p_value_lower:
+                    type: number
+                  p_value_upper:
+                    type: number
+                  equivalent:
+                    type: boolean
+              polarizability:
+                type: object
+                required:
+                  - p_value_lower
+                  - p_value_upper
+                  - equivalent
+                properties:
+                  p_value_lower:
+                    type: number
+                  p_value_upper:
+                    type: number
+                  equivalent:
+                    type: boolean
+              holo_lumo_gap:
+                type: object
+                required:
+                  - p_value_lower
+                  - p_value_upper
+                  - equivalent
+                properties:
+                  p_value_lower:
+                    type: number
+                  p_value_upper:
+                    type: number
+                  equivalent:
+                    type: boolean
       hotellings_t2:
         type: object
-        description: Hotelling's T-squared test results (multivariate bias).
+        description: "Hotelling's T-squared test for multivariate bias"
+        required:
+          - statistic
+          - p_value
+          - significant
         properties:
           statistic:
             type: number
-          pvalue:
+          p_value:
             type: number
-          degrees_of_freedom:
-            type: integer
-          null_hypothesis:
-            type: string
-            const: multivariate_mean_error_is_zero
-  domain_shift_notes:
-    type: array
-    description: Optional notes regarding domain shift observations.
-    items:
-      type: string
+            minimum: 0
+            maximum: 1
+          significant:
+            type: boolean
+            description: "True if p < 0.05"
+  validation_status:
+    type: object
+    description: "Overall validation conclusions"
+    required:
+      - primary_validation_passed
+      - secondary_validation_passed
+      - independent_validation_passed
+      - tolerance_check
+    properties:
+      primary_validation_passed:
+        type: boolean
+        description: "True if paired t-tests do not reject mean error = 0"
+      secondary_validation_passed:
+        type: boolean
+        description: "True if TOST and Hotelling's tests indicate no significant bias"
+      independent_validation_passed:
+        type: boolean
+        description: "True if external validation metrics are within tolerance"
+      tolerance_check:
+        type: object
+        required:
+          - max_mae_increase_percent
+          - threshold
+          - passed
+        properties:
+          max_mae_increase_percent:
+            type: number
+            description: "Maximum MAE increase observed vs test set"
+          threshold:
+            type: number
+            const: 20.0
+            description: "Allowed tolerance percentage"
+          passed:
+            type: boolean
+            description: "True if increase <= threshold"
+additionalProperties: false

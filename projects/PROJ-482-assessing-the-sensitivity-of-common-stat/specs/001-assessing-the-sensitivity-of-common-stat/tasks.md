@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-assess-test-sensitivity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. [UNRESOLVED-CLAIM: c_d8f44332 — status=not_enough_info]
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -54,10 +54,10 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T009a [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_normal_mean_validation`. **Assertion**: Verify sample mean difference for normal distribution (n=50, effect=0.0) is within 1e-6 of 0.0. [UNRESOLVED-CLAIM: c_206025ae — status=not_enough_info] **Dependency**: None (TDD: defines expected behavior per spec).
-- [X] T009b [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_lognormal_skewness_validation`. **Assertion**: Verify skewness of log-normal distribution (n=30) matches theoretical value within 5 (Wikipedia: Fisher's exact test, https://en.wikipedia.org/wiki/Fisher's_exact_test)% tolerance. [UNRESOLVED-CLAIM: c_901a6819 — status=not_enough_info] **Dependency**: None (TDD: defines expected behavior per spec).
-- [X] T009c [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_lognormal_effect_size_validation`. **Assertion**: Verify mean difference for log-normal distribution (n=30, effect=0.5) is within 1e-6 of 0.5. [UNRESOLVED-CLAIM: c_c13888c4 — status=not_enough_info] **Dependency**: None (TDD: defines expected behavior per spec).
-- [X] T009d [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_uniform_sample_size_accuracy`. **Assertion**: Verify sample size for uniform distribution (n=1000) is exactly 1000 and data fits uniform profile. [UNRESOLVED-CLAIM: c_ecdb52b0 — status=not_enough_info] **Dependency**: None (TDD: defines expected behavior per spec).
+- [X] T009a [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_normal_mean_validation`. **Assertion**: Verify sample mean difference for normal distribution (n=50, effect=0.0) is within 1e-6 of 0.0. **Dependency**: None (TDD: defines expected behavior per spec).
+- [X] T009b [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_lognormal_skewness_validation`. **Assertion**: Verify skewness of log-normal distribution (n=30) matches theoretical value within 5 (Wikipedia: Fisher's exact test, https://en.wikipedia.org/wiki/Fisher's_exact_test)% tolerance. **Dependency**: None (TDD: defines expected behavior per spec).
+- [X] T009c [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_lognormal_effect_size_validation`. **Assertion**: Verify mean difference for log-normal distribution (n=30, effect=0.5) is within 1e-6 of 0.5. **Dependency**: None (TDD: defines expected behavior per spec).
+- [X] T009d [P] [US1] IF tests requested: Implement `tests/unit/test_data_generator.py::test_uniform_sample_size_accuracy`. **Assertion**: Verify sample size for uniform distribution (n=1000) is exactly 1000 and data fits uniform profile. **Dependency**: None (TDD: defines expected behavior per spec).
 
 ### Implementation for User Story 1
 
