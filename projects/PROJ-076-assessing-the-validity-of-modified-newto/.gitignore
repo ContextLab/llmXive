@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
 .Python
 build/
 develop-eggs/
@@ -30,22 +31,17 @@ env/
 *.swp
 *.swo
 
-# Data and Results (large files)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-results/*
-!results/.gitkeep
+# Data and Results (generated)
+data/raw/
+data/processed/
+results/
+figures/
+state/
 
 # Logs
 *.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Testing
-.pytest_cache/
-coverage.xml
-htmlcov/

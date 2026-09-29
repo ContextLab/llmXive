@@ -1,49 +1,69 @@
+"""
+Project Structure Setup Script for PROJ-059
+Creates the required directory hierarchy for the automated bias detection pipeline.
+"""
 import os
 import sys
 from pathlib import Path
 
-def create_directories(project_root: Path) -> None:
+def create_directories():
     """
-    Create the project directory structure for the Automated Detection of 
-    Algorithmic Bias pipeline.
+    Creates the project directory structure as defined in T001.
     
-    Required directories:
-    - src/bias_pipeline
-    - src/cli
-    - data/raw
-    - data/processed
-    - data/validation
-    - tests/unit
-    - tests/integration
-    - state
+    Structure:
+    src/bias_pipeline
+    src/cli
+    data/raw
+    data/processed
+    data/validation
+    tests/unit
+    tests/integration
+    state
     """
-    directories = [
-        project_root / "src" / "bias_pipeline",
-        project_root / "src" / "cli",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "validation",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
-        project_root / "state",
+    # Define the base project root (assuming script is in code/)
+    # We navigate up one level to the project root
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    # Relative paths to create
+    relative_paths = [
+        "src/bias_pipeline",
+        "src/cli",
+        "data/raw",
+        "data/processed",
+        "data/validation",
+        "tests/unit",
+        "tests/integration",
+        "state"
     ]
     
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        # Create __init__.py files for Python packages
-        if "src" in str(directory) or "tests" in str(directory):
-            init_file = directory / "__init__.py"
-            if not init_file.exists():
-                init_file.touch()
+    created_count = 0
+    for rel_path in relative_paths:
+        target_path = base_dir / rel_path
+        if not target_path.exists():
+            target_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {target_path}")
+        else:
+            print(f"Directory already exists: {target_path}")
     
-    print(f"Created {len(directories)} directories under {project_root}")
+    # Create __init__.py files to ensure packages are recognized
+    # This is critical for Python imports to work immediately
+    init_files = [
+        base_dir / "src" / "__init__.py",
+        base_dir / "src" / "bias_pipeline" / "__init__.py",
+        base_dir / "src" / "cli" / "__init__.py",
+        base_dir / "tests" / "__init__.py",
+        base_dir / "tests" / "unit" / "__init__.py",
+        base_dir / "tests" / "integration" / "__init__.py",
+    ]
+    
+    for init_file in init_files:
+        if not init_file.exists():
+            init_file.touch()
+            print(f"Created init file: {init_file}")
+        
+    print(f"\nProject structure setup complete. {created_count} new directories created.")
+    return True
 
 if __name__ == "__main__":
-    # Determine project root (assumes script is in code/ directory)
-    if len(sys.argv) > 1:
-        root = Path(sys.argv[1])
-    else:
-        # Default to parent of script directory
-        root = Path(__file__).parent.parent
-    
-    create_directories(root)
+    create_directories()

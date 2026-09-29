@@ -1,0 +1,65 @@
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/associational_framing.md
+  attempts: 1
+  canonical: 175 high-quality galaxies analyzed for rotation curves
+  claim_id: c_bc895760
+  context: Instead, it rigorously applies two competing generative rules to the observed
+    rotation curves of 175 high-quality galaxies
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: applied to fit the rotation curves of the SPARC sample of 175 galaxies,
+        yielding mass-to-
+      source_id: '2602.24211'
+      url: https://arxiv.org/abs/2602.24211
+      value: '175'
+    filled: true
+  kind: numeric
+  raw_text: This analysis rigorously applies two competing generative rules to the
+    observed rotation curves of 175 high-quality galaxies.
+  resolved_value: '175'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T12:36:55Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/associational_framing.md
+  attempts: 1
+  canonical: MOND model has lower reduced chi-squared values than NFW model for majority
+    of galaxies
+  claim_id: c_256ffb18
+  context: The MOND model consistently achieves lower reduced chi-squared values across
+    the majority of the galaxy sample compared to the NFW model.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MOND_model_has_lower_reduced_chi-squared_values_than_NFW_mod
+  kind: entity_fact
+  raw_text: The MOND model consistently achieves lower reduced chi-squared values
+    across the majority of the galaxy sample compared to the NFW model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:37:22Z'
+- artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/associational_framing.md
+  attempts: 1
+  canonical: Null hypothesis of identical residual distributions for MOND and NFW
+    rejected with high confidence
+  claim_id: c_704b05fd
+  context: "The null hypothesis\u2014that the residuals from the MOND and NFW models\
+    \ are drawn from the same distribution\u2014was rejected with high confidence."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_of_identical_residual_distributions_for_MOND
+  kind: entity_fact
+  raw_text: "The null hypothesis\u2014that the residuals from the MOND and NFW models\
+    \ are drawn from the same distribution\u2014was rejected with high confidence."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:37:48Z'

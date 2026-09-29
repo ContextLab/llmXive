@@ -1,5 +1,5 @@
 """
-llmXive PROJ-076: Utility functions for logging, seeding, and common operations.
+Utility functions for the project.
 """
 import os
 import logging
@@ -7,159 +7,64 @@ import random
 import numpy as np
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional
 
-# --- Logging Setup (T008 implementation) ---
-
-_logger_instance: Optional[logging.Logger] = None
-
-def setup_logging(log_level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
-    """
-    Initialize the project logger.
-    
-    Args:
-        log_level: Logging level (e.g., logging.INFO).
-        log_file: Optional path to log file. If None, logs to console only.
-    
-    Returns:
-        Configured logger instance.
-    """
-    global _logger_instance
-    if _logger_instance is not None:
-        return _logger_instance
-    
-    logger = logging.getLogger("llmXive_PROJ076")
-    logger.setLevel(log_level)
-    
-    # Clear existing handlers
-    logger.handlers.clear()
-    
-    # Console handler
-    ch = logging.StreamHandler()
-    ch.setLevel(log_level)
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
+    """Configure the root logger."""
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(),
+            logging.FileHandler('pipeline.log')
+        ]
     )
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-    
-    # File handler if specified
-    if log_file:
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(log_level)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-    
-    _logger_instance = logger
-    return logger
+    return logging.getLogger()
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """
-    Get the project logger or a child logger.
-    """
-    if _logger_instance is None:
-        setup_logging()
-    if name:
-        return _logger_instance.getChild(name)
-    return _logger_instance
+def get_logger(name: str) -> logging.Logger:
+    """Get a logger instance."""
+    return logging.getLogger(name)
 
-def log_stage(stage_name: str, message: str, level: int = logging.INFO):
-    """
-    Log a message with a stage prefix.
-    """
-    logger = get_logger()
-    logger.log(level, f"[{stage_name}] {message}")
+def log_stage(stage_name: str, logger: Optional[logging.Logger] = None):
+    """Log the start/end of a pipeline stage."""
+    if logger is None:
+        logger = logging.getLogger()
+    logger.info(f"--- Starting {stage_name} ---")
 
-# --- Deterministic Seed Utility (T006 implementation) ---
-
-def set_global_seed(seed: int = 42) -> None:
-    """
-    Pin the random seed for reproducibility across Python, NumPy, and related libraries.
-    
-    This ensures deterministic behavior for any randomized operations in the pipeline,
-    crucial for reproducible scientific research.
-    
-    Args:
-        seed: Integer seed value. Default is 42.
-    """
+def set_global_seed(seed: int):
+    """Set global random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    # If torch or tensorflow are used later, add their seeders here
-    # os.environ['PYTHONHASHSEED'] = str(seed)
-    log_stage("SEED", f"Global seed set to {seed}")
-
-# --- Common Utilities ---
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 def get_timestamp() -> str:
-    """
-    Get current timestamp in ISO format.
-    """
-    return datetime.now().isoformat(timespec='seconds')
+    """Get current timestamp string."""
+    return datetime.now().strftime("%Y%m%d_%H%M%S")
 
 def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
-    """
-    Safely divide two numbers, returning default if denominator is zero.
-    """
+    """Safely divide two numbers, returning default if denominator is zero."""
     if denominator == 0:
         return default
     return numerator / denominator
 
-def format_number(value: float, precision: int = 4, scientific: bool = False) -> str:
-    """
-    Format a number with specified precision.
-    """
-    if scientific:
-        return f"{value:.{precision}e}"
+def format_number(value: float, precision: int = 4) -> str:
+    """Format a number with fixed precision."""
     return f"{value:.{precision}f}"
 
-def ensure_directory(path: Union[str, Path]) -> Path:
-    """
-    Ensure a directory exists, creating it if necessary.
-    """
-    p = Path(path)
-    p.mkdir(parents=True, exist_ok=True)
-    return p
+def ensure_directory(path: Path):
+    """Ensure a directory exists."""
+    path.mkdir(parents=True, exist_ok=True)
 
-# --- Statistical Metrics (Required for T024, defined here to avoid circular imports) ---
+def calculate_chi2(observed: np.ndarray, predicted: np.ndarray, errors: np.ndarray) -> float:
+    """Calculate Chi-squared statistic."""
+    if len(observed) != len(predicted) or len(observed) != len(errors):
+        raise ValueError("Arrays must be of equal length")
+    return float(np.sum(((observed - predicted) / errors) ** 2))
 
-def calculate_chi2(observed: np.ndarray, predicted: np.ndarray, uncertainty: np.ndarray) -> float:
-    """
-    Calculate reduced chi-squared statistic.
-    """
-    if len(observed) != len(predicted) or len(observed) != len(uncertainty):
-        raise ValueError("Arrays must have the same length")
-    
-    if np.any(uncertainty == 0):
-        raise ValueError("Uncertainty cannot be zero")
-    
-    residuals = observed - predicted
-    chi2 = np.sum((residuals / uncertainty) ** 2)
-    dof = len(observed) - 1  # Assuming 1 fitted parameter for simplicity, adjust as needed
-    
-    if dof <= 0:
-        return float('inf')
-    
-    return chi2 / dof
+def calculate_aic(n: int, k: int, chi2: float) -> float:
+    """Calculate Akaike Information Criterion."""
+    return 2 * k + chi2
 
-def calculate_aic(chi2: float, k: int, n: int) -> float:
-    """
-    Calculate Akaike Information Criterion (AIC).
-    
-    Args:
-        chi2: Chi-squared statistic.
-        k: Number of parameters.
-        n: Number of data points.
-    """
-    return n * np.log(chi2 / n) + 2 * k
-
-def calculate_bic(chi2: float, k: int, n: int) -> float:
-    """
-    Calculate Bayesian Information Criterion (BIC).
-    
-    Args:
-        chi2: Chi-squared statistic.
-        k: Number of parameters.
-        n: Number of data points.
-    """
-    return n * np.log(chi2 / n) + k * np.log(n)
+def calculate_bic(n: int, k: int, chi2: float) -> float:
+    """Calculate Bayesian Information Criterion."""
+    return np.log(n) * k + chi2

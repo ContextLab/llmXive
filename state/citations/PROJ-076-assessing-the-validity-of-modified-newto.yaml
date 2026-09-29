@@ -42,3 +42,14 @@
   verification_status: pending
   verified_against_url: https://astroweb.cwru.edu/SPARC/
   verified_at: '2026-07-05T03:05:37.528080Z'
+- artifact_hash: 4be868e29de4aa0f1f2b113db93cde253d9bb7fc7bb3e6ba86113787e63dab2e
+  artifact_path: projects/PROJ-076-assessing-the-validity-of-modified-newto/docs/associational_framing.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2602.24211] Single Parameter Model for Galaxy Rotation Curves'
+  kind: url
+  value: https://arxiv.org/abs/2602.24211
+  verification_status: pending
+  verified_against_url: https://arxiv.org/abs/2602.24211
+  verified_at: '2026-09-29T12:37:48.655614Z'

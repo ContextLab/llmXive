@@ -1,3 +1,3 @@
 """
-State directory for pipeline checkpoints and intermediate states.
+State package for pipeline execution state.
 """

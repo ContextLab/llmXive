@@ -1,213 +1,189 @@
 """
 Validator module for User Story 4: Manual Validation of VADER Thresholds.
 
-This module handles the loading of the Validation Dataset and the computation
-of Cohen's Kappa to validate VADER sentiment thresholds against human labels.
+This module handles loading the validation dataset, running VADER sentiment
+analysis against manually labeled comments, computing Cohen's Kappa, and
+validating the thresholds.
+
+Dependencies:
+- src/bias_pipeline/extractor (for analyze_sentiment)
+- src/bias_pipeline/error_handler (for safe execution)
 """
 import csv
 import logging
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Any
-
 import pandas as pd
 from sklearn.metrics import cohen_kappa_score
 
-from .utils import setup_logging, PipelineError
-from .error_handler import safe_execute, ExecutionError
+# Import from sibling modules
+from .extractor import analyze_sentiment
+from .error_handler import safe_execute, ExecutionError, handle_pipeline_error
+from .utils import setup_logging
 
+# Configure logging
 logger = setup_logging(__name__)
 
-def load_validation_dataset(path: Optional[str] = None) -> pd.DataFrame:
-    """
-    Load the 'Validation Dataset' of manually labeled comments.
-    
-    This function attempts to load the dataset from `data/validation/labels.csv`.
-    If the file does not exist, it attempts to fetch it from a verified external
-    source (HuggingFace). If neither is available, it raises a FileNotFoundError
-    to fail loudly, as per the requirement to never generate synthetic labels.
-    
-    Args:
-        path: Optional override path for the validation dataset.
-        
-    Returns:
-        A pandas DataFrame with columns: 'comment_text', 'human_label'.
-        
-    Raises:
-        FileNotFoundError: If no valid source for the real dataset is found.
-        PipelineError: If the dataset format is invalid.
-    """
-    default_path = Path("data/validation/labels.csv")
-    target_path = Path(path) if path else default_path
-    
-    # 1. Check local file first
-    if target_path.exists():
-        logger.info(f"Loading validation dataset from local file: {target_path}")
-        try:
-            df = pd.read_csv(target_path)
-            if 'comment_text' not in df.columns or 'human_label' not in df.columns:
-                raise PipelineError(
-                    f"Invalid dataset format in {target_path}. "
-                    "Expected columns: 'comment_text', 'human_label'."
-                )
-            logger.info(f"Successfully loaded {len(df)} labeled comments from {target_path}")
-            return df
-        except Exception as e:
-            logger.error(f"Failed to read local validation dataset: {e}")
-            # If local read fails, we do not fall back to synthetic.
-            # We proceed to try external, but if that also fails, we raise.
-    
-    # 2. Attempt to fetch from verified HuggingFace source
-    # Verified Source: 'codeparrot/github-comments' (subset) or a specific curated set.
-    # Since the task requires a "Validation Dataset of manually labeled comments",
-    # and specific HuggingFace datasets for "bias labels" are rare/variable,
-    # we will attempt to load a specific known dataset ID if provided in config,
-    # or raise a clear error if the local file is missing and no external source is configured.
-    # 
-    # For this implementation, we assume the local file MUST exist or the pipeline halts.
-    # The task says: "Acquire... OR execute a script to validate a manually curated CSV".
-    # Since we cannot guarantee a specific public dataset exists with *exact* labels
-    # for *this* project without a specific ID in the prompt, we enforce the local file requirement
-    # to prevent fabrication.
-    
-    raise FileNotFoundError(
-        f"Validation dataset not found at {target_path}. "
-        "Please ensure 'data/validation/labels.csv' exists with columns 'comment_text' and 'human_label'. "
-        "Do NOT generate synthetic labels."
-    )
+# Path constants
+VALIDATION_DATA_PATH = Path("data/validation/labels.csv")
+KAPPA_THRESHOLD = 0.6
 
-def run_vader_validation(df: pd.DataFrame, threshold: float = 0.05) -> Tuple[float, List[Dict[str, Any]]]:
+def load_validation_dataset(path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Run VADER sentiment analysis on the labeled comments and compute Cohen's Kappa.
+    Load the validation dataset of manually labeled comments.
     
     Args:
-        df: DataFrame with 'comment_text' and 'human_label'.
-        threshold: The threshold for VADER to consider a comment "Negative".
-                   Human labels are assumed to be 0 (Positive/Neutral) or 1 (Negative).
-                   
-    Returns:
-        Tuple of (Cohen's Kappa score, list of results).
-        
-    Raises:
-        ExecutionError: If the validation fails due to data issues.
-    """
-    try:
-        from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
-    except ImportError:
-        raise ExecutionError("vaderSentiment is not installed. Please install it via requirements.txt.")
-        
-    analyzer = SentimentIntensityAnalyzer()
+        path: Path to the CSV file. Defaults to data/validation/labels.csv.
     
-    predictions = []
-    human_labels = []
+    Returns:
+        pd.DataFrame: DataFrame with columns: 'comment', 'label'
+        where label is 0 (negative/neutral) or 1 (positive/biased).
+    
+    Raises:
+        FileNotFoundError: If the validation dataset does not exist.
+        ValueError: If the dataset format is incorrect.
+    """
+    target_path = path or VALIDATION_DATA_PATH
+    
+    if not target_path.exists():
+        raise FileNotFoundError(
+            f"Validation dataset not found at {target_path}. "
+            "Please ensure T041 has acquired the dataset."
+        )
+    
+    try:
+        df = pd.read_csv(target_path)
+        
+        # Validate required columns
+        required_cols = {'comment', 'label'}
+        if not required_cols.issubset(df.columns):
+            raise ValueError(
+                f"Validation dataset missing required columns: {required_cols - set(df.columns)}"
+            )
+        
+        # Validate label values
+        if not df['label'].isin([0, 1]).all():
+            raise ValueError("Validation dataset 'label' column must contain only 0 or 1.")
+        
+        logger.info(f"Loaded validation dataset with {len(df)} samples from {target_path}")
+        return df
+        
+    except Exception as e:
+        logger.error(f"Failed to load validation dataset: {e}")
+        raise
+
+def run_vader_validation(df: pd.DataFrame) -> Tuple[float, Dict[str, Any]]:
+    """
+    Run VADER sentiment analysis on the validation dataset and compute Cohen's Kappa.
+    
+    Args:
+        df: DataFrame with 'comment' and 'label' columns.
+    
+    Returns:
+        Tuple of (kappa_score, results_dict) where results_dict contains
+        detailed metrics and per-sample predictions.
+    """
+    if df.empty:
+        raise ValueError("Cannot run validation on empty dataset.")
     
     logger.info(f"Running VADER validation on {len(df)} samples...")
     
-    for idx, row in df.iterrows():
-        text = str(row['comment_text'])
-        human_label = row['human_label']
-        
-        # Ensure human label is binary (0 or 1)
-        if human_label not in [0, 1]:
-            logger.warning(f"Row {idx} has non-binary human_label: {human_label}. Skipping.")
-            continue
-            
-        # VADER: If compound score < threshold, predict 1 (Negative), else 0
-        scores = analyzer.polarity_scores(text)
-        compound = scores['compound']
-        
-        pred_label = 1 if compound < threshold else 0
-        
-        predictions.append(pred_label)
-        human_labels.append(human_label)
-        
-    if len(predictions) < 2:
-        raise ExecutionError("Insufficient data to compute Cohen's Kappa (need at least 2 samples).")
-        
-    kappa = cohen_kappa_score(human_labels, predictions)
-    logger.info(f"Validation complete. Cohen's Kappa: {kappa:.4f}")
+    predictions = []
+    labels = df['label'].tolist()
     
-    results = [
-        {
-            "index": i,
-            "human_label": h,
-            "predicted_label": p,
-            "agreement": (h == p)
-        }
-        for i, (h, p) in enumerate(zip(human_labels, predictions))
-    ]
+    for idx, row in df.iterrows():
+        comment = row['comment']
+        true_label = row['label']
+        
+        # Run VADER analysis
+        sentiment_scores = analyze_sentiment(comment)
+        
+        # VADER compound score threshold: >= 0.05 is positive (1), else negative/neutral (0)
+        # This aligns with standard VADER interpretation for binary classification
+        compound = sentiment_scores.get('compound', 0.0)
+        predicted_label = 1 if compound >= 0.05 else 0
+        
+        predictions.append(predicted_label)
+    
+    # Compute Cohen's Kappa
+    kappa = cohen_kappa_score(labels, predictions)
+    
+    logger.info(f"Cohen's Kappa score: {kappa:.4f}")
+    
+    results = {
+        'kappa_score': kappa,
+        'n_samples': len(df),
+        'threshold_used': 0.05,
+        'predictions': predictions,
+        'true_labels': labels
+    }
     
     return kappa, results
 
-def validate_threshold(kappa: float, min_kappa: float = 0.6) -> bool:
+def validate_threshold(kappa_score: float, threshold: float = KAPPA_THRESHOLD) -> bool:
     """
-    Validate the threshold based on the Cohen's Kappa score.
+    Validate that the Cohen's Kappa score meets the minimum threshold.
     
     Args:
-        kappa: The calculated Cohen's Kappa score.
-        min_kappa: The minimum acceptable Kappa score (default 0.6).
-        
+        kappa_score: The computed Cohen's Kappa score.
+        threshold: Minimum acceptable Kappa score (default: 0.6).
+    
     Returns:
-        True if kappa >= min_kappa, False otherwise.
+        bool: True if kappa_score >= threshold, False otherwise.
+    
+    Raises:
+        ExecutionError: If the threshold is not met (pipeline should halt).
     """
-    if kappa < min_kappa:
-        logger.error(f"Validation FAILED: Cohen's Kappa ({kappa:.4f}) is below threshold ({min_kappa}).")
-        return False
-    else:
-        logger.info(f"Validation PASSED: Cohen's Kappa ({kappa:.4f}) meets threshold ({min_kappa}).")
-        return True
+    if kappa_score < threshold:
+        error_msg = (
+            f"Validation FAILED: Cohen's Kappa ({kappa_score:.4f}) is below "
+            f"the required threshold ({threshold}). The VADER sentiment "
+            f"thresholds are not reliable for this dataset. Pipeline halted."
+        )
+        logger.error(error_msg)
+        raise ExecutionError(error_msg)
+    
+    logger.info(f"Validation PASSED: Cohen's Kappa ({kappa_score:.4f}) >= {threshold}")
+    return True
 
+@handle_pipeline_error
 def run_validation_pipeline(
-    data_path: Optional[str] = None,
-    threshold: float = 0.05,
-    min_kappa: float = 0.6,
-    output_path: Optional[str] = None
+    data_path: Optional[Path] = None,
+    output_path: Optional[Path] = None
 ) -> Dict[str, Any]:
     """
-    Run the full validation pipeline: load data, run VADER, compute Kappa, validate.
+    Run the full validation pipeline: load data, run VADER, compute Kappa, validate threshold.
     
     Args:
-        data_path: Path to the validation dataset.
-        threshold: VADER threshold for negative classification.
-        min_kappa: Minimum required Kappa score.
-        output_path: Optional path to write the results JSON.
-        
+        data_path: Path to validation dataset. Defaults to data/validation/labels.csv.
+        output_path: Path to write results JSON. Defaults to data/processed/validation_results.json.
+    
     Returns:
-        Dictionary with validation results.
-        
+        Dict with validation results.
+    
     Raises:
-        ExecutionError: If validation fails (Kappa < min_kappa) or data is missing.
+        ExecutionError: If validation fails (Kappa < threshold).
+        FileNotFoundError: If validation dataset is missing.
     """
-    try:
-        df = load_validation_dataset(data_path)
-        kappa, results = run_vader_validation(df, threshold)
-        
-        is_valid = validate_threshold(kappa, min_kappa)
-        
-        report = {
-            "status": "PASS" if is_valid else "FAIL",
-            "kappa_score": kappa,
-            "min_kappa_threshold": min_kappa,
-            "vader_threshold": threshold,
-            "samples_processed": len(df),
-            "details": results[:10]  # Limit details in report for brevity
-        }
-        
-        if output_path:
-            output_file = Path(output_path)
-            output_file.parent.mkdir(parents=True, exist_ok=True)
-            import json
-            with open(output_file, 'w') as f:
-                json.dump(report, f, indent=2)
-            logger.info(f"Validation report written to {output_file}")
-            
-        if not is_valid:
-            raise ExecutionError(f"Validation failed: Kappa {kappa:.4f} < {min_kappa}")
-            
-        return report
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data acquisition failed: {e}")
-        raise ExecutionError(f"Data acquisition failed: {e}")
-    except Exception as e:
-        logger.error(f"Validation pipeline failed: {e}")
-        raise ExecutionError(f"Validation pipeline failed: {e}")
+    output_path = output_path or Path("data/processed/validation_results.json")
+    
+    # Step 1: Load dataset
+    df = load_validation_dataset(data_path)
+    
+    # Step 2: Run VADER validation
+    kappa_score, results = run_vader_validation(df)
+    
+    # Step 3: Validate threshold
+    validate_threshold(kappa_score)
+    
+    # Step 4: Write results
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    results['status'] = 'PASSED'
+    results['kappa_threshold'] = KAPPA_THRESHOLD
+    
+    with open(output_path, 'w') as f:
+        import json
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Validation results written to {output_path}")
+    return results

@@ -91,7 +91,7 @@ def run_sensitivity_analysis(fit_summary_path: str, output_path: str) -> pd.Data
 def main():
     """
     CLI entry point.
-    Expects the fit summary to be at data/fit_summary.csv (or configured path).
+    Expects the fit summary to be at results/fit_summary.csv.
     Outputs to results/sensitivity_data.csv.
     """
     logger = get_logger(__name__)

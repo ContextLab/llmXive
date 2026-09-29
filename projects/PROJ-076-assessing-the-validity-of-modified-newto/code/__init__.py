@@ -1,4 +1,3 @@
 """
-llmXive Research Pipeline - PROJ-076
-Package initialization.
+Project root package for PROJ-076.
 """

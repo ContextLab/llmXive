@@ -130,7 +130,7 @@
 
 - [X] T031 [US3] Implement residual calculator in `code/residuals.py` to compute (observed - predicted) distributions (FR-008)
 - [X] T032 [US3] Implement block-bootstrap permutation test in `code/residuals.py` resampling at galaxy level (FR-009, US3)
-- [ ] T033 [US3] Implement Holm-Bonferroni correction in `code/residuals.py` for multiple hypothesis tests (FR-010)
+- [X] T033 [US3] Implement Holm-Bonferroni correction in `code/residuals.py` for multiple hypothesis tests (FR-010)
 - [ ] T034 [US3] Generate `results/residual_stats.csv` with mean, median, std, p-values per model
 - [ ] T036 [US3] Generate `results/analysis_verdict.md` comparing calculated p-values against alpha=0.05 thresholds (SC-004, SC-005)
 
@@ -143,7 +143,7 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T037 [P] Documentation updates in `docs/` (including the associational framing in paper text per FR-011)
-- [ ] T038 Code cleanup and refactoring of `code/models/` and `code/residuals.py`
+- [X] T038 Code cleanup and refactoring of `code/models/` and `code/residuals.py`
 - [ ] T039 Performance optimization: ensure fitting loop <30s/galaxy (memory profiling)
 - [ ] T040 [P] Additional unit tests in `tests/unit/` covering edge cases (malformed files, convergence failures)
 - [ ] T041 Run `quickstart.md` validation and verify all checksums

@@ -44,7 +44,7 @@
 **CRITICAL UPDATE**: The following Functional Requirements and Success Criteria are amended to reflect the Plan's methodology correction (Methodology-a39d8d77):
 - **FR-006 (Amended)**: System MUST compute Spearman's rank correlation coefficients between the aggregated **Textual Bias Scores** and the **Fairness Degradation Slopes** (d(Fairness Metric)/d(Skew)) across the repository dataset.
 - **SC-001 (Amended)**: The correlation analysis must successfully compute a Spearman correlation coefficient and a Bonferroni-corrected p-value for the relationship between Textual Bias Scores and **Fairness Degradation Slopes**.
-- **FR-016 (Amended)**: The statistical noise threshold MUST be derived from a pilot run OR a cited statistical model.
+- **FR-016 (Amended)**: The statistical noise threshold MUST be derived from a pilot run OR a cited statistical model. [UNRESOLVED-CLAIM: c_ea54cbe9 — status=not_enough_info]
 - **SC-004 (Amended)**: The system must perform a **diff check** (set-difference on normalized token streams) to verify zero token overlap between synthetic data and code tokens.
 
 **Note**: This amendment supersedes the static "Fairness Metrics" definition in `spec.md` for the implementation phase. Task T051 is added to update `spec.md` to match this methodology.
@@ -200,7 +200,7 @@
 
 - [ ] T046 [P] Documentation updates in `docs/` and `quickstart.md`
 - [ ] T047 Code cleanup and refactoring
-- [ ] T048 Performance optimization: Ensure 500 repos process in ≤6h on 2-core CPU (SC-003)
+- [ ] T048 Performance optimization: Ensure 500 repos process in ≤6h on 2-core CPU [UNRESOLVED-CLAIM: c_465cd509 — status=not_enough_info] (SC-003)
 - [ ] T049 [P] Run full integration test suite
 - [ ] T050 Update `state/projects/PROJ-059-automated-detection-of-algorithmic-bias-.yaml` with final artifacts and hashes
 

@@ -1,3 +1,3 @@
 """
-Data directory for raw and processed datasets.
+Data package for storing raw and processed datasets.
 """

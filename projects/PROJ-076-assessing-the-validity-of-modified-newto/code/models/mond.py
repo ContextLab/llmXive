@@ -1,156 +1,163 @@
 """
-MOND 'simple' model implementation for galaxy rotation curves.
+MOND (Modified Newtonian Dynamics) models.
 
-Implements the formula: a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0)
-where a_0 = 1.2e-10 m/s^2.
+Implements the 'simple' interpolating function as per the project specification:
+a = a_N/2 + sqrt((a_N/2)^2 + a_N * a_0)
 
-The model includes the Mass-to-Light ratio (M/L) as a free parameter
-to scale the baryonic acceleration.
+This module provides the velocity prediction function compatible with
+scipy.optimize.curve_fit, including the mass-to-light ratio (M/L) as a free parameter.
 """
 import numpy as np
+from typing import Union
 
-# MOND acceleration constant (m/s^2)
+# Standard MOND acceleration scale (m/s^2)
 A0 = 1.2e-10
 
-def mond_simple(r, mass_to_light_ratio, v_circ_scale):
+def mond_simple(r: Union[np.ndarray, float], v_c: float, m_l_ratio: float, a0: float = A0) -> Union[np.ndarray, float]:
     """
-    Calculate the circular velocity predicted by the MOND 'simple' interpolating function.
+    Calculate the circular velocity predicted by the MOND 'simple' model.
 
-    The 'simple' interpolating function is defined as:
-    mu(x) = x / (1 + x)  =>  a = a_N / 2 + sqrt((a_N / 2)^2 + a_N * a_0)
+    The 'simple' interpolating function is defined by:
+    mu(a/a0) = a / (a + a0)  =>  a = a_N/2 + sqrt((a_N/2)^2 + a_N * a0)
 
-    Where:
-    - a_N is the Newtonian acceleration: G * M_baryon / r^2
-    - M_baryon = mass_to_light_ratio * L (luminosity proxy)
-    - a_0 is the MOND acceleration constant (1.2e-10 m/s^2)
+    where:
+      a_N = G * M(r) / r^2  (Newtonian acceleration)
+      M(r) = M_baryon(r) * (M/L_ratio)
 
-    The circular velocity v_circ is related to acceleration a by:
-    v_circ^2 / r = a  =>  v_circ = sqrt(a * r)
+    The circular velocity v is related to acceleration a by v^2 / r = a.
+    Thus, v = sqrt(a * r).
 
     Parameters
     ----------
-    r : array_like
-        Radial distances (in kpc).
-    mass_to_light_ratio : float
-        Mass-to-light ratio (M/L) in solar units (M_sun/L_sun).
-        This scales the baryonic mass distribution.
-    v_circ_scale : float
-        A scaling factor for the Newtonian velocity component (km/s).
-        This effectively encapsulates the luminosity and G constants
-        into a single fit parameter for the velocity curve amplitude.
-        v_circ_Newtonian = v_circ_scale * sqrt(L(r))
+    r : np.ndarray or float
+        Radial distances in meters.
+    v_c : float
+        Asymptotic circular velocity (km/s) - used for normalization if needed,
+        but primarily we calculate based on mass.
+        Note: In this implementation, we derive velocity from the acceleration
+        directly. The parameter 'v_c' is kept for API consistency with fitting
+        routines that might expect it, but the core physics comes from M/L.
+        Actually, looking at standard fitting practices, usually M/L is the
+        parameter scaling the baryonic mass. We assume the input 'r' is in kpc
+        or meters? The spec says 'radial distance'. We will assume input 'r'
+        is in meters for physics consistency, but handle unit conversion if
+        the data is in kpc.
+        
+        Let's clarify the inputs based on typical SPARC data:
+        - r is usually in kpc.
+        - v_obs is in km/s.
+        - Mass-to-light ratio (M/L) is dimensionless (usually in solar units).
+        - We need G in appropriate units.
+
+    m_l_ratio : float
+        Mass-to-light ratio (M/L) in solar units (M_sun / L_sun).
+    a0 : float
+        The critical acceleration scale. Default is 1.2e-10 m/s^2.
 
     Returns
     -------
-    v_pred : ndarray
-        Predicted circular velocities (in km/s) at each radial distance.
+    np.ndarray or float
+        Predicted circular velocity in km/s.
     """
-    r = np.asarray(r, dtype=float)
-
-    # Avoid division by zero or negative radii
-    # We assume r > 0 based on data filtering in preprocess.py
-    # If r can be 0, we handle it by setting Newtonian acc to 0
-    safe_r = np.where(r > 0, r, 1e-10)
-
-    # Newtonian acceleration component proxy:
-    # a_N = (v_circ_scale^2) / r  (derived from v^2 = a*r => a = v^2/r)
-    # Here v_circ_scale represents the characteristic velocity scale
-    # of the baryonic mass distribution.
-    # a_N = (v_circ_scale * sqrt(M/L))^2 / r ?
-    # Let's stick to the standard form where a_N is proportional to M_baryon / r^2.
-    # In the fitting context, we often parameterize the baryonic contribution
-    # as v_baryon^2 = (M/L) * v_star^2 + v_gas^2.
-    # For this simplified model, we treat 'v_circ_scale' as the amplitude
-    # of the Newtonian velocity curve before MOND correction, scaled by M/L.
-    # Actually, the prompt asks for M/L as a free parameter.
-    # Let's define:
-    # a_N = G * M_baryon / r^2
-    # We can express M_baryon = (M/L) * L.
-    # So a_N is proportional to (M/L).
-    # Let's define a reference Newtonian acceleration a_ref = v_scale^2 / r.
-    # Then a_N = (M/L) * a_ref? No, that depends on how L scales with r.
-    #
-    # Standard approach in fitting:
-    # v_obs^2 = v_baryon^2 * mu^-1(r)  (approx for deep MOND)
-    # More precisely: v^4 / r = G * M_baryon * a_0 (for deep MOND)
-    #
-    # Let's use the explicit formula provided:
-    # a = a_N/2 + sqrt((a_N/2)^2 + a_N*a_0)
-    # where a_N = G * M_baryon / r^2.
-    #
-    # We parameterize M_baryon = (M/L) * L_model(r).
-    # If we assume the luminosity profile is fixed (from data) and we only fit M/L,
-    # then a_N is proportional to M/L.
-    # Let a_N_base = G * L_model(r) / r^2. Then a_N = (M/L) * a_N_base.
-    #
-    # However, the function signature in the task implies a simpler scaling.
-    # "include M/L as a free parameter".
-    # Let's assume the input `v_circ_scale` represents the velocity scale
-    # derived from the luminosity profile (e.g., sqrt(G * L / r)).
-    # Then a_N = (v_circ_scale^2 / r) * (M/L).
-    # Wait, v^2 = a*r. So a = v^2/r.
-    # If v_circ_scale is the velocity corresponding to M/L=1, then
-    # v_N^2 = (v_circ_scale * sqrt(M/L))^2 = v_circ_scale^2 * (M/L).
-    # Then a_N = v_N^2 / r = (v_circ_scale^2 * M/L) / r.
-    #
-    # Let's implement:
-    # a_N = (v_circ_scale ** 2 * mass_to_light_ratio) / safe_r
-    # But units: v_circ_scale is km/s. r is kpc.
-    # We need consistent units.
-    # Let's work in km/s and kpc.
-    # a_0 = 1.2e-10 m/s^2.
-    # 1 km/s / 1 kpc = (1000 m/s) / (3.086e19 m) = 3.24e-17 s^-2.
-    # a_0 in (km/s)^2 / kpc = 1.2e-10 * (1 kpc / 1000 m) * (1 km/s / 1000 m/s)^-2 ?
-    # a_0 [km^2/s^2/kpc] = a_0 [m/s^2] * (1 kpc / 1000 m) * (1000 m / 1 km)^2 ?
-    # 1 m/s^2 = 1 (m/s^2) * (1 km / 1000 m) / (1 s / 1 s)^2 * (1 kpc / 3.086e19 m) * 3.086e19 ?
-    # Let's convert a_0 to (km/s)^2 / kpc.
-    # a_0 = 1.2e-10 m/s^2.
-    # 1 m = 1e-3 km. 1 kpc = 3.086e19 m = 3.086e16 km.
-    # a_0 = 1.2e-10 * (1e-3 km) / s^2 = 1.2e-13 km/s^2.
-    # a_0 (km/s^2/kpc) = 1.2e-13 km/s^2 / (3.086e16 km) = 3.89e-30 1/s^2? No.
-    # Acceleration a has units [L]/[T]^2.
-    # a_0 in km/s^2 = 1.2e-13 km/s^2.
-    # To get (km/s)^2 / kpc:
-    # (km/s)^2 / kpc = km^2 / (s^2 * kpc) = km / s^2 * (km/kpc).
-    # a_0 [km/s^2] * (1 kpc / 3.086e16 km) ? No.
-    # We want X such that X (km/s)^2 / kpc = 1.2e-10 m/s^2.
-    # 1.2e-10 m/s^2 = 1.2e-13 km/s^2.
-    # 1 (km/s)^2 / kpc = 1 km^2 / (s^2 * kpc) = 1 km / s^2 * (1 km / 1 kpc).
-    # 1 km / 1 kpc = 1 / 3.086e16.
-    # So 1 (km/s)^2 / kpc = (1/3.086e16) km/s^2.
-    # Therefore, a_0 (in desired units) = 1.2e-13 km/s^2 / (1/3.086e16) (km/s)^2/kpc
-    # = 1.2e-13 * 3.086e16 = 3.7032e3 (km/s)^2/kpc.
-    # Let's verify: 3700 (km/s)^2 / 1 kpc = 3700 km^2/s^2/kpc = 3700 * (1/3.086e16) km/s^2 = 1.2e-13 km/s^2. Correct.
-    # So A0_kpc = 3703.2 (km/s)^2 / kpc.
-
-    A0_kpc = 3703.2  # (km/s)^2 / kpc
-
-    # Newtonian acceleration in (km/s)^2 / kpc
-    # a_N = (v_scale^2 * M/L) / r
-    # where v_scale is in km/s, r in kpc.
-    # v_scale is the velocity parameter passed to the function.
-    # We treat `v_circ_scale` as the velocity scale of the baryonic mass.
-    # So v_N^2 = (v_circ_scale ** 2) * mass_to_light_ratio
-    # a_N = v_N^2 / r
-    a_N = (v_circ_scale ** 2 * mass_to_light_ratio) / safe_r
-
-    # MOND 'simple' interpolating function:
-    # a = a_N / 2 + sqrt((a_N / 2)^2 + a_N * a_0)
-    # This calculates the total acceleration a.
-    # Then v_circ = sqrt(a * r)
-    # v_circ^2 = a * r
-    # v_circ^2 = r * (a_N/2 + sqrt((a_N/2)^2 + a_N*a_0))
-    # Substitute a_N = v_N^2 / r:
-    # v_circ^2 = r * ( (v_N^2/r)/2 + sqrt( ((v_N^2/r)/2)^2 + (v_N^2/r)*a_0 ) )
-    # v_circ^2 = v_N^2/2 + sqrt( (v_N^2/2)^2 + v_N^2 * r * a_0 )
-    # v_circ = sqrt( v_N^2/2 + sqrt( (v_N^2/2)^2 + v_N^2 * r * a_0 ) )
-    # where v_N^2 = v_circ_scale^2 * M/L.
-
-    v_N_squared = (v_circ_scale ** 2) * mass_to_light_ratio
-    term1 = v_N_squared / 2.0
-    term2 = np.sqrt((v_N_squared / 2.0) ** 2 + v_N_squared * r * A0_kpc)
-
-    v_pred_squared = term1 + term2
-    v_pred = np.sqrt(np.maximum(v_pred_squared, 0.0))
-
-    return v_pred
+    # Ensure inputs are numpy arrays for vectorized operations
+    r = np.asarray(r, dtype=np.float64)
+    
+    # Constants
+    # G in (km/s)^2 * kpc / M_sun
+    # G = 6.674e-11 m^3 kg^-1 s^-2
+    # 1 M_sun = 1.989e30 kg
+    # 1 kpc = 3.086e19 m
+    # G_km = 6.674e-11 * (1e-3)^2 * (3.086e19) / 1.989e30 * (1e3)^2 ? 
+    # Let's use standard value: G = 4.302e-6 (km/s)^2 kpc / M_sun
+    G = 4.302e-6  # (km/s)^2 * kpc / M_sun
+    
+    # a0 in (km/s)^2 / kpc
+    # a0 = 1.2e-10 m/s^2
+    # 1 m/s^2 = (1e-3 km) / (1 s)^2 * (1 kpc / 3.086e19 m) = 3.24e-20 km/s^2 / kpc ?
+    # Let's convert: 1 m/s^2 = 1 (m/s^2) * (1 km / 1000 m) * (3.086e19 m / 1 kpc)
+    # = 3.086e16 km/s^2/kpc ? No.
+    # 1 m/s^2 = 1 (m/s^2) * (1 km / 1000 m) * (1 kpc / 3.086e19 m)^-1 ?
+    # Acceleration = L / T^2.
+    # 1 m/s^2 = (10^-3 km) / s^2 = 10^-3 km/s^2.
+    # To get km/s^2 per kpc, we divide by distance in kpc? No, acceleration is just acceleration.
+    # We need a0 in units of (km/s)^2 / kpc to match G*M/r^2 where r is kpc.
+    # a = v^2 / r. Units: (km/s)^2 / kpc.
+    # 1 m/s^2 = 1 (m/s^2) * (1 km / 1000 m) * (3.086e19 m / 1 kpc) = 3.086e16 km/s^2 / kpc?
+    # Wait. 1 m = 10^-3 km. 1 s^2 = 1 s^2.
+    # 1 m/s^2 = 10^-3 km/s^2.
+    # To express in (km/s)^2 / kpc:
+    # 10^-3 km/s^2 = X (km^2/s^2) / kpc => X = 10^-3 * kpc / km = 10^-3 * 3.086e19.
+    # So a0 (km/s^2/kpc) = 1.2e-10 * 3.086e16 = 3.7032e6? That seems huge.
+    # Let's re-evaluate.
+    # a = v^2 / r. If v=200 km/s, r=10 kpc => a = 40000 / 10 = 4000 (km/s)^2/kpc.
+    # 1 m/s^2 = 1000 mm/s^2.
+    # 1 (km/s)^2/kpc = (1000 m/s)^2 / (3.086e19 m) = 1e6 / 3.086e19 m/s^2 = 3.24e-14 m/s^2.
+    # So 1 m/s^2 = 1 / 3.24e-14 (km/s)^2/kpc = 3.086e13 (km/s)^2/kpc.
+    # a0 = 1.2e-10 m/s^2 * 3.086e13 = 3703 (km/s)^2/kpc.
+    
+    a0_units = 1.2e-10 * 3.086e13  # ~3703 (km/s)^2 / kpc
+    a0 = a0_units if a0 == A0 else a0  # Use passed a0 if different, but convert if it's the default constant
+    
+    # If the caller passes the default A0 (1.2e-10), it's in m/s^2. Convert it.
+    if a0 == 1.2e-10:
+        a0 = 1.2e-10 * 3.086e13
+    
+    # Newtonian acceleration a_N = G * M / r^2
+    # M = M_L * L (where L is luminosity in solar units, M_L is the parameter)
+    # However, the function signature usually takes M/L as a parameter and the
+    # baryonic mass profile is implicitly handled or passed via a separate mass array.
+    # In the context of `fit.py`, we often pass the baryonic mass array directly
+    # or the luminosity profile.
+    # The prompt says: "include M/L (mass-to-light ratio) as a free parameter".
+    # This implies the function signature should accept `r`, `v_c` (maybe unused or for prior?), `m_l_ratio`.
+    # But where is the baryonic mass?
+    # Standard fitting: v_tot^2 = v_bary^2 * (M/L)^2 * mu^2 + v_DM^2 ...
+    # Or v_tot^2 = (G * M_bary * M/L / r) * mu^-1?
+    # The formula a = a_N/2 + sqrt(...) implies we need a_N.
+    # a_N = G * M_bary_total / r^2.
+    # If we don't have M_bary_total in the function arguments, we cannot compute a_N.
+    # Assumption: The `fit.py` calls this function with `r` and the `baryonic_mass` profile
+    # pre-scaled or we assume the `m_l_ratio` scales a known luminosity profile.
+    # Since the API surface shows `mond_simple(r, v_c, m_l_ratio)`, and no mass array,
+    # we must assume `v_c` might be a proxy or the function is expected to be called
+    # with a specific context where mass is derived.
+    # HOWEVER, looking at the NFW model signature: `nfw_model(r, v_c, ...)`
+    # It's likely `v_c` in the signature is a misnomer in the prompt's API surface description
+    # or it represents a scaling factor for the baryonic component if the mass profile is fixed.
+    # Let's assume the standard approach: The `fit.py` passes the baryonic mass array as part of `xdata`
+    # or the function is wrapped.
+    # BUT, the prompt says: "include M/L ... as a free parameter".
+    # If I strictly follow `mond_simple(r, v_c, m_l_ratio)`, I cannot calculate `a_N` without `M_bary`.
+    # Hypothesis: `v_c` here is actually the circular velocity of the baryonic component
+    # at a specific radius, or the function expects `r` to be the only spatial variable
+    # and `v_c` is the asymptotic velocity of the baryonic part?
+    # Let's look at the NFW signature: `nfw_circular_velocity(r, v_c, ...)`.
+    # Usually, `v_c` in these contexts is the circular velocity of the baryonic disk/bulge
+    # if the mass-to-light ratio is 1. Then we scale by `m_l_ratio`.
+    # Let's assume `v_c` is the circular velocity contribution from baryons with M/L = 1.
+    # Then v_bary = v_c * sqrt(m_l_ratio).
+    # Then a_N = v_bary^2 / r = (v_c^2 * m_l_ratio) / r.
+    
+    # Let's proceed with this assumption: v_c is the baryonic circular velocity for M/L=1.
+    # v_bary = v_c * sqrt(m_l_ratio)
+    # a_N = v_bary^2 / r = (v_c^2 * m_l_ratio) / r
+    
+    # Handle r=0 to avoid division by zero
+    r_safe = np.where(r == 0, 1e-10, r)
+    
+    # Calculate Newtonian acceleration (in km/s^2 / kpc? No, units of a_N must match a0)
+    # a_N = v^2 / r. If v is km/s, r is kpc, then a_N is (km/s)^2 / kpc.
+    # v_bary_sq = (v_c * sqrt(m_l_ratio))^2 = v_c^2 * m_l_ratio
+    v_bary_sq = (v_c ** 2) * m_l_ratio
+    a_N = v_bary_sq / r_safe
+    
+    # Apply MOND simple interpolating function
+    # a = a_N/2 + sqrt((a_N/2)^2 + a_N * a0)
+    term1 = a_N / 2.0
+    term2 = np.sqrt(term1**2 + a_N * a0)
+    a_mond = term1 + term2
+    
+    # Convert acceleration back to velocity: v = sqrt(a * r)
+    v_mond = np.sqrt(a_mond * r_safe)
+    
+    return v_mond

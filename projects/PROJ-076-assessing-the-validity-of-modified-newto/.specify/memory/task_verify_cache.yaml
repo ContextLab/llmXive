@@ -1,33 +1,14 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory hierarchy (`code/`, `data/`, `results/`,\
-    \ `tests/`, `state/`) is provided; the implementer\u2019s claim lacks any artifact\
-    \ showing these folders exist or contain content. The task\u2019s core requirement\u2014\
-    creating the project structure\u2014is therefore not satisfied."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The review found no linting or formatting configuration files (e.g.,\u202F`.ruff.toml`,\
-    \ `.flake8`, `pyproject.toml` with Black settings) or related setup scripts in\
-    \ the repository. Without these concrete artifacts, the requirement to configure\
-    \ ruff/flake8 and Black is not satisfied. The implementer must add the appropriate\
-    \ configuration files and ensure they are non\u2011empty and correctly set up."
-T004:
-  c: false
-  h: 89ec9c8dbe7893cc09f922712aa93171650483d7d56c916fb97eb80d1bd4b46f
-  r: The required schema file `contracts/dataset.schema.yaml` does not exist, so the
-    test cannot actually validate against a real schema. Moreover, the provided `tests/contract/test_schemas.py`
-    contains only loading helpers and a truncated placeholder; it lacks concrete test
-    functions that enforce the schema. Both the missing schema and the incomplete
-    test implementation mean the task is not genuinely fulfilled.
 T026:
   c: false
-  h: 192f9721a51679d2d48e2c2e47ea887a5c86f1a7efa62eb758085414adb31fb1
-  r: "The repository contains a partially\u2011implemented `code/sensitivity.py` that\
-    \ defines the analysis functions, but the required output file `results/sensitivity_data.csv`\
-    \ is absent. No script or entry\u2011point is provided that actually runs the\
-    \ analysis and writes the CSV to the specified location, and the shown source\
-    \ is truncated before the final logging line, indicating the implementation is\
-    \ incomplete. The missing result file means the task\u2019s deliverable is not\
-    \ satisfied."
+  h: e47f0bbe341daa8f92544f0de5ab2ea0627966bcd710c26ea914679b507f1f3a
+  r: The required output file `results/sensitivity_data.csv` does not exist, so the
+    sensitivity analysis result is not produced. Additionally, the provided `code/sensitivity.py`
+    is truncated and may not fully implement the described functionality. The missing
+    CSV must be generated for the task to be considered complete.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation files were presented in `docs/`, nor any text showing the required\
+    \ associational framing updates per FR\u2011011. The claim provides no tangible\
+    \ artifacts to verify that the documentation was actually modified. The missing\
+    \ `docs/` updates must be added and shown."

@@ -1,3 +1,3 @@
 """
-Test suite for PROJ-076.
+Tests package.
 """

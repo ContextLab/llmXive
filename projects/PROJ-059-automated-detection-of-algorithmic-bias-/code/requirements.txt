@@ -6,6 +6,4 @@ fairlearn
 datasets
 pyyaml
 pytest
-ruff
-black
-astor
+scikit-learn
