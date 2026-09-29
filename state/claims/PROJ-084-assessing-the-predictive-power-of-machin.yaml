@@ -1215,38 +1215,6 @@
   updated_at: '2026-09-21T21:30:31Z'
 - artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
   attempts: 1
-  canonical: ECFP fingerprint dimension is 2048
-  claim_id: c_dcab3cd9
-  context: 'Define and Validate Dataset Schema. Action: Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
-    defining fields: ... fingerprint_ecfp (list of int, length 2048)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The dataset fingerprint_ecfp field has a length of 2048.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-21T21:31:00Z'
-- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
-  attempts: 1
-  canonical: MACCS fingerprint dimension is 167
-  claim_id: c_5e806cd2
-  context: 'Define and Validate Dataset Schema. Action: Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
-    defining fields: ... fingerprint_maccs (list of int, length 167)'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The dataset fingerprint_maccs field has a length of 167.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-21T21:31:20Z'
-- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
-  attempts: 1
   canonical: Yield field range is 0.0 to 100.0
   claim_id: c_006cfb26
   context: 'Define and Validate Dataset Schema. Action: Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
@@ -2286,3 +2254,731 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T07:02:55Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 0
+  canonical: Permutation importance n_repeats 5
+  claim_id: c_c983f04a
+  context: 'Compute permutation importance for Random RF. Parameters: n_repeats=5,
+    random_state=42, n_jobs=-1.'
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 10 453600
+      source_id: A061122
+      url: https://oeis.org/A061122
+      value: '453600'
+    filled: true
+  kind: numeric
+  raw_text: Permutation importance calculation uses 5 repeats.
+  resolved_value: '453600'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T05:42:43Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint dimensionality 2048
+  claim_id: c_86534fe9
+  context: Log the actual bit lengths generated (ECFP=2048, MACCS=167) to data/results/fingerprint_dimensions.log.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ECFP fingerprint vectors are generated with a dimensionality of 2048 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:43:16Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint dimensionality 167
+  claim_id: c_39f4411d
+  context: Unit test for fingerprint dimensionality (ECFP4=2048, MACCS=167) in tests/unit/test_fingerprints.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MACCS key fingerprints are generated with a fixed length of 167 bits.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:43:33Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield field range 0.0 to 100.0
+  claim_id: c_dbd73cab
+  context: 'Defining fields: ... yield (float, 0.0-100.0) ...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The yield field in the dataset schema is constrained to a range of 0.0
+    to 100.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:44:08Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Permutation importance random_state 42
+  claim_id: c_404b4c84
+  context: 'Compute permutation importance for Random RF. Parameters: n_repeats=5,
+    random_state=42, n_jobs=-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation importance calculation uses random_state 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:44:38Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Generalization gap analysis filter sample count 20
+  claim_id: c_ebf05ce7
+  context: 'Action: Filter classes with sample count n > 20.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generalization_gap_analysis_filter_sample_count_20
+  kind: magnitude
+  raw_text: Generalization gap analysis filters reaction classes with a sample count
+    greater than 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:45:43Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Top substructure selection count 3
+  claim_id: c_bd0cb9c1
+  context: Sort substructures by aggregated_score descending and select the top 3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Top substructure selection ranks and selects the top 3 substructures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:46:36Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Feature importance topological radius 2
+  claim_id: c_e6ff3bc4
+  context: 'Action: Extract the subgraph surrounding the reaction center atom within
+    a defined topological radius (e.g., radius=2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feature importance mapping uses a topological radius of 2 for subgraph
+    extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:46:52Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Memory profiling system RAM limit 7GB
+  claim_id: c_1c92b235
+  context: 'Validation: Assert total system RAM < 7GB for each step.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_profiling_system_RAM_limit_7GB
+  kind: magnitude
+  raw_text: Memory profiling asserts total system RAM is less than 7GB for each step.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:47:29Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours
+  claim_id: c_4e30866a
+  context: 'Performance optimization: Ensure full pipeline runs within 6 hours on
+    free-tier CPU runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline is designed to run within 6 hours on a free-tier CPU
+    runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:47:56Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Ranking methodology cited Author et al. 2023
+  claim_id: c_ba7500ee
+  context: The method involves ranking items by performance metrics and selecting
+    a limited top subset for further analysis, as described in prior work (Author
+    et al., 2023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The methodology for ranking items by performance metrics references prior
+    work by Author et al. (2023).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:48:13Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 2
+  canonical: ECFP fingerprint dimension is 2048
+  claim_id: c_dcab3cd9
+  context: 'Define and Validate Dataset Schema. Action: Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
+    defining fields: ... fingerprint_ecfp (list of int, length 2048)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset fingerprint_ecfp field has a length of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:49:27Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 2
+  canonical: MACCS fingerprint dimension is 167
+  claim_id: c_5e806cd2
+  context: 'Define and Validate Dataset Schema. Action: Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
+    defining fields: ... fingerprint_maccs (list of int, length 167)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset fingerprint_maccs field has a length of 167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:49:43Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: USPTO Yield Dataset DOI 10.1021/acs.jcim.0c01370
+  claim_id: c_0d8f4184
+  context: 'Implement code/preprocessing/download.py: Download USPTO dataset. Primary
+    Source: DOI 10.1021/acs.jcim.0c01370 (USPTO Yield Dataset).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: The USPTO Yield Dataset is associated with DOI 10.1021/acs.jcim.0c01370.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:49:43Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield value range 0.0 to 100.0
+  claim_id: c_c006f46b
+  context: 'Define and Validate Dataset Schema. Action: Create specs/001-assess-ml-predictive-power/contracts/dataset.schema.yaml
+    defining fields: ... yield (float, 0.0-100.0)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The yield field in the dataset schema is constrained to a range of 0.0
+    to 100.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:49:43Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Default yield range strategy is exclude
+  claim_id: c_37a94efa
+  context: 'Action: Define YIELD_RANGE_STRATEGY constant (options: ''midpoint'', ''exclude'').
+    Default: ''exclude''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_yield_range_strategy_is_exclude
+  kind: entity_fact
+  raw_text: The default yield range strategy is set to 'exclude'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:50:23Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Memory management limit is 7GB
+  claim_id: c_d51f4e99
+  context: Implement code/utils/io.py for robust Parquet/CSV loading, checksumming,
+    and batch processing to manage memory < 7GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_management_limit_is_7GB
+  kind: entity_fact
+  raw_text: The system is designed to manage memory usage below 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:50:49Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit is 6 hours on free-tier CPU
+  claim_id: c_944e772e
+  context: 'Performance optimization: Ensure full pipeline runs within 6 hours on
+    free-tier CPU runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is designed to run within 6 hours on a free-tier CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:51:14Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Per-class metric filtering threshold is n > 20
+  claim_id: c_26023c64
+  context: 'Action: Filter classes with sample count n > 20.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Classes with a sample count n > 20 are filtered for per-reaction-class
+    metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:51:15Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Permutation importance parameters n_repeats=5, random_state=42
+  claim_id: c_82946790
+  context: 'Compute permutation importance for Random RF. Parameters: n_repeats=5,
+    random_state=42, n_jobs=-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation importance is computed with n_repeats=5 and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:51:33Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Top 3 substructures selected for feature importance
+  claim_id: c_b2eba0d6
+  context: Sort substructures by aggregated_score descending and select the top 3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top 3 substructures are selected for feature importance mapping.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:52:02Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Feature importance mapping topological radius is 2
+  claim_id: c_f1862ad8
+  context: 'Action: Extract the subgraph surrounding the reaction center atom within
+    a defined topological radius (e.g., radius=2).'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The unified feature importance mapping uses a topological radius of 2.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T05:52:02Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: USPTO Yield Dataset primary source DOI 10.1021/acs.jcim.0c01370
+  claim_id: c_280a5c53
+  context: 'T019 [US1] Implement code/preprocessing/download.py: Download USPTO dataset.
+    Primary Source: DOI 10.1021/acs.jcim.0c01370 (USPTO Yield Dataset).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The primary source for the USPTO dataset is DOI 10.1021/acs.jcim.0c01370.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:53:00Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint dimensionality 2048
+  claim_id: c_78fac6a5
+  context: 'T007a defines fields: fingerprint_ecfp (list of int, length 2048)... description:
+    ECFP fingerprint vector (standard dimensionality).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ECFP fingerprint vector has a standard dimensionality of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:53:24Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint dimensionality 167
+  claim_id: c_5aad460f
+  context: 'T007a defines fields: fingerprint_maccs (list of int, length 167)... description:
+    MACCS key fingerprint (fixed-length binary representation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MACCS key fingerprint has a fixed-length binary representation of
+    167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:53:46Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield value range 0.0 to 100.0
+  claim_id: c_5b395b8e
+  context: 'T007a defines fields: yield (float, 0.0-100.0)... minimum: 0.0 maximum:
+    100.0.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Yield_value_range_0.0_to_100.0
+  kind: entity_fact
+  raw_text: The yield value in the dataset schema is defined as a float between 0.0
+    and 100.0.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:54:23Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Default YIELD_RANGE_STRATEGY exclude
+  claim_id: c_2590c827
+  context: 'T004 Define YIELD_RANGE_STRATEGY constant (options: ''midpoint'', ''exclude'').
+    Default: ''exclude''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Default_YIELD_RANGE_STRATEGY_exclude
+  kind: entity_fact
+  raw_text: The default YIELD_RANGE_STRATEGY is 'exclude'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:55:00Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Memory management limit 7GB
+  claim_id: c_b382b6ba
+  context: T005 Implement code/utils/io.py for robust Parquet/CSV loading... to manage
+    memory < 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_management_limit_7GB
+  kind: entity_fact
+  raw_text: The system is designed to manage memory usage below 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:55:03Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours on free-tier CPU
+  claim_id: c_68d7ea78
+  context: 'T038 Performance optimization: Ensure full pipeline runs within 6 hours
+    on free-tier CPU runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system is designed to run the full pipeline within 6 hours on a free-tier
+    CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:55:22Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Per-class metric filter sample count greater than 20
+  claim_id: c_84fdfea3
+  context: 'T031 Action: Filter classes with sample count n > 20.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-class_metric_filter_sample_count_greater_than_20
+  kind: magnitude
+  raw_text: Classes with sample count n > 20 are filtered for per-reaction-class metrics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:57:07Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Permutation importance parameters n_repeats 5 random_state 42
+  claim_id: c_fa944b4d
+  context: 'T032a Compute permutation importance for Random RF. Parameters: n_repeats=5,
+    random_state=42, n_jobs=-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation importance is computed with n_repeats=5 and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:57:07Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Top 3 substructures selected for feature importance
+  claim_id: c_0562c867
+  context: 'T033c Action: Sort substructures by aggregated_score descending and select
+    the top 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top 3 substructures are selected for the feature importance report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:57:45Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Substructures ranked by aggregated_score descending
+  claim_id: c_aef05be1
+  context: 'T033c Action: Sort substructures by aggregated_score descending and select
+    the top 3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The top 3 substructures are ranked by aggregated_score in descending order.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:58:23Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Ranking method described in Author et al. 2023
+  claim_id: c_efe08c57
+  context: The research question remains focused on identifying the highest-performing
+    candidates. The method involves ranking items by performance metrics and selecting
+    a limited top subset for further analysis, as described in prior work (Author
+    et al., 2023).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The research method involves ranking items by performance metrics and
+    selecting a limited top subset, as described in prior work by Author et al. (2023).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T05:58:45Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 2
+  canonical: USPTO Yield Dataset DOI 10.1021/acs.jcim.0c01370
+  claim_id: c_f2e7d5fa
+  context: 'Primary Source: DOI 10.1021/acs.jcim.0c01370 (USPTO Yield Dataset).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+    status: not_found
+  kind: citation
+  raw_text: The USPTO Yield Dataset is associated with DOI 10.1021/acs.jcim.0c01370.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:00:24Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: ECFP fingerprint dimensionality 2048
+  claim_id: c_01cde3fb
+  context: 'fingerprint_ecfp: type: array items: type: integer description: ECFP fingerprint
+    vector (standard dimensionality) ... Log the actual bit lengths generated (ECFP=2048...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ECFP fingerprints are generated with a dimensionality of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:00:50Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: MACCS fingerprint dimensionality 167
+  claim_id: c_fcd643a3
+  context: 'fingerprint_maccs: type: array items: type: integer description: MACCS
+    key fingerprint (fixed-length binary representation) ... Log the actual bit lengths
+    generated (...MACCS=167)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MACCS fingerprints are generated with a dimensionality of 167.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:01:09Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Yield value range 0.0 to 100.0
+  claim_id: c_8f0057a5
+  context: 'yield: type: number minimum: 0.0 maximum: 100.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The yield value in the dataset ranges from 0.0 to 100.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:01:31Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Memory profiling RAM threshold 7GB
+  claim_id: c_8a9c181c
+  context: 'Validation: Assert total system RAM < 7GB for each step.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_profiling_RAM_threshold_7GB
+  kind: magnitude
+  raw_text: The memory profiling validation asserts total system RAM is less than
+    7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:02:09Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Generalization gap filter sample count 20
+  claim_id: c_1008d9c2
+  context: 'Action: Filter classes with sample count n > 20.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generalization_gap_filter_sample_count_20
+  kind: magnitude
+  raw_text: The generalization gap calculation filters classes with a sample count
+    greater than 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:03:16Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Permutation importance n_repeats 5 random_state 42
+  claim_id: c_0f2c3a9a
+  context: 'Parameters: n_repeats=5, random_state=42, n_jobs=-1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation importance parameters are set to n_repeats=5 and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:03:43Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Feature importance top 3 substructures
+  claim_id: c_6ff076e6
+  context: Sort substructures by aggregated_score descending and select the top 3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feature importance report selects the top 3 substructures based on
+    aggregated score.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:04:31Z'
+- artifact_path: projects/PROJ-084-assessing-the-predictive-power-of-machin/specs/001-assessing-the-predictive-power-of-machin/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint 6 hours
+  claim_id: c_f17f1e19
+  context: Ensure full pipeline runs within 6 hours on free-tier CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline is constrained to run within 6 hours on a free-tier CPU runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:05:06Z'

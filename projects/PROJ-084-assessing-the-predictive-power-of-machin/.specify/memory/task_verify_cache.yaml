@@ -1,11 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or screenshots were provided to demonstrate that `code/`,
-    `data/raw/`, `data/processed/`, `data/results/`, and `tests/` actually exist;
-    the claim is unsupported. The implementer must supply concrete evidence (e.g.,
-    a `tree` output, `ls -R` listing, or a script showing the directories were created)
-    to verify the task is completed.
 T008b:
   c: false
   h: cbeb1affafccfa75318f48fae2ef51b2d6cb91d58a981bd5f61908b84758afa5

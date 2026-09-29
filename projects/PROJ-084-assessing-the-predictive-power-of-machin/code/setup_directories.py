@@ -1,16 +1,13 @@
+"""
+Script to create the required project directory structure.
+Implements T001a: Create code/, data/raw/, data/processed/, data/results/, tests/ directories.
+"""
 import os
 from pathlib import Path
 
 def main():
-    """
-    Create the required directory structure for the project.
-    Implements task T001a.
-    """
-    # Define the base paths relative to the project root
-    # We assume the script is run from the project root or code directory.
-    # Using Path.cwd() ensures we operate from the current working directory.
-    base = Path.cwd()
-
+    """Create the standard project directory structure."""
+    # Define the relative paths to be created
     directories = [
         "code",
         "data/raw",
@@ -19,32 +16,22 @@ def main():
         "tests"
     ]
 
-    created_count = 0
-    for dir_name in directories:
-        full_path = base / dir_name
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
+    # Create directories and log the action
+    for dir_path in directories:
+        path = Path(dir_path)
+        # Create parents if they don't exist (e.g., data/raw needs data/)
+        path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {path.absolute()}")
+
+    # Verification step: List created directories to provide evidence of completion
+    print("\n--- Directory Structure Verification ---")
+    for dir_path in directories:
+        path = Path(dir_path)
+        if path.exists() and path.is_dir():
+            print(f"✓ {dir_path} exists")
         else:
-            print(f"Directory already exists: {full_path}")
-
-    print(f"Directory setup complete. {created_count} new directories created.")
-
-    # Verify existence by listing
-    print("\nVerification (ls -R equivalent):")
-    for dir_name in directories:
-        full_path = base / dir_name
-        if full_path.exists():
-            # List contents if not empty, otherwise just show the directory
-            try:
-                contents = list(full_path.iterdir())
-                if contents:
-                    print(f"{dir_name}/: {', '.join([p.name for p in contents])}")
-                else:
-                    print(f"{dir_name}/: (empty)")
-            except PermissionError:
-                print(f"{dir_name}/: (permission denied)")
+            print(f"✗ {dir_path} missing (Unexpected)")
+    print("----------------------------------------")
 
 if __name__ == "__main__":
     main()
