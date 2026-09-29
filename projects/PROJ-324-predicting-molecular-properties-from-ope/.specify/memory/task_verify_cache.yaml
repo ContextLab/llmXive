@@ -24,13 +24,6 @@ T014:
     \ and writes `data/derived/baseline_predictions.csv`. Moreover, the required `data/derived/baseline_predictions.csv`\
     \ file is absent. Hence the task\u2019s requirement\u2014to compute Crippen contributions\
     \ for all test molecules and output the predictions CSV\u2014has not been fulfilled."
-T015:
-  c: false
-  h: 93900f99594ad002b52bbf7aa84230f1caec863533bd9959575f0d095e581e5c
-  r: "The required residual plot file `data/derived/baseline_residuals.png` is absent,\
-    \ and the provided excerpt of `code/analysis/stats.py` does not show an implementation\
-    \ of `calculate_baseline_metrics` (the file is truncated before that function).\
-    \ Without the function and the plot, the task\u2019s deliverables are not satisfied."
 T022:
   c: false
   h: f1c27b1239e60d7a10ec3e9c20865971c3a03e8676458a8db9b79da7aa46f498

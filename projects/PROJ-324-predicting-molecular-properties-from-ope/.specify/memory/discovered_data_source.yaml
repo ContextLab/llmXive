@@ -1,23 +1,55 @@
 status: verified
 kind: pypi_package
 ref: PubChemPy
-access_python: "import pubchempy as pcp\ncids = [2244, 3672, 5957, 702, 5281]\nprops\
-  \ = ['IsomericSMILES','XLogP','WaterSolubility','BoilingPoint','MolecularWeight','RecordType']\n\
-  compounds = pcp.get_compounds(cids, properties=props)\nrecords = []\nfor c in compounds:\n\
-  \    rec = {}\n    if getattr(c, 'isomeric_smiles', None): rec['SMILES'] = c.isomeric_smiles\n\
-  \    if getattr(c, 'xlogp', None) is not None: rec['LogP'] = c.xlogp\n    if getattr(c,\
-  \ 'water_solubility', None) is not None: rec['Solubility'] = c.water_solubility\n\
-  \    if getattr(c, 'boiling_point', None) is not None: rec['Boiling Point'] = c.boiling_point\n\
-  \    if getattr(c, 'molecular_weight', None) is not None: rec['Molecular Weight']\
-  \ = c.molecular_weight\n    if getattr(c, 'record_type', None) is not None: rec['Property\
-  \ Type'] = c.record_type\n    if rec:\n        records.append(rec)\nprint(f\"RECORDS={len(records)}\"\
-  )\nif records:\n    fields = set()\n    for r in records:\n        fields.update(r.keys())\n\
-  \    print(\"FIELDS=\" + \",\".join(sorted(fields)))\n"
-record_count: 5
+access_python: "import pubchempy as pcp\n\ncids = [2244, 3672, 5957, 702, 1234, 5281,\
+  \ 5280, 5282, 5283, 5284]\ncompounds = pcp.get_compounds(cids, 'cid')\n\nprint(f\"\
+  RECORDS={len(compounds)}\")\nif compounds:\n    fields = sorted(compounds[0].to_dict().keys())\n\
+  \    print(\"FIELDS=\" + \",\".join(fields))"
+record_count: 10
 sample_fields:
-- LogP
-- Molecular Weight
-- SMILES
+- atom_stereo_count
+- atoms
+- bond_stereo_count
+- bonds
+- cactvs_fingerprint
+- charge
+- cid
+- complexity
+- conformer_id_3d
+- conformer_rmsd_3d
+- connectivity_smiles
+- coordinate_type
+- covalent_unit_count
+- defined_atom_stereo_count
+- defined_bond_stereo_count
+- effective_rotor_count_3d
+- elements
+- exact_mass
+- feature_selfoverlap_3d
+- fingerprint
+- h_bond_acceptor_count
+- h_bond_donor_count
+- heavy_atom_count
+- inchi
+- inchikey
+- isotope_atom_count
+- iupac_name
+- mmff94_energy_3d
+- mmff94_partial_charges_3d
+- molecular_formula
+- molecular_weight
+- monoisotopic_mass
+- multipoles_3d
+- pharmacophore_features_3d
+- rotatable_bond_count
+- shape_fingerprint_3d
+- shape_selfoverlap_3d
+- smiles
+- tpsa
+- undefined_atom_stereo_count
+- undefined_bond_stereo_count
+- volume_3d
+- xlogp
 field_coverage: 0.5
 required_fields:
 - SMILES
@@ -26,5 +58,6 @@ required_fields:
 - Boiling Point
 - Molecular Weight
 - Property Type
-intent: PubChem Compound dataset Open Babel fingerprint python package dataset
-cache_key: 31bf20c46f3922fa0b039c2cd46de0f803d66af8b92fd090931f1c36e8855e72
+intent: PubChem compound properties SMILES LogP solubility Open Babel fingerprint
+  python package dataset
+cache_key: 18da241dc23f1a99092c1fa3636a242067dd6658e538072fb82ba7cc4532cfd3

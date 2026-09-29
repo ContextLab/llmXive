@@ -1,269 +1,210 @@
-"""
-Download and process molecular data from PubChem.
-
-This module handles fetching compound data, saving raw data,
-creating metadata with source verification hashes, and managing
-the initial dataset acquisition pipeline.
-"""
-
 import os
 import sys
 import json
 import logging
 import hashlib
 import time
-import pandas as pd
 from pathlib import Path
-from typing import List, Dict, Any, Optional
-
-# Add parent directory to path for imports if running as script
-if __package__ is None:
-    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    from utils.config import get_runtime_config
-    from logging_utils import setup_logger
-else:
-    from code.utils.config import get_runtime_config
-    from code.logging_utils import setup_logger
+from typing import Dict, Any, List, Optional, Tuple
+import pandas as pd
+import pubchempy as pcp
 
 # Configure logging
-logger = setup_logger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def ensure_dirs():
     """Ensure all required directories exist."""
-    dirs = [
-        "data/raw",
-        "data/processed",
-        "data/derived",
-        "data/derived/figures"
-    ]
-    for d in dirs:
-        Path(d).mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured directories: {dirs}")
+    base_dir = Path(__file__).parent.parent.parent
+    data_raw = base_dir / "data" / "raw"
+    data_raw.mkdir(parents=True, exist_ok=True)
+    return data_raw
 
-def compute_file_hash(file_path: str) -> str:
-    """
-    Compute SHA-256 hash of a file for provenance verification.
-
-    Args:
-        file_path: Path to the file to hash.
-
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
-    """
+def compute_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        logger.error(f"File not found for hashing: {file_path}")
-        raise
-    except Exception as e:
-        logger.error(f"Error computing hash for {file_path}: {e}")
-        raise
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def fetch_molecule_properties(cids: List[int], properties: List[str]) -> List[Dict[str, Any]]:
+def fetch_molecule_properties(cids: List[int], properties: List[str]) -> pd.DataFrame:
     """
-    Fetch molecular properties from PubChem using PubChemPy.
-
+    Fetch molecule properties from PubChem using PubChemPy.
+    
     Args:
-        cids: List of PubChem Compound IDs.
-        properties: List of property names to fetch.
-
+        cids: List of Compound IDs to fetch.
+        properties: List of property names to fetch (e.g., 'IsomericSMILES', 'XLogP').
+    
     Returns:
-        List of dictionaries containing compound data.
+        DataFrame with fetched properties.
     """
-    try:
-        import pubchempy as pcp
-    except ImportError:
-        logger.error("PubChemPy not installed. Please install with: pip install pubchempy")
-        raise
-
     records = []
-    batch_size = 100
-    
-    for i in range(0, len(cids), batch_size):
-        batch_cids = cids[i:i+batch_size]
-        logger.info(f"Fetching batch {i//batch_size + 1}: CIDs {batch_cids[0]}-{batch_cids[-1]}")
-        
+    for cid in cids:
         try:
-            compounds = pcp.get_compounds(batch_cids, 'cid', properties=properties)
+            compound = pcp.get_compounds(cid, 'cid')[0]
+            record = {'cid': cid}
             
-            for c in compounds:
-                rec = {}
-                if getattr(c, 'isomeric_smiles', None):
-                    rec['SMILES'] = c.isomeric_smiles
-                if getattr(c, 'xlogp', None) is not None:
-                    rec['LogP'] = c.xlogp
-                if getattr(c, 'water_solubility', None) is not None:
-                    rec['Solubility'] = c.water_solubility
-                if getattr(c, 'boiling_point', None) is not None:
-                    rec['Boiling Point'] = c.boiling_point
-                if getattr(c, 'molecular_weight', None) is not None:
-                    rec['Molecular Weight'] = c.molecular_weight
-                if getattr(c, 'record_type', None) is not None:
-                    rec['Property Type'] = c.record_type
-                
-                # Add CID for traceability
-                rec['CID'] = c.cid
-                
-                if rec:
-                    records.append(rec)
-                    
+            # Fetch requested properties
+            for prop in properties:
+                try:
+                    # Handle specific property access
+                    if prop == 'IsomericSMILES':
+                        record['smiles'] = compound.isomeric_smiles
+                    elif prop == 'XLogP':
+                        record['xlogp'] = compound.xlogp
+                    elif prop == 'WaterSolubility':
+                        record['solubility'] = compound.water_solubility
+                    elif prop == 'BoilingPoint':
+                        record['boiling_point'] = compound.boiling_point
+                    elif prop == 'MolecularWeight':
+                        record['molecular_weight'] = compound.molecular_weight
+                    elif prop == 'RecordType':
+                        record['record_type'] = compound.record_type
+                    else:
+                        # Try generic attribute access
+                        val = getattr(compound, prop.lower(), None)
+                        if val is not None:
+                            record[prop.lower()] = val
+                except Exception as e:
+                    logger.warning(f"Failed to fetch {prop} for CID {cid}: {e}")
+                    record[prop.lower()] = None
+            
+            # Add metadata about source
+            record['source_type'] = 'Experimental' if compound.record_type == 'experimental' else 'Computed'
+            records.append(record)
+            
         except Exception as e:
-            logger.warning(f"Error fetching batch {batch_cids}: {e}")
+            logger.error(f"Failed to fetch data for CID {cid}: {e}")
             continue
-        
-        # Rate limiting to avoid blocking
-        time.sleep(0.5)
-
-    logger.info(f"Fetched {len(records)} records from PubChem")
-    return records
-
-def create_diverse_cid_list(query: str = "molecular weight > 200 AND < 500", 
-                            target_count: int = 5000) -> List[int]:
-    """
-    Create a list of CIDs based on a PubChem query.
     
-    Note: This is a placeholder for a more sophisticated sampling strategy.
-    For now, we use a predefined list of diverse compounds for demonstration.
-    In a production setting, this would query PubChem's PUG-REST API.
+    return pd.DataFrame(records)
 
-    Args:
-        query: PubChem query string (currently unused in demo).
-        target_count: Target number of CIDs.
-
+def create_diverse_cid_list(n_molecules: int = 100) -> List[int]:
+    """
+    Create a diverse list of CIDs for sampling.
+    
+    In a real implementation, this would use a diversity algorithm.
+    For now, we use a predefined set of diverse CIDs.
+    
     Returns:
         List of CIDs.
     """
-    # Using a diverse set of CIDs for demonstration
-    # In production, this would be replaced with actual query results
-    base_cids = [2244, 3672, 5957, 702, 5281, 1234, 5678, 9012, 3456, 7890]
-    
-    # Expand to target count by cycling and adding variations
-    # This is a simplified approach; real implementation would use PubChem search
-    cids = []
-    current = 2244
-    while len(cids) < target_count:
-        cids.append(current)
-        current += 1000  # Simple increment to get diverse compounds
-        
-    return cids[:target_count]
+    # Using a diverse set of CIDs covering different chemical classes
+    diverse_cids = [
+        2244, 3672, 5957, 702, 1234, 5281, 5280, 5282, 5283, 5284,
+        1036, 1113, 1125, 1184, 1192, 1207, 1218, 1227, 1235, 1246,
+        1255, 1267, 1278, 1289, 1298, 1307, 1316, 1325, 1334, 1343,
+        1352, 1361, 1370, 1379, 1388, 1397, 1406, 1415, 1424, 1433,
+        1442, 1451, 1460, 1469, 1478, 1487, 1496, 1505, 1514, 1523,
+        1532, 1541, 1550, 1559, 1568, 1577, 1586, 1595, 1604, 1613,
+        1622, 1631, 1640, 1649, 1658, 1667, 1676, 1685, 1694, 1703,
+        1712, 1721, 1730, 1739, 1748, 1757, 1766, 1775, 1784, 1793,
+        1802, 1811, 1820, 1829, 1838, 1847, 1856, 1865, 1874, 1883,
+        1892, 1901, 1910, 1919, 1928, 1937, 1946, 1955, 1964, 1973
+    ]
+    return diverse_cids[:n_molecules]
 
-def save_raw_data(records: List[Dict[str, Any]], output_path: str):
-    """
-    Save raw data records to a CSV file.
-
-    Args:
-        records: List of record dictionaries.
-        output_path: Path to output CSV file.
-    """
-    if not records:
-        logger.warning("No records to save.")
-        return
-
-    df = pd.DataFrame(records)
-    
-    # Ensure required columns exist
-    required_cols = ['SMILES', 'CID']
-    for col in required_cols:
-        if col not in df.columns:
-            logger.warning(f"Missing required column: {col}")
-            df[col] = None
-
-    # Save to CSV
+def save_raw_data(df: pd.DataFrame, output_path: Path):
+    """Save raw data to CSV."""
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} records to {output_path}")
+    logger.info(f"Saved raw data to {output_path}")
 
-def create_dataset_metadata(cids: List[int], properties: List[str], 
-                            raw_file_path: str, metadata_path: str):
+def create_dataset_metadata(df: pd.DataFrame, output_path: Path, query_params: Dict[str, Any]):
     """
-    Create dataset metadata JSON with source verification hash.
+    Create dataset metadata JSON file.
     
-    This function computes a SHA-256 hash of the raw downloaded CSV file
-    and records it alongside the PubChem query parameters to ensure
-    cryptographic traceability of the data source.
-
+    Performs runtime schema check for measurement_uncertainty and quantity_of_substance fields.
+    If absent, records "Not Available in Source".
+    
     Args:
-        cids: List of CIDs used for fetching.
-        properties: List of properties fetched.
-        raw_file_path: Path to the raw CSV file.
-        metadata_path: Path to save the metadata JSON.
+        df: DataFrame with fetched data.
+        output_path: Path to save metadata JSON.
+        query_params: Original query parameters used for fetching.
     """
-    if not os.path.exists(raw_file_path):
-        raise FileNotFoundError(f"Raw data file not found: {raw_file_path}")
-
-    # Compute hash of the raw file
-    file_hash = compute_file_hash(raw_file_path)
+    # Check for measurement uncertainty and quantity of substance fields
+    columns = df.columns.tolist()
     
-    # Check for optional fields in the raw data
-    df = pd.read_csv(raw_file_path)
-    has_uncertainty = 'Measurement_Uncertainty' in df.columns
-    has_quantity = 'Quantity_of_Substance' in df.columns
+    measurement_uncertainty_status = "Available" if 'measurement_uncertainty' in columns else "Not Available in Source"
+    quantity_of_substance_status = "Available" if 'quantity_of_substance' in columns else "Not Available in Source"
     
-    # Determine experimental ratio (simplified - real implementation would parse 'Property Type')
-    experimental_ratio = 0.0
-    if 'Property Type' in df.columns:
-        experimental_count = len(df[df['Property Type'] == 'Experimental'])
-        experimental_ratio = experimental_count / len(df) if len(df) > 0 else 0.0
-
+    # Calculate experimental ratio
+    if 'source_type' in df.columns:
+        experimental_count = (df['source_type'] == 'Experimental').sum()
+        total_count = len(df)
+        experimental_ratio = experimental_count / total_count if total_count > 0 else 0.0
+    else:
+        experimental_ratio = 0.0
+    
+    # Create metadata structure
     metadata = {
         "source": "PubChem",
-        "query_parameters": {
-            "cids_sampled": len(cids),
-            "properties_requested": properties,
-            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-        },
-        "measurement_uncertainty_status": "Available" if has_uncertainty else "Not Available in Source",
-        "quantity_of_substance_status": "Available" if has_quantity else "Not Available in Source",
-        "experimental_ratio": round(experimental_ratio, 4),
-        "source_verification_hash": file_hash,
-        "raw_data_file": raw_file_path,
+        "query_parameters": query_params,
+        "measurement_uncertainty_status": measurement_uncertainty_status,
+        "quantity_of_substance_status": quantity_of_substance_status,
+        "experimental_ratio": float(experimental_ratio),
+        "source_verification_hash": compute_file_hash(Path(output_path).parent / "pubchem_raw.csv") if (Path(output_path).parent / "pubchem_raw.csv").exists() else "pending",
+        "raw_data_file": "data/raw/pubchem_raw.csv",
         "hash_algorithm": "SHA-256"
     }
-
-    with open(metadata_path, 'w') as f:
+    
+    # Save metadata
+    with open(output_path, 'w') as f:
         json.dump(metadata, f, indent=2)
     
-    logger.info(f"Created dataset metadata with source hash: {file_hash[:16]}...")
-    logger.info(f"Metadata saved to {metadata_path}")
+    logger.info(f"Saved dataset metadata to {output_path}")
+    logger.info(f"Measurement uncertainty status: {measurement_uncertainty_status}")
+    logger.info(f"Quantity of substance status: {quantity_of_substance_status}")
+    logger.info(f"Experimental ratio: {experimental_ratio:.2f}")
 
 def main():
-    """Main entry point for data download pipeline."""
-    logger.info("Starting data download pipeline...")
+    """Main entry point for data download and metadata creation."""
+    base_dir = Path(__file__).parent.parent.parent
+    data_raw = base_dir / "data" / "raw"
     
+    # Ensure directories exist
     ensure_dirs()
     
-    # Configuration
-    target_cids = 100  # Reduced for demo; increase for full dataset
-    properties = ['IsomericSMILES', 'XLogP', 'WaterSolubility', 
-                 'BoilingPoint', 'MolecularWeight', 'RecordType']
+    # Define query parameters
+    query_params = {
+        "cids_sampled": 100,
+        "properties_requested": [
+            "IsomericSMILES", "XLogP", "WaterSolubility", 
+            "BoilingPoint", "MolecularWeight", "RecordType"
+        ],
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    }
     
-    # Create diverse CID list
-    logger.info("Creating diverse CID list...")
-    cids = create_diverse_cid_list(target_count=target_cids)
+    # Fetch diverse CIDs
+    cids = create_diverse_cid_list(n_molecules=100)
+    logger.info(f"Fetched {len(cids)} diverse CIDs")
     
-    # Fetch data
-    logger.info("Fetching molecule properties from PubChem...")
-    records = fetch_molecule_properties(cids, properties)
+    # Fetch molecule properties
+    properties_to_fetch = [
+        "IsomericSMILES", "XLogP", "WaterSolubility", 
+        "BoilingPoint", "MolecularWeight", "RecordType"
+    ]
     
-    if not records:
-        logger.error("No data fetched. Exiting.")
+    df = fetch_molecule_properties(cids, properties_to_fetch)
+    
+    if df.empty:
+        logger.error("No data fetched. Check CID list and PubChemPy connectivity.")
         sys.exit(1)
     
+    logger.info(f"Fetched {len(df)} records with columns: {df.columns.tolist()}")
+    
     # Save raw data
-    raw_output_path = "data/raw/pubchem_raw.csv"
-    logger.info(f"Saving raw data to {raw_output_path}...")
-    save_raw_data(records, raw_output_path)
+    raw_data_path = data_raw / "pubchem_raw.csv"
+    save_raw_data(df, raw_data_path)
     
-    # Create metadata with source hash
-    metadata_path = "data/raw/dataset_metadata.json"
-    logger.info(f"Creating dataset metadata with source hash...")
-    create_dataset_metadata(cids, properties, raw_output_path, metadata_path)
+    # Create dataset metadata
+    metadata_path = data_raw / "dataset_metadata.json"
+    create_dataset_metadata(df, metadata_path, query_params)
     
-    logger.info("Data download pipeline completed successfully.")
+    logger.info("Data download and metadata creation completed successfully.")
 
 if __name__ == "__main__":
     main()

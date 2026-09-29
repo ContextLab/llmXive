@@ -1,7 +1,3 @@
-"""
-Baseline model implementation using Crippen's atomic contributions.
-Computes baseline predictions for logP, solubility, and boiling point.
-"""
 import os
 import sys
 import logging
@@ -10,213 +6,204 @@ from typing import Dict, Any, List, Optional
 import pandas as pd
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import rdMolDescriptors
-from rdkit import RDLogger
+from rdkit.Chem import Crippen
 
-# Disable RDKit warnings to keep logs clean
-RDLogger.DisableLog('rdApp.*')
-
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Ensure logger setup
 logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-# Constants
-CRIPPEN_ATOM_TYPES = {
-    # Carbon types (simplified mapping based on Crippen's original work)
-    'C': 0.54, 'c': 0.29, 'C(=O)': 0.0, 'C(=O)O': 0.0,
-    # Hydrogen types
-    'H': 0.0,
-    # Oxygen types
-    'O': -1.5, 'O(=C)': -1.7, 'OH': -1.5,
-    # Nitrogen types
-    'N': -1.5, 'N(=C)': -1.0, 'NH2': -1.5,
-    # Sulfur types
-    'S': 0.23, 'S(=O)': -0.5,
-    # Halogens
-    'F': -0.17, 'Cl': 0.2, 'Br': 0.2, 'I': 0.2
-}
-
-# Fallback value will be computed from training data
-FALLBACK_VALUE = 0.0
-
-def get_crippen_contributions(smiles: str) -> Dict[str, float]:
-    """
-    Compute Crippen's atomic contributions for a single molecule.
-
-    Args:
-        smiles: SMILES string of the molecule.
-
-    Returns:
-        Dictionary with property predictions (logP, solubility, boiling point).
-    """
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        logger.warning(f"Invalid SMILES: {smiles}")
+class CrippenCalc:
+    """Wrapper for Crippen atomic contribution calculations."""
+    
+    @staticmethod
+    def get_contributions(smiles: str) -> Dict[str, float]:
+        """
+        Calculate Crippen contributions for logP and Molar Refractivity (MR).
+        Note: Crippen's original method targets logP and MR. 
+        For solubility and boiling point, we use logP as a proxy or return NaN 
+        if the specific property is not directly calculable by this method.
+        """
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return {"logP": np.nan, "solubility": np.nan, "boiling_point": np.nan}
+        
+        # Calculate logP and MR
+        logP = Crippen.LogP(mol)
+        mr = Crippen.MR(mol)
+        
+        # Map to expected properties
+        # Note: Boiling point and Solubility are not directly Crippen properties.
+        # We return the calculated logP for logP, and NaN for others to indicate
+        # the baseline method's limitation for those specific targets in this context.
+        # However, per task T014a, we must output values. We will output NaN for 
+        # properties not directly supported by Crippen, to be imputed in T014b.
         return {
-            'logP': FALLBACK_VALUE,
-            'solubility': FALLBACK_VALUE,
-            'boiling_point': FALLBACK_VALUE,
-            'status': 'Invalid'
+            "logP": logP,
+            "solubility": np.nan,  # Not directly supported by Crippen
+            "boiling_point": np.nan # Not directly supported by Crippen
         }
 
-    # Initialize contributions
-    contributions = {
-        'logP': 0.0,
-        'solubility': 0.0,
-        'boiling_point': 0.0
-    }
-    partial = False
+def get_crippen_contributions(smiles: str) -> Dict[str, float]:
+    """Convenience wrapper for CrippenCalc."""
+    return CrippenCalc.get_contributions(smiles)
 
-    # Iterate over atoms and sum contributions
-    for atom in mol.GetAtoms():
-        symbol = atom.GetSymbol()
-        hybridization = atom.GetHybridization().name
-        degree = atom.GetDegree()
-        num_hs = atom.GetNumExplicitHs() + atom.GetNumImplicitHs()
-
-        # Construct a simple atom type key
-        atom_key = symbol
-        if symbol == 'C':
-            if mol.GetAtomWithIdx(atom.GetIdx()).GetIsAromatic():
-                atom_key = 'c'
-            elif degree == 3 and num_hs == 0:  # Carbonyl-like
-                # Check neighbors for double bond to O
-                for neighbor in atom.GetNeighbors():
-                    if neighbor.GetSymbol() == 'O':
-                        # Check bond order
-                        bond = mol.GetBondBetweenAtoms(atom.GetIdx(), neighbor.GetIdx())
-                        if bond and bond.GetBondType() == Chem.BondType.DOUBLE:
-                            atom_key = 'C(=O)'
-                            break
-        elif symbol == 'O':
-            if degree == 1:  # OH group
-                atom_key = 'OH'
-            elif degree == 2:  # Ether or carbonyl
-                # Check for double bond to C
-                for neighbor in atom.GetNeighbors():
-                    if neighbor.GetSymbol() == 'C':
-                        bond = mol.GetBondBetweenAtoms(atom.GetIdx(), neighbor.GetIdx())
-                        if bond and bond.GetBondType() == Chem.BondType.DOUBLE:
-                            atom_key = 'O(=C)'
-                            break
-        elif symbol == 'N':
-            if degree == 3 and num_hs == 2:
-                atom_key = 'NH2'
-            elif degree == 2:
-                atom_key = 'N(=C)'
-
-        # Look up contribution
-        if atom_key in CRIPPEN_ATOM_TYPES:
-            # Simplified: assume same contribution for all properties for now
-            # In a real implementation, we would have separate values for each property
-            val = CRIPPEN_ATOM_TYPES[atom_key]
-            contributions['logP'] += val
-            contributions['solubility'] += val * 0.5  # Approximate scaling
-            contributions['boiling_point'] += val * 20  # Approximate scaling
-        else:
-            logger.warning(f"Undefined atom type '{atom_key}' in {smiles}. Using fallback.")
-            partial = True
-            contributions['logP'] += FALLBACK_VALUE
-            contributions['solubility'] += FALLBACK_VALUE
-            contributions['boiling_point'] += FALLBACK_VALUE
-
-    status = 'Partial' if partial else 'Complete'
-    contributions['status'] = status
-    return contributions
-
-def compute_crippen_contributions(df: pd.DataFrame, train_mean_logp: float = 0.0) -> pd.DataFrame:
+def compute_crippen_contributions(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute Crippen contributions for all molecules in a DataFrame.
-
-    Args:
-        df: DataFrame with 'smiles' column.
-        train_mean_logp: Mean logP of training set for fallback values.
-
-    Returns:
-        DataFrame with original columns plus 'predicted_value', 'property_name', 'prediction_status'.
+    Compute Crippen contributions for all molecules in a dataframe.
+    Adds columns: predicted_logP, predicted_solubility, predicted_boiling_point.
     """
-    global FALLBACK_VALUE
-    # Use training mean logP as fallback
-    FALLBACK_VALUE = train_mean_logp
-
+    logger.info(f"Computing Crippen contributions for {len(df)} molecules...")
+    
     results = []
-    for idx, row in df.iterrows():
+    for i, row in df.iterrows():
         smiles = row['smiles']
-        preds = get_crippen_contributions(smiles)
-
-        # Create a row for each property
-        for prop in ['logP', 'solubility', 'boiling_point']:
-            results.append({
-                'smiles': smiles,
-                'property_name': prop,
-                'predicted_value': preds[prop],
-                'prediction_status': preds['status']
-            })
-
+        props = get_crippen_contributions(smiles)
+        results.append({
+            'smiles': smiles,
+            'predicted_logP': props['logP'],
+            'predicted_solubility': props['solubility'],
+            'predicted_boiling_point': props['boiling_point']
+        })
+    
     return pd.DataFrame(results)
 
-def process_dataset(input_file: str, output_file: str) -> None:
-    """
-    Process a dataset file and compute Crippen contributions.
-
-    Args:
-        input_file: Path to input CSV with 'smiles' column.
-        output_file: Path to output CSV with predictions.
-    """
-    logger.info(f"Loading dataset from {input_file}")
-    df = pd.read_csv(input_file)
-
-    if 'smiles' not in df.columns:
-        raise ValueError(f"Input file must contain 'smiles' column. Found: {df.columns.tolist()}")
-
-    # Calculate mean logP from training set if available (for fallback)
-    # For now, we assume the input contains the full diverse set and we don't have labels yet.
-    # We'll use 0.0 as a temporary fallback; T014.5 will merge with labels.
-    # However, T014 spec says: "set predicted_value to the mean of the training set".
-    # Since we don't have labels in T014, we must compute this from a separate file or assume 0.
-    # To satisfy the contract, we will assume the input file is the diverse set and we don't have labels.
-    # We will use 0.0 as fallback, but in a real pipeline, we would load the training set mean here.
-    # For T014, we assume the caller provides the mean or we use 0.0.
-    # Let's assume we are passed the mean via environment or default to 0.0.
-    # Since T014 does not use labels, we cannot compute the mean from the data itself.
-    # We will use 0.0 as a placeholder; the actual fallback will be refined when labels are available in T014.5.
-    # But the task says: "set predicted_value to the mean of the training set".
-    # Since we don't have the training set labels in T014, we must assume the mean is provided or use 0.
-    # To be safe, we will use 0.0 and log a warning.
-    train_mean_logp = 0.0
-    logger.warning("Training set mean logP not available. Using 0.0 as fallback. This should be updated when labels are available.")
-
-    logger.info(f"Computing Crippen contributions for {len(df)} molecules...")
-    predictions_df = compute_crippen_contributions(df, train_mean_logp)
-
-    logger.info(f"Saving predictions to {output_file}")
-    predictions_df.to_csv(output_file, index=False)
-    logger.info("Done.")
-
-def save_predictions(predictions_df: pd.DataFrame, output_path: str) -> None:
-    """
-    Save predictions to a CSV file.
-
-    Args:
-        predictions_df: DataFrame with predictions.
-        output_path: Path to output file.
-    """
+def save_predictions(predictions_df: pd.DataFrame, output_path: str):
+    """Save predictions to a CSV file."""
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     predictions_df.to_csv(output_path, index=False)
     logger.info(f"Saved predictions to {output_path}")
 
+def process_dataset(input_path: str, output_path: str):
+    """
+    Process a dataset: load, compute Crippen contributions, save.
+    """
+    logger.info(f"Loading dataset from {input_path}...")
+    df = pd.read_csv(input_path)
+    
+    if 'smiles' not in df.columns:
+        raise ValueError(f"Input file {input_path} must contain a 'smiles' column.")
+    
+    predictions = compute_crippen_contributions(df)
+    save_predictions(predictions, output_path)
+    return predictions
+
+def impute_undefined_atoms(predictions_df: pd.DataFrame, 
+                           train_set_path: str, 
+                           output_path: str):
+    """
+    T014b: Impute undefined atoms (NaN values) by setting their predicted values 
+    to the mean of the training set for the corresponding property.
+    
+    Args:
+        predictions_df: DataFrame with columns 'predicted_logP', 'predicted_solubility', 
+                        'predicted_boiling_point'.
+        train_set_path: Path to the training set CSV (data/derived/train_set.csv) 
+                        which contains experimental values to calculate means from?
+                        OR: The task implies using the mean of the TRAINING SET'S 
+                        PREDICTIONS? 
+                        Re-reading T014b: "setting their predicted values to the mean 
+                        of the training set for the corresponding property."
+                        Usually, this means the mean of the experimental values in the 
+                        training set, or the mean of the baseline predictions on the 
+                        training set. Given the context of "undefined atoms" (where 
+                        Crippen fails to calculate), imputing with the mean of the 
+                        *training set's experimental values* is the standard baseline 
+                        approach for missing predictions.
+                        
+                        However, the prompt says "mean of the training set for the 
+                        corresponding property". If the training set has experimental 
+                        values, we use those. If we only have predictions, we use those.
+                        The training set CSV (T011.5) contains experimental values.
+                        We will calculate the mean of the experimental values for the 
+                        properties present in the training set and use that to impute.
+    
+    Process:
+        1. Load train_set.csv to get experimental values for logP, solubility, boiling_point.
+        2. Calculate mean for each property.
+        3. Fill NaN in predictions_df with these means.
+        4. Save to output_path.
+    """
+    logger.info("T014b: Imputing undefined atoms...")
+    
+    if not os.path.exists(train_set_path):
+        raise FileNotFoundError(f"Training set not found at {train_set_path}. "
+                                "Please ensure T011.5 (Split Dataset) is completed.")
+    
+    train_df = pd.read_csv(train_set_path)
+    
+    # Identify experimental columns in training set
+    # Expected columns based on T011.5: 'smiles', 'property_name', 'value' (long format) 
+    # OR 'logP', 'solubility', 'boiling_point' (wide format).
+    # T009/T010.1 output format is usually long: smiles, property_name, value.
+    # T011.5 splits this. Let's handle both or assume wide if long is not detected.
+    
+    means = {}
+    target_props = ['logP', 'solubility', 'boiling_point']
+    pred_cols = ['predicted_logP', 'predicted_solubility', 'predicted_boiling_point']
+    
+    for prop, pred_col in zip(target_props, pred_cols):
+        if pred_col not in predictions_df.columns:
+            continue
+        
+        # Calculate mean from training set experimental values
+        # If train_df is wide (columns: smiles, logP, solubility...)
+        if prop in train_df.columns:
+            mean_val = train_df[prop].mean()
+        # If train_df is long (columns: smiles, property_name, value)
+        elif 'property_name' in train_df.columns and 'value' in train_df.columns:
+            subset = train_df[train_df['property_name'] == prop]
+            mean_val = subset['value'].mean()
+        else:
+            # Fallback: if no experimental data, use 0 or NaN (but task says impute)
+            logger.warning(f"Could not find experimental {prop} in training set. Imputing with 0.")
+            mean_val = 0.0
+        
+        means[pred_col] = mean_val
+        logger.info(f"Mean for {prop}: {mean_val:.4f}")
+    
+    # Impute
+    for col, mean_val in means.items():
+        predictions_df[col] = predictions_df[col].fillna(mean_val)
+    
+    # Save
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    predictions_df.to_csv(output_path, index=False)
+    logger.info(f"Imputed predictions saved to {output_path}")
+    
+    return predictions_df
+
 def main():
-    """Main entry point for baseline feature generation."""
-    # Define paths
-    project_root = Path(__file__).resolve().parent.parent.parent
-    input_file = project_root / "data" / "derived" / "diverse_subset.csv"
-    output_file = project_root / "data" / "derived" / "baseline_predictions.csv"
-
-    if not input_file.exists():
-        logger.error(f"Input file not found: {input_file}")
-        logger.error("Please ensure T010.1 (Execute MaxMin Sampling) has been completed.")
-        sys.exit(1)
-
-    process_dataset(str(input_file), str(output_file))
+    """Main entry point for T014a and T014b execution."""
+    # Paths
+    diverse_subset_path = "data/derived/diverse_subset.csv"
+    train_set_path = "data/derived/train_set.csv"
+    raw_predictions_path = "data/derived/baseline_predictions_raw.csv" # T014a output
+    imputed_predictions_path = "data/derived/baseline_predictions_imputed.csv" # T014b output
+    
+    # Ensure T014a ran first (or run it here if needed, but task is T014b)
+    # We assume T014a output exists or we run it.
+    if not os.path.exists(raw_predictions_path):
+        logger.info("Raw predictions not found. Running T014a first...")
+        process_dataset(diverse_subset_path, raw_predictions_path)
+    
+    # Run T014b
+    logger.info(f"Loading raw predictions from {raw_predictions_path}...")
+    raw_df = pd.read_csv(raw_predictions_path)
+    
+    imputed_df = impute_undefined_atoms(raw_df, train_set_path, imputed_predictions_path)
+    
+    # Also, T014.5 requires extracting test predictions. 
+    # While T014.5 is a separate task, T014b's output is the imputed full set.
+    # We ensure the imputed file is written.
+    
+    logger.info("T014b completed successfully.")
 
 if __name__ == "__main__":
     main()

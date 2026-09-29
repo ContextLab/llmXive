@@ -1,5 +1,17 @@
 [
   {
+    "data_file": "data/derived/data_quality_report.csv",
+    "required": [
+      "not_found",
+      "Solubility",
+      "Boiling Point"
+    ]
+  },
+  {
+    "data_file": "data/derived/test_set.csv",
+    "required": []
+  },
+  {
     "data_file": "data/derived/train_set.csv",
     "required": []
   },
@@ -9,6 +21,14 @@
   },
   {
     "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/data/derived/baseline_test_predictions.csv",
+    "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/data/derived/diverse_subset.csv",
+    "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-324-predicting-molecular-properties-from-ope/data/processed/train_fingerprints.parquet",
     "required": []
   }
 ]

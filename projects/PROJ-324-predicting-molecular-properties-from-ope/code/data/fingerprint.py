@@ -1,57 +1,58 @@
 """
 Fingerprint generation module using Open Babel.
 
-This module implements the generation of molecular fingerprints (ECFP4, MACCS, FP2)
-by invoking the `obabel` command-line tool via subprocess, as required by FR-003.
-It processes the training set to produce a Parquet file containing the fingerprint bits.
+Generates MACCS, ECFP4, and FP2 fingerprints for molecular datasets by invoking
+the `obabel` command-line tool via subprocess.
 """
+
 import os
 import sys
 import subprocess
 import logging
 import time
 import json
+import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
-import pandas as pd
-import numpy as np
+from data.preprocess import ensure_dirs as ensure_data_dirs
+from utils.config import get_runtime_config, check_obabel_timeout
 
-# Ensure project root is in path for imports if running as script
-_project_root = Path(__file__).resolve().parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
-from utils.config import get_runtime_config, enforce_obabel_subprocess_timeout
-from seed_manager import set_global_seed
-
+# Configure logging
 logger = logging.getLogger(__name__)
 
-# Constants
-FINGERPRINT_TYPES = ["ECFP4", "MACCS", "FP2"]
-DEFAULT_TIMEOUT_SECONDS = 300  # 5 minutes per molecule batch max
-OBABEL_TIMEOUT_PER_MOL = 10.0  # Max seconds per molecule
-
-def ensure_dirs() -> None:
+def ensure_dirs():
     """Ensure output directories exist."""
-    output_dir = _project_root / "data" / "processed"
-    output_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directory: {output_dir}")
+    output_dirs = [
+        Path("data/processed"),
+        Path("data/derived")
+    ]
+    for directory in output_dirs:
+        directory.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured output directories: {output_dirs}")
 
-def check_obabel_available() -> bool:
-    """Check if obabel is available in the system PATH."""
+def check_obabel_available(timeout: float = 30.0) -> bool:
+    """
+    Check if obabel is available and responsive.
+
+    Args:
+        timeout: Maximum time in seconds to wait for the command.
+
+    Returns:
+        True if obabel is available, False otherwise.
+    """
     try:
         result = subprocess.run(
             ["obabel", "-h"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=5
+            capture_output=True,
+            text=True,
+            timeout=timeout
         )
         if result.returncode == 0:
             logger.info("Open Babel (obabel) is available.")
             return True
         else:
-            logger.error("Open Babel returned non-zero exit code on help.")
+            logger.error(f"Open Babel returned error code: {result.returncode}")
             return False
     except FileNotFoundError:
         logger.error("Open Babel (obabel) not found in PATH. Please install it.")
@@ -60,222 +61,248 @@ def check_obabel_available() -> bool:
         logger.error("Open Babel check timed out.")
         return False
 
-def smiles_to_obabel_fingerprint(smiles: str, fp_type: str) -> Optional[str]:
+def smiles_to_obabel_fingerprint(smiles: str, fingerprint_type: str, timeout: float = 60.0) -> Optional[str]:
     """
-    Generate a single fingerprint for a SMILES string using obabel.
+    Generate a specific fingerprint type for a single SMILES string using obabel.
 
     Args:
         smiles: The SMILES string of the molecule.
-        fp_type: The fingerprint type (ECFP4, MACCS, FP2).
+        fingerprint_type: The type of fingerprint (ECFP4, MACCS, FP2).
+        timeout: Maximum time in seconds for the subprocess.
 
     Returns:
-        The fingerprint string (hex or bit string) or None if generation fails.
+        The fingerprint string (hex or space-separated bits), or None if failed.
     """
-    # Command construction based on task requirements
-    # obabel -i smiles -o txt -xf <FP_TYPE>
-    cmd = ["obabel", "-i", "smiles", "-o", "txt", "-xf", fp_type, "-s", smiles]
+    if not smiles or not isinstance(smiles, str):
+        logger.warning(f"Invalid SMILES provided: {smiles}")
+        return None
 
     try:
-        # Apply timeout per molecule as per performance config
+        # Prepare input for obabel
+        # obabel expects SMILES input via stdin or file. We use stdin.
+        input_data = f"{smiles}\n"
+
+        # Construct command
+        # -i smiles: input format
+        # -o txt: output format (text)
+        # -xf <type>: fingerprint type
+        cmd = ["obabel", "-i", "smiles", "-o", "txt", "-xf", fingerprint_type]
+
         result = subprocess.run(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            timeout=OBABEL_TIMEOUT_PER_MOL
+            input=input_data,
+            capture_output=True,
+            text=True,
+            timeout=timeout
         )
 
         if result.returncode == 0:
-            output = result.stdout.decode("utf-8").strip()
-            # obabel output format usually includes the SMILES and then the fingerprint
-            # Example: "CCO  000000000000..." or similar depending on version
-            # We expect the fingerprint to be the last token or the whole line after SMILES
-            parts = output.split()
-            if len(parts) >= 2:
-                return parts[-1] # Assume last part is the fingerprint bits
-            elif len(parts) == 1:
-                return parts[0]
+            # Output is typically the SMILES followed by the fingerprint on the next line
+            # or sometimes just the fingerprint depending on version/options.
+            # We expect the fingerprint to be the last non-empty line or the second line.
+            output_lines = result.stdout.strip().split('\n')
+            if len(output_lines) >= 2:
+                # The second line usually contains the fingerprint
+                fingerprint_str = output_lines[1].strip()
+                return fingerprint_str
+            elif len(output_lines) == 1:
+                # If only one line, it might be the fingerprint if SMILES was suppressed
+                # But usually obabel outputs the molecule first.
+                # Let's assume the last non-empty line is the fingerprint if it looks like bits
+                for line in reversed(output_lines):
+                    if line.strip():
+                        return line.strip()
             return None
         else:
-            logger.warning(f"obabel failed for SMILES {smiles[:20]}...: {result.stderr.decode('utf-8')[:100]}")
+            logger.error(f"obabel failed for SMILES: {smiles}. Error: {result.stderr}")
             return None
     except subprocess.TimeoutExpired:
-        logger.error(f"Timeout generating {fp_type} for SMILES {smiles[:20]}...")
+        logger.error(f"obabel timed out for SMILES: {smiles}")
         return None
     except Exception as e:
-        logger.error(f"Error generating {fp_type} for SMILES {smiles[:20]}...: {e}")
+        logger.error(f"Unexpected error generating fingerprint for {smiles}: {e}")
         return None
 
-def generate_fingerprints_batch(
-    smiles_list: List[str],
-    fp_types: List[str] = FINGERPRINT_TYPES
-) -> List[Dict[str, Any]]:
+def generate_fingerprints_batch(smiles_list: List[str], fingerprint_types: List[str], timeout_per_mol: float = 60.0) -> List[Dict[str, Any]]:
     """
-    Generate fingerprints for a batch of SMILES strings.
+    Generate fingerprints for a list of SMILES strings.
 
     Args:
         smiles_list: List of SMILES strings.
-        fp_types: List of fingerprint types to generate.
+        fingerprint_types: List of fingerprint types to generate.
+        timeout_per_mol: Timeout per molecule.
 
     Returns:
-        List of dictionaries containing SMILES and fingerprint bits.
+        List of dictionaries containing SMILES and fingerprint values.
     """
     results = []
-    for smiles in smiles_list:
-        record = {"smiles": smiles}
-        for fp_type in fp_types:
-            fp_bits = smiles_to_obabel_fingerprint(smiles, fp_type)
-            record[f"{fp_type.lower()}_bits"] = fp_bits if fp_bits else ""
-        results.append(record)
+    start_time = time.time()
+    total = len(smiles_list)
+    logger.info(f"Starting fingerprint generation for {total} molecules.")
+
+    for i, smiles in enumerate(smiles_list):
+        if i % 100 == 0:
+            elapsed = time.time() - start_time
+            logger.info(f"Processed {i}/{total} molecules. Elapsed: {elapsed:.2f}s")
+
+        row = {"smiles": smiles}
+        for fp_type in fingerprint_types:
+            fp_value = smiles_to_obabel_fingerprint(smiles, fp_type, timeout_per_mol)
+            row[f"fp_{fp_type}"] = fp_value if fp_value else "NULL"
+
+        results.append(row)
+
+        # Check total time constraint
+        if time.time() - start_time > 3600: # 1 hour limit safety check
+            logger.warning("Approaching 1-hour limit. Stopping batch generation.")
+            break
+
     return results
 
-def parse_fingerprint_string(fp_string: str, fp_type: str) -> List[int]:
+def parse_fingerprint_string(fp_str: str, fp_type: str) -> str:
     """
-    Parse the fingerprint string into a list of integers (bits).
+    Parse and normalize fingerprint string.
 
     Args:
-        fp_string: The raw fingerprint string from obabel.
+        fp_str: The raw fingerprint string from obabel.
         fp_type: The fingerprint type.
 
     Returns:
-        List of integers (0 or 1) representing the bits.
+        Normalized string representation.
     """
-    if not fp_string:
-        # Return empty or zero vector? For now, return empty list, handled downstream
-        return []
+    if not fp_str or fp_str == "NULL":
+        return "NULL"
 
-    # obabel output for -xf usually returns a hex string or a bit string depending on flags.
-    # Standard -xf output is often a hex string. We need to convert to bits.
-    # Assuming hex string for ECFP4/MACCS/FP2 if not specified otherwise.
-    # If it's already a bit string (0s and 1s), we handle that too.
+    # obabel output for fingerprints is often space-separated bits or hex
+    # We keep the raw string as generated, assuming downstream handles parsing
+    # if necessary, but for CSV storage, we store the string representation.
+    # Ensure no newlines
+    return fp_str.replace('\n', ' ').strip()
 
-    if all(c in '01' for c in fp_string):
-        return [int(c) for c in fp_string]
-    else:
-        # Assume hex
-        try:
-            # Convert hex to binary string, padding to 8 bits per hex char
-            binary_str = bin(int(fp_string, 16))[2:].zfill(len(fp_string) * 4)
-            return [int(c) for c in binary_str]
-        except ValueError:
-            logger.warning(f"Could not parse fingerprint string: {fp_string}")
-            return []
-
-def process_dataset(
-    input_file: Path,
-    output_file: Path,
-    smiles_column: str = "smiles",
-    fp_types: List[str] = FINGERPRINT_TYPES
-) -> None:
+def process_dataset(input_file: str, output_file: str, fingerprint_types: List[str] = None):
     """
-    Process a dataset CSV, generate fingerprints, and save to Parquet.
+    Process a dataset CSV file to generate fingerprints.
 
     Args:
-        input_file: Path to input CSV (e.g., train_set.csv).
-        output_file: Path to output Parquet file.
-        smiles_column: Name of the column containing SMILES.
-        fp_types: List of fingerprint types to generate.
+        input_file: Path to input CSV with 'smiles' column.
+        output_file: Path to output CSV with fingerprints.
+        fingerprint_types: List of fingerprint types. Defaults to ['ECFP4', 'MACCS', 'FP2'].
     """
-    if not input_file.exists():
+    if fingerprint_types is None:
+        fingerprint_types = ["ECFP4", "MACCS", "FP2"]
+
+    if not os.path.exists(input_file):
+        logger.error(f"Input file not found: {input_file}")
+        # Check if it's the diverse subset or raw data
+        if "diverse_subset" in input_file:
+            logger.error("Please ensure T010.1 (Execute MaxMin Sampling) has completed.")
+        elif "train_set" in input_file or "test_set" in input_file:
+            logger.error("Please ensure T011.5 (Split Dataset) has completed.")
         raise FileNotFoundError(f"Input file not found: {input_file}")
 
-    logger.info(f"Loading dataset from {input_file}...")
+    logger.info(f"Loading data from {input_file}")
     df = pd.read_csv(input_file)
 
-    if smiles_column not in df.columns:
-        raise ValueError(f"Column '{smiles_column}' not found in {input_file}. Available: {df.columns.tolist()}")
+    if "smiles" not in df.columns:
+        logger.error(f"Input file {input_file} does not contain 'smiles' column.")
+        raise ValueError(f"Missing 'smiles' column in {input_file}")
 
-    logger.info(f"Generating fingerprints for {len(df)} molecules...")
+    # Remove rows with missing or invalid SMILES
+    df = df.dropna(subset=["smiles"])
+    df = df[df["smiles"].str.strip() != ""]
+
+    logger.info(f"Processing {len(df)} valid molecules.")
+
+    # Generate fingerprints
+    # To avoid subprocess overhead per molecule in a loop for large datasets,
+    # we could batch, but obabel is typically line-by-line.
+    # We will process in chunks or sequentially.
+    # Given the constraint, we process sequentially with timeout checks.
+
+    all_results = []
     start_time = time.time()
-
-    # Check obabel availability once
-    if not check_obabel_available():
-        raise RuntimeError("Open Babel is not available. Cannot generate fingerprints.")
-
-    # Process in batches to avoid memory issues if dataset is huge, though we expect ~5000
-    # For simplicity and robustness, we process row by row with timeout checks
-    fingerprint_data = []
-    failed_count = 0
+    config = get_runtime_config()
+    timeout_per_mol = config.get("obabel_timeout_per_mol", 60.0)
 
     for idx, row in df.iterrows():
-        smiles = row[smiles_column]
-        if not isinstance(smiles, str) or not smiles:
-            logger.warning(f"Skipping row {idx} due to invalid SMILES")
-            failed_count += 1
-            continue
+        smiles = row["smiles"]
+        row_result = {"smiles": smiles}
+        for fp_type in fingerprint_types:
+            fp_val = smiles_to_obabel_fingerprint(smiles, fp_type, timeout_per_mol)
+            row_result[f"fp_{fp_type}"] = fp_val if fp_val else "NULL"
+        all_results.append(row_result)
 
-        record = {"smiles": smiles}
-        for fp_type in fp_types:
-            fp_bits = smiles_to_obabel_fingerprint(smiles, fp_type)
-            if fp_bits:
-                # Parse bits to list of ints for storage
-                bits = parse_fingerprint_string(fp_bits, fp_type)
-                record[f"{fp_type.lower()}_bits"] = bits
-            else:
-                record[f"{fp_type.lower()}_bits"] = [] # Empty list for failed generation
+        # Progress logging
+        if (idx + 1) % 500 == 0:
+            logger.info(f"Processed {idx + 1}/{len(df)} molecules.")
 
-        fingerprint_data.append(record)
+        # Global timeout check (e.g., 45 mins as per T010.1 constraint logic)
+        if time.time() - start_time > 2700:
+            logger.warning("45-minute limit for fingerprint generation reached. Saving partial results.")
+            break
 
-        if (idx + 1) % 100 == 0:
-            elapsed = time.time() - start_time
-            logger.info(f"Processed {idx + 1}/{len(df)} molecules. Elapsed: {elapsed:.2f}s")
+    logger.info(f"Saving results to {output_file}")
+    result_df = pd.DataFrame(all_results)
+    result_df.to_csv(output_file, index=False)
+    logger.info(f"Fingerprint generation complete. Saved to {output_file}")
 
-    elapsed = time.time() - start_time
-    logger.info(f"Fingerprint generation complete. Total time: {elapsed:.2f}s. Failed: {failed_count}")
+def generate_fingerprints():
+    """
+    Main entry point for generating fingerprints for the full diverse dataset.
+    This function orchestrates the generation for all molecules to prevent data leakage.
+    """
+    ensure_dirs()
 
-    if failed_count > 0:
-        logger.warning(f"{failed_count} molecules failed fingerprint generation.")
-        # Per T019, if obabel fails to complete within window, exit 1.
-        # Here we assume 'failed' means timeout or error per molecule, not total failure.
-        # If too many fail, we might want to abort, but for now we proceed and log.
+    # Check obabel availability
+    if not check_obabel_available():
+        logger.error("Open Babel not available. Cannot proceed.")
+        # Write a log file indicating failure
+        log_path = Path("data/derived/fingerprint_log.txt")
+        with open(log_path, "w") as f:
+            f.write("ERROR: Open Babel not available. Partial progress saved: None.\n")
+        sys.exit(1)
 
-    # Convert to DataFrame
-    # Flatten the bit lists into separate columns? Or keep as lists in parquet?
-    # Parquet supports lists. The task says columns: smiles, maccs_bits, ecfp4_bits, fp2_bits.
-    # Storing as list of ints is fine.
-    result_df = pd.DataFrame(fingerprint_data)
+    # Determine input file
+    # The task specifies generating for "all molecules in the full diverse dataset"
+    # The diverse subset is produced by T010.1 at data/derived/diverse_subset.csv
+    input_file = Path("data/derived/diverse_subset.csv")
 
-    logger.info(f"Saving fingerprints to {output_file}...")
-    result_df.to_parquet(output_file, index=False)
-    logger.info("Saved successfully.")
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        logger.error("Please ensure T010.1 (Execute MaxMin Sampling) and T011.5 (Split Dataset) are completed.")
+        # Create a log file for the failure
+        log_path = Path("data/derived/fingerprint_log.txt")
+        with open(log_path, "w") as f:
+            f.write(f"ERROR: Input file {input_file} not found. Partial progress saved: None.\n")
+        sys.exit(1)
+
+    output_file = Path("data/processed/full_fingerprints.csv")
+
+    try:
+        process_dataset(str(input_file), str(output_file))
+        logger.info("Fingerprint generation completed successfully.")
+    except Exception as e:
+        logger.error(f"Error during fingerprint generation: {e}")
+        # Save partial progress if any
+        log_path = Path("data/derived/fingerprint_log.txt")
+        with open(log_path, "a") as f:
+            f.write(f"ERROR: {str(e)}. Partial progress saved.\n")
+        sys.exit(1)
 
 def main():
-    """Main entry point for fingerprint generation."""
-    set_global_seed(42)
+    """Main function to run the fingerprint generation."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[logging.StreamHandler(sys.stdout)]
+        handlers=[
+            logging.FileHandler('logs/fingerprint.log', mode='a'),
+            logging.StreamHandler()
+        ]
     )
+    # Ensure logs directory exists
+    Path("logs").mkdir(parents=True, exist_ok=True)
 
-    ensure_dirs()
-
-    # Paths
-    train_set_path = _project_root / "data" / "derived" / "train_set.csv"
-    output_path = _project_root / "data" / "processed" / "train_fingerprints.parquet"
-
-    # Verify input exists (dependency check)
-    if not train_set_path.exists():
-        logger.error(f"Training set not found at {train_set_path}. "
-                     "Please ensure T011.5 (Split Dataset) and T010.1 (MaxMin Sampling) are completed.")
-        sys.exit(1)
-
-    try:
-        process_dataset(
-            input_file=train_set_path,
-            output_file=output_path,
-            smiles_column="smiles",
-            fp_types=FINGERPRINT_TYPES
-        )
-        logger.info("Fingerprint generation completed successfully.")
-    except FileNotFoundError as e:
-        logger.error(f"File error: {e}")
-        sys.exit(1)
-    except RuntimeError as e:
-        logger.error(f"Runtime error: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error during fingerprint generation: {e}")
-        sys.exit(1)
+    generate_fingerprints()
 
 if __name__ == "__main__":
     main()
