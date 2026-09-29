@@ -1,11 +1,11 @@
 """
-Baseline Integration Script (T023).
+Baseline Integration Script.
 
-This script integrates the baseline anomaly detection algorithms (Shewhart, CUSUM, VAE)
-with the shared data loader and anomaly injection pipeline from User Story 1.
+This script verifies that all baseline scripts (Shewhart, CUSUM, VAE) correctly
+consume the unified data format from T004 and produce outputs compatible with
+the evaluation script (T026a).
 
-It ensures that the processed data (with injected anomalies) exists, runs the baseline
-scripts in sequence, and validates that the expected output files are generated.
+It acts as an integration test runner and verifier for User Story 2.
 """
 import os
 import sys
@@ -13,7 +13,7 @@ import logging
 import argparse
 import subprocess
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Dict, Any
 
 # Configure logging
 logging.basicConfig(
@@ -22,161 +22,217 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Project root relative to script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "series_with_anomalies.csv"
-GROUND_TRUTH_PATH = PROJECT_ROOT / "data" / "processed" / "ground_truth.csv"
-RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = PROJECT_ROOT / "data"
+RESULTS_DIR = DATA_DIR / "results"
+SCRIPTS_DIR = CODE_DIR / "scripts"
 
-# Baseline scripts to integrate
+# Baseline scripts to verify
 BASELINE_SCRIPTS = [
     "baseline_shewhart.py",
     "baseline_cusum.py",
     "baseline_vae.py"
 ]
 
+# Expected output files
+EXPECTED_OUTPUTS = {
+    "baseline_shewhart.py": "shewhart_predictions.csv",
+    "baseline_cusum.py": "cusum_predictions.csv",
+    "baseline_vae.py": "vae_predictions.csv"
+}
+
 def ensure_processed_data_exists() -> bool:
     """
-    Verify that the processed data from US1 (T014) exists.
+    Verify that processed data required by baselines exists.
     
     Returns:
-        bool: True if files exist, False otherwise.
+        True if data exists, False otherwise.
     """
-    if not PROCESSED_DATA_PATH.exists():
-        logger.error(f"Processed data not found: {PROCESSED_DATA_PATH}")
-        logger.error("Please run 'inject_anomalies.py' (T014) first to generate this file.")
-        return False
+    processed_dir = DATA_DIR / "processed"
+    required_files = [
+        "series_with_anomalies.csv",
+        "ground_truth.csv"
+    ]
     
-    if not GROUND_TRUTH_PATH.exists():
-        logger.warning(f"Ground truth file not found: {GROUND_TRUTH_PATH}")
-        logger.warning("Some evaluation metrics might be unavailable, but baseline execution can proceed.")
+    for file_name in required_files:
+        file_path = processed_dir / file_name
+        if not file_path.exists():
+            logger.error(f"Required processed data file missing: {file_path}")
+            return False
     
-    logger.info(f"Verified processed data exists: {PROCESSED_DATA_PATH}")
+    logger.info("All required processed data files found.")
     return True
 
 def run_baseline_script(script_name: str) -> bool:
     """
-    Execute a specific baseline script.
+    Execute a baseline script and verify it runs without error.
     
     Args:
-        script_name: Name of the script in code/scripts/
+        script_name: Name of the script to run.
         
     Returns:
-        bool: True if script completed successfully (exit code 0), False otherwise.
+        True if script ran successfully, False otherwise.
     """
-    script_path = PROJECT_ROOT / "code" / "scripts" / script_name
-    
+    script_path = SCRIPTS_DIR / script_name
     if not script_path.exists():
         logger.error(f"Script not found: {script_path}")
         return False
     
-    logger.info(f"Running {script_name}...")
-    
+    logger.info(f"Running baseline script: {script_name}")
     try:
-        # Run the script using the same python interpreter
         result = subprocess.run(
             [sys.executable, str(script_path)],
-            cwd=str(PROJECT_ROOT),
-            capture_output=False,
-            text=True
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minute timeout
         )
         
-        if result.returncode == 0:
-            logger.info(f"{script_name} completed successfully.")
-            return True
-        else:
-            logger.error(f"{script_name} failed with exit code {result.returncode}")
+        if result.returncode != 0:
+            logger.error(f"Script {script_name} failed with return code {result.returncode}")
+            logger.error(f"STDOUT: {result.stdout}")
+            logger.error(f"STDERR: {result.stderr}")
             return False
-            
+        
+        logger.info(f"Script {script_name} completed successfully.")
+        return True
+    except subprocess.TimeoutExpired:
+        logger.error(f"Script {script_name} timed out.")
+        return False
     except Exception as e:
-        logger.error(f"Exception running {script_name}: {e}")
+        logger.error(f"Error running script {script_name}: {e}")
         return False
 
 def check_output_files(script_name: str) -> bool:
     """
-    Verify that the expected output file for a baseline script was created.
+    Verify that a baseline script produced its expected output file.
     
     Args:
-        script_name: Name of the script (e.g., 'baseline_shewhart.py')
+        script_name: Name of the script that should have produced the output.
         
     Returns:
-        bool: True if output file exists, False otherwise.
+        True if output file exists and is non-empty, False otherwise.
     """
-    # Map script names to expected output files
-    output_map = {
-        "baseline_shewhart.py": "shewhart_predictions.csv",
-        "baseline_cusum.py": "cusum_predictions.csv",
-        "baseline_vae.py": "vae_predictions.csv"
-    }
-    
-    expected_file = output_map.get(script_name)
+    expected_file = EXPECTED_OUTPUTS.get(script_name)
     if not expected_file:
-        logger.warning(f"No output mapping found for {script_name}")
-        return True # Don't fail if we don't know the output
+        logger.warning(f"No expected output defined for {script_name}")
+        return True
     
     output_path = RESULTS_DIR / expected_file
-    
-    if output_path.exists():
-        logger.info(f"Verified output exists: {output_path}")
-        return True
-    else:
+    if not output_path.exists():
         logger.error(f"Expected output file missing: {output_path}")
         return False
-
-def main(args: Optional[argparse.Namespace] = None) -> int:
-    """
-    Main entry point for the baseline integration pipeline.
     
-    Orchestrates the execution of all baseline scripts after ensuring
-    the prerequisite data from US1 is available.
-    """
-    parser = argparse.ArgumentParser(
-        description="Integrate and run baseline anomaly detection scripts."
-    )
-    parser.add_argument(
-        "--skip-check",
-        action="store_true",
-        help="Skip the check for processed data existence (use with caution)."
-    )
+    if output_path.stat().st_size == 0:
+        logger.error(f"Expected output file is empty: {output_path}")
+        return False
     
-    parsed_args = parser.parse_args() if args is None else args
+    logger.info(f"Output file verified: {output_path} ({output_path.stat().st_size} bytes)")
+    return True
 
-    # Ensure results directory exists
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Step 1: Verify prerequisite data from US1
-    if not parsed_args.skip_check:
-        if not ensure_processed_data_exists():
-            logger.error("Prerequisite data missing. Aborting.")
-            return 1
-
-    # Step 2: Run all baseline scripts
-    success_count = 0
-    failed_scripts = []
-
-    for script in BASELINE_SCRIPTS:
-        logger.info(f"--- Processing {script} ---")
+def verify_schema_compatibility() -> bool:
+    """
+    Verify that all baseline outputs have compatible schemas for evaluation.
+    
+    Checks:
+    - All files exist
+    - All files have the same number of rows
+    - All files contain required columns (timestamp, prediction, score)
+    
+    Returns:
+        True if schemas are compatible, False otherwise.
+    """
+    logger.info("Verifying schema compatibility across baseline outputs...")
+    
+    required_columns = ["timestamp", "prediction", "score"]
+    row_counts = {}
+    
+    for script_name, file_name in EXPECTED_OUTPUTS.items():
+        output_path = RESULTS_DIR / file_name
+        if not output_path.exists():
+            logger.error(f"Cannot verify schema: file missing {output_path}")
+            return False
         
-        if run_baseline_script(script):
-            if check_output_files(script):
-                success_count += 1
-            else:
-                failed_scripts.append(f"{script} (output missing)")
-        else:
-            failed_scripts.append(f"{script} (execution failed)")
-
-    # Step 3: Summary
-    logger.info("=" * 40)
-    logger.info(f"Integration Summary: {success_count}/{len(BASELINE_SCRIPTS)} scripts successful.")
+        try:
+            import pandas as pd
+            df = pd.read_csv(output_path)
+            
+            # Check required columns
+            missing_cols = [col for col in required_columns if col not in df.columns]
+            if missing_cols:
+                logger.error(f"File {file_name} missing required columns: {missing_cols}")
+                return False
+            
+            row_counts[script_name] = len(df)
+            logger.info(f"  {file_name}: {len(df)} rows, columns: {list(df.columns)}")
+            
+        except Exception as e:
+            logger.error(f"Error reading {output_path}: {e}")
+            return False
     
-    if failed_scripts:
-        logger.error("Failed scripts:")
-        for fail in failed_scripts:
-            logger.error(f"  - {fail}")
+    # Verify all files have the same number of rows
+    if len(set(row_counts.values())) > 1:
+        logger.error("Row count mismatch across baseline outputs:")
+        for script, count in row_counts.items():
+            logger.error(f"  {script}: {count} rows")
+        return False
+    
+    logger.info(f"All outputs have consistent row count: {list(row_counts.values())[0]}")
+    return True
+
+def main(args: argparse.Namespace = None) -> int:
+    """
+    Main entry point for baseline integration verification.
+    
+    Returns:
+        0 if all checks pass, 1 otherwise.
+    """
+    logger.info("Starting Baseline Integration Verification (T023)")
+    
+    # Step 1: Ensure processed data exists
+    if not ensure_processed_data_exists():
+        logger.error("Processed data not found. Please run data loading first.")
         return 1
-    else:
-        logger.info("All baseline scripts executed and outputs verified successfully.")
-        return 0
+    
+    # Step 2: Run all baseline scripts
+    all_scripts_ran = True
+    for script_name in BASELINE_SCRIPTS:
+        if not run_baseline_script(script_name):
+            all_scripts_ran = False
+    
+    if not all_scripts_ran:
+        logger.error("One or more baseline scripts failed to run.")
+        return 1
+    
+    # Step 3: Verify output files exist
+    all_outputs_exist = True
+    for script_name in BASELINE_SCRIPTS:
+        if not check_output_files(script_name):
+            all_outputs_exist = False
+    
+    if not all_outputs_exist:
+        logger.error("One or more baseline outputs are missing or empty.")
+        return 1
+    
+    # Step 4: Verify schema compatibility
+    if not verify_schema_compatibility():
+        logger.error("Baseline outputs are not schema-compatible.")
+        return 1
+    
+    logger.info("✓ All baseline integration checks passed.")
+    logger.info("  - All scripts executed successfully")
+    logger.info("  - All output files generated")
+    logger.info("  - All outputs have compatible schemas for evaluation (T026a)")
+    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    parser = argparse.ArgumentParser(description="Baseline Integration Verification")
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose logging")
+    args = parser.parse_args()
+    
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+    
+    sys.exit(main(args))

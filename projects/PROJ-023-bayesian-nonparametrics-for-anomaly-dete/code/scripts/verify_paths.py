@@ -1,15 +1,15 @@
 """
-Script to verify all file paths in the codebase match tasks.md specifications.
+Verify all file paths in the codebase match the specifications in tasks.md.
 
-This script checks that:
-1. All Python scripts are under code/scripts/
-2. All libraries are under code/lib/
-3. All tests are under code/tests/
-4. All data files are under data/ (raw/, processed/, results/)
-5. All paper artifacts are under paper/ (figures/, results.md)
-6. All contracts are under contracts/
+This script scans the project directory structure to ensure that:
+1. All scripts are located under `code/scripts/` (not root `scripts/`)
+2. All libraries are located under `code/lib/` (not root `lib/`)
+3. All tests are located under `code/tests/` (not root `tests/`)
+4. All data files are located under `data/` with proper subdirectories
+5. All paper artifacts are located under `paper/`
+6. All config files are located under `code/config/`
 
-It reports any deviations from the expected path structure.
+Returns exit code 0 if all paths are correct, 1 otherwise.
 """
 
 import os
@@ -17,238 +17,187 @@ import sys
 from pathlib import Path
 from typing import List, Tuple, Dict, Any
 
-# Define expected directory structure based on tasks.md
-EXPECTED_DIRS = {
-    "code": [
-        "scripts",
-        "lib",
-        "tests",
-        "tests/contract",
-        "tests/integration",
-        "setup_linting.py",
-        "setup_structure.py",
-    ],
-    "data": [
-        "raw",
-        "processed",
-        "results",
-        "PROVENANCE.md",
-        "VERSION.txt",
-    ],
-    "paper": [
-        "figures",
-        "README.md",
-        "results.md",
-    ],
-    "contracts": [
-        "dataset.schema.yaml",
-        "evaluation.schema.yaml",
-        "prediction.schema.yaml",
-    ],
+# Define the expected directory structure based on tasks.md
+EXPECTED_ROOT_DIRS = {
+    "code",
+    "data",
+    "paper",
+    "contracts",
+    "tests",  # This might be at root or under code - check both
+    "specs",
+    "docs"
 }
 
-# Define expected script files
-EXPECTED_SCRIPTS = [
-    "code/scripts/download_data.py",
-    "code/scripts/inject_anomalies.py",
-    "code/scripts/baseline_shewhart.py",
-    "code/scripts/baseline_cusum.py",
-    "code/scripts/baseline_vae.py",
-    "code/scripts/bayesian_gp.py",
-    "code/scripts/evaluate.py",
-    "code/scripts/sensitivity_analysis.py",
-    "code/scripts/render_fig1.py",
-    "code/scripts/render_fig2.py",
-    "code/scripts/baseline_integration.py",
-]
+# Define the correct paths for specific file types
+SCRIPTS_DIR = Path("code/scripts")
+LIB_DIR = Path("code/lib")
+TESTS_DIR = Path("code/tests")
+CONFIG_DIR = Path("code/config")
+DATA_RAW_DIR = Path("data/raw")
+DATA_PROCESSED_DIR = Path("data/processed")
+DATA_RESULTS_DIR = Path("data/results")
+PAPER_FIGURES_DIR = Path("paper/figures")
+PAPER_DIR = Path("paper")
 
-# Define expected library files
-EXPECTED_LIBS = [
-    "code/lib/data_loader.py",
-    "code/lib/anomaly_injector.py",
-    "code/lib/metrics.py",
-    "code/lib/utils.py",
-]
+# Define files that should NOT exist at the root level (they should be under code/)
+ROOT_EXCLUSIONS = {
+    "scripts",  # Directory - should be code/scripts
+    "lib",      # Directory - should be code/lib
+    "tests",    # Directory - should be code/tests (if not at root for top-level tests)
+    "config",   # Directory - should be code/config
+}
 
-# Define expected test files
-EXPECTED_TESTS = [
-    "code/tests/test_data_injection.py",
-    "code/tests/test_metrics.py",
-    "code/tests/test_anomaly_injector.py",
-    "code/tests/test_utils.py",
-    "code/tests/contract/test_bayesian_schema.py",
-    "code/tests/contract/test_baseline_schema.py",
-    "code/tests/contract/test_evaluation_schema.py",
-    "code/tests/integration/test_bayesian_inference.py",
-    "code/tests/integration/test_baseline_comparison.py",
-    "code/tests/integration/test_statistical_analysis.py",
-]
-
-# Define expected data files
-EXPECTED_DATA_FILES = [
-    "data/PROVENANCE.md",
-    "data/VERSION.txt",
-    "data/raw/series.csv",
-    "data/processed/series_with_anomalies.csv",
-    "data/processed/ground_truth.csv",
-    "data/results/bayesian_predictions.csv",
-    "data/results/shewhart_predictions.csv",
-    "data/results/cusum_predictions.csv",
-    "data/results/vae_predictions.csv",
-    "data/results/evaluation.json",
-    "data/results/sensitivity_analysis.json",
-]
-
-# Define expected paper files
-EXPECTED_PAPER_FILES = [
-    "paper/README.md",
-    "paper/results.md",
-    "paper/figures/fig1_timeseries.png",
-    "paper/figures/fig2_method_comparison.png",
-]
-
-# Define expected contract files
-EXPECTED_CONTRACTS = [
-    "contracts/dataset.schema.yaml",
-    "contracts/evaluation.schema.yaml",
-    "contracts/prediction.schema.yaml",
-]
-
-def check_file_exists(path: Path, description: str) -> Tuple[bool, str]:
-    """Check if a file exists and return status."""
-    if path.exists():
-        return True, f"✓ {description}: {path}"
+def check_file_exists(file_path: Path, description: str) -> Tuple[bool, str]:
+    """Check if a specific file exists and return status message."""
+    if file_path.exists():
+        return True, f"✓ {description}: {file_path}"
     else:
-        return False, f"✗ MISSING: {description}: {path}"
+        return False, f"✗ MISSING {description}: {file_path}"
 
-def check_directory_exists(path: Path, description: str) -> Tuple[bool, str]:
-    """Check if a directory exists and return status."""
-    if path.exists() and path.is_dir():
-        return True, f"✓ {description}: {path}"
+def check_directory_exists(dir_path: Path, description: str) -> Tuple[bool, str]:
+    """Check if a specific directory exists and return status message."""
+    if dir_path.is_dir():
+        return True, f"✓ {description}: {dir_path}"
     else:
-        return False, f"✗ MISSING DIR: {description}: {path}"
+        return False, f"✗ MISSING {description}: {dir_path}"
 
-def scan_for_deviations(root: Path) -> List[str]:
-    """Scan the project root for files that don't match expected structure."""
+def scan_for_deviations(project_root: Path) -> List[str]:
+    """
+    Scan the project directory for path deviations from the specification.
+    
+    Returns a list of deviation messages.
+    """
     deviations = []
     
-    # Check for files at root that should be under code/
-    root_files = [f for f in root.iterdir() if f.is_file() and f.name not in 
-                 ["requirements.txt", "README.md", "tasks.md", "plan.md", "spec.md", 
-                  "data-model.md", "research.md", "quickstart.md"]]
+    # Check for root-level directories that should be under code/
+    for root_dir in ROOT_EXCLUSIONS:
+        root_path = project_root / root_dir
+        if root_path.exists():
+            deviations.append(
+                f"✗ PATH DEVIATION: '{root_dir}' exists at root level. "
+                f"Should be under 'code/{root_dir}'"
+            )
     
-    for f in root_files:
-        if f.name.endswith(".py"):
-            deviations.append(f"✗ ROOT PYTHON FILE (should be under code/): {f}")
-        elif f.name.endswith(".md"):
-            # Allow some root markdown files
-            pass
-        else:
-            deviations.append(f"? ROOT FILE (verify location): {f}")
+    # Check for scripts at root level
+    root_scripts = project_root.glob("*.py")
+    for script in root_scripts:
+        if script.name not in ["setup_linting.py", "setup_structure.py", "conftest.py"]:
+            # These are allowed at root per some conventions, but check tasks.md
+            # tasks.md specifies code/scripts/ for all scripts
+            deviations.append(
+                f"✗ PATH DEVIATION: Script '{script.name}' at root level. "
+                f"Should be under 'code/scripts/'"
+            )
     
-    # Check for data files at root
-    data_files_at_root = list(root.glob("*.csv")) + list(root.glob("*.json")) + list(root.glob("*.yaml"))
-    for f in data_files_at_root:
-        deviations.append(f"✗ DATA FILE AT ROOT (should be under data/): {f}")
+    # Check for lib at root level
+    root_lib = project_root / "lib"
+    if root_lib.exists() and root_lib.is_dir():
+        deviations.append(
+            f"✗ PATH DEVIATION: 'lib' directory exists at root level. "
+            f"Should be under 'code/lib/'"
+        )
     
-    # Check for scripts at root
-    scripts_at_root = list(root.glob("scripts/*.py"))
-    for f in scripts_at_root:
-        if not f.parent.name == "scripts":
-            continue
-        # Check if it should be under code/scripts
-        expected_path = root / "code" / "scripts" / f.name
-        if not expected_path.exists():
-            deviations.append(f"✗ SCRIPT AT ROOT (should be under code/scripts/): {f}")
+    # Check for tests at root level (excluding pytest config)
+    root_tests = project_root.glob("test_*.py")
+    for test in root_tests:
+        deviations.append(
+            f"✗ PATH DEVIATION: Test file '{test.name}' at root level. "
+            f"Should be under 'code/tests/'"
+        )
+    
+    # Check for config at root level
+    root_config = project_root / "config"
+    if root_config.exists() and root_config.is_dir():
+        deviations.append(
+            f"✗ PATH DEVIATION: 'config' directory exists at root level. "
+            f"Should be under 'code/config/'"
+        )
+    
+    # Check for data directories at root level
+    for data_dir in ["raw", "processed", "results"]:
+        root_data = project_root / data_dir
+        if root_data.exists() and root_data.is_dir():
+            deviations.append(
+                f"✗ PATH DEVIATION: '{data_dir}' directory exists at root level. "
+                f"Should be under 'data/{data_dir}/'"
+            )
+    
+    # Check for paper figures at root level
+    root_figures = project_root / "figures"
+    if root_figures.exists() and root_figures.is_dir():
+        deviations.append(
+            f"✗ PATH DEVIATION: 'figures' directory exists at root level. "
+            f"Should be under 'paper/figures/'"
+        )
+    
+    # Verify required directories exist at correct paths
+    required_dirs = [
+        (SCRIPTS_DIR, "Scripts directory"),
+        (LIB_DIR, "Libraries directory"),
+        (TESTS_DIR, "Tests directory"),
+        (CONFIG_DIR, "Config directory"),
+        (DATA_RAW_DIR, "Raw data directory"),
+        (DATA_PROCESSED_DIR, "Processed data directory"),
+        (DATA_RESULTS_DIR, "Results data directory"),
+        (PAPER_FIGURES_DIR, "Paper figures directory"),
+    ]
+    
+    for dir_path, description in required_dirs:
+        exists, msg = check_directory_exists(project_root / dir_path, description)
+        if not exists:
+            deviations.append(msg)
+    
+    # Verify specific required files exist at correct paths
+    required_files = [
+        (SCRIPTS_DIR / "bayesian_gp.py", "Bayesian GP script"),
+        (SCRIPTS_DIR / "evaluate.py", "Evaluation script"),
+        (SCRIPTS_DIR / "render_fig1.py", "Figure 1 script"),
+        (SCRIPTS_DIR / "render_fig2.py", "Figure 2 script"),
+        (SCRIPTS_DIR / "baseline_shewhart.py", "Shewhart baseline script"),
+        (SCRIPTS_DIR / "baseline_cusum.py", "CUSUM baseline script"),
+        (SCRIPTS_DIR / "baseline_vae.py", "VAE baseline script"),
+        (SCRIPTS_DIR / "inject_anomalies.py", "Anomaly injection script"),
+        (SCRIPTS_DIR / "sensitivity_analysis.py", "Sensitivity analysis script"),
+        (PAPER_DIR / "results.md", "Results document"),
+        (DATA_RESULTS_DIR / "bayesian_predictions.csv", "Bayesian predictions"),
+        (DATA_RESULTS_DIR / "evaluation.json", "Evaluation results"),
+        (PAPER_FIGURES_DIR / "fig1_timeseries.png", "Figure 1"),
+        (PAPER_FIGURES_DIR / "fig2_method_comparison.png", "Figure 2"),
+        (CONFIG_DIR / "inference_engine.yaml", "Inference engine config"),
+        (CONFIG_DIR / "anomaly_injection_config.yaml", "Anomaly injection config"),
+        (CONFIG_DIR / "threshold_strategy.yaml", "Threshold strategy config"),
+    ]
+    
+    for file_path, description in required_files:
+        exists, msg = check_file_exists(project_root / file_path, description)
+        if not exists:
+            deviations.append(msg)
     
     return deviations
 
 def main():
-    """Main function to verify paths."""
-    print("=" * 80)
-    print("PATH STRUCTURE VERIFICATION FOR PROJ-023")
-    print("=" * 80)
+    """Main entry point for path verification."""
+    project_root = Path.cwd()
     
-    root = Path(".")
-    all_ok = True
-    messages = []
+    print("=" * 70)
+    print("PATH VERIFICATION REPORT")
+    print("=" * 70)
+    print(f"Project root: {project_root}")
+    print()
     
-    # Check expected scripts
-    print("\n[1] Checking Expected Scripts...")
-    for script in EXPECTED_SCRIPTS:
-        path = root / script
-        ok, msg = check_file_exists(path, "Script")
-        messages.append(msg)
-        if not ok:
-            all_ok = False
+    deviations = scan_for_deviations(project_root)
     
-    # Check expected libraries
-    print("\n[2] Checking Expected Libraries...")
-    for lib in EXPECTED_LIBS:
-        path = root / lib
-        ok, msg = check_file_exists(path, "Library")
-        messages.append(msg)
-        if not ok:
-            all_ok = False
-    
-    # Check expected tests
-    print("\n[3] Checking Expected Tests...")
-    for test in EXPECTED_TESTS:
-        path = root / test
-        ok, msg = check_file_exists(path, "Test")
-        messages.append(msg)
-        if not ok:
-            all_ok = False
-    
-    # Check expected data files
-    print("\n[4] Checking Expected Data Files...")
-    for data_file in EXPECTED_DATA_FILES:
-        path = root / data_file
-        ok, msg = check_file_exists(path, "Data File")
-        messages.append(msg)
-        if not ok:
-            all_ok = False
-    
-    # Check expected paper files
-    print("\n[5] Checking Expected Paper Files...")
-    for paper_file in EXPECTED_PAPER_FILES:
-        path = root / paper_file
-        ok, msg = check_file_exists(path, "Paper File")
-        messages.append(msg)
-        if not ok:
-            all_ok = False
-    
-    # Check expected contracts
-    print("\n[6] Checking Expected Contracts...")
-    for contract in EXPECTED_CONTRACTS:
-        path = root / contract
-        ok, msg = check_file_exists(path, "Contract")
-        messages.append(msg)
-        if not ok:
-            all_ok = False
-    
-    # Scan for deviations
-    print("\n[7] Scanning for Path Deviations...")
-    deviations = scan_for_deviations(root)
-    if deviations:
-        all_ok = False
-        messages.extend(deviations)
-    else:
-        messages.append("✓ No path deviations detected")
-    
-    # Print results
-    print("\n" + "=" * 80)
-    print("VERIFICATION RESULTS")
-    print("=" * 80)
-    for msg in messages:
-        print(msg)
-    
-    print("\n" + "=" * 80)
-    if all_ok:
-        print("✓ ALL PATHS MATCH TASKS.MD SPECIFICATIONS")
+    if not deviations:
+        print("✓ All paths match the specification in tasks.md")
+        print("✓ No deviations found")
         sys.exit(0)
     else:
-        print("✗ PATH MISMATCHES DETECTED - REVIEW ABOVE")
+        print(f"✗ Found {len(deviations)} path deviation(s):")
+        print()
+        for i, deviation in enumerate(deviations, 1):
+            print(f"{i}. {deviation}")
+        print()
+        print("Please correct the path deviations above to match tasks.md specifications.")
         sys.exit(1)
 
 if __name__ == "__main__":

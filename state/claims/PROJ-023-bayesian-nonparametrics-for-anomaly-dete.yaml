@@ -1478,3 +1478,311 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T05:46:07Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian F1-Score 0.8542 compared to Shewhart 0.7103, CUSUM 0.6890, and
+    VAE 0.7421 with p-value 0.0032
+  claim_id: c_06260ffb
+  context: Performance Comparison table showing metrics for Bayesian, Shewhart, CUSUM,
+    and VAE models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: F1-Score | 0.8542 | 0.7103 | 0.6890 | 0.7421 | 0.0032 | 0.0850 | 0.2100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:49:07Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian Precision 0.8810 compared to Shewhart 0.7520, CUSUM 0.7200,
+    and VAE 0.7950
+  claim_id: c_c4e365c3
+  context: Performance Comparison table showing precision metrics for the four models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Precision | 0.8810 | 0.7520 | 0.7200 | 0.7950
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:49:53Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian Recall 0.8250 compared to Shewhart 0.6750, CUSUM 0.6580, and
+    VAE 0.7010
+  claim_id: c_a0fbc75c
+  context: Performance Comparison table showing recall metrics for the four models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recall | 0.8250 | 0.6750 | 0.6580 | 0.7010
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:50:21Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian nonparametric F1-score 0.8542 vs Shewhart 0.7103, CUSUM 0.6890,
+    VAE 0.7421
+  claim_id: c_31d22319
+  context: Performance Comparison table showing metrics for Bayesian, Shewhart, CUSUM,
+    and VAE methods.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: F1-Score | 0.8542 | 0.7103 | 0.6890 | 0.7421
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:57:06Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian nonparametric Precision 0.8810 vs Shewhart 0.7520, CUSUM 0.7200,
+    VAE 0.7950
+  claim_id: c_a2f7f18b
+  context: Performance Comparison table showing metrics for Bayesian, Shewhart, CUSUM,
+    and VAE methods.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Precision | 0.8810 | 0.7520 | 0.7200 | 0.7950
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:57:07Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian nonparametric Recall 0.8250 vs Shewhart 0.6750, CUSUM 0.6580,
+    VAE 0.7010
+  claim_id: c_191796c9
+  context: Performance Comparison table showing metrics for Bayesian, Shewhart, CUSUM,
+    and VAE methods.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Recall | 0.8250 | 0.6750 | 0.6580 | 0.7010
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:57:07Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: P-value 0.0032 for F1-Score comparison
+  claim_id: c_f6b0faf6
+  context: Performance Comparison table showing P-Value for F1-Score metric.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: P-Value | 0.0032
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:57:44Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Confidence interval 0.0850 to 0.2100 for F1-Score difference
+  claim_id: c_8ee14269
+  context: Performance Comparison table showing CI_Lower and CI_Upper for F1-Score
+    metric.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CI_Lower | 0.0850 | CI_Upper | 0.2100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:58:08Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP F1-Score is 0.85
+  claim_id: c_57e40bb1
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | Bayesian
+    | ... | F1-Score | 0.85 | ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian Gaussian Process anomaly detector achieved an F1-Score of
+    0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:02:07Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Shewhart F1-Score is 0.72
+  claim_id: c_dec44b4c
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | ... | Shewhart
+    | ... | F1-Score | ... | 0.72 | ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Shewhart baseline achieved an F1-Score of 0.72.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:02:29Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: CUSUM F1-Score is 0.78
+  claim_id: c_feed8682
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | ... | CUSUM
+    | ... | F1-Score | ... | 0.78 | ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CUSUM baseline achieved an F1-Score of 0.78.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:02:51Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: VAE F1-Score is 0.81
+  claim_id: c_8eb603b5
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | ... | VAE
+    | ... | F1-Score | ... | 0.81 | ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VAE baseline achieved an F1-Score of 0.81.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:03:22Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Bayesian GP AUC-ROC is 0.92
+  claim_id: c_7a5fb070
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | Bayesian
+    | ... | AUC-ROC | 0.92 | ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bayesian Gaussian Process achieved an AUC-ROC of 0.92.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:03:44Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Shewhart AUC-ROC is 0.85
+  claim_id: c_7f5381bd
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | ... | Shewhart
+    | ... | AUC-ROC | ... | 0.85 | ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Shewhart baseline achieved an AUC-ROC of 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:03:59Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: CUSUM AUC-ROC is 0.88
+  claim_id: c_2dc2d8d3
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | ... | CUSUM
+    | ... | AUC-ROC | ... | 0.88 | ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CUSUM baseline achieved an AUC-ROC of 0.88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:04:14Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: VAE AUC-ROC is 0.89
+  claim_id: c_4012b931
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | ... | VAE
+    | ... | AUC-ROC | ... | 0.89 | ...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VAE baseline achieved an AUC-ROC of 0.89.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:04:29Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: Wilcoxon p-value for F1-Score difference is 0.03
+  claim_id: c_bb363654
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | ... | P-Value
+    | ... | F1-Score | ... | 0.03 | ...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Wilcoxon_p-value_for_F1-Score_difference_is_0.03
+  kind: magnitude
+  raw_text: The Wilcoxon signed-rank test comparing the Bayesian GP to the best baseline
+    yielded a p-value of 0.03 for the F1-Score.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T12:05:39Z'
+- artifact_path: projects/PROJ-023-bayesian-nonparametrics-for-anomaly-dete/paper/results.md
+  attempts: 1
+  canonical: 95% Bootstrap CI for F1-Score difference is 0.02 to 0.15
+  claim_id: c_132b987c
+  context: The following table summarizes the performance metrics across methods.
+    All values are derived from data/results/evaluation.json. | Metric | ... | CI_Lower
+    | CI_Upper | ... | F1-Score | ... | 0.02 | 0.15 |
+  evidence:
+    entailment_evidence: 95% Bootstrap CI for F1-Score difference is 0.02 to 0.15
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/95%25_Bootstrap_CI_for_F1-Score_difference_is_0.02_to_0.15
+  kind: magnitude
+  raw_text: The 95% Bootstrap Confidence Interval for the F1-score difference between
+    the Bayesian GP and the best baseline ranges from 0.02 to 0.15.
+  resolved_value: 95% Bootstrap CI for F1-Score difference is 0.02 to 0.15
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T12:05:42Z'

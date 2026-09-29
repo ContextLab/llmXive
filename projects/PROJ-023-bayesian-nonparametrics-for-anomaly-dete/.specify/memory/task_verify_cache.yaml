@@ -1,32 +1,17 @@
-T011:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code, data, or output artifacts (e.g., inference script, CSV of anomaly scores,
-    baseline implementations, or evaluation results) are present; the claim provides
-    only a description without any tangible deliverables, so the required deliverables
-    are missing.
-T014:
-  c: false
-  h: cbc86452f3931147e540b6149f83924ded1f7235453b127289888d28ffe68cf9
-  r: "The script `code/scripts/inject_anomalies.py` exists, but it imports functions\
-    \ from `code/lib/anomaly_injector.py`, which is missing entirely, so the script\
-    \ cannot actually invoke the required library. Consequently the implementation\
-    \ does not fulfill the task\u2019s core requirement of calling the anomaly injector\
-    \ and producing the two processed CSV files. The missing `code/lib/anomaly_injector.py`\
-    \ must be added (or the import removed) for the task to be complete."
 T015:
   c: false
   h: 15a874dcba5ed8c80484615a648802b8e732472c7e92161548182dbc89f33cee
   r: "The required `code/lib/memory_profiler.py` file does not exist, so the utility\
     \ cannot profile memory, log results, or enforce the 7\u202FGB limit. Without\
     \ this script the task\u2019s core functionality is unmet."
-T021:
+T016:
   c: false
-  h: 912a6acad47854b36740b6c89475b437f0a7825fb7d438da850a2e49d50fa5d3
-  r: "The repository contains a `baseline_cusum.py` file, but its content is truncated\
-    \ and does not show a complete CUSUM implementation nor any code that writes `data/results/cusum_predictions.csv`.\
-    \ Moreover, the required output CSV file is absent from the `data/results` directory.\
-    \ The task\u2019s core deliverables are therefore not fulfilled."
+  h: 1cf9cfb9385a9e715edd7bc05a3643efb8ba7752fdc6ffa05055ee4f084dc45a
+  r: The script `code/scripts/bayesian_gp.py` is present, but the provided excerpt
+    never shows any actual Gaussian Process model or Sparse Variational Inference
+    implementation, and the required configuration file `code/config/inference_engine.yaml`
+    is missing entirely. Both the SVI model code and the config selection are essential
+    to satisfy the task.
 T022:
   c: false
   h: a971c19f93cbf02a036c4e0067cd2a833cbc144cde7e8581e3686746c33ea39b
@@ -34,30 +19,18 @@ T022:
     \ instead of the required scikit-learn or pytorch\u2011lightning, and the expected\
     \ output file `data/results/vae_predictions.csv` is absent. Both the mandated\
     \ library choice and the required result artifact are missing."
-T023:
+T029:
+  c: false
+  h: 12c7a2d7ac6bd9d8345fc744351acad3353dbe15b45192760fd27098aa66e823
+  r: "The provided `render_fig2.py` is truncated and contains placeholder logic (e.g.,\
+    \ random correlation matrix, unfinished `plt.save` call) and does not actually\
+    \ write the required PNG. Moreover, the expected output file `paper/figures/fig2_method_comparison.png`\
+    \ is missing. The task\u2019s deliverables are therefore not satisfied."
+T030:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifacts (e.g., test logs, output files, verification scripts, or reports)\
-    \ were provided to demonstrate that baseline scripts T020\u2011T022 successfully\
-    \ read the unified data format from T004 and generated outputs compatible with\
-    \ evaluation script T026a. The claim lacks concrete evidence, so the integration\
-    \ verification cannot be confirmed."
-T026b:
-  c: false
-  h: 74449fb2c55731c520b91d7c0677ff15bcc67e2cfdb687a67680ab68f49ddc24
-  r: "The repository contains `code/scripts/sensitivity_analysis.py`, but the file\
-    \ is truncated and does not show the full threshold\u2011sweeping logic or JSON\u2011\
-    writing code. Moreover, the required output `data/results/sensitivity_analysis.json`\
-    \ is absent, so the script\u2019s primary deliverable has not been produced. The\
-    \ task\u2019s core requirement is therefore not met."
-T028:
-  c: false
-  h: a6e553c2b9024948bfc78f6635f9f26c74feeb5a01b827166f9c4536de45c75a
-  r: The provided `render_fig1.py` is only partially shown and ends abruptly (the
-    plotting function is truncated), indicating the script does not contain a complete
-    implementation that generates and saves the figure. Moreover, the required output
-    file `paper/figures/fig1_timeseries.png` is absent. Both the script and the figure
-    need to be completed for the task to be satisfied.
+  r: "No `paper/results.md` file was provided; the required summary document is missing,\
+    \ so the task\u2019s artifact has not been delivered."
 T032:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

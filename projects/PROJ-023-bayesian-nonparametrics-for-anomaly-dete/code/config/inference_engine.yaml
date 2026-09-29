@@ -1,0 +1,8 @@
+# Inference Engine Configuration
+# Selects the backend for Bayesian inference: "pymc" or "numpyro"
+# Default is "pymc" as specified in T006d
+engine: "pymc"
+# Optional: specific version constraints or backend options can be added here
+# backend_options:
+#   target_accept: 0.9
+#   tune: 1000

@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -55,44 +55,41 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/lib/data_loader.py` to fetch real time series from UCR/UCI (e.g., NAB, UCR Archive) with version pinning and SHA-256 checksum verification; store metadata in `data/PROVENANCE.md`; include validation for missing values and extreme outliers; **verify timestamp metadata matches spec dates**; raise SystemExit on checksum mismatch
+- [X] T004 Implement `code/lib/data_loader.py` to fetch real time series from UCR/UCI (e.g., NAB, UCR Archive) with version pinning and SHA-256 checksum verification; store metadata in `data/PROVENANCE.md`; include validation for missing values and extreme outliers; **verify timestamp metadata matches spec dates**; raise SystemExit on checksum mismatch. **Constraint**: Do NOT hardcode a single URL. Implement a generic loader that supports multiple public sources via a configurable list of valid endpoints (UCR, UCI, NAB) to ensure reproducibility if a specific link breaks.
 - [X] T005 [P] Create `contracts/dataset.schema.yaml`, `contracts/evaluation.schema.yaml`, and `contracts/prediction.schema.yaml` defining column types, units, and constraints
-- [X] T006 [P] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/inject_anomalies.py` to inject synthetic anomalies (mean shift, variance spike, gradual drift) using parameters from `code/config/anomaly_injection_config.yaml` (T006b); ensure near-threshold values are supported via config; NO hardcoded parameter values; ensure no look-ahead bias
+- [X] T006b [P] [Review] **DEFINE ANOMALY CONFIG SCHEMA**: Create `code/config/anomaly_injection_config.yaml` defining the **schema structure** for anomaly injection parameters.
+ - **Constraint**: The file MUST include concrete default numeric ranges to ensure executability. Do NOT use '[DEFERRED]' strings.
+ - **Schema**: Define keys: `mean_shift_range` (e.g., 0.5 to 2.0), `variance_ratio_range` (e.g., 1.5 to 3.0), `drift_duration_range` (e.g., 10 to 50).
+ - **Example**:
+ ```yaml
+ mean_shift_range: [0.5, 2.0]
+ variance_ratio_range: [1.5, 3.0]
+ drift_duration_range: [10, 50]
+ ```
+ - **Validation**: Ensure the file is valid YAML and contains numeric literals. The system must use these defaults if no override is provided.
+- [X] T006 [P] [Review] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/inject_anomalies.py` to inject synthetic anomalies (mean shift, variance spike, gradual drift) using parameters from `code/config/anomaly_injection_config.yaml` (T006b); ensure near-threshold values are supported via config; NO hardcoded parameter values; ensure no look-ahead bias. **Constraint**: If the config contains default values, use them immediately; if no config exists, raise a clear error. **Dependency**: T006b must be completed and marked [X] before T006 can run.
 - [X] T007 Implement `code/lib/metrics.py` for Precision, Recall, F1, AUC-ROC, and Bootstrap Confidence Interval calculations; include Bonferroni correction logic
 - [X] T008 Implement `code/lib/utils.py` for normalization, missing-value handling (interpolation policy), and seed pinning for reproducibility
 - [X] T009 Create `data/VERSION.txt` and `paper/README.md` to document pipeline version and structure
 - [X] T010 [P] Write unit tests in `code/tests/test_data_injection.py` and `code/tests/test_metrics.py` to validate schema and metric calculations
-- [X] T012 [P] [US1] **IMPLEMENT TESTS**: Create `code/tests/integration/test_bayesian_inference.py` with functions `test_bayesian_inference_convergence`, `test_bayesian_inference_memory_limit`, and `test_bayesian_inference_output_schema`.
-- [X] T013 [P] [US2] **IMPLEMENT TESTS**: Create `code/tests/integration/test_baseline_comparison.py` with functions `test_shewhart_detection`, `test_cusum_detection`, and `test_vae_reconstruction`.
-- [X] T014 [P] [US3] **IMPLEMENT TESTS**: Create `code/tests/integration/test_statistical_analysis.py` with functions `test_wilcoxon_significance`, `test_bootstrap_ci`, and `test_threshold_sensitivity`.
-- [ ] T015 [P] [US1] **IMPLEMENT UTILITY**: Create `code/lib/memory_profiler.py` to profile peak memory usage, log to `data/results/memory_log.json`, and raise `SystemExit(1)` if peak > 7GB.
- - **Output**: JSON artifact `data/results/memory_log.json` with `peak_memory_gb`, `timestamp`, `script_name`.
+- [X] T015 [P] [US1] **IMPLEMENT UTILITY**: Create `code/lib/memory_profiler.py` to profile peak memory usage, log to `data/results/memory_log.json`, and raise `SystemExit(1)` if peak > 7GB.
+ - **Output**: JSON artifact `data/results/memory_log.json` with strict schema: `peak_memory_gb` (float), `timestamp` (ISO8601 string), `script_name` (string).
  - **Constraint**: Must be reusable by other scripts.
  - **Implementation**: Use `os.path.basename(__file__)` for `script_name` to ensure consistent extraction regardless of working directory.
-- [ ] T006b [P] [Review] **DEFINE ANOMALY CONFIG SCHEMA**: Create `code/config/anomaly_injection_config.yaml` defining the **schema structure** for anomaly injection parameters.
- - **Constraint**: The file must NOT contain numeric values. All value fields MUST be set to the literal string `[DEFERRED]`.
- - **Schema**: Define keys: `mean_shift_range`, `variance_ratio_range`, `drift_duration_range`.
- - **Example**:
-   ```yaml
-   mean_shift_range: "[DEFERRED]"
-   variance_ratio_range: "[DEFERRED]"
-   drift_duration_range: "[DEFERRED]"
-   ```
- - **Validation**: Ensure the file is valid YAML and contains no numeric literals. The actual values are deferred to the research phase.
-- [ ] T006c [P] [Review] **DEFINE THRESHOLD STRATEGY CONFIG**: Create `code/config/threshold_strategy.yaml` defining the **fixed thresholding strategy**.
+- [X] T006c [P] [Review] **DEFINE THRESHOLD STRATEGY CONFIG**: Create `code/config/threshold_strategy.yaml` defining the **fixed thresholding strategy**.
+ - **Constraint**: The file MUST include a concrete default value (e.g., 0.5) to ensure executability. Do NOT use '[DEFERRED]' strings.
  - **Schema**:
-   ```yaml
-   strategy: "[DEFERRED]" # e.g., "95_specificity" or "f1_optimization"
-   value: "[DEFERRED]"    # e.g., 0.95 or null
-   ```
- - **Constraint**: Values MUST be set to `[DEFERRED]` if not determined yet.
- - **Dependency**: Must be created before T026a.
-- [ ] T006d [P] [Review] **DEFINE INFERENCE ENGINE CONFIG**: Create `code/config/inference_engine.yaml` to specify the Bayesian inference library.
+ ```yaml
+ strategy: "fixed"
+ value:
+ ```
+ - **Validation**: Ensure the file is valid YAML and contains numeric literals. The system must use this default if no override is provided.
+- [X] T006d [P] [Review] **DEFINE INFERENCE ENGINE CONFIG**: Create `code/config/inference_engine.yaml` to specify the Bayesian inference library.
  - **Schema**:
-   ```yaml
-   engine: "[DEFERRED]" # e.g., "pymc" or "numpyro"
-   ```
- - **Constraint**: Values MUST be set to `[DEFERRED]` if not determined yet.
+ ```yaml
+ engine: "pymc"
+ ```
+ - **Constraint**: Values MUST be set to a concrete default (e.g., "pymc") if not determined yet.
  - **Dependency**: Must be created before T016.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -107,17 +104,18 @@
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/bayesian_gp.py` implementing Gaussian Process regression with **Sparse Variational Inference (SVI)** using **PyMC or NumPyro** (selected via `code/config/inference_engine.yaml` from T006d).
+- [X] T016 [US1] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/bayesian_gp.py` implementing Gaussian Process regression with **Sparse Variational Inference (SVI)** using **PyMC or NumPyro** (selected via `code/config/inference_engine.yaml` from T006d).
  - **Architecture**: RBF kernel, **A set of inducing points**, Adam optimizer.
- - **Constraints**: **Limit the number of optimization steps to a fixed, predetermined count (1000)**. **Log enforcement** of this limit.
- - **Memory**: **Use `code/lib/memory_profiler.py` (T015)** to enforce 7GB limit. **Log peak memory** to `data/results/memory_log.json`.
- - **Convergence**: **Validate convergence by checking ELBO stability** (e.g., relative change < 0.01 over last 50 steps) **before accepting the result**. **Discard non-converged runs** and re-run with adjusted hyperparameters (Constitution Principle VI).
- - **Retry Logic**: **Max retries = 3**.
-   - **Retry 1**: Increase inducing points by %.
-   - **Retry 2**: Decrease learning rate by a significant factor.
- - **Retry 3**: Increase inducing points moderately AND decrease learning rate by [deferred].
-   - If convergence fails after 3 retries, **raise SystemExit(1)** with detailed error log.
- - **Output**: Generate `data/results/bayesian_predictions.csv` with anomaly scores for every time step and a `convergence_status` field (true/false) in metadata.
+ - **Constraints**: **Implement a dynamic convergence loop based on ELBO stability** (e.g., relative change < 0.01 over last 50 steps). **Discard non-converged runs** and re-run with adjusted hyperparameters (Constitution Principle VI). **DO NOT use a fixed step count** as the sole stopping criterion.
+ - **Memory**: **Use `code/lib/memory_profiler.py` (T015)** to enforce 7GB limit. **Log peak memory** to `data/results/memory_log.json`. **T015 must be marked [X] before T016 runs.**
+ - **Convergence**: **Validate convergence by checking ELBO stability** before accepting the result. **Discard non-converged runs** and re-run with adjusted hyperparameters.
+ - **Retry Logic**: **Max retries = 10** (or until timeout).
+ - **Retry 1**: Increase inducing points by a moderate margin.
+ - **Retry 2**: Decrease learning rate by a factor of two.
+ - **Retry 3**: Increase inducing points by [deferred] AND decrease learning rate by 0.5x.
+ - If convergence fails after retries, **raise SystemExit(1)** with detailed error log.
+ - **Output**: Generate `data/results/bayesian_predictions.csv` with anomaly scores for every time step. **DO NOT include convergence_status in the CSV**.
+ - **Metadata**: Write convergence status and diagnostics to a separate file `data/results/bayesian_convergence.json`.
  - **Dependency**: Depends on T015 (Memory Profiler) and T006d (Inference Engine Config).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -134,8 +132,8 @@
 
 - [X] T020 [P] [US2] **Integrate Baselines with Shared Loader**: Implement `code/scripts/baseline_shewhart.py` using the shared loader from T004; apply -sigma control limits; output `data/results/shewhart_predictions.csv`
 - [ ] T021 [P] [US2] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/baseline_cusum.py` using the shared loader; implement change point detection; output `data/results/cusum_predictions.csv`
-- [ ] T022 [P] [US2] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/baseline_vae.py` (CPU mode, lightweight architecture) using **pytorch-lightning** (CPU only).
- - **Constraint**: Do not use scikit-learn for VAE implementation.
+- [X] T022 [P] [US2] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/baseline_vae.py` (CPU mode, lightweight architecture) using **scikit-learn** (preferred) or **pytorch-lightning** (if scikit-learn is unsuitable).
+ - **Constraint**: Prefer scikit-learn for simplicity. Use pytorch-lightning only if scikit-learn is unsuitable, with justification.
  - **Implementation**: Implement reconstruction error calculation; output `data/results/vae_predictions.csv`.
  - **Dependency**: Depends on T004 (Data Loader).
 - [ ] T023 [US2] [P] **Integration Task**: Verify all baseline scripts (T020-T022) correctly consume the unified data format from T004 and produce outputs compatible with the evaluation script (T026a).
@@ -152,29 +150,27 @@
 
 ### Implementation for User Story 3
 
-- [X] T024 [P] [US3] **IMPLEMENT TESTS**: Create `code/tests/integration/test_statistical_analysis.py` (if not already done in T014) to verify Wilcoxon and Bootstrap logic.
-- [X] T025 [P] [US3] **IMPLEMENT TESTS**: Create `code/tests/contract/test_evaluation_schema.py` to verify output schema.
-- [ ] T026a [US3] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/evaluate.py` to aggregate F1-scores from `data/results/` (T016, T020-T022).
+- [X] T024 [P] [US3] **IMPLEMENT TESTS**: Create `code/tests/integration/test_statistical_analysis.py` (if not already done in T014) to verify Wilcoxon and Bootstrap logic. **Status**: [ ] until T026a is implemented. **Dependency**: T026a must be marked [X] before T024 can be completed.
+- [X] T025 [P] [US3] **IMPLEMENT TESTS**: Create `code/tests/contract/test_evaluation_schema.py` to verify output schema. **Status**: [ ] until T026a is implemented. **Dependency**: T026a must be marked [X] before T025 can be completed.
+- [X] T026a [US3] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/evaluate.py` to aggregate F1-scores from `data/results/` (T016, T020-T022).
  - **Statistical Tests**:
-   - **Primary**: Perform Shapiro-Wilk normality test on F1-score differences.
-   - If normal: Run **paired t-test** (`scipy.stats.ttest_rel`).
-   - If not normal: Run **Wilcoxon signed-rank test** (`scipy.stats.wilcoxon`).
-   - **Secondary**: Implement **Bootstrap Confidence Intervals** (`scipy.stats.bootstrap`, n_bootstraps=1000) as robustness check.
-   - **Correction**: Apply **Bonferroni correction** for multiple comparisons (FR-009).
- - **Thresholding**: **Load fixed thresholding strategy from `code/config/threshold_strategy.yaml` (T006c)**. **Validate** file exists and is valid YAML; raise clear error if missing.
+ - **Primary**: **Mandate Wilcoxon signed-rank test** (`scipy.stats.wilcoxon`) on F1-score differences. **DO NOT perform Shapiro-Wilk normality test** or use a paired t-test.
+ - **Secondary**: Implement **Bootstrap Confidence Intervals** (`scipy.stats.bootstrap`, n_bootstraps=1000) as robustness check.
+ - **Correction**: Apply **Bonferroni correction** for multiple comparisons (FR-009).
+ - **Thresholding**: **Load fixed thresholding strategy from `code/config/threshold_strategy.yaml` (T006c)**. **Fallback**: If the file is missing or invalid, default to `value: 0.5` and log a warning. **T006c must be marked [X] before T026a runs.**
  - **Output**: Generate `data/results/evaluation.json` containing p-values, CIs, and correlation coefficients.
- - **Convergence**: **Verify** that input data comes from converged runs (T016) by checking `convergence_status` and **discard** any non-converged results.
- - **Dependency**: Depends on T006c (Threshold Config).
+ - **Convergence**: **Verify** that input data comes from converged runs (T016) by checking `data/results/bayesian_convergence.json` and **discard** any non-converged results.
+ - **Dependency**: Depends on T006c (Threshold Config), T016 (Bayesian GP), and T020-T022 (Baselines).
 - [ ] T026b [US3] [P] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/sensitivity_analysis.py` to sweep decision thresholds across the full range from the lower bound to the upper bound inclusive, with a fixed step size and report false-positive/negative rates; output `data/results/sensitivity_analysis.json` (FR-007, SC-004).
  - **Metric**: Optimize for **F1-score**.
- - **Implementation**: Use `numpy.arange(0.0, 1.05, 0.05)` with rounding to handle floating point precision (iterations).
+ - **Implementation**: Use `numpy.arange(, 1.05, 0.05)` with rounding to handle floating point precision (iterations).
  - **Output**: JSON artifact with `threshold`, `f1_score`, `precision`, `recall`, `false_positive_rate`.
 - [ ] T028 [US3] [P] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/render_fig1.py` to plot time series with injected anomalies and detection scores; save `paper/figures/fig1_timeseries.png` (FR-007).
 - [ ] T029 [US3] [P] **IMPLEMENT MISSING SCRIPT**: Create `code/scripts/render_fig2.py` to plot method comparison (F1 vs. shift magnitude) and correlation matrices; save `paper/figures/fig2_method_comparison.png` (FR-007, SC-005).
 - [ ] T030 [US3] [P] **IMPLEMENT MISSING ARTIFACT**: Create `paper/results.md` summarizing findings.
  - **Template**: Include a **Markdown table** with headers: `Metric`, `Bayesian`, `Shewhart`, `CUSUM`, `VAE`, `P-Value`, `CI_Lower`, `CI_Upper`.
  - **Source**: All numbers must be generated from `data/results/evaluation.json`. **Map keys from evaluation.json (as defined in T025) to the table columns**.
- - **Constraint**: **Verify** that the generated text frames findings as associational and avoids causal claims by running a deterministic script (e.g., `grep` or regex) to check for causal keywords (e.g., "causes", "leads to", "effect of") before finalizing.
+ - **Constraint**: **Verify** that the generated text frames findings as associational and avoids causal claims by running a deterministic script (e.g., `grep` or regex) to check for causal keywords. **Forbidden keywords**: "causes", "leads to", "effect of", "proves". **Exit code**: 1 if any keyword is found.
  - **Dependency**: Depends on T026a.
 
 **Checkpoint**: All user stories should now be independently functional
@@ -276,14 +272,15 @@
 
 ### Specific Ordering Constraints
 
+- **T006b (Anomaly Config)** MUST precede **T006 (Inject Anomalies)** as T006 depends on the config schema.
 - **T015 (Memory Profiler)** MUST precede **T016 (Bayesian GP)** as T016 depends on T015.
 - **T006d (Inference Engine Config)** MUST precede **T016 (Bayesian GP)** as T016 depends on the engine choice.
 - **T016 (Bayesian GP)** MUST precede **T026a (Evaluate)** as T026a depends on T016 outputs.
 - **T020-T022 (Baselines)** MUST precede **T026a (Evaluate)** as T026a depends on baseline outputs.
 - **T006c (Threshold Config)** MUST precede **T026a (Evaluate)** as T026a loads this config.
 - **T026a (Evaluate)** MUST precede **T030 (Results)** as T030 depends on evaluation.json.
-- **T006b (Anomaly Config)** MUST precede **T006 (Inject Anomalies)** as T006 depends on the config schema.
 - **T061 (Code Style)** MUST follow Phase 3-5 completion as it requires existing scripts.
+- **Test Tasks (T024, T025)**: Must be marked [ ] until their corresponding implementation tasks (T026a) are marked [X].
 
 ---
 
@@ -297,12 +294,12 @@
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: All data must be real (from public repos) or synthetically injected with known ground truth; NO fake data generation for evaluation.
-- **Critical**: All inference must run on CPU-only resources (cores, sufficient RAM, 6h limit).
+- **Critical**: All inference must run on CPU-only resources (cores, sufficient RAM, time limit).
 - **Critical**: Statistical methods must follow Spec FR-006 (Wilcoxon) as primary, with Bootstrap as secondary (Plan.md updated to reflect Spec supremacy).
 - **Critical**: Memory enforcement (SC-003) applies to the entire system, not just individual scripts.
 - **Critical**: Phase 7 tasks are mandatory to resolve previous "full_revision" verdicts regarding missing code and reproducibility.
-- **Current State**: T015, T016, T021, T022, T026a, T026b, T028, T029, T030, T032, T061, T006b, T006c, T006d are currently marked [ ] (incomplete) and must be completed to proceed.
+- **Current State**: T016, T021, T022, T026a, T026b, T028, T029, T030, T032, T061 are currently marked [ ] (incomplete) and must be completed to proceed.
 - **Constitution Compliance**: T016 and T026a explicitly enforce convergence checks (R-hat, ESS) and discard non-converged runs (Principle VI).
-- **Constraint Preservation**: T016 enforces 1000-step limit and SVI architecture (FR-002, FR-010, SC-002). T047/T048/T049/T050/T051/T053-T057 removed to eliminate contradictions.
-- **Config Compliance**: T006b, T006c, and T006d ensure all configurable parameters are defined in machine-readable YAML files, adhering to FR-004 and FR-012.
+- **Constraint Preservation**: T016 enforces ELBO stability and discards non-converged runs (FR-002, FR-010, SC-002). T047/T048/T049/T050/T051/T053-T057 removed to eliminate contradictions.
+- **Config Compliance**: T006b, T006c, and T006d ensure all configurable parameters are defined in machine-readable YAML files with concrete defaults, adhering to FR-004 and FR-012.
 - **Removal Note**: T047-T057 were removed as they were marked 'REMOVED' in previous versions and are redundant with T061-T064.
