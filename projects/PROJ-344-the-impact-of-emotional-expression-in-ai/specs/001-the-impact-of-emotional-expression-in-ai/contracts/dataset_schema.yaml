@@ -1,92 +1,82 @@
 # Dataset Schema for Emotional Synchrony Trust Study
-# This schema defines the structure for the interaction dataset used in US1.
-# It enforces FR-001 requirements for metadata presence and modality consistency.
+# Defines the contract for the processed feature dataset (features.csv)
+# Used by T010 contract tests to validate data integrity
 
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
-title: "EmotionalSynchronyInteractionDataset"
-description: "Schema for dataset containing facial, vocal, and trust metrics per interaction."
+title: "Emotional Synchrony Dataset Schema"
+description: "Schema for the intra-modal consistency and trust correlation dataset"
 
 properties:
   interaction_id:
     type: string
-    description: "Unique identifier for the interaction session."
-    required: true
+    description: "Unique identifier for the user-AI interaction session"
     pattern: "^[a-zA-Z0-9_-]+$"
-
-  participant_id:
-    type: string
-    description: "Anonymized participant identifier."
-    required: true
-
-  avatar_type:
-    type: string
-    description: "Type of AI avatar used (e.g., 'neutral', 'expressive')."
-    required: true
-    enum:
-      - neutral
-      - expressive
-      - mixed
-
-  duration_seconds:
-    type: number
-    description: "Duration of the interaction in seconds."
-    required: true
-    minimum: 0.0
-
-  difficulty_level:
-    type: integer
-    description: "Task difficulty level (1-5)."
-    required: true
-    minimum: 1
-    maximum: 5
-
-  trust_score:
-    type: number
-    description: "User trust score (1.0 to 5.0 Likert scale)."
-    required: true
-    minimum: 1.0
-    maximum: 5.0
-
+    
   facial_consistency_score:
     type: number
-    description: "Intra-modal consistency score for facial features."
-    required: false
+    description: "Normalized max absolute cross-correlation for facial features (0.0 to 1.0)"
     minimum: 0.0
     maximum: 1.0
-
+    
   vocal_consistency_score:
     type: number
-    description: "Intra-modal consistency score for vocal features."
-    required: false
+    description: "Normalized max absolute cross-correlation for vocal prosody (0.0 to 1.0)"
     minimum: 0.0
     maximum: 1.0
-
+    
   combined_consistency_score:
     type: number
-    description: "Combined consistency metric."
-    required: false
+    description: "Weighted average of facial and vocal consistency scores"
     minimum: 0.0
     maximum: 1.0
-
-  metadata:
-    type: object
-    description: "Additional metadata about the session."
-    required: false
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-      device_id:
-        type: string
-      environment:
-        type: string
+    
+  trust_score:
+    type: number
+    description: "User trust rating (Likert scale 1-5)"
+    minimum: 1.0
+    maximum: 5.0
+    
+  avatar_type:
+    type: string
+    description: "Type of AI avatar used in the interaction"
+    enum: ["neutral", "expressive", "animated"]
+    
+  session_duration_sec:
+    type: integer
+    description: "Duration of the interaction in seconds"
+    minimum: 10
+    
+  task_difficulty:
+    type: integer
+    description: "Perceived difficulty of the task (1-5 scale)"
+    minimum: 1
+    maximum: 5
+    
+  timestamp:
+    type: string
+    description: "ISO 8601 timestamp of the interaction"
+    format: date-time
+    
+  source_dataset:
+    type: string
+    description: "Origin of the data (e.g., 'NAB', 'UCI', 'synthetic')"
+    enum: ["NAB", "UCI", "synthetic", "human_collected"]
+    
+  metadata_version:
+    type: string
+    description: "Schema version used for this record"
+    pattern: "^\\d+\\.\\d+$"
 
 required:
   - interaction_id
-  - participant_id
-  - avatar_type
-  - duration_seconds
-  - difficulty_level
+  - facial_consistency_score
+  - vocal_consistency_score
+  - combined_consistency_score
   - trust_score
+  - avatar_type
+  - timestamp
+  - source_dataset
+  - metadata_version
 
 additionalProperties: false

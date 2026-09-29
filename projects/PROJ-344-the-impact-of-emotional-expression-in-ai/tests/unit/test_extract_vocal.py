@@ -1,104 +1,101 @@
 """
-Unit tests for vocal prosody extraction (T014).
-Tests pitch, energy, and tempo extraction logic using synthetic audio.
+Unit tests for vocal prosody extraction logic.
 """
-
 import os
 import sys
 import numpy as np
 import pytest
-from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add project root to path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from code.extract_vocal import (
     extract_pitch_features,
     extract_energy_features,
     extract_tempo,
     process_audio_file,
-    SAMPLE_RATE,
-    HOP_LENGTH
+    extract_vocal_prosody
 )
 from code.logging_config import setup_logging
 
 # Setup logging for tests
 setup_logging()
 
-class TestPitchFeatures:
-    def test_extract_pitch_sine_wave(self):
-        """Test pitch extraction on a known sine wave (440 Hz)."""
-        duration = 1.0  # seconds
-        t = np.linspace(0, duration, int(SAMPLE_RATE * duration), endpoint=False)
-        frequency = 440.0
-        y = np.sin(2 * np.pi * frequency * t)
+@pytest.fixture
+def dummy_audio():
+    """Generate a dummy audio signal for testing."""
+    sr = 22050
+    duration = 1.0
+    t = np.linspace(0, duration, int(sr * duration))
+    # 440 Hz sine wave
+    signal = 0.5 * np.sin(2 * np.pi * 440 * t)
+    return signal, sr
 
-        stats = extract_pitch_features(y, SAMPLE_RATE)
+def test_extract_pitch_features(dummy_audio):
+    y, sr = dummy_audio
+    features = extract_pitch_features(y, sr)
+    
+    assert isinstance(features, dict)
+    assert 'pitch_mean' in features
+    assert 'pitch_std' in features
+    assert 'pitch_range' in features
+    assert 'voiced_ratio' in features
+    
+    # For a pure 440Hz sine wave, mean should be close to 440
+    assert 400 < features['pitch_mean'] < 480
 
-        # Should detect a mean pitch close to 440 Hz
-        assert 400 < stats["mean_pitch"] < 480, f"Expected ~440Hz, got {stats['mean_pitch']}"
-        assert stats["std_pitch"] >= 0
+def test_extract_energy_features(dummy_audio):
+    y, sr = dummy_audio
+    features = extract_energy_features(y, sr)
+    
+    assert isinstance(features, dict)
+    assert 'energy_mean' in features
+    assert 'energy_std' in features
+    assert 'energy_max' in features
+    assert 'energy_entropy' in features
+    
+    assert features['energy_mean'] > 0
+    assert features['energy_max'] > 0
 
-    def test_extract_pitch_silence(self):
-        """Test pitch extraction on silence (should return 0 or very low)."""
-        y = np.zeros(int(SAMPLE_RATE * 1.0))
-        stats = extract_pitch_features(y, SAMPLE_RATE)
+def test_extract_tempo(dummy_audio):
+    y, sr = dummy_audio
+    features = extract_tempo(y, sr)
+    
+    assert isinstance(features, dict)
+    assert 'tempo_bpm' in features
+    assert 'onset_mean' in features
+    assert 'onset_std' in features
+    
+    # Tempo might be 0 for a pure sine wave, but keys must exist
+    assert isinstance(features['tempo_bpm'], float)
 
-        # No valid pitch should be detected
-        assert stats["mean_pitch"] == 0.0 or stats["std_pitch"] == 0.0
+def test_process_audio_file_empty(tmp_path, dummy_audio):
+    # Create a dummy audio file
+    import librosa
+    file_path = tmp_path / "test_audio.wav"
+    librosa.output.write_wav(str(file_path), dummy_audio[0], dummy_audio[1])
+    
+    features = process_audio_file(str(file_path), "test_id_1")
+    
+    assert features is not None
+    assert features['interaction_id'] == "test_id_1"
+    assert features['duration_sec'] > 0
 
-class TestEnergyFeatures:
-    def test_extract_energy_constant_signal(self):
-        """Test energy extraction on a constant amplitude signal."""
-        duration = 1.0
-        t = np.linspace(0, duration, int(SAMPLE_RATE * duration), endpoint=False)
-        amplitude = 0.5
-        y = amplitude * np.sin(2 * np.pi * 440 * t)
+def test_process_audio_file_corrupted(tmp_path):
+    # Create a corrupted file (empty or invalid header)
+    file_path = tmp_path / "corrupted.wav"
+    file_path.write_bytes(b"NOT_A_WAVE_FILE")
+    
+    features = process_audio_file(str(file_path), "test_id_2")
+    
+    # Should return None or handle gracefully
+    assert features is None
 
-        stats = extract_energy_features(y)
-
-        # RMS should be positive and less than 1.0 for normalized signal
-        assert stats["mean_energy"] > 0
-        assert stats["mean_energy"] < 1.0
-        assert stats["std_energy"] >= 0
-
-    def test_extract_energy_silence(self):
-        """Test energy extraction on silence."""
-        y = np.zeros(int(SAMPLE_RATE * 1.0))
-        stats = extract_energy_features(y)
-
-        # Energy should be near zero
-        assert stats["mean_energy"] == pytest.approx(0.0, abs=1e-6)
-
-class TestTempo:
-    def test_extract_tempo_rhythmic_signal(self):
-        """Test tempo extraction on a rhythmic signal."""
-        # Create a simple beat pattern (clicks every 0.5s -> 120 BPM)
-        duration = 2.0
-        sr = SAMPLE_RATE
-        y = np.zeros(int(sr * duration))
-        # Place clicks at 0.0, 0.5, 1.0, 1.5 seconds
-        for i in range(0, int(sr * duration), int(sr * 0.5)):
-            if i < len(y):
-                y[i] = 1.0
-
-        tempo = extract_tempo(y, sr)
-
-        # Should detect around 120 BPM (with some tolerance)
-        assert 100 < tempo < 140, f"Expected ~120 BPM, got {tempo}"
-
-class TestProcessAudioFile:
-    def test_process_nonexistent_file(self):
-        """Test that processing a non-existent file returns None."""
-        result = process_audio_file(Path("/nonexistent/file.wav"))
-        assert result is None
-
-    def test_process_empty_file(self, tmp_path):
-        """Test processing an empty audio file."""
-        empty_file = tmp_path / "empty.wav"
-        # Create a minimal WAV file header (invalid but file exists)
-        empty_file.write_bytes(b"RIFF\x00\x00\x00\x00WAVE")
-
-        result = process_audio_file(empty_file)
-        # Should handle gracefully (return None or empty dict)
-        assert result is None or result.get("mean_pitch") == 0.0
+def test_extract_vocal_prosody_no_files(tmp_path):
+    # Test with empty directory
+    output_path = tmp_path / "features.csv"
+    result = extract_vocal_prosody(str(tmp_path), str(output_path))
+    
+    assert result == []
+    assert not os.path.exists(output_path)

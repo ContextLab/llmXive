@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/` by executing `mkdir -p data/raw data/processed data/features code tests/contract tests/unit tests/integration outputs state`
+- [X] T001 Create project structure per implementation plan in `projects/PROJ-344-the-impact-of-emotional-expression-in-ai/` by executing `mkdir -p data/raw data/processed data/features code tests/contract tests/unit tests/integration outputs state`
 - [X] T002 Initialize Python project with pinned dependencies by generating `code/requirements.txt` containing pinned versions for openface, librosa, scikit-learn, statsmodels, pandas, matplotlib, seaborn, synthpop
 - [X] T003 [P] Configure linting and formatting tools by creating `.black` and `.flake8` config files in root
 
@@ -59,7 +59,9 @@
 - [X] T005 Implement data validation logic in `code/config.py` and `code/validators.py` to enforce FR-001 (schema check, metadata presence)
 - [X] T006 Setup deterministic logging and state tracking by creating `state/` directory and `code/logging_config.py` with specific logging format
 - [X] T007 Implement error handling framework by creating `code/utils.py` with a `handle_corrupted_file()` function that logs to logger and returns None for specific error conditions (corrupted media, missing metadata)
-- [X] T012c [P] [US1] Implement Controlled Data Collection Protocol by creating `code/data_collection.py` (survey interface, consent capture, anonymization pipeline) and `code/consent_form_template.md` as version-controlled artifacts per Constitution Principle VII and FR-001 fallback
+- [X] T012a [US1] Verify Registry Status by creating `code/verify_registry.py` to scan the dataset registry for valid NAB/UCI sources. **Output**: `state/registry_status.json` (true if valid data found, false if empty).
+- [X] T012b [US1] Create IRB Template by generating `data/irb_request_template.md` with consent forms and anonymization protocols per Constitution Principle VII.
+- [X] T012c [US1] Create Data Collection Protocol Script by generating `code/data_collection_protocol.py` which contains the logic to trigger a controlled data collection study (e.g., generating a request for human-in-the-loop data). **Dependency**: T012a (must exist) and T012b (template must exist).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,13 +82,20 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement dataset fetcher in `code/data_loader.py` to download real NAB/UCI data OR generate synthetic time-series via `synthpop` if no real data exists (adhering to FR-001 fallback), calling validator from T005
-- [X] T012b [US1] Implement 'trigger controlled data collection' pathway in `code/data_collection_trigger.py` as a placeholder script that logs a warning and halts execution if real data is required, directing the user to manual IRB steps (do NOT automate IRB logic)
-- [X] T013 [P] [US1] Implement facial feature extraction in `code/extract_facial.py` using OpenFace (CPU binary) for video frames
-- [X] T014 [P] [US1] Implement vocal prosody extraction in `code/extract_vocal.py` using librosa for pitch, energy, tempo from audio tracks
-- [X] T015 [US1] Implement intra-modal consistency metric calculation in `code/compute_metrics.py` (max abs cross-correlation within ±2s lag, normalized) per FR-004, consuming `data/processed/features.csv` produced by T013/T014 (WAIT FOR T013/T014 COMPLETION)
-- [X] T016 [US1] Implement Spearman correlation analysis in `code/analyze.py` to compute coefficient and 95% CI per FR-005, reading consistency scores from T015 output
-- [X] T017 [US1] Add logic to frame results as associational only (non-causal) in all outputs per SC-004
+- [X] T012 [US1] Implement dataset fetcher with deterministic fallback logic in `code/data_loader.py`. **Critical Logic**: <!-- FAILED: unspecified -->
+ 1. Attempt to download real NAB/UCI data.
+ 2. If fetch fails (raises `DataFetchError`), check `state/registry_status.json` (from T012a).
+ 3. If registry is NOT empty, retry fetch.
+ 4. If registry IS empty, invoke `code/synthetic_data_gen.py` (T012_gen) to generate synthetic data.
+ 5. If synthetic generation fails, invoke `code/data_collection_protocol.py` (T012c) to trigger human data collection.
+ 6. **Never** halt execution with an error; always proceed to the next fallback step.
+ **Output**: `data/processed/features.csv` (from real or synthetic data) or `state/collection_triggered.log` (if protocol triggered).
+- [ ] T012_gen [US1] Implement Controlled Synthetic Data Generation in `code/synthetic_data_gen.py` using `synthpop` to generate **synthetic raw media files** (dummy video/audio) OR **synthetic feature time-series** that exactly mimic the schema and format of OpenFace/librosa output. **Output**: `data/processed/synthetic_features.csv` (or `data/raw/synthetic_video.mp4` etc). **Logic**: This task MUST NOT bypass the extraction logic (FR-002/FR-003). If synthetic media is generated, T013/T014 MUST run on it. If synthetic features are generated, they must match the `features.csv` schema exactly. **Dependency**: T012 (invoked by T012 if real data fails and registry is empty).
+- [ ] T013 [P] [US1] Implement facial feature extraction in `code/extract_facial.py` using OpenFace (CPU binary) for video frames. **Output**: `data/processed/features.csv`. **Condition**: Run on ALL files in `data/raw` (real or synthetic). **Dependency**: T012 (must have populated `data/raw`).
+- [ ] T014 [P] [US1] Implement vocal prosody extraction in `code/extract_vocal.py` using librosa for pitch, energy, tempo from audio tracks. **Output**: `data/processed/features.csv`. **Condition**: Run on ALL files in `data/raw` (real or synthetic). **Dependency**: T012 (must have populated `data/raw`).
+- [ ] T015 [US1] Implement intra-modal consistency metric calculation in `code/compute_metrics.py` (max abs cross-correlation within ±2s lag, normalized) per FR-004. **Input**: `data/processed/features.csv` (produced by T013/T014). **Dependency**: T013 AND T014 (must have completed). <!-- FAILED: unspecified -->
+- [X] T016 [US1] Implement Spearman correlation analysis in `code/analyze.py` to compute coefficient and 95% CI per FR-005, reading consistency scores from T015 output.
+- [ ] T017 [US1] [Critical] Add logic to frame results as associational only (non-causal) in **ALL** outputs. **Specific Artifacts**: Modify `outputs/correlation_report.csv`, `outputs/regression_results.md`, `outputs/unified_analysis_report.md`, and the plot title in `outputs/consistency_trust_scatter.png`. Ensure every output artifact explicitly states the associational nature of the findings.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,8 +114,8 @@
 ### Implementation for User Story 2
 
 - [X] T019 [US2] Implement ordinal regression (proportional odds model) in `code/analyze.py` including control variables per FR-006
-- [X] T020 [US2] Add logic to extract and report p-values and model fit statistics (pseudo R-squared) for consistency and controls
-- [X] T021 [US2] Integrate regression results with US1 consistency scores to produce a unified analysis report
+- [ ] T020 [US2] Add logic to extract and report p-values and model fit statistics (pseudo R-squared) for consistency and controls, ensuring these values are explicitly written to the final report per SC-002.
+- [ ] T021 [US2] Integrate regression results with US1 consistency scores to produce a unified analysis report containing all statistical outputs. **Output**: `outputs/unified_analysis_report.md`. **Requirement**: Must include the "associational only" disclaimer in the report header (see T017).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -114,7 +123,7 @@
 
 ## Phase 5: User Story 3 - Visualization and Reporting (Priority: P3)
 
-**Goal**: Generate scatter plot with regression line and 95% CI, ensuring WCAG 2.1 AA contrast.
+**Goal**: Generate scatter plot with regression line and confidence interval, ensuring WCAG AA contrast.
 
 **Independent Test**: Run plotting script; verify output is a valid PNG with labeled axes, legend, title, and readable font sizes.
 
@@ -124,8 +133,8 @@
 
 ### Implementation for User Story 3
 
-- [X] T023 [US3] Implement scatter plot generation in `code/visualize.py` with consistency on X, trust on Y, regression line, and 95% CI bands per FR-007, including embedded logic to verify WCAG 2.1 AA contrast (≥4.5:1) and minimum font sizes before export per SC-003
-- [X] T025 [US3] Export final figure to `outputs/` with proper labeling (title indicating correlation coefficient)
+- [ ] T023 [US3] Implement scatter plot generation in `code/visualize.py` with consistency on X, trust on Y, regression line, and 95% CI bands per FR-007. **Requirement**: Implement a custom `verify_wcag_contrast()` function using `Pillow` to programmatically measure pixel contrast ratios (≥4.5:1) AND verify that axis-label font sizes meet a minimum readable magnitude (e.g., >= 12pt equivalent) before export per SC-003. The script must raise an error if these checks fail. **Requirement**: The plot title MUST include the "associational only" disclaimer (see T017). **Output**: `outputs/consistency_trust_scatter.png`.
+- [ ] T025 [US3] Export final figure to `outputs/` with proper labeling (title indicating correlation coefficient)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -135,12 +144,21 @@
 
 **Purpose**: Verify the full pipeline runs within constraints and produces valid results.
 
-- [X] T026b [US1] Create `code/benchmark.py` to profile memory/time on N=50 sample and verify constraints before full run (Proactive SC-005 check)
-- [X] T026c [US1] Implement resource monitoring and optimization logic in `code/monitor_resources.py` to ensure analysis completes within 6 hours and <7GB RAM based on benchmark results
-- [X] T026a [US1] Create `code/run_pipeline.py` to orchestrate the full pipeline execution
-- [X] T026 [US1] Execute `code/run_pipeline.py` with N=500 sample and verify outputs exist in `outputs/` (after T026b/T026c pass)
-- [X] T027 [US1] Verify memory usage stays within acceptable peak limits by creating `code/monitor_resources.py` that logs peak RAM usage to `state/memory_log.csv` and asserts <7GB
-- [X] T028 [US1] Validate all output artifacts (CSV, JSON, PNG) against their respective schemas and success criteria
+- [ ] T026 [US1] Implement Proactive Optimization in `code/run_pipeline.py` by adding batch processing logic using `pandas.read_csv(chunksize=...)` and streaming data structures to ensure the pipeline fits memory constraints (<7GB) BEFORE execution. **Output**: `code/run_pipeline.py` (updated).
+- [ ] T027 [US1] Execute Full Pipeline and Validate Constraints by running `code/run_pipeline.py` with N=500 sample and verifying outputs exist in `outputs/`. **Assertion**: Must raise `SystemExit` if peak RAM > 7GB or runtime > 6h, explicitly confirming SC-005 compliance. **Dependency**: T026 (optimization must be implemented first).
+
+**Checkpoint**: Pipeline verified to meet performance constraints
+
+---
+
+## Phase 7: Data Integrity & Reproducibility Hardening
+
+**Purpose**: Ensure strict adherence to data hygiene and reproducibility principles (Constitution I, II, III, V).
+
+- [ ] T029 [US1] Implement checksum verification for raw data ingestion in `code/checksums.py` to generate and store SHA-256 hashes in `state/raw_data_hashes.json` per Constitution Principle III.
+- [ ] T030 [US1] Implement checksum verification for derived feature files in `code/checksums.py` to generate and store hashes in `state/feature_hashes.json` per Constitution Principle III.
+- [ ] T031 [US1] Add deterministic seeding logic to `code/config.py` ensuring all random operations (synthetic generation, sampling) use a fixed seed logged in `state/random_seed.txt`.
+- [ ] T032 [US1] Create `code/audit_trail.py` to automatically log all pipeline execution parameters, input file hashes, and output file hashes into `state/audit_log.md` for full reproducibility per Constitution Principle I and V.
 
 ---
 
@@ -151,8 +169,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -192,7 +210,7 @@ Task: "Unit test for cross-correlation logic with mocked time-series in tests/un
 Task: "Implement facial feature extraction in code/extract_facial.py using OpenFace (CPU binary)"
 Task: "Implement vocal prosody extraction in code/extract_vocal.py using librosa"
 
-# T015 consumes the data artifacts (data/processed/features.csv) produced by T013/T014.
+# T015 consumes the data artifacts (data/processed/features.csv) produced by T013/T014 (or T012_gen).
 ```
 
 ---
@@ -221,9 +239,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-  - Developer A: User Story 1 (Extraction & Correlation)
-  - Developer B: User Story 2 (Regression)
-  - Developer C: User Story 3 (Visualization)
+ - Developer A: User Story 1 (Extraction & Correlation)
+ - Developer B: User Story 2 (Regression)
+ - Developer C: User Story 3 (Visualization)
 3. Stories complete and integrate independently
 
 ---
@@ -238,5 +256,6 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All data processing must use CPU-only models (OpenFace CPU binary, librosa). No GPU, no 8-bit/4-bit quantization, no deep learning training.
-- **Data Integrity**: Do not fabricate input data. Use real datasets (NAB/UCI) or deterministic synthetic generation via `synthpop` only as a fallback per FR-001. If synthetic is insufficient, trigger controlled data collection (T012b) using the protocol defined in T012c.
-- **Constitution Compliance**: T012c implements the actual Data Collection Protocol (consent forms, anonymization) as version-controlled artifacts. T012b is a placeholder trigger only; do not automate IRB logic.
+- **Data Integrity**: Do not fabricate input data. Use real datasets (NAB/UCI) or deterministic synthetic generation via `synthpop` only as a fallback per FR-001. If synthetic is insufficient, trigger controlled data collection (T012b/c) using the protocol defined in T012a.
+- **Constitution Compliance**: T012b/c implements the actual Data Collection Protocol (consent forms, anonymization) as version-controlled artifacts. T012a is the explicit trigger script generating the IRB template.
+- **Revision Note**: T012 updated to clarify the "fail loud" -> "synthetic fallback" flow with explicit steps. T012b moved to Phase 2 to ensure trigger availability. T012_gen extracted as the explicit synthetic generation task. T023 updated with specific WCAG verification mechanism. T029-T032 added to enforce strict data hygiene and reproducibility checksums. **New**: Phase 6 split into T026 (Implement Optimization) and T027 (Execute & Validate) to separate implementation from execution. T017 expanded to cover all final outputs including the unified report and plot title.

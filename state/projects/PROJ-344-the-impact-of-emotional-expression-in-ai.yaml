@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-344-the-impact-of-emotional-expression-in-ai
-last_run_id: 54c7b813-afbc-4744-a47d-81c1feba3eaf
+last_run_id: d2c4a83d-8ecb-4cd0-9494-252f120a9116
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-344-the-impact-of-emotional-expression-in-ai/specs/001-the-impact-of-emotional-expression-in-ai
 title: The Impact of Emotional Expression in AI Avatars on User Trust
-updated_at: '2026-09-25T15:52:04.633864Z'
+updated_at: '2026-09-29T13:58:41.570390Z'

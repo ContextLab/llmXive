@@ -1,21 +1,54 @@
+T010:
+  c: false
+  h: b184b0b138fc901f1c30e150d2a190a4669a8dfb89fe10129dd69b97ad625b49
+  r: The test file `tests/contract/test_dataset_schema.py` exists, but the required
+    schema file `contracts/dataset_schema.yaml` is missing, causing the test to fail
+    its existence check. The task cannot be considered complete until the referenced
+    YAML schema is present and contains the expected schema definition.
+T013:
+  c: false
+  h: 1b1e023637de63cfcabdacc2a01162c374c7a9b4de97cdc84b2055050fda1030
+  r: "The repository contains `code/extract_facial.py`, but the required output file\
+    \ `data/processed/features.csv` is absent, indicating that the extraction script\
+    \ has not been executed (or does not produce the mandated CSV). Without this file,\
+    \ the task\u2019s core requirement\u2014producing a consolidated features CSV\
+    \ from all videos in `data/raw`\u2014is not satisfied."
+T014:
+  c: false
+  h: 5ebf9702f05f8c4ab0aaee1a274a68697f8d13536c02aa913233586ba968f407
+  r: "The provided `code/extract_vocal.py` is incomplete (truncated), contains a typo\
+    \ (`fo_voiced`), lacks any tempo extraction logic, and does not include code that\
+    \ iterates over all files in `data/raw` or writes results to `data/processed/features.csv`\
+    \ (the CSV file is missing). Consequently the task\u2019s output and full functionality\
+    \ are not satisfied."
 T015:
   c: false
-  h: 4fd0ce0719756842cc9fd0b9ad84dea1507fd2cf2d767c40237b1b26d771a07e
-  r: "The `code/compute_metrics.py` file is cut off mid\u2011implementation (e.g.,\
-    \ `lags = np.aran` is incomplete and the metric logic is not fully realized),\
-    \ and the required input file `data/processed/features.csv` is absent. Both the\
-    \ metric implementation and its data source are missing, so the task is not genuinely\
-    \ completed."
-T025:
+  h: d7457ea9d4b9f277cdb9589c331878e670c309b3081b5fda3c872fbca1252302
+  r: The `code/compute_metrics.py` file is incomplete (truncated before the core logic
+    that extracts the lag window and returns the max absolute correlation) and contains
+    no code that reads `data/processed/features.csv` or produces the required metric
+    output. Moreover, the required input file `data/processed/features.csv` is missing
+    entirely. Both the implementation and the necessary data artifact are absent.
+T017:
+  c: false
+  h: 29a41f5a1cd117fe6e1e3d12fdc455c34a1228a5e42ca6a97281e83a81458995
+  r: The only present artifact is `outputs/regression_results.md`, which does state
+    the associational nature, but `outputs/correlation_report.csv`, `outputs/unified_analysis_report.md`,
+    and `outputs/consistency_trust_scatter.png` are missing entirely, so the requirement
+    to modify all listed outputs is not met.
+T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No figure file was provided in the `outputs/` directory, and there is no evidence
-    of an exported image with a title that includes the correlation coefficient. The
-    required artifact (the final labeled figure) is missing.
-T028:
+  r: "No code, script, or report file was provided that shows logic for extracting\
+    \ p\u2011values and pseudo\u202FR\u2011squared, nor evidence that these statistics\
+    \ are written to the final report as required. The implementer must supply the\
+    \ updated analysis script (or module) and a sample final report containing the\
+    \ requested values."
+T023:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV, JSON, or PNG artifacts are present, and there is no evidence of schema\
-    \ validation or success\u2011criteria checks for those files. The implementer\
-    \ provided only feature specifications and acceptance scenarios, but no actual\
-    \ output files or validation reports."
+  h: 205147ad04c528b2b7a083b1de58f803b37689a12d6dc081cf9938321650925f
+  r: "The required image `outputs/consistency_trust_scatter.png` is not present, and\
+    \ the code does not contain a `verify_wcag_contrast()` function nor a clear inclusion\
+    \ of the \u201Cassociational only\u201D disclaimer in the plot title. The existing\
+    \ `check_wcag_contrast()` only computes contrast from RGB tuples, not pixel\u2011\
+    level measurements, and the title logic is missing from the shown code."

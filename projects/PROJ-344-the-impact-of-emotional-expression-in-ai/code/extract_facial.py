@@ -1,217 +1,212 @@
-"""
-Facial Feature Extraction Module using OpenFace (CPU).
-
-This module extracts facial landmarks, action units, and gaze estimates
-from video frames using the OpenFace CPU binary. It adheres to the
-project's data processing constraints (CPU-only, no GPU).
-
-Inputs:
-    Video files from data/raw/ (expected structure: <interaction_id>.mp4 or .avi)
-Outputs:
-    data/processed/facial_features.csv
-"""
 import os
 import glob
 import subprocess
 import csv
 import sys
 import tempfile
-import shutil
-from pathlib import Path
-from typing import List, Dict, Any, Optional
-
 import pandas as pd
-import numpy as np
+from pathlib import Path
+from typing import List, Optional, Dict, Any
 
-# Import project utilities
-from logging_config import get_logger, log_pipeline_start, log_pipeline_complete, log_pipeline_error
+# Import from project API surface
+from logging_config import get_logger, log_state_event
 from utils import handle_corrupted_file
 from config import DATA_RAW_DIR, DATA_PROCESSED_DIR
 
-logger = get_logger(__name__)
-
-# Configuration
-OPENFACE_BINARY = "OpenFace"  # Assumes OpenFace is in PATH or installed globally
-# If OpenFace is not in PATH, set the absolute path here:
-# OPENFACE_BINARY = "/usr/local/bin/OpenFace"
-
-# Expected output columns from OpenFace (simplified subset for consistency metric)
-# OpenFace typically outputs: timestamp, face_id, confidence, landmarks, action_units, gaze
-# We will focus on Action Units (AU) and confidence for consistency scoring.
-FOCUSED_AU_COLUMNS = [
-    'AU01_r', 'AU02_r', 'AU04_r', 'AU05_r', 'AU06_r', 'AU07_r',
-    'AU09_r', 'AU10_r', 'AU12_r', 'AU15_r', 'AU17_r', 'AU23_r', 'AU25_r'
-]
+logger = get_logger()
 
 def run_openface_on_video(video_path: str, output_dir: str) -> Optional[str]:
     """
-    Runs the OpenFace binary on a single video file.
-
+    Runs OpenFace on a single video file and returns the path to the generated CSV.
+    
     Args:
-        video_path: Absolute path to the video file.
-        output_dir: Directory where OpenFace will write CSV outputs.
-
+        video_path: Path to the input video file.
+        output_dir: Directory where OpenFace should write its output.
+        
     Returns:
         Path to the generated CSV file if successful, None otherwise.
     """
-    if not os.path.exists(video_path):
-        logger.error(f"Video file not found: {video_path}")
-        return None
-
+    logger.info(f"Running OpenFace on: {video_path}")
+    
     try:
-        # Construct command
-        # -f: input file, -ow: output directory, -of: output filename prefix
-        # -no_display: run headless
-        # -cpu: ensure CPU mode (though default for binary is usually CPU)
+        # Ensure output directory exists
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Construct OpenFace command
+        # Assuming 'openface' is installed and available in PATH as a CPU binary
+        # Typical command structure: openface -f <video> -o <output_dir> -csv
         cmd = [
-            OPENFACE_BINARY,
-            '-f', video_path,
-            '-ow', output_dir,
-            '-no_display',
-            '-cpu'
+            "openface",
+            "-f", video_path,
+            "-o", output_dir,
+            "-csv",
+            "-cpus", "1"  # Force single CPU usage for stability
         ]
-
-        logger.info(f"Running OpenFace on {video_path}...")
-        process = subprocess.run(
+        
+        logger.debug(f"Executing: {' '.join(cmd)}")
+        
+        # Execute OpenFace
+        result = subprocess.run(
             cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
+            text=True,
             timeout=300  # 5 minute timeout per video
         )
-
-        if process.returncode != 0:
-            logger.error(f"OpenFace failed for {video_path}: {process.stderr.decode()}")
+        
+        if result.returncode != 0:
+            logger.error(f"OpenFace failed for {video_path}: {result.stderr}")
+            handle_corrupted_file(video_path, "OpenFace execution failed")
             return None
-
-        # Find the generated CSV (OpenFace names it <filename>.csv)
-        video_name = Path(video_path).stem
-        expected_csv = os.path.join(output_dir, f"{video_name}.csv")
-
-        if os.path.exists(expected_csv):
-            logger.info(f"OpenFace completed. Output: {expected_csv}")
-            return expected_csv
+        
+        # Determine output filename
+        base_name = Path(video_path).stem
+        expected_csv = Path(output_dir) / f"{base_name}.csv"
+        
+        if expected_csv.exists():
+            logger.info(f"OpenFace output created: {expected_csv}")
+            return str(expected_csv)
         else:
-            # Check if it was named differently or if no face was detected
-            matches = glob.glob(os.path.join(output_dir, f"{video_name}*.csv"))
-            if matches:
-                logger.warning(f"Expected {expected_csv} but found {matches[0]}. Using found file.")
-                return matches[0]
-            else:
-                logger.warning(f"No CSV output generated for {video_path}. Likely no face detected.")
-                return None
-
+            logger.warning(f"OpenFace ran but output not found: {expected_csv}")
+            return None
+              
     except subprocess.TimeoutExpired:
         logger.error(f"OpenFace timed out for {video_path}")
+        handle_corrupted_file(video_path, "OpenFace timeout")
         return None
+    except FileNotFoundError:
+        logger.error("OpenFace binary not found in PATH. Please ensure 'openface' is installed.")
+        raise
     except Exception as e:
-        logger.error(f"Error running OpenFace on {video_path}: {str(e)}")
+        logger.error(f"Unexpected error running OpenFace on {video_path}: {str(e)}")
+        handle_corrupted_file(video_path, str(e))
         return None
 
-def aggregate_facial_features(raw_data_dir: str, processed_output_dir: str) -> pd.DataFrame:
+def aggregate_facial_features(raw_features_dir: str, output_path: str) -> None:
     """
-    Iterates through raw video data, runs OpenFace, and aggregates results.
-
-    Args:
-        raw_data_dir: Path to directory containing raw video files.
-        processed_output_dir: Path to save the aggregated CSV.
-
-    Returns:
-        DataFrame containing aggregated facial features.
-    """
-    os.makedirs(processed_output_dir, exist_ok=True)
+    Aggregates all OpenFace CSV files into a single master features CSV.
     
-    # Create a temporary directory for OpenFace intermediate outputs
-    temp_dir = tempfile.mkdtemp(prefix="openface_tmp_")
-    logger.info(f"Using temporary directory for OpenFace outputs: {temp_dir}")
+    Args:
+        raw_features_dir: Directory containing individual OpenFace output CSVs.
+        output_path: Path for the final aggregated features.csv file.
+    """
+    logger.info(f"Aggregating facial features from {raw_features_dir}")
+    
+    csv_files = glob.glob(os.path.join(raw_features_dir, "*.csv"))
+    
+    if not csv_files:
+        logger.warning(f"No CSV files found in {raw_features_dir}")
+        # Create empty file with headers if no data found
+        pd.DataFrame().to_csv(output_path, index=False)
+        return
 
-    all_features = []
-    video_files = glob.glob(os.path.join(raw_data_dir, "*.mp4")) + \
-                  glob.glob(os.path.join(raw_data_dir, "*.avi")) + \
-                  glob.glob(os.path.join(raw_data_dir, "*.mov"))
+    all_data = []
+    
+    for csv_file in csv_files:
+        try:
+            df = pd.read_csv(csv_file)
+            if df.empty:
+                logger.warning(f"Empty CSV found: {csv_file}")
+                continue
+            
+            # Extract metadata from filename
+            video_id = Path(csv_file).stem
+            df['video_id'] = video_id
+            
+            # Ensure standard columns exist (OpenFace might vary by version)
+            # We will standardize to a common schema for downstream processing
+            required_cols = ['timestamp', 'video_id']
+            # OpenFace standard columns often include:
+            # action units (AU01_r, AU02_r, etc.), gaze, pose, etc.
+            # We keep all numeric columns found
+            
+            # Filter to numeric columns + video_id + timestamp if present
+            numeric_cols = df.select_dtypes(include=['number']).columns.tolist()
+            
+            # Ensure timestamp is first if present, then video_id
+            cols_to_keep = ['video_id']
+            if 'timestamp' in df.columns:
+                cols_to_keep.append('timestamp')
+            # Add all numeric feature columns
+            for col in numeric_cols:
+                if col not in cols_to_keep:
+                    cols_to_keep.append(col)
+            
+            # Select and reorder
+            df_subset = df[cols_to_keep]
+            all_data.append(df_subset)
+            
+        except Exception as e:
+            logger.error(f"Error reading {csv_file}: {e}")
+            continue
+    
+    if not all_data:
+        logger.warning("No valid data to aggregate.")
+        # Write empty file with headers
+        pd.DataFrame().to_csv(output_path, index=False)
+        return
 
-    if not video_files:
-        logger.warning(f"No video files found in {raw_data_dir}")
-        return pd.DataFrame()
-
-    logger.info(f"Found {len(video_files)} video files to process.")
-
-    for video_path in video_files:
-        interaction_id = Path(video_path).stem
-        logger.info(f"Processing interaction: {interaction_id}")
-
-        csv_output = run_openface_on_video(video_path, temp_dir)
-
-        if csv_output and os.path.exists(csv_output):
-            try:
-                df = pd.read_csv(csv_output)
-                
-                # Filter to relevant columns if they exist
-                existing_cols = [c for c in FOCUSED_AU_COLUMNS if c in df.columns]
-                if not existing_cols:
-                    # Fallback: keep all columns if specific AUs missing, but log warning
-                    logger.warning(f"No standard AU columns found in {csv_output}. Keeping all.")
-                    existing_cols = df.columns.tolist()
-
-                # Add metadata
-                df['interaction_id'] = interaction_id
-                df['source_file'] = os.path.basename(video_path)
-                
-                # Select columns: interaction_id, timestamp, and AUs
-                cols_to_keep = ['interaction_id', 'timestamp'] + existing_cols
-                df_subset = df[cols_to_keep]
-                
-                all_features.append(df_subset)
-                
-                # Clean up specific CSV to save space
-                os.remove(csv_output)
-                
-            except Exception as e:
-                logger.error(f"Failed to parse OpenFace output for {interaction_id}: {e}")
-                handle_corrupted_file(csv_output, "OpenFace CSV parse error")
-        else:
-            logger.warning(f"Skipping {interaction_id} due to OpenFace failure or no face detected.")
-
-    # Clean up temp directory
-    try:
-        shutil.rmtree(temp_dir)
-    except Exception as e:
-        logger.warning(f"Could not remove temp dir {temp_dir}: {e}")
-
-    if all_features:
-        final_df = pd.concat(all_features, ignore_index=True)
-        output_path = os.path.join(processed_output_dir, "facial_features.csv")
-        final_df.to_csv(output_path, index=False)
-        logger.info(f"Saved aggregated facial features to {output_path}")
-        return final_df
+    # Concatenate all dataframes
+    final_df = pd.concat(all_data, ignore_index=True)
+    
+    # Sort by video_id and timestamp
+    if 'timestamp' in final_df.columns:
+        final_df = final_df.sort_values(by=['video_id', 'timestamp'])
     else:
-        logger.warning("No facial features extracted from any video.")
-        # Create empty file with schema to prevent downstream crashes
-        empty_df = pd.DataFrame(columns=['interaction_id', 'timestamp'] + FOCUSED_AU_COLUMNS)
-        output_path = os.path.join(processed_output_dir, "facial_features.csv")
-        empty_df.to_csv(output_path, index=False)
-        return empty_df
+        final_df = final_df.sort_values(by='video_id')
+    
+    # Write to output
+    final_df.to_csv(output_path, index=False)
+    logger.info(f"Aggregated features written to {output_path} ({len(final_df)} rows)")
 
 def main():
-    """Main entry point for facial feature extraction."""
-    log_pipeline_start("T013", "Facial Feature Extraction")
+    """
+    Main entry point for facial feature extraction.
+    Scans data/raw for videos, runs OpenFace on each, and aggregates results.
+    """
+    logger.info("Starting Facial Feature Extraction (T013)")
     
-    try:
-        # Ensure directories exist (T001 should have done this, but safe to check)
-        os.makedirs(DATA_RAW_DIR, exist_ok=True)
-        os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
-        
-        df = aggregate_facial_features(DATA_RAW_DIR, DATA_PROCESSED_DIR)
-        
-        if df.empty:
-            logger.warning("Extraction completed but no data was generated.")
-        else:
-            logger.info(f"Extraction complete. Total rows: {len(df)}")
-            
-        log_pipeline_complete("T013", "Facial Feature Extraction")
-        
-    except Exception as e:
-        log_pipeline_error("T013", str(e))
-        raise
+    # Ensure directories exist
+    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+    
+    # Find all video files in data/raw
+    video_patterns = ['*.mp4', '*.avi', '*.mov', '*.mkv', '*.webm']
+    video_files = []
+    for pattern in video_patterns:
+        video_files.extend(glob.glob(os.path.join(DATA_RAW_DIR, pattern)))
+    
+    if not video_files:
+        logger.warning(f"No video files found in {DATA_RAW_DIR}")
+        # Create empty output file
+        pd.DataFrame().to_csv(os.path.join(DATA_PROCESSED_DIR, "features.csv"), index=False)
+        return
+
+    logger.info(f"Found {len(video_files)} video files to process")
+    
+    # Create a temporary directory for OpenFace intermediate outputs
+    # OpenFace usually outputs a CSV per video
+    temp_dir = os.path.join(DATA_PROCESSED_DIR, "openface_temp")
+    os.makedirs(temp_dir, exist_ok=True)
+    
+    output_csv_path = os.path.join(DATA_PROCESSED_DIR, "features.csv")
+    
+    processed_count = 0
+    
+    for video_path in video_files:
+        result_path = run_openface_on_video(video_path, temp_dir)
+        if result_path:
+            processed_count += 1
+    
+    if processed_count == 0:
+        logger.error("No videos were successfully processed.")
+        # Write empty file
+        pd.DataFrame().to_csv(output_csv_path, index=False)
+        return
+    
+    # Aggregate results
+    aggregate_facial_features(temp_dir, output_csv_path)
+    
+    log_state_event("facial_extraction_complete", {"processed": processed_count})
+    logger.info("Facial feature extraction completed successfully.")
 
 if __name__ == "__main__":
     main()

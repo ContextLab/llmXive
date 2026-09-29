@@ -24,7 +24,6 @@ from code.logging_config import get_logger
 logger = get_logger("contract_test_dataset_schema")
 
 # Path to the schema file as defined in the project structure
-# Adjusted to match the project root structure where specs are located
 SCHEMA_PATH = project_root / "specs" / "001-emotional-synchrony-trust" / "contracts" / "dataset_schema.yaml"
 
 def test_schema_loads_correctly():
@@ -32,49 +31,51 @@ def test_schema_loads_correctly():
     assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
     schema = load_schema(str(SCHEMA_PATH))
     assert schema is not None
-    assert "type" in schema or "properties" in schema, "Schema must define type or properties"
+    assert "properties" in schema, "Schema must define properties"
+    assert "required" in schema, "Schema must define required fields"
 
 def _create_minimal_valid_dataset(schema: dict) -> pd.DataFrame:
     """
     Constructs a minimal valid DataFrame based on the schema definition.
     This ensures the test data strictly adheres to the contract.
     """
-    required_fields = []
+    required_fields = schema.get("required", [])
+    properties = schema.get("properties", {})
     data_map = {}
 
-    if "properties" in schema:
-        for field_name, field_spec in schema["properties"].items():
-            # Check if field is required in the schema definition
-            if field_spec.get("required", False):
-                required_fields.append(field_name)
-            
-            # Determine default value based on type
+    for field_name in required_fields:
+        if field_name in properties:
+            field_spec = properties[field_name]
             field_type = field_spec.get("type", "string")
+            
             if field_type == "integer":
-                data_map[field_name] = [0]
+                data_map[field_name] = [100] # Default integer
             elif field_type == "number":
-                data_map[field_name] = [0.0]
+                # Handle constraints like min/max if present
+                min_val = field_spec.get("minimum", 0)
+                max_val = field_spec.get("maximum", 100)
+                data_map[field_name] = [min_val + (max_val - min_val) / 2]
             elif field_type == "boolean":
                 data_map[field_name] = [True]
             elif field_type == "array":
-                data_map[field_name] = [[]]
-            else:
-                data_map[field_name] = [""]
-
-    # Fallback for common required fields if schema doesn't explicitly mark 'required'
-    if not required_fields:
-        common_required = ["interaction_id", "trust_score"]
-        for field in common_required:
-            if field in data_map:
-                required_fields.append(field)
-
-    # Ensure we have at least one row of data for validation
-    if not data_map:
-        # Minimal fallback if schema is empty or unexpected
-        data_map = {
-            "interaction_id": ["test_001"],
-            "trust_score": [3.5]
-        }
+                data_map[field_name] = [["item"]]
+            elif field_type == "string":
+                # Handle enums
+                if "enum" in field_spec:
+                    data_map[field_name] = [field_spec["enum"][0]]
+                elif "pattern" in field_spec:
+                    # Provide a string matching the pattern (simplified)
+                    if "interaction_id" in field_name:
+                        data_map[field_name] = ["test_001"]
+                    elif "timestamp" in field_name:
+                        data_map[field_name] = ["2023-01-01T00:00:00"]
+                    else:
+                        data_map[field_name] = ["valid_string"]
+                else:
+                    data_map[field_name] = ["default_value"]
+        else:
+            # Fallback if required field not in properties (shouldn't happen in valid schema)
+            data_map[field_name] = ["fallback"]
 
     return pd.DataFrame(data_map)
 
@@ -97,42 +98,49 @@ def test_validate_dataset_compliance():
         logger.error(f"Validation failed for minimal valid data: {e}")
         pytest.fail(f"Schema validation failed for data constructed from schema: {e}")
 
-def test_validate_invalid_dataset():
+def test_validate_invalid_dataset_missing_required():
     """Test that validation fails for a dataset missing required fields."""
     assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
     schema = load_schema(str(SCHEMA_PATH))
     
     # Create a dataset missing a required field.
-    # We assume 'interaction_id' is always required based on project context.
-    # If the schema doesn't have it, we create an empty dataframe to force failure.
-    data = {
-        "interaction_id": [], 
-        "trust_score": []
-    }
+    # We construct a minimal valid one first, then remove a required column.
+    valid_df = _create_minimal_valid_dataset(schema)
+    required_cols = schema.get("required", [])
     
-    # Remove one column to simulate missing data if it exists in schema
-    if "trust_score" in data:
-        del data["trust_score"]
-    
-    df = pd.DataFrame(data)
-    
-    if df.empty or len(df.columns) == 0:
-        # If the dataframe is effectively empty or missing structure, validation should fail
-        with pytest.raises((ValidationError, AssertionError)):
-            validate_dataset(df, schema)
-        return
+    if len(required_cols) > 0:
+        # Remove the first required column to simulate missing data
+        col_to_remove = required_cols[0]
+        if col_to_remove in valid_df.columns:
+            invalid_df = valid_df.drop(columns=[col_to_remove])
+            
+            try:
+                is_valid = validate_dataset(invalid_df, schema)
+                # If the validator is lenient and returns False instead of raising, we assert that too
+                assert not is_valid, "Validation should fail for missing required field"
+            except ValidationError:
+                # Expected behavior: validator raises an error
+                pass
+            except Exception as e:
+                pytest.fail(f"Unexpected error during validation of invalid dataset: {e}")
 
-    try:
-        is_valid = validate_dataset(df, schema)
-        # If the schema is lenient, we check if it explicitly rejects missing columns
-        # In a strict contract test, missing required columns should raise ValidationError
-        if is_valid:
-            # If it passed despite missing a likely required column, we assert it shouldn't
-            # This part depends on how strict the validator is.
-            # For this test, we expect the validator to catch missing required fields.
-            # If the schema didn't mark 'required', the validator might pass.
-            # We assume the validator enforces the schema's 'required' list.
-            pass 
-    except ValidationError:
-        # Expected behavior: validator raises an error for missing required fields
-        pass
+def test_validate_invalid_data_types():
+    """Test that validation fails for incorrect data types."""
+    assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
+    schema = load_schema(str(SCHEMA_PATH))
+    
+    # Create a valid dataframe
+    valid_df = _create_minimal_valid_dataset(schema)
+    
+    # Corrupt a numeric field to be a string
+    if "trust_score" in valid_df.columns:
+        valid_df["trust_score"] = "invalid_string"
+        
+        try:
+            is_valid = validate_dataset(valid_df, schema)
+            assert not is_valid, "Validation should fail for incorrect data type"
+        except ValidationError:
+            # Expected
+            pass
+        except Exception as e:
+            pytest.fail(f"Unexpected error during type validation: {e}")
