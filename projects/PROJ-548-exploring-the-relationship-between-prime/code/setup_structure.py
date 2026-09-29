@@ -4,49 +4,59 @@ from pathlib import Path
 
 def main():
     """
-    Create the project directory structure for PROJ-548.
-    Addresses FR-001 (Project Setup) and SC-004 (Directory Structure).
-    """
-    base_dir = Path.cwd()
+    Create the project directory structure as defined in the implementation plan.
     
-    # Define all required directories relative to project root
+    Addresses FR-001, SC-004.
+    """
+    # Define the relative paths to create
+    # All paths are relative to the project root (assumed to be the current working directory)
     directories = [
-        # Source code structure
         "src/data",
         "src/analysis",
         "src/utils",
         "src/cli",
-        
-        # Test structure
         "tests/unit",
         "tests/integration",
-        
-        # Data structure
         "data/raw",
         "data/processed",
         "data/results",
-        
-        # Results and state
         "results",
         "state"
     ]
-    
+
     created_count = 0
+    existing_count = 0
+
     for dir_path in directories:
-        full_path = base_dir / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+        path = Path(dir_path)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
         else:
-            print(f"Directory exists: {full_path}")
-    
-    print(f"\nProject structure setup complete. {created_count} new directories created.")
-    print("Directories created:")
+            # Check if it is indeed a directory
+            if path.is_dir():
+                print(f"Directory already exists: {dir_path}")
+                existing_count += 1
+            else:
+                print(f"ERROR: Path exists but is not a directory: {dir_path}")
+                sys.exit(1)
+
+    print(f"\nProject structure initialization complete.")
+    print(f"  Created: {created_count} new directories")
+    print(f"  Existing: {existing_count} directories")
+
+    # Verify structure
+    missing = []
     for dir_path in directories:
-        print(f"  - {dir_path}")
+        if not Path(dir_path).is_dir():
+            missing.append(dir_path)
     
-    return 0
+    if missing:
+        print(f"\nFATAL: The following directories were not created: {missing}")
+        sys.exit(1)
+    else:
+        print("Verification passed: All required directories exist.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
