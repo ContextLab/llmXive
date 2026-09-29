@@ -1,15 +1,15 @@
 status: none
-intent: downloadable dataset containing RSES INCOM longitudinal pre post VR exposure
-  participants python package dataset
+intent: Rosenberg Self Esteem Scale INCOM longitudinal VR exposure dataset python
+  package dataset
 required_fields:
 - participant_id
 - pre_RSES
 - post_RSES
 - INCOM_score
 - condition
-- time_point
+- timepoint
 - age
 - gender
-cache_key: 1c41f4b3a11dd1ab133079094291a3af6b4cc0ab382137bbd9bc6cb232bb1bab
-searched_at: '2026-09-23T16:32:54.578665+00:00'
+cache_key: 2f794124de4f675dbb53ec8d83c5f973a27821e479a5329504f24bb37d0018ef
+searched_at: '2026-09-29T08:47:27.859199+00:00'
 retry_count: 1

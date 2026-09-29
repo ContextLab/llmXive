@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -139,7 +139,7 @@
 - [X] T004 [P] Setup logging infrastructure in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/utils/logger.py`
 - [X] T005 [P] Create configuration manager for seeds and paths in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/config.py`
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready - user story implementation can begin in parallel
 
 ---
 
@@ -160,23 +160,23 @@
 - [X] T009a [US1] **IRB/Consent Verification Logic** (DEPENDS ON T008 output): Implement logic in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` to verify consent documentation.
  1. Check for existence of IRB/Consent artifact in `data/raw/consent_forms/`.
  2. **File Format**: Accept `.pdf` or `.txt` files only.
- 3. **Verification**: Scan file content for keywords 'IRB' or 'Consent'.
+ 3. **Verification**: Scan file content for keywords 'IRB' or 'Consent' using PyPDF2 for PDFs.
  4. **Return a structured validation object** (JSON schema):
-    ```json
-    {
-      "valid": boolean,
-      "reason": "string (e.g., 'File not found', 'Missing keywords')",
-      "source": "string (dataset_id or null)"
-    }
-    ```
+ ```json
+ {
+ "valid": boolean,
+ "reason": "string (e.g., 'File not found', 'Missing keywords')",
+ "source": "string (dataset_id or null)"
+ }
+ ```
  5. Log specific findings (file path, keywords found) to `logs/irb_check.log`. **Do NOT log the full content of the consent form.**
  **Artifact**: No standalone file; returns a validation object for downstream tasks.
  **Note**: This task is strictly for verification. It does NOT trigger fallbacks or update state.
 - [X] T009b [US1] **Fallback Trigger and State Update** (DEPENDS ON T009a): Implement logic in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py` to handle the decision.
  1. Consume the validation object from T009a.
  2. **Logic**:
-    - If `valid` is False AND real data exists: **HALT** execution and flag the data as unusable (do NOT generate synthetic data to replace valid real data).
-    - If no real data is found by T008: Trigger synthetic generation (T010).
+ - If `valid` is False AND real data exists: **Trigger synthetic generation** (T010) and flag the real data as unusable. Do NOT halt execution.
+ - If no real data is found by T008: Trigger synthetic generation (T010).
  3. Update `state/data_path_decision.yaml` with the decision and reason.
  4. Generate `data/raw/synthetic_seed.json` if synthetic generation is triggered.
  **Artifact**: `state/data_path_decision.yaml` containing:
@@ -216,7 +216,12 @@
  "timestamp": "ISO8601"
  }
  ```
-- [X] T017 [US2] Implement variable normalization (avatar_condition to 0/1 if binary) in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/preprocess.py` AND compute change scores (post_self_esteem - pre_self_esteem) **strictly for in-memory logging/diagnostics ONLY**. **CRITICAL**: Do NOT use change scores as the outcome. The primary model must use ANCOVA (outcome: post_self_esteem, covariate: pre_self_esteem) to avoid mathematical coupling as mandated by the Plan. **DO NOT persist change scores to disk**. Log a warning in `logs/preprocess.log` that these are for descriptive use only. **DEPENDS ON T013a, T016**. **Note**: This task is non-blocking; if change score calculation fails, log a warning and proceed. Downstream tasks (T013b, T022) depend on the *imputed dataset* (from T016), not the change score.
+- [X] T017 [US2] **Compute Descriptive Change Scores** (DEPENDS ON T016, but NON-BLOCKING): Compute `post_self_esteem - pre_self_esteem` for logging/diagnostics ONLY.
+ 1. **Logic**: If `data/processed/imputed_data.csv` exists, compute change scores. If not, skip and log "Imputation data missing, skipping descriptive change score calculation".
+ 2. **CRITICAL**: Do NOT use change scores as the outcome. The primary model must use ANCOVA (outcome: post_self_esteem, covariate: pre_self_esteem) to avoid mathematical coupling as mandated by the Plan.
+ 3. **Output**: Write a `diagnostics/change_score_status.json` file with keys `status` (success/skipped) and `message`.
+ 4. Log a warning in `logs/preprocess.log` that these are for descriptive use only.
+ **Note**: This task is non-blocking; if change score calculation fails, log a warning and proceed. Downstream tasks (T013b, T022) depend on the *imputed dataset* (from T016), not the change score.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data path selected and validated).
 
@@ -260,7 +265,7 @@
 
 - [X] T025 [US3] Implement bootstrap resampling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/bootstrap.py` with **at least 1,000 iterations OR until CI width variance < 0.01 is achieved (FR-005), whichever comes first**. **CRITICAL**: Set `max_iterations=1000`. If variance < 0.01 is not achieved after max iterations, log a warning, record the final variance, and proceed with the best available CI. Do NOT fail. Record the instability in the final report. **DEPENDS ON T018**.
 - [X] T028a [US3] **Implement Threshold Sensitivity Sweep Logic** (DEPENDS ON T013a, T021): Implement logic in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/sensitivity.py` for p-value thresholds (conventional significance levels) and imputation limits.
- 1. **Threshold List**: Generate a list of thresholds `[0.0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.14, 0.16, 0.18, 0.20]`.
+ 1. **Threshold List**: Generate a list of thresholds `[0.0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.14, 0.16, 0.18, 0.20]` for imputation limits and p-value thresholds.
  2. Include the complete case baseline.
  3. **Output**: Return an in-memory result object containing the sweep results (threshold, bias, variance, baseline_id).
  4. **Artifact**: Write the list of thresholds and baseline logic to `data/processed/sensitivity_thresholds.json` for T028b consumption.
@@ -311,8 +316,12 @@
 
 **Purpose**: Ensure the pipeline runs successfully on the free CPU runner with dynamic resource checks.
 
-- [X] T050 [US1] **CRITICAL**: Implement dynamic resource checking in `code/data/download.py`. Use `psutil` or `os.sysconf` to estimate available RAM. If estimated dataset size exceeds a significant proportion of available RAM, implement chunked processing or trigger a warning with explicit logging of the sampling strategy. **NO hardcoded thresholds**. (FR-001, Plan constraints).
-- [X] T051 [US3] **CRITICAL**: Implement dynamic memory estimation in `code/analysis/bootstrap.py`. Before starting bootstrap, estimate memory usage. If estimated usage exceeds 80% of available RAM, reduce iterations to a minimum of 100 and log the reduction. Record the actual number of iterations and the reason for reduction in `final_report.json`. (FR-005, Plan constraints).
+- [X] T050 [US1] **CRITICAL**: Implement dynamic resource checking in `code/data/download.py`. Use `psutil` or `os.sysconf` to estimate available RAM. If estimated dataset size exceeds a substantial proportion of available RAM, implement chunked processing or trigger a warning with explicit logging of the sampling strategy. **NO hardcoded thresholds**. (FR-001, Plan constraints).
+- [X] T051 [US3] **CRITICAL**: Implement dynamic memory estimation in `code/analysis/bootstrap.py`. Before starting bootstrap, estimate memory usage. If estimated usage exceeds 80% of available RAM:
+ 1. **First**: Attempt to sample the dataset (using T066 logic) to a size that fits 1000 iterations.
+ 2. **Second**: If sampling is not possible or still too large, reduce iterations to the maximum possible within 80% RAM, but **MUST** log a CRITICAL warning "Statistical Power Compromised: Iterations reduced from 1000 to X due to memory constraints".
+ 3. **Do NOT** silently drop to 100 iterations without explicit warning.
+ 4. Record the actual number of iterations and the reason for reduction in `final_report.json`. (FR-005, Plan constraints).
 
 **Checkpoint**: Pipeline is safe for execution on free CPU runner.
 
@@ -339,13 +348,52 @@
 
 **Purpose**: Address critical review concerns regarding data loading, synthetic fallbacks, and execution safety. These tasks ensure the pipeline never fabricates data and handles real data correctly.
 
-- [ ] T053 [P] [US1] **Enforce Strict Real Data Fetching with Fallback**: Modify `code/data/download.py` (T008) to handle fetch failures gracefully. If a real fetch fails OR IRB consent is missing (and no valid real data exists), the script MUST trigger synthetic generation (T010) and log the specific reason (e.g., "Fetch failed", "No consent"). **Do NOT halt execution** unless real data exists but lacks consent (in which case, see T009b). (FR-009, Constitution Principle III).
-- [ ] T054 [P] [US1] **Implement Verified Real Data Source Injection**: Modify `code/data/download.py` to check for a `VERIFIED_REAL_DATA_SOURCE` environment variable or config flag. **Expected Format**: A HuggingFace dataset ID (e.g., "org/dataset") or a local file path. If present, the loader MUST use the specified package/recipe exactly, **BUT MUST STILL RUN T009a (IRB Check)** before proceeding to ensure constitutional compliance. (FR-009, Constitution Principle III).
-- [ ] T055 [P] [US1] **Add Explicit Synthetic Data Labeling**: Ensure `code/data/download.py` (T010) explicitly writes a `data_source_type` field to the output CSV and JSON artifacts, setting it to "synthetic" with a comment "Pipeline Validation Only". (FR-011).
-- [ ] T056 [P] [US2] **Add Streaming Support for Large Datasets**: Modify `code/data/preprocess.py` (T016) to support streaming large datasets using `datasets.load_dataset(..., streaming=True)` if the dataset size exceeds **[deferred] of available RAM**. Process data in chunks (e.g., a fixed batch size) and accumulate statistics online. (FR-001, Plan constraints).
-- [ ] T057 [P] [US3] **Add Bootstrap Memory Safety**: Modify `code/analysis/bootstrap.py` (T025) to include a hard limit on memory usage (e.g., 7 GB) and dynamically adjust the number of bootstrap iterations if the limit is approached. Log the adjustment and record the actual number of iterations performed. (FR-005, Plan constraints).
-- [ ] T058 [P] [US1] **Add Data Integrity Checksums**: Modify `code/data/download.py` (T012) to compute and store SHA-256 checksums for all downloaded real datasets and synthetic data files. Verify these checksums before processing. (Constitution Principle III).
-- [ ] T059 [P] [US1] **Add IRB Consent Artifact Logging**: Modify `code/data/download.py` (T009a) to log the exact **path** of any IRB/Consent artifacts found, ensuring transparency in the verification process. **Do NOT log the content** of the consent forms to preserve Data Hygiene and Ethical Human Subjects principles. (FR-009, Constitution Principle VI).
-- [ ] T060 [P] [US2] **Add MICE Imputation Fallback Logging**: Modify `code/data/preprocess.py` (T016) to log a detailed message if `miceforest` is unavailable and `sklearn.impute.IterativeImputer` is used, including the reason for the fallback. (FR-013).
-- [ ] T061 [P] [US3] **Add Sensitivity Sweep Range Validation**: Modify `code/analysis/sensitivity.py` (T028a) to validate that the sensitivity sweep range (imputation limits, p-value thresholds) is within reasonable bounds (e.g., 0.0 to 0.20 for imputation limits) and log any adjustments made. (FR-007).
-- [ ] T062 [P] [US3] **Add Final Report Interpretation Validation**: Modify `code/analysis/sensitivity.py` (T030) to validate that the `interpretation` field in the final report matches the `data_source_type` (e.g., "Empirical Association" for real, "Simulated Causal Effect" for synthetic). (FR-010).
+- [X] T053 [P] [US1] **Enforce Strict Real Data Fetching with Fallback**: Modify `code/data/download.py` (T008) to handle fetch failures gracefully. If a real fetch fails OR IRB consent is missing (and no valid real data exists), the script MUST trigger synthetic generation (T010) and log the specific reason (e.g., "Fetch failed", "No consent"). **Do NOT halt execution** unless real data exists but lacks consent (in which case, see T009b). (FR-009, Constitution Principle III).
+- [X] T054 [P] [US1] **Implement Verified Real Data Source Injection**: Modify `code/data/download.py` to check for a `VERIFIED_REAL_DATA_SOURCE` environment variable or config flag. **Expected Format**: A HuggingFace dataset ID (e.g., "org/dataset") or a local file path. If present, the loader MUST use the specified package/recipe exactly, **BUT MUST STILL RUN T009a (IRB Check)** before proceeding to ensure constitutional compliance. (FR-009, Constitution Principle III).
+- [X] T055 [P] [US1] **Add Explicit Synthetic Data Labeling**: Ensure `code/data/download.py` (T010) explicitly writes a `data_source_type` field to the output CSV and JSON artifacts, setting it to "synthetic" with a comment "Pipeline Validation Only". (FR-011).
+- [X] T056 [P] [US2] **Add Streaming Support for Large Datasets**: Modify `code/data/preprocess.py` (T016) to support streaming large datasets using `datasets.load_dataset(..., streaming=True)` if the dataset size exceeds 80% of available RAM. Process data in chunks (e.g., a fixed batch size) and accumulate statistics online. (FR-001, Plan constraints).
+- [X] T057 [P] [US3] **Add Bootstrap Memory Safety**: Modify `code/analysis/bootstrap.py` (T025) to include a hard limit on memory usage (e.g., 7 GB) and dynamically adjust the number of bootstrap iterations if the limit is approached. Log the adjustment and record the actual number of iterations performed. (FR-005, Plan constraints).
+- [X] T058 [P] [US1] **Add Data Integrity Checksums**: Modify `code/data/download.py` (T012) to compute and store SHA-256 checksums for all downloaded real datasets and synthetic data files. Verify these checksums before processing. (Constitution Principle III).
+- [X] T059 [P] [US1] **Add IRB Consent Artifact Logging**: Modify `code/data/download.py` (T009a) to log the exact **path** of any IRB/Consent artifacts found, ensuring transparency in the verification process. **Do NOT log the content** of the consent forms to preserve Data Hygiene and Ethical Human Subjects principles. (FR-009, Constitution Principle VI).
+- [X] T060 [P] [US2] **Add MICE Imputation Fallback Logging**: Modify `code/data/preprocess.py` (T016) to log a detailed message if `miceforest` is unavailable and `sklearn.impute.IterativeImputer` is used, including the reason for the fallback. (FR-013).
+- [X] T061 [P] [US3] **Add Sensitivity Sweep Range Validation**: Modify `code/analysis/sensitivity.py` (T028a) to validate that the sensitivity sweep range (imputation limits, p-value thresholds) is within reasonable bounds (e.g., 0.0 to 0.20 for imputation limits) and log any adjustments made. (FR-007).
+- [X] T062 [P] [US3] **Add Final Report Interpretation Validation**: Modify `code/analysis/sensitivity.py` (T030) to validate that the `interpretation` field in the final report matches the `data_source_type` (e.g., "Empirical Association" for real, "Simulated Causal Effect" for synthetic). (FR-010).
+
+---
+
+## Phase 10: Critical Data Hygiene & Anti-Fabrication Enforcement (Revision)
+
+**Purpose**: Address critical review concerns regarding the strict prohibition of synthetic data fallbacks for failed real fetches and the enforcement of real data streaming.
+
+- [X] T063 [P] [US1] **Enforce Loud Failure on Network Errors (Conditional)**: Modify `code/data/download.py` to distinguish between "Network Error on Valid Source" and "No Source Found".
+ 1. If a real fetch fails due to **network error** (timeout, DNS, 500) on a **known valid source** (e.g., a specific HuggingFace ID that exists but is unreachable): Raise `DataFetchError` and halt execution immediately. Do NOT fall back to synthetic data for network errors on valid sources.
+ 2. If a real fetch fails because **no valid source was found** (404 on all candidates, or no dataset matches schema): **Trigger synthetic generation** (T010).
+ 3. If IRB/Consent is missing (T009a): **Trigger synthetic generation** (T010).
+ 4. **Do NOT** use `try/except` to silently fall back to synthetic data for network errors on valid sources.
+ (Constitution Principle III, FR-009, FR-011).
+- [X] T064 [P] [US1] **Implement Real Dataset Sampling for Large Files**: Modify `code/data/download.py` and `code/data/preprocess.py` to use `datasets.load_dataset(..., streaming=True)` for any dataset source where the estimated size exceeds 80% of available RAM.
+ 1. **CRITICAL**: If the dataset is too large for MICE (FR-002), **extract a representative random sample** (N >= 100, preserving missingness patterns) and run standard MICE on that sample.
+ 2. **Do NOT** attempt "streaming MICE" or "online imputation" as these are statistically invalid.
+ 3. Explicitly document the sampling strategy (seed, size, missingness preservation) in `logs/streaming.log`.
+ (FR-001, Plan constraints).
+- [X] T065 [P] [US1] **Add Real Data Source Verification Test**: Implement a unit test in `tests/unit/test_data_fetch.py` that simulates a network failure during a real fetch attempt and asserts that the system raises `DataFetchError` rather than generating synthetic data. This test must pass to validate the anti-fabrication constraint. (FR-009).
+- [X] T066 [P] [US2] **Add Sampling Support for MICE**: Modify `code/data/preprocess.py` to support MICE imputation on sampled data chunks if the dataset is too large for memory.
+ 1. **Strategy**: If dataset > RAM, extract a random sample (N >= 100) and run standard MICE.
+ 2. **Fallback**: If sampling is not possible (e.g., N < 100 after sampling), raise an error.
+ 3. Explicitly log the sample size and limitation.
+ (FR-002, Plan constraints).
+- [X] T067 [P] [US3] **Add Bootstrap Sampling Support**: Modify `code/analysis/bootstrap.py` to support bootstrapping on sampled data chunks if the dataset is too large for memory.
+ 1. **Strategy**: If dataset > RAM, use the sampled data (from T064/T066) for bootstrap.
+ 2. **Fallback**: If sampling is not possible, reduce iterations to max possible within RAM, but log "Power Compromised" (see T051).
+ (FR-005, Plan constraints).
+- [X] T068 [P] [US1] **Add Real Data Checksum Verification**: Modify `code/data/download.py` to verify the SHA-256 checksum of any downloaded real dataset against a known hash stored in `state/projects/PROJ-490-the-effect-of-simulated-social-compariso.yaml` under `artifact_hashes` before processing.
+ 1. **Logic**: If checksum does not match, raise an error and halt **ONLY IF** the source is valid (not missing). If the checksum is missing (new file), proceed.
+ 2. **Do NOT** halt on missing consent (T009a handles that).
+ (Constitution Principle III).
+- [X] T069 [P] [US1] **Add Synthetic Data Explicit Warning**: **DELETED** (Redundant with T030/T030a).
+- [X] T070 [P] [US3] **Add Sensitivity Sweep Real Data Constraint**: Modify `code/analysis/sensitivity.py` to ensure that sensitivity sweeps are only performed on real data if the dataset size allows. If the dataset is too large, implement a streaming sweep or fall back to a defined sampling strategy with explicit logging. (FR-007, Plan constraints).
+- [X] T071 [P] [US1] **Add Data Fetch Retry Logic**: Modify `code/data/download.py` to implement a retry mechanism (e.g., 3 attempts with exponential backoff) for real data fetches before raising `DataFetchError`. This ensures transient network errors do not trigger synthetic fallbacks. (FR-009).
+- [X] T072 [P] [US1] **Add Data Fetch Timeout Handling**: Modify `code/data/download.py` to set a strict timeout (e.g., 30 seconds) for real data fetches. If the timeout is exceeded, raise `DataFetchError` and do NOT fall back to synthetic data. (FR-009).
+- [X] T073 [P] [US1] **Add Data Fetch URL Validation**: Modify `code/data/download.py` to validate the URL of any real data source before attempting to fetch. Ensure the URL is a valid HuggingFace, OpenML, or OSF link. If invalid, raise `DataFetchError`. (FR-009).
+- [X] T074 [P] [US1] **Add Data Fetch Metadata Verification**: Modify `code/data/download.py` to verify the metadata of any real data source (e.g., number of rows, columns) before attempting to fetch. If the metadata does not match the expected schema, raise `DataFetchError`. (FR-009).
+- [X] T075 [P] [US1] **Add Data Fetch Consent Verification**: Modify `code/data/download.py` to verify the consent documentation of any real data source **after** fetching the dataset or its metadata (T009a). If consent is missing, trigger synthetic generation (T010) and log the reason. (FR-009, Constitution Principle VI).

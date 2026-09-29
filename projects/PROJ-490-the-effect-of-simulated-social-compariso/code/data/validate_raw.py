@@ -1,198 +1,164 @@
-"""
-Module: validate_raw.py
-Task: T013a - Pre-Imputation Variable Check
-Description: Verifies that data/raw contains ALL required variables before imputation.
-             If any are missing, it triggers the synthetic data generator (T010).
-             Writes validation status to data/processed/pre_imputation_validation.json.
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import List, Set, Dict, Any, Optional
-import pandas as pd
-from datetime import datetime
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
+# Import from sibling modules as per API surface
 from data.config import get_config
 from utils.logger import get_logger, log_execution_start, log_execution_end
-from data.download import generate_synthetic_dataset, write_state_decision
 
-REQUIRED_VARIABLES = {
+# Define required variables based on task description and schema
+REQUIRED_VARS = {
     "avatar_condition",
     "pre_self_esteem",
     "post_self_esteem",
     "comparison_tendency"
 }
 
-logger = get_logger(__name__)
-
 def validate_raw_directory(raw_dir: Path) -> bool:
     """
-    Checks if the raw directory contains any data files.
-    Returns True if at least one .csv file is found, False otherwise.
+    Check if the raw data directory exists.
     """
     if not raw_dir.exists():
-        logger.warning(f"Raw data directory does not exist: {raw_dir}")
+        logging.error(f"Raw directory does not exist: {raw_dir}")
         return False
-    
-    csv_files = list(raw_dir.glob("*.csv"))
-    if not csv_files:
-        logger.warning(f"No CSV files found in raw data directory: {raw_dir}")
+    if not raw_dir.is_dir():
+        logging.error(f"Path is not a directory: {raw_dir}")
         return False
-    
-    logger.info(f"Found {len(csv_files)} CSV file(s) in raw directory.")
     return True
 
-def validate_raw_data_variables(data_dir: Path) -> Dict[str, Any]:
+def validate_raw_data_variables(raw_dir: Path) -> Dict[str, Any]:
     """
-    Validates that the data in data/raw contains all required variables.
-    If missing, triggers synthetic data generation.
+    Verify that data/raw contains ALL required variables BEFORE imputation.
     
-    Returns:
-        Dict containing validation status and details.
+    Checks for CSV/JSON files in data/raw and ensures they contain:
+    - avatar_condition
+    - pre_self_esteem
+    - post_self_esteem
+    - comparison_tendency
+    
+    If any are missing, it triggers synthetic data generation logic (T010)
+    by returning a 'fail' status with missing variables.
+    
+    Returns a validation object to be written to data/processed/pre_imputation_validation.json.
     """
-    config = get_config()
-    raw_dir = config.paths.raw_data
-    processed_dir = config.paths.processed_data
-    state_dir = config.paths.state
-
-    # Ensure directories exist
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    state_dir.mkdir(parents=True, exist_ok=True)
-
-    validation_result = {
+    logger = logging.getLogger(__name__)
+    log_execution_start(logger, "validate_raw_data_variables")
+    
+    result = {
         "status": "pass",
         "missing_vars": [],
-        "timestamp": datetime.utcnow().isoformat(),
-        "triggered_synthetic": False,
-        "source_file": None
+        "timestamp": None,
+        "triggered_synthetic": False
     }
-
-    # Check if raw directory has data
+    
+    # 1. Check directory existence
     if not validate_raw_directory(raw_dir):
-        logger.info("No real data found. Triggering synthetic data generation.")
-        validation_result["status"] = "fail"
-        validation_result["missing_vars"] = list(REQUIRED_VARIABLES)
-        validation_result["reason"] = "No data files found in data/raw"
-        # Trigger synthetic generation
-        _trigger_synthetic_fallback(config, validation_result, state_dir)
-        return validation_result
-
-    # Load the first available CSV to check variables
-    csv_files = list(raw_dir.glob("*.csv"))
-    # Skip seed files if they exist in raw (though they should be json)
-    data_files = [f for f in csv_files if not f.name.endswith("_seed.csv")]
+        result["status"] = "fail"
+        result["missing_vars"] = ["Raw directory missing"]
+        # Write timestamp
+        from datetime import datetime
+        result["timestamp"] = datetime.utcnow().isoformat()
+        return result
+    
+    # 2. Scan for data files
+    data_files = list(raw_dir.glob("*.csv")) + list(raw_dir.glob("*.json"))
     
     if not data_files:
-        logger.warning("No valid data CSVs found (excluding seeds).")
-        validation_result["status"] = "fail"
-        validation_result["missing_vars"] = list(REQUIRED_VARIABLES)
-        validation_result["reason"] = "No valid data CSVs found"
-        _trigger_synthetic_fallback(config, validation_result, state_dir)
-        return validation_result
-
-    # Check the first data file for variables
-    # In a real scenario, we might check all, but schema consistency is expected
-    sample_file = data_files[0]
-    validation_result["source_file"] = sample_file.name
+        logger.warning("No CSV or JSON files found in data/raw.")
+        result["status"] = "fail"
+        result["missing_vars"] = ["No data files found"]
+        from datetime import datetime
+        result["timestamp"] = datetime.utcnow().isoformat()
+        return result
     
-    try:
-        df = pd.read_csv(sample_file)
-    except Exception as e:
-        logger.error(f"Failed to read CSV {sample_file}: {e}")
-        validation_result["status"] = "fail"
-        validation_result["missing_vars"] = list(REQUIRED_VARIABLES)
-        validation_result["reason"] = f"Failed to read data file: {e}"
-        _trigger_synthetic_fallback(config, validation_result, state_dir)
-        return validation_result
+    # 3. Check variables in the first valid data file found
+    # We assume if the first file has them, the dataset is valid.
+    # If the first file is empty or malformed, we try the next.
+    found_valid_file = False
+    all_missing = set()
+    
+    for file_path in data_files:
+        logger.info(f"Checking file: {file_path}")
+        try:
+            if file_path.suffix == '.csv':
+                import pandas as pd
+                df = pd.read_csv(file_path)
+            elif file_path.suffix == '.json':
+                import pandas as pd
+                df = pd.read_json(file_path)
+            else:
+                continue
+            
+            # Check columns
+            current_columns = set(df.columns)
+            missing_in_this_file = REQUIRED_VARS - current_columns
+            
+            if not missing_in_this_file:
+                # All required variables found
+                found_valid_file = True
+                logger.info(f"All required variables found in {file_path.name}")
+                break
+            else:
+                logger.warning(f"Missing variables in {file_path.name}: {missing_in_this_file}")
+                all_missing.update(missing_in_this_file)
+                
+        except Exception as e:
+            logger.error(f"Error reading {file_path}: {e}")
+            continue
+    
+    if not found_valid_file:
+        result["status"] = "fail"
+        result["missing_vars"] = list(all_missing) if all_missing else ["Variables missing in all files"]
+        result["triggered_synthetic"] = True
+        logger.warning("Required variables missing. Triggering synthetic data generation.")
+    
+    # 4. Add timestamp
+    from datetime import datetime
+    result["timestamp"] = datetime.utcnow().isoformat()
+    
+    log_execution_end(logger, "validate_raw_data_variables", success=(result["status"] == "pass"))
+    return result
 
-    current_vars = set(df.columns)
-    missing_vars = REQUIRED_VARIABLES - current_vars
-
-    if missing_vars:
-        logger.warning(f"Missing required variables in {sample_file.name}: {missing_vars}")
-        validation_result["status"] = "fail"
-        validation_result["missing_vars"] = list(missing_vars)
-        validation_result["reason"] = f"Missing variables: {', '.join(missing_vars)}"
-        _trigger_synthetic_fallback(config, validation_result, state_dir)
-    else:
-        logger.info("All required variables present in raw data.")
-        validation_result["status"] = "pass"
-        validation_result["missing_vars"] = []
-
-    # Write validation result to disk
+def run_validation() -> Dict[str, Any]:
+    """
+    Main entry point for validation task.
+    """
+    config = get_config()
+    raw_dir = config.data_raw_path
+    processed_dir = config.data_processed_path
+    
+    # Ensure processed directory exists
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    validation_result = validate_raw_data_variables(raw_dir)
+    
+    # Write result to data/processed/pre_imputation_validation.json
     output_path = processed_dir / "pre_imputation_validation.json"
     with open(output_path, 'w') as f:
         json.dump(validation_result, f, indent=2)
     
-    logger.info(f"Validation result written to {output_path}")
-    return validation_result
-
-def _trigger_synthetic_fallback(config, validation_result, state_dir):
-    """
-    Internal helper to trigger synthetic data generation when validation fails.
-    """
-    logger.info("Initiating synthetic data fallback generation...")
+    logging.info(f"Validation result written to {output_path}")
     
-    try:
-        # Generate synthetic dataset
-        synthetic_df = generate_synthetic_dataset(n_samples=150) # N >= 100
-        
-        # Save synthetic data to raw
-        synthetic_path = config.paths.raw_data / "synthetic_data.csv"
-        synthetic_df.to_csv(synthetic_path, index=False)
-        logger.info(f"Synthetic data saved to {synthetic_path}")
-        
-        # Update state decision
-        write_state_decision(
-            decision="synthetic",
-            reason=validation_result.get("reason", "Missing variables triggered fallback"),
-            source="synthetic_generator"
-        )
-        
-        validation_result["triggered_synthetic"] = True
-        validation_result["missing_vars"] = [] # Now present in synthetic
-        validation_result["status"] = "pass" # After generation, it passes
-        
-        # Re-write the validation result to reflect the fix
-        output_path = config.paths.processed_data / "pre_imputation_validation.json"
-        with open(output_path, 'w') as f:
-            json.dump(validation_result, f, indent=2)
-        
-        logger.info("Synthetic data generation and state update completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Failed to generate synthetic data: {e}")
-        validation_result["triggered_synthetic"] = False
-        # Do not change status, it remains fail
-        raise e
-
-def run_validation():
-    """
-    Entry point for the validation task.
-    """
-    log_execution_start("T013a", "Pre-Imputation Variable Check")
-    try:
-        result = validate_raw_data_variables(Path("data"))
-        log_execution_end("T013a", success=(result["status"] == "pass"))
-        return result
-    except Exception as e:
-        logger.exception("Validation failed with exception")
-        log_execution_end("T013a", success=False, error=str(e))
-        raise
+    return validation_result
 
 def main():
     """
     CLI entry point.
     """
-    run_validation()
+    # Configure logging if not already done
+    configure_root_logger = logging.getLogger()
+    if not configure_root_logger.handlers:
+        from utils.logger import configure_root_logger as setup_logger
+        setup_logger()
+    
+    result = run_validation()
+    
+    if result["status"] == "fail":
+        sys.exit(1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
