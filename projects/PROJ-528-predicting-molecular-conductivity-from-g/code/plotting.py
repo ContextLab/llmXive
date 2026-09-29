@@ -1,3 +1,7 @@
+"""
+Plotting utilities for molecular conductivity analysis.
+Generates scatter plots with regression lines and confidence intervals.
+"""
 import os
 import json
 import logging
@@ -6,49 +10,50 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from typing import List, Tuple, Optional, Dict, Any
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from code.config import DATA_PATH, TARGET_VAR, SEED
+from code.logging_config import setup_logging
 
-def load_feature_importance(path: str = 'data/processed/feature_importance.csv') -> pd.DataFrame:
-    """Load feature importance data from CSV."""
+logger = setup_logging(__name__)
+
+def load_feature_importance(path: str = None) -> pd.DataFrame:
+    """Load feature importance results from CSV."""
+    if path is None:
+        path = os.path.join(DATA_PATH, 'processed', 'feature_importance.csv')
+    
     if not os.path.exists(path):
         raise FileNotFoundError(f"Feature importance file not found: {path}")
-    df = pd.read_csv(path)
-    return df
-
-def load_processed_data(path: str = 'data/processed/descriptors.csv') -> pd.DataFrame:
-    """Load processed descriptor data."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Processed data file not found: {path}")
+    
     return pd.read_csv(path)
 
-def load_correlation_results(path: str = 'data/processed/correlation_results.json') -> Optional[Dict[str, Any]]:
+def load_processed_data(path: str = None) -> pd.DataFrame:
+    """Load processed descriptors and target data."""
+    if path is None:
+        path = os.path.join(DATA_PATH, 'processed', 'descriptors.csv')
+    
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Processed data file not found: {path}")
+    
+    return pd.read_csv(path)
+
+def load_correlation_results(path: str = None) -> dict:
     """Load correlation results from JSON."""
+    if path is None:
+        path = os.path.join(DATA_PATH, 'processed', 'correlation_results.json')
+    
     if not os.path.exists(path):
         logger.warning(f"Correlation results file not found: {path}")
-        return None
+        return {}
+    
     with open(path, 'r') as f:
         return json.load(f)
 
-def get_top_features(feature_df: pd.DataFrame, n: int = 5) -> List[str]:
-    """
-    Get top N features by importance score.
-    Sorts by importance (descending), then by feature name (alphabetically) for ties.
-    """
-    # Ensure we have the right columns
-    if 'feature' not in feature_df.columns or 'importance_score' not in feature_df.columns:
+def get_top_features(feature_importance_df: pd.DataFrame, n: int = 5) -> list:
+    """Get top N features by importance score."""
+    if 'feature' not in feature_importance_df.columns or 'importance_score' not in feature_importance_df.columns:
         raise ValueError("Feature importance DataFrame must have 'feature' and 'importance_score' columns")
     
-    # Sort by importance (descending) and then by feature name (ascending) for ties
-    sorted_df = feature_df.sort_values(
-        by=['importance_score', 'feature'], 
-        ascending=[False, True]
-    )
-    
-    top_features = sorted_df['feature'].head(n).tolist()
+    top_features = feature_importance_df.nlargest(n, 'importance_score')['feature'].tolist()
     return top_features
 
 def create_scatter_plot_with_regression(
@@ -56,237 +61,177 @@ def create_scatter_plot_with_regression(
     x_feature: str,
     y_target: str,
     output_path: str,
-    title: Optional[str] = None
-) -> None:
+    title: str = None,
+    ci: int = 95
+):
     """
-    Create a scatter plot with regression line and 95% confidence interval.
+    Create a scatter plot with regression line and confidence interval.
     
     Args:
         data: DataFrame containing the data
-        x_feature: Name of the feature column (x-axis)
-        y_target: Name of the target column (y-axis)
+        x_feature: Name of the feature column for x-axis
+        y_target: Name of the target column for y-axis
         output_path: Path to save the plot
         title: Optional title for the plot
+        ci: Confidence interval percentage (default 95)
     """
     if x_feature not in data.columns:
-        raise ValueError(f"Feature '{x_feature}' not found in data columns: {data.columns.tolist()}")
+        raise ValueError(f"Feature '{x_feature}' not found in data")
     if y_target not in data.columns:
-        raise ValueError(f"Target '{y_target}' not found in data columns: {data.columns.tolist()}")
+        raise ValueError(f"Target '{y_target}' not found in data")
     
-    # Remove NaN values for plotting
+    # Remove rows with NaN values
     plot_data = data[[x_feature, y_target]].dropna()
     
     if len(plot_data) == 0:
-        logger.warning(f"No valid data points for plotting {x_feature} vs {y_target}")
-        # Create an empty plot to avoid crashing
-        fig, ax = plt.subplots(figsize=(10, 8))
-        ax.text(0.5, 0.5, 'No data available', transform=ax.transAxes, ha='center')
-        plt.savefig(output_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        return
+        raise ValueError("No valid data points after removing NaN values")
     
-    # Set style
-    sns.set_style("whitegrid")
     plt.figure(figsize=(10, 8))
+    sns.set(style="whitegrid")
     
-    # Create scatter plot with regression line and 95% CI
+    # Create scatter plot with regression line and CI
     sns.regplot(
         data=plot_data,
         x=x_feature,
         y=y_target,
+        ci=ci,
         scatter_kws={'alpha': 0.6, 's': 50},
-        line_kws={'color': 'red'},
-        ci=95
+        line_kws={'color': 'red', 'linewidth': 2}
     )
     
-    plt.title(title or f'{y_target} vs {x_feature}')
-    plt.xlabel(x_feature)
-    plt.ylabel(y_target)
+    plt.xlabel(x_feature, fontsize=12)
+    plt.ylabel(y_target, fontsize=12)
+    plt.title(title or f"{y_target} vs {x_feature}", fontsize=14)
+    
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+    
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150)
     plt.close()
-    logger.info(f"Saved plot to {output_path}")
+    
+    logger.info(f"Plot saved to: {output_path}")
 
 def generate_top_feature_plots(
-    data: pd.DataFrame,
-    feature_importance_path: str,
-    target_column: str,
-    output_path: str,
-    n_features: int = 5
-) -> None:
+    data_path: str = None,
+    feature_importance_path: str = None,
+    output_dir: str = None,
+    n_top: int = 5,
+    target_col: str = None
+):
     """
     Generate scatter plots with regression lines for top N features.
-    Saves all plots in a single figure or individual files.
     
     Args:
-        data: DataFrame with descriptors and target
+        data_path: Path to processed descriptors CSV
         feature_importance_path: Path to feature importance CSV
-        target_column: Name of the target column
-        output_path: Path to save the combined plot
-        n_features: Number of top features to plot
+        output_dir: Directory to save plots
+        n_top: Number of top features to plot
+        target_col: Target variable column name (defaults to TARGET_VAR from config)
     """
-    # Load feature importance
-    feature_df = load_feature_importance(feature_importance_path)
+    if data_path is None:
+        data_path = os.path.join(DATA_PATH, 'processed', 'descriptors.csv')
+    if feature_importance_path is None:
+        feature_importance_path = os.path.join(DATA_PATH, 'processed', 'feature_importance.csv')
+    if output_dir is None:
+        output_dir = os.path.join(DATA_PATH, 'processed')
+    if target_col is None:
+        target_col = TARGET_VAR
+    
+    # Load data
+    logger.info(f"Loading processed data from: {data_path}")
+    data = load_processed_data(data_path)
+    
+    logger.info(f"Loading feature importance from: {feature_importance_path}")
+    feature_importance = load_feature_importance(feature_importance_path)
     
     # Get top features
-    top_features = get_top_features(feature_df, n_features)
+    top_features = get_top_features(feature_importance, n=n_top)
+    logger.info(f"Top {n_top} features: {top_features}")
     
-    if not top_features:
-        raise ValueError("No features found in feature importance file")
+    # Ensure output directory exists
+    os.makedirs(output_dir, exist_ok=True)
     
-    logger.info(f"Generating plots for top {len(top_features)} features: {top_features}")
+    # Generate plots for each top feature
+    for i, feature in enumerate(top_features):
+        output_path = os.path.join(output_dir, f'corr_plot_{feature}.png')
+        title = f"{target_col} vs {feature} (Top {i+1})"
+        
+        try:
+            create_scatter_plot_with_regression(
+                data=data,
+                x_feature=feature,
+                y_target=target_col,
+                output_path=output_path,
+                title=title
+            )
+        except Exception as e:
+            logger.error(f"Failed to create plot for {feature}: {e}")
     
-    # Determine grid size for subplots
-    n_plots = len(top_features)
-    cols = min(3, n_plots)
-    rows = (n_plots + cols - 1) // cols
+    # Create combined plot for top 5 features
+    combined_output_path = os.path.join(output_dir, 'corr_plot_top5.png')
+    logger.info(f"Creating combined plot for top 5 features: {combined_output_path}")
     
-    fig, axes = plt.subplots(rows, cols, figsize=(5*cols, 4*rows))
-    
-    # Handle case where there's only one subplot
-    if n_plots == 1:
-        axes = np.array([axes])
-    
-    # Flatten axes for easy iteration
+    # Create a figure with subplots for top 5 features
+    fig, axes = plt.subplots(2, 3, figsize=(15, 10))
     axes = axes.flatten()
     
-    for i, feature in enumerate(top_features):
+    for i, feature in enumerate(top_features[:5]):
         ax = axes[i]
-        
-        # Remove NaN values
-        plot_data = data[[feature, target_column]].dropna()
+        plot_data = data[[feature, target_col]].dropna()
         
         if len(plot_data) > 0:
-            # Create scatter plot with regression
             sns.regplot(
                 data=plot_data,
                 x=feature,
-                y=target_column,
+                y=target_col,
                 ax=ax,
-                scatter_kws={'alpha': 0.6, 's': 50},
-                line_kws={'color': 'red'},
-                ci=95
+                ci=95,
+                scatter_kws={'alpha': 0.5, 's': 40},
+                line_kws={'color': 'red', 'linewidth': 1.5}
             )
-            ax.set_title(f'{feature}\n(r={plot_data[feature].corr(plot_data[target_column]):.2f})')
-            ax.set_xlabel(feature)
-            ax.set_ylabel(target_column)
-        else:
-            ax.text(0.5, 0.5, 'No data', transform=ax.transAxes, ha='center')
-            ax.set_title(f'{feature} (No data)')
+            ax.set_xlabel(feature, fontsize=10)
+            ax.set_ylabel(target_col, fontsize=10)
+            ax.set_title(f"Top {i+1}: {feature}", fontsize=11)
+            ax.grid(True, alpha=0.3)
     
-    # Remove unused subplots
-    for j in range(i + 1, len(axes)):
-        fig.delaxes(axes[j])
+    # Hide unused subplot
+    if len(top_features) < 5:
+        axes[len(top_features)].set_visible(False)
     
-    plt.suptitle(f'Top {n_features} Features vs {target_column}', fontsize=16, y=1.02)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(combined_output_path, dpi=150)
     plt.close()
     
-    logger.info(f"Saved combined plot to {output_path}")
+    logger.info(f"Combined plot saved to: {combined_output_path}")
+    
+    return combined_output_path
 
 def main():
-    """Main entry point for plotting script."""
-    parser = argparse.ArgumentParser(description="Generate correlation plots for top features.")
-    parser.add_argument(
-        '--mode', 
-        type=str, 
-        default='correlation',
-        choices=['correlation', 'individual'],
-        help='Plot mode: correlation (combined) or individual'
-    )
-    parser.add_argument(
-        '--output', 
-        type=str, 
-        default='data/processed/corr_plot_top5.png',
-        help='Output path for the plot'
-    )
-    parser.add_argument(
-        '--data',
-        type=str,
-        default='data/processed/descriptors.csv',
-        help='Path to processed data file'
-    )
-    parser.add_argument(
-        '--importance',
-        type=str,
-        default='data/processed/feature_importance.csv',
-        help='Path to feature importance file'
-    )
-    parser.add_argument(
-        '--target',
-        type=str,
-        default='log_conductivity',
-        help='Name of the target column'
-    )
-    parser.add_argument(
-        '--n-features',
-        type=int,
-        default=5,
-        help='Number of top features to plot'
-    )
+    """Main entry point for generating top feature plots."""
+    parser = argparse.ArgumentParser(description='Generate scatter plots for top features')
+    parser.add_argument('--data-path', type=str, default=None, help='Path to processed descriptors CSV')
+    parser.add_argument('--feature-importance-path', type=str, default=None, help='Path to feature importance CSV')
+    parser.add_argument('--output-dir', type=str, default=None, help='Directory to save plots')
+    parser.add_argument('--n-top', type=int, default=5, help='Number of top features to plot')
+    parser.add_argument('--target-col', type=str, default=None, help='Target variable column name')
     
     args = parser.parse_args()
     
     try:
-        # Load data
-        logger.info(f"Loading data from {args.data}")
-        data = load_processed_data(args.data)
-        
-        # Check if target column exists, try alternatives if not
-        target_col = args.target
-        if target_col not in data.columns:
-            # Try to find a conductivity-related column
-            possible_targets = ['log_conductivity', 'conductivity', 'charge_carrier_mobility', 'log_charge_carrier_mobility']
-            found = False
-            for candidate in possible_targets:
-                if candidate in data.columns:
-                    target_col = candidate
-                    logger.info(f"Using alternative target column: {target_col}")
-                    found = True
-                    break
-            
-            if not found:
-                raise ValueError(f"Target column '{args.target}' not found and no alternatives available. Available columns: {data.columns.tolist()}")
-        
-        logger.info(f"Using target column: {target_col}")
-        
-        # Generate plots
-        if args.mode == 'correlation':
-            generate_top_feature_plots(
-                data=data,
-                feature_importance_path=args.importance,
-                target_column=target_col,
-                output_path=args.output,
-                n_features=args.n_features
-            )
-        elif args.mode == 'individual':
-            # Generate individual plots for each top feature
-            feature_df = load_feature_importance(args.importance)
-            top_features = get_top_features(feature_df, args.n_features)
-            
-            for i, feature in enumerate(top_features):
-                individual_path = f"{os.path.splitext(args.output)[0]}_{i}_{feature}.png"
-                create_scatter_plot_with_regression(
-                    data=data,
-                    x_feature=feature,
-                    y_target=target_col,
-                    output_path=individual_path,
-                    title=f'{target_col} vs {feature}'
-                )
-            logger.info(f"Generated {len(top_features)} individual plots")
-        
-        logger.info("Plot generation completed successfully")
-        
-    except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        raise
-    except ValueError as e:
-        logger.error(f"Value error: {e}")
-        raise
+        output_path = generate_top_feature_plots(
+            data_path=args.data_path,
+            feature_importance_path=args.feature_importance_path,
+            output_dir=args.output_dir,
+            n_top=args.n_top,
+            target_col=args.target_col
+        )
+        print(f"Top feature plots generated successfully: {output_path}")
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.error(f"Failed to generate plots: {e}")
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

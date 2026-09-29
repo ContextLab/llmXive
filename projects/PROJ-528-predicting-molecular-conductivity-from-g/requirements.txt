@@ -9,5 +9,5 @@ pytest
 networkx
 statsmodels
 joblib
+h5py
 jsonschema
-scipy

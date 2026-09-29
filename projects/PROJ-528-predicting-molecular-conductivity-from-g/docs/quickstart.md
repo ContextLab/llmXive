@@ -1,38 +1,69 @@
 # Quickstart Guide
 
 ## Prerequisites
-- Python 3.11+
-- pip
+
+- Python 3.8+
+- Virtual environment (recommended)
 
 ## Installation
+
+1. Clone the repository.
+2. Create and activate a virtual environment:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
+ ```
+3. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+## Data Preparation
+
+Ensure you have a valid SMILES dataset at `data/raw/smiles.csv`.
+The file must contain at least two columns: `smiles` and a target variable
+(e.g., `conductivity`, `HOMO_LUMO_gap`, or `log_conductivity_proxy`).
+
+## Running the Pipeline
+
+Execute the full pipeline end-to-end:
+
 ```bash
-pip install -r requirements.txt
+python code/main.py
 ```
 
-## Run Pipeline
+This command will:
+1. Load and validate the data.
+2. Compute graph-based descriptors.
+3. Perform scaffold splitting.
+4. Run sensitivity analysis and outlier filtering.
+5. Train models with iterative VIF filtering.
+6. Generate feature importance and correlation plots.
+7. Save all results to `data/processed/`.
 
-### 1. Load and Validate Data
+## Validation
+
+To verify that all expected output files were generated:
+
 ```bash
-python code/run_descriptor_pipeline.py --input data/raw/smiles.csv --output data/processed/descriptors_augmented.csv
+python code/main.py --validate-only
 ```
 
-### 2. Train Models (Initial)
-```bash
-python code/model_training.py --data data/processed/descriptors_augmented.csv --output data/processed/model_results.json
-```
+## Output Artifacts
 
-### 3. Run VIF Loop with Hückel Feature (T064)
-```bash
-python code/run_huckel_vif_loop.py --data data/processed/descriptors_augmented.csv --output data/processed/huckel_impact_report.json
-```
+The pipeline produces the following artifacts:
 
-### 4. Generate Feature Importance and Analysis Summary
-```bash
-python code/save_analysis_outputs.py --data data/processed/descriptors_augmented.csv --target conductivity
-```
+- `data/processed/descriptors.csv`: Computed molecular descriptors.
+- `data/processed/sensitivity_analysis.json`: Results of sensitivity analysis.
+- `data/processed/vif_iteration_log.json`: Log of VIF filtering iterations.
+- `data/processed/feature_importance.csv`: Ranked feature importance.
+- `data/processed/correlation_results.json`: Feature-target correlations.
+- `data/processed/analysis_summary.json`: Final analysis summary.
+- `data/processed/corr_plot_top5.png`: Scatter plots for top features.
+- `data/processed/model_results.json`: Final model performance metrics.
 
-### 5. Validate Outputs
-```bash
-python code/validators.py --validate data/processed/descriptors_augmented.csv --schema contracts/descriptor_schema.yaml
-python code/validators.py --validate data/processed/huckel_impact_report.json --schema contracts/model_results_schema.yaml
-```
+## Troubleshooting
+
+- **Missing Data**: If `data/raw/smiles.csv` is missing, provide a valid dataset.
+- **Import Errors**: Ensure all dependencies in `requirements.txt` are installed.
+- **Pipeline Failure**: Check `logs/pipeline.log` for detailed error messages.

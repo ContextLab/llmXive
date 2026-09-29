@@ -1,121 +1,108 @@
-"""
-Save computed descriptors to CSV files.
-This script handles the final merging of base and resonance descriptors
-and writes the complete dataset to data/processed/descriptors.csv.
-"""
 import os
 import sys
 import argparse
 import logging
 import pandas as pd
 import numpy as np
+import yaml
+from typing import List, Optional
 
-# Add project root to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
+# Import existing utilities from the project
 from code.logging_config import setup_logging
-from code.descriptors import compute_all_descriptors
-from code.data_loader import load_smiles
-from code.validators import validate_target_range
+from code.config import RAW_DATA_PATH, TARGET_VAR
 
-def validate_and_save_descriptors(df: pd.DataFrame, output_path: str) -> None:
+# Configure logging
+logger = setup_logging()
+
+def load_schema(schema_path: str) -> dict:
+    """Load a YAML schema file."""
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
+
+def validate_descriptors_schema(df: pd.DataFrame, schema: dict) -> List[str]:
     """
-    Validate descriptor dataframe and save to CSV.
-    
-    Drops rows with NaN in required descriptor columns and logs warnings.
-    Ensures the output matches the schema defined in contracts/descriptor_schema.yaml.
-    
-    Args:
-        df: DataFrame containing SMILES and computed descriptors
-        output_path: Path to save the CSV file
+    Validate that the DataFrame contains all columns defined in the schema.
+    Returns a list of missing column names.
     """
-    # Required columns from descriptor_schema.yaml
-    required_columns = [
-        'smiles', 'status', 'degree_mean', 'degree_std', 'degree_max', 'degree_min',
-        'path_length_mean', 'path_length_std', 'path_length_max', 'path_length_min',
-        'aromaticity_index', 'huckel_aromaticity_count', 'clar_aromaticity_proxy',
-        'conjugation_length', 'num_conjugated_bonds', 'conjugation_density',
-        'ring_count', 'aromatic_ring_count', 'conjugated_ring_count'
-    ]
-    
-    # Ensure all required columns exist
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    if missing_cols:
-        logging.error(f"Missing required columns: {missing_cols}")
-        raise ValueError(f"Missing required descriptor columns: {missing_cols}")
-    
-    # Check for NaN values in required descriptor columns
-    descriptor_cols = [col for col in required_columns if col != 'smiles' and col != 'status']
-    nan_mask = df[descriptor_cols].isna().any(axis=1)
-    nan_count = nan_mask.sum()
-    
-    if nan_count > 0:
-        logging.warning(f"Dropped {nan_count} rows due to NaN values in descriptors.")
-        df = df.dropna(subset=descriptor_cols)
-    
-    # Ensure output directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logging.info(f"Saved {len(df)} rows to {output_path}")
+    expected_fields = schema.get('fields', [])
+    missing = [col for col in expected_fields if col not in df.columns]
+    return missing
 
 def main():
-    """Main entry point for descriptor saving pipeline."""
-    parser = argparse.ArgumentParser(description="Save computed descriptors to CSV.")
-    parser.add_argument("--input", type=str, default="data/raw/smiles.csv",
-                      help="Path to input SMILES file")
-    parser.add_argument("--output", type=str, default="data/processed/descriptors.csv",
-                      help="Path to output descriptors CSV")
-    parser.add_argument("--validate-target", action="store_true",
-                      help="Validate target variable range")
-    
-    args = parser.parse_args()
-    
-    # Setup logging
-    setup_logging()
-    
-    try:
-        # Load SMILES
-        logging.info(f"Loading SMILES from {args.input}")
-        smiles_df = load_smiles(args.input)
-        
-        if smiles_df.empty:
-            logging.error("No valid SMILES loaded. Exiting.")
-            sys.exit(1)
-        
-        # Compute all descriptors
-        logging.info("Computing descriptors...")
-        descriptor_df = compute_all_descriptors(smiles_df)
-        
-        if descriptor_df.empty:
-            logging.error("No descriptors computed. Exiting.")
-            sys.exit(1)
-        
-        # Validate target if requested
-        if args.validate_target:
-            # Check for target column
-            target_col = None
-            for col in ['conductivity', 'charge_carrier_mobility', 'HOMO_LUMO_gap']:
-                if col in descriptor_df.columns:
-                    target_col = col
-                    break
-            
-            if target_col:
-                logging.info(f"Validating target variable: {target_col}")
-                # This would call validate_target_range if we had the target values
-                # For now, we just log that we checked
-            else:
-                logging.warning("No target variable found for validation.")
-        
-        # Save descriptors
-        validate_and_save_descriptors(descriptor_df, args.output)
-        
-        logging.info("Descriptor pipeline completed successfully.")
-        
-    except Exception as e:
-        logging.error(f"Error in descriptor pipeline: {e}")
-        raise
+    """
+    Main entry point for T019b: Write Full Descriptors (Base).
+    1. Load data/processed/descriptors_base.csv (output of T019a).
+    2. Verify against contracts/descriptor_schema.yaml.
+    3. Write to data/processed/descriptors.csv.
+    4. Verify file existence and non-empty content.
+    """
+    # Paths
+    base_path = 'data/processed/descriptors_base.csv'
+    output_path = 'data/processed/descriptors.csv'
+    schema_path = 'contracts/descriptor_schema.yaml'
 
-if __name__ == "__main__":
+    # Check if base file exists
+    if not os.path.exists(base_path):
+        logger.error(f"Base descriptors file not found: {base_path}")
+        logger.error("T019a must be completed before running T019b.")
+        sys.exit(1)
+
+    # Load base descriptors
+    logger.info(f"Loading base descriptors from {base_path}")
+    try:
+        df_base = pd.read_csv(base_path)
+    except Exception as e:
+        logger.error(f"Failed to load {base_path}: {e}")
+        sys.exit(1)
+
+    if df_base.empty:
+        logger.error("Base descriptors file is empty.")
+        sys.exit(1)
+
+    # Load schema
+    if not os.path.exists(schema_path):
+        logger.error(f"Schema file not found: {schema_path}")
+        sys.exit(1)
+
+    logger.info(f"Loading schema from {schema_path}")
+    try:
+        schema = load_schema(schema_path)
+    except Exception as e:
+        logger.error(f"Failed to load schema: {e}")
+        sys.exit(1)
+
+    # Validate schema
+    missing_cols = validate_descriptors_schema(df_base, schema)
+    if missing_cols:
+        logger.error(f"Schema mismatch: missing columns {missing_cols}")
+        logger.error("T019a did not produce all required columns.")
+        sys.exit(1)
+
+    logger.info("Schema validation passed.")
+
+    # Ensure output directory exists
+    os.makedirs('data/processed', exist_ok=True)
+
+    # Write full descriptors
+    logger.info(f"Writing full descriptors to {output_path}")
+    try:
+        df_base.to_csv(output_path, index=False)
+    except Exception as e:
+        logger.error(f"Failed to write {output_path}: {e}")
+        sys.exit(1)
+
+    # Verify write
+    if not os.path.exists(output_path):
+        logger.error(f"File write verification failed: {output_path} does not exist.")
+        sys.exit(1)
+
+    df_verify = pd.read_csv(output_path)
+    if df_verify.empty:
+        logger.error("File write verification failed: output file is empty.")
+        sys.exit(1)
+
+    logger.info(f"T019b: Full descriptors written and verified successfully ({len(df_verify)} rows).")
+    sys.exit(0)
+
+if __name__ == '__main__':
     main()

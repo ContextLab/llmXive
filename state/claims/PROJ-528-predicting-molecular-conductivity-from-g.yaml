@@ -2332,3 +2332,41 @@
   source_type: external
   status: verified
   updated_at: '2026-09-22T06:56:23Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: Features with Variance Inflation Factor greater than 10 are excluded
+  claim_id: c_8e06dca8
+  context: 'Phase 5: User Story 3, Task T039b'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: T039b Implement feature exclusion logic for features with VIF > 10
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T23:45:35Z'
+- artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/tasks.md
+  attempts: 1
+  canonical: "H\xFCckel parameters set to alpha 0.0, beta -1.0, scaling 200 kcal/mol"
+  claim_id: c_c325e8b9
+  context: Notes section regarding removed tasks
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "H\xFCckel Parameters explicitly defined as alpha=0.0, beta=-1.0, scaling=200\
+    \ kcal/mol"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T23:45:54Z'

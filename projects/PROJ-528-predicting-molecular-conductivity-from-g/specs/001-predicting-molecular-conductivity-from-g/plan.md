@@ -18,7 +18,7 @@ This feature implements a reproducible pipeline to predict molecular conductivit
 **Project Type**: Data Science Pipeline / CLI  
 **Performance Goals**: Complete full analysis (descriptors, training, evaluation, plotting) within 6 hours.  
 **Constraints**: CPU-only; no GPU; dataset must be streamed or sampled to fit within 7 GB RAM; strict VIF > 10 exclusion rule; mandatory Benjamini-Hochberg correction; mandatory dynamic range validation; mandatory circularity check.  
-**Scale/Scope**: Up to 5000 molecules (sampled if larger); 10-20 descriptors per molecule.
+**Scale/Scope**: Up to 5000 molecules (sampled if larger); A moderate number of descriptors per molecule.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -116,7 +116,7 @@ projects/PROJ-528-predicting-molecular-conductivity-from-g/
 ### Phase 3: Model Training & Evaluation
 - **T022**: [SC-001, SC-009] Perform Residual Variance Test to check for circularity. If correlation > 0.95, halt.
 - **T023**: Train Random Forest and Gradient Boosting models.
-- **T024**: Evaluate models (R², MAE, CV). **Mitigation**: If N < 100, use 5x5 Nested CV and Bootstrap (1000 iters).
+- **T024**: Evaluate models (R², MAE, CV). **Mitigation**: If N < 100, use Nested CV and Bootstrap (1000 iters).
 - **T025**: Perform sensitivity analysis (Kruskal-Wallis H-test with a sufficient sample size).
 - **T026**: Apply Benjamini-Hochberg correction to p-values.
 - **T027**: Generate feature importance rankings and correlation plots.
@@ -136,7 +136,7 @@ If the dataset lacks external conductivity measurements, the study is reframed a
 
 ## Compute Feasibility & Data Strategy
 
-- **Streaming & Chunking**: To adhere to strict RAM and disk constraints, the pipeline uses `datasets.load_dataset(..., streaming=True)` to iterate through the dataset shard by shard. The SHA-256 checksum is computed incrementally without loading the full file into memory.
+- **Streaming & Chunking**: To adhere to strict RAM and disk constraints, the pipeline uses `datasets.load_dataset(..., streaming=True)` to iterate through the dataset shard by shard. The cryptographic hash function checksum is computed incrementally without loading the full file into memory.
 - **Sampling**: If the dataset exceeds 5000 rows (after filtering), a random sample (seed=42) is taken. If the raw file is >14 GB, only the sample is downloaded and checksummed; the full raw file is skipped to prevent disk overflow.
 - **CPU-First**: All models (RF, GB) run on CPU. No GPU dependencies.
 - **Memory**: Dataset sampled/streamed to fit <7 GB RAM.
