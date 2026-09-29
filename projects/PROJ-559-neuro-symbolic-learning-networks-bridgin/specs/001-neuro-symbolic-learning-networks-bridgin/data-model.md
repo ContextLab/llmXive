@@ -2,82 +2,74 @@
 
 ## Overview
 
-This document defines the data structures used throughout the project, ensuring consistency between the data ingestion, generation, simulation, and analysis phases. All data artifacts are stored in `data/` and adhere to the schemas defined in `contracts/`.
+This document defines the data structures, schemas, and relationships for the Neuro-Symbolic Learning Networks project. It ensures data hygiene, traceability, and reproducibility as per the Project Constitution.
 
-## Key Entities
+## Entity-Relationship Diagram (Conceptual)
+
+```mermaid
+erDiagram
+    PROBLEM ||--|{ EXPLANATION : "has"
+    PROBLEM ||--|{ INTERACTION_LOG : "generates"
+    EXPLANATION ||--|{ INTERACTION_LOG : "drives"
+    STUDENT ||--|{ INTERACTION_LOG : "produces"
+    PILOT_DATA ||--|{ SIMULATOR_CONFIG : "calibrates"
+```
+
+## Data Entities
 
 ### 1. Problem
 Represents a single mathematics or logic exercise.
-- **Source**: ASSISTments/Khan Academy datasets.
+- **Source**: ASSISTments dataset.
 - **Attributes**:
   - `problem_id`: Unique identifier (string).
   - `prompt_text`: The problem statement (string).
-  - `solution`: The correct solution or answer key (string).
-  - `difficulty`: Estimated difficulty score (float, 0.0-1.0).
-  - `skill`: The skill or concept being tested (string).
+  - `solution`: The correct answer or solution steps (string).
+  - `subject`: Category (e.g., "algebra", "geometry").
+  - `difficulty_score`: Inferred or provided difficulty metric (float).
 
 ### 2. Explanation
-Represents an artifact generated for a problem under a specific condition.
+An artifact generated for a problem under a specific condition.
+- **Storage**: `data/traces/` (JSON/Text).
 - **Attributes**:
-  - `explanation_id`: Unique identifier (string).
-  - `problem_id`: Foreign key to `Problem` (string).
-  - `condition`: One of `neural`, `symbolic`, `neuro-symbolic` (string).
-  - `content`: The full text of the explanation (string).
-  - `trace`: (Optional) The symbolic trace or derivation steps (string, JSON).
-  - `model_version`: Version of the model used to generate the explanation (string).
+  - `explanation_id`: Unique hash.
+  - `problem_id`: Foreign key to Problem.
+  - `condition`: One of `neural`, `symbolic`, `neuro_symbolic`.
+  - `content`: The generated text.
+  - `model_version`: Version of the generator used.
+  - `generation_timestamp`: ISO 8601 timestamp.
 
-### 3. SimulationLog
-Captures a single simulated or human student interaction.
+### 3. InteractionLog
+A record of a student interaction with an explanation.
+- **Storage**: `data/processed/interaction_logs.csv`.
 - **Attributes**:
-  - `log_id`: Unique identifier (string).
-  - `problem_id`: Foreign key to `Problem` (string).
-  - `student_id`: Unique identifier for the student (string).
-  - `condition`: One of `neural`, `symbolic`, `neuro-symbolic` (string).
-  - `correct`: Binary correctness (0 or 1, integer).
-  - `rt_seconds`: Response time in seconds (float, 0.1s precision).
-  - `comprehension_rating`: Self-reported comprehension (1-5, integer).
-  - `data_source`: `simulated` or `real` (string).
+  - `log_id`: Unique identifier.
+  - `problem_id`: Foreign key.
+  - `explanation_id`: Foreign key.
+  - `student_id`: Unique student identifier (simulated or real).
+  - `condition`: Explanation condition used.
+  - `correct`: Binary (0/1).
+  - `rt_seconds`: Response time in seconds (float, 1 decimal).
+  - `comprehension_rating`: Likert scale (1-5). **Generated as a function of knowledge_gap and explanation_complexity, NOT correctness.**
+  - `data_source`: `simulated` or `real`.
+- **Constraint**: **Between-Subjects Design**: A unique combination of `(student_id, problem_id)` must exist for only one `condition`. The ingestion process enforces this uniqueness.
 
 ### 4. PilotData
-Used for BKT calibration.
-- **Attributes**:
-  - `pilot_id`: Unique identifier (string).
-  - `student_id`: Unique identifier for the pilot student (string).
-  - `problem_id`: Foreign key to `Problem` (string).
-  - `condition`: One of `neural`, `symbolic`, `neuro-symbolic` (string).
-  - `correct`: Binary correctness (0 or 1).
-  - `rt_seconds`: Response time (float).
-  - `comprehension_rating`: Likert rating (1-5).
-
-### 5. AnalysisOutput
-Represents the output of the analysis phase.
-- **Attributes**:
-  - `model_summary`: Summary of the mixed-effects model.
-  - `effect_sizes`: Cohen's d effect sizes with 95% CIs.
-  - `data_source_effect`: Fixed effect for data source.
-  - `sample_sizes`: Sample sizes for each condition and data source.
-  - `analysis_timestamp`: UTC timestamp.
-  - `ci_widths`: CI width validation.
+Calibration data for the BKT simulator.
+- **Storage**: `data/pilot/`.
+- **Attributes**: Same as `InteractionLog`, but specifically for the calibration phase. **Must be real human data (T030b) or the study is scope-reduced.**
 
 ## Data Flow
 
-1. **Ingestion**: `Problem` data is downloaded from Hugging Face and stored in `data/raw/problems.csv`.
-2. **Generation**: `Explanation` artifacts are generated and stored in `data/derived/explanations/` (one file per explanation).
-3. **Simulation**: `SimulationLog` entries are generated by the BKT simulator and appended to `data/derived/logs/simulated_logs.csv`.
-4. **Calibration**: `PilotData` is loaded from `data/pilot/raw_pilot_data.csv` to calibrate the BKT model.
-5. **Integration**: `real_student_data.csv` is loaded from `data/real/` and merged with simulated logs.
-6. **Analysis**: The merged dataset is used for mixed-effects regression.
+1.  **Ingestion**: Raw datasets (ASSISTments) → `data/raw/` (immutable).
+2.  **Unification**: Raw datasets → `data/processed/unified_problems.csv` (filtered, schema-validated). **Handles partial success if Khan is missing.**
+3.  **Generation**: Unified Problems → `data/traces/` (Explanations).
+4.  **Calibration**: Pilot Data (T030b) → `code/simulation/simulator_config.yaml` (updated parameters). **If missing, skip calibration and enter Feasibility Mode.**
+5.  **Simulation**: Explanations + BKT Model → `data/processed/interaction_logs.csv`.
+6.  **Analysis**: Interaction Logs → `data/processed/regression_results.csv` + Markdown Report.
 
-## Data Hygiene
+## Data Hygiene Rules
 
-- **Raw Data**: Never modified. Checksums recorded in `state/`.
-- **Derived Data**: New files created for each transformation (e.g., `logs_v1.csv`, `logs_v2.csv`).
-- **PII**: No personally identifiable information is stored. `student_id` is a random UUID.
-
-## Schema Mapping
-
-- `Problem` entity maps to `problem.schema.yaml`.
-- `Explanation` entity maps to `explanation.schema.yaml`.
-- `SimulationLog` entity maps to `simulation_log.schema.yaml`.
-- `PilotData` entity maps to `pilot_data.schema.yaml`.
-- `AnalysisOutput` entity maps to `analysis_output.schema.yaml`.
+- **Immutability**: Files in `data/raw` are never modified. Derivations create new files.
+- **Checksums**: SHA-256 hashes for all raw files are stored in `state/`.
+- **PII**: No personally identifiable information is stored. Student IDs are random UUIDs.
+- **Versioning**: Every artifact has a content hash. Changes invalidate dependent artifacts.

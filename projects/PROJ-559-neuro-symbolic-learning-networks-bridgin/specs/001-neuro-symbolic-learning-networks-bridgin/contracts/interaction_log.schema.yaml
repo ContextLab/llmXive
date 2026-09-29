@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Interaction Log Schema"
+description: "Schema for a student interaction log. Enforces between-subjects design: unique (student_id, problem_id) per condition."
+type: "object"
+required:
+  - "log_id"
+  - "problem_id"
+  - "explanation_id"
+  - "student_id"
+  - "condition"
+  - "correct"
+  - "rt_seconds"
+  - "comprehension_rating"
+  - "data_source"
+properties:
+  log_id:
+    type: "string"
+    description: "Unique identifier for the log entry."
+  problem_id:
+    type: "string"
+    description: "Foreign key to the problem."
+  explanation_id:
+    type: "string"
+    description: "Foreign key to the explanation."
+  student_id:
+    type: "string"
+    description: "Unique student identifier."
+  condition:
+    type: "string"
+    enum:
+      - "neural"
+      - "symbolic"
+      - "neuro_symbolic"
+    description: "The explanation condition used."
+  correct:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary correctness flag."
+  rt_seconds:
+    type: "number"
+    description: "Response time in seconds."
+    minimum: 0
+    multipleOf: 0.1
+  comprehension_rating:
+    type: "integer"
+    enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+    description: "Self-reported comprehension on a 5-point Likert scale. Generated as a function of knowledge_gap and explanation_complexity, NOT derived from correctness."
+  data_source:
+    type: "string"
+    enum:
+      - "simulated"
+      - "real"
+    description: "Source of the data."
+additionalProperties: false

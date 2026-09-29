@@ -1,13 +1,10 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T012c` (rejected 1x): The required output file `data/raw/khan_academy.csv` (and its checksum) is missing, so the deliverable is not present. Additionally, the provided script is truncated and does not show the logic that exits with code 1 and logs the exact required error message on timeout. The task therefore remains unfinished.
-- `T012a` (rejected 1x): The `validate_unified_schema.py` file is present but ends abruptly (truncated code) and lacks a complete implementation (e.g., main entry point, full row validation, exit handling). Moreover, the required data files `data/raw/unified_problems.csv` and `contracts/problem.schema.yaml` are missing, so the script cannot be executed to verify the schema as specified. The task’s deliverable is therefore not satisfied.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- The plan states the system 'ingests mathematics problems from public datasets (ASSISTments, Khan Academy)... and generates explanations'. It then claims to 'compare the three conditions'. However, the spec (FR-001) requires ingesting *both* datasets. The research.md notes that Khan Academy data lacks a verified URL and relies solely on ASSISTments. If the problem set is limited to ASSISTments, the external validity (generalizability) of the findings to 'mathematics education' is severely compromised. The plan does not address how to mitigate the bias of using a single dataset source for a generalizable claim.
+- Constitution Principle II (Verified Accuracy) is marked PASS, but the plan does not explicitly describe the 'Reference-Validator Agent' workflow or the 'CITATION_TITLE_OVERLAP_THRESHOLD' check mentioned in the Constitution. The plan states 'All dataset URLs cross-referenced' but lacks the specific automated gate mechanism required by the Constitution to block review points if citations are unreachable or mismatched.
