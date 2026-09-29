@@ -1,0 +1,21 @@
+# Black configuration for PROJ-080
+# Based on black_config in code/linting_config.py
+
+[tool.black]
+# Line length (matches Ruff's max-line-length)
+line-length = 88
+
+# Target Python version
+target-version = ["py311"]
+
+# Files to exclude from formatting
+exclude = "(\\.eggs|\\.git|\\.hg|\\.mypy_cache|\\.nox|\\.tox|\\.venv|venv|_build|buck-build|build|dist|\\.egg-info)"
+
+# Files to include (Python files)
+include = "\\.pyi?$"
+
+# String normalization (enabled by default)
+skip-string-normalization = false
+
+# Magic trailing comma (enabled by default)
+skip-magic-trailing-comma = false

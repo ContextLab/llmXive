@@ -1,0 +1,48 @@
+# Ruff configuration for PROJ-080
+# Based on ruff_config in code/linting_config.py
+
+[lint]
+# Select specific rule codes
+select = [
+    "E",  # pycodestyle errors
+    "F",  # pyflake
+    "W",  # pycodestyle warnings
+    "I",  # isort
+    "N",  # pep8-naming
+    "UP", # pyupgrade
+    "B",  # flake8-bugbear
+    "A",  # flake8-builtins
+    "C4", # flake8-comprehensions
+    "T20",# flake8-print
+    "PT", # pytest-specific rules
+]
+
+# Ignore rules that conflict with Black formatting
+ignore = [
+    "E501",  # Line too long
+    "W503",  # Line break before binary operator
+    "W504",  # Line break after binary operator
+]
+
+# Maximum line length (matches Black)
+max-line-length = 88
+
+# Target Python version
+target-version = "py311"
+
+# Directories to exclude
+exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+[lint.per-file-ignores]
+# Allow assertions in test files
+"tests/*" = ["S101"]
+# Allow missing docstrings in internal code modules
+"code/*" = ["D100"]

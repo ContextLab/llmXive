@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Trajectory Data Schema
+description: Schema for amorphous solid trajectory data under shear stress
+type: object
+required:
+  - positions
+  - stress
+  - strain
+properties:
+  positions:
+    type: array
+    description: Particle positions over time
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 3
+      maxItems: 3
+  stress:
+    type: array
+    description: Stress values over time
+    items:
+      type: number
+  strain:
+    type: array
+    description: Strain values over time
+    items:
+      type: number
+  particle_count:
+    type: integer
+    minimum: 1
+    maximum: 100000
+  timesteps:
+    type: integer
+    minimum: 2
+additionalProperties: false

@@ -1,0 +1,22 @@
+T017:
+  c: false
+  h: 709c8f5b91c92b431da37f591d5f3712cd7f2ae3923b3b63f2610a54eb3da8af
+  r: "The required `data/processed/precursor_metrics.csv` file is absent, and the\
+    \ existing `yield_flags.json` is a synthetic, multi\u2011yield example unrelated\
+    \ to the task\u2019s single\u2011yield timestep output. Both artifacts fail to\
+    \ meet the specified requirements."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log files were provided that implement detection of multiple\
+    \ yielding events, flag them as \u201Cmulti\u2011yield\u201D, or record the required\
+    \ detailed metrics. The artifact required by the task is missing, so the requirement\
+    \ is not satisfied."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided material contains only the feature specification for the phase\u2011\
+    transition pipeline; there is no code, script, or documentation showing a data\u2011\
+    loading component that raises explicit exceptions on fetch failures or that disables\
+    \ synthetic fallbacks. Consequently, the required \u201Cfail loud\u201D policy\
+    \ is not demonstrated."
