@@ -440,3 +440,829 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-23T16:52:56Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Support for 2, 3, 4, and 5 views in batch orchestration
+  claim_id: c_61e28f57
+  context: Implement dynamic view count configuration in `code/cli.py` (FR-002) to
+    support 2, 3, 4, 5 views as a prerequisite for batch orchestration
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must support 2, 3, 4, and 5 views as a prerequisite for batch
+    orchestration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:38:06Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Batch orchestrator N=20 scene limit
+  claim_id: c_139bb4be
+  context: Setup `code/experiments/run_batch.py` orchestrator skeleton with N=20 scene
+    limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch orchestrator has an N=20 scene limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:39:11Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Default batch timeout 6 hours
+  claim_id: c_65a31939
+  context: Must expose a CLI argument `--batch-timeout` with a default value of `6
+    hours` (360 minutes).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default batch timeout is 6 hours (360 minutes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:39:36Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Default per-scene timeout 4.5 minutes
+  claim_id: c_e8c34e10
+  context: Must expose a CLI argument `--scene-timeout` with a default value of `4.5
+    minutes` (270 seconds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default per-scene timeout is 4.5 minutes (270 seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:40:01Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Convergence failure condition p-value < 0.05 and relative error increase
+    > tolerance
+  claim_id: c_4d079a64
+  context: 'The failure condition for convergence is defined as: If p-value < 0.05
+    AND relative error increase > tolerance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Convergence_failure_condition_p-value_%3C_0.05_and_relative_er
+  kind: entity_fact
+  raw_text: The convergence failure condition is defined as p-value < 0.05 AND relative
+    error increase > tolerance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:40:34Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Low-texture convergence failure threshold 0.01
+  claim_id: c_5f849623
+  context: '**Threshold**: If variance < `0.01`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low-texture_convergence_failure_threshold_0.01
+  kind: magnitude
+  raw_text: Low-texture convergence failure is triggered if gradient variance (L2
+    norm) is less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:41:02Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Memory usage test < 6 GB peak RAM
+  claim_id: c_49af62b2
+  context: Memory usage test verifying < 6 GB peak RAM in `tests/integration/test_memory_limits.py`
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_test_%3C_6_GB_peak_RAM
+  kind: magnitude
+  raw_text: Memory usage test verifies less than 6 GB peak RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:41:29Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Statistical tests Shapiro-Wilk, paired t-test, Wilcoxon
+  claim_id: c_c3073b75
+  context: Explicitly perform ALL three tests (Shapiro-Wilk, paired t-test, Wilcoxon)
+    in `code/utils/stats.py` regardless of normality results.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_tests_Shapiro-Wilk,_paired_t-test,_Wilcoxon
+  kind: entity_fact
+  raw_text: Statistical tests include Shapiro-Wilk, paired t-test, and Wilcoxon signed-rank
+    test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:41:58Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk p-value >= 0.05 for t-test
+  claim_id: c_5b257988
+  context: If Shapiro-Wilk p-value >= 0.05, use the t-test p-value for the final significance
+    decision.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk p-value threshold for using the t-test is >= 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T07:41:58Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk p-value < 0.05 for Wilcoxon
+  claim_id: c_e189267a
+  context: If Shapiro-Wilk p-value < 0.05, use the Wilcoxon p-value for the final
+    significance decision.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk p-value threshold for using the Wilcoxon test is < 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T07:41:58Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Relative error increase formula
+  claim_id: c_b412a968
+  context: Calculate relative error increase as `(error_N - error_baseline) / error_baseline`
+    where error_N is Chamfer Distance at view count N.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Relative_error_increase_formula
+  kind: entity_fact
+  raw_text: Relative error increase is calculated as (error_N - error_baseline) /
+    error_baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:42:33Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Baseline TriSplat 2-core CPU affinity
+  claim_id: c_9c8e82db
+  context: '**Enforce 2-core CPU affinity** using `os.sched_setaffinity` for both
+    the baseline and the geometry-only module'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline TriSplat execution enforces 2-core CPU affinity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:42:54Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Benchmark report CSV columns view_count latency chamfer_distance psnr
+    baseline_latency speedup_ratio psnr_delta
+  claim_id: c_959e9fcd
+  context: 'Generate benchmark report CSV at `data/processed/benchmark_tradeoff.csv`
+    with columns: `view_count,latency,chamfer_distance,psnr,baseline_latency,speedup_ratio,psnr_delta`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_report_CSV_columns_view_count_latency_chamfer_dist
+  kind: entity_fact
+  raw_text: The benchmark report CSV includes columns for view_count, latency, chamfer_distance,
+    psnr, baseline_latency, speedup_ratio, and psnr_delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:43:22Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Stretch goal expand to 50 scenes if N=20 complete within 70% timeout
+  claim_id: c_7d58d847
+  context: If N=20 scenes complete within 70% of the batch timeout value defined in
+    T011a, dynamically expand the scene list to 50 random scenes and continue processing
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stretch goal logic expands the scene list to 50 random scenes if N=20
+    scenes complete within 70% of the batch timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:43:47Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Artifact hashing filter files < 100MB
+  claim_id: c_687a64e9
+  context: Filter files by size < 100MB using `os.path.getsize` BEFORE hashing to
+    avoid long runtimes on large mesh files.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Artifact_hashing_filter_files_%3C_100MB
+  kind: magnitude
+  raw_text: Artifact hashing filters files by size less than 100MB before hashing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:44:04Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: RealEstate10K validation sampling seed 42
+  claim_id: c_12d061a0
+  context: implement a deterministic sampling strategy using `itertools.islice` to
+    select the *first* N=20 (or N=50) scenes from the streamed dataset using seed
+    42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RealEstate10K validation split uses a deterministic sampling strategy
+    with seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:44:38Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: batch timeout default 6 hours
+  claim_id: c_54ea79e7
+  context: T011a Implement a configurable batch timeout mechanism... default value
+    of 6 hours (360 minutes).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch timeout mechanism has a default value of 6 hours (360 minutes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:47:50Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: per-scene timeout default 4.5 minutes
+  claim_id: c_3895ff4d
+  context: T011b Implement per-scene timeout mechanism... default value of 4.5 minutes
+    (270 seconds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The per-scene timeout mechanism has a default value of 4.5 minutes (270
+    seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:48:14Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: support 2 3 4 5 view configurations
+  claim_id: c_2b6e74dd
+  context: T023 Configure dynamic view count configuration to support 2, 3, 4, 5 views.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must support 2, 3, 4, and 5 view configurations for batch orchestration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:48:34Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: batch orchestrator N=20 scene limit
+  claim_id: c_234c3f8b
+  context: T011 Setup code/experiments/run_batch.py orchestrator skeleton with N=20
+    scene limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch orchestrator skeleton has an initial N=20 scene limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:49:00Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: process 20 or 50 scenes
+  claim_id: c_3a6c03ec
+  context: T024 Implement batch orchestration to process N=20 scenes (or N=50 if T042
+    triggers).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system processes N=20 scenes, or N=50 if the stretch goal is triggered.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:49:22Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: run Shapiro-Wilk paired t-test Wilcoxon signed-rank
+  claim_id: c_859dd532
+  context: 'T026 Implement Statistical Tests: Explicitly perform ALL three tests (Shapiro-Wilk,
+    paired t-test, Wilcoxon).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_Shapiro-Wilk_paired_t-test_Wilcoxon_signed-rank
+  kind: entity_fact
+  raw_text: The statistical test logic requires running Shapiro-Wilk, paired t-test,
+    and Wilcoxon signed-rank test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:49:54Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk p-value threshold 0.05
+  claim_id: c_e7fa564e
+  context: T026... If Shapiro-Wilk p-value >= 0.05, use the t-test p-value... If Shapiro-Wilk
+    p-value < 0.05, use the Wilcoxon p-value.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk test uses a p-value threshold of 0.05 to decide between
+    t-test and Wilcoxon results.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T07:49:54Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: low-texture variance threshold 0.01
+  claim_id: c_5081e1ee
+  context: 'T040... Threshold: If variance < 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The low-texture convergence detection uses a variance threshold of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:50:18Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: memory usage test less than 6 GB peak RAM
+  claim_id: c_9eb82b96
+  context: T014 Memory usage test verifying < 6 GB peak RAM.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_test_less_than_6_GB_peak_RAM
+  kind: magnitude
+  raw_text: The memory usage test verifies less than 6 GB peak RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:50:20Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: baseline TriSplat 2-core CPU affinity
+  claim_id: c_b8ceac0e
+  context: T031 Enforce 2-core CPU affinity using os.sched_setaffinity for both the
+    baseline and the geometry-only module.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline TriSplat execution enforces 2-core CPU affinity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:50:20Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: stretch goal expand to 50 scenes if 20 complete within 70% of timeout
+  claim_id: c_30ffec76
+  context: T042 If N=20 scenes complete within 70% of the batch timeout value... dynamically
+    expand the scene list to 50 random scenes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stretch goal expands the scene list to 50 random scenes if the initial
+    20 scenes complete within 70% of the batch timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:50:40Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: artifact hashing filter files less than 100 MB
+  claim_id: c_365a7efb
+  context: T050 Filter files by size < 100MB using os.path.getsize BEFORE hashing.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Artifact_hashing_filter_files_less_than_100_MB
+  kind: magnitude
+  raw_text: The artifact hashing logic filters files by size less than 100 MB before
+    hashing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:50:54Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: deterministic sampling seed 42 first N scenes
+  claim_id: c_9d97f7bc
+  context: T047 implement a deterministic sampling strategy... using seed 42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The deterministic sampling strategy uses seed 42 to select the first N=20
+    (or N=50) scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:51:29Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: benchmark report CSV columns view_count latency chamfer_distance psnr
+    baseline_latency speedup_ratio psnr_delta
+  claim_id: c_a16899ef
+  context: 'T033 Generate benchmark report CSV... with columns: view_count,latency,chamfer_distance,psnr,baseline_latency,speedup_ratio,psnr_delta.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_report_CSV_columns_view_count_latency_chamfer_dist
+  kind: entity_fact
+  raw_text: The benchmark report CSV includes columns for view_count, latency, chamfer_distance,
+    psnr, baseline_latency, speedup_ratio, and psnr_delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:51:31Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: skip scene if input views less than 2
+  claim_id: c_31293a14
+  context: T019b if input views < 2, log a WARNING... and continue to the next scene.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_scene_if_input_views_less_than_2
+  kind: magnitude
+  raw_text: The system logs a WARNING and skips the scene if input views are less
+    than 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:52:37Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: batch timeout default 6 hours
+  claim_id: c_ce402783
+  context: 'Implement a configurable batch timeout mechanism in code/experiments/run_batch.py...
+    Config: Must expose a CLI argument --batch-timeout with a default value of 6 hours
+    (360 minutes).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch timeout mechanism has a default value of 6 hours (360 minutes).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:55:28Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: per-scene timeout default 4.5 minutes
+  claim_id: c_4280dd84
+  context: 'Implement per-scene timeout mechanism in code/experiments/run_batch.py...
+    Config: Must expose a CLI argument --scene-timeout with a default value of 4.5
+    minutes (270 seconds).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The per-scene timeout mechanism has a default value of 4.5 minutes (270
+    seconds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:55:28Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: batch processing limit 20 scenes
+  claim_id: c_0ae6ce21
+  context: Setup code/experiments/run_batch.py orchestrator skeleton with N=20 scene
+    limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial batch processing is limited to N=20 scenes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:56:38Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: low-texture convergence threshold variance 0.01
+  claim_id: c_09e8a815
+  context: 'Implement low-texture/non-convergence detection... Threshold: If variance
+    < 0.01.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low-texture_convergence_threshold_variance_0.01
+  kind: magnitude
+  raw_text: The low-texture convergence threshold is set to a variance less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:57:13Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: peak RAM usage limit 6 GB
+  claim_id: c_21f96518
+  context: Memory usage test verifying < 6 GB peak RAM in tests/integration/test_memory_limits.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6_GB
+  kind: magnitude
+  raw_text: The peak RAM usage must be less than 6 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:57:47Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: stretch goal expands to 50 scenes at 70% timeout
+  claim_id: c_af8b4561
+  context: Implement N=50 stretch goal logic... If N=20 scenes complete within 70%
+    of the batch timeout value defined in T011a, dynamically expand the scene list
+    to 50 random scenes...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stretch goal expands the scene list to 50 random scenes if the initial
+    20 complete within 70% of the batch timeout.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:57:47Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: hashing filter excludes files larger than 100MB
+  claim_id: c_602866f5
+  context: Filter files by size < 100MB using os.path.getsize BEFORE hashing to avoid
+    long runtimes on large mesh files.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hashing_filter_excludes_files_larger_than_100MB
+  kind: entity_fact
+  raw_text: Files larger than 100MB are filtered out before hashing to avoid long
+    runtimes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:58:10Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: deterministic sampling seed 42
+  claim_id: c_8c9dd2d4
+  context: Implement a deterministic sampling strategy using itertools.islice to select
+    the first N=20 (or N=50) scenes from the streamed dataset using seed 42.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Figure 1: Self-training pipeline and seed rules (schematic). Each generation
+        continues 4,200'
+      source_id: '2609.11149'
+      url: https://arxiv.org/abs/2609.11149
+      value: '42'
+    filled: true
+  kind: numeric
+  raw_text: The deterministic sampling strategy uses seed 42.
+  resolved_value: '42'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T07:58:49Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: RealEstate10K validation split ID
+  claim_id: c_f6a59556
+  context: Explicitly define the RealEstate10K validation split ID ('validation')
+    and implement a deterministic sampling strategy...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RealEstate10K_validation_split_ID
+  kind: entity_fact
+  raw_text: The RealEstate10K validation split ID is 'validation'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:59:11Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: benchmark report CSV columns
+  claim_id: c_5d2998af
+  context: 'Generate benchmark report CSV at data/processed/benchmark_tradeoff.csv
+    with columns: view_count,latency,chamfer_distance,psnr,baseline_latency,speedup_ratio,psnr_delta'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_report_CSV_columns
+  kind: entity_fact
+  raw_text: The benchmark report CSV includes columns for view_count, latency, chamfer_distance,
+    psnr, baseline_latency, speedup_ratio, and psnr_delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:59:13Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: support 2 3 4 5 view configurations
+  claim_id: c_da0884ae
+  context: Implement dynamic view count configuration in code/cli.py (FR-002) to support
+    2, 3, 4, 5 views as a prerequisite for batch orchestration
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must support 2, 3, 4, and 5 view configurations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T07:59:35Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk p-value threshold 0.05
+  claim_id: c_35ecb616
+  context: If Shapiro-Wilk p-value >= 0.05, use the t-test p-value for the final significance
+    decision. If Shapiro-Wilk p-value < 0.05, use the Wilcoxon p-value...
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Shapiro-Wilk test p-value threshold for normality is 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T07:59:35Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: relative error increase formula
+  claim_id: c_83d0370c
+  context: Calculate relative error increase as (error_N - error_baseline) / error_baseline
+    where error_N is Chamfer Distance at view count N.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Relative_error_increase_formula
+  kind: entity_fact
+  raw_text: The relative error increase calculation uses the formula (error_N - error_baseline)
+    / error_baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T08:00:19Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: 2-core CPU affinity enforcement
+  claim_id: c_3f894448
+  context: Enforce 2-core CPU affinity using os.sched_setaffinity for both the baseline
+    and the geometry-only module (T015/T018) to satisfy SC-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system enforces 2-core CPU affinity for both baseline and geometry-only
+    modules.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T08:00:48Z'
+- artifact_path: projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim/specs/001-llmxive-follow-up-extending-trisplat-sim/tasks.md
+  attempts: 1
+  canonical: convergence failure condition p-value 0.05 relative error tolerance
+  claim_id: c_f9b9b482
+  context: 'The failure condition for convergence is defined as: If p-value < 0.05
+    AND relative error increase > tolerance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Convergence_failure_condition_p-value_0.05_relative_error_to
+  kind: entity_fact
+  raw_text: The failure condition for convergence is defined as p-value < 0.05 AND
+    relative error increase > tolerance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T08:00:51Z'

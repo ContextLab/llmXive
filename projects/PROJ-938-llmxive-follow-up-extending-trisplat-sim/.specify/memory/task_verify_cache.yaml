@@ -55,3 +55,10 @@ T050:
     \ `state/projects/PROJ-938-llmxive-follow-up-extending-trisplat-sim.yaml` is absent.\
     \ The task\u2019s core artifact (the updated state YAML) is missing, so the requirement\
     \ is not met."
+T054:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided that adds a dedicated\
+    \ \u201CData Source Validation\u201D task or implements the trigger based on `analyze_report`\
+    \ flagging \u201Cincomplete data integrity checks\u201D. The required artifact\
+    \ is missing."

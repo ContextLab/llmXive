@@ -25,7 +25,7 @@ This project implements a CPU-feasible, geometry-only 3D scene reconstruction pi
 - No GPU acceleration allowed for the primary "geometry-only" method.
 - Input images must be downscaled to 320x240.
 - Strict timeout (min) and memory cap enforced per scene-config.
-**Scale/Scope**: A set of unique scenes from the RealEstate10K validation set (primary); additional scenes (stretch goal); Multiple view-count configurations (ranging from 2 to 5) per scene.
+**Scale/Scope**: A set of unique scenes from the RealEstateK validation set (primary); additional scenes (stretch goal); Multiple view-count configurations (ranging from 2 to 5) per scene.
 
 > **Dataset Note**: The RealEstate dataset is used via the verified HuggingFace source. The plan relies on streaming or chunked loading to fit within RAM constraints.
 

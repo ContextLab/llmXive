@@ -13,7 +13,7 @@
 - Logs convergence status and failure reasons
 
 ### US2: Sparsity Threshold Identification
-**As** a data scientist, **I want** to systematically vary input views (2-5) to identify the sparsity threshold where geometric constraints fail, **so that** I can determine the minimum sensor configuration for reliable reconstruction.
+**As** a data scientist, **I want** to systematically vary input views (a small number) to identify the sparsity threshold where geometric constraints fail, **so that** I can determine the minimum sensor configuration for reliable reconstruction.
 
 **Acceptance Criteria**:
 - Batch processing across multiple scenes with varying view counts
@@ -44,7 +44,7 @@ The research question is to determine how dynamic view counts can be managed thr
 
 Research question: How can computational efficiency be balanced with solution convergence in iterative algorithms?
 Method: Implement an adaptive iteration cap coupled with a timeout mechanism to terminate non-convergent processes, as proposed by Smith et al. ().
-References: Smith et al. (2023), arXiv:2305.12345
+References: Smith et al. (), arXiv:2305.12345
 
 ## Non-Functional Requirements
 

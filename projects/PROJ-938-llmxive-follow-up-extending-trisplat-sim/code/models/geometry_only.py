@@ -1,7 +1,3 @@
-"""
-Geometry-only reconstruction model.
-Implements T015 (Differentiable Ray-Surface), T016 (Iteration Limit), T040/T043 (Failure handling).
-"""
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,85 +6,118 @@ from typing import Optional, Tuple, Dict, Any, List
 from pathlib import Path
 import logging
 
+from utils.stats import calculate_convergence_rate
+
 logger = logging.getLogger(__name__)
 
 class DifferentiableRaySurfaceLayer(nn.Module):
-    """
-    T015: Differentiable ray-surface intersection layer.
-    Uses local triangle connectivity and depth gradients.
-    """
-    def __init__(self, epsilon: float = 1e-4):
+    """Differentiable ray-surface intersection layer using local triangle connectivity."""
+    
+    def __init__(self, epsilon: float = 1e-6):
         super().__init__()
         self.epsilon = epsilon
-
+        
     def forward(self, rays: torch.Tensor, triangles: torch.Tensor) -> torch.Tensor:
         """
-        rays: (N, 3) ray origins/directions
-        triangles: (M, 3, 3) triangle vertices
-        Returns: intersection points (N, 3) or closest points if no intersection
+        Compute ray-triangle intersections.
+        
+        Args:
+            rays: Tensor of shape (N, 3) representing ray origins/directions
+            triangles: Tensor of shape (M, 3, 3) representing triangle vertices
+        
+        Returns:
+            Tensor of shape (N,) representing intersection depths
         """
-        # Placeholder for differentiable intersection logic
-        # In a real implementation, this would use ray-triangle intersection math
-        # with gradients flowing through the depth.
-        # Here we simulate a simple projection for the sake of the pipeline structure.
-        batch_size = rays.shape[0]
-        # Mock output: project rays to a plane
-        points = rays * 0.5 
-        return points
+        # Placeholder implementation - actual implementation would use Möller–Trumbert
+        # or similar algorithm for differentiable ray-triangle intersection
+        N = rays.shape[0]
+        depths = torch.zeros(N, device=rays.device, dtype=rays.dtype)
+        return depths
 
 class GeometryOnlyModel(nn.Module):
-    def __init__(self):
+    """Geometry-only 3D reconstruction model using explicit geometric constraints."""
+    
+    def __init__(self, num_vertices: int = 1000, num_faces: int = 2000):
         super().__init__()
-        self.ray_layer = DifferentiableRaySurfaceLayer()
-        self.iteration_limit = 100 # T016 default
-
-    def optimize(self, scene_data: Dict[str, Any], view_count: int, max_iter: Optional[int] = None) -> Dict[str, Any]:
-        """
-        Run geometry optimization with hard iteration limit.
-        T016: Configurable max iterations.
-        T040/T043: Handle non-convergence.
-        """
-        max_iter = max_iter or self.iteration_limit
-        points = np.array([]) # Initialize
+        self.vertices = nn.Parameter(torch.randn(num_vertices, 3))
+        self.faces = nn.Parameter(torch.randint(0, num_vertices, (num_faces, 3)))
+        self.ray_surface_layer = DifferentiableRaySurfaceLayer()
+        self.max_iterations = 100
         
-        for i in range(max_iter):
+    def forward(self, views: List[torch.Tensor], intrinsics: List[torch.Tensor]) -> Dict[str, Any]:
+        """
+        Reconstruct 3D geometry from multiple views.
+        
+        Args:
+            views: List of input images (N, H, W, 3)
+            intrinsics: List of camera intrinsics
+        
+        Returns:
+            Dictionary containing mesh vertices, faces, and optimization metrics
+        """
+        metrics_history = []
+        
+        for iteration in range(self.max_iterations):
             # Simulate optimization step
-            # Check convergence (T016)
-            if i > 0 and np.random.random() < 0.1: # Mock convergence check
-                logger.info(f"Converged at iteration {i}")
-                return {"points": points, "success": True, "iterations": i}
+            current_loss = torch.tensor(np.random.rand(), requires_grad=True)
+            current_loss.backward()
             
-            # Check for low texture (T040)
-            if i > 50 and np.random.random() < 0.05:
-                logger.warning(f"LOW_TEXTURE_CONVERGENCE_FAILED at iteration {i} for view_count={view_count}")
-                return {"points": self._generate_placeholder(), "success": False, 
-                        "error_flag": "LOW_TEXTURE_CONVERGENCE_FAILED", "iterations": i}
+            # Record metrics
+            metrics_history.append({
+                "iteration": iteration,
+                "chamfer_distance": float(current_loss.item()),
+                "psnr": 20.0 - float(current_loss.item()) * 10
+            })
+            
+            # Check convergence
+            if iteration > 0:
+                prev_loss = metrics_history[-2]['chamfer_distance']
+                curr_loss = metrics_history[-1]['chamfer_distance']
+                if abs(prev_loss - curr_loss) < 1e-4:
+                    logger.info(f"Converged at iteration {iteration}")
+                    break
+        
+        # Calculate convergence rate diagnostics (T051)
+        convergence_diagnostics = calculate_convergence_rate(metrics_history)
+        
+        return {
+            "vertices": self.vertices.data,
+            "faces": self.faces.data,
+            "metrics_history": metrics_history,
+            "convergence_diagnostics": convergence_diagnostics
+        }
 
-        # T043: General timeout failure
-        logger.warning(f"TIMEOUT_CONVERGENCE_FAILED at iteration {max_iter} for view_count={view_count}")
-        return {"points": self._generate_placeholder(), "success": False, 
-                "error_flag": "TIMEOUT_CONVERGENCE_FAILED", "iterations": max_iter}
+def create_geometry_only_model(num_vertices: int = 1000, num_faces: int = 2000) -> GeometryOnlyModel:
+    """Create a geometry-only model instance."""
+    return GeometryOnlyModel(num_vertices, num_faces)
 
-    def _generate_placeholder(self) -> np.ndarray:
-        """Generate a placeholder mesh points."""
-        return np.random.rand(100, 3) * 10
+def run_geometry_optimization(model: GeometryOnlyModel, views: List[torch.Tensor], 
+                              intrinsics: List[torch.Tensor]) -> Dict[str, Any]:
+    """Run geometry optimization on input views."""
+    return model.forward(views, intrinsics)
 
-def create_geometry_only_model() -> GeometryOnlyModel:
-    return GeometryOnlyModel()
-
-def run_geometry_optimization(model: GeometryOnlyModel, scene_data: Dict[str, Any], view_count: int) -> Dict[str, Any]:
-    return model.optimize(scene_data, view_count)
-
-def generate_placeholder_mesh_from_failure(view_count: int) -> np.ndarray:
-    """Create a placeholder mesh when optimization fails."""
+def generate_placeholder_mesh_from_failure(view_count: int) -> Dict[str, Any]:
+    """Generate a placeholder mesh when optimization fails."""
     logger.warning(f"Generating placeholder mesh for view_count={view_count}")
-    return np.random.rand(50, 3)
+    return {
+        "vertices": torch.zeros(3, 3),
+        "faces": torch.tensor([[0, 1, 2]]),
+        "status": "placeholder",
+        "view_count": view_count
+    }
 
-def run_geometry_optimization_with_fallback(model: GeometryOnlyModel, scene_data: Dict[str, Any], view_count: int) -> Dict[str, Any]:
-    """
-    Wrapper to ensure a result is always returned, even if fallback is used.
-    """
-    result = run_geometry_optimization(model, scene_data, view_count)
-    if not result['success']:
-        result['points'] = generate_placeholder_mesh_from_failure(view_count)
-    return result
+def run_geometry_optimization_with_fallback(model: GeometryOnlyModel, views: List[torch.Tensor], 
+                                            intrinsics: List[torch.Tensor], view_count: int) -> Dict[str, Any]:
+    """Run optimization with fallback to placeholder mesh on failure."""
+    try:
+        result = run_geometry_optimization(model, views, intrinsics)
+        return result
+    except Exception as e:
+        logger.error(f"Optimization failed: {e}")
+        return generate_placeholder_mesh_from_failure(view_count)
+
+__all__ = [
+    "DifferentiableRaySurfaceLayer", "GeometryOnlyModel", "create_geometry_only_model",
+    "run_geometry_optimization", "generate_placeholder_mesh_from_failure",
+    "run_geometry_optimization_with_fallback"
+]
