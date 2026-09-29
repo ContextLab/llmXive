@@ -1,0 +1,102 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-quantifying-dark-matter"
+version = "0.1.0"
+description = "Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "h5py",
+    "requests",
+    "pyyaml",
+    "pytest",
+    "ruff",
+    "black",
+    "isort",
+    "mypy",
+    "types-requests",
+    "types-PyYAML",
+]
+
+[tool.ruff]
+# Target Python 3.11
+target-version = "py311"
+
+# Exclude generated files and build artifacts
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+    "data/",
+    "outputs/",
+    "state/",
+]
+
+# Line length for black compatibility
+line-length = 88
+
+[tool.ruff.lint]
+# Enable common rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+]
+
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data loaders)
+    "C901", # Complex structure (allow some complexity in analysis logic)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"code/main.py" = ["F401"] # Allow unused imports for entry point
+"code/tests/*" = ["F401", "N802", "N815"] # Allow test naming conventions
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | outputs
+    | state
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code"]
+skip = [".git", "data", "outputs", "state", "__pycache__", ".eggs", "build", "dist"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = ["data/", "outputs/", "state/"]

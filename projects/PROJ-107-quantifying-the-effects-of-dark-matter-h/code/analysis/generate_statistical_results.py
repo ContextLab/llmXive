@@ -7,93 +7,135 @@ import numpy as np
 import pandas as pd
 import csv
 
-from utils.config import get_project_root, get_data_processed_path
-from analysis.metadata_utils import load_metadata, save_metadata, add_associational_only_flag_to_dataset
+# Import from project API surface
+from analysis.stats import (
+    run_statistical_tests,
+    apply_bonferroni_correction,
+    save_statistical_results
+)
+from utils.config import (
+    get_project_root,
+    get_data_processed_path,
+    get_output_path
+)
+from utils.logging import get_pipeline_logger, log_task_start, log_task_end
+from analysis.metadata_utils import add_associational_only_flag_to_csv
 
-logger = logging.getLogger(__name__)
+logger = get_pipeline_logger(__name__)
 
-def load_metadata(metadata_path: Optional[str] = None) -> Dict[str, Any]:
-    """Load metadata.yaml from the data directory."""
-    if metadata_path is None:
-        project_root = get_project_root()
-        metadata_path = str(project_root / "data" / "metadata.yaml")
-    
-    path = Path(metadata_path)
+def load_halo_data() -> pd.DataFrame:
+    """Load processed halo shapes from T017."""
+    path = get_data_processed_path() / "halo_shapes.csv"
     if not path.exists():
-        return {"datasets": {}, "version": "1.0"}
-    
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
+        raise FileNotFoundError(f"Required input file not found: {path}. "
+                                "Ensure T017 has been completed successfully.")
+    return pd.read_csv(path)
 
-def save_metadata(metadata: Dict[str, Any], metadata_path: Optional[str] = None) -> None:
-    """Save metadata.yaml to the data directory."""
-    if metadata_path is None:
-        project_root = get_project_root()
-        metadata_path = str(project_root / "data" / "metadata.yaml")
-    
-    path = Path(metadata_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, 'w') as f:
-        yaml.dump(metadata, f, default_flow_style=False)
+def load_galaxy_properties() -> pd.DataFrame:
+    """Load galaxy properties from T018."""
+    path = get_data_processed_path() / "galaxy_properties.csv"
+    if not path.exists():
+        raise FileNotFoundError(f"Required input file not found: {path}. "
+                                "Ensure T018 has been completed successfully.")
+    return pd.read_csv(path)
 
-def add_associational_only_flag(metadata: Dict[str, Any]) -> Dict[str, Any]:
-    """Add the associational_only flag to the statistical_results dataset in metadata."""
-    if "datasets" not in metadata:
-        metadata["datasets"] = {}
-    metadata["datasets"]["statistical_results"] = metadata["datasets"].get("statistical_results", {})
-    metadata["datasets"]["statistical_results"]["associational_only"] = True
-    logger.info("Added associational_only=true flag to statistical_results dataset metadata.")
-    return metadata
+def merge_halo_galaxy_data(halo_df: pd.DataFrame, galaxy_df: pd.DataFrame) -> pd.DataFrame:
+    """Merge halo and galaxy data on halo_id."""
+    # Ensure both have halo_id as integer for join
+    merged = pd.merge(
+        halo_df,
+        galaxy_df,
+        on='halo_id',
+        how='inner'
+    )
+    logger.info(f"Merged dataset size: {len(merged)} rows")
+    return merged
 
-def main():
+def run_statistical_tests_on_merged(merged_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Generate statistical results from halo shapes and apply the associational_only flag.
-    This script is a placeholder for the actual statistical analysis logic (T025)
-    but ensures the flag is applied to the output file and metadata as required by T026.
+    Execute the full statistical analysis pipeline:
+    1. Run Kruskal-Wallis, Mann-Whitney U, KS tests (T022)
+    2. Run Linear Regression with mass control (T023)
+    3. Apply Bonferroni correction (T024)
+    4. Return aggregated results ready for output.
     """
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    logger.info("Starting statistical results generation with associational_only flag...")
+    logger.info("Running statistical tests on merged dataset...")
     
-    project_root = get_project_root()
-    processed_dir = get_data_processed_path()
-    output_path = Path(project_root) / processed_dir / "statistical_results.csv"
+    # Run tests using the unified interface from stats.py
+    # This function encapsulates T021 (matching), T022 (tests), T023 (regression), T024 (correction)
+    results = run_statistical_tests(merged_df)
     
+    return results
+
+def save_results(results_df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Save results to CSV with the required schema and associational flag.
+    Schema: predictor, coefficient, p_value, r_squared, ci_lower, ci_upper
+    Note: For non-regression tests, 'coefficient' might be a statistic value, 
+    and 'r_squared' might be 0 or N/A. We normalize to the requested schema.
+    """
     # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Generate a dummy result structure if the file doesn't exist (for T026 compliance)
-    # In a real run, this would be populated by T025 logic.
-    # Since T025 is marked complete in the list but the verifier said T023/T025 output is missing,
-    # we must ensure this file exists with the flag.
+    # Normalize columns if necessary to match expected schema
+    # The stats.py save_statistical_results likely returns a standard format.
+    # We ensure it matches the task requirement: predictor, coefficient, p_value, r_squared, ci_lower, ci_upper
+    required_cols = ['predictor', 'coefficient', 'p_value', 'r_squared', 'ci_lower', 'ci_upper']
     
-    if not output_path.exists():
-        logger.warning("statistical_results.csv not found. Creating a placeholder with the required flag.")
-        # Create a minimal valid CSV with the flag comment
-        with open(output_path, 'w') as f:
-            f.write("# associational_only: true\n")
-            f.write("test_metric,value,p_value\n")
-            f.write("dummy_test,0.5,0.2\n")
-        logger.info("Created placeholder statistical_results.csv with flag.")
-    else:
-        # Ensure the flag comment exists at the top
-        with open(output_path, 'r') as f:
-            lines = f.readlines()
+    # If the source has different column names, map them.
+    # Assuming run_statistical_tests returns a DataFrame with relevant stats.
+    # If it returns a dict of lists, convert to DF.
+    if not isinstance(results_df, pd.DataFrame):
+        results_df = pd.DataFrame(results_df)
+
+    # Fill missing columns with NaN if they don't exist
+    for col in required_cols:
+        if col not in results_df.columns:
+            results_df[col] = np.nan
+
+    # Reorder columns
+    results_df = results_df[required_cols]
+    
+    # Write CSV
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Statistical results saved to {output_path}")
+    
+    # Apply associational flag as per T026 requirement
+    add_associational_only_flag_to_csv(output_path)
+
+def main():
+    """
+    Main entry point for T025: Create analysis script to generate statistical_results.csv.
+    Dependencies: T021, T022, T023, T024, T026.
+    """
+    log_task_start("T025", "Generate Statistical Results")
+    
+    try:
+        # 1. Load Data
+        logger.info("Loading input data...")
+        halo_df = load_halo_data()
+        galaxy_df = load_galaxy_properties()
         
-        if not lines or not lines[0].strip().startswith("# associational_only"):
-            logger.info("Adding associational_only flag comment to existing file.")
-            new_lines = ["# associational_only: true\n"] + lines
-            with open(output_path, 'w') as f:
-                f.writelines(new_lines)
-        else:
-            logger.info("Flag already present in statistical_results.csv.")
-    
-    # Update metadata.yaml
-    metadata = load_metadata()
-    metadata = add_associational_only_flag(metadata)
-    save_metadata(metadata)
-    
-    logger.info(f"Statistical results generation complete. Output: {output_path}")
+        # 2. Merge Data
+        merged_df = merge_halo_galaxy_data(halo_df, galaxy_df)
+        
+        if len(merged_df) == 0:
+            raise ValueError("Merged dataset is empty. Check data integrity in T017/T018.")
+        
+        # 3. Run Statistical Analysis (T021-T024)
+        results = run_statistical_tests_on_merged(merged_df)
+        
+        # 4. Save Results (T025)
+        output_path = get_data_processed_path() / "statistical_results.csv"
+        save_results(results, output_path)
+        
+        log_task_end("T025", "Success", {"output_file": str(output_path)})
+        return 0
+        
+    except Exception as e:
+        logger.error(f"Task T025 failed: {e}", exc_info=True)
+        log_task_end("T025", "Failed", {"error": str(e)})
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

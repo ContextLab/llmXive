@@ -10,14 +10,22 @@ T010:
   r: "The required artifact `code/tests/test_pipeline.py` does not exist on the repository,\
     \ so the integration test for TNG-100 download and chunk processing is missing.\
     \ Without this file, the task\u2019s core requirement is not satisfied."
-T023:
+T017:
   c: false
-  h: da4a6b0556927847d8014c5f5fc1c94788dabd9ccd5570b25ff7902cac253eae
-  r: "The repository lacks the required `data/processed/halo_shapes.csv` file, so\
-    \ the regression cannot be run on the specified columns. Moreover, the shown portion\
-    \ of `code/analysis/stats.py` contains only statistical\u2011test utilities and\
-    \ does not include any implementation of a linear regression that controls for\
-    \ halo mass. Both the data source and the regression functionality are missing."
+  h: 460f33f9ff5112f87e8bff9d7e598bd6fe0f2f231d845d9805c56ae904123c97
+  r: "The repository contains a partially shown `pipeline_runner.py` that stops mid\u2011\
+    function and does not include the full aggregation, validation, or logging logic.\
+    \ Moreover, the required deliverables `data/processed/halo_shapes.csv` and `data/processed/exclusion_log.json`\
+    \ are absent from the project. The task\u2019s output files and complete implementation\
+    \ are therefore missing."
+T018:
+  c: false
+  h: ef0005ebe30bbd54bcf75aad29e03f6d4d912d2bb74ffe216de3c488608ec952
+  r: "The required output file `data/processed/galaxy_properties.csv` does not exist,\
+    \ and the shown portion of `code/ingestion/tng_loader.py` contains only generic\
+    \ API\u2011fetching utilities with no implementation of extracting SFR, effective\
+    \ radius, or stellar mass for central subhalos or writing the specified CSV. The\
+    \ task\u2019s core deliverable is therefore missing."
 T027:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -52,14 +60,6 @@ T033:
     \ produces cross\u2011dataset comparison metrics or visualizations, but no such\
     \ artifact is provided. The implementer must supply the actual implementation\
     \ and its results."
-T034:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., updated report generation code, template, or generated report
-    containing the new robustness conclusions) is present; the evidence provided consists
-    only of the original specification, so the required update cannot be verified.
-    The implementer must supply the modified report generation output showing the
-    added robustness conclusions.
 T039:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

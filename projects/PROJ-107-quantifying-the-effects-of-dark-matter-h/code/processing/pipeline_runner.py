@@ -2,290 +2,267 @@ import os
 import gc
 import logging
 import time
+import json
+import csv
 from pathlib import Path
-from typing import Generator, Dict, Any, List, Optional
-import pandas as pd
-import numpy as np
+from typing import List, Dict, Any, Optional, Generator, Tuple
 
-from utils.config import get_project_root, get_data_processed_path, get_data_raw_path
-from utils.logging import get_pipeline_logger, log_task_start, log_task_end, log_metric, log_error
-from utils.io import process_halo_chunk, iter_hdf5_groups
-from ingestion.tng_loader import fetch_tng_halo_data, download_file, fetch_halos_list
-from processing.inertia_tensor import compute_reduced_inertia_tensor, compute_eigenvalues_and_eigenvectors
+import numpy as np
+import pandas as pd
+
+# Import from existing API surface
+from utils.config import get_project_root, get_data_raw_path, get_data_processed_path
+from utils.logging import get_pipeline_logger, log_task_start, log_task_end, log_error, log_metric
+from utils.io import iter_csv_chunks, save_dataframe_chunked
+from processing.inertia_tensor import process_halo_inertia
 from processing.shape_metrics import (
-    compute_axial_ratios,
-    compute_triaxiality,
+    compute_shape_metrics_from_eigenvalues,
     filter_halo_by_particle_count,
     validate_shape_metrics,
-    process_halo_shape
+    get_exclusion_reason
 )
+from ingestion.tng_loader import fetch_tng_halo_data
 
 logger = get_pipeline_logger("pipeline_runner")
 
-# Constants for validation
+# Constants
 MIN_PARTICLE_COUNT = 10000
-OUTPUT_FILE_NAME = "halo_shapes.csv"
-EXCLUDED_LOG_NAME = "excluded_haloes.log"
+OUTPUT_HALO_SHAPES = "data/processed/halo_shapes.csv"
+OUTPUT_EXCLUSION_LOG = "data/processed/exclusion_log.json"
 
 def iterate_haloes(
     snapshot_id: int = 0,
-    chunk_size: int = 100
-) -> Generator[Dict[str, Any], None, None]:
+    chunk_size: int = 1000
+) -> Generator[Tuple[Dict[str, Any], int], None, None]:
     """
-    Generator that iterates over haloes in the TNG-100 dataset.
-    Handles chunked processing to stay within memory constraints.
-    
-    Args:
-        snapshot_id: The snapshot ID (default 0 for TNG-100)
-        chunk_size: Number of haloes to process in a chunk
-    
-    Yields:
-        Dictionary containing processed halo shape metrics
+    Iterates over haloes from the TNG-100 dataset in chunks.
+    Yields (halo_data_dict, halo_id).
     """
-    log_task_start(logger, "iterate_haloes", f"Snapshot {snapshot_id}")
+    logger.info(f"Starting halo iteration for snapshot {snapshot_id}, chunk_size={chunk_size}")
     
+    # Fetch halo list metadata
     try:
-        # Fetch the list of haloes for the snapshot
-        logger.info(f"Fetching halo list for snapshot {snapshot_id}")
-        halos_list = fetch_halos_list(snapshot_id)
-        
-        if not halos_list:
-            logger.warning(f"No haloes found for snapshot {snapshot_id}")
-            return
-
-        total_haloes = len(halos_list)
-        logger.info(f"Found {total_haloes} haloes to process")
-
-        processed_count = 0
-        excluded_count = 0
-        chunk_buffer = []
-
-        for i, halo_info in enumerate(halos_list):
-            try:
-                # Fetch halo data
-                halo_data = fetch_tng_halo_data(halo_info)
-                
-                if halo_data is None:
-                    logger.warning(f"Failed to fetch data for halo {halo_info.get('id', 'unknown')}")
-                    excluded_count += 1
-                    continue
-
-                # Filter by particle count
-                particle_count = halo_data.get('num_particles', 0)
-                if not filter_halo_by_particle_count(particle_count, MIN_PARTICLE_COUNT):
-                    logger.debug(f"Excluding halo {halo_info.get('id', 'unknown')}: particle count {particle_count} < {MIN_PARTICLE_COUNT}")
-                    excluded_count += 1
-                    continue
-
-                # Compute inertia tensor
-                positions = halo_data.get('positions')
-                masses = halo_data.get('masses')
-                
-                if positions is None or masses is None:
-                    logger.warning(f"Missing position/mass data for halo {halo_info.get('id', 'unknown')}")
-                    excluded_count += 1
-                    continue
-
-                inertia_tensor = compute_reduced_inertia_tensor(positions, masses)
-                
-                if inertia_tensor is None:
-                    logger.warning(f"Singular inertia tensor for halo {halo_info.get('id', 'unknown')}")
-                    excluded_count += 1
-                    continue
-
-                # Compute eigenvalues
-                eigenvalues, eigenvectors = compute_eigenvalues_and_eigenvectors(inertia_tensor)
-                
-                if eigenvalues is None or len(eigenvalues) != 3:
-                    logger.warning(f"Invalid eigenvalues for halo {halo_info.get('id', 'unknown')}")
-                    excluded_count += 1
-                    continue
-
-                # Compute shape metrics
-                axial_ratios = compute_axial_ratios(eigenvalues)
-                triaxiality = compute_triaxiality(eigenvalues)
-                
-                # Validate shape metrics
-                is_valid, validation_error = validate_shape_metrics(axial_ratios, triaxiality)
-                
-                if not is_valid:
-                    logger.debug(f"Excluding halo {halo_info.get('id', 'unknown')}: {validation_error}")
-                    excluded_count += 1
-                    continue
-
-                # Build result record
-                result = {
-                    'halo_id': halo_info.get('id'),
-                    'snapshot_id': snapshot_id,
-                    'particle_count': particle_count,
-                    'eigenvalue_1': float(eigenvalues[0]),
-                    'eigenvalue_2': float(eigenvalues[1]),
-                    'eigenvalue_3': float(eigenvalues[2]),
-                    'b_a_ratio': float(axial_ratios['b_a']),
-                    'c_a_ratio': float(axial_ratios['c_a']),
-                    'triaxiality': float(triaxiality),
-                    'is_valid': True
-                }
-
-                chunk_buffer.append(result)
-                processed_count += 1
-
-                # Yield chunk if size reached
-                if len(chunk_buffer) >= chunk_size:
-                    for record in chunk_buffer:
-                        yield record
-                    chunk_buffer = []
-                    gc.collect()
-
-            except Exception as e:
-                log_error(logger, f"Error processing halo {halo_info.get('id', 'unknown')}", e)
-                excluded_count += 1
-                continue
-
-        # Yield remaining records
-        if chunk_buffer:
-            for record in chunk_buffer:
-                yield record
-            chunk_buffer = []
-
-        # Log summary
-        log_metric(logger, "iterate_haloes_processed", processed_count)
-        log_metric(logger, "iterate_haloes_excluded", excluded_count)
-        logger.info(f"Finished iterating haloes. Processed: {processed_count}, Excluded: {excluded_count}")
-
+        halo_list = fetch_tng_halo_data(snapshot_id, limit=None)
     except Exception as e:
-        log_error(logger, "Error in iterate_haloes", e)
+        logger.error(f"Failed to fetch halo list: {e}")
         raise
-    finally:
-        log_task_end(logger, "iterate_haloes")
+
+    total_haloes = len(halo_list)
+    processed = 0
+    
+    # Process in chunks to manage memory
+    for i in range(0, total_haloes, chunk_size):
+        chunk = halo_list[i : i + chunk_size]
+        chunk_haloes = []
+        
+        for halo_info in chunk:
+            halo_id = halo_info['id']
+            try:
+                # Fetch full data for this halo
+                # Note: In a real scenario, this might fetch specific HDF5 groups
+                halo_data = fetch_tng_halo_data(snapshot_id, halo_id=halo_id)
+                if halo_data:
+                    chunk_haloes.append((halo_data, halo_id))
+            except Exception as e:
+                logger.warning(f"Skipping halo {halo_id} due to fetch error: {e}")
+                continue
+        
+        processed += len(chunk_haloes)
+        log_metric("haloes_processed", processed)
+        
+        for halo_data, halo_id in chunk_haloes:
+            yield halo_data, halo_id
+        
+        # Force garbage collection after each chunk
+        gc.collect()
+
+def validate_shape_metrics_chunk(
+    metrics: Dict[str, Any],
+    particle_count: int
+) -> Tuple[bool, Optional[str]]:
+    """
+    Validates computed shape metrics against physical constraints.
+    Returns (is_valid, exclusion_reason).
+    """
+    if particle_count < MIN_PARTICLE_COUNT:
+        return False, f"Particle count {particle_count} < {MIN_PARTICLE_COUNT}"
+
+    b_a = metrics.get('b_a_ratio')
+    c_a = metrics.get('c_a_ratio')
+
+    if b_a is None or c_a is None:
+        return False, "Missing axial ratios"
+
+    # Validate 0 < b/a <= 1
+    if not (0 < b_a <= 1):
+        return False, f"Invalid b/a ratio: {b_a}"
+
+    # Validate 0 < c/a <= 1
+    if not (0 < c_a <= 1):
+        return False, f"Invalid c/a ratio: {c_a}"
+
+    triaxiality = metrics.get('triaxiality')
+    if triaxiality is None or not (0 <= triaxiality <= 1):
+        return False, f"Invalid triaxiality: {triaxiality}"
+
+    return True, None
 
 def run_pipeline(
     snapshot_id: int = 0,
-    output_dir: Optional[Path] = None,
-    chunk_size: int = 100
-) -> Path:
+    chunk_size: int = 1000
+) -> None:
     """
-    Main pipeline execution function that orchestrates the full process:
-    1. Iterate over haloes
-    2. Compute shape metrics
-    3. Validate results
-    4. Aggregate and save to CSV
-    
-    Args:
-        snapshot_id: The snapshot ID to process
-        output_dir: Optional output directory (defaults to data/processed/)
-        chunk_size: Number of haloes to process in a chunk
-    
-    Returns:
-        Path to the output CSV file
+    Main pipeline execution:
+    1. Iterate haloes
+    2. Compute inertia tensors and shape metrics
+    3. Validate and filter
+    4. Aggregate results
+    5. Write outputs
     """
-    log_task_start(logger, "run_pipeline", f"Snapshot {snapshot_id}")
+    start_time = time.time()
+    log_task_start("run_pipeline")
     
     project_root = get_project_root()
-    if output_dir is None:
-        output_dir = get_data_processed_path(project_root)
+    processed_dir = get_data_processed_path()
     
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure output directories exist
+    os.makedirs(processed_dir, exist_ok=True)
     
-    output_file = output_dir / OUTPUT_FILE_NAME
-    excluded_log_file = output_dir / EXCLUDED_LOG_NAME
+    output_csv_path = processed_dir / OUTPUT_HALO_SHAPES
+    output_json_path = processed_dir / OUTPUT_EXCLUSION_LOG
     
-    logger.info(f"Output directory: {output_dir}")
-    logger.info(f"Output file: {output_file}")
-    
-    all_results = []
-    excluded_haloes = []
-    start_time = time.time()
-    
-    try:
-        # Iterate and collect results
-        logger.info("Starting halo iteration and processing...")
-        for result in iterate_haloes(snapshot_id, chunk_size):
-            all_results.append(result)
-        
-        logger.info(f"Collected {len(all_results)} valid halo records")
-        
-        # Create DataFrame and save
-        if all_results:
-            df = pd.DataFrame(all_results)
-            
-            # Final validation pass
-            valid_mask = (
-                (df['b_a_ratio'] > 0) & 
-                (df['b_a_ratio'] <= 1) & 
-                (df['c_a_ratio'] > 0) & 
-                (df['c_a_ratio'] <= 1)
-            )
-            
-            invalid_count = (~valid_mask).sum()
-            if invalid_count > 0:
-                logger.warning(f"Found {invalid_count} records failing final validation. Excluding them.")
-                df = df[valid_mask]
-                excluded_haloes.extend(df[~valid_mask]['halo_id'].tolist())
-            
-            # Sort by halo_id for consistent output
-            df = df.sort_values('halo_id')
-            
-            # Save to CSV
-            df.to_csv(output_file, index=False)
-            logger.info(f"Saved {len(df)} records to {output_file}")
-        else:
-            # Create empty CSV with headers
-            df = pd.DataFrame(columns=[
-                'halo_id', 'snapshot_id', 'particle_count',
-                'eigenvalue_1', 'eigenvalue_2', 'eigenvalue_3',
-                'b_a_ratio', 'c_a_ratio', 'triaxiality', 'is_valid'
-            ])
-            df.to_csv(output_file, index=False)
-            logger.warning("No valid records found. Created empty CSV with headers.")
-        
-        # Log excluded haloes
-        with open(excluded_log_file, 'w') as f:
-            f.write(f"# Excluded Haloes Log\n")
-            f.write(f"# Snapshot: {snapshot_id}\n")
-            f.write(f"# Total Excluded: {len(excluded_haloes)}\n\n")
-            for halo_id in excluded_haloes:
-                f.write(f"{halo_id}\n")
-        
-        logger.info(f"Excluded haloes log saved to {excluded_log_file}")
-        
-        # Log metrics
-        elapsed_time = time.time() - start_time
-        log_metric(logger, "pipeline_total_time", elapsed_time)
-        log_metric(logger, "pipeline_valid_haloes", len(df))
-        log_metric(logger, "pipeline_excluded_haloes", len(excluded_haloes))
-        
-        logger.info(f"Pipeline completed successfully in {elapsed_time:.2f} seconds")
-        
-    except Exception as e:
-        log_error(logger, "Error in run_pipeline", e)
-        raise
-    finally:
-        log_task_end(logger, "run_pipeline")
-    
-    return output_file
+    valid_records = []
+    exclusion_log = []
+    stats = {
+        "total_processed": 0,
+        "valid": 0,
+        "excluded": 0,
+        "errors": 0
+    }
 
-def main():
+    try:
+        for halo_data, halo_id in iterate_haloes(snapshot_id, chunk_size):
+            stats["total_processed"] += 1
+            
+            try:
+                # Compute inertia tensor
+                inertia_result = process_halo_inertia(halo_data)
+                
+                if inertia_result is None:
+                    raise ValueError("Inertia tensor computation failed")
+
+                particle_count = inertia_result.get('particle_count', 0)
+                eigenvalues = inertia_result.get('eigenvalues')
+                
+                if eigenvalues is None or len(eigenvalues) != 3:
+                    raise ValueError("Invalid eigenvalues from inertia tensor")
+
+                # Compute shape metrics
+                metrics = compute_shape_metrics_from_eigenvalues(eigenvalues)
+                metrics['particle_count'] = particle_count
+
+                # Validate
+                is_valid, reason = validate_shape_metrics_chunk(metrics, particle_count)
+                
+                if is_valid:
+                    record = {
+                        'halo_id': halo_id,
+                        'mass': halo_data.get('mass', 0.0),
+                        'b_a_ratio': round(metrics['b_a_ratio'], 6),
+                        'c_a_ratio': round(metrics['c_a_ratio'], 6),
+                        'triaxiality': round(metrics['triaxiality'], 6),
+                        'particle_count': particle_count
+                    }
+                    valid_records.append(record)
+                    stats["valid"] += 1
+                else:
+                    exclusion_log.append({
+                        'halo_id': halo_id,
+                        'reason': reason,
+                        'particle_count': particle_count
+                    })
+                    stats["excluded"] += 1
+
+            except Exception as e:
+                logger.error(f"Error processing halo {halo_id}: {e}")
+                exclusion_log.append({
+                    'halo_id': halo_id,
+                    'reason': f"Processing error: {str(e)}",
+                    'particle_count': 0
+                })
+                stats["errors"] += 1
+
+            # Periodic checkpointing to avoid memory bloat
+            if len(valid_records) >= 10000:
+                save_halo_shapes_chunk(valid_records, output_csv_path, append=True)
+                valid_records.clear()
+                gc.collect()
+
+    except Exception as e:
+        logger.error(f"Pipeline execution failed: {e}")
+        raise
+
+    # Write remaining valid records
+    if valid_records:
+        save_halo_shapes_chunk(valid_records, output_csv_path, append=True)
+    
+    # Write exclusion log
+    write_exclusion_log(exclusion_log, output_json_path)
+    
+    end_time = time.time()
+    log_metric("pipeline_duration_seconds", end_time - start_time)
+    log_metric("final_valid_count", stats["valid"])
+    log_metric("final_excluded_count", stats["excluded"])
+    log_task_end("run_pipeline", success=True)
+
+def save_halo_shapes_chunk(
+    records: List[Dict[str, Any]],
+    output_path: Path,
+    append: bool = False
+) -> None:
     """
-    Entry point for the pipeline runner script.
+    Saves a chunk of halo shape records to CSV.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Run the halo shape processing pipeline")
-    parser.add_argument("--snapshot", type=int, default=0, help="Snapshot ID to process")
-    parser.add_argument("--output-dir", type=str, default=None, help="Output directory")
-    parser.add_argument("--chunk-size", type=int, default=100, help="Number of haloes per chunk")
-    
-    args = parser.parse_args()
-    
-    output_path = run_pipeline(
-        snapshot_id=args.snapshot,
-        output_dir=args.output_dir,
-        chunk_size=args.chunk_size
-    )
-    
-    print(f"Pipeline completed. Output saved to: {output_path}")
+    mode = 'a' if append else 'w'
+    header = not append
+
+    try:
+        with open(output_path, mode, newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['halo_id', 'mass', 'b_a_ratio', 'c_a_ratio', 'triaxiality', 'particle_count'])
+            if header:
+                writer.writeheader()
+            writer.writerows(records)
+        logger.info(f"Wrote {len(records)} records to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write CSV chunk: {e}")
+        raise
+
+def write_exclusion_log(
+    exclusion_log: List[Dict[str, Any]],
+    output_path: Path
+) -> None:
+    """
+    Writes the exclusion log to a JSON file.
+    """
+    try:
+        with open(output_path, 'w') as f:
+            json.dump(exclusion_log, f, indent=2)
+        logger.info(f"Wrote {len(exclusion_log)} exclusion records to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write exclusion log: {e}")
+        raise
+
+def main() -> None:
+    """
+    Entry point for the pipeline runner.
+    """
+    logger.info("Starting halo shape pipeline runner...")
+    try:
+        run_pipeline(snapshot_id=0, chunk_size=500)
+        logger.info("Pipeline completed successfully.")
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

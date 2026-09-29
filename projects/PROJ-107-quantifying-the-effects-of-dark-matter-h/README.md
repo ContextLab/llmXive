@@ -1,32 +1,13 @@
-# llmXive Research Pipeline: Quantifying Dark Matter Halo Shapes
+# llmXive Research Pipeline: Dark Matter Halo Shapes
 
-This project implements an automated science pipeline to quantify the effects of dark matter halo shapes on galaxy formation using TNG-100 and Millennium-II simulation data.
+This project implements the automated science pipeline for quantifying the effects of dark matter halo shapes on galaxy formation.
 
-## Project Structure
+## Prerequisites
 
-```
-.
-├── code/ # Source code
-│ ├── analysis/ # Statistical analysis modules
-│ ├── ingestion/ # Data loading modules
-│ ├── processing/ # Data processing modules
-│ ├── tests/ # Unit and integration tests
-│ ├── utils/ # Utility modules (config, logging, io)
-│ └── main.py # Pipeline entry point
-├── data/ # Data storage
-│ ├── raw/ # Raw downloaded data
-│ ├── processed/ # Processed data outputs
-│ └── metadata.yaml # Data metadata and checksums
-├── outputs/ # Pipeline outputs
-│ ├── logs/ # Execution logs
-│ └── figures/ # Generated plots
-├── tests/ # Additional test infrastructure
-├──.ruff.toml # Linting configuration
-├── pyproject.toml # Project configuration and dependencies
-└── README.md # This file
-```
+- Python 3.11+
+- pip
 
-## Setup
+## Installation
 
 1. Create a virtual environment:
  ```bash
@@ -36,51 +17,64 @@ This project implements an automated science pipeline to quantify the effects of
 
 2. Install dependencies:
  ```bash
- pip install -e ".[dev]"
+ pip install -r requirements.txt
  ```
 
-3. Configure the pipeline:
- - Update `data/metadata.yaml` with any required API keys or paths
- - Ensure sufficient disk space for TNG-100 data (~100GB+)
+## Code Quality Tools
 
-## Usage
+This project uses **Black** for formatting, **Ruff** for linting, and **Flake8** as a legacy compatibility layer.
 
-Run the full pipeline:
+### Formatting
+
+Format code using Black:
+```bash
+black code/
+```
+
+### Linting
+
+Check code using Ruff:
+```bash
+ruff check code/
+```
+
+Alternatively, using Flake8:
+```bash
+flake8 code/
+```
+
+### Pre-commit Hooks (Optional)
+
+To automatically run these checks before committing, install pre-commit:
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+## Running the Pipeline
+
+See `docs/sampling_protocol.md` and `data/metadata.yaml` for data configuration.
+
+Execute the main pipeline:
 ```bash
 python code/main.py
 ```
 
-Run specific tasks:
-```bash
-python code/main.py --task T006 # Run logging infrastructure setup
-```
+## Testing
 
-Run tests:
+Run the test suite:
 ```bash
 pytest code/tests/
 ```
 
-## Hardware Constraints
+## Project Structure
 
-This pipeline is designed to run on systems with limited resources:
-- **RAM**: 7GB maximum
-- **CPU**: Multi-core CPU (no GPU required)
-- **Disk**: ~100GB for raw data, ~10GB for processed outputs
-
-To accommodate these constraints, the pipeline implements:
-- Chunked data processing
-- Sampling strategies for large datasets
-- Memory-efficient data structures
-
-## Logging
-
-The pipeline includes comprehensive logging infrastructure:
-- All logs are written to `outputs/logs/pipeline_<timestamp>.log`
-- Console output shows INFO level and above
-- File output includes DEBUG level details
-- Metrics, errors, and task progress are automatically logged
+- `code/`: Source code
+- `data/`: Raw and processed data
+- `outputs/`: Generated reports and figures
+- `docs/`: Documentation
+- `state/`: Pipeline state files
 
 ## License
 
-This research pipeline is provided for academic purposes.
-See project specifications for detailed licensing information.
+Research use only.

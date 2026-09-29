@@ -4,10 +4,10 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required project directories (`code/`, `data/`, `outputs/`) is present; the provided material only contains a feature specification and no filesystem artifacts. The implementer must create the three top‑level folders (and populate them as appropriate) to satisfy the task.
-- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or `ruff.toml`, `.flake8`, or related CI setup) are present in the provided evidence. Consequently, the task of configuring ruff/flake8 and Black has not been demonstrated. The implementer must add the appropriate configuration files and, optionally, show they are active (e.g., a sample run output).
-- `T006` (rejected 1x): No code, configuration files, or documentation for a base logging infrastructure were provided; the only artifacts shown relate to data ingestion and analysis, not to pipeline tracking logs. Consequently, the required logging component is missing.
-- `T017` (rejected 1x): The repository contains a `pipeline_runner.py` file, but it is truncated and does not show the required logic for merging chunk results, validating the axial ratios (0 < b/a ≤ 1 and 0 < c/a ≤ 1), logging excluded haloes, or writing the final `data/processed/halo_shapes.csv`. Moreover, the expected output CSV file is absent from the `data/processed` directory. The task therefore remains unfinished.
+- `T001` (rejected 1x): No evidence of the required root directories (`code/`, `data/`, `outputs/`, `docs/`, `state/`) or an empty directory tree is present; the implementer did not provide the requested project structure.
+- `T003` (rejected 1x): No linting or formatting configuration files (e.g., `pyproject.toml`, `.flake8`, `.ruff.toml`, or `pre-commit` hooks) are present in the provided artifacts, and the evidence consists only of a feature specification unrelated to linting/formatting. Therefore the task of configuring ruff/flake8 and black has not been demonstrated.
+- `T006` (rejected 1x): No code, configuration files, or documentation for a base logging system were provided; the only content shown is the scientific feature specification, which does not address creating logging infrastructure for pipeline tracking. The required artifact (e.g., a logging module, setup scripts, or usage examples) is missing.
+- `T023` (rejected 1x): The required output file `data/processed/regression_results.csv` does not exist, and the provided `code/analysis/stats.py` excerpt shows only utility and non‑parametric test functions with no implementation of the specified linear regression (SFR ~ triaxiality + b_a_ratio + mass) or generation of the CSV with the required columns. Both the artifact and the deliverable are missing.
 
 ## Required change
 

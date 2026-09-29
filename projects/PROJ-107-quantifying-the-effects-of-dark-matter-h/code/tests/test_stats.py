@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 from code.analysis.stats import apply_bonferroni_correction
+from code.processing.shape_metrics import bin_halo_by_shape
 
 class TestBonferroniCorrection:
     """Unit tests for Bonferroni correction application."""
@@ -65,3 +66,65 @@ class TestBonferroniCorrection:
         corrected_p, is_significant = apply_bonferroni_correction(1.0, n_tests=1, alpha=0.05)
         assert corrected_p == pytest.approx(1.0)
         assert is_significant is False
+
+
+class TestShapeBinningLogic:
+    """Unit tests for binning logic (prolate/triaxial/spherical) in shape_metrics."""
+
+    def test_bin_halo_c_a_less_than_0_5_prolate(self):
+        """Test that c/a < 0.5 is classified as 'prolate'."""
+        # c/a = 0.4 -> prolate
+        result = bin_halo_by_shape(c_a_ratio=0.4, b_a_ratio=0.6)
+        assert result == 'prolate'
+
+    def test_bin_halo_c_a_between_0_5_and_0_8_triaxial(self):
+        """Test that 0.5 <= c/a <= 0.8 is classified as 'triaxial'."""
+        # Lower bound
+        result = bin_halo_by_shape(c_a_ratio=0.5, b_a_ratio=0.6)
+        assert result == 'triaxial'
+
+        # Upper bound
+        result = bin_halo_by_shape(c_a_ratio=0.8, b_a_ratio=0.6)
+        assert result == 'triaxial'
+
+        # Middle
+        result = bin_halo_by_shape(c_a_ratio=0.65, b_a_ratio=0.6)
+        assert result == 'triaxial'
+
+    def test_bin_halo_c_a_greater_than_0_8_spherical(self):
+        """Test that c/a > 0.8 is classified as 'spherical'."""
+        # c/a = 0.85 -> spherical
+        result = bin_halo_by_shape(c_a_ratio=0.85, b_a_ratio=0.9)
+        assert result == 'spherical'
+
+    def test_bin_halo_c_a_exactly_0_5(self):
+        """Test boundary condition where c/a is exactly 0.5."""
+        # According to logic: if c/a < 0.5 -> prolate, else if c/a <= 0.8 -> triaxial
+        # So 0.5 falls into triaxial
+        result = bin_halo_by_shape(c_a_ratio=0.5, b_a_ratio=0.5)
+        assert result == 'triaxial'
+
+    def test_bin_halo_c_a_exactly_0_8(self):
+        """Test boundary condition where c/a is exactly 0.8."""
+        # According to logic: if c/a <= 0.8 -> triaxial, else -> spherical
+        # So 0.8 falls into triaxial
+        result = bin_halo_by_shape(c_a_ratio=0.8, b_a_ratio=0.8)
+        assert result == 'triaxial'
+
+    def test_bin_halo_invalid_ratios(self):
+        """Test behavior with invalid input ratios (should still bin based on value)."""
+        # Even if b_a_ratio is invalid, the function should still return a bin based on c_a_ratio
+        # Note: This assumes the function validates inputs elsewhere or handles them gracefully
+        # We test the binning logic specifically
+        result = bin_halo_by_shape(c_a_ratio=0.3, b_a_ratio=1.5)
+        assert result == 'prolate'
+
+    def test_bin_halo_edge_case_c_a_zero(self):
+        """Test binning when c/a is 0 (extreme prolate)."""
+        result = bin_halo_by_shape(c_a_ratio=0.0, b_a_ratio=0.5)
+        assert result == 'prolate'
+
+    def test_bin_halo_edge_case_c_a_one(self):
+        """Test binning when c/a is 1 (perfectly spherical)."""
+        result = bin_halo_by_shape(c_a_ratio=1.0, b_a_ratio=1.0)
+        assert result == 'spherical'
