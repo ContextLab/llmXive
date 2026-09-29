@@ -1,123 +1,150 @@
 import os
 import tempfile
-import hashlib
+import shutil
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pytest
+import yaml
+import hashlib
 
-import sys
-# Add code to path if running from tests/
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
-
-from src.utils.state_manager import (
-    compute_file_hash, 
-    scan_directory_for_artifacts, 
-    load_state, 
-    save_state, 
-    update_artifact_hashes, 
-    verify_artifacts
-)
+from src.utils import state_manager
 
 @pytest.fixture
-def temp_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
+def temp_workspace():
+    """Create a temporary workspace for testing."""
+    temp_dir = tempfile.mkdtemp()
+    original_cwd = os.getcwd()
+    os.chdir(temp_dir)
+    
+    # Create necessary directories
+    Path("data/raw").mkdir(parents=True, exist_ok=True)
+    Path("data/processed").mkdir(parents=True, exist_ok=True)
+    Path("state/projects").mkdir(parents=True, exist_ok=True)
+    
+    yield temp_dir
+    
+    # Cleanup
+    os.chdir(original_cwd)
+    shutil.rmtree(temp_dir)
 
-@pytest.fixture
-def sample_file(temp_dir):
-    file_path = temp_dir / "test.txt"
-    file_path.write_text("Hello World")
-    return file_path
+def test_compute_file_hash(temp_workspace):
+    """Test hash computation on a known file."""
+    test_file = Path("data/raw/test.txt")
+    content = "Hello, World!"
+    test_file.write_text(content)
+    
+    expected_hash = hashlib.sha256(content.encode()).hexdigest()
+    actual_hash = state_manager.compute_file_hash(test_file)
+    
+    assert actual_hash == expected_hash
 
-def test_compute_file_hash(sample_file):
-    hash1 = compute_file_hash(sample_file)
-    hash2 = compute_file_hash(sample_file)
-    assert hash1 == hash2
-    assert len(hash1) == 64  # SHA256 hex length
-
-def test_compute_file_hash_missing(temp_dir):
-    missing_file = temp_dir / "nonexistent.txt"
+def test_compute_file_hash_not_found(temp_workspace):
+    """Test hash computation on a missing file raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        compute_file_hash(missing_file)
+        state_manager.compute_file_hash(Path("nonexistent.txt"))
 
-def test_scan_directory_for_artifacts(temp_dir):
-    # Create structure
-    (temp_dir / "subdir").mkdir()
-    (temp_dir / "file1.txt").write_text("a")
-    (temp_dir / "subdir" / "file2.txt").write_text("b")
-    (temp_dir / ".hidden").write_text("c")
-
-    files = scan_directory_for_artifacts(temp_dir)
-    paths = [f.name for f in files]
+def test_scan_directory_for_artifacts(temp_workspace):
+    """Test directory scanning."""
+    # Create test files
+    Path("data/raw/file1.txt").write_text("a")
+    Path("data/raw/file2.txt").write_text("b")
+    Path("data/processed/file3.txt").write_text("c")
     
-    assert "file1.txt" in paths
-    assert "file2.txt" in paths
-    assert ".hidden" not in paths
-    assert len(files) == 2
+    raw_files = state_manager.scan_directory_for_artifacts(Path("data/raw"))
+    processed_files = state_manager.scan_directory_for_artifacts(Path("data/processed"))
+    
+    assert len(raw_files) == 2
+    assert len(processed_files) == 1
+    assert all(f.exists() for f in raw_files + processed_files)
 
-def test_scan_directory_nonexistent(temp_dir):
-    non_existent = temp_dir / "does_not_exist"
-    files = scan_directory_for_artifacts(non_existent)
-    assert files == []
+def test_load_state_initializes_empty(temp_workspace):
+    """Test that load_state initializes structure if file missing."""
+    state = state_manager.load_state(Path("state/projects/PROJ-006-agriculture-optimization.yaml"))
+    
+    assert "project_id" in state
+    assert "artifact_hashes" in state
+    assert "data_raw" in state["artifact_hashes"]
+    assert "data_processed" in state["artifact_hashes"]
 
-def test_load_state_missing_file(temp_dir):
-    state_path = temp_dir / "state.yaml"
-    state = load_state(state_path)
-    assert state == {
-        "project_id": "PROJ-006-agriculture-optimization",
-        "artifact_hashes": {}
+def test_update_artifact_hashes(temp_workspace):
+    """Test updating artifact hashes."""
+    # Create test files
+    Path("data/raw/test1.txt").write_text("content1")
+    Path("data/processed/test2.txt").write_text("content2")
+    
+    state = state_manager.load_state(Path("state/projects/PROJ-006-agriculture-optimization.yaml"))
+    state = state_manager.update_artifact_hashes(state)
+    
+    assert "test1.txt" in state["artifact_hashes"]["data_raw"]
+    assert "test2.txt" in state["artifact_hashes"]["data_processed"]
+    
+    # Verify hashes are correct
+    hash1 = state_manager.compute_file_hash(Path("data/raw/test1.txt"))
+    assert state["artifact_hashes"]["data_raw"]["test1.txt"] == hash1
+
+def test_save_and_load_state(temp_workspace):
+    """Test saving and loading state."""
+    state = {
+        "project_id": "TEST",
+        "artifact_hashes": {
+            "data_raw": {"test.txt": "abc123"},
+            "data_processed": {}
+        }
     }
+    state_path = Path("state/projects/PROJ-006-agriculture-optimization.yaml")
+    
+    state_manager.save_state(state, state_path)
+    
+    loaded_state = state_manager.load_state(state_path)
+    
+    assert loaded_state["project_id"] == "TEST"
+    assert loaded_state["artifact_hashes"]["data_raw"]["test.txt"] == "abc123"
 
-def test_save_state_and_load(temp_dir):
-    state_path = temp_dir / "state.yaml"
-    test_state = {"project_id": "TEST", "artifact_hashes": {"key": "val"}}
-    save_state(state_path, test_state)
+def test_verify_artifacts_success(temp_workspace):
+    """Test artifact verification when all files match."""
+    Path("data/raw/verify.txt").write_text("verify_content")
     
-    loaded = load_state(state_path)
-    assert loaded == test_state
+    state = {
+        "project_id": "TEST",
+        "artifact_hashes": {
+            "data_raw": {"verify.txt": state_manager.compute_file_hash(Path("data/raw/verify.txt"))},
+            "data_processed": {}
+        }
+    }
+    
+    assert state_manager.verify_artifacts(state) is True
 
-def test_update_artifact_hashes_integration(temp_dir):
-    # Setup a mock project structure within temp_dir
-    # We need to mock _PROJECT_ROOT or pass paths that work relative to temp_dir
-    # Since update_artifact_hashes uses a global _PROJECT_ROOT, we patch it.
+def test_verify_artifacts_missing_file(temp_workspace):
+    """Test artifact verification when a file is missing."""
+    state = {
+        "project_id": "TEST",
+        "artifact_hashes": {
+            "data_raw": {"missing.txt": "abc123"},
+            "data_processed": {}
+        }
+    }
     
-    data_dir = temp_dir / "data" / "raw"
-    data_dir.mkdir(parents=True)
-    test_file = data_dir / "test.txt"
-    test_file.write_text("content")
-    
-    state_path = temp_dir / "state.yaml"
-    
-    # Patch the global project root to be temp_dir for this test
-    with patch('src.utils.state_manager._PROJECT_ROOT', temp_dir):
-        logger = MagicMock()
-        update_artifact_hashes(state_path, [data_dir], logger)
-        
-        state = load_state(state_path)
-        assert "artifact_hashes" in state
-        assert "data/raw/test.txt" in state["artifact_hashes"]
-        assert len(state["artifact_hashes"]) == 1
+    assert state_manager.verify_artifacts(state) is False
 
-def test_verify_artifacts(temp_dir):
-    data_dir = temp_dir / "data" / "raw"
-    data_dir.mkdir(parents=True)
-    test_file = data_dir / "test.txt"
-    test_file.write_text("content")
+def test_verify_artifacts_hash_mismatch(temp_workspace):
+    """Test artifact verification when hash doesn't match."""
+    Path("data/raw/mismatch.txt").write_text("new_content")
     
-    state_path = temp_dir / "state.yaml"
+    state = {
+        "project_id": "TEST",
+        "artifact_hashes": {
+            "data_raw": {"mismatch.txt": "old_hash"},
+            "data_processed": {}
+        }
+    }
     
-    # First, update state
-    with patch('src.utils.state_manager._PROJECT_ROOT', temp_dir):
-        logger = MagicMock()
-        update_artifact_hashes(state_path, [data_dir], logger)
-        
-        # Verify should pass
-        assert verify_artifacts(state_path, logger) is True
+    assert state_manager.verify_artifacts(state) is False
 
-        # Modify file
-        test_file.write_text("modified")
-        assert verify_artifacts(state_path, logger) is False
-
-        # Delete file
-        test_file.unlink()
-        assert verify_artifacts(state_path, logger) is False
+def test_main_function(temp_workspace):
+    """Test the main CLI function."""
+    # Create a dummy file
+    Path("data/raw/main_test.txt").write_text("main_test_content")
+    
+    result = state_manager.main()
+    
+    assert result == 0
+    assert Path("state/projects/PROJ-006-agriculture-optimization.yaml").exists()

@@ -1,100 +1,106 @@
 """
-Unit tests for RemoteSensingCollector.
+Unit tests for RemoteSensingCollector (T016a).
 """
-import json
 import os
+import json
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
-import pandas as pd
 import numpy as np
 
 from src.data.collectors.remote_sensing_collector import RemoteSensingCollector
-from src.utils.io_helpers import write_csv_strict
 
-@pytest.fixture
-def temp_output_dir():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield Path(tmpdir)
-
-@pytest.fixture
-def sample_survey_df():
-    data = {
-        'household_id': [1, 2, 3],
-        'latitude': [-12.345, -12.346, -12.347],
-        'longitude': [34.567, 34.568, 34.569],
-        'land_size': [1.0, 1.5, 2.0]
-    }
-    return pd.DataFrame(data)
-
-@pytest.fixture
-def sample_survey_csv(sample_survey_df, temp_output_dir):
-    csv_path = temp_output_dir / "survey.csv"
-    write_csv_strict(csv_path, sample_survey_df)
-    return csv_path
 
 class TestRemoteSensingCollector:
-    def test_init(self, sample_survey_csv, temp_output_dir):
-        cache_dir = temp_output_dir / "cache"
-        collector = RemoteSensingCollector(str(sample_survey_csv), str(temp_output_dir), str(cache_dir))
-        assert len(collector.survey_df) == 3
-        assert collector.output_dir == temp_output_dir
-        assert collector.cache_dir == cache_dir
 
-    def test_get_survey_coordinates(self, sample_survey_csv, temp_output_dir):
-        cache_dir = temp_output_dir / "cache"
-        collector = RemoteSensingCollector(str(sample_survey_csv), str(temp_output_dir), str(cache_dir))
-        coords = collector._get_survey_coordinates()
-        assert len(coords) == 3
-        assert ( -12.345, 34.567 ) in coords
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for test outputs."""
+        temp_path = tempfile.mkdtemp()
+        yield temp_path
+        shutil.rmtree(temp_path)
 
-    def test_generate_synthetic_granules(self, sample_survey_csv, temp_output_dir):
-        cache_dir = temp_output_dir / "cache"
-        collector = RemoteSensingCollector(str(sample_survey_csv), str(temp_output_dir), str(cache_dir))
-        
-        lat, lon = -12.345, 34.567
-        granules = collector._generate_synthetic_granules(lat, lon, count=5)
-        
-        assert len(granules) == 5
-        for g in granules:
-            assert 'ndvi_value' in g
-            assert 0.0 <= g['ndvi_value'] <= 1.0
-            assert 'cloud_cover' in g
-            assert 0.0 <= g['cloud_cover'] <= 0.95
-            assert g['latitude'] == lat
-            assert g['longitude'] == lon
+    def test_init_creates_directory(self, temp_dir):
+        """Test that initialization creates the output directory."""
+        collector = RemoteSensingCollector(output_dir=temp_dir)
+        assert os.path.exists(temp_dir)
 
-    def test_create_synthetic_tif(self, sample_survey_csv, temp_output_dir):
-        cache_dir = temp_output_dir / "cache"
-        collector = RemoteSensingCollector(str(sample_survey_csv), str(temp_output_dir), str(cache_dir))
+    def test_generate_ndvi_timeseries_range(self, temp_dir):
+        """Test that generated NDVI values are within valid range [0, 1]."""
+        collector = RemoteSensingCollector(output_dir=temp_dir)
+        ndvi = collector._generate_synthetic_ndvi_timeseries(lat=0.0, lon=0.0, n_months=12)
         
-        granule = {
-            'latitude': -12.345,
-            'longitude': 34.567,
-            'day_of_year': 150,
-            'ndvi_value': 0.65,
-            'granule_id': 'test_123'
-        }
-        
-        tif_path = collector._create_synthetic_tif(granule)
-        assert tif_path.exists()
-        assert tif_path.suffix == '.tif'
+        assert len(ndvi) == 12
+        for val in ndvi:
+            assert 0.0 <= val <= 1.0, f"NDVI value {val} out of range"
 
-    def test_collect_fallback(self, sample_survey_csv, temp_output_dir):
-        cache_dir = temp_output_dir / "cache"
-        collector = RemoteSensingCollector(str(sample_survey_csv), str(temp_output_dir), str(cache_dir))
+    def test_generate_cloud_cover_range(self, temp_dir):
+        """Test that cloud cover is generated within [0.0, 0.9]."""
+        collector = RemoteSensingCollector(output_dir=temp_dir)
+        cloud = collector._generate_cloud_cover()
+        assert 0.0 <= cloud <= 0.9, f"Cloud cover {cloud} out of range"
+
+    def test_create_synthetic_tiff_structure(self, temp_dir):
+        """Test that the synthetic TIFF file is created and contains data."""
+        collector = RemoteSensingCollector(output_dir=temp_dir)
+        ndvi = [0.5] * 12
+        cloud = 0.5
+        output_path = Path(temp_dir) / "test.tif"
         
-        result = collector.collect()
+        collector._create_synthetic_tiff(ndvi, cloud, output_path)
         
-        assert 'total_granules' in result
-        assert result['total_granules'] > 0
-        assert 'cached_files' in result
-        assert len(result['cached_files']) > 0
+        assert output_path.exists()
+        assert output_path.stat().st_size > 0
         
-        # Check summary file
-        summary_path = temp_output_dir / "collection_summary.json"
-        assert summary_path.exists()
-        with open(summary_path, 'r') as f:
-            summary = json.load(f)
-        assert summary['total_granules'] == result['total_granules']
+        # Verify it starts with TIFF magic bytes
+        with open(output_path, 'rb') as f:
+            header = f.read(4)
+            assert header.startswith(b'II') or header.startswith(b'MM'), "Invalid TIFF header"
+
+    def test_generate_granules_creates_metadata(self, temp_dir):
+        """Test that generate_granules creates the metadata JSON sidecar."""
+        collector = RemoteSensingCollector(output_dir=temp_dir)
+        collector.generate_granules(household_ids=[1, 2, 3])
+        
+        metadata_path = Path(temp_dir) / "synthetic_granules_metadata.json"
+        assert metadata_path.exists()
+        
+        with open(metadata_path, 'r') as f:
+            data = json.load(f)
+        
+        assert "granules" in data
+        assert len(data["granules"]) > 0
+        
+        # Check structure of first entry
+        entry = data["granules"][0]
+        assert "filename" in entry
+        assert "cloud_cover" in entry
+        assert "latitude" in entry
+        assert "longitude" in entry
+        assert "ndvi_mean" in entry
+
+    def test_generate_granules_with_survey_data(self, temp_dir):
+        """Test generation using survey data coordinates."""
+        # Create a dummy survey CSV
+        survey_path = Path(temp_dir) / "survey.csv"
+        with open(survey_path, 'w') as f:
+            f.write("household_id,latitude,longitude\n")
+            f.write("1,10.0,20.0\n")
+            f.write("2,11.0,21.0\n")
+        
+        collector = RemoteSensingCollector(output_dir=temp_dir)
+        collector.generate_granules(survey_data_path=survey_path)
+        
+        metadata_path = Path(temp_dir) / "synthetic_granules_metadata.json"
+        assert metadata_path.exists()
+        
+        with open(metadata_path, 'r') as f:
+            data = json.load(f)
+        
+        # Should have processed the 2 rows from survey
+        assert len(data["granules"]) == 2
+        
+        # Check that coordinates match (approximately)
+        lats = [g["latitude"] for g in data["granules"]]
+        assert 10.0 in lats or 11.0 in lats

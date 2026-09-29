@@ -30,7 +30,7 @@ This project implements an observational cross-sectional analysis to assess the 
 | Principle | Status | Action Required |
 | :--- | :--- | :--- |
 | **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt` and random seeds in `src/analysis/`. |
-| **II. Verified Accuracy** | **PASS (with Data Gap)** | Plan acknowledges no verified primary source exists for LSMS-ISA/Sentinel-2. Structural Validation Mode uses generic verified tabular data (UCI) for code logic only. No scientific claims made on synthetic data. |
+| **II. Verified Accuracy** | **PASS (with Data Gap)** | Plan acknowledges no verified primary source exists for LSMS-ISA/Sentinel. Structural Validation Mode uses generic verified tabular data (UCI) for code logic only. No scientific claims made on synthetic data. |
 | **III. Data Hygiene** | **PASS** | Plan requires checksums for raw data and immutable transformations to new files. |
 | **IV. Single Source of Truth** | **PASS** | Plan structure aligns with `src/analysis/` scripts and `contracts/` schemas. |
 | **V. Versioning Discipline** | **PASS** | Content hashes for artifacts will be recorded in state YAML. |

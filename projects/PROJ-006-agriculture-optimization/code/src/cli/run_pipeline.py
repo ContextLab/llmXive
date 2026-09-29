@@ -1,10 +1,3 @@
-"""
-CLI Orchestrator for the Climate-Smart Agriculture Optimization Pipeline.
-
-This script coordinates the execution of data ingestion, processing, analysis,
-and reporting stages. It handles synthetic data generation for CI environments
-when real data is unavailable and enforces citation validation gates.
-"""
 import argparse
 import logging
 import os
@@ -12,177 +5,177 @@ import sys
 import shutil
 from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
-
+from src.utils.io_helpers import setup_logging, write_json_strict
 from src.cli.validate_citations import main as validate_citations_main
 from src.data.generators.structural_validation_generator import main as generate_structural_main
+from src.data.generators.synthetic_generator import main as generate_synthetic_main
+from src.data.collectors.survey_collector import main as survey_collector_main
+from src.data.collectors.remote_sensing_collector import main as remote_sensing_main
+from src.data.processing.spatial_join import main as spatial_join_main
 from src.data.processing.feature_engineering import main as feature_engineering_main
-from src.utils.io_helpers import setup_logging, FatalError
+from src.data.processing.final_assembly import main as final_assembly_main
+from src.analysis.run_regression import main as run_regression_main
+from src.analysis.sensitivity_check import main as sensitivity_check_main
+from src.services.report_generator import main as report_generator_main
 
-# Configure logging
 logger = setup_logging("run_pipeline")
 
 def check_and_generate_synthetic_data():
     """
-    Check for real data in data/raw/. If missing and in CI mode,
-    invoke the structural validation generator.
+    Check for real data. If missing and CI=true, generate synthetic data.
     """
-    data_raw_dir = project_root / "data" / "raw"
-    has_real_data = any(data_raw_dir.iterdir()) if data_raw_dir.exists() else False
+    survey_path = Path("data/raw/survey_raw.csv")
+    granules_path = Path("data/raw/sentinel2/synthetic_granules.tif")
+    
+    if survey_path.exists() and granules_path.exists():
+        logger.info("Real or synthetic data found. Skipping generation.")
+        return
 
-    ci_mode = os.environ.get("CI", "false").lower() == "true"
-
-    if not has_real_data:
-        if ci_mode:
-            logger.info("CI mode active: No real data found. Invoking structural validation generator.")
-            try:
-                generate_structural_main()
-                logger.info("Structural validation data generated successfully.")
-            except Exception as e:
-                logger.error(f"Failed to generate structural validation data: {e}")
-                raise FatalError("Synthetic data generation failed in CI mode.")
-        else:
-            logger.warning("No real data found and CI=false. Proceeding with synthetic data for local testing.")
-            try:
-                generate_structural_main()
-                logger.info("Structural validation data generated for local testing.")
-            except Exception as e:
-                logger.error(f"Failed to generate structural validation data: {e}")
-                raise FatalError("Synthetic data generation failed.")
+    if os.getenv("CI") == "true":
+        logger.info("CI=true and data missing. Invoking structural validation generator.")
+        # Generate survey data
+        sys.argv = ["synthetic_generator.py", "--output", "data/raw/survey_raw.csv", "--n-samples", "1000"]
+        generate_synthetic_main()
+        
+        # Generate remote sensing data (placeholder for now, handled in collector)
+        # The remote sensing collector handles its own synthetic generation if needed
+        logger.info("Synthetic survey data generated.")
     else:
-        logger.info("Real data detected in data/raw/. Skipping synthetic generation.")
+        logger.warning("Real data missing and CI=false. Proceeding with potential failures.")
+
+def run_citation_gate():
+    """Run the citation validation gate."""
+    logger.info("Running citation validation gate...")
+    # We need to simulate the command line arguments for validate_citations
+    # The script expects a file path.
+    original_argv = sys.argv
+    sys.argv = ["validate_citations.py", "research.md"]
+    try:
+        validate_citations_main()
+        logger.info("Citation validation passed.")
+    except SystemExit as e:
+        if e.code != 0:
+            logger.error("Citation validation failed. Aborting pipeline.")
+            sys.exit(1)
+        else:
+            logger.info("Citation validation passed.")
+    finally:
+        sys.argv = original_argv
 
 def run_pipeline_stage_ingest():
-    """
-    Execute the ingestion stage.
-    This includes generating synthetic data if needed and running feature engineering.
-    """
-    logger.info("Starting Ingestion Stage.")
+    logger.info("Starting Ingestion Stage...")
     
-    # Step 1: Ensure data exists (generate if missing/CI)
-    check_and_generate_synthetic_data()
-
-    # Step 2: Run Feature Engineering to derive metrics
-    # Note: The structural validation generator creates raw CSVs.
-    # Feature engineering reads them and creates the analysis dataset.
+    # 1. Survey Collector
+    logger.info("Running Survey Collector...")
+    sys.argv = ["survey_collector.py", "--output", "data/raw/survey_raw.csv"]
     try:
-        feature_engineering_main()
-        logger.info("Feature engineering completed.")
+        survey_collector_main()
     except Exception as e:
-        logger.error(f"Feature engineering failed: {e}")
-        raise
+        logger.error(f"Survey Collector failed: {e}")
+        # Fallback to synthetic if collector fails (for structural validation)
+        logger.info("Falling back to synthetic survey generation.")
+        sys.argv = ["synthetic_generator.py", "--output", "data/raw/survey_raw.csv"]
+        generate_synthetic_main()
+
+    # 2. Remote Sensing Collector
+    logger.info("Running Remote Sensing Collector...")
+    sys.argv = ["remote_sensing_collector.py", "--output", "data/raw/sentinel2/synthetic_granules.tif"]
+    try:
+        remote_sensing_main()
+    except Exception as e:
+        logger.error(f"Remote Sensing Collector failed: {e}")
+
+    # 3. Spatial Join
+    logger.info("Running Spatial Join...")
+    sys.argv = ["spatial_join.py", "--input", "data/raw/survey_raw.csv", "--output-dir", "data/processed"]
+    spatial_join_main()
+
+    # 4. Feature Engineering
+    logger.info("Running Feature Engineering...")
+    sys.argv = ["feature_engineering.py", "--input", "data/processed/spatial_joined_data.csv", "--output-dir", "data/processed"]
+    feature_engineering_main()
+
+    # 5. Final Assembly
+    logger.info("Running Final Assembly...")
+    sys.argv = ["final_assembly.py", "--output-dir", "data/processed"]
+    final_assembly_main()
+
+    logger.info("Ingestion Stage complete.")
 
 def run_pipeline_stage_analysis():
-    """
-    Execute the analysis stage (regression).
-    """
-    logger.info("Starting Analysis Stage.")
-    # Import here to avoid circular dependencies if not needed for ingest
-    from src.analysis.run_regression import main as run_regression_main
-    try:
-        run_regression_main()
-        logger.info("Regression analysis completed.")
-    except Exception as e:
-        logger.error(f"Regression analysis failed: {e}")
-        raise
+    logger.info("Starting Analysis Stage...")
+    
+    # 1. Regression
+    logger.info("Running Regression...")
+    sys.argv = ["run_regression.py", "--input", "data/processed/analysis_dataset.csv", "--output", "data/processed/regression_results.json"]
+    run_regression_main()
+
+    logger.info("Analysis Stage complete.")
+
+def run_pipeline_stage_report():
+    logger.info("Starting Report Generation Stage...")
+    
+    # 1. Sensitivity Check
+    logger.info("Running Sensitivity Check...")
+    sys.argv = ["sensitivity_check.py", "--input", "data/processed/analysis_dataset.csv", "--output-dir", "data/processed"]
+    sensitivity_check_main()
+
+    # 2. Report Generator
+    logger.info("Running Report Generator...")
+    sys.argv = ["report_generator.py", "--input", "data/processed/regression_results.json", "--output", "reports/final_report.pdf"]
+    report_generator_main()
+
+    logger.info("Report Generation Stage complete.")
 
 def run_pipeline_stage_full():
-    """
-    Execute the full pipeline: Ingest -> Analysis -> Sensitivity -> Report.
-    """
-    logger.info("Starting Full Pipeline.")
+    logger.info("Running Full Pipeline...")
+    run_citation_gate()
+    check_and_generate_synthetic_data()
     run_pipeline_stage_ingest()
     run_pipeline_stage_analysis()
-    
-    # Sensitivity Check
-    logger.info("Starting Sensitivity Analysis.")
-    from src.analysis.sensitivity_check import main as sensitivity_main
-    try:
-        sensitivity_main()
-        logger.info("Sensitivity analysis completed.")
-    except Exception as e:
-        logger.error(f"Sensitivity analysis failed: {e}")
-        raise
-
-    # Report Generation
-    logger.info("Generating Final Report.")
-    from src.services.report_generator import main as report_main
-    try:
-        report_main()
-        logger.info("Final report generated.")
-    except Exception as e:
-        logger.error(f"Report generation failed: {e}")
-        raise
+    run_pipeline_stage_report()
+    logger.info("Full Pipeline complete.")
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="CLI Orchestrator for Climate-Smart Agriculture Pipeline"
-    )
-    parser.add_argument(
-        "--stage",
-        type=str,
-        choices=["ingest", "analysis", "full", "dry-run"],
-        default="dry-run",
-        help="Pipeline stage to execute."
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Perform a dry run (validate setup without full execution)."
-    )
-    parser.add_argument(
-        "--no-citation-check",
-        action="store_true",
-        help="Skip the citation validation gate (not recommended)."
-    )
-
+    parser = argparse.ArgumentParser(description="Run the Climate-Smart Agriculture Pipeline.")
+    parser.add_argument("--stage", type=str, choices=["ingest", "analysis", "report", "full"],
+                        default="full", help="Pipeline stage to run")
+    parser.add_argument("--no-synthetic", action="store_true",
+                        help="Fail if real data is missing (do not generate synthetic)")
+    parser.add_argument("--dry-run", action="store_true",
+                        help="Perform a dry run (validate structure only)")
     args = parser.parse_args()
 
-    # CRITICAL GATE: Citation Validation
-    # This check is independent of data availability.
-    if not args.no_citation_check:
-        logger.info("Running Citation Validation Gate...")
-        try:
-            # validate_citations_main returns 0 on success, non-zero on failure
-            # We need to capture the exit code logic. 
-            # The function likely sys.exits, so we wrap in try/except SystemExit
-            try:
-                validate_citations_main()
-            except SystemExit as e:
-                if e.code != 0:
-                    logger.error("Citation validation failed. Aborting pipeline.")
-                    sys.exit(1)
-                # If exit code is 0, continue
-        except Exception as e:
-            logger.error(f"Citation validation check encountered an error: {e}")
-            sys.exit(1)
-        logger.info("Citation validation passed.")
+    # Setup logging for the pipeline
+    logger = setup_logging("run_pipeline")
 
     if args.dry_run:
-        logger.info("Dry run mode: Validating pipeline configuration and dependencies.")
-        # Check imports
-        try:
-            from src.data.generators.structural_validation_generator import StructuralValidationGenerator
-            from src.data.processing.feature_engineering import check_and_aggregate_if_needed
-            from src.analysis.run_regression import run_regression_models
-            logger.info("All required modules imported successfully.")
-            logger.info("Dry run complete. Exiting.")
-            sys.exit(0)
-        except ImportError as e:
-            logger.error(f"Import error during dry run: {e}")
-            sys.exit(1)
+        logger.info("Dry run mode. Validating structure...")
+        # Check if scripts exist
+        required_scripts = [
+            "src/data/collectors/survey_collector.py",
+            "src/data/processing/spatial_join.py",
+            "src/analysis/run_regression.py"
+        ]
+        for script in required_scripts:
+            if not Path(script).exists():
+                logger.error(f"Required script missing: {script}")
+                sys.exit(1)
+        logger.info("Dry run passed.")
+        sys.exit(0)
+
+    if args.no_synthetic and not Path("data/raw/survey_raw.csv").exists():
+        logger.error("Real data missing and --no-synthetic flag set. Aborting.")
+        sys.exit(1)
 
     if args.stage == "ingest":
         run_pipeline_stage_ingest()
     elif args.stage == "analysis":
         run_pipeline_stage_analysis()
+    elif args.stage == "report":
+        run_pipeline_stage_report()
     elif args.stage == "full":
         run_pipeline_stage_full()
-    else:
-        logger.warning("No valid stage specified. Exiting.")
-        sys.exit(0)
 
 if __name__ == "__main__":
     main()

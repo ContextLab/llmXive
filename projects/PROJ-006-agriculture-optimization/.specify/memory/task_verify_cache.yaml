@@ -21,20 +21,38 @@ T010b:
   r: The required `.github/workflows/ci.yml` file is missing, so the CI workflow has
     not been created or configured as specified. Without this file, the verification
     step cannot be performed.
-T018c:
+T015a:
   c: false
-  h: a9b5c8b7fb4098c3e9621b081eb3523242072d517a5fd1d50c9bd7ae79a3de9a
-  r: The required `data/logs/linkage_validation.json` file does not exist, and the
-    provided `constants.py` excerpt does not show the `buffer_size_km` or `grid_resolution_km`
-    definitions needed to generate the mandatory sentence. Consequently, the documentation
-    and JSON artifacts cannot contain the required geospatial fuzzing parameters.
-T022:
+  h: 548bf86f3c8ded1cbf157717f875adcd711993854047c039fdbc58eb48d5110c
+  r: The repository contains `src/data/collectors/survey_collector.py`, but the file
+    is truncated and shows no evidence of mapping the UCI columns to the required
+    schema, performing checksum verification, or writing the two CSV outputs. Moreover,
+    `data/raw/survey_raw.csv` and `data/raw/filtered_survey.csv` are absent, so the
+    verification step (file existence and schema validation) fails. The implementer
+    must complete the collector logic, ensure caching/checksum handling, generate
+    the required CSV files, and confirm they conform to the specified schema.
+T016a:
   c: false
-  h: 9ca1aab9656f857a0364d7f7065c6b06e6029c5f11092a7d48ac177ee4165670
-  r: "The required artifact `data/processed/analysis_dataset.csv` does not exist,\
-    \ so the validation script cannot be executed and no assertion of passing validation\
-    \ can be made. The missing dataset must be provided (and be non\u2011empty) for\
-    \ the task to be completed."
+  h: 8cb2c7392f856616486dea5186fd49617f4cc5113f7bfbc5a1bfe9734ed20a6f
+  r: "The provided `remote_sensing_collector.py` contains code for querying USGS EarthExplorer\
+    \ and does not generate synthetic NDVI time\u2011series, embed cloud\u2011cover\
+    \ metadata, or write `data/raw/sentinel2/synthetic_granules.tif`. Moreover, the\
+    \ required `synthetic_granules.tif` file is missing. The task\u2019s core requirements\
+    \ are therefore unmet."
+T017:
+  c: false
+  h: 6b856b687adedbb8f88953da090559983127c4ac0598763101d991561efd1026
+  r: "The repository contains a `spatial_join.py` file, but it does not demonstrate\
+    \ reading `buffer_size_km`, creating the `buffered_coordinates.geojson`, performing\
+    \ the join, or writing the required `spatial_joined_data.csv` and `linkage_validation.json`.\
+    \ Moreover, the three mandatory output files are absent from the filesystem. The\
+    \ task\u2019s core deliverables are therefore missing."
+T021b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No dataset file was presented; the claim provides only a description of the required
+    checks but no actual file, column verification, row count, or uniqueness evidence.
+    The required artifact (the aggregated dataset) is missing.
 T041b:
   c: false
   h: 8feaeac25bf0470ad2bc07767977cec6dbb406c203ae93888b11e6bab496de75
@@ -56,3 +74,17 @@ T050a:
     \ does not exist, and there is no evidence that placeholder citation markers are\
     \ present. The implementer must supply a non\u2011empty `research.md` containing\
     \ a literature review with the specified placeholder citations."
+T065a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script or log file was provided that checks for the `data/raw/` directory,\
+    \ validates LSMS\u2011ISA or Sentinel\u20112 credentials, or exits with status\u202F\
+    0 in structural\u2011validation mode. Consequently the required artifact (the\
+    \ verification script and its successful run) is missing."
+T065b:
+  c: false
+  h: 18a9ea3f2fc3f9c54b09ed2f6e3db38fb549da577065c506d9b4faaa1dd4fe87
+  r: "The required output file `data/processed/analysis_dataset.csv` does not exist,\
+    \ and the provided `run_pipeline.py` excerpt shows no handling of a `--no-synthetic`\
+    \ flag (argument parsing is incomplete). Without the generated dataset and proper\
+    \ flag logic, the task\u2019s verification condition is not met."

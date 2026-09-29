@@ -1,210 +1,116 @@
-"""
-Synthetic Data Generator for CI validation and local testing fallback.
-Generates statistically realistic datasets matching the project schema.
-"""
 import argparse
 import logging
 import sys
 import os
 import random
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Dict, Any, List
 
-import numpy as np
 import pandas as pd
+import numpy as np
 
-# Import local utilities
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from src.utils.io_helpers import setup_logging, write_csv_strict, FatalError
+# Import the fixed logging setup from io_helpers
+from src.utils.io_helpers import setup_logging, write_csv_strict
 
-
-# Configuration
-NUM_HOUSEHOLDS = 1200  # Ensure > 300 requirement
-SEED = 42
-COUNTRIES = ["Malawi", "Tanzania"]
-REGIONS = {
-    "Malawi": ["Central", "Southern", "Northern"],
-    "Tanzania": ["Mainland", "Zanzibar"]
-}
-
+logger = setup_logging("synthetic_generator")
 
 class SyntheticDataGenerator:
-    """Generates synthetic household and agricultural practice data."""
+    """Generates synthetic survey data for structural validation."""
 
-    def __init__(self, seed: int = SEED, logger: logging.Logger = None):
+    def __init__(self, seed: int = 42, n_samples: int = 1000):
         self.seed = seed
-        self.logger = logger or setup_logging("synthetic_generator", "INFO")
+        self.n_samples = n_samples
         random.seed(seed)
         np.random.seed(seed)
 
-    def generate_household_id(self, n: int) -> List[int]:
-        """Generate unique household IDs."""
-        return list(range(10000, 10000 + n))
+    def generate(self) -> pd.DataFrame:
+        """Generate synthetic dataset."""
+        logger.info(f"Generating {self.n_samples} synthetic records with seed {self.seed}")
 
-    def generate_coordinates(self, n: int, country: str) -> Dict[str, np.ndarray]:
-        """Generate realistic latitude/longitude based on country."""
-        if country == "Malawi":
-            # Approx bounds for Malawi
-            lats = np.random.uniform(-17.2, -9.2, n)
-            lons = np.random.uniform(32.6, 35.9, n)
-        else:
-            # Approx bounds for Tanzania
-            lats = np.random.uniform(-11.7, -1.0, n)
-            lons = np.random.uniform(29.3, 40.4, n)
-        return {"latitude": lats, "longitude": lons}
+        # Base IDs
+        household_ids = list(range(1, self.n_samples + 1))
+        village_ids = [f"V{random.randint(1, 50)}" for _ in range(self.n_samples)]
 
-    def generate_land_size(self, n: int) -> np.ndarray:
-        """Generate land size in hectares (log-normal distribution)."""
-        return np.random.lognormal(mean=0.5, sigma=0.8, size=n)
+        # Coordinates (random lat/lon in a plausible region, e.g., East Africa)
+        lats = np.random.uniform(-2.0, 2.0, self.n_samples)
+        lons = np.random.uniform(30.0, 36.0, self.n_samples)
 
-    def generate_education_level(self, n: int) -> np.ndarray:
-        """Generate education level (0-12 years)."""
-        return np.random.randint(0, 13, size=n)
+        # Land size (hectares)
+        land_sizes = np.random.exponential(scale=2.0, size=self.n_samples)
+        land_sizes = np.clip(land_sizes, 0.1, 20.0)
 
-    def generate_practice_indicators(self, n: int) -> Dict[str, np.ndarray]:
-        """Generate binary practice adoption indicators."""
-        # Correlated adoption logic
-        base_prob = 0.3
-        return {
-            "practice_mixed_farming": np.random.binomial(1, 0.6, n),
-            "practice_terracing": np.random.binomial(1, 0.3, n),
-            "practice_conservation_tillage": np.random.binomial(1, 0.4, n),
-            "practice_agroforestry": np.random.binomial(1, 0.35, n),
-        }
+        # Education level (1-5)
+        education_levels = np.random.randint(1, 6, self.n_samples)
 
-    def generate_finance_access(self, n: int) -> np.ndarray:
-        """Generate binary finance access indicator."""
-        return np.random.binomial(1, 0.45, n)
+        # Finance access (bool)
+        finance_access = np.random.choice([True, False], self.n_samples, p=[0.4, 0.6])
 
-    def generate_extension_visits(self, n: int) -> np.ndarray:
-        """Generate integer frequency of extension visits."""
-        return np.random.poisson(lam=3, size=n)
+        # Practices (binary)
+        practice_mixed = np.random.choice([True, False], self.n_samples, p=[0.3, 0.7])
+        practice_terracing = np.random.choice([True, False], self.n_samples, p=[0.2, 0.8])
+        practice_conservation = np.random.choice([True, False], self.n_samples, p=[0.25, 0.75])
+        practice_agroforestry = np.random.choice([True, False], self.n_samples, p=[0.15, 0.85])
 
-    def generate_hlias(self, n: int) -> np.ndarray:
-        """Generate HFIAS score (0-36)."""
-        return np.random.randint(0, 37, size=n)
+        # Extension visits
+        extension_visits = np.random.poisson(lam=2, size=self.n_samples)
 
-    def generate_csas_and_stability(self, n: int, practices: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
-        """
-        Generate CSA_Index and Stability_Score based on practices.
-        CSA_Index = sum of binary practice indicators.
-        Stability_Score = 1 / CV of simulated NDVI (simulated via practice influence).
-        """
-        # CSA Index
-        csas = (
-            practices["practice_mixed_farming"] +
-            practices["practice_terracing"] +
-            practices["practice_conservation_tillage"] +
-            practices["practice_agroforestry"]
+        # Derived metrics
+        # CSA Index: Sum of practices + weighted extension visits
+        csa_index = (
+            practice_mixed.astype(int) +
+            practice_terracing.astype(int) +
+            practice_conservation.astype(int) +
+            practice_agroforestry.astype(int) +
+            (extension_visits * 0.5)
         )
 
-        # Simulate Stability Score:
-        # Higher CSA adoption -> slightly higher stability (lower CV)
-        # Base CV around 0.3, reduced by CSA adoption
-        base_cv = 0.4 - (csas.astype(float) * 0.05)
-        base_cv = np.clip(base_cv, 0.1, 0.5) # Ensure positive and reasonable
-        stability = 1.0 / base_cv
-        return {"CSA_Index": csas, "Stability_Score": stability}
+        # Stability Score (simulated as 1/CV of NDVI, here simulated directly)
+        # Simulate a base stability and add noise
+        stability_base = 10.0 + (csa_index * 0.5)
+        stability_score = stability_base + np.random.normal(0, 2.0, self.n_samples)
+        stability_score = np.clip(stability_score, 0.1, 20.0)
 
-    def generate_village_id(self, lat: np.ndarray, lon: np.ndarray, grid_res: float = 0.1) -> List[str]:
-        """Derive village_id by rounding coordinates to grid."""
-        # Quantize coordinates to grid resolution
-        v_lat = np.round(lat / grid_res) * grid_res
-        v_lon = np.round(lon / grid_res) * grid_res
-        return [f"V{int(la):04d}_{int(lo):04d}" for la, lo in zip(v_lat, v_lon)]
+        # HFIAS (Food Insecurity) - inverse relationship with stability/CSA roughly
+        hlias = np.random.normal(loc=15.0 - (csa_index * 1.5), scale=3.0, size=self.n_samples)
+        hlias = np.clip(hlias, 0, 30)
 
-    def generate(self, output_path: Union[str, Path]) -> pd.DataFrame:
-        """
-        Generate the full synthetic dataset and save to CSV.
-
-        Args:
-            output_path: Path to save the CSV file.
-
-        Returns:
-            The generated DataFrame.
-        """
-        self.logger.info(f"Generating synthetic dataset with {NUM_HOUSEHOLDS} households...")
-
-        # Generate base attributes
-        household_ids = self.generate_household_id(NUM_HOUSEHOLDS)
-        countries = np.random.choice(COUNTRIES, NUM_HOUSEHOLDS)
-        coords = self.generate_coordinates(NUM_HOUSEHOLDS, countries[0]) # Simplified: use one country logic or mix
-        # Mix countries properly
-        lat_list = []
-        lon_list = []
-        for c in countries:
-            c_coords = self.generate_coordinates(1, c)
-            lat_list.append(c_coords["latitude"][0])
-            lon_list.append(c_coords["longitude"][0])
-        lat_arr = np.array(lat_list)
-        lon_arr = np.array(lon_list)
-
-        land_sizes = self.generate_land_size(NUM_HOUSEHOLDS)
-        education_levels = self.generate_education_level(NUM_HOUSEHOLDS)
-        finance_access = self.generate_finance_access(NUM_HOUSEHOLDS)
-        practices = self.generate_practice_indicators(NUM_HOUSEHOLDS)
-        extension_visits = self.generate_extension_visits(NUM_HOUSEHOLDS)
-        hlias = self.generate_hlias(NUM_HOUSEHOLDS)
-        csas_scores = self.generate_csas_and_stability(NUM_HOUSEHOLDS, practices)
-        village_ids = self.generate_village_id(lat_arr, lon_arr)
-
-        # Construct DataFrame
         df = pd.DataFrame({
-            "household_id": household_ids,
-            "latitude": lat_arr,
-            "longitude": lon_arr,
-            "land_size": land_sizes,
-            "education_level": education_levels,
-            "finance_access": finance_access,
-            "practice_mixed_farming": practices["practice_mixed_farming"],
-            "practice_terracing": practices["practice_terracing"],
-            "practice_conservation_tillage": practices["practice_conservation_tillage"],
-            "practice_agroforestry": practices["practice_agroforestry"],
-            "extension_visits": extension_visits,
-            "hlias": hlias,
-            "CSA_Index": csas_scores["CSA_Index"],
-            "Stability_Score": csas_scores["Stability_Score"],
-            "HFIAS": hlias, # HFIAS is also a column
-            "village_id": village_ids
+            'household_id': household_ids,
+            'latitude': lats,
+            'longitude': lons,
+            'land_size': land_sizes,
+            'education_level': education_levels,
+            'finance_access': finance_access,
+            'practice_mixed_farming': practice_mixed,
+            'practice_terracing': practice_terracing,
+            'practice_conservation_tillage': practice_conservation,
+            'practice_agroforestry': practice_agroforestry,
+            'extension_visits': extension_visits,
+            'hlias': hlias.astype(int),
+            'CSA_Index': csa_index,
+            'Stability_Score': stability_score,
+            'HFIAS': hlias,
+            'village_id': village_ids
         })
 
-        # Ensure types match schema
-        df['household_id'] = df['household_id'].astype(int)
-        df['education_level'] = df['education_level'].astype(int)
-        df['finance_access'] = df['finance_access'].astype(bool)
-        df['practice_mixed_farming'] = df['practice_mixed_farming'].astype(bool)
-        df['practice_terracing'] = df['practice_terracing'].astype(bool)
-        df['practice_conservation_tillage'] = df['practice_conservation_tillage'].astype(bool)
-        df['practice_agroforestry'] = df['practice_agroforestry'].astype(bool)
-        df['extension_visits'] = df['extension_visits'].astype(int)
-        df['hlias'] = df['hlias'].astype(int)
-        df['CSA_Index'] = df['CSA_Index'].astype(float)
-        df['Stability_Score'] = df['Stability_Score'].astype(float)
-        df['HFIAS'] = df['HFIAS'].astype(float)
-
-        write_csv_strict(df, output_path)
-        self.logger.info(f"Synthetic data saved to {output_path}")
         return df
 
-
 def main():
-    """CLI entry point for synthetic generator."""
-    parser = argparse.ArgumentParser(description="Generate synthetic data for CI validation.")
-    parser.add_argument("--output", type=str, default="data/raw/survey_raw.csv", help="Output CSV path.")
-    parser.add_argument("--seed", type=int, default=SEED, help="Random seed.")
+    parser = argparse.ArgumentParser(description="Generate synthetic data for structural validation.")
+    parser.add_argument("--output", type=str, default="data/raw/synthetic_survey.csv",
+                        help="Output file path")
+    parser.add_argument("--n-samples", type=int, default=1000,
+                        help="Number of samples to generate")
+    parser.add_argument("--seed", type=int, default=42,
+                        help="Random seed")
     args = parser.parse_args()
 
-    logger = setup_logging("synthetic_generator_cli", "INFO")
-    generator = SyntheticDataGenerator(seed=args.seed, logger=logger)
+    generator = SyntheticDataGenerator(seed=args.seed, n_samples=args.n_samples)
+    df = generator.generate()
 
-    try:
-        generator.generate(args.output)
-        logger.info("Synthetic generation completed successfully.")
-        sys.exit(0)
-    except Exception as e:
-        logger.error(f"Synthetic generation failed: {e}")
-        sys.exit(1)
-
+    output_path = Path(args.output)
+    write_csv_strict(df, output_path)
+    logger.info(f"Successfully wrote synthetic data to {output_path}")
 
 if __name__ == "__main__":
     main()

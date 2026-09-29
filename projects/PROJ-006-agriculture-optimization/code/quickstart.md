@@ -1,100 +1,68 @@
 # Quickstart Guide: Climate-Smart Agriculture Optimization Pipeline
 
+This guide details how to run the full pipeline to generate the analysis dataset, regression results, and final report.
+
 ## Prerequisites
 
 - Python 3.9+
-- pip
-- (Optional) Docker for containerized execution
-
-## Installation
-
-1. Clone the repository and navigate to the project root:
- ```bash
- git clone <repo-url>
- cd llmXive/projects/PROJ-006-agriculture-optimization
- ```
-
-2. Install dependencies:
+- Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Execution
+## Running the Pipeline
 
-The pipeline is orchestrated by `src/cli/run_pipeline.py`. It supports three stages:
+The pipeline is orchestrated by `src/cli/run_pipeline.py`. It supports different stages and synthetic data generation for structural validation.
 
-- `--stage ingest`: Run data collection, spatial join, and feature engineering.
-- `--stage analysis`: Run regression analysis and sensitivity checks.
-- `--stage full`: Run the entire pipeline (ingest + analysis).
+### Full Execution (Recommended)
 
-### Running the Full Pipeline
-
-```bash
-python src/cli/run_pipeline.py --stage full
-```
-
-If real data is unavailable, the pipeline will automatically invoke the structural validation generator (T010) to create synthetic data for testing, provided `CI=true` is set.
-
-### Running with Synthetic Data (Local Testing)
+To run the entire pipeline (Ingest -> Analysis -> Report) with synthetic data fallback if real data is missing:
 
 ```bash
 export CI=true
 python src/cli/run_pipeline.py --stage full
 ```
 
-### Running Individual Stages
+This command will:
+1. Validate citations in `research.md`.
+2. Check for real data. If missing and `CI=true`, generate synthetic data.
+3. Run the ingestion stage (Survey Collector -> Spatial Join -> Feature Engineering).
+4. Run the analysis stage (Regression).
+5. Run the sensitivity analysis and report generation.
 
-**Ingest Stage:**
+### Individual Stages
+
+#### Ingestion Stage
 ```bash
 python src/cli/run_pipeline.py --stage ingest
 ```
-This runs:
-- `src/data/collectors/survey_collector.py`
-- `src/data/collectors/remote_sensing_collector.py`
-- `src/data/processing/spatial_join.py`
-- `src/data/processing/feature_engineering.py`
-- `src/data/processing/final_assembly.py` (T017d)
+Produces: `data/processed/analysis_dataset.csv`
 
-**Analysis Stage:**
+#### Analysis Stage
 ```bash
 python src/cli/run_pipeline.py --stage analysis
 ```
-This runs:
-- `src/analysis/run_regression.py`
-- `src/analysis/sensitivity_check.py`
-- `src/services/report_generator.py`
+Requires: `data/processed/analysis_dataset.csv`
+Produces: `data/processed/regression_results.json`
 
-## Validation
-
-Validate the final dataset:
+#### Report Stage
 ```bash
-python src/cli/validate.py --schema-type dataset data/processed/analysis_dataset.csv
+python src/cli/run_pipeline.py --stage report
 ```
+Requires: `data/processed/regression_results.json`
+Produces: `reports/final_report.pdf`
 
-Validate regression results:
-```bash
-python src/cli/validate.py --schema-type regression data/processed/regression_results.json
-```
+## Expected Artifacts
 
-## Output Artifacts
+After a successful run, the following files should exist:
 
-The pipeline generates the following key artifacts:
-
-- `data/processed/analysis_dataset.csv`: Final analysis-ready dataset.
-- `data/processed/regression_results.json`: Regression coefficients, p-values, VIF scores.
-- `reports/final_report.pdf`: Comprehensive report with sensitivity analysis and disclaimers.
-- `data/logs/linkage_validation.json`: Spatial join validation metrics.
+- `data/processed/analysis_dataset.csv`
+- `data/processed/regression_results.json`
+- `data/logs/linkage_validation.json`
+- `reports/final_report.pdf`
 
 ## Troubleshooting
 
-- **Citation Validation Failed**: Ensure `research.md` contains valid citations with DOIs. Run `python src/cli/validate_citations.py` to debug.
-- **Missing Data**: If real data is missing and `CI=false`, the pipeline will fail. Set `CI=true` to enable synthetic fallback.
-- **Schema Validation Errors**: Check `contracts/dataset.schema.yaml` for required columns.
-
-## CI/CD
-
-The pipeline is tested in CI via `.github/workflows/ci.yml`. The CI job runs:
-```bash
-export CI=true
-python src/cli/run_pipeline.py --stage full
-```
+- **Citation Validation Failed**: Ensure `research.md` contains valid DOIs.
+- **Missing Data**: If `CI=true` is not set and real data is missing, the pipeline will fail. Set `CI=true` to enable synthetic fallback.
+- **Logging**: Check `data/logs/pipeline.log` for detailed error messages.
