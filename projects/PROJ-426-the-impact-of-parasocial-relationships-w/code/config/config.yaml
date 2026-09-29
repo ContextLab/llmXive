@@ -1,0 +1,92 @@
+# Project Configuration
+# This file defines static configuration parameters
+
+project:
+  name: "llmXive-ai-companion-loneliness"
+  version: "1.0.0"
+  description: "Impact of parasocial relationships with AI companions on loneliness"
+
+paths:
+  data_root: "${DATA_ROOT}"
+  data_raw: "${DATA_RAW}"
+  data_processed: "${DATA_PROCESSED}"
+  data_results: "${DATA_RESULTS}"
+  data_validation: "${DATA_VALIDATION}"
+  data_lexicons: "${DATA_LEXICONS}"
+  config_root: "${CONFIG_ROOT}"
+  schema_path: "${SCHEMA_PATH}"
+  model_structure_path: "${MODEL_STRUCTURE_PATH}"
+  log_file: "${LOG_FILE}"
+
+datasets:
+  loneliness:
+    source: "zenodo"
+    doi: "10.5281/zenodo.xxxxx"  # To be filled from plan/spec
+    filename: "loneliness_dataset.parquet"
+    required_columns:
+      - username
+      - username_hash
+      - loneliness_score
+      - timestamp
+      - age
+
+  pushshift:
+    source: "pushshift"
+    subreddits:
+      - "r/Replika"
+      - "r/characterAI"
+      - "r/AICompanions"
+    filename: "pushshift_logs.parquet"
+    required_columns:
+      - user_id
+      - username
+      - username_hash
+      - timestamp
+      - text
+      - score
+
+lexicons:
+  ecar:
+    filename: "ecar_lexicon.csv"
+    required_columns:
+      - keyword
+      - anxiety_weight
+      - avoidance_weight
+
+modeling:
+  random_effects:
+    - "Intercept | user_id"
+    - "UsageFrequency | user_id"
+  fixed_effects:
+    - "loneliness_score"
+    - "usage_frequency"
+    - "attachment_anxiety_score"
+    - "attachment_avoidance_score"
+    - "age"
+  lag_structure:
+    predictor: "usage_frequency"
+    outcome: "loneliness_score"
+    lag_steps: 1
+
+validation:
+  min_match_rate: 0.80
+  min_match_count: 500
+  max_runtime_hours: 6
+  min_marginal_r2_gain: 0.05
+
+logging:
+  level: "${LOG_LEVEL}"
+  format: json
+  include_timestamps: true
+  include_context: true
+
+retry:
+  max_retries: 5
+  base_delay: 1
+  max_delay: 60
+  rate_limit_window: 60
+
+bootstrap:
+  iterations: 1000
+  seed: 42
+  confidence_level: 0.95

@@ -1,352 +1,370 @@
 """
-Data validation utilities for schema validation and checksum recording.
+Data validation utilities for schema enforcement and checksum recording.
 
 This module provides functions to:
-- Validate data files against YAML schema definitions
-- Compute and record file checksums (SHA-256)
-- Generate validation reports
+- Load and parse YAML schemas
+- Validate data records and Parquet/CSV files against schemas
+- Compute and record SHA-256 checksums for data integrity
 """
 import os
 import json
 import hashlib
 import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-from datetime import datetime
-
-from .config import get_config
+from typing import Dict, Any, List, Optional, Tuple, Union
+import pandas as pd
+import pyarrow as pa
+from pyarrow.parquet import ParquetFile
 
 class ValidationError(Exception):
-    """Raised when data validation fails."""
+    """Custom exception for validation failures."""
     pass
 
-def compute_sha256(filepath: Path) -> str:
+
+def compute_sha256(file_path: Union[str, Path]) -> str:
     """
-    Compute SHA-256 checksum of a file.
+    Compute the SHA-256 checksum of a file.
     
     Args:
-        filepath: Path to the file to hash
+        file_path: Path to the file to hash.
         
     Returns:
-        Hex digest of the SHA-256 hash
+        Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
     """
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(8192), b""):
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
             sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
+
+def load_schema(schema_path: Union[str, Path]) -> Dict[str, Any]:
     """
     Load a YAML schema definition.
     
     Args:
-        schema_path: Path to the schema YAML file
+        schema_path: Path to the YAML schema file.
         
     Returns:
-        Dictionary containing the schema definition
+        Dictionary containing the schema definition.
         
     Raises:
-        FileNotFoundError: If schema file doesn't exist
-        yaml.YAMLError: If schema is malformed
+        FileNotFoundError: If the schema file does not exist.
+        yaml.YAMLError: If the YAML is malformed.
     """
-    with open(schema_path, 'r') as f:
+    schema_path = Path(schema_path)
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, "r") as f:
         return yaml.safe_load(f)
+
 
 def validate_field_type(value: Any, expected_type: str) -> bool:
     """
-    Validate that a value matches the expected type.
+    Validate that a value matches the expected type string.
+    
+    Supported types: 'string', 'int', 'float', 'boolean', 'date', 'timestamp', 'null', 'any'
     
     Args:
-        value: The value to check
-        expected_type: String representation of expected type
+        value: The value to check.
+        expected_type: The expected type as a string.
         
     Returns:
-        True if type matches, False otherwise
+        True if the value matches the type, False otherwise.
     """
-    type_map = {
-        'string': str,
-        'integer': int,
-        'float': float,
-        'boolean': bool,
-        'array': list,
-        'object': dict,
-        'null': type(None)
-    }
+    if value is None:
+        return expected_type.lower() in ('null', 'any')
     
-    expected_py_type = type_map.get(expected_type.lower())
-    if expected_py_type is None:
-        return True  # Unknown type, skip validation
-        
-    if expected_type.lower() == 'integer':
-        # Allow both int and bool (since bool is subclass of int in Python)
+    type_lower = expected_type.lower()
+    
+    if type_lower == 'any':
+        return True
+    elif type_lower == 'string':
+        return isinstance(value, str)
+    elif type_lower == 'int':
         return isinstance(value, int) and not isinstance(value, bool)
+    elif type_lower == 'float':
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    elif type_lower == 'boolean':
+        return isinstance(value, bool)
+    elif type_lower == 'date' or type_lower == 'timestamp':
+        # Check for pandas Timestamp, datetime, or ISO string
+        from datetime import datetime
+        if isinstance(value, (datetime, pd.Timestamp)):
+            return True
+        if isinstance(value, str):
+            try:
+                pd.to_datetime(value)
+                return True
+            except (ValueError, TypeError):
+                return False
+        return False
     
-    return isinstance(value, expected_py_type)
+    return False
+
 
 def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> List[str]:
     """
-    Validate a single record against a schema.
+    Validate a single record (dict) against a schema.
     
     Args:
-        record: Dictionary representing a data record
-        schema: Schema definition dictionary
+        record: The data record to validate.
+        schema: The schema definition (expected to have a 'fields' key).
         
     Returns:
-        List of validation error messages (empty if valid)
+        List of error messages. Empty if valid.
     """
     errors = []
-    properties = schema.get('properties', {})
+    fields = schema.get('fields', {})
     required_fields = schema.get('required', [])
     
-    # Check required fields
-    for field in required_fields:
-        if field not in record or record[field] is None:
-            errors.append(f"Missing required field: {field}")
-    
-    # Check field types
-    for field, value in record.items():
-        if field in properties:
-            field_schema = properties[field]
-            expected_type = field_schema.get('type')
-            if expected_type and value is not None:
-                if not validate_field_type(value, expected_type):
-                    errors.append(
-                        f"Field '{field}' has wrong type: "
-                        f"expected {expected_type}, got {type(value).__name__}"
-                    )
-                
-                # Check for null constraint
-                if field_schema.get('nullable') is False and value is None:
-                    errors.append(f"Field '{field}' cannot be null")
-                
-                # Check string length constraints
-                if expected_type == 'string' and isinstance(value, str):
-                    min_len = field_schema.get('minLength')
-                    max_len = field_schema.get('maxLength')
-                    if min_len is not None and len(value) < min_len:
-                        errors.append(
-                            f"Field '{field}' length {len(value)} "
-                            f"is less than minimum {min_len}"
-                        )
-                    if max_len is not None and len(value) > max_len:
-                        errors.append(
-                            f"Field '{field}' length {len(value)} "
-                            f"is greater than maximum {max_len}"
-                        )
-                
-                # Check numeric constraints
-                if expected_type in ('integer', 'float') and isinstance(value, (int, float)):
-                    min_val = field_schema.get('minimum')
-                    max_val = field_schema.get('maximum')
-                    if min_val is not None and value < min_val:
-                        errors.append(
-                            f"Field '{field}' value {value} "
-                            f"is less than minimum {min_val}"
-                        )
-                    if max_val is not None and value > max_val:
-                        errors.append(
-                            f"Field '{field}' value {value} "
-                            f"is greater than maximum {max_val}"
-                        )
+    for field_name, field_spec in fields.items():
+        expected_type = field_spec.get('type', 'any')
+        is_required = field_name in required_fields
+        
+        if field_name not in record:
+            if is_required:
+                errors.append(f"Missing required field: {field_name}")
+            continue
+        
+        value = record[field_name]
+        if not validate_field_type(value, expected_type):
+            errors.append(
+                f"Type mismatch for field '{field_name}': expected {expected_type}, "
+                f"got {type(value).__name__} (value: {value})"
+            )
     
     return errors
 
-def validate_parquet_schema(
-    filepath: Path,
-    schema_path: Path,
-    max_records: int = 1000
-) -> Tuple[bool, Dict[str, Any]]:
-    """
-    Validate a Parquet file against a YAML schema.
-    
-    Args:
-        filepath: Path to the Parquet file
-        schema_path: Path to the YAML schema file
-        max_records: Maximum number of records to validate
-        
-    Returns:
-        Tuple of (is_valid, report_dict)
-    """
-    try:
-        import pandas as pd
-    except ImportError:
-        raise ImportError("pandas is required for Parquet validation")
-    
-    schema = load_schema(schema_path)
-    df = pd.read_parquet(filepath)
-    
-    validation_errors = []
-    total_records = len(df)
-    validated_records = min(total_records, max_records)
-    
-    # Validate sample of records
-    for i in range(validated_records):
-        record = df.iloc[i].to_dict()
-        record_errors = validate_record(record, schema)
-        if record_errors:
-            validation_errors.extend([
-                f"Record {i}: {err}" for err in record_errors
-            ])
-            if len(validation_errors) >= 10:  # Limit error reporting
-                break
-    
-    # Check column presence
-    schema_columns = set(schema.get('properties', {}).keys())
-    data_columns = set(df.columns)
-    missing_columns = schema_columns - data_columns
-    
-    if missing_columns:
-        validation_errors.append(
-            f"Missing columns in data: {', '.join(missing_columns)}"
-        )
-    
-    is_valid = len(validation_errors) == 0
-    
-    report = {
-        'file': str(filepath),
-        'schema': str(schema_path),
-        'is_valid': is_valid,
-        'total_records': total_records,
-        'validated_records': validated_records,
-        'error_count': len(validation_errors),
-        'errors': validation_errors[:20],  # Limit reported errors
-        'timestamp': datetime.now().isoformat()
-    }
-    
-    return is_valid, report
 
-def validate_csv_schema(
-    filepath: Path,
-    schema_path: Path,
-    max_records: int = 1000
-) -> Tuple[bool, Dict[str, Any]]:
+def validate_parquet_schema(file_path: Union[str, Path], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validate a CSV file against a YAML schema.
+    Validate that a Parquet file's schema matches the provided YAML schema.
     
     Args:
-        filepath: Path to the CSV file
-        schema_path: Path to the YAML schema file
-        max_records: Maximum number of records to validate
+        file_path: Path to the Parquet file.
+        schema: The expected schema definition.
         
     Returns:
-        Tuple of (is_valid, report_dict)
+        Tuple of (is_valid, list_of_errors).
     """
-    try:
-        import pandas as pd
-    except ImportError:
-        raise ImportError("pandas is required for CSV validation")
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Parquet file not found: {file_path}")
     
-    schema = load_schema(schema_path)
-    df = pd.read_csv(filepath)
+    errors = []
+    pf = ParquetFile(file_path)
+    arrow_schema = pf.schema_arrow
     
-    validation_errors = []
-    total_records = len(df)
-    validated_records = min(total_records, max_records)
+    expected_fields = schema.get('fields', {})
+    required_fields = schema.get('required', [])
     
-    # Validate sample of records
-    for i in range(validated_records):
-        record = df.iloc[i].to_dict()
-        record_errors = validate_record(record, schema)
-        if record_errors:
-            validation_errors.extend([
-                f"Record {i}: {err}" for err in record_errors
-            ])
-            if len(validation_errors) >= 10:
+    # Check for required columns
+    for field_name in required_fields:
+        if field_name not in arrow_schema.names:
+            errors.append(f"Missing required column: {field_name}")
+    
+    # Check types for existing columns defined in schema
+    for field_name, field_spec in expected_fields.items():
+        if field_name not in arrow_schema.names:
+            if field_name in required_fields:
+                continue # Already reported above
+            continue
+        
+        expected_type_str = field_spec.get('type', 'any')
+        pa_type = arrow_schema.field(field_name).type
+        
+        # Map PyArrow types to our logical types
+        type_mapping = {
+            pa.string(): 'string',
+            pa.int32(): 'int',
+            pa.int64(): 'int',
+            pa.float32(): 'float',
+            pa.float64(): 'float',
+            pa.bool_(): 'boolean',
+            pa.date32(): 'date',
+            pa.date64(): 'date',
+            pa.timestamp('ns'): 'timestamp',
+            pa.timestamp('us'): 'timestamp',
+            pa.timestamp('ms'): 'timestamp',
+            pa.timestamp('s'): 'timestamp',
+        }
+        
+        actual_type_str = None
+        for pa_t, log_t in type_mapping.items():
+            if pa_type.equals(pa_t):
+                actual_type_str = log_t
                 break
+        
+        if actual_type_str is None:
+            errors.append(f"Unknown PyArrow type for column {field_name}: {pa_type}")
+            continue
+        
+        if actual_type_str != expected_type_str:
+            errors.append(
+                f"Type mismatch for column '{field_name}': expected {expected_type_str}, "
+                f"got {actual_type_str}"
+            )
     
-    # Check column presence
-    schema_columns = set(schema.get('properties', {}).keys())
-    data_columns = set(df.columns)
-    missing_columns = schema_columns - data_columns
+    return (len(errors) == 0, errors)
+
+
+def validate_csv_schema(file_path: Union[str, Path], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """
+    Validate that a CSV file's columns and basic types match the schema.
     
-    if missing_columns:
-        validation_errors.append(
-            f"Missing columns in data: {', '.join(missing_columns)}"
-        )
+    Args:
+        file_path: Path to the CSV file.
+        schema: The expected schema definition.
+        
+    Returns:
+        Tuple of (is_valid, list_of_errors).
+    """
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"CSV file not found: {file_path}")
     
-    is_valid = len(validation_errors) == 0
+    errors = []
+    try:
+        df = pd.read_csv(file_path, nrows=100) # Sample first 100 rows for type check
+    except Exception as e:
+        return False, [f"Failed to read CSV: {str(e)}"]
     
-    report = {
-        'file': str(filepath),
-        'schema': str(schema_path),
-        'is_valid': is_valid,
-        'total_records': total_records,
-        'validated_records': validated_records,
-        'error_count': len(validation_errors),
-        'errors': validation_errors[:20],
-        'timestamp': datetime.now().isoformat()
-    }
+    expected_fields = schema.get('fields', {})
+    required_fields = schema.get('required', [])
     
-    return is_valid, report
+    # Check columns
+    for field_name in required_fields:
+        if field_name not in df.columns:
+            errors.append(f"Missing required column: {field_name}")
+    
+    # Check types
+    for field_name, field_spec in expected_fields.items():
+        if field_name not in df.columns:
+            if field_name in required_fields:
+                continue
+            continue
+        
+        expected_type = field_spec.get('type', 'any')
+        series = df[field_name]
+        
+        # Infer type from sample
+        non_null = series.dropna()
+        if len(non_null) == 0:
+            continue
+        
+        inferred_type = 'string'
+        if pd.api.types.is_integer_dtype(non_null):
+            inferred_type = 'int'
+        elif pd.api.types.is_float_dtype(non_null):
+            inferred_type = 'float'
+        elif pd.api.types.is_bool_dtype(non_null):
+            inferred_type = 'boolean'
+        elif pd.api.types.is_datetime64_any_dtype(non_null):
+            inferred_type = 'timestamp'
+        
+        if expected_type != 'any' and inferred_type != expected_type:
+            # Allow int to satisfy float requirement
+            if not (expected_type == 'float' and inferred_type == 'int'):
+                errors.append(
+                    f"Type mismatch for column '{field_name}': expected {expected_type}, "
+                    f"inferred {inferred_type}"
+                )
+    
+    return (len(errors) == 0, errors)
+
 
 def record_checksum(
-    filepath: Path,
-    output_path: Optional[Path] = None
+    file_path: Union[str, Path],
+    output_path: Union[str, Path],
+    metadata: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Compute and record file checksum.
+    Compute checksum for a file and record it to a JSON file.
     
     Args:
-        filepath: Path to the file to hash
-        output_path: Optional path to write checksum report
+        file_path: Path to the source file.
+        output_path: Path to write the checksum record.
+        metadata: Optional additional metadata to include.
         
     Returns:
-        Dictionary containing checksum information
+        Dictionary containing the checksum record.
     """
-    if not filepath.exists():
-        raise FileNotFoundError(f"File not found: {filepath}")
+    file_path = Path(file_path)
+    output_path = Path(output_path)
     
-    checksum = compute_sha256(filepath)
-    file_size = filepath.stat().st_size
-    
+    checksum = compute_sha256(file_path)
     record = {
-        'file': str(filepath),
-        'checksum': checksum,
-        'algorithm': 'SHA-256',
-        'size_bytes': file_size,
-        'timestamp': datetime.now().isoformat()
+        "file_path": str(file_path),
+        "checksum": checksum,
+        "algorithm": "sha256",
+        "file_size_bytes": file_path.stat().st_size,
+        "recorded_at": pd.Timestamp.now().isoformat()
     }
     
-    if output_path:
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(record, f, indent=2)
+    if metadata:
+        record.update(metadata)
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(record, f, indent=2)
     
     return record
 
+
 def validate_and_checksum(
-    data_path: Path,
-    schema_path: Path,
-    checksum_output: Optional[Path] = None
+    data_path: Union[str, Path],
+    schema_path: Union[str, Path],
+    checksum_output_path: Optional[Union[str, Path]] = None
 ) -> Dict[str, Any]:
     """
-    Perform full validation and checksum recording for a data file.
+    Main entry point to validate a file against a schema and optionally record checksum.
     
     Args:
-        data_path: Path to the data file (Parquet or CSV)
-        schema_path: Path to the YAML schema file
-        checksum_output: Optional path to write checksum report
+        data_path: Path to the data file (Parquet or CSV).
+        schema_path: Path to the YAML schema.
+        checksum_output_path: Optional path to write checksum record.
         
     Returns:
-        Combined validation and checksum report
+        Dictionary with validation status and details.
+        
+    Raises:
+        ValidationError: If validation fails.
     """
-    # Determine file type and validate
+    data_path = Path(data_path)
+    schema_path = Path(schema_path)
+    
+    schema = load_schema(schema_path)
+    errors = []
+    
     if data_path.suffix == '.parquet':
-        is_valid, validation_report = validate_parquet_schema(data_path, schema_path)
+        is_valid, errors = validate_parquet_schema(data_path, schema)
     elif data_path.suffix == '.csv':
-        is_valid, validation_report = validate_csv_schema(data_path, schema_path)
+        is_valid, errors = validate_csv_schema(data_path, schema)
     else:
-        raise ValueError(f"Unsupported file format: {data_path.suffix}")
+        raise ValueError(f"Unsupported file format: {data_path.suffix}. Use .parquet or .csv")
     
-    # Compute checksum
-    checksum_report = record_checksum(data_path, checksum_output)
-    
-    # Combine reports
-    combined_report = {
-        'validation': validation_report,
-        'checksum': checksum_report,
-        'overall_status': 'passed' if is_valid else 'failed'
+    result = {
+        "file_path": str(data_path),
+        "schema_path": str(schema_path),
+        "is_valid": is_valid,
+        "errors": errors,
+        "validated_at": pd.Timestamp.now().isoformat()
     }
     
-    return combined_report
+    if checksum_output_path:
+        checksum_result = record_checksum(data_path, checksum_output_path, {"validated": is_valid})
+        result["checksum_record"] = checksum_result
+    
+    if not is_valid:
+        raise ValidationError(f"Validation failed for {data_path}: {errors}")
+    
+    return result

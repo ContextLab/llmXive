@@ -1,34 +1,74 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-power-validity"
+name = "llmxive-statistical-power-assessment"
 version = "0.1.0"
-description = "Assessing the Validity of Statistical Power in Publicly Available Pre-Registered Studies"
+description = "Assessing the validity of statistical power in publicly available pre-registered studies"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Research Team"}
+]
 dependencies = [
+    "numpy>=1.24.0,<2.0.0",
+    "pandas>=2.0.0",
+    "scipy>=1.11.0",
+    "statsmodels>=0.14.0",
     "requests>=2.31.0",
-    "pytest>=7.4.0",
     "jsonschema>=4.19.0",
     "pyyaml>=6.0.1",
-    "statsmodels>=0.14.0",
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "scipy>=1.11.0",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "flake8>=6.1.0",
+    "isort>=5.12.0",
+    "bandit>=1.7.0",
+    "pre-commit>=3.6.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*", "tests*"]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.isort]
+profile = "black"
+line_length = 100
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
 addopts = "-v --strict-markers"
 markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "slow: Slow tests",
+    "integration: marks tests as integration tests (slow, network access)",
+    "unit: marks tests as unit tests",
+    "slow: marks tests as slow running"
 ]
 
-[tool.black]
-line-length = 88
-target-version = ['py39']
+[tool.coverage.run]
+source = ["code"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+precision = 2
+show_missing = true

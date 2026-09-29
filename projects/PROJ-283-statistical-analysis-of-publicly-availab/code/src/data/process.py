@@ -1,3 +1,7 @@
+"""
+Data processing module with online accumulation.
+Implements T015, T016a, T016b, T017: Process stream and accumulate metrics.
+"""
 import pandas as pd
 import numpy as np
 from typing import Optional, List, Dict, Any, Generator
@@ -5,257 +9,150 @@ from pathlib import Path
 import logging
 import json
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Constants
-INCLUSION_COUNTS_PATH = Path("data/results/inclusion_counts.json")
-INCLUSION_METRICS_PATH = Path("data/results/inclusion_metrics.json")
-MIN_INCLUSION_RATE = 0.95
-
 
 class OnlineAccumulator:
     """
-    Accumulates statistics for game records in an online manner.
-    Tracks total games seen, successfully parsed games, and aggregates metrics.
+    Online accumulator for streaming statistics.
+    Implements T015.
     """
     def __init__(self):
         self.total_games = 0
         self.parsed_games = 0
         self.outcome_deviation_sum = 0.0
-        self.outcome_deviation_sq_sum = 0.0
-        self.feature_sums: Dict[str, float] = {}
-        self.feature_sq_sums: Dict[str, float] = {}
-        
-    def update(self, record: Dict[str, Any]) -> None:
-        """
-        Update accumulators with a single game record.
-        
-        Args:
-            record: A dictionary containing game record data.
-        """
+        self.feature_sums = {}
+        self.feature_counts = {}
+    
+    def add_record(self, record: Dict[str, Any]) -> None:
+        """Add a record to the accumulator."""
         self.total_games += 1
         
-        # Extract and accumulate outcome deviation
-        if 'outcome_deviation' in record:
-            val = float(record['outcome_deviation'])
-            self.outcome_deviation_sum += val
-            self.outcome_deviation_sq_sum += val * val
-        
-        # Accumulate feature statistics
-        for key, value in record.items():
-            if key not in ['game_id', 'outcome', 'eco_code', 'outcome_deviation', 'elo_expected_prob']:
-                if isinstance(value, (int, float)):
+        if record:
+            self.parsed_games += 1
+            
+            # Accumulate outcome deviation
+            if 'outcome_deviation' in record:
+                self.outcome_deviation_sum += record['outcome_deviation']
+            
+            # Accumulate features
+            for key, value in record.items():
+                if key not in ['game_id', 'outcome_deviation']:
                     if key not in self.feature_sums:
                         self.feature_sums[key] = 0.0
-                        self.feature_sq_sums[key] = 0.0
-                    self.feature_sums[key] += float(value)
-                    self.feature_sq_sums[key] += float(value) ** 2
-        
-        self.parsed_games += 1
-        
-        # Early exit check for inclusion rate
-        if self.total_games > 0:
-            current_rate = self.parsed_games / self.total_games
-            if current_rate < MIN_INCLUSION_RATE and self.total_games > 100:  # Only check after some data
-                logger.warning(f"Inclusion rate dropped below threshold: {current_rate:.2f}")
-                # Note: We don't halt here to allow full processing, but T017 will enforce the gate
-
+                        self.feature_counts[key] = 0
+                    if isinstance(value, (int, float)):
+                        self.feature_sums[key] += value
+                        self.feature_counts[key] += 1
+    
+    def get_inclusion_rate(self) -> float:
+        """Get current inclusion rate."""
+        return self.parsed_games / max(self.total_games, 1)
+    
     def get_stats(self) -> Dict[str, Any]:
-        """
-        Get current accumulated statistics.
-        
-        Returns:
-            Dictionary containing accumulated statistics.
-        """
-        stats = {
+        """Get accumulated statistics."""
+        return {
             'total_games': self.total_games,
             'parsed_games': self.parsed_games,
+            'inclusion_rate': self.get_inclusion_rate(),
+            'mean_outcome_deviation': self.outcome_deviation_sum / max(self.parsed_games, 1)
         }
-        
-        if self.parsed_games > 0:
-            stats['mean_outcome_deviation'] = self.outcome_deviation_sum / self.parsed_games
-            variance = (self.outcome_deviation_sq_sum / self.parsed_games) - (stats['mean_outcome_deviation'] ** 2)
-            stats['variance_outcome_deviation'] = max(0.0, variance)  # Ensure non-negative
-        
-        return stats
 
+def calculate_expected_probability(white_rating: float, black_rating: float) -> float:
+    """
+    Calculate expected win probability using Elo formula.
+    Implements T016a.
+    """
+    diff = black_rating - white_rating
+    prob = 1.0 / (1.0 + 10 ** (diff / 400.0))
+    # Cap to [0.01, 0.99]
+    return max(0.01, min(0.99, prob))
 
-def process_stream(
-    generator: Generator[Dict[str, Any], None, None],
-    output_path: Optional[Path] = None
-) -> OnlineAccumulator:
+def calculate_outcome_deviation(actual_result: float, expected_prob: float) -> float:
     """
-    Process a stream of game records, accumulating statistics online.
-    
-    Args:
-        generator: A generator yielding game record dictionaries.
-        output_path: Optional path to save the processed data as parquet.
-        
-    Returns:
-        OnlineAccumulator instance with final statistics.
+    Calculate outcome deviation.
+    Implements T016b.
     """
-    accumulator = OnlineAccumulator()
-    records_batch = []
-    batch_size = 1000
-    
-    for record in generator:
-        accumulator.update(record)
-        records_batch.append(record)
-        
-        # Write in chunks to avoid memory issues
-        if len(records_batch) >= batch_size:
-            if output_path:
-                df_batch = pd.DataFrame(records_batch)
-                if output_path.exists():
-                    df_batch.to_parquet(output_path, mode='a', append=True, engine='pyarrow')
-                else:
-                    df_batch.to_parquet(output_path, engine='pyarrow')
-            records_batch = []
-    
-    # Process remaining records
-    if records_batch and output_path:
-        df_batch = pd.DataFrame(records_batch)
-        if output_path.exists():
-            df_batch.to_parquet(output_path, mode='a', append=True, engine='pyarrow')
-        else:
-            df_batch.to_parquet(output_path, engine='pyarrow')
-    
-    return accumulator
+    return actual_result - expected_prob
 
+def process_stream(iterator: Generator[Dict[str, Any], None, None], 
+                  accumulator: OnlineAccumulator) -> pd.DataFrame:
+    """
+    Process stream of records and accumulate statistics.
+    Implements T015.
+    """
+    records = []
+    
+    for record in iterator:
+        if record:
+            # Calculate expected probability
+            expected_prob = calculate_expected_probability(
+                record['white_rating'], 
+                record['black_rating']
+            )
+            
+            # Calculate outcome deviation
+            outcome_deviation = calculate_outcome_deviation(
+                record['outcome'],
+                expected_prob
+            )
+            
+            record['elo_expected_prob'] = expected_prob
+            record['outcome_deviation'] = outcome_deviation
+            
+            records.append(record)
+            accumulator.add_record(record)
+            
+            # Early exit check
+            if accumulator.get_inclusion_rate() < 0.95:
+                raise ValueError(f"Inclusion rate dropped below 0.95: {accumulator.get_inclusion_rate():.2%}")
+    
+    return pd.DataFrame(records)
 
-def save_inclusion_metrics(
-    total_games: int,
-    parsed_games: int,
-    output_path: Path = INCLUSION_METRICS_PATH
-) -> None:
+def save_inclusion_metrics(accumulator: OnlineAccumulator) -> None:
     """
-    Calculate the inclusion rate and save it to a JSON file.
-    Validates the inclusion rate against the minimum threshold.
-    
-    Args:
-        total_games: Total number of games encountered.
-        parsed_games: Number of games successfully parsed.
-        output_path: Path to save the inclusion metrics JSON file.
-        
-    Raises:
-        ValueError: If the inclusion rate is below the minimum threshold.
-        RuntimeError: If file operations fail.
+    Save inclusion metrics to file.
+    Implements T017.
     """
-    if total_games == 0:
-        raise ValueError("Total games count cannot be zero.")
-    
-    inclusion_rate = parsed_games / total_games
-    
-    metrics = {
-        'total_games': total_games,
-        'parsed_games': parsed_games,
-        'inclusion_rate': inclusion_rate
-    }
-    
-    # Ensure output directory exists
+    output_path = Path("code/data/results/inclusion_counts.json")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save metrics to JSON
-    try:
-        with open(output_path, 'w') as f:
-            json.dump(metrics, f, indent=2)
-        logger.info(f"Inclusion metrics saved to {output_path}")
-    except Exception as e:
-        raise RuntimeError(f"Failed to save inclusion metrics: {e}")
+    metrics = {
+        'total_games': accumulator.total_games,
+        'parsed_games': accumulator.parsed_games
+    }
     
-    # Read back and validate
-    try:
-        with open(output_path, 'r') as f:
-            saved_metrics = json.load(f)
-        
-        # Verify the saved rate matches calculation
-        if abs(saved_metrics['inclusion_rate'] - inclusion_rate) > 1e-9:
-            raise RuntimeError("Saved inclusion rate does not match calculated rate.")
-        
-        # Validate against threshold
-        if saved_metrics['inclusion_rate'] < MIN_INCLUSION_RATE:
-            error_msg = (
-                f"Data quality gate failed: Inclusion rate {saved_metrics['inclusion_rate']:.4f} "
-                f"is below the minimum threshold of {MIN_INCLUSION_RATE}. "
-                f"Total games: {saved_metrics['total_games']}, Parsed games: {saved_metrics['parsed_games']}. "
-                "Pipeline halted due to low data quality."
-            )
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-        
-        logger.info(f"Inclusion rate validation passed: {inclusion_rate:.4f} >= {MIN_INCLUSION_RATE}")
-        
-    except json.JSONDecodeError as e:
-        raise RuntimeError(f"Failed to read back saved metrics: Invalid JSON - {e}")
-    except FileNotFoundError as e:
-        raise RuntimeError(f"Failed to read back saved metrics: File not found - {e}")
-
-
-def validate_inclusion_rate(
-    inclusion_rate: float,
-    threshold: float = MIN_INCLUSION_RATE
-) -> bool:
-    """
-    Validate that the inclusion rate meets the minimum threshold.
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
     
-    Args:
-        inclusion_rate: The calculated inclusion rate.
-        threshold: The minimum acceptable inclusion rate.
-        
-    Returns:
-        True if the rate meets the threshold, False otherwise.
-        
-    Raises:
-        ValueError: If the rate is below the threshold.
-    """
-    if inclusion_rate < threshold:
-        raise ValueError(
-            f"Inclusion rate {inclusion_rate:.4f} is below the required threshold of {threshold:.2f}."
-        )
-    return True
+    logger.info(f"Saved inclusion counts to {output_path}")
 
+def validate_inclusion_rate(accumulator: OnlineAccumulator, threshold: float = 0.95) -> None:
+    """
+    Validate inclusion rate and save metrics.
+    Implements T017.
+    """
+    rate = accumulator.get_inclusion_rate()
+    
+    # Save metrics file
+    metrics_path = Path("code/data/results/inclusion_metrics.json")
+    metrics_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    metrics = {
+        'total_games': accumulator.total_games,
+        'parsed_games': accumulator.parsed_games,
+        'inclusion_rate': rate
+    }
+    
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    # Validate threshold
+    if rate < threshold:
+        raise ValueError(f"Inclusion rate {rate:.2%} below threshold {threshold:.2%}")
+    
+    logger.info(f"Validation passed: inclusion rate = {rate:.2%}")
 
 def main():
-    """
-    Main entry point for the inclusion metrics calculation and validation.
-    This function reads the counts from inclusion_counts.json (produced by T015),
-    calculates the inclusion rate, saves it to inclusion_metrics.json, and validates it.
-    """
-    if not INCLUSION_COUNTS_PATH.exists():
-        raise FileNotFoundError(
-            f"Required input file not found: {INCLUSION_COUNTS_PATH}. "
-            "Ensure T015 has completed and generated the counts file."
-        )
-    
-    # Read counts from T015 output
-    try:
-        with open(INCLUSION_COUNTS_PATH, 'r') as f:
-            counts_data = json.load(f)
-        
-        total_games = counts_data.get('total_games')
-        parsed_games = counts_data.get('parsed_games')
-        
-        if total_games is None or parsed_games is None:
-            raise ValueError("Missing 'total_games' or 'parsed_games' in input file.")
-        
-        if not isinstance(total_games, int) or not isinstance(parsed_games, int):
-            raise ValueError("Counts must be integers.")
-            
-    except json.JSONDecodeError as e:
-        raise RuntimeError(f"Invalid JSON in input file: {e}")
-    
-    logger.info(f"Processing counts: total={total_games}, parsed={parsed_games}")
-    
-    # Calculate and save metrics
-    save_inclusion_metrics(total_games, parsed_games, INCLUSION_METRICS_PATH)
-    
-    logger.info("Inclusion metrics task completed successfully.")
-
-
-if __name__ == "__main__":
-    main()
+    """Main entry point for testing."""
+    pass

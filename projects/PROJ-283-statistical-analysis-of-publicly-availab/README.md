@@ -1,143 +1,160 @@
 # Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction
 
-This project implements a statistical analysis pipeline to predict chess game outcomes and analyze Elo ratings using publicly available Lichess game data.
-
-## Features
-
-- **Data Ingestion**: Downloads and parses PGN files from Lichess/HuggingFace
-- **Feature Extraction**: Extracts ECO codes, move times, material imbalance at move 5
-- **Elo Analysis**: Calculates expected probabilities and outcome deviations
-- **Statistical Modeling**: Fits Gaussian GLM and Ridge Regression models
-- **Model Validation**: Cross-validation, FDR correction, and sensitivity analysis
-- **Diagnostic Reporting**: Generates plots and comprehensive reports
+This project implements a statistical analysis pipeline to predict Elo rating outcomes based on features extracted from publicly available chess game data (Lichess). The pipeline ingests PGN data, extracts features (ECO codes, move times, material imbalance), and fits regression models (Beta, Gaussian GLM, Ridge) to analyze outcome deviations.
 
 ## Project Structure
 
 ```
 .
-├── README.md
-├── quickstart.md
-├── requirements.txt
-├── pyproject.toml
 ├── code/
-│ ├── __init__.py
-│ ├── config.py
-│ ├── setup_structure.py
-│ └── src/
-│ ├── __init__.py
-│ ├── config.py
-│ ├── data/
-│ │ ├── __init__.py
-│ │ ├── download.py
-│ │ ├── parse.py
-│ │ └── process.py
-│ ├── main.py
-│ ├── models/
-│ │ ├── __init__.py
-│ │ ├── fit.py
-│ │ ├── metrics.py
-│ │ ├── save_metrics.py
-│ │ └── validate.py
-│ ├── reports/
-│ │ ├── __init__.py
-│ │ ├── generate_plots.py
-│ │ └── sensitivity.py
-│ └── validation/
-│ ├── __init__.py
-│ └── validate_contracts.py
+│ ├── src/
+│ │ ├── data/ # Data ingestion, parsing, and processing
+│ │ ├── models/ # Model fitting and validation
+│ │ ├── reports/ # Plot generation and diagnostics
+│ │ ├── validation/ # Contract validation
+│ │ ├── config.py # Configuration and constants
+│ │ └── main.py # Main orchestration script
+│ ├── tests/ # Unit and integration tests
+│ └── setup_structure.py # Project initialization
 ├── data/
-│ ├── raw/
-│ ├── processed/
-│ └── results/
+│ ├── raw/ # Raw downloaded data
+│ ├── processed/ # Processed datasets (games.parquet)
+│ └── results/ # Model metrics, plots, and reports
 ├── specs/
-│ └── contracts/
-│ ├── game_record.schema.yaml
-│ └── model_output.schema.yaml
-└── tests/
- ├── __init__.py
- ├── contract/
- ├── unit/
- └── integration/
+│ └── contracts/ # Schema definitions for data validation
+├── README.md # This file
+├── requirements.txt # Python dependencies
+└── quickstart.md # Quick start guide
 ```
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd <project-name>
+1. **Clone the repository**:
+ ```bash
+ git clone <repository-url>
+ cd PROJ-283-statistical-analysis-of-publicly-availab
+ ```
+
+2. **Create a virtual environment** (recommended):
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+3. **Install dependencies**:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+4. **Verify installation**:
+ ```bash
+ python -c "import chess; import pandas; import statsmodels; print('Dependencies installed successfully.')"
+ ```
+
+## Data Flow Architecture
+
+The pipeline follows a strict sequential flow with validation gates at each stage.
+
+```mermaid
+flowchart TD
+ A[Start: main.py] --> B[T008: Select Subset & Verify Mirror]
+ B -->|IDs Selected| C[T008d: Download & Stream PGN]
+ C -->|Raw PGN Stream| D[T013: Parse PGN & Extract Features]
+ D -->|GameRecords| E[T015: Online Accumulation & Metrics]
+ E -->|games.parquet| F[T017: Validate Inclusion Rate]
+ F -->|Rate >= 0.95| G[T021: ECO Collapsing]
+ G -->|Features| H[T022: Fit Models Beta/GLM/Ridge]
+ H -->|Model Artifacts| I[T023/T024: Metrics & FDR]
+ I -->|Corrected P-Values| J[T025: Sensitivity Analysis]
+ J -->|Validation Gate| K[T029/T030: Cross-Validation]
+ K -->|CV Scores| L[T027: Save Model Metrics]
+ L -->|model_metrics.json| M[T031: Generate Plots]
+ M -->|Plots| N[T033: Diagnostic Report]
+ N --> O[End: Pipeline Completed]
+
+ style F fill:#f9f,stroke:#333,stroke-width:2px
+ style J fill:#f9f,stroke:#333,stroke-width:2px
+ style K fill:#f9f,stroke:#333,stroke-width:2px
 ```
 
-2. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
+**Key Stages**:
+1. **Ingestion**: Download and stream Lichess PGN data (T008).
+2. **Parsing**: Extract features (ECO, move times, material imbalance) (T013).
+3. **Processing**: Online accumulation and inclusion rate validation (T015, T017).
+4. **Modeling**: Fit Beta, Gaussian GLM, and Ridge regressions (T022).
+5. **Validation**: FDR correction, sensitivity analysis, and cross-validation (T024, T025, T030).
+6. **Reporting**: Generate plots and diagnostic reports (T031, T033).
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+## Usage
 
-## Quick Start
+### Running the Full Pipeline
 
-See [quickstart.md](quickstart.md) for detailed instructions on running the pipeline.
+Execute the main orchestration script to run the entire pipeline from data download to final report generation:
 
-### Basic Usage
-
-Run the complete pipeline:
 ```bash
 python code/src/main.py
 ```
 
+**Optional**: Run with a small sample for testing:
+```bash
+python code/src/main.py --sample
+```
+
+### Expected Output
+
+Upon successful completion, the pipeline will:
+- Generate `data/processed/games.parquet` with extracted game records.
+- Generate `data/results/model_metrics.json` with model coefficients and validation scores.
+- Generate diagnostic plots in `data/results/` (e.g., `residuals_Beta_*.png`).
+- Output `Pipeline completed successfully` to the console.
+
+### Individual Stage Execution
+
+If you need to run specific stages independently:
+
+1. **Download Data**:
+ ```bash
+ python code/src/data/download.py
+ ```
+
+2. **Parse and Process**:
+ ```bash
+ python code/src/data/process.py
+ ```
+
+3. **Fit Models**:
+ ```bash
+ python code/src/models/fit.py
+ ```
+
+4. **Generate Reports**:
+ ```bash
+ python code/src/reports/generate_plots.py
+ ```
+
+### Validation
+
+Validate the processed data against the schema:
+```bash
+python code/src/validation/validate_contracts.py --data data/processed/games.parquet
+```
+
 ## Configuration
 
-Edit `code/src/config.py` to customize:
-- Random seeds
-- File paths
-- Dataset URLs
-
-## Data Pipeline
-
-1. **Download**: Fetches PGN files from Lichess/HuggingFace
-2. **Parse**: Extracts features from PGN files
-3. **Process**: Calculates Elo probabilities and deviations
-4. **Model**: Fits Gaussian GLM and Ridge Regression
-5. **Validate**: Performs cross-validation and generates metrics
-6. **Report**: Creates diagnostic plots and summaries
-
-## Output Files
-
-- `data/processed/games.parquet`: Processed game records
-- `data/results/model_metrics.json`: Model performance metrics
-- `data/results/diagnostics.json`: Diagnostic report summary
-- `data/results/*.png`: Diagnostic plots
-
-## Validation
-
-The pipeline includes contract validation to ensure data quality:
-- Schema validation for game records
-- Schema validation for model outputs
-- Contract tests in `tests/contract/`
-
-## Testing
-
-Run all tests:
-```bash
-pytest tests/
-```
-
-Run specific test suites:
-```bash
-pytest tests/unit/
-pytest tests/contract/
-pytest tests/integration/
-```
+Configuration options are defined in `code/src/config.py`. Key settings include:
+- `RANDOM_SEED`: Seed for reproducibility.
+- `USE_MOVE_5`: Flag to toggle between Move 5 and Move 10 for material imbalance (default: False, uses Move 10 per Spec FR-002).
+- `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME`: Heuristic for estimating dataset size.
 
 ## Dependencies
 
-See `requirements.txt` for the complete list of dependencies.
+See `requirements.txt` for the full list of dependencies. Key packages include:
+- `pandas`, `numpy`: Data manipulation.
+- `statsmodels`: Statistical modeling (Beta Regression, GLM).
+- `scikit-learn`: Machine learning (Ridge Regression).
+- `chess`: PGN parsing and board analysis.
+- `matplotlib`, `seaborn`: Visualization.
 
 ## License
 
-This project is licensed under the MIT License.
+This project is part of the llmXive automated science pipeline. See the project root for license details.

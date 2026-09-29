@@ -1,9 +1,9 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Unified Dataset Schema
-description: |
-  Schema for the matched user data combining loneliness survey scores,
-  AI usage metrics, and attachment style proxies.
-  Used to validate data integrity before modeling.
+description: >
+  Schema for matched user data integrating loneliness scores, AI usage metrics,
+  attachment style proxies, and demographics for the parasocial relationships study.
+  This schema defines the structure of data/processed/unified_dataset.parquet.
 type: object
 required:
   - user_id
@@ -16,55 +16,119 @@ required:
 properties:
   user_id:
     type: string
-    description: SHA-256 hashed username for anonymized linkage.
-    minLength: 1
-
+    description: >
+      Anonymized user identifier (SHA-256 hash of original username).
+      Used as the primary key for joining loneliness and usage data.
+      Pattern: 64-character hexadecimal string.
+    pattern: "^[a-f0-9]{64}$"
+  
   loneliness_score:
     type: number
-    description: |
-      Standardized loneliness score from the Reddit Loneliness Longitudinal Dataset.
-      Higher values indicate greater loneliness.
-    minimum: -10.0
-    maximum: 10.0
-
+    format: float
+    description: >
+      Standardized loneliness score from the UCLA Loneliness Scale (Extended Version).
+      Values are normalized to a 0-100 scale where higher indicates greater loneliness.
+      Range: [0, 100].
+    minimum: 0.0
+    maximum: 100.0
+    nullable: false
+  
   usage_frequency:
-    type: number
-    description: |
-      Number of AI interaction events (posts/comments) per week.
-      Calculated over the survey window.
+    type: integer
+    description: >
+      Count of AI interaction events (posts/comments) within the defined survey window.
+      Aggregated weekly or per-session depending on analysis requirements.
+      Non-negative integer count.
     minimum: 0
-
+  
   session_duration:
     type: number
-    description: |
-      Total duration of AI interaction sessions in hours per week.
-      Capped at 24 hours per week for sanity.
+    format: float
+    description: >
+      Total duration of AI interaction activity within the observation window,
+      calculated as time between first and last activity, capped at 24 hours.
+      Measured in seconds.
+      Range: [0, 86400].
     minimum: 0.0
-    maximum: 24.0
-
+    maximum: 86400.0
+  
   attachment_anxiety_score:
     type: number
-    description: |
-      Normalized score derived from ECAR Lexicon anxiety keywords in baseline posts.
-      Higher values indicate higher attachment anxiety.
+    format: float
+    description: >
+      Attachment anxiety proxy score derived from ECAR Lexicon keyword analysis
+      of baseline posts. Normalized to [0, 1] scale.
+      Higher scores indicate greater attachment anxiety.
     minimum: 0.0
     maximum: 1.0
-
+  
   attachment_avoidance_score:
     type: number
-    description: |
-      Normalized score derived from ECAR Lexicon avoidance keywords in baseline posts.
-      Higher values indicate higher attachment avoidance.
+    format: float
+    description: >
+      Attachment avoidance proxy score derived from ECAR Lexicon keyword analysis
+      of baseline posts. Normalized to [0, 1] scale.
+      Higher scores indicate greater attachment avoidance.
+    minimum: 0.0
+    maximum: 1.0
+  
+  age:
+    type: integer
+    description: >
+      Self-reported age of the user at the time of the loneliness survey.
+      Nullable field as age data may be missing for some users.
+    minimum: 10
+    maximum: 120
+    nullable: true
+  
+  timestamp_start:
+    type: string
+    format: date-time
+    description: >
+      ISO 8601 timestamp marking the start of the observation window
+      (earliest survey timestamp for this user).
+    nullable: false
+  
+  timestamp_end:
+    type: string
+    format: date-time
+    description: >
+      ISO 8601 timestamp marking the end of the observation window
+      (latest survey timestamp for this user).
+    nullable: false
+  
+  match_source:
+    type: string
+    description: >
+      Source identifier indicating how the match was achieved.
+      Expected values: "sha256_hash_match".
+    enum:
+      - sha256_hash_match
+  
+  missing_attachment_flag:
+    type: boolean
+    description: >
+      Flag indicating if attachment scores are missing (default 0.0) due to
+      no baseline posts being found for the user.
+      True if attachment scores were set to defaults.
+  
+  data_quality_score:
+    type: number
+    format: float
+    description: >
+      Composite data quality score (0-1) indicating completeness and validity
+      of the record. Used for filtering low-quality records in analysis.
     minimum: 0.0
     maximum: 1.0
 
-  age:
-    type: integer
-    description: |
-      Age of the user at the time of the survey.
-      May be null if not reported in the source dataset.
-    minimum: 13
-    maximum: 120
-    nullable: true
-
 additionalProperties: false
+
+# Metadata for the schema itself
+metadata:
+  version: "1.0.0"
+  created_from: "T004 - Unified Dataset Schema Definition"
+  related_tasks:
+    - T014  # user_match.py
+    - T022  # integrate_features.py
+    - T023  # validate output columns
+  validation_tool: "src/utils/data_validation.py"

@@ -726,3 +726,468 @@
   source_type: external
   status: refuted
   updated_at: '2026-09-23T06:42:37Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: 1000 cluster bootstrap iterations at User level
+  claim_id: c_3c6b3195
+  context: 'Phase 5, Task T027: Implement src/modeling/bootstrap_ci.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform cluster bootstrap resampling with 1000 iterations (seed=42) at
+    User level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:40:41Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Subgroup analysis for users age 60 and above
+  claim_id: c_1fe4b59c
+  context: 'Phase 5, Task T028: Implement src/modeling/subgroup_analysis.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter unified dataset where age >= 60 AND age is not null
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:41:03Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Minimum matched user count of 500
+  claim_id: c_ac54fbe7
+  context: 'Phase 3, Task T015: Implement src/validation/validate_match.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate N >= 500
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:41:28Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Halt if match rate below 80% or N below 500
+  claim_id: c_0c5104c0
+  context: 'Phase 3, Task T015: Implement src/validation/validate_match.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If match rate < 80% OR N < 500, halt execution with Power Insufficient
+    error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:41:29Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Maximum exponential backoff delay of 60 seconds
+  claim_id: c_a708d098
+  context: 'Phase 2, Task T008: Implement src/utils/retry_policy.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: max delay 60s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:41:49Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Exponential backoff with 60 second timeout
+  claim_id: c_a356679e
+  context: 'Phase 3, Task T013: Implement src/ingest/fetch_pushshift.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff (max retries, 60s timeout)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:42:16Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Runtime optimization to under 4 hours on 2-CPU runner
+  claim_id: c_f2ecf88e
+  context: 'Phase 6, Task T033a: Optimize src/modeling/bootstrap_ci.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce runtime to < 4 hours on 2-CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:42:17Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity reduction to under 10
+  claim_id: c_a2fb5bac
+  context: 'Phase 6, Tasks T032a and T032b: Refactor modeling scripts'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce cyclomatic complexity to < 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:42:17Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Runtime failure threshold of 6 hours
+  claim_id: c_eac30380
+  context: 'Phase 5, Task T029: Implement src/validation/validate_success.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If Runtime >= 6 hours, set passed flag to false
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:42:41Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: "Marginal R\xB2 gain threshold of 0.05"
+  claim_id: c_5388ad74
+  context: 'Phase 5, Task T029: Implement src/validation/validate_success.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If R\xB2 gain < 0.05, DO NOT HALT"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:42:41Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Session duration calculation capped at 24 hours
+  claim_id: c_2ccbb8ba
+  context: 'Phase 4, Task T020: Implement src/features/usage_metrics.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate session_duration capped at 24h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:43:06Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Source of Reddit Loneliness Longitudinal Dataset is Zenodo
+  claim_id: c_5d42b5dd
+  context: 'Phase 3, Task T012: Implement src/ingest/download_loneliness.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Source_of_Reddit_Loneliness_Longitudinal_Dataset_is_Zenodo
+  kind: entity_fact
+  raw_text: Fetch Reddit Loneliness Longitudinal Dataset from Zenodo DOI
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:43:24Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: 'Reddit subreddits for AI interaction logs: r/Replika, r/characterAI,
+    r/AICompanions'
+  claim_id: c_39ca7ad4
+  context: 'Phase 3, Task T013: Implement src/ingest/fetch_pushshift.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reddit_subreddits_for_AI_interaction_logs:_r/Replika,_r/char
+  kind: entity_fact
+  raw_text: Retrieve AI interaction logs for r/Replika, r/characterAI, r/AICompanions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:43:45Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: User matching via SHA-256 hashing
+  claim_id: c_5b02fdbe
+  context: 'Phase 3, Task T014: Implement src/match/user_match.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hash raw usernames using SHA-256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:44:04Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: ECAR Lexicon used for attachment proxy extraction
+  claim_id: c_4378f4ad
+  context: 'Phase 4, Task T021: Implement src/features/attachment_proxy.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ECAR_Lexicon_used_for_attachment_proxy_extraction
+  kind: entity_fact
+  raw_text: Load ECAR Lexicon (Emotion and Coping in AI Relationships) from data/lexicons/ecar_lexicon.csv
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:44:27Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: 1000 iterations cluster bootstrap resampling seed 42
+  claim_id: c_7aedc2e0
+  context: Task T027 requires performing cluster bootstrap resampling with 1000 iterations
+    to generate confidence intervals for fixed effects.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform cluster bootstrap resampling with 1000 iterations (seed=42) at
+    User level
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:47:43Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Reddit Loneliness Longitudinal Dataset source Zenodo DOI
+  claim_id: c_5464ad1c
+  context: Task T012 specifies fetching the Reddit Loneliness Longitudinal Dataset
+    from a Zenodo DOI as the data source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reddit_Loneliness_Longitudinal_Dataset_source_Zenodo_DOI
+  kind: entity_fact
+  raw_text: Fetch Reddit Loneliness Longitudinal Dataset from Zenodo DOI
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:47:45Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: AI interaction logs sources r/Replika r/characterAI r/AICompanions
+  claim_id: c_4831607e
+  context: Task T013 requires retrieving logs specifically from the subreddits r/Replika,
+    r/characterAI, and r/AICompanions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AI_interaction_logs_sources_r/Replika_r/characterAI_r/AIComp
+  kind: entity_fact
+  raw_text: Retrieve AI interaction logs for r/Replika, r/characterAI, r/AICompanions
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:47:47Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Username hashing algorithm SHA-256
+  claim_id: c_d037e196
+  context: Task T014 specifies the use of the SHA-256 algorithm to hash raw usernames
+    for matching.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Hash raw usernames using SHA-256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:47:47Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Minimum matched users count 500
+  claim_id: c_ffa2ae57
+  context: Task T015 mandates a validation check where the number of matched users
+    must be greater than or equal to 500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate N >= 500 for matched users
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:48:23Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Match rate threshold 80% halt execution
+  claim_id: c_1f403712
+  context: Task T015 states that if the match rate is less than 80%, the execution
+    must halt with a 'Power Insufficient' error.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Halt execution if match rate < 80%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:48:23Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Subgroup analysis age threshold 60
+  claim_id: c_e47944dc
+  context: Task T028 requires filtering the dataset for users aged 60 or older to
+    perform a subgroup analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter unified dataset where age >= 60 for subgroup analysis
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:49:05Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Session duration cap 24 hours
+  claim_id: c_e8b3d113
+  context: Task T020 specifies calculating session duration but capping the value
+    at 24 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cap session duration at 24h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:49:29Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Exponential backoff max delay 60 seconds
+  claim_id: c_f8b27379
+  context: Task T008 defines an exponential backoff strategy with a maximum delay
+    set to 60 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set max delay to 60s for exponential backoff
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:49:55Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Bootstrap CIs fallback for violated assumptions
+  claim_id: c_c1e8caa4
+  context: Task T027 notes that if diagnostics show violations of normality or homoscedasticity,
+    the method should switch to bootstrap confidence intervals.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_CIs_fallback_for_violated_assumptions
+  kind: entity_fact
+  raw_text: Switch to bootstrap CIs if normality or homoscedasticity violated
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:50:27Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Runtime threshold 6 hours failed flag
+  claim_id: c_43b509a0
+  context: Task T029 mandates setting the 'passed' flag to false if the runtime is
+    greater than or equal to 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Record runtime if >= 6 hours and set passed flag to false
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:50:56Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Marginal R2 gain threshold 0.05
+  claim_id: c_be126f24
+  context: "Task T029 specifies that if the Marginal R\xB2 gain is less than 0.05,\
+    \ the value is recorded and the 'passed' flag is set to false without halting."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Record value and set passed flag to false if Marginal R\xB2 gain < 0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:50:56Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Cyclomatic complexity threshold 10
+  claim_id: c_da13382e
+  context: Tasks T032a and T032b require refactoring specific modeling scripts to
+    ensure cyclomatic complexity is less than 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code to reduce cyclomatic complexity to < 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:50:56Z'
+- artifact_path: projects/PROJ-426-the-impact-of-parasocial-relationships-w/specs/001-the-impact-of-parasocial-relationships-w/tasks.md
+  attempts: 1
+  canonical: Runtime optimization target 4 hours 2 CPU
+  claim_id: c_3c1b8e61
+  context: Task T033a requires optimizing the bootstrap script to reduce runtime to
+    less than 4 hours on a 2-CPU runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize runtime to < 4 hours on 2-CPU runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:50:56Z'

@@ -1,26 +1,3 @@
-T013:
-  c: false
-  h: 0be7d88cf49208871af59f92f358643b7956b89f7de4a7c8da4403fc3206101d
-  r: "The `src/data/parse.py` file contains only imports and a `pass` statement\u2014\
-    no `parse_pgn_stream` implementation or any logic to produce `GameRecord` objects.\
-    \ Additionally, the required `src/data/models.py` (defining the `GameRecord` TypedDict)\
-    \ and the schema file `specs/contracts/game_record.schema.yaml` are missing entirely.\
-    \ Consequently, none of the functional, type, or schema requirements are satisfied."
-T015:
-  c: false
-  h: 101a9c1f20d4225321433b2054c38ee4f95b63d859668b651844f369d5a6e621
-  r: "The provided `src/data/process.py` contains utility functions but no `OnlineAccumulator`\
-    \ class or `process_stream` implementation, and the required output files `data/processed/games.parquet`\
-    \ and `data/results/inclusion_counts.json` are absent. Consequently the task\u2019\
-    s core functionality and deliverables are not satisfied."
-T017:
-  c: false
-  h: 3d8d6403edb72d397b0fc6c98bd41775e79110e2537c09c3b65d5cf4aae24638
-  r: "The repository lacks the required `save_inclusion_metrics` function in `src/data/process.py`\
-    \ (the file ends before any such implementation) and the expected output files\
-    \ `data/results/inclusion_counts.json` and `data/results/inclusion_metrics.json`\
-    \ are absent. Consequently the task\u2019s core logic, file creation, and validation\
-    \ steps are not present."
 T021:
   c: false
   h: 6269284322a4da71ad5dc5950d33d8d04f7280c1601fd80e7a8515e7a3018923
@@ -46,25 +23,22 @@ T027:
     \ of coefficients, p\u2011values, AIC, cross\u2011validation scores, calculation\
     \ of `significant_predictors`, JSON saving, or schema validation as mandated by\
     \ the task. These core functionalities and artifacts are missing."
-T034:
+T033:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No updated `README.md` or `quickstart.md` files are present in the provided evidence;
-    the only artifacts shown relate to statistical analysis specifications, not documentation
-    changes. The required documentation updates are missing.
+  h: 29c0a410c9651f58ae7b673943887ae1039cab9b5244bc7b11b068912ad6286c
+  r: "The repository lacks the required `data/results/diagnostics.json` and `data/results/model_metrics.json`\
+    \ files, and the provided `src/reports/generate_plots.py` does not show an implementation\
+    \ of `generate_diagnostic_report(...)`. Consequently the function\u2019s behavior,\
+    \ JSON schema, and plot\u2011saving requirements cannot be verified. The next\
+    \ implementer must add the missing data files (or generate them) and implement\
+    \ the `generate_diagnostic_report` function to produce the correctly\u2011structured\
+    \ `diagnostics.json`."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: No code, commit diff, or refactoring report was provided; the only evidence is
     the original feature specification, which does not demonstrate any cleanup or
     refactoring work. The required artifact (cleaned/refactored code) is missing.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact showing that RAM usage was measured and kept below 7\u202FGB is\
-    \ present, nor any code or documentation indicating that data sampling was implemented\
-    \ to achieve this limit. Without performance benchmarks or sampling logic, the\
-    \ task\u2019s requirement is not satisfied."
 T038:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

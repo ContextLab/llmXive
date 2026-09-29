@@ -1,43 +1,35 @@
-name: game_record
-description: Schema for validated chess game records including ratings, ECO, timing, and outcome metrics.
+description: "Schema for processed chess game records"
 columns:
   - name: game_id
-    type: str
-    nullable: false
-    description: Unique identifier for the game.
+    type: string
+    required: true
   - name: white_rating
-    type: float
-    nullable: false
-    description: White player's Elo rating.
+    type: number
+    required: true
   - name: black_rating
-    type: float
-    nullable: false
-    description: Black player's Elo rating.
+    type: number
+    required: true
   - name: eco_code
-    type: str
-    nullable: false
-    description: ECO classification code for the opening.
+    type: string
+    required: true
   - name: avg_move_time_white
-    type: float
-    nullable: false
-    description: Average time per move for White in seconds.
+    type: number
+    required: true
   - name: avg_move_time_black
-    type: float
-    nullable: false
-    description: Average time per move for Black in seconds.
+    type: number
+    required: true
+  - name: material_imbalance_move10
+    type: number
+    required: true
   - name: material_imbalance_move5
-    type: float
-    nullable: false
-    description: Material imbalance value at move 5 (White - Black).
+    type: number
+    required: true
   - name: outcome
-    type: str
-    nullable: false
-    description: Game outcome: '1-0', '0-1', or '1/2-1/2'.
+    type: number
+    required: true
   - name: elo_expected_prob
-    type: float
-    nullable: false
-    description: Expected probability of White winning based on Elo difference.
+    type: number
+    required: true
   - name: outcome_deviation
-    type: float
-    nullable: false
-    description: Difference between actual outcome (1, 0, or 0.5) and expected probability.
+    type: number
+    required: true

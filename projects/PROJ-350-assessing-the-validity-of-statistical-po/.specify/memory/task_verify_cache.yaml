@@ -13,10 +13,10 @@ T001b:
     folder and show their presence.
 T003:
   c: false
-  h: c90954ec2a70e3fdc148c94360a5016c8ccb4914bdc0b4a46273751a428dfa6b
-  r: The `requirements.txt` and `pyproject.toml` files are present and populated,
-    but the required `.pre-commit-config.yaml` file is missing entirely. The task
-    is not fully satisfied until this configuration file is created.
+  h: 222265233d09ba7237e325250ad0a86967caab3472b768b69ef38b4a646a2931
+  r: The `requirements.txt` and `pyproject.toml` files are present and contain appropriate
+    content, but the required `.pre-commit-config.yaml` file is missing entirely.
+    The task is not fully satisfied until this configuration file is created.
 T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,3 +36,36 @@ T011:
     schema file `specs/contracts/study_record.schema.yaml` is missing, and there is
     no evidence that any schema validation was performed. Without the schema and a
     validation result, the contract test cannot be considered satisfied.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation was provided that shows a `missing_planned_data`\
+    \ flag being added or logic that prioritizes \u201CPrimary Pre-registration\u201D\
+    \ during data extraction (FR\u2011001). Without any artifact to inspect, the claim\
+    \ cannot be verified. The implementer must supply the updated extraction module\
+    \ (or equivalent) demonstrating these new behaviors."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were provided showing that a validation step
+    checking `target_n > 0` and flagging invalid records has been added. Without an
+    artifact demonstrating this logic, the requirement cannot be confirmed as met.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided that show validation logic for\
+    \ retrieved results, handling of confidence\u2011interval midpoints, or flagging\
+    \ of missing `actual_sample_size`. Without an artifact demonstrating this functionality,\
+    \ the requirement cannot be confirmed as met."
+T022:
+  c: false
+  h: 6720b77b814eeff757e281e2824260e7f34f97c58e88b38f4054a02b1735bd61
+  r: The required artifact `data/derived/power_analysis.csv` is missing from the repository,
+    so there is no file to verify against the schema or data types. Without the CSV
+    file, the contract test cannot be performed.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, function, or documentation implementing `power_gap` (i.e., `planned_power
+    - sensitivity_power`) was provided; the evidence on disk contains no artifact
+    to verify the calculation. The required implementation is missing.

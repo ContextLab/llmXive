@@ -1,36 +1,53 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Study Record Schema
-description: Schema for extracted study records from OSF pre-registrations.
+description: >
+  Schema for the raw study records extracted from OSF pre-registrations.
+  Used by T011 contract test to validate data/derived/study_records_raw.json.
 type: array
 items:
   type: object
   required:
     - study_id
     - title
+    - planned_power
+    - target_n
+    - effect_size_assumption
+    - field
+    - missing_planned_data
+    - source_citation
   properties:
     study_id:
       type: string
-      description: OSF study identifier
+      description: Unique identifier for the study (e.g., OSF ID)
+      minLength: 1
     title:
       type: string
-      description: Title of the study
+      description: Title of the pre-registered study
+      minLength: 1
     planned_power:
       type: number
-      minimum: 0
-      maximum: 1
+      description: Planned statistical power (0.0 to 1.0)
+      minimum: 0.0
+      maximum: 1.0
       nullable: true
     target_n:
       type: integer
-      minimum: 1
+      description: Target sample size
+      minimum: 0
       nullable: true
     effect_size_assumption:
       type: number
+      description: Assumed effect size (e.g., Cohen's d)
       nullable: true
     field:
       type: string
-      nullable: true
+      description: Academic field or domain
+      minLength: 1
     missing_planned_data:
       type: boolean
+      description: Flag indicating if planned data was missing
     source_citation:
       type: string
-  additionalProperties: true
+      description: Citation or source reference (e.g., OSF ID)
+      minLength: 1
+  additionalProperties: false

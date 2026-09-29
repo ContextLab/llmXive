@@ -1,92 +1,87 @@
 """
-Utility script to validate data artifacts against their JSON Schema contracts.
-Used by T011 to verify study_records_raw.json.
+Script to validate data artifacts against JSON Schema contracts.
+Used for T011 and general data integrity checks.
 """
 import json
 import sys
 import os
 from pathlib import Path
 import yaml
+from jsonschema import validate, ValidationError, SchemaError
 
-# Ensure jsonschema is available (added in requirements.txt by T003)
-try:
-    import jsonschema
-except ImportError:
-    print("ERROR: jsonschema library not found. Please install it (e.g., pip install jsonschema).")
-    sys.exit(1)
+# Project root
+PROJECT_ROOT = Path(__file__).parent.parent
 
-from jsonschema import validate, ValidationError
 
-def validate_file_against_schema(data_path, schema_path):
+def load_schema(schema_path: Path) -> dict:
+    """Load YAML schema from file."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def load_data(data_path: Path) -> list:
+    """Load JSON data from file."""
+    if not data_path.exists():
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+    with open(data_path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def validate_file_against_schema(data_path: Path, schema_path: Path) -> bool:
     """
-    Validates a JSON data file against a YAML JSON schema.
+    Validate a JSON data file against a YAML schema.
+
+    Args:
+        data_path: Path to the JSON data file.
+        schema_path: Path to the YAML schema file.
+
+    Returns:
+        True if valid, raises ValidationError if invalid.
     """
-    data_file = Path(data_path)
-    schema_file = Path(schema_path)
+    schema = load_schema(schema_path)
+    data = load_data(data_path)
 
-    if not data_file.exists():
-        print(f"FAIL: Data file not found: {data_file}")
-        return False
-
-    if not schema_file.exists():
-        print(f"FAIL: Schema file not found: {schema_file}")
-        return False
-
-    # Load Schema
     try:
-        with open(schema_file, "r", encoding="utf-8") as f:
-            schema = yaml.safe_load(f)
-    except Exception as e:
-        print(f"FAIL: Could not load schema {schema_file}: {e}")
-        return False
+        validate(instance=data, schema=schema)
+        print(f"✓ Validation passed: {data_path.name} matches {schema_path.name}")
+        return True
+    except ValidationError as e:
+        print(f"✗ Validation failed: {data_path.name}")
+        print(f"  Error: {e.message}")
+        print(f"  Path: {list(e.path)}")
+        raise
+    except SchemaError as e:
+        print(f"✗ Schema error: {schema_path.name}")
+        print(f"  Error: {e.message}")
+        raise
 
-    # Load Data
+
+def main():
+    """Entry point for contract validation."""
+    # Define paths
+    data_path = PROJECT_ROOT / "data" / "derived" / "study_records_raw.json"
+    schema_path = PROJECT_ROOT / "specs" / "contracts" / "study_record.schema.yaml"
+
+    print("Running contract validation (T011)...")
+    print(f"  Data: {data_path}")
+    print(f"  Schema: {schema_path}")
+
     try:
-        with open(data_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-    except json.JSONDecodeError as e:
-        print(f"FAIL: Invalid JSON in {data_file}: {e}")
-        return False
+        validate_file_against_schema(data_path, schema_path)
+        print("\nContract test T011 PASSED.")
+        return 0
+    except FileNotFoundError as e:
+        print(f"\n✗ Error: {e}")
+        return 1
+    except (ValidationError, SchemaError) as e:
+        print(f"\n✗ Contract test T011 FAILED.")
+        return 1
     except Exception as e:
-        print(f"FAIL: Could not load data {data_file}: {e}")
-        return False
+        print(f"\n✗ Unexpected error: {e}")
+        return 1
 
-    # Normalize to list if single object
-    if not isinstance(data, list):
-        data = [data]
-
-    if len(data) == 0:
-        print(f"FAIL: Data file {data_file} is empty.")
-        return False
-
-    # Validate
-    errors = []
-    for i, record in enumerate(data):
-        try:
-            validate(instance=record, schema=schema)
-        except ValidationError as e:
-            errors.append(f"Record {i}: {e.message} (Path: {' -> '.join(str(p) for p in e.absolute_path)})")
-
-    if errors:
-        print(f"FAIL: Schema validation failed for {len(errors)} record(s) in {data_file}:")
-        for err in errors[:5]: # Show first 5
-            print(f"  - {err}")
-        if len(errors) > 5:
-            print(f"  ... and {len(errors) - 5} more errors.")
-        return False
-
-    print(f"PASS: {len(data)} records in {data_file} validated successfully against {schema_file.name}.")
-    return True
 
 if __name__ == "__main__":
-    # Default paths for T011
-    data_path = "data/derived/study_records_raw.json"
-    schema_path = "specs/contracts/study_record.schema.yaml"
-
-    # Allow override via args
-    if len(sys.argv) >= 3:
-        data_path = sys.argv[1]
-        schema_path = sys.argv[2]
-
-    success = validate_file_against_schema(data_path, schema_path)
-    sys.exit(0 if success else 1)
+    sys.exit(main())

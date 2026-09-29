@@ -10,13 +10,14 @@ T010b:
   r: "No evidence of a `logs/citation_validation.log` file was provided, nor any output\
     \ showing it was created or contains entries. The required artifact is missing,\
     \ so the task\u2019s verification requirement is not satisfied."
-T017b:
+T018c:
   c: false
-  h: c06eddcde21084faec28109a1f5314faf47c805f700895c821b65aa5db552ce0
-  r: The repository lacks `data/processed/final_count.txt` and the generated `data/reports/data_availability_report.json`.
-    Moreover, `code/ingestion.py` does not contain a `validate_data_gap()` implementation
-    (the provided excerpt shows no such function). Consequently the required logic
-    and output artifacts are missing.
+  h: 2e6e02c3c62d77ee9b02c2f832d0d70cfa27903f5bb97fa60cf58397e22e3ab8
+  r: "The repository lacks the required `data/raw/curated_literature_raw.json` file,\
+    \ and the shown portion of `code/ingestion.py` does not contain an implementation\
+    \ of `fetch_curated_literature_data()` (nor any logic that fetches, validates,\
+    \ and saves the Zenodo data). Consequently the task\u2019s core requirements are\
+    \ not met."
 T018d:
   c: false
   h: 9f1fb6b8974abebd467f301473a323c1c82619d6a63808239b2c008ba90eaaea
@@ -24,13 +25,6 @@ T018d:
     does not parse all required columns (`sample_count`, `sintering_temp`), does not
     write the raw response to `data/raw/nist_raw.json`, and the fallback logic is
     not invoked. Moreover, the expected output file `data/raw/nist_raw.json` is missing.
-T018e:
-  c: false
-  h: 95360063840c550dfccc3baf1eb5a4fb3bd327ae54df04f21dcc3e4f9ce6c4fa
-  r: The repository lacks the required output file `data/raw/arxiv_raw.json`, and
-    a review of `code/ingestion.py` shows no implementation of `fetch_arxiv_data()`
-    that performs the arXiv search, PDF table extraction, validation, fallback logic,
-    and saving of results as specified. The task therefore remains unfinished.
 T018f:
   c: false
   h: d20e497f53c16924117ed18f0b843eb47c8b091151850a398414ece2ba3686d0
@@ -38,6 +32,13 @@ T018f:
     function is not present (or not fully implemented) and the expected output file
     `data/processed/step_final_cleaned.csv` does not exist. Both the core pipeline
     implementation and its resulting CSV are missing, so the task is not satisfied.
+T018g#1:
+  c: false
+  h: 4dca0ebcc3b3e630b86c4bb8f21e1d0af94caab3c05bec0b1fc2ac95eb151f7c
+  r: The repository lacks a `load_curated_literature_data()` implementation that checks
+    the marker file, validates source URLs, parses the CSV, and writes `data/raw/curated_literature_raw.json`.
+    Moreover, the required `curated_literature_raw.json` file is absent. These missing
+    pieces must be added for the task to be considered complete.
 T020:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -109,6 +110,14 @@ T056:
     \ is now invoked before feature ranking in `generate_interpretation()`, nor that\
     \ VIF >\u202F5 triggers clustering and aggregate importance reporting. The required\
     \ implementation artifact is missing."
+T059a:
+  c: false
+  h: de1e2ddd9ce5237365d03e5b9ec5b169ab5861c531902cd269754ae3d7f839b4
+  r: The repository lacks the required `data/processed/step_range_filtered.csv` file,
+    and the provided excerpt of `code/ingestion.py` does not contain an implementation
+    of `flag_high_variance_ranges()` (the function is absent from the visible code).
+    Both the output artifact and the specified function are missing, so the task is
+    not satisfied.
 T062:
   c: false
   h: 2ec8fa8d37a3a57dd3e10484d029c9bcf2ab991626333b7427e97cdc3ac0d63e

@@ -1,0 +1,121 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Regression Results Schema
+description: >
+  Contract for the output of the regression analysis (T036).
+  Contains model summary, coefficients, VIF diagnostics, and metadata.
+  Explicitly excludes `sample_size_category` from predictors as per plan constraints.
+type: object
+required:
+  - model_summary
+  - coefficients
+  - vif_diagnostics
+  - metadata
+properties:
+  model_summary:
+    type: object
+    description: High-level model fit statistics.
+    required:
+      - r_squared
+      - adj_r_squared
+      - f_statistic
+      - f_statistic_pvalue
+      - n_obs
+      - n_params
+      - formula
+    properties:
+      r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+      adj_r_squared:
+        type: number
+      f_statistic:
+        type: number
+      f_statistic_pvalue:
+        type: number
+        minimum: 0
+        maximum: 1
+      n_obs:
+        type: integer
+        minimum: 30
+      n_params:
+        type: integer
+        minimum: 1
+      formula:
+        type: string
+      model_type:
+        type: string
+        const: OLS
+  coefficients:
+    type: array
+    description: List of regression coefficient estimates.
+    items:
+      type: object
+      required:
+        - term
+        - estimate
+        - std_err
+        - p_value
+        - conf_int
+      properties:
+        term:
+          type: string
+          description: Name of the predictor or intercept.
+        estimate:
+          type: number
+        std_err:
+          type: number
+          minimum: 0
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        conf_int:
+          type: array
+          description: [lower_bound, upper_bound]
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+  vif_diagnostics:
+    type: array
+    description: Variance Inflation Factor for each predictor.
+    items:
+      type: object
+      required:
+        - term
+        - vif_factor
+      properties:
+        term:
+          type: string
+        vif_factor:
+          type: number
+          minimum: 1
+  metadata:
+    type: object
+    description: Execution context and data provenance.
+    required:
+      - generated_at
+      - input_file
+      - excluded_predictors
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      input_file:
+        type: string
+        description: Path to the input power_analysis.csv
+      excluded_predictors:
+        type: array
+        description: List of predictors explicitly excluded from the model.
+        items:
+          type: string
+      version:
+        type: string
+        description: Pipeline version
+  warnings:
+    type: array
+    description: Any warnings generated during execution (e.g., VIF > threshold).
+    items:
+      type: string
+additionalProperties: false

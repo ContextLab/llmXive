@@ -4,8 +4,9 @@ from pathlib import Path
 
 def main():
     """
-    Creates the root directory structure for the project.
-    Directories created:
+    Create the project root directory structure for PROJ-426.
+    
+    Creates the following directories relative to the project root:
     - src/
     - tests/
     - data/
@@ -16,19 +17,13 @@ def main():
     - contracts/
     - config/
     """
-    # Determine the project root.
-    # If this script is run from code/, we go up one level.
-    # If run from root, we stay.
-    script_path = Path(__file__).resolve()
-    # Heuristic: if 'code' is in the path, assume we are inside the code folder
-    # and need to go up to project root.
-    if script_path.parent.name == 'code':
-        project_root = script_path.parent
-    else:
-        # Fallback: assume current working directory is project root
-        project_root = Path.cwd()
+    # Determine project root (assumes script is run from project root or one level up)
+    # We use the directory containing this script as the reference point for safety,
+    # but typically this runs from the repo root.
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent if script_dir.name == 'code' else script_dir
 
-    # Define relative directories to create
+    # Define the required directory structure
     directories = [
         "src",
         "tests",
@@ -51,7 +46,7 @@ def main():
         else:
             print(f"Directory already exists: {target_path}")
 
-    print(f"Setup complete. {created_count} new directories created.")
+    print(f"\nProject structure initialization complete. Created {created_count} new directories.")
     return 0
 
 if __name__ == "__main__":

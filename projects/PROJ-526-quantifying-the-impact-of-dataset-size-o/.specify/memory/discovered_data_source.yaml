@@ -1,17 +1,18 @@
 status: none
-intent: Materials Project AFLOW NIST material properties python package dataset
+intent: download electronic and mechanical material properties dataset Materials Project
+  OQMD AFLOW JARVIS python package dataset
 required_fields:
 - material_id
-- chemical_formula
 - composition
-- property_name
-- property_value
-- units
-- temperature
-- pressure
-- measurement_method
-- source_database
-- property_category
-cache_key: f33f50b36184ebda23506c73dd010fa00786d8dccdc46463f5a16836cf92b16a
-searched_at: '2026-08-03T23:56:18.145571+00:00'
+- structure
+- band_gap
+- electrical_resistivity
+- dielectric_constant
+- elastic_modulus
+- bulk_modulus
+- shear_modulus
+- hardness
+- poisson_ratio
+cache_key: d0d08abac19d6910ea2cc0973b209b3676c61fbc998bff5394fd378cca4d3b91
+searched_at: '2026-09-29T18:39:30.352644+00:00'
 retry_count: 1

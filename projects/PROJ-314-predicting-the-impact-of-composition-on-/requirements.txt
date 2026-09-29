@@ -12,8 +12,7 @@ pdfplumber
 periodictable
 pymatgen
 beautifulsoup4
-python-dotenv
-jsonschema
-numpy
 pydantic
+jsonschema
+python-dotenv
 psutil

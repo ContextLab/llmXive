@@ -115,7 +115,7 @@
  - Implement exponential backoff (max retries, 60s timeout) using `src/utils/retry_policy.py` and `src/utils/rate_limit_handler.py`
  - **Output Artifact**: `data/raw/pushshift_logs.parquet`
 - [ ] T014 [US1] Implement `src/match/user_match.py`:
- - Hash raw usernames using SHA-256
+ - Hash raw usernames using SHA-256 [UNRESOLVED-CLAIM: c_d037e196 — status=not_enough_info]
  - Join datasets on hashed ID
  - Drop unmatched rows (users with no Pushshift logs)
  - Output `data/processed/matched_users.parquet` with anonymized IDs
