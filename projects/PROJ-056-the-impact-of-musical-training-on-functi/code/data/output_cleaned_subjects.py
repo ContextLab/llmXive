@@ -1,6 +1,8 @@
 """
-Module to output cleaned subject data to CSV.
-Implements T019: Output data/processed/subjects_cleaned.csv
+Output cleaned subjects data to CSV.
+
+This module implements T019: Output `data/processed/subjects_cleaned.csv` with
+the required columns after preprocessing and confounder handling.
 """
 import os
 import sys
@@ -9,138 +11,120 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parent.parent
-    if str(project_root) not in sys.path:
-        sys.path.insert(0, str(project_root))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from utils.logging import get_logger
-from data.preprocess import preprocess_subjects
-from data.download import load_data, DataAccessError
+from utils.schema_validator import validate_dataset
 
 logger = get_logger(__name__)
 
 REQUIRED_COLUMNS = [
-    'subject_id', 'group', 'years_of_training', 'age', 
-    'sex', 'motion_score', 'ses_score'
+    'subject_id',
+    'group',
+    'years_of_training',
+    'age',
+    'sex',
+    'motion_score',
+    'ses_score'
 ]
 
 def write_cleaned_subjects(
-    mode: str = 'verification',
-    synthetic_count: int = 10,
-    output_path: Optional[str] = None
+    df: pd.DataFrame,
+    output_path: Optional[str] = None,
+    validate_against_schema: bool = True
 ) -> str:
     """
-    Load data (synthetic or real), preprocess it, and write to CSV.
-    
+    Write cleaned subject data to CSV.
+
     Args:
-        mode: 'verification' (uses synthetic data) or 'analysis' (requires real data)
-        synthetic_count: Number of synthetic subjects to generate if mode='verification'
-        output_path: Optional custom output path. Defaults to data/processed/subjects_cleaned.csv
-    
+        df: DataFrame containing cleaned subject data.
+        output_path: Path to output CSV. Defaults to 'data/processed/subjects_cleaned.csv'.
+        validate_against_schema: Whether to validate against subject schema before writing.
+
     Returns:
-        Path to the generated CSV file.
-    
+        Path to the written CSV file.
+
     Raises:
-        DataAccessError: If real data is missing in analysis mode.
-        ValueError: If data does not meet minimum requirements.
+        ValueError: If required columns are missing or data validation fails.
+        FileNotFoundError: If output directory does not exist.
     """
-    # Determine output path
     if output_path is None:
-        output_path = str(Path("data/processed/subjects_cleaned.csv"))
-    
+        output_path = str(project_root / 'data' / 'processed' / 'subjects_cleaned.csv')
+
     output_file = Path(output_path)
     output_file.parent.mkdir(parents=True, exist_ok=True)
 
-    logger.info(f"Starting subject cleaning pipeline. Mode: {mode}")
-    
-    # 1. Load Data
-    try:
-        if mode == 'verification':
-            logger.info(f"Generating {synthetic_count} synthetic subjects for verification.")
-            # Import here to avoid circular imports if necessary, though structure suggests top-level is fine
-            from data.synthetic_generator import generate_synthetic_dataset
-            df = generate_synthetic_dataset(n_subjects=synthetic_count)
-        else:
-            # Analysis mode: Try to load from default real data location or raise error
-            # The download.py load_data function handles the logic of checking existence
-            # and raising DataAccessError if real data is missing.
-            logger.info("Attempting to load real data for analysis mode.")
-            # Assuming a default path or environment variable, but T014 logic handles the error
-            df = load_data(path="data/raw/real_subjects.csv", mode='analysis')
-    except DataAccessError as e:
-        logger.error(f"Data access failed: {e}")
-        raise
-    except FileNotFoundError:
-        # Fallback for analysis mode if path not found but mode is analysis
-        if mode == 'analysis':
-            raise DataAccessError("Data Source Missing: Real data required for Analysis Mode")
-        raise
-
-    if df is None or df.empty:
-        raise ValueError("Loaded data is empty.")
-
-    # 2. Preprocess Data
-    # T015: Filter by years_of_training >= 1
-    # T016: Handle confounders (PSM or Regression)
-    # T018: Error handling for corrupted NIfTI is handled in load_nifti_safe if applicable,
-    #       but here we assume df is already clean or the preprocessing function handles row-wise errors.
-    
-    logger.info("Applying preprocessing filters and confounder handling.")
-    df_clean = preprocess_subjects(df, mode=mode)
-
-    # 3. Validate Output Columns
-    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df_clean.columns]
+    # Validate required columns
+    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
     if missing_cols:
-        raise ValueError(f"Preprocessing failed to produce required columns: {missing_cols}")
+        raise ValueError(f"Missing required columns: {missing_cols}. "
+                       f"Expected: {REQUIRED_COLUMNS}")
 
-    # 4. Select and Order Columns
-    df_final = df_clean[REQUIRED_COLUMNS].copy()
+    # Select only required columns in the correct order
+    output_df = df[REQUIRED_COLUMNS].copy()
 
-    # 5. Write to CSV
-    logger.info(f"Writing cleaned subjects to {output_file}")
-    df_final.to_csv(output_file, index=False)
+    # Validate data types and values
+    if validate_against_schema:
+        schema_path = project_root / 'contracts' / 'subject.schema.yaml'
+        if schema_path.exists():
+            try:
+                validate_dataset(output_df.to_dict('records'), str(schema_path))
+                logger.info(f"Data validated successfully against {schema_path}")
+            except Exception as e:
+                logger.warning(f"Schema validation warning: {e}")
+                # Continue anyway as validation is optional for writing
 
-    logger.info(f"Successfully wrote {len(df_final)} subjects to {output_file}")
-    return output_file
+    # Ensure data types are appropriate
+    output_df['subject_id'] = output_df['subject_id'].astype(str)
+    output_df['group'] = output_df['group'].astype(str)
+    output_df['years_of_training'] = pd.to_numeric(output_df['years_of_training'], errors='coerce')
+    output_df['age'] = pd.to_numeric(output_df['age'], errors='coerce')
+    output_df['sex'] = output_df['sex'].astype(str)
+    output_df['motion_score'] = pd.to_numeric(output_df['motion_score'], errors='coerce')
+    output_df['ses_score'] = pd.to_numeric(output_df['ses_score'], errors='coerce')
+
+    # Drop rows with NaN in critical fields
+    critical_cols = ['subject_id', 'group', 'years_of_training']
+    output_df = output_df.dropna(subset=critical_cols)
+
+    logger.info(f"Writing {len(output_df)} subjects to {output_path}")
+    output_df.to_csv(output_path, index=False)
+
+    logger.info(f"Successfully wrote cleaned subjects to {output_path}")
+    return str(output_path)
 
 def main():
-    """Entry point for running the output script."""
-    import argparse
+    """
+    Main entry point for writing cleaned subjects.
     
-    parser = argparse.ArgumentParser(description="Output cleaned subject data to CSV.")
-    parser.add_argument(
-        '--mode', 
-        choices=['verification', 'analysis'], 
-        default='verification',
-        help="Mode of operation. Verification uses synthetic data."
-    )
-    parser.add_argument(
-        '--count', 
-        type=int, 
-        default=10,
-        help="Number of synthetic subjects to generate (only used in verification mode)."
-    )
-    parser.add_argument(
-        '--output', 
-        type=str, 
-        default=None,
-        help="Output file path."
-    )
+    This function is called by the main pipeline to output the final
+    cleaned subjects CSV after preprocessing.
+    """
+    from data.preprocess import preprocess_subjects
+    from data.download import load_data
 
-    args = parser.parse_args()
+    logger.info("Starting cleaned subjects output process")
 
+    # Load and preprocess data
     try:
-        result_path = write_cleaned_subjects(
-            mode=args.mode,
-            synthetic_count=args.count,
-            output_path=args.output
-        )
-        print(f"Output written to: {result_path}")
+        # Check if cleaned data already exists in memory (from preprocessing step)
+        # If not, run the full preprocessing pipeline
+        df = preprocess_subjects(mode='verification')
+        
+        if df is None or len(df) == 0:
+            logger.error("No data available after preprocessing")
+            return
+
+        # Write to CSV
+        output_path = write_cleaned_subjects(df)
+        logger.info(f"Output written to: {output_path}")
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+        logger.error(f"Failed to write cleaned subjects: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

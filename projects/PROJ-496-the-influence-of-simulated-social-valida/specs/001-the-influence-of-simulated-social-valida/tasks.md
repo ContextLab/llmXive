@@ -334,8 +334,8 @@ With multiple developers:
 
 ### Data Source Verification & Fail-Loud Logic
 
-- [ ] T065 [US1] **Real Data Stream Implementation**: Implement `code/search.py` to support streaming large EEG datasets via `datasets.load_dataset(..., streaming=True)` if a direct download exceeds 14GB disk. **Constraint**: Must accumulate statistics online without loading full dataset into RAM. **Output**: Log streaming status to `data/results/streaming_log.json`. **Dependency**: T057 (must verify source before streaming).
-- [ ] T066 [US2] **Memory-Efficient Epoching**: Refactor `code/preprocess.py` to process EEG data in chunks if the raw file size exceeds a significant threshold, ensuring memory usage stays under a manageable limit. **Technique**: Use `mne.read_raw_edf(..., preload=False)` and process epochs in batches. **Output**: Log chunk processing stats to `data/results/memory_log.json`.
+- [ ] T065 [US1] **Real Data Stream Implementation**: Implement `code/search.py` to support streaming large EEG datasets via `datasets.load_dataset(..., streaming=True)` if a direct download exceeds 14GB disk. **Constraint**: Must accumulate statistics online without loading full dataset into RAM. **Output**: Log streaming status to `data/results/streaming_log.json`. **Dependency**: T057 (must verify source before streaming). <!-- FAILED: unspecified -->
+- [ ] T066 [US2] **Memory-Efficient Epoching**: Refactor `code/preprocess.py` to process EEG data in chunks if the raw file size exceeds a significant threshold, ensuring memory usage stays under a manageable limit. **Technique**: Use `mne.read_raw_edf(..., preload=False)` and process epochs in batches. **Output**: Log chunk processing stats to `data/results/memory_log.json`. <!-- FAILED: unspecified -->
 
 ### Documentation & Reproducibility
 

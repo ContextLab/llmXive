@@ -1,83 +1,93 @@
-# Research: Self-improving LLM: recursive architecture refinement and re‑training
+# Research Report: Self-Improving LLM Recursive Architecture
 
-## 1. Problem Statement & Hypothesis
+## 1. Introduction
+This document outlines the methodology, constraints, and theoretical framework for the recursive self-improvement of Large Language Models (LLMs). The core objective is to establish a system capable of proposing, validating, and integrating architectural modifications that yield lasting performance improvements while adhering to strict safety and resource constraints.
 
-**Problem**: Can a language model recursively improve its own performance by proposing and applying architectural modifications, re-training on a small subset of data, and validating against held-out benchmarks?
+## 2. Methodology for Parameter Limit Determination
 
-**Hypothesis**: A GPT-2 124M model can propose valid architectural modifications that, after re-training, yield statistically significant improvements in reasoning accuracy (GSM8K, ARC) and calibration (BoolQ) for at least one cycle, though gains may plateau or degrade in subsequent cycles due to over-parameterization or catastrophic forgetting.
+### 2.1 The Deferred Parameter Limit Strategy
+To ensure the system operates within feasible computational bounds while maximizing potential gains, the maximum allowable parameter increase ratio (`MAX_PARAM_INCREASE_RATIO`) is determined through a rigorous research-driven methodology rather than a static heuristic.
 
-**Control Hypothesis**: Improvements are driven by increased parameter count (capacity) rather than the model's "intelligence" in proposing topology. A control group with random parameter increases will be used to isolate this effect.
+**Methodology Description:**
+The limit will be determined by analyzing parameter efficiency curves derived from empirical training runs on the target hardware. Specifically, the system will:
+1. Measure the marginal return on investment (ROI) for parameter increases across a range of scaling factors.
+2. Correlate these gains against the memory footprint and FLOP costs calculated during the proposal phase.
+3. Identify the "knee" of the efficiency curve where additional parameters yield diminishing returns relative to the resource cost.
+4. Apply a safety buffer based on the observed variance in RAM usage during peak training epochs.
 
-## 2. Dataset Strategy
+**Current Status:**
+The concrete value for `MAX_PARAM_INCREASE_RATIO` is **[deferred]** pending the completion of the initial scaling analysis (T008a). The configuration defaults to a conservative estimate, but the operational limit must be overridden by the result of the research described above before the recursive loop is enabled for large-scale iterations.
 
-The project relies on four verified datasets. All are accessed via the Hugging Face `datasets` library or direct parquet URLs to ensure reproducibility and programmatic access on CI runners.
+## 3. External Oracle Protocol (FR-021)
 
-| Dataset | Purpose | Source / Verified URL | Access Method | Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| **OpenWebText** | Training corpus | ` | `datasets.load_dataset(..., streaming=True)` | Used for fine-tuning. Streaming prevents RAM overflow. |
-| **GSM8K** | Reasoning Benchmark | ` | `datasets.load_dataset('openai/gsm8k', 'main', split='test')` | Subset of 100 samples used for evaluation (FR-005). |
-| **ARC-Challenge** | Reasoning Benchmark | ` | `datasets.load_dataset('allenai/ai2_arc', 'ARC-Challenge', split='test')` | Subset of 100 samples used for evaluation (FR-005). **Canonical Source**. |
-| **BoolQ** | Calibration Benchmark | `https://huggingface.co/datasets/google-research-datasets/boolq/resolve/main/boolq-test.jsonl` | `datasets.load_dataset('google-research-datasets/boolq', split='test')` | Subset of 1000 samples used for ECE calculation (FR-005). **Increased N for power**. |
+### 3.1 Definition
+The evaluation of any proposed architectural modification is governed by an **External Oracle**. This protocol ensures that the benchmarking process remains immutable and independent of the model's proposal generation process.
 
-**Dataset Fit Analysis**:
-- **OpenWebText**: Contains the raw text required for language modeling fine-tuning. The streaming approach ensures we can process the full corpus without exceeding the 7 GB RAM limit.
-- **GSM8K/ARC/BoolQ**: These are standard OOD (Out-of-Distribution) benchmarks. They are **not** used in training, ensuring independence (Constitution VII).
-- **No Access-Gated Data**: All datasets are publicly available without credentials, satisfying the feasibility constraint for GitHub Actions.
+### 3.2 Operational Rules
+- **Immutability:** The benchmark datasets (GSM8K, ARC-Challenge, BoolQ) and their specific test splits are treated as immutable constants. They are never modified, augmented, or included in the training data for the cycle in which they are used for evaluation.
+- **Separation:** The logic that generates the modification proposal (the "Generative Oracle") is strictly separated from the logic that evaluates the performance (the "External Oracle"). The Generative Oracle has no access to the evaluation metrics during the proposal phase.
+- **Held-Out Data:** All evaluation data is held-out from the training process. The model proposes changes based on its internal state and training loss, but the final validation of "improvement" relies exclusively on the External Oracle's assessment of the held-out benchmarks.
 
-**Baseline Capability Check**:
-Before starting the refinement loop, the baseline GPT-2 124M model will be evaluated. If it achieves near-random performance (<10% accuracy on GSM8K/ARC), the experiment will proceed with the caveat that "improvement" is measured against a very low baseline, or the plan will switch to a zero-shot prompting baseline for comparison.
+## 4. External Validation Protocol
 
-## 3. Methodological Rigor
+### 4.1 Protocol Specification
+To ensure the integrity of the recursive loop, the **External Validation Protocol** mandates that:
+1. Benchmarks are selected from a fixed, pre-defined set that is disjoint from the training corpus.
+2. The evaluation metric calculation is deterministic and reproducible.
+3. The validation process is executed in an isolated environment to prevent contamination of the test data by the model's training process.
+4. Any proposal that fails to demonstrate a statistically significant improvement over the baseline (as determined by the External Oracle) is rejected, regardless of the internal loss reduction observed during training.
 
-### 3.1 Statistical Testing (FR-006, SC-001, SC-002)
-To determine if performance changes are significant, the plan employs **paired bootstrap resampling**:
-- **Method**: Resample the test set (with replacement) $N$ times (where $N=1000$).
-- **Statistic**: Difference in accuracy/ECE between Cycle $i$ and Cycle $i-1$.
-- **Threshold**: $\alpha = 0.05$. A result is significant only if $p < 0.05$ (strictly less).
-- **Correction**: Since multiple benchmarks are tested per cycle, a **Bonferroni correction** will be applied to control the Family-Wise Error Rate (FWER).
-- **Reporting**: In addition to p-values, **effect sizes (Cohen's d)** and **95% confidence intervals** will be reported to address the low power of small samples (N=100).
+## 5. Definition of "Lasting Improvement"
 
-### 3.2 Power & Sample Size
-- **Training Data**: The subset size is initially [deferred] but will be capped at a manageable scale appropriate for the study. If training time exceeds 2 hours per cycle (CPU constraint), the subset will be reduced to a smaller, computationally manageable size. to ensure completion within the -hour budget.
-- **Evaluation Data**:
- - GSM8K/ARC: 100 samples. **Limitation**: Power to detect a 2-5% shift is low (<40%). Results will be interpreted with caution, emphasizing confidence intervals.
- - BoolQ: [deferred] samples. Increased to improve calibration stability and statistical power for ECE.
+### 5.1 Operational Definition
+A modification is considered to yield **lasting improvement** only if the performance gain persists across at least two subsequent training cycles (Turing Review).
 
-### 3.3 Causal Inference & Validity
-- **Observational Nature**: The "improvement" is correlational within the experiment. We cannot claim the model *caused* the improvement in a general sense, only that the specific modification led to a change in the specific benchmark.
-- **Control Group**: A **Random Modification Control** will be implemented. In one cycle, architectural changes (parameter count increases) will be applied randomly rather than by the model's proposal. This isolates the effect of "capacity gain" from "architectural intelligence."
-- **Capacity Normalization**: The linear regression analysis will include "parameter count" as a covariate to disentangle its effect from the specific architectural topology.
-- **Instrument Validity**: GSM8K and ARC are widely accepted benchmarks for reasoning. BoolQ is a standard binary QA task. The plan cites validation literature for these datasets in the final paper.
-- **Collinearity**: Architectural modifications (e.g., increasing hidden size) are inherently correlated with parameter count. The plan will not claim "independent effects" of architecture vs. capacity but will report the trade-off explicitly.
+### 5.2 Criteria
+- **Cycle N:** A proposal is accepted if it shows improvement over the baseline.
+- **Cycle N+1:** The model, now incorporating the modification, must be subjected to a new proposal cycle. If the modification degrades or fails to maintain its advantage in the presence of further optimization, it is deemed transient.
+- **Cycle N+2:** The improvement must be stable and reproducible. Only after passing the N+1 and N+2 checks is the improvement classified as "lasting."
+- **Distinction:** This definition distinguishes between single-epoch gains (which may be overfitting or noise) and genuine architectural advancements that survive the stress of recursive optimization.
 
-### 3.4 Separation of Logic (Constitution VII)
-- **Generative Logic**: The model proposes a change (e.g., "increase layers").
-- **Verification Logic**: An external oracle (hardcoded rules) validates the change against constraints (parameter count, distinctness).
-- **Evaluation Logic**: Benchmarks run on held-out data.
-- **No Circular Validation**: The evaluation data is never seen by the generative model during the proposal phase.
+## 6. Rollback Mechanism
 
-## 4. Compute Feasibility (CPU-First)
+### 6.1 Specification
+The system must implement a robust **Rollback Mechanism** to prevent catastrophic degradation.
 
-### 4.1 CPU Strategy & Fallback
-- **Model**: GPT (a medium-scale language model).
-- **Training**: 1 epoch, batch size 4, AdamW.
-- **Hardware**: GitHub Actions (multi-core CPU, several GB RAM).
-- **Feasibility**: GPT with a smaller parameter count fits in ~500MB VRAM/RAM.
-- **Time Budget**: 12 hours total for 3 cycles.
-- **Fallback Strategy**: If training a cycle exceeds 2 hours (estimated), the training subset size will be automatically reduced from the initial [deferred] value to **[deferred] samples**. This ensures the experiment completes within the time budget, even if statistical power for training is reduced.
-- **Streaming**: Data is streamed to avoid loading the full large-scale OpenWebText corpus into RAM.
+### 6.2 Trigger Conditions
+- If the performance on the External Oracle benchmarks drops below a predefined threshold (e.g., 5% degradation from the previous stable checkpoint).
+- If the system detects an infinite loop of failed proposals.
+- If resource constraints (RAM/FLOPs) are violated in a manner that cannot be resolved by the current optimization strategy.
 
-### 4.2 GPU Escape Hatch (Not Required)
-- The plan is designed to run entirely on CPU. No CUDA or 8-bit quantization is required for GPT-2 124M. If the training time exceeds limits, the strategy is to **reduce the training subset size**, not to offload to a GPU (which is not available on the free tier).
+### 6.3 Action
+Upon triggering, the system MUST revert to the previous stable checkpoint (the last known good state) and log the failure event. The failed proposal is recorded in the history to inform future generations, but the active model is restored to its pre-failure state.
 
-## 5. Risk Analysis
+## 7. Scaling Law Analysis (West Review)
 
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Training Failure** | Cycle aborts. | Retry up to 2 times (FR-012). If failed, log and proceed to next cycle (FR-007). |
-| **Performance Degradation** | >5% drop from baseline. | Early termination (FR-015). |
-| **API Rate Limits** | Data download fails. | Exponential backoff (FR-011). |
-| **RAM Overflow** | OOM crash. | Use `streaming=True` for datasets; limit batch size. |
-| **Modification Rejection** | Model proposes invalid change. | Oracle rejects and prompts for new proposal (FR-003, FR-020). |
-| **Low Statistical Power** | Inconclusive results. | Report effect sizes and confidence intervals; increase BoolQ sample size to a sufficient magnitude for robust statistical analysis. |
-| **Time Exceeded** | Job fails. | Reduce training subset to [deferred] samples if cycle time > 2h. |
+### 7.1 Expected Trajectory
+Per the insights from Geoffrey West, we anticipate a power-law decay in the magnitude of improvement gains as the number of iterations increases. The relationship between performance gain (Δperformance) and iteration count (n) is expected to follow:
+Δperformance ∝ n^(-α)
+
+### 7.2 Thermodynamic Bounds
+The recursion is bounded by thermodynamic constraints: the energy required to compute the next improvement must be less than the value of the improvement itself. The system will track the "cost of recursion" to ensure it remains within feasible bounds.
+
+## 8. Computational Irreducibility (Wolfram Review)
+
+### 8.1 No Closed-Form Prediction
+Consistent with the principle of Computational Irreducibility, it is explicitly stated that no closed-form prediction of improvement trajectories exists. The behavior of the recursive system cannot be shortcut; it must be empirically mined.
+
+### 8.2 Methodology
+The system relies on **empirical mining of the architecture rule space**. We cannot predict the outcome of a modification without actually running the training cycle and evaluating it. The "search" for improvement is a computational process that must be executed step-by-step.
+
+## 9. Recursive Improvement vs. Recursive Adaptation (Krakauer Review)
+
+### 9.1 Distinction
+- **Recursive Improvement:** The optimization of a fixed objective function (e.g., minimizing loss on a static benchmark). This is a gradient-based search for a local optimum.
+- **Recursive Adaptation:** The evolutionary navigation of blind spots in changing environments. This involves modifying the objective function or the search strategy itself to survive in a dynamic context.
+
+### 9.2 Metric for "Stupidity"
+To quantify the cost of error in changing environments, we define a metric for "stupidity" (S):
+S = (Cost of Correction) / (Rate of Environmental Change)
+A system with high S is unable to adapt quickly enough to changes, leading to a high cost of correction. The system aims to minimize S by balancing the speed of adaptation with the stability of the learned representations.
+
+## 10. Conclusion
+This research document establishes the foundational protocols for the self-improving LLM project. By deferring the parameter limit to a data-driven methodology, enforcing an immutable External Oracle, and distinguishing between transient and lasting improvements, the system is designed to explore the boundaries of recursive self-modification safely and effectively.

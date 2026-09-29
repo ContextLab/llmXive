@@ -93,7 +93,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 - [X] T011 [P] [US1] Unit test for filtering logic (≥1 year threshold) in `tests/unit/test_preprocess.py`: Implement `test_filter_by_training_years` with assertion `assert len(df[df['years_of_training'] >= 1]) == expected_count` and `assert 'years_of_training' in df.columns`.
 - [X] T012 [P] [US1] Unit test for confounder matching (propensity score or regression) in `tests/unit/test_matching.py`: Implement `test_matching_balance` with assertion `assert abs(df['age'].mean() - expected_age) < 0.1` and `assert df['sex'].value_counts()['M'] > 0`.
-- [ ] T013 [P] [US1] Integration test for full ingestion pipeline on synthetic data in `tests/integration/test_ingestion.py`: Implement `test_full_ingestion` with assertion `assert os.path.exists('data/processed/subjects_cleaned.csv')` and `assert len(pd.read_csv('data/processed/subjects_cleaned.csv')) == 10`.
+- [ ] T013 [P] [US1] Integration test for full ingestion pipeline on synthetic data in `tests/integration/test_ingestion.py`: Implement `test_full_ingestion` with assertion `assert os.path.exists('data/processed/subjects_cleaned.csv')` and `assert len(pd.read_csv('data/processed/subjects_cleaned.csv')) == 10`. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -156,7 +156,7 @@ Examples of foundational tasks (adjust based on your plan):
 
 - [X] T035 [US3] Implement `code/analysis/correlation.py` to compute Pearson/Spearman correlation between `years_of_training` and connectivity strength (musicians only). **Input**: Per-subject connectivity matrices from T024/T025. **Note**: This task uses the raw matrices, NOT the group stats from T030.
 - [X] T036 [US3] Implement calculation of 95% CI for correlation coefficients in `code/analysis/correlation.py`.
-- [ ] T037 [US3] Implement `code/analysis/sensitivity.py` to sweep thresholds across a range of low to moderate values. and count significant connections.
+- [X] T037 [US3] Implement `code/analysis/sensitivity.py` to sweep thresholds across a range of low to moderate values. and count significant connections.
 - [ ] T038 [US3] Implement stability check: Flag "low stability" in `correlation_results.csv` if 95% CI includes zero at **ANY** swept threshold (0.01, 0.05, 0.10). Output `stability_flag` column with values "low"/"high".
 - [ ] T039 [US3] Output `data/processed/correlation_results.csv` with `connection_id`, `r_value`, `p_value`, `effect_size`, `ci_95`, `stability_flag`.
 - [ ] T040 [US3] Output `data/processed/sensitivity_analysis.csv` with `threshold`, `significant_count`, `stability_flag`.
@@ -170,8 +170,8 @@ Examples of foundational tasks (adjust based on your plan):
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T041 [P] Documentation updates in `quickstart.md` (how to run verification vs analysis mode)
-- [ ] T042 Code cleanup and refactoring of `code/main.py`
-- [ ] T043 Run `memory_profiler` on `code/main.py` to identify the largest memory bottleneck (peak RSS). If peak > 6GB, refactor `code/main.py` to use `dask` or chunked loading. **Verify**: Peak memory < 7GB after refactor.
+- [X] T042 Code cleanup and refactoring of `code/main.py`
+- [X] T043 Run `memory_profiler` on `code/main.py` to identify the largest memory bottleneck (peak RSS). If peak > 6GB, refactor `code/main.py` to use `dask` or chunked loading. **Verify**: Peak memory < 7GB after refactor.
 - [ ] T044 [P] Additional unit tests for edge cases (0 years training, missing data) in `tests/unit/`
 - [ ] T045 Run `quickstart.md` validation to ensure pipeline executes end-to-end
 

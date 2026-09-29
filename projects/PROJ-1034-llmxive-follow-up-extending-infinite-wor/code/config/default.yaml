@@ -1,42 +1,32 @@
-# Default simulation configuration for llmXive
-# This file defines the target steps and other default parameters.
+# Default configuration for llmXive simulation pipeline
+# Task T026b: Configuration loading logic reads target_steps from this file
 
-simulation:
-  # Target number of steps for the simulation run.
-  # This is a hard constraint; the run must reach at least this many steps.
-  # If the run is terminated early due to timeout/memory, it is flagged as 'Time-Bound'.
-  target_steps: 2000
-  
-  # Default seed for reproducibility (can be overridden by CLI or env)
-  default_seed: 42
-  
-  # Memory limit in MB (soft limit for warning, hard limit for termination)
-  memory_limit_mb: 7000
-  
-  # Time limit in seconds (for timeout enforcement)
-  time_limit_seconds: 3600
+# Simulation parameters
+target_steps: 10000
+seed: 42
+memory_limit_mb: 7000
+time_limit_seconds: null
 
-# Agent configuration defaults
-agents:
-  ca_eco_director:
-    enabled: true
-    params:
-      neighborhood_radius: 1
-      memory_depth: 3
-      non_linearity: 0.5
+# Agent specific parameters
+ca_eco_director:
+  neighborhood_radius: 3
+  memory_depth: 5
+  non_linearity: 0.8
+  update_rule: "majority_with_noise"
 
-  neural_baseline:
-    enabled: true
-    params:
-      model_type: "throttled_proxy"
-      throttling_factor: 0.1
+neural_baseline:
+  model_type: "throttled_proxy"
+  throttle_factor: 0.1
+  hidden_size: 64
 
-# Output paths
+# Data parameters
+dataset:
+  name: "simulation_dataset"
+  streaming: true
+  chunk_size: 1000
+
+# Output paths (relative to project root)
 output:
-  raw_dir: "data/raw"
-  processed_dir: "data/processed"
-  log_file: "logs/simulation.log"
-  
-# Flags for run status
-flags:
-  time_bound_threshold_steps: 1000  # Minimum steps to consider a partial run valid
+  raw: "data/raw"
+  processed: "data/processed"
+  logs: "logs"

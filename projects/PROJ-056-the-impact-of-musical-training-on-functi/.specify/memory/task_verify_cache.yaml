@@ -1,17 +1,14 @@
-T007:
+T038:
   c: false
-  h: b4297ca3d288dd5313e5df7c0ed1b3e4be1312966aa6f19cda67823d1b7fe673
-  r: "The `code/data/models.py` file is present but the `ConnectivityMatrix` class\
-    \ definition is cut off (truncated after `if self.matrix.ndim !=`) and the required\
-    \ `contracts/subject.schema.yaml` file does not exist, so the validation cannot\
-    \ be verified against the specified schema. The task\u2019s mandatory artifacts\
-    \ are therefore missing or incomplete."
-T013:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `correlation_results.csv` (or any updated file) was provided, and there is\
+    \ no evidence that a `stability_flag` column was added to flag low stability when\
+    \ the 95\u202F% CI includes zero at any of the swept thresholds. The required\
+    \ output artifact is missing."
+T041:
   c: false
-  h: 368bb0a815b686c47c93f98ea1fe6a2f9d19e3994873af285da3953c2648b295
-  r: "The provided `tests/integration/test_ingestion.py` defines `test_full_ingestion`,\
-    \ but it checks a temporary file (`tmp_path / \"subjects_cleaned.csv\"`) instead\
-    \ of asserting the existence of `'data/processed/subjects_cleaned.csv'` as required,\
-    \ and therefore does not contain the exact assertions specified in the task. Moreover,\
-    \ the expected output file `data/processed/subjects_cleaned.csv` is missing from\
-    \ the repository. The task\u2019s requirement is not genuinely satisfied."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file or excerpt showing the required documentation updates
+    (how to run verification vs analysis mode) was provided. Without the actual markdown
+    content, the claim cannot be verified as fulfilled. The implementer must supply
+    the updated `quickstart.md` with the specified instructions.

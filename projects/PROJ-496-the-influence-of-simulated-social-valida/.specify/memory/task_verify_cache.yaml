@@ -13,3 +13,36 @@ T024:
     \ the only evidence is the task description itself, which does not constitute\
     \ the artifact. The implementer must supply the actual epoching implementation\
     \ (e.g., a function or pipeline step) and any associated tests or usage examples."
+T035:
+  c: false
+  h: 8e943ab3332de48fb0cda3568c541b73cf4cafff29738939bf99c366b68d397b
+  r: "The repository contains `code/report.py`, but the required output file `data/results/erp_waveform.png`\
+    \ is missing, and the script falls back to a placeholder plot when data are absent.\
+    \ No real line\u2011plot with axes labels and a legend has been generated, so\
+    \ the task\u2019s output requirement is not satisfied. The next implementer must\
+    \ ensure the script runs on actual ERP data and writes a proper PNG file at the\
+    \ specified location."
+T051:
+  c: false
+  h: 4588f37ad004cb5bf07776e5ecde9e8c2107d20eea70b2d90754c8596945d261
+  r: "The repository contains `code/analyze.py`, but the core functions are stubs\
+    \ (e.g., `fit_linear_mixed_model` returns a dummy dict, `generate_model_summary`\
+    \ does nothing) and no `data/results/model_summary.csv` file is present. Consequently\
+    \ the script does not actually fit the specified mixed\u2011effects model nor\
+    \ produce the required summary CSV with fixed effects, p\u2011values, effect sizes,\
+    \ and Bayes factor."
+T065:
+  c: false
+  h: d646b32514ef29e7a981e4c426898628e0cba4754bb3e3dc8915b00d0a4dda0e
+  r: "The provided `code/search.py` contains only dataset\u2011search utilities and\
+    \ mock API calls; it never uses `datasets.load_dataset(..., streaming=True)`,\
+    \ does not check dataset size, nor accumulates statistics online. Moreover, the\
+    \ required `data/results/streaming_log.json` file is absent. The task\u2019s core\
+    \ streaming functionality and logging are missing."
+T066:
+  c: false
+  h: 07ce0d582ff759dfaf81abc067c0c4f7b4d68ca894e07755be7111237130fee4
+  r: "The `preprocess.py` file still loads raw data with `preload=True` and contains\
+    \ no implementation of chunked/batch epoch processing, nor does it write any statistics\
+    \ to `data/results/memory_log.json` (the file is missing). The required memory\u2011\
+    efficient refactor and logging are not present."

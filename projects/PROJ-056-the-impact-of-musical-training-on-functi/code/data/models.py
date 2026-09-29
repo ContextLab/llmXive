@@ -30,9 +30,12 @@ class Subject:
     ses_score: float
 
     def __post_init__(self):
-        """Validate the subject data."""
+        """Validate the subject data against schema constraints."""
         if not self.subject_id:
             raise ValidationError("subject_id cannot be empty")
+        
+        if not re.match(r"^[A-Za-z0-9_-]+$", self.subject_id):
+            raise ValidationError(f"Invalid subject_id format: {self.subject_id}. Must be alphanumeric, underscores, or hyphens.")
         
         if self.group not in ['musician', 'non_musician']:
             raise ValidationError(f"Invalid group: {self.group}. Must be 'musician' or 'non_musician'.")
@@ -41,7 +44,7 @@ class Subject:
             raise ValidationError("years_of_training cannot be negative")
         
         if self.age < 0 or self.age > 120:
-            raise ValidationError(f"Invalid age: {self.age}")
+            raise ValidationError(f"Invalid age: {self.age}. Must be between 0 and 120.")
         
         if self.sex not in ['M', 'F']:
             raise ValidationError(f"Invalid sex: {self.sex}. Must be 'M' or 'F'.")
@@ -53,7 +56,7 @@ class Subject:
             raise ValidationError("ses_score cannot be negative")
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert subject to dictionary."""
+        """Convert subject to dictionary matching schema properties."""
         return {
             'subject_id': self.subject_id,
             'group': self.group,
@@ -68,13 +71,13 @@ class Subject:
     def from_dict(cls, data: Dict[str, Any]) -> Subject:
         """Create a Subject from a dictionary."""
         return cls(
-            subject_id=data['subject_id'],
+            subject_id=str(data['subject_id']),
             group=data['group'],
-            years_of_training=data['years_of_training'],
-            age=data['age'],
+            years_of_training=float(data['years_of_training']),
+            age=float(data['age']),
             sex=data['sex'],
-            motion_score=data['motion_score'],
-            ses_score=data['ses_score']
+            motion_score=float(data['motion_score']),
+            ses_score=float(data['ses_score'])
         )
 
 @dataclass

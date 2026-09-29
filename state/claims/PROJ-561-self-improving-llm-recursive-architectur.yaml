@@ -2962,3 +2962,22 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T06:52:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: 'validation datasets: GSM8K, ARC-Challenge, BoolQ'
+  claim_id: c_eda61bff
+  context: 'Held-Out Benchmarks: The datasets used for validation (GSM8K, ARC-Challenge,
+    BoolQ) are strictly held-out from the training data and the proposal generation
+    context.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_datasets:_GSM8K,_ARC-Challenge,_BoolQ
+  kind: entity_fact
+  raw_text: The datasets used for validation are GSM8K, ARC-Challenge, and BoolQ.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T03:38:48Z'
