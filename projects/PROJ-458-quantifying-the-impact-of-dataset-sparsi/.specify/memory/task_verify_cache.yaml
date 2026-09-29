@@ -1,10 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `project_structure.txt` file or directory listing was supplied, and there
-    is no evidence that the requested directories (`code/utils`, `data/raw`, etc.)
-    actually exist. The implementer must provide the `ls -R` output (or equivalent)
-    and the generated `project_structure.txt` containing the full directory tree.
 T003:
   c: true
   h: f3dd7622761f2990f26fb6f7e199b94d073e7332ca96f8732a1c8a72876f53ec
@@ -20,14 +13,6 @@ T020:
     \ sampling on formation_energy bins, and only saves `test_set.csv` (no `test_set_indices.csv`).\
     \ Moreover, the raw pool file and the expected output files are missing. The implementation\
     \ does not meet the task\u2019s specifications."
-T024:
-  c: false
-  h: fdd43d2657fb6351f0f864e0d8b6e0da14d82c5391e6b3f8d262bf86dde6741b
-  r: "The provided `code/data_ingestion.py` lacks the required assertion that the\
-    \ downloaded count meets the `RSS_SIZE` configuration and does not include logic\
-    \ to obtain a large list of material IDs (the source CSV is missing). Moreover,\
-    \ the expected output file `data/raw/raw_pool.csv` does not exist. These missing\
-    \ pieces mean the task\u2019s requirements are not satisfied."
 T034:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

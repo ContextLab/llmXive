@@ -1,1 +1,1 @@
-# Final results and reports storage
+# This file marks the directory as a Python package.

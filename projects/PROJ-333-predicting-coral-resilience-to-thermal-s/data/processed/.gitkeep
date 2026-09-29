@@ -1,2 +1,2 @@
-# Directory for processed data (count matrices, DGE results, etc.)
-# This file ensures the directory is tracked by git.
+# Directory for processed data (count matrices, RDS files, etc.)
+# Git keeps this directory even if empty

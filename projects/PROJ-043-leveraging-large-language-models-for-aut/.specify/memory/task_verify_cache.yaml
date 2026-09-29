@@ -1,10 +1,28 @@
 T002:
   c: false
-  h: cf3e95d335822bd68cc0b0424ac87982e28213962f9a4e41c49f50c95431de3b
-  r: The required file `projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt`
-    does not exist, and the existing `requirements.txt` files either have version
-    ranges or extra/unpinned packages that do not match the exact list specified.
-    The task therefore remains unfinished.
+  h: 824c0ead6f63077a5bb40f6a40a742c866146cc1a8ce29c4b524feb1828ac447
+  r: "The required file `projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt`\
+    \ does not exist, so the pinned dependency list is not placed at the specified\
+    \ location. A `code/requirements.txt` with the correct versions is present, but\
+    \ it is in the wrong path, and the top\u2011level `requirements.txt` uses version\
+    \ ranges instead of the exact pins. The task therefore remains unfinished."
+T011:
+  c: false
+  h: cb69fcb73f4a9c075eb1840700c9f1489438197807e48006453b658557ecd2d3
+  r: "The provided `test_full_pipeline_produces_json` writes to a temporary file (`test_raw_metrics.json`)\
+    \ and never checks for `data/processed/raw_metrics.json`, nor does it verify any\
+    \ required keys. Moreover, the expected output file `data/processed/raw_metrics.json`\
+    \ is missing from the repository. The task\u2019s requirement is therefore not\
+    \ satisfied."
+T014:
+  c: false
+  h: e5fb707194b45f0dead3b6e7976e3b584d20da8fe43f08a1721728e83b1e9abb
+  r: "The repository lacks the required `data/processed/raw_metrics.json` output file\
+    \ and the `contracts/output.schema.yaml` schema file, both needed for validation.\
+    \ Moreover, the provided `processor.py` snippet does not demonstrate the required\
+    \ performance logging (functions per second, time\u2011vs\u2011limit ratio) or\
+    \ explicit schema validation against the missing schema. These missing artifacts\
+    \ prevent the task from being considered fully satisfied."
 T018:
   c: false
   h: cfd198c02874cc5872fbe2ff842ff50d5a36032515da0f19a3e3815aec26db71

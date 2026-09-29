@@ -1,1 +1,1 @@
-# Schema and contract definitions
+# This file marks the directory as a Python package.

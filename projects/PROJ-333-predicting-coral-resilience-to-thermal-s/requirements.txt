@@ -1,4 +1,4 @@
-# Existing dependencies from T002
+# Existing dependencies
 biopython
 pysam
 scipy
@@ -6,10 +6,7 @@ pandas
 matplotlib
 gprofiler-official
 rpy2
-
-# New dependencies for T018 (Reference Loader)
-# wget is often a system binary, but we use urllib as fallback.
-# No new Python packages strictly required for the logic above,
-# but ensuring robustness:
-requests>=2.28.0
-tqdm>=4.64.0  # For progress bars if we add them later
+requests
+# T018 Dependencies
+# requests is added for robust HTTP handling during download and checksum verification.
+# Salmon is expected to be installed via system package manager (conda/apt) and available in PATH.

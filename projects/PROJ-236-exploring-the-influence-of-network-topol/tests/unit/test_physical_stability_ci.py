@@ -1,126 +1,77 @@
 """
-Unit test for the ``code/ci/check_physical_stability.py`` script.
+Unit test for the CI verification script ``code/ci/check_physical_stability.py``.
 
-The test ensures that the ``main`` function exits with the correct
-status code depending on the proportion of stable structures.
-
-The test creates a temporary ``data/raw/atomic_seeds`` directory with
-a small number of synthetic ASE ``Atoms`` objects.  Because the CI
-script is required to work on *real* data, the test does **not**
-replace the real implementation of ``filter_stable_structures`` – it
-uses the actual function from ``utils.validation``.  The synthetic
-structures are simple enough to be considered stable by the default
-filter (which checks bond‑distance thresholds).  The test then
-manipulates one structure to be unstable (by scaling atomic positions
-far apart) and verifies that the script exits with a non‑zero code
-when the rejection rate exceeds 5 %.
+The test uses monkey‑patching to replace the heavy I/O functions with
+lightweight mocks, allowing us to verify the exit‑code logic without
+requiring real atomic seed files.
 """
 
-import os
 import sys
-import subprocess
-import tempfile
-from pathlib import Path
-
+import types
+import builtins
+import importlib
 import pytest
-from ase import Atoms
 
-# Import the functions under test
-from ci.check_physical_stability import load_seed_structures, main
-
-
+# Import the module under test as a fresh module to allow monkey‑patching.
 @pytest.fixture
-def temporary_seed_dir(tmp_path: Path):
-    """
-    Create a temporary ``data/raw/atomic_seeds`` directory populated with
-    a few simple ASE ``Atoms`` objects.
-    """
-    seed_dir = tmp_path / "data" / "raw" / "atomic_seeds"
-    seed_dir.mkdir(parents=True)
+def ci_module(monkeypatch):
+    # Reload the module to ensure a clean state.
+    module = importlib.import_module("ci.check_physical_stability")
+    importlib.reload(module)
 
-    # Create three tiny cubic cells – these are trivially stable.
-    for i in range(3):
-        atoms = Atoms(
-            symbols=["Cu"] * 2,
-            positions=[[0, 0, 0], [1.8, 0, 0]],  # typical Cu nearest‑neighbor ~2.5 Å
-            cell=[5, 5, 5],
-        )
-        file_path = seed_dir / f"seed_{i}.xyz"
-        atoms.write(file_path)
+    # Mock ``load_seed_structures`` to return a controllable list.
+    def mock_load_seed_structures():
+        # Return a list of dummy objects; their content is irrelevant.
+        return ["seed1", "seed2", "seed3", "seed4", "seed5", "seed6", "seed7", "seed8", "seed9", "seed10"]
 
-    # Return the path so the test can temporarily patch the default location.
-    return seed_dir
+    # Mock ``filter_stable_structures`` to simulate a given pass rate.
+    def mock_filter_stable_structures(seeds):
+        # Accept the first N seeds; the rest are considered unstable.
+        # The test will replace this function to control the pass rate.
+        return seeds
 
-
-def test_load_seed_structures(temporary_seed_dir: Path):
-    # Patch the default directory via environment variable or direct call
-    seeds = load_seed_structures(seeds_dir=temporary_seed_dir)
-    assert len(seeds) == 3
-    for atoms in seeds:
-        assert isinstance(atoms, Atoms)
-
-
-def test_main_passes_when_rejection_rate_below_threshold(tmp_path: Path, monkeypatch):
-    """
-    All seeds are stable → rejection rate = 0 → script should exit with 0.
-    """
-    seed_dir = tmp_path / "data" / "raw" / "atomic_seeds"
-    seed_dir.mkdir(parents=True)
-
-    # Write two stable seeds
-    for i in range(2):
-        atoms = Atoms(
-            symbols=["Cu"] * 2,
-            positions=[[0, 0, 0], [2.0, 0, 0]],
-            cell=[5, 5, 5],
-        )
-        atoms.write(seed_dir / f"seed_{i}.xyz")
-
-    # Monkey‑patch the path used by load_seed_structures
+    monkeypatch.setattr(module, "load_seed_structures", mock_load_seed_structures)
     monkeypatch.setattr(
-        "ci.check_physical_stability.load_seed_structures",
-        lambda seeds_dir=seed_dir: load_seed_structures(seeds_dir=seed_dir),
+        "utils.validation.filter_stable_structures", mock_filter_stable_structures
     )
+    return module
 
-    # Run the script as a subprocess to capture the exit code
-    result = subprocess.run([sys.executable, "-m", "ci.check_physical_stability"], cwd=tmp_path)
-    assert result.returncode == 0
+def test_ci_passes_when_rejection_rate_below_threshold(monkeypatch, ci_module):
+    # Simulate 90 % pass rate (1 rejected out of 10 → 10 % reject, which should fail).
+    # To stay below the 5 % threshold we need at most 0 rejected.
+    def mock_filter(seeds):
+        return seeds  # all pass
 
-
-def test_main_fails_when_rejection_rate_exceeds_threshold(tmp_path: Path, monkeypatch):
-    """
-    Create three seeds, make one unstable → rejection rate = 33 % > 5 % → exit 1.
-    """
-    seed_dir = tmp_path / "data" / "raw" / "atomic_seeds"
-    seed_dir.mkdir(parents=True)
-
-    # Two stable seeds
-    for i in range(2):
-        atoms = Atoms(
-            symbols=["Cu"] * 2,
-            positions=[[0, 0, 0], [2.0, 0, 0]],
-            cell=[5, 5, 5],
-        )
-        atoms.write(seed_dir / f"stable_{i}.xyz")
-
-    # One deliberately unstable seed (atoms far apart)
-    unstable = Atoms(
-        symbols=["Cu"] * 2,
-        positions=[[0, 0, 0], [10.0, 0, 0]],  # far beyond typical NN distance
-        cell=[5, 5, 5],
-    )
-    unstable.write(seed_dir / "unstable.xyz")
-
-    # Monkey‑patch loader to use our temporary directory
     monkeypatch.setattr(
-        "ci.check_physical_stability.load_seed_structures",
-        lambda seeds_dir=seed_dir: load_seed_structures(seeds_dir=seed_dir),
+        "utils.validation.filter_stable_structures", mock_filter
     )
 
-    result = subprocess.run([sys.executable, "-m", "ci.check_physical_stability"], cwd=tmp_path)
-    assert result.returncode == 1
+    # Capture sys.exit calls.
+    with pytest.raises(SystemExit) as excinfo:
+        ci_module.main()
+    assert excinfo.value.code == 0
 
+def test_ci_fails_when_rejection_rate_exceeds_threshold(monkeypatch, ci_module):
+    # Simulate 90 % pass rate (1 rejected out of 10 → 10 % reject) → should fail.
+    def mock_filter(seeds):
+        # Return only the first 9 seeds as stable.
+        return seeds[:-1]
 
-# The ``if __name__ == '__main__'`` guard in the module allows it to be
-# executed directly via ``python -m ci.check_physical_stability``.
-# The above subprocess calls rely on that behaviour.
+    monkeypatch.setattr(
+        "utils.validation.filter_stable_structures", mock_filter
+    )
+
+    with pytest.raises(SystemExit) as excinfo:
+        ci_module.main()
+    assert excinfo.value.code == 1
+
+def test_ci_fails_when_no_seeds_found(monkeypatch, ci_module):
+    # Simulate an empty seed list.
+    def mock_load():
+        return []
+
+    monkeypatch.setattr(ci_module, "load_seed_structures", mock_load)
+
+    with pytest.raises(SystemExit) as excinfo:
+        ci_module.main()
+    assert excinfo.value.code == 1

@@ -1,14 +1,15 @@
 [tool.black]
 line-length = 120
 target-version = ["py311"]
-include = '\\.pyi?$'
+skip-string-normalization = true
+include = '\.pyi?$'
 exclude = '''
 /(
-    \\.git
-  | \\.hg
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
   | _build
   | buck-out
   | build
@@ -17,8 +18,7 @@ exclude = '''
 '''
 
 [tool.ruff]
-line-length = 120
-# Disable all linting rules; the pipeline only checks that ruff runs without errors.
 select = []
 ignore = []
-exclude = ["__pycache__", "build", "dist", ".git"]
+line-length = 120
+target-version = "py311"

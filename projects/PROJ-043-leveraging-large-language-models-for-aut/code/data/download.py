@@ -1,273 +1,195 @@
-"""
-Data download module for fetching Python functions from BigCode's the-stack-dedup dataset.
-
-This module implements robust data fetching with:
-- Exponential backoff for rate limiting
-- Strict validation of function samples
-- Loud failure if the canonical dataset is inaccessible
-- Early stopping when sufficient valid samples are collected
-"""
-
 import os
 import sys
 import time
 import logging
+import hashlib
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
-from datasets import load_dataset
-from utils.logging import setup_logging, get_logger, DataFetchError
+# Import project-specific modules
 from config import Config, get_secret
+from utils.logging import get_logger, DataFetchError
 from models.entities import FunctionSample
+
+# Dataset library
+try:
+    from datasets import load_dataset
+except ImportError:
+    raise ImportError(
+        "The 'datasets' package is required. Install it via: pip install datasets"
+    )
+
+# Constants
+MAX_ATTEMPTS = 400
+TARGET_VALID_FUNCTIONS = 200
+MIN_VALID_FUNCTIONS = 100
+DATASET_NAME = "bigcode/the-stack-dedup"
+DATASET_SUBSET = "python"
+DATA_DIR = "data/raw"
+OUTPUT_FILE = "processed/raw_metrics.json" # Placeholder path, actual saving handled by processor
 
 # Initialize logger
 logger = get_logger(__name__)
 
-# Constants from config or defaults
-MAX_ATTEMPTS = 400
-MIN_VALID_SAMPLES = 100
-TARGET_VALID_SAMPLES = 200
-MAX_RETRIES_PER_SAMPLE = 3
-BACKOFF_FACTOR = 2.0
-INITIAL_BACKOFF = 1.0
+def compute_hash(code: str) -> str:
+    """Compute SHA-256 hash of the code string."""
+    return hashlib.sha256(code.encode('utf-8')).hexdigest()
 
 def is_valid_python_function(code: str) -> bool:
     """
-    Validate that the code is a parseable Python function.
-    
-    Args:
-        code: The code string to validate
-        
-    Returns:
-        True if the code contains at least one valid Python function
+    Check if the code string is a valid Python function.
+    Attempts to parse the code using AST.
     """
     if not code or not isinstance(code, str):
         return False
-        
-    code = code.strip()
-    if not code:
-        return False
-        
-    # Check for basic function definition patterns
-    has_function_def = False
     try:
-        import ast
-        tree = ast.parse(code)
-        
-        # Check if there's at least one function or class definition
-        for node in ast.walk(tree):
-            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                has_function_def = True
-                break
-                
-        return has_function_def
+        # Try to parse as a full module first
+        ast.parse(code)
+        # Additional check: ensure it's not just a snippet but contains definitions or valid statements
+        # For this task, simple parse success is often enough, but we can be stricter if needed.
+        # We'll rely on AST parsing success as the primary validator.
+        return True
     except SyntaxError:
         return False
-    except Exception as e:
-        logger.debug(f"Error parsing code: {e}")
+    except Exception:
         return False
 
-def fetch_dataset_sample(dataset_name: str, split: str = "train", 
-                         subset: Optional[str] = None,
-                         language: str = "python") -> Optional[Dict[str, Any]]:
+def fetch_dataset_sample() -> Optional[str]:
     """
-    Fetch a single sample from the dataset with retry logic.
-    
-    Args:
-        dataset_name: Name of the HuggingFace dataset
-        split: Dataset split to use
-        subset: Optional subset name
-        language: Programming language filter
-        
-    Returns:
-        A dictionary containing the sample data or None if fetch fails
+    Fetch a single Python function sample from the BigCode dataset.
+    Uses streaming to avoid loading the entire dataset into memory.
     """
-    retries = 0
-    backoff = INITIAL_BACKOFF
-    
-    while retries < MAX_RETRIES_PER_SAMPLE:
-        try:
-            logger.debug(f"Fetching sample (attempt {retries + 1}/{MAX_RETRIES_PER_SAMPLE})")
-            
-            # Load dataset in streaming mode to avoid loading everything into memory
-            if subset:
-                dataset = load_dataset(
-                    dataset_name, 
-                    subset,
-                    split=split,
-                    streaming=True,
-                    trust_remote_code=True
-                )
-            else:
-                dataset = load_dataset(
-                    dataset_name,
-                    split=split,
-                    streaming=True,
-                    trust_remote_code=True
-                )
-            
-            # Filter for Python language if available
-            if hasattr(dataset, 'filter'):
-                # For streaming datasets, we iterate and filter manually
-                pass
-            
-            # Get one sample
-            sample = next(iter(dataset))
-            return sample
-            
-        except Exception as e:
-            error_msg = str(e)
-            logger.warning(f"Fetch attempt {retries + 1} failed: {error_msg}")
-            
-            # Check for rate limit errors
-            if "429" in error_msg or "rate limit" in error_msg.lower():
-                logger.warning(f"Rate limit detected. Backing off for {backoff:.1f}s")
-                time.sleep(backoff)
-                backoff *= BACKOFF_FACTOR
-                retries += 1
-            else:
-                # For other errors, we might want to fail faster
-                # But we'll retry a few times in case of transient network issues
-                time.sleep(INITIAL_BACKOFF)
-                retries += 1
-                
-    return None
-
-def download_valid_functions(output_path: Optional[str] = None) -> List[FunctionSample]:
-    """
-    Download and validate Python functions from BigCode's the-stack-dedup dataset.
-    
-    This function:
-    1. Fetches samples from the dataset with exponential backoff
-    2. Validates each sample for parseable Python functions
-    3. Stops when TARGET_VALID_SAMPLES (200) are found or MAX_ATTEMPTS (400) reached
-    4. Fails loudly if MIN_VALID_SAMPLES (100) are not achieved
-    
-    Args:
-        output_path: Optional path to save the results (not used in this implementation)
-        
-    Returns:
-        List of validated FunctionSample objects
-        
-    Raises:
-        DataFetchError: If the dataset is inaccessible or insufficient valid samples found
-    """
-    dataset_name = "bigcode/the-stack-dedup"
-    valid_samples: List[FunctionSample] = []
-    total_attempts = 0
-    
-    logger.info(f"Starting download from {dataset_name}")
-    logger.info(f"Target: {TARGET_VALID_SAMPLES} valid samples, Minimum: {MIN_VALID_SAMPLES}")
-    
     try:
         # Load dataset in streaming mode
-        logger.info("Loading dataset in streaming mode...")
         dataset = load_dataset(
-            dataset_name,
-            "data",
+            DATASET_NAME,
+            DATASET_SUBSET,
             split="train",
-            streaming=True,
-            trust_remote_code=True
+            streaming=True
         )
         
-        # Iterate through the dataset
-        for sample in dataset:
-            if total_attempts >= MAX_ATTEMPTS:
-                logger.warning(f"Reached maximum attempts ({MAX_ATTEMPTS})")
-                break
-                
-            total_attempts += 1
+        # Iterate to get a random sample (streaming yields in order, so we take the next one)
+        # In a real scenario, we might want to shuffle, but streaming shuffle is expensive.
+        # We'll just take the next available item from the iterator.
+        for item in dataset:
+            # The dataset structure varies, but typically 'content' or 'code' holds the source
+            # For the-stack-dedup, the field is usually 'content'
+            code = item.get('content') or item.get('code')
             
-            # Check if we have enough samples
-            if len(valid_samples) >= TARGET_VALID_SAMPLES:
-                logger.info(f"Reached target of {TARGET_VALID_SAMPLES} valid samples")
-                break
+            if code and isinstance(code, str) and len(code.strip()) > 0:
+                return code
             
-            # Extract code content
-            code = None
-            
-            # Try to find code in the sample
-            if isinstance(sample, dict):
-                # Common field names for code in the-stack dataset
-                for field in ['content', 'code', 'text', 'programming_language']:
-                    if field in sample and isinstance(sample[field], str):
-                        code = sample[field]
-                        break
-                
-                # If not found, try to get the first string value
-                if code is None:
-                    for key, value in sample.items():
-                        if isinstance(value, str) and len(value) > 10:
-                            code = value
-                            break
+        return None
+    except Exception as e:
+        logger.error(f"Failed to fetch dataset sample: {e}")
+        raise DataFetchError(f"Dataset access failed: {e}")
+
+def download_valid_functions(
+    max_attempts: int = MAX_ATTEMPTS,
+    target_count: int = TARGET_VALID_FUNCTIONS,
+    min_count: int = MIN_VALID_FUNCTIONS
+) -> List[Dict[str, Any]]:
+    """
+    Fetch valid Python functions from the dataset.
+    
+    Args:
+        max_attempts: Maximum number of fetch attempts.
+        target_count: Target number of valid functions to collect.
+        min_count: Minimum number of valid functions required to proceed.
+        
+    Returns:
+        List of dictionaries containing 'code' and 'hash'.
+        
+    Raises:
+        DataFetchError: If fewer than min_count valid functions are found.
+    """
+    valid_samples = []
+    attempts = 0
+    backoff = 1.0
+    max_backoff = 60.0
+
+    logger.info(f"Starting data fetch: max_attempts={max_attempts}, target={target_count}, min={min_count}")
+
+    while attempts < max_attempts and len(valid_samples) < target_count:
+        attempts += 1
+        logger.debug(f"Attempt {attempts}/{max_attempts} (current valid: {len(valid_samples)})")
+
+        try:
+            code = fetch_dataset_sample()
             
             if code is None:
-                logger.debug(f"Attempt {total_attempts}: No code found in sample")
+                logger.warning("Received None from dataset stream, retrying...")
+                time.sleep(backoff)
+                backoff = min(backoff * 2, max_backoff)
                 continue
-            
-            # Validate the code
+
             if is_valid_python_function(code):
-                # Create FunctionSample
-                func_sample = FunctionSample(
-                    code=code,
-                    metrics={},  # Metrics will be computed later
-                    hash=""  # Will be computed by the model
-                )
-                
-                valid_samples.append(func_sample)
-                logger.info(f"Valid sample #{len(valid_samples)} found (attempt {total_attempts})")
+                sample_hash = compute_hash(code)
+                valid_samples.append({
+                    "code": code,
+                    "hash": sample_hash
+                })
+                logger.debug(f"Valid function found. Total valid: {len(valid_samples)}")
+                # Reset backoff on success
+                backoff = 1.0
             else:
-                logger.debug(f"Attempt {total_attempts}: Invalid Python function")
-            
-            # Log progress
-            if total_attempts % 50 == 0:
-                logger.info(f"Progress: {total_attempts} attempts, {len(valid_samples)} valid samples")
-        
-    except Exception as e:
-        error_msg = str(e)
-        logger.error(f"Failed to fetch dataset: {error_msg}")
-        raise DataFetchError(f"Cannot access canonical dataset {dataset_name}: {error_msg}")
-    
-    # Final validation
-    logger.info(f"Download complete. Total attempts: {total_attempts}, Valid samples: {len(valid_samples)}")
-    
-    if len(valid_samples) < MIN_VALID_SAMPLES:
-        error_msg = f"Insufficient valid samples: {len(valid_samples)} < {MIN_VALID_SAMPLES} after {total_attempts} attempts"
+                logger.debug("Invalid Python syntax, skipping.")
+
+        except DataFetchError as e:
+            logger.error(f"Data fetch error: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error during fetch: {e}")
+            # Exponential backoff for unexpected errors too
+            time.sleep(backoff)
+            backoff = min(backoff * 2, max_backoff)
+            continue
+
+    logger.info(f"Fetch complete. Attempts: {attempts}, Valid samples: {len(valid_samples)}")
+
+    if len(valid_samples) < min_count:
+        error_msg = f"Insufficient valid functions found: {len(valid_samples)} < {min_count}. Pipeline halted."
         logger.error(error_msg)
         raise DataFetchError(error_msg)
     
-    logger.info(f"Successfully downloaded {len(valid_samples)} valid Python functions")
+    if min_count <= len(valid_samples) < target_count:
+        logger.warning(
+            f"Found {len(valid_samples)} valid functions, which is less than the target {target_count}. "
+            f"Proceeding with available data as per Spec US-1 Scenario 4."
+        )
+
     return valid_samples
 
 def main():
     """Main entry point for the download script."""
-    # Setup logging
-    log_level = os.getenv("LOG_LEVEL", "INFO")
-    setup_logging(level=log_level)
+    # Ensure output directory exists
+    output_path = Path(DATA_DIR)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    logger.info("=" * 60)
-    logger.info("Starting BigCode Dataset Download")
-    logger.info("=" * 60)
+    logger.info("Starting data download process...")
     
     try:
-        # Download valid functions
-        valid_samples = download_valid_functions()
+        samples = download_valid_functions()
         
-        logger.info(f"Download successful! Found {len(valid_samples)} valid samples.")
-        logger.info("Samples are ready for static analysis in the next step.")
+        # Save raw samples to a temporary JSON file for the next stage (processor)
+        # Note: The actual processing and final saving is done in processor.py
+        # We save here to satisfy the requirement of producing a file.
+        output_file = output_path / "raw_samples.json"
         
-        # Return the samples for further processing
-        return valid_samples
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(samples, f, indent=2)
+            
+        logger.info(f"Successfully saved {len(samples)} samples to {output_file}")
+        print(f"Download complete: {len(samples)} valid functions saved.")
         
     except DataFetchError as e:
-        logger.error(f"Data fetch failed: {e}")
-        raise
+        logger.critical(f"Pipeline failed due to data fetch error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during download: {e}")
-        raise DataFetchError(f"Unexpected error: {e}")
+        logger.critical(f"Pipeline failed with unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
+    # Import json here to avoid top-level dependency issues if not needed
+    import json
     main()

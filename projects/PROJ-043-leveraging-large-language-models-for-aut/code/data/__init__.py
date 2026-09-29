@@ -1,1 +1,1 @@
-# Data acquisition and processing package
+# This file marks the directory as a Python package.

@@ -1,1 +1,1 @@
-# LLM refactoring and quality assessment package
+# This file marks the directory as a Python package.

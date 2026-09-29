@@ -1,73 +1,58 @@
 # JSON Schema for CorrelationAnalysis data model
-# This schema defines the structure of analysis results produced by
-# `code/analyze_correlations.py`. It can be used with any JSON/YAML validator
-# that supports Draft‑07 (or later) schemas.
+# This schema validates the output of the correlation analysis pipeline.
+# It follows the Draft-07 JSON Schema specification and is expressed in YAML.
 $schema: "http://json-schema.org/draft-07/schema#"
 title: CorrelationAnalysis
 description: |
   Results of a statistical correlation analysis between a network topological
-  metric and the thermal conductivity (kappa) of a disordered material.
-  All numeric fields are expressed in SI units where applicable.
+  metric and the thermal conductivity (kappa) of a material. Each record
+  corresponds to a single metric evaluated across an ensemble of realizations.
 type: object
 required:
   - analysis_id
-  - metric
-  - correlation_coefficient
+  - metric_name
+  - r
   - p_value
   - slope
   - intercept
+  - ci_lower
+  - ci_upper
   - bootstrap_iterations
-  - confidence_interval
-  - corrected_p_value
-  - timestamp
-additionalProperties: false
+  - sample_size
 properties:
   analysis_id:
     type: string
     description: Unique identifier for the analysis run (e.g., UUID).
-  metric:
+  metric_name:
     type: string
-    description: Name of the topological metric (e.g., "clustering_coeff").
-  correlation_coefficient:
+    description: Name of the topological metric (e.g., "clustering_coefficient").
+  r:
     type: number
-    description: Pearson correlation coefficient (r) between the metric and kappa.
-    minimum: -1
-    maximum: 1
+    description: Pearson correlation coefficient between the metric and kappa.
   p_value:
     type: number
     description: Two‑tailed p‑value associated with the correlation.
-    exclusiveMinimum: 0
-    maximum: 1
   slope:
     type: number
-    description: Linear regression slope (Δkappa per unit metric).
+    description: Slope of the linear regression line (metric → kappa).
   intercept:
     type: number
-    description: Linear regression intercept.
+    description: Intercept of the linear regression line.
+  ci_lower:
+    type: number
+    description: Lower bound of the bootstrap confidence interval for the correlation coefficient.
+  ci_upper:
+    type: number
+    description: Upper bound of the bootstrap confidence interval for the correlation coefficient.
   bootstrap_iterations:
     type: integer
-    description: Number of bootstrap resampling iterations used.
+    minimum: 0
+    description: Number of bootstrap resampling iterations performed.
+  sample_size:
+    type: integer
     minimum: 1
-  confidence_interval:
-    type: object
-    description: 95 % confidence interval for the correlation coefficient.
-    required:
-      - lower
-      - upper
-    additionalProperties: false
-    properties:
-      lower:
-        type: number
-        description: Lower bound of the confidence interval.
-      upper:
-        type: number
-        description: Upper bound of the confidence interval.
-  corrected_p_value:
-    type: number
-    description: P‑value after multiple‑comparison correction (e.g., Bonferroni or FDR).
-    exclusiveMinimum: 0
-    maximum: 1
-  timestamp:
+    description: Number of data points (network realizations) used in the analysis.
+  notes:
     type: string
-    format: date-time
-    description: ISO‑8601 timestamp when the analysis was completed.
+    description: Optional free‑form notes or comments about the analysis.
+additionalProperties: false

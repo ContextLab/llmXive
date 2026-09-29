@@ -1,119 +1,118 @@
 """
-CI utility to enforce a minimum connectivity success rate across the generated
-network ensemble.
+CI script to verify that the overall connectivity success rate of generated network
+realizations meets the required threshold (≥ 95%). The script reads a JSON file
+containing per‑realization connectivity information, computes the success rate,
+prints a short report, and exits with a non‑zero status if the threshold is not met.
 
-The script reads a JSON file containing connectivity metrics, computes the overall
-success rate, and exits with a non‑zero status code if the rate falls below the
-required 95 % threshold.  It is intended to be invoked from a CI pipeline as
-a gate step, e.g.:
+Expected JSON format (list of objects):
+    [
+        {"realization_id": "uuid‑1", "connected": true},
+        {"realization_id": "uuid‑2", "connected": false},
+        ...
+    ]
 
-    python code/ci/check_connectivity.py path/to/metrics.json
+The script can be invoked directly:
+    python code/ci/check_connectivity.py [path/to/metrics.json]
 
-If no path is supplied, the default location ``data/analysis/connectivity_metrics.json``
-is used.
+If no path is supplied, it defaults to ``data/analysis/connectivity_metrics.json``.
 """
+
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List
+
 
 DEFAULT_METRICS_PATH = Path("data/analysis/connectivity_metrics.json")
-REQUIRED_SUCCESS_RATE = 0.95  # 95 %
+SUCCESS_THRESHOLD = 0.95  # 95%
 
 
-def _normalize_metrics(raw: Union[Dict[str, Any], List[Any]]) -> Dict[str, int]:
+def load_metrics(path: Path) -> List[Dict[str, Any]]:
     """
-    Convert raw JSON content into a uniform ``{'total': int, 'successful': int}``
-    dictionary.
+    Load connectivity metrics from a JSON file.
 
-    The JSON file may be one of the following forms:
+    Parameters
+    ----------
+    path: Path
+        Path to the JSON file containing a list of metric dictionaries.
 
-    1. ``{\"total\": N, \"successful\": M}`` – explicit counts.
-    2. ``[{\"realization_id\": ..., \"connected\": true}, ...]`` – a list of per‑realization
-       records.  ``connected`` is interpreted as a success flag.
-    3. ``[true, false, true, ...]`` – a flat list of booleans indicating success.
+    Returns
+    -------
+    List[Dict[str, Any]]
+        The parsed list of metric dictionaries.
 
-    Any other structure raises a ``ValueError`` so that CI fails loudly.
-    """
-    if isinstance(raw, dict):
-        if "total" in raw and "successful" in raw:
-            return {"total": int(raw["total"]), "successful": int(raw["successful"])}
-        raise ValueError("Dictionary JSON must contain 'total' and 'successful' keys.")
-    if isinstance(raw, list):
-        # Case 3: flat list of booleans
-        if all(isinstance(item, bool) for item in raw):
-            total = len(raw)
-            successful = sum(raw)
-            return {"total": total, "successful": successful}
-        # Case 2: list of dicts with a 'connected' field
-        if all(isinstance(item, dict) and "connected" in item for item in raw):
-            total = len(raw)
-            successful = sum(1 for item in raw if bool(item["connected"]))
-            return {"total": total, "successful": successful}
-    raise ValueError("Unrecognised connectivity metrics JSON format.")
-
-
-def load_metrics(path: Path = DEFAULT_METRICS_PATH) -> Dict[str, int]:
-    """
-    Load connectivity metrics from *path* and return a dictionary with the keys
-    ``'total'`` and ``'successful'``.
+    Raises
+    ------
+    FileNotFoundError
+        If ``path`` does not exist.
+    json.JSONDecodeError
+        If the file does not contain valid JSON.
     """
     if not path.is_file():
         raise FileNotFoundError(f"Connectivity metrics file not found: {path}")
     with path.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
-    return _normalize_metrics(raw)
+        data = json.load(f)
+    if not isinstance(data, list):
+        raise ValueError(f"Expected a list of metric objects in {path}, got {type(data)}")
+    return data
 
 
-def get_success_rate(metrics: Dict[str, int]) -> float:
+def get_success_rate(metrics: List[Dict[str, Any]]) -> float:
     """
-    Compute the success rate given a ``{'total': int, 'successful': int}`` mapping.
-    Returns a float in the range [0, 1].
-    """
-    total = metrics.get("total", 0)
-    successful = metrics.get("successful", 0)
-    if total == 0:
-        raise ValueError("Total number of realizations is zero; cannot compute success rate.")
-    return successful / total
-
-
-def main(argv: List[str] | None = None) -> None:
-    """
-    Entry point for the CI check.
+    Compute the proportion of realizations that are marked as connected.
 
     Parameters
     ----------
-    argv
-        Optional list of command‑line arguments (excluding the script name).
-        If ``None``, ``sys.argv[1:]`` is used.  The first argument, if present,
-        is interpreted as the path to the JSON metrics file.
-    """
-    if argv is None:
-        argv = sys.argv[1:]
+    metrics: List[Dict[str, Any]]
+        List of metric dictionaries. Each dictionary must contain a boolean
+        ``connected`` key.
 
-    metrics_path = Path(argv[0]) if argv else DEFAULT_METRICS_PATH
+    Returns
+    -------
+    float
+        Success rate in the range [0.0, 1.0].
+    """
+    if not metrics:
+        return 0.0
+    total = len(metrics)
+    connected = sum(1 for m in metrics if bool(m.get("connected", False)))
+    return connected / total
+
+
+def main() -> None:
+    """
+    Entry point for the CI check.
+
+    Reads the metrics file, computes the success rate, prints a short report,
+    and exits with status code 1 if the success rate is below the required
+    threshold.
+    """
+    # Determine the metrics file location
+    if len(sys.argv) > 1:
+        metrics_path = Path(sys.argv[1])
+    else:
+        metrics_path = DEFAULT_METRICS_PATH
 
     try:
         metrics = load_metrics(metrics_path)
-        rate = get_success_rate(metrics)
     except Exception as exc:
-        # Any problem loading or parsing the file should cause the CI step to fail.
-        print(f"[CI][CONNECTIVITY] ERROR: {exc}", file=sys.stderr)
-        sys.exit(1)
+        print(f"[ERROR] Failed to load connectivity metrics: {exc}", file=sys.stderr)
+        sys.exit(2)  # distinct exit code for load failures
 
-    if rate < REQUIRED_SUCCESS_RATE:
+    success_rate = get_success_rate(metrics)
+    percent = success_rate * 100
+    print(f"[INFO] Connectivity success rate: {percent:.2f}% ({success_rate:.4f})")
+
+    if success_rate < SUCCESS_THRESHOLD:
         print(
-            f"[CI][CONNECTIVITY] FAILURE: success rate {rate:.2%} "
-            f"is below the required {REQUIRED_SUCCESS_RATE:.2%}.",
+            f"[FAIL] Success rate {percent:.2f}% is below the required "
+            f"{SUCCESS_THRESHOLD * 100:.0f}% threshold. CI will abort.",
             file=sys.stderr,
         )
         sys.exit(1)
-
-    # Success path – print a concise message for CI logs.
-    print(
-        f"[CI][CONNECTIVITY] SUCCESS: success rate {rate:.2%} meets the required threshold."
-    )
-    sys.exit(0)
+    else:
+        print("[PASS] Connectivity success rate meets the required threshold.")
+        sys.exit(0)
 
 
 if __name__ == "__main__":

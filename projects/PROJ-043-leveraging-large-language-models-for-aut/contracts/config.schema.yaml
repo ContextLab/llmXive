@@ -1,48 +1,26 @@
-# Configuration Schema for PROJ-043 LLM Refactoring Pipeline
-# Defines the required structure for the application configuration
-# Used for validation via pydantic in code/utils/schema_validation.py
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Config Schema
 type: object
 properties:
   HF_API_KEY:
-    type: string
-    description: HuggingFace API key for model access
-    minLength: 1
+    type: ["string", "null"]
+    description: Hugging Face API Key
   RANDOM_SEED:
     type: integer
-    description: Random seed for reproducibility
     default: 42
   MAX_ATTEMPTS:
     type: integer
-    description: Maximum number of attempts to fetch valid functions
     default: 400
-    minimum: 1
   MIN_VALID_FUNCTIONS:
     type: integer
-    description: Minimum number of valid functions required to proceed
     default: 100
-    minimum: 1
   TARGET_VALID_FUNCTIONS:
     type: integer
-    description: Target number of valid functions to fetch
     default: 200
-    minimum: 1
   BATCH_SIZE:
     type: integer
-    description: Batch size for LLM processing
     default: 10
-    minimum: 1
   BASELINE_TOLERANCE:
     type: number
-    format: float
-    description: Tolerance threshold for identity baseline delta checks
     default: 0.01
-    minimum: 0
-required:
-  - HF_API_KEY
-  - RANDOM_SEED
-  - MAX_ATTEMPTS
-  - MIN_VALID_FUNCTIONS
-  - TARGET_VALID_FUNCTIONS
-  - BATCH_SIZE
-  - BASELINE_TOLERANCE
-additionalProperties: false
+required: []

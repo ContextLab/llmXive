@@ -11,7 +11,9 @@ DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
 # NCBI Configuration
 # BioProject ID updated via T004b (Spec Amendment). Original PRJNA superseded.
 # T004b Record: AMEND-001 - Updated to PRJNA321023 as per Plan.md technical context.
-NCBI_BIOPROJECT_ID = "PRJNA321023"
+# T004c: Explicitly setting BIOPROJECT_ID to PRJNA321023 per formal amendment record.
+BIOPROJECT_ID = "PRJNA321023"
+NCBI_BIOPROJECT_ID = BIOPROJECT_ID  # Alias for legacy compatibility
 NCBI_REFSEQ_ASSEMBLY = "GCF_000163615.2"
 
 # Resource Limits
@@ -29,7 +31,7 @@ def ensure_directories() -> None:
     DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
     (DATA_RAW / "reference").mkdir(parents=True, exist_ok=True)
     (DATA_PROCESSED / "quant").mkdir(parents=True, exist_ok=True)
-    (DATA_RAW / "PRJNA321023").mkdir(parents=True, exist_ok=True)
+    (DATA_RAW / BIOPROJECT_ID).mkdir(parents=True, exist_ok=True)
 
 def get_thresholds() -> dict:
     """Returns current threshold configuration."""
@@ -37,5 +39,5 @@ def get_thresholds() -> dict:
         "min_samples": MIN_SAMPLES_FOR_FILTER,
         "min_count": MIN_COUNT_THRESHOLD,
         "max_ram_gb": MAX_RAM_GB,
-        "bioproject_id": NCBI_BIOPROJECT_ID
+        "bioproject_id": BIOPROJECT_ID
     }

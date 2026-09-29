@@ -25,6 +25,14 @@ T004b:
   r: No `specs/001-coral-resilience-prediction/amendments.md` file (or its contents)
     was presented, so we cannot verify that the change from BioProject PRJNA292777
     to PRJNA321023 was documented as required. The required amendment record is missing.
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: I looked for a `tests/integration/` directory containing test scaffolding and
+    mock FASTQ files, but no such files or code were provided. Without the integration
+    test files, the requirement to verify pipeline flow with mock data is not satisfied.
+    The next implementer must add the integration test suite and include small mock
+    FASTQ files in the specified location.
 T015:
   c: false
   h: 9cb51e90c5f734c81c5c03e8feb0b6515ea02d110bc26d68661d08f8f170b15e

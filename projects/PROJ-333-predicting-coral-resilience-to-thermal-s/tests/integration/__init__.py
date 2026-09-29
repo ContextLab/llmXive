@@ -1,2 +1,1 @@
-# Integration tests for the coral resilience pipeline
-# These tests verify the flow between components using mock data
+"""Integration tests package for the coral resilience pipeline."""

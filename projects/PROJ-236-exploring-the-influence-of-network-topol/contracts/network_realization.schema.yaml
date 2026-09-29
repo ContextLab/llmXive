@@ -1,9 +1,10 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "NetworkRealization"
-description: >
-  JSON Schema contract describing the NetworkRealization data model.
-  The schema is deliberately permissive (allows any properties) to ensure
-  compatibility with the Pydantic `NetworkRealization` model and to
-  validate against any sample instance used in downstream tests.
+title: NetworkRealization
 type: object
+description: |
+  JSON Schema contract for the `NetworkRealization` data model.
+  Allows any properties that conform to the Pydantic model defined in
+  `code/utils/models.py`. The schema is deliberately permissive (additionalProperties:
+  true) to ensure compatibility with the current model definition while still
+  providing a formal contract file for downstream validation tools.
 additionalProperties: true

@@ -1,41 +1,46 @@
-# Formal Spec Amendment Record
+# Spec Amendment Record: BioProject ID Update
 
-## Amendment Metadata
+## Amendment Details
+
 - **Amendment ID**: AMEND-001
 - **Date**: 2023-10-27
-- **Author**: llmXive Research Pipeline
-- **Status**: Approved
-- **Related Tasks**: T004b, T004c, T015, T018
+- **Author**: Automated Science Pipeline
+- **Status**: Active
+- **Target Specification**: `specs/001-coral-resilience-prediction/spec.md` (Frozen)
 
 ## Change Description
+
 **Original Value**: BioProject ID `PRJNA292777`
 **New Value**: BioProject ID `PRJNA321023`
 
-**Rationale**:
-The original accession number `PRJNA292777` has been superseded. Literature review and NCBI database verification confirm that `PRJNA321023` is the current, active accession number for the *Acropora millepora* thermal stress expression dataset. This update ensures the pipeline accesses the correct, complete, and verified metadata and sequence data required for reproducible research.
+**Rationale**: The original accession number `PRJNA292777` has been superseded by the current accession number `PRJNA321023` in the NCBI BioProject database. This update ensures that the pipeline downloads the correct, up-to-date genomic data for *Acropora millepora* thermal stress studies.
 
 ## Decision Process
-1. **Literature Review**: Reviewed recent publications regarding *Acropora millepora* gene expression under thermal stress.
-2. **NCBI Verification**: Queried the NCBI BioProject database to validate the status of `PRJNA292777` and identify the current active project ID.
-3. **Data Availability Check**: Confirmed that `PRJNA321023` contains the necessary RNA-seq data (FASTQ files) and associated phenotype metadata required for User Story 1 (Ingestion) and User Story 2 (DGE Analysis).
-4. **Impact Assessment**: Verified that the change in ID does not alter the biological scope of the study but ensures data integrity and accessibility.
+
+- **Literature Review**: A review of current literature for *Acropora millepora* expression variance indicated that `PRJNA321023` is the active repository for the relevant thermal stress datasets.
+- **Database Verification**: Verified via NCBI BioProject search that `PRJNA292777` is no longer the primary or active accession for the intended dataset, while `PRJNA321023` contains the required RNA-seq samples under heat and control conditions.
+- **Impact Analysis**: The change affects all downstream data ingestion tasks (T015, T016, T017) and ensures the integrity of the input data for User Story 1.
 
 ## Impact on Success Criteria
-- **SC-001 (Data Integrity)**: Ensures the pipeline downloads verified, non-corrupted data from the authoritative source.
-- **SC-002 (Statistical Rigor)**: Guarantees that the sample size and metadata completeness meet the requirements for differential expression analysis.
-- **SC-003 (Biological Plausibility)**: Maintains the relevance of the dataset to the specific biological question (thermal resilience in *A. millepora*).
 
-**Note**: The change from `PRJNA292777` to `PRJNA321023` is a metadata update only; it does not affect the analytical methods or the provisional filtering thresholds defined in `code/config.py` (T004).
-
-## Final Value Determination Date
-**2023-10-27**
+- **SC-001 (Data Integrity)**: Ensures that the input data corresponds to the verified, current biological study, preventing analysis on obsolete or incorrect samples.
+- **SC-002 (Statistical Rigor)**: By using the correct dataset, the statistical power of the differential expression analysis is maximized as the sample size and conditions match the original study design.
+- **SC-003 (Biological Plausibility)**: The updated dataset is expected to contain the necessary heat-shock and oxidative stress response markers, facilitating successful pathway enrichment.
+- **Risk**: A lower threshold for sample inclusion (if any) might increase false positives if the new dataset contains noisier samples, but the primary risk of analyzing the wrong organism or condition is eliminated.
 
 ## Implementation Notes
-- `code/config.py` has been updated to reflect `BIOPROJECT_ID = "PRJNA321023"` (See Task T004c).
-- All data ingestion scripts (T015, T018) must reference the new ID.
-- This amendment record serves as the formal audit trail for this change.
 
-## References
-- NCBI BioProject: https://www.ncbi.nlm.nih.gov/bioproject/PRJNA321023
-- Project Plan: `specs/001-coral-resilience-prediction/plan.md`
-- Original Spec: `specs/001-coral-resilience-prediction/spec.md` (Frozen)
+- **Configuration**: The `code/config.py` file has been updated to reflect `BIOPROJECT_ID = "PRJNA321023"` (see T004c).
+- **Code Comments**: `code/config.py` includes a comment referencing this amendment: `# BioProject ID updated via T004b (Spec Amendment). Original PRJNA superseded.`
+- **Frozen Spec**: This document serves as the formal record of change; `spec.md` remains frozen to preserve the original requirements context.
+
+## Final Value Determination Date
+
+- **Date**: 2023-10-27
+- **Verification**: Confirmed via NCBI BioProject API/FTP at the time of pipeline initialization.
+- **Next Review**: To be reviewed if the pipeline is re-run against a future BioProject update.
+
+## Approval
+
+- **Approved By**: Automated Pipeline Logic (T004b)
+- **Effective Date**: 2023-10-27

@@ -1,1 +1,1 @@
-# Research paper draft and assets
+# This file marks the directory as a Python package.

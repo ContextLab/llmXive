@@ -1,0 +1,3 @@
+# This directory is for caching function samples and analysis results.
+# Files are automatically created by the cache.py module.
+# Do not commit generated cache files to version control.

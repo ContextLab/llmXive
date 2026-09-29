@@ -1,2 +1,2 @@
-# Directory for generated plots and figures
-# This file ensures the directory is tracked by git.
+# Directory for generated plots and visualizations
+# Git keeps this directory even if empty

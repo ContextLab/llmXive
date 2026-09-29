@@ -1078,3 +1078,427 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-17T00:33:45Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 500 atoms in atomic coordinate seeds
+  claim_id: c_bd97d8b1
+  context: Phase 2 task T014 describing generation of atomic seeds for disordered
+    alloys.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:14:52Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: greater than 95 percent of realizations are connected
+  claim_id: c_fe741d94
+  context: Phase 2 task T016 specifying connectivity success requirement.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Greater_than_95_percent_of_realizations_are_connected
+  kind: magnitude
+  raw_text: Implement explicit connectivity validation logic in `code/generate_networks.py`
+    to ensure > 95% of realizations are connected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:15:24Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: clustering coefficient within 5 percent of target
+  claim_id: c_73d26c96
+  context: Phase 3 user story US1 task T021 verification criterion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Unit test that generated graph matches target clustering coefficient within
+    5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:15:24Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: median degree exponent between 2 and 3
+  claim_id: c_ddd5493d
+  context: Phase 3 user story US1 task T022 verification criterion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test that median degree\u2011exponent falls within 2 < \u03B3 <\
+    \ 3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:16:06Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling with at least 1000 iterations
+  claim_id: c_cebf4cd0
+  context: Phase 5 task T038 specifying bootstrap iteration count.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: magnitude
+  raw_text: "Implement bootstrap resampling with \u2265 1000 iterations for confidence\
+    \ intervals."
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T16:16:39Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: bootstrap confidence interval width less than or equal to 0.2
+  claim_id: c_ef960e73
+  context: "Phase 5 task T039 enforcement of confidence\u2011interval width."
+  evidence:
+    entailment_evidence: Bootstrap confidence interval width less than or equal to
+      0.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_confidence_interval_width_less_than_or_equal_to_0.
+  kind: magnitude
+  raw_text: "Verify that bootstrap confidence\u2011interval width \u2264 0.2 (SC\u2011\
+    004)."
+  resolved_value: bootstrap confidence interval width less than or equal to 0.2
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T16:16:43Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: per realization runtime less than or equal to 45 minutes
+  claim_id: c_8379a729
+  context: Phase 4 task T033 runtime limit per transport calculation.
+  evidence:
+    entailment_evidence: Per realization runtime less than or equal to 45 minutes
+      - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Per_realization_runtime_less_than_or_equal_to_45_minutes
+  kind: magnitude
+  raw_text: "Enforce per\u2011realization runtime \u2264 45 minutes."
+  resolved_value: per realization runtime less than or equal to 45 minutes
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T16:16:46Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: total ensemble runtime less than or equal to 6 hours
+  claim_id: c_feb2d775
+  context: Phase 4 task T034 total runtime enforcement.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_ensemble_runtime_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "Aggregate total ensemble runtime and enforce \u2264 6 hours (SC\u2011\
+    002)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:17:11Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: performance speedup of at least 10 percent
+  claim_id: c_b772c992
+  context: Phase N task T050 performance optimization verification.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_speedup_of_at_least_10_percent
+  kind: magnitude
+  raw_text: "Benchmark before/after; require \u2265 10% speedup and assert new runtime\
+    \ \u2264 previous * 0.9."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:17:34Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: edge case branch coverage at least 90 percent
+  claim_id: c_c15222d7
+  context: Phase N task T051 test coverage requirement.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Edge_case_branch_coverage_at_least_90_percent
+  kind: magnitude
+  raw_text: "coverage \u2265 90% for edge\u2011case branches."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:17:59Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: atomic coordinate seeds for disordered alloys contain 500 atoms
+  claim_id: c_05c7b562
+  context: The task T014 specifies creating or obtaining atomic coordinate seed files
+    that represent disordered alloys, with the number of atoms set to 500.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:18:23Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: atomic coordinate seeds for disordered alloys with 500 atoms
+  claim_id: c_5ecb7123
+  context: Task T014 specifies creating a small set of atomic coordinate seeds representing
+    disordered alloys and records that each seed contains N = 500 atoms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:18:37Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling with at least 1000 iterations
+  claim_id: c_b0d9b129
+  context: Task T038 requires implementing bootstrap resampling with a minimum of
+    1000 iterations to compute confidence intervals.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: magnitude
+  raw_text: "bootstrap resampling with \u2265 1000 iterations for confidence intervals."
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T16:19:04Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: thermal conductivity within 10% of literature value for 1D chain benchmark
+  claim_id: c_c7e82182
+  context: "Task T031 defines an integration test where the Allen\u2011Feldman solver\
+    \ is run on a 1D chain benchmark and the resulting thermal conductivity \u03BA\
+    \ must be within 10% of the published literature value."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Integration test that runs on a 1D chain benchmark and checks \u03BA\
+    \ is within 10% of literature value."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:19:31Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: 500 atoms in atomic coordinate seed set
+  claim_id: c_f2295f06
+  context: Task T014 creates atomic coordinate seeds representing disordered alloys
+    for N = 500 atoms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:19:56Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: connectivity success rate greater than 95 percent
+  claim_id: c_c8a398dc
+  context: Task T016 includes a validation that > 95% of network realizations are
+    connected.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Connectivity_success_rate_greater_than_95_percent
+  kind: magnitude
+  raw_text: Implement explicit connectivity validation logic to ensure > 95% of realizations
+    are connected.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:20:29Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: median degree exponent between 2 and 3
+  claim_id: c_3b1a3447
+  context: "Task T022 verifies the Scale\u2011Free graph generator by testing that\
+    \ the median degree exponent lies between 2 and 3."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test that median degree\u2011exponent falls within 2 < \u03B3 <\
+    \ 3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:20:29Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling uses at least 1000 iterations
+  claim_id: c_6c0a2f19
+  context: Task T038 specifies that bootstrap resampling should use at least 1000
+    iterations.
+  evidence:
+    entailment_evidence: Bootstrap resampling uses at least 1000 iterations
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_at_least_1000_iterations
+  kind: magnitude
+  raw_text: "Bootstrap resampling with \u2265 1000 iterations."
+  resolved_value: bootstrap resampling uses at least 1000 iterations
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T16:20:32Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: runtime per realization at most 45 minutes
+  claim_id: c_c4bc310b
+  context: Task T033 asserts that runtimes for all realizations must be less than
+    or equal to 45 minutes.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_per_realization_at_most_45_minutes
+  kind: magnitude
+  raw_text: "CI assertion that recorded runtimes for all realizations are \u2264 45\
+    \ min."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:20:52Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: performance optimization yields at least 10 percent speedup
+  claim_id: c_38455ab6
+  context: Task T050 requires a speedup of at least 10% for ensemble generation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Performance_optimization_yields_at_least_10_percent_speedup
+  kind: magnitude
+  raw_text: "Performance optimization requires \u2265 10% speedup and asserts new\
+    \ runtime \u2264 previous * 0.9."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:21:30Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 0
+  canonical: bootstrap resampling uses at least 1000 iterations
+  claim_id: c_f3b4a2be
+  context: "Phase 5 task T038 requires bootstrap resampling with \u2265 1000 iterations\
+    \ (math/0504516, https://arxiv.org/abs/math/0504516)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 0.95, and simulated 1000 random samples of size n from each of three
+        un-
+      source_id: math/0504516
+      url: https://arxiv.org/abs/math/0504516
+      value: '1000'
+    filled: true
+  kind: magnitude
+  raw_text: "Implement bootstrap resampling with \u2265 1000 iterations for confidence\
+    \ intervals."
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T16:22:13Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: atomic coordinate seeds for disordered alloys with 500 atoms
+  claim_id: c_698cd1be
+  context: Phase 2 task T014 specifies creating or obtaining a small set of atomic
+    coordinate seeds representing disordered alloys for N = 500 atoms.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate or fetch a small set of atomic coordinate seeds (XYZ/POSCAR files)
+    representing disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:22:13Z'
+- artifact_path: projects/PROJ-236-exploring-the-influence-of-network-topol/specs/001-exploring-the-influence-of-network-topol/tasks.md
+  attempts: 1
+  canonical: generate 500-atom atomic coordinate seeds for disordered alloys
+  claim_id: c_2888ee9f
+  context: Task T014 specifies creating atomic coordinate seeds for disordered alloys
+    and storing them in data/raw/atomic_seeds/.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a small set of atomic coordinate seeds (XYZ/POSCAR files) representing
+    disordered alloys for N = 500 atoms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:23:58Z'

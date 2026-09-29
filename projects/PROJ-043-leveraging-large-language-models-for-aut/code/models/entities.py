@@ -1,34 +1,33 @@
-"""
-Core data models for the refactoring pipeline.
-"""
 from typing import Dict, Any
 from pydantic import BaseModel, Field, validator, ValidationError
 import hashlib
+import json
+from pathlib import Path
 
 class FunctionSample(BaseModel):
-    """Represents a single Python function sample."""
+    """
+    Represents a single Python function sample with its metrics.
+    """
     code: str
-    metrics: Dict[str, float]
+    metrics: Dict[str, Any]
     hash: str
 
-    @validator('hash')
-    def validate_hash(cls, v, values):
-        if not values.get('code'):
-            return v
-        # Recompute hash to ensure integrity
-        computed = hashlib.sha256(values['code'].encode('utf-8')).hexdigest()
-        if v != computed:
-            raise ValueError("Hash mismatch")
+    @validator('hash', pre=True)
+    def compute_hash_if_missing(cls, v, values):
+        if not v and 'code' in values:
+            return hashlib.sha256(values['code'].encode('utf-8')).hexdigest()
         return v
 
-    @classmethod
-    def create(cls, code: str, metrics: Dict[str, float]) -> 'FunctionSample':
-        """Factory method to create a sample with auto-computed hash."""
-        h = hashlib.sha256(code.encode('utf-8')).hexdigest()
-        return cls(code=code, metrics=metrics, hash=h)
+    def to_dict(self) -> Dict[str, Any]:
+        return self.dict()
 
 class MetricDelta(BaseModel):
-    """Represents the difference in metrics between original and refactored code."""
+    """
+    Represents the delta in metrics between original and refactored code.
+    """
     complexity_delta: float
     pylint_delta: float
     maintainability_delta: float
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.dict()

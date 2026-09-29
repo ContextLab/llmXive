@@ -1,55 +1,12 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings, `ls` output, or other evidence were provided to show that
-    the required folders under `projects/PROJ-236-exploring-the-influence-of-network-topol/`
-    (e.g., `code/utils`, `code/tests/unit`, `data/raw`, etc.) actually exist. Without
-    such proof the verification condition cannot be satisfied.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`)\
-    \ or command\u2011line output logs are provided, and there is no evidence that\
-    \ `ruff --quiet` and `black --check` were run successfully on the `code/` directory.\
-    \ The required artifacts and verification results are missing."
-T017:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No CI script or related code was provided; the claim that a verification script
-    exists that reads connectivity metrics and aborts the build when the overall success
-    rate falls below 95% after retries cannot be confirmed. The required artifact
-    is missing.
-T018:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer supplied only a unrelated feature specification about network\
-    \ topology and heat transport, with no CI configuration, test results, or any\
-    \ evidence of a \u201CPhysical Stability Filter\u201D pass\u2011rate check. Consequently,\
-    \ the required artifact (CI check ensuring >5\u202F% seed rejection causes failure)\
-    \ is missing."
-T019:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided only a textual description of the intended verification\
-    \ and did not supply any actual artifact (e.g., CI configuration, unit\u2011test\
-    \ code, or test output) demonstrating that a CI assertion fails when the distance\u2011\
-    cutoff scaling is incorrect. Without concrete code or results, the requirement\
-    \ for a verifiable CI\u2011based check is not met."
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no actual artifact\u2014no test script, checksum\u2011recomputation\
-    \ code, or `data/` directory contents are presented. Without concrete files or\
-    \ code that loops over saved artifacts and validates their checksums, the verification\
-    \ task is not satisfied. The implementer must supply the automated test implementation\
-    \ and the relevant data files."
 T025:
   c: false
-  h: 3c628da87066ef9fb713338892fc391cd6f739c4f94dbeb1e9095db9f1b79f1a
-  r: "The repository lacks the required `simulation_config.yaml` file, and the provided\
-    \ `code/generate_networks.py` does not show an ensemble\u2011generation loop,\
-    \ a cutoff\u2011sweep implementation, or any code that writes per\u2011realization\
-    \ `meta.json` logs. Consequently the task\u2019s core requirements are not satisfied."
+  h: c76ed55a4d8adc24a95d8117be951c5d219cf8d7398d408f8aee5fcb788beacf
+  r: "The repository lacks the required `simulation_config.yaml` file, so the code\
+    \ cannot perform the \u201Cregular cutoff sweep\u201D defined there. Moreover,\
+    \ the shown portion of `code/generate_networks.py` does not contain any implementation\
+    \ of a meta\u2011log (`meta.json`) write\u2011out or a complete ensemble generation\
+    \ loop; the file is truncated before any such logic appears. Both the configuration\
+    \ file and the logging functionality are missing, so the task is not satisfied."
 T026:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

@@ -3,181 +3,140 @@ Unit tests for the caching mechanism.
 """
 import json
 import os
+import time
 import tempfile
-from datetime import datetime, timedelta
 from pathlib import Path
 import pytest
 
-from code.utils.cache import Cache, compute_hash, cache_get, cache_set, get_cache
-from code.utils.logging import CacheError
+from utils.cache import Cache, CacheError
 
+@pytest.fixture
+def temp_cache_dir():
+    """Create a temporary directory for cache tests."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-class TestCache:
-    """Tests for the Cache class."""
+def test_cache_init_creates_directory(temp_cache_dir):
+    """Test that Cache initialization creates the directory."""
+    cache = Cache(cache_dir=temp_cache_dir)
+    assert Path(temp_cache_dir).exists()
+    assert cache.cache_dir == Path(temp_cache_dir)
 
-    @pytest.fixture
-    def temp_cache_dir(self):
-        """Create a temporary directory for cache files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield tmpdir
+def test_compute_hash(temp_cache_dir):
+    """Test hash computation."""
+    cache = Cache(cache_dir=temp_cache_dir)
+    data = "def hello(): pass"
+    hash1 = cache.compute_hash(data)
+    hash2 = cache.compute_hash(data)
+    assert hash1 == hash2
+    assert len(hash1) == 64  # SHA256 hex length
+    
+    # Different data should produce different hash
+    hash3 = cache.compute_hash("def world(): pass")
+    assert hash1 != hash3
 
-    def test_init_creates_directory(self, temp_cache_dir):
-        """Test that __init__ creates the cache directory."""
-        cache = Cache(cache_dir=temp_cache_dir)
-        assert os.path.exists(cache.cache_dir)
+def test_set_and_get(temp_cache_dir):
+    """Test basic set and get operations."""
+    cache = Cache(cache_dir=temp_cache_dir)
+    key = "test_key_123"
+    value = {"code": "print('hello')", "metrics": {"loc": 1}}
+    
+    cache.set(key, value)
+    retrieved = cache.get(key)
+    
+    assert retrieved == value
 
-    def test_compute_hash(self):
-        """Test hash computation."""
-        data = "test function code"
-        hash1 = compute_hash(data)
-        hash2 = compute_hash(data)
-        hash3 = compute_hash("different code")
+def test_get_missing_key(temp_cache_dir):
+    """Test getting a non-existent key returns None."""
+    cache = Cache(cache_dir=temp_cache_dir)
+    result = cache.get("non_existent_key")
+    assert result is None
 
-        assert len(hash1) == 64  # SHA-256 hex length
-        assert hash1 == hash2
-        assert hash1 != hash3
+def test_cache_clear(temp_cache_dir):
+    """Test clearing the cache."""
+    cache = Cache(cache_dir=temp_cache_dir)
+    
+    cache.set("key1", {"data": 1})
+    cache.set("key2", {"data": 2})
+    assert len(list(Path(temp_cache_dir).glob("*.json"))) == 2
+    
+    cache.clear()
+    assert len(list(Path(temp_cache_dir).glob("*.json"))) == 0
 
-    def test_set_and_get(self, temp_cache_dir):
-        """Test setting and getting a value."""
-        cache = Cache(cache_dir=temp_cache_dir)
-        key = compute_hash("test data")
-        data = {"result": "success", "metrics": {"complexity": 5}}
+def test_cache_delete(temp_cache_dir):
+    """Test deleting a specific key."""
+    cache = Cache(cache_dir=temp_cache_dir)
+    
+    cache.set("key1", {"data": 1})
+    cache.set("key2", {"data": 2})
+    
+    assert cache.delete("key1") is True
+    assert cache.get("key1") is None
+    assert cache.get("key2") == {"data": 2}
+    
+    assert cache.delete("non_existent") is False
 
-        cache.set(key, data)
-        retrieved = cache.get(key)
+def test_cache_ttl_expiration(temp_cache_dir):
+    """Test that cache entries expire after TTL."""
+    cache = Cache(cache_dir=temp_cache_dir, ttl_seconds=1)
+    
+    key = "ttl_test"
+    cache.set(key, {"data": "value"})
+    assert cache.get(key) == {"data": "value"}
+    
+    # Wait for expiration
+    time.sleep(1.1)
+    assert cache.get(key) is None
 
-        assert retrieved is not None
-        assert retrieved == data
+def test_cache_ttl_no_expiration(temp_cache_dir):
+    """Test that cache entries do not expire before TTL."""
+    cache = Cache(cache_dir=temp_cache_dir, ttl_seconds=10)
+    
+    key = "ttl_no_expire"
+    cache.set(key, {"data": "value"})
+    
+    # Should still be valid
+    retrieved = cache.get(key)
+    assert retrieved == {"data": "value"}
 
-    def test_get_nonexistent_key(self, temp_cache_dir):
-        """Test getting a key that doesn't exist."""
-        cache = Cache(cache_dir=temp_cache_dir)
-        key = "nonexistent_hash_12345678901234567890123456789012345678901234567890"
+def test_cache_corrupted_file(temp_cache_dir):
+    """Test handling of corrupted cache files."""
+    cache = Cache(cache_dir=temp_cache_dir)
+    key = "corrupted"
+    
+    # Create a corrupted file
+    path = Path(temp_cache_dir) / f"{key}.json"
+    with open(path, 'w') as f:
+        f.write("{ invalid json }")
+    
+    # Should return None and not crash
+    result = cache.get(key)
+    assert result is None
+    
+    # File should be removed
+    assert not path.exists()
 
-        retrieved = cache.get(key)
-        assert retrieved is None
+def test_cache_stats(temp_cache_dir):
+    """Test cache statistics."""
+    cache = Cache(cache_dir=temp_cache_dir)
+    
+    cache.set("key1", {"data": "a" * 100})
+    cache.set("key2", {"data": "b" * 200})
+    
+    stats = cache.stats()
+    assert stats['entry_count'] == 2
+    assert stats['cache_dir'] == temp_cache_dir
+    assert stats['total_size_bytes'] > 0
+    assert stats['ttl_seconds'] == 86400  # Default TTL
 
-    def test_cache_expiration(self, temp_cache_dir):
-        """Test that expired cache entries are removed."""
-        cache = Cache(cache_dir=temp_cache_dir, ttl_days=0)  # Immediate expiration
-        key = compute_hash("test data")
-        data = {"result": "expired"}
-
-        # Manually create an expired entry
-        cache_path = cache._get_cache_path(key)
-        entry = {
-            'timestamp': (datetime.now() - timedelta(days=1)).isoformat(),
-            'data': data
-        }
-        with open(cache_path, 'w') as f:
-            json.dump(entry, f)
-
-        retrieved = cache.get(key)
-        assert retrieved is None
-        assert not cache_path.exists()
-
-    def test_clear_cache(self, temp_cache_dir):
-        """Test clearing the cache."""
-        cache = Cache(cache_dir=temp_cache_dir)
-
-        # Add some entries
-        for i in range(3):
-            key = compute_hash(f"data_{i}")
-            cache.set(key, {"index": i})
-
-        count = cache.clear()
-        assert count == 3
-
-        # Verify files are gone
-        assert len(list(Path(temp_cache_dir).glob("*.json"))) == 0
-
-    def test_cache_stats(self, temp_cache_dir):
-        """Test cache statistics."""
-        cache = Cache(cache_dir=temp_cache_dir)
-
-        # Add some entries
-        for i in range(5):
-            key = compute_hash(f"data_{i}")
-            cache.set(key, {"index": i})
-
-        stats = cache.stats()
-
-        assert stats['total_files'] == 5
-        assert stats['valid_entries'] == 5
-        assert stats['expired_entries'] == 0
-        assert stats['cache_dir'] == temp_cache_dir
-
-    def test_corrupted_cache_entry(self, temp_cache_dir):
-        """Test handling of corrupted cache entries."""
-        cache = Cache(cache_dir=temp_cache_dir)
-        key = compute_hash("test data")
-
-        # Create a corrupted file
-        cache_path = cache._get_cache_path(key)
-        with open(cache_path, 'w') as f:
-            f.write("not valid json {{{")
-
-        retrieved = cache.get(key)
-        assert retrieved is None
-        assert not cache_path.exists()
-
-    def test_unicode_data(self, temp_cache_dir):
-        """Test caching unicode data."""
-        cache = Cache(cache_dir=temp_cache_dir)
-        key = compute_hash("unicode test")
-        data = {"code": "def foo():\n    return '日本語'", "metrics": {"unicode": True}}
-
-        cache.set(key, data)
-        retrieved = cache.get(key)
-
-        assert retrieved == data
-
-    def test_large_data(self, temp_cache_dir):
-        """Test caching larger data structures."""
-        cache = Cache(cache_dir=temp_cache_dir)
-        key = compute_hash("large data")
-        data = {
-            "code": "x = " + "a" * 10000,
-            "metrics": {k: v for k, v in enumerate(range(1000))}
-        }
-
-        cache.set(key, data)
-        retrieved = cache.get(key)
-
-        assert retrieved == data
-
-class TestConvenienceFunctions:
-    """Tests for convenience functions."""
-
-    @pytest.fixture
-    def temp_cache_dir(self):
-        """Create a temporary directory for cache files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield tmpdir
-
-    def test_get_cache_singleton(self, temp_cache_dir):
-        """Test that get_cache returns a singleton."""
-        # Reset the global cache
-        import code.utils.cache as cache_module
-        cache_module._default_cache = None
-
-        cache1 = cache_module.get_cache(cache_dir=temp_cache_dir)
-        cache2 = cache_module.get_cache()
-
-        assert cache1 is cache2
-
-    def test_cache_get_set_convenience(self, temp_cache_dir):
-        """Test convenience functions."""
-        import code.utils.cache as cache_module
-        cache_module._default_cache = None
-
-        # Set the default cache to our temp directory
-        cache_module._default_cache = Cache(cache_dir=temp_cache_dir)
-
-        key = compute_hash("convenience test")
-        data = {"test": "value"}
-
-        cache_set(key, data)
-        retrieved = cache_get(key)
-
-        assert retrieved == data
+def test_cache_set_error_handling(temp_cache_dir):
+    """Test error handling when writing fails."""
+    # Make directory read-only to simulate write error
+    os.chmod(temp_cache_dir, 0o444)
+    cache = Cache(cache_dir=temp_cache_dir)
+    
+    with pytest.raises(CacheError):
+        cache.set("key", {"data": "value"})
+    
+    # Restore permissions for cleanup
+    os.chmod(temp_cache_dir, 0o755)

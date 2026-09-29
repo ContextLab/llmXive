@@ -1,27 +1,35 @@
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
 title: TransportResult
 description: Schema for transport calculation results.
+type: object
+additionalProperties: false
 properties:
   network_id:
     type: string
     description: Unique identifier for the network realization.
   kappa:
     type: number
-    description: Thermal conductivity in W/mK.
+    description: Effective thermal conductivity (W/mK).
   error_estimate:
     type: number
-    description: Estimated error or uncertainty of kappa.
+    description: Estimated error or uncertainty of the conductivity.
   convergence_status:
     type: string
-    enum: [converged, not_converged, failed]
-    description: Status of solver convergence.
+    description: Status of the solver convergence.
+    enum:
+      - converged
+      - not_converged
+      - failed
   runtime:
     type: number
-    description: Computation runtime in seconds.
+    description: Computation time in seconds.
   regime_flag:
     type: string
-    enum: [diffusive, ballistic, unknown]
-    description: Transport regime classification.
+    description: Transport regime detected for this realization.
+    enum:
+      - ballistic
+      - diffusive
+      - unknown
 required:
   - network_id
   - kappa
@@ -29,11 +37,3 @@ required:
   - convergence_status
   - runtime
   - regime_flag
-additionalProperties: false
-example:
-  network_id: net_001
-  kappa: 1.23
-  error_estimate: 0.05
-  convergence_status: converged
-  runtime: 120.5
-  regime_flag: diffusive

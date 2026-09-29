@@ -67,13 +67,13 @@
  - **Output**: `specs/001-coral-resilience-prediction/amendments.md`.
  - **Content Structure**: Include "Decision Process", "Impact on Success Criteria", and "Final Value Determination Date" sections.
  - **Example Content**: "Decision Process: Review literature for Acropora millepora expression variance. Impact: Lower threshold may increase false positives; higher may miss weak signals."
-- [ ] T004c [P] [DEPENDS: T004b] **Update Configuration**: Update `code/config.py` to set `BIOPROJECT_ID = "PRJNA321023"` explicitly, ensuring the code uses the correct ID referenced in T004b.
+- [X] T004c [P] [DEPENDS: T004b] **Update Configuration**: Update `code/config.py` to set `BIOPROJECT_ID = "PRJNA321023"` explicitly, ensuring the code uses the correct ID referenced in T004b.
 - [X] T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track memory usage (RSS) and execution time
 - [X] T006 [P] Create base data model schema definition `code/models/expression.py` (ExpressionMatrix class definition only, no instances)
 - [X] T007 [P] Create base data model schema definition `code/models/phenotype.py` (PhenotypeRecord class definition only, no instances)
 - [X] T008 [P] Create base data model schema definition `code/models/dge.py` (DGEResult class definition only, no instances)
 - [X] T009 [P] Create error handling utilities in `code/utils/errors.py` (specifically for NCBI timeout retries and checksum mismatches)
-- [ ] T009b [P] Document the **strategy for deferring empirical filtering thresholds** in `data/processed/deferred_thresholds_strategy.md`.
+- [X] T009b [P] Document the **strategy for deferring empirical filtering thresholds** in `data/processed/deferred_thresholds_strategy.md`.
  - **MUST use exact file path**: `data/processed/deferred_thresholds_strategy.md`.
  - **MUST include sections**: "Decision Process" (how thresholds are chosen), "Impact on Success Criteria" (SC-002, SC-003), "Final Value Determination Date".
  - **MUST state** that the final numeric values will be determined during the research phase and recorded in `config.py` before T020 runs.

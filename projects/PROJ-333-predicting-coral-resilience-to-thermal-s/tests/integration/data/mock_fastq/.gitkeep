@@ -1,0 +1,3 @@
+# This directory is populated by tests/integration/test_pipeline_flow.py
+# Do not commit actual mock files; they are generated at test time.
+.keep

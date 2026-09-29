@@ -4,13 +4,12 @@ from pathlib import Path
 
 def main():
     """
-    Create the project directory structure and generate project_structure.txt.
-    This script implements Task T001: Create project structure.
+    Creates the project directory structure and generates project_structure.txt.
+    Implements Task T001: Create project structure.
     """
-    # Define the required directories relative to the project root
-    # Based on T001 description: code/utils, data/raw, data/processed, data/results, data/metadata, tests/unit, tests/integration, docs
-    # Also ensuring 'code' and 'data' and 'tests' root directories exist if not present
-    directories = [
+    # Define the relative paths to create based on T001 requirements
+    # Note: 'code' is the root for code files, 'data', 'tests', 'docs' are siblings
+    base_dirs = [
         "code/utils",
         "data/raw",
         "data/processed",
@@ -21,60 +20,49 @@ def main():
         "docs"
     ]
 
-    project_root = Path.cwd()
-
-    print(f"Creating project structure in: {project_root}")
+    # Ensure we are running from the project root or adjust if needed.
+    # The script assumes it is run from the root where these folders should be created.
+    root = Path(".")
 
     created_dirs = []
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(dir_path)
-            print(f"Created: {full_path}")
-        else:
-            print(f"Exists: {full_path}")
+    for dir_path in base_dirs:
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(str(full_path))
 
-    # Generate project_structure.txt as the deliverable artifact
-    output_file = project_root / "project_structure.txt"
+    # Generate the project_structure.txt file as the deliverable artifact
+    output_file = root / "project_structure.txt"
     
-    # Run ls -R equivalent using pathlib to list the tree
-    # We will write the directory listing to the file
-    with open(output_file, 'w') as f:
-        f.write(f"# Project Structure for PROJ-458\n")
-        f.write(f"# Generated at: {Path.cwd()}\n\n")
-        
-        # Walk the relevant directories to simulate 'ls -R'
-        # We only list the directories we created/managed in this task
-        for dir_path in directories:
-            full_path = project_root / dir_path
-            f.write(f"\n{full_path}:\n")
-            
-            # List contents of this directory
-            try:
-                items = sorted(full_path.iterdir())
-                if items:
-                    for item in items:
-                        if item.is_dir():
-                            f.write(f"  {item.name}/\n")
-                            # List sub-items if any (shallow)
-                            sub_items = sorted(item.iterdir())
-                            for sub_item in sub_items:
-                                f.write(f"    {sub_item.name}\n")
-                        else:
-                            f.write(f"  {item.name}\n")
-                else:
-                    f.write("  (empty)\n")
-            except PermissionError:
-                f.write("  (permission denied)\n")
-        
-        f.write("\n")
-        f.write("Summary:\n")
-        f.write(f"- Total directories created/verified: {len(directories)}\n")
-        f.write(f"- Output file: {output_file.name}\n")
+    # Use os.walk or ls -R equivalent logic to capture the structure
+    # Since we just created them, we can list them explicitly or run a system command.
+    # To be robust and match the "Run ls -R" instruction:
+    try:
+        import subprocess
+        # Run ls -R on the current directory to capture the full tree
+        result = subprocess.run(
+            ["ls", "-R"],
+            cwd=str(root),
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        content = result.stdout
+    except Exception:
+        # Fallback to manual generation if subprocess fails (e.g. Windows without ls)
+        content = ""
+        for dir_path in base_dirs:
+            content += f"{dir_path}:\n"
+            # Add placeholder content indication if needed, but task asks for directory listing
+            content += "\n"
+        # Include root
+        content = "Project Root:\n" + content
 
-    print(f"Project structure verification written to: {output_file}")
-    print(f"Verification command: cat {output_file}")
+    with open(output_file, "w") as f:
+        f.write(content)
+
+    print(f"Project structure created successfully.")
+    print(f"Deliverable artifact: {output_file}")
+    print(f"Contents preview:\n{content[:200]}...")
 
     return 0
 

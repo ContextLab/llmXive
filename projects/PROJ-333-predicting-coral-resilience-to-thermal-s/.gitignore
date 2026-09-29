@@ -1,13 +1,12 @@
-# Data files - exclude large binary and raw data files
+# Data files - large binary formats
 data/raw/*.fastq.gz
 data/processed/*.rds
 
-# Python cache and bytecode
-__pycache__/
+# Python cache and compiled files
+__pycache__
 *.pyc
 *.pyo
 *.pyd
-.Python
 
 # IDE and editor files
 .idea/
@@ -20,17 +19,25 @@ __pycache__/
 venv/
 .venv/
 env/
-.env/
-
-# Build artifacts
-dist/
-build/
-*.egg-info/
 
 # Logs and temporary files
 *.log
-.cache/
-
-# OS generated files
 .DS_Store
 Thumbs.db
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Test coverage
+.coverage
+htmlcov/
+.tox/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Results and plots (optional, keep large outputs)
+results/*.png
+results/*.pdf
