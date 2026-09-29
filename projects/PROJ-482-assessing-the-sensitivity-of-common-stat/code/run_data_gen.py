@@ -30,8 +30,17 @@ def compute_row_checksum(row: Dict[str, Any]) -> str:
     Returns:
         Hexadecimal string of the MD5 hash.
     """
+    # Create a copy to avoid modifying the original
+    row_copy = row.copy()
+    
+    # Round all float values to 15 decimal places to ensure deterministic checksums
+    # across Python versions and floating point representations
+    for key, value in row_copy.items():
+        if isinstance(value, float):
+            row_copy[key] = round(value, 15)
+    
     # Create JSON string with sorted keys and no whitespace
-    json_str = json.dumps(row, sort_keys=True, separators=(',', ':'))
+    json_str = json.dumps(row_copy, sort_keys=True, separators=(',', ':'))
     # Encode to UTF-8 and compute MD5
     return hashlib.md5(json_str.encode('utf-8')).hexdigest()
 
