@@ -53,25 +53,14 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1126/science.aar7000
   verified_at: '2026-08-19T21:43:10.349798Z'
-- artifact_hash: f656347507d07a439181f5ead9bf8a9acf20d892be4f64a8ca287a8f000e8b6b
+- artifact_hash: 017baaf64485328fee76964cf9c78632c3f7d9b9debda9406d927634dfe2a988
   artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: University Ramon Llull - Wikidata
+  fetched_title: null
   kind: url
-  value: https://www.wikidata.org/wiki/Q24576
-  verification_status: pending
-  verified_against_url: https://www.wikidata.org/wiki/Q24576
-  verified_at: '2026-09-26T02:01:26.340380Z'
-- artifact_hash: f656347507d07a439181f5ead9bf8a9acf20d892be4f64a8ca287a8f000e8b6b
-  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: SP.POP.TOTL
-  kind: url
-  value: https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL`
-  verification_status: pending
-  verified_against_url: https://api.worldbank.org/v2/country/all/indicator/SP.POP.TOTL
-  verified_at: '2026-09-26T02:01:26.340380Z'
+  value: https://www.kaggle.com/datasets/mitmoral/moral-machine`
+  verification_status: mismatch
+  verified_against_url: https://www.kaggle.com/datasets/mitmoral/moral-machine
+  verified_at: '2026-09-29T22:27:46.744687Z'
