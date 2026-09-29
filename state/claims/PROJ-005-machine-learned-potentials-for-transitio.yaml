@@ -647,3 +647,416 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-23T12:50:32Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Research question evaluates model generalizability across distinct chemical
+    scaffolds
+  claim_id: c_c1cc3033
+  context: The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy
+    to ensure that test sets contain ligands with scaffolds unseen during training.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_evaluates_model_generalizability_across_di
+  kind: entity_fact
+  raw_text: The research question focuses on evaluating the generalizability of predictive
+    models across distinct chemical scaffolds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:31:30Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Leave-Ligand-Scaffold-Out cross-validation strategy employed
+  claim_id: c_98379935
+  context: The research question focuses on evaluating the generalizability of predictive
+    models across distinct chemical scaffolds. The method employs a Leave-Ligand-Scaffold-Out
+    cross-validation strategy to ensure that test sets contain ligands with scaffolds
+    unseen during training.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Leave-Ligand-Scaffold-Out_cross-validation_strategy_employed
+  kind: entity_fact
+  raw_text: The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:32:21Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Scarcity flag created if reaction count is less than 120
+  claim_id: c_bec1235e
+  context: 'Logic: If count < 120 (threshold defined in FR-001), create code/data/processed/data_scarcity_flag.json
+    with exact schema: { "count": <int>, "status": "scarcity", "threshold": 120 }.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scarcity_flag_created_if_reaction_count_is_less_than_120
+  kind: magnitude
+  raw_text: If count < 120, create a scarcity flag.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:33:34Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps cutoff values including 4.0 Angstroms
+  claim_id: c_90be5180
+  context: 'Logic: 1) Sweep cutoff values (, 4.0 Angstroms). 2) Calculate graph metrics
+    (avg_degree, edge_count, density) for each.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps cutoff values at 4.0 Angstroms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:34:11Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Samples with greater than 6 coordination flagged as outliers
+  claim_id: c_19580630
+  context: 'Logic: 1) Generate graphs using selected cutoff. 2) Flag samples with
+    >6 coordination as outliers (`is_outlier` boolean).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Samples_with_greater_than_6_coordination_flagged_as_outliers
+  kind: magnitude
+  raw_text: Samples with greater than 6 coordination are flagged as outliers.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:35:44Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Training loop implements hard cap on epochs
+  claim_id: c_7a702d5b
+  context: 'Implement training loop in code/src/models/ensemble.py with a HARD CAP
+    of epochs (max). Logic: Implement early stopping mechanism with patience=5 epochs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_loop_implements_hard_cap_on_epochs
+  kind: entity_fact
+  raw_text: The training loop uses a hard cap on epochs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:36:26Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Early stopping mechanism uses patience of 5 epochs
+  claim_id: c_dadefc58
+  context: 'Implement training loop in code/src/models/ensemble.py with a HARD CAP
+    of epochs (max). Logic: Implement early stopping mechanism with patience=5 epochs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Early stopping mechanism uses a patience of 5 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:37:20Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Top descriptor subset selected where cumulative variance explained is
+    at least 0.60
+  claim_id: c_4e73c70b
+  context: 'Specific Logic: Select the smallest subset of top descriptors where cumulative
+    `variance_explained` >= 0.60. Output: Write code/data/results/top_descriptors_subset.json
+    containing the list of selected descriptors, their scores, and `total_variance_explained`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Top_descriptor_subset_selected_where_cumulative_variance_exp
+  kind: magnitude
+  raw_text: The smallest subset of top descriptors is selected where cumulative variance
+    explained is greater than or equal to 0.60.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:38:19Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Unpaired Welch's t-test used for experimental groups vs Conventional
+    error distributions
+  claim_id: c_8d1dd53d
+  context: Implement code/src/analysis/statistics.py with unpaired Welch's t-test
+    for experimental groups vs. Conventional error distributions (FR-006 adaptation).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unpaired_Welch's_t-test_used_for_experimental_groups_vs_Conv
+  kind: entity_fact
+  raw_text: Unpaired Welch's t-test is used for experimental groups vs. Conventional
+    error distributions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:39:10Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Speed analysis measures GNN inference time vs DFT baseline
+  claim_id: c_1ac136e6
+  context: 'Implement speed analysis: measure GNN inference time vs. the DFT baseline.
+    Input: code/data/baseline_dft_time.json (from T037a in Phase 2) and prediction
+    results from T027a.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Speed_analysis_measures_GNN_inference_time_vs_DFT_baseline
+  kind: entity_fact
+  raw_text: Speed analysis measures GNN inference time vs the DFT baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:39:54Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Research question evaluates generalizability of predictive models across
+    distinct chemical scaffolds
+  claim_id: c_3aeecf0d
+  context: T011a description regarding the Leave-Ligand-Scaffold-Out cross-validation
+    strategy.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_evaluates_generalizability_of_predictive_m
+  kind: entity_fact
+  raw_text: The research question focuses on evaluating the generalizability of predictive
+    models across distinct chemical scaffolds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:42:42Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Method employs Leave-Ligand-Scaffold-Out cross-validation strategy
+  claim_id: c_76909040
+  context: T011a description of the data splitting logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_employs_Leave-Ligand-Scaffold-Out_cross-validation_st
+  kind: entity_fact
+  raw_text: The method employs a Leave-Ligand-Scaffold-Out cross-validation strategy
+    to ensure that test sets contain ligands with scaffolds unseen during training.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:43:52Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Goal is to ingest QM9-TS data and filter for Pd, Ni, and Cu
+  claim_id: c_b63d56dc
+  context: Phase 3 description for User Story 1.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Goal_is_to_ingest_QM9-TS_data_and_filter_for_Pd,_Ni,_and_Cu
+  kind: entity_fact
+  raw_text: The goal is to ingest QM9-TS data, filter for Pd, Ni, and Cu, construct
+    graphs, and classify ligands.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:44:18Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Independent test trains 5 models with max 30 epochs and Adam lr=1e-4
+    on CPU
+  claim_id: c_27befbe2
+  context: Phase 4 description for User Story 2 independent test criteria.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test requires training 5 models with a maximum of 30 epochs
+    and an Adam learning rate of 1e-4 on CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:45:01Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Independent test requires non-zero ensemble variance
+  claim_id: c_f1d433a0
+  context: Phase 4 description for User Story 2 independent test criteria.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Independent_test_requires_non-zero_ensemble_variance
+  kind: entity_fact
+  raw_text: The independent test requires a non-zero ensemble variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:45:39Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Logic selects smallest subset of top descriptors where cumulative variance
+    explained >= 0.60
+  claim_id: c_3b99da7a
+  context: T032 description regarding feature importance ranking logic.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Logic_selects_smallest_subset_of_top_descriptors_where_cumul
+  kind: magnitude
+  raw_text: The implementation logic selects the smallest subset of top descriptors
+    where cumulative variance explained is greater than or equal to 0.60.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:46:23Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Speed-up metrics measured by running real DFT calculation using psi4
+    on representative transition-state geometry
+  claim_id: c_08249045
+  context: Notes section regarding Reproducibility and speed-up metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Speed-up_metrics_measured_by_running_real_DFT_calculation_us
+  kind: entity_fact
+  raw_text: Speed-up metrics MUST be measured by running a real DFT calculation using
+    psi4 on a representative transition-state geometry from the dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:47:11Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Task T037a performs single-point DFT baseline calculation using B3LYP/STO-3G
+  claim_id: c_68d9eb68
+  context: T037a description in Phase 2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Task_T037a_performs_single-point_DFT_baseline_calculation_us
+  kind: entity_fact
+  raw_text: The task T037a performs a single-point DFT baseline calculation using
+    B3LYP/STO-3G.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:47:57Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Task T011b implements full 5-Fold LLSO logic
+  claim_id: c_2841f91c
+  context: T011b description in Phase 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task T011b implements full 5-Fold LLSO logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:48:24Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Task T023b orchestrates parallel training of 5 seeds
+  claim_id: c_221aee7c
+  context: T023b description in Phase 4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task T023b orchestrates parallel training of 5 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:48:50Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Scarcity flag logic triggers if count of valid reactions is less than
+    120
+  claim_id: c_bb613bb9
+  context: T016b description regarding scarcity threshold.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scarcity_flag_logic_triggers_if_count_of_valid_reactions_is
+  kind: magnitude
+  raw_text: The scarcity flag logic triggers if the count of valid reactions is less
+    than 120.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:49:39Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Task T017a sweeps cutoff values including 4.0 Angstroms
+  claim_id: c_012d4a25
+  context: T017a description regarding sensitivity analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task T017a sweeps cutoff values including 4.0 Angstroms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:50:03Z'
+- artifact_path: projects/PROJ-005-machine-learned-potentials-for-transitio/specs/001-machine-learned-potentials-for-transitio/tasks.md
+  attempts: 1
+  canonical: Task T017c flags samples with greater than 6 coordination as outliers
+  claim_id: c_f0ae3896
+  context: T017c description regarding outlier flagging logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Task_T017c_flags_samples_with_greater_than_6_coordination_as
+  kind: magnitude
+  raw_text: The task T017c flags samples with greater than 6 coordination as outliers.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T02:50:33Z'

@@ -1,3 +1,6 @@
+"""
+Unit tests for the Checksum Manager functionality.
+"""
 import json
 import tempfile
 import hashlib
@@ -6,123 +9,191 @@ import pytest
 import os
 import sys
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.data.checksum_manager import (
-    get_project_root,
     compute_file_checksum,
     load_checksum_manifest,
     save_checksum_manifest,
     verify_checksum,
     verify_all_files,
-    update_checksum_for_file
+    update_checksum_for_file,
+    get_project_root
 )
 
 class TestComputeFileChecksum:
-    def test_compute_file_checksum(self, tmp_path):
-        # Create a test file
+    def test_compute_checksum_valid_file(self, tmp_path):
+        """Test checksum computation on a valid file."""
         test_file = tmp_path / "test.txt"
         content = b"Hello, World!"
         test_file.write_bytes(content)
 
-        # Compute checksum
-        checksum = compute_file_checksum(test_file)
+        expected_hash = hashlib.sha256(content).hexdigest()
+        actual_hash = compute_file_checksum(test_file)
 
-        # Verify against known value
-        expected = hashlib.sha256(content).hexdigest()
-        assert checksum == expected
+        assert actual_hash == expected_hash
 
-    def test_compute_file_checksum_missing(self, tmp_path):
-        non_existent = tmp_path / "does_not_exist.txt"
+    def test_compute_checksum_missing_file(self, tmp_path):
+        """Test that FileNotFoundError is raised for missing file."""
+        missing_file = tmp_path / "nonexistent.txt"
+
         with pytest.raises(FileNotFoundError):
-            compute_file_checksum(non_existent)
+            compute_file_checksum(missing_file)
+
+    def test_compute_checksum_large_file(self, tmp_path):
+        """Test checksum computation on a larger file (chunked reading)."""
+        test_file = tmp_path / "large.bin"
+        # Create a 1MB file
+        content = b"x" * (1024 * 1024)
+        test_file.write_bytes(content)
+
+        expected_hash = hashlib.sha256(content).hexdigest()
+        actual_hash = compute_file_checksum(test_file)
+
+        assert actual_hash == expected_hash
 
 class TestChecksumManifest:
     def test_save_and_load_manifest(self, tmp_path):
+        """Test saving and loading a checksum manifest."""
         manifest_path = tmp_path / "manifest.json"
-        test_manifest = {"files": {"file1.txt": {"checksum": "abc123"}}}
+        test_manifest = {
+            "data/raw/file1.txt": "abc123...",
+            "data/raw/file2.bin": "def456..."
+        }
 
         save_checksum_manifest(test_manifest, manifest_path)
-        loaded = load_checksum_manifest(manifest_path)
 
-        assert loaded == test_manifest
+        loaded_manifest = load_checksum_manifest(manifest_path)
 
-    def test_load_missing_file_creates_empty(self, tmp_path):
-        manifest_path = tmp_path / "missing.json"
-        loaded = load_checksum_manifest(manifest_path)
-        assert loaded == {"files": {}}
+        assert loaded_manifest == test_manifest
+
+    def test_load_manifest_missing_file(self, tmp_path):
+        """Test that FileNotFoundError is raised for missing manifest."""
+        missing_manifest = tmp_path / "nonexistent.json"
+
+        with pytest.raises(FileNotFoundError):
+            load_checksum_manifest(missing_manifest)
+
+    def test_load_invalid_json(self, tmp_path):
+        """Test that JSONDecodeError is raised for invalid JSON."""
+        manifest_path = tmp_path / "invalid.json"
+        manifest_path.write_text("not valid json")
+
+        with pytest.raises(json.JSONDecodeError):
+            load_checksum_manifest(manifest_path)
 
 class TestVerifyChecksum:
-    def test_verify_checksum_valid(self, tmp_path):
-        test_file = tmp_path / "verify.txt"
-        content = b"Verify this"
+    def test_verify_valid_checksum(self, tmp_path):
+        """Test verification with matching checksum."""
+        test_file = tmp_path / "test.txt"
+        content = b"Test content"
         test_file.write_bytes(content)
-        checksum = hashlib.sha256(content).hexdigest()
 
+        checksum = compute_file_checksum(test_file)
         assert verify_checksum(test_file, checksum) is True
 
-    def test_verify_checksum_invalid(self, tmp_path):
-        test_file = tmp_path / "verify.txt"
-        test_file.write_bytes(b"Wrong content")
-        wrong_checksum = "0" * 64
+    def test_verify_invalid_checksum(self, tmp_path):
+        """Test verification with mismatched checksum."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Test content")
 
-        assert verify_checksum(test_file, wrong_checksum) is False
+        assert verify_checksum(test_file, "wrong_checksum") is False
+
+    def test_verify_missing_file(self, tmp_path):
+        """Test verification on missing file."""
+        missing_file = tmp_path / "nonexistent.txt"
+
+        assert verify_checksum(missing_file, "any_checksum") is False
 
 class TestVerifyAllFiles:
-    def test_verify_all_files_valid(self, tmp_path):
-        # Setup
-        file1 = tmp_path / "f1.txt"
-        file1.write_bytes(b"data1")
-        file2 = tmp_path / "f2.txt"
-        file2.write_bytes(b"data2")
+    def test_verify_all_valid(self, tmp_path):
+        """Test verifying multiple valid files."""
+        manifest_path = tmp_path / "manifest.json"
+        raw_dir = tmp_path / "raw"
+        raw_dir.mkdir()
+
+        # Create test files
+        file1 = raw_dir / "file1.txt"
+        file1.write_bytes(b"Content 1")
+        file2 = raw_dir / "file2.txt"
+        file2.write_bytes(b"Content 2")
 
         manifest = {
-            "files": {
-                "f1.txt": {"checksum": hashlib.sha256(b"data1").hexdigest()},
-                "f2.txt": {"checksum": hashlib.sha256(b"data2").hexdigest()}
-            }
+            "raw/file1.txt": compute_file_checksum(file1),
+            "raw/file2.txt": compute_file_checksum(file2)
         }
+        save_checksum_manifest(manifest, manifest_path)
 
-        passed, failed = verify_all_files(manifest, tmp_path)
-        assert passed is True
-        assert len(failed) == 0
+        all_ok, failures = verify_all_files(manifest_path, tmp_path)
 
-    def test_verify_all_files_missing(self, tmp_path):
+        assert all_ok is True
+        assert len(failures) == 0
+
+    def test_verify_all_with_missing_file(self, tmp_path):
+        """Test verification when one file is missing."""
+        manifest_path = tmp_path / "manifest.json"
+        raw_dir = tmp_path / "raw"
+        raw_dir.mkdir()
+
+        file1 = raw_dir / "file1.txt"
+        file1.write_bytes(b"Content 1")
+
+        # Create manifest with a missing file
         manifest = {
-            "files": {
-                "missing.txt": {"checksum": "abc"}
-            }
+            "raw/file1.txt": compute_file_checksum(file1),
+            "raw/file2.txt": "some_checksum"  # This file doesn't exist
         }
-        passed, failed = verify_all_files(manifest, tmp_path)
-        assert passed is False
-        assert "missing.txt" in failed
+        save_checksum_manifest(manifest, manifest_path)
+
+        all_ok, failures = verify_all_files(manifest_path, tmp_path)
+
+        assert all_ok is False
+        assert "raw/file2.txt" in failures
 
 class TestUpdateChecksumForFile:
-    def test_update_checksum_for_file(self, tmp_path):
-        test_file = tmp_path / "update.txt"
-        test_file.write_bytes(b"new data")
+    def test_update_existing_manifest(self, tmp_path):
+        """Test updating checksum in an existing manifest."""
+        manifest_path = tmp_path / "manifest.json"
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"Original content")
 
-        manifest = {"files": {}}
-        updated_manifest = update_checksum_for_file(test_file, manifest)
+        # Create initial manifest
+        initial_manifest = {"test.txt": "old_checksum"}
+        save_checksum_manifest(initial_manifest, manifest_path)
 
-        assert "update.txt" in updated_manifest["files"]
-        assert updated_manifest["files"]["update.txt"]["checksum"] == hashlib.sha256(b"new data").hexdigest()
+        # Update content
+        test_file.write_bytes(b"New content")
+
+        # Update checksum
+        update_checksum_for_file(test_file, manifest_path)
+
+        # Verify update
+        manifest = load_checksum_manifest(manifest_path)
+        new_checksum = compute_file_checksum(test_file)
+        assert manifest["test.txt"] == new_checksum
+
+    def test_update_new_file(self, tmp_path):
+        """Test updating checksum for a file not in manifest."""
+        manifest_path = tmp_path / "manifest.json"
+        test_file = tmp_path / "test.txt"
+        test_file.write_bytes(b"New content")
+
+        # Create empty manifest
+        save_checksum_manifest({}, manifest_path)
+
+        update_checksum_for_file(test_file, manifest_path)
+
+        manifest = load_checksum_manifest(manifest_path)
+        assert "test.txt" in manifest
+        assert manifest["test.txt"] == compute_file_checksum(test_file)
 
 class TestGetProjectRoot:
-    # Note: This test assumes a specific directory structure or mocks the environment.
-    # In a strict unit test, we might mock Path.cwd() or pass a specific root.
-    # For now, we test the logic that raises if not found.
-    def test_get_project_root_fallback_logic(self):
-        # This is a structural test. If run in a standard env without project root, it might fail.
-        # We rely on the fact that if the test is run inside the repo, it should find it.
-        # If not, we catch the exception as valid behavior for "not found".
-        try:
-            root = get_project_root()
-            assert root.exists()
-            # Basic sanity check
-            assert (root / "data").exists() or (root / "code").exists()
-        except FileNotFoundError:
-            # If we are running in a context without the project structure (e.g. /tmp),
-            # this is expected behavior for the function.
-            pass
+    def test_get_project_root_returns_path(self):
+        """Test that get_project_root returns a valid Path object."""
+        root = get_project_root()
+        assert isinstance(root, Path)
+        assert root.exists()
+        # Check that 'src' directory exists under root
+        assert (root / 'src').exists()

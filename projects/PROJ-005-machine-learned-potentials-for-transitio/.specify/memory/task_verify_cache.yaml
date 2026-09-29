@@ -1,16 +1,10 @@
-T010:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data/raw/` directory or any checksum\u2011verification script/code was presented.\
-    \ The claim lacks any tangible artifact (files, directory structure, or implementation)\
-    \ that demonstrates the required setup, so the task is not satisfied."
-T015b:
-  c: false
-  h: 38b2e10e1c507fcfdd8ad1485ef2da173a689519bf14d85bf3e41cee7c216df3
-  r: "The provided `src/data/ingest.py` does not contain any code that checks a count\
-    \ against the 120\u2011item threshold or writes `data/processed/data_scarcity_flag.json`,\
-    \ and the expected JSON file is absent from the repository. Consequently the scarcity\u2011\
-    flag feature is not implemented."
+T008:
+  c: true
+  h: 0f885b9486070ef7515ebf0d6baee969bc48c057b3a96ec1452d755beeb79138
+  r: "The `code/contracts/dataset_graph.schema.yaml` file is present (4026\u202Fbytes)\
+    \ and defines node and edge attributes as well as graph metadata fields including\
+    \ `energy_dft`, `barrier_height`, `metal_center`, and `ligand_class`, satisfying\
+    \ the requested schema."
 T018:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -18,13 +12,6 @@ T018:
     \ implementation of outlier handling (i.e., detecting samples with coordination\u202F\
     >\u202F6, flagging them for exclusion from training while keeping them in the\
     \ test set). Without such evidence, the requirement is not satisfied."
-T027:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides only the task description and user stories; there are
-    no code, data files, notebooks, or output showing that the ensemble variance and
-    its correlation with error magnitude were actually computed. Consequently, the
-    required artifact (computed variance and correlation results) is missing.
 T032:
   c: false
   h: d4694a535b8dbcafcd33ddebcb7127fa1373ff8e04b8457def94c8ada93c7ad0
@@ -46,9 +33,3 @@ T041:
     is present to demonstrate that a constitution check was actually performed; the
     claim lacks any concrete evidence of citations verified, checksums computed, or
     reproducibility steps documented. The required deliverable is missing.
-T042:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file or its updated contents were provided; without the actual
-    document showing the final findings on ligand generalization and structural features,
-    the task requirement cannot be verified as satisfied.
