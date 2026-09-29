@@ -59,7 +59,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete. All test infrastructure (T012, T013) must be ready before test-writing tasks in Phase 3.
 
-- [X] T004 [P] Create `src/models/simulation_box.py` (Data class for atomic positions, velocities, metadata, thermal conductivity)
+- [X] T004 [P] Create `src/models/simulation_box.py` (Data class for atomic positions, velocities, and metadata)
 - [X] T005 [P] Create `src/models/bond_network.py` (Graph representation: nodes=atoms, edges=bonds, metrics)
 - [X] T006 [P] Create `src/models/vibrational_spectrum.py` (Data class for VDOS, participation ratio, frequency bins)
 - [ ] T007 [P] Create `src/lib/utils.py` (Checksum verification, logging setup, seed management, and file validation enhancements)
@@ -67,25 +67,23 @@
 - [ ] T009 [P] Create directory structure `tests/unit/`, `tests/integration/`, `tests/contract/`
  - **Note**: This task is a blocking prerequisite for test-writing tasks T012-T037. Must **complete** (files created) before T012-T016 can be **written**.
 - [X] T010 [P] Configure `pyproject.toml` with pytest plugins (`pytest-randomly`, `pytest-cov`) and coverage thresholds
- - **Note**: This task is a blocking prerequisite for test-writing tasks T012-T037. Must **complete** (config written) before T012-T016 can be **written**.
+ - **Note**: This task is a blocking prerequisite for test-writing tasks T012-T016. Must **complete** (config written) before T012-T016 can be **written**.
 
 **Data Acquisition & Reference Generation Tasks (Must precede US Implementation)**
 
-- [ ] T056 [US1] Implement `src/services/data_loader.py` to fetch real amorphous silicon trajectories
+- [ ] T056 [Foundational] Implement `src/services/data_loader.py` to fetch real amorphous silicon trajectories
  - Fetch datasets using IDs defined in `research.md` Verified Datasets block (e.g., specific Zenodo/Materials Cloud IDs) for **all available** system sizes (N=1000, 2000, 4000).
- - **MUST fail loudly** if download fails or if ID is not found in `research.md`; NO synthetic fallback allowed
- - If specific datasets are missing, write a detailed error report to `data/raw/missing_datasets.log` and exit with code 1. Do not proceed to downstream tasks.
- - Verify checksums against provided manifest
- - Output raw files to `data/raw/` with metadata logs
+ - **MUST fail loudly** if download fails or if ID is not found in `research.md`; NO synthetic fallback allowed.
+ - **Distinction on Failure**: If the real fetch fails (network error, missing file), raise `FatalError`. If the fetch succeeds but the number of realizations per size is < 30, **DO NOT halt**; instead, log a "Limited Sample" warning to `data/raw/missing_datasets.log` and proceed, flagging "Limited Sample" in `outputs/reports/limitations.md`.
  - **Do not hardcode IDs**; use the verified list from `research.md`
  - **Scope**: Fetch **all available** realizations for the 3 system sizes. If < 30 realizations exist per size, proceed but flag "Limited Sample" later.
-- [ ] T039 [US3] Implement `src/services/independent_source_fetcher.py` (FR-008, US-3)
+- [ ] T039 [Foundational] Implement `src/services/reference_generator.py` (FR-008, US-3)
  - **Depends on T056**: Requires access to simulation box metadata and system sizes.
- - **Fetch Independent κ**: Attempt to download thermal conductivity ($\kappa$) values from **independent sources** (experimental measurements or distinct MD runs) listed in `research.md`.
- - **Strict Independence**: **MUST NOT** generate synthetic values. If no independent source is found for a specific system size, the system MUST raise a `FatalError` and halt the pipeline.
- - Output `data/derived/reference/κ_values.csv` with columns: `system_size`, `temperature`, `kappa_value`, `source_type` (experimental/simulation), `source_id`, `trajectory_id`.
- - Verify independence of source trajectory vs topology source (log to `data/metadata/independence_log.json`).
- - **FR-008 Compliance**: If the source is not independent (same trajectory ID), raise `FatalError`.
+ - **Fetch Independent κ**: Attempt to download thermal conductivity ($\kappa$) values from **independent sources** (experimental measurements or distinct simulation run) from sources in `research.md`.
+ - **Strict Independence**: **MUST** implement `src/services/independence_validator.py` to verify that the source trajectory ID is different from the topology extraction trajectory. Raise `FatalError` if not independent.
+ - Output `data/derived/reference/κ_values.csv`.
+ - Verify independence of source trajectory vs topology source.
+ - **FR-008 Compliance**: If the source is not independent, raise `FatalError`.
 
 **Checkpoint**: Foundation + Data + Reference ready - user story implementation can now begin in parallel
 
@@ -98,10 +96,6 @@
 **Independent Test**: The system can process a single, small amorphous silicon trajectory file and output a CSV containing atomic IDs, coordination numbers, and local bond angle variance without requiring thermal conductivity data or VDOS calculation.
 
 ### Tests for User Story 1 (TDD: Write tests first)
-
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. T012 and T013 MUST precede T017.
-> **Execution Note**: These tests are written first (TDD) but can only be *executed* after T017 is implemented.
-> **[P] Note**: [P] indicates parallel **writing** capability. Execution is blocked by T017 implementation completion. T009/T010 must complete before T012-T016 can be written.
 
 - [ ] T012 [P] [US1] Contract test for topology schema in `tests/contract/test_topology_schema.py` (Validates CSV columns: atom_id, coord_num, angle_var, is_valid)
  - **Depends on T009, T010** (Completion required before writing)
@@ -125,7 +119,7 @@
  - Construct bond network based on cutoff.
  - Compute local metrics (coordination number, bond angle variance).
  - **Anomaly Flagging**: Implement mandatory flagging of any atom with coordination > 6 as a "Physical Anomaly" without halting the process.
- - Validate average coordination against reference value (4.00 ± 0.05) [UNRESOLVED-CLAIM: c_1d057ae5 — status=not_enough_info] and flag result.
+ - Validate average coordination against reference value (4.00 ± 0.05) and flag result.
  - Output `data/derived/topology/` CSVs.
  - **TDD Note**: Can be developed using a local mock file before T056 succeeds.
 - [ ] T018 [US1] Add logging for topology extraction steps and RDF cutoff decisions (US-1 Edge Cases)
@@ -172,15 +166,15 @@
  - Document numerical tolerance thresholds in code comments and `data/derived/vdos/tolerance_report.txt` (Constitution Principle VI).
  - Output `data/derived/vdos/` CSVs.
 - [ ] T027 [US2] Implement `src/services/sensitivity_analyzer.py` (US-2)
- - Sweep under-coordination threshold (±0.5) [UNRESOLVED-CLAIM: c_866eaf85 — status=not_enough_info]
+ - Sweep under-coordination threshold (±0.5)
  - Calculate bottleneck density (coordination < 3)
  - Report coefficient of variation
  - Output sensitivity report
-- [ ] T028 [US2] Add validation for acoustic modes (non-zero low-freq) and high-freq peak (10.0–15.0 THz) in `src/services/vdos_calculator.py` (US-2 Acceptance 1)
- - **Thresholds**: {{claim:c_ae658279}} High-freq peak range: –15.0 THz (positive values).
- - **Action**: Log warning if acoustic modes are near zero or high-freq peak is missing.
+- [ ] T028 [US2] Implement validation for acoustic modes (non-zero low-freq) and high-freq peak (10.0–15.0 THz) in `src/services/vdos_calculator.py` (US-2 Acceptance 1)
+ - **Thresholds**:  High-freq peak range: – THz (positive values).
+ - **Action**: Raise ValueError or halt pipeline if high-frequency peak is absent.
 - [ ] T029 [US2] Create `tests/integration/test_full_vdos.py` to verify end-to-end VDOS calculation on a reference box
-- [ ] T030 [US2] Document numerical tolerance thresholds in code comments and `data/derived/vdos/tolerance_report.txt` (Constitution Principle VI)
+- [ ] T030 [US2] Document numerical tolerance thresholds in code comments *and* `config.yaml` (Constitution Principle VI)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -190,14 +184,13 @@
 
 **Goal**: Aggregate metrics with independent thermal conductivity data, perform correlation analysis with Bootstrap, and validate robustness across three distinct system sizes.
 
-**Independent Test**: The system can ingest three datasets with distinct system sizes (N=1000, 2000, 4000) and pre-computed topology, run the correlation analysis, and output a summary table showing the correlation coefficient, p-value, and 95% confidence interval for each dataset.
+**Independent Test**: The system can ingest three datasets with distinct system sizes and pre-computed topology, run the correlation analysis, and output a summary table showing the correlation coefficient, p-value, and 95% confidence interval for each dataset.
 
 ### Tests for User Story 3
 
 - [ ] T031 [P] [US3] Contract test for correlation schema in `tests/contract/test_correlation_schema.py` (Validates output: r, p_value, ci, power, corrected_p)
  - **Depends on T009, T010**
 - [ ] T032 [P] [US3] Unit test for Bootstrap resampling in `tests/unit/test_bootstrap.py` (Verifies multiple iterations and CI calculation accuracy vs manual calculation with |output - manual| < 1e-6)
- - **Note**: The "manual calculation" oracle must be a deterministic, script-based calculation defined here to serve as the reference for T041.
  - **Depends on T009, T010**
 - [ ] T033 [P] [US3] Unit test for multiple-comparison correction in `tests/unit/test_corrections.py` (Bonferroni/FDR)
  - **Depends on T009, T010**
@@ -212,7 +205,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T046 [US3] Implement loop to ingest data for **three distinct system sizes (N=1000, 2000, 4000)** and aggregate power metrics (FR-006, Plan Scale/Scope)
+- [ ] T046 [US3] Implement loop to ingest data for **three distinct system sizes** (N=1000, 2000, 4000) and aggregate power metrics (FR-006, Plan Scale/Scope)
  - **Data Source**: Process **all available realizations** fetched by T056 for each of the 3 system sizes.
  - **Statistical Validity**: If available realizations < 30 per size, flag "Low Statistical Power / Limited Sample" in report. Do not fabricate data.
  - Pass sample size count to power calculator.
@@ -222,16 +215,15 @@
  - Perform Spearman and Pearson correlation.
  - Execute Bootstrap Resampling for confidence interval (sufficient iterations).
  - Apply multiple-comparison correction (Bonferroni/FDR) with unit of testing: **per metric per system-size comparison**.
- - **Power Analysis**: Read effect size from `config.yaml` (fixed value 0.3).
- - **Reference Oracle**: Use the deterministic reference calculation defined in T032 to verify accuracy (|output - manual| < 1e-6).
+ - **Power Analysis**: Calculate observed effect size from the correlation results and use it as input for power analysis.
  - **Limitation Reporting**: If available realizations < 30, flag "Low Statistical Power / Limited Sample" in the final report.
  - Output `data/derived/correlation/` results and summary tables.
 - [ ] T042 [US3] Implement finite-size effect validation (compare correlation consistency across sizes) (US-3 Acceptance 1)
  - **Explicitly output the variance value** of correlation coefficients across the three system sizes.
 - [ ] T043 [US3] Add "Low Power" warning logic if power < 0.8 (SC-002)
 - [ ] T047 [US3] Implement explicit reporting of statistical power value (SC-002)
- - **Effect Size Source**: Read effect size (0.3) from `config.yaml` (created by T048).
- - **Documentation**: The effect size 0.3 is a fixed assumption based on literature review (document source in `outputs/reports/assumptions.md`).
+ - **Effect Size Source**: Calculate observed effect size from the correlation results.
+ - **Documentation**: Document the effect size calculation in `outputs/reports/assumptions.md`.
  - Ensure the calculated statistical power is reported in the final summary table and report.
  - Flag "Low Power" if < 0.8.
 - [ ] T044 [US3] Create `tests/integration/test_full_correlation.py` to verify end-to-end statistical pipeline
@@ -248,7 +240,7 @@
 
 - [ ] T048 [P] Create `config.yaml` with fixed effect size assumption
  - **Content**: `effect_size: 0.3`, `bootstrap_iterations: a sufficient number of iterations to ensure convergence`, `The random seed will be set to a fixed value to ensure reproducibility.`
- - **Documentation**: Add comment in file: "Effect size 0.3 is a fixed assumption for MVP based on literature review (see outputs/reports/assumptions.md)."
+ - **Documentation**: Add comment in file: "Effect size is a fixed assumption based on literature review (see outputs/reports/assumptions.md)."
 - [ ] T049 [P] Implement `scripts/update_state_hashes.py` to compute SHA256 of all artifacts and update state YAML
 - [ ] T050 [P] Generate final report in `outputs/reports/` (PDF/HTML) including all correlation tables, figures, and sensitivity analysis
 - [ ] T051 [P] Create `outputs/figures/` (RDF plots, VDOS spectra, Correlation scatter plots with CI bands)
@@ -267,19 +259,10 @@
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
  - **T009/T010 (Test Infra) MUST complete before T012-T037**
  - **T056 (Data Fetch) MUST succeed before T017, T026, T039**
- - **T039 (Independent Source Fetch) MUST complete before T041**
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion AND Data Acquisition
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 1 (Phase 3)**: Can start after Foundational (Phase 2) - No dependencies on other stories
  - **T012/T013 (Tests) MUST precede T017 (Implementation)**
- - **T056 (Data Fetch) MUST precede T017**
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 2 (Phase 4)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (Phase 5)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
 ### Within Each User Story
 
@@ -292,64 +275,12 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T004-T008) can run in parallel
-- **Data Acquisition (T056, T039) can run in parallel with Foundational tasks (T004-T008)**
+- All Foundational tasks marked [P] can run in parallel
+- **Data Acquisition (T056, T039) can run in parallel with Foundational tasks**
 - Once Foundational + Data Acquisition complete, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel (writing)
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for topology schema in tests/contract/test_topology_schema.py" (T012)
-Task: "Unit test for RDF calculation in tests/unit/test_rdf.py" (T013)
-Task: "Unit test for bond network construction in tests/unit/test_bond_network.py" (T014)
-
-# Launch all models for User Story 1 together:
-Task: "Create src/models/simulation_box.py" (T004)
-Task: "Create src/models/bond_network.py" (T005)
-
-# Launch Data Acquisition in parallel with Setup/Foundational:
-Task: "Implement data loader for Materials Cloud (T056)"
-Task: "Implement independent source fetcher (T039)"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories) + **Data Acquisition (T056, T039)**
-3. Complete Phase 3: User Story 1 (Tests T012-T016 first, then Implementation T017-T020)
-4. **STOP and VALIDATE**: Test User Story 1 independently with real data
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Complete Data Acquisition (Phase 2) → Real data secured
-3. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-4. Add User Story 2 → Test independently → Deploy/Demo
-5. Add User Story 3 → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Developer D: **Data Acquisition (Phase 2)** - Secure real datasets (T056, T039)
-3. Once Foundational + Data Acquisition done:
- - Developer A: User Story 1 (Tests T012-T016, then Implementation T017-T020)
- - Developer B: User Story 2
- - Developer C: User Story 3
-4. Stories complete and integrate independently
 
 ---
 
