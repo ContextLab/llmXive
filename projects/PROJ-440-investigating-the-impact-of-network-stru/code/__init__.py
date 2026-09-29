@@ -1,1 +1,1 @@
-# This file makes the code directory a Python package
+# Code package for PROJ-440

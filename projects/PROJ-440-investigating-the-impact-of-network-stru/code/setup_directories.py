@@ -4,9 +4,20 @@ from pathlib import Path
 def setup_directories():
     """
     Create the required directory structure for the project.
-    Creates: code/, data/, data/raw/, data/processed/, data/analysis/, tests/, contracts/, state/
+    
+    Creates:
+    - code/
+    - data/
+    - data/raw/
+    - data/processed/
+    - data/analysis/
+    - tests/
+    - contracts/
+    - state/
+    - templates/
+    - docs/
     """
-    base_dir = Path(".")
+    base_dir = Path.cwd()
     
     directories = [
         "code",
@@ -16,23 +27,26 @@ def setup_directories():
         "data/analysis",
         "tests",
         "contracts",
-        "state"
+        "state",
+        "templates",
+        "docs"
     ]
     
     created_count = 0
-    for dir_name in directories:
-        dir_path = base_dir / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
             created_count += 1
-            print(f"Created directory: {dir_path}")
         else:
-            print(f"Directory already exists: {dir_path}")
+            print(f"Directory already exists: {full_path}")
     
-    print(f"Directory setup complete. {created_count} new directories created.")
-    return True
+    print(f"\nDirectory setup complete. Created {created_count} new directories.")
+    return created_count
 
 def main():
+    """Entry point for the script."""
     setup_directories()
 
 if __name__ == "__main__":

@@ -1,101 +1,120 @@
 """
 Utility module for loading and validating the energy decay schema.
-Provides functions to read the YAML schema and validate CSV data against it.
 """
 import yaml
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 import csv
+import re
 
-SCHEMA_PATH = Path("contracts/energy_schema.schema.yaml")
+SCHEMA_PATH = Path(__file__).parent.parent.parent / "contracts" / "energy_schema.schema.yaml"
 
-def load_energy_schema() -> Dict[str, Any]:
+def load_energy_schema(schema_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load the energy decay schema from the YAML file.
+    Load the energy decay schema from YAML file.
+    
+    Args:
+        schema_path: Optional path to schema file. Defaults to contracts/energy_schema.schema.yaml
     
     Returns:
-        Dict containing the parsed schema definition.
-        
+        Dictionary containing the schema definition
+    
     Raises:
-        FileNotFoundError: If the schema file does not exist.
-        yaml.YAMLError: If the schema file is not valid YAML.
+        FileNotFoundError: If schema file does not exist
+        yaml.YAMLError: If schema file is not valid YAML
     """
-    if not SCHEMA_PATH.exists():
-        raise FileNotFoundError(f"Schema file not found: {SCHEMA_PATH}")
-        
-    with open(SCHEMA_PATH, 'r') as f:
+    if schema_path is None:
+        schema_path = SCHEMA_PATH
+    
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, 'r', encoding='utf-8') as f:
         schema = yaml.safe_load(f)
-        
+    
     return schema
 
-def validate_csv_against_schema(csv_path: str, schema: Optional[Dict[str, Any]] = None) -> Tuple[bool, str]:
+def validate_csv_against_schema(csv_path: Path, schema: Optional[Dict[str, Any]] = None) -> Tuple[bool, list]:
     """
     Validate a CSV file against the energy decay schema.
     
     Args:
-        csv_path: Path to the CSV file to validate.
-        schema: Optional pre-loaded schema. If None, loads from default path.
-        
+        csv_path: Path to the CSV file to validate
+        schema: Optional schema dictionary. If None, loads from default location.
+    
     Returns:
-        Tuple of (is_valid, error_message)
-        is_valid is True if the CSV matches the schema requirements.
+        Tuple of (is_valid, list_of_errors)
     """
+    errors = []
+    
     if schema is None:
         try:
             schema = load_energy_schema()
-        except Exception as e:
-            return False, f"Failed to load schema: {e}"
+        except FileNotFoundError as e:
+            return False, [str(e)]
     
-    if not os.path.exists(csv_path):
-        return False, f"CSV file not found: {csv_path}"
+    if not csv_path.exists():
+        return False, [f"CSV file not found: {csv_path}"]
     
-    try:
-        with open(csv_path, 'r', newline='') as f:
-            reader = csv.DictReader(f)
-            headers = reader.fieldnames
+    # Get required fields from schema
+    required_fields = schema.get('required', [])
+    properties = schema.get('properties', {})
+    
+    with open(csv_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        
+        # Check if all required columns exist
+        if reader.fieldnames is None:
+            return False, ["CSV file is empty or has no headers"]
+        
+        missing_columns = set(required_fields) - set(reader.fieldnames)
+        if missing_columns:
+            errors.append(f"Missing required columns: {missing_columns}")
+        
+        # Validate each row
+        for row_num, row in enumerate(reader, start=2):  # Start at 2 (1 is header)
+            # Check for missing required fields in row
+            for field in required_fields:
+                if field not in row or row[field] == '' or row[field] is None:
+                    errors.append(f"Row {row_num}: Missing required field '{field}'")
             
-            if not headers:
-                return False, "CSV file is empty or has no headers"
-            
-            # Check required fields from schema
-            required_fields = schema.get('required', [])
-            missing_fields = [field for field in required_fields if field not in headers]
-            
-            if missing_fields:
-                return False, f"Missing required columns: {', '.join(missing_fields)}"
-            
-            # Validate a few rows for type consistency (basic check)
-            row_count = 0
-            for row in reader:
-                row_count += 1
-                if row_count > 100:  # Check first 100 rows for performance
-                    break
-                    
-                # Check numeric fields
-                numeric_fields = ['decay_rate', 'r_squared', 'convergence_std', 'convergence_mean', 
-                                'clustering_coeff', 'avg_path_length', 'avg_degree', 'N']
+            # Validate field types and constraints
+            for field, value in row.items():
+                if field not in properties:
+                    continue  # Skip extra fields if additionalProperties is False
                 
-                for field in numeric_fields:
-                    if field in row and row[field]:
+                field_schema = properties[field]
+                field_type = field_schema.get('type')
+                
+                # Type validation
+                if field_type == 'string':
+                    if not isinstance(value, str):
+                        errors.append(f"Row {row_num}: Field '{field}' should be string")
+                    elif 'pattern' in field_schema:
+                        pattern = field_schema['pattern']
+                        if not re.match(pattern, value):
+                            errors.append(f"Row {row_num}: Field '{field}' does not match pattern {pattern}")
+                
+                elif field_type == 'number':
+                    try:
+                        num_value = float(value) if value else None
+                        if num_value is not None:
+                            if 'minimum' in field_schema and num_value < field_schema['minimum']:
+                                errors.append(f"Row {row_num}: Field '{field}' ({num_value}) is below minimum {field_schema['minimum']}")
+                            if 'maximum' in field_schema and num_value > field_schema['maximum']:
+                                errors.append(f"Row {row_num}: Field '{field}' ({num_value}) is above maximum {field_schema['maximum']}")
+                    except ValueError:
+                        errors.append(f"Row {row_num}: Field '{field}' is not a valid number: {value}")
+                
+                elif field_type == 'object':
+                    # For JSON fields, we expect string representation of JSON
+                    if value and not isinstance(value, dict):
                         try:
-                            float(row[field])
-                        except ValueError:
-                            return False, f"Row {row_count}: Invalid numeric value for '{field}': {row[field]}"
-                
-                # Check enum fields
-                enum_fields = {
-                    'class': ['random', 'scale_free', 'small_world', 'lattice', 'star'],
-                    'status': ['dissipative', 'resonant', 'unstable', 'failed']
-                }
-                
-                for field, allowed_values in enum_fields.items():
-                    if field in row and row[field] and row[field] not in allowed_values:
-                        return False, f"Row {row_count}: Invalid value for '{field}': {row[field]}. Allowed: {allowed_values}"
-            
-            return True, f"Validation passed. Checked {row_count} rows."
-            
-    except csv.Error as e:
-        return False, f"CSV parsing error: {e}"
-    except Exception as e:
-        return False, f"Unexpected error during validation: {e}"
+                            import json
+                            json.loads(value)  # Validate it's valid JSON
+                        except (ValueError, TypeError):
+                            errors.append(f"Row {row_num}: Field '{field}' is not valid JSON")
+    
+    is_valid = len(errors) == 0
+    return is_valid, errors

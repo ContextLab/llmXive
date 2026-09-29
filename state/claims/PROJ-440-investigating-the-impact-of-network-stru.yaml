@@ -1420,3 +1420,378 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-25T19:08:49Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: User Story 1 output CSV contains at least 50 rows with minimum 10 per
+    class
+  claim_id: c_3d5bee15
+  context: "Independent Test: Verify output CSV contains \u226550 rows (min 10 per\
+    \ class), valid metrics (clustering 0-1), and theoretical matches (KS-test p>0.05\
+    \ for Scale-Free)."
+  evidence:
+    candidates:
+    - - User Story 1 output CSV contains at least
+      - 50.0
+    - - Donate Create account Log in User Story
+      - 1.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/User_Story_1_output_CSV_contains_at_least_50_rows_with_minim
+  kind: magnitude
+  raw_text: "The independent test for User Story 1 requires the output CSV to contain\
+    \ \u226550 rows, with a minimum of 10 per class."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T16:55:21Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: User Story 1 KS-test p-value greater than 0.05 for Scale-Free graphs
+  claim_id: c_80ffbf56
+  context: "Independent Test: Verify output CSV contains \u226550 rows (min 10 per\
+    \ class), valid metrics (clustering 0-1), and theoretical matches (KS-test p>0.05\
+    \ for Scale-Free)."
+  evidence:
+    candidates:
+    - - Donate Create account Log in User Story
+      - 1.0
+    - - User Story 1 KS-test p-value greater than
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/User_Story_1_KS-test_p-value_greater_than_0.05_for_Scale-Fre
+  kind: magnitude
+  raw_text: The independent test for User Story 1 requires a KS-test p-value greater
+    than 0.05 for Scale-Free graphs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T16:56:59Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: User Story 2 decay rate matches analytical solution within 1% error on
+    ring graph
+  claim_id: c_3a4d9553
+  context: "Independent Test: Verify decay rate matches analytical solution (\u03BB\
+    \ = damping/2) within 1% error on a known ring graph; verify R\xB2 \u2265 0.95\
+    \ for fits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The independent test for User Story 2 requires the decay rate to match\
+    \ the analytical solution \u03BB = damping/2 within 1% error on a known ring graph."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:57:29Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: User Story 2 R-squared value at least 0.95
+  claim_id: c_5dbb7446
+  context: "Independent Test: Verify decay rate matches analytical solution (\u03BB\
+    \ = damping/2) within 1% error on a known ring graph; verify R\xB2 \u2265 0.95\
+    \ for fits."
+  evidence:
+    candidates:
+    - - Donate Create account Log in User Story
+      - 2.0
+    - - User Story 2 R-squared value at least
+      - 0.95
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/User_Story_2_R-squared_value_at_least_0.95
+  kind: magnitude
+  raw_text: "The independent test for User Story 2 requires an R\xB2 value of at least\
+    \ 0.95 for fits."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T16:58:00Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Analytical decay match test asserts decay rate matches lambda equals
+    damping over 2 within 1 percent
+  claim_id: c_ba610630
+  context: "- [X] T017b [P] [US2] Unit test `test_analytical_decay_match` in `tests/test_simulation.py`:\
+    \ assert decay rate matches \u03BB = damping/2 within 1% for ring graph"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The unit test test_analytical_decay_match asserts that the decay rate\
+    \ matches \u03BB = damping/2 within 1% for a ring graph."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:58:31Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Generate networks implementation generates 50 or more networks with N
+    between 100 and 200
+  claim_id: c_8c348ff1
+  context: '- [X] T012 [P] [US1] Implement `code/generate_networks.py` to generate
+    50+ networks (N=100-200) across Several classes (Random, Scale-Free, Small-World,
+    Lattice, Star) with pinned random seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation of generate_networks.py is required to generate 50+
+    networks with N=100-200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:59:14Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Generate networks implementation ensures at least 10 realizations per
+    class
+  claim_id: c_2267b747
+  context: '- [X] T012 [P] [US1] Implement `code/generate_networks.py` to generate
+    50+ networks (N=100-200) across Several classes (Random, Scale-Free, Small-World,
+    Lattice, Star) with pinned random seeds. **Ensure at least 10 realizations per
+    class ** to meet FR-001.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_networks_implementation_ensures_at_least_10_realiza
+  kind: magnitude
+  raw_text: The implementation of generate_networks.py must ensure at least 10 realizations
+    per class.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:59:49Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Random graphs theoretical validation within 5 percent of theoretical
+    expectations
+  claim_id: c_b0c1b317
+  context: '- [X] T014b [US1] Implement theoretical validation for Random graphs:
+    average degree and clustering coefficient within 5% of theoretical expectations
+    in `code/generate_networks.py`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical validation for Random graphs requires average degree and
+    clustering coefficient to be within 5% of theoretical expectations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T16:59:49Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: ODE integration uses T equals 200 with driving active T equals 0 to 100
+  claim_id: c_88bc548e
+  context: '- [X] T021b [US2] Implement `solve_ivp` integration (T=200, driving active
+    T=0-100) using `RK45` or `DOP853` in `code/simulate_oscillators.py` (Depends on
+    T015: requires `data/raw/networks.csv`)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ODE integration in simulate_oscillators.py uses T=200 with driving
+    active from T=0 to T=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:00:49Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Fit damped sinusoid fits model to post-transient phase t greater than
+    100
+  claim_id: c_34a778fc
+  context: "- [X] T022a [P] [US2] Implement energy decay extraction logic: Define\
+    \ function `fit_damped_sinusoid(t, E)` in `code/simulate_oscillators.py` using\
+    \ `scipy.optimize.curve_fit` to fit `E(t) = A * exp(-\u03BBt) * cos(\u03C9t +\
+    \ \u03C6) + C` to post-transient phase (t > 100)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fit_damped_sinusoid_fits_model_to_post-transient_phase_t_gre
+  kind: magnitude
+  raw_text: "The fit_damped_sinusoid function fits the model E(t) = A * exp(-\u03BB\
+    t) * cos(\u03C9t + \u03C6) + C to the post-transient phase (t > 100)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:01:01Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Convergence testing uses 10 seeds
+  claim_id: c_665a3672
+  context: '- [ ] T023a [P] [US2] Implement convergence testing logic: Define function
+    `run_convergence_test(graph_id, num_seeds=10)` in `code/simulate_oscillators.py`
+    that runs simulation with Multiple different random seeds for a given graph.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The convergence testing logic is defined to run simulation with Multiple
+    different random seeds for a given graph, explicitly specifying 10 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:01:49Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Convergence testing seed generation uses numpy random seed base seed
+    plus i for i in 0 to 9
+  claim_id: c_1dd565a6
+  context: '- [ ] T022c [US2] Implement explicit resonance detection logic: ... **Explicitly
+    specify** the number of seeds (10) and the algorithm for seed generation: `numpy.random.seed(base_seed
+    + i)` for i in 0..9.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The convergence testing algorithm uses the seed generation method numpy.random.seed(base_seed
+    + i) for i in 0..9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:02:16Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Convergence testing triggers numerical instability warning if std over
+    mean is at least 0.01
+  claim_id: c_cecea0a4
+  context: '- [ ] T024b [US2] Execute convergence testing: ... **Contingency**: If
+    `std/mean >= 0.01` (SC-006), log a ''Numerical Instability Warning'' to `state/execution_log.json`...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_testing_triggers_numerical_instability_warning_i
+  kind: magnitude
+  raw_text: The convergence testing contingency triggers a 'Numerical Instability
+    Warning' if std/mean >= 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:03:04Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Laplacian eigenvalue validation uses ring graph with N equals 100
+  claim_id: c_2269bf92
+  context: '- [ ] T025 [US2] Implement Laplacian eigenvalue validation against analytical
+    solution for a ring graph (N=100).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Laplacian eigenvalue validation uses a ring graph with N=100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:03:26Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Analytical eigenvalues formula lambda k equals 2 minus 2 cosine 2 pi
+    k over N
+  claim_id: c_0e042b45
+  context: "- [ ] T025 [US2] ... Calculate analytical eigenvalues using formula `\u03BB\
+    _k = 2 - 2*cos(2*pi*k/N)` for k=0..N-1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The analytical eigenvalues for the ring graph validation are calculated\
+    \ using the formula \u03BB_k = 2 - 2*cos(2*pi*k/N) for k=0..N-1."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:03:52Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Laplacian eigenvalue validation tolerance less than 1e-4
+  claim_id: c_00f6802c
+  context: '- [ ] T025 [US2] ... Output: `data/analysis/laplacian_validation.json`
+    with comparison results and tolerance < 1e-4.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Laplacian_eigenvalue_validation_tolerance_less_than_1e-4
+  kind: magnitude
+  raw_text: The Laplacian eigenvalue validation requires a tolerance less than 1e-4.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:04:33Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps significance thresholds 0.01 0.05 0.1
+  claim_id: c_6a22013b
+  context: "- [ ] T034 [US3] Implement sensitivity analysis: sweep significance threshold\
+    \ across standard levels (e.g., `p \u2208 {highly stringent, 0.01, 0.05, 0.1}`)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps significance thresholds across the set
+    {highly stringent, 0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:05:09Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: VIF check flags predictor if VIF greater than 5
+  claim_id: c_2f0292bb
+  context: '- [ ] T035 [US3] Implement VIF check: **Include the specific logic for
+    the VIF check** without relying on an external claim. Calculate VIF for each predictor;
+    if VIF > 5, flag the predictor...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_check_flags_predictor_if_VIF_greater_than_5
+  kind: magnitude
+  raw_text: The VIF check flags a predictor if VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:05:52Z'
+- artifact_path: projects/PROJ-440-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Benchmark pipeline execution less than or equal to 6 hours
+  claim_id: c_02fe65ae
+  context: "- [ ] T043 [US3] Execute `code/benchmark_pipeline.py` to run the full\
+    \ pipeline on the standard runner; record the total wall-clock time in `state/projects/PROJ-440-investigating-the-impact-of-network-stru.yaml`\
+    \ and verify it is \u2264 6 hours (validating Plan's < 2h estimate and Spec FR-007)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benchmark_pipeline_execution_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: The benchmark pipeline execution is verified to be less than or equal
+    to 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T17:06:14Z'

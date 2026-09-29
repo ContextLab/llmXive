@@ -1,9 +1,6 @@
 """
 Script to initialize and install pre-commit hooks for the project.
-
-This script:
-1. Initializes the pre-commit git hook system
-2. Installs the pre-commit hook to .git/hooks/pre-commit
+Executes 'pre-commit init' and 'pre-commit install' commands.
 """
 import subprocess
 import sys
@@ -11,71 +8,77 @@ import os
 from pathlib import Path
 
 
-def run_command(cmd: list[str], description: str) -> bool:
-    """Run a shell command and report status."""
+def run_command(command: list[str], description: str) -> bool:
+    """
+    Run a shell command and return True if successful.
+
+    Args:
+        command: List of command arguments.
+        description: Human-readable description of the action.
+
+    Returns:
+        True if command succeeded, False otherwise.
+    """
     print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
     try:
         result = subprocess.run(
-            cmd,
+            command,
             check=True,
             capture_output=True,
             text=True,
-            cwd=Path(__file__).parent.parent
+            cwd=Path.cwd()
         )
+        print(f"Success: {description}")
         if result.stdout:
             print(result.stdout)
-        if result.stderr:
-            print(result.stderr)
-        print(f"✓ {description} completed successfully\n")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"✗ {description} failed!")
-        print(f"Error: {e}")
+        print(f"Error: {description}")
+        print(f"Command: {' '.join(e.cmd)}")
+        print(f"Return code: {e.returncode}")
         if e.stderr:
             print(f"Stderr: {e.stderr}")
+        if e.stdout:
+            print(f"Stdout: {e.stdout}")
+        return False
+    except FileNotFoundError:
+        print(f"Error: Command not found. Ensure 'pre-commit' is installed.")
+        print("Install with: pip install pre-commit")
         return False
 
 
 def main() -> int:
-    """Main entry point for pre-commit setup."""
-    project_root = Path(__file__).parent.parent
-    config_path = project_root / ".pre-commit-config.yaml"
-    
-    # Verify config file exists
-    if not config_path.exists():
-        print(f"Error: Pre-commit config file not found at {config_path}")
-        print("Please ensure .pre-commit-config.yaml exists in the project root.")
-        return 1
-    
-    print(f"Found pre-commit config at: {config_path}")
-    print("=" * 60)
-    
+    """
+    Main entry point for pre-commit setup.
+
+    Returns:
+        Exit code (0 for success, 1 for failure).
+    """
+    print("Initializing pre-commit configuration...")
+
     # Step 1: Initialize pre-commit
-    success = run_command(
+    success_init = run_command(
         ["pre-commit", "init"],
-        "Initialize pre-commit"
+        "Initialize pre-commit hooks"
     )
-    
-    if not success:
+
+    if not success_init:
         print("Failed to initialize pre-commit. Aborting.")
         return 1
-    
-    # Step 2: Install the hook
-    success = run_command(
+
+    # Step 2: Install pre-commit hooks
+    success_install = run_command(
         ["pre-commit", "install"],
-        "Install pre-commit hook"
+        "Install pre-commit hooks to .git/hooks"
     )
-    
-    if not success:
-        print("Failed to install pre-commit hook. Aborting.")
+
+    if not success_install:
+        print("Failed to install pre-commit hooks. Aborting.")
         return 1
-    
-    print("=" * 60)
-    print("Pre-commit setup completed successfully!")
-    print("You can now run 'pre-commit run --all-files' to test on all files.")
-    print("Hooks will automatically run on 'git commit'.")
-    
+
+    print("\nPre-commit setup completed successfully!")
+    print("Hooks will now run automatically before each commit.")
+    print("To run manually: pre-commit run --all-files")
     return 0
 
 

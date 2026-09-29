@@ -1,96 +1,77 @@
-# Pydantic v2 JSON Schema for data/processed/energy_decay.csv
-# Generated for task T006b: Investigating the Impact of Network Structure on Energy Dissipation
-$schema: http://json-schema.org/draft-07/schema#
-title: Energy Decay Results
-description: |
-  Schema defining the expected structure of the energy decay results CSV.
-  This file contains the output of the oscillator simulations, including
-  fitted decay rates, goodness-of-fit metrics, and convergence statistics.
+# Schema for data/processed/energy_decay.csv
+# Generated using Pydantic v2 field definitions
+# Columns: graph_id, decay_rate, r_squared, status, convergence_std
+
 type: object
-properties:
-  graph_id:
-    type: string
-    description: Unique identifier for the network topology used in the simulation.
-    pattern: "^graph_[0-9]+$"
-  decay_rate:
-    type: number
-    description: |
-      The fitted exponential decay rate (lambda) from the damped sinusoid fit.
-      Positive values indicate energy dissipation; negative values indicate resonance/growth.
-    minimum: -100.0
-    maximum: 100.0
-  r_squared:
-    type: number
-    description: |
-      Coefficient of determination (R²) for the damped sinusoid fit.
-      Values should be >= 0.95 for valid dissipative simulations.
-    minimum: 0.0
-    maximum: 1.0
-  status:
-    type: string
-    description: |
-      Classification of the simulation result.
-      - 'dissipative': Normal energy decay (lambda > 0, R² >= 0.95)
-      - 'resonant': Negative decay rate detected (lambda < 0)
-      - 'unstable': Convergence criteria not met (std/mean >= 0.01)
-      - 'failed': Simulation or fitting error occurred
-    enum:
-      - dissipative
-      - resonant
-      - unstable
-      - failed
-  convergence_std:
-    type: number
-    description: |
-      Standard deviation of decay rates across multiple random seeds for convergence testing.
-      Only populated if convergence testing was performed for this graph.
-    minimum: 0.0
-  convergence_mean:
-    type: number
-    description: |
-      Mean decay rate across multiple random seeds for convergence testing.
-      Only populated if convergence testing was performed for this graph.
-  fit_frequency:
-    type: number
-    description: |
-      The fitted angular frequency (omega) from the damped sinusoid fit.
-    minimum: 0.0
-  fit_amplitude:
-    type: number
-    description: |
-      The fitted amplitude (A) from the damped sinusoid fit.
-  fit_phase:
-    type: number
-    description: |
-      The fitted phase shift (phi) from the damped sinusoid fit.
-  fit_offset:
-    type: number
-    description: |
-      The fitted offset (C) from the damped sinusoid fit.
-  simulation_time:
-    type: number
-    description: Total simulation time in seconds (typically 200).
-  damping_coefficient:
-    type: number
-    description: The damping coefficient used in the simulation (typically 0.1).
-  driving_frequency:
-    type: number
-    description: The driving frequency used in the simulation.
-  node_count:
-    type: integer
-    description: Number of nodes (N) in the network topology.
-  network_class:
-    type: string
-    description: The topological class of the network (e.g., random, scale_free, small_world, lattice, star).
+title: EnergyDecayRecord
+description: "Schema for energy decay results from oscillator simulations"
 required:
   - graph_id
   - decay_rate
   - r_squared
   - status
-additionalProperties: true
-metadata:
-  version: "1.0.0"
-  generated_by: "T006b"
-  project: "PROJ-440-investigating-the-impact-of-network-stru"
-  source_file: "data/processed/energy_decay.csv"
-  validation_tool: "pydantic"
+properties:
+  graph_id:
+    type: string
+    description: "Unique identifier for the network graph (matches id in networks.csv)"
+    pattern: "^graph_\\d+$"
+  
+  decay_rate:
+    type: number
+    format: float
+    description: "Fitted decay rate (lambda) from damped sinusoid fit"
+    minimum: -1.0
+    maximum: 10.0
+  
+  r_squared:
+    type: number
+    format: float
+    description: "Coefficient of determination for the fit"
+    minimum: 0.0
+    maximum: 1.0
+  
+  status:
+    type: string
+    description: "Classification of the simulation result"
+    enum:
+      - dissipative
+      - resonant
+      - unstable
+      - failed
+  
+  convergence_std:
+    type: number
+    format: float
+    description: "Standard deviation of decay rates across multiple seeds (if convergence test performed)"
+    minimum: 0.0
+    nullable: true
+  
+  convergence_mean:
+    type: number
+    format: float
+    description: "Mean decay rate across multiple seeds"
+    minimum: -1.0
+    maximum: 10.0
+    nullable: true
+  
+  fit_parameters:
+    type: object
+    description: "Detailed fit parameters from curve_fit"
+    properties:
+      A:
+        type: number
+      omega:
+        type: number
+      phi:
+        type: number
+      C:
+        type: number
+    nullable: true
+  
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of simulation completion"
+    nullable: true
+
+additionalProperties: false

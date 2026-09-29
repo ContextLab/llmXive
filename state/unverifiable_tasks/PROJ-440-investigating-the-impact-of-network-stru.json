@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-440-investigating-the-impact-of-network-stru",
+  "tasks": [
+    {
+      "task_key": "T006c",
+      "reject_count": 1,
+      "last_reason": "The required schema file (`contracts/regression_schema.schema.yaml`) is missing, and the target JSON data file (`data/analysis/regression_results.json`) does not exist, so the task\u2019s deliverables are not present.",
+      "first_seen": "2026-09-29T17:06:20.095339+00:00",
+      "last_seen": "2026-09-29T17:06:20.095339+00:00"
+    }
+  ],
+  "updated_at": "2026-09-29T17:06:20.095339+00:00"
+}
