@@ -11,7 +11,7 @@ This project investigates the trade-off between "gold-medal" Olympiad reasoning 
 1.  **Stage 1 (Spec Compliance & Baseline)**: Implements the functional requirements of the revised FR-005. We will compute per-prompt correctness on MMLU-STEM and creativity scores on OpenSci-Reason. We will perform a descriptive **Point-Biserial correlation** between per-prompt correctness and creativity to establish a baseline.
 2.  **Stage 2 (Primary Hypothesis Test)**: To rigorously test the "rigidity" hypothesis, we will implement a **Linear Mixed Effects (LME) model**. This model tests the interaction effect `Model_Type * Domain` (where Domain is Deterministic vs. Ill-Structured). A significant interaction effect (reversal of performance gap) is the primary evidence of rigidity. This analysis is now a mandatory system output, not an optional research step.
 
-The technical approach involves generating responses with stochastic sampling (temperature 0.7), scoring them via a frozen, fine-tuned proxy LLM (Llama-3-8B quantized) on Novelty, Feasibility, and Consistency, and performing the statistical analysis. The plan strictly adheres to GitHub Actions free-tier constraints (CPU, RAM, 6h limit) by utilizing 8-bit quantization for the scoring model and streaming for large datasets.
+The technical approach involves generating responses with stochastic sampling (temperature 0.7), scoring them via a frozen, fine-tuned proxy LLM (Llama-8B quantized) on Novelty, Feasibility, and Consistency, and performing the statistical analysis. The plan strictly adheres to GitHub Actions free-tier constraints (CPU, RAM, time limit) by utilizing Low-bit quantization for the scoring model and streaming for large datasets.
 
 ## Technical Context
 
@@ -22,7 +22,7 @@ The technical approach involves generating responses with stochastic sampling (t
 **Target Platform**: Linux (GitHub Actions free-tier runner).  
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: Complete full inference and scoring on OpenSci prompts + MMLU subset within 6 hours.  
-**Constraints**: CPU-only inference; 7GB RAM limit (requires 8-bit quantization for scoring model); no proprietary data access; hard token limit to prevent timeouts.  
+**Constraints**: CPU-only inference; Limited RAM (requires 8-bit quantization for scoring model); no proprietary data access; hard token limit to prevent timeouts.  
 **Scale/Scope**: OpenSci prompts; N=50 gold standard validation set (manually curated); A small set of models (SU-01, Baseline).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -118,7 +118,7 @@ tests/
 - **T-008**: Score OpenSci-Reason responses using the frozen proxy model (8-bit).
 - **T-009**: **Preserve Raw Output**: Store the full semantic reasoning string from the proxy model alongside scalar scores (Principle VI).
 - **T-010**: **Validate Proxy Model**: Run on the N=50 manually curated Gold Standard set. Calculate correlation.
-- **T-011**: **Fallback Strategy**: If correlation < 0.6, automatically switch to secondary proxy (Llama-3-2B) or trigger Human-Only scoring mode. Do **not** abort the pipeline.
+- **T-011**: **Fallback Strategy**: If correlation < 0.6, automatically switch to secondary proxy (Llama-2B) or trigger Human-Only scoring mode. Do **not** abort the pipeline.
 
 ### Phase 4: Statistical Analysis (Mandatory Two-Stage)
 - **T-020**: **Descriptive (FR-005)**: Compute Point-Biserial correlation between per-prompt MMLU correctness and OpenSci creativity (within each model).

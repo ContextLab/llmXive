@@ -1,0 +1,33 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `code/` directory or its subfolders (`code/data`, `code/inference`,
+    `code/scoring`, `code/analysis`, `code/utils`) is provided; the required directory
+    structure is absent.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the `data/` directory or its subfolders (`raw`,\
+    \ `processed`, `gold`) actually exist; the claim is unsubstantiated. The implementer\
+    \ must supply a file\u2011system listing, screenshot, or script output confirming\
+    \ the creation of these directories."
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that a `tests/` directory (with `unit` and `integration`\
+    \ sub\u2011directories) actually exists in the repository; the implementer\u2019\
+    s response contains only the task description and no file\u2011system listing\
+    \ or code showing the directories were created. The required directory structure\
+    \ is therefore missing."
+T001f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file was provided in the evidence, and therefore the required
+    list of ignored patterns (`.pyc`, `__pycache__/`, `data/`, `*.log`, etc.) is missing.
+    The task is not satisfied.
+T009:
+  c: false
+  h: ace595a2b116037cf799d84a962591e24fe728e70ed4ca396479adfcaef1d9e5
+  r: "The required artifact `tests/unit/test_data_loader.py` does not exist on disk,\
+    \ so no contract test for the dataset loader is present. Without this file, the\
+    \ task\u2019s deliverable is missing."

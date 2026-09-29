@@ -1,0 +1,9 @@
+transformers>=4.40
+torch>=2.0
+datasets>=2.19
+scipy
+statsmodels
+pandas
+pyyaml
+huggingface_hub
+pytest
