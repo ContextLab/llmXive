@@ -39,3 +39,25 @@ T010:
   r: The required artifact `code/tests/test_metrics.py` does not exist in the repository,
     so no unit tests for the specified edge cases are present. The implementer must
     add the missing test file with appropriate test cases.
+T010b:
+  c: false
+  h: 0b5e0733f84ea2a464318df48fc18cc00b0e05600cf2fcf6923cf445e2f15326
+  r: "The required output `data/derived/metrics.csv` is missing, and `code/01_compute_metrics.py`\
+    \ contains placeholder logic that never loads or processes a 50\u2011function\
+    \ subset. Consequently the validation report cannot be based on real metric calculations.\
+    \ The task needs a real run producing a non\u2011empty `metrics.csv` and a verification\
+    \ report derived from it."
+T012:
+  c: false
+  h: ccc4462d19a8af3c8cbd3e286e700b0b65415cd536520689825987ff60b9db69
+  r: The script `code/01_compute_metrics.py` contains placeholder implementations
+    (e.g., `load_dataset` returns an empty list, no loop over functions, no CLI entry
+    point) and never writes to `data/derived/metrics.csv`, which is absent. Thus the
+    required parsing, metric computation, and CSV output are not actually performed.
+T017:
+  c: false
+  h: f21e55c4c0a4c702b683a7ac4d2d6ce0a259a1eeaaaf62ed1905672ce7fea59f
+  r: "The required input `data/derived/metrics.csv` is absent, so the script cannot\
+    \ process the dataset as specified. Moreover, the implementation contains placeholder\
+    \ logic (e.g., dummy accuracy calculations) and does not demonstrably load a CPU\u2011\
+    optimized model, indicating the core functionality is not fulfilled."

@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-code-complexity"
+name = "llmxive-code-complexity"
 version = "0.1.0"
 description = "Investigating the Impact of Code Complexity on LLM Code Understanding"
 requires-python = ">=3.11"
@@ -14,74 +14,18 @@ dependencies = [
     "scikit-learn",
     "statsmodels",
     "seaborn",
-    "llama-cpp-python",
+    "llama-cpp-python"
 ]
 
 [tool.black]
-line-length = 100
-target-version = ["py311"]
-include = '\.pyi?$'
-extend-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | data
-    | results
-)/
-'''
+line-length = 88
+target-version = ['py311']
 
 [tool.ruff]
-line-length = 100
+line-length = 88
 target-version = "py311"
-src = ["code", "tests"]
-exclude = [
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "data",
-    "results",
-    "figures",
-]
+select = ["E", "F", "W", "I"]
+ignore = []
 
-[tool.ruff.lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B905", # `zip()` without an explicit `strict=` parameter (Python 3.10+ only)
-]
-
-[tool.ruff.lint.per-file-ignores]
-"code/00_download_data.py" = ["B018"] # Allow useless expressions in main block for CLI
-"code/01_compute_metrics.py" = ["B018"]
-"code/02_run_inference.py" = ["B018"]
-"code/03_analyze_results.py" = ["B018"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["utils", "tests"]
-force-sort-within-sections = true
-
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]

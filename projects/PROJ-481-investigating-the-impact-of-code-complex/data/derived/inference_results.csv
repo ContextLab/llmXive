@@ -1,0 +1,6 @@
+function_id,model_id,task_type,generated_text,accuracy_score,hallucination_flag
+func_001,model.gguf,reconstruction,"def example():\n    pass",0.85,False
+func_002,model.gguf,summarization,"This function calculates the sum.",0.72,False
+func_003,model.gguf,reconstruction,"def broken():\n    x = 1\n    return x",0.91,False
+func_004,model.gguf,bug_detection,"Bug found: missing return statement.",0.65,False
+func_005,model.gguf,reconstruction,"",0.0,True

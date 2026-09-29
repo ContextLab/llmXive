@@ -59,11 +59,11 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T010 [P] [US1] Unit test for metric calculation edge cases (empty functions, zero complexity) in `code/tests/test_metrics.py`
-- [~] T010b [US1] Run the 'Independent Test' pipeline: Execute `code/01_compute_metrics.py` on a 50-function subset and verify `data/derived/metrics.csv` matches manual `radon` calculations. **Deliverable**: Generate `tests/outputs/us1_validation_report.md` containing the diff summary and pass/fail status.
+- [ ] T010b [US1] Run the 'Independent Test' pipeline: Execute `code/01_compute_metrics.py` on a 50-function subset and verify `data/derived/metrics.csv` matches manual `radon` calculations. **Deliverable**: Generate `tests/outputs/us1_validation_report.md` containing the diff summary and pass/fail status.
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/01_compute_metrics.py` to parse functions from the raw dataset, compute metrics using `code/utils/metrics.py`, and save results to `data/derived/metrics.csv`. **Execution of this task is blocked until T011a completes.**
+- [ ] T012 [US1] Implement `code/01_compute_metrics.py` to parse functions from the raw dataset, compute metrics using `code/utils/metrics.py`, and save results to `data/derived/metrics.csv`. **Execution of this task is blocked until T011a completes.**
 - [X] T013 [US1] Add robust error handling in `code/01_compute_metrics.py` to skip invalid syntax functions without crashing the pipeline and log errors
 - [X] T014 [US1] Add a statistical summary step in `code/01_compute_metrics.py` to verify the distribution of complexity scores (low to high range) in the generated CSV
 - [X] T015 [US1] Implement logic in `code/01_compute_metrics.py` to cap sampling at N=1,000 (per Plan constraints) and append a `sampling_log.txt` entry confirming the final count and the cap applied.
@@ -85,14 +85,14 @@
 
 ### Implementation for User Story 2
 
-- [~] T017 [US2] Implement `code/02_run_inference.py` to load a CPU-optimized model (e.g., StarCoder-1B/3B or quantized CodeLlama via GGUF) and process the `data/derived/metrics.csv`. **Execution of this task is blocked until T012 completes.**
+- [ ] T017 [US2] Implement `code/02_run_inference.py` to load a CPU-optimized model (e.g., StarCoder-1B/3B or quantized CodeLlama via GGUF) and process the `data/derived/metrics.csv`. **Execution of this task is blocked until T012 completes.**
 - [X] T018a [US2] Implement ground truth retrieval logic in `code/02_run_inference.py` to fetch independent annotations for 'summarization' and 'bug detection' from the dataset schema (BigCodeBench).
 - [X] T018b [US2] Implement fallback logic in `code/02_run_inference.py`: If independent annotations are missing, switch to 'Reconstruction-Only' mode (comparing output to original source code) to satisfy FR-003's requirement for accuracy calculation. Log the active mode.
 - [X] T018c [US2] Implement hallucination detection in `code/02_run_inference.py` to handle non-code outputs by setting `score=0` and `hallucination_flag=true`.
 - [X] T019 [US2] Implement accuracy calculation in `code/02_run_inference.py` using ROUGE-L, F1, and BLEU
 - [X] T020 [US2] Add timeout and memory limit handling in `code/02_run_inference.py` to mark specific functions as "timeout/fail" without halting the pipeline
-- [ ] T021 [US2] Save results to `data/derived/inference_results.csv` with columns for Function ID, Model ID, Task Type, Generated Text, Accuracy Score, and Hallucination Flag
-- [ ] T022 [US2] Implement **stratified sampling (by complexity)** in `code/02_run_inference.py` to ensure the subset is representative. Limit total inference to **N=1,000** to meet the 6-hour runtime constraint on the free-tier runner.
+- [X] T021 [US2] Save results to `data/derived/inference_results.csv` with columns for Function ID, Model ID, Task Type, Generated Text, Accuracy Score, and Hallucination Flag
+- [X] T022 [US2] Implement **stratified sampling (by complexity)** in `code/02_run_inference.py` to ensure the subset is representative. Limit total inference to **N=1,000** to meet the 6-hour runtime constraint on the free-tier runner.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

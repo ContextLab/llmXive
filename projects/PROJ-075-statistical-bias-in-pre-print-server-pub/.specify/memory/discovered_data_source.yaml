@@ -1,18 +1,19 @@
 status: none
-intent: OpenAlex works raw dump S3 plus arXiv bioRxiv metadata python package dataset
+intent: download OpenAlex Works parquet dataset S3 and arXiv bioRxiv metadata python
+  package dataset
 required_fields:
 - preprint_id
-- preprint_title
-- preprint_authors
 - preprint_doi
 - journal_doi
-- matched_title
-- matched_authors
+- title
+- authors
+- publication_date
+- venue
+- match_similarity_score
+- source_repository
 - p_value_preprint
 - p_value_journal
-- effect_size_preprint
-- effect_size_journal
-- p_value_inequality_flag
-cache_key: 17880b0ea21ccad3748b8dbc0422d1e5c7471e4fe5645aed8ab9bd9837e24959
-searched_at: '2026-09-04T15:43:34.092679+00:00'
+- p_value_preprint_inequality
+cache_key: 24f160778647f2eab43270d9c48d839e07a8360073d9970f0eed747f265fd6f2
+searched_at: '2026-09-29T00:59:47.066040+00:00'
 retry_count: 1
