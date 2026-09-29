@@ -1,7 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T026** — The required file `data/processed/mapped_data.parquet` does not exist, and the `consume_mapped_data_for_validation` function in `code/analysis/pathway.py` is truncated and never actually reads or validates the persisted mapping. The task’s core requirement—reading the persisted KEGG mapping for downstream validation—is therefore unmet.
-- **T026#1** — The required artifact `data/processed/mapped_data.parquet` does not exist, so the pathway code cannot actually consume a persisted KEGG mapping. Although `code/analysis/pathway.py` defines a `consume_mapped_data_for_validation` function, it cannot operate without the missing parquet file, and no evidence shows downstream validation is performed. The missing file must be generated and contain the expected mapping data.
-- **T041** — No evidence of a `README.md` file containing the required sections (Installation, Data Generation (Synthetic), Execution Command, Expected Output) is provided; the artifact is missing or empty. The implementer must add or show the updated README with those sections.

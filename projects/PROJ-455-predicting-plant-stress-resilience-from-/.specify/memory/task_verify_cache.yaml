@@ -30,10 +30,3 @@ T046:
     \ contain the logic to train models, run validation, or write `data/results/model_metrics.json`.\
     \ Moreover, the required `data/results/model_metrics.json` file is absent from\
     \ the repository. Consequently, the pipeline cannot be fully executed as specified."
-T046#1:
-  c: false
-  h: 6d508c24d507e619048e2c1a63f6882b792eb148c43772c587c34ebc58dab5f0
-  r: "The provided `code/main.py` is truncated (ends mid\u2011function) and does not\
-    \ contain the logic to train models, run validation, or write `data/results/model_metrics.json`.\
-    \ Moreover, the required `data/results/model_metrics.json` file is absent from\
-    \ the repository. Consequently, the pipeline cannot be fully executed as specified."

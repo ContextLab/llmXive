@@ -7,6 +7,12 @@ import json
 
 logger = get_logger(__name__)
 
+# Cache for valid KEGG Compound IDs.
+# In a production environment, this could be populated from a live KEGG API query
+# or a downloaded database. For this implementation, we maintain a local cache
+# derived from the mapping file to ensure robustness against deprecated IDs.
+_KEGG_VALID_CACHE: Optional[Set[str]] = None
+
 def load_kegg_mapping() -> pd.DataFrame:
     """
     Load KEGG mapping from TSV or fallback CSV.
@@ -22,6 +28,74 @@ def load_kegg_mapping() -> pd.DataFrame:
         return pd.read_csv(fallback_path)
     else:
         raise FileNotFoundError(f"Neither {tsv_path} nor {fallback_path} found. Run T019.0 first.")
+
+def _build_kegg_valid_cache() -> Set[str]:
+    """
+    Build a set of valid KEGG Compound IDs from the available mapping file.
+    This ensures we are checking against IDs that actually exist in our dataset context.
+    """
+    global _KEGG_VALID_CACHE
+    if _KEGG_VALID_CACHE is not None:
+        return _KEGG_VALID_CACHE
+    
+    try:
+        mapping_df = load_kegg_mapping()
+        if 'kegg_id' in mapping_df.columns:
+            # Filter out NaN and non-string entries
+            valid_ids = set(mapping_df['kegg_id'].dropna().astype(str).unique())
+            _KEGG_VALID_CACHE = valid_ids
+            logger.info(f"Built KEGG valid ID cache with {len(valid_ids)} entries.")
+        else:
+            logger.warning("KEGG mapping file missing 'kegg_id' column. Cache will be empty.")
+            _KEGG_VALID_CACHE = set()
+    except Exception as e:
+        logger.error(f"Failed to build KEGG valid ID cache: {e}")
+        _KEGG_VALID_CACHE = set()
+    
+    return _KEGG_VALID_CACHE
+
+def validate_kegg_ids(kegg_ids: List[str]) -> Tuple[List[str], List[str]]:
+    """
+    Cross-reference generated KEGG IDs against a local cache of valid Compound IDs
+    to prevent false positives in enrichment analysis.
+    
+    Args:
+        kegg_ids: A list of KEGG Compound IDs (e.g., ['C00186', 'INVALID_ID']).
+        
+    Returns:
+        A tuple (valid_ids, invalid_ids) where:
+            - valid_ids: List of IDs found in the local cache.
+            - invalid_ids: List of IDs not found in the cache (deprecated or malformed).
+    
+    Side Effects:
+        Logs a warning for each unmapped/invalid ID found.
+    """
+    if not kegg_ids:
+        return [], []
+    
+    valid_cache = _build_kegg_valid_cache()
+    valid_ids = []
+    invalid_ids = []
+    
+    for kid in kegg_ids:
+        kid_str = str(kid)
+        if not kid_str:
+            invalid_ids.append(kid_str)
+            continue
+        
+        if kid_str in valid_cache:
+            valid_ids.append(kid_str)
+        else:
+            invalid_ids.append(kid_str)
+            logger.warning(f"Unmapped/Invalid KEGG ID detected: '{kid_str}'. "
+                         "This ID is not present in the current KEGG mapping cache "
+                         "and will be excluded from enrichment analysis.")
+    
+    if invalid_ids:
+        logger.warning(f"Total {len(invalid_ids)} invalid/unmapped KEGG IDs found. "
+                     f"Excluding them from downstream analysis.")
+    
+    return valid_ids, invalid_ids
 
 def map_to_kegg(df: pd.DataFrame) -> pd.DataFrame:
     """
@@ -123,7 +197,10 @@ def run_pathway_validation_script(input_path: str = "data/processed/mapped_data.
     df = consume_mapped_data_for_validation(input_path)
     
     # Extract unique KEGG IDs
-    kegg_ids = df['kegg_id'].dropna().unique().tolist()
+    raw_kegg_ids = df['kegg_id'].dropna().unique().tolist()
+    
+    # T049: Validate IDs against the local cache before enrichment
+    valid_kegg_ids, invalid_kegg_ids = validate_kegg_ids(raw_kegg_ids)
     
     # Mock pathways for validation (in real scenario, load from a pathway DB)
     mock_pathways = {
@@ -132,12 +209,15 @@ def run_pathway_validation_script(input_path: str = "data/processed/mapped_data.
         "ABA Signaling": ["C00773"]
     }
     
-    jaccard, p_value = enrichment_analysis(kegg_ids, mock_pathways)
+    jaccard, p_value = enrichment_analysis(valid_kegg_ids, mock_pathways)
     is_valid = validate_alignment(jaccard, p_value)
     
     result = {
         "input_file": input_path,
-        "unique_kegg_ids": len(kegg_ids),
+        "total_unique_kegg_ids": len(raw_kegg_ids),
+        "valid_kegg_ids_count": len(valid_kegg_ids),
+        "invalid_kegg_ids_count": len(invalid_kegg_ids),
+        "invalid_kegg_ids": invalid_kegg_ids,
         "jaccard_similarity": jaccard,
         "p_value": p_value,
         "biological_alignment_valid": is_valid

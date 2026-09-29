@@ -1,33 +1,9 @@
 # Predicting Plant Stress Resilience from Publicly Available Metabolomic Data
 
-This project implements an automated science pipeline to predict plant stress resilience using metabolomic data. It supports both synthetic data generation for testing and ingestion of real public datasets (NCBI GEO, Zenodo).
-
-## Project Structure
-
-- `code/`: Source code for data ingestion, preprocessing, modeling, and analysis.
-- `data/`: Raw and processed data artifacts.
-- `tests/`: Unit, integration, and contract tests.
-- `contracts/`: Schema definitions for data validation.
-- `state/`: Project state and checksums.
-
-## Prerequisites
-
-- Python 3.11 or higher
-- pip
-
 ## Installation
 
-1. Clone the repository and navigate to the project root:
- ```bash
- cd projects/PROJ-455-predicting-plant-stress-resilience-from-
- ```
-
-2. Create a virtual environment and activate it:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
+1. Ensure Python 3.11 is installed.
+2. Navigate to the project root directory.
 3. Install dependencies:
  ```bash
  pip install -r requirements.txt
@@ -35,60 +11,51 @@ This project implements an automated science pipeline to predict plant stress re
 
 ## Data Generation (Synthetic)
 
-For initial testing and development, the pipeline can generate synthetic metabolomic data that mimics real plant stress responses. This data includes embedded biological pathways (proline, ABA, glutathione) and allows configuration of missing data rates to test rejection logic.
-
-To generate synthetic data directly, you can run the generator script:
-
-```bash
-python code/data/generator.py --stress_type drought --seed 42 --samples 500
-```
-
-However, the recommended way to run the full pipeline is via the main entry point (see below), which handles data generation automatically if no input data is found.
-
-## Execution Command
-
-The entire pipeline is orchestrated via `code/main.py`. It performs the following steps:
-1. Generates synthetic data (or loads existing data).
-2. Preprocesses data (filtering, normalization, imputation).
-3. Trains Random Forest and SVM models.
-4. Validates models using Leave-One-Dataset-Out (LODO) and cross-stress evaluation.
-5. Writes results to `data/results/model_metrics.json`.
-
-Run the pipeline:
-
+The project uses a mechanism-guided synthetic data generator for initial development and testing.
+To generate the synthetic dataset:
 ```bash
 python code/main.py --seed 42
 ```
+This will produce `data/raw/synthetic_[stress_type]_[seed].parquet` and subsequent processed files.
 
+## Execution Command
+
+Run the full pipeline (Generation -> Preprocessing -> Training -> Validation):
+```bash
+python code/main.py
+```
 Optional arguments:
-- `--seed`: Random seed for reproducibility (default: 42).
-- `--stress_type`: Type of stress for synthetic data (default: 'drought').
-- `--samples`: Number of samples for synthetic data (default: 500).
+- `--seed`: Set the random seed for reproducibility (default: 42).
+- `--use-real-data`: Attempt to fetch real data from NCBI GEO (requires `--use-real-data` flag and network access).
 
 ## Expected Output
 
-Upon successful execution, the pipeline produces:
+Upon successful execution, the following artifacts will be generated generated:
+- `data/raw/synthetic_[stress_type]_[seed].parquet`: Raw synthetic metabolomic data.
+- `data/processed/mapped_data.parquet`: Data with KEGG IDs mapped.
+- `data/results/model_metrics.json`: Performance metrics for trained models (Random Forest, SVM).
+- `code/logs/pipeline.log`: Detailed execution logs including validation results.
 
-1. **Console Output**:
- - Logs showing data generation, preprocessing steps, and model training metrics.
- - A final message: "Pipeline completed successfully".
+The pipeline logs will confirm:
+- "Pipeline completed successfully"
+- KEGG mapping validation status (including any unmapped IDs detected by T049).
+- Model performance metrics (R² or Pearson r).
 
-2. **Data Artifacts**:
- - `data/raw/synthetic_[stress_type]_[seed].parquet`: Generated raw data.
- - `data/processed/mapped_data.parquet`: Preprocessed and KEGG-mapped data.
- - `data/results/model_metrics.json`: Aggregated metrics including R², feature importance, and validation results.
+## Validation & Testing
 
-3. **Validation**:
- - The `data/results/model_metrics.json` file will contain keys such as `rf_r2`, `svm_r2`, `top_features`, and `lodo_cv_results`.
-
-## Testing
-
-Run the test suite:
-
+Run unit tests:
 ```bash
-pytest tests/ -v
+pytest tests/unit/
+```
+Run integration tests:
+```bash
+pytest tests/integration/
 ```
 
-## License
+## Project Structure
 
-This project is part of the llmXive automated science pipeline.
+- `code/`: Source code for the pipeline.
+- `data/`: Raw, processed, and result data files.
+- `tests/`: Unit, integration, and contract tests.
+- `contracts/`: Schema definitions for data models.
+- `specs/`: Feature specifications and design documents.

@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
-from sklearn.model_selection import cross_val_predict, cross_val_score
+from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 from utils.logging import get_logger
 
@@ -162,3 +162,101 @@ def load_trained_model(path: str) -> Any:
     import joblib
     logger.info(f"Loading model from {path}")
     return joblib.load(path)
+
+def hyperparameter_search(model_type: str, X: pd.DataFrame, y: pd.Series, cv: int = 5, mode: str = 'individual') -> Tuple[Any, Dict[str, Any]]:
+    """
+    Perform a limited grid search to optimize hyperparameters for Random Forest or SVM.
+    
+    This function implements a 3x3 grid search to find better hyperparameters than
+    the defaults used in train_random_forest and train_svm, addressing the requirement
+    for robust predictive signal detection (T050).
+    
+    CONSTRAINT: Small grid size ensures completion within SC-005 (6h limit).
+    
+    Args:
+        model_type: Either 'random_forest' or 'svm'.
+        X: Feature matrix (DataFrame).
+        y: Target vector (Series).
+        cv: Number of cross-validation folds (default 5).
+        mode: Metric calculation mode ('individual' or 'population').
+    
+    Returns:
+        Tuple of (best_model, metrics_dict) where metrics include the best parameters
+        and improved performance metrics.
+    """
+    logger.info(f"Starting hyperparameter search for {model_type} with {cv} CV folds.")
+    start_time = time.time()
+    
+    if model_type == 'random_forest':
+        # 3x3 grid for Random Forest
+        # n_estimators: 50, 100, 200
+        # max_depth: None, 10, 20
+        param_grid = {
+            'n_estimators': [50, 100, 200],
+            'max_depth': [None, 10, 20]
+        }
+        base_model = RandomForestRegressor(random_state=42, n_jobs=-1)
+        grid_search = GridSearchCV(
+            estimator=base_model,
+            param_grid=param_grid,
+            cv=cv,
+            scoring='r2',
+            n_jobs=-1,
+            verbose=1
+        )
+    elif model_type == 'svm':
+        # 3x3 grid for SVM
+        # C: 0.1, 1.0, 10.0
+        # gamma: scale, auto, 0.01
+        param_grid = {
+            'C': [0.1, 1.0, 10.0],
+            'gamma': ['scale', 'auto', 0.01]
+        }
+        base_model = SVR(kernel='rbf')
+        grid_search = GridSearchCV(
+            estimator=base_model,
+            param_grid=param_grid,
+            cv=cv,
+            scoring='r2',
+            n_jobs=-1,
+            verbose=1
+        )
+    else:
+        raise ValueError(f"Unsupported model_type: {model_type}. Use 'random_forest' or 'svm'.")
+    
+    # Fit the grid search
+    grid_search.fit(X, y)
+    
+    best_model = grid_search.best_estimator_
+    best_params = grid_search.best_params_
+    best_cv_score = grid_search.best_score_
+    
+    # Get cross-validated predictions with the best model for final metrics
+    y_pred_cv = cross_val_predict(best_model, X, y, cv=cv)
+    
+    # Calculate final metrics
+    r2 = calculate_metric(y.values, y_pred_cv, mode=mode)
+    rmse = float(np.sqrt(mean_squared_error(y.values, y_pred_cv)))
+    mae = float(mean_absolute_error(y.values, y_pred_cv))
+    
+    training_time = time.time() - start_time
+    
+    metrics = {
+        "model_type": f"{model_type}_optimized",
+        "cv_folds": cv,
+        "best_params": best_params,
+        "best_cv_score": float(best_cv_score),
+        "r2": r2,
+        "rmse": rmse,
+        "mean_absolute_error": mae,
+        "training_time_seconds": training_time,
+        "mode": mode
+    }
+    
+    logger.info(
+        f"Hyperparameter search complete for {model_type}. "
+        f"Best params: {best_params}, Best CV R²: {best_cv_score:.4f}, "
+        f"Final R²: {r2:.4f}, Time: {training_time:.2f}s"
+    )
+    
+    return best_model, metrics
