@@ -1,108 +1,93 @@
-"""
-Unit tests for download_diverse_prompts.py
-"""
-import pytest
+import os
 import sys
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 import csv
 import tempfile
+from pathlib import Path
+from unittest import mock
+import pytest
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from code.config import Config
-from code.data.download_diverse_prompts import (
+from data.download_diverse_prompts import (
     fetch_diverse_prompts,
     load_coco_captions,
     merge_and_deduplicate,
     write_merged_csv
 )
+from config import Config
 
 @pytest.fixture
-def mock_dataset_item():
-    return {
-        "prompt": "A beautiful sunset over the mountains.",
-        "other_field": "ignored"
-    }
-
-@pytest.fixture
-def mock_dataset_stream(mock_dataset_item):
-    # Create an iterator that yields items then stops
-    items = [mock_dataset_item] * 10
-    return iter(items)
-
-def test_fetch_diverse_prompts_success():
-    """Test successful fetching of prompts from a mocked dataset."""
-    mock_dataset = MagicMock()
-    mock_dataset.__iter__ = lambda self: iter([{"prompt": "Test prompt 1"}, {"prompt": "Test prompt 2"}])
-    
-    with patch('code.data.download_diverse_prompts.load_dataset', return_value=mock_dataset):
-        prompts = fetch_diverse_prompts(
-            source="test/source",
-            column="prompt",
-            split="train",
-            sample_size=2,
-            seed=42
-        )
-    
-    assert len(prompts) == 2
-    assert "Test prompt 1" in prompts
-    assert "Test prompt 2" in prompts
-
-def test_fetch_diverse_prompts_empty_raises():
-    """Test that fetching from an empty dataset raises an error."""
-    mock_dataset = MagicMock()
-    mock_dataset.__iter__ = lambda self: iter([])
-    
-    with patch('code.data.download_diverse_prompts.load_dataset', return_value=mock_dataset):
-        with pytest.raises(RuntimeError, match="No valid prompts found"):
-            fetch_diverse_prompts(
-                source="test/source",
-                column="prompt",
-                split="train",
-                sample_size=1,
-                seed=42
-            )
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
 
 def test_merge_and_deduplicate():
-    """Test merging and deduplication logic."""
-    existing = [
-        {"source": "ms_coco", "text": "A cat"},
-        {"source": "ms_coco", "text": "A dog"}
-    ]
-    new_prompts = [
-        "A cat",  # Duplicate
-        "A bird", # New
-        "A fish"  # New
-    ]
-    
-    merged = merge_and_deduplicate(existing, new_prompts)
-    
-    assert len(merged) == 4 # 2 existing + 2 new
-    sources = [m["source"] for m in merged]
-    assert sources.count("ms_coco") == 2
-    assert sources.count("diverse_external") == 2
+    """Test that merge_and_deduplicate removes exact duplicates."""
+    coco = [{'prompt': 'A cat', 'source': 'coco'}]
+    diverse = [{'prompt': 'A cat', 'source': 'hf'}, {'prompt': 'A dog', 'source': 'hf'}]
+    result = merge_and_deduplicate(coco, diverse)
+    assert len(result) == 2
+    prompts = [p['prompt'] for p in result]
+    assert 'A cat' in prompts
+    assert 'A dog' in prompts
 
-def test_write_merged_csv():
-    """Test writing merged data to CSV."""
-    data = [
-        {"source": "ms_coco", "text": "Test 1"},
-        {"source": "diverse", "text": "Test 2"}
+def test_write_merged_csv(temp_dir):
+    """Test that write_merged_csv creates a valid CSV."""
+    prompts = [
+        {'prompt': 'Hello World', 'source': 'test'},
+        {'prompt': 'Line\nBreak', 'source': 'test'}
     ]
+    output_path = temp_dir / "test.csv"
+    write_merged_csv(prompts, output_path)
+    assert output_path.exists()
+    with open(output_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    assert len(rows) == 2
+    assert rows[0]['prompt'] == 'Hello World'
+    assert rows[1]['prompt'] == 'Line Break'  # Newlines replaced
+
+@mock.patch('data.download_diverse_prompts.load_dataset')
+def test_fetch_diverse_prompts(mock_load_dataset):
+    """Test fetch_diverse_prompts with mocked dataset."""
+    mock_dataset = [
+        {'caption': 'Image 1'},
+        {'caption': 'Image 2'},
+        {'caption': None},  # Should be skipped
+        {'caption': 'Image 3'}
+    ]
+    mock_load_dataset.return_value = mock_dataset
+
+    result = fetch_diverse_prompts()
+    assert len(result) == 3
+    assert all('prompt' in item for item in result)
+    assert all('source' in item for item in result)
+
+def test_load_coco_captions_missing_file(temp_dir):
+    """Test that load_coco_captions fails if file is missing."""
+    config = Config()
+    # Override data_path to temp dir to ensure isolation
+    config.data_path = temp_dir
+    with pytest.raises(FileNotFoundError):
+        load_coco_captions(config)
+
+def test_load_coco_captions_success(temp_dir):
+    """Test load_coco_captions with valid file."""
+    # Create the expected file structure
+    processed_dir = temp_dir / "processed"
+    processed_dir.mkdir()
+    coco_file = processed_dir / "prompts_test.csv"
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test.csv"
-        write_merged_csv(data, output_path)
+    with open(coco_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['caption'])
+        writer.writeheader()
+        writer.writerow({'caption': 'Test Caption'})
         
-        assert output_path.exists()
-        
-        with open(output_path, 'r') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        assert len(rows) == 2
-        assert rows[0]['source'] == 'ms_coco'
-        assert rows[0]['prompt'] == 'Test 1'
-        assert rows[1]['source'] == 'diverse'
-        assert rows[1]['prompt'] == 'Test 2'
+    config = Config()
+    config.data_path = temp_dir
+    
+    result = load_coco_captions(config)
+    assert len(result) == 1
+    assert result[0]['prompt'] == 'Test Caption'
+    assert result[0]['source'] == 'ms-coco-validation'

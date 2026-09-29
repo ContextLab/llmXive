@@ -1,21 +1,12 @@
 """
-Orchestration script for Phase 2 Inference: Dynamic Router Evaluation.
-
-Workflow:
-1. Load Test Split Prompts (from data/processed/prompts.csv, test split)
-2. Compute Semantic Entropy for each prompt (using EntropyProxy)
-3. Select Rotation Matrix Index using EntropyRouter (from clustering_report.json)
-4. Generate Images using DiT with dynamic rotation (via W2A4Engine + DiTWrapper)
-5. Log Metrics (entropy, selected matrix index, generation time, output path)
-6. Save results to data/processed/router_inference_results.json
-
-Dependencies:
-- T006: Prompts split into train/test
-- T009: EntropyProxy
-- T022: Clustering report (rotation matrices)
-- T024: EntropyRouter
-- T025: W2A4Engine integration
-- T007/T008: Model loading and activation hooks
+Orchestration script for Phase 2 Inference (User Story 2).
+Implements the dynamic rotation router workflow:
+1. Load Test Split Prompts
+2. Compute Entropy Scores
+3. Load Pre-optimized Rotation Matrices (from T028)
+4. Select Matrix based on Entropy
+5. Generate Images with Dynamic Rotation
+6. Log Metrics
 """
 
 import os
@@ -24,16 +15,20 @@ import json
 import logging
 import csv
 import time
+import torch
+import numpy as np
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
 
-# Project imports
+# Local imports matching the API surface
 from config import Config
 from analysis.entropy_proxy import EntropyProxy
+from analysis.load_matrices import load_matrices_from_path, verify_matrices
 from analysis.router import EntropyRouter
 from models.flux_wan_loader import ModelLoader
-from models.dit_wrapper import DiTWrapper
+from models.dit_wrapper import DiTWrapper, ActivationCapture
 from quantization.w2a4_engine import W2A4Engine
+from evaluation.metrics import compute_clip_score, compute_mse
+from evaluation.timing import compute_statistics
 
 # Configure logging
 logging.basicConfig(
@@ -42,237 +37,264 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_test_split_prompts(config: Config) -> List[Dict[str, Any]]:
-    """
-    Load the test split prompts from the preprocessed CSV.
-    Expects data/processed/prompts.csv with a 'split' column.
-    """
-    prompts_path = config.PROCESSED_PROMPTS_PATH
-    if not os.path.exists(prompts_path):
-        raise FileNotFoundError(f"Test split prompts not found at {prompts_path}. "
-                                "Run T006 (preprocess) first.")
+class RouterInferencePipeline:
+    def __init__(self, config: Config):
+        self.config = config
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        logger.info(f"Using device: {self.device}")
+        
+        # Initialize components
+        self.entropy_proxy = EntropyProxy(config)
+        self.matrix_loader = None
+        self.router = None
+        self.dit_wrapper = None
+        self.quantization_engine = None
+        self.model_loader = None
 
-    prompts = []
-    with open(prompts_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row.get('split') == 'test':
+    def load_test_split_prompts(self, path: str) -> list:
+        """Load test split prompts from CSV."""
+        logger.info(f"Loading test split prompts from {path}")
+        prompts = []
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Test split file not found: {path}")
+        
+        with open(path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
                 prompts.append({
-                    'id': row.get('id', ''),
-                    'text': row.get('text', ''),
+                    'id': row.get('id', str(len(prompts))),
+                    'prompt': row.get('prompt', row.get('caption', '')),
                     'source': row.get('source', 'unknown')
                 })
+        logger.info(f"Loaded {len(prompts)} prompts from test split")
+        return prompts
 
-    if not prompts:
-        raise ValueError("No test split prompts found. Ensure T006 split data correctly.")
+    def compute_entropy_scores(self, prompts: list) -> dict:
+        """Compute semantic entropy for each prompt."""
+        logger.info("Computing entropy scores for prompts...")
+        entropy_scores = {}
+        for i, p in enumerate(prompts):
+            if i % 10 == 0:
+                logger.info(f"Processing prompt {i}/{len(prompts)}")
+            entropy = self.entropy_proxy.compute_entropy(p['prompt'])
+            entropy_scores[p['id']] = entropy
+        logger.info(f"Computed entropy for {len(entropy_scores)} prompts")
+        return entropy_scores
 
-    logger.info(f"Loaded {len(prompts)} test split prompts.")
-    return prompts
+    def select_rotation_matrices(self, entropy_scores: dict) -> dict:
+        """Select rotation matrices based on entropy scores."""
+        logger.info("Selecting rotation matrices via router...")
+        if self.router is None:
+            raise RuntimeError("Router not initialized. Call load_matrices first.")
+        
+        matrix_selections = {}
+        for pid, entropy in entropy_scores.items():
+            matrix_idx = self.router.route(entropy)
+            matrix_selections[pid] = {
+                'entropy': entropy,
+                'matrix_index': matrix_idx
+            }
+        logger.info(f"Selected matrices for {len(matrix_selections)} prompts")
+        return matrix_selections
 
-def compute_entropy_scores(prompts: List[Dict[str, Any]], config: Config) -> Dict[str, float]:
-    """
-    Compute semantic entropy for each prompt using the EntropyProxy.
-    Returns a dict mapping prompt_id to entropy score.
-    """
-    logger.info("Computing semantic entropy scores...")
-    proxy = EntropyProxy(config)
-    results = {}
-
-    for prompt_data in prompts:
-        prompt_id = prompt_data['id']
-        prompt_text = prompt_data['text']
-        try:
-            entropy = proxy.compute_entropy(prompt_text)
-            results[prompt_id] = float(entropy)
-            logger.debug(f"Prompt {prompt_id}: entropy = {entropy:.4f}")
-        except Exception as e:
-            logger.error(f"Failed to compute entropy for prompt {prompt_id}: {e}")
-            # Fail loudly as per constraints - do not skip or use synthetic
-            raise RuntimeError(f"Entropy computation failed for {prompt_id}")
-
-    return results
-
-def select_rotation_matrices(entropy_scores: Dict[str, float], config: Config) -> Dict[str, int]:
-    """
-    Use the EntropyRouter to select rotation matrix indices for each prompt.
-    """
-    logger.info("Selecting rotation matrices via EntropyRouter...")
-    router = EntropyRouter(config)
-    results = {}
-
-    for prompt_id, entropy in entropy_scores.items():
-        try:
-            matrix_idx = router.select_matrix(entropy)
-            results[prompt_id] = int(matrix_idx)
-        except Exception as e:
-            logger.error(f"Router selection failed for {prompt_id}: {e}")
-            raise RuntimeError(f"Router selection failed for {prompt_id}")
-
-    return results
-
-def run_dit_generation_with_dynamic_rotation(
-    prompts: List[Dict[str, Any]],
-    matrix_selections: Dict[str, int],
-    config: Config
-) -> List[Dict[str, Any]]:
-    """
-    Generate images using DiT with dynamic rotation matrices selected by entropy.
-    Returns a list of generation logs.
-    """
-    logger.info("Starting DiT generation with dynamic rotation...")
-
-    # Load model
-    model_loader = ModelLoader(config)
-    model, device = model_loader.load_model()
-
-    # Initialize W2A4 engine
-    w2a4_engine = W2A4Engine(config)
-    w2a4_engine.load_rotation_matrices_from_report()
-
-    # Initialize DiT wrapper for activation capture (though we are using dynamic routing here)
-    # The W2A4Engine handles the rotation injection logic internally based on the router selection.
-    
-    generation_logs = []
-    total_start = time.time()
-
-    for i, prompt_data in enumerate(prompts):
-        prompt_id = prompt_data['id']
-        prompt_text = prompt_data['text']
-        matrix_idx = matrix_selections.get(prompt_id)
-
-        if matrix_idx is None:
-            logger.warning(f"Skipping {prompt_id}: no matrix selection found.")
-            continue
-
-        logger.info(f"[{i+1}/{len(prompts)}] Generating for {prompt_id} (Matrix: {matrix_idx})")
-
-        try:
+    def run_dit_generation_with_dynamic_rotation(self, prompts: list, matrix_selections: dict) -> list:
+        """Run DiT generation with dynamic rotation matrix selection."""
+        logger.info("Starting DiT generation with dynamic rotation...")
+        if self.dit_wrapper is None or self.quantization_engine is None:
+            raise RuntimeError("DiT wrapper or quantization engine not initialized.")
+        
+        results = []
+        
+        # Setup activation capture for variance logging if needed
+        capture = ActivationCapture()
+        self.dit_wrapper.register_capture(capture)
+        
+        for i, p in enumerate(prompts):
+            pid = p['id']
+            prompt_text = p['prompt']
+            
+            if i % 5 == 0:
+                logger.info(f"Generating image {i}/{len(prompts)} for prompt: {prompt_text[:50]}...")
+            
+            # Get selected matrix
+            selection = matrix_selections.get(pid)
+            if not selection:
+                logger.warning(f"No matrix selection for {pid}, skipping")
+                continue
+            
+            matrix_idx = selection['matrix_index']
+            
+            # Start timing
             start_time = time.time()
             
-            # Configure engine with specific matrix index for this prompt
-            w2a4_engine.set_current_matrix_index(matrix_idx)
+            try:
+                # Generate image with specific rotation matrix
+                # The W2A4Engine will use the selected matrix for this generation
+                self.quantization_engine.set_active_matrix(matrix_idx)
+                
+                # Run generation (simplified - actual generation logic depends on model loader)
+                # This assumes the DiT wrapper handles the generation loop
+                generated_image, latent_stats = self.dit_wrapper.generate(
+                    prompt=prompt_text,
+                    guidance_scale=self.config.guidance_scale,
+                    num_inference_steps=self.config.num_inference_steps,
+                    device=self.device
+                )
+                
+                end_time = time.time()
+                inference_time = end_time - start_time
+                
+                # Compute metrics
+                # Note: We need a reference image for MSE. 
+                # In a real scenario, we might compare against a baseline or use FID/CLIP.
+                # For this script, we log the generation stats and timing.
+                
+                result = {
+                    'id': pid,
+                    'prompt': prompt_text,
+                    'matrix_index': matrix_idx,
+                    'entropy': matrix_selections[pid]['entropy'],
+                    'inference_time_sec': inference_time,
+                    'status': 'success',
+                    'latent_stats': latent_stats if latent_stats else {}
+                }
+                
+                # If we have a reference image (from T005/T006), compute MSE
+                # Placeholder for now - assumes reference path exists
+                ref_path = self.config.data_paths.get('reference_images')
+                if ref_path and os.path.exists(ref_path):
+                    # Compute MSE would go here
+                    pass
 
-            # Run generation
-            # Note: The actual generation logic depends on the specific DiT implementation
-            # in flux_wan_loader and w2a4_engine. We assume a standard interface.
-            output_image_path = w2a4_engine.generate_image(prompt_text, prompt_id)
+            except Exception as e:
+                logger.error(f"Generation failed for {pid}: {e}")
+                result = {
+                    'id': pid,
+                    'prompt': prompt_text,
+                    'matrix_index': matrix_idx,
+                    'status': 'failed',
+                    'error': str(e)
+                }
             
-            end_time = time.time()
-            duration = end_time - start_time
+            results.append(result)
+            
+            # Clear memory if needed
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+                
+        logger.info(f"Completed generation for {len(results)} prompts")
+        return results
 
-            generation_logs.append({
-                'prompt_id': prompt_id,
-                'prompt_text': prompt_text[:100] + "..." if len(prompt_text) > 100 else prompt_text,
-                'entropy': None, # Will be filled later
-                'matrix_index': matrix_idx,
-                'generation_time_sec': duration,
-                'output_path': output_image_path,
-                'status': 'success'
-            })
+    def aggregate_results(self, results: list) -> dict:
+        """Aggregate results into a summary report."""
+        logger.info("Aggregating results...")
+        
+        successful = [r for r in results if r['status'] == 'success']
+        failed = [r for r in results if r['status'] == 'failed']
+        
+        avg_time = np.mean([r['inference_time_sec'] for r in successful]) if successful else 0
+        
+        # Group by matrix index
+        matrix_usage = {}
+        for r in successful:
+            idx = r['matrix_index']
+            if idx not in matrix_usage:
+                matrix_usage[idx] = {'count': 0, 'total_time': 0}
+            matrix_usage[idx]['count'] += 1
+            matrix_usage[idx]['total_time'] += r['inference_time_sec']
+        
+        # Compute average time per matrix
+        for idx in matrix_usage:
+            matrix_usage[idx]['avg_time'] = matrix_usage[idx]['total_time'] / matrix_usage[idx]['count']
+        
+        summary = {
+            'total_prompts': len(results),
+            'successful': len(successful),
+            'failed': len(failed),
+            'average_inference_time_sec': avg_time,
+            'matrix_usage_distribution': matrix_usage,
+            'detailed_results': results
+        }
+        
+        logger.info(f"Aggregation complete: {len(successful)} success, {len(failed)} failed")
+        return summary
 
-        except Exception as e:
-            logger.error(f"Generation failed for {prompt_id}: {e}")
-            generation_logs.append({
-                'prompt_id': prompt_id,
-                'prompt_text': prompt_text,
-                'entropy': None,
-                'matrix_index': matrix_idx,
-                'generation_time_sec': 0.0,
-                'output_path': None,
-                'status': 'failed',
-                'error': str(e)
-            })
+    def save_results(self, summary: dict, output_path: str):
+        """Save results to JSON."""
+        logger.info(f"Saving results to {output_path}")
+        output_dir = os.path.dirname(output_path)
+        if output_dir and not os.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=2, default=str)
+        logger.info("Results saved successfully")
 
-    total_duration = time.time() - total_start
-    logger.info(f"Generation complete. Total time: {total_duration:.2f}s")
-
-    return generation_logs
-
-def aggregate_results(
-    prompts: List[Dict[str, Any]],
-    entropy_scores: Dict[str, float],
-    matrix_selections: Dict[str, int],
-    generation_logs: List[Dict[str, Any]],
-    config: Config
-) -> Dict[str, Any]:
-    """
-    Aggregate all results into a final report structure.
-    """
-    # Merge entropy and matrix selection into generation logs
-    for log in generation_logs:
-        pid = log['prompt_id']
-        log['entropy'] = entropy_scores.get(pid)
-        log['matrix_index'] = matrix_selections.get(pid)
-
-    # Calculate summary statistics
-    successful = [l for l in generation_logs if l['status'] == 'success']
-    failed = [l for l in generation_logs if l['status'] == 'failed']
-    
-    avg_time = sum(l['generation_time_sec'] for l in successful) / len(successful) if successful else 0.0
-    
-    report = {
-        'config': {
-            'model': config.MODEL_NAME,
-            'device': config.DEVICE,
-            'num_test_prompts': len(prompts),
-            'num_successful': len(successful),
-            'num_failed': len(failed)
-        },
-        'summary': {
-            'total_prompts': len(prompts),
-            'successful_generations': len(successful),
-            'failed_generations': len(failed),
-            'average_generation_time_sec': avg_time
-        },
-        'results': generation_logs
-    }
-
-    return report
-
-def save_results(report: Dict[str, Any], config: Config) -> None:
-    """
-    Save the final report to data/processed/router_inference_results.json
-    """
-    output_path = config.ROUTER_INFERENCE_RESULTS_PATH
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-
-    logger.info(f"Results saved to {output_path}")
+    def initialize_components(self):
+        """Initialize all required components."""
+        logger.info("Initializing pipeline components...")
+        
+        # Load Matrices (T028 dependency)
+        matrices_path = self.config.data_paths.get('clustering_report')
+        if not matrices_path:
+            raise FileNotFoundError("Clustering report path not found in config")
+        
+        self.matrix_loader = load_matrices_from_path(matrices_path)
+        self.router = EntropyRouter(self.matrix_loader, self.config)
+        
+        # Load Model
+        self.model_loader = ModelLoader(self.config)
+        self.dit_wrapper = self.model_loader.get_model()
+        
+        # Initialize Quantization Engine
+        self.quantization_engine = W2A4Engine(self.config, self.matrix_loader)
+        
+        logger.info("All components initialized successfully")
 
 def main():
-    """
-    Main entry point for Phase 2 Inference orchestration.
-    """
+    """Main entry point for Router Inference Pipeline."""
+    logger.info("Starting Router Inference Pipeline (T029)...")
+    
     config = Config()
-    logger.info("Starting Router Inference Pipeline (T027)")
-
+    pipeline = RouterInferencePipeline(config)
+    
     try:
-        # 1. Load Test Split
-        prompts = load_test_split_prompts(config)
-
-        # 2. Compute Entropy
-        entropy_scores = compute_entropy_scores(prompts, config)
-
-        # 3. Select Matrices
-        matrix_selections = select_rotation_matrices(entropy_scores, config)
-
-        # 4. Generate Images
-        generation_logs = run_dit_generation_with_dynamic_rotation(prompts, matrix_selections, config)
-
-        # 5. Aggregate Results
-        report = aggregate_results(prompts, entropy_scores, matrix_selections, generation_logs, config)
-
-        # 6. Save Results
-        save_results(report, config)
-
+        # 1. Initialize
+        pipeline.initialize_components()
+        
+        # 2. Load Test Split
+        test_path = config.data_paths.get('test_prompts')
+        if not test_path:
+            # Fallback to default location
+            test_path = str(Path(config.data_root) / "processed" / "prompts_test.csv")
+        
+        prompts = pipeline.load_test_split_prompts(test_path)
+        
+        if not prompts:
+            logger.error("No prompts loaded. Exiting.")
+            return
+        
+        # 3. Compute Entropy
+        entropy_scores = pipeline.compute_entropy_scores(prompts)
+        
+        # 4. Select Matrices
+        matrix_selections = pipeline.select_rotation_matrices(entropy_scores)
+        
+        # 5. Generate Images
+        results = pipeline.run_dit_generation_with_dynamic_rotation(prompts, matrix_selections)
+        
+        # 6. Aggregate
+        summary = pipeline.aggregate_results(results)
+        
+        # 7. Save
+        output_path = str(Path(config.data_root) / "processed" / "router_inference_results.json")
+        pipeline.save_results(summary, output_path)
+        
         logger.info("Pipeline completed successfully.")
-        return 0
-
+        
     except Exception as e:
         logger.error(f"Pipeline failed: {e}", exc_info=True)
-        return 1
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
