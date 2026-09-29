@@ -32,13 +32,13 @@ class TestGraphConstruction:
         assert lcc.number_of_nodes() == 3
         assert set(lcc.nodes()) == {1, 2, 3}
         assert lcc.number_of_edges() == 2
-    
+
     def test_extract_lcc_empty(self):
         """Test LCC on empty graph."""
         G = nx.Graph()
         lcc = extract_lcc(G)
         assert lcc.number_of_nodes() == 0
-    
+
     def test_subsample_graph_node_limit(self):
         """Test that subsample_graph reduces nodes to <= 5000."""
         # Create a large graph
@@ -51,7 +51,7 @@ class TestGraphConstruction:
         
         assert subsampled.number_of_nodes() <= 5000
         assert subsampled.number_of_edges() > 0 # Should not be empty
-    
+
     def test_preprocess_graph_logic_small_graph(self, tmp_path):
         """Test that small graphs are retained as-is."""
         # Create a small CSV
@@ -73,7 +73,7 @@ class TestGraphConstruction:
         
         G = nx.read_graphml(str(final_path))
         assert G.number_of_nodes() <= 5000 # Should be 3
-    
+
     def test_preprocess_graph_logic_large_graph(self, tmp_path):
         """Test that large graphs trigger LCC/Subsampling."""
         # Create a large CSV (simulated)
@@ -104,7 +104,7 @@ class TestGraphConstruction:
         with open(hash_path, 'r') as f:
             hash_content = f.read().strip()
             assert len(hash_content) == 64 # SHA256 hex length
-    
+
     def test_lcc_then_subsample(self, tmp_path):
         """Test scenario where LCC is still too large."""
         # Create a graph with a giant component of 6000 nodes and a tiny one

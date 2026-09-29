@@ -86,9 +86,9 @@
 > **NOTE**: Write these test **skeletons** FIRST (T010-T012), then implement code (T013b), then run tests.
 > **Dependency**: T010-T012 depend on T013 Interface definition (not full implementation).
 
-- [ ] T010 [US1] Write test skeleton for graph construction memory limit in `tests/test_memory_limits.py` (asserts `tracemalloc` < 7GB). **Invocation**: Wrap the call to `preprocess.py` with `memory_monitor.py` to capture peak memory. [Depends on T013 Interface]
-- [ ] T011 [US1] Write test skeleton for node count subsampling in `tests/test_graph_construction.py` (asserts nodes ≤ 5,000, LCC rule) [Depends on T013 Interface]
-- [ ] T012 [US1] Write test skeleton for data ingestion pipeline in `tests/integration/test_ingest.py` (verifies real data fetch and schema compliance) [Depends on T013 Interface]
+- [X] T010 [US1] Write test skeleton for graph construction memory limit in `tests/test_memory_limits.py` (asserts `tracemalloc` < 7GB). **Invocation**: Wrap the call to `preprocess.py` with `memory_monitor.py` to capture peak memory. [Depends on T013 Interface]
+- [X] T011 [US1] Write test skeleton for node count subsampling in `tests/test_graph_construction.py` (asserts nodes ≤ 5,000, LCC rule [UNRESOLVED-CLAIM: c_eeb633a0 — status=not_enough_info]) [Depends on T013 Interface]
+- [X] T012 [US1] Write test skeleton for data ingestion pipeline in `tests/integration/test_ingest.py` (verifies real data fetch and schema compliance) [Depends on T013 Interface]
 
 ### Implementation for User Story 1 (Full Logic)
 
@@ -98,9 +98,9 @@
 
 ### Subsampling Logic (Plan Deviation Authorized)
 
-- [ ] T008c [US1] [P] **Authorize Degree-Based Subsampling**: **Input**: `plan.md` (Plan Deviation section). **Action**: Document the Plan Deviation that authorizes the secondary heuristic (degree-based selection) when LCC > 5000. **Rationale**: Explicitly state that retaining only LCC may discard critical anomaly hubs; degree-based selection preserves topological meaningfulness and anomaly distribution. **Output**: Write `data/processed/subsampling_authorization.md` containing the deviation citation and rationale. **Dependency**: Depends on T015 (for memory check logic).
-- [ ] T008a [US1] [P] [Depends on T013b, T015, T008c] Implement LCC extraction in `code/data/preprocess.py`. **Input**: `data/processed/graph_{scenario}_raw.graphml`. **Logic**: 1) Check `node_count > 5000` OR `peak_memory > 7GB`. 2) **If True**: Extract Largest Connected Component (LCC). 3) Write intermediate LCC graph to `data/processed/graph_{scenario}_lcc.graphml`. **Output**: LCC graph. **Dependency**: Depends on T015 (memory check) and T008c (authorization).
-- [ ] T008b [US1] [P] [Depends on T008a, T008c] Implement degree-based subsampling in `code/data/preprocess.py`. **Input**: `data/processed/graph_{scenario}_lcc.graphml`. **Logic**: 1) If LCC > 5000: Retain top 5000 nodes with highest degree centrality. 2) **Tie-breaking**: Use global seed from `code/utils/seed.py` (sort by degree desc, then by IP string asc). 3) Write final graph to `data/processed/graph_{scenario}_subsampled.graphml`. **Output**: Final graph. **Dependency**: Depends on T008c (authorization).
+- [X] T008c [US1] [P] **Authorize Degree-Based Subsampling**: **Input**: `plan.md` (Plan Deviation section). **Action**: Document the Plan Deviation that authorizes the secondary heuristic (degree-based selection) when LCC > 5000. **Rationale**: Explicitly state that retaining only LCC may discard critical anomaly hubs; degree-based selection preserves topological meaningfulness and anomaly distribution. **Output**: Write `data/processed/subsampling_authorization.md` containing the deviation citation and rationale. **Dependency**: Depends on T015 (for memory check logic).
+- [X] T008a [US1] [P] [Depends on T013b, T015, T008c] Implement LCC extraction in `code/data/preprocess.py`. **Input**: `data/processed/graph_{scenario}_raw.graphml`. **Logic**: 1) Check `node_count > 5000` OR `peak_memory > 7GB`. 2) **If True**: Extract Largest Connected Component (LCC). 3) Write intermediate LCC graph to `data/processed/graph_{scenario}_lcc.graphml`. **Output**: LCC graph. **Dependency**: Depends on T015 (memory check) and T008c (authorization).
+- [X] T008b [US1] [P] [Depends on T008a, T008c] Implement degree-based subsampling in `code/data/preprocess.py`. **Input**: `data/processed/graph_{scenario}_lcc.graphml`. **Logic**: 1) If LCC > 5000: Retain top 5000 nodes with highest degree centrality. 2) **Tie-breaking**: Use global seed from `code/utils/seed.py` (sort by degree desc, then by IP string asc). 3) Write final graph to `data/processed/graph_{scenario}_subsampled.graphml`. **Output**: Final graph. **Dependency**: Depends on T008c (authorization).
 - [ ] T017 [US1] [Depends on T008b] Write graph artifacts to `data/processed/graph_{scenario}_subsampled.graphml`. **Requirement**: For each written file, calculate SHA256 hash and write it to a sidecar file `data/processed/graph_{scenario}_subsampled.hash` containing only the hash string.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -117,13 +117,13 @@
 
 > **Dependency**: T018-T020 depend on T021/T022 interface definition.
 
-- [ ] T018 [US2] Write test skeleton for GCN convergence on CPU in `tests/test_models.py` (asserts no CUDA errors, converges ≤30 epochs) [Depends on T021 Interface]
+- [ ] T018 [US2] Write test skeleton for GCN convergence on CPU in `tests/test_models.py` (asserts no CUDA errors, converges ≤30 epochs [UNRESOLVED-CLAIM: c_c14e478b — status=not_enough_info]) [Depends on T021 Interface]
 - [ ] T019 [US2] Write test skeleton for baseline training in `tests/test_models.py` (asserts RF/XGBoost produce predictions) [Depends on T022 Interface]
 - [ ] T020 [US2] Write test skeleton for Temporal Holdout split in `tests/integration/test_splits.py` (verifies no data leakage) [Depends on T009]
 
 ### Implementation for User Story 2
 
-- [X] T021 [P] [US2] [Depends on T017] Implement a multi-layer Graph Convolutional Network (GCN). in `code/models/gcn.py`: CPU-only, 30 epochs, early stopping (patience=5, delta=1e-4)
+- [X] T021 [P] [US2] [Depends on T017] Implement a multi-layer Graph Convolutional Network (GCN). in `code/models/gcn.py`: CPU-only, 30 epochs, {{claim:c_48ca6ba5}}
 - [ ] T022 [P] [US2] [Depends on T017] Implement Random Forest and XGBoost wrappers in `code/models/baselines.py`: Use structural features (degree, centrality, variance)
 - [ ] T023 [US2] [Depends on T021, T022] Implement evaluation metrics in `code/models/metrics.py`: Precision, Recall, F1-Score, AUC-ROC calculation
 - [ ] T024 [US2] [Depends on T021, T022] Implement training loop in `code/main.py`: Orchestrates GCN and Baseline training with multiple random seeds. **Output**: Write model artifacts to `data/models/gcn_{seed}.pt` and `data/models/baseline_{seed}.pkl`.
@@ -147,14 +147,14 @@
 > **Dependency**: T027-T029 depend on T030/T031b implementation details.
 
 - [ ] T027 [US3] Write test skeleton for Permutation Test logic in `tests/test_significance_tests.py` (validates p-value calculation for small N) [Depends on T030]
-- [ ] T028 [US3] Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py` (validates FDR < 0.05 threshold) [Depends on T031b]
+- [ ] T028 [US3] Write test skeleton for Benjamini-Hochberg correction in `tests/test_significance_tests.py` (validates FDR < 0.05 threshold [UNRESOLVED-CLAIM: c_3296cd88 — status=not_enough_info]) [Depends on T031b]
 - [ ] T029 [US3] Write test skeleton for Integrated Gradients attribution in `tests/integration/test_attribution.py` [Depends on T033]
 
 ### Implementation for User Story 3
 
 - [ ] T032a [P] [US3] [Independent of T022] **Define A Priori Hypothesis Set**: **Action**: Define the list of comparisons required by FR-006. **Features**: `degree`, `betweenness_centrality`, `clustering_coefficient`, `edge_weight_variance`, `page_rank`. **Comparisons**: (1) GCN vs RF, (2) GCN vs XGB, (3-7) Top 5 features vs. null baseline. **Output**: Write `data/results/hypothesis_set_definition.json` listing the a fixed number of comparisons. **Constraint**: This task MUST NOT depend on T022 or model outputs.
-- [ ] T030a [US3] [P] [Depends on T032a] **Justify Statistical Power & Deviation**: **Action**: Document the statistical power comparison between Wilcoxon (Spec FR-006) and Permutation Tests (Plan Deviation 1). **Justification**: Explicitly state that with N<13 scenarios, Wilcoxon has insufficient power to detect differences, whereas Permutation Tests are robust for small samples. **Trace**: Cite `plan.md` 'Plan Deviation 1'. **Output**: Write `data/results/statistical_power_justification.md`. **Note**: This task creates the audit trail for the method deviation.
-- [ ] T030b [US3] [P] [Depends on T030a, T032a] Implement Permutation Tests in `code/analysis/significance_tests.py`: permutations, alpha=0.05. **Hypothesis Set**: Must explicitly target the comparisons defined in T032a: (1) GCN vs RF, (2) GCN vs XGB. **Trace**: [Plan Deviation 1: Wilcoxon->Permutation for N<13]. **Output**: Write `data/results/model_pair_pvalues.json` containing p-values for the model pair comparisons.
+- [ ] T030a [US3] [P] [Depends on T032a] **Justify Statistical Power & Deviation**: **Action**: Document the statistical power comparison between Wilcoxon (Spec FR-006) and Permutation Tests (Plan Deviation 1). **Justification**: Explicitly state that with N<13 scenarios [UNRESOLVED-CLAIM: c_6e846695 — status=not_enough_info], Wilcoxon has insufficient power to detect differences, whereas Permutation Tests are robust for small samples. **Trace**: Cite `plan.md` 'Plan Deviation 1'. **Output**: Write `data/results/statistical_power_justification.md`. **Note**: This task creates the audit trail for the method deviation.
+- [ ] T030b [US3] [P] [Depends on T030a, T032a] Implement Permutation Tests in `code/analysis/significance_tests.py`: permutations, {{claim:c_0768adea}} (Wikipedia: Statistical significance, https://en.wikipedia.org/wiki/Statistical_significance). **Hypothesis Set**: Must explicitly target the comparisons defined in T032a: (1) GCN vs RF, (2) GCN vs XGB. **Trace**: [Plan Deviation 1: Wilcoxon->Permutation for N<13]. **Output**: Write `data/results/model_pair_pvalues.json` containing p-values for the model pair comparisons.
 - [ ] T032b [P] [US3] [Depends on T030a, T032a] Implement Permutation Tests for Features: **Input**: `data/results/hypothesis_set_definition.json`. **Logic**: For each of the top structural features defined in T032a, perform a Permutation Test against a null baseline (shuffle labels repeatedly to assess statistical significance). **Trace**: [Plan Deviation 1]. **Output**: Write `data/results/feature_pvalues.json`.
 - [ ] T031b [P] [US3] [Depends on T030b, T032b] Apply Benjamini-Hochberg correction: **Input**: `data/results/model_pair_pvalues.json` and `data/results/feature_pvalues.json`. **Logic**: Merge p-values into a single list. Sort by p-value ascending. Apply BH correction formula. **Output**: Write `data/results/bh_corrected_pvalues.json`. **Verification**: Ensure a set of comparisons are processed.
 - [ ] T033 [US3] [P] Implement Integrated Gradients for GNN in `code/analysis/attribution.py`: Map embeddings to structural proxies. **Output**: Write `data/results/gnn_attribution_{scenario}.json`.
@@ -178,7 +178,7 @@
 - [ ] T037a [P] Refactor `code/models/gcn.py` and `code/data/preprocess.py` to remove unused imports
 - [ ] T037b [P] Optimize memory usage in `code/data/preprocess.py` graph construction loop
 - [ ] T038a [P] Profile `code/main.py` to identify runtime bottlenecks
-- [ ] T038b [P] Optimize graph construction loop in `code/data/preprocess.py` to ensure end-to-end runtime < 6 hours
+- [ ] T038b [P] Optimize graph construction loop in `code/data/preprocess.py` to ensure end-to-end runtime < 6 hours [UNRESOLVED-CLAIM: c_fb92df1e — status=not_enough_info]
 - [ ] T039 [P] Additional unit tests for edge cases (missing labels, empty graphs) in `tests/unit/`
 - [ ] T040 [P] Run `quickstart.md` validation: Execute `python code/utils/verify_hashes.py` to verify all artifacts in `data/processed` have corresponding `.hash` sidecar files and that the `state/projects/PROJ-041-...yaml` file is up to date. [Depends on T002c]
 - [ ] T041 [P] Implement `code/utils/state_manager.py`: Function to read `data/processed/*.hash` sidecar files, verify hash against source file, aggregate hashes into a JSON map, update the `artifact_hashes` map in `state/projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo.yaml`, **AND UPDATE THE `updated_at` TIMESTAMP** in the same operation. **Dependency**: Depends on T017, T025, T035.

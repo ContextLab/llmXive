@@ -1,11 +1,10 @@
 T009:
   c: false
-  h: ea76307b7ec1c778ba36011bf5caa3f722d08ee931aa7bd00430377fa2e5d922
-  r: "The repository contains a partially\u2011implemented `code/data/splits.py`,\
-    \ but the required output files (`data/processed/train_split.csv`, `data/processed/test_split.csv`,\
-    \ `data/processed/graph_train_split.graphml`) are absent, and the provided code\
-    \ snippet does not show the graph construction or validation steps nor any file\u2011\
-    writing logic. The task\u2019s core deliverables are therefore not present."
+  h: 065533136130b1b77ea9243235207055fbffd0f9514048467aecd13469e4fbce
+  r: "The required output files (`data/processed/train_split.csv`, `data/processed/test_split.csv`,\
+    \ `data/processed/graph_train_split.graphml`) are absent, and the provided `splits.py`\
+    \ is truncated before the core split/graph logic is fully implemented, so the\
+    \ task\u2019s specifications are not satisfied."
 T017:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

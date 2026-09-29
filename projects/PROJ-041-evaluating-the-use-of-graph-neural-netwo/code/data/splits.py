@@ -1,324 +1,300 @@
 """
 Temporal Holdout Split Implementation for Network Traffic Anomaly Detection.
 
-This module implements the Temporal Holdout split strategy to prevent temporal leakage
-when constructing graphs for GNN-based anomaly detection.
-
-Key Logic:
-1. Load raw flows from the ingested dataset.
-2. Sort flows by timestamp.
-3. Split into Train (majority) and Test (remaining) subsets.
-4. Construct the graph ONLY on the Train subset flows.
-5. Validate that no edges in the Train graph connect to nodes that appear ONLY in the Test period.
+This module implements the temporal split logic required to prevent data leakage
+in graph-based anomaly detection. It loads raw flows, splits them by timestamp,
+constructs a graph ONLY on the training subset, and validates that no edges
+connect to nodes that appear exclusively in the test period.
 
 Outputs:
-- data/processed/train_split.csv
-- data/processed/test_split.csv
-- data/processed/graph_train_split.graphml
+  - data/processed/train_split.csv
+  - data/processed/test_split.csv
+  - data/processed/graph_train_split.graphml
 """
 
 import os
 import json
 import logging
+import hashlib
 from typing import List, Dict, Any, Tuple, Optional, Set
 import networkx as nx
 import numpy as np
 import pandas as pd
 from datetime import datetime
 
-# Import seed utility for reproducibility
+# Import project utilities
 from utils.seed import set_seed, get_seed_value
+from utils.memory_monitor import enforce_memory_limit, get_peak_memory_mb
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Constants
-TRAIN_RATIO = 0.8  # 80% train, 20% test
-OUTPUT_DIR = "data/processed"
-TIMESTAMP_COL = "start_time"  # Standard column name for timestamp in CTU/BoT-IoT
-
-def load_raw_flows(data_path: str) -> pd.DataFrame:
+def load_raw_flows(raw_data_dir: str = "data/raw") -> pd.DataFrame:
     """
-    Load raw flow data from the specified CSV file.
-
-    Args:
-        data_path: Path to the raw CSV file containing network flows.
-
-    Returns:
-        DataFrame containing the raw flows.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
+    Load raw network flow data from CSV files in the raw_data_dir.
+    Expects files like 'CTU-13-Scenario-1.csv' or similar.
+    Returns a consolidated DataFrame.
     """
-    if not os.path.exists(data_path):
-        raise FileNotFoundError(f"Raw data file not found: {data_path}")
+    flow_files = [f for f in os.listdir(raw_data_dir) if f.endswith('.csv')]
+    if not flow_files:
+        raise FileNotFoundError(f"No CSV files found in {raw_data_dir}. Ensure T007a/T007b completed successfully.")
 
-    logger.info(f"Loading raw flows from {data_path}")
-    df = pd.read_csv(data_path)
+    dfs = []
+    for file in flow_files:
+        logger.info(f"Loading flow file: {file}")
+        df = pd.read_csv(os.path.join(raw_data_dir, file))
+        
+        # Ensure timestamp column exists and is datetime
+        if 'Start time' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['Start time'], errors='coerce')
+        elif 'timestamp' in df.columns:
+            df['timestamp'] = pd.to_datetime(df['timestamp'], errors='coerce')
+        else:
+            # Fallback: try to find a time-like column
+            time_cols = [c for c in df.columns if 'time' in c.lower() or 'date' in c.lower()]
+            if time_cols:
+                df['timestamp'] = pd.to_datetime(df[time_cols[0]], errors='coerce')
+            else:
+                raise ValueError(f"Could not find a timestamp column in {file}. Columns: {df.columns.tolist()}")
+        
+        # Drop rows with invalid timestamps
+        initial_count = len(df)
+        df = df.dropna(subset=['timestamp'])
+        dropped = initial_count - len(df)
+        if dropped > 0:
+            logger.warning(f"Dropped {dropped} rows with invalid timestamps in {file}")
+        
+        dfs.append(df)
 
-    # Validate required columns
-    required_cols = [TIMESTAMP_COL, "src_ip", "dst_ip", "label"]
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns in {data_path}: {missing_cols}")
+    if not dfs:
+        raise ValueError("No valid flow data loaded.")
 
-    # Ensure timestamp is datetime
-    if not pd.api.types.is_datetime64_any_dtype(df[TIMESTAMP_COL]):
-        logger.info("Converting timestamp column to datetime")
-        df[TIMESTAMP_COL] = pd.to_datetime(df[TIMESTAMP_COL], errors='coerce')
-        df = df.dropna(subset=[TIMESTAMP_COL])  # Drop rows with invalid timestamps
+    combined_df = pd.concat(dfs, ignore_index=True)
+    logger.info(f"Loaded {len(combined_df)} total flows.")
+    return combined_df
 
-    logger.info(f"Loaded {len(df)} flows")
-    return df
-
-def create_temporal_split(df: pd.DataFrame, train_ratio: float = TRAIN_RATIO, seed: Optional[int] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def create_temporal_split(df: pd.DataFrame, train_ratio: float = 0.8, seed: Optional[int] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Create a temporal holdout split by sorting flows by timestamp.
-
+    Split flows into train and test sets based on timestamp.
+    
     Logic:
-    1. Sort DataFrame by timestamp.
-    2. Split at the train_ratio index.
-    3. Return Train (earlier) and Test (later) subsets.
-
+    1. Sort by timestamp.
+    2. Split into Train (first train_ratio) and Test (remaining).
+    
     Args:
-        df: DataFrame with raw flows.
-        train_ratio: Proportion of data to use for training (0.0 to 1.0).
-        seed: Random seed (not strictly needed for temporal sort, but for consistency).
-
+        df: DataFrame with a 'timestamp' column.
+        train_ratio: Fraction of data to use for training (e.g., 0.8).
+        seed: Random seed (not used for temporal split, but kept for API consistency).
+    
     Returns:
-        Tuple of (train_df, test_df).
+        Tuple of (train_df, test_df)
     """
     if seed is not None:
         set_seed(seed)
-
-    logger.info(f"Creating temporal split with train_ratio={train_ratio}")
-
-    # Sort by timestamp
-    df_sorted = df.sort_values(by=TIMESTAMP_COL).reset_index(drop=True)
-
-    # Calculate split index
+    
+    df_sorted = df.sort_values(by='timestamp').reset_index(drop=True)
     split_idx = int(len(df_sorted) * train_ratio)
-
+    
     train_df = df_sorted.iloc[:split_idx].copy()
     test_df = df_sorted.iloc[split_idx:].copy()
-
-    logger.info(f"Train set size: {len(train_df)}, Test set size: {len(test_df)}")
-    logger.info(f"Train time range: {train_df[TIMESTAMP_COL].min()} to {train_df[TIMESTAMP_COL].max()}")
-    logger.info(f"Test time range: {test_df[TIMESTAMP_COL].min()} to {test_df[TIMESTAMP_COL].max()}")
-
+    
+    logger.info(f"Temporal Split: Train={len(train_df)} ({len(train_df)/len(df_sorted):.2%}), "
+                f"Test={len(test_df)} ({len(test_df)/len(df_sorted):.2%})")
+    
     return train_df, test_df
 
 def build_graph_from_train_flows(train_df: pd.DataFrame) -> nx.DiGraph:
     """
-    Construct a directed graph ONLY from the training subset of flows.
-
-    Nodes: IPs (src and dst)
-    Edges: Flows from src_ip to dst_ip
+    Construct a directed graph ONLY from the training flows.
+    
+    Nodes: Unique IP addresses (source and destination).
+    Edges: Directed edges from src_ip to dst_ip for each flow.
     Edge Attributes:
-        - weight: Number of packets (or count of flows if packet count not available)
-        - anomaly: Whether the flow is labeled as an anomaly (1 if any flow in edge is anomaly)
-
-    Args:
-        train_df: DataFrame containing only the training flows.
-
-    Returns:
-        NetworkX DiGraph constructed from training flows.
+        - weight: Number of flows (aggregated).
+        - packets: Sum of packets (or count if not available).
+        - bytes: Sum of bytes.
+    
+    Node Attributes:
+        - type: 'src' or 'dst' (inferred from edge direction).
+        - first_seen: Earliest timestamp in train set.
+    
+    CRITICAL: This function must NOT see test data.
     """
     logger.info("Building graph from training flows only...")
-
+    
+    # Identify source and destination columns
+    src_col = None
+    dst_col = None
+    packets_col = None
+    bytes_col = None
+    
+    # Heuristic column detection
+    cols = train_df.columns.str.lower()
+    if 'src ip' in cols or 'src_ip' in cols:
+        src_col = 'src ip' if 'src ip' in cols else 'src_ip'
+    elif 'source ip' in cols:
+        src_col = 'source ip'
+    elif 'src' in cols:
+        src_col = 'src'
+        
+    if 'dst ip' in cols or 'dst_ip' in cols:
+        dst_col = 'dst ip' if 'dst ip' in cols else 'dst_ip'
+    elif 'dest ip' in cols:
+        dst_col = 'dest ip'
+    elif 'dst' in cols:
+        dst_col = 'dst'
+    
+    if 'packets' in cols:
+        packets_col = 'packets'
+    elif 'pkt' in cols:
+        packets_col = 'pkt'
+        
+    if 'bytes' in cols:
+        bytes_col = 'bytes'
+    elif 'byt' in cols:
+        bytes_col = 'byt'
+    
+    if not src_col or not dst_col:
+        raise ValueError("Could not identify source/destination IP columns.")
+    
+    # Aggregate edges
+    edge_data = train_df.groupby([src_col, dst_col]).agg({
+        packets_col: 'sum' if packets_col else 'count',
+        bytes_col: 'sum' if bytes_col else 1,
+        'timestamp': 'min'
+    }).reset_index()
+    
+    # Rename columns for graph attributes
+    edge_data['weight'] = 1.0 # Base weight per unique edge pair
+    if packets_col:
+        edge_data['packets'] = edge_data[packets_col]
+    if bytes_col:
+        edge_data['bytes'] = edge_data[bytes_col]
+    
     G = nx.DiGraph()
-
-    # Aggregate flows by edge (src, dst)
-    # Assuming 'proto', 'spkts', 'dpkts' might exist, otherwise default to 1
-    if 'spkts' in train_df.columns and 'dpkts' in train_df.columns:
-        flow_df = train_df.groupby(['src_ip', 'dst_ip']).agg(
-            weight=('spkts', 'sum'),
-            dst_weight=('dpkts', 'sum'),
-            is_anomaly=('label', lambda x: 1 if any(x == 1) else 0)
-        ).reset_index()
-    else:
-        # Fallback: count flows
-        flow_df = train_df.groupby(['src_ip', 'dst_ip']).agg(
-            weight=('label', 'count'),
-            dst_weight=('label', 'count'),
-            is_anomaly=('label', lambda x: 1 if any(x == 1) else 0)
-        ).reset_index()
-
-    # Add edges to graph
-    for _, row in flow_df.iterrows():
-        src_ip = row['src_ip']
-        dst_ip = row['dst_ip']
-        weight = row['weight']
-        is_anomaly = row['is_anomaly']
-
-        G.add_edge(src_ip, dst_ip, weight=weight, anomaly=is_anomaly)
-
-        # Ensure nodes exist (in case of isolated nodes, though unlikely in flow data)
-        if src_ip not in G.nodes:
-            G.add_node(src_ip)
-        if dst_ip not in G.nodes:
-            G.add_node(dst_ip)
-
-    logger.info(f"Graph constructed: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges")
+    
+    # Add edges and attributes
+    for _, row in edge_data.iterrows():
+        src = str(row[src_col])
+        dst = str(row[dst_col])
+        G.add_edge(src, dst, weight=row.get('weight', 1.0))
+        
+        # Add node attributes if not exists
+        if src not in G.nodes:
+            G.add_node(src, type='src', first_seen=row['timestamp'])
+        if dst not in G.nodes:
+            G.add_node(dst, type='dst', first_seen=row['timestamp'])
+    
+    logger.info(f"Graph constructed: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges.")
     return G
 
-def validate_no_leakage(G: nx.DiGraph, test_df: pd.DataFrame) -> bool:
+def validate_no_leakage(train_df: pd.DataFrame, test_df: pd.DataFrame, G: nx.DiGraph) -> bool:
     """
     Validate that no edges in the Train graph connect to nodes that appear ONLY in the Test period.
-
+    
     Logic:
-    1. Identify nodes that appear in the Test set (src or dst).
-    2. Identify nodes that appear ONLY in the Test set (not in Train).
-    3. Check if any edge in G connects to a 'Test-Only' node.
-       - If an edge connects a Train node to a Test-Only node, it implies the edge was formed
-         using a flow that should have been in the test set (leakage), OR the node appeared
-         in both but we missed it.
-       - Strictly: We want to ensure the graph G (built from Train) does not contain edges
-         involving nodes that are exclusive to the Test set.
-
-    Args:
-        G: The graph built from training flows.
-        test_df: The test set DataFrame.
-
-    Returns:
-        True if no leakage detected, False otherwise.
+    1. Identify nodes that appear in Test but NOT in Train.
+    2. Check if any edges in G (train graph) connect to these 'test-only' nodes.
+    3. If yes, leakage detected -> raise error.
+    
+    Note: Since we built G ONLY from train_df, theoretically no test-only nodes should exist in G.
+    However, this check validates the integrity of the split logic and data consistency.
     """
     logger.info("Validating temporal leakage...")
-
-    # Get all nodes in the Train graph
-    train_nodes = set(G.nodes())
-
-    # Get all nodes in the Test set
-    test_nodes = set(test_df['src_ip'].unique()) | set(test_df['dst_ip'].unique())
-
-    # Find nodes that are ONLY in Test (not in Train)
-    test_only_nodes = test_nodes - train_nodes
-
-    if not test_only_nodes:
-        logger.info("No nodes are exclusive to the test set. Leakage check passed.")
+    
+    # Get all IPs in train and test
+    src_col = 'src ip' if 'src ip' in train_df.columns else ('src_ip' if 'src_ip' in train_df.columns else None)
+    dst_col = 'dst ip' if 'dst ip' in train_df.columns else ('dst_ip' if 'dst_ip' in train_df.columns else None)
+    
+    if not src_col or not dst_col:
+        logger.warning("Could not find IP columns for leakage check.")
         return True
-
-    # Check if any edge in G connects to a test_only_node
-    leakage_detected = False
-    leakage_edges = []
-
+    
+    train_nodes = set(train_df[src_col].astype(str).unique()) | set(train_df[dst_col].astype(str).unique())
+    test_nodes = set(test_df[src_col].astype(str).unique()) | set(test_df[dst_col].astype(str).unique())
+    
+    test_only_nodes = test_nodes - train_nodes
+    
+    if not test_only_nodes:
+        logger.info("No nodes appear exclusively in the test set. Leakage check passed.")
+        return True
+    
+    # Check edges in G
+    leakage_found = False
     for u, v in G.edges():
         if u in test_only_nodes or v in test_only_nodes:
-            leakage_detected = True
-            leakage_edges.append((u, v))
+            logger.error(f"LEAKAGE DETECTED: Edge ({u}, {v}) connects to test-only node.")
+            leakage_found = True
+            
+    if leakage_found:
+        raise ValueError("Temporal leakage detected: Train graph contains edges to nodes exclusive to Test set.")
+    
+    logger.info("Leakage validation passed.")
+    return True
 
-    if leakage_detected:
-        logger.warning(f"LEAKAGE DETECTED: {len(leakage_edges)} edges in Train graph connect to Test-only nodes.")
-        logger.warning("This suggests that the graph construction or split logic has a flaw.")
-        # In a strict implementation, we might raise an error here.
-        # For now, we log and return False.
-        return False
-    else:
-        logger.info("Leakage check passed: No edges connect to Test-only nodes.")
-        return True
-
-def save_splits(train_df: pd.DataFrame, test_df: pd.DataFrame, output_dir: str = OUTPUT_DIR) -> Tuple[str, str]:
+def save_splits(train_df: pd.DataFrame, test_df: pd.DataFrame, output_dir: str = "data/processed") -> Tuple[str, str]:
     """
-    Save the train and test splits to CSV files.
-
-    Args:
-        train_df: Training DataFrame.
-        test_df: Testing DataFrame.
-        output_dir: Directory to save files.
-
-    Returns:
-        Tuple of (train_path, test_path).
+    Save train and test splits to CSV files.
+    
+    Outputs:
+      - data/processed/train_split.csv
+      - data/processed/test_split.csv
     """
-    os.makedirs(output_dir, exist_ok=True)
-
+    if not os.makedirs(output_dir, exist_ok=True):
+        os.makedirs(output_dir)
+    
     train_path = os.path.join(output_dir, "train_split.csv")
     test_path = os.path.join(output_dir, "test_split.csv")
-
+    
     train_df.to_csv(train_path, index=False)
     test_df.to_csv(test_path, index=False)
-
-    logger.info(f"Saved train split to {train_path} ({len(train_df)} rows)")
-    logger.info(f"Saved test split to {test_path} ({len(test_df)} rows)")
-
+    
+    logger.info(f"Saved splits: {train_path}, {test_path}")
     return train_path, test_path
 
-def save_graph(G: nx.DiGraph, output_path: str = os.path.join(OUTPUT_DIR, "graph_train_split.graphml")) -> str:
+def save_graph(G: nx.DiGraph, output_path: str = "data/processed/graph_train_split.graphml") -> str:
     """
     Save the constructed graph to a GraphML file.
-
-    Args:
-        G: NetworkX DiGraph.
-        output_path: Path to save the graph.
-
-    Returns:
-        Path to the saved file.
+    
+    Output:
+      - data/processed/graph_train_split.graphml
     """
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-
     nx.write_graphml(G, output_path)
-    logger.info(f"Saved graph to {output_path} ({G.number_of_nodes()} nodes, {G.number_of_edges()} edges)")
+    logger.info(f"Saved graph: {output_path}")
     return output_path
 
 def main():
     """
     Main entry point for the Temporal Holdout Split task.
-
-    Workflow:
-    1. Identify the latest raw data file in data/raw/ (or use a specific one if configured).
-    2. Load raw flows.
-    3. Perform temporal split.
-    4. Build graph from Train flows ONLY.
-    5. Validate leakage.
-    6. Save outputs.
     """
-    # Determine input data source
-    # We look for the most recent CSV in data/raw/ as per T007a/T007b
-    raw_dir = "data/raw"
-    if not os.path.exists(raw_dir):
-        logger.error(f"Raw data directory {raw_dir} not found. Please run T007 first.")
-        return
-
-    csv_files = [f for f in os.listdir(raw_dir) if f.endswith('.csv')]
-    if not csv_files:
-        logger.error(f"No CSV files found in {raw_dir}. Please run T007 first.")
-        return
-
-    # Sort by modification time to get the latest (assuming T007 downloaded the latest)
-    csv_files.sort(key=lambda x: os.path.getmtime(os.path.join(raw_dir, x)), reverse=True)
-    latest_file = csv_files[0]
-    input_path = os.path.join(raw_dir, latest_file)
-
-    logger.info(f"Using input file: {input_path}")
-
-    # 1. Load raw flows
+    logger.info("Starting Temporal Holdout Split (T009)...")
+    
+    # 1. Load Raw Flows
     try:
-        df = load_raw_flows(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load raw flows: {e}")
-        return
-
-    # 2. Create temporal split
-    train_df, test_df = create_temporal_split(df, train_ratio=TRAIN_RATIO)
-
-    # 3. Build graph from Train flows ONLY
+        raw_df = load_raw_flows("data/raw")
+    except FileNotFoundError as e:
+        logger.error(f"Data ingestion failed. Ensure T007a/T007b are complete: {e}")
+        raise
+    
+    # 2. Create Temporal Split
+    train_df, test_df = create_temporal_split(raw_df, train_ratio=0.8)
+    
+    # 3. Build Graph ONLY on Train subset
     G = build_graph_from_train_flows(train_df)
-
-    # 4. Validate leakage
-    is_valid = validate_no_leakage(G, test_df)
-    if not is_valid:
-        logger.error("Temporal leakage detected! Aborting save.")
-        # In a strict pipeline, we might exit here.
-        # For this task, we still save the artifacts but flag the issue.
-        # However, the requirement says "Validate... Rule: Graph construction MUST occur after split".
-        # If validation fails, it implies the split/graph logic is wrong.
-        # We will proceed to save but log the failure.
-
-    # 5. Save outputs
+    
+    # 4. Validate No Leakage
+    validate_no_leakage(train_df, test_df, G)
+    
+    # 5. Save Outputs
     save_splits(train_df, test_df)
-    save_graph(G)
-
-    logger.info("Temporal Holdout Split task completed successfully.")
+    graph_path = save_graph(G)
+    
+    logger.info("T009 completed successfully.")
+    logger.info(f"Artifacts created: data/processed/train_split.csv, data/processed/test_split.csv, {graph_path}")
 
 if __name__ == "__main__":
     main()

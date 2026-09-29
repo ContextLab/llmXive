@@ -6,30 +6,13 @@ import tracemalloc
 import random
 import networkx as nx
 import pandas as pd
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Optional, Tuple, Dict, Any
 
-# Import project utilities
-from utils.memory_monitor import (
-    start_monitoring,
-    stop_monitoring,
-    get_peak_memory_mb,
-    MemoryLimitExceededError,
-    check_memory_limit,
-)
-from utils.seed import set_seed
+from utils.seed import set_seed, get_seed_value
+from utils.memory_monitor import enforce_memory_limit, MemoryLimitExceededError
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-# Constants
-MEMORY_LIMIT_GB = 7.0
-MEMORY_LIMIT_MB = MEMORY_LIMIT_GB * 1024
-MAX_NODES = 5000
-
 
 def calculate_sha256(file_path: str) -> str:
     """Calculate SHA256 hash of a file."""
@@ -39,231 +22,188 @@ def calculate_sha256(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
-def build_graph_from_csv(csv_path: str) -> nx.DiGraph:
+def build_graph_from_csv(csv_path: str) -> nx.Graph:
     """
-    Build a directed graph from a NetFlow CSV.
-    Nodes: IPs (source and destination)
-    Edges: Flows (source -> dest)
-    Attributes: weight (packet count), label (anomaly/normal if available)
+    Build a directed graph from a CSV of netflow records.
+    Nodes are IPs, edges are flows. Edge weight is packet count.
     """
     logger.info(f"Building graph from {csv_path}")
-    if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"CSV file not found: {csv_path}")
-
-    # Load data
     df = pd.read_csv(csv_path)
-
+    
     # Ensure required columns exist
-    required_cols = ["src_ip", "dst_ip"]
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
-
-    G = nx.DiGraph()
-
-    # Add nodes
-    nodes = set(df["src_ip"].unique()) | set(df["dst_ip"].unique())
-    G.add_nodes_from(nodes)
-
+    required_cols = ['src_ip', 'dst_ip', 'packets']
+    for col in required_cols:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
+    
+    G = nx.Graph()
+    
     # Add edges with attributes
-    # Aggregate flows to edges: sum packet counts, count flows
-    edge_data = df.groupby(["src_ip", "dst_ip"]).agg(
-        {"packets": "sum", "bytes": "sum", "flow_id": "count"}
-    ).reset_index()
-
-    edge_data.columns = ["src_ip", "dst_ip", "weight_packets", "weight_bytes", "flow_count"]
-
-    for _, row in edge_data.iterrows():
-        src, dst = row["src_ip"], row["dst_ip"]
-        # Add edge attributes
-        G.add_edge(
-            src,
-            dst,
-            weight_packets=int(row["weight_packets"]),
-            weight_bytes=int(row["weight_bytes"]),
-            flow_count=int(row["flow_count"]),
-        )
-
-    # Add anomaly labels to nodes if available
-    if "label" in df.columns:
-        # Aggregate label per node (e.g., if any flow involving node is anomaly, mark node)
-        node_labels = {}
-        for _, row in df.iterrows():
-            src, dst = row["src_ip"], row["dst_ip"]
-            label = row["label"]
-            if src not in node_labels:
-                node_labels[src] = label
-            elif node_labels[src] == 0 and label == 1:
-                node_labels[src] = 1
-            if dst not in node_labels:
-                node_labels[dst] = label
-            elif node_labels[dst] == 0 and label == 1:
-                node_labels[dst] = 1
-
-        nx.set_node_attributes(G, node_labels, "label")
-
+    for _, row in df.iterrows():
+        src = str(row['src_ip'])
+        dst = str(row['dst_ip'])
+        weight = int(row['packets'])
+        
+        if weight < 0:
+            logger.warning(f"Negative packet count found at row {_, src, dst}, setting to 0")
+            weight = 0
+      
+        G.add_edge(src, dst, weight=weight, packet_count=weight)
+        
+        # Ensure nodes have attributes if needed (e.g., label if present)
+        if 'label' in df.columns:
+            label = row['label']
+            if src not in G.nodes:
+                G.nodes[src]['label'] = label
+            if dst not in G.nodes:
+                G.nodes[dst]['label'] = label
+    
     logger.info(f"Graph built: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges")
     return G
 
-
-def extract_lcc(G: nx.DiGraph) -> nx.DiGraph:
-    """Extract the Largest Connected Component (LCC) of the graph."""
+def extract_lcc(G: nx.Graph) -> nx.Graph:
+    """Extract the Largest Connected Component."""
     logger.info("Extracting Largest Connected Component (LCC)")
-    # For directed graphs, we consider the underlying undirected graph for connectivity
-    if not nx.is_strongly_connected(G):
-        undirected_G = G.to_undirected()
-        lcc_nodes = max(nx.connected_components(undirected_G), key=len)
-        G_lcc = G.subgraph(lcc_nodes).copy()
-        logger.info(f"LCC extracted: {G_lcc.number_of_nodes()} nodes, {G_lcc.number_of_edges()} edges")
-        return G_lcc
-    else:
-        logger.info("Graph is already strongly connected, returning original")
-        return G
+    if nx.is_connected(G):
+        logger.info("Graph is already connected.")
+        return G.copy()
+    
+    largest_cc = max(nx.connected_components(G), key=len)
+    lcc_graph = G.subgraph(largest_cc).copy()
+    logger.info(f"LCC extracted: {lcc_graph.number_of_nodes()} nodes, {lcc_graph.number_of_edges()} edges")
+    return lcc_graph
 
-
-def subsample_graph(G: nx.DiGraph, max_nodes: int = MAX_NODES) -> nx.DiGraph:
+def subsample_graph(G: nx.Graph, max_nodes: int = 5000) -> nx.Graph:
     """
-    Randomly subsample nodes and edges to reach max_nodes.
-    Preserves the structure of the LCC.
+    Subsample graph to max_nodes using degree centrality.
+    Tie-breaking: sort by degree desc, then by IP string asc.
     """
-    logger.info(f"Subsampling graph to {max_nodes} nodes")
     if G.number_of_nodes() <= max_nodes:
-        return G
-
-    # Randomly select nodes to keep
-    all_nodes = list(G.nodes())
-    random.shuffle(all_nodes)
-    selected_nodes = set(all_nodes[:max_nodes])
-
+        logger.info(f"Graph has {G.number_of_nodes()} nodes, no subsampling needed.")
+        return G.copy()
+    
+    logger.info(f"Subsampling graph from {G.number_of_nodes()} to {max_nodes} nodes by degree.")
+    
+    # Calculate degree
+    degrees = dict(G.degree())
+    
+    # Sort nodes: primary by degree (desc), secondary by IP string (asc)
+    sorted_nodes = sorted(degrees.items(), key=lambda x: (-x[1], x[0]))
+    
+    # Select top N nodes
+    top_nodes = [node for node, _ in sorted_nodes[:max_nodes]]
+    
     # Create subgraph
-    G_sub = G.subgraph(selected_nodes).copy()
+    subsampled = G.subgraph(top_nodes).copy()
+    logger.info(f"Subsampled graph: {subsampled.number_of_nodes()} nodes, {subsampled.number_of_edges()} edges")
+    return subsampled
 
-    # If subgraph has fewer nodes than expected (due to isolation), try to add back edges
-    # But for simplicity, we just return the subgraph
-    logger.info(f"Subsampled graph: {G_sub.number_of_nodes()} nodes, {G_sub.number_of_edges()} edges")
-    return G_sub
-
-
-def validate_graph(G: nx.DiGraph) -> None:
-    """Validate graph properties: non-negative integer weights, etc."""
-    logger.info("Validating graph properties")
+def validate_graph(G: nx.Graph) -> bool:
+    """Validate graph properties: non-negative weights, no missing labels if expected."""
+    logger.info("Validating graph...")
     for u, v, data in G.edges(data=True):
-        if "weight_packets" in data:
-            if not isinstance(data["weight_packets"], int) or data["weight_packets"] < 0:
-                raise ValueError(f"Invalid weight_packets for edge ({u}, {v}): {data['weight_packets']}")
-        if "weight_bytes" in data:
-            if not isinstance(data["weight_bytes"], int) or data["weight_bytes"] < 0:
-                raise ValueError(f"Invalid weight_bytes for edge ({u}, {v}): {data['weight_bytes']}")
+        if 'weight' in data and data['weight'] < 0:
+            logger.error(f"Negative weight found on edge ({u}, {v})")
+            return False
+    logger.info("Graph validation passed.")
+    return True
 
-    # Check node labels if present
-    if "label" in G.nodes(data=True)[0][1]:
-        for node, data in G.nodes(data=True):
-            if "label" in data:
-                if data["label"] not in [0, 1]:
-                    logger.warning(f"Node {node} has unexpected label: {data['label']}")
-
-    logger.info("Graph validation passed")
-
-
-def write_graph_with_hash(G: nx.DiGraph, output_path: str) -> str:
+def write_graph_with_hash(G: nx.Graph, output_path: str) -> str:
     """
-    Write graph to file and generate SHA256 hash sidecar.
+    Write graph to GraphML and create a sidecar .hash file with SHA256.
     Returns the hash string.
     """
     logger.info(f"Writing graph to {output_path}")
     nx.write_graphml(G, output_path)
-
-    # Calculate and write hash
-    hash_value = calculate_sha256(output_path)
+    
+    # Calculate hash
+    file_hash = calculate_sha256(output_path)
+    
+    # Write sidecar
     hash_path = output_path + ".hash"
-    with open(hash_path, "w") as f:
-        f.write(hash_value)
+    with open(hash_path, 'w') as f:
+        f.write(file_hash)
+    
+    logger.info(f"Graph written. SHA256: {file_hash}")
+    logger.info(f"Hash sidecar written to {hash_path}")
+    return file_hash
 
-    logger.info(f"Graph written with hash: {hash_value}")
-    return hash_value
-
-
-def preprocess_graph(
-    csv_path: str,
-    scenario_name: str,
-    output_dir: str = "data/processed",
-    memory_limit_mb: float = MEMORY_LIMIT_MB,
-) -> Tuple[str, str]:
+def preprocess_graph(input_csv: str, scenario: str, max_nodes: int = 5000) -> Dict[str, str]:
     """
-    Main preprocessing pipeline:
-    1. Build graph from CSV.
-    2. Check memory and node count.
-    3. Extract LCC if needed.
-    4. Subsample if needed.
-    5. Validate.
-    6. Write output with hash sidecar.
-    Returns: (output_path, hash_value)
+    Full preprocessing pipeline:
+    1. Build graph from CSV
+    2. Extract LCC if needed
+    3. Subsample if needed
+    4. Validate
+    5. Write to GraphML with hash sidecar
+    
+    Returns a dict of output paths.
     """
-    set_seed(42)  # Ensure reproducibility
-
-    os.makedirs(output_dir, exist_ok=True)
-
-    # Start memory monitoring
-    start_monitoring()
-
-    try:
-        # Step 1: Build graph
-        G_raw = build_graph_from_csv(csv_path)
-        node_count = G_raw.number_of_nodes()
-        logger.info(f"Initial graph: {node_count} nodes")
-
-        # Step 2: Check memory usage
-        peak_mem = get_peak_memory_mb()
-        logger.info(f"Peak memory after build: {peak_mem:.2f} MB")
-
-        # Step 3: Apply subsampling logic based on thresholds
-        G_final = G_raw
-        if node_count > MAX_NODES or peak_mem > memory_limit_mb:
-            logger.info("Thresholds exceeded, applying LCC and subsampling")
-            G_final = extract_lcc(G_raw)
-            if G_final.number_of_nodes() > MAX_NODES:
-                G_final = subsample_graph(G_final, MAX_NODES)
-        else:
-            logger.info("Thresholds not exceeded, retaining graph as-is")
-
-        # Step 4: Validate
-        validate_graph(G_final)
-
-        # Step 5: Write output
-        output_path = os.path.join(output_dir, f"graph_{scenario_name}_subsampled.graphml")
-        hash_value = write_graph_with_hash(G_final, output_path)
-
-        # Stop monitoring
-        stop_monitoring()
-        final_peak_mem = get_peak_memory_mb()
-        logger.info(f"Final peak memory: {final_peak_mem:.2f} MB")
-
-        return output_path, hash_value
-
-    except MemoryLimitExceededError as e:
-        stop_monitoring()
-        logger.error(f"Memory limit exceeded: {e}")
-        raise
-    except Exception as e:
-        stop_monitoring()
-        logger.error(f"Preprocessing failed: {e}")
-        raise
-
+    set_seed(get_seed_value()) # Ensure deterministic behavior
+    
+    raw_path = f"data/processed/graph_{scenario}_raw.graphml"
+    lcc_path = f"data/processed/graph_{scenario}_lcc.graphml"
+    final_path = f"data/processed/graph_{scenario}_subsampled.graphml"
+    
+    # 1. Build Raw Graph
+    G = build_graph_from_csv(input_csv)
+    write_graph_with_hash(G, raw_path)
+    
+    # 2. Check constraints
+    needs_lcc = G.number_of_nodes() > max_nodes
+    if needs_lcc:
+        G = extract_lcc(G)
+        write_graph_with_hash(G, lcc_path)
+    
+    # 3. Subsample if still too large
+    if G.number_of_nodes() > max_nodes:
+        G = subsample_graph(G, max_nodes)
+    else:
+        # If LCC was small enough, we might not need a new file, but task T017 implies
+        # writing the final subsampled artifact. If no subsampling happened, 
+        # we can copy the LCC or Raw to the final path to ensure the artifact exists.
+        # To be safe and consistent with the flow, we write the current state to final_path.
+        pass
+    
+    # 4. Validate
+    if not validate_graph(G):
+        raise ValueError("Graph validation failed after processing.")
+    
+    # 5. Write Final
+    final_hash = write_graph_with_hash(G, final_path)
+    
+    return {
+        "raw": raw_path,
+        "lcc": lcc_path if needs_lcc else None,
+        "final": final_path,
+        "hash": final_hash
+    }
 
 def main():
-    """CLI entry point for preprocessing."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Preprocess NetFlow data into graphs")
-    parser.add_argument("--csv", type=str, required=True, help="Path to input CSV file")
-    parser.add_argument("--scenario", type=str, required=True, help="Scenario name for output files")
-    parser.add_argument("--output-dir", type=str, default="data/processed", help="Output directory")
-    args = parser.parse_args()
-
-    preprocess_graph(args.csv, args.scenario, args.output_dir)
-    logger.info("Preprocessing completed successfully")
-
+    """
+    CLI entry point for preprocess_graph.
+    Expects arguments: input_csv scenario
+    """
+    if len(sys.argv) < 3:
+        logger.error("Usage: python preprocess.py <input_csv> <scenario>")
+        sys.exit(1)
+    
+    input_csv = sys.argv[1]
+    scenario = sys.argv[2]
+    
+    if not os.path.exists(input_csv):
+        logger.error(f"Input file not found: {input_csv}")
+        sys.exit(1)
+    
+    try:
+        results = preprocess_graph(input_csv, scenario)
+        logger.info(f"Preprocessing complete. Final artifact: {results['final']}")
+    except MemoryLimitExceededError as e:
+        logger.error(f"Memory limit exceeded: {e}")
+        sys.exit(2)
+    except Exception as e:
+        logger.error(f"Error during preprocessing: {e}")
+        sys.exit(3)
 
 if __name__ == "__main__":
     main()

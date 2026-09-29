@@ -2889,3 +2889,196 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-26T06:57:16Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 0
+  canonical: Permutation test alpha level of 0.05
+  claim_id: c_0768adea
+  context: 'T030b [US3] [P] [Depends on T030a, T032a] Implement Permutation Tests
+    in code/analysis/significance_tests.py: permutations, alpha=0.05.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
+        which he called "tests of significance", in his publication Statistical Methods
+        for Research Workers. Fisher suggested a probability of one in twenty (0.05)
+        as a convenient cutoff level to reject the null hypothesis. In a 1933 paper,
+        Jerzy Neyman and Egon Pearson called this cutoff the significance level, which
+        they named
+      source_id: Statistical significance
+      url: https://en.wikipedia.org/wiki/Statistical_significance
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T09:33:29Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: peak memory less than 7GB for graph construction
+  claim_id: c_1076f456
+  context: 'Independent Test: Run code/data/ingest_netflow.py and code/data/preprocess.py
+    on a single scenario; verify peak memory <7GB and graph object integrity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_less_than_7GB_for_graph_construction
+  kind: magnitude
+  raw_text: Verify peak memory <7GB and graph object integrity.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T09:33:55Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: graph node count less than or equal to 5000
+  claim_id: c_eeb633a0
+  context: "T011 [US1] Write test skeleton for node count subsampling in tests/test_graph_construction.py\
+    \ (asserts nodes \u2264 5,000, LCC rule) [Depends on T013 Interface]"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_node_count_less_than_or_equal_to_5000
+  kind: magnitude
+  raw_text: "asserts nodes \u2264 5,000, LCC rule"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T09:34:34Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN convergence within 30 epochs on CPU
+  claim_id: c_c14e478b
+  context: "T018 [US2] Write test skeleton for GCN convergence on CPU in tests/test_models.py\
+    \ (asserts no CUDA errors, converges \u226430 epochs) [Depends on T021 Interface]"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "converges \u226430 epochs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T09:34:34Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: GCN early stopping patience of 5 and delta of 1e-4
+  claim_id: c_48ca6ba5
+  context: 'T021 [P] [US2] [Depends on T017] Implement a multi-layer Graph Convolutional
+    Network (GCN). in code/models/gcn.py: CPU-only, 30 epochs, early stopping (patience=5,
+    delta=1e-4)'
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: early stopping (patience=5, delta=1e-4)
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T09:34:35Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg correction false discovery rate less than 0.05
+  claim_id: c_3296cd88
+  context: T028 [US3] Write test skeleton for Benjamini-Hochberg correction in tests/test_significance_tests.py
+    (validates FDR < 0.05 threshold) [Depends on T031b]
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Benjamini-Hochberg_correction_false_discovery_rate_less_than
+  kind: magnitude
+  raw_text: validates FDR < 0.05 threshold
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T09:35:09Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: Permutation tests used for sample sizes less than 13
+  claim_id: c_6e846695
+  context: 'Note on Statistical Method: The Plan deviates from Spec FR-006 (Wilcoxon)
+    to Permutation Tests for small N (<13). This task implements Permutation Tests
+    as per Plan.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_tests_used_for_sample_sizes_less_than_13
+  kind: magnitude
+  raw_text: with N<13 scenarios
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T09:35:47Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: distinct pattern defined by 95% confidence interval excluding zero
+  claim_id: c_af590665
+  context: 'Step 2: A pattern is "distinct" if and only if the 95% CI for its rank
+    difference excludes 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% CI for its rank difference excludes 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T09:35:48Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: graph construction loop end-to-end runtime less than 6 hours
+  claim_id: c_fb92df1e
+  context: T038b [P] Optimize graph construction loop in code/data/preprocess.py to
+    ensure end-to-end runtime < 6 hours
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Graph_construction_loop_end-to-end_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: ensure end-to-end runtime < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T09:36:10Z'
+- artifact_path: projects/PROJ-041-evaluating-the-use-of-graph-neural-netwo/specs/001-evaluating-the-use-of-graph-neural-netwo/tasks.md
+  attempts: 1
+  canonical: retain top 5000 nodes by degree centrality if LCC exceeds limit
+  claim_id: c_5a013cd3
+  context: 'T008b [US1] [P] [Depends on T008a, T008c] Implement degree-based subsampling
+    in code/data/preprocess.py. Logic: 1) If LCC > 5000: Retain top 5000 nodes with
+    highest degree centrality.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Retain_top_5000_nodes_by_degree_centrality_if_LCC_exceeds_li
+  kind: magnitude
+  raw_text: retain top 5000 nodes with highest degree centrality
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T09:36:37Z'

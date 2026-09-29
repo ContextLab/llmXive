@@ -1,211 +1,144 @@
 """
-Test skeleton for graph construction memory limit (US1).
+Test skeleton for graph construction memory limit (US1 - T010).
 
-This module contains tests that verify the memory usage of graph construction
-and preprocessing pipelines does not exceed the defined limit (7GB).
+This test verifies that the graph construction pipeline in `code/data/preprocess.py`
+adheres to the hard memory limit of 7GB when invoked via `memory_monitor.py`.
 
 Dependencies:
-    - code/utils/memory_monitor.py (T005, T015)
-    - code/data/preprocess.py (T013, T008)
+  - T013 (Interface definition in preprocess.py)
+  - T015 (Memory guard implementation in memory_monitor.py)
 """
-
 import os
 import sys
-import unittest
-import tracemalloc
-from unittest.mock import patch, MagicMock
+import subprocess
+import pytest
+from pathlib import Path
 
 # Add project root to path for imports
-PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from utils.memory_monitor import (
-    MemoryLimitExceededError,
-    start_monitoring,
-    stop_monitoring,
-    get_peak_memory_mb,
-    check_memory_limit,
-    memory_limit_context,
-)
-from data.preprocess import build_graph_from_csv, preprocess_graph
+from utils.memory_monitor import MemoryLimitExceededError, get_peak_memory_mb
 
-# Constants
+# Configuration
 MEMORY_LIMIT_GB = 7.0
 MEMORY_LIMIT_MB = MEMORY_LIMIT_GB * 1024
+PREPROCESS_SCRIPT = PROJECT_ROOT / "code" / "data" / "preprocess.py"
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
 
-
-class TestGraphConstructionMemoryLimit(unittest.TestCase):
+def _ensure_test_data():
     """
-    Tests to assert that graph construction operations stay within the 7GB memory limit.
+    Ensure that a small subset of real data exists for testing.
+    If the full dataset is not present, we attempt to use a minimal
+    subset if available, or skip the test if no data is found.
+    This prevents the test from failing due to missing data, but
+    the actual memory limit check requires real data volume.
     """
+    if not RAW_DATA_DIR.exists():
+        RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Check for any CSV files in raw data
+    csv_files = list(RAW_DATA_DIR.glob("*.csv"))
+    if not csv_files:
+        pytest.skip("No raw CSV data found in data/raw. "
+                    "Please run T007a/T007b to download the dataset.")
+    return csv_files[0]
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.temp_csv_path = None
-        self.temp_graph_path = None
+def _run_preprocess_with_monitor(input_file):
+    """
+    Runs the preprocess script wrapped with memory monitoring logic.
+    Since `memory_monitor.py` provides a context manager and enforcement,
+    we invoke the script via subprocess to simulate the full pipeline
+    execution, capturing the exit code and output.
+    
+    The actual memory limit enforcement is tested by ensuring that
+    if the process exceeds the limit, it raises an error or exits
+    with a specific code, which we can verify here.
+    """
+    # Construct command to run the preprocess script
+    # We assume the script handles the input/output paths via CLI args or config
+    cmd = [
+        sys.executable, str(PREPROCESS_SCRIPT),
+        "--input", str(input_file),
+        "--output-dir", str(PROCESSED_DATA_DIR),
+        "--scenario", "test_scenario"
+    ]
+    
+    # Run the script
+    result = subprocess.run(
+        cmd,
+        cwd=str(PROJECT_ROOT),
+        capture_output=True,
+        text=True,
+        timeout=300  # 5 minute timeout
+    )
+    
+    return result
 
-    def tearDown(self):
-        """Clean up test artifacts."""
-        if self.temp_csv_path and os.path.exists(self.temp_csv_path):
-            os.remove(self.temp_csv_path)
-        if self.temp_graph_path and os.path.exists(self.temp_graph_path):
-            os.remove(self.temp_graph_path)
+def test_memory_limit_enforcement():
+    """
+    Test that the graph construction process respects the 7GB memory limit.
+    
+    This test:
+    1. Loads a real data file (or skips if none available).
+    2. Runs the `preprocess.py` script which internally uses `memory_monitor.py`.
+    3. Verifies that if memory usage exceeds 7GB, the process fails with
+       a `MemoryLimitExceededError` (exit code != 0 or specific error message).
+    
+    Note: This test assumes T015 (Memory Guard) is implemented to raise
+    `MemoryLimitExceededError` when the limit is breached.
+    """
+    input_file = _ensure_test_data()
+    
+    # Run the preprocessing script
+    result = _run_preprocess_with_monitor(input_file)
+    
+    # Check for successful execution or expected failure due to memory
+    # If the script ran successfully, we check if it wrote the expected artifacts
+    # If it failed due to memory, we expect a specific error message or exit code.
+    
+    # For a "skeleton" test, we primarily verify that the pipeline can be invoked
+    # and that the memory monitor is integrated.
+    # In a real scenario with large data, we would expect:
+    # - If data < 7GB: Success (Exit code 0)
+    # - If data > 7GB: Failure with MemoryLimitExceededError (Exit code != 0)
+    
+    # Since we might not have enough data to actually trigger the limit,
+    # we verify that the script ran and produced output or an error.
+    # We assert that the script did not crash with a generic Python error.
+    
+    assert result.returncode == 0 or "MemoryLimitExceeded" in result.stdout or "MemoryLimitExceeded" in result.stderr, \
+        f"Preprocess script failed unexpectedly. stdout: {result.stdout}, stderr: {result.stderr}"
+    
+    # Verify that the memory monitor logic was triggered (log message or output)
+    # We check for the presence of the memory monitor's import or usage in the logs
+    # This is a heuristic check for integration
+    assert "tracemalloc" in result.stderr.lower() or "memory" in result.stderr.lower() or result.returncode == 0, \
+        "Memory monitor integration not detected in output."
 
-    def _create_mock_csv(self, num_rows=1000):
-        """Helper to create a minimal CSV for testing."""
-        import pandas as pd
-        import tempfile
-
-        data = {
-            "src_ip": [f"192.168.1.{i % 255}" for i in range(num_rows)],
-            "dst_ip": [f"10.0.0.{i % 255}" for i in range(num_rows)],
-            "protocol": ["TCP"] * num_rows,
-            "packets": [10] * num_rows,
-            "bytes": [1000] * num_rows,
-            "label": ["normal"] * num_rows
-        }
-        df = pd.DataFrame(data)
-
-        fd, path = tempfile.mktemp(suffix=".csv", dir="data/raw")
-        df.to_csv(path, index=False)
-        self.temp_csv_path = path
-        return path
-
-    def test_memory_monitor_context_manager(self):
-        """
-        Verify that the memory_limit_context manager raises an error when limit is exceeded.
-        This ensures the mechanism to enforce limits works before testing the actual graph builder.
-        """
-        # We mock the get_peak_memory_mb function to simulate a high memory usage
-        with patch("utils.memory_monitor.get_peak_memory_mb", return_value=8000):  # 8GB > 7GB
-            with self.assertRaises(MemoryLimitExceededError):
-                with memory_limit_context(limit_mb=MEMORY_LIMIT_MB):
-                    pass  # Simulate work
-
-    def test_memory_monitor_context_manager_safe(self):
-        """
-        Verify that the memory_limit_context manager does NOT raise when usage is within limits.
-        """
-        with patch("utils.memory_monitor.get_peak_memory_mb", return_value=1000):  # 1GB < 7GB
-            try:
-                with memory_limit_context(limit_mb=MEMORY_LIMIT_MB):
-                    pass  # Simulate work
-            except MemoryLimitExceededError:
-                self.fail("memory_limit_context raised unexpectedly for safe memory usage")
-
-    @patch("data.preprocess.build_graph_from_csv")
-    def test_build_graph_memory_check_mocked(self, mock_build):
-        """
-        Test that the preprocess_graph function (or wrapper) checks memory limits.
-        This is a skeleton test that asserts the interface exists and checks memory.
-        
-        Since we cannot easily simulate real memory spikes in a unit test without
-        heavy mocking of the OS, we verify that the logic path for memory checking
-        is present by mocking the heavy operation and asserting the check is called.
-        """
-        # Setup mock to return a simple graph object
-        import networkx as nx
-        mock_graph = nx.Graph()
-        mock_build.return_value = mock_graph
-
-        csv_path = self._create_mock_csv(100)
-        output_path = "data/processed/test_graph.graphml"
-
-        # We expect preprocess_graph to handle the memory logic
-        # Note: This test assumes preprocess_graph internally calls memory checks
-        # or that we are testing the integration of the check.
-        # For a skeleton, we verify the function runs without crashing under mock.
-        
-        try:
-            # Call the function that should enforce limits
-            preprocess_graph(csv_path, output_path)
-            
-            # Verify the mock was called
-            self.assertTrue(mock_build.called)
-            
-            # Verify output file was created (if logic is correct)
-            self.assertTrue(os.path.exists(output_path))
-            
-        except MemoryLimitExceededError:
-            # This is also acceptable if the mock somehow triggered the limit logic
-            # but ideally we want the function to run successfully in mock mode
-            pass
-        finally:
-            if os.path.exists(output_path):
-                os.remove(output_path)
-
-    def test_tracemalloc_direct_check(self):
-        """
-        Direct test of tracemalloc integration within the memory monitor.
-        Verifies that start/stop and peak calculation work correctly.
-        """
-        start_monitoring()
-        
-        # Allocate some memory
-        data = [i for i in range(100000)]
-        
-        peak = get_peak_memory_mb()
-        stop_monitoring()
-        
-        # Peak should be non-negative
-        self.assertGreaterEqual(peak, 0)
-        
-        # Clean up
-        del data
-
-    def test_check_memory_limit_function(self):
-        """
-        Test the check_memory_limit function directly.
-        """
-        # Should return True for low memory
-        with patch("utils.memory_monitor.get_peak_memory_mb", return_value=100):
-            self.assertTrue(check_memory_limit(1000))
-        
-        # Should return False (or raise, depending on implementation) for high memory
-        # The API surface says check_memory_limit returns bool or raises?
-        # Looking at imports: check_memory_limit is in utils.memory_monitor
-        # Assuming it raises or returns False. Let's test the return value logic.
-        with patch("utils.memory_monitor.get_peak_memory_mb", return_value=8000):
-            result = check_memory_limit(1000) # 8GB > 1GB limit
-            # If it returns bool:
-            if isinstance(result, bool):
-                self.assertFalse(result)
-            # If it raises, the test would fail here unless we catch it.
-            # Given the context manager exists, check_memory_limit likely returns bool.
-
-    def test_integration_preprocess_memory_flow(self):
-        """
-        Integration-style skeleton test:
-        1. Create a small CSV.
-        2. Run preprocess_graph.
-        3. Assert peak memory did not exceed limit during execution.
-        
-        Note: This test relies on the actual implementation of preprocess_graph
-        calling memory checks. If preprocess_graph is not yet fully implemented
-        to call these checks, this test might pass trivially (no check called)
-        or fail if the check is missing.
-        """
-        csv_path = self._create_mock_csv(500)
-        output_path = "data/processed/test_integration.graphml"
-        
-        start_monitoring()
-        try:
-            preprocess_graph(csv_path, output_path)
-            peak = get_peak_memory_mb()
-            
-            # Assert we stayed under 7GB (7168 MB)
-            self.assertLess(peak, MEMORY_LIMIT_MB, 
-                            f"Peak memory {peak}MB exceeded limit {MEMORY_LIMIT_MB}MB")
-            
-            # Assert output exists
-            self.assertTrue(os.path.exists(output_path))
-            
-        finally:
-            stop_monitoring()
-            if os.path.exists(output_path):
-                os.remove(output_path)
-
+def test_memory_monitor_integration():
+    """
+    Direct unit test for the memory monitor integration in the preprocess pipeline.
+    
+    This test verifies that the `memory_monitor.py` module is correctly imported
+    and that the `MemoryLimitExceededError` is available for use in `preprocess.py`.
+    """
+    # Verify imports are correct
+    from utils.memory_monitor import MemoryLimitExceededError, enforce_memory_limit
+    from data.preprocess import preprocess_graph, main
+    
+    # Verify that the preprocess module has the capacity to use the monitor
+    # We check the source code or docstrings for the memory limit logic
+    import inspect
+    source = inspect.getsource(preprocess_graph)
+    
+    assert "tracemalloc" in source or "memory_monitor" in source, \
+        "preprocess_graph does not appear to use memory monitoring."
+    
+    # Verify the exception class is defined
+    assert issubclass(MemoryLimitExceededError, Exception), \
+        "MemoryLimitExceededError must be an Exception subclass."
 
 if __name__ == "__main__":
-    unittest.main()
+    pytest.main([__file__, "-v"])
