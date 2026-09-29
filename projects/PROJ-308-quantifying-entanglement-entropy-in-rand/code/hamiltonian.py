@@ -3,10 +3,11 @@ Hamiltonian generation for XXZ Heisenberg spin chains with random disorder.
 
 This module implements the construction of the XXZ Heisenberg Hamiltonian
 with randomly perturbed nearest-neighbour couplings as specified in FR-002.
-The couplings J_i are drawn from a uniform distribution U[-delta, 1+delta].
+The couplings J_i are drawn from a uniform distribution U[1-delta, 1+delta].
 
 References:
     - FR-002: Generate XXZ Heisenberg Hamiltonian with random nearest-neighbour couplings.
+    - T003: Ensure lower bound is strictly 1-delta to prevent negative couplings.
 """
 
 import numpy as np
@@ -47,12 +48,12 @@ def generate_xxz_hamiltonian(
     The Hamiltonian is defined as:
         H = sum_{i=0}^{L-2} J_i * (S_i^x S_{i+1}^x + S_i^y S_{i+1}^y + S_i^z S_{i+1}^z)
 
-    where J_i ~ Uniform(-delta, 1+delta).
+    where J_i ~ Uniform(1-delta, 1+delta).
     Spin operators S are related to Pauli matrices by S = (1/2) * sigma.
 
     Args:
         L: Chain length (number of spins). Must be >= 2.
-        delta: Disorder strength. Couplings are in [-delta, 1+delta].
+        delta: Disorder strength. Couplings are in [1-delta, 1+delta].
         seed: Random seed for reproducibility.
 
     Returns:
@@ -73,8 +74,8 @@ def generate_xxz_hamiltonian(
         np.random.seed(seed)
 
     # Generate random couplings J_i for i in 0..L-2
-    # J_i ~ U[-delta, 1+delta] as per task T003 description
-    lower_bound = -delta
+    # J_i ~ U[1-delta, 1+delta] as per T003 requirement to ensure lower bound > 0
+    lower_bound = 1.0 - delta
     upper_bound = 1.0 + delta
     couplings = np.random.uniform(lower_bound, upper_bound, size=L - 1)
 
@@ -129,7 +130,7 @@ def get_coupling_distribution_stats(
     if seed is not None:
         np.random.seed(seed)
     
-    lower_bound = -delta
+    lower_bound = 1.0 - delta
     upper_bound = 1.0 + delta
     samples = np.random.uniform(lower_bound, upper_bound, size=n_samples)
     return float(np.mean(samples)), float(np.std(samples)), float(np.min(samples)), float(np.max(samples))

@@ -3920,3 +3920,196 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-25T16:00:47Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Critical regime in weak disorder described by Conformal Field Theory
+  claim_id: c_690e4c76
+  context: 'Two distinct regimes are expected based on the disorder strength: Critical
+    Regime (Weak Disorder) and Localized Regime (Strong Disorder).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Critical_regime_in_weak_disorder_described_by_Conformal_Fiel
+  kind: entity_fact
+  raw_text: In the clean limit or weak disorder, the system exhibits critical behavior
+    described by Conformal Field Theory (CFT).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:50:39Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Refael and Moore predict log-squared or modified logarithmic scaling
+    for entanglement entropy in random singlet phase
+  claim_id: c_3015f0f0
+  context: In the presence of strong disorder, the system is expected to enter a Many-Body
+    Localized (MBL) phase or an Infinite Randomness Fixed Point. According to the
+    seminal work by Refael and Moore, the entanglement entropy follows a log-squared
+    or modified logarithmic scaling due to the random singlet phase.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refael_and_Moore_predict_log-squared_or_modified_logarithmic
+  kind: entity_fact
+  raw_text: According to the seminal work by Refael and Moore, the entanglement entropy
+    follows a log-squared or modified logarithmic scaling due to the random singlet
+    phase.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:51:09Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Scaling exponent alpha is approximately 1 in thermal regime with vanishing
+    disorder
+  claim_id: c_4d74e9d5
+  context: In the thermal regime (vanishing disorder), alpha approx 1, indicating
+    a volume law (entropy grows linearly with system size).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the thermal regime (vanishing disorder), the scaling exponent alpha
+    is approximately 1, indicating a volume law.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:51:33Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Scaling exponent alpha is approximately 0 in localized regime with high
+    disorder
+  claim_id: c_59e2d58d
+  context: In the localized regime (high disorder delta), alpha approx 0, indicating
+    an area law (entropy saturates with system size).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the localized regime (high disorder), the scaling exponent alpha is
+    approximately 0, indicating an area law.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:52:03Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Effective central charge c_eff matches theoretical value of ln 2 in random
+    singlet limit
+  claim_id: c_15afc0b8
+  context: Specifically, we test the prediction that for the randomly perturbed XXZ
+    chain, the transition from logarithmic scaling to area-law scaling occurs at a
+    critical disorder strength delta_c, and that the effective central charge c_eff
+    extracted from the logarithmic fit matches the theoretical value of ln 2 (or related
+    constants) in the random singlet limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The effective central charge c_eff extracted from the logarithmic fit
+    matches the theoretical value of ln 2 in the random singlet limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:52:45Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/research.md
+  attempts: 1
+  canonical: Toy model verification performed with system size L=10
+  claim_id: c_d300a78a
+  context: A toy model verification with small system sizes (L=10) will be performed
+    to visually confirm the scaling behavior before running the full grid scan.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 10 99
+      source_id: A001037
+      url: https://oeis.org/A001037
+      value: '99'
+    filled: true
+  kind: numeric
+  raw_text: A toy model verification with small system sizes of L=10 will be performed
+    to visually confirm the scaling behavior.
+  resolved_value: '99'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T15:53:03Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore Phys Rev Lett 207204 2004
+  claim_id: c_377862f3
+  context: 'Phase 0: Research & Validation - Generate Research Document - Populate
+    with Scaling ansatz and Citation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett., 207204 (2004)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:55:17Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore Phys Rev Lett 207204 2004
+  claim_id: c_5c990313
+  context: 'Phase 0: Research & Validation - Populate research.md with Scaling ansatz
+    and citation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Citation: Refael-Moore (Phys. Rev. Lett., 207204 (2004)).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:56:31Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore Phys Rev Lett 93 207204 2004
+  claim_id: c_6f5082c9
+  context: 'Phase 3: Research Validation - Update research.md to explicitly articulate
+    scaling ansatz citing Refael-Moore.'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: Ref. Refael-Moore (Phys. Rev. Lett. 93, 207204 (2004))
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T15:56:37Z'
+- artifact_path: projects/PROJ-308-quantifying-entanglement-entropy-in-rand/specs/001-quantifying-entanglement-entropy-in-rand/tasks.md
+  attempts: 1
+  canonical: Refael-Moore citation in Phys Rev Lett 93 207204 2004
+  claim_id: c_b375c1ce
+  context: 'Citation: Refael-Moore (Phys. Rev. Lett., 207204 (2004)).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refael-Moore (Phys. Rev. Lett. 93, 207204 (2004))
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:58:24Z'
