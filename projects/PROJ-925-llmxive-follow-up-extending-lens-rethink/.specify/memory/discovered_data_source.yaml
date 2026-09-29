@@ -1,7 +1,11 @@
 status: none
-intent: pick-a-pic caption dataset download huggingface datasets python package dataset
+intent: download pick-a-pic captions dataset from Hugging Face with spacy en_core_web_sm
+  and distilbert-base-uncased python package dataset
 required_fields:
-- caption
-cache_key: eb8c22af5e585655fa46720098163215b156fa16c9e58fe89034b66bee726e4b
-searched_at: '2026-08-22T21:45:21.024532+00:00'
+- caption_id
+- caption_text
+- clip_score
+- human_rating
+cache_key: f1b9a34424c5c5011c5aa6d0c028f0ed3afeb7e8b51928e84d55a5e5c326b2cd
+searched_at: '2026-09-29T20:52:34.110520+00:00'
 retry_count: 1

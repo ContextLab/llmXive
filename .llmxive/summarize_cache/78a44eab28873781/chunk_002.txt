@@ -1,0 +1,11 @@
+- **Assumption about project structure**: Schema definitions for data contracts reside in `specs/001-llmxive-follow-up-extending-lens-rethink/contracts/`, while the corresponding validation tests reside in `code/tests/contract/`. The `code/tests/contract/` directory contains unit tests for the schemas defined in the specs.
+
+## Limitations
+
+- The target variable $Y$ conflates 'model error' (CLIP deviation) with 'human subjectivity' (noise in human ratings). The study acknowledges that without a ground-truth 'reality' score, the model predicts 'how much CLIP disagrees with noisy human labels,' not the true alignment gap. This conflation is addressed by the sensitivity analysis in FR-008.
+- The study design is purely observational. While confounds are controlled for (FR-007), unmeasured confounds may still exist.
+
+## Constitution Check
+
+- **Principle VI (Linguistic Feature Isolation)**: PASS. Enforced via explicit import restrictions in `features.py` and automated tests in `code/tests/test_constitution.py` (see Constitution Enforcement).
+- **Principle VII (CPU-Tractability)**: PASS. Enforced via explicit thread settings and GPU import guards in `train.py` and automated tests in `code/tests/test_constitution.py` (see Constitution Enforcement).
