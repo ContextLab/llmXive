@@ -1,65 +1,116 @@
-# Quickstart Guide
+# Quickstart Guide: Evaluating the Impact of LLM-Generated Code Documentation
 
-This guide outlines the commands to execute the project pipeline.
-Ensure all prerequisites (Python 3.11+, dependencies) are installed.
+This guide outlines the steps to execute the research pipeline for project PROJ-274.
+Ensure all dependencies are installed (`pip install -r requirements.txt`) before running.
 
-## 1. Environment Setup
+## Phase 0: Research & Methodology Validation
 
-```bash
-pip install -r requirements.txt
-```
+1. **Generate Research Protocol**:
+ (Task T070 - Manual/Scripted generation of `specs/001-evaluating-the-impact-of-llm-generated-c/research.md`)
+ *Ensure the document explicitly states that the 'decision tree' is removed and Welch's ANOVA is pre-specified.*
 
-## 2. Project Initialization
+2. **Validate Methodology (T070c)**:
+ Run the methodology validator to ensure `research.md` adheres to the Critical Methodological Shift.
+ ```bash
+ python code/validation/methodology_validator.py
+ ```
+ *Success creates `state/methodology_valid.lock`. Failure aborts the pipeline.*
 
-Ensure directory structure and initial state files are created.
+## Phase 1: Setup & Recruitment
 
-```bash
-# Initialize project directories
-python code/setup_project.py
+3. **Initialize Project Structure (T001a)**:
+ ```bash
+ python code/setup_project.py
+ ```
 
-# Initialize run metadata (Required for Phase 2 gates)
-python code/utils/run_metadata.py
-```
+4. **Initialize Run Metadata (T010b)**:
+ ```bash
+ python code/utils/run_metadata.py
+ ```
 
-## 3. Data Collection & Experiment (Mock Mode)
+5. **Initialize Recruitment Tracker (T073b)**:
+ ```bash
+ python code/recruitment/tracker.py
+ ```
 
-Run a mock experiment to verify the logging pipeline.
+6. **Assign Participants (T014)**:
+ Run in Real Mode (for pilot) or Mock Mode (for testing).
+ ```bash
+ # Real Mode (requires pre-existing participant records in data/raw/participants_raw.json)
+ python code/experiment/assignment.py --mode real
 
-```bash
-python code/experiment/experiment.py --mode mock --participants 3
-```
+ # Mock Mode (generates synthetic assignment for testing)
+ python code/experiment/assignment.py --mode mock --participants 5
+ ```
 
-## 4. Documentation Generation
+## Phase 2: Repository Selection
 
-Generate documentation for a sample repository.
+7. **Generate Candidate Repos List (T020a)**:
+ ```bash
+ python code/run_repo_fetch.py --init-candidates
+ ```
 
-```bash
-# Note: Replace <repo_url> and <commit> with real values
-python code/generation/doc_pipeline.py --repo <repo_url> --commit <commit> --output data/processed/docs/repo_docs.md
-```
+8. **Pin Repository Commits (T021c-0)**:
+ ```bash
+ python code/run_repo_fetch.py --pin-commits
+ ```
 
-## 5. Data Cleaning & Analysis
+9. **Calculate Metrics & Rubric (T021a, T021b, T021c)**:
+ ```bash
+ python code/run_metrics_collection.py
+ python code/run_doc_quality_rubric.py
+ ```
 
-Run the cleaning pipeline and statistical analysis.
+10. **Filter & Select Repos (T021d-2, T021d-3)**:
+ ```bash
+ python code/run_rubric_and_metrics.py
+ ```
 
-```bash
-# Run cleaning pipeline
-python code/run_cleaning_pipeline.py
+11. **Generate Covariates (T021e)**:
+ ```bash
+ python code/run_covariate_collection.py
+ ```
 
-# Run statistical analysis
-python code/analysis/stats_runner.py --input data/processed/task_logs_anon.json --output data/processed/analysis_results.json
-```
+12. **Repository Selection Gate (T021f)**:
+ ```bash
+ python code/run_repo_selection_gate.py
+ ```
 
-## 6. Verification
+## Phase 4: Documentation Generation (US2)
 
-Verify all artifacts are present.
+13. **Generate Documentation (T076)**:
+ ```bash
+ python code/generation/doc_pipeline.py --input data/raw/repo_selection_rubric.json
+ ```
 
-```bash
-python code/utils/validator.py
-```
+## Phase 3: Experiment Execution (US1)
 
-## Troubleshooting
+14. **Run Experiment (T075b)**:
+ ```bash
+ # Mock Experiment
+ python code/experiment/experiment.py --mode mock --participants 3
 
-- **FileNotFoundError**: Ensure `python code/setup_project.py` has been run to create necessary directories.
-- **Import Errors**: Ensure you are running from the project root or that `code/` is in your `PYTHONPATH`.
-- **Missing Data**: Ensure previous pipeline stages (e.g., experiment, cleaning) have completed successfully.
+ # Real Experiment (requires real participants)
+ python code/experiment/experiment.py --mode real
+ ```
+
+## Phase 5: Data Cleaning
+
+15. **Run Cleaning Pipeline (T032)**:
+ ```bash
+ python code/run_cleaning_pipeline.py
+ ```
+
+## Phase 6: Statistical Analysis (US3)
+
+16. **Run Analysis (T036b)**:
+ ```bash
+ python code/analysis/stats_runner.py --input data/processed/cleaned_dataset.csv --output data/reports/primary_analysis_results.json
+ ```
+
+## Final Report
+
+17. **Generate Final Report (T041)**:
+ ```bash
+ python code/analysis/prepare_research_protocol.py
+ ```

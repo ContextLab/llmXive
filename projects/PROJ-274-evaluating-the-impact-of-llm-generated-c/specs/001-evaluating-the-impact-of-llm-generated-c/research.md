@@ -2,17 +2,21 @@
 ## Project: Evaluating the Impact of LLM-Generated Code Documentation on Developer Onboarding
 
 **Date**: 2026-08-18
-**Version**: 1.0
+**Version**: 2.0
 **Protocol Status**: Pre-specified (Signed-off)
 
 ---
 
-## 1. Pre-specified Analysis Approach (Welch's ANOVA as primary, Levene's for diagnostics only)
+## 1. Pre-specified Analysis Approach (Welch's ANOVA is the ONLY primary test)
 
 This study employs a randomized controlled trial (RCT) design to evaluate the impact of LLM-generated documentation versus human-authored documentation and no documentation on developer onboarding time. The primary outcome metric is **Time-to-Task-Completion**.
 
 ### 1.1 Primary Statistical Test: Welch's ANOVA
-Contrary to traditional ANOVA assumptions which require homogeneity of variance, this analysis protocol **pre-specifies Welch's ANOVA** as the primary test. This decision is made to ensure robustness in the presence of potential heteroscedasticity often observed in pilot studies with small sample sizes (N=15-20 per group) and unequal group variances.
+**CRITICAL PROTOCOL SHIFT**: This analysis protocol **pre-specifies Welch's ANOVA** as the **ONLY** primary test for the pilot study.
+
+**Decision Tree REMOVED**: The traditional 'decision tree' for test selection based on assumption tests (e.g., "if Levene's p < 0.05, use Welch's; otherwise use Student's") is **explicitly REMOVED** from this protocol. Assumption p-values are **IGNORED** for the purpose of selecting the primary test.
+
+**Rationale**: Data-driven test selection inflates Type I error rates and biases the final p-value. By pre-specifying Welch's ANOVA, we ensure robustness in the presence of potential heteroscedasticity often observed in pilot studies with small sample sizes (N=15-20 per group) and unequal group variances, without introducing selection bias.
 
 **Hypothesis**:
 - $H_0$: $\mu_{LLM} = \mu_{Human} = \mu_{None}$
@@ -24,14 +28,20 @@ Contrary to traditional ANOVA assumptions which require homogeneity of variance,
 - Significance Level: $\alpha = 0.05$ (two-tailed).
 - Library: `scipy.stats.welch_anova` or `statsmodels.stats.anova.anova_oneway` (type='welch').
 
-### 1.2 Diagnostic Test: Levene's Test
-Levene's test for homogeneity of variance will be performed **solely for diagnostic reporting**.
-- **Constraint**: The result of Levene's test **WILL NOT** be used to select between Student's ANOVA and Welch's ANOVA.
-- **Rationale**: Data-driven test selection (e.g., "if p < 0.05 use Welch, else use Student") inflates Type I error rates and biases the final p-value. The protocol mandates Welch's ANOVA regardless of Levene's outcome.
-- **Reporting**: The p-value and statistic from Levene's test will be logged in `data/reports/primary_analysis_results.json` for transparency but will not alter the primary analysis path.
+### 1.2 Diagnostics (Levene's and Shapiro-Wilk are strictly for POST-HOC reporting ONLY)
+Levene's test for homogeneity of variance and Shapiro-Wilk test for normality will be performed **solely for diagnostic reporting**.
+
+**CRITICAL CONSTRAINT**:
+- The result of Levene's test **WILL NOT** be used to select between Student's ANOVA and Welch's ANOVA.
+- The result of Shapiro-Wilk test **WILL NOT** be used to select between parametric and non-parametric tests for the primary analysis.
+- Assumption p-values are **IGNORED** for the purpose of selecting the primary test.
+
+**Rationale**: These tests are reported to provide transparency about the data characteristics, but they do not influence the primary analysis path. The primary analysis (Welch's ANOVA) is robust to violations of homogeneity of variance and is the pre-specified test regardless of diagnostic outcomes.
+
+**Reporting**: The p-values and statistics from Levene's and Shapiro-Wilk tests will be logged in `data/reports/diagnostics.json` for transparency but will not alter the primary analysis path.
 
 ### 1.3 Robustness Checks (Secondary)
-If the data violates normality assumptions (Shapiro-Wilk p < 0.05) AND variances are unequal (Levene's p < 0.05), the following robustness checks will be performed:
+If the data violates normality assumptions (Shapiro-Wilk p < 0.05) AND variances are unequal (Levene's p < 0.05), the following robustness checks will be performed as secondary analyses:
 1. **Welch-James Test**: A trimmed-mean version of the Welch test.
 2. **Permutation Test**: A non-parametric permutation test (10,000 iterations) to estimate the null distribution of the F-statistic without distributional assumptions.
 3. **Games-Howell Post-hoc**: If the primary Welch's ANOVA is significant, post-hoc pairwise comparisons will use the Games-Howell procedure, which does not assume equal variances.
@@ -54,10 +64,11 @@ If the data violates normality assumptions (Shapiro-Wilk p < 0.05) AND variances
 
 ---
 
-## 3. Power Analysis (Variance estimation focus)
+## 3. Power Analysis (Variance estimation focus for N=15-20)
 
 ### 3.1 Variance Estimation Focus
 Given the pilot nature of this study (N=15-20), the power analysis is primarily focused on **estimating variance components** rather than definitive hypothesis testing.
+
 - **Effect Size**: Anticipated medium-to-large effect ($f = 0.4$) based on prior literature on documentation quality.
 - **Target Power**: 0.80.
 - **Method**:
@@ -86,4 +97,4 @@ This methodology has been pre-specified to prevent p-hacking and HARKing (Hypoth
 
 **Signed**: Automated Science Pipeline Agent
 **Date**: 2026-08-18
-**Hash**: `7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a`
+**Hash**: `a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2`

@@ -1,50 +1,61 @@
-"""
-Path setup utilities for the project.
-Ensures standard directory structures exist.
-"""
 import os
 import sys
 from pathlib import Path
 
-def ensure_project_dirs():
+def ensure_project_dirs(project_root: Path) -> None:
     """
-    Ensure all required project directories exist.
-    Creates directories relative to the project root.
+    Ensure standard project directories exist.
+    Creates them if they don't exist.
     """
-    # Determine project root (parent of 'code' directory)
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-
-    # Define required directories
     dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "reports",
-        project_root / "data" / "logs",
-        project_root / "code" / "logs",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
-        project_root / "tests" / "contract",
-        project_root / "specs",
-        project_root / "config",
-        project_root / "state",
-        project_root / "contracts",
-        project_root / "data" / "processed" / "docs",
+        'state',
+        'code',
+        'data/raw',
+        'data/processed',
+        'data/reports',
+        'data/logs',
+        'tests',
+        'specs',
+        'config',
+        'figures'
     ]
-
-    created = []
+    
     for d in dirs:
-        if not d.exists():
-            d.mkdir(parents=True, exist_ok=True)
-            created.append(str(d))
-    
-    if created:
-        print(f"Created directories: {created}")
-    else:
-        print("All required directories already exist.")
-    
-    return True
+        dir_path = project_root / d
+        dir_path.mkdir(parents=True, exist_ok=True)
 
-if __name__ == "__main__":
-    ensure_project_dirs()
+def get_project_root() -> Path:
+    """
+    Determine the project root directory.
+    Looks for a marker file or traverses up from the script location.
+    """
+    current = Path(__file__).resolve()
+    
+    # Traverse up to find 'state' directory which is a project marker
+    while current != current.parent:
+        if (current / 'state').exists():
+            return current
+        current = current.parent
+    
+    # Fallback to current working directory
+    return Path.cwd()
+
+def main():
+    """
+    CLI utility to ensure project directories exist.
+    """
+    import argparse
+    parser = argparse.ArgumentParser(description='Ensure project directories exist')
+    parser.add_argument('--project-root', type=str, default=None, help='Override project root')
+    args = parser.parse_args()
+    
+    if args.project_root:
+        root = Path(args.project_root)
+    else:
+        root = get_project_root()
+        
+    ensure_project_dirs(root)
+    print(f"Ensured directories for: {root}")
+
+if __name__ == '__main__':
+    main()

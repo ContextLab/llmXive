@@ -4,85 +4,112 @@ from pathlib import Path
 from typing import List, Tuple
 import fnmatch
 
-def calculate_directory_hash(root_path: Path, exclude_patterns: List[str] = None) -> str:
+def calculate_directory_hash(directory_path: str, algorithm: str = 'sha256') -> str:
     """
-    Calculates a SHA256 hash of the directory structure and file contents.
-    Excludes patterns like __pycache__, .git, etc.
+    Calculate a SHA256 hash of the entire directory tree.
+    Iterates files in sorted order to ensure deterministic hashing.
     """
-    if exclude_patterns is None:
-        exclude_patterns = ["__pycache__", "*.pyc", ".git", ".DS_Store"]
-
     hasher = hashlib.sha256()
-    root_str = str(root_path.resolve())
+    root = Path(directory_path)
+    
+    if not root.exists():
+        raise FileNotFoundError(f"Directory not found: {directory_path}")
 
-    # Walk directory
-    # We need a deterministic order, so we sort files and dirs
-    for dirpath, dirnames, filenames in os.walk(root_path):
-        # Sort in-place to ensure deterministic traversal order
+    # Walk directory, sort for determinism
+    for dirpath, dirnames, filenames in os.walk(root):
+        # Sort dirs and files to ensure consistent traversal order
         dirnames.sort()
         filenames.sort()
-
-        # Filter out excluded directories
-        dirnames[:] = [d for d in dirnames if not any(fnmatch.fnmatch(d, p) for p in exclude_patterns)]
-
-        # Filter files
-        filtered_files = [f for f in filenames if not any(fnmatch.fnmatch(f, p) for p in exclude_patterns)]
-
-        # Hash directory entry (relative path)
-        rel_dir = os.path.relpath(dirpath, root_path)
-        hasher.update(rel_dir.encode('utf-8'))
-        hasher.update(b'\n')
-
-        for filename in filtered_files:
+        
+        for filename in filenames:
             file_path = Path(dirpath) / filename
-            rel_file = os.path.relpath(file_path, root_path)
+            # Calculate relative path for inclusion in hash
+            rel_path = file_path.relative_to(root)
+            hasher.update(str(rel_path).encode('utf-8'))
             
-            # Hash file path
-            hasher.update(rel_file.encode('utf-8'))
-            hasher.update(b':')
-            
-            # Hash file content
             try:
                 with open(file_path, 'rb') as f:
-                    # Read in chunks for large files
-                    while chunk := f.read(8192):
+                    for chunk in iter(lambda: f.read(4096), b''):
                         hasher.update(chunk)
             except (IOError, OSError):
-                # If we can't read a file, we still hash the path but note it?
-                # For this task, we assume readable files or skip silently
-                pass
-            
-            hasher.update(b'\n')
-
+                # Skip files we can't read (permissions, etc)
+                continue
+    
     return hasher.hexdigest()
 
-def update_project_state(project_root: Path, project_id: str, new_hash: str):
+def update_project_state(project_root: str, project_id: str, hash_value: str, state_dir: str = 'state') -> None:
     """
-    Updates the state/projects/{project_id}.yaml file with the new hash.
+    Update the project state YAML file with the new directory hash.
+    Creates the state directory and file if they don't exist.
     """
-    state_dir = project_root / "state" / "projects"
-    state_dir.mkdir(parents=True, exist_ok=True)
-    state_file = state_dir / f"{project_id}.yaml"
+    import json
+    from datetime import datetime
+
+    state_path = Path(project_root) / state_dir
+    state_path.mkdir(parents=True, exist_ok=True)
     
-    # Simple append/update logic for the hash line if file exists
+    state_file = state_path / f"{project_id}.yaml"
+    
+    # Load existing state or create new
     if state_file.exists():
-        lines = state_file.read_text().splitlines()
-        new_lines = []
-        hash_updated = False
-        for line in lines:
-            if line.startswith("structure_hash:"):
-                new_lines.append(f"structure_hash: {new_hash}")
-                hash_updated = True
-            else:
-                new_lines.append(line)
-        
-        if not hash_updated:
-            new_lines.append(f"structure_hash: {new_hash}")
-        
-        state_file.write_text('\n'.join(new_lines) + '\n')
+        import yaml
+        with open(state_file, 'r') as f:
+            try:
+                state_data = yaml.safe_load(f) or {}
+            except yaml.YAMLError:
+                state_data = {}
     else:
-        # Create new file
-        content = f"""project_id: {project_id}
-structure_hash: {new_hash}
-"""
-        state_file.write_text(content)
+        state_data = {}
+
+    # Ensure projects key exists
+    if 'projects' not in state_data:
+        state_data['projects'] = {}
+    
+    # Update project hash
+    state_data['projects'][project_id] = {
+        'initial_hash': hash_value,
+        'last_updated': datetime.utcnow().isoformat() + 'Z',
+        'status': 'initialized'
+    }
+
+    # Write back
+    import yaml
+    with open(state_file, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+
+def main():
+    """
+    CLI entry point for directory hashing and state update.
+    Usage: python code/utils/hash_utils.py --project-root <path> --project-id <id>
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Calculate directory hash and update project state')
+    parser.add_argument('--project-root', required=True, help='Path to project root directory')
+    parser.add_argument('--project-id', required=True, help='Project identifier (e.g., PROJ-274)')
+    parser.add_argument('--state-dir', default='state', help='Directory for state files')
+    
+    args = parser.parse_args()
+    
+    project_root = Path(args.project_root).resolve()
+    project_id = args.project_id
+    state_dir = args.state_dir
+    
+    try:
+        print(f"Calculating hash for: {project_root}")
+        directory_hash = calculate_directory_hash(str(project_root))
+        print(f"Directory Hash (SHA256): {directory_hash}")
+        
+        print(f"Updating project state for: {project_id}")
+        update_project_state(str(project_root), project_id, directory_hash, state_dir)
+        
+        state_file = project_root / state_dir / f"{project_id}.yaml"
+        print(f"State file updated: {state_file}")
+        
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == '__main__':
+    import sys
+    main()

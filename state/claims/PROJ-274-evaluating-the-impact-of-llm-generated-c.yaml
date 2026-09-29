@@ -4951,3 +4951,197 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-22T09:31:28Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Welch's ANOVA is the sole primary test for the pilot study
+  claim_id: c_65f81398
+  context: 'Content Requirements: Must include sections: ''. Pre-specified Analysis
+    Approach (Welch''s ANOVA is the ONLY primary test for the pilot study)''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Welch's_ANOVA_is_the_sole_primary_test_for_the_pilot_study
+  kind: entity_fact
+  raw_text: Welch's ANOVA is the ONLY primary test for the pilot study
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:39:15Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Pilot study sample size N=15-20
+  claim_id: c_8311a8bd
+  context: Initialize `data/raw/participants_raw.json` with the schema for a **Feasibility
+    Pilot** of **N=15-20 TOTAL participants** (distributed across 3 conditions, approx
+    5-7 per group).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot study involves N=15-20 TOTAL participants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:39:40Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Pilot study distributes N=15-20 participants across 3 conditions with
+    5-7 per group
+  claim_id: c_217fe3c9
+  context: Initialize `data/raw/participants_raw.json` with the schema for a **Feasibility
+    Pilot** of **N=15-20 TOTAL participants** (distributed across 3 conditions, approx
+    5-7 per group).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study distributes participants across 3 conditions with approx 5-7
+    per group
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:40:18Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Documentation rubric requires Setup, API, and Architecture sections
+  claim_id: c_9f6cb3c3
+  context: "Criteria: Presence of Setup, API, and Architecture sections (\u2265 3/4\
+    \ sections). ... Requirement: Pass ONLY if the count of DISTINCT sections (Setup,\
+    \ API, Architecture) is exactly 3 (i.e., ALL three required headers must be present)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The documentation quality rubric requires exactly 3 distinct sections:
+    Setup, API, and Architecture'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:40:38Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Stop-loss intervention threshold is 2700 seconds
+  claim_id: c_cadfdf6f
+  context: 'Implement "Stop-Loss" intervention logic: If task time > 2700s (45 min),
+    trigger `trigger_stop_loss()` function...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The stop-loss intervention triggers if task time exceeds 2700 seconds
+    (45 minutes)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:40:58Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Games-Howell post-hoc test used after significant Welch's ANOVA
+  claim_id: c_a79a447d
+  context: 'Post-hoc: If Welch''s ANOVA is significant, apply **Games-Howell** post-hoc
+    test.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Games-Howell_post-hoc_test_used_after_significant_Welch's_AN
+  kind: entity_fact
+  raw_text: The primary analysis uses Games-Howell post-hoc test if Welch's ANOVA
+    is significant
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:41:24Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Final report must state limitations N=15-20
+  claim_id: c_6d68e40d
+  context: 'Ensure the final report includes limitations (N=15-20). **Verification**:
+    Assert the string ''Limitations: N=15-20'' is present in `data/reports/final_report.md`...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The final report must include the limitation string ''Limitations: N=15-20'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:41:54Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Local fallback model is TheBloke/phi-GGUF
+  claim_id: c_8d086f94
+  context: 'Action: Use `huggingface_hub` to fetch the latest commit hash for `TheBloke/phi-GGUF`
+    and store it in `config/model_pins.yaml`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Local_fallback_model_is_TheBloke/phi-GGUF
+  kind: entity_fact
+  raw_text: The model used for local fallback is TheBloke/phi-GGUF
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:42:20Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Fallback model uses load_in_4bit=True configuration
+  claim_id: c_fdefebad
+  context: 'Configuration: `load_in_4bit=True`. **Trigger**: HTTP 5xx or latency >
+    300s.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_model_uses_load_in_4bit=True_configuration
+  kind: entity_fact
+  raw_text: The fallback model configuration uses load_in_4bit=True
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:42:55Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Analysis execution time constraint is under 6 hours
+  claim_id: c_27cdea30
+  context: 'Verification: Assert execution time < 6 hours and RAM < 7GB via `data/reports/resource_log.json`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_execution_time_constraint_is_under_6_hours
+  kind: magnitude
+  raw_text: The execution time constraint for analysis is less than 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:43:27Z'
+- artifact_path: projects/PROJ-274-evaluating-the-impact-of-llm-generated-c/specs/001-evaluating-the-impact-of-llm-generated-c/tasks.md
+  attempts: 1
+  canonical: Analysis RAM constraint is under 7GB
+  claim_id: c_52c2900b
+  context: 'Verification: Assert execution time < 6 hours and RAM < 7GB via `data/reports/resource_log.json`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_RAM_constraint_is_under_7GB
+  kind: magnitude
+  raw_text: The RAM constraint for analysis is less than 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T15:44:13Z'

@@ -1,9 +1,3 @@
-"""
-Citation Extraction Utility for llmXive Project.
-
-Parses research.md and plan.md to extract all cited DOIs and URLs.
-Outputs a structured YAML file: state/citations.yaml
-"""
 import os
 import re
 import sys
@@ -11,122 +5,123 @@ import yaml
 from pathlib import Path
 from typing import List, Dict, Any, Set
 
-# Project root relative to this script
+# Ensure we can import from the project root if run as a script
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-SPECS_DIR = PROJECT_ROOT / "specs" / "001-evaluating-the-impact-of-llm-generated-c"
-STATE_DIR = PROJECT_ROOT / "state"
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Paths to parse
-RESEARCH_MD_PATH = SPECS_DIR / "research.md"
-PLAN_MD_PATH = PROJECT_ROOT / "plan.md"
+from utils.setup_paths import ensure_project_dirs
 
-# Regex patterns for extraction
-# Matches standard DOI format: 10.xxxx/xxxxx
-DOI_PATTERN = re.compile(r'10\.\d{4,9}/[-._;()/:A-Z0-9]+', re.IGNORECASE)
-
-# Matches URLs (http/https)
-URL_PATTERN = re.compile(r'https?://[^\s<>"{}|\\^`\[\]]+')
-
-def extract_citations_from_text(text: str, source_name: str) -> List[Dict[str, Any]]:
+def extract_citations_from_text(text: str) -> List[Dict[str, str]]:
     """
-    Extract DOIs and URLs from a block of text.
-    Returns a list of citation objects.
+    Extract citations from a markdown/text block.
+    Looks for patterns like:
+    - [1] DOI: 10.xxxx/xxxxx
+    - URL: https://...
+    - (Author, Year) -> attempts to extract if possible, but prioritizes DOI/URL
+    
+    Returns a list of dicts with 'url' (DOI or URL) and 'title' (if found).
     """
     citations = []
-    seen_ids = set()
-
-    # Extract DOIs
-    dois = DOI_PATTERN.findall(text)
-    for doi in dois:
-        if doi not in seen_ids:
-            seen_ids.add(doi)
-            # Construct a standard DOI URL
-            url = f"https://doi.org/{doi}"
-            citations.append({
-                "id": doi,
-                "url": url,
-                "title": f"DOI: {doi}", # Title will be resolved later or kept as ID if not fetched
-                "source": source_name
-            })
-
-    # Extract URLs (excluding those that are just DOI redirects if already caught)
-    urls = URL_PATTERN.findall(text)
-    for url in urls:
-        # Clean trailing punctuation often attached to URLs in markdown
-        clean_url = url.rstrip('.,;:')
-        if clean_url not in seen_ids and not clean_url.startswith('https://doi.org/'):
-            seen_ids.add(clean_url)
-            # Heuristic for title: extract domain or use URL itself
-            title = clean_url
-            if '://' in clean_url:
-                domain = clean_url.split('://')[1].split('/')[0]
-                title = f"URL from {domain}"
-            
-            citations.append({
-                "id": clean_url, # Use URL as ID for non-DOI
-                "url": clean_url,
-                "title": title,
-                "source": source_name
-            })
-
-    return citations
-
-def parse_markdown_file(file_path: Path) -> List[Dict[str, Any]]:
-    """
-    Reads a markdown file and extracts citations.
-    """
-    if not file_path.exists():
-        print(f"Warning: File not found: {file_path}", file=sys.stderr)
-        return []
     
-    with open(file_path, 'r', encoding='utf-8') as f:
+    # Regex for DOI
+    doi_pattern = r'DOI[:\s]+(10\.\d{4,9}/[-._;()/:A-Z0-9]+)'
+    # Regex for HTTP/HTTPS URLs
+    url_pattern = r'https?://[^\s<>"{}|\\^`\[\]]+'
+    
+    # Find DOIs
+    doi_matches = re.findall(doi_pattern, text, re.IGNORECASE)
+    for doi in doi_matches:
+        citations.append({
+            'url': doi,
+            'title': f"DOI: {doi}", # Placeholder title, real fetch happens in validator
+            'source_type': 'doi'
+        })
+    
+    # Find URLs (excluding DOIs which are already caught)
+    url_matches = re.findall(url_pattern, text)
+    for url in url_matches:
+        # Skip if it looks like a DOI in a URL (rare) or already found
+        if not any(c['url'] == url for c in citations):
+            citations.append({
+                'url': url,
+                'title': f"URL: {url}",
+                'source_type': 'url'
+            })
+    
+    # Deduplicate based on URL
+    unique_citations = []
+    seen_urls = set()
+    for c in citations:
+        if c['url'] not in seen_urls:
+            seen_urls.add(c['url'])
+            unique_citations.append(c)
+    
+    return unique_citations
+
+def parse_markdown_file(file_path: str) -> List[Dict[str, str]]:
+    """
+    Parse a markdown file and extract all citations.
+    """
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    with open(path, 'r', encoding='utf-8') as f:
         content = f.read()
     
-    source_name = file_path.name
-    return extract_citations_from_text(content, source_name)
+    return extract_citations_from_text(content)
 
 def main():
     """
-    Main entry point for citation extraction.
+    Main entry point for T070a:
+    Parse research.md and plan.md, extract citations, write to state/citations.yaml.
     """
+    # Paths relative to project root
+    project_root = PROJECT_ROOT
+    research_md_path = project_root / "specs" / "001-evaluating-the-impact-of-llm-generated-c" / "research.md"
+    plan_md_path = project_root / "plan.md"
+    output_path = project_root / "state" / "citations.yaml"
+    
+    # Ensure state directory exists
+    ensure_project_dirs(project_root)
+    
     all_citations = []
     
     # Parse research.md
-    if RESEARCH_MD_PATH.exists():
-        print(f"Parsing {RESEARCH_MD_PATH}...")
-        all_citations.extend(parse_markdown_file(RESEARCH_MD_PATH))
+    if research_md_path.exists():
+        print(f"Parsing {research_md_path}...")
+        all_citations.extend(parse_markdown_file(str(research_md_path)))
     else:
-        print(f"Error: {RESEARCH_MD_PATH} not found. Cannot proceed without research.md.", file=sys.stderr)
-        sys.exit(1)
-
+        print(f"Warning: {research_md_path} not found.")
+    
     # Parse plan.md
-    if PLAN_MD_PATH.exists():
-        print(f"Parsing {PLAN_MD_PATH}...")
-        all_citations.extend(parse_markdown_file(PLAN_MD_PATH))
-
-    # Deduplicate by ID (URL or DOI)
-    unique_citations = []
-    seen_ids = set()
-    for c in all_citations:
-        if c['id'] not in seen_ids:
-            seen_ids.add(c['id'])
-            unique_citations.append(c)
-
-    if not unique_citations:
-        print("Warning: No citations found in the specified files.", file=sys.stderr)
-        # Still create an empty file to satisfy the artifact requirement
-        output_data = {"citations": []}
+    if plan_md_path.exists():
+        print(f"Parsing {plan_md_path}...")
+        all_citations.extend(parse_markdown_file(str(plan_md_path)))
     else:
-        output_data = {"citations": unique_citations}
-
-    # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    output_path = STATE_DIR / "citations.yaml"
-
+        print(f"Warning: {plan_md_path} not found.")
+    
+    if not all_citations:
+        print("No citations found in the provided documents.")
+        # Still write an empty list to satisfy the requirement of creating the file
+        final_output = []
+    else:
+        # Assign IDs and format for YAML
+        final_output = []
+        for i, c in enumerate(all_citations, 1):
+            final_output.append({
+                'id': f'C{i:03d}',
+                'url': c['url'],
+                'title': c['title']
+            })
+    
+    # Write to YAML
     with open(output_path, 'w', encoding='utf-8') as f:
-        yaml.dump(output_data, f, default_flow_style=False, sort_keys=False)
+        yaml.dump(final_output, f, default_flow_style=False, allow_unicode=True)
+    
+    print(f"Successfully wrote {len(final_output)} citations to {output_path}")
+    return 0
 
-    print(f"Successfully wrote {len(unique_citations)} citations to {output_path}")
-
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())
