@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T18:41:10.229556Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-452-predicting-gene-essentiality-from-protei
-last_run_id: 2fee11f9-53cf-4b92-92bf-1e1cf8f5c250
+last_run_id: f45c67fc-ff5e-49ce-af1e-052c666c3517
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-452-predicting-gene-essentiality-from-protei/specs/001-predicting-gene-essentiality-from-protei
 title: Predicting Gene Essentiality from Protein Interaction Network Topology
-updated_at: '2026-09-25T06:56:11.766167Z'
+updated_at: '2026-09-29T03:04:36.355724Z'
