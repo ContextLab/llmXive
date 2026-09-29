@@ -91,7 +91,7 @@ projects/PROJ-352-statistical-analysis-of-early-universe-c/
 ### Phase 1: Data Acquisition & Preprocessing (FR-001, FR-002)
 *Goal: Download Planck SMICA map, validate checksum, apply Galactic mask with analytical correction, verify pixel count.*
 - **Step 1.1**: Implement `download.py` with retry logic (exponential backoff) to fetch `COM_CMB_ILM-NR1-000_R2.01.fits` (or equivalent SMICA Nside=128) from Planck Legacy Archive.
-- **Step 1.2**: Validate file integrity via MD5/SHA checksums against known values.
+- **Step 1.2**: Validate file integrity via MD/SHA checksums against known values.
 - **Step 1.3**: Implement `mask.py` to load the U73 (or equivalent) Galactic mask. Apply mask to CMB map.
 - **Step 1.4**: Implement **Schmalzing & Gorski (1998)** analytical mask correction for Minkowski Functionals. This uses the mask's own MFs to correct the observed MFs, avoiding ad-hoc buffer heuristics.
 - **Step 1.5**: Verify masked map has ≥95% sky coverage and ≥2.5M valid pixels (FR-002).
