@@ -101,8 +101,8 @@
 - [X] T005 [P] Implement schema validation utility in `code/utils.py`: Function `validate_json_schema(data, schema_path)` that returns True/False and logs errors
 - [X] T006a [P] [US1] Create file `logs/pipeline.log` (empty) to initialize logging infrastructure.
 - [X] T006b [P] [US1] Implement logging function in `code/utils.py`: Function `log_api_headers(response)` that extracts `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and the `retry_count` from the response context and appends them to `logs/pipeline.log`.
-- [ ] T006c [P] [US1] Integrate logging: Ensure `log_api_headers` is called by every API request function in `code/fetch_data.py`. (FR-009, Constitution Principle VI). **Dependency**: This task depends on T005 (Validation utility) being complete; ensure T005 is finished before starting T006c.
-- [ ] T007 [P] Implement exponential backoff utility in `code/utils.py`: Function `api_request_with_backoff(url, headers)` with base delay s, multiplier x, max delay within acceptable threshold, max retries a predefined threshold, jitter strategy (random non-negative percentage of delay).
+- [X] T006c [P] [US1] Integrate logging: Ensure `log_api_headers` is called by every API request function in `code/fetch_data.py`. (FR-009, Constitution Principle VI). **Dependency**: This task depends on T005 (Validation utility) being complete; ensure T005 is finished before starting T006c.
+- [X] T007 [P] Implement exponential backoff utility in `code/utils.py`: Function `api_request_with_backoff(url, headers)` with base delay s, multiplier x, max delay within acceptable threshold, max retries a predefined threshold, jitter strategy (random non-negative percentage of delay).
 - [ ] T008 [P] Create directory structure: `data/raw/`, `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -229,6 +229,7 @@
 - [X] T040c [P] Add unit tests for edge cases in `visualize.py` (e.g., zero variance) in `tests/unit/test_visualize_edge_cases.py`
 - [X] T041 [P] Run quickstart.md validation: Execute all commands in `quickstart.md`, verify exit code 0 for each, and confirm expected output files exist
 - [X] T042 [P] Verify all CSV/JSON outputs match schema contracts in `contracts/`
+- [ ] T043 [P] [US1] Add integration test for GitHub API pagination logic in `tests/integration/test_github_pagination.py`. **Goal**: Verify that the `Link` header parsing correctly iterates through multiple pages of results for a repository with >100 PRs, ensuring no data is truncated before the stop condition is met. (Revision Concern: T012b Pagination)
 
 ---
 

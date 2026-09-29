@@ -4,104 +4,123 @@ import os
 import random
 import time
 from typing import Any, Dict, Optional
-
+import yaml
 import requests
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def validate_json_schema(data: Any, schema_path: str) -> bool:
+# Constants
+MIN_PR_THRESHOLD = 50
+MAX_RETRIES = 5
+BASE_DELAY = 1.0
+MAX_DELAY = 60.0
+MULTIPLIER = 2.0
+
+def validate_json_schema(data: Dict[str, Any], schema_path: str) -> bool:
     """
-    Validates data against a JSON schema defined in a YAML file.
-    
-    Args:
-        data: The data to validate.
-        schema_path: Path to the schema YAML file.
-    
-    Returns:
-        True if valid, False otherwise.
+    Validate data against a JSON schema.
+    Returns True if valid, False otherwise.
     """
-    # Simple validation placeholder for now; assumes structure matches
-    # In a real implementation, we would use a library like jsonschema
-    # and parse the YAML schema.
-    if not isinstance(data, list) and not isinstance(data, dict):
+    if not os.path.exists(schema_path):
+        logger.warning(f"Schema file not found: {schema_path}")
         return False
-    return True
+    
+    try:
+        with open(schema_path, 'r') as f:
+            schema = yaml.safe_load(f)
+        
+        # Basic validation (full jsonschema validation would require jsonschema library)
+        required_fields = schema.get('required', [])
+        for field in required_fields:
+            if field not in data:
+                logger.error(f"Missing required field: {field}")
+                return False
+        
+        # Check types for known fields
+        properties = schema.get('properties', {})
+        for field, spec in properties.items():
+            if field in data:
+                expected_type = spec.get('type')
+                value = data[field]
+                
+                if expected_type == 'string' and not isinstance(value, str):
+                    logger.error(f"Field {field} should be string")
+                    return False
+                elif expected_type == 'number' and not isinstance(value, (int, float)):
+                    logger.error(f"Field {field} should be number")
+                    return False
+                elif expected_type == 'array' and not isinstance(value, list):
+                    logger.error(f"Field {field} should be array")
+                    return False
+                elif expected_type == 'object' and not isinstance(value, dict):
+                    logger.error(f"Field {field} should be object")
+                    return False
+        
+        return True
+        
+    except Exception as e:
+        logger.error(f"Error validating schema: {e}")
+        return False
 
 def log_api_headers(response: requests.Response) -> None:
     """
-    Extracts rate limit headers from the response and logs them.
-    
-    Args:
-        response: The HTTP response object.
+    Extract and log API rate limit headers.
+    Logs to logs/pipeline.log
     """
-    headers = response.headers
-    remaining = headers.get("X-RateLimit-Remaining", "N/A")
-    reset = headers.get("X-RateLimit-Reset", "N/A")
+    log_file = "logs/pipeline.log"
     
-    log_msg = f"Rate Limit - Remaining: {remaining}, Reset: {reset}"
-    logger.info(log_msg)
+    rate_limit_remaining = response.headers.get('X-RateLimit-Remaining', 'N/A')
+    rate_limit_reset = response.headers.get('X-RateLimit-Reset', 'N/A')
     
-    # Also append to the specific log file mentioned in T006a
-    log_file_path = Path("logs/pipeline.log")
-    log_file_path.parent.mkdir(parents=True, exist_ok=True)
+    # Extract retry_count from context if available (simulated here)
+    retry_count = getattr(response, 'retry_count', 0)
     
-    with open(log_file_path, "a", encoding="utf-8") as f:
-        f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} - {log_msg}\n")
+    log_entry = f"RateLimit-Remaining: {rate_limit_remaining}, RateLimit-Reset: {rate_limit_reset}, retry_count: {retry_count}\n"
+    
+    try:
+        with open(log_file, 'a') as f:
+            f.write(log_entry)
+    except Exception as e:
+        logger.error(f"Failed to write to log file: {e}")
 
-def api_request_with_backoff(
-    url: str,
-    headers: Dict[str, str],
-    params: Optional[Dict[str, Any]] = None,
-    max_retries: int = 5,
-    base_delay: float = 1.0,
-    max_delay: float = 60.0
-) -> requests.Response:
+def api_request_with_backoff(url: str, headers: Dict[str, str]) -> requests.Response:
     """
-    Makes a request to the URL with exponential backoff and jitter.
-    
-    Args:
-        url: The URL to request.
-        headers: Headers to send.
-        params: Query parameters.
-        max_retries: Maximum number of retry attempts.
-        base_delay: Initial delay in seconds.
-        max_delay: Maximum delay cap in seconds.
-    
-    Returns:
-        The HTTP response.
-    
-    Raises:
-        requests.exceptions.RequestException: If all retries fail.
+    Make an API request with exponential backoff.
     """
-    delay = base_delay
+    delay = BASE_DELAY
+    last_response = None
     
-    for attempt in range(max_retries):
+    for attempt in range(MAX_RETRIES):
         try:
-            response = requests.get(url, headers=headers, params=params, timeout=30)
-            # Handle 403 (Rate Limit) specifically
-            if response.status_code == 403:
-                logger.warning(f"Rate limit hit (403). Retrying in {delay}s...")
-                time.sleep(delay)
-                delay = min(delay * 2, max_delay)
-                delay = delay + random.uniform(0, delay * 0.2)  # Jitter
-                continue
+            response = requests.get(url, headers=headers, timeout=30)
+            last_response = response
             
-            # Handle 5xx server errors
-            if 500 <= response.status_code < 600:
-                logger.warning(f"Server error {response.status_code}. Retrying in {delay}s...")
-                time.sleep(delay)
-                delay = min(delay * 2, max_delay)
-                delay = delay + random.uniform(0, delay * 0.2)  # Jitter
+            # Set retry count on response for logging
+            response.retry_count = attempt
+            
+            if response.status_code == 200:
+                return response
+            elif response.status_code == 403:
+                # Rate limited, use reset time
+                reset_time = int(response.headers.get('X-RateLimit-Reset', 0))
+                wait_time = max(reset_time - int(time.time()) + 1, delay)
+                logger.warning(f"Rate limited. Waiting {wait_time}s")
+                time.sleep(wait_time)
                 continue
-
-            return response
-        
+            elif response.status_code >= 500:
+                # Server error, retry with backoff
+                logger.warning(f"Server error {response.status_code}. Retrying in {delay}s")
+            else:
+                # Other error, don't retry
+                return response
+            
         except requests.exceptions.RequestException as e:
-            logger.warning(f"Request failed: {e}. Retrying in {delay}s...")
-            time.sleep(delay)
-            delay = min(delay * 2, max_delay)
-            delay = delay + random.uniform(0, delay * 0.2)  # Jitter
+            logger.warning(f"Request failed: {e}. Retrying in {delay}s")
+        
+        time.sleep(delay)
+        delay = min(delay * MULTIPLIER + random.uniform(0, delay * 0.1), MAX_DELAY)
     
-    raise requests.exceptions.RequestException("Max retries exceeded")
-
-from pathlib import Path
+    if last_response:
+        return last_response
+    raise Exception("All retry attempts failed")

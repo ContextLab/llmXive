@@ -1,33 +1,38 @@
-"""
-Unit tests for directory creation logic.
-"""
 import os
+import sys
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
 
-# Import the function to test
-# We mock the Path and os operations to test in isolation without touching real FS
-# However, since the script uses standard Path operations, we can test the logic
-# by creating a temp directory and running the logic against it.
+# Add the project root to the path so we can import from code/
+# Assuming tests are run from the project root
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "projects" / "PROJ-312-evaluating-the-impact-of-code-generation" / "code"))
 
-from code.create_directories import main
+from create_directories import main
 
-def test_directory_creation_structure():
-    """
-    Verify that the script creates the required directory hierarchy.
-    """
-    # Create a temporary directory to act as the project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir) / "projects/PROJ-312-evaluating-the-impact-of-code-generation"
+def test_directory_structure_creation(tmp_path):
+    """Test that the main function creates the required directory structure."""
+    # Change to a temporary directory to simulate a fresh project setup
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        # Define the expected project root path
+        project_root = tmp_path / "projects" / "PROJ-312-evaluating-the-impact-of-code-generation"
         
-        # We need to modify the script to accept a path or override the root for testing
-        # Since the script is hardcoded to "projects/...", we will simulate the structure
-        # by checking if the logic *would* create them.
-        # To strictly test the *artifact* logic, we verify the list of directories.
+        # Run the main function
+        result = main()
         
-        required_dirs = [
+        # Verify the return code
+        assert result == 0, "main() should return 0 on success"
+        
+        # Verify the project root exists
+        assert project_root.exists(), "Project root directory should exist"
+        assert project_root.is_dir(), "Project root should be a directory"
+        
+        # Define expected directories (relative to project root)
+        expected_dirs = [
             "code",
             "data",
             "tests",
@@ -37,44 +42,36 @@ def test_directory_creation_structure():
             "data/raw",
             "data/processed",
             "data/spot_check",
+            "tests/unit",
+            "tests/contract",
         ]
         
-        # Verify the list of directories is non-empty and correct
-        assert len(required_dirs) > 0
-        assert "code" in required_dirs
-        assert "data" in required_dirs
-        assert "tests" in required_dirs
-        assert "contracts" in required_dirs
-        assert "artifacts" in required_dirs
-        assert "state" in required_dirs
-        assert "data/raw" in required_dirs
-        assert "data/processed" in required_dirs
-        assert "data/spot_check" in required_dirs
+        # Check each expected directory
+        for dir_name in expected_dirs:
+            dir_path = project_root / dir_name
+            assert dir_path.exists(), f"Directory {dir_path} should exist"
+            assert dir_path.is_dir(), f"{dir_path} should be a directory"
+            
+    finally:
+        # Restore original working directory
+        os.chdir(original_cwd)
 
-def test_actual_directory_creation():
-    """
-    Test that the logic actually creates directories when run.
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        # Create a mock project root
-        project_root = Path(tmp_dir) / "projects/PROJ-312-evaluating-the-impact-of-code-generation"
-        project_root.mkdir(parents=True, exist_ok=True)
+def test_idempotency(tmp_path):
+    """Test that running main() twice does not cause errors."""
+    original_cwd = os.getcwd()
+    os.chdir(tmp_path)
+    
+    try:
+        # Run main() twice
+        result1 = main()
+        result2 = main()
         
-        # Define the directories the script creates
-        dirs_to_create = [
-            "code", "data", "tests", "contracts", "artifacts", "state",
-            "data/raw", "data/processed", "data/spot_check"
-        ]
+        assert result1 == 0
+        assert result2 == 0
         
-        # Manually create them to simulate the script's behavior
-        for d in dirs_to_create:
-            (project_root / d).mkdir(parents=True, exist_ok=True)
+        # Verify directories still exist
+        project_root = tmp_path / "projects" / "PROJ-312-evaluating-the-impact-of-code-generation"
+        assert project_root.exists()
         
-        # Verify they exist
-        for d in dirs_to_create:
-            assert (project_root / d).exists(), f"Directory {d} should exist"
-        
-        # Verify subdirectories are correct
-        assert (project_root / "data" / "raw").exists()
-        assert (project_root / "data" / "processed").exists()
-        assert (project_root / "data" / "spot_check").exists()
+    finally:
+        os.chdir(original_cwd)

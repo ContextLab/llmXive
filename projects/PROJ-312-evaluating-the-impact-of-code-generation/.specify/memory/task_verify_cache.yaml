@@ -1,3 +1,33 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the required directories (`projects/PROJ-312-evaluating-the-impact-of-code-generation/`\
+    \ with subfolders `code/`, `data/`, `tests/`, `contracts/`, `artifacts/`, `state/`)\
+    \ actually exist; the response contains only the task description and no file\u2011\
+    system listing or screenshots. The implementer must create and show the directory\
+    \ structure."
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing that the required directories (`data/raw/`,
+    `data/processed/`, `data/spot_check/`, `artifacts/`, `tests/`) actually exist
+    in the repository; the claim is unsubstantiated. The implementer must provide
+    a directory listing or screenshots confirming the presence of these folders.
+T012b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, data file, or any other artifact was supplied; the claim provides
+    only a description of the required behavior. The required implementation that
+    fetches all PRs with proper GitHub pagination, respects the stop condition, and
+    extracts commit messages is missing.
+T014:
+  c: false
+  h: e1c079fd111f9fc8492a06a1b7f2d54510d635d3188ccceabf5a6519afa67c55
+  r: "The repository does not contain a `data/processed/excluded_repos.txt` file,\
+    \ and the shown portion of `code/fetch_data.py` does not include any logic that\
+    \ checks a repository\u2019s PR count against `MIN_PR_THRESHOLD`, logs warnings,\
+    \ or writes skipped repository names to that file. Consequently the required functionality\
+    \ is not implemented."
 T019a:
   c: false
   h: d1df6b18a70027fc7f2622019da5babf5ff004bb0db569c9ebda2a7564ac742d
@@ -6,22 +36,23 @@ T019a:
     \ Moreover, the expected output file `sample_list.csv` is missing from the repository.\
     \ The task\u2019s core requirement\u2014producing a stratified CSV of non\u2011\
     AI PR IDs\u2014is therefore not met."
-T019d:
+T019c:
   c: false
-  h: 56b19b769c18bab879d042448b8ee106a800d84e7293542bb2acb962e44f97c1
-  r: "The only artifact shown is that `data/spot_check/annotations.csv` is missing;\
-    \ there is no code, log output, or final report demonstrating that a CRITICAL\
-    \ warning is logged, the validation status is set to 'UNVALIDATED', or that the\
-    \ analysis proceeds with heuristic\u2011only classification. These required behaviors\
-    \ are absent, so the task is not satisfied."
+  h: a2c07c50a6e30ca5fa53f7683e26c28440ef9b4c0d65e9d5967971852f3dad05
+  r: "The required `data/spot_check/annotations.csv` file is missing, so the script\
+    \ cannot ingest real annotations as mandated. Moreover, the provided `validation_report.csv`\
+    \ does not contain a calculated false\u2011negative rate, and the truncated `validate_spot_check.py`\
+    \ shows no logic for computing or writing that metric. Both the essential input\
+    \ and the required output are absent."
 T023a:
   c: false
-  h: 2b920214320a0c5a1cb9e2eda866f61e2d9b5ac984ce758f06c6acab6729b690
-  r: "The required `data/processed/excluded_repos.txt` file is missing, so the script\
-    \ cannot consume the exclusion list as mandated. Moreover, the provided `code/analyze.py`\
-    \ is truncated and does not show a complete implementation of the descriptive\u2011\
-    statistics calculation (e.g., the function ends abruptly). Both the prerequisite\
-    \ input and the full functionality are absent."
+  h: fae0bf15cd3ca2f1e04371e511119be12e64bb24e9827312113839e776054fe7
+  r: "The `code/analyze.py` file is truncated (ends mid\u2011function) and does not\
+    \ show the full implementation of the descriptive\u2011statistics calculations\
+    \ for AI vs. non\u2011AI groups. Moreover, the required input files `data/processed/pr_turnaround.csv`\
+    \ and `data/processed/excluded_repos.txt` are absent, so the script cannot be\
+    \ executed as specified. The missing data and incomplete code prevent the task\
+    \ from being genuinely fulfilled."
 T036a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -41,19 +72,6 @@ T038:
     confirm that documentation was actually updated as required. The implementer must
     supply the `projects/PROJ-312-evaluating-the-impact-of-code-generation/README.md`
     file with the expected changes.
-T039a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the `ruff --fix` command was executed, nor any
-    linting report or modified files showing zero linting errors. The required artifact
-    (a clean codebase or a linting summary) is missing, so the task cannot be confirmed
-    as completed.
-T039b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No artifact (e.g., command output, CI log, or report) showing that `black --check`
-    was executed and returned zero formatting errors is present; without such evidence
-    we cannot confirm the requirement was met.
 T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
