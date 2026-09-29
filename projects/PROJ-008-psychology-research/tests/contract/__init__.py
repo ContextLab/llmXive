@@ -1,3 +1,3 @@
 """
-Contract tests for schema validation and API compliance.
+Contract tests for psychology research pipeline.
 """

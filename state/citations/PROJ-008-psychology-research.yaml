@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://api.osf.io/v2/
   verified_at: '2026-08-25T01:07:54.102934Z'
-- artifact_hash: 4770f216404433764d40ea0e536f63888d1074c1f060d8c0d7650969ea59c279
+- artifact_hash: 864d9a6e45aede92f31dada8f97150906c977b42e989ac22de2fc5762803a5cb
   artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,4 +41,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-09-27T16:15:50.367909Z'
+  verified_at: '2026-09-29T04:31:37.844669Z'

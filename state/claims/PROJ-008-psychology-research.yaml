@@ -329,3 +329,369 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T01:46:42Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: 'Pinned dependency versions: pandas 2.0.0, scikit-learn 1.3.0, statsmodels
+    0.14.0, matplotlib 3.7.0, requests 2.31.0, pyyaml 6.0, pytest 7.4.0, bayesmeta
+    0.1.0, pdfplumber 0.10.0'
+  claim_id: c_4e3536a2
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002 requires creating pyproject.toml
+    with pinned versions.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The project dependencies include pandas==2.0.0, scikit-learn==1.3.0, statsmodels==0.14.0,
+    matplotlib==3.7.0, requests==2.31.0, pyyaml==6.0, pytest==7.4.0, bayesmeta==0.1.0,
+    and pdfplumber==0.10.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T04:32:26Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Inclusion age range 6 to 12 years
+  claim_id: c_2674b2d1
+  context: 'Phase 3: User Story 1 - Task T018 validates age 6-12 per US1 in spec.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The age range for inclusion in the study is 6 to 12 years.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:35:25Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Inclusion diagnosis ASD
+  claim_id: c_45e155cc
+  context: 'Phase 3: User Story 1 - Task T018 validates ASD diagnosis.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: autism spectrum disorder
+      source_id: Q1436063
+      url: https://www.wikidata.org/wiki/Q1436063
+      value: autism spectrum disorder
+    filled: true
+  kind: entity_fact
+  raw_text: The study diagnosis must be ASD (Autism Spectrum Disorder).
+  resolved_value: autism spectrum disorder
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T04:35:46Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Data sources limited to ClinicalTrials.gov and OSF
+  claim_id: c_a72ae0de
+  context: 'Phase 3: User Story 1 - Note per Constitution Principle VI.'
+  evidence:
+    entailment_evidence: Data sources limited to ClinicalTrials.gov and OSF
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Data_sources_limited_to_ClinicalTrials.gov_and_OSF
+  kind: entity_fact
+  raw_text: Data sources are strictly limited to ClinicalTrials.gov and OSF.
+  resolved_value: Data sources limited to ClinicalTrials.gov and OSF
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T04:35:48Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: JSON Schema Draft 7 for cleaned studies
+  claim_id: c_fc324c94
+  context: 'Phase 2: Foundational - Task T007a creates contracts/cleaned_study.schema.yaml
+    with FULL JSON Schema (Draft 7).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The JSON Schema for cleaned studies is Draft 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:38:59Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: JSON Schema Draft 7 for effect sizes
+  claim_id: c_8bc7321b
+  context: 'Phase 2: Foundational - Task T007b creates contracts/effect_size.schema.yaml
+    with FULL JSON Schema (Draft 7).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The JSON Schema for effect sizes is Draft 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:39:32Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Random-effects model used if I-squared greater than 0.5
+  claim_id: c_f2af44fa
+  context: 'Phase 4: User Story 2 - Task T029 implements random-effects meta-analysis
+    engine.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random-effects_model_used_if_I-squared_greater_than_0.5
+  kind: magnitude
+  raw_text: "The random-effects model is used if I\xB2 > 0.5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:40:22Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Subgroup analysis suppressed if N less than 10
+  claim_id: c_5f6e61fb
+  context: 'Phase 4: User Story 2 - Task T033 implements conditional logic to suppress
+    subgroup/meta-regression if N < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subgroup_analysis_suppressed_if_N_less_than_10
+  kind: magnitude
+  raw_text: Subgroup analysis and meta-regression are suppressed if the number of
+    studies is less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:40:59Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Funnel plot and Egger's test suppressed if N less than 10
+  claim_id: c_4d812193
+  context: 'Phase 5: User Story 3 - Task T040 implements conditional logic to suppress
+    funnel plot/Egger''s test if N < 10.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Funnel_plot_and_Egger's_test_suppressed_if_N_less_than_10
+  kind: magnitude
+  raw_text: Funnel plots and Egger's test are suppressed if the number of studies
+    is less than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:41:32Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: CI workflow requires verified real data snapshot instead of mock data
+  claim_id: c_d05943ac
+  context: 'Phase 3: User Story 1 - Task T016 specifies CI/Testing Runs must load
+    a verified snapshot.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CI_workflow_requires_verified_real_data_snapshot_instead_of
+  kind: entity_fact
+  raw_text: The CI workflow requires a verified, checksummed snapshot of real data
+    (e.g., data/raw/verified_snapshot_2026.json) instead of mock data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:42:13Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Python version requirement greater than or equal to 3.11
+  claim_id: c_728f25ed
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002 creates pyproject.toml
+    with python version >=3.11.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Python_version_requirement_greater_than_or_equal_to_3.11
+  kind: magnitude
+  raw_text: The Python version requirement is >=3.11.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:42:41Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Ruff linter line-length set to 88
+  claim_id: c_18a3ff6a
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T003 configures linting
+    with line-length = 88.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ruff linter configuration uses line-length = 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:43:15Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Black formatter line-length set to 88
+  claim_id: c_add3d322
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T003 configures formatting
+    with line-length=88.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The black formatter configuration uses line-length=88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:43:45Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Target version py311 for linting and formatting
+  claim_id: c_b672ecd1
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T003 configures target-version
+    = py311.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_version_py311_for_linting_and_formatting
+  kind: entity_fact
+  raw_text: The target version for linting and formatting is py311.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:44:17Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: 'Intervention components categories: breathing, body scan, mindful movement,
+    mindful eating, none'
+  claim_id: c_3c43fbd7
+  context: 'Phase 2: Foundational - Task T007a defines intervention_components enum
+    values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Intervention_components_categories:_breathing,_body_scan,_mi
+  kind: entity_fact
+  raw_text: The intervention components are categorized as breathing, body scan, mindful
+    movement, mindful eating, or none.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:44:53Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: 'Delivery format categories: caregiver-mediated, child-led, mixed, not-reported'
+  claim_id: c_5a639a42
+  context: 'Phase 2: Foundational - Task T007a defines delivery_format enum values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Delivery_format_categories:_caregiver-mediated,_child-led,_m
+  kind: entity_fact
+  raw_text: The delivery format categories are caregiver-mediated, child-led, mixed,
+    or not-reported.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:45:27Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: 'Social skill domain categories: communication, peer interaction, emotional
+    regulation, mixed, other'
+  claim_id: c_fb5a0521
+  context: 'Phase 2: Foundational - Task T007a defines social_skill_domain enum values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Social_skill_domain_categories:_communication,_peer_interact
+  kind: entity_fact
+  raw_text: The social skill domain categories are communication, peer interaction,
+    emotional regulation, mixed, or other.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:45:53Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: 'Rater type categories: blinded, unblinded, mixed'
+  claim_id: c_226c2210
+  context: 'Phase 2: Foundational - Task T007a defines rater_type enum values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rater_type_categories:_blinded,_unblinded,_mixed
+  kind: entity_fact
+  raw_text: The rater_type categories are blinded, unblinded, or mixed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:46:19Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Effect size calculation uses Hedges' g with small-sample correction
+  claim_id: c_59be4d47
+  context: 'Phase 4: User Story 2 - Task T028 implements Hedges'' g calculator with
+    small-sample correction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Effect_size_calculation_uses_Hedges'_g_with_small-sample_cor
+  kind: entity_fact
+  raw_text: The effect size calculation uses Hedges' g with small-sample correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:47:28Z'
+- artifact_path: projects/PROJ-008-psychology-research/specs/002-psychology-research/tasks.md
+  attempts: 1
+  canonical: Blinding bias test requires p-value less than 0.05
+  claim_id: c_4a67cc74
+  context: 'Phase 4: User Story 2 - Task T027b unit test logic verifies statistically
+    significant difference with p-value < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Blinding_bias_test_requires_p-value_less_than_0.05
+  kind: magnitude
+  raw_text: The blinding bias test requires a p-value < 0.05 to identify a statistically
+    significant difference.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T04:48:36Z'

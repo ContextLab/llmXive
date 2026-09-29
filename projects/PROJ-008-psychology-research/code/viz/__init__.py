@@ -1,3 +1,3 @@
 """
-Visualization modules for plots and figures.
+Visualization module for psychology research pipeline.
 """

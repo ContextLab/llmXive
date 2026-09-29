@@ -1,13 +1,12 @@
-#!/usr/bin/env python3
 """
-T021: Verify and archive output for US1 data pipeline.
+Verify and archive output for the data pipeline.
 
-Checks for existence of:
-- data/processed/cleaned_studies.csv
-- data/raw/excluded_studies.log
+This script checks for the existence of required output artifacts:
+1. data/processed/cleaned_studies.csv
+2. data/raw/excluded_studies.log
 
-Verifies CSV schema compliance against contracts/cleaned_study.schema.yaml.
-Exits 0 on success, 1 on failure.
+It validates the CSV schema against the defined JSON Schema contract.
+It handles empty CSVs gracefully if mock data is detected or if no studies matched.
 """
 
 import csv
@@ -16,180 +15,159 @@ import os
 import sys
 from pathlib import Path
 
-# Add project root to path for imports if needed, though this script uses stdlib mostly
-# Assuming run from project root: python scripts/verify_output.py
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-DATA_RAW = PROJECT_ROOT / "data" / "raw"
-CONTRACTS = PROJECT_ROOT / "contracts"
+import yaml
+from jsonschema import validate, ValidationError, Draft7Validator
 
-CSV_PATH = DATA_PROCESSED / "cleaned_studies.csv"
-LOG_PATH = DATA_RAW / "excluded_studies.log"
-MOCK_PATH = DATA_RAW / "mock_registry_response.json"
-SCHEMA_PATH = CONTRACTS / "cleaned_study.schema.yaml"
+# Project root relative to this script (assuming scripts/ directory)
+PROJECT_ROOT = Path(__file__).parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
 
-# Required columns based on cleaned_study.schema.yaml
-REQUIRED_COLUMNS = [
-    "id", "title", "registry", "age_range_min", "age_range_max",
-    "diagnosis", "outcomes", "intervention_components", "delivery_format",
-    "social_skill_domain", "follow_up", "abstract_text", "rater_type",
-    "blinded_assessment_flag"
-]
+CSV_PATH = DATA_PROCESSED_DIR / "cleaned_studies.csv"
+LOG_PATH = DATA_RAW_DIR / "excluded_studies.log"
+SCHEMA_PATH = CONTRACTS_DIR / "cleaned_study.schema.yaml"
+MOCK_DATA_PATH = DATA_RAW_DIR / "mock_registry_response.json"
 
-def verify_csv_artifact() -> bool:
-    """Check existence and basic structure of cleaned_studies.csv."""
-    if not CSV_PATH.exists():
-        print(f"FAIL: {CSV_PATH} does not exist.")
+def load_schema(schema_path: Path) -> dict:
+    """Load JSON Schema from YAML file."""
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+def verify_csv_artifact(csv_path: Path) -> bool:
+    """Verify the existence and basic structure of the CSV file."""
+    if not csv_path.exists():
+        print(f"FAIL: CSV artifact not found: {csv_path}")
         return False
 
+    print(f"OK: CSV artifact found: {csv_path}")
+
+    # Check if empty
     try:
-        with open(CSV_PATH, 'r', newline='', encoding='utf-8') as f:
+        with open(csv_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
-            if reader.fieldnames is None:
-                print("FAIL: CSV file is empty or has no header.")
-                return False
-
-            # Check for required columns (allowing for potential slight naming variations if needed,
-            # but strictly checking presence of core fields defined in schema)
-            # The schema defines: id, title, registry, age_range (object), diagnosis, outcomes,
-            # intervention_components, delivery_format, social_skill_domain, follow_up, abstract_text,
-            # blinded_assessment_flag, rater_type.
-            # CSV flattens age_range to min/max usually.
-            header_lower = [h.lower().strip() for h in reader.fieldnames]
-            
-            # Map expected logical fields to possible CSV column names
-            # Assuming standard flattening: age_range_min, age_range_max
-            expected_fields = [
-                "id", "title", "registry", "diagnosis", "outcomes",
-                "intervention_components", "delivery_format", "social_skill_domain",
-                "follow_up", "abstract_text", "rater_type", "blinded_assessment_flag"
-            ]
-            
-            missing_fields = []
-            for field in expected_fields:
-                if field not in header_lower:
-                    # Check for specific age_range variants
-                    if field == "age_range_min" and "age_range_min" not in header_lower:
-                        # Check if it's just "min" or similar, but strict schema compliance usually implies specific names
-                        # For this check, we ensure the critical identifiers exist.
-                        pass 
-                    missing_fields.append(field)
-
-            # Strict check for critical identifiers
-            critical = ["id", "diagnosis", "outcomes", "delivery_format", "social_skill_domain"]
-            for c in critical:
-                if c not in header_lower:
-                    print(f"FAIL: CSV missing critical column '{c}'. Found: {reader.fieldnames}")
-                    return False
-
-            # Check row count
             rows = list(reader)
-            row_count = len(rows)
-            
-            if row_count == 0:
-                # Empty CSV: verify if in CI mode (mock data exists) or real mode (no matches)
-                if MOCK_PATH.exists():
-                    print(f"WARN: CSV is empty (0 rows). Mock data exists at {MOCK_PATH} (CI mode?).")
-                    # In CI mode, empty CSV might be valid if all mock studies were excluded,
-                    # but typically we expect at least one valid mock study to pass.
-                    # However, per T021 spec: "If CSV is empty... do NOT fail on empty CSV."
-                    # We log the state but do not fail the task immediately unless logic dictates.
-                    # Spec says: "verify that `data/raw/mock_registry_response.json` exists ... do NOT fail on empty CSV"
-                    print("INFO: Empty CSV is acceptable in CI mode if mock data is present.")
-                else:
-                    print(f"WARN: CSV is empty (0 rows). No mock data found (Real mode?).")
-                    print("INFO: Empty CSV is acceptable if no studies matched criteria.")
-            else:
-                print(f"OK: CSV exists with {row_count} rows.")
-                # Optional: Verify a few rows for basic data types if needed, 
-                # but schema validation is the primary check.
-            
+    except Exception as e:
+        print(f"FAIL: Could not read CSV: {e}")
+        return False
+
+    if len(rows) == 0:
+        print("INFO: CSV is empty (0 rows).")
+        # Check if mock data exists (CI mode indicator) or if it's just no matches
+        if MOCK_DATA_PATH.exists():
+            print("INFO: Mock data detected. Empty CSV is acceptable in CI mode.")
+            return True
+        else:
+            print("INFO: No mock data. Empty CSV implies no studies matched criteria.")
+            # This is acceptable if the pipeline ran successfully and found nothing
             return True
 
-    except Exception as e:
-        print(f"FAIL: Error reading CSV: {e}")
-        return False
+    print(f"OK: CSV contains {len(rows)} rows.")
+    return True
 
-def verify_log_artifact() -> bool:
-    """Check existence of excluded_studies.log."""
-    # Log file is optional in the sense that if no studies are excluded, it might not exist.
-    # But T018/T020 specify writing to it.
-    # T021 spec: "checks for existence of ... data/raw/excluded_studies.log"
-    # If it doesn't exist, it implies no exclusions were logged.
-    if not LOG_PATH.exists():
-        print(f"WARN: {LOG_PATH} does not exist (no exclusions logged?).")
-        return True # Not a fatal failure if no exclusions occurred
-    
-    try:
-        with open(LOG_PATH, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-            if not lines:
-                print(f"WARN: {LOG_PATH} exists but is empty.")
-            else:
-                print(f"OK: {LOG_PATH} exists with {len(lines)} exclusion entries.")
-                # Validate JSONL format
-                for i, line in enumerate(lines):
-                    try:
-                        json.loads(line.strip())
-                    except json.JSONDecodeError:
-                        print(f"FAIL: Invalid JSON in {LOG_PATH} at line {i+1}: {line.strip()}")
-                        return False
+def verify_log_artifact(log_path: Path) -> bool:
+    """Verify the existence of the exclusion log file."""
+    if not log_path.exists():
+        # It's possible no studies were excluded, so the log might not exist.
+        # However, the task description implies it should be created if exclusions happen.
+        # We treat missing log as acceptable if no exclusions occurred, but we warn.
+        print("WARN: Exclusion log not found. This is acceptable if no studies were excluded.")
         return True
+
+    print(f"OK: Exclusion log found: {log_path}")
+
+    # Validate JSONL format
+    try:
+        with open(log_path, "r", encoding="utf-8") as f:
+            for line_num, line in enumerate(f, 1):
+                if line.strip():
+                    json.loads(line)
+        print("OK: Log file format is valid JSONL.")
+    except json.JSONDecodeError as e:
+        print(f"FAIL: Invalid JSON in log file at line {line_num}: {e}")
+        return False
     except Exception as e:
-        print(f"FAIL: Error reading log: {e}")
+        print(f"FAIL: Could not read log file: {e}")
         return False
 
-def verify_schema_compliance() -> bool:
-    """Verify CSV schema compliance against contracts/cleaned_study.schema.yaml."""
-    if not SCHEMA_PATH.exists():
-        print(f"WARN: Schema file {SCHEMA_PATH} not found. Skipping strict schema validation.")
-        return True # Cannot fail if schema is missing, though it should exist
+    return True
 
-    # Basic structural validation without full JSON Schema library dependency if not present
-    # We rely on the CSV structure check in verify_csv_artifact for now.
-    # A full implementation would use `jsonschema` library.
-    # Given constraints, we assume the CSV generation logic (T016-T022) adhered to the schema.
-    # We perform a sanity check on the first row if possible.
-    if not CSV_PATH.exists():
+def verify_schema_compliance(csv_path: Path, schema_path: Path) -> bool:
+    """Verify CSV rows against the JSON Schema contract."""
+    if not csv_path.exists():
+        # Handled in verify_csv_artifact, but safety check
         return False
+
+    if not schema_path.exists():
+        print(f"FAIL: Schema file not found: {schema_path}")
+        return False
+
+    schema = load_schema(schema_path)
+    validator = Draft7Validator(schema)
 
     try:
-        with open(CSV_PATH, 'r', newline='', encoding='utf-8') as f:
+        with open(csv_path, "r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
-            for i, row in enumerate(reader):
-                # Check for non-null critical fields
-                if not row.get('id'):
-                    print(f"FAIL: Row {i+1} missing 'id'.")
+            for row_idx, row in enumerate(reader, 1):
+                # Convert row values to appropriate types for validation if necessary
+                # The schema expects specific types (int, boolean, etc.)
+                # CSV reads everything as string. We need to coerce or validate loosely.
+                # For strict compliance, we coerce based on schema type definitions.
+                cleaned_row = {}
+                for key, value in row.items():
+                    if key in schema.get("properties", {}):
+                        prop = schema["properties"][key]
+                        if prop.get("type") == "integer":
+                            cleaned_row[key] = int(value) if value else 0
+                        elif prop.get("type") == "boolean":
+                            cleaned_row[key] = value.lower() in ("true", "1", "yes")
+                        elif prop.get("type") == "number":
+                            cleaned_row[key] = float(value) if value else 0.0
+                        else:
+                            cleaned_row[key] = value
+                    else:
+                        cleaned_row[key] = value
+
+                errors = list(validator.iter_errors(cleaned_row))
+                if errors:
+                    print(f"FAIL: Row {row_idx} failed schema validation:")
+                    for error in errors:
+                        print(f"  - {error.message} at {list(error.path)}")
                     return False
-                if not row.get('diagnosis'):
-                    print(f"FAIL: Row {i+1} missing 'diagnosis'.")
-                    return False
-                # Check enum values if present
-                if row.get('diagnosis') != 'ASD':
-                    # T018 validates ASD, but if it passed, it should be ASD.
-                    # If the cleaner allowed non-ASD, it's a schema violation.
-                    # Strictly, T018 says "Validate ASD diagnosis".
-                    # We assume T018 did its job.
-                    pass 
-                break # Only check first row for structure
-        print("OK: Basic schema structure verified.")
-        return True
     except Exception as e:
-        print(f"FAIL: Schema verification error: {e}")
+        print(f"FAIL: Error during schema validation: {e}")
         return False
+
+    print("OK: All rows in CSV comply with the schema.")
+    return True
 
 def main():
-    print("Starting T021: Verify and archive output...")
-    
-    csv_ok = verify_csv_artifact()
-    log_ok = verify_log_artifact()
-    schema_ok = verify_schema_compliance()
+    print("Starting output verification...")
+    all_checks_passed = True
 
-    if csv_ok and log_ok and schema_ok:
-        print("SUCCESS: All checks passed.")
+    # 1. Verify CSV existence and basic structure
+    if not verify_csv_artifact(CSV_PATH):
+        all_checks_passed = False
+
+    # 2. Verify Log existence
+    if not verify_log_artifact(LOG_PATH):
+        all_checks_passed = False
+
+    # 3. Verify Schema Compliance (only if CSV exists and has rows)
+    if CSV_PATH.exists() and verify_csv_artifact(CSV_PATH):
+        # Re-read to check rows count logic inside verify_csv_artifact
+        # We rely on the return value of verify_csv_artifact which already checked existence
+        # If it passed, we proceed to schema check.
+        if not verify_schema_compliance(CSV_PATH, SCHEMA_PATH):
+            all_checks_passed = False
+
+    if all_checks_passed:
+        print("\nSUCCESS: All verification checks passed.")
         sys.exit(0)
     else:
-        print("FAILURE: One or more checks failed.")
+        print("\nFAILURE: One or more verification checks failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

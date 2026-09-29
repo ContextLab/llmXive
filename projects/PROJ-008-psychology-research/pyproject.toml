@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-008-psychology-research"
+name = "llmxive-psychology-research"
 version = "0.1.0"
-description = "Mindfulness Components and Delivery Formats in ASD Social Skills Meta-Analysis"
+description = "Mindfulness Components and Delivery Formats in ASD Social Skills Research"
 requires-python = ">=3.11"
 dependencies = [
     "pandas==2.0.0",
@@ -17,7 +17,6 @@ dependencies = [
     "pytest==7.4.0",
     "bayesmeta==0.1.0",
     "pdfplumber==0.10.0",
-    "pydantic==2.0.0",
 ]
 
 [tool.black]
@@ -27,19 +26,4 @@ target-version = ['py311']
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-select = [
-    "E",
-    "F",
-    "W",
-    "I",
-]
-ignore = []
-fixable = ["ALL"]
-unfixable = []
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-]
+select = ["E", "F", "W", "I"]

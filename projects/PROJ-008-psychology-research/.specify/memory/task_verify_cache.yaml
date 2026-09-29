@@ -1,42 +1,12 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or file tree was provided, so we cannot verify that the\
-    \ required folders (`code/`, `data/` with its subfolders, `docs/`, `tests/` with\
-    \ its subfolders, `contracts/`, `scripts/`, `.github/workflows/`) actually exist\
-    \ under `projects/PROJ-008-psychology-research/`. The implementer\u2019s claim\
-    \ lacks concrete evidence of the requested structure."
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `__init__.py` files were presented for any `code/` or `tests/` subdirectory,\
-    \ and there is no evidence that such files exist on disk. The required package\u2011\
-    initialization files are therefore missing."
-T003:
-  c: false
-  h: 3aa0eff5d6df71efa2b7224de35598b0b5210b1e01db0863c50747a4a2e90715
-  r: The repository contains a correctly configured `[tool.black]` and `[tool.ruff]`
-    section in `pyproject.toml`, but the required `.ruff.toml` file at the repository
-    root is missing. The task explicitly demands this file, so the implementation
-    is incomplete.
-T018:
-  c: false
-  h: 92b64f453ece96ac23941272b4b3d75eed48a670ace36e8cb163bab5e660ecff
-  r: "The provided `code/data/cleaner.py` includes the required validation functions,\
-    \ but the snippet ends before any processing routine that would flag invalid studies\
-    \ and write entries to `data/raw/excluded_studies.log`. Moreover, the `excluded_studies.log`\
-    \ file is absent from the repository. Without the logging implementation and the\
-    \ actual log artifact, the task\u2019s requirement is not satisfied."
 T021:
   c: false
-  h: 12791156c419519c85a0e0b9e59acd6dafa1e612c42e61aeb5342c5268910a1f
-  r: "The provided `scripts/verify_output.py` exists but is truncated and never loads\
-    \ or validates against `contracts/cleaned_study.schema.yaml` (the schema file\
-    \ is missing). Moreover, the required data artifacts `data/processed/cleaned_studies.csv`\
-    \ and `data/raw/excluded_studies.log` are absent, so the script cannot perform\
-    \ the existence or empty\u2011CSV checks described in the task. The missing schema\
-    \ file and data artifacts must be added and the script completed to satisfy the\
-    \ specification."
+  h: 5fb97f1f1bd4f67105ff3bc6a01df6f422a59a4d197d92e44e6a175c4a90f13d
+  r: "The repository contains `scripts/verify_output.py`, but the script is truncated\
+    \ and never validates the CSV against `contracts/cleaned_study.schema.yaml`, nor\
+    \ does it implement the required exit\u2011code logic. Moreover, the referenced\
+    \ schema file, the CSV, the exclusion log, and the mock JSON are all missing,\
+    \ so the script cannot perform the checks it is supposed to. The task\u2019s requirements\
+    \ are therefore not satisfied."
 T037:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

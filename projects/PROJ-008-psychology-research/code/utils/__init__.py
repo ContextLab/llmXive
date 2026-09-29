@@ -1,3 +1,3 @@
 """
-Utility modules for configuration, logging, and hashing.
+Utilities module for psychology research pipeline.
 """

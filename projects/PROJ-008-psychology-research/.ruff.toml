@@ -8,20 +8,10 @@ select = [
     "I",   # isort
 ]
 
-ignore = []
+# Ignore specific rules if necessary (none required by task spec)
+# ignore = []
 
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few specific directories that are not part of the project
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-]
-
-# Per-file ignores (if needed in the future)
-# per-file-ignores = {}
+[tool.ruff]
+# Ensure ruff also respects the target version and line length
+target-version = "py311"
+line-length = 88

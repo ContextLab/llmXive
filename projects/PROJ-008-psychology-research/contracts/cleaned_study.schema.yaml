@@ -1,6 +1,4 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Cleaned Study Schema for ASD Mindfulness Meta-Analysis"
-description: "JSON Schema (Draft 7) defining the structure of cleaned study records extracted from ClinicalTrials.gov and OSF."
 type: object
 required:
   - id
@@ -15,17 +13,16 @@ required:
 properties:
   id:
     type: string
-    description: "Unique identifier for the study (e.g., NCT number or OSF ID)"
+    description: "Unique identifier for the study"
   title:
     type: string
-    description: "Official title of the study"
+    description: "Title of the study"
   registry:
     type: string
     enum: ["ClinicalTrials.gov", "OSF"]
-    description: "Source registry where the study was registered"
+    description: "Source registry of the study"
   age_range:
     type: object
-    description: "Age range of participants in the study"
     required:
       - min
       - max
@@ -33,26 +30,26 @@ properties:
       min:
         type: integer
         minimum: 6
-        description: "Minimum age of participants (inclusive)"
+        description: "Minimum age of participants"
       max:
         type: integer
         maximum: 12
-        description: "Maximum age of participants (inclusive)"
+        description: "Maximum age of participants"
   diagnosis:
     type: string
     const: "ASD"
-    description: "Primary diagnosis of participants (Autism Spectrum Disorder)"
+    description: "Diagnosis of participants (Autism Spectrum Disorder)"
   outcomes:
     type: array
     items:
       type: string
-    description: "List of outcome measures assessed in the study"
+    description: "List of outcome measures reported"
   intervention_components:
     type: array
     items:
       type: string
       enum: ["breathing", "body scan", "mindful movement", "mindful eating", "none"]
-    description: "Specific mindfulness components included in the intervention"
+    description: "Mindfulness intervention components present in the study"
   delivery_format:
     type: string
     enum: ["caregiver-mediated", "child-led", "mixed", "not-reported"]
@@ -60,15 +57,19 @@ properties:
   follow_up:
     type: string
     nullable: true
-    description: "Duration of follow-up assessment (e.g., '3 months', '6 months')"
+    description: "Follow-up duration string (e.g., '3 months')"
   abstract_text:
     type: string
     nullable: true
-    description: "Abstract text of the study, if available"
+    description: "Full text of the study abstract"
   social_skill_domain:
     type: string
     enum: ["communication", "peer interaction", "emotional regulation", "mixed", "other"]
-    description: "Primary social skill domain targeted by the intervention"
+    description: "Primary social skill domain targeted"
+  domain_notes:
+    type: string
+    nullable: true
+    description: "Unmatched domain descriptions captured when no keyword match found"
   blinded_assessment_flag:
     type: boolean
     description: "True if outcome assessment was blinded to intervention status"

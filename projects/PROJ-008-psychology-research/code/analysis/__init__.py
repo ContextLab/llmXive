@@ -1,3 +1,3 @@
 """
-Analysis modules for meta-analysis and effect size calculations.
+Analysis module for psychology research pipeline.
 """

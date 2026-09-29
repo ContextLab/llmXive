@@ -1,3 +1,3 @@
 """
-Unit tests for individual functions and classes.
+Unit tests for psychology research pipeline.
 """

@@ -1,3 +1,3 @@
 """
-llmXive Psychology Research Package
+llmXive Psychology Research Project Code Package.
 """

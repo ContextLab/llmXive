@@ -1,3 +1,3 @@
 """
-Test suite for llmXive Psychology Research.
+Tests package for psychology research pipeline.
 """
