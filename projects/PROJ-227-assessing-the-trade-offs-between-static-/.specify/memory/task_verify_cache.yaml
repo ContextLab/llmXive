@@ -1,0 +1,43 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other evidence was provided to show that the required
+    folders (`projects/PROJ-227-assessing-the-trade-offs-between-static-/data/raw/`,
+    `data/processed/`, `state/`, `code/`, `tests/`, `tests/unit/`, `tests/integration/`,
+    `tests/contract/`) actually exist. The implementer must supply an `ls -R` (or
+    equivalent) output confirming the full directory tree.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file content or location is provided, and there is no output
+    showing `git check-ignore` confirming the specified paths are ignored. The required
+    artifact is missing, so the task is not satisfied.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Python\u202F3.11 virtual environment was provided (no `.venv`\
+    \ directory, activation script, or command output showing `python --version`),\
+    \ so the required artifact is missing. The implementer must create the virtualenv\
+    \ in the specified path and supply verification that activation yields Python\u202F\
+    3.11.x."
+T002b:
+  c: false
+  h: a72bf99e44b75c4abf68bdba7a6c56de364f298a88427269040959463ff49429
+  r: The required file `projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt`
+    does not exist, and no evidence is provided that `pip install -r requirements.txt`
+    (pointing to that file) succeeds. The present `requirements.txt` in the repository
+    root is irrelevant to the specified path.
+T004:
+  c: false
+  h: 6a688ff0dbeada6ccc7075ebfe36d3d5efa454ba19c9963bdf979be52128a1c9
+  r: "The required file at `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/config.yaml`\
+    \ is missing, and no evidence of the Python type\u2011checking verification is\
+    \ provided. The existing `code/config.yaml` does not satisfy the specified path\
+    \ requirement."
+T011:
+  c: false
+  h: ba30f31e4be47a397d39535dbdd72ae4c4cfc4068c05e1d46c74cfae1fa5e584
+  r: The repository contains a `download.py` script but the expected output file `data/raw/humaneval.json`
+    is absent, and there is no `state/checksums.json` showing a recorded checksum.
+    Consequently the required dataset file, record count verification, and checksum
+    logging are not present.

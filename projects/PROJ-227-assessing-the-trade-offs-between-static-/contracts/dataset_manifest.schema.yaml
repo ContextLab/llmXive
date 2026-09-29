@@ -1,31 +1,39 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Dataset Manifest Schema
-description: Manifest tracking all downloaded datasets and their stratification.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest Schema"
+description: "Schema for the combined dataset manifest"
 type: object
 required:
   - version
-  - generated_at
+  - created_at
   - total_records
   - strata
-  - records
 properties:
   version:
     type: string
-    description: Manifest format version
-  generated_at:
+    description: "Manifest version"
+  created_at:
     type: string
     format: date-time
-    description: Timestamp of manifest generation
+    description: "ISO 8601 timestamp of manifest creation"
   total_records:
     type: integer
-    minimum: 1
-    description: Total number of records in the manifest
+    minimum: 0
+    description: "Total number of records in the manifest"
   strata:
     type: object
-    description: Counts per language stratum
+    description: "Counts per language/stratum"
     additionalProperties:
-      type: integer
-      minimum: 0
+      type: object
+      properties:
+        count:
+          type: integer
+        static_only_count:
+          type: integer
+        dynamic_eligible_count:
+          type: integer
+  limitation_report:
+    type: string
+    description: "Optional report on data limitations (e.g., sample size)"
   records:
     type: array
     items:
@@ -36,25 +44,17 @@ properties:
         - source
         - stratum
         - static_only
-        - file_path
       properties:
         id:
           type: string
         language:
           type: string
-          enum: [python, javascript, java]
         source:
           type: string
-          enum: [humaneval, codexglue, the-stack]
         stratum:
           type: string
-          description: Stratification label (e.g., "python", "javascript", "java")
         static_only:
           type: boolean
-          description: Whether this record is excluded from dynamic analysis
-        file_path:
+        path:
           type: string
-          description: Relative path to the raw data file
-        checksum:
-          type: string
-          description: SHA256 checksum of the record data
+additionalProperties: false

@@ -15,6 +15,7 @@ dependencies = [
     "requests==2.31.0",
     "pyyaml==6.0.1",
     "psutil==5.9.5",
+    "jsonschema==4.19.0"
 ]
 
 [tool.black]
@@ -35,6 +36,7 @@ exclude = '''
 )/
 '''
 
-[tool.isort]
-profile = "black"
-line_length = 88
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v"

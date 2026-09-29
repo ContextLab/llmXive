@@ -51,7 +51,7 @@ The System MUST be able to view aggregated metrics and statistical significance 
 
 1. **Given** analysis logs exist, **When** the aggregation script runs, **Then** it MUST calculate precision, recall, and F1-score for both methods.
 2. **Given** aggregated metrics exist, **When** the statistical test runs, **Then** it MUST apply McNemar's test and report a p-value.
-3. **Given** the statistical test completes, **When** the sensitivity analysis runs, **Then** it MUST report detection rates for α ∈ {0.01, 0.05, 0.1}.
+3. **Given** the statistical test completes, **When** the sensitivity analysis runs, **Then** it MUST report detection rates for α ∈ {, 0.05, 0.1}.
 
 ---
 

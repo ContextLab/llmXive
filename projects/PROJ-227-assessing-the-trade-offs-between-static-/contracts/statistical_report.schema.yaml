@@ -1,72 +1,44 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Statistical Report Schema
-description: Schema for the final statistical analysis report.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Report Schema"
+description: "Schema for final statistical analysis results"
 type: object
 required:
-  - report_version
+  - report_id
   - generated_at
   - methodology
   - metrics
-  - correlations
-  - stratified_results
-  - sensitivity_analysis
 properties:
-  report_version:
+  report_id:
     type: string
-    description: Version of the report format
+    description: "Unique identifier for the report"
   generated_at:
     type: string
     format: date-time
-    description: Timestamp of report generation
+    description: "ISO 8601 timestamp of generation"
   methodology:
-    type: object
-    required:
-      - static_metric
-      - dynamic_metric
-      - correlation_test
-    properties:
-      static_metric:
-        type: string
-        description: Metric used for static analysis (e.g., "Issue Detection Rate")
-      dynamic_metric:
-        type: string
-        description: Metric used for dynamic analysis (e.g., "Pass Rate")
-      correlation_test:
-        type: string
-        description: Statistical test used (e.g., "Spearman", "Chi-squared")
-      deviations:
-        type: array
-        items:
-          type: string
-        description: List of deviations from original spec (e.g., "SPEC_AMENDMENT_001")
+    type: string
+    description: "Description of statistical methods used"
   metrics:
     type: object
     properties:
-      overall_issue_detection_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-      overall_pass_rate:
-        type: number
-        minimum: 0
-        maximum: 1
-      sample_size:
-        type: integer
-        minimum: 1
-  correlations:
-    type: object
-    properties:
-      spearman:
+      issue_detection_rate:
+        type: object
+        description: "Static analysis issue detection rates"
+      pass_rate:
+        type: object
+        description: "Dynamic analysis pass rates"
+      correlation:
         type: object
         properties:
+          method:
+            type: string
           coefficient:
             type: number
           p_value:
             type: number
-            minimum: 0
-            maximum: 1
-          significant:
-            type: boolean
+          sample_size:
+            type: integer
+        description: "Correlation results (e.g., Spearman)"
       chi_squared:
         type: object
         properties:
@@ -74,52 +46,33 @@ properties:
             type: number
           p_value:
             type: number
-            minimum: 0
-            maximum: 1
           degrees_of_freedom:
             type: integer
-          significant:
-            type: boolean
+        description: "Chi-squared test results"
   stratified_results:
-    type: object
-    description: Results broken down by language
-    additionalProperties:
+    type: array
+    items:
       type: object
       properties:
-        sample_size:
-          type: integer
-        issue_detection_rate:
-          type: number
-        pass_rate:
-          type: number
-        correlation:
+        stratum:
+          type: string
+        results:
           type: object
+    description: "Results broken down by stratum (language)"
   sensitivity_analysis:
     type: object
-    description: Results for different alpha levels
-    properties:
-      alpha_levels:
-        type: array
-        items:
-          type: number
-        description: List of alpha levels tested (e.g., [0.01, 0.05, 0.1])
-      results_by_alpha:
-        type: object
-        additionalProperties:
-          type: object
-          properties:
-            significant:
-              type: boolean
-            effect_size:
-              type: number
+    description: "Results for different alpha levels"
   corrections:
     type: object
     properties:
-      bonferroni:
-        type: object
-        properties:
-          adjusted_alpha:
-            type: number
-          applied_to:
-            type: string
-            description: Description of what the correction was applied to
+      method:
+        type: string
+      adjusted_p_values:
+        type: array
+        items:
+          type: number
+    description: "Multiple testing corrections applied"
+  notes:
+    type: string
+    description: "Additional notes on methodology or limitations"
+additionalProperties: false

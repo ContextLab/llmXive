@@ -1704,3 +1704,711 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T00:54:57Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Plan approach uses Issue Detection Rate and Spearman/Chi-squared
+  claim_id: c_49057ad8
+  context: The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's
+    test. The Plan explicitly rejects these as scientifically invalid.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_approach_uses_Issue_Detection_Rate_and_Spearman/Chi-squ
+  kind: entity_fact
+  raw_text: The tasks below implement the Plan's valid approach (Issue Detection Rate,
+    Spearman/Chi-squared) directly.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:29:02Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Precision Recall F1 not used for static analysis due to lack of security
+    ground truth
+  claim_id: c_1ecb9fd4
+  context: 'Statistical Validity: No Precision/Recall/F1 for static analysis (no security
+    ground truth). Use Issue Detection Rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Precision_Recall_F1_not_used_for_static_analysis_due_to_lack
+  kind: entity_fact
+  raw_text: No Precision/Recall/F1 for static analysis (no security ground truth).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:29:35Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: McNemar's test not used due to distinct constructs
+  claim_id: c_9487f518
+  context: No McNemar's test (distinct constructs). Use Spearman/Chi-squared.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P6366: 186282968'
+      source_id: Q1434261
+      url: https://www.wikidata.org/wiki/Q1434261
+      value: '186282968'
+    filled: true
+  kind: entity_fact
+  raw_text: No McNemar's test (distinct constructs).
+  resolved_value: '186282968'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T18:29:48Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Issue Detection Rate used for static analysis
+  claim_id: c_171acbc7
+  context: Use Issue Detection Rate. No McNemar's test (distinct constructs).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Issue_Detection_Rate_used_for_static_analysis
+  kind: entity_fact
+  raw_text: Use Issue Detection Rate.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:30:22Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Spearman and Chi-squared tests used
+  claim_id: c_f8ec0823
+  context: Use Issue Detection Rate. No McNemar's test (distinct constructs). Use
+    Spearman/Chi-squared.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: chi-square test
+      source_id: Q1071004
+      url: https://www.wikidata.org/wiki/Q1071004
+      value: chi-square test
+    filled: true
+  kind: entity_fact
+  raw_text: Use Spearman/Chi-squared.
+  resolved_value: chi-square test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T18:30:35Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Tasks run on free CPU-only CI without GPU
+  claim_id: c_0380669b
+  context: 'Critical Constraint: All tasks must run on free CPU-only CI with limited
+    core counts and memory, without GPU acceleration.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_run_on_free_CPU-only_CI_without_GPU
+  kind: entity_fact
+  raw_text: All tasks must run on free CPU-only CI with limited core counts and memory,
+    without GPU acceleration.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:31:10Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: No 8-bit or 4-bit quantization or heavy model training
+  claim_id: c_2c297513
+  context: No 8-bit/4-bit quantization or heavy model training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: No 8-bit/4-bit quantization or heavy model training.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:31:33Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Datasets from HuggingFace and GitHub
+  claim_id: c_68e3f0a7
+  context: 'Data Integrity: All datasets must be from real, verified sources (HuggingFace,
+    GitHub).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_from_HuggingFace_and_GitHub
+  kind: entity_fact
+  raw_text: All datasets must be from real, verified sources (HuggingFace, GitHub).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:32:02Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: No synthetic data generation
+  claim_id: c_8b5a2f38
+  context: No synthetic data generation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_synthetic_data_generation
+  kind: entity_fact
+  raw_text: No synthetic data generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:32:25Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Plan methodology followed over Spec
+  claim_id: c_b45860bf
+  context: Spec FR-004/FR-005/FR-008 are noted as contradictory in the Plan, and the
+    Plan's methodology is followed.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_methodology_followed_over_Spec
+  kind: entity_fact
+  raw_text: The Plan's methodology is followed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:33:00Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: No security ground truth exists for static analysis
+  claim_id: c_4c0ecae3
+  context: No Precision/Recall/F1 for static analysis (no security ground truth).
+    Use Issue Detection Rate. {{claim:c_9487f518}} {{claim:c_f8ec0823}} (Wikidata
+    Q1071004, https://www.wikidata.org/wiki/Q1071004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_security_ground_truth_exists_for_static_analysis
+  kind: entity_fact
+  raw_text: No security ground truth exists for static analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:34:50Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Plan rejects Precision/Recall/F1 and McNemar's test as scientifically
+    invalid
+  claim_id: c_47bd5343
+  context: The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's
+    test. The Plan explicitly rejects these as scientifically invalid.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_rejects_Precision/Recall/F1_and_McNemar's_test_as_scien
+  kind: entity_fact
+  raw_text: The Plan explicitly rejects Precision/Recall/F1 and McNemar's test as
+    scientifically invalid for this context.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:37:15Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Plan implements Issue Detection Rate and Spearman/Chi-squared tests
+  claim_id: c_8512547a
+  context: The tasks below implement the Plan's valid approach (Issue Detection Rate,
+    Spearman/Chi-squared) directly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_implements_Issue_Detection_Rate_and_Spearman/Chi-square
+  kind: entity_fact
+  raw_text: The Plan implements Issue Detection Rate and Spearman/Chi-squared tests
+    as the valid approach.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:37:45Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Wikidata Q1071004 linked to statistical validity constraint
+  claim_id: c_174600aa
+  context: No Precision/Recall/F1 for static analysis (no security ground truth).
+    Use Issue Detection Rate. {{claim:c_9487f518}} {{claim:c_f8ec0823}} (Wikidata
+    Q1071004, https://www.wikidata.org/wiki/Q1071004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q1071004_linked_to_statistical_validity_constraint
+  kind: entity_fact
+  raw_text: Wikidata Q1071004 is associated with the statistical validity constraint
+    regarding Precision/Recall/F1.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:38:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Wikidata Q1071004 reference for statistical validity
+  claim_id: c_8456728c
+  context: 'Statistical Validity: No Precision/Recall/F1 for static analysis (no security
+    ground truth). Use Issue Detection Rate. {{claim:c_9487f518}} {{claim:c_f8ec0823}}
+    (Wikidata Q1071004, https://www.wikidata.org/wiki/Q1071004)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q1071004_reference_for_statistical_validity
+  kind: entity_fact
+  raw_text: The document mentions 'Wikidata Q1071004' as a reference for statistical
+    validity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:38:29Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 2
+  canonical: Plan rejects Precision/Recall/F1 and McNemar's test for static analysis
+  claim_id: c_40b98983
+  context: The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's
+    test. The Plan explicitly rejects these as scientifically invalid. The tasks below
+    implement the Plan's valid approach (Issue Detection Rate, Spearman/Chi-squared)
+    directly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_rejects_Precision/Recall/F1_and_McNemar's_test_for_stat
+  kind: entity_fact
+  raw_text: The Plan explicitly rejects Precision/Recall/F1 and McNemar's test as
+    scientifically invalid for static analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:41:03Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: No security ground truth exists for static analysis
+  claim_id: c_96d1d5f7
+  context: 'Statistical Validity: No Precision/Recall/F1 for static analysis (no security
+    ground truth). Use Issue Detection Rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_security_ground_truth_exists_for_static_analysis
+  kind: entity_fact
+  raw_text: No security ground truth exists for static analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:41:06Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Wikidata Q1071004 static analysis
+  claim_id: c_9c3e8d82
+  context: Use Issue Detection Rate. {{claim:c_9487f518}} {{claim:c_f8ec0823}} (Wikidata
+    Q1071004, https://www.wikidata.org/wiki/Q1071004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q1071004_static_analysis
+  kind: entity_fact
+  raw_text: Wikidata ID Q1071004 is associated with the concept of static analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:41:22Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Plan rejects Precision/Recall/F1 and McNemar's test for static analysis
+  claim_id: c_c4e7bcff
+  context: The Spec (FR-004, FR-005) originally demanded Precision/Recall/F1 and McNemar's
+    test. The Plan explicitly rejects these as scientifically invalid.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_rejects_Precision/Recall/F1_and_McNemar's_test_for_stat
+  kind: entity_fact
+  raw_text: The Plan explicitly rejects Precision/Recall/F1 and McNemar's test as
+    scientifically invalid for static analysis due to lack of security ground truth.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:42:49Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Plan implements Issue Detection Rate and Spearman/Chi-squared correlation
+  claim_id: c_640a5c52
+  context: The tasks below implement the Plan's valid approach (Issue Detection Rate,
+    Spearman/Chi-squared) directly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_implements_Issue_Detection_Rate_and_Spearman/Chi-square
+  kind: entity_fact
+  raw_text: The Plan implements Issue Detection Rate and Spearman/Chi-squared correlation
+    as the valid approach for assessing static and dynamic analysis trade-offs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:43:33Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Wikidata Q1071004 cited for statistical validity
+  claim_id: c_d2968cfe
+  context: 'Statistical Validity: No Precision/Recall/F1 for static analysis (no security
+    ground truth). Use Issue Detection Rate. {{claim:c_9487f518}} {{claim:c_f8ec0823}}
+    (Wikidata Q1071004, https://www.wikidata.org/wiki/Q1071004)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q1071004_cited_for_statistical_validity
+  kind: entity_fact
+  raw_text: Wikidata Q1071004 is cited regarding statistical validity in the context
+    of static analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:43:50Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Plan rejects Precision, Recall, F1, and McNemar's test as scientifically
+    invalid
+  claim_id: c_5a56151e
+  context: The tasks below implement the Plan's valid approach (Issue Detection Rate,
+    Spearman/Chi-squared) directly. The Spec (FR-004, FR-005) originally demanded
+    Precision/Recall/F1 and McNemar's test. The Plan explicitly rejects these as scientifically
+    invalid.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plan_rejects_Precision,_Recall,_F1,_and_McNemar's_test_as_sc
+  kind: entity_fact
+  raw_text: The Plan explicitly rejects these as scientifically invalid.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:45:31Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Precision, Recall, and F1 are not used for static analysis due to lack
+    of security ground truth
+  claim_id: c_05a92810
+  context: 'Statistical Validity: No Precision/Recall/F1 for static analysis (no security
+    ground truth). Use Issue Detection Rate.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Precision,_Recall,_and_F1_are_not_used_for_static_analysis_d
+  kind: entity_fact
+  raw_text: No Precision/Recall/F1 for static analysis (no security ground truth).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:45:33Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Datasets must originate from HuggingFace or GitHub
+  claim_id: c_e046c650
+  context: 'Data Integrity: All datasets must be from real, verified sources (HuggingFace,
+    GitHub). No synthetic data generation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_must_originate_from_HuggingFace_or_GitHub
+  kind: entity_fact
+  raw_text: All datasets must be from real, verified sources (HuggingFace, GitHub).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:45:35Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation is prohibited
+  claim_id: c_2dd18507
+  context: 'Data Integrity: All datasets must be from real, verified sources (HuggingFace,
+    GitHub). No synthetic data generation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_generation_is_prohibited
+  kind: entity_fact
+  raw_text: No synthetic data generation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:45:37Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 0
+  canonical: Use psutil to send SIGKILL on timeout for dynamic execution
+  claim_id: c_87eb9887
+  context: 'Implement timeout handling for dynamic execution: Enforce a configurable
+    time limit per snippet. Use psutil to send SIGKILL on timeout. Output: Log timeout
+    events to data/logs/timeouts.json. Verify: Process is terminated after a predefined
+    duration.; log entry contains SIGKILL and duration.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P646: /m/07klcj'
+      source_id: Q1753577
+      url: https://www.wikidata.org/wiki/Q1753577
+      value: /m/07klcj
+    filled: true
+  kind: entity_fact
+  raw_text: Use psutil to send SIGKILL on timeout.
+  resolved_value: /m/07klcj
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T18:46:43Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Terminate analysis process after 30s grace period if CPU exceeds 2 cores
+    or RAM exceeds 7GB
+  claim_id: c_7c8e5c10
+  context: 'Implement resource constraint wrapper: Create projects/PROJ-227-assessing-the-trade-offs-between-static-/code/resource_guard.py
+    using psutil (monitoring and process termination). Logic: Monitor CPU/RAM. If
+    CPU > 2 cores or RAM > 7GB, log warning and terminate the current analysis process
+    (SIGKILL) after 30s grace period.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If CPU > 2 cores or RAM > 7GB, log warning and terminate the current analysis
+    process (SIGKILL) after 30s grace period.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:46:44Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Mark code snippets as untestable_dynamic if no test exists
+  claim_id: c_475f8f3e
+  context: 'Implement code/dynamic_analysis.py to execute unit tests via pytest (Python),
+    jest (JS), and junit (Java). Logic: Mark snippets as untestable_dynamic if no
+    test exists.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mark_code_snippets_as_untestable_dynamic_if_no_test_exists
+  kind: entity_fact
+  raw_text: Mark snippets as untestable_dynamic if no test exists.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:47:12Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Execute statistical tests for each alpha in a set of representative significance
+    levels
+  claim_id: c_b1789fdc
+  context: 'Implement sensitivity analysis sweep: Execute statistical tests for each
+    alpha in a set of representative significance levels. as required by FR-007. Logic:
+    If n < 30 for a stratum at a given alpha, skip test, log limitation, and report
+    N/A for that stratum.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_statistical_tests_for_each_alpha_in_a_set_of_represe
+  kind: entity_fact
+  raw_text: Execute statistical tests for each alpha in a set of representative significance
+    levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:47:44Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Flag limitation report if total sample count is less than 500
+  claim_id: c_81512550
+  context: 'Implement stratification and manifest generation: Combine all downloaded
+    data into data/manifest.csv with columns id, language, source, stratum, static_only
+    (bool). Dependency: MUST wait for COMPLETION of T011, T012, and T013. Logic: Count
+    samples per language. Verify: If total count < 500, record actual count and flag
+    limitation_report: Sample size < 500 in manifest; DO NOT abort.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3879: 8615'
+      source_id: Q111072551
+      url: https://www.wikidata.org/wiki/Q111072551
+      value: '8615'
+    filled: true
+  kind: magnitude
+  raw_text: 'If total count < 500, record actual count and flag limitation_report:
+    Sample size < 500 in manifest.'
+  resolved_value: '8615'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T18:47:55Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Run tests per language if sample count is at least 30
+  claim_id: c_204f3014
+  context: 'Implement stratification logic to run tests per language (if n >= 30).
+    Output: data/processed/stratified_test_results.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_tests_per_language_if_sample_count_is_at_least_30
+  kind: magnitude
+  raw_text: If n >= 30, run tests per language.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:49:05Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Skip statistical test and report N/A if sample count is less than 30
+    for a stratum
+  claim_id: c_4d7fd92c
+  context: 'Implement sensitivity analysis sweep: Execute statistical tests for each
+    alpha in a set of representative significance levels. as required by FR-007. Logic:
+    If n < 30 for a stratum at a given alpha, skip test, log limitation, and report
+    N/A for that stratum.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Skip_statistical_test_and_report_N/A_if_sample_count_is_less
+  kind: magnitude
+  raw_text: If n < 30 for a stratum at a given alpha, skip test, log limitation, and
+    report N/A for that stratum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:49:52Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Report includes rates for exactly three values or N/A if data insufficient
+  claim_id: c_060c1603
+  context: 'Implement sensitivity analysis sweep: Execute statistical tests for each
+    alpha in a set of representative significance levels. as required by FR-007. Logic:
+    If n < 30 for a stratum at a given alpha, skip test, log limitation, and report
+    N/A for that stratum. Output: data/processed/detection_rate_variation.json containing
+    comparative data. Verify: Report includes rates for exactly these three values
+    (or N/A with reason if data insufficient).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_rates_for_exactly_three_values_or_N/A_if_dat
+  kind: entity_fact
+  raw_text: Report includes rates for exactly these three values (or N/A with reason
+    if data insufficient).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:50:37Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: 'Retry configuration: max 3 retries, initial delay 2 seconds, multiplier
+    2.0'
+  claim_id: c_86e607bf
+  context: 'Implement code/static_analysis.py with CodeQL CLI execution wrapper. Retry:
+    Max 3 retries, initial delay 2s, multiplier 2.0. Dependency: Ensure contracts/analysis_log.schema.yaml
+    (T005) exists before validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 3 retries, initial delay 2s, multiplier 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:51:04Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: Fetch HumanEval Python dataset from openai/human-eval
+  claim_id: c_93b625b3
+  context: 'Implement code/download.py to fetch HumanEval (Python) from openai/human-eval
+    to data/raw/humaneval.json. Verify: File exists, contains >=100 records with keys
+    prompt and test. Calculate checksum and record in state/checksums.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_HumanEval_Python_dataset_from_openai/human-eval
+  kind: entity_fact
+  raw_text: Fetch HumanEval (Python) from openai/human-eval to data/raw/humaneval.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:51:29Z'
+- artifact_path: projects/PROJ-227-assessing-the-trade-offs-between-static-/specs/001-assessing-the-trade-offs-between-static/tasks.md
+  attempts: 1
+  canonical: HumanEval file contains at least 100 records with prompt and test keys
+  claim_id: c_00c74272
+  context: 'Implement code/download.py to fetch HumanEval (Python) from openai/human-eval
+    to data/raw/humaneval.json. Verify: File exists, contains >=100 records with keys
+    prompt and test. Calculate checksum and record in state/checksums.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/HumanEval_file_contains_at_least_100_records_with_prompt_and
+  kind: magnitude
+  raw_text: File contains >=100 records with keys prompt and test.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T18:52:00Z'

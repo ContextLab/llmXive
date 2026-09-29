@@ -4,10 +4,7 @@ The implementer repeatedly failed the verification checks for the task(s) below.
 
 ## Repeatedly-unverifiable tasks
 
-- `T001` (rejected 1x): No evidence of the required directories (`projects/PROJ-227-assessing-the-trade-offs-between-static-/data/raw/`, `data/processed/`, `state/`, `code/`, `tests/`) is provided; the implementer has not shown that the project structure exists or contains any files.
-- `T002` (rejected 1x): declared artifact(s) missing/empty/invalid: projects/PROJ-227-assessing-the-trade-offs-between-static-/requirements.txt
-- `T004` (rejected 1x): The required file at `projects/PROJ-227-assessing-the-trade-offs-between-static-/code/config.yaml` is missing, and no evidence of the Python type‑checking verification is provided. The existing `code/config.yaml` does not satisfy the specified path requirement.
-- `T005` (rejected 1x): declared artifact(s) missing/empty/invalid: schema.yaml
+- `T006` (rejected 1x): declared artifact(s) missing/empty/invalid: data/logs/pipeline.log
 
 ## Required change
 

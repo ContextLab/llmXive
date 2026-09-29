@@ -1,0 +1,25 @@
+# Data directories (raw and processed)
+data/raw/*
+data/processed/*
+
+# Logs
+*.log
+
+# Python cache
+__pycache__/
+
+# Virtual environment
+.venv/
+
+# State files (keep template, ignore others)
+state/*.yaml
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor specific
+.idea/
+.vscode/
+*.swp
+*.swo
