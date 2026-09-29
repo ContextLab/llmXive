@@ -15,9 +15,9 @@ This feature implements a rigorous experimental pipeline to validate the "Hybrid
 **Testing**: `pytest` with `hypothesis` (strategies derived from JSON schemas in `contracts/`)  
 **Target Platform**: Linux (GitHub Actions Free Tier: multiple CPU, 7GB RAM)  
 **Project Type**: Data Science / Experimental Research Pipeline  
-**Performance Goals**: Complete full experiment (3 chars × 50 probes × 3 conditions) within 6 hours on CPU.  
+**Performance Goals**: Complete full experiment (chars × 50 probes × conditions) within 6 hours on CPU.  
 **Constraints**: No GPU access (CPU-only); models must be quantized (low-bit) to fit constrained RAM resources.  
-**Scale/Scope**: Several public-domain characters, a set of probes, ~450 model generations, 1 statistical test.
+**Scale/Scope**: Several public-domain characters, a set of probes, A substantial number of model generations, statistical test.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
