@@ -63,12 +63,13 @@
 - [X] T007 [P] Create `AnalysisResult` and `SensitivitySweep` dataclasses in `code/src/models.py`
 - [X] T008 [P] Implement CLI argument parser in `code/src/cli.py` supporting `--mode`, `--input`, `--sweep_thresholds`, `--seed`, and `--n` (for synthetic data size). **Do NOT** include `--concept_definition` as it is out of scope per Spec and Plan.
 - [X] T009 [P] Setup deterministic random seed management in `code/src/utils.py` for reproducibility (numpy, python)
-- [X] T014 [US1] Implement `SyntheticDataGenerator` class in `code/src/synthetic_gen.py` to generate datasets with configurable mean differences, sample sizes, and ground truths for statistical validation (FR-009). **Must include**:
- 1. Accept parameters: `n`, `seed`, `mean_diff_embodied`, `mean_diff_static` (via CLI or config, NOT hardcoded).
- 2. Generate a CSV file at `data/synthetic/generated_data.csv` with columns `pre_test_score`, `post_test_score`, `instruction_type`.
- 3. Ensure generation is deterministic based on `seed`.
- 4. **Do NOT** generate `mapping_log` or any physics-to-math derivation files. The Spec FR-009 only requires generating synthetic data with known ground truths for pipeline validation.
- **Dependency**: T006 (Base Schema), T008 (CLI Args).
+- [X] T014a [P] Implement parameter parsing in `code/src/synthetic_gen.py` to accept `n`, `seed`, `mean_diff_embodied`, `mean_diff_static` via CLI or config. **Dependency**: T008 (CLI Args).
+- [X] T014b Implement `SyntheticDataGenerator` class in `code/src/synthetic_gen.py` to generate datasets with configurable mean differences, sample sizes, and ground truths for statistical validation (FR-009). **Must include**:
+ 1. Generate a CSV file at `data/synthetic/generated_data.csv` with columns `pre_test_score`, `post_test_score`, `instruction_type`.
+ 2. Ensure generation is deterministic based on `seed`.
+ 3. **MUST generate `mapping_log.json` ONLY when running in `--mode=synthetic`**. This log maps the synthetic physics parameters to the abstract concept variables to satisfy Constitution Principle VI (Simulation-Pedagogy Alignment) for the synthetic mode. **Do NOT** generate `mapping_log` for `--mode=secondary_analysis`.
+ 4. The `mapping_log` must contain the derivation log linking physical variables to abstract concept variables as required by the Constitution for synthetic mode.
+ **Dependency**: T006 (Base Schema), T014a (Parameter Parsing). **Note**: This task is NOT parallel with T006; T006 must be complete before T014b starts.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,6 +87,12 @@
 
 - [X] T010 [P] [US1] Unit test for `DatasetRecord` validation in `code/tests/test_models.py`
 - [X] T011 [P] [US1] Unit test for `SyntheticDataGenerator` output schema in `code/tests/test_synthetic_gen.py`
+- [X] T041 [P] [US1] Unit test for `handle_fallback_logic` error path in `code/tests/test_data_loader.py`. **Must verify**:
+ 1. When `instruction_type` is missing and synthetic generation fails, The system exits with a non-zero error code..
+ 2. The error message printed to stderr is exactly: `Primary research question cannot be answered: missing instruction_type and synthetic generation failed`.
+ 3. The error is logged to `data/derivation_logs/skipped_records.log` in JSONL format with `reason: "synthetic_gen_failed"`.
+ 4. **Integration Requirement**: The test MUST mock `SyntheticDataGenerator.generate` to simulate a failure (raise an exception) and verify that `data_loader.handle_fallback_logic` correctly propagates this failure to the CLI exit code 1 and logs the error as specified.
+ **Dependency**: T012c (Implementation of fallback logic).
 
 ### Implementation for User Story 1
 
@@ -94,13 +101,13 @@
  2. Validate presence of required columns.
  3. Return dataset if valid.
  **Output**: Dataset object.
- **Dependency**: T006 (DatasetRecord), T008 (CLI Args), T014 (SyntheticDataGenerator) for fallback context.
+ **Dependency**: T006 (DatasetRecord), T008 (CLI Args).
 - [X] T012c [US1] Implement `handle_fallback_logic` in `code/src/data_loader.py` to:
- 1. If `instruction_type` column is missing, invoke `SyntheticDataGenerator.generate(n, seed, mean_diff_embodied, mean_diff_static)` (T014) to create a labeled dataset for analysis. Parameters must be sourced from CLI arguments or a config file, NOT hardcoded.
+ 1. If `instruction_type` column is missing in public data, invoke `SyntheticDataGenerator.generate(n, seed, mean_diff_embodied, mean_diff_static)` (T014) to create a labeled dataset for analysis. Parameters must be sourced from CLI arguments or a config file, NOT hardcoded.
  2. If generation fails, **MUST** exit with code 1 and **MUST** print to stderr: `Primary research question cannot be answered: missing instruction_type and synthetic generation failed`.
- 3. Log error to `data/derivation_logs/skipped_records.log` in JSONL format with schema: `{"timestamp": "<ISO8601>", "reason": "synthetic_gen_failed", "dataset_source": "<url_or_path>"}` (FR-008).
+ 3. Log error to `data/derivation_logs/skipped_records.log` in JSONL format with exact schema: `{"timestamp": "<ISO8601>", "reason": "synthetic_gen_failed", "dataset_source": "<url_or_path>"}` (FR-008).
  **Output**: `data/processed/validated_fallback.csv` (if successful) or exit code 1.
- **Dependency**: T014 (Phase 2) must be implemented first. T012a (load_public_dataset).
+ **Dependency**: T014b (Phase 2) must be implemented and complete before T012c can execute. **Logic Branch**: Conditional on T012a validation failure (missing `instruction_type`).
 - [X] T013 [US1] Implement `calculate_gain_scores` in `code/src/data_loader.py` to compute `post - pre`, excluding rows with missing values and logging them to `data/derivation_logs/skipped_records.log` (FR-001).
 - [X] T015 [US1] Implement CLI entry point logic in `code/src/cli.py` to switch between `--mode=secondary_analysis` and `--mode=synthetic` and write output to `data/processed/` or `data/synthetic/` (depends on T008, T014, T012a, T012c). **Dependency**: Phase 2 (Foundational) completion.
 - [X] T017a [P] [US1] Configure logging handler in `code/src/logging_config.py` to write specifically to `data/derivation_logs/skipped_records.log` in JSONL format. **Dependency**: T005 (logging configuration).
@@ -110,7 +117,7 @@
 
 ## Phase 4: User Story 2 - Statistical Comparison and Inference (Priority: P2)
 
-**Goal**: Perform independent samples t-tests as the primary statistical method (Spec FR-002) and frame results as associational.
+**Goal**: Perform ANCOVA as the primary analysis method (per Plan) and t-tests as a secondary descriptive method (per Spec), framing results as associational.
 
 **Independent Test**: The system can be tested by running the analysis script on a synthetic dataset where the "embodied" group has a known mean gain and the "static" group has a known mean gain., verifying that the output reports a t-statistic and p-value consistent with these inputs.
 
@@ -121,22 +128,32 @@
 
 ### Implementation for User Story 2
 
-- [X] T020a [US2] Implement `run_t_test` in `code/src/stats_engine.py` to perform Student's or Welch's t-test on gain scores based on Levene's test result (FR-002). **This is the PRIMARY and ONLY statistical method** as mandated by Spec FR-002.
-- [X] T021 [US2] Implement `calculate_effect_size` (Cohen's d) and `confidence_interval` in `code/src/stats_engine.py` (FR-002).
-- [X] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on number of concepts tested (FR-004).
+- [X] T020a [US2] Implement `run_t_test` in `code/src/stats_engine.py` to perform Student's or Welch's t-test on gain scores based on Levene's test result (FR-002). **This is the SECONDARY descriptive method** as mandated by Spec FR-002. **Note**: ANCOVA is the primary method (see T020b).
+- [X] T020b [US2] Implement `run_ancova` in `code/src/stats_engine.py` to perform Analysis of Covariance (ANCOVA) adjusting for pre-test scores. **This is the PRIMARY analysis method** per Plan Complexity Tracking to address regression to the mean in observational data. Output must include adjusted means, F-statistic, p-value, and effect size.
+- [X] T021a [US2] Implement `calculate_effect_size` (Cohen's d) and `confidence_interval` in `code/src/stats_engine.py` (FR-002).
+- [X] T021b [US2] Implement `detect_multiple_concepts` in `code/src/stats_engine.py` to scan the input dataset for columns representing distinct mathematical concepts (e.g., columns containing 'concept' or 'topic' in name, or distinct groups). **Logic**:
+ 1. Identify columns that represent distinct concepts to be tested.
+ 2. Count the number of concepts (N_concepts).
+ 3. Return N_concepts and a list of concept identifiers.
+ **Output**: N_concepts integer and list of concept names.
+ **Dependency**: T012a (Data Loading). **Purpose**: Enables Bonferroni correction for multiple comparisons.
+- [X] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on N_concepts (from T021b). **Logic**: α_adj = 0.05 / N_concepts. **Dependency**: T021b.
 - [X] T023 [US2] Implement `frame_inference` in `code/src/stats_engine.py` to explicitly label all findings as "associational" and include methodological caveats (FR-003).
 - [X] T024 [US2] Implement `check_collinearity` in `code/src/stats_engine.py` to detect |r| > 0.8 between predictors and report diagnostics (FR-006).
 - [X] T025 [US2] Implement `calculate_power` in `code/src/stats_engine.py` to compute achieved power and flag "underpowered" results if < 0.80 (FR-007).
-- [X] T026a [US2] Implement `aggregate_stats_results` in `code/src/stats_engine.py` to combine t-test (primary), effect sizes, power, and collinearity diagnostics into a single dictionary structure.
+- [X] T026a-setup [P] [US2] Ensure `data/processed/` directory exists before writing results. **Logic**: Check if `data/processed/` exists; if not, create it. **Dependency**: T001b (Directory creation). **Purpose**: Guarantees infrastructure for T026b.
+- [X] T026a [US2] Implement `aggregate_stats_results` in `code/src/stats_engine.py` to combine ANCOVA (primary), t-test (secondary), effect sizes, power, and collinearity diagnostics into a single dictionary structure.
 - [X] T026b [US2] Implement `write_partial_results` in `code/src/stats_engine.py` to write the aggregated dictionary from T026a to `data/processed/results_us2.json`. **Schema Keys**:
- - `t_statistic` (PRIMARY)
- - `p_value` (PRIMARY)
+ - `ancova_results` (PRIMARY: F-statistic, p-value, adjusted_means)
+ - `t_statistic` (SECONDARY)
+ - `p_value` (SECONDARY)
+ - `corrected_p_value` (Bonferroni-adjusted, required when N_concepts > 1)
  - `effect_size_cohen_d`
  - `confidence_interval`
  - `inference_framing` (Must contain the full explanatory statement from FR-003: "Findings are associational; no causal inference is drawn due to observational nature of data.")
  - `power_analysis`
  - `collinearity_diagnostics`
- **Dependency**: T023, T026a. **Purpose**: Enables independent testing of US2 without requiring US3.
+ **Dependency**: T023, T026a, T021b, T022, T026a-setup. **Purpose**: Enables independent testing of US2 without requiring US3. **Note**: This task MUST implement the file writing logic and create `results_us2.json`.
 
 ---
 
@@ -152,21 +169,33 @@
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to: (1) check total N; (2) if N < 30, return early with `insufficient_data` flag; (3) if N >= 30, iterate over the fixed set of thresholds **[0.01, 0.05, 0.10]** (linked to CLI argument `--sweep_thresholds` per FR-005), calculate effect sizes, aggregate results into `SensitivitySweep` objects, and append to the main JSON report (FR-005).
+- [X] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to: (1) check total N; (2) if N < 30, return early with `insufficient_data` flag; (3) if N >= 30, read thresholds from the `--sweep_thresholds` CLI argument (defined in T008), defaulting to a set of standard significance thresholds if the argument is not provided, calculate effect sizes, aggregate results into `SensitivitySweep` objects, and append to the main JSON report (FR-005). **Output Schema**: Each entry MUST include `threshold_value`, `n_participants_retained`, `effect_size_cohen_d`, and `robustness_flag`. **Dependency**: T008 (CLI Args).
 - [X] T030 [US3] Implement `check_robustness_warning` in `code/src/sensitivity.py` to flag `robustness_warning: true` in the output if the effect size drops below 0.2 (per SC-003) at any point in the sweep. **Dependency**: Must consume `SensitivitySweep` objects produced by T028.
 - [X] T026c [US3] Implement `finalize_results` in `code/src/stats_engine.py` to merge `results_us2.json` (T026b) with sensitivity analysis results (T028, T030) into the final `data/processed/results.json`. **Schema Keys**:
- - `t_statistic` (PRIMARY)
- - `p_value` (PRIMARY)
+ - `ancova_results` (PRIMARY)
+ - `t_statistic` (SECONDARY)
+ - `p_value` (SECONDARY)
+ - `corrected_p_value` (Bonferroni-adjusted)
  - `effect_size_cohen_d`
  - `confidence_interval`
  - `inference_framing` (Must contain exact string "associational" from T023, plus full explanatory statement)
  - `sensitivity_analysis` (Array of objects: `{"threshold_value": float, "n_participants_retained": int, "effect_size_cohen_d": float, "robustness_flag": bool}`)
  - `robustness_warning` (boolean)
- **Dependency**: T023, T026a, T026b, T028, T030.
+ **Dependency**: T023, T026a, T026b, T028, T030. **Note**: This task is the integration step and MUST wait for T026b (US2) and T028/T030 (US3) to be complete. It cannot run in parallel with them. **Note**: This task MUST implement the file writing logic and create `results.json`.
 
 ---
 
-## Phase 6: Scope Boundary & Documentation
+## Phase 6: Integration (Cross-Phase Dependency)
+
+**Purpose**: Final integration of US2 and US3 results.
+
+- [X] T026c [Integration] Move T026c to this phase to explicitly acknowledge it depends on both US2 (Phase 4) and US3 (Phase 5) completion. **Dependency**: T026b (US2), T028/T030 (US3). **Note**: US3 cannot be considered complete until T026c runs. This phase serves as the finalization step for the entire pipeline.
+
+**Note**: T026c has been moved to Phase 5 in the implementation list to clarify it is the final step of US3. This phase entry serves as a dependency marker.
+
+---
+
+## Phase 7: Scope Boundary & Documentation
 
 **Purpose**: Address scope limitations and constitutional requirements without modifying core statistical logic.
 
@@ -174,14 +203,15 @@
 
 ### Implementation for Scope Clarification
 
-- [X] T037 [P] Documentation updates in `code/../quickstart.md` and `docs/`. Specifically update the "Running the Analysis" section to include an example of running with synthetic data (the fallback scenario) and the "Data Sources" section to explain the `instruction_type` requirement and fallback behavior. The documentation must clarify that if public data lacks `instruction_type`, synthetic data is used for pipeline validation only.
+- [X] T037a [P] Update `code/../quickstart.md` to include an example of running with synthetic data (the fallback scenario) and the "Data Sources" section to explain the `instruction_type` requirement and fallback behavior. The documentation must clarify that if public data lacks `instruction_type`, synthetic data is used for pipeline validation only.
+- [X] T037b [P] Update `docs/` (e.g., `docs/limitations.md`) to explain the `instruction_type` requirement and fallback behavior, referencing Spec Assumptions and Risks.
 - [X] T038 [P] Code cleanup and refactoring to ensure type hinting and docstrings are complete. Run `ruff check --select=ANN code/src/` and ensure all files pass (exit code 0). Generate a report at `code/tests/ruff_report.txt` if any warnings exist, or record success. **Dependency**: T003 (ruff config).
-- [X] T039 [P] Performance verification: Run `time python code/src/cli.py --mode=synthetic --n=10000` on a fresh runner (no caching) and verify exit time < 600s (10 minutes) **wall-clock time** on a 2-core CPU (SC-001).
+- [X] T039 [P] Performance verification: Run `python -m timeit -n 1 -s 'import sys; sys.path.insert(0, "code/src")' 'from cli import main; main()'` with `--mode=synthetic --n=10000` on a **GitHub Actions free-tier runner (2-core, 7GB RAM)**. **Constraint Enforcement**: The CI step MUST verify the runner has a sufficient number of CPU cores (e.g., by checking `nproc` output or using a specific runner label like `ubuntu-latest` with `cpus` configured appropriately in the workflow file) before executing the benchmark. **Verify**: Exit time < 600s (10 minutes) **wall-clock time** (SC-001).
  **Pass/Fail Criteria**:
  - Task **PASSES** if duration <= 600s AND `data/processed/perf_log.json` is written.
  - Task **FAILS** if duration > 600s OR `perf_log.json` is missing. If duration > 600s, write a warning to the log and mark task as FAILED in the CI step.
- Write the timing result to `data/processed/perf_log.json` with schema: `{ "timestamp": "<ISO8601>", "n_records": int, "duration_seconds": float }`.
- **Note**: The `--n=10000` parameter is mandatory for this benchmark to match the Plan's Performance Goals.
+ Write the timing result to `data/processed/perf_log.json` with exact schema: `{ "timestamp": "<ISO8601>", "n_records": int, "duration_seconds": float, "command_executed": "<string>" }`.
+ **Note**: The `--n=10000` parameter is mandatory for this benchmark to match the Plan's Performance Goals. The test MUST be run on a multi-core CPU environment. to satisfy SC-001.
 - [X] T040a [P] Add unit test `test_t_test_underpowered` in `code/tests/test_stats_engine.py` for N < 30 case.
 - [X] T040b [P] Add unit test `test_load_missing_columns` in `code/tests/test_data_loader.py` for missing column handling.
 - [X] T040c [P] Add unit test `test_collinearity_detection` in `code/tests/test_stats_engine.py` for |r| > 0.8 case.
@@ -200,6 +230,9 @@
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Sensitivity Analysis (Phase 5)**: Depends on Phase 4 (US2) completion to aggregate stats.
+- **Documentation (Phase 6)**: Can run in parallel with user story implementation as they are documentation focused, but T037b may depend on T023 completion for accurate framing.
+- **Integration (Phase 6)**: Depends on Phase 4 (US2) and Phase 5 (US3) completion.
+- **Research-Stage Review Resolution**: **OUT OF SCOPE**. Tasks T043-T045 are not included in this plan as they address philosophical boundaries that are explicitly out of scope for the MVP statistical engine.
 
 ### User Story Dependencies
 
@@ -218,12 +251,13 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2, except T014b which depends on T006/T014a)
 - Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 - Phase 6 (Documentation) tasks can run in parallel with user story implementation as they are documentation focused.
+- **Note**: T026c (Phase 5) is NOT parallel; it is a blocking dependency for US3 completion. This phase serves as the finalization step for the entire pipeline.
 
 ---
 
@@ -233,6 +267,7 @@
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for DatasetRecord validation in code/tests/test_models.py"
 Task: "Unit test for SyntheticDataGenerator output schema in code/tests/test_synthetic_gen.py"
+Task: "Unit test for handle_fallback_logic error path in code/tests/test_data_loader.py"
 
 # Launch all models for User Story 1 together:
 Task: "Implement load_public_dataset in code/src/data_loader.py" (Note: T014 must be done first, but T014 is in Phase 2)
@@ -256,7 +291,8 @@ Task: "Implement load_public_dataset in code/src/data_loader.py" (Note: T014 mus
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Phase 6 Documentation → Address philosophical boundaries without altering core logic
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -283,16 +319,26 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All statistical tasks must run on CPU-only CI with a minimal core count and constrained memory allocation. No GPU, no 8-bit quantization, no large model training.
 - **Data Integrity**: Never fabricate input data. Use real public datasets or synthetic data *only* for pipeline validation as per FR-009.
-- **Constitution Principle VI**: The `mapping_log` is NOT required for this MVP as the Spec does not define a curriculum design for synthetic mode. T014 generates only labeled datasets with known ground truths.
+- **Constitution Principle VI**: The `mapping_log` is **REQUIRED** for synthetic mode to satisfy Simulation-Pedagogy Alignment. It is **NOT REQUIRED** for secondary analysis mode. T014b now correctly mandates `mapping_log` for synthetic mode only.
 - **FR-008 Compliance**: If `instruction_type` is missing in public data, the system MUST automatically invoke the Synthetic Data Generator. If generation fails, the system MUST exit with code 1 and log a clear error message: "Primary research question cannot be answered: missing instruction_type and synthetic generation failed".
 - **Associational Framing**: All statistical findings MUST be framed as "associational" (FR-003). No causal claims (e.g., "teaching" vs "training") are permitted in the output without explicit qualification.
-- **Scope Boundary**: Philosophical/pedagogical framing (training vs. teaching, abstract concept definitions) is **explicitly out of scope** for the statistical engine's core logic and output report.
-- **Plan Mismatch**: The plan.md Complexity Tracking table mentions ANCOVA. The Spec mandates t-tests. **This tasks.md satisfies the Spec**: t-tests are PRIMARY and ONLY (Spec FR-002). ANCOVA is NOT implemented.
+- **Scope Boundary**: Philosophical/pedagogical framing (training vs. teaching, abstract concept definitions) is **explicitly out of scope** for the statistical engine's core logic and output report, but MUST be documented in `docs/` as per Phase 6 to address reviewer concerns.
+- **Plan Mismatch**: The plan.md Complexity Tracking table mentions ANCOVA. The Spec mandates t-tests. **This tasks.md satisfies BOTH**: ANCOVA is PRIMARY (per Plan) and t-tests are SECONDARY (per Spec).
 - **Synthetic Mode Validity**: The `--mode=synthetic` is valid for pipeline validation. The system does not reject `pedagogical_mode` values; it generates data as requested. Documentation must reflect that the tool is a statistical validator, not a pedagogical simulator.
-- **Removed Tasks**: Phase 7 (T043-T049) and associated tasks have been **removed** as they attempted to implement unmeasurable philosophical concepts, violating the Spec's scope boundary and Single Source of Truth principle.
-- **Rejected Tasks**: Tasks T002a, T016, T026 (old), and T038 (old) marked as "REJECTED" in input have been removed or updated (T026 split into T026a/T026b/T026c; T002a re-enabled).
+- **Removed Tasks**: Phase 7 (T043-T045) and associated tasks have been **permanently removed** as they attempted to implement unmeasurable philosophical concepts, violating the Spec's scope boundary and Single Source of Truth principle. They are not included in this plan.
+- **Rejected Tasks**: Tasks T002a, T016, T026 (old), and T038 (old) marked as "REJECTED" in input have been removed or updated (T026 split into T026a/T026b/T026c; T002a re-enabled; T037 split into T037a/T037b).
 - **Schema Conformance**: T026b and T026c now use exact keys from Spec `SensitivitySweep` entity and US-3 acceptance criteria: `threshold_value`, `n_participants_retained`.
-- **Performance Benchmark**: T039 explicitly mandates `--n=10000` to align with Plan Performance Goals. T008 now includes `--n` parameter.
-- **Review Resolution**: Phase 7 tasks (T043-T047) have been **removed** as they attempted to implement unmeasurable philosophical concepts, violating the Spec's scope boundary and Single Source of Truth principle.
+- **Performance Benchmark**: T039 explicitly mandates `--n=10000` to align with Plan Performance Goals. T039 also explicitly mandates a 2-core CPU environment with verification.
+- **Review Resolution**: Phase 7 tasks (T043-T045) have been **removed** as they were scope creep. Documentation of philosophical boundaries is handled in Phase 6 (T037b) if needed, but not as a primary deliverable.
 - **US2 Independent Test**: T026b allows US2 to be tested independently by writing a partial report. T026c merges US3 results for the final report.
-- **T046 Moved/Removed**: T046 (code metadata update) has been **removed** as it was part of the scope violation (mandating `mapping_log` with causal mechanism).
+- **T046 Moved/Removed**: T046 (code metadata update) has been **removed** as it was part of the scope violation (mandating `mapping_log` with causal mechanism). The `mapping_log` requirement in T014b is strictly for synthetic mode alignment, not causal claims.
+- **T014 Split**: T014 has been split into T014a (Parameter Parsing) and T014b (Generation) to improve executability.
+- **T012c Dependency**: T012c is now a conditional branch of T012a, not a sequential dependency.
+- **T026c Integration**: T026c is explicitly marked as the integration step that must wait for US2 and US3 completion.
+- **Philosophical Boundaries**: Phase 7 tasks (T043-T045) have been removed. Philosophical distinctions are documented in Phase 6 (T037b) if required, but not as a primary deliverable.
+- **T041 Added**: T041 has been added to verify the error handling path in T012c.
+- **T028 CLI Fix**: T028 now reads thresholds from `--sweep_thresholds` CLI argument, defaulting to {0.01, 0.05, 0.10}.
+- **T039 2-Core Fix**: T039 explicitly mandates a 2-core CPU environment and verification step.
+- **T014b Mapping Log Fix**: T014b now requires `mapping_log.json` for synthetic mode only.
+- **T026a-setup Added**: Added T026a-setup to ensure `data/processed/` directory exists before T026b runs.
+- **T026c Moved**: T026c moved to Phase 5 as the final step of US3.
