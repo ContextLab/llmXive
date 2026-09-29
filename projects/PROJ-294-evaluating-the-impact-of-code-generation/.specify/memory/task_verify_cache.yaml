@@ -1,10 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required directory tree (`projects/PROJ-294-evaluating-the-impact-of-code-generation/`\
-    \ with `code/`, `data/`, `results/`, `tests/`, `docs/`) was provided; the response\
-    \ contains only the task description and no file\u2011system listing or screenshots\
-    \ confirming the directories exist."
 T001b:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

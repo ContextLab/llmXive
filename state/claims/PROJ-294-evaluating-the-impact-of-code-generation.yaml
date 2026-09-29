@@ -2227,24 +2227,6 @@
   updated_at: '2026-08-21T20:05:15Z'
 - artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: Examples include test tasks
-  claim_id: c_018388b7
-  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
-    include them if explicitly requested in the feature specification.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
-  kind: entity_fact
-  raw_text: The examples below include test tasks.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-08-21T20:05:43Z'
-- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
   canonical: HumanEval dataset size is 164 tasks
   claim_id: c_3e6cf316
   context: 'Independent Test: Run the pipeline on the full HumanEval dataset (N=164).
@@ -2658,3 +2640,504 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-28T23:09:42Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: Fallback model is Salesforce codegen mono 350M
+  claim_id: c_d972e60f
+  context: 'Fallback: If the large model fails (OOM or timeout), fall back to Salesforce/codegen-mono-350M.'
+  evidence:
+    entailment_evidence: Fallback model is Salesforce/codegen-350M-mono
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_model_is_Salesforce/codegen-350M-mono
+  kind: entity_fact
+  raw_text: 'Fallback model: Salesforce/codegen-mono-350M'
+  resolved_value: Fallback model is Salesforce/codegen-350M-mono
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T06:33:15Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: Statistical test alpha level is 0.05
+  claim_id: c_83be6c22
+  context: 'Parameters: Use a two-tailed test with alpha=0.05 (1501.05788, https://arxiv.org/abs/1501.05788)
+    (Wikipedia: P-value).'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Statistical significance
+        url: https://en.wikipedia.org/wiki/Statistical_significance
+        value: 5%
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T06:33:16Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: Examples include test tasks
+  claim_id: c_018388b7
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: method and demonstrate substantial gains on 18 procedural
+      source_id: '2302.05330'
+      url: https://arxiv.org/abs/2302.05330
+      value: '18'
+    filled: true
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: '18'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T06:33:48Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: HumanEval dataset size is 164 tasks
+  claim_id: c_6e9f4ca9
+  context: 'Run the pipeline on the full HumanEval dataset (N=164). Verify the following:'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'Math23K: 23,164 elementary school Chinese mathematical word problems,
+        collected from various online educational websites.'
+      source_id: Language model benchmark
+      url: https://en.wikipedia.org/wiki/Language_model_benchmark
+      value: '164'
+    filled: true
+  kind: numeric
+  raw_text: HumanEval dataset (N=164)
+  resolved_value: '164'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T06:33:58Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Valid metrics filtered by pass rate threshold of 0.80
+  claim_id: c_a1e9f80c
+  context: data/analysis/valid_metrics.json exists and contains only tasks with pass_rate
+    >= 0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: filter tasks with pass_rate >= 0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:34:21Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Primary model is Salesforce codegen mono 4b 8-bit quantized
+  claim_id: c_c3163ead
+  context: 'Implement code/generate_code.py to load Primary Model: Salesforce/codegen-mono-4b
+    (8-bit quantized) on CPU.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Primary Model: Salesforce/codegen-mono-4b (8-bit quantized)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:34:50Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Code generation task timeout is 60 seconds
+  claim_id: c_ed205fb4
+  context: 'Timeout: Implement exponential backoff retry logic with a 60-second timeout
+    per task.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout per task execution (60-second timeout)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:35:14Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sandbox memory limit is 2048 GB
+  claim_id: c_a40ef383
+  context: Use Python's subprocess module with preexec_fn to call resource.setrlimit(resource.RLIMIT_AS,
+    (2*1024*1024*2*1024*1024*1024, 2*1024*1024*2*1024*1024*1024)) to enforce a memory
+    limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: memory limit 2*1024*1024*2*1024*1024*1024 bytes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:35:30Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis requires sample size of at least 38
+  claim_id: c_d75ffb31
+  context: "verify p-values are calculated correctly and power analysis reports required\
+    \ n \u2265 38"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis_requires_sample_size_of_at_least
+  kind: magnitude
+  raw_text: "required n \u2265 38"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:36:32Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis reports achieved power of at least 0.8
+  claim_id: c_3c4fb916
+  context: "The power analysis reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis_reports_achieved_power_of_at_leas
+  kind: magnitude
+  raw_text: "power \u2265 0.8"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:37:11Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis uses fixed sample size of 164
+  claim_id: c_011578a9
+  context: Implement Minimum Detectable Effect Size (MDES) calculation in code/statistical_tests.py
+    for the fixed sample size N=164, alpha=0.05, power=0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fixed sample size N=164
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:38:21Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis power parameter is 0.80
+  claim_id: c_3b56e4cb
+  context: Implement Minimum Detectable Effect Size (MDES) calculation in code/statistical_tests.py
+    for the fixed sample size N=164, alpha=0.05, power=0.80.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power=0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:38:21Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama sensitivity analysis uses model from TheBloke CodeLlamaB GGUF
+    repository
+  claim_id: c_98c1291a
+  context: Implement code/generate_code_llama.py to generate code samples using a
+    quantized CodeLlama model (specifically from repository TheBloke/CodeLlamaB-GGUF)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama_sensitivity_analysis_uses_model_from_TheBloke_Code
+  kind: entity_fact
+  raw_text: CodeLlama model from repository TheBloke/CodeLlamaB-GGUF
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:38:45Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeLlama model uses commit hash main
+  claim_id: c_0179af4d
+  context: using a quantized CodeLlama model (specifically from repository TheBloke/CodeLlamaB-GGUF,
+    commit hash main or specific commit if pinned)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama_model_uses_commit_hash_main
+  kind: entity_fact
+  raw_text: commit hash main
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:39:54Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: LLama context size is 2048
+  claim_id: c_7cb8d564
+  context: 'Constraint: Use llama-cpp-python with n_ctx=2048 and n_threads=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_ctx=2048
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:40:16Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: LLama thread count is 4
+  claim_id: c_e79ec26f
+  context: 'Constraint: Use llama-cpp-python with n_ctx=2048 and n_threads=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_threads=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:40:38Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: validate capacity threshold of 10 tasks per minute
+  claim_id: c_51c8696a
+  context: 'T004c [P] **Performance Instrumentation (Aggregation)**: Implement logic
+    to aggregate metrics from logs, write them to data/analysis/performance.json,
+    and validate against a documented capacity threshold (e.g., >= 10 tasks/min).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic to aggregate metrics from logs, write them to data/analysis/performance.json,
+    and validate against a documented capacity threshold (e.g., >= 10 tasks/min).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:41:52Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: enforce memory limit of 2*1024*1024*2*1024*1024*1024 bytes
+  claim_id: c_0b3b86b7
+  context: Use Python's subprocess module with preexec_fn to call resource.setrlimit(resource.RLIMIT_AS,
+    (2*1024*1024*2*1024*1024*1024, 2*1024*1024*1024)) to enforce a memory limit
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: enforce a memory limit of 2*1024*1024*2*1024*1024*1024 bytes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:42:19Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: operate on 164 tasks in HumanEval dataset
+  claim_id: c_d7364f95
+  context: 'T014a [US1] **Metric Extraction (Static - Cyclomatic)**: Implement code/analyze_metrics.py
+    to run radon cc --json on samples from data/generated/human_samples.json and data/generated/codegen_samples.json
+    for ALL 164 tasks (unfiltered).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Operate on ALL 164 tasks in the full HumanEval dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:42:43Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: filter tasks with pass rate greater than or equal to 0.80
+  claim_id: c_84635cbf
+  context: 'T017b [US1] **Aggregation (Filtered)**: Implement logic in code/analyze_metrics.py
+    to read data/analysis/base_metrics.json, filter tasks with pass_rate >= 0.80,
+    and generate data/analysis/valid_metrics.json and data/analysis/valid_task_ids.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_tasks_with_pass_rate_greater_than_or_equal_to_0.80
+  kind: magnitude
+  raw_text: filter tasks with pass_rate >= 0.80
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:42:47Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: required sample size n greater than or equal to 38
+  claim_id: c_13d957c9
+  context: "Independent Test: Feed mock paired datasets; verify p-values are calculated\
+    \ correctly and power analysis reports required n \u2265 38 and The power analysis\
+    \ reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Required_sample_size_n_greater_than_or_equal_to_38
+  kind: magnitude
+  raw_text: required n >= 38
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:42:49Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: achieved power greater than or equal to 0.8
+  claim_id: c_4545a6f5
+  context: "Independent Test: Feed mock paired datasets; verify p-values are calculated\
+    \ correctly and power analysis reports required n \u2265 38 and The power analysis\
+    \ reports achieved power \u2265 0.8."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Achieved_power_greater_than_or_equal_to_0.8
+  kind: magnitude
+  raw_text: achieved power >= 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:43:23Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: fixed sample size N equals 164
+  claim_id: c_43e2ceb3
+  context: 'T024 [US2] **Sensitivity Analysis (MDES & Achieved Power)**: Implement
+    Minimum Detectable Effect Size (MDES) calculation in code/statistical_tests.py
+    for the fixed sample size N=164, {{claim:c_83be6c22}}, power=0.80.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: fixed sample size N=164
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:43:23Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: power equals 0.80
+  claim_id: c_5c7822d4
+  context: 'T024 [US2] **Sensitivity Analysis (MDES & Achieved Power)**: Implement
+    Minimum Detectable Effect Size (MDES) calculation in code/statistical_tests.py
+    for the fixed sample size N=164, {{claim:c_83be6c22}}, power=0.80.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: power=0.80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:43:24Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: compare against 0.05 threshold
+  claim_id: c_e05565d1
+  context: 'T054 [US3] **Cross-Model Statistical Tests**: Extend code/statistical_tests.py
+    to perform Levene''s Test for variance differences between codegen and llama in
+    addition to the baseline human vs codegen comparison. Additional Logic: Explicitly
+    calculate the observed variance difference magnitude (absolute value) and compare
+    it against the 0.05 threshold defined in FR-009/SC-006.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The 0.05 significance level is merely a convention. The 0.05 significance
+        level (alpha level) is often used as the boundary between a statistically
+        significant and a statistically non-significant p-value. However, this does
+        not imply that there is generally a scientific reason to consider results
+        on opposite sides of any threshold as qualitatively different.
+      source_id: Misuse of p-values
+      url: https://en.wikipedia.org/wiki/Misuse_of_p-values
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: compare against the 0.05 threshold
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T06:43:41Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: use context length of 2048
+  claim_id: c_023e19e8
+  context: 'T052 [US3] **CodeLlama Sensitivity Implementation**: Implement code/generate_code_llama.py
+    to generate code samples using a quantized CodeLlama model... Constraint: Use
+    llama-cpp-python with n_ctx=2048 and n_threads=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use n_ctx=2048
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:44:30Z'
+- artifact_path: projects/PROJ-294-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: use 4 threads
+  claim_id: c_f6a0797c
+  context: 'T052 [US3] **CodeLlama Sensitivity Implementation**: Implement code/generate_code_llama.py
+    to generate code samples using a quantized CodeLlama model... Constraint: Use
+    llama-cpp-python with n_ctx=2048 and n_threads=4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: use n_threads=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T06:44:54Z'

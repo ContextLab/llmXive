@@ -1,8 +1,8 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: DistributionFit
-description: >
-  Schema for the output of distribution fitting analysis.
-  Records the best-fit parametric distribution for speedrun times of a specific game.
+description: |
+  Schema for distribution fitting results.
+  Contains parameters, goodness-of-fit statistics, and model selection metrics.
 type: object
 required:
   - game_id
@@ -14,34 +14,46 @@ required:
 properties:
   game_id:
     type: string
-    description: Unique identifier for the game (e.g., "super-mario-64")
-    minLength: 1
+    description: Unique identifier for the game (e.g., 'super-mario-64')
   distribution_family:
     type: string
-    description: Name of the fitted distribution family (e.g., "log-normal", "Weibull", "gamma")
+    description: Name of the fitted distribution (e.g., 'lognormal', 'weibull', 'gamma')
     enum:
-      - log-normal
-      - Weibull
+      - lognormal
+      - weibull
       - gamma
+      - anderson-adarling
   parameters:
     type: object
-    description: >
-      Maximum Likelihood Estimates (MLE) for the distribution parameters.
-      Structure depends on the distribution family:
-      - log-normal: {"meanlog": float, "sigmalog": float}
-      - Weibull: {"c": float, "scale": float}
-      - gamma: {"a": float, "scale": float}
+    description: |
+      Dictionary of distribution parameters.
+      For lognormal: {'loc': float, 'scale': float, 's': float}
+      For weibull: {'shape': float, 'scale': float}
+      For gamma: {'a': float, 'scale': float}
     additionalProperties: true
   KS_D:
     type: number
-    description: Kolmogorov-Smirnov test statistic (maximum distance between empirical and theoretical CDF)
+    description: Kolmogorov-Smirnov test statistic (D)
     minimum: 0
   KS_pvalue:
     type: number
-    description: P-value from the Kolmogorov-Smirnov goodness-of-fit test
+    description: P-value from the Kolmogorov-Smirnov test
     minimum: 0
     maximum: 1
   AIC:
     type: number
     description: Akaike Information Criterion for model comparison
+  sample_size:
+    type: integer
+    description: Number of runs used for fitting
+    minimum: 1
+  rejected:
+    type: boolean
+    description: True if KS p-value < 0.05 (distribution rejected)
+  best_fit:
+    type: boolean
+    description: True if this is the best fitting distribution for the game (lowest AIC)
+  notes:
+    type: string
+    description: Optional notes about the fit (e.g., 'Small sample size, Anderson-Darling used')
 additionalProperties: false

@@ -1,162 +1,233 @@
 """
-Logging infrastructure for llmXive pipeline.
+Logging infrastructure for tracking RAM usage and execution time per step.
 
-Tracks RAM usage via tracemalloc and execution time per step.
+This module provides utilities to monitor memory consumption via tracemalloc
+and measure execution time for individual pipeline steps.
 """
 import logging
 import sys
 import time
 import tracemalloc
 from contextlib import contextmanager
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Generator, Optional, Dict, Any
+from typing import Optional, List, Dict, Any
 
-# Configure root logger for the project
-# Format: [timestamp] [level] [name] message
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-
-# Create a project-specific logger
-logger = logging.getLogger("llmXive")
+# Configure a default logger for the module
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 
+@dataclass
 class MemorySnapshot:
-    """Stores a snapshot of memory usage."""
-    def __init__(self):
-        self.current: int = 0
-        self.peak: int = 0
-        self.timestamp: datetime = datetime.now()
-
-    def update(self):
-        """Update current and peak memory usage."""
-        if tracemalloc.is_tracing():
-            current, peak = tracemalloc.get_traced_memory()
-            self.current = current
-            self.peak = peak
-            self.timestamp = datetime.now()
+    """Snapshot of memory usage at a specific point in time."""
+    timestamp: datetime
+    step_name: str
+    current_memory_mb: float
+    peak_memory_mb: float
+    step_duration_seconds: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert snapshot to a dictionary for serialization."""
         return {
             "timestamp": self.timestamp.isoformat(),
-            "current_bytes": self.current,
-            "peak_bytes": self.peak,
-            "current_mb": self.current / (1024 * 1024),
-            "peak_mb": self.peak / (1024 * 1024)
+            "step_name": self.step_name,
+            "current_memory_mb": self.current_memory_mb,
+            "peak_memory_mb": self.peak_memory_mb,
+            "step_duration_seconds": self.step_duration_seconds
         }
 
 
+@dataclass
 class StepTimer:
-    """Context manager to track execution time of a step."""
-    def __init__(self, step_name: str, logger_instance: logging.Logger = logger):
-        self.step_name = step_name
-        self.logger = logger_instance
-        self.start_time: Optional[float] = None
-        self.end_time: Optional[float] = None
-        self.duration: Optional[float] = None
+    """Context manager to track execution time of a specific step."""
+    step_name: str
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
+    duration_seconds: Optional[float] = None
 
-    def __enter__(self) -> "StepTimer":
+    def start(self) -> None:
+        """Start the timer."""
         self.start_time = time.perf_counter()
-        self.logger.info(f"Starting step: {self.step_name}")
-        return self
+        logger.info(f"Starting step: {self.step_name}")
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def stop(self) -> float:
+        """Stop the timer and return the duration."""
+        if self.start_time is None:
+            raise RuntimeError("Timer has not been started. Call start() first.")
         self.end_time = time.perf_counter()
-        self.duration = self.end_time - self.start_time
-        
-        if exc_type is None:
-            self.logger.info(f"Completed step: {self.step_name} in {self.duration:.4f}s")
-        else:
-            self.logger.error(f"Failed step: {self.step_name} after {self.duration:.4f}s with {exc_type.__name__}: {exc_val}")
-        
-        return False  # Do not suppress exceptions
+        self.duration_seconds = self.end_time - self.start_time
+        logger.info(f"Completed step: {self.step_name} in {self.duration_seconds:.4f}s")
+        return self.duration_seconds
 
 
 class RAMTracker:
-    """Context manager to track RAM usage during a block of code."""
-    def __init__(self, step_name: str, logger_instance: logging.Logger = logger):
-        self.step_name = step_name
-        self.logger = logger_instance
-        self.snapshot_start: Optional[MemorySnapshot] = None
-        self.snapshot_end: Optional[MemorySnapshot] = None
+    """
+    Tracks RAM usage over time using tracemalloc.
 
-    def __enter__(self) -> "RAMTracker":
-        self.snapshot_start = MemorySnapshot()
-        self.snapshot_start.update()
-        self.logger.info(f"RAM check-in at start of {self.step_name}: {self.snapshot_start.current_mb:.2f} MB")
-        return self
+    This class manages the lifecycle of tracemalloc and provides methods
+    to record snapshots of memory usage.
+    """
+    def __init__(self, log_level: int = logging.INFO):
+        self.snapshots: List[MemorySnapshot] = []
+        self.is_tracking = False
+        self.log_level = log_level
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.snapshot_end = MemorySnapshot()
-        self.snapshot_end.update()
-        
-        delta = self.snapshot_end.current - self.snapshot_start.current
-        delta_mb = delta / (1024 * 1024)
-        
-        status = "allocated" if delta > 0 else "freed"
-        self.logger.info(
-            f"RAM check-out at end of {self.step_name}: "
-            f"start={self.snapshot_start.current_mb:.2f} MB, "
-            f"end={self.snapshot_end.current_mb:.2f} MB, "
-            f"delta={delta_mb:.2f} MB ({status})"
+    def start(self) -> None:
+        """Start tracking memory allocations."""
+        if not self.is_tracking:
+            tracemalloc.start()
+            self.is_tracking = True
+            logger.info("tracemalloc started.")
+
+    def stop(self) -> None:
+        """Stop tracking memory allocations."""
+        if self.is_tracking:
+            tracemalloc.stop()
+            self.is_tracking = False
+            logger.info("tracemalloc stopped.")
+
+    def get_current_memory_mb(self) -> float:
+        """Get the current memory usage in MB."""
+        if not self.is_tracking:
+            # If not tracking, return 0 or raise an error depending on desired behavior
+            # Returning 0 is safer for non-tracing environments, but we log a warning
+            logger.warning("tracemalloc is not running. Returning 0.0 MB.")
+            return 0.0
+        current, peak = tracemalloc.get_traced_memory()
+        return current / (1024 * 1024)
+
+    def get_peak_memory_mb(self) -> float:
+        """Get the peak memory usage since tracking started in MB."""
+        if not self.is_tracking:
+            logger.warning("tracemalloc is not running. Returning 0.0 MB.")
+            return 0.0
+        current, peak = tracemalloc.get_traced_memory()
+        return peak / (1024 * 1024)
+
+    def record_snapshot(self, step_name: str, duration_seconds: Optional[float] = None) -> MemorySnapshot:
+        """
+        Record a memory snapshot for a given step.
+
+        Args:
+            step_name: Name of the step being tracked.
+            duration_seconds: Optional duration of the step.
+
+        Returns:
+            MemorySnapshot object containing the recorded data.
+        """
+        current_mem = self.get_current_memory_mb()
+        peak_mem = self.get_peak_memory_mb()
+        timestamp = datetime.now()
+
+        snapshot = MemorySnapshot(
+            timestamp=timestamp,
+            step_name=step_name,
+            current_memory_mb=current_mem,
+            peak_memory_mb=peak_mem,
+            step_duration_seconds=duration_seconds
         )
-        return False
+        self.snapshots.append(snapshot)
+        logger.log(
+            self.log_level,
+            f"Snapshot [{step_name}]: Current={current_mem:.2f}MB, Peak={peak_mem:.2f}MB"
+        )
+        return snapshot
+
+    def get_summary(self) -> Dict[str, Any]:
+        """
+        Get a summary of all recorded snapshots.
+
+        Returns:
+            Dictionary containing summary statistics.
+        """
+        if not self.snapshots:
+            return {
+                "total_steps": 0,
+                "max_current_memory_mb": 0.0,
+                "max_peak_memory_mb": 0.0,
+                "total_duration_seconds": 0.0
+            }
+
+        max_current = max(s.current_memory_mb for s in self.snapshots)
+        max_peak = max(s.peak_memory_mb for s in self.snapshots)
+        total_duration = sum(
+            s.step_duration_seconds or 0.0 for s in self.snapshots
+        )
+
+        return {
+            "total_steps": len(self.snapshots),
+            "max_current_memory_mb": max_current,
+            "max_peak_memory_mb": max_peak,
+            "total_duration_seconds": total_duration
+        }
 
 
 @contextmanager
-def track_step(step_name: str) -> Generator[Dict[str, Any], None, None]:
+def track_step(step_name: str, ram_tracker: Optional[RAMTracker] = None):
     """
-    Context manager that tracks both time and RAM for a specific step.
-    
-    Yields a dictionary containing the step metrics.
+    Context manager to track both execution time and memory for a step.
+
+    Args:
+        step_name: Name of the step.
+        ram_tracker: Optional RAMTracker instance. If None, a temporary one is created.
     """
-    metrics = {
-        "step_name": step_name,
-        "start_time": datetime.now().isoformat(),
-        "duration_s": 0.0,
-        "ram_start_mb": 0.0,
-        "ram_end_mb": 0.0,
-        "ram_delta_mb": 0.0,
-        "success": False
-    }
+    timer = StepTimer(step_name)
+    tracker = ram_tracker if ram_tracker else RAMTracker()
 
-    with StepTimer(step_name):
-        with RAMTracker(step_name) as ram_ctx:
-            try:
-                yield metrics
-                metrics["success"] = True
-            except Exception as e:
-                logger.error(f"Exception in step {step_name}: {e}")
-                raise
-            finally:
-                # Capture final metrics
-                if ram_ctx.snapshot_start:
-                    metrics["ram_start_mb"] = ram_ctx.snapshot_start.current_mb
-                if ram_ctx.snapshot_end:
-                    metrics["ram_end_mb"] = ram_ctx.snapshot_end.current_mb
-                    metrics["ram_delta_mb"] = metrics["ram_end_mb"] - metrics["ram_start_mb"]
+    # Ensure tracking is started if we are using a tracker
+    if not tracker.is_tracking:
+        tracker.start()
 
-def start_tracing():
-    """Start tracemalloc if not already running."""
-    if not tracemalloc.is_tracing():
-        tracemalloc.start()
-        logger.info("tracemalloc started for memory tracking.")
+    try:
+        timer.start()
+        yield timer
+        timer.stop()
+        # Record snapshot after the step completes
+        tracker.record_snapshot(step_name, duration_seconds=timer.duration_seconds)
+    finally:
+        # If we created a temporary tracker, stop it here
+        if ram_tracker is None:
+            tracker.stop()
 
-def stop_tracing():
-    """Stop tracemalloc and print statistics if running."""
-    if tracemalloc.is_tracing():
-        snapshot = tracemalloc.take_snapshot()
-        top_stats = snapshot.statistics('lineno')
-        logger.info("tracemalloc stopped. Top 5 memory allocations:")
-        for stat in top_stats[:5]:
-            logger.info(stat)
-        tracemalloc.stop()
-    else:
-        logger.warning("tracemalloc was not running.")
 
-# Initialize tracing on import to ensure we catch all allocations
-start_tracing()
+# Global instance for convenience if needed, though passing explicitly is preferred
+_global_tracker: Optional[RAMTracker] = None
+
+def start_tracing() -> RAMTracker:
+    """
+    Start the global RAM tracker.
+
+    Returns:
+        The global RAMTracker instance.
+    """
+    global _global_tracker
+    if _global_tracker is None:
+        _global_tracker = RAMTracker()
+    _global_tracker.start()
+    logger.info("Global tracing started.")
+    return _global_tracker
+
+def stop_tracing() -> Optional[Dict[str, Any]]:
+    """
+    Stop the global RAM tracker and return summary.
+
+    Returns:
+        Summary dictionary or None if tracking wasn started.
+    """
+    global _global_tracker
+    if _global_tracker is None or not _global_tracker.is_tracking:
+        logger.warning("Global tracing was not active.")
+        return None
+
+    summary = _global_tracker.get_summary()
+    _global_tracker.stop()
+    logger.info(f"Global tracing stopped. Summary: {summary}")
+    return summary

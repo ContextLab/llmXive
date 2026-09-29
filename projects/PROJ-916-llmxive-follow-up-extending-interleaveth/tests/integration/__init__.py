@@ -1,3 +1,1 @@
-"""
-Integration tests for component interactions and workflows.
-"""
+"""Integration tests for llmXive pipelines."""

@@ -1,3 +1,1 @@
-"""
-Contract tests for API and data schema compliance.
-"""
+"""Contract tests for llmXive interfaces."""

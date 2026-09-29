@@ -58,7 +58,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] Implement `src/benchmarks/loader.py` to fetch Human-Annotated Scene Graphs from WISE and RISE (streaming). The loader MUST strictly fail (raise `FileNotFoundError`) if WISE/RISE are unavailable; no fallback to VG/GQA for the primary experimental run. Ensure output conforms to the `SceneGraph` model defined in T005.
+- [ ] T015 [P] [US1] Implement `src/benchmarks/loader.py` to fetch Human-Annotated Scene Graphs from WISE and RISE (streaming). The loader MUST strictly fail (raise `FileNotFoundError`) if WISE/RISE are unavailable; no fallback to VG/GQA for the primary experimental run. Ensure output conforms to the `SceneGraph` model defined in T005. <!-- FAILED: unspecified -->
 - [ ] T012 [P] [US1] Implement `src/simulator/parser.py` to convert text captions into `SceneDescription` JSON objects (Perfect Mode)
 - [ ] T013 [P] [US1] Implement `src/simulator/noise_injector.py` to randomly swap relationships or remove objects to simulate semantic uncertainty (Noisy Mode)
 - [ ] T014 [US1] Implement `src/simulator/simulator.py` orchestration logic to switch between Perfect/Noisy modes based on config

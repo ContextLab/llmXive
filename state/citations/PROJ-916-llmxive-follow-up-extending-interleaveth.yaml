@@ -31,3 +31,14 @@
   verification_status: mismatch
   verified_against_url: https://github.com/example/llmxive
   verified_at: '2026-08-03T21:14:28.776556Z'
+- artifact_hash: 5d166cb6d05ade032c54f393630e0daaf9d93a4ac9df790e1b212d4e1d1ccc27
+  artifact_path: projects/PROJ-916-llmxive-follow-up-extending-interleaveth/code/docs/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/llmXive/llmxive.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/llmXive/llmxive
+  verified_at: '2026-09-29T06:48:49.534386Z'

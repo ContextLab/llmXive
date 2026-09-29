@@ -1,5 +1,17 @@
-"""
-Research module for llmXive project.
+"""Research module for power analysis and validation utilities."""
 
-Contains citation validation, power analysis, and research documentation utilities.
-"""
+from .power_analysis import (
+    normalize_contrast,
+    calculate_contrast_power,
+    calculate_anova_power,
+    find_minimum_n,
+    main
+)
+
+__all__ = [
+    'normalize_contrast',
+    'calculate_contrast_power',
+    'calculate_anova_power',
+    'find_minimum_n',
+    'main'
+]

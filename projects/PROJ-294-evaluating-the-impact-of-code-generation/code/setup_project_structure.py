@@ -4,83 +4,67 @@ import logging
 from datetime import datetime
 from utils import setup_logging, get_logger, set_task_id, get_unique_id
 
-def ensure_directory(path: str) -> bool:
-    """Create directory if it does not exist."""
-    try:
-        os.makedirs(path, exist_ok=True)
-        return True
-    except OSError as e:
-        logging.error(f"Failed to create directory {path}: {e}")
-        return False
+def ensure_directory(path: str) -> None:
+    """Create directory if it doesn't exist."""
+    if not os.path.exists(path):
+        os.makedirs(path)
+        logging.info(f"Created directory: {path}")
+    else:
+        logging.debug(f"Directory already exists: {path}")
 
-def create_init_file(dir_path: str) -> bool:
-    """Create an empty __init__.py in the specified directory."""
-    init_path = os.path.join(dir_path, "__init__.py")
-    try:
-        with open(init_path, "w") as f:
-          f.write(f"# Auto-generated init file for {dir_path}\n")
-        return True
-    except OSError as e:
-        logging.error(f"Failed to create {init_path}: {e}")
-        return False
+def create_init_file(path: str) -> None:
+    """Create an empty __init__.py file."""
+    if not os.path.exists(path):
+        with open(path, 'w') as f:
+            f.write("")
+        logging.info(f"Created __init__.py: {path}")
+    else:
+        logging.debug(f"__init__.py already exists: {path}")
 
 def main():
-    """
-    T001a: Create directory structure at projects/PROJ-294-evaluating-the-impact-of-code-generation/
-    T001b: Create state/ directory
-    T001c: Create __init__.py files in code/, tests/, tests/unit/, tests/integration/
-    """
-    task_id = "T001a"
-    set_task_id(task_id)
-    logger = setup_logging(task_id=task_id)
-    logger.info("Starting Project Structure Setup (T001a, T001b, T001c)")
-
-    base_dir = "projects/PROJ-294-evaluating-the-impact-of-code-generation"
+    """Create the project directory structure for T001a."""
+    # Setup logging
+    logger = setup_logging(task_id="T001a")
     
-    # T001a: Core directories
-    core_dirs = [
-        "code",
-        "data",
-        "results",
-        "tests",
-        "docs"
+    project_root = "projects/PROJ-294-evaluating-the-impact-of-code-generation"
+    
+    # Define required directories
+    directories = [
+        f"{project_root}/code",
+        f"{project_root}/data",
+        f"{project_root}/results",
+        f"{project_root}/tests",
+        f"{project_root}/docs",
+        f"{project_root}/state",  # T001b requirement
+        f"{project_root}/code/utils",
+        f"{project_root}/code/prompt_templates",
+        f"{project_root}/tests/unit",
+        f"{project_root}/tests/integration",
+        f"{project_root}/data/raw",
+        f"{project_root}/data/generated",
+        f"{project_root}/data/analysis",
+        f"{project_root}/results/figures",
+        f"{project_root}/data/sandbox"
     ]
     
-    logger.info(f"Ensuring base directory: {base_dir}")
-    if not ensure_directory(base_dir):
-        logger.error("Base directory creation failed.")
-        sys.exit(1)
-
-    for d in core_dirs:
-        full_path = os.path.join(base_dir, d)
-        logger.info(f"Ensuring directory: {full_path}")
-        if not ensure_directory(full_path):
-            logger.error(f"Failed to create {full_path}")
-            sys.exit(1)
-
-    # T001b: State directory
-    state_dir = os.path.join(base_dir, "state")
-    logger.info(f"Ensuring state directory: {state_dir}")
-    if not ensure_directory(state_dir):
-        logger.error(f"Failed to create {state_dir}")
-        sys.exit(1)
-
-    # T001c: __init__.py files
-    init_dirs = [
-        os.path.join(base_dir, "code"),
-        os.path.join(base_dir, "tests"),
-        os.path.join(base_dir, "tests", "unit"),
-        os.path.join(base_dir, "tests", "integration")
+    logger.info("Starting directory structure creation...")
+    
+    for directory in directories:
+        ensure_directory(directory)
+    
+    # Create __init__.py files
+    init_files = [
+        f"{project_root}/code/__init__.py",
+        f"{project_root}/tests/__init__.py",
+        f"{project_root}/tests/unit/__init__.py",
+        f"{project_root}/tests/integration/__init__.py"
     ]
-
-    for d in init_dirs:
-        logger.info(f"Creating __init__.py in {d}")
-        if not ensure_directory(d):
-            logger.warning(f"Directory {d} did not exist, attempting to create.")
-            ensure_directory(d)
-        create_init_file(d)
-
-    logger.info("Project structure setup complete.")
+    
+    for init_file in init_files:
+        create_init_file(init_file)
+    
+    logger.info("Directory structure creation completed successfully.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

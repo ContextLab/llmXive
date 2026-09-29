@@ -81,7 +81,7 @@
  **Output**: `code/analysis/config_defaults.yaml` and `code/analysis/config_user.yaml`.
  **Dependency**: T000-GATE-METADATA, T000-HUMAN-SOURCE, T000-GATE-ITEMS-AUTO.
 
-- [ ] T042 [P] [FR-006] Generate `docs/protocol.md` with pre‑registered analysis plan. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T042 [P] [FR-006] Generate `docs/protocol.md` with pre‑registered analysis plan. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
  **Requirement**: Reference FR‑006, US‑3, and the specific sensitivity sweep parameters.
  **Logic**:
  1. Read sensitivity sweep ranges defined in `code/analysis/config_defaults.yaml` (from T008-init-std).

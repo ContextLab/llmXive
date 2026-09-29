@@ -1,25 +1,18 @@
 T010:
   c: false
-  h: f38c137b34b829b5f3bd9b9dad90c29bfb0b097f382ccb568e5006ef67ea0743
-  r: The `code/tests/test_preprocess.py` file is present, but it defines an inline
-    `sample_schema` fixture instead of loading the real `run_record.schema.yaml`,
-    and the required `run_record.schema.yaml` file is missing from the repository.
-    Consequently, the contract test does not actually validate against the intended
-    schema.
-T013b:
+  h: 233e7090a2927e11339d61b28938bc0bd126fd8a0e37c781b359123a94c561a6
+  r: "The test file `code/tests/test_preprocess.py` is truncated (the last test ends\
+    \ with `self.asser` and is syntactically invalid) and its `setUp` skips all tests\
+    \ if the schema file does not exist. Moreover, the required schema file `contracts/run_record.schema.yaml`\
+    \ is missing, so the contract validation cannot actually be exercised. The task\u2019\
+    s requirement for a functional contract test is therefore not met."
+T018:
   c: false
-  h: a1c8fd4e356399ba89a28ecd53021c5c3019dcbac2289492eb81f1d863c8dc58
-  r: "The `preprocess.py` file contains a stub `hash_runner_id` that returns the `hashlib.sha256`\
-    \ function object instead of a salted SHA\u2011256 digest, and it never reads\
-    \ the project\u2011specific salt from `config.yaml`. Moreover, the required `config.yaml`\
-    \ file is missing entirely. Consequently, runner ID anonymization is not correctly\
-    \ implemented."
-T015:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of modified `fetch_data.py` or `preprocess.py` implementing a checkpoint\
-    \ mechanism is provided; the required code artifacts are missing, so the task\u2019\
-    s requirement cannot be confirmed as satisfied."
+  h: 06cac892ee1e24aa683834ff55ae885190e43d1eb2d4719e0babb267478f3d48
+  r: "The provided `test_models.py` contains mixed\u2011effects model tests, not a\
+    \ contract test for `distribution_fit.schema.yaml`, and the required `distribution_fit.schema.yaml`\
+    \ file is missing entirely. Both the test and the schema artifact are absent,\
+    \ so the task is not satisfied."
 T021:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

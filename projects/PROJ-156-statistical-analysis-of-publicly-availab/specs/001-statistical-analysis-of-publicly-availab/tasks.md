@@ -141,7 +141,7 @@
 
 ### Tests for User Story 2 (Mandatory per Spec) ⚠️
 
-- [~] T018 [P] [US2] Contract test for `distribution_fit.schema.yaml` validation in `code/tests/test_models.py`
+- [ ] T018 [P] [US2] Contract test for `distribution_fit.schema.yaml` validation in `code/tests/test_models.py`
 - [X] T019 [P] [US2] Integration test for distribution fitting on a single game (KS p ≥ 0.05 check) in `code/tests/test_models.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -156,7 +156,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `code/scripts/fit_mixed_effects.py` to:
+- [X] T027 [US3] Implement `code/scripts/fit_mixed_effects.py` to:
  - Fit `log(Time) ~ log(Attempt Number) + Game Difficulty + Lagged Pressure + (1 | RunnerID)` (FR-006, Plan: Complexity Tracking)
  - *Note*: Exclude `total_prior_runs` from fixed effects to avoid collinearity (Plan: Complexity Tracking)
  - Compute VIFs and flag if > 5 (FR-011)

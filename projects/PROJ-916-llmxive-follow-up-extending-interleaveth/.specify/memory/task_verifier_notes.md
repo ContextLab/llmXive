@@ -8,14 +8,9 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T001d** — No `docs/` directory or any file hierarchy was presented in the provided evidence, so the required artifact does not exist or is empty. The implementer must add the `docs/` folder with the appropriate documentation files to satisfy the task.
 - **T001e** — No evidence of a `contracts/` directory or its subdirectories (`scene`, `trajectory`, `stats`) is provided; the only artifact is a textual feature specification, which does not demonstrate that the required directory structure exists or contains any files. The implementer must create the specified directories (and optionally populate them) and show their presence.
 - **T003** — declared artifact(s) missing/empty/invalid: pre-commit-config.yaml
-- **T005** — declared artifact(s) missing/empty/invalid: src/data_models.py, schema.yaml
+- **T005** — The provided `src/data_models.py` only defines `ObjectNode`, `RelationshipEdge`, and a partial `SceneGraph` (the file is truncated and does not include a `TrajectoryLog` model). Additionally, the required schema files (`scene.schema.yaml` and `trajectory.schema.yaml`) are missing from the repository. Consequently, the task’s requirement of creating both data models that conform to the specified schemas is not satisfied.
 - **T006** — declared artifact(s) missing/empty/invalid: src/utils/logging.py
 - **T007** — declared artifact(s) missing/empty/invalid: src/config.py
 - **T015** — declared artifact(s) missing/empty/invalid: src/benchmarks/loader.py
 - **T012** — declared artifact(s) missing/empty/invalid: src/simulator/parser.py
 - **T013** — The required file `src/simulator/noise_injector.py` does not exist in the repository, so no implementation of the noise injection functionality is present. The task cannot be considered fulfilled until this module is added with the specified behavior.
-- **T014** — declared artifact(s) missing/empty/invalid: src/simulator/simulator.py
-- **T016a** — declared artifact(s) missing/empty/invalid: src/stats/simulator_metrics.py
-- **T016b** — declared artifact(s) missing/empty/invalid: src/stats/simulator_metrics.py
-- **T017** — declared artifact(s) missing/empty/invalid: src/simulator/validator.py
-- **T018a** — declared artifact(s) missing/empty/invalid: src/stats/generator_metrics.py

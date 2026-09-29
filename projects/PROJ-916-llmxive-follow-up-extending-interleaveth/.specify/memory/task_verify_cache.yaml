@@ -33,6 +33,14 @@ T001e:
     does not demonstrate that the required directory structure exists or contains
     any files. The implementer must create the specified directories (and optionally
     populate them) and show their presence.
+T005:
+  c: false
+  h: d7b7214a43b87af5295e677b34e77ce94311d98af0674f1bbadab37f3df7220f
+  r: "The provided `src/data_models.py` only defines `ObjectNode`, `RelationshipEdge`,\
+    \ and a partial `SceneGraph` (the file is truncated and does not include a `TrajectoryLog`\
+    \ model). Additionally, the required schema files (`scene.schema.yaml` and `trajectory.schema.yaml`)\
+    \ are missing from the repository. Consequently, the task\u2019s requirement of\
+    \ creating both data models that conform to the specified schemas is not satisfied."
 T013:
   c: false
   h: b774c492bbe34a814dd0a71291720ca19d13536a2885bd80a40e30613517206f

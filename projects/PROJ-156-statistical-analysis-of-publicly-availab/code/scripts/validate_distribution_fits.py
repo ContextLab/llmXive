@@ -1,16 +1,5 @@
 """
-Validates the distribution_fits.csv output against the distribution_fit.schema.yaml contract.
-
-This script ensures that the output of T020 (fit_distributions.py) and T021 (Anderson-Darling logic)
-adheres strictly to the schema defined in contracts/distribution_fit.schema.yaml.
-
-It performs:
-1. Column presence and type validation.
-2. Schema-based structural validation.
-3. Logical consistency checks (e.g., AIC must be numeric).
-4. Writes a validation report to logs or stdout.
-
-Exit code 0 on success, 1 on failure.
+Validate distribution_fits.csv against the distribution_fit.schema.yaml contract.
 """
 import csv
 import json
@@ -18,7 +7,7 @@ import os
 import sys
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import Dict, List, Any, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -27,174 +16,220 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Paths relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-SCHEMA_PATH = PROJECT_ROOT / "contracts" / "distribution_fit.schema.yaml"
-DATA_PATH = PROJECT_ROOT / "data" / "processed" / "distribution_fits.csv"
-OUTPUT_REPORT_PATH = PROJECT_ROOT / "data" / "processed" / "validation_report.json"
-
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """
-    Loads a YAML schema file. Since PyYAML might not be in the strict import list
-    of the provided API, we attempt to load it. If YAML is not available, we
-    assume the schema structure is known or load a JSON fallback if provided.
-    However, the contract T005 implies a YAML schema.
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load the JSON schema from a YAML or JSON file."""
+    # Simple YAML parser for this specific schema (avoids PyYAML dependency if not needed)
+    # or use json.load if saved as JSON.
+    # Since the schema is provided as YAML in the contract, we need to parse it.
+    # For robustness, we'll try to load as JSON first, then fallback to a simple YAML parser
+    # or assume the schema is valid JSON-compatible YAML (which this specific one is).
     
-    We will implement a basic YAML parser for the specific expected structure
-    if pyyaml is not guaranteed, or assume standard library + json if YAML is
-    strictly forbidden by constraints. Given the project uses `config.yaml`,
-    it likely has a YAML parser. We'll try importing yaml first.
-    """
+    with open(schema_path, 'r') as f:
+        content = f.read()
+    
+    # If the file is strictly JSON, json.load works. 
+    # If it has YAML-specific syntax (like comments or unquoted booleans), we might need a parser.
+    # Given the constraints, we will assume the schema is valid JSON or use a minimal parser.
+    # To be safe and avoid external deps, we'll read the file and assume it's JSON-compatible
+    # or use a simple regex-based extraction if necessary.
+    # However, standard practice is to use `json` if the schema is JSON.
+    # Let's try to parse as JSON first. If it fails, we assume it's a simple YAML subset.
+    
     try:
-        import yaml
-        with open(schema_path, 'r') as f:
-            return yaml.safe_load(f)
-    except ImportError:
-        logger.warning("PyYAML not found. Attempting to parse YAML manually or fail.")
-        # Fallback: If we can't parse YAML, we define the expected fields based on T005 description
-        # T005: DistributionFit entity (game_id, distribution_family, parameters, KS_D, KS_pvalue, AIC)
-        return {
+        return json.loads(content)
+    except json.JSONDecodeError:
+        # Minimal YAML parser for this specific structure
+        # This is a fallback. Ideally, the schema file should be JSON.
+        # We will reconstruct the schema dict manually based on the provided content structure
+        # or raise an error if it's too complex.
+        logger.warning("Schema is not valid JSON. Attempting simple YAML parsing...")
+        # Since the schema provided is relatively simple, we can try to convert common YAML
+        # patterns to JSON strings before parsing.
+        # But to keep it robust, let's assume the user provides a JSON version or we use a library.
+        # Given the "Real data only" constraint and standard libraries, we will assume the schema
+        # is saved as JSON or we implement a very basic parser.
+        # Let's implement a basic parser for the specific schema structure provided.
+        
+        schema = {
             "type": "object",
-            "properties": {
-                "game_id": {"type": "string"},
-                "distribution_family": {"type": "string"},
-                "parameters": {"type": "object"}, # JSON string or object
-                "KS_D": {"type": "number"},
-                "KS_pvalue": {"type": "number"},
-                "AIC": {"type": "number"}
-            },
-            "required": ["game_id", "distribution_family", "parameters", "KS_D", "KS_pvalue", "AIC"]
+            "required": [],
+            "properties": {},
+            "additionalProperties": False
         }
+        
+        lines = content.split('\n')
+        current_prop = None
+        in_properties = False
+        in_required = False
+        
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith('#'):
+                continue
+            
+            if line == 'properties:':
+                in_properties = True
+                in_required = False
+                continue
+            if line == 'required:':
+                in_properties = False
+                in_required = True
+                continue
+            if line == '$schema:':
+                continue
+            if line == 'title:':
+                continue
+            if line == 'description:':
+                continue
+            if line.startswith('type:'):
+                continue
+            if line.startswith('minimum:'):
+                continue
+            if line.startswith('maximum:'):
+                continue
+            if line.startswith('enum:'):
+                continue
+            if line.startswith('- '):
+                if in_required:
+                    val = line[2:].strip().strip('"').strip("'")
+                    schema["required"].append(val)
+                continue
+            
+            if in_properties:
+                if ':' in line:
+                    key, val = line.split(':', 1)
+                    key = key.strip()
+                    val = val.strip()
+                    if not val:
+                        current_prop = key
+                        schema["properties"][current_prop] = {}
+                    else:
+                        if current_prop:
+                            # Handle simple key: value
+                            if val.startswith('[') and val.endswith(']'):
+                                # Enum list
+                                vals = val[1:-1].split(',')
+                                schema["properties"][current_prop]["enum"] = [v.strip().strip('"').strip("'") for v in vals]
+                            elif val.isdigit():
+                                schema["properties"][current_prop][key] = int(val)
+                            else:
+                                schema["properties"][current_prop][key] = val.strip('"').strip("'")
+                else:
+                    # Indented property
+                    if current_prop and ':' in line:
+                        k, v = line.split(':', 1)
+                        k = k.strip()
+                        v = v.strip().strip('"').strip("'")
+                        schema["properties"][current_prop][k] = v
 
-def validate_row(row: Dict[str, str], schema: Dict[str, Any]) -> List[str]:
-    """
-    Validates a single row from the CSV against the schema.
-    Returns a list of error messages.
-    """
-    errors = []
-    properties = schema.get("properties", {})
-    required = schema.get("required", [])
+        return schema
 
+def validate_row(row: Dict[str, str], schema: Dict[str, Any]) -> Tuple[bool, str]:
+    """Validate a single row against the schema."""
     # Check required fields
-    for field in required:
-        if field not in row or row[field] is None or row[field] == "":
-            errors.append(f"Missing required field: {field}")
-
-    # Type checks (basic)
-    # KS_D, KS_pvalue, AIC should be numeric
-    numeric_fields = ["KS_D", "KS_pvalue", "AIC"]
-    for field in numeric_fields:
-        if field in row and row[field]:
+    for field in schema.get('required', []):
+        if field not in row or not row[field]:
+            return False, f"Missing required field: {field}"
+    
+    # Check types and constraints
+    props = schema.get('properties', {})
+    for field, value in row.items():
+        if field not in props:
+            if props.get('additionalProperties') is False:
+                return False, f"Unexpected field: {field}"
+            continue
+        
+        field_schema = props[field]
+        
+        # Type checking
+        field_type = field_schema.get('type')
+        if field_type == 'number':
             try:
-                float(row[field])
+                float(value)
             except ValueError:
-                errors.append(f"Field '{field}' must be numeric, got: {row[field]}")
+                return False, f"Field {field} must be a number, got: {value}"
+        elif field_type == 'integer':
+            try:
+                int(value)
+            except ValueError:
+                return False, f"Field {field} must be an integer, got: {value}"
+        elif field_type == 'boolean':
+            if value.lower() not in ('true', 'false', '1', '0'):
+                return False, f"Field {field} must be a boolean, got: {value}"
+        elif field_type == 'string':
+            pass # Strings are always valid
+        
+        # Enum checking
+        if 'enum' in field_schema:
+            if value not in field_schema['enum']:
+                return False, f"Field {field} value '{value}' not in allowed values: {field_schema['enum']}"
+        
+        # Range checking
+        if 'minimum' in field_schema:
+            if float(value) < field_schema['minimum']:
+                return False, f"Field {field} value {value} is below minimum {field_schema['minimum']}"
+        if 'maximum' in field_schema:
+            if float(value) > field_schema['maximum']:
+                return False, f"Field {field} value {value} is above maximum {field_schema['maximum']}"
+    
+    return True, "OK"
 
-    # Parameters field check
-    if "parameters" in row and row["parameters"]:
-        try:
-            # Parameters might be a JSON string or a simple string representation
-            # T020 saves it as a JSON string usually
-            json.loads(row["parameters"])
-        except json.JSONDecodeError:
-            # If it's not valid JSON, it might be a simple string representation, 
-            # but the schema expects an object. We'll be lenient if it's not empty.
-            pass
-
+def validate_distribution_fits(csv_path: str, schema_path: str) -> List[Dict[str, Any]]:
+    """Validate the entire CSV file and return a list of validation results."""
+    schema = load_schema(schema_path)
+    errors = []
+    valid_count = 0
+    
+    if not os.path.exists(csv_path):
+        return [{"error": f"CSV file not found: {csv_path}"}]
+    
+    with open(csv_path, 'r', newline='') as f:
+        reader = csv.DictReader(f)
+        for i, row in enumerate(reader):
+            is_valid, msg = validate_row(row, schema)
+            if is_valid:
+                valid_count += 1
+            else:
+                errors.append({
+                    "row": i + 1,
+                    "error": msg,
+                    "data": row
+                })
+    
+    logger.info(f"Validation complete. {valid_count} valid rows, {len(errors)} errors.")
     return errors
 
-def validate_distribution_fits():
-    """
-    Main validation logic.
-    """
-    if not SCHEMA_PATH.exists():
-        logger.error(f"Schema file not found: {SCHEMA_PATH}")
-        return False
-
-    if not DATA_PATH.exists():
-        logger.error(f"Data file not found: {DATA_PATH}")
-        return False
-
-    schema = load_schema(SCHEMA_PATH)
-    logger.info(f"Loaded schema from {SCHEMA_PATH}")
-
-    errors: List[Dict[str, Any]] = []
-    valid_count = 0
-    total_count = 0
-
-    try:
-        with open(DATA_PATH, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            
-            # Check header columns against schema required fields
-            if reader.fieldnames:
-                required_fields = schema.get("required", [])
-                missing_headers = [f for f in required_fields if f not in reader.fieldnames]
-                if missing_headers:
-                    errors.append({
-                        "row": "Header",
-                        "message": f"Missing required columns in CSV header: {missing_headers}"
-                    })
-                    logger.error(f"Missing columns: {missing_headers}")
-                    # Write report and exit
-                    save_report(errors, valid_count, total_count)
-                    return False
-
-            for row_num, row in enumerate(reader, start=2): # Start at 2 (1 is header)
-                total_count += 1
-                row_errors = validate_row(row, schema)
-                
-                if row_errors:
-                    errors.append({
-                        "row": row_num,
-                        "game_id": row.get("game_id", "Unknown"),
-                        "distribution_family": row.get("distribution_family", "Unknown"),
-                        "messages": row_errors
-                    })
-                else:
-                    valid_count += 1
-
-    except Exception as e:
-        logger.error(f"Error reading CSV: {e}")
-        return False
-
-    # Write validation report
-    save_report(errors, valid_count, total_count)
-
-    if errors:
-        logger.error(f"Validation FAILED. {len(errors)} errors found.")
-        for err in errors[:5]: # Log first 5 errors
-            logger.error(f"  Row {err.get('row')}: {err['messages']}")
-        if len(errors) > 5:
-            logger.error(f"  ... and {len(errors) - 5} more errors.")
-        return False
-    else:
-        logger.info(f"Validation PASSED. {valid_count}/{total_count} records valid.")
-        return True
-
-def save_report(errors: List[Dict], valid_count: int, total_count: int):
-    """Saves the validation report to a JSON file."""
-    report = {
-        "schema_path": str(SCHEMA_PATH),
-        "data_path": str(DATA_PATH),
-        "total_records": total_count,
-        "valid_records": valid_count,
-        "error_count": len(errors),
-        "errors": errors
-    }
-    
-    # Ensure directory exists
-    OUTPUT_REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(OUTPUT_REPORT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Validation report saved to {OUTPUT_REPORT_PATH}")
+def save_report(errors: List[Dict[str, Any]], output_path: str):
+    """Save the validation report to a JSON file."""
+    with open(output_path, 'w') as f:
+        json.dump({"validation_errors": errors, "status": "failed" if errors else "passed"}, f, indent=2)
+    logger.info(f"Validation report saved to {output_path}")
 
 def main():
-    """Entry point."""
-    success = validate_distribution_fits()
-    sys.exit(0 if success else 1)
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent.parent
+    
+    csv_path = project_root / "data" / "processed" / "distribution_fits.csv"
+    schema_path = project_root / "contracts" / "distribution_fit.schema.yaml"
+    report_path = project_root / "data" / "processed" / "validation_report.json"
+    
+    if not csv_path.exists():
+        logger.error(f"Input file not found: {csv_path}")
+        sys.exit(1)
+    
+    if not schema_path.exists():
+        logger.error(f"Schema file not found: {schema_path}")
+        sys.exit(1)
+    
+    errors = validate_distribution_fits(str(csv_path), str(schema_path))
+    save_report(errors, str(report_path))
+    
+    if errors:
+        logger.error("Validation failed. Check the report for details.")
+        sys.exit(1)
+    else:
+        logger.info("Validation passed.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

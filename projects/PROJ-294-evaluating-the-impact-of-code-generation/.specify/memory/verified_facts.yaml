@@ -1,6 +1,9 @@
-'|alpha analysi sensitivity use':
-  quote: smaller than 0.05. The remaining pairs form a plausible set of sensitivity
-    parameters
-  source_id: '1501.05788'
-  url: https://arxiv.org/abs/1501.05788
+'|against compare threshold':
+  quote: The 0.05 significance level is merely a convention. The 0.05 significance
+    level (alpha level) is often used as the boundary between a statistically significant
+    and a statistically non-significant p-value. However, this does not imply that
+    there is generally a scientific reason to consider results on opposite sides of
+    any threshold as qualitatively different.
+  source_id: Misuse of p-values
+  url: https://en.wikipedia.org/wiki/Misuse_of_p-values
   value: '0.05'

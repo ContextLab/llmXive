@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TrajectoryLog
+description: Schema for agentic trajectory logs
+
+type: object
+properties:
+  id:
+    type: string
+  steps:
+    type: array
+    items:
+      type: object
+      properties:
+        step_type:
+          type: string
+          enum:
+            - planner
+            - generator
+            - critic
+        intent:
+          type: string
+        output:
+          type: object
+        critique:
+          type: string
+        score:
+          type: number
+      required:
+        - step_type
+        - output
+  final_score:
+    type: number
+  metadata:
+    type: object
+    additionalProperties: true
+
+required:
+  - id
+  - steps
+  - final_score

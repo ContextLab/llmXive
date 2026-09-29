@@ -66,7 +66,7 @@
   verification_status: pending
   verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
   verified_at: '2026-08-31T18:14:48.351180Z'
-- artifact_hash: f18aa9d4216259c71f38adb8bb8198491db8411e2d67a65dd141f9c5e125dd95
+- artifact_hash: 53f092c3ccd3b9a9a40a3822b55de2e776949840fcfd5c0f369fd8ce5c9c6dd3
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -76,8 +76,8 @@
   value: https://en.wikipedia.org/wiki/Power_
   verification_status: pending
   verified_against_url: https://en.wikipedia.org/wiki/Power
-  verified_at: '2026-09-11T10:38:05.924084Z'
-- artifact_hash: f18aa9d4216259c71f38adb8bb8198491db8411e2d67a65dd141f9c5e125dd95
+  verified_at: '2026-09-29T07:11:59.933719Z'
+- artifact_hash: 53f092c3ccd3b9a9a40a3822b55de2e776949840fcfd5c0f369fd8ce5c9c6dd3
   artifact_path: projects/PROJ-286-the-influence-of-perceived-agency-in-ai-/specs/001-the-influence-of-perceived-agency-in-ai/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -87,4 +87,4 @@
   value: 10.1518/hfes.46.1.50_30392
   verification_status: pending
   verified_against_url: https://doi.org/10.1518/hfes.46.1.50_30392
-  verified_at: '2026-09-11T10:38:05.924084Z'
+  verified_at: '2026-09-29T07:11:59.933719Z'

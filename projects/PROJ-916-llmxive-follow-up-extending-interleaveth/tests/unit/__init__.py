@@ -1,3 +1,1 @@
-"""
-Unit tests for individual components and modules.
-"""
+"""Unit tests for llmXive components."""

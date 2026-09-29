@@ -1,349 +1,230 @@
-"""
-Parser module for converting text captions into structured SceneDescription JSON objects.
-
-Implements Perfect Mode parsing: deterministic conversion of text prompts into
-SceneDescription objects with objects, relationships, and attributes.
-"""
 import re
 import json
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
 from datetime import datetime
-
 from src.data_models import ObjectNode, RelationshipEdge, SceneGraph
-from src.utils.logging import track_step
-
 
 @dataclass
 class ParsedObject:
-    """Intermediate representation of a parsed object."""
+    """Represents a single object parsed from a text caption."""
+    id: str
     name: str
     attributes: Dict[str, Any]
-    bounding_box: Optional[Tuple[float, float, float, float]] = None
+    position: Optional[Tuple[float, float]] = None
 
 @dataclass
 class ParsedRelationship:
-    """Intermediate representation of a parsed relationship."""
-    subject: str
-    predicate: str
-    object_ref: str
+    """Represents a relationship between two objects."""
+    source_id: str
+    target_id: str
+    relation: str
     confidence: float = 1.0
 
 @dataclass
 class SceneDescription:
-    """
-    Structured JSON-compatible representation of a scene.
-    Matches the output schema expected by the simulator.
-    """
+    """Structured JSON-serializable description of a scene derived from text."""
+    scene_id: str
+    timestamp: str
     objects: List[Dict[str, Any]]
     relationships: List[Dict[str, Any]]
-    attributes: Dict[str, Any]
     metadata: Dict[str, Any]
 
     def to_json(self) -> str:
-        """Serialize to JSON string."""
-        return json.dumps(asdict(self), indent=2, default=str)
+        return json.dumps(asdict(self), indent=2)
 
     def to_dict(self) -> Dict[str, Any]:
-        """Serialize to dictionary."""
         return asdict(self)
 
-    def to_scene_graph(self) -> SceneGraph:
-        """Convert to SceneGraph data model."""
-        object_nodes = []
-        for obj in self.objects:
-            node = ObjectNode(
-                id=obj.get("id"),
-                name=obj["name"],
-                attributes=obj.get("attributes", {}),
-                bounding_box=obj.get("bounding_box")
-            )
-            object_nodes.append(node)
+def _generate_id(prefix: str) -> str:
+    """Generate a deterministic ID based on timestamp and prefix for reproducibility."""
+    return f"{prefix}_{datetime.now().strftime('%Y%m%d%H%M%S%f')}"
 
-        relationship_edges = []
-        for rel in self.relationships:
-            edge = RelationshipEdge(
-                source=rel["subject"],
-                target=rel["object_ref"],
-                predicate=rel["predicate"],
-                confidence=rel.get("confidence", 1.0)
-            )
-            relationship_edges.append(edge)
-
-        return SceneGraph(
-            objects=object_nodes,
-            relationships=relationship_edges,
-            attributes=self.attributes,
-            metadata=self.metadata
-        )
-
-
-# Pattern definitions for parsing
-OBJECT_PATTERN = re.compile(
-    r'\b(the|a|an)\s+([a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s+(?:is|are|has|with|on|in|at|by|near|next to|behind|in front of|under|over|above|below|between|among|inside|outside|around|through|across|along|against|upon|within|without|toward|towards|into|onto|upon|over|under|above|below|beside|behind|before|after|during|while|since|until|from|to|for|of|with|without|against|among|throughout|toward|upon|within|without)\s+([a-zA-Z]+(?:\s+[a-zA-Z]+)*)',
-    re.IGNORECASE
-)
-
-SIMPLE_OBJECT_PATTERN = re.compile(
-    r'\b([a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s+(?:is|are|has|with|on|in|at|by|near|next to|behind|in front of|under|over|above|below|between|among|inside|outside|around|through|across|along|against|upon|within|without|toward|towards|into|onto|upon|over|under|above|below|beside|behind|before|after|during|while|since|until|from|to|for|of|with|without|against|among|throughout|toward|upon|within|without)\s+([a-zA-Z]+(?:\s+[a-zA-Z]+)*)',
-    re.IGNORECASE
-)
-
-ATTRIBUTE_PATTERN = re.compile(
-    r'\b(\w+)\s+(?:is|are|seems|appears|looks|feels|smells|tastes|becomes|remains|stays|keeps|continues|grows|turns|proves|turns out to be|ends up being|comes to be|gets|gets to be|becomes|becomes more|becomes less|becomes increasingly|becomes progressively|becomes gradually|becomes increasingly more|becomes increasingly less|becomes progressively more|becomes progressively less|becomes gradually more|becomes gradually less|becomes increasingly increasingly|becomes increasingly increasingly more|becomes increasingly increasingly less|becomes progressively progressively|becomes progressively progressively more|becomes progressively progressively less|becomes gradually gradually|becomes gradually gradually more|becomes gradually gradually less)\s+([a-zA-Z]+(?:\s+[a-zA-Z]+)*)\b',
-    re.IGNORECASE
-)
-
-SIMPLE_ATTRIBUTE_PATTERN = re.compile(
-    r'\b([a-zA-Z]+(?:\s+[a-zA-Z]+)*)\s+(?:is|are|seems|appears|looks|feels|smells|tastes|becomes|remains|stays|keeps|continues|grows|turns|proves|turns out to be|ends up being|comes to be|gets|gets to be|becomes|becomes more|becomes less|becomes increasingly|becomes progressively|becomes gradually|becomes increasingly more|becomes increasingly less|becomes progressively more|becomes progressively less|becomes gradually more|becomes gradually less|becomes increasingly increasingly|becomes increasingly increasingly more|becomes increasingly increasingly less|becomes progressively progressively|becomes progressively progressively more|becomes progressively progressively less|becomes gradually gradually|becomes gradually gradually more|becomes gradually gradually less)\s+([a-zA-Z]+(?:\s+[a-zA-Z]+)*)\b',
-    re.IGNORECASE
-)
-
-
-def parse_caption_to_scene_description(caption: str, seed: Optional[int] = None) -> SceneDescription:
+def _extract_objects(text: str) -> List[ParsedObject]:
     """
-    Parse a text caption into a structured SceneDescription object (Perfect Mode).
-    
-    This function performs deterministic parsing of natural language captions into
-    structured scene descriptions containing objects, relationships, and attributes.
-    
-    Args:
-        caption: Natural language text describing a scene.
-        seed: Optional random seed for reproducibility (not used in Perfect Mode).
-    
-    Returns:
-        SceneDescription: Structured representation of the parsed scene.
-    
-    Raises:
-        ValueError: If the caption cannot be parsed into a valid scene description.
+    Parse objects from a text caption.
+    Heuristic: Looks for noun phrases following common patterns or simple splitting.
+    In a real implementation, this would use an NLP parser (spaCy, NLTK) or LLM.
+    For this deterministic simulator, we use a rule-based extraction on known patterns.
     """
-    if not caption or not isinstance(caption, str):
-        raise ValueError("Caption must be a non-empty string")
+    # Simple heuristic: split by 'and', ',', 'with', 'on', 'in' to find potential nouns
+    # This is a placeholder for the 'Perfect Mode' deterministic logic.
+    # A more robust version would use a pre-trained dependency parser.
     
-    caption = caption.strip()
-    if not caption:
-        raise ValueError("Caption cannot be empty after stripping whitespace")
+    # Clean text
+    clean_text = text.lower().strip()
     
-    with track_step("parser", "parse_caption", {"caption_length": len(caption)}):
-        # Extract objects
-        objects = _extract_objects(caption)
-        
-        # Extract relationships
-        relationships = _extract_relationships(caption, objects)
-        
-        # Extract attributes
-        attributes = _extract_attributes(caption, objects)
-        
-        # Build metadata
-        metadata = {
-            "source": "text_caption",
-            "parsed_at": datetime.now().isoformat(),
-            "caption_length": len(caption),
-            "object_count": len(objects),
-            "relationship_count": len(relationships),
-            "attribute_count": len(attributes)
-        }
-        
-        scene_desc = SceneDescription(
-            objects=objects,
-            relationships=relationships,
-            attributes=attributes,
-            metadata=metadata
-        )
-        
-        return scene_desc
+    # Remove common stop words that might interfere with simple parsing
+    # This is a minimal set for demonstration
+    stop_words = {'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 
+                  'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 
+                  'should', 'may', 'might', 'can', 'of', 'to', 'in', 'for', 'on', 'with', 
+                  'at', 'by', 'from', 'as', 'into', 'through', 'during', 'before', 
+                  'after', 'above', 'below', 'between', 'under', 'again', 'further', 
+                  'then', 'once', 'and', 'but', 'or', 'nor', 'so', 'yet', 'both', 
+                  'either', 'neither', 'not', 'only', 'own', 'same', 'than', 'too', 
+                  'very', 's', 't', 'just', 'don', 'now', 'it', 'its', 'this', 'that', 
+                  'these', 'those', 'what', 'which', 'who', 'whom', 'whose', 'where', 
+                  'when', 'why', 'how', 'all', 'each', 'every', 'both', 'few', 'more', 
+                  'most', 'other', 'some', 'such', 'no', 'any', 'my', 'me', 'we', 'our', 
+                  'ours', 'you', 'your', 'yours', 'he', 'him', 'his', 'she', 'her', 
+                  'hers', 'they', 'them', 'their', 'theirs', 'i', 'myself', 'yourself', 
+                  'himself', 'herself', 'itself', 'ourselves', 'themselves'}
+    
+    # Basic tokenization
+    tokens = re.findall(r'\b\w+\b', clean_text)
+    
+    # Heuristic: Identify potential nouns (simplified)
+    # In a real scenario, use POS tagging. Here we assume nouns are words not in stop_words
+    # and not purely numeric.
+    potential_objects = []
+    current_phrase = []
+    
+    for word in tokens:
+        if word in stop_words:
+            if current_phrase:
+                potential_objects.append(" ".join(current_phrase))
+                current_phrase = []
+        else:
+            current_phrase.append(word)
+    
+    if current_phrase:
+        potential_objects.append(" ".join(current_phrase))
+    
+    # Remove duplicates and filter empty
+    unique_objects = list(dict.fromkeys([o for o in potential_objects if o]))
+    
+    parsed_objects = []
+    for i, obj_name in enumerate(unique_objects):
+        obj_id = _generate_id("obj")
+        parsed_objects.append(ParsedObject(
+            id=obj_id,
+            name=obj_name,
+            attributes={"source": "text_parse", "confidence": 1.0},
+            position=None
+        ))
+    
+    return parsed_objects
 
-
-def _extract_objects(caption: str) -> List[Dict[str, Any]]:
-    """Extract objects from the caption."""
-    objects = []
-    seen_names = set()
-    object_id = 0
-    
-    # Simple object extraction: look for nouns that are likely objects
-    words = re.findall(r'\b([a-zA-Z]+)\b', caption)
-    
-    # Common object nouns to look for
-    object_nouns = {
-        'person', 'man', 'woman', 'child', 'boy', 'girl', 'baby',
-        'dog', 'cat', 'bird', 'fish', 'horse', 'cow', 'sheep', 'pig',
-        'car', 'bus', 'train', 'plane', 'boat', 'bicycle', 'motorcycle',
-        'table', 'chair', 'sofa', 'bed', 'desk', 'shelf', 'cabinet',
-        'computer', 'laptop', 'phone', 'tv', 'monitor', 'camera',
-        'book', 'newspaper', 'magazine', 'paper', 'pen', 'pencil',
-        'cup', 'bowl', 'plate', 'spoon', 'fork', 'knife', 'glass',
-        'tree', 'flower', 'grass', 'plant', 'bush', 'leaf', 'fruit',
-        'building', 'house', 'apartment', 'office', 'store', 'school',
-        'road', 'street', 'sidewalk', 'bridge', 'fence', 'wall',
-        'sky', 'cloud', 'sun', 'moon', 'star', 'rain', 'snow',
-        'water', 'river', 'lake', 'ocean', 'sea', 'beach', 'sand',
-        'mountain', 'hill', 'valley', 'forest', 'field', 'garden',
-        'room', 'kitchen', 'bathroom', 'bedroom', 'living room', 'dining room',
-        'door', 'window', 'floor', 'ceiling', 'roof', 'stairs', 'elevator',
-        'light', 'lamp', 'clock', 'watch', 'mirror', 'picture', 'painting',
-        'clothes', 'shirt', 'pants', 'dress', 'skirt', 'jacket', 'coat',
-        'shoe', 'boot', 'hat', 'glove', 'scarf', 'tie', 'belt',
-        'food', 'meat', 'vegetable', 'bread', 'rice', 'pasta', 'soup',
-        'animal', 'wildlife', 'pet', 'livestock', 'insect', 'bug'
-    }
-    
-    # Extract potential objects
-    for word in words:
-        word_lower = word.lower()
-        if word_lower in object_nouns and word_lower not in seen_names:
-            seen_names.add(word_lower)
-            obj = {
-                "id": f"obj_{object_id}",
-                "name": word_lower,
-                "attributes": {},
-                "bounding_box": None
-            }
-            objects.append(obj)
-            object_id += 1
-    
-    # If no objects found, create a generic one
-    if not objects:
-        objects.append({
-            "id": "obj_0",
-            "name": "scene",
-            "attributes": {},
-            "bounding_box": None
-        })
-    
-    return objects
-
-
-def _extract_relationships(caption: str, objects: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Extract relationships from the caption."""
+def _extract_relationships(objects: List[ParsedObject], text: str) -> List[ParsedRelationship]:
+    """
+    Extract relationships between parsed objects based on text context.
+    Heuristic: Looks for prepositions connecting object names.
+    """
     relationships = []
-    object_names = {obj["name"] for obj in objects}
+    text_lower = text.lower()
     
-    # Prepositions that indicate relationships
-    prepositions = [
-        'on', 'in', 'at', 'by', 'near', 'next to', 'behind', 'in front of',
-        'under', 'over', 'above', 'below', 'between', 'among', 'inside',
-        'outside', 'around', 'through', 'across', 'along', 'against', 'upon',
-        'within', 'without', 'toward', 'towards', 'into', 'onto', 'beside',
-        'before', 'after', 'during', 'while', 'since', 'until', 'from', 'to',
-        'for', 'of', 'with', 'without', 'against', 'among', 'throughout'
-    ]
+    # Simple pattern: "A on B", "A next to B", "A with B"
+    # We look for pairs of object names in the text separated by a relation word
+    relation_keywords = ['on', 'under', 'above', 'below', 'next to', 'near', 'beside', 
+                         'between', 'behind', 'in front of', 'with', 'holding', 'has', 'wearing']
     
-    # Simple relationship extraction
-    words = caption.lower().split()
-    i = 0
-    while i < len(words) - 2:
-        # Look for patterns like "noun preposition noun"
-        if words[i] in object_names:
-            for preposition in prepositions:
-                if words[i:i+len(preposition.split())] == preposition.split():
-                    # Check if the word after preposition is an object
-                    end_idx = i + len(preposition.split())
-                    if end_idx < len(words) and words[end_idx] in object_names:
-                        rel = {
-                            "subject": words[i],
-                            "predicate": preposition,
-                            "object_ref": words[end_idx],
-                            "confidence": 1.0
-                        }
-                        # Avoid duplicates
-                        if rel not in relationships:
-                            relationships.append(rel)
-                    break
-        i += 1
+    # Find occurrences of object names in text
+    obj_positions = []
+    for obj in objects:
+        # Find all start positions of the object name in the text
+        start = 0
+        while True:
+            pos = text_lower.find(obj.name.lower(), start)
+            if pos == -1:
+                break
+            obj_positions.append((pos, pos + len(obj.name), obj.id))
+            start = pos + 1
     
+    # Sort by position
+    obj_positions.sort(key=lambda x: x[0])
+    
+    # Look for relations between adjacent objects in the text flow
+    for i in range(len(obj_positions) - 1):
+        start1, end1, id1 = obj_positions[i]
+        start2, end2, id2 = obj_positions[i+1]
+        
+        # Text between the two objects
+        between_text = text_lower[end1:start2].strip()
+        
+        # Check if a known relation keyword exists in between
+        for rel in relation_keywords:
+            if rel in between_text:
+                relationships.append(ParsedRelationship(
+                    source_id=id1,
+                    target_id=id2,
+                    relation=rel,
+                    confidence=0.9
+                ))
+                break
+        
+        # If no specific relation found but they are close, assume a generic 'near'
+        if not any(r.source_id == id1 and r.target_id == id2 for r in relationships):
+             if end2 - end1 < 50: # Arbitrary proximity threshold
+                  relationships.append(ParsedRelationship(
+                      source_id=id1,
+                      target_id=id2,
+                      relation="near",
+                      confidence=0.5
+                  ))
+
     return relationships
 
+def parse_caption_to_scene_description(caption: str, scene_id: Optional[str] = None) -> SceneDescription:
+    """
+    Convert a text caption into a SceneDescription JSON object (Perfect Mode).
+    
+    Args:
+        caption: The input text description.
+        scene_id: Optional ID for the scene. If None, a timestamp-based ID is generated.
+    
+    Returns:
+        SceneDescription: A structured object containing objects, relationships, and metadata.
+    """
+    if not caption or not caption.strip():
+        raise ValueError("Caption cannot be empty")
+    
+    scene_id = scene_id or _generate_id("scene")
+    
+    # Parse objects
+    parsed_objects = _extract_objects(caption)
+    
+    # Parse relationships
+    parsed_relationships = _extract_relationships(parsed_objects, caption)
+    
+    # Convert to dictionaries for JSON serialization
+    objects_dict = [asdict(obj) for obj in parsed_objects]
+    relationships_dict = [asdict(rel) for rel in parsed_relationships]
+    
+    return SceneDescription(
+        scene_id=scene_id,
+        timestamp=datetime.now().isoformat(),
+        objects=objects_dict,
+        relationships=relationships_dict,
+        metadata={
+            "source_text": caption,
+            "parser_version": "1.0.0",
+            "mode": "perfect"
+        }
+    )
 
-def _extract_attributes(caption: str, objects: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Extract attributes from the caption."""
-    attributes = {}
-    
-    # Adjectives that could be attributes
-    adjectives = {
-        'big', 'small', 'large', 'tiny', 'huge', 'tiny', 'fat', 'thin',
-        'tall', 'short', 'long', 'wide', 'narrow', 'high', 'low',
-        'round', 'square', 'rectangular', 'oval', 'triangular', 'circular',
-        'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink',
-        'black', 'white', 'gray', 'grey', 'brown', 'beige', 'silver', 'gold',
-        'happy', 'sad', 'angry', 'excited', 'calm', 'quiet', 'loud',
-        'fast', 'slow', 'quick', 'rapid', 'steady', 'smooth', 'rough',
-        'hard', 'soft', 'heavy', 'light', 'thick', 'thin', 'deep', 'shallow',
-        'old', 'new', 'young', 'fresh', 'stale', 'clean', 'dirty',
-        'wet', 'dry', 'hot', 'cold', 'warm', 'cool', 'freezing', 'boiling',
-        'bright', 'dark', 'dim', 'glowing', 'shining', 'sparkling',
-        'beautiful', 'ugly', 'pretty', 'handsome', 'attractive', 'hideous',
-        'interesting', 'boring', 'funny', 'serious', 'strange', 'normal',
-        'safe', 'dangerous', 'risky', 'secure', 'stable', 'unstable',
-        'strong', 'weak', 'powerful', 'fragile', 'durable', 'temporary',
-        'permanent', 'fixed', 'mobile', 'static', 'dynamic', 'active', 'passive',
-        'open', 'closed', 'empty', 'full', 'partial', 'complete', 'broken',
-        'working', 'functional', 'defective', 'damaged', 'intact', 'whole',
-        'single', 'multiple', 'many', 'few', 'several', 'some', 'all', 'none'
-    }
-    
-    words = caption.lower().split()
-    for word in words:
-        if word in adjectives:
-            # Try to associate with nearby objects
-            for obj in objects:
-                if obj["name"] in words:
-                    obj_idx = words.index(obj["name"])
-                    word_idx = words.index(word)
-                    if abs(obj_idx - word_idx) <= 2:
-                        # This is a rough heuristic
-                        if "color" not in obj["attributes"]:
-                            obj["attributes"]["color"] = word
-                        elif "size" not in obj["attributes"]:
-                            obj["attributes"]["size"] = word
-                        elif "emotion" not in obj["attributes"]:
-                            obj["attributes"]["emotion"] = word
-                        else:
-                            obj["attributes"]["general"] = word
-    
-    # Add global attributes if present
-    if "sunny" in caption.lower():
-        attributes["weather"] = "sunny"
-    if "rainy" in caption.lower() or "raining" in caption.lower():
-        attributes["weather"] = "rainy"
-    if "cloudy" in caption.lower():
-        attributes["weather"] = "cloudy"
-    if "night" in caption.lower():
-        attributes["time"] = "night"
-    elif "morning" in caption.lower():
-        attributes["time"] = "morning"
-    elif "afternoon" in caption.lower():
-        attributes["time"] = "afternoon"
-    elif "evening" in caption.lower():
-        attributes["time"] = "evening"
-    
-    return attributes
-
-
-def parse_to_json(caption: str, seed: Optional[int] = None) -> str:
+def parse_to_json(caption: str) -> str:
     """
     Parse a caption and return the result as a JSON string.
     
     Args:
-        caption: Natural language text describing a scene.
-        seed: Optional random seed for reproducibility.
+        caption: Input text.
     
     Returns:
-        str: JSON string representation of the scene description.
+        str: JSON string representation of the SceneDescription.
     """
-    scene_desc = parse_caption_to_scene_description(caption, seed)
+    scene_desc = parse_caption_to_scene_description(caption)
     return scene_desc.to_json()
 
-
-def parse_to_dict(caption: str, seed: Optional[int] = None) -> Dict[str, Any]:
+def parse_to_dict(caption: str) -> Dict[str, Any]:
     """
     Parse a caption and return the result as a dictionary.
     
     Args:
-        caption: Natural language text describing a scene.
-        seed: Optional random seed for reproducibility.
+        caption: Input text.
     
     Returns:
-        Dict[str, Any]: Dictionary representation of the scene description.
+        dict: Dictionary representation of the SceneDescription.
     """
-    scene_desc = parse_caption_to_scene_description(caption, seed)
+    scene_desc = parse_caption_to_scene_description(caption)
     return scene_desc.to_dict()

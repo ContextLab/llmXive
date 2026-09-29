@@ -51,9 +51,3 @@ T010b:
     \ is no artifact (e.g., the Lee & See 2004 Trust Scale questionnaire, PDF, or\
     \ data file) present. Consequently, the core requirement\u2014retrieving and providing\
     \ the canonical trust scale\u2014is not met."
-T010c:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No verified source file for the Lee & See (2004) trust scale items is present
-    in the provided artifacts; the implementer supplied no code, data, or document
-    containing the items, so the required deliverable is missing.
