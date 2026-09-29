@@ -1,15 +1,17 @@
 import os
 import sys
 from pathlib import Path
+import logging
 
-def initialize_project_structure():
+# Ensure the logger module is available if we need it, though for T001
+# we just need to create directories.
+
+def initialize_project_structure(root_dir: str = "projects/PROJ-064-statistical-discrepancies-in-publicly-av") -> bool:
     """
     Initialize the project directory structure for PROJ-064.
-    Creates the root project folder and all required subdirectories
-    in a single atomic step.
     
-    Structure created:
-    projects/PROJ-064-statistical-discrepancies-in-publicly-av/
+    Creates the following structure:
+    root_dir/
     ├── code/
     ├── data/
     │   ├── raw/
@@ -18,41 +20,67 @@ def initialize_project_structure():
     ├── docs/
     ├── state/
     └── config/
-    """
-    # Define the project root relative to the current working directory
-    # Assuming this script is run from the project root or a parent context
-    # We create it relative to the current directory where the script is invoked
-    project_name = "PROJ-064-statistical-discrepancies-in-publicly-av"
-    base_path = Path(".") / "projects" / project_name
     
-    # Define required directories
+    Args:
+        root_dir: The relative path to the project root directory.
+        
+    Returns:
+        True if successful, False otherwise.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Initializing project structure at: {root_dir}")
+    
+    base_path = Path(root_dir)
+    
+    # Define the directory structure to create
     directories = [
-        base_path / "code",
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "tests",
-        base_path / "docs",
-        base_path / "state",
-        base_path / "config",
+        "code",
+        "data/raw",
+        "data/processed",
+        "tests",
+        "docs",
+        "state",
+        "config"
     ]
     
-    # Create directories atomically (all or nothing conceptually, though os.makedirs is individual)
-    # We check existence first to avoid errors if partial run occurred
-    missing = []
+    created_dirs = []
+    failed_dirs = []
+    
     for dir_path in directories:
-        if not dir_path.exists():
-            missing.append(dir_path)
+        full_path = base_path / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_dirs.append(str(full_path))
+            logger.debug(f"Created directory: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            failed_dirs.append(str(full_path))
     
-    if missing:
-        print(f"Creating {len(missing)} directories for {project_name}...")
-        for dir_path in missing:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"  Created: {dir_path}")
-        print(f"Successfully initialized project structure at: {base_path}")
+    if failed_dirs:
+        logger.error(f"Failed to create {len(failed_dirs)} directories.")
+        return False
+    
+    logger.info(f"Successfully created {len(created_dirs)} directories for project {root_dir}.")
+    return True
+
+def main():
+    """Entry point for script execution."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    
+    # Default project path as specified in the task
+    project_root = "projects/PROJ-064-statistical-discrepancies-in-publicly-av"
+    
+    success = initialize_project_structure(project_root)
+    
+    if success:
+        print(f"Project structure initialized successfully at: {project_root}")
+        sys.exit(0)
     else:
-        print(f"Project structure at {base_path} already exists.")
-    
-    return base_path
+        print(f"Failed to initialize project structure at: {project_root}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    initialize_project_structure()
+    main()

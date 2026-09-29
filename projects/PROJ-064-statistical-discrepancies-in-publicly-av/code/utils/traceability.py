@@ -1,13 +1,15 @@
 """
-Traceability Map Generator for Election Discrepancy Analysis.
+Traceability Map Generator
 
-This module generates a traceability_map.json file that links output metrics
-(discrepancies, statistical test results) back to the source data rows.
-This ensures full reproducibility and auditability of the analysis pipeline.
+This module implements the generation of `traceability_map.json` to link
+output metrics to source data rows, satisfying the reproducibility and
+audit requirements of the project.
 
-Dependencies:
-    - T007 (models.py): Provides Discrepancy schema and validation
-    - T008 (utils/hashing.py): Provides checksum utilities for source verification
+Schema requirements:
+- metric_id: Unique identifier for the metric/row
+- source_file: Path to the source data file
+- source_row: Original row index or identifier in the source
+- code_block: Identifier of the code block/function that generated the metric
 """
 
 import json
@@ -17,210 +19,222 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional
 import pandas as pd
 
-# Import from project API surface
-from ..models import validate_output_schema, create_discrepancy_record
-from ..exceptions import MissingDataError, ConfigurationError
-from .hashing import compute_file_hash, load_checksums
 from ..logger import get_logger
+from ..exceptions import ConfigurationError, ReproducibilityError
 
 logger = get_logger(__name__)
 
 
-def load_processed_data(processed_data_path: str) -> pd.DataFrame:
+def load_processed_data(processed_path: str) -> pd.DataFrame:
     """
-    Load the processed data DataFrame containing discrepancy metrics.
+    Load the processed discrepancy data from the specified path.
 
     Args:
-        processed_data_path: Path to the processed CSV/Parquet file.
+        processed_path: Path to the processed CSV/JSON file.
 
     Returns:
-        DataFrame with discrepancy metrics.
+        DataFrame containing processed metrics.
 
     Raises:
-        MissingDataError: If the file does not exist or is empty.
+        ConfigurationError: If the file does not exist or cannot be read.
     """
-    path = Path(processed_data_path)
+    path = Path(processed_path)
     if not path.exists():
-        raise MissingDataError(f"Processed data file not found: {processed_data_path}")
+        raise ConfigurationError(f"Processed data file not found: {path}")
 
+    logger.info(f"Loading processed data from {path}")
+    
     if path.suffix == '.csv':
         df = pd.read_csv(path)
-    elif path.suffix == '.parquet':
-        df = pd.read_parquet(path)
+    elif path.suffix == '.json':
+        df = pd.read_json(path)
     else:
         raise ConfigurationError(f"Unsupported file format: {path.suffix}")
 
     if df.empty:
-        raise MissingDataError("Processed data file is empty.")
-
-    # Validate schema against T007 definition
-    validate_output_schema(df)
-    logger.info(f"Loaded processed data with {len(df)} rows from {processed_data_path}")
+        raise ReproducibilityError("Processed data is empty. Ensure the pipeline ran successfully.")
+    
     return df
 
 
-def load_source_metadata(source_data_path: str) -> Dict[str, Any]:
+def load_source_metadata(raw_data_dir: str) -> Dict[str, Any]:
     """
-    Load metadata about the source data file, including its checksum.
+    Load metadata about source files to map back to original rows.
+    
+    This function scans the raw data directory to establish a mapping
+    between source files and their content hashes/identifiers.
 
     Args:
-        source_data_path: Path to the raw source data file.
+        raw_data_dir: Path to the raw data directory.
 
     Returns:
-        Dictionary containing source file metadata.
+        Dictionary mapping filenames to metadata (hash, row count, etc.).
     """
-    path = Path(source_data_path)
-    if not path.exists():
-        raise MissingDataError(f"Source data file not found: {source_data_path}")
+    raw_path = Path(raw_data_dir)
+    if not raw_path.exists():
+        logger.warning(f"Raw data directory not found: {raw_path}. Traceability may be incomplete.")
+        return {}
 
-    file_hash = compute_file_hash(path)
-    size_bytes = path.stat().st_size
-
-    return {
-        "path": str(path),
-        "filename": path.name,
-        "size_bytes": size_bytes,
-        "sha256": file_hash,
-        "checksum_valid": True
-    }
+    metadata = {}
+    for file in raw_path.iterdir():
+        if file.suffix in ['.csv', '.json']:
+            # Compute a hash of the file to ensure we are tracking the exact version
+            with open(file, 'rb') as f:
+                content_hash = hashlib.sha256(f.read()).hexdigest()
+            
+            metadata[file.name] = {
+                'hash': content_hash,
+                'path': str(file),
+                'size': file.stat().st_size
+            }
+    
+    return metadata
 
 
 def map_metrics_to_sources(
     processed_df: pd.DataFrame,
-    source_row_id_column: str = "source_row_id",
-    source_file_column: str = "source_file"
+    source_metadata: Dict[str, Any],
+    code_block_id: str = "T017_discrepancy_calc"
 ) -> List[Dict[str, Any]]:
     """
-    Create a mapping between processed metrics and their source rows.
+    Map processed metrics back to their source rows.
+
+    This function attempts to reconstruct the lineage of each metric in the
+    processed DataFrame by linking it to the source file and row.
 
     Args:
-        processed_df: The processed DataFrame with discrepancy metrics.
-        source_row_id_column: Column name in processed_df linking to source.
-        source_file_column: Column name indicating the source file.
+        processed_df: DataFrame of processed metrics.
+        source_metadata: Metadata about source files.
+        code_block_id: Identifier for the code block that generated the metrics.
 
     Returns:
-        List of dictionaries mapping output rows to source metadata.
+        List of dictionaries representing the traceability entries.
     """
-    if source_row_id_column not in processed_df.columns:
-        logger.warning(f"Column '{source_row_id_column}' not found. Generating synthetic IDs.")
-        processed_df = processed_df.copy()
-        processed_df[source_row_id_column] = range(len(processed_df))
-
-    mapping = []
+    traceability_entries = []
+    
+    # Determine the source file based on the 'source_file' column if present,
+    # or default to the first available raw file if not.
+    source_file_col = 'source_file' if 'source_file' in processed_df.columns else None
+    
+    # If no source_file column, we assume a single source or need to infer
+    # For robustness, we will try to infer from context or use a generic mapping
+    
     for idx, row in processed_df.iterrows():
-        record = {
-            "output_index": int(idx),
-            "precinct_sum": row.get("precinct_sum"),
-            "county_reported": row.get("county_reported"),
-            "discrepancy_abs": row.get("discrepancy_abs"),
-            "discrepancy_pct": row.get("discrepancy_pct"),
-            "missing_data": bool(row.get("missing_data", False)),
-            "source_reference": {
-                "row_id": str(row[source_row_id_column]),
-                "source_file": row.get(source_file_column, "unknown"),
-                "link_type": "direct_mapping"
+        entry = {
+            "metric_id": f"metric_{idx}_{hash(str(row))[:8]}",
+            "source_file": "unknown" if not source_file_col else str(row.get(source_file_col, "unknown")),
+            "source_row": str(row.get('source_row_id', idx)),
+            "code_block": code_block_id,
+            "metrics_snapshot": {
+                k: v for k, v in row.items() 
+                if k in ['precinct_sum', 'county_reported', 'discrepancy_abs', 'discrepancy_pct', 'missing_data']
             }
         }
-        mapping.append(record)
+    
+        # Fallback for source_file if not in row but in metadata
+        if entry["source_file"] == "unknown" and source_metadata:
+            # In a real scenario, we would have a join key. Here we assume 
+            # the first file if no specific mapping exists, but log a warning.
+            if len(source_metadata) == 1:
+                entry["source_file"] = list(source_metadata.keys())[0]
+            else:
+                logger.warning(f"Row {idx} has no source_file and multiple raw files exist. Mapping ambiguous.")
+        
+        traceability_entries.append(entry)
 
-    return mapping
+    return traceability_entries
 
 
 def generate_traceability_map(
-    processed_data_path: str,
-    source_data_path: str,
+    processed_path: str,
+    raw_data_dir: str,
     output_path: str,
-    analysis_metadata: Optional[Dict[str, Any]] = None
-) -> str:
+    code_block_id: str = "T017_discrepancy_calc"
+) -> None:
     """
-    Generate the complete traceability_map.json file.
+    Main entry point to generate the traceability map.
 
-    This function:
-    1. Loads processed discrepancy data.
-    2. Loads source data metadata (checksums).
-    3. Maps each output row to its source row.
-    4. Writes the JSON artifact to disk.
+    This function orchestrates the loading of data, metadata, and the generation
+    of the final JSON artifact.
 
     Args:
-        processed_data_path: Path to processed data (e.g., data/processed/discrepancies.csv).
-        source_data_path: Path to raw source data.
-        output_path: Path where traceability_map.json will be written.
-        analysis_metadata: Optional metadata about the analysis run (e.g., seed, timestamp).
-
-    Returns:
-        Path to the generated JSON file.
-
-    Raises:
-        MissingDataError: If required files are missing.
-        ConfigurationError: If schema validation fails.
+        processed_path: Path to the processed data file.
+        raw_data_dir: Path to the raw data directory.
+        output_path: Path where the traceability_map.json will be written.
+        code_block_id: Identifier for the code block generating the metrics.
     """
-    logger.info(f"Starting traceability map generation for {processed_data_path}")
-
+    logger.info(f"Generating traceability map: {output_path}")
+    
     # Load data
-    processed_df = load_processed_data(processed_data_path)
-    source_meta = load_source_metadata(source_data_path)
-
-    # Build mapping
-    row_mappings = map_metrics_to_sources(processed_df)
-
+    df = load_processed_data(processed_path)
+    metadata = load_source_metadata(raw_data_dir)
+    
+    # Map metrics
+    traceability_entries = map_metrics_to_sources(df, metadata, code_block_id)
+    
     # Construct final structure
     traceability_map = {
         "version": "1.0",
         "generated_at": pd.Timestamp.now().isoformat(),
-        "source_data": source_meta,
-        "processed_data": {
-            "path": processed_data_path,
-            "row_count": len(processed_df),
-            "schema": list(processed_df.columns)
-        },
-        "analysis_metadata": analysis_metadata or {},
-        "row_mappings": row_mappings
+        "code_block_reference": code_block_id,
+        "total_records": len(traceability_entries),
+        "entries": traceability_entries
     }
 
     # Ensure output directory exists
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
-
-    # Write JSON
-    with open(output_path, 'w', encoding='utf-8') as f:
+    out_path = Path(output_path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write to disk
+    with open(out_path, 'w', encoding='utf-8') as f:
         json.dump(traceability_map, f, indent=2, default=str)
+    
+    logger.info(f"Traceability map successfully written to {output_path}")
 
-    logger.info(f"Traceability map generated successfully: {output_path}")
-    return output_path
 
-
-def main():
+def main() -> None:
     """
-    Entry point for generating the traceability map from the command line.
-    Expects environment variables or default paths to be configured.
+    CLI entry point for the traceability map generator.
     """
-    # Default paths based on project structure
-    processed_path = "data/processed/discrepancies.csv"
-    source_path = "data/raw/election_data.csv"
-    output_path = "data/processed/traceability_map.json"
+    import argparse
 
-    # Check for command line overrides (simple parsing)
-    import sys
-    if len(sys.argv) > 1:
-        processed_path = sys.argv[1]
-    if len(sys.argv) > 2:
-        source_path = sys.argv[2]
-    if len(sys.argv) > 3:
-        output_path = sys.argv[3]
+    parser = argparse.ArgumentParser(description="Generate traceability map for processed election data.")
+    parser.add_argument(
+        "--processed", 
+        type=str, 
+        default="data/processed/discrepancies.csv",
+        help="Path to the processed discrepancy data file."
+    )
+    parser.add_argument(
+        "--raw", 
+        type=str, 
+        default="data/raw",
+        help="Path to the raw data directory."
+    )
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="data/processed/traceability_map.json",
+        help="Path for the output traceability map JSON file."
+    )
+    parser.add_argument(
+        "--code-block", 
+        type=str, 
+        default="T017_discrepancy_calc",
+        help="Identifier for the code block generating the metrics."
+    )
+
+    args = parser.parse_args()
 
     try:
         generate_traceability_map(
-            processed_data_path=processed_path,
-            source_data_path=source_path,
-            output_path=output_path,
-            analysis_metadata={
-                "pipeline_version": "1.0.0",
-                "description": "Links output metrics to source data rows for auditability"
-            }
+            processed_path=args.processed,
+            raw_data_dir=args.raw,
+            output_path=args.output,
+            code_block_id=args.code_block
         )
-        print(f"SUCCESS: Traceability map written to {output_path}")
     except Exception as e:
-        logger.error(f"Failed to generate traceability map: {e}")
+        logger.error(f"Failed to generate traceability map: {e}", exc_info=True)
         raise
 
 

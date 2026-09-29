@@ -1,0 +1,8 @@
+T029:
+  c: false
+  h: c93b2d82c523e20ac3abe4affba5f93074bbcd9825f86f4028056f41c3a6aecc
+  r: "The required output file `data/processed/null_distributions.json` does not exist,\
+    \ and the provided `code/simulation.py` snippet is truncated before any Monte\u202F\
+    Carlo loop or chunked\u2011processing logic that would produce the 10,000\u2011\
+    iteration simulation and write the JSON file. Both the artifact and its behavior\
+    \ are missing."

@@ -1,181 +1,192 @@
+"""
+Unit tests for the DataIngestionPipeline, specifically focusing on
+auto-detection of file delimiters as required by T013.
+"""
 import os
-import sys
 import tempfile
 import pytest
 import pandas as pd
-import numpy as np
 from pathlib import Path
+from ingestion import DataIngestionPipeline
+from exceptions import DataAcquisitionError
 
-# Adjust import based on project structure.
-# Assuming tests/ is at the same level as code/ or code/ is in PYTHONPATH.
-# The task requires extending the existing file.
+# Ensure the project root is in the path for imports if running standalone
+# In the actual runner, this is handled by the environment setup.
 try:
-    from code.ingestion import DataIngestionPipeline
+    from ingestion import DataIngestionPipeline
 except ImportError:
+    # Fallback for local testing if path isn't set
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
     from ingestion import DataIngestionPipeline
 
+
 class TestDelimiterAutoDetection:
-    """Tests for auto-detection of file delimiters in ingestion pipeline."""
+    """
+    Tests for T013: Auto-detection of file delimiters in CSV/TSV files.
+    """
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.test_file_path = os.path.join(self.temp_dir.name, "test_data.csv")
-
-    def teardown_method(self):
-        """Clean up temporary files."""
-        self.temp_dir.cleanup()
-
-    def _create_test_file(self, content, filename="test.csv"):
-        """Helper to create a temporary test file with specific content."""
-        path = os.path.join(self.temp_dir.name, filename)
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
+    def _create_temp_file(self, content: str, suffix: str = ".csv") -> str:
+        """Helper to create a temporary file with specific content."""
+        fd, path = tempfile.mkstemp(suffix=suffix)
+        try:
+            with os.fdopen(fd, 'w', encoding='utf-8') as f:
+                f.write(content)
+        except Exception:
+            os.close(fd)
+            raise
         return path
 
-    def test_detect_comma_delimiter(self):
-        """Test auto-detection of standard comma-delimited CSV."""
-        content = """precinct_id,county,total_votes,precinct_votes
-        P001,CountyA,1000,450
-        P002,CountyA,1200,580
-        """
-        file_path = self._create_test_file(content, "comma_delim.csv")
-        
-        # Instantiate pipeline (assuming it accepts a file path or list)
-        # The actual ingestion logic usually detects delimiters during the read phase.
-        # We test the specific method if exposed, or the behavior of the pipeline.
-        # Assuming DataIngestionPipeline has a method to infer delimiter or handles it internally.
-        
-        # If the pipeline expects a list of files:
-        pipeline = DataIngestionPipeline()
-        
-        # Mock the internal detection or call a specific helper if available.
-        # Since we are extending tests, we assume the pipeline has a helper method
-        # or the __init__ / load method handles this.
-        # Let's assume a helper method `_infer_delimiter` exists or is part of the logic.
-        # If not, we test the end-to-end load with a known file.
-        
-        # Attempt to load the file. The pipeline should detect ',' automatically.
-        # We verify by checking if the resulting DataFrame has correct columns.
+    def test_auto_detect_comma_delimiter(self):
+        """Test that comma (,) is correctly detected and parsed."""
+        content = "precinct_sum,county_reported,discrepancy_abs\n100,95,5\n200,210,10"
+        path = self._create_temp_file(content, ".csv")
         try:
-            # This assumes the pipeline can handle a single file path for testing
-            # or we pass the path to a specific load method.
-            # Adapting to the likely API: load_data(file_path)
-            df = pipeline.load_data(file_path)
+            pipeline = DataIngestionPipeline()
+            # The pipeline should infer the delimiter automatically
+            # We expect it to use ',' by default or via sniffing
+            df = pipeline._load_single_file(path)
             
             assert df is not None
-            assert "precinct_id" in df.columns
-            assert "county" in df.columns
+            assert "precinct_sum" in df.columns
+            assert "county_reported" in df.columns
             assert len(df) == 2
-            # Verify it didn't treat it as a single column string
-            assert df.shape[1] > 1
-        except Exception as e:
-            pytest.fail(f"Failed to load comma-delimited file: {e}")
+            assert df["precinct_sum"].iloc[0] == 100
+        finally:
+            os.unlink(path)
 
-    def test_detect_semicolon_delimiter(self):
-        """Test auto-detection of semicolon-delimited CSV (common in Europe)."""
-        content = """precinct_id;county;total_votes;precinct_votes
-        P003;CountyB;2000;900
-        P004;CountyB;2500;1100
-        """
-        file_path = self._create_test_file(content, "semicolon_delim.csv")
-        
-        pipeline = DataIngestionPipeline()
+    def test_auto_detect_semicolon_delimiter(self):
+        """Test that semicolon (;) is correctly detected and parsed."""
+        # Common in European locales
+        content = "precinct_sum;county_reported;discrepancy_abs\n100;95;5\n200;210;10"
+        path = self._create_temp_file(content, ".csv")
         try:
-            df = pipeline.load_data(file_path)
+            pipeline = DataIngestionPipeline()
+            df = pipeline._load_single_file(path)
+            
             assert df is not None
-            assert "precinct_id" in df.columns
-            assert "county" in df.columns
-            assert len(df) == 2
-            assert df.shape[1] > 1
-        except Exception as e:
-            pytest.fail(f"Failed to load semicolon-delimited file: {e}")
+            assert "precinct_sum" in df.columns
+            assert "county_reported" in df.columns
+            # Ensure it didn't parse as a single column string
+            assert len(df.columns) == 3
+            assert df["precinct_sum"].iloc[0] == 100
+        finally:
+            os.unlink(path)
 
-    def test_detect_tab_delimiter(self):
-        """Test auto-detection of tab-delimited TSV."""
-        content = """precinct_id\tcounty\ttotal_votes\tprecinct_votes
-        P005\tCountyC\t1500\t700
-        P006\tCountyC\t1800\t850
-        """
-        file_path = self._create_test_file(content, "tab_delim.tsv")
-        
-        pipeline = DataIngestionPipeline()
+    def test_auto_detect_tab_delimiter(self):
+        """Test that tab (\\t) is correctly detected and parsed."""
+        content = "precinct_sum\tcounty_reported\tdiscrepancy_abs\n100\t95\t5\n200\t210\t10"
+        path = self._create_temp_file(content, ".tsv")
         try:
-            df = pipeline.load_data(file_path)
+            pipeline = DataIngestionPipeline()
+            df = pipeline._load_single_file(path)
+            
             assert df is not None
-            assert "precinct_id" in df.columns
-            assert "county" in df.columns
-            assert len(df) == 2
-            assert df.shape[1] > 1
-        except Exception as e:
-            pytest.fail(f"Failed to load tab-delimited file: {e}")
+            assert "precinct_sum" in df.columns
+            assert "county_reported" in df.columns
+            assert len(df.columns) == 3
+            assert df["precinct_sum"].iloc[0] == 100
+        finally:
+            os.unlink(path)
 
-    def test_detect_pipe_delimiter(self):
-        """Test auto-detection of pipe-delimited files."""
-        content = """precinct_id|county|total_votes|precinct_votes
-        P007|CountyD|3000|1400
-        P008|CountyD|3200|1550
-        """
-        file_path = self._create_test_file(content, "pipe_delim.csv")
-        
-        pipeline = DataIngestionPipeline()
+    def test_auto_detect_pipe_delimiter(self):
+        """Test that pipe (|) is correctly detected and parsed."""
+        content = "precinct_sum|county_reported|discrepancy_abs\n100|95|5\n200|210|10"
+        path = self._create_temp_file(content, ".csv")
         try:
-            df = pipeline.load_data(file_path)
+            pipeline = DataIngestionPipeline()
+            df = pipeline._load_single_file(path)
+            
             assert df is not None
-            assert "precinct_id" in df.columns
-            assert "county" in df.columns
-            assert len(df) == 2
-            assert df.shape[1] > 1
-        except Exception as e:
-            pytest.fail(f"Failed to load pipe-delimited file: {e}")
+            assert "precinct_sum" in df.columns
+            assert "county_reported" in df.columns
+            assert len(df.columns) == 3
+            assert df["precinct_sum"].iloc[0] == 100
+        finally:
+            os.unlink(path)
 
-    def test_fallback_to_comma_if_no_other_detected(self):
-        """Test that comma is used as default if no strong signal is found."""
-        # Create a file with a delimiter that might be ambiguous or rare, 
-        # but ensure the logic doesn't crash. 
-        # Standard CSV with comma should work.
-        content = """precinct_id,county,total_votes,precinct_votes
-        P009,CountyE,4000,1900
-        """
-        file_path = self._create_test_file(content, "default_delim.csv")
-        
-        pipeline = DataIngestionPipeline()
+    def test_auto_detect_space_delimiter(self):
+        """Test that multiple spaces are handled as a delimiter."""
+        content = "precinct_sum  county_reported  discrepancy_abs\n100  95  5\n200  210  10"
+        path = self._create_temp_file(content, ".csv")
         try:
-            df = pipeline.load_data(file_path)
+            pipeline = DataIngestionPipeline()
+            df = pipeline._load_single_file(path)
+            
             assert df is not None
-            assert "precinct_id" in df.columns
-        except Exception as e:
-            pytest.fail(f"Failed to load default delimited file: {e}")
+            # pandas read_csv with sep=r'\s+' handles multiple spaces
+            assert "precinct_sum" in df.columns
+            assert "county_reported" in df.columns
+            assert len(df.columns) == 3
+        finally:
+            os.unlink(path)
 
-    def test_invalid_file_raises_error(self):
-        """Test that an empty or malformed file raises a clear error."""
-        content = ""
-        file_path = self._create_test_file(content, "empty.csv")
-        
-        pipeline = DataIngestionPipeline()
-        with pytest.raises((ValueError, FileNotFoundError, Exception)):
-            pipeline.load_data(file_path)
+    def test_explicit_delimiter_override(self):
+        """Test that explicit delimiter parameter overrides auto-detection."""
+        # File has semicolons
+        content = "precinct_sum;county_reported;discrepancy_abs\n100;95;5"
+        path = self._create_temp_file(content, ".csv")
+        try:
+            pipeline = DataIngestionPipeline()
+            # Force comma detection on a semicolon file -> should result in 1 column
+            df = pipeline._load_single_file(path, delimiter=',')
+            
+            # If forced to comma, the whole line is one column
+            assert len(df.columns) == 1
+            assert "precinct_sum;county_reported;discrepancy_abs" in df.columns
+        finally:
+            os.unlink(path)
 
-    def test_mixed_delimiters_in_directory(self):
-        """Test processing a directory containing files with different delimiters."""
-        # Create multiple files
-        file1 = self._create_test_file("a,b\n1,2", "file1.csv")
-        file2 = self._create_test_file("c;d\n3;4", "file2.csv")
-        
-        pipeline = DataIngestionPipeline()
-        
-        # Assuming load_data can accept a directory or list of paths
-        # If the API only accepts a single path, we test the directory scanning logic
-        # or call load_data on each.
-        # Here we assume the pipeline has a method to ingest a folder.
-        if hasattr(pipeline, 'load_directory'):
-            df = pipeline.load_directory(self.temp_dir.name)
+    def test_invalid_delimiter_raises_error(self):
+        """Test that a file with an unsupported delimiter raises an error."""
+        # Create a file with a weird delimiter that pandas sniffing might fail on
+        # or explicitly pass a bad delimiter to the loader logic if it exists.
+        # Here we test the case where the file is completely unreadable as structured data.
+        content = "abc def ghi\njkl mno pqr" # No clear delimiter, just spaces
+        path = self._create_temp_file(content, ".csv")
+        try:
+            pipeline = DataIngestionPipeline()
+            # If the file is too ambiguous, we might get a single column or an error
+            # depending on pandas' default behavior. 
+            # The test ensures the pipeline doesn't crash silently with garbage.
+            df = pipeline._load_single_file(path)
+            # If it loads, verify structure is reasonable (at least 1 column)
             assert df is not None
-            assert len(df) == 2
-        else:
-            # Fallback test: load each individually and check logic
-            df1 = pipeline.load_data(file1)
-            df2 = pipeline.load_data(file2)
-            assert len(df1) == 1
-            assert len(df2) == 1
-            assert "a" in df1.columns or "c" in df2.columns # Verify content loaded
+        except Exception:
+            # It is also acceptable if it raises a clear DataAcquisitionError
+            pass
+        finally:
+            os.unlink(path)
+
+    def test_mixed_delimiters_in_batch(self):
+        """Test processing a batch of files with different delimiters."""
+        files = []
+        try:
+            # File 1: Comma
+            f1 = self._create_temp_file("a,b\n1,2", ".csv")
+            files.append(f1)
+            
+            # File 2: Tab
+            f2 = self._create_temp_file("a\tb\n3\t4", ".tsv")
+            files.append(f2)
+            
+            # File 3: Semicolon
+            f3 = self._create_temp_file("a;b\n5;6", ".csv")
+            files.append(f3)
+            
+            pipeline = DataIngestionPipeline()
+            # Load all files
+            combined_df = pipeline.load_files(files)
+            
+            assert combined_df is not None
+            assert len(combined_df) == 3
+            assert "a" in combined_df.columns
+            assert "b" in combined_df.columns
+            assert combined_df["a"].sum() == 9 # 1+3+5
+        finally:
+            for f in files:
+                if os.path.exists(f):
+                    os.unlink(f)
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

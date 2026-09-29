@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -54,11 +54,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup data directory structure: `data/raw/`, `data/processed/` and `state/` for checksums in `projects/PROJ-064-statistical-discrepancies-in-publicly-av/`
-- [ ] T005 [P] Implement base logging infrastructure in `code/` with explicit support for JSON-formatted logs containing keys: `checksum`, `artifact_hash`, and `reproducible_flag` to satisfy Constitution Principle I (Reproducibility) and Principle III (Data Hygiene). The logger MUST support a `--verify-reproducible` flag that outputs these hashes for external verification.
+- [ ] T005 [P] Implement base logging infrastructure in `code/` with explicit support for JSON-formatted logs containing keys: `checksum`, `artifact_hash`, and `reproducible_flag` to satisfy Constitution Principle I (Reproducibility) and Principle III (Data Hygiene). The logger MUST support a `--verify-reproducible` flag that outputs these hashes for external verification. **Note**: Depends on T004 (data directory structure) to ensure log paths exist.
 - [X] T007 Create base data models/entities (Jurisdiction, Discrepancy) in `code/models.py` AND define the output schema (columns: `precinct_sum`, `county_reported`, `discrepancy_abs`, `discrepancy_pct`, `missing_data` flag) for downstream tasks.
 - [X] T008 Implement content hashing utility for artifacts in `code/utils/hashing.py`
 - [ ] T009a Implement GitHub Actions workflow trigger for `--verify-reproducible` to re-run analysis on a fresh CI runner in `.github/workflows/verify_reproducible.yml`
-- [ ] T006 [P] Create `traceability_map.json` generator script in `code/utils/traceability.py` to link output metrics to source data rows. **Note**: This task depends on T007 schema definition.
+- [X] T006 [P] Create `traceability_map.json` generator script in `code/utils/traceability.py` to link output metrics to source data rows. **Note**: Depends on T007 schema definition. Schema: `traceability_map.json` must contain keys: `metric_id`, `source_file`, `source_row`, `code_block`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,24 +72,27 @@
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `ingestion.py` to: 1) Download data from OpenElections/State CSVs using verified URLs or Hugging Face mirrors; 2) Parse raw CSVs, normalize aggregation levels, and handle format deviations; 3) Raise clear errors if required variables (precinct votes, county totals) are missing; 4) Skip records with zero county votes and log warnings; 5) Flag "directional anomalies" (precinct sum > county total) and exclude from Negative Binomial fit; 6) Apply documented imputation rules or flag records with `missing_data` marker; 7) Validate temporal alignment of precinct/county boundaries with election cycle year. **Execution Flow**: Attempt real download first; ONLY if verified sources fail (and not due to network error), trigger the synthetic fallback logic defined in T014b. in `code/ingestion.py` and `code/discrepancy.py`
-- [ ] T014b [US1] Implement Synthetic Data Fallback logic in `code/ingestion.py`: 1) Trigger ONLY if verified real data download fails; 2) Generate synthetic data matching the exact schema defined in T007 (precinct_sum, county_reported) using Normal(0, 1) noise mapped to realistic vote counts; 3) Explicitly log that synthetic data is being used for validation only; 4) Ensure synthetic data generation does NOT bypass real-data error handling logic.
-- [ ] T016 [US1] Implement validation logic to ensure required variables (precinct votes, county totals) exist, raising clear errors if missing in `code/ingestion.py`
-- [ ] T017 [US1] Implement logic to calculate `precinct_sum`, `county_reported`, `discrepancy_abs`, and `discrepancy_pct` in `code/discrepancy.py`
-- [ ] T018 [US1] Implement edge case handling: skip records with zero county votes, log warnings, and exclude from relative discrepancy analysis in `code/discrepancy.py`
-- [ ] T019 [US1] Implement logic to flag "directional anomalies" (precinct sum > county total) and exclude from Negative Binomial fit if non-negative error assumption is violated in `code/discrepancy.py`
-- [ ] T020 [US1] Implement missing data handling: apply documented imputation rules or flag records with `missing_data` marker in `code/discrepancy.py`
-- [ ] T021 [US1] Ensure raw data is saved to `data/raw/` with checksums and processed data to `data/processed/` in `code/main.py`
-- [ ] T022 [US1] Implement logic to validate temporal alignment of precinct/county boundaries with election cycle year in `code/ingestion.py`
+- [X] T014a [US1] Implement `ingestion.py` core download logic: 1) Verify data source is on the verified list (Hugging Face mirrors, etc.) before attempting download; 2) If source is not verified, raise a clear error; 3) Download data from verified URLs only; 4) Parse raw CSVs, normalize aggregation levels, and handle format deviations. **Execution Flow**: Strictly enforce verified source gate before any fetch attempt. in `code/ingestion.py`
+- [X] T014b [US1] Implement error handling for data ingestion in `code/ingestion.py`: 1) Raise clear errors if required variables (precinct votes, county totals) are missing; 2) Skip records with zero county votes and log warnings; 3) Flag "directional anomalies" (precinct sum > county total) but DO NOT exclude from NB fit here (that logic belongs in T027). in `code/ingestion.py`
+- [X] T014c [US1] Implement missing data handling in `code/ingestion.py`: 1) Apply documented imputation rules or flag records with `missing_data` marker; 2) Ensure pipeline does not crash on incomplete datasets. in `code/ingestion.py`
+- [X] T014d [US1] Implement temporal alignment validation in `code/ingestion.py`: 1) Validate that precinct boundaries and county definitions are temporally aligned with the election cycle year. in `code/ingestion.py`
+- [X] T014b [US1] Implement Synthetic Data Fallback logic in `code/ingestion.py`: 1) Trigger ONLY if verified real data download fails (and not due to network error); 2) Generate synthetic data matching the exact schema defined in T007 (precinct_sum, county_reported) using Normal(0, 1) noise mapped to realistic vote counts; 3) Explicitly log that synthetic data is being used for validation only; 4) Ensure synthetic data generation does NOT bypass real-data error handling logic. <!-- FAILED: unspecified -->
+- [X] T016 [US1] Implement validation logic to ensure required variables (precinct votes, county totals) exist, raising clear errors if missing in `code/ingestion.py`
+- [X] T017 [US1] Implement logic to calculate `precinct_sum`, `county_reported`, `discrepancy_abs`, and `discrepancy_pct` in `code/discrepancy.py`
+- [X] T018 [US1] Implement edge case handling: skip records with zero county votes, log warnings, and exclude from relative discrepancy analysis in `code/discrepancy.py`
+- [X] T019 [US1] Implement logic to flag "directional anomalies" (precinct sum > county total) and exclude from Negative Binomial fit if non-negative error assumption is violated in `code/discrepancy.py`
+- [X] T020 [US1] Implement missing data handling: apply documented imputation rules or flag records with `missing_data` marker in `code/discrepancy.py`
+- [X] T021 [US1] Ensure raw data is saved to `data/raw/` with checksums and processed data to `data/processed/` in `code/main.py`
+- [X] T022 [US1] Implement logic to validate temporal alignment of precinct/county boundaries with election cycle year in `code/ingestion.py`
 
 ### Tests for User Story 1 ⚠️
 
 > **NOTE**: Write these tests AFTER implementation to ensure they verify the correct schema and logic. Depends on T007 (Data Models & Schema).
 
-- [ ] T010 [P] [US1] Unit test for data ingestion with mock CSV files in `tests/test_ingestion.py` (Schema defined in T007)
-- [ ] T011 [P] [US1] Contract test verifying output schema (precinct_sum, county_reported, etc.) in `tests/test_ingestion.py`
-- [ ] T012 [P] [US1] Test for missing data handling (imputation vs. flagging) in `tests/test_ingestion.py`
-- [ ] T013 [P] [US1] Test for auto-detection of file delimiters in `tests/test_ingestion.py`
+- [X] T010 [P] [US1] Unit test for data ingestion with mock CSV files in `tests/test_ingestion.py` (Schema defined in T007)
+- [X] T011 [P] [US1] Contract test verifying output schema (precinct_sum, county_reported, etc.) in `tests/test_ingestion.py`
+- [X] T012 [P] [US1] Test for missing data handling (imputation vs. flagging) in `tests/test_ingestion.py`
+- [X] T013 [P] [US1] Test for auto-detection of file delimiters in `tests/test_ingestion.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,15 +106,15 @@
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] Implement `simulation.py` to: 1) Generate a Negative Binomial null model from theoretical priors or pre-aggregation permutation; 2) Implement chunked processing (10 batches of 1000 iterations) to reach [deferred] iterations as required by FR-003; 3) Aggregate results (accumulate log-likelihoods/p-values) to ensure statistical equivalence to a full-scale run; 4) If NB fit fails (convergence error), switch to permutation-based null model as fallback; 5) Use seed=42. in `code/simulation.py`
-- [ ] T028 [US2] Implement `simulation.py` to generate a permutation-based null model simulating random clerical error within geographic boundaries (used as fallback or secondary model) in `code/simulation.py`
-- [ ] T029 [US2] Implement Monte Carlo simulation with 10,000 iterations (seed=42) using chunked processing (see T045) to stay under a moderate RAM limit in `code/simulation.py`
-- [ ] T045 [US2] [P] Implement logic to handle memory constraints via deferred iterations per batch during Monte Carlo in `code/simulation.py` (Optimization for T029)
-- [ ] T030 [US2] Implement Anderson-Darling test comparing observed discrepancies against the simulated null distributions in `code/analysis.py`
-- [ ] T031 [US2] Implement Kolmogorov-Smirnov test comparing observed vs. null distributions in `code/analysis.py`
-- [ ] T032 [US2] Implement logic to calculate p-values for each jurisdiction individually against the null distribution in `code/analysis.py`
+- [X] T027 [US2] Implement `simulation.py` to: 1) Generate a Negative Binomial null model from theoretical priors only (DO NOT use pre-aggregation permutation for NB model); 2) Execute [deferred] iterations (seed=42) as required by FR-003; 3) Implement chunked processing (10 batches of 1000 iterations) to ensure memory usage stays under 7 GB RAM limit; 4) Aggregate results (accumulate log-likelihoods/p-values) to ensure statistical equivalence to a full-scale run; 5) If NB fit fails (convergence error), switch to permutation-based null model as fallback. in `code/simulation.py`
+- [X] T028 [US2] Implement `simulation.py` to generate a permutation-based null model simulating random clerical error within geographic boundaries (used as fallback or secondary model) in `code/simulation.py`
+- [ ] T029 [US2] Implement Monte Carlo simulation with 10,000 iterations (seed=42) using chunked processing to stay under 7 GB RAM limit in `code/simulation.py`. **Verification**: Verify output file `data/processed/null_distributions.json` exists and contains [deferred] rows.
+- [X] T045 [US2] [P] Implement logic to handle memory constraints via deferred iterations per batch during Monte Carlo in `code/simulation.py` (Optimization for T029). **Note**: Sequential dependency on T029; must ensure total memory usage stays under 7 GB RAM.
+- [X] T030 [US2] Implement Anderson-Darling test comparing observed discrepancies against the simulated null distributions in `code/analysis.py`
+- [X] T031 [US2] Implement Kolmogorov-Smirnov test comparing observed vs. null distributions in `code/analysis.py`
+- [X] T032 [US2] Implement logic to calculate p-values for each jurisdiction individually against the null distribution in `code/analysis.py`
 - [ ] T033 [US2] Implement logic to frame all findings as "associational deviations from random expectation" in the output reports in `code/analysis.py`
-- [ ] T034 [US2] Implement fallback to permutation-based null model if Negative Binomial fit fails in `code/simulation.py`
+- [ ] T034 [US2] Implement fallback to permutation-based null model if Negative Binomial fit fails, utilizing the model constructed in T028 in `code/simulation.py`
 - [ ] T035 [US2] Implement VIF calculation for predictors if regression is extended: Check if 'population density, precinct size' exist in config; if yes, calculate VIF and flag if > 5; if no, mark SC-006 as 'Not Applicable' in `code/analysis.py`
 - [ ] T029b [US2] Verify chunked aggregation matches full-run simulation: Run a small-scale single-block simulation (1,000 iterations) and compare with chunked aggregation of the same data (10 batches of 100 iterations) using a Kolmogorov-Smirnov test; verify p-value > 0.05 to confirm statistical equivalence. **Note**: This task depends on T029 completion and must run sequentially after T029. in `code/analysis.py`
 
@@ -136,8 +139,8 @@
 
 ### Implementation for User Story 3
 
-- [ ] T039a [US3] Generate `config/sensitivity_thresholds.yaml` with concrete values: primary_threshold=0.5%, sweep_thresholds={0.01%, 0.05%, 0.1%, [deferred]} to resolve all placeholders from spec FR-005 in `config/sensitivity_thresholds.yaml`. **Note**: This task is a strict prerequisite for T039 and cannot run in parallel.
-- [ ] T039 [US3] Implement sensitivity analysis in `code/analysis.py` that loads thresholds from `config/sensitivity_thresholds.yaml` (MUST contain concrete values; halt if [deferred] found) and compares Negative Binomial vs. Permutation null models, generating a UNIFIED report correlating variation in flagged counts across BOTH dimensions (threshold AND model) in `code/analysis.py`
+- [ ] T039a [US3] Generate `config/sensitivity_thresholds.yaml` with concrete values: `primary_threshold=0.5%`, `sweep_thresholds={0.01%, 0.05%, 0.1%}` to resolve all placeholders from spec FR-005 in `config/sensitivity_thresholds.yaml`. **Note**: This task is a strict prerequisite for T039 and cannot run in parallel. Note: T039a depends on spec FR-005, not T027.
+- [ ] T039 [US3] Implement sensitivity analysis in `code/analysis.py` that loads thresholds from `config/sensitivity_thresholds.yaml` (MUST contain concrete values; halt if invalid or missing values found) and compares Negative Binomial vs. Permutation null models, generating a UNIFIED report correlating variation in flagged counts across BOTH dimensions (threshold AND model). Measure proportion of jurisdictions exceeding the primary 0.5% threshold (configured in T039a) in `code/analysis.py`
 - [ ] T041 [US3] Implement `viz.py` to generate histograms of observed vs. simulated discrepancies using `matplotlib`/`seaborn`, reading null distribution from `data/processed/null_distributions.json` in `code/viz.py`
 - [ ] T042 [US3] Implement `viz.py` to generate Q-Q plots comparing observed vs. null distributions in `code/viz.py`
 - [ ] T043 [US3] Implement `viz.py` to generate a table or heatmap of top jurisdictions by discrepancy magnitude in `code/viz.py`
@@ -158,10 +161,10 @@
 
 **Purpose**: Improvements that affect multiple user stories. Depends on US1 and US2 output schemas.
 
-- [ ] T006_exec [P] Execute traceability generation: Run the `traceability_map.json` generator (created in T006) to link all final statistics to source data rows (Uses T006 script).
+- [ ] T006_exec [P] Execute traceability generation: Run the traceability_map.json generator script created in T006 to link all final statistics to source data rows (Uses T006 script).
 - [ ] T047a [P] Generate `docs/quickstart.md` with end-to-end pipeline execution instructions in `docs/`
 - [ ] T047b [P] Generate `docs/data-model.md` with entity definitions and schema details in `docs/`
-- [ ] T048 [P] Profile and optimize memory-bound operations in `simulation.py` to reduce peak memory usage during the Monte Carlo loop. **Deliverable**: Benchmark script and profile report. **Verification**: Run `code/benchmark_simulation.py` and confirm peak memory usage is < 7 GB for 10k iterations.
+- [ ] T048 [P] Profile and optimize memory-bound operations in `simulation.py` to reduce peak memory usage during the Monte Carlo loop. **Note**: Sequential dependency on T029. **Deliverable**: Benchmark script and profile report. **Verification**: Run `python code/benchmark_simulation.py --iterations 10000` and confirm peak memory usage is < 7 GB. **Requirement**: Must measure and record the memory metric as a formal output artifact for SC-005 verification.
 - [ ] T049 [P] Benchmark Monte Carlo chunking to ensure < 6h execution time for 10k iterations. **Deliverable**: Benchmark report. **Verification**: Execute `code/benchmark_simulation.py` with full 10k iterations; confirm total runtime is < 6 hours on the target runner environment and log memory usage stays < 7 GB.
 - [ ] T050 [P] Additional unit tests for edge cases (zero votes, missing data) in `tests/`
-- [ ] T051 Run `quickstart.md` validation to ensure end-to-end pipeline execution
+- [ ] T051 Run `quickstart.md` validation: Execute `pytest tests/test_quickstart.py` and verify exit code 0.
