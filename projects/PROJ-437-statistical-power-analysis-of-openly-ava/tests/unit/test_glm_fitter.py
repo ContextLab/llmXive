@@ -1,281 +1,156 @@
 """
-Unit tests for GLM fitter module.
-
-Tests cover:
-- GLM fitting on synthetic data
-- Effect size estimation
-- Convergence tracking
-- Batch processing
-- Error handling
+Unit tests for code/analysis/glm_fitter.py
 """
-
-import json
-import tempfile
-from pathlib import Path
-
-import numpy as np
 import pytest
+import numpy as np
+import json
+from pathlib import Path
+import tempfile
+import os
 
-from code.analysis.glm_fitter import (
-    GLMFitError,
-    fit_glm,
-    estimate_effect_size,
-    fit_glm_batch
+from analysis.glm_fitter import (
+    fit_glm, 
+    estimate_effect_size, 
+    fit_glm_batch, 
+    ConvergenceLogger, 
+    GLMFitError
 )
+from utils.seed_manager import set_global_seed
 
 
-class TestFitGLM:
-    """Tests for the fit_glm function."""
-
-    def test_basic_glm_fit(self):
-        """Test basic GLM fitting on simple linear data."""
-        np.random.seed(42)
-        n = 100
-        X = np.random.randn(n, 1)
-        y = 2 * X.flatten() + np.random.randn(n) * 0.5
-
-        results, conv_info = fit_glm(y, X)
-
-        assert results is not None
-        assert conv_info["converged"] is True
-        assert conv_info["max_iterations"] == 100
-        assert conv_info["tolerance"] == 1e-4
-        assert conv_info["n_iterations"] > 0
-        assert "converged" in conv_info["message"]
-
-    def test_glm_with_custom_parameters(self):
-        """Test GLM fitting with custom max_iter and tol."""
-        np.random.seed(42)
-        n = 100
-        X = np.random.randn(n, 1)
-        y = 2 * X.flatten() + np.random.randn(n) * 0.5
-
-        results, conv_info = fit_glm(y, X, max_iter=50, tol=1e-5)
-
-        assert results is not None
-        assert conv_info["max_iterations"] == 50
-        assert conv_info["tolerance"] == 1e-5
-
-    def test_glm_empty_input(self):
-        """Test GLM fitting with empty arrays."""
-        X = np.array([]).reshape(0, 1)
-        y = np.array([])
-
-        with pytest.raises(GLMFitError, match="cannot be empty"):
-            fit_glm(y, X)
-
-    def test_glm_mismatched_dimensions(self):
-        """Test GLM fitting with mismatched X and y dimensions."""
-        X = np.random.randn(100, 1)
-        y = np.random.randn(50)
-
-        with pytest.raises(GLMFitError, match="must match"):
-            fit_glm(y, X)
-
-    def test_glm_none_input(self):
-        """Test GLM fitting with None inputs."""
-        with pytest.raises(GLMFitError, match="cannot be None"):
-            fit_glm(None, np.random.randn(10, 1))
-
-        with pytest.raises(GLMFitError, match="cannot be None"):
-            fit_glm(np.random.randn(10), None)
+def test_fit_glm_basic():
+    """Test basic GLM fitting with known data."""
+    set_global_seed(42)
+    n = 50
+    x = np.arange(n)
+    y = 2 * x + 1 + np.random.normal(0, 1, n)
+    
+    X = np.column_stack([np.ones(n), x])
+    
+    results, converged, iterations = fit_glm(y, X, random_seed=42)
+    
+    assert converged is True
+    assert results.params[1] > 1.5  # Slope should be close to 2
+    assert results.params[0] > 0    # Intercept should be positive
 
 
-class TestEstimateEffectSize:
-    """Tests for the estimate_effect_size function."""
-
-    def test_effect_size_calculation(self):
-        """Test effect size estimation on known data."""
-        np.random.seed(42)
-        n = 200
-        X = np.random.randn(n, 1)
-        y = 1.5 * X.flatten() + np.random.randn(n) * 0.3
-
-        results, _ = fit_glm(y, X)
-        d = estimate_effect_size(results, coefficient_idx=1)
-
-        assert isinstance(d, float)
-        assert not np.isnan(d)
-        assert not np.isinf(d)
-        # With beta=1.5 and sigma_residual ~0.3, d should be ~5.0
-        assert 4.0 < d < 6.0
-
-    def test_effect_size_zero_residual(self):
-        """Test effect size when residual std is zero."""
-        np.random.seed(42)
-        n = 100
-        X = np.random.randn(n, 1)
-        # Perfect linear relationship
-        y = 2 * X.flatten()
-
-        results, _ = fit_glm(y, X)
-        d = estimate_effect_size(results, coefficient_idx=1)
-
-        # Should return inf for non-zero beta
-        assert np.isinf(d)
-
-    def test_effect_size_invalid_index(self):
-        """Test effect size with invalid coefficient index."""
-        np.random.seed(42)
-        n = 100
-        X = np.random.randn(n, 1)
-        y = np.random.randn(n)
-
-        results, _ = fit_glm(y, X)
-
-        with pytest.raises(ValueError, match="exceeds number of parameters"):
-            estimate_effect_size(results, coefficient_idx=10)
-
-    def test_effect_size_none_results(self):
-        """Test effect size with None results."""
-        with pytest.raises(ValueError, match="Cannot estimate effect size from None"):
-            estimate_effect_size(None)
+def test_estimate_effect_size():
+    """Test Cohen's d calculation."""
+    set_global_seed(42)
+    n = 100
+    x = np.random.normal(0, 1, n)
+    y = 2 * x + np.random.normal(0, 1, n)
+    
+    X = sm.add_constant(x)
+    model = sm.GLM(y, X, family=sm.families.Gaussian())
+    results = model.fit()
+    
+    cohens_d = estimate_effect_size(results, beta_index=1)
+    
+    # Cohen's d for beta=2, sigma=1 is roughly 2
+    assert abs(cohens_d - 2.0) < 0.5
 
 
-class TestFitGLMBatch:
-    """Tests for the fit_glm_batch function."""
+def test_convergence_logger(tmp_path):
+    """Test ConvergenceLogger writes correct JSON."""
+    output_file = tmp_path / "test_convergence.json"
+    logger = ConvergenceLogger(str(output_file))
+    
+    logger.log(1, True, 100, 1e-4)
+    logger.log(2, False, 50, 1e-4)
+    logger.save()
+    
+    assert output_file.exists()
+    with open(output_file, 'r') as f:
+        data = json.load(f)
+    
+    assert len(data) == 2
+    assert data[0]['iteration_id'] == 1
+    assert data[0]['converged'] is True
+    assert data[1]['converged'] is False
 
-    def test_batch_processing(self):
-        """Test batch processing of multiple ROIs."""
-        np.random.seed(42)
-        n = 100
-        design_matrix = np.random.randn(n, 1)
 
-        roi_data = {
-            "roi_1": np.random.randn(n),
-            "roi_2": np.random.randn(n),
-            "roi_3": np.random.randn(n)
-        }
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "convergence_log.json"
-
-            result = fit_glm_batch(
-                roi_data=roi_data,
-                design_matrix=design_matrix,
-                output_path=output_path,
-                iteration_id=0
-            )
-
-            # Check structure
-            assert "effect_sizes" in result
-            assert "p_values" in result
-            assert "convergence_logs" in result
-            assert "summary" in result
-
-            # Check counts
-            assert len(result["effect_sizes"]) == 3
-            assert len(result["p_values"]) == 3
-            assert len(result["convergence_logs"]) == 3
-
-            # Check summary
-            assert result["summary"]["total_rois"] == 3
-            assert result["summary"]["successful_fits"] == 3
-            assert result["summary"]["failed_fits"] == 0
-
-            # Check file was written
-            assert output_path.exists()
-            with open(output_path, 'r') as f:
-                logs = json.load(f)
-            assert len(logs) == 3
-            assert all("iteration_id" in log for log in logs)
-            assert all("converged" in log for log in logs)
-
-    def test_batch_with_failed_fits(self):
-        """Test batch processing with some failed fits."""
-        np.random.seed(42)
-        n = 100
-        design_matrix = np.random.randn(n, 1)
-
-        roi_data = {
-            "roi_good": np.random.randn(n),
-            "roi_bad": np.array([0.0] * n)  # Might cause issues
-        }
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "convergence_log.json"
-
-            result = fit_glm_batch(
-                roi_data=roi_data,
-                design_matrix=design_matrix,
-                output_path=output_path,
-                iteration_id=1
-            )
-
-            # Should have at least one successful fit
-            assert len(result["effect_sizes"]) >= 1
-            assert len(result["convergence_logs"]) == 2
-
-            # Check iteration ID in logs
-            for log in result["convergence_logs"]:
-                assert log["iteration_id"] == 1
-
-    def test_batch_without_output_path(self):
-        """Test batch processing without output path."""
-        np.random.seed(42)
-        n = 100
-        design_matrix = np.random.randn(n, 1)
-
-        roi_data = {
-            "roi_1": np.random.randn(n),
-            "roi_2": np.random.randn(n)
-        }
-
+def test_fit_glm_batch_subsampling():
+    """Test that batch fitting subsamples subjects correctly."""
+    set_global_seed(42)
+    n_subjects = 50
+    n_timepoints = 100
+    n_rois = 1
+    
+    # Create synthetic data
+    time = np.arange(n_timepoints)
+    signal = np.sin(2 * np.pi * time / 20)
+    noise = np.random.normal(0, 1, (n_subjects, n_timepoints, n_rois))
+    roi_data = (signal + noise).reshape(n_subjects, n_timepoints, n_rois)
+    
+    X = np.column_stack([np.ones(n_timepoints), time])
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = Path(tmpdir) / "log.json"
+        logger = ConvergenceLogger(str(log_path))
+        
         result = fit_glm_batch(
             roi_data=roi_data,
-            design_matrix=design_matrix,
-            output_path=None,
-            iteration_id=0
+            design_matrix=X,
+            sample_size=10,
+            random_seed=42,
+            convergence_logger=logger,
+            iteration_id=1
         )
+        
+        assert result['sample_size'] == 10
+        assert 'cohens_d' in result
+        assert 'converged' in result
+        
+        # Check log file
+        logger.save()
+        with open(log_path, 'r') as f:
+            logs = json.load(f)
+        assert len(logs) == 1
+        assert logs[0]['iteration_id'] == 1
 
-        assert "effect_sizes" in result
-        assert "convergence_logs" in result
-        # No file should be written
-        # (we can't easily test this without checking filesystem,
-        # but the function should work without output_path)
+
+def test_fit_glm_batch_insufficient_data():
+    """Test behavior when requested sample size > available."""
+    set_global_seed(42)
+    n_subjects = 5
+    n_timepoints = 100
+    n_rois = 1
+    
+    time = np.arange(n_timepoints)
+    signal = np.sin(2 * np.pi * time / 20)
+    noise = np.random.normal(0, 1, (n_subjects, n_timepoints, n_rois))
+    roi_data = (signal + noise).reshape(n_subjects, n_timepoints, n_rois)
+    
+    X = np.column_stack([np.ones(n_timepoints), time])
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        log_path = Path(tmpdir) / "log.json"
+        logger = ConvergenceLogger(str(log_path))
+        
+        # Request 20 subjects, only 5 available
+        result = fit_glm_batch(
+            roi_data=roi_data,
+            design_matrix=X,
+            sample_size=20,
+            random_seed=42,
+            convergence_logger=logger,
+            iteration_id=1
+        )
+        
+        # Should clamp to 5
+        assert result['sample_size'] == 5
 
 
-class TestIntegration:
-    """Integration tests for the GLM fitter module."""
-
-    def test_end_to_end_workflow(self):
-        """Test complete workflow from data to effect size estimation."""
-        np.random.seed(42)
-        n = 200
-
-        # Generate realistic fMRI-like data
-        time_series = np.random.randn(n) * 2 + 1  # Mean=1, std=2
-        design = np.random.randn(n, 1)
-
-        # Fit GLM
-        results, conv_info = fit_glm(time_series, design)
-
-        assert results is not None
-        assert conv_info["converged"]
-
-        # Estimate effect size
-        d = estimate_effect_size(results)
-
-        assert isinstance(d, float)
-        assert not np.isnan(d)
-
-        # Batch process
-        roi_data = {"motor_roi": time_series}
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_convergence.json"
-
-            batch_result = fit_glm_batch(
-                roi_data=roi_data,
-                design_matrix=design,
-                output_path=output_path,
-                iteration_id=5
-            )
-
-            assert len(batch_result["effect_sizes"]) == 1
-            assert batch_result["summary"]["successful_fits"] == 1
-
-            # Verify file content
-            with open(output_path, 'r') as f:
-                logs = json.load(f)
-            assert logs[0]["iteration_id"] == 5
-            assert logs[0]["converged"] is True
+def test_fit_glm_nan_error():
+    """Test that GLM fitting raises error on NaN data."""
+    set_global_seed(42)
+    n = 50
+    x = np.arange(n)
+    y = 2 * x + 1 + np.random.normal(0, 1, n)
+    y[10] = np.nan
+    
+    X = sm.add_constant(x)
+    
+    with pytest.raises(GLMFitError):
+        fit_glm(y, X, random_seed=42)

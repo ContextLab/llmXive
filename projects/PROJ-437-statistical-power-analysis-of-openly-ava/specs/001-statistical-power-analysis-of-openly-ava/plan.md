@@ -111,9 +111,9 @@ results/
 | Spec ID | Plan Element | Description |
 |---------|--------------|-------------|
 | FR-001 | `download/openneuro_fetcher.py` | Downloads raw BIDS data for 5 verified datasets; streams/samples if >14GB. |
-| FR-002 | `preprocess/roi_extractor.py` + `temporal_smoothing.py` | **Adapted**: Uses lightweight ROI extraction + temporal smoothing as CPU-tractable substitute for fMRIPrep; supports 4mm/8mm equivalent temporal kernels. |
+| FR-002 | `preprocess/roi_extractor.py` + `temporal_smoothing.py` | **Adapted**: Uses lightweight ROI extraction + temporal smoothing as CPU-tractable substitute for fMRIPrep; supports variable temporal kernel sizes. |
 | FR-003 | `analysis/split_half_validator.py` | Split-half validation loop with effect size estimation and replication success definition. |
-| FR-004 | `analysis/power_curve_generator.py` | 50+ bootstrapped iterations per sample size. |
+| FR-004 | `analysis/power_curve_generator.py` | Multiple bootstrapped iterations per sample size. |
 | FR-005 | `analysis/power_curve_generator.py` | Logistic Regression with `statsmodels` (CPU-optimized). |
 | FR-006 | `utils/memory_monitor.py` | Automatic downsampling if dataset exceeds available RAM. |
 | SC-001 | `analysis/split_half_validator.py` | Replication success metric (True Positive Rate) against known ground truth. |

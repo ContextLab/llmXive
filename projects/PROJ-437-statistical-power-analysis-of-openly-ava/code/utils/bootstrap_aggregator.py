@@ -1,270 +1,213 @@
 """
 Bootstrap Aggregator Module.
 
-This module consumes the list of results per sample size from bootstrap iterations
-and computes the final empirical replication rates, confidence intervals, and
-aggregated statistics required for power curve generation.
+This module consolidates aggregation logic for power curve generation,
+extracting it from the power_curve_generator to provide a clean API
+for multi-kernel and multi-alpha runs.
 """
-
 import json
 import logging
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
 
-import numpy as np
+# Ensure imports from sibling modules match the API surface
+# Note: We do not import numpy directly here unless used for specific stats,
+# relying on the calling context or statsmodels for heavy lifting if needed.
+# However, for confidence intervals, we might need numpy/scipy.
+try:
+    import numpy as np
+    HAS_NUMPY = True
+except ImportError:
+    HAS_NUMPY = False
+    logging.warning("numpy not available; confidence intervals will be approximate or skipped.")
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-)
+try:
+    from scipy import stats
+    HAS_SCIPY = True
+except ImportError:
+    HAS_SCIPY = False
+    logging.warning("scipy not available; confidence intervals will be approximate or skipped.")
+
 logger = logging.getLogger(__name__)
 
 
 def aggregate_power_results(
-    bootstrap_results: List[Dict[str, Any]],
-    sample_sizes: List[int],
-    paradigm_id: str,
-    kernel_size: Optional[str] = None,
+    iteration_results: List[Dict[str, Any]],
+    sample_size: int,
+    kernel: str,
+    alpha: float
 ) -> Dict[str, Any]:
     """
-    Aggregate bootstrap results per sample size to compute empirical replication rates.
-
-    This function groups results by sample size, calculates the proportion of
-    successful replications (successes / total attempts) for each size, and
-    returns the aggregated power curve data.
+    Aggregate results from multiple bootstrap iterations for a specific configuration.
 
     Args:
-        bootstrap_results: List of dictionaries, each containing 'sample_size' and
-                           'replication_success' (bool) or similar success metric.
-        sample_sizes: List of target sample sizes tested.
-        paradigm_id: Identifier for the cognitive paradigm being analyzed.
-        kernel_size: Optional smoothing kernel identifier (e.g., '4mm', '8mm').
+        iteration_results: List of dictionaries containing individual iteration results.
+                           Expected keys: 'replication_success' (bool), 'effect_size' (float), 'p_value' (float).
+        sample_size: The sample size used for this configuration.
+        kernel: The smoothing kernel used (e.g., '4s', '8s').
+        alpha: The significance threshold used.
 
     Returns:
-        Dictionary containing:
-            - 'paradigm_id': str
-            - 'kernel_size': str or None
-            - 'sample_sizes_tested': List[int]
-            - 'empirical_rates': List[float] (proportion of successes)
-            - 'success_counts': List[int]
-            - 'total_counts': List[int]
-            - 'aggregation_timestamp': ISO timestamp string
+        A dictionary containing aggregated metrics:
+        - 'sample_size': int
+        - 'kernel': str
+        - 'alpha': float
+        - 'total_iterations': int
+        - 'successful_replications': int
+        - 'empirical_power': float (rate of successful replications)
+        - 'mean_effect_size': float (average of effect sizes from successful iterations)
+        - 'std_effect_size': float (standard deviation of effect sizes)
+        - 'mean_p_value': float
     """
-    if not bootstrap_results:
-        logger.warning(f"No bootstrap results provided for {paradigm_id}. Returning empty aggregation.")
+    if not iteration_results:
+        logger.warning(f"No results to aggregate for N={sample_size}, kernel={kernel}, alpha={alpha}")
         return {
-            "paradigm_id": paradigm_id,
-            "kernel_size": kernel_size,
-            "sample_sizes_tested": [],
-            "empirical_rates": [],
-            "success_counts": [],
-            "total_counts": [],
-            "aggregation_timestamp": "N/A",
+            "sample_size": sample_size,
+            "kernel": kernel,
+            "alpha": alpha,
+            "total_iterations": 0,
+            "successful_replications": 0,
+            "empirical_power": 0.0,
+            "mean_effect_size": 0.0,
+            "std_effect_size": 0.0,
+            "mean_p_value": 0.0,
+            "status": "empty"
         }
 
-    # Group results by sample size
-    grouped: Dict[int, List[bool]] = {size: [] for size in sample_sizes}
+    successful_count = sum(1 for r in iteration_results if r.get('replication_success', False))
+    total_count = len(iteration_results)
+    empirical_power = successful_count / total_count if total_count > 0 else 0.0
 
-    for res in bootstrap_results:
-        size = res.get("sample_size")
-        if size is None or size not in grouped:
-            logger.warning(f"Skipping result with unknown sample_size: {size}")
-            continue
+    # Extract effect sizes from successful iterations only, or all?
+    # Typically power analysis looks at the rate, but effect size stability is also key.
+    # Let's calculate mean effect size across ALL successful iterations.
+    effect_sizes = [r.get('effect_size', 0.0) for r in iteration_results if r.get('replication_success', False)]
 
-        # Determine success metric. Assumes 'replication_success' is a boolean.
-        success = res.get("replication_success", False)
-        if isinstance(success, bool):
-            grouped[size].append(success)
-        else:
-            # Fallback if stored as 0/1 int
-            grouped[size].append(bool(success))
+    mean_effect = float(np.mean(effect_sizes)) if HAS_NUMPY and effect_sizes else 0.0
+    std_effect = float(np.std(effect_sizes)) if HAS_NUMPY and len(effect_sizes) > 1 else 0.0
 
-    # Compute rates
-    rates = []
-    successes = []
-    totals = []
-
-    for size in sample_sizes:
-        results_for_size = grouped[size]
-        if not results_for_size:
-            # No iterations ran for this size; rate is NaN or 0?
-            # Spec implies we need a rate. If no data, we can't compute.
-            # We'll use NaN to indicate missing data, which the model fitting should handle.
-            rates.append(float("nan"))
-            successes.append(0)
-            totals.append(0)
-        else:
-            count = len(results_for_size)
-            succ = sum(results_for_size)
-            rates.append(succ / count)
-            successes.append(succ)
-            totals.append(count)
-
-    logger.info(
-        f"Aggregated {len(bootstrap_results)} results for {paradigm_id} "
-        f"(kernel={kernel_size}). Computed {len(rates)} rates."
-    )
+    p_values = [r.get('p_value', 1.0) for r in iteration_results if r.get('replication_success', False)]
+    mean_p = float(np.mean(p_values)) if HAS_NUMPY and p_values else 1.0
 
     return {
-        "paradigm_id": paradigm_id,
-        "kernel_size": kernel_size,
-        "sample_sizes_tested": sample_sizes,
-        "empirical_rates": rates,
-        "success_counts": successes,
-        "total_counts": totals,
-        "aggregation_timestamp": "N/A", # Timestamp handled by caller or generic
+        "sample_size": sample_size,
+        "kernel": kernel,
+        "alpha": alpha,
+        "total_iterations": total_count,
+        "successful_replications": successful_count,
+        "empirical_power": empirical_power,
+        "mean_effect_size": mean_effect,
+        "std_effect_size": std_effect,
+        "mean_p_value": mean_p,
+        "status": "aggregated"
     }
 
 
 def compute_confidence_intervals(
-    aggregated_data: Dict[str, Any],
-    confidence_level: float = 0.95,
-) -> Dict[str, List[float]]:
+    results: List[Dict[str, Any]],
+    alpha_threshold: float = 0.05
+) -> Dict[str, float]:
     """
-    Compute confidence intervals for the empirical rates using the Clopper-Pearson method.
+    Compute confidence intervals for the empirical power estimate.
+
+    Uses the Clopper-Pearson exact interval if possible, or Normal approximation.
 
     Args:
-        aggregated_data: Output from aggregate_power_results.
-        confidence_level: Confidence level (e.g., 0.95).
+        results: List of aggregated result dictionaries (output of aggregate_power_results).
+        alpha_threshold: Confidence level (e.g., 0.05 for 95% CI).
 
     Returns:
-        Dictionary with keys 'lower_bound' and 'upper_bound', each a list of floats.
+        Dictionary with 'lower_ci' and 'upper_ci' for the most recent result or average?
+        Actually, this function is usually called per configuration.
+        Let's adjust signature to take a single aggregated result.
     """
-    successes = aggregated_data.get("success_counts", [])
-    totals = aggregated_data.get("total_counts", [])
-    rates = aggregated_data.get("empirical_rates", [])
+    # Re-reading the requirement: compute CI for the power estimate.
+    # This should be called on the aggregated result of a single configuration.
+    # Let's assume the input is a single aggregated result dict.
+    # If a list is passed, we compute for the last one or raise error.
+    if isinstance(results, list):
+        if len(results) == 0:
+            return {"lower_ci": 0.0, "upper_ci": 0.0}
+        result = results[-1]
+    else:
+        result = results
 
-    if not successes or not totals:
-        return {"lower_bound": [], "upper_bound": []}
+    n = result.get('total_iterations', 0)
+    k = result.get('successful_replications', 0)
 
-    lower_bounds = []
-    upper_bounds = []
+    if n == 0:
+        return {"lower_ci": 0.0, "upper_ci": 0.0}
 
-    for succ, total, rate in zip(successes, totals, rates):
-        if total == 0:
-            lower_bounds.append(float("nan"))
-            upper_bounds.append(float("nan"))
-            continue
-
-        # Use beta distribution quantiles for Clopper-Pearson
-        alpha = 1.0 - confidence_level
-        # scipy.stats.beta is preferred, but to minimize dependencies we use numpy approximation
-        # or rely on scipy if available. Given requirements.txt includes statsmodels/scipy,
-        # we can import scipy.stats.
-        try:
-            from scipy.stats import beta
-
-            lower = beta.ppf(alpha / 2.0, succ, total - succ + 1) if succ > 0 else 0.0
-            upper = beta.ppf(1.0 - alpha / 2.0, succ + 1, total - succ) if succ < total else 1.0
-            lower_bounds.append(float(lower))
-            upper_bounds.append(float(upper))
-        except ImportError:
-            # Fallback to normal approximation if scipy is missing (less accurate for small N)
-            z = 1.96 if confidence_level == 0.95 else 1.645 # Rough approximation
-            se = np.sqrt((rate * (1 - rate)) / total) if total > 0 else 0
-            lower = max(0.0, rate - z * se)
-            upper = min(1.0, rate + z * se)
-            lower_bounds.append(float(lower))
-            upper_bounds.append(float(upper))
-
-    return {
-        "lower_bound": lower_bounds,
-        "upper_bound": upper_bounds,
-    }
+    if HAS_SCIPY:
+        # Clopper-Pearson exact interval
+        lower, upper = stats.beta.ppf([alpha_threshold / 2, 1 - alpha_threshold / 2], k, n - k + 1)
+        return {"lower_ci": float(lower), "upper_ci": float(upper)}
+    else:
+        # Normal approximation
+        p = k / n
+        se = (p * (1 - p) / n) ** 0.5
+        z = 1.96 # Approx for 95%
+        lower = max(0.0, p - z * se)
+        upper = min(1.0, p + z * se)
+        return {"lower_ci": float(lower), "upper_ci": float(upper)}
 
 
 def save_aggregated_results(
-    aggregated_data: Dict[str, Any],
-    confidence_intervals: Dict[str, List[float]],
-    output_path: Path,
-) -> None:
+    aggregated_data: List[Dict[str, Any]],
+    output_path: str
+) -> Path:
     """
-    Save the aggregated power curve results and confidence intervals to a JSON file.
+    Save the aggregated power curve results to a JSON file.
 
     Args:
-        aggregated_data: The dictionary returned by aggregate_power_results.
-        confidence_intervals: The dictionary returned by compute_confidence_intervals.
+        aggregated_data: List of aggregated result dictionaries.
         output_path: Path to the output JSON file.
-    """
-    if not output_path.parent.exists():
-        output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    final_output = {
-        **aggregated_data,
-        "confidence_intervals": confidence_intervals,
+    Returns:
+        The Path object of the created file.
+    """
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    output_structure = {
+        "metadata": {
+            "generated_at": datetime.now().isoformat(),
+            "total_configurations": len(aggregated_data)
+        },
+        "results": aggregated_data
     }
 
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(final_output, f, indent=2)
+    with open(path, 'w') as f:
+        json.dump(output_structure, f, indent=2)
 
-    logger.info(f"Saved aggregated power curve results to {output_path}")
+    logger.info(f"Saved aggregated results to {path}")
+    return path
 
 
-def main() -> None:
+def main():
     """
-    Main entry point for the bootstrap aggregator.
-
-    This function is intended to be called by the power_curve_generator (T022)
-    to aggregate results. If run as a script, it expects arguments to simulate
-    a standalone run (for testing).
+    Command-line entry point for testing the aggregator.
     """
-    parser = argparse.ArgumentParser(
-        description="Aggregate bootstrap results for power curve generation."
-    )
-    parser.add_argument(
-        "--input-json",
-        type=str,
-        required=True,
-        help="Path to JSON file containing list of bootstrap results.",
-    )
-    parser.add_argument(
-        "--output-json",
-        type=str,
-        required=True,
-        help="Path to save the aggregated results.",
-    )
-    parser.add_argument(
-        "--paradigm",
-        type=str,
-        default="default",
-        help="Paradigm ID for the results.",
-    )
-    parser.add_argument(
-        "--kernel",
-        type=str,
-        default=None,
-        help="Smoothing kernel size (e.g., '4mm').",
-    )
-    parser.add_argument(
-        "--sample-sizes",
-        type=str,
-        default="10,20,30,40,50",
-        help="Comma-separated list of sample sizes tested.",
-    )
+    logging.basicConfig(level=logging.INFO)
 
-    args = parser.parse_args()
+    # Simulate some data for testing
+    mock_results = [
+        {"replication_success": True, "effect_size": 0.5, "p_value": 0.03},
+        {"replication_success": True, "effect_size": 0.45, "p_value": 0.04},
+        {"replication_success": False, "effect_size": 0.2, "p_value": 0.15},
+        {"replication_success": True, "effect_size": 0.55, "p_value": 0.02},
+        {"replication_success": False, "effect_size": 0.1, "p_value": 0.60},
+    ]
 
-    # Load input results
-    with open(args.input_json, "r", encoding="utf-8") as f:
-        bootstrap_results = json.load(f)
+    agg = aggregate_power_results(mock_results, sample_size=20, kernel="4s", alpha=0.05)
+    print(json.dumps(agg, indent=2))
 
-    sample_sizes = [int(s) for s in args.sample_sizes.split(",")]
+    ci = compute_confidence_intervals(agg)
+    print(f"95% CI: {ci}")
 
-    # Aggregate
-    agg_data = aggregate_power_results(
-        bootstrap_results=bootstrap_results,
-        sample_sizes=sample_sizes,
-        paradigm_id=args.paradigm,
-        kernel_size=args.kernel,
-    )
-
-    # Compute CIs
-    cis = compute_confidence_intervals(agg_data)
-
-    # Save
-    save_aggregated_results(agg_data, cis, Path(args.output_json))
+    save_aggregated_results([agg], "data/aggregated/test_aggregation.json")
 
 
 if __name__ == "__main__":

@@ -1,30 +1,31 @@
 """
 Split-half validation module for statistical power analysis.
 
-This module implements the split-half validation logic to partition real data
-into train/test sets, test significance on held-out sets, and determine
-replication success based on effect size direction and magnitude.
-
-Includes error handling for failed GLM iterations and flags "Unreliable"
-if the failure rate exceeds 20% (Edge Case 3).
+This module implements the bootstrap loop for estimating empirical replication
+probabilities across different sample sizes. It performs strict memory isolation
+between training and test sets to prevent data leakage.
 """
 
 import logging
 import sys
 import json
+import gc
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
-import numpy as np
+from typing import Dict, List, Any, Optional, Tuple
 
-# Import from sibling modules based on API surface
-from analysis.glm_fitter import fit_glm, estimate_effect_size, GLMFitError
+import numpy as np
+import pandas as pd
+from statsmodels.genmod.generalized_linear_model import GLM
+from statsmodels.genmod import families
+from statsmodels.tools import add_constant
+
 from models.replication_result import ReplicationResult
-from utils.seed_manager import set_global_seed
+from utils.seed_manager import set_global_seed, get_seed
+from analysis.glm_fitter import fit_glm, GLMFitError, ConvergenceLogger
+from utils.memory_monitor import check_memory_threshold, trigger_gc
 
 logger = logging.getLogger(__name__)
-
-# Constants for failure rate threshold
-FAILURE_RATE_THRESHOLD = 0.20  # 20%
 
 class SplitHalfValidationError(Exception):
     """Custom exception for split-half validation errors."""
@@ -32,350 +33,313 @@ class SplitHalfValidationError(Exception):
 
 
 def validate_split_half(
-    train_data: np.ndarray,
-    test_data: np.ndarray,
-    paradigm: str,
+    data: pd.DataFrame,
     sample_size: int,
-    kernel_size: str,
-    random_seed: int
-) -> Tuple[Optional[ReplicationResult], bool]:
+    alpha: float = 0.05,
+    seed: Optional[int] = None,
+    max_iterations: int = 50,
+    magnitude_threshold: float = 0.20
+) -> Tuple[List[ReplicationResult], Dict[str, Any]]:
     """
-    Perform split-half validation on a single iteration.
+    Perform a single split-half validation iteration.
 
     Args:
-        train_data: Training set data (ROI timeseries or design matrix)
-        test_data: Test set data for held-out validation
-        paradigm: Name of the cognitive paradigm
-        sample_size: Number of subjects in this iteration
-        kernel_size: Smoothing kernel size used (e.g., "4mm", "8mm")
-        random_seed: Random seed for reproducibility
+        data: Preprocessed ROI time-series data with columns including 'condition'
+        sample_size: Number of subjects to use for this iteration
+        alpha: Significance threshold
+        seed: Random seed for reproducibility
+        max_iterations: Maximum bootstrap iterations (used here as loop count)
+        magnitude_threshold: Maximum allowed relative difference (e.g., 0.20 for 20%)
 
     Returns:
-        Tuple of (ReplicationResult or None if failed, is_failure)
+        Tuple of (list of ReplicationResult, metadata dict)
     """
-    set_global_seed(random_seed)
+    if seed is not None:
+        set_global_seed(seed)
 
-    try:
-        # Fit GLM on training data
-        logger.debug(f"Fitting GLM on training data for paradigm: {paradigm}")
-        glm_result_train = fit_glm(train_data, paradigm=paradigm)
-
-        # Check convergence status
-        if not glm_result_train.get('converged', False):
-            logger.warning(f"GLM did not converge on training data for paradigm: {paradigm}")
-            return None, True
-
-        # Estimate effect size from training data
-        effect_size_train = estimate_effect_size(glm_result_train)
-        p_value_train = glm_result_train.get('p_value', 1.0)
-
-        # Fit GLM on test data
-        logger.debug(f"Fitting GLM on test data for paradigm: {paradigm}")
-        glm_result_test = fit_glm(test_data, paradigm=paradigm)
-
-        if not glm_result_test.get('converged', False):
-            logger.warning(f"GLM did not converge on test data for paradigm: {paradigm}")
-            return None, True
-
-        # Estimate effect size from test data
-        effect_size_test = estimate_effect_size(glm_result_test)
-        p_value_test = glm_result_test.get('p_value', 1.0)
-
-        # Determine replication success:
-        # 1. p < 0.05 AND sign match
-        # 2. magnitude within ±20% (0.8x-1.2x) of training estimate
-        direction_match = np.sign(effect_size_train) == np.sign(effect_size_test)
-        magnitude_match = (0.8 <= (effect_size_test / effect_size_train if effect_size_train != 0 else 1.0) <= 1.2)
-        significance_test = p_value_test < 0.05
-
-        replication_success = significance_test and direction_match and magnitude_match
-
-        result = ReplicationResult(
-            effect_size_est=float(effect_size_test),
-            p_value=float(p_value_test),
-            replication_success=replication_success,
-            smoothing_kernel_used=kernel_size,
-            paradigm=paradigm,
-            sample_size=sample_size,
-            effect_size_train=float(effect_size_train),
-            direction_match=direction_match,
-            magnitude_match=magnitude_match,
-            significance_test=significance_test
+    n_total = len(data)
+    if n_total < sample_size * 2:
+        raise SplitHalfValidationError(
+            f"Insufficient data: requested {sample_size * 2} subjects, "
+            f"but only {n_total} available."
         )
 
-        return result, False
+    # Shuffle indices
+    indices = np.random.permutation(n_total)
+    
+    # Split into train and test
+    mid_point = sample_size
+    train_indices = indices[:mid_point]
+    test_indices = indices[mid_point : mid_point * 2]
+
+    train_data = data.iloc[train_indices].reset_index(drop=True)
+    test_data = data.iloc[test_indices].reset_index(drop=True)
+
+    # Fit GLM on training set
+    try:
+        glm_result_train = fit_glm(
+            train_data, 
+            target_col='condition', 
+            seed=seed
+        )
+        
+        # Check convergence status immediately
+        if not glm_result_train.get('converged', False):
+            return [], {'status': 'convergence_failed', 'reason': 'Training GLM did not converge'}
+        
+        effect_size_train = glm_result_train.get('cohen_d')
+        p_value_train = glm_result_train.get('p_value')
+        
+        if effect_size_train is None or p_value_train is None:
+            raise SplitHalfValidationError("GLM fit returned invalid effect size or p-value")
 
     except GLMFitError as e:
-        logger.error(f"GLM fitting error in split-half validation: {e}")
-        return None, True
-    except Exception as e:
-        logger.error(f"Unexpected error in split-half validation: {e}")
-        return None, True
+        logger.warning(f"GLM fit failed on training set: {e}")
+        return [], {'status': 'convergence_failed', 'reason': str(e)}
+
+    # Predict on test set using training coefficients
+    # Note: In a real scenario, we would apply the training model to test data
+    # Here we simulate the test fit using the same design matrix structure
+    try:
+        # For split-half validation, we re-fit on test set to compare
+        # This is the standard approach: fit on train, check if effect direction/magnitude holds on test
+        glm_result_test = fit_glm(
+            test_data,
+            target_col='condition',
+            seed=seed
+        )
+        
+        if not glm_result_test.get('converged', False):
+            return [], {'status': 'convergence_failed', 'reason': 'Test GLM did not converge'}
+            
+        effect_size_test = glm_result_test.get('cohen_d')
+        p_value_test = glm_result_test.get('p_value')
+        
+        if effect_size_test is None or p_value_test is None:
+            raise SplitHalfValidationError("Test GLM fit returned invalid effect size or p-value")
+
+    except GLMFitError as e:
+        logger.warning(f"GLM fit failed on test set: {e}")
+        return [], {'status': 'convergence_failed', 'reason': str(e)}
+
+    # Determine replication success
+    # Criteria:
+    # 1. Direction match (sign of effect sizes)
+    # 2. Magnitude within ±20% of training estimate
+    # 3. p < alpha in test set (or at least significant direction)
+    
+    direction_match = np.sign(effect_size_train) == np.sign(effect_size_test)
+    
+    if abs(effect_size_train) > 0:
+        magnitude_diff = abs(effect_size_test - effect_size_train) / abs(effect_size_train)
+        magnitude_match = magnitude_diff <= magnitude_threshold
+    else:
+        # If training effect is zero, any non-zero test effect is a mismatch
+        magnitude_match = (effect_size_test == 0)
+    
+    p_significant = p_value_test < alpha
+
+    replication_success = direction_match and magnitude_match and p_significant
+
+    result = ReplicationResult(
+        effect_size_est=effect_size_test,
+        p_value=p_value_test,
+        replication_success=replication_success,
+        smoothing_kernel_used="temporal_4s",  # Default, updated by caller
+        iteration_seed=seed
+    )
+
+    return [result], {
+        'status': 'success',
+        'train_effect': effect_size_train,
+        'test_effect': effect_size_test,
+        'p_value': p_value_test,
+        'direction_match': direction_match,
+        'magnitude_match': magnitude_match,
+        'p_significant': p_significant
+    }
 
 
 def run_split_half_validation(
-    data: Union[Dict[str, Any], np.ndarray],
-    paradigm: str,
+    data: pd.DataFrame,
     sample_size: int,
-    kernel_size: str,
-    num_iterations: int = 10,
-    random_seed: Optional[int] = None
-) -> Dict[str, Any]:
+    num_iterations: int = 50,
+    alpha: float = 0.05,
+    base_seed: int = 42,
+    smoothing_kernel: str = "temporal_4s"
+) -> Tuple[float, List[ReplicationResult], Dict[str, Any]]:
     """
-    Run split-half validation across multiple iterations.
+    Run the full bootstrap loop for split-half validation.
 
-    This function:
-    1. Partitions data into train/test sets for each iteration
-    2. Runs validation for each iteration
-    3. Discards failed GLM iterations
-    4. Flags "Unreliable" if failure rate > 20%
+    Discards iterations that fail to converge.
+    Flags the run as "Unreliable" if > 20% of iterations fail to converge.
 
     Args:
-        data: Preprocessed data (ROI timeseries or design matrix)
-        paradigm: Name of the cognitive paradigm
-        sample_size: Number of subjects to sample
-        kernel_size: Smoothing kernel size used
-        num_iterations: Number of bootstrap iterations to run
-        random_seed: Base random seed for reproducibility
+        data: Preprocessed ROI time-series data
+        sample_size: Target sample size per half
+        num_iterations: Number of bootstrap iterations
+        alpha: Significance threshold
+        base_seed: Base random seed
+        smoothing_kernel: Kernel identifier for logging
 
     Returns:
-        Dictionary containing:
-        - results: List of successful ReplicationResult objects
-        - failure_count: Number of failed iterations
-        - total_count: Total number of iterations attempted
-        - failure_rate: Ratio of failures
-        - is_reliable: Boolean flag (True if failure_rate <= 20%)
-        - paradigm: Name of paradigm
-        - sample_size: Sample size used
-        - kernel_size: Kernel size used
+        Tuple of (empirical_replication_rate, list of results, metadata)
     """
-    if random_seed is None:
-        random_seed = 42
+    if not isinstance(data, pd.DataFrame) or data.empty:
+        raise SplitHalfValidationError("Input data must be a non-empty DataFrame")
 
+    set_global_seed(base_seed)
+    
     results: List[ReplicationResult] = []
-    failure_count = 0
-    total_count = 0
+    metadata_list: List[Dict[str, Any]] = []
+    convergence_failures = 0
+    total_attempts = 0
 
-    logger.info(f"Starting split-half validation for paradigm: {paradigm}, "
-                f"sample_size: {sample_size}, kernel: {kernel_size}, "
-                f"iterations: {num_iterations}")
+    logger.info(f"Starting split-half validation: N={sample_size}, iterations={num_iterations}")
 
     for i in range(num_iterations):
-        iteration_seed = random_seed + i
-        total_count += 1
-
-        # Partition data into train/test (50/50 split)
-        set_global_seed(iteration_seed)
-        indices = np.random.permutation(len(data))
-        split_idx = len(indices) // 2
-        train_indices = indices[:split_idx]
-        test_indices = indices[split_idx:]
-
-        train_data = data[train_indices]
-        test_data = data[test_indices]
-
-        # Run validation
-        result, is_failure = validate_split_half(
-            train_data=train_data,
-            test_data=test_data,
-            paradigm=paradigm,
-            sample_size=sample_size,
-            kernel_size=kernel_size,
-            random_seed=iteration_seed
-        )
-
-        if is_failure:
-            failure_count += 1
-            logger.debug(f"Iteration {i+1}/{num_iterations}: FAILED (GLM convergence or fitting error)")
-        else:
-            results.append(result)
-            logger.debug(f"Iteration {i+1}/{num_iterations}: SUCCESS (replication: {result.replication_success})")
+        total_attempts += 1
+        current_seed = base_seed + i
+        
+        try:
+            iteration_results, meta = validate_split_half(
+                data=data,
+                sample_size=sample_size,
+                alpha=alpha,
+                seed=current_seed,
+                max_iterations=1,
+                magnitude_threshold=0.20
+            )
+            
+            if meta.get('status') == 'convergence_failed':
+                convergence_failures += 1
+                metadata_list.append({
+                    'iteration': i,
+                    'status': 'convergence_failed',
+                    'reason': meta.get('reason', 'Unknown')
+                })
+                logger.debug(f"Iteration {i} failed convergence: {meta.get('reason')}")
+                continue
+            
+            if iteration_results:
+                results.append(iteration_results[0])
+                metadata_list.append({
+                    'iteration': i,
+                    'status': 'success',
+                    'details': meta
+                })
+            
+            # Memory cleanup
+            if i % 10 == 0:
+                check_memory_threshold()
+                trigger_gc()
+                gc.collect()
+                
+        except Exception as e:
+            convergence_failures += 1
+            logger.warning(f"Iteration {i} raised exception: {e}")
+            metadata_list.append({
+                'iteration': i,
+                'status': 'error',
+                'reason': str(e)
+            })
 
     # Calculate failure rate
-    failure_rate = failure_count / total_count if total_count > 0 else 0.0
+    failure_rate = convergence_failures / total_attempts if total_attempts > 0 else 1.0
+    reliability_flag = "Unreliable" if failure_rate > 0.20 else "Reliable"
+    
+    logger.info(f"Split-half validation complete: {len(results)}/{total_attempts} successful, "
+                f"failure rate={failure_rate:.2f}, status={reliability_flag}")
 
-    # Flag as "Unreliable" if failure rate > 20%
-    is_reliable = failure_rate <= FAILURE_RATE_THRESHOLD
-
-    if not is_reliable:
-        logger.warning(
-            f"Split-half validation marked as UNRELIABLE for paradigm: {paradigm}. "
-            f"Failure rate: {failure_rate:.2%} (threshold: {FAILURE_RATE_THRESHOLD:.0%}). "
-            f"Failed iterations: {failure_count}/{total_count}"
-        )
+    # Calculate empirical replication rate
+    if len(results) == 0:
+        empirical_rate = 0.0
     else:
-        logger.info(
-            f"Split-half validation completed for paradigm: {paradigm}. "
-            f"Failure rate: {failure_rate:.2%}. Reliability: {'RELIABLE' if is_reliable else 'UNRELIABLE'}"
-        )
+        successful_replications = sum(1 for r in results if r.replication_success)
+        empirical_rate = successful_replications / len(results)
 
-    # Compute summary statistics from successful results
-    if results:
-        success_count = len(results)
-        replication_success_count = sum(1 for r in results if r.replication_success)
-        replication_rate = replication_success_count / success_count
-
-        effect_sizes = [r.effect_size_est for r in results]
-        mean_effect_size = float(np.mean(effect_sizes))
-        std_effect_size = float(np.std(effect_sizes))
-
-        summary = {
-            "success_count": success_count,
-            "replication_success_count": replication_success_count,
-            "replication_rate": replication_rate,
-            "mean_effect_size": mean_effect_size,
-            "std_effect_size": std_effect_size
-        }
-    else:
-        summary = {
-            "success_count": 0,
-            "replication_success_count": 0,
-            "replication_rate": 0.0,
-            "mean_effect_size": 0.0,
-            "std_effect_size": 0.0
-        }
-
-    return {
-        "results": [
-            {
-                "effect_size_est": r.effect_size_est,
-                "p_value": r.p_value,
-                "replication_success": r.replication_success,
-                "smoothing_kernel_used": r.smoothing_kernel_used,
-                "paradigm": r.paradigm,
-                "sample_size": r.sample_size,
-                "effect_size_train": r.effect_size_train,
-                "direction_match": r.direction_match,
-                "magnitude_match": r.magnitude_match,
-                "significance_test": r.significance_test
-            }
-            for r in results
-        ],
-        "failure_count": failure_count,
-        "total_count": total_count,
-        "failure_rate": failure_rate,
-        "is_reliable": is_reliable,
-        "paradigm": paradigm,
-        "sample_size": sample_size,
-        "kernel_size": kernel_size,
-        "summary": summary
+    return empirical_rate, results, {
+        'total_attempts': total_attempts,
+        'successful_iterations': len(results),
+        'convergence_failures': convergence_failures,
+        'failure_rate': failure_rate,
+        'reliability_flag': reliability_flag,
+        'empirical_replication_rate': empirical_rate,
+        'sample_size': sample_size,
+        'alpha': alpha,
+        'smoothing_kernel': smoothing_kernel
     }
 
 
 def main():
     """
-    Main entry point for split-half validation module.
-
-    This function demonstrates the usage of split-half validation with
-    sample data and prints results to the console.
+    CLI entry point for split-half validation.
     """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    import argparse
 
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Run split-half validation")
-    parser.add_argument(
-        "--data-path",
-        type=str,
-        default="data/derived/sample_roi_timeseries.json",
-        help="Path to preprocessed ROI timeseries data"
-    )
-    parser.add_argument(
-        "--paradigm",
-        type=str,
-        default="Motor",
-        help="Cognitive paradigm to analyze"
-    )
-    parser.add_argument(
-        "--sample-size",
-        type=int,
-        default=20,
-        help="Number of subjects per iteration"
-    )
-    parser.add_argument(
-        "--kernel-size",
-        type=str,
-        default="4mm",
-        help="Smoothing kernel size (e.g., '4mm', '8mm')"
-    )
-    parser.add_argument(
-        "--num-iterations",
-        type=int,
-        default=10,
-        help="Number of bootstrap iterations"
-    )
-    parser.add_argument(
-        "--random-seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility"
-    )
-    parser.add_argument(
-        "--output-path",
-        type=str,
-        default="data/aggregated/split_half_validation.json",
-        help="Path to save validation results"
-    )
+    parser = argparse.ArgumentParser(description="Run split-half validation for power analysis")
+    parser.add_argument("--data", type=str, required=True, help="Path to preprocessed data CSV")
+    parser.add_argument("--sample-size", type=int, default=20, help="Sample size per half")
+    parser.add_argument("--iterations", type=int, default=50, help="Number of bootstrap iterations")
+    parser.add_argument("--alpha", type=float, default=0.05, help="Significance threshold")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--output", type=str, default="data/aggregated/split_half_results.json",
+                        help="Output JSON file path")
+    parser.add_argument("--kernel", type=str, default="temporal_4s", help="Smoothing kernel used")
 
     args = parser.parse_args()
 
-    # Load data (in real usage, this would load from actual preprocessed files)
-    # For demonstration, we'll create synthetic data that mimics the structure
-    # NOTE: In production, this should load REAL data from disk
-    try:
-        with open(args.data_path, 'r') as f:
-            data = json.load(f)
-        # Convert to numpy array if needed
-        if isinstance(data, list):
-            data = np.array(data)
-    except FileNotFoundError:
-        logger.warning(f"Data file not found: {args.data_path}. Creating mock data for demonstration.")
-        # Create mock data for demonstration purposes
-        # In production, this should fail loudly or load real data
-        np.random.seed(args.random_seed)
-        n_subjects = args.sample_size * 2  # Ensure enough data for split
-        n_voxels = 100  # Mock number of voxels/ROIs
-        n_timepoints = 100  # Mock number of timepoints
-        data = np.random.randn(n_subjects, n_voxels, n_timepoints)
+    # Load data
+    logger.info(f"Loading data from {args.data}")
+    if not Path(args.data).exists():
+        logger.error(f"Data file not found: {args.data}")
+        sys.exit(1)
+
+    data = pd.read_csv(args.data)
 
     # Run validation
-    results = run_split_half_validation(
+    rate, results, meta = run_split_half_validation(
         data=data,
-        paradigm=args.paradigm,
         sample_size=args.sample_size,
-        kernel_size=args.kernel_size,
-        num_iterations=args.num_iterations,
-        random_seed=args.random_seed
+        num_iterations=args.iterations,
+        alpha=args.alpha,
+        base_seed=args.seed,
+        smoothing_kernel=args.kernel
     )
 
     # Save results
-    output_path = Path(args.output_path)
+    output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    output_data = {
+        'empirical_replication_rate': rate,
+        'metadata': meta,
+        'individual_results': [
+            {
+                'effect_size_est': r.effect_size_est,
+                'p_value': r.p_value,
+                'replication_success': r.replication_success,
+                'smoothing_kernel_used': r.smoothing_kernel_used
+            }
+            for r in results
+        ]
+    }
+
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(output_data, f, indent=2)
 
-    logger.info(f"Validation results saved to: {output_path}")
+    logger.info(f"Results saved to {output_path}")
+    print(f"Empirical Replication Rate: {rate:.4f}")
+    print(f"Reliability Status: {meta['reliability_flag']}")
 
-    # Print summary
-    print(f"\n=== Split-Half Validation Summary ===")
-    print(f"Paradigm: {results['paradigm']}")
-    print(f"Sample Size: {results['sample_size']}")
-    print(f"Kernel Size: {results['kernel_size']}")
-    print(f"Total Iterations: {results['total_count']}")
-    print(f"Successful Iterations: {results['total_count'] - results['failure_count']}")
-    print(f"Failed Iterations: {results['failure_count']}")
-    print(f"Failure Rate: {results['failure_rate']:.2%}")
-    print(f"Reliability Status: {'RELIABLE' if results['is_reliable'] else 'UNRELIABLE'}")
-    print(f"Replication Rate: {results['summary']['replication_rate']:.2%}")
-    print(f"Mean Effect Size: {results['summary']['mean_effect_size']:.4f}")
-    print(f"Std Effect Size: {results['summary']['std_effect_size']:.4f}")
-    print(f"========================================\n")
+    if meta['reliability_flag'] == "Unreliable":
+        logger.warning(f"High convergence failure rate ({meta['failure_rate']:.2f}) detected. "
+                       f"Run flagged as Unreliable.")
+        sys.exit(0)  # Exit 0 but log warning
 
-    return results
+    sys.exit(0)
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()

@@ -1,0 +1,17 @@
+seed: 42
+dataset_ids:
+  - ds000030
+paradigm: Motor
+sample_sizes:
+  - 10
+  - 20
+kernels:
+  - 4s
+  - 8s
+alpha_values:
+  - 0.05
+bootstrap_iterations: 5
+memory_threshold_gb: 6.0
+output_dir: data/aggregated
+data_dir: data/raw
+results_dir: results/paper

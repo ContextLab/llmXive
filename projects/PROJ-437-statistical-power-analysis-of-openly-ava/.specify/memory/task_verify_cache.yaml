@@ -11,3 +11,24 @@ T038b:
     and `log_split` functions, but the required output artifacts `results/paper/timing_report.md`
     and `results/paper/timing_breakdown.csv` are absent. These files must be generated
     for the task to be considered complete.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files (e.g., `utils/bootstrap_aggregator.py` or a modified `power_curve_generator.py`)\
+    \ were presented, so we cannot confirm that the aggregation logic was extracted\
+    \ or that a clean multi\u2011kernel, multi\u2011alpha API was added. The required\
+    \ artifacts are missing."
+T044:
+  c: false
+  h: 1c13015bc57a8d2ee42078b0d847742a5a3ade1a0a69982313b4028c38feac95
+  r: "The repository lacks the required `test_config.yaml` file and provides no evidence\
+    \ that `python code/main.py --config test_config.yaml` was executed, returned\
+    \ exit code\u202F0, or produced the expected output file. Without these artifacts,\
+    \ the task\u2019s validation requirement is not satisfied."
+T049:
+  c: false
+  h: 7c9021a7d908018514fde4832a1d6df55b4e8337bf6e8bf2744bf8012246204f
+  r: "The repository contains `code/utils/convergence_monitor.py`, but the required\
+    \ output file `results/paper/convergence_report.md` is absent, indicating the\
+    \ script does not generate the mandated report. Without this file, the task\u2019\
+    s deliverable is not satisfied."

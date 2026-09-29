@@ -1,0 +1,9 @@
+cudnn  # auto-added: imported by run-book but missing from venv
+datasets  # auto-added: imported by run-book but missing from venv
+nibabel  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+statsmodels  # auto-added: imported by run-book but missing from venv
+tensorflow  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv

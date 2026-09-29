@@ -1,270 +1,235 @@
 """
-Main entry point for the Statistical Power Analysis Pipeline.
-
-This module orchestrates the end-to-end workflow:
-1. Configuration loading and validation
-2. Data download from OpenNeuro (if needed)
-3. Preprocessing (ROI extraction, temporal smoothing)
-4. Statistical modeling (GLM fitting, effect size estimation)
-5. Validation (split-half replication, power curve generation)
-
-Usage:
-    python code/main.py --config config.yaml --dataset ds000030
+Main entry point for the Statistical Power Analysis pipeline.
+Orchestrates download, preprocess, noise estimation, power analysis, sensitivity analysis, and finalization.
 """
-
 import argparse
 import json
 import logging
 import sys
+import os
 from datetime import datetime
 from pathlib import Path
 
-# Local imports from project structure
-from analysis.power_curve_generator import run_bootstrap_loop, generate_power_curve
-from download.openneuro_fetcher import fetch_paradigm_data
-from download.data_validator import validate_bids_structure, get_valid_subjects_list
-from preprocess.roi_extractor import preprocess_and_extract
-from preprocess.temporal_smoothing import apply_temporal_smoothing
-from analysis.glm_fitter import fit_glm, estimate_effect_size
-from analysis.split_half_validator import run_split_half_validation
-from models.simulation_config import SimulationConfig
-from utils.seed_manager import set_global_seed
-from utils.memory_monitor import monitor_and_ensure_memory
+# Ensure project root is in path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Configure logging
+from utils.seed_manager import set_global_seed, get_seed
+from utils.timer import start_run, end_run, log_split, save_timing_report, save_timing_breakdown
+from utils.memory_monitor import monitor_and_ensure_memory
+from download.openneuro_fetcher import main as fetch_main
+from download.data_validator import main as validate_main
+from preprocess.roi_extractor import main as roi_main
+from preprocess.temporal_smoothing import main as smooth_main
+from simulation.noise_estimator import main as noise_main
+from analysis.power_curve_generator import main as power_main
+from analysis.temporal_sensitivity_orchestrator import main as sensitivity_main
+from analysis.result_finalizer import main as finalizer_main
+from analysis.convergence_monitor import main as convergence_monitor_main
+from analysis.alpha_sweep_analyzer import main as alpha_sweep_main
+from utils.bootstrap_aggregator import main as bootstrap_agg_main
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('results/pipeline_run.log')
+        logging.FileHandler(PROJECT_ROOT / "results" / "paper" / "pipeline_run.log")
     ]
 )
 logger = logging.getLogger(__name__)
 
-
-def create_config(args: argparse.Namespace) -> SimulationConfig:
-    """
-    Create a SimulationConfig object from command-line arguments.
-
-    Args:
-        args (argparse.Namespace): Parsed command-line arguments containing
-            dataset_id, sample_size, smoothing_kernel, random_seed, etc.
-
-    Returns:
-        SimulationConfig: A validated configuration object for the pipeline run.
-
-    Raises:
-        ValueError: If required arguments are missing or invalid.
-    """
-    if not args.dataset_id:
-        raise ValueError("Dataset ID is required")
-
-    if args.sample_size <= 0:
-        raise ValueError("Sample size must be positive")
-
-    if args.smoothing_kernel not in [4, 8]:
-        raise ValueError("Smoothing kernel must be 4 or 8 mm")
-
-    config = SimulationConfig(
-        dataset_id=args.dataset_id,
-        sample_size_target=args.sample_size,
-        smoothing_kernel=args.smoothing_kernel,
-        num_iterations=args.num_iterations,
-        random_seed=args.random_seed,
-        alpha_level=args.alpha_level,
-        output_dir=Path(args.output_dir) if args.output_dir else Path("results")
-    )
-
-    logger.info(f"Created configuration: {config}")
-    return config
-
-
-def run_pipeline(config: SimulationConfig) -> dict:
-    """
-    Execute the full statistical power analysis pipeline.
-
-    This function performs the following steps:
-    1. Set random seed for reproducibility
-    2. Monitor memory usage
-    3. Download and validate dataset
-    4. Preprocess data (ROI extraction, temporal smoothing)
-    5. Fit GLM and estimate effect sizes
-    6. Perform split-half validation
-    7. Generate power curves if requested
-
-    Args:
-        config (SimulationConfig): The configuration object containing
-            all parameters for the pipeline run.
-
-    Returns:
-        dict: A dictionary containing the results of the pipeline execution,
-            including effect sizes, p-values, replication success flags,
-            and power curve data if generated.
-
-    Raises:
-        RuntimeError: If any step in the pipeline fails unexpectedly.
-    """
-    logger.info("Starting pipeline execution")
-    start_time = datetime.now()
-
-    # Step 1: Set random seed
-    set_global_seed(config.random_seed)
-    logger.info(f"Random seed set to {config.random_seed}")
-
-    # Step 2: Memory monitoring
-    memory_status = monitor_and_ensure_memory(threshold_gb=6.0)
-    logger.info(f"Memory status: {memory_status}")
-
-    # Step 3: Download and validate dataset
-    dataset_path = Path("data/raw") / config.dataset_id
-    if not dataset_path.exists():
-        logger.info(f"Downloading dataset {config.dataset_id}")
-        fetch_paradigm_data(config.dataset_id, "data/raw")
+def load_config(config_path: str) -> dict:
+    """Load configuration from a YAML or JSON file."""
+    path = Path(config_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
     
-    logger.info(f"Validating dataset structure at {dataset_path}")
-    if not validate_bids_structure(dataset_path):
-        raise RuntimeError("Dataset validation failed")
+    # Simple YAML/JSON loader (assuming json for robustness or simple yaml)
+    # In a real scenario, use pyyaml
+    with open(path, 'r') as f:
+        if config_path.endswith('.yaml') or config_path.endswith('.yml'):
+            # Fallback for simple yaml if pyyaml not installed, otherwise import yaml
+            try:
+                import yaml
+                return yaml.safe_load(f)
+            except ImportError:
+                logger.warning("PyYAML not found. Attempting simple key-value parsing for YAML.")
+                config = {}
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        if ':' in line:
+                            k, v = line.split(':', 1)
+                            config[k.strip()] = v.strip()
+                return config
+        else:
+            return json.load(f)
 
-    valid_subjects = get_valid_subjects_list(dataset_path)
-    logger.info(f"Found {len(valid_subjects)} valid subjects")
-
-    if len(valid_subjects) < config.sample_size_target:
-        logger.warning(f"Requested sample size {config.sample_size_target} exceeds available {len(valid_subjects)}")
-        # Clamp to available data (handled by downstream components)
-
-    # Step 4: Preprocessing
-    logger.info("Starting preprocessing: ROI extraction")
-    roi_data_path = preprocess_and_extract(
-        bids_path=dataset_path,
-        output_dir=Path("data/derived") / config.dataset_id / "roi"
-    )
-
-    logger.info(f"Applying temporal smoothing with kernel {config.smoothing_kernel}mm")
-    smoothed_data_path = apply_temporal_smoothing(
-        roi_data_path=roi_data_path,
-        kernel_size=config.smoothing_kernel,
-        output_dir=Path("data/derived") / config.dataset_id / "smoothed"
-    )
-
-    # Step 5: GLM fitting and effect size estimation
-    logger.info("Fitting GLM models")
-    glm_results = fit_glm(smoothed_data_path, config)
-    effect_sizes = estimate_effect_size(glm_results)
-
-    # Step 6: Split-half validation
-    logger.info("Running split-half validation")
-    validation_results = run_split_half_validation(
-        smoothed_data_path=smoothed_data_path,
-        config=config,
-        effect_sizes=effect_sizes
-    )
-
-    # Step 7: Power curve generation (if requested)
-    power_curve_results = None
-    if config.num_iterations > 1:
-        logger.info("Generating power curves")
-        power_curve_results = generate_power_curve(
-            smoothed_data_path=smoothed_data_path,
-            config=config,
-            validation_results=validation_results
-        )
-
-    end_time = datetime.now()
-    duration = (end_time - start_time).total_seconds()
-
-    results = {
-        "config": {
-            "dataset_id": config.dataset_id,
-            "sample_size": config.sample_size_target,
-            "smoothing_kernel": config.smoothing_kernel,
-            "random_seed": config.random_seed
-        },
-        "effect_sizes": effect_sizes,
-        "validation": validation_results,
-        "power_curve": power_curve_results,
-        "execution_time_seconds": duration,
-        "timestamp": end_time.isoformat()
+def create_config(output_path: str) -> None:
+    """Create a default configuration file."""
+    default_config = {
+        "seed": 42,
+        "dataset_ids": ["ds000030"],
+        "paradigm": "Motor",
+        "sample_sizes": [10, 20, 30, 40, 50],
+        "kernels": ["4s", "8s"],
+        "alpha_values": [0.01, 0.05, 0.1],
+        "bootstrap_iterations": 10,
+        "memory_threshold_gb": 6.0,
+        "output_dir": "data/aggregated"
     }
+    with open(output_path, 'w') as f:
+        json.dump(default_config, f, indent=4)
+    logger.info(f"Created default config at {output_path}")
 
-    # Save results
-    output_file = config.output_dir / f"pipeline_run_{config.dataset_id}.json"
-    with open(output_file, 'w') as f:
-        json.dump(results, f, indent=2, default=str)
+def run_download(config: dict) -> None:
+    """Run the download step."""
+    logger.info("Starting download phase...")
+    start_run("download")
+    # Pass config to fetcher
+    # Assuming fetcher expects args or reads from a standard location
+    # For now, we simulate the call structure
+    # In a real implementation, we would parse args or pass dict directly
+    os.environ['PIPELINE_CONFIG'] = json.dumps(config)
+    fetch_main()
+    end_run("download")
 
-    logger.info(f"Pipeline completed. Results saved to {output_file}")
-    return results
+def run_preprocess(config: dict) -> None:
+    """Run the preprocessing steps (ROI extraction, smoothing)."""
+    logger.info("Starting preprocessing phase...")
+    start_run("preprocess")
+    
+    # ROI Extraction
+    log_split("roi_extraction")
+    roi_main()
+    
+    # Temporal Smoothing
+    log_split("temporal_smoothing")
+    smooth_main()
+    
+    end_run("preprocess")
 
+def run_noise_estimation(config: dict) -> None:
+    """Estimate noise characteristics."""
+    logger.info("Starting noise estimation...")
+    start_run("noise_estimation")
+    noise_main()
+    end_run("noise_estimation")
+
+def run_power_analysis(config: dict) -> None:
+    """Run the power curve generation."""
+    logger.info("Starting power analysis...")
+    start_run("power_analysis")
+    
+    # Bootstrap aggregation
+    log_split("bootstrap_aggregation")
+    bootstrap_agg_main()
+    
+    # Alpha sweep
+    log_split("alpha_sweep")
+    alpha_sweep_main()
+    
+    # Power curve generation
+    log_split("power_curve_gen")
+    power_main()
+    
+    end_run("power_analysis")
+
+def run_sensitivity_analysis(config: dict) -> None:
+    """Run sensitivity analysis across kernels."""
+    logger.info("Starting sensitivity analysis...")
+    start_run("sensitivity_analysis")
+    sensitivity_main()
+    end_run("sensitivity_analysis")
+
+def run_convergence_monitoring(config: dict) -> None:
+    """Monitor GLM convergence."""
+    logger.info("Running convergence monitoring...")
+    start_run("convergence_monitoring")
+    convergence_monitor_main()
+    end_run("convergence_monitoring")
+
+def run_finalization(config: dict) -> None:
+    """Finalize results and generate reports."""
+    logger.info("Starting finalization...")
+    start_run("finalization")
+    finalizer_main()
+    end_run("finalization")
+
+def run_validation(config: dict) -> None:
+    """Run validation checks."""
+    logger.info("Running validation...")
+    start_run("validation")
+    # Validation logic would go here, checking output files
+    # For now, just a placeholder
+    end_run("validation")
+
+def run_pipeline(config: dict) -> None:
+    """Run the full pipeline."""
+    logger.info("Starting full pipeline execution...")
+    set_global_seed(config.get('seed', 42))
+    
+    run_download(config)
+    run_preprocess(config)
+    run_noise_estimation(config)
+    run_power_analysis(config)
+    run_sensitivity_analysis(config)
+    run_convergence_monitoring(config)
+    run_finalization(config)
+    
+    logger.info("Pipeline execution completed.")
 
 def main():
-    """
-    Command-line entry point for the pipeline.
-
-    Parses arguments, creates configuration, and runs the pipeline.
-    """
-    parser = argparse.ArgumentParser(
-        description="Statistical Power Analysis Pipeline for fMRI Data"
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        help="Path to YAML configuration file (optional, overrides CLI args)"
-    )
-    parser.add_argument(
-        "--dataset",
-        type=str,
-        required=True,
-        help="OpenNeuro dataset ID (e.g., ds000030)"
-    )
-    parser.add_argument(
-        "--sample-size",
-        type=int,
-        default=20,
-        help="Target sample size (number of subjects)"
-    )
-    parser.add_argument(
-        "--smoothing-kernel",
-        type=int,
-        default=4,
-        choices=[4, 8],
-        help="Temporal smoothing kernel size in mm (4 or 8)"
-    )
-    parser.add_argument(
-        "--num-iterations",
-        type=int,
-        default=1,
-        help="Number of bootstrap iterations for power curve generation"
-    )
-    parser.add_argument(
-        "--random-seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility"
-    )
-    parser.add_argument(
-        "--alpha-level",
-        type=float,
-        default=0.05,
-        help="Significance level for statistical tests"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="results",
-        help="Directory for output files"
-    )
-
+    parser = argparse.ArgumentParser(description="Statistical Power Analysis Pipeline")
+    parser.add_argument('--config', type=str, default='config.yaml', help='Path to configuration file')
+    parser.add_argument('--action', type=str, choices=['download', 'preprocess', 'estimate_noise', 'generate_synthetic', 'analyze', 'report', 'validate', 'pipeline'], default='pipeline', help='Action to perform')
+    parser.add_argument('--create-config', type=str, help='Create a default config file at the specified path')
+    
     args = parser.parse_args()
 
-    try:
-        config = create_config(args)
-        results = run_pipeline(config)
-        logger.info("Pipeline completed successfully")
-        sys.exit(0)
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
+    if args.create_config:
+        create_config(args.create_config)
+        return
+
+    if not Path(args.config).exists():
+        logger.error(f"Config file {args.config} not found.")
         sys.exit(1)
 
+    config = load_config(args.config)
+    
+    # Ensure output directories exist
+    (PROJECT_ROOT / "data" / "aggregated").mkdir(parents=True, exist_ok=True)
+    (PROJECT_ROOT / "results" / "paper").mkdir(parents=True, exist_ok=True)
 
-if __name__ == "__main__":
+    try:
+        if args.action == 'download':
+            run_download(config)
+        elif args.action == 'preprocess':
+            run_preprocess(config)
+        elif args.action == 'estimate_noise':
+            run_noise_estimation(config)
+        elif args.action == 'analyze':
+            run_power_analysis(config)
+            run_sensitivity_analysis(config)
+        elif args.action == 'report':
+            run_finalization(config)
+        elif args.action == 'validate':
+            run_validation(config)
+        elif args.action == 'pipeline':
+            run_pipeline(config)
+        elif args.action == 'generate_synthetic':
+            logger.warning("Synthetic generation is disabled. Use real data.")
+            sys.exit(1)
+        else:
+            logger.error(f"Unknown action: {args.action}")
+            sys.exit(1)
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+
+if __name__ == '__main__':
     main()
