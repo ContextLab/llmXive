@@ -1,186 +1,198 @@
-# llmXive Quick Start Guide
+# llmXive Quickstart Guide
 
-## Overview
-
-This project implements a research pipeline to evaluate static sparsification heuristics against learned attention-based methods (RTPurbo) on the RULER dataset. The goal is to determine if simple, deterministic rules can approximate the performance of complex learned models for token selection in long-context scenarios.
+This guide provides step-by-step instructions to set up and run the llmXive research pipeline for evaluating static sparsification against full attention baselines.
 
 ## Prerequisites
 
-- Python 3.11+
-- 16GB+ RAM (for full dataset processing)
-- CPU-only execution (no GPU required)
-- ~20GB disk space for intermediate data
+- Python 3.10+
+- 7GB+ RAM (for streaming dataset processing)
+- 14GB+ disk space
+- pip and virtualenv
 
-## Installation
+## Setup
 
-1. **Clone the repository**:
- ```bash
- git clone <repository-url>
- cd llmXive-follow-up-extending-full-attenti
- ```
+### 1. Clone and Initialize
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r code/requirements.txt
- ```
-
-4. **Install spaCy model** (for POS tagging):
- ```bash
- python -m spacy download en_core_web_sm
- ```
-
-5. **Install KenLM** (for perplexity calculation):
- ```bash
- pip install kenlm
- # Note: You may need to build KenLM from source if the wheel fails:
- # git clone https://github.com/kpu/kenlm.git
- # mkdir kenlm/build && cd kenlm/build
- # cmake.. && make -j4
- # pip install../kenlm
- ```
-
-## Project Structure
-
-```
-.
-├── code/
-│ ├── data/ # Data processing and feature extraction
-│ ├── lib/ # Core utilities (data loader, entities)
-│ ├── models/ # Model training and rule derivation
-│ └── evaluation/ # Baseline execution and statistical analysis
-├── data/
-│ ├── intermediate/ # Intermediate processing results (H5, CSV)
-│ ├── logs/ # Execution logs and anomaly reports
-│ └── results/ # Final aggregated metrics and reports
-├── tests/ # Unit and integration tests
-├── quickstart.md # This file
-└── research.md # Detailed research methodology
+```bash
+git clone <repository-url>
+cd llmXive
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
 
-## Execution Workflow
+### 2. Install Dependencies
 
-The pipeline is designed to run in sequential phases. Each phase produces artifacts required by the next.
+```bash
+pip install -r code/requirements.txt
+```
 
-### Phase 1: Data Preparation (User Story 1)
+### 3. Create Directory Structure
 
-1. **Download RULER Dataset** (streaming):
- ```bash
- python code/data/download.py
- ```
- *Output*: Data streamed directly to memory; no local storage of raw dataset.
+Run the initialization script:
 
-2. **Extract Ground Truth (RTPurbo indices)**:
- ```bash
- python code/data/extract_ground_truth.py
- ```
- *Output*: `data/intermediate/attention_maps.h5`, `data/logs/anomalies.csv`
+```bash
+python code/setup/create_directories.py
+```
 
-3. **Compute Static Features**:
- ```bash
- python code/data/compute_features.py
- ```
- *Output*: `data/intermediate/static_features.csv`
+This creates all required directories under `code/`, `data/`, `tests/`, etc.
 
-4. **Merge Datasets**:
- ```bash
- python code/data/merge_datasets.py
- ```
- *Output*: `data/intermediate/merged_dataset.csv`
+## Data Preparation
 
-### Phase 2: Model Training & Rule Derivation (User Story 2)
+The pipeline streams the RULER dataset. No manual download is required.
 
-1. **Train Static Classifiers** (multiple seeds):
- ```bash
- python code/models/train_static.py
- ```
- *Output*: `data/intermediate/models/seeds/`
+### Ground Truth Extraction
 
-2. **Evaluate Static Models**:
- ```bash
- python code/models/evaluate_static.py
- ```
- *Output*: `data/intermediate/static_eval_scores.json`
+Run the ground truth extraction pipeline:
 
-3. **Aggregate Static Results**:
- ```bash
- python code/models/aggregate_static_results.py
- ```
- *Output*: `data/results/static_aggregated.json`
+```bash
+python code/data/extract_ground_truth.py
+```
 
-4. **Derive Heuristic Rules**:
- ```bash
- python code/models/derive_rules.py
- ```
- *Output*: `data/intermediate/heuristic_rules.json`
+This generates:
+- `data/intermediate/rtpurbo_labels.parquet`
+- `data/intermediate/attention_maps.h5`
+- `data/logs/anomalies.csv`
 
-### Phase 3: Evaluation & Statistical Analysis (User Story 3)
+### Feature Computation
 
-1. **Run Learned Baseline** (multiple seeds):
- ```bash
- python code/evaluation/run_learned_baseline.py
- ```
- *Output*: `data/intermediate/baseline_seeds/`
+Compute static linguistic features:
 
-2. **Aggregate Learned Results**:
- ```bash
- python code/models/aggregate_learned_results.py
- ```
- *Output*: `data/results/baseline_aggregated.json`
+```bash
+python code/data/compute_features.py
+```
 
-3. **Run Static Heuristic Evaluation**:
- ```bash
- python code/evaluation/run_baselines.py
- ```
- *Output*: `data/results/static_metrics.json`
+This generates `data/intermediate/features.csv`.
 
-4. **Statistical Analysis**:
- ```bash
- python code/evaluation/stats_analysis.py
- ```
- *Output*: Statistical test results (p-values)
+### Merge Datasets
 
-5. **Falsifiability Check**:
- ```bash
- python code/evaluation/falsifiability_check.py
- ```
- *Output*: `data/results/metrics.csv`
+Merge ground truth with features:
 
-6. **Timing Instrumentation**:
- ```bash
- python code/evaluation/timing_instrumentation.py
- ```
- *Output*: `data/results/timing_report.json`
+```bash
+python code/data/merge_datasets.py
+```
 
-7. **Generate Final Report**:
- ```bash
- python code/evaluation/generate_final_report.py
- ```
- *Output*: `data/results/final_report.md`
+Output: `data/intermediate/merged_dataset.csv`
 
-## Verification
+## Model Training
 
-Run the full test suite to ensure system integrity:
+### Train Static Predictor
+
+```bash
+python code/models/train_static.py
+```
+
+This trains multiple models with different seeds and saves them to `data/intermediate/models/`.
+
+### Evaluate Static Models
+
+```bash
+python code/models/evaluate_static.py
+```
+
+Output: `data/intermediate/static_eval_scores.json`
+
+### Derive Heuristic Rules
+
+```bash
+python code/models/derive_rules.py
+```
+
+Output: `data/intermediate/rules.json`
+
+## Evaluation
+
+### Run Baselines
+
+Execute full attention and static heuristic baselines:
+
+```bash
+python code/evaluation/run_baselines.py
+```
+
+Output: `data/results/full_baseline_metrics.json`
+
+### Run Learned Baseline
+
+```bash
+python code/evaluation/run_learned_baseline.py
+```
+
+Output: Per-seed results in `data/intermediate/baseline_seeds/`
+
+### Statistical Analysis
+
+Perform paired t-tests:
+
+```bash
+python code/evaluation/stats_analysis.py
+```
+
+Output: `data/results/statistical_report.txt`
+
+### Falsifiability Check
+
+```bash
+python code/evaluation/falsifiability_check.py
+```
+
+### Generate Final Report
+
+```bash
+python code/evaluation/generate_final_report.py
+```
+
+Output: `data/results/final_report.md`
+
+## Validation
+
+### Quickstart Validation
+
+Verify reproducibility:
+
+```bash
+python code/scripts/run_quickstart_validation.py
+```
+
+### Timing Check
+
+Ensure pipeline completes within 6 hours:
+
+```bash
+python code/evaluation/check_timing.py
+```
+
+## Testing
+
+Run all tests:
 
 ```bash
 pytest tests/ -v
 ```
 
-Specific contract tests verify output formats:
-- `tests/contract/test_stats_output.py`
-- `tests/integration/test_baselines.py`
+Run specific test suites:
+
+```bash
+pytest tests/unit/ -v
+pytest tests/integration/ -v
+pytest tests/contract/ -v
+```
 
 ## Troubleshooting
 
-- **Memory Errors**: The pipeline is designed to stream data. If you encounter OOM, reduce the sample size in `download.py` or ensure `streaming=True` is used.
-- **KenLM Installation**: If `pip install kenlm` fails, build from source as described in Installation.
-- **Missing Models**: Ensure `en_core_web_sm` is downloaded before running feature extraction.
+### Memory Issues
+
+If you encounter OOM errors, ensure you have at least 7GB of available RAM and that streaming is enabled in `code/data/download.py`.
+
+### KenLM Errors
+
+If KenLM fails to load, the pipeline will skip perplexity computation and log errors to `data/logs/compute_errors.log`.
+
+### Anomaly Exclusion
+
+Documents with zero RTPurbo tokens are automatically excluded. Check `data/logs/anomalies.csv` for excluded document IDs.
 
 ## Next Steps
 
-For detailed methodology, statistical definitions, and theoretical background, see `research.md`.
+- Review `research.md` for detailed methodology and statistical analysis.
+- Explore `data/results/final_report.md` for the complete evaluation summary.
+- Contribute improvements by following the contribution guidelines.

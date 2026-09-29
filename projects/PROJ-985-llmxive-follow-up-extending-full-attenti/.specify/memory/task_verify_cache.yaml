@@ -94,3 +94,16 @@ T031:
   r: The required output file `data/results/metrics.csv` is missing, so the performance
     drop was neither calculated nor logged as specified. Without this artifact the
     falsifiability check is not satisfied.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only the feature specification and no evidence of new\
+    \ or modified files under `tests/unit/`. There are no unit test files, test cases,\
+    \ or test runner output shown, so the required additional edge\u2011case tests\
+    \ are missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logs, output files, or any other artifacts showing that the quickstart.md
+    validation was actually executed on the free tier, nor any evidence of reproducibility
+    checks. The required evidence is missing.

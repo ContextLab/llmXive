@@ -9,15 +9,14 @@
   verification_status: mismatch
   verified_against_url: https://docs.github.com/en/actions/concepts/runners/github-hosted-runners#supported-runners-and-hardware-resources
   verified_at: '2026-08-07T13:47:18.249057Z'
-- artifact_hash: 51834b515461b07b63f50571a082a464c52e0c965e9508c731ea2fc81b06e4d3
-  artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/quickstart.md
+- artifact_hash: c2051d3f405297ee476c062ac33013ce8895a0e6211de17ec84cba4573e8ba49
+  artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: "GitHub - kpu/kenlm: KenLM: Faster and Smaller Language Model Queries\
-    \ \xB7 GitHub"
+  fetched_title: p-value - Wikipedia
   kind: url
-  value: https://github.com/kpu/kenlm.git
+  value: https://en.wikipedia.org/wiki/P-value
   verification_status: pending
-  verified_against_url: https://github.com/kpu/kenlm
-  verified_at: '2026-09-18T09:31:17.054009Z'
+  verified_against_url: https://en.wikipedia.org/wiki/P-value
+  verified_at: '2026-09-29T19:53:45.711840Z'

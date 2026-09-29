@@ -133,3 +133,1146 @@
   source_type: external
   status: verified
   updated_at: '2026-09-26T14:36:04Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Llama-3-8B with n_ctx 4096 fits 7GB RAM
+  claim_id: c_6078688e
+  context: Load model using llama-cpp-python bindings with n_gpu_layers=0 (CPU-only)
+    and n_ctx=4096 to fit 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The frozen Llama-3-8B Ground Truth Extraction pipeline uses n_ctx=4096
+    to fit 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:24:41Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: RTPurbo k=10 threshold 0.05
+  claim_id: c_8f80f0c9
+  context: Use k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml
+    (create this file with these defaults).
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The RTPurbo parameters use k=10 and threshold=0.05.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T19:24:41Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: local semantic density sliding window size 10
+  claim_id: c_00b7fecd
+  context: 'Definition: ''local semantic density'' is calculated as the density of
+    unique n-grams (n=3) within a sliding window of size window_size=10 around the
+    target token.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Local semantic density is calculated using a sliding window of size 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:25:12Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: local semantic density n-gram size 3
+  claim_id: c_cf57cb93
+  context: 'Definition: ''local semantic density'' is calculated as the density of
+    unique n-grams (n=3) within a sliding window of size window_size=10 around the
+    target token.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Local semantic density uses n-grams of size n=3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:25:48Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: baseline seeds 42 123 456 789 101
+  claim_id: c_f2c7668f
+  context: 'Seeds: Use fixed seeds [42, 123, 456, 789, 101].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The learned sparse baseline runner uses fixed seeds 42, 123, 456, 789,
+    and 101.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:26:08Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: pipeline duration under 21600 seconds
+  claim_id: c_8ae63916
+  context: 'The duration MUST include total pipeline time (including data download)
+    as per SC-005. Log result to data/results/timing_report.json. Verification: Assert
+    script exits with code 0 if duration < 21600s.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_duration_under_21600_seconds
+  kind: magnitude
+  raw_text: The pipeline duration must be less than 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:26:50Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: falsifiability check p-value greater than 0.05
+  claim_id: c_ea1dcdae
+  context: 'AND verify the p-value from T029 is > 0.05 (not statistically significant).
+    Note: The ''negligible'' verdict requires BOTH drop < 1% AND p > 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Falsifiability_check_p-value_greater_than_0.05
+  kind: magnitude
+  raw_text: The falsifiability check requires a p-value greater than 0.05 for statistical
+    insignificance.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:27:52Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: negligible verdict drop less than 1 percent
+  claim_id: c_d36f6a0e
+  context: 'Note: The ''negligible'' verdict requires BOTH drop < 1% AND p > 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Negligible_verdict_drop_less_than_1_percent
+  kind: magnitude
+  raw_text: The performance drop threshold for negligible verdict is less than 1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:28:19Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: deterministic seed 42
+  claim_id: c_8cb14a02
+  context: 'Verification: Assert random.seed, np.random.seed, and model.random_state
+    are all set to 42 in the script.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Deterministic seed enforcement sets random.seed, np.random.seed, and model.random_state
+    to 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:28:57Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: streaming chunk size prevents OOM on 7GB RAM
+  claim_id: c_931a02d2
+  context: Implement explicit streaming chunk size configuration in code/data/download.py
+    to ensure no single chunk exceeds a predefined size threshold, preventing OOM
+    on 7GB RAM runners.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_chunk_size_prevents_OOM_on_7GB_RAM
+  kind: entity_fact
+  raw_text: The streaming chunk size configuration prevents OOM on 7GB RAM runners.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:29:27Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: zero-division guard threshold 1e-6
+  claim_id: c_978387c7
+  context: 'Safeguard: Include a zero-division guard: if Learned_Mean is near zero
+    (< 1e-6), log an error and skip the calculation to prevent pipeline crash.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The zero-division guard skips calculation if Learned_Mean is near zero
+    (< 1e-6).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:29:27Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 0
+  canonical: RTPurbo uses k 10 and threshold 0.05
+  claim_id: c_0b4ae576
+  context: 'T012 [US1] ...Parameters: Use k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml.'
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: The RTPurbo parameters use k=10 and threshold=0.05.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T19:30:12Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: test uses 100-document sample from RULER validation split
+  claim_id: c_f0da2491
+  context: T005 [P] Implement memory-efficient data loader... The test MUST use a
+    100-document sample from the RULER validation split using datasets.load_dataset(...,
+    split='validation')[:100].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST use a 100-document sample from the RULER validation split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:30:13Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: unit test asserts peak memory usage less than 7GB
+  claim_id: c_d6cc171e
+  context: T005 [P] ...includes a unit test asserting peak memory usage < 7GB in tests/unit/test_data_loader.py::test_peak_memory.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_asserts_peak_memory_usage_less_than_7GB
+  kind: magnitude
+  raw_text: The unit test asserts peak memory usage is less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:30:42Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Llama-3-8B configured with n_ctx 4096 to fit 7GB RAM
+  claim_id: c_64228aae
+  context: T012 [US1] ...Load model using llama-cpp-python bindings with n_gpu_layers=0
+    (CPU-only) and n_ctx=4096 to fit 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Llama-3-8B model is configured with n_ctx=4096 to fit 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:31:00Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: local semantic density calculated using sliding window size 10
+  claim_id: c_4af7ac46
+  context: T013 [US1] ...'local semantic density' is calculated as the density of
+    unique n-grams (n=3) within a sliding window of size window_size=10 around the
+    target token.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The local semantic density is calculated using a sliding window of size
+    10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:31:01Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: local semantic density uses n-grams size 3
+  claim_id: c_d239e237
+  context: T013 [US1] ...'local semantic density' is calculated as the density of
+    unique n-grams (n=3) within a sliding window of size window_size=10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The local semantic density uses n-grams of size 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:31:01Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: fixed seeds 42 123 456 789 101
+  claim_id: c_b9c1fc3b
+  context: 'T026a [US3] ...Seeds: Use fixed seeds [42, 123, 456, 789, 101].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed seeds for the learned baseline are 42, 123, 456, 789, and 101.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:31:25Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: pipeline duration less than 21600 seconds
+  claim_id: c_defac50c
+  context: T032b [US3] ...asserts duration < 21600s (6 hours).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_duration_less_than_21600_seconds
+  kind: magnitude
+  raw_text: The pipeline duration must be less than 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:31:27Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: reproducibility manifest records dataset_hash seeds_used dependency_versions
+  claim_id: c_ef66080b
+  context: 'T044 [P] ...Verify: Assert manifest contains dataset_hash, seeds_used,
+    and dependency_versions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reproducibility_manifest_records_dataset_hash_seeds_used_dep
+  kind: entity_fact
+  raw_text: The reproducibility manifest records dataset_hash, seeds_used, and dependency_versions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:31:48Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 0
+  canonical: RTPurbo k=10 and threshold=0.05
+  claim_id: c_77dadf68
+  context: Task T012 specifies using k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml.
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: RTPurbo parameters use k=10 and threshold=0.05.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T19:34:06Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: 100-document sample from RULER validation split for memory test
+  claim_id: c_cdb1ae27
+  context: Task T005 specifies a unit test asserting peak memory usage < 7GB using
+    a 100-document sample from the RULER validation split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST use a 100-document sample from the RULER validation split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:34:06Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: peak memory usage limit of 7GB
+  claim_id: c_5c24d7dd
+  context: Task T005 requires a unit test asserting peak memory usage < 7GB when streaming
+    RULER dataset chunks.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_of_7GB
+  kind: entity_fact
+  raw_text: The test asserts peak memory usage < 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:34:39Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: context window of 4096 to fit 7GB RAM
+  claim_id: c_fbeaa11d
+  context: Task T012 specifies using n_gpu_layers=0 and n_ctx=4096 to fit 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model uses n_ctx=4096 to fit 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:35:15Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: sliding window size of 10 for local semantic density
+  claim_id: c_79f8b3b0
+  context: Task T013 defines local semantic density as the density of unique n-grams
+    (n=3) within a sliding window of size 10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Local semantic density is calculated within a sliding window of size 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:36:00Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: n-gram size of 3 for semantic density
+  claim_id: c_b166ff9b
+  context: Task T013 defines local semantic density using unique n-grams where n=3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RTPurbo parameters use n-grams of size 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:36:30Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: fixed seeds 42, 123, 456, 789, 101 for baseline
+  claim_id: c_8c7e4869
+  context: Task T026a specifies using fixed seeds [42, 123, 456, 789, 101] for the
+    learned sparse baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed seeds for learned baseline iterations are [42, 123, 456, 789,
+    101].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:36:56Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: performance drop threshold of 0.01
+  claim_id: c_07aad701
+  context: Task T031a requires the drop_threshold in data/config/threshold.yaml to
+    be 0.01.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance drop threshold is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:37:22Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: pipeline duration limit of 21600 seconds
+  claim_id: c_d6d5164a
+  context: Task T032b asserts the duration must be less than 21600s (6 hours) including
+    total pipeline time.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_duration_limit_of_21600_seconds
+  kind: magnitude
+  raw_text: The pipeline duration must be less than 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:37:25Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: zero-division guard threshold of 1e-6
+  claim_id: c_5a79de97
+  context: Task T031 includes a safeguard to log an error and skip calculation if
+    Learned_Mean is < 1e-6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The zero-division guard triggers if Learned_Mean is near zero (< 1e-6).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:37:25Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: RTPurbo parameters k=10 and threshold=0.05
+  claim_id: c_57e61379
+  context: 'Generate full attention maps and apply RTPurbo to extract ground-truth
+    labels. Parameters: Use k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml
+    (create this file with these defaults).'
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Use k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T19:38:55Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Learned baseline random seeds 42, 123, 456, 789, 101
+  claim_id: c_1f51ef82
+  context: 'Implement learned sparse (RTPurbo) baseline runner to execute multiple
+    independent random seeds... Seeds: Use fixed seeds [42, 123, 456, 789, 101].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed seeds [42, 123, 456, 789, 101]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:39:21Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Performance drop threshold 0.01
+  claim_id: c_b378bb1f
+  context: 'Create configuration file data/config/threshold.yaml defining the performance
+    drop threshold. Content: drop_threshold: a small, empirically determined value.
+    Verification: Assert data/config/threshold.yaml exists and contains drop_threshold:
+    0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'drop_threshold: 0.01'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:40:07Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Total pipeline duration limit 21600 seconds
+  claim_id: c_23032aa1
+  context: Implement post-execution check script in code/evaluation/check_timing.py
+    that reads timing_report.json and asserts duration < 21600s (6 hours).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: duration < 21600s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:40:07Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Local semantic density calculation n=3 window=10
+  claim_id: c_14d8cf9e
+  context: 'Definition: ''local semantic density'' is calculated as the density of
+    unique n-grams (n=3) within a sliding window of size window_size=10 around the
+    target token.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: local semantic density is calculated as the density of unique n-grams
+    (n=3) within a sliding window of size window_size=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:40:30Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Peak memory usage limit 7GB
+  claim_id: c_2a4cb568
+  context: Implement memory-efficient data loader... and includes a unit test asserting
+    peak memory usage < 7GB in tests/unit/test_data_loader.py::test_peak_memory.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_limit_7GB
+  kind: entity_fact
+  raw_text: unit test asserting peak memory usage < 7GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:40:58Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: LLM context window 4096 for 7GB RAM
+  claim_id: c_53f2de5d
+  context: Load model using llama-cpp-python bindings with n_gpu_layers=0 (CPU-only)
+    and n_ctx=4096 to fit 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_ctx=4096 to fit 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:41:27Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: RULER validation sample size 100 documents
+  claim_id: c_f52fcdec
+  context: The test MUST use a 100-document sample from the RULER validation split
+    using datasets.load_dataset(..., split='validation')[:100].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: test MUST use a 100-document sample from the RULER validation split
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:41:27Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Zero-division guard threshold 1e-6
+  claim_id: c_8ff96765
+  context: 'Include a zero-division guard: if Learned_Mean is near zero (< 1e-6),
+    log an error and skip the calculation to prevent pipeline crash.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Learned_Mean is near zero (< 1e-6)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:41:27Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 0
+  canonical: RTPurbo parameters k=10 and threshold=0.05
+  claim_id: c_ee0e9a5c
+  context: 'T012 [US1] Implement frozen Llama-3-8B Ground Truth Extraction pipeline...
+    Generate full attention maps and apply RTPurbo to extract ground-truth labels.
+    Parameters: Use k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml
+    (create this file with these defaults).'
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Use k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T19:44:12Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: 100-document sample from RULER validation split
+  claim_id: c_3c5a3651
+  context: 'T005 [P] Implement memory-efficient data loader in code/lib/data_loader.py
+    that streams RULER dataset chunks, enforces GB RAM limit, and includes a unit
+    test asserting peak memory usage < 7GB in tests/unit/test_data_loader.py::test_peak_memory.
+    Input Scope: The test MUST use a 100-document sample from the RULER validation
+    split using datasets.load_dataset(..., split=''validation'')[:100].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST use a 100-document sample from the RULER validation split
+    using datasets.load_dataset(..., split='validation')[:100].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:44:47Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Llama-3-8B configuration n_gpu_layers=0 and n_ctx=4096
+  claim_id: c_6955bfc6
+  context: 'T012 [US1] Implement frozen Llama-3-8B Ground Truth Extraction pipeline...
+    Requirements: 1. Load model using llama-cpp-python bindings with n_gpu_layers=0
+    (CPU-only) and n_ctx=4096 to fit 7GB RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use n_gpu_layers=0 (CPU-only) and n_ctx=4096 to fit 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:45:17Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: local semantic density calculation n=3 n-grams window_size=10
+  claim_id: c_a3e43c7d
+  context: 'T013 [US1] Implement static feature computation... Definition: ''local
+    semantic density'' is calculated as the density of unique n-grams (n=3) within
+    a sliding window of size window_size=10 around the target token.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: local semantic density is calculated as the density of unique n-grams
+    (n=3) within a sliding window of size window_size=10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:45:17Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Learned baseline random seeds 42 123 456 789 101
+  claim_id: c_eac81ae9
+  context: 'T026a [US3] Implement learned sparse (RTPurbo) baseline runner to execute
+    multiple independent random seeds... Seeds: Use fixed seeds [42, 123, 456, 789,
+    101].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed seeds [42, 123, 456, 789, 101].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:45:17Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Performance drop threshold 0.01
+  claim_id: c_30a0184b
+  context: 'T031a [US3] Create configuration file data/config/threshold.yaml defining
+    the performance drop threshold. Content: drop_threshold: a small, empirically
+    determined value. Verification: Assert data/config/threshold.yaml exists and contains
+    drop_threshold: 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Assert data/config/threshold.yaml exists and contains drop_threshold:
+    0.01.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:45:50Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Pipeline duration limit 21600s
+  claim_id: c_c755dc5c
+  context: 'T032b [US3] Implement post-execution check script... Scope: The duration
+    MUST include total pipeline time (including data download) as per SC-005. Log
+    result to data/results/timing_report.json. Verification: Assert script exits with
+    code 0 if duration < 21600s.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert script exits with code 0 if duration < 21600s (6 hours).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:46:52Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 0
+  canonical: RTPurbo parameters k=10 threshold=0.05
+  claim_id: c_0f2a0c39
+  context: Task T012 requires generating full attention maps and applying RTPurbo
+    to extract ground-truth labels using specific parameters.
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Use k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T19:47:48Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: 100-document sample from RULER validation split
+  claim_id: c_16f0a3f9
+  context: Task T005 requires implementing a memory-efficient data loader with a unit
+    test asserting peak memory usage < 7GB. The test MUST use a 100-document sample
+    from the RULER validation split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST use a 100-document sample from the RULER validation split
+    using datasets.load_dataset(..., split='validation')[:100].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:47:50Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Fixed seeds 42 123 456 789 101 for learned baseline
+  claim_id: c_c6ae89b7
+  context: Task T026a requires executing multiple independent random seeds for the
+    learned sparse baseline runner to save per-document scores.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed seeds [42, 123, 456, 789, 101] for the learned sparse baseline
+    runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:48:08Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Pipeline duration limit 21600s 6 hours
+  claim_id: c_be563907
+  context: Task T032b requires a post-execution check script that asserts the total
+    pipeline duration, including data download, is less than 21600s.
+  evidence:
+    candidates:
+    - - Please search for Pipeline duration limit
+      - 21600.0
+    - - Pipeline duration limit 21600s
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pipeline_duration_limit_21600s_6_hours
+  kind: magnitude
+  raw_text: The duration MUST include total pipeline time (including data download)
+    and must be less than 21600s (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T19:48:37Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Local semantic density window size 10
+  claim_id: c_a6b6b3cf
+  context: Task T013 defines 'local semantic density' as the density of unique n-grams
+    (n=3) within a sliding window of size window_size=10.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The window size for local semantic density calculation is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:49:09Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Local semantic density n-gram size 3
+  claim_id: c_7883c351
+  context: Task T013 defines 'local semantic density' as the density of unique n-grams
+    (n=3) within a sliding window.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The n-gram size for local semantic density is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:49:37Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Data loader RAM limit 7GB
+  claim_id: c_571047f2
+  context: Task T005 requires implementing a data loader that enforces a GB RAM limit,
+    specifically asserting peak memory usage < 7GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_RAM_limit_7GB
+  kind: entity_fact
+  raw_text: The RAM limit enforced by the data loader is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:50:11Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Duration verification threshold 21600s
+  claim_id: c_1319d88b
+  context: Task T032b requires a script that asserts duration < 21600s (6 hours) to
+    prevent pipeline timing violations.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Duration_verification_threshold_21600s
+  kind: magnitude
+  raw_text: The verification script asserts that the duration is less than 21600s.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:51:36Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Learned baseline seed count 5
+  claim_id: c_e4c8656d
+  context: Task T026a specifies using fixed seeds [42, 123, 456, 789, 101] for a total
+    of 5 seeds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of seeds used for the learned baseline is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:52:14Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Statistical significance p-value threshold 0.05
+  claim_id: c_ab825ce6
+  context: Task T031 requires verifying the p-value from T029 is > 0.05 to determine
+    negligible performance drop.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The p-value threshold for statistical significance is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T19:52:31Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Zero-division guard threshold 1e-6
+  claim_id: c_c648192a
+  context: Task T031 includes a safeguard that logs an error if Learned_Mean is near
+    zero (< 1e-6) to prevent pipeline crash.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The zero-division guard triggers if Learned_Mean is near zero (< 1e-6).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:52:31Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 0
+  canonical: RTPurbo parameters k=10 and threshold=0.05
+  claim_id: c_f39bd7a6
+  context: 'Parameters: Use k=10 and threshold=0.05 as defined in data/config/rtpurbo_params.yaml
+    (create this file with these defaults).'
+  evidence:
+    asserted: '10.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: RTPurbo parameters use k=10 and threshold=0.05.
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T19:54:03Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 2
+  canonical: 100-document sample from RULER validation split
+  claim_id: c_7e9c8cf8
+  context: The test MUST use a 100-document sample from the RULER validation split
+    using datasets.load_dataset(..., split='validation')[:100].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The test MUST use a 100-document sample from the RULER validation split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:54:04Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Llama-3-8B model with n_gpu_layers 0 and n_ctx 4096 fits 7GB RAM
+  claim_id: c_cf595048
+  context: Load model using llama-cpp-python bindings with n_gpu_layers=0 (CPU-only)
+    and n_ctx=4096 to fit 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model uses n_gpu_layers=0 and n_ctx=4096 to fit 7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:54:29Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Local semantic density sliding window size 10
+  claim_id: c_42857223
+  context: 'Definition: ''local semantic density'' is calculated as the density of
+    unique n-grams (n=3) within a sliding window of size window_size=10 around the
+    target token.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Local semantic density is calculated within a sliding window of size 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:54:29Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Static predictor training uses 5 fixed seeds 42 123 456 789 101
+  claim_id: c_0566a15d
+  context: 'Seeds: Use fixed seeds [42, 123, 456, 789, 101].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The static predictor training uses 5 fixed seeds: 42, 123, 456, 789,
+    101.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:54:59Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Pipeline duration limit 21600 seconds
+  claim_id: c_c53cb514
+  context: 'The duration MUST include total pipeline time (including data download)
+    as per SC-005. Log result to data/results/timing_report.json. Verification: Assert
+    script exits with code 0 if duration < 21600s.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_duration_limit_21600_seconds
+  kind: magnitude
+  raw_text: The pipeline duration must be less than 21600 seconds (6 hours).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:55:01Z'
+- artifact_path: projects/PROJ-985-llmxive-follow-up-extending-full-attenti/specs/001-llmxive-follow-up-extending-full-attenti/tasks.md
+  attempts: 1
+  canonical: Statistical significance p-value greater than 0.05
+  claim_id: c_df60b4e3
+  context: 'AND verify the p-value from T029 is > 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)
+    (not statistically significant).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_significance_p-value_greater_than_0.05
+  kind: magnitude
+  raw_text: The statistical significance check requires a p-value greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T19:56:14Z'
