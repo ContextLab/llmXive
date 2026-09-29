@@ -3,16 +3,13 @@ import sys
 from pathlib import Path
 from typing import List, Tuple
 
+def get_project_root() -> Path:
+    """Returns the root directory of the current project."""
+    # Assuming the project root is the parent of the 'code' directory
+    return Path(__file__).resolve().parent.parent
+
 def ensure_directory(path: Path) -> bool:
-    """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: The path to the directory.
-        
-    Returns:
-        True if the directory exists or was created successfully, False otherwise.
-    """
+    """Creates a directory if it does not exist. Returns True if successful."""
     try:
         path.mkdir(parents=True, exist_ok=True)
         return True
@@ -21,86 +18,79 @@ def ensure_directory(path: Path) -> bool:
         return False
 
 def create_gitkeep(path: Path) -> bool:
-    """
-    Create a .gitkeep file in the specified directory.
-    
-    Args:
-        path: The path to the .gitkeep file.
-        
-    Returns:
-        True if the file was created successfully, False otherwise.
-    """
+    """Creates a .gitkeep file in the specified directory to ensure it is tracked by git."""
+    gitkeep_file = path / ".gitkeep"
     try:
-        # Ensure parent directory exists
-        path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Create the file if it doesn't exist
-        if not path.exists():
-            path.touch()
-        
+        gitkeep_file.touch(exist_ok=True)
         return True
     except OSError as e:
-        print(f"Error creating .gitkeep file {path}: {e}")
+        print(f"Error creating .gitkeep in {path}: {e}")
         return False
 
-def setup_directories(directories: List[Path]) -> Tuple[bool, List[str]]:
+def setup_directories(base_path: Path, dir_names: List[str]) -> List[Tuple[str, bool]]:
     """
-    Setup a list of directories, creating them and their .gitkeep files.
-    
-    Args:
-        directories: A list of directory paths to create.
-        
-    Returns:
-        A tuple of (success: bool, created_paths: List[str])
+    Sets up a list of directories under base_path.
+    Returns a list of tuples (directory_path_relative, success_status).
     """
-    created_paths = []
-    success = True
-    
-    for dir_path in directories:
-        if ensure_directory(dir_path):
-            gitkeep_path = dir_path / ".gitkeep"
-            if create_gitkeep(gitkeep_path):
-                created_paths.append(str(dir_path))
-            else:
-                success = False
-                print(f"Failed to create .gitkeep in {dir_path}")
-        else:
-            success = False
-            print(f"Failed to create directory {dir_path}")
-    
-    return success, created_paths
+    results = []
+    for dir_name in dir_names:
+        full_path = base_path / dir_name
+        success = ensure_directory(full_path)
+        if success:
+            create_gitkeep(full_path)
+        results.append((str(full_path.relative_to(base_path)), success))
+    return results
 
-def main() -> int:
+def main():
     """
-    Main entry point for general directory setup.
-    
-    Returns:
-        0 on success, 1 on failure.
+    Main function to initialize the project directory structure.
+    Creates the root project directory and all required subdirectories.
     """
-    from config import get_project_root
+    # Define the project root name
+    project_root_name = "projects/PROJ-355-predicting-the-impact-of-impurity-cluste"
     
-    project_root = get_project_root()
-    print(f"Using project root: {project_root}")
-    
-    # Define directories to create (can be extended for other tasks)
-    directories = [
-        project_root / "code",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "results",
-        project_root / "tests" / "unit",
-        project_root / "tests" / "integration",
+    # Define the subdirectories to create
+    # Using forward slashes for path construction which pathlib handles correctly
+    subdirs = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "results",
+        "tests/unit",
+        "tests/integration"
     ]
-    
-    success, created_paths = setup_directories(directories)
-    
-    if success:
-        print("Successfully created directories:")
-        for path in created_paths:
-            print(f"  - {path}")
+
+    # Determine the absolute path for the project root
+    # We assume the script is run from the repository root or code directory
+    # We need to create the project root relative to the current working directory
+    # or the script's location? The task says "Create root directory projects/..."
+    # Let's assume we run from the repo root.
+    current_working_dir = Path.cwd()
+    project_root_path = current_working_dir / project_root_name
+
+    print(f"Initializing project structure at: {project_root_path}")
+
+    # Create the root project directory
+    if not ensure_directory(project_root_path):
+        print("Failed to create project root directory. Exiting.")
+        sys.exit(1)
+
+    # Create subdirectories
+    print("Creating subdirectories...")
+    results = setup_directories(project_root_path, subdirs)
+
+    success_count = 0
+    for rel_path, success in results:
+        status = "Created" if success else "Failed"
+        print(f"{status}: {rel_path}")
+        if success:
+            success_count += 1
+
+    if success_count == len(subdirs):
+        print(f"Successfully initialized project structure with {success_count} subdirectories.")
         return 0
     else:
-        print("Failed to create one or more directories.")
+        print(f"Completed with {len(subdirs) - success_count} errors.")
         return 1
 
 if __name__ == "__main__":

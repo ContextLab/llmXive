@@ -1,3 +1,3 @@
 """
-Unit tests for the impurity clustering segregation project.
+Unit tests for the impurity clustering segregation pipeline.
 """

@@ -1,19 +1,11 @@
-# Metadata file for citation validation
-# This file contains URLs that are validated against the whitelist
 sources:
-  - name: Materials Project
-    url: https://materialsproject.org
-    description: Primary source for bulk configurations
-  - name: OQMD
-    url: https://oqmd.org
-    description: Secondary source for bulk configurations
-validation:
-  whitelist:
-    - https://materialsproject.org
-    - https://oqmd.org
-    - ""
-  required_fields:
-    - bulk_config_id
-    - impurity_species
-    - segregation_energy
-    - clustering_descriptors
+  - url: https://materialsproject.org
+    description: Materials Project bulk configurations
+  - url: https://oqmd.org
+    description: Open Quantum Materials Database configurations
+potentials:
+  - system_id: Fe-Cr
+    potential_id: Fe_Cr.eam.fs
+    url: https://www.ctcms.nist.gov/potentials/
+    checksum: "pending_download"
+last_updated: 2023-10-27T00:00:00Z

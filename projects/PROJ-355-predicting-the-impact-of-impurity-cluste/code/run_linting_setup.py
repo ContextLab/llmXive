@@ -1,54 +1,31 @@
-"""
-Runner script for linting setup and verification.
-Orchestrates the installation and configuration of ruff and black.
-"""
 import sys
+import subprocess
 from pathlib import Path
 
-# Add project root to path
+# Ensure we can import the config module
 project_root = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(project_root))
 
+from config import get_project_root
 from config_linting import main as config_linting_main
 from linting_setup import main as linting_setup_main
 
-
-def main() -> int:
+def main():
     """
-    Main entry point for running the full linting setup.
-
-    Returns:
-        0 on success, 1 on failure.
+    Orchestrates the setup of linting and formatting tools (ruff, black).
+    This script is the entry point for T003.
     """
-    print("=" * 60)
-    print("Running Linting Setup")
-    print("=" * 60)
-
-    # Step 1: Install tools if missing
-    print("\n[Step 1/2] Installing tools...")
-    install_status = linting_setup_main()
-
-    if install_status != 0:
-        print("\n✗ Tool installation failed.")
-        return 1
-
-    # Step 2: Verify configuration
-    print("\n[Step 2/2] Verifying configuration...")
-    verify_status = config_linting_main()
-
-    if verify_status != 0:
-        print("\n✗ Configuration verification failed.")
-        return 1
-
-    print("\n" + "=" * 60)
-    print("✓ Linting setup completed successfully!")
-    print("=" * 60)
-    print("\nNext steps:")
-    print("  - Run 'ruff check .' to check for linting issues")
-    print("  - Run 'black .' to format code")
-    print("  - Run 'ruff format .' to format code (ruff 0.1.0+)")
-    return 0
-
+    print("Initializing linting and formatting configuration...")
+    
+    # 1. Run the linting configuration generator (creates pyproject.toml, .ruff.toml, etc.)
+    config_linting_main()
+    
+    # 2. Run the tool installation/verification script
+    # This ensures ruff and black are installed in the environment
+    linting_setup_main()
+    
+    print("Linting and formatting configuration complete.")
+    print("You can now run 'ruff check .' and 'black .' to validate the codebase.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

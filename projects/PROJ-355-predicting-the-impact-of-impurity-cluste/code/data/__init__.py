@@ -1,48 +1,73 @@
+# Data module
 """
-Data module initialization.
-Exports public interfaces for data processing, descriptor computation, and alloy system tagging.
+This module contains utilities for data handling, including:
+- Downloading bulk configurations
+- Building GB supercells
+- Computing clustering descriptors
+- Simulating segregation energies
+- Preprocessing and filtering data
 """
-from .download import download_bulk_configs, load_schema, validate_dataset_schema
-from .gb_builder import build_gb_supercell, insert_impurity, save_structure
+
+from .download import load_schema, validate_dataset, download_bulk_configs, main as download_main
+from .gb_builder import insert_impurity, build_gb_supercell, save_structure, main as gb_builder_main
 from .descriptors import (
     get_interface_atoms,
     compute_rdf_peak,
     compute_pair_correlation,
     compute_voronoi_neighbor_counts,
-    run_descriptor_computation
+    run_descriptor_computation,
+    main as descriptors_main,
 )
-from .alloy_systems import (
-    get_crystal_system,
-    generate_alloy_system_id,
-    extract_alloy_systems_from_descriptors,
-    save_alloy_systems,
-    run_alloy_system_extraction
+from .simulate_energy import (
+    get_project_potential_path,
+    get_simulation_config,
+    apply_structural_perturbation,
+    calculate_segregation_energy,
+    run_simulation,
+    main as simulate_main,
 )
-from .descriptor_filter import compute_vif, generate_report
-from .simulate_energy import apply_structural_perturbation, calculate_segregation_energy, run_simulation
-from .preprocessing import filter_zero_impurity_configs
+from .preprocessing import (
+    filter_zero_impurity_configs,
+    generate_preprocessing_report,
+    run_preprocessing_filter,
+    main as preprocessing_main,
+)
+from .descriptor_filter import (
+    load_descriptors,
+    compute_vif,
+    generate_report,
+    run_vif_analysis,
+    main as descriptor_filter_main,
+)
 
 __all__ = [
-    "download_bulk_configs",
     "load_schema",
-    "validate_dataset_schema",
-    "build_gb_supercell",
+    "validate_dataset",
+    "download_bulk_configs",
+    "download_main",
     "insert_impurity",
+    "build_gb_supercell",
     "save_structure",
+    "gb_builder_main",
     "get_interface_atoms",
     "compute_rdf_peak",
     "compute_pair_correlation",
     "compute_voronoi_neighbor_counts",
     "run_descriptor_computation",
-    "get_crystal_system",
-    "generate_alloy_system_id",
-    "extract_alloy_systems_from_descriptors",
-    "save_alloy_systems",
-    "run_alloy_system_extraction",
-    "compute_vif",
-    "generate_report",
+    "descriptors_main",
+    "get_project_potential_path",
+    "get_simulation_config",
     "apply_structural_perturbation",
     "calculate_segregation_energy",
     "run_simulation",
-    "filter_zero_impurity_configs"
+    "simulate_main",
+    "filter_zero_impurity_configs",
+    "generate_preprocessing_report",
+    "run_preprocessing_filter",
+    "preprocessing_main",
+    "load_descriptors",
+    "compute_vif",
+    "generate_report",
+    "run_vif_analysis",
+    "descriptor_filter_main",
 ]

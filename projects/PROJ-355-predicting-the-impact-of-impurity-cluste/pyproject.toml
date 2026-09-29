@@ -1,50 +1,26 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "impurity-clustering-segregation"
 version = "0.1.0"
-description = "Predicting the Impact of Impurity Clustering on Grain Boundary Segregation"
-readme = "README.md"
+description = "Predicting the impact of impurity clustering on grain boundary segregation"
 requires-python = ">=3.9"
 dependencies = [
-    "pymatgen",
-    "scikit-learn",
-    "statsmodels",
-    "numpy",
-    "pandas",
-    "ase",
-    "requests",
-    "pyyaml",
-    "pytest",
-    "ruff",
-    "black",
+    "pymatgen>=2023.0.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "statsmodels>=0.14.0",
+    "requests>=2.31.0",
+    "pyyaml>=6.0",
+    "pytest>=7.0.0",
 ]
-
-[tool.ruff]
-line-length = 88
-target-version = "py39"
-select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # pyflakes
-    "I",    # isort
-    "B",    # flake8-bugbear
-    "C4",   # flake8-comprehensions
-    "UP",   # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -61,7 +37,33 @@ exclude = '''
 )/
 '''
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true

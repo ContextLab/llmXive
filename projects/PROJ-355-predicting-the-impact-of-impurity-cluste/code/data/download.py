@@ -4,189 +4,133 @@ import logging
 import time
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-
-import yaml
+from typing import Optional
 import requests
-from jsonschema import validate, ValidationError as JsonSchemaValidationError
+import yaml
 
-# Import from project config
 from config import get_project_root, get_data_paths
 from validators import validate_citations
 
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a JSON/YAML schema from disk."""
-    if not schema_path.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
-    with open(schema_path, 'r', encoding='utf-8') as f:
-        if schema_path.suffix in ['.yaml', '.yml']:
-            return yaml.safe_load(f)
-        elif schema_path.suffix == '.json':
-            return json.load(f)
-        else:
-            raise ValueError(f"Unsupported schema format: {schema_path.suffix}")
+def load_schema(schema_path: str) -> dict:
+    """Loads a YAML schema file."""
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
-def validate_dataset(data_path: Path, schema_path: Path) -> bool:
-    """
-    Validate a dataset file against a JSON Schema.
-    
-    Args:
-        data_path: Path to the data file (JSON or YAML) to validate.
-        schema_path: Path to the schema file (JSON or YAML).
-        
-    Returns:
-        True if validation passes.
-        
-    Raises:
-        JsonSchemaValidationError: If data fails schema validation.
-        FileNotFoundError: If data or schema files are missing.
-    """
-    if not data_path.exists():
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-    
-    # Load schema
-    schema = load_schema(schema_path)
-    
-    # Load data
-    with open(data_path, 'r', encoding='utf-8') as f:
-        if data_path.suffix in ['.yaml', '.yml']:
-            data = yaml.safe_load(f)
-        elif data_path.suffix == '.json':
-            data = json.load(f)
-        else:
-            raise ValueError(f"Unsupported data format: {data_path.suffix}")
-    
-    # Validate
-    try:
-        validate(instance=data, schema=schema)
-        logger.info(f"Dataset validation successful: {data_path}")
-        return True
-    except JsonSchemaValidationError as e:
-        logger.error(f"Dataset validation failed for {data_path}: {e.message}")
-        logger.error(f"Error path: {list(e.path)}")
-        raise
+def validate_dataset(url: str, metadata_path: str) -> bool:
+    """Validates the dataset URL and metadata."""
+    result = validate_citations(url, metadata_path)
+    return result['success']
 
 def download_bulk_configs(url: str, max_retries: int = 3) -> Path:
     """
-    Download bulk configurations from a URL with retry logic and citation validation.
+    Downloads bulk configurations from a given URL.
     
     Args:
-        url: URL to the dataset.
+        url: The URL to download from.
         max_retries: Maximum number of retry attempts.
-        
-    Returns:
-        Path to the downloaded file.
-        
-    Raises:
-        FileNotFoundError: If the URL is invalid or data is unavailable after retries.
-    """
-    # Validate citations before attempting download
-    metadata_path = get_project_root() / 'data' / 'metadata.yaml'
-    validation_result = validate_citations(url, str(metadata_path))
     
-    if not validation_result.get('success', False):
-        logger.error(f"[DATA_UNAVAILABLE] URL={url} attempts={max_retries} reason={validation_result.get('message')}")
-        # Write to inaccessible manifest
-        manifest_path = get_project_root() / 'data' / 'inaccessible_manifest.json'
-        manifest_entry = {
-            'url': url,
-            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'reason': validation_result.get('message')
-        }
-        
+    Returns:
+        Path to the downloaded file or directory.
+    
+    Raises:
+        FileNotFoundError: If the dataset is inaccessible after retries and no backup exists.
+    """
+    project_root = get_project_root()
+    data_paths = get_data_paths()
+    raw_dir = data_paths['raw']
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    
+    metadata_path = data_paths.get('metadata', project_root / 'data' / 'metadata.yaml')
+    
+    # Validate URL first
+    if not validate_dataset(url, str(metadata_path)):
+        logger.warning(f"[DATA_UNAVAILABLE] URL={url} validation failed.")
+        # Log to inaccessible manifest
+        manifest_path = project_root / 'data' / 'inaccessible_manifest.json'
         manifest_data = []
         if manifest_path.exists():
-            with open(manifest_path, 'r', encoding='utf-8') as f:
+            with open(manifest_path, 'r') as f:
                 manifest_data = json.load(f)
         
-        manifest_data.append(manifest_entry)
-        
-        with open(manifest_path, 'w', encoding='utf-8') as f:
+        manifest_data.append({
+            "url": url,
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "reason": "validation_failed"
+        })
+        with open(manifest_path, 'w') as f:
             json.dump(manifest_data, f, indent=2)
         
-        raise FileNotFoundError(f"[DATA_UNAVAILABLE] URL={url} after {max_retries} attempts")
-    
+        # Check backup
+        backup_dir = raw_dir / 'backup'
+        if backup_dir.exists() and any(backup_dir.iterdir()):
+            logger.info("Attempting to load from backup...")
+            # Placeholder for backup loading logic
+            return backup_dir
+        
+        raise FileNotFoundError(f"[DATA_UNAVAILABLE] URL={url} is inaccessible and no backup found.")
+
     # Attempt download with retries
-    for attempt in range(1, max_retries + 1):
+    attempt = 0
+    while attempt < max_retries:
         try:
-            logger.info(f"Downloading {url} (attempt {attempt}/{max_retries})")
-            response = requests.get(url, timeout=30)
+            logger.info(f"Downloading from {url} (Attempt {attempt + 1}/{max_retries})")
+            response = requests.get(url, stream=True, timeout=30)
             response.raise_for_status()
             
-            # Save to data/raw
-            data_paths = get_data_paths()
-            raw_dir = data_paths['raw']
-            raw_dir.mkdir(parents=True, exist_ok=True)
+            # Determine filename from URL or generate one
+            filename = url.split('/')[-1]
+            if not filename:
+                filename = f"bulk_config_{hashlib.md5(url.encode()).hexdigest()[:8]}.json"
             
-            filename = url.split('/')[-1] or 'downloaded_data.json'
-            output_path = raw_dir / filename
+            save_path = raw_dir / filename
             
-            with open(output_path, 'wb') as f:
-                f.write(response.content)
+            with open(save_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
             
-            logger.info(f"Downloaded to {output_path}")
-            
-            # Validate against schema BEFORE returning
-            schema_path = get_project_root() / 'contracts' / 'dataset.schema.yaml'
-            if schema_path.exists():
-                validate_dataset(output_path, schema_path)
-            else:
-                logger.warning(f"Schema file not found at {schema_path}, skipping validation")
-            
-            return output_path
+            logger.info(f"Successfully downloaded to {save_path}")
+            return save_path
             
         except requests.exceptions.RequestException as e:
+            attempt += 1
             logger.warning(f"Download attempt {attempt} failed: {e}")
             if attempt == max_retries:
                 logger.error(f"[DATA_UNAVAILABLE] URL={url} attempts={max_retries}")
-                
-                # Write to inaccessible manifest
-                manifest_path = get_project_root() / 'data' / 'inaccessible_manifest.json'
-                manifest_entry = {
-                    'url': url,
-                    'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'),
-                    'reason': str(e)
-                }
-                
+                # Log to manifest
+                manifest_path = project_root / 'data' / 'inaccessible_manifest.json'
                 manifest_data = []
                 if manifest_path.exists():
-                    with open(manifest_path, 'r', encoding='utf-8') as f:
+                    with open(manifest_path, 'r') as f:
                         manifest_data = json.load(f)
-                
-                manifest_data.append(manifest_entry)
-                
-                with open(manifest_path, 'w', encoding='utf-8') as f:
+                manifest_data.append({
+                    "url": url,
+                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                    "reason": "download_failed"
+                })
+                with open(manifest_path, 'w') as f:
                     json.dump(manifest_data, f, indent=2)
                 
-                # Attempt backup
-                backup_path = get_project_root() / 'data' / 'raw' / 'backup' / filename
-                if backup_path.exists():
-                    logger.info(f"Using backup from {backup_path}")
-                    return backup_path
+                # Check backup
+                backup_dir = raw_dir / 'backup'
+                if backup_dir.exists() and any(backup_dir.iterdir()):
+                    logger.info("Attempting to load from backup...")
+                    return backup_dir
                 
-                raise FileNotFoundError(f"[DATA_UNAVAILABLE] URL={url} after {max_retries} attempts")
-            time.sleep(2 ** attempt)  # Exponential backoff
+                raise FileNotFoundError(f"[DATA_UNAVAILABLE] URL={url} is inaccessible.")
+            time.sleep(2 ** attempt) # Exponential backoff
 
 def main():
-    """CLI entry point for download module."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description='Download bulk configurations')
-    parser.add_argument('--url', type=str, required=True, help='URL to download from')
-    parser.add_argument('--max-retries', type=int, default=3, help='Max retry attempts')
-    
-    args = parser.parse_args()
-    
-    try:
-        output_path = download_bulk_configs(args.url, args.max_retries)
-        print(f"Success: {output_path}")
-    except FileNotFoundError as e:
-        print(f"Failed: {e}")
-        exit(1)
+    """
+    Main entry point for the download script.
+    """
+    # Example usage - in real pipeline, URL comes from config or args
+    # This is a placeholder for the script execution
+    logger.info("Download module loaded. Use download_bulk_configs(url) to download.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

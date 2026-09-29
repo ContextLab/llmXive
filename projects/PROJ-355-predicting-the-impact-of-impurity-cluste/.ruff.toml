@@ -1,8 +1,4 @@
-# Extended configuration for Ruff
-# Inherits settings from pyproject.toml but can override specific rules here
+# This file extends the pyproject.toml settings if specific overrides are needed.
+# Currently, all configuration is in pyproject.toml.
+# This file exists to ensure ruff can be explicitly pointed to if needed.
 extend = "pyproject.toml"
-
-[lint]
-# Additional rules to enable
-select = ["SIM", "PT"]
-ignore = []

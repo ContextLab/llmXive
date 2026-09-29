@@ -1,39 +1,54 @@
 # Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
-**Project ID**: PROJ-355
+**Project ID:** PROJ-355
 
 ## Overview
-This project investigates the relationship between impurity clustering at grain boundaries and segregation energy in polycrystalline materials.
-We utilize bulk configurations from Materials Project (MP) and OQMD, construct grain boundary supercells, compute clustering descriptors (RDF, pair correlation, Voronoi), and simulate segregation energies.
+This project investigates the relationship between impurity clustering descriptors (RDF peaks, pair correlation, Voronoi counts) and grain boundary segregation energies. The pipeline ingests bulk configurations from materials databases, constructs grain boundary supercells, computes clustering descriptors, and performs regression analysis to predict segregation impact.
 
-## Directory Structure
-- `code/`: Source code for data pipeline, modeling, and analysis.
-- `data/raw/`: Raw downloaded structures (MP/OQMD) and potential files.
-- `data/processed/`: Processed descriptors, energies, and intermediate artifacts.
-- `results/`: Final model metrics, reports, and visualizations.
+## Project Structure
+- `code/`: Source code for data processing, simulation, and modeling.
+- `data/`:
+ - `raw/`: Original downloaded data (bulk configurations).
+ - `processed/`: Derived data (supercells, descriptors, energies).
+- `results/`: Final analysis outputs, metrics, and reports.
 - `tests/`: Unit and integration tests.
-- `contracts/`: JSON schemas for data validation.
+- `contracts/`: Data and output schema definitions.
 
 ## Prerequisites
 - Python 3.9+
-- Required packages listed in `requirements.txt`.
+- `pip`
+- Required dependencies listed in `requirements.txt` (to be generated).
 
-## Execution Instructions
-To run the full pipeline:
+## Installation
+1. Clone the repository.
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
+## Execution
+The main pipeline is orchestrated via `code/main.py`.
+
+### Running the Full Pipeline
 ```bash
-# 1. Install dependencies
-pip install -r requirements.txt
-
-# 2. (Optional) Configure linting/formatting
-python code/run_linting_setup.py
-
-# 3. Run the main pipeline
+cd projects/PROJ-355-predicting-the-impact-of-impurity-cluste
 python code/main.py
 ```
 
-## Data Availability
-The pipeline requires access to MP/OQMD bulk structures. If these are unavailable, the pipeline will log `[DATA_UNAVAILABLE]` and exit gracefully, checking for a local backup in `data/raw/backup/`.
+### Running Individual Stages
+- **Download Data:** `python code/data/download.py`
+- **Build GB Supercells:** `python code/data/gb_builder.py`
+- **Compute Descriptors:** `python code/data/descriptors.py`
+- **Simulate Energies:** `python code/data/simulate_energy.py`
+- **Train Model:** `python code/modeling/train.py`
+- **Evaluate & Analyze:** `python code/modeling/evaluate.py`
+
+## Configuration
+Configuration parameters (paths, seeds, hyperparameters) are managed in `code/config.py`.
+
+## Data Sources
+- Bulk configurations are sourced from the Materials Project (MP) and/or OQMD.
+- Segregation energies are generated via simulation using EAM potentials.
 
 ## License
-[Insert License Here]
+[Project License Placeholder]

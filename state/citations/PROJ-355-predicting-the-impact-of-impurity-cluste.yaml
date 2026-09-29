@@ -42,7 +42,18 @@
   verification_status: verified
   verified_against_url: https://www.ctcms.nist.gov/potentials/
   verified_at: '2026-07-06T10:54:59.267013Z'
-- artifact_hash: 8a3aaec4114df0b08dace72935c1aaacdfe51c6b232c5a67cf49fae3aa93454f
+- artifact_hash: c7e84e3576b05a22dc6556936cb6e8942b2cffd3ceab49cc57775899b19364e0
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Vif - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q113106917
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q113106917
+  verified_at: '2026-09-29T10:34:29.280754Z'
+- artifact_hash: eb350bc6ab05fa0eb3b80e46b6c4ad4798c5d2fdc5ec2b1fa0acbf7990298bd2
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +63,8 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: pending
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-09-28T01:01:51.232336Z'
-- artifact_hash: 8a3aaec4114df0b08dace72935c1aaacdfe51c6b232c5a67cf49fae3aa93454f
+  verified_at: '2026-09-29T11:09:49.169539Z'
+- artifact_hash: eb350bc6ab05fa0eb3b80e46b6c4ad4798c5d2fdc5ec2b1fa0acbf7990298bd2
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,15 +74,15 @@
   value: https://materialsproject.org
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-09-28T01:01:51.232336Z'
-- artifact_hash: 8a3aaec4114df0b08dace72935c1aaacdfe51c6b232c5a67cf49fae3aa93454f
+  verified_at: '2026-09-29T11:09:49.169539Z'
+- artifact_hash: eb350bc6ab05fa0eb3b80e46b6c4ad4798c5d2fdc5ec2b1fa0acbf7990298bd2
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: OQMD
   kind: url
   value: https://oqmd.org
-  verification_status: unreachable
+  verification_status: pending
   verified_against_url: https://oqmd.org
-  verified_at: '2026-09-28T01:01:51.232336Z'
+  verified_at: '2026-09-29T11:09:49.169539Z'

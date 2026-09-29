@@ -3983,3 +3983,336 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T13:57:19Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: No collinearity detected with VIF less than 10
+  claim_id: c_8ab55a39
+  context: 'Analysis Date: 2023-10-27. Dataset: descriptors.csv. No collinearity detected
+    (VIF < 10) for the current dataset.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: No collinearity detected (VIF < 10) for the current dataset.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T10:32:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: RDF peak, Pair correlation, and Voronoi count are independent predictors
+  claim_id: c_8adbc0f1
+  context: No collinearity detected (VIF < 10) for the current dataset. All clustering
+    descriptors (RDF peak, Pair correlation, Voronoi count) appear to be independent
+    predictors.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RDF_peak,_Pair_correlation,_and_Voronoi_count_are_independen
+  kind: entity_fact
+  raw_text: All clustering descriptors (RDF peak, Pair correlation, Voronoi count)
+    appear to be independent predictors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:32:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: VIF score for rdf_peak is 1.02
+  claim_id: c_f941b474
+  context: 'Feature VIF Scores. rdf_peak: 1.02. pair_corr: 1.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'rdf_peak: 1.02'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:33:27Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: VIF score for pair_corr is 1.05
+  claim_id: c_8a48cb71
+  context: 'Feature VIF Scores. rdf_peak: 1.02. pair_corr: 1.05. voronoi_count: 1.08.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'pair_corr: 1.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:34:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: VIF score for voronoi_count is 1.08
+  claim_id: c_c5da5914
+  context: 'Feature VIF Scores. pair_corr: 1.05. voronoi_count: 1.08.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'voronoi_count: 1.08'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:34:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours for 500 configurations on CPU
+  claim_id: c_0e3f30b8
+  context: "T042 [P] REVISED: Verify all tasks run within 6 hours on CPU cores with\
+    \ sampled dataset. Criteria: Execute the full pipeline on a sampled dataset of\
+    \ \u2264500 configurations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours on CPU cores with a sampled dataset
+    of 500 configurations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:35:09Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours for 500 configurations on CPU
+  claim_id: c_28c34c3a
+  context: "T042 [P] REVISED: Verify all tasks run within 6 hours on CPU cores with\
+    \ sampled dataset. Pass Condition: Time \u2264 6 hours AND N \u2264 500."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours on CPU cores with a sampled dataset
+    of 500 configurations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:35:10Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: "Pipeline runtime limit of 6 hours on CPU with \u2264500 configurations"
+  claim_id: c_6f5aaa2f
+  context: "Phase 6, Task T042: Verify all tasks run within 6 hours on CPU cores with\
+    \ sampled dataset. Criteria: Execute the full pipeline on a sampled dataset of\
+    \ \u2264500 configurations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline must run within 6 hours on CPU cores with a sampled dataset\
+    \ of \u2264500 configurations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:43:37Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha=0.05, power=0.8, effect_size=0.5'
+  claim_id: c_fa18af02
+  context: 'Phase 4, Task T025c: Perform power analysis to determine the minimum number
+    of samples required per system. Parameters: Use alpha=0.05, power=0.8, effect_size=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical significance parameters for power analysis are alpha=0.05,
+    power=0.8, and effect_size=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:44:14Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Permutation test iterations: 1000 if N_groups >= 5 else 100 * N_groups'
+  claim_id: c_6af2abf2
+  context: 'Phase 4, Task T025b: Implement a permutation test procedure. Shuffle the
+    target variable (segregation energy) N times (N=1000 if N_groups >= 5, else N=100
+    * N_groups).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing shuffles the target variable 1000 times if N_groups
+    >= 5, otherwise 100 times per group.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:44:48Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Minimum target of 3 alloy systems
+  claim_id: c_69f87f91
+  context: 'Phase 1, Task T017a-0: Define the dynamic resolution logic for the ''deferred''
+    sample size and alloy systems. Logic: Create a configuration file defining min_alloy_systems:
+    3 (target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of alloy systems targeted for the study is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:45:18Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Maximum sample size cap of 500
+  claim_id: c_9006e552
+  context: 'Phase 1, Task T017a-0: Define the dynamic resolution logic. Logic: Create
+    a configuration file defining max_samples: 500 (hard cap).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum sample size for the study is capped at 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:45:41Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Cross-validation strategy: 5-fold if N >= 5 else LOOCV'
+  claim_id: c_0c2eacb8
+  context: 'Phase 4, Task T023: Implement a manual k-fold CV loop. Logic: IF N >=
+    5 THEN use 5-fold CV. ELSE use LOOCV.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cross-validation_strategy:_5-fold_if_N_%3E=_5_else_LOOCV
+  kind: magnitude
+  raw_text: Cross-validation uses 5-fold CV if the sample size N is greater than or
+    equal to 5, otherwise LOOCV is used.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:46:45Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Maximum download retries of 3
+  claim_id: c_a6eafbc8
+  context: 'Phase 3, Task T013: Implement download function with function def download_bulk_configs(url:
+    str, max_retries: int = 3). MUST log [DATA_UNAVAILABLE] after 3 failed attempts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of retries for downloading bulk configurations is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:47:04Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Atomic displacement perturbation scale of 0.01
+  claim_id: c_1f3752ab
+  context: 'Phase 3, Task T017a: Apply a random atomic displacement. MUST use displacement
+    rng.normal(loc=0.0, scale=0.01, size=structure.num_atoms) * vector.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The atomic displacement perturbation scale for segregation energy simulation
+    is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:47:55Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: "Descriptor computation distance limit of 5 \xC5"
+  claim_id: c_a0fec5c0
+  context: "Phase 3, Task T015: Implement descriptors.py. Logic: Compute only for\
+    \ atoms within 5 \xC5 of the GB plane."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Descriptor computation is restricted to atoms within 5 \xC5 of the grain\
+    \ boundary plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps over at least 3 threshold values
+  claim_id: c_330a13d3
+  context: 'Phase 5, Task T032: Implement sensitivity analysis. Logic: Sensitivity
+    analysis sweeps over at least 3 concrete values of: Regularization strength, Descriptor
+    perturbation magnitude.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_over_at_least_3_threshold_values
+  kind: magnitude
+  raw_text: Sensitivity analysis sweeps over at least 3 concrete values for regularization
+    strength and descriptor perturbation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Fe-Cr BCC (100) tilt GB used for misorientation angle determination
+  claim_id: c_74e3d5f7
+  context: 'Phase 3, Task T014: Use pymatgen.symmetry.bandstructure.HighSymmKpath
+    to determine misorientation angles for Fe-Cr BCC (100) tilt GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Fe-Cr BCC (100) tilt grain boundary is used as a representative case
+    for determining misorientation angles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:49:19Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: NIST EAM potential ID for Fe-Cr is Fe_Cr.eam.fs
+  claim_id: c_845cb188
+  context: 'Phase 3, Task T017a-1: Specifics: Use the specific NIST URL for Fe-Cr.
+    For Fe-Cr, use potential ID ''Fe_Cr.eam.fs''.'
+  evidence:
+    entailment_evidence: NIST EAM potential ID for Fe-Cr is Fe Cr.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_ID_for_Fe-Cr_is_Fe_Cr.eam.fs
+  kind: entity_fact
+  raw_text: The NIST EAM potential ID for the Fe-Cr system is 'Fe_Cr.eam.fs'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T10:49:44Z'

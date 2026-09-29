@@ -37,3 +37,46 @@ def test_interface_filtering():
         z_coord = atom.frac_coords[2]
         dist = abs(z_coord - 0.5)
         assert dist <= 0.25 + 1e-6, f"Atom {atom} is outside cutoff"
+
+def test_no_interface_atoms():
+    """
+    Test that get_interface_atoms returns empty list when no atoms are near the plane.
+    """
+    # Create a structure where atoms are far from the interface plane
+    lattice = Lattice.cubic(4.0)
+    species = ["Fe"] * 2
+    coords = [
+        [0, 0, 0],
+        [0.5, 0.5, 0.5]
+    ]
+    structure = Structure(lattice, species, coords)
+
+    # Define interface plane at z=0.9 with small cutoff
+    interface_atoms = get_interface_atoms(structure, plane_normal=[0, 0, 1], plane_offset=0.9, cutoff=0.1)
+
+    # Verify no atoms are selected
+    assert len(interface_atoms) == 0, "Atoms found when none should be near plane"
+
+def test_interface_atoms_with_multiple_species():
+    """
+    Test interface filtering with a structure containing multiple species.
+    """
+    lattice = Lattice.cubic(4.0)
+    species = ["Fe", "Cr", "Fe", "Cr", "Fe", "Cr", "Fe", "Cr"]
+    coords = [
+        [0, 0, 0], [0.5, 0.5, 0], [0.5, 0, 0.5], [0, 0.5, 0.5],
+        [0.25, 0.25, 0.25], [0.75, 0.75, 0.25], [0.75, 0.25, 0.75], [0.25, 0.75, 0.75]
+    ]
+    structure = Structure(lattice, species, coords)
+
+    # Interface at z=0.5
+    interface_atoms = get_interface_atoms(structure, plane_normal=[0, 0, 1], plane_offset=0.5, cutoff=0.3)
+
+    # Verify we got atoms and check species distribution
+    assert len(interface_atoms) > 0, "No interface atoms found"
+    
+    # Count species in interface region
+    fe_count = sum(1 for atom in interface_atoms if atom.species_string == "Fe")
+    cr_count = sum(1 for atom in interface_atoms if atom.species_string == "Cr")
+    
+    assert fe_count + cr_count == len(interface_atoms), "Species count mismatch"

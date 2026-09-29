@@ -24,7 +24,7 @@ properties:
       pair_corr:
         type: number
       voronoi_count:
-        type: number
+        type: integer
   segregation_energy:
     type: number
     nullable: true

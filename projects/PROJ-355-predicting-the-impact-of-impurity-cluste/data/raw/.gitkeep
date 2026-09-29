@@ -1,1 +1,4 @@
-# This file ensures the data/raw directory is tracked by git.
+# Raw data directory
+# This directory stores raw, unprocessed data downloaded from external sources (MP/OQMD).
+# Do not modify files in this directory directly.
+.

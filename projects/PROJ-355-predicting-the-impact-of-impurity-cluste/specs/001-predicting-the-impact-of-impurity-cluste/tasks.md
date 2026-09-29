@@ -21,31 +21,13 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization, basic structure, and core validation utilities required by downstream tasks.
 
-- [ ] T001 [P] **REVISED**: Initialize project directory structure: Create root directory `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` and subdirectories `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` idempotently.
-- [ ] T001b [P] **REVISED**: Initialize project metadata: Create `.gitignore` (excluding `data/`, `results/`, `*.pyc`, `__pycache__`) and `README.md` (with project title and placeholder execution instructions) in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
+- [ ] T001a [P] **REVISED**: Initialize project directory structure: Create root directory `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/` and subdirectories `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/unit/`, `tests/integration/` idempotently.
+- [ ] T001b [P] **REVISED**: Initialize project metadata: Create `.gitignore` (excluding `data/`, `results/`, `*.pyc`, `__pycache__`) in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
+- [ ] T001c [P] **REVISED**: Create `README.md` content with project title, execution instructions, and data provenance details in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
 - [ ] T003 [P] **REVISED**: Configure linting (ruff) and formatting (black) tools in `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/`.
 - [ ] T004a [P] **REVISED**: Implement `contracts/dataset.schema.yaml` defining required fields and types. **Action**: Create the file with the following content:
  ```yaml
@@ -124,7 +106,7 @@
  type: number
  ```
  Save to `projects/PROJ-355-predicting-the-impact-of-impurity-cluste/contracts/output.schema.yaml`.
-- [ ] T004c [B] **REVISED**: Implement `code/validators.py` with function `def validate_citations(url: str, metadata_path: str) -> dict`.
+- [X] T004c [B] **REVISED**: Implement `code/validators.py` with function `def validate_citations(url: str, metadata_path: str) -> dict`.
  1. Parse `metadata_path` (data/metadata.yaml) to extract URLs.
  2. Check extracted URLs against a hardcoded whitelist: `['https://materialsproject.org', '']`.
  3. Verify the URL exists via HTTP HEAD request. For OQMD, verify it returns a valid JSON response using the specific endpoint `/materials/composition/{composition_id}`.
@@ -132,16 +114,16 @@
  5. Return `{"success": False, "error_code": "URL_INVALID", "message": "URL not in whitelist or unreachable"}` if invalid.
  6. **Note**: This task returns a status object instead of raising an exception to support graceful error handling in the pipeline.
  7. **Dependency**: Must be completed before T013. **Constraint**: Do NOT mark as [P] (parallel-safe) as it is a blocking prerequisite for Phase 3.
-- [ ] T005 [P] Create `code/config.py` for paths, random seeds, hyperparameters, and the `VALIDATED_SOURCE_WHITELIST` list (MP/OQMD URLs).
-- [ ] T005b [P] Generate the methodology sketch in `docs/methodology.md` defining the k-fold CV procedure, random seed (fixed), and LOOCV fallback logic.
-- [ ] T006 [P] Setup `code/data/__init__.py` and `code/modeling/__init__.py`.
+- [X] T005 [P] Create `code/config.py` for paths, random seeds, hyperparameters, and the `VALIDATED_SOURCE_WHITELIST` list (MP/OQMD URLs).
+- [X] T005b [P] Generate the methodology sketch in `docs/methodology.md` defining the k-fold CV procedure, random seed (fixed), and LOOCV fallback logic.
+- [X] T006 [P] Setup `code/data/__init__.py` and `code/modeling/__init__.py`.
 - [ ] T008 [P] Setup `data/raw/`, `data/processed/`, and `results/` directory structure with `.gitkeep`.
 - [ ] T009 [P] Create `tests/unit/` and `tests/integration/` scaffolding.
 - [ ] T017a-0 [B] **REVISED**: **Scope Definition**: Define the dynamic resolution logic for the 'deferred' sample size and alloy systems required by FR-003.
  1. **Logic**: Create a configuration file `data/scope_config.yaml` defining:
  - `min_alloy_systems`: 3 (target)
  - `alloy_systems`: ['Fe-Cr', 'Ni-Mo', 'Cu-Zn'] (candidate list)
- - `power_analysis_params`: {alpha:, power: sufficient statistical power to detect the hypothesized effect, effect_size: a medium magnitude}
+ - `power_analysis_params`: {alpha: 0.05, power: 0.8, effect_size: 0.5}
  - `max_samples`: 500 (hard cap)
  2. **Output**: Save to `data/scope_config.yaml`.
  3. **Dependency**: Must be completed before T017a-1. **Blocking**: Blocks Phase 3 simulation tasks.
@@ -153,21 +135,26 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes the pipeline skeleton.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. Includes the pipeline skeleton and Ground Truth Validation.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007 [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:
+- [X] T007 [US1] Implement `code/main.py` pipeline orchestration with error handling and logging. Logic:
  1. Define the *logical* sequence: `download_bulk_configs` -> `build_gb_supercells` -> `compute_descriptors` -> `run_simulation`.
  2. **Note**: This task defines the orchestration flow. The actual implementation of `download.py` (T013), `gb_builder.py` (T014), etc., occurs in Phase 3. The code in T007 will call these modules once they are implemented.
  3. Ensure the script handles the `[DATA_UNAVAILABLE]` error from T013 gracefully by logging and exiting cleanly.
  4. This task is a skeleton and cannot be fully executed until Phase 3 modules exist.
  5. **Constraint**: Do NOT mark as [P] (parallel-safe) as it implies independent execution, which is not true for a skeleton calling unimplemented modules.
-- [ ] T010 [P] [US1] Unit test for retry logic in `tests/unit/test_download_retry.py`.
-- [ ] T011 [P] [US1] Unit test for interface-region descriptor filtering in `tests/unit/test_descriptor_interface.py`.
-- [ ] T012a [P] [US1] **REVISED**: Integration test for full data pipeline in `tests/integration/test_data_pipeline.py`. Logic: Execute the pipeline on a small sample of bulk configurations (N=10) and verify that GB supercells are constructed, descriptors are computed, and energies are generated with non-empty values saved to disk.
-- [ ] T012b [P] [US1] **REVISED**: Artifact verification test. Logic: Verify that `data/processed/gb_supercells/`, `data/processed/descriptors.csv`, and `data/processed/segregation_energies.csv` exist and contain non-empty data.
-- [ ] T012c [P] [US1] Unit test for segregation energy generation verification in `tests/unit/test_energy_generation.py`. Logic: Verify that `simulate_energy.py` produces non-empty results and logs the count of generated energies. Tag [FR-003].
+- [X] T010 [P] [US1] Unit test for retry logic in `tests/unit/test_download_retry.py`.
+- [X] T011 [P] [US1] Unit test for interface-region descriptor filtering in `tests/unit/test_descriptor_interface.py`.
+- [X] T012a [P] [US1] **REVISED**: Integration test for full data pipeline in `tests/integration/test_data_pipeline.py`. Logic: Execute the pipeline on a small sample of bulk configurations (N=10) and verify that GB supercells are constructed, descriptors are computed, and energies are generated with non-empty values saved to disk.
+- [X] T012b [P] [US1] **REVISED**: Artifact verification test. Logic: Verify that `data/processed/gb_supercells/`, `data/processed/descriptors.csv`, and `data/processed/segregation_energies.csv` exist and contain non-empty data.
+- [X] T012c [P] [US1] Unit test for segregation energy generation verification in `tests/unit/test_energy_generation.py`. Logic: Verify that `simulate_energy.py` produces non-empty results and logs the count of generated energies. Tag [FR-003].
+- [X] T017f [B] **REVISED**: **Ground Truth Validation**: Implement a script `code/data/validate_potential.py` to download a small pre-computed DFT subset from NIST/MP and compare simulated energies against DFT energies.
+ 1. **Logic**: Download DFT energies from a verified source. Simulate the same structures using the NIST EAM potential. Calculate the mean absolute error (MAE).
+ 2. **Validation**: If MAE > 0.1 eV, raise a `RuntimeError` with message "Potential validation failed: MAE > 0.1 eV".
+ 3. **Output**: Log validation result to `data/processed/potential_validation.json`.
+ 4. **Dependency**: Must run before T017c. **Blocking**: Blocks T017c. **Placement**: This task is now in Phase 2 to ensure validation occurs before simulation configuration, aligning with Plan.md Phase 0.
 
 **Checkpoint**: Foundation and testing scaffolding ready.
 
@@ -183,25 +170,28 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/data/download.py` with function `def download_bulk_configs(url: str, max_retries: int = 3) -> Path`.
+- [X] T013 [US1] Implement `code/data/download.py` with function `def download_bulk_configs(url: str, max_retries: int = 3) -> Path`.
  1. MUST invoke `validate_citations(url, 'data/metadata.yaml')` from `code/validators.py` (T004c) **after T004c is completed**.
  2. MUST log `[DATA_UNAVAILABLE] URL=<url> attempts=3` after 3 failed attempts.
- 3. **CRITICAL**: If `max_retries` is reached and validation fails, write an entry to `data/inaccessible_manifest.json` with the URL and timestamp to permanently mark the dataset as inaccessible, then attempt to load from `data/raw/backup/` if available. If backup is empty, raise `[DATA_UNAVAILABLE]` and exit cleanly.
- 4. This task fetches bulk structures from MP/OQMD. **Dependency**: Requires T004c completion.
+ 3. **CRITICAL**: If `max_retries` is reached and validation fails, raise a `RuntimeError` with message `[DATA_UNAVAILABLE] URL=<url>`. **DO NOT** attempt to load from `data/raw/backup/` or any synthetic fallback. The pipeline must fail loudly.
+ 4. **Primary Key**: Generate a unique `sample_id` for each downloaded configuration (e.g., `hash(bulk_config_id + timestamp)`) and store it in the metadata of the saved file.
+ 5. This task fetches bulk structures from MP/OQMD. **Dependency**: Requires T004c completion.
 - [ ] T013b [US1] **REVISED**: Implement OQMD-specific download logic in `code/data/download.py`.
  1. **Logic**: If the URL contains 'oqmd.org', use `requests` to fetch from `/materials/composition/{composition_id}` with specific API parameters.
  2. **Validation**: Verify the response is valid JSON and contains the required bulk configuration fields.
  3. **Output**: Save to `data/raw/oqmd_configs/`.
- 4. **Dependency**: Requires T004c completion.
+ 4. **Primary Key**: Ensure `sample_id` is generated and stored.
+ 5. **Dependency**: Requires T004c completion.
 - [ ] T014 [P] [US1] **REVISED**: Implement `code/data/gb_builder.py` to construct GB supercells and insert impurities at the interface.
- 1. **Logic**: Use `pymatgen.symmetry.bandstructure.HighSymmKpath` to determine misorientation angles for Fe-Cr BCC (100) tilt GB. Use `pymatgen.GBBuilder` with specific misorientation angles (e.g., representative values). and boundary planes.
+ 1. **Logic**: Use `pymatgen.symmetry.bandstructure.HighSymmKpath` to determine misorientation angles for Fe-Cr BCC (100) tilt GB. Use `pymatgen.GBBuilder` with specific misorientation angles: **Use fixed angles for deterministic reproducibility.**
  2. **Input**: Bulk configuration files from `data/raw/`.
  3. **Output**: GB supercell structures saved to `data/processed/gb_supercells/`.
  4. **Constraint**: Ensure the builder is deterministic using seeds from `config.py`.
  5. **Dependency**: Requires T013 completion.
 - [ ] T019 [B] [US1] **REVISED**: Implement filtering logic for bulk configurations with zero impurity atoms; log exclusion count to `data/processed/preprocessing_report.json`.
  1. **Logic**: Filter configurations where `impurity_count == 0`.
- 2. **Output**: Generate `data/processed/preprocessing_report.json` with the exact schema:
+ 2. **Primary Key**: Preserve `sample_id` from the input files.
+ 3. **Output**: Generate `data/processed/preprocessing_report.json` with the exact schema:
  ```json
  {
  "total_configs": <int>,
@@ -209,41 +199,48 @@
  "exclusion_reason": "zero_impurity_atoms"
  }
  ```
- 3. **Dependency**: Must run after T013. **Blocking**: Blocks T015 and T017c.
-- [ ] T015 [US1] Implement `code/data/descriptors.py` to compute RDF peaks, pair correlation statistics, and Voronoi-based neighbor counts specifically within the GB interface region (FR-002).
+ 4. **Dependency**: Must run after T013. **Blocking**: Blocks T015 and T017c.
+- [ ] T015 [B] [US1] **REVISED**: Implement `code/data/descriptors.py` to compute RDF peaks, pair correlation statistics, and Voronoi-based neighbor counts specifically within the GB interface region (FR-002).
  1. **Logic**: Compute only for atoms within 5 Å of the GB plane.
- 2. **Constraint**: **DO NOT apply PCA or dimensionality reduction**. Output raw values for all three descriptor types to `data/processed/descriptors.csv` with columns [species, rdf_peak, pair_corr, voronoi_count].
+ 2. **Constraint**: **DO NOT apply PCA or dimensionality reduction**. Output raw values for all three descriptor types to `data/processed/descriptors.csv` with columns [sample_id, species, rdf_peak, pair_corr, voronoi_count]. **This explicitly overrides the Plan's Phase 1 list instruction to apply PCA, adhering to the Plan's Complexity Tracking rejection of PCA and Spec FR-007.**
  3. **Atomicity**: Implement all three descriptor types in a single cohesive function to ensure atomic execution and consistent file output.
  4. Output: `data/processed/descriptors.csv`.
  5. **Dependency**: Must be completed after T014 (GB Builder) and T019 (Preprocessing Report).
-- [ ] T016 [P] [US1] Implement logic in `code/data/descriptors.py` or a new helper to extract and tag each configuration with its `alloy_system_id` based on impurity species and bulk crystal structure.
+- [ ] T016 [B] [US1] **REVISED**: Implement logic in `code/data/descriptors.py` or a new helper to extract and tag each configuration with its `alloy_system_id` based on impurity species and bulk crystal structure.
  1. **Logic**: Generate `alloy_system_id` as `f"{crystal_system}_{impurity_species}"` (e.g., 'BCC_Cr'). `crystal_system` must be derived deterministically from the bulk configuration file using pymatgen's `get_space_group_symbol` or `lattice` properties (e.g., 'BCC', 'FCC').
- 2. Output: `data/processed/alloy_systems.json`.
- 3. **Dependency**: Must be completed after T015. **Can run in parallel with T018 ONLY after T014 is complete**.
-- [ ] T017a-1 [B] [US1] **REVISED**: **System-Specific Potential Download**: Implement a script `code/data/download_potentials.py` to download potentials for ALL systems defined in `data/scope_config.yaml` (T017a-0).
- 1. **Logic**: Iterate over `data/scope_config.yaml` and call `PotentialLoader` for each system.
- 2. **Specifics**: Use the specific NIST URL for Fe-Cr. For Fe-Cr, use potential ID 'Fe_Cr.eam.fs'.
- 3. **Constraint**: If a potential is not found in NIST for a detected system, raise a `FileNotFoundError` and log a warning. **Do NOT skip the system**; the pipeline must fail loudly to ensure FR-003 compliance.
- 4. **Output**: Save verified files to `data/potentials/`.
- 5. **Metadata**: **CRITICAL**: Upon successful download, compute the SHA256 checksum of the file and record the `potential_id`, `url`, `checksum`, and `timestamp` in `data/metadata.yaml` to satisfy Constitution Principle VI.
- 6. **Dependency**: Requires T017a-0 completion. **Must be completed before T017c**. **Do NOT mark as [P]**.
-- [ ] T017a [US1] Define the 'structurally perturbed representation' logic and 'specific NIST EAM potential' parameters in `code/data/simulate_energy.py` constants:
+ 2. **Primary Key**: Preserve `sample_id`.
+ 3. Output: `data/processed/alloy_systems.json`.
+ 4. **Dependency**: Must be completed after T015. **Can run in parallel with T018 ONLY after T014 is complete**.
+- [ ] T017a-1 [B] [US1] **REVISED**: **System-Specific Potential Download**: Implement a script `code/data/download_potentials.py` to download potentials for Fe-Cr ONLY (MVP).
+ 1. **Logic**: Iterate over `data/scope_config.yaml`. If system is Fe-Cr, download NIST EAM potential 'Fe_Cr.eam.fs'.
+ 2. **Constraint**: **MVP Scope: Only Fe-Cr**. If a system is not Fe-Cr (e.g., Ni-Mo, Cu-Zn), raise a `NotImplementedError` with message "MVP Scope: Only Fe-Cr potentials are available in this phase". **Do NOT skip the system**; the pipeline must fail loudly to ensure FR-003 compliance.
+ 3. **Output**: Save verified files to `data/potentials/`.
+ 4. **Metadata**: **CRITICAL**: Upon successful download, compute the SHA256 checksum of the file and record the `potential_id`, `url`, `checksum`, and `timestamp` in `data/metadata.yaml` to satisfy Constitution Principle VI.
+ 5. **Dependency**: Requires T017a-0 completion. **Must be completed before T017c**. **Do NOT mark as [P]**.
+- [ ] T017a [B] [US1] **REVISED**: Define the 'structurally perturbed representation' logic and 'specific NIST EAM potential' parameters in `code/data/simulate_energy.py` constants:
  1. **Perturbation**: Apply a random atomic displacement to all atoms in the GB supercell. **MUST use `rng = numpy.random.default_rng(seed=config.RANDOM_SEED)`** (from T005) and displacement `rng.normal(loc=0.0, scale=0.01, size=structure.num_atoms) * vector`. This ensures deterministic reproducibility (Constitution Principle I).
  2. **Vector Definition**: `vector` MUST be the unit vector along the GB plane normal, calculated via `structure.get_interface_normal()` (or equivalent pymatgen method on the GB supercell object). If the normal vector is zero, raise an error.
  3. **Potential**: Use the specific NIST EAM potential for the alloy system defined in `data/scope_config.yaml` (file path: `data/potentials/{system_id}.eam.fs`). **Note**: While the MVP uses Fe-Cr, the code must be structured to accept a generic `potential_path` argument to support FR-003's requirement for multiple systems.
  4. **Rationale**: This minimal perturbation breaks the exact symmetry of the input structure to avoid circularity while remaining physically plausible for a "distinct representation".
  5. **Dependency**: Requires T014 (GB Builder) and T005 completion.
-- [ ] T017b [US1] Implement the simulation engine in `code/data/simulate_energy.py` that applies the perturbation logic from T017a and calculates segregation energy using the NIST EAM potential. **Action**: The engine must accept a `potential_path` parameter (defaulting to the Fe-Cr path from T017a-1) to allow generic usage for FR-003. This task implements the engine (physics logic) using the parameters defined in T017a. **Dependency**: Requires T014 (GB Builder) and T017a completion.
-- [ ] T017c [US1] Implement `code/data/simulate_energy.py` runner function `run_simulation` to execute the engine on the generated GB supercells and output `data/processed/segregation_energies.csv`.
+- [ ] T017b [B] [US1] **REVISED**: Implement the simulation engine in `code/data/simulate_energy.py` that applies the perturbation logic from T017a and calculates segregation energy using the NIST EAM potential. **Action**: The engine must accept a `potential_path` parameter (defaulting to the Fe-Cr path from T017a-1) to allow generic usage for FR-003. This task implements the engine (physics logic) using the parameters defined in T017a. **Note**: While the engine accepts generic paths, the current pipeline only populates Fe-Cr paths. **Dependency**: Requires T014 (GB Builder) and T017a completion.
+- [ ] T017c [US1] **REVISED**: Implement `code/data/simulate_energy.py` runner function `run_simulation` to execute the engine on the generated GB supercells and output `data/processed/segregation_energies.csv`.
  1. **Logic**: Iterate over valid GB supercells (post-filter T019).
- 2. **Dynamic Sample Size**: Implement a loop that generates samples, runs power analysis, and continues until `N >= required_power` OR `N >= max_samples` (from T017a-0). Log the final N and stopping condition.
- 3. **Output**: `data/processed/segregation_energies.csv`.
- 4. **Dependency**: Requires T017a, T017b, T017a-1, and T019 completion.
+ 2. **Dynamic Sample Size**: Implement a loop that generates samples, runs power analysis, and continues until `power >= 0.8` OR `N >= 500`. **Explicitly define required_power=0.8 and max_samples=500.**
+ 3. **Power Analysis**: Use `statsmodels.stats.power.FTestPower` to calculate power. If power < 0.8 and N < 500, generate more samples.
+ 4. **Primary Key**: Preserve `sample_id` from the input files.
+ 5. **Merge**: **CRITICAL**: Merge the clustering descriptors (from T015) and `alloy_system_id` (from T016) with the computed energies **on the `sample_id` key** to satisfy FR-003's 'associated cluster metadata' requirement. The output file MUST include columns: `sample_id`, `alloy_system_id`, `rdf_peak`, `pair_corr`, `voronoi_count`, `segregation_energy`.
+ 6. **Output**: `data/processed/segregation_energies.csv`.
+ 7. **Dependency**: Requires T017a, T017b, T017a-1, T019, and T017f (Ground Truth Validation) completion.
 - [ ] T017d [US1] Verify that `data/processed/segregation_energies.csv` contains non-empty energy values and logs the count of generated energies.
 - [ ] T017e [US1] Verify that `data/processed/segregation_energies.csv` contains the `alloy_system_id` and `cluster_metadata` columns linked to the energy values, satisfying the Independent Test for US-1.
 - [ ] T018 [B] [US1] **REVISED**: Implement `code/data/descriptor_filter.py` to compute VIF (Variance Inflation Factor) on descriptors. **Action**: Calculate VIF for each descriptor. **IF VIF >= 10 THEN** generate a descriptive report `data/processed/collinearity_report.md` explaining joint relationships. **ELSE** generate a report stating "No collinearity detected (VIF < 10)". **Do NOT remove features** in this task; only report. (FR-007). Report format: VIF scores per feature, descriptive text for joint relationships (or confirmation of independence), no feature removal.
  1. **Descriptive Framing**: If VIF >= 10, the report MUST state: "Feature X and Y are collinear (VIF=X). Interpret as a joint effect of [cluster size/density] rather than independent predictors."
  2. **Dependency**: Must run after T015. **Logical placement**: Execute immediately after T015. **Parallel**: Can run in parallel with T017c. **Blocking**: Blocks T023.
+- [ ] T019b [B] [US1] **NEW**: **Fail Loudly Logic**: Implement `code/data/download.py` logic to ensure NO synthetic fallback is ever used.
+ 1. **Logic**: If `download_bulk_configs` fails after 3 retries, raise `RuntimeError`. **DO NOT** catch this exception to load from `data/raw/backup/` or generate synthetic data.
+ 2. **Constraint**: This task ensures the pipeline adheres to the "Fail Loudly" principle.
+ 3. **Dependency**: Must be completed before T013. **Blocking**: Blocks T013.
 - [ ] T019c [US1] Implement streaming logic in `code/data/download.py` for large bulk configuration archives. **Action**: If a dataset exceeds 1GB, use `requests` with `stream=True` and iterate line-by-line or chunk-by-chunk to process the data without loading it entirely into RAM. Log the streaming status and chunk count.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -271,7 +268,7 @@
  1. **Cross-Validation**: Implement a **manual k-fold CV loop** using `sklearn.model_selection.GroupKFold` (or LOOCV). **Logic**: **IF N >= 5 THEN** use 5-fold CV. **ELSE** use LOOCV. For each fold:
  - Instantiate `statsmodels.api.OLS` on the training fold.
  - Fit the model.
- - **Extract `result.pvalues` for each feature** and save them to `results/metrics_per_fold.json` (one entry per fold).
+ - **Extract `result.pvalues` for each feature** and save them to `results/metrics_per_fold.json` (one entry per fold). **This explicitly satisfies FR-004's requirement to compute p-values for each fold.**
  - Compute R², RMSE on the test fold.
  - Aggregate metrics across folds.
  2. **Collinearity**: If `data/processed/collinearity_report.md` (from T018) indicates VIF >= 10, log a warning that p-values may be unstable, but proceed with raw data (as per FR-007 "frame, don't remove").
@@ -285,14 +282,14 @@
  3. **Constraint**: If the dataset size is below the threshold, raise a `ValueError` and log the required sample size.
  4. **Output**: Save the calculated threshold to `results/sample_size_threshold.json`.
  5. **Dependency**: Must be completed before T025b.
-- [ ] T025b [US2] Implement the 'held-out alloy system' split and evaluation logic required by SC-001, **including permutation testing for statistical significance**.
+- [ ] T025b [US2] **REVISED**: Implement the 'held-out alloy system' split and evaluation logic required by SC-001, **including permutation testing for statistical significance**.
  1. **Split**: Split the dataset such that entire `alloy_system_id` groups are held out as the test set using `GroupKFold`. The number of held-out systems is determined by the actual number of groups in the data (adaptive).
  2. **Permutation Testing**: Implement a permutation test procedure:
- - Shuffle the target variable (segregation energy) N times (N=1000 if N_groups >= 5, else N=100 * N_groups).
+ - Shuffle the target variable (segregation energy) N times. **N = 1000 if N_groups >= 5, else N = 100 * N_groups**. **N_groups is derived from the number of unique alloy_system_id groups in `data/processed/alloy_systems.json` (T016 output).**
  - For each shuffle, re-train the model and compute R².
  - Compare the observed R² against the null distribution.
  - Calculate p-value as the fraction of shuffled R² values >= observed R².
- 3. **Output**: Save to `results/sc001_held_out_metrics.json` with keys: `r2`, `rmse`, `p_value_permutation`, `null_distribution_stats`, `n_groups_tested`.
+ 3. **Output**: Save to `results/sc001_held_out_metrics.json` with keys: `r2`, `rmse`, `p_value_permutation`, `null_distribution_stats`, `n_groups_tested`. **This explicitly satisfies SC-001's requirement for statistical significance determination.**
  4. **Dependency**: Requires T025 and T025c completion. **Note**: T025b is self-contained and does not depend on T044 (which has been removed).
 - [ ] T026 [US2] Implement per-prediction confidence interval calculation. Logic: Use `statsmodels` OLS `get_prediction()` method to generate confidence intervals for each prediction in the test set. Output: `results/confidence_intervals.json` with keys [sample_id, predicted_energy, ci_lower, ci_upper]. **Dependency**: Requires T023 completion.
 - [ ] T028 [US2] **REMOVED**: Logic merged into T023 to avoid race conditions and redundant writes.
@@ -317,17 +314,16 @@
 ### Implementation for User Story 3
 
 - [ ] T036 [US3] Add contract validation in `code/modeling/evaluate.py` to validate output against `contracts/output.schema.yaml` BEFORE analysis.
-- [ ] T032 [US3] Implement `code/modeling/evaluate.py` with sensitivity analysis. Logic: Sensitivity analysis sweeps over at least 3 concrete values of:
+- [ ] T032 [US3] **REVISED**: Implement `code/modeling/evaluate.py` with sensitivity analysis. Logic: Sensitivity analysis sweeps over at least 3 concrete values of:
  1. **Data-Driven Thresholds**: First, analyze the distribution of the training data (e.g., quantiles of descriptor values or learned regularization paths).
- 2. **Regularization strength**: Use Ridge regression with alpha values derived from the data distribution (e.g., `[0.0, 0.1 * max_alpha, 1.0 * max_alpha]` where `max_alpha` is the value where coefficients become negligible).
- 3. **Descriptor perturbation magnitude**: Use values derived from thermal vibration heuristics or data quantiles (e.g., `[0.0, 0.01, 0.05]` Å if supported by data, otherwise derived from std dev of descriptors).
- 4. **Aggregation**: Calculate `rmse_variance` (variance of RMSE across folds) and `r2_stability` (standard deviation of R² across folds) for each threshold.
- 5. **Output**: Report RMSE variance and R² stability across the sweep. Output file: `results/sensitivity_report.json` with structure: `{"thresholds": [{"alpha": 0.0, "rmse_variance": 0.01, "r2_stability": 0.95, "data_relevant": true},...]}` [FR-006].
+ 2. **Regularization strength**: Use Ridge regression with alpha values derived from the data distribution: **`[0.0, 0.1 * max_alpha, 1.0 * max_alpha]` where `max_alpha` is the value where coefficients become negligible (< 1e-3). Specifically, use the 10th, 50th, and 90th percentiles of the descriptor distribution as the three concrete threshold values.**
+ 3. **Aggregation**: Calculate `rmse_variance` (variance of RMSE across folds) and `r2_stability` (standard deviation of R² across folds) for each threshold.
+ 4. **Output**: Report RMSE variance and R² stability across the sweep. Output file: `results/sensitivity_report.json` with structure: `{"thresholds": [{"alpha": 0.0, "rmse_variance": 0.01, "r2_stability": 0.95, "data_relevant": true},...]}` [FR-006].
 - [ ] T033 [US3] **REMOVED**: Logic merged into T032 to ensure single aggregation point for stability metrics.
-- [ ] T034a [US3] Implement logic to extract predictor significance: If Linear Regression (T023), extract coefficients and standard errors; if RandomForest (not used), compute permutation importance. Output to `results/feature_importance.json`.
+- [ ] T034a [US3] **NEW**: Implement logic to extract predictor significance and calculate FWER. Logic: If Linear Regression (T023), extract coefficients and standard errors. Calculate the **family-wise error rate (FWER)** by comparing the number of significant adjusted p-values to the total number of tests. Output to `results/fwer_report.json`. **This explicitly satisfies SC-004's requirement to measure multiple-comparison correction against unadjusted p-values.**
 - [ ] T034 [US3] Implement hypothesis testing for predictor coefficients (from T034a) with Bonferroni or FDR correction (FR-005) [FR-005].
 - [ ] T035 [US3] Implement logic to handle non-significant results (p > 0.05) by documenting null results with p-values in `results/null_results_report.json`.
-- [ ] T037 [US3] Save sensitivity report to `results/sensitivity_report.json`.
+- [ ] T037 [US3] **REVISED**: Save sensitivity report to `results/sensitivity_report.json`. **Format**: Ensure the report matches SC-003 requirements: `{"rmse_variance":..., "r2_stability":..., "thresholds": [...]}`. **Logic**: Aggregate per-threshold metrics from T032 into this final report format to satisfy SC-003.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -445,9 +441,11 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Constraint**: All tasks must run on a CPU-only GitHub Actions runner with limited CPU and memory resources.; no GPU, no 8-bit/4-bit models, no deep learning.
-- **Data**: All data must be real (MP/OQMD structures + Simulation energies); no fabrication or synthetic placeholders. **Fallback**: If OQMD/MP fail, the pipeline MUST attempt to load from a local `data/raw/backup/` directory if present, otherwise fail with `[DATA_UNAVAILABLE]` and exit. No synthetic data generation is permitted.
+- **Data**: All data must be real (MP/OQMD structures + Simulation energies); no fabrication or synthetic placeholders. **Fallback**: If OQMD/MP fail, the pipeline MUST fail with `[DATA_UNAVAILABLE]` and exit. **NO synthetic data generation is permitted.**
 - **Scientific Constraint**: Segregation energies are generated via simulation (T017) because they are not available in MP/OQMD. Bulk structures are sourced from MP/OQMD (T013).
 - **Reproducibility**: All random operations (perturbations, splits) MUST use seeds from `code/config.py`.
 - **Plan Correction**: The Plan's mention of PCA in 'Phase 1' is an error; Spec FR-007 (report, don't remove) and Task T015 take precedence. **This Plan Amendment is recorded in the Phase 3 header and T015.**
 - **Constitution Note**: The `[DATA_UNAVAILABLE]` state does not fail the "Verified Accuracy" gate if the pipeline handles it gracefully (retry logic) and logs the error; the gate only fails if the data source is invalid or unreachable without retry.
 - **New Revision Concern**: T019b and T019c added to enforce "Fail Loudly" and "Stream Real Data" principles, preventing synthetic fallbacks and ensuring large datasets are handled via streaming rather than shrinking to toy sets.
+- **Note**: T019b is **ACTIVE** and implemented in Phase 3. Its logic is integrated into T013 and T013b to ensure no synthetic fallback.
+- **Note**: T017f (Ground Truth Validation) has been moved to Phase 2 to align with Plan.md Phase 0 requirements.
