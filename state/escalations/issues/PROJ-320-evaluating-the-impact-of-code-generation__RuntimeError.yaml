@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-30T19:59:50.550826+00:00'
+issue_number: 1440
+project_id: PROJ-320-evaluating-the-impact-of-code-generation

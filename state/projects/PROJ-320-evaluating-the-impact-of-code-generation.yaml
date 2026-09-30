@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-05T16:42:45.916003Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-320-evaluating-the-impact-of-code-generation
-last_run_id: 2ac7f616-1a36-4fbb-be1a-5e378119a4fa
+last_run_id: 70d99609-7330-46e5-8486-a6d761854c41
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation
 title: Evaluating the Impact of Code Generation on Code Review Quality Using LLMs
-updated_at: '2026-09-27T03:34:47.571923Z'
+updated_at: '2026-09-30T19:37:04.187067Z'
