@@ -1,1 +1,1 @@
-# Contract definitions and schema files
+# Contracts directory placeholder

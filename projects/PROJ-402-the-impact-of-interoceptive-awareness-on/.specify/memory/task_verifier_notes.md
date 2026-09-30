@@ -2,9 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — The implementer did not provide any evidence that the required directories (`code/`, `tests/`, `data/`, `results/`) actually exist or contain any files; only narrative user stories were shown. The project structure itself is missing, so the task is not satisfied.
-- **T002a** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T002b** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T002c** — The provided `code/utils/schema_validator.py` is present but the required schema file `contracts/dataset.schema.yaml` does not exist, so the loader cannot succeed. Moreover, the script does not show a complete implementation for reading BIDS `events.tsv` files, handling TSV/JSON parsing errors, or exiting with the specified error codes. These essential parts are missing.
-- **T010b** — No evidence of a downloaded OpenNeuro metadata file (or any files) in `data/raw/openneuro/` is provided, nor any logs showing error handling or continuation to the next pipeline step. The required artifact is missing, so the task is not satisfied.
-- **T011b** — The `code/02_audit_metadata.py` script contains validation logic that imports and calls `utils.schema_validator`, but the required schema file `contracts/dataset.schema.yaml` is missing, so the validation cannot actually be performed. The missing schema file must be added (or the path corrected) for the implementation to be functional.
+- **T002** — declared artifact(s) missing/empty/invalid: schema.yaml
+- **T002c** — The repository lacks the required `contracts/dataset.schema.yaml` file, so the validator cannot load the pre‑existing schema. Moreover, the provided `schema_validator.py` is truncated (e.g., `_validate_column_types` is incomplete) and does not fully implement the validation logic or error‑code handling. Both the missing schema and incomplete code prevent the task from being genuinely fulfilled.
+- **T008** — The repository lacks both a `conftest.py` with pytest seed‑pinning configuration and a `results/checksums.txt` file. Moreover, `code/01_download_data.py` does not contain any code that writes the computed SHA‑256 checksum to `results/checksums.txt` before exiting. These missing artifacts mean the task’s explicit requirement is not satisfied.
+- **T010** — The required artifact `data/raw/wesad/WESAD.zip` is missing, so the download step was not performed and the script’s error‑handling behavior cannot be verified. The task’s core requirement (having the ZIP file at the specified path) is not satisfied.
+- **T010b** — declared artifact(s) missing/empty/invalid: data/raw/openneuro/index.json

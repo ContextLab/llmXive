@@ -1,18 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer did not provide any evidence that the required directories (`code/`,
-    `tests/`, `data/`, `results/`) actually exist or contain any files; only narrative
-    user stories were shown. The project structure itself is missing, so the task
-    is not satisfied.
-T002c:
-  c: false
-  h: 9d6f6d99ebb9c38a8822d391600b14d01f7038ac2f9c2dba21c5809657f4c01c
-  r: The provided `code/utils/schema_validator.py` is present but the required schema
-    file `contracts/dataset.schema.yaml` does not exist, so the loader cannot succeed.
-    Moreover, the script does not show a complete implementation for reading BIDS
-    `events.tsv` files, handling TSV/JSON parsing errors, or exiting with the specified
-    error codes. These essential parts are missing.
 T007:
   c: false
   h: 1f2f3677069dfd670811f6d36716ce97fa03e3a23e5d025a8414310fe750a531
@@ -22,12 +7,21 @@ T007:
     \ file is absent. Additionally, the required state file `state/projects/001-impact-of-interoceptive-awareness.yaml`\
     \ does not exist, indicating the script has not successfully created or updated\
     \ it. The task therefore remains unfinished."
-T010b:
+T008:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a downloaded OpenNeuro metadata file (or any files) in `data/raw/openneuro/`
-    is provided, nor any logs showing error handling or continuation to the next pipeline
-    step. The required artifact is missing, so the task is not satisfied.
+  h: 5f91a08034107de4ac8857dac214fe2040bbfeb21ee541d6a7406c2d2d2add56
+  r: "The repository lacks both a `conftest.py` with pytest seed\u2011pinning configuration\
+    \ and a `results/checksums.txt` file. Moreover, `code/01_download_data.py` does\
+    \ not contain any code that writes the computed SHA\u2011256 checksum to `results/checksums.txt`\
+    \ before exiting. These missing artifacts mean the task\u2019s explicit requirement\
+    \ is not satisfied."
+T010:
+  c: false
+  h: 3baed5528433f397cee5685b576ca14d614269a3c431ec96fcbc5e2bfffe1267
+  r: "The required artifact `data/raw/wesad/WESAD.zip` is missing, so the download\
+    \ step was not performed and the script\u2019s error\u2011handling behavior cannot\
+    \ be verified. The task\u2019s core requirement (having the ZIP file at the specified\
+    \ path) is not satisfied."
 T011b:
   c: false
   h: 47d76e66d64c3cea2e5e0fb33af44fc4dbc2d35f2a3db38355f9f52a368d2629

@@ -42,7 +42,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
   verified_at: '2026-08-04T18:40:16.650707Z'
-- artifact_hash: 8bf8972fb252fd3f47f77320f900670c57d482a66938561d66f89758aa543f68
+- artifact_hash: 9c2f419091588dc9621ff0b48a7d9ce614d3b2f321108ac11340f7ec06d99d3b
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,8 +52,8 @@
   value: https://api.openneuro.org/datasets`
   verification_status: unreachable
   verified_against_url: https://api.openneuro.org/datasets
-  verified_at: '2026-09-26T15:57:27.229922Z'
-- artifact_hash: 8bf8972fb252fd3f47f77320f900670c57d482a66938561d66f89758aa543f68
+  verified_at: '2026-09-30T04:00:16.391183Z'
+- artifact_hash: 9c2f419091588dc9621ff0b48a7d9ce614d3b2f321108ac11340f7ec06d99d3b
   artifact_path: projects/PROJ-402-the-impact-of-interoceptive-awareness-on/specs/001-the-impact-of-interoceptive-awareness-on/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -63,4 +63,4 @@
   value: 10.5281/zenodo.1292932
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1292932
-  verified_at: '2026-09-26T15:57:27.229922Z'
+  verified_at: '2026-09-30T04:00:16.391183Z'

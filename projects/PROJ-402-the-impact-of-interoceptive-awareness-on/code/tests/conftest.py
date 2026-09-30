@@ -1,59 +1,122 @@
+"""
+Pytest configuration and fixtures for the llmXive research pipeline.
+
+This module sets up global test configuration including random seed pinning
+for reproducibility and temporary directory fixtures for test data isolation.
+"""
+
 import os
 import random
 import time
 import hashlib
 import logging
 import sys
-import pytest
+import tempfile
 from pathlib import Path
+from typing import Generator
 
-# Ensure reproducibility for all tests
+import pytest
+
+# Configure logging for tests
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+
 def set_random_seed(seed: int = 42) -> None:
-    """Set random seeds for reproducibility."""
+    """
+    Set random seeds for reproducibility across libraries.
+    
+    Args:
+        seed: The random seed value to use.
+    """
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
-    
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
+    # Note: numpy and torch seeds are set in their respective test modules
+    # to avoid importing heavy libraries in conftest if not needed.
 
 def pytest_configure(config):
-    """Configure pytest with random seed pinning."""
-    seed = config.getoption("--seed", default=42)
-    set_random_seed(seed)
-    logging.info(f"Random seed pinned to {seed} for reproducibility")
+    """
+    Pytest hook to configure global settings before tests run.
+    
+    Args:
+        config: The pytest configuration object.
+    """
+    # Pin random seeds for reproducibility
+    set_random_seed(42)
+    
+    # Log start of test session
+    logging.info("Test session started with random seed pinned to 42")
 
 def pytest_addoption(parser):
-    """Add command-line options for pytest."""
+    """
+    Pytest hook to add custom command-line options.
+    
+    Args:
+        parser: The pytest option parser.
+    """
     parser.addoption(
-        "--seed",
+        "--run-slow",
+        action="store_true",
+        default=False,
+        help="run slow tests"
+    )
+    parser.addoption(
+        "--data-dir",
         action="store",
-        default="42",
-        help="Random seed for reproducibility (default: 42)"
+        default=None,
+        help="Path to custom data directory for tests"
     )
 
 def pytest_sessionstart(session):
-    """Session start hook to enforce seed pinning."""
-    seed = session.config.getoption("--seed")
-    set_random_seed(int(seed))
-    logging.info(f"Session started with seed: {seed}")
+    """
+    Pytest hook called at the beginning of test session.
+    
+    Args:
+        session: The pytest session object.
+    """
+    logging.info(f"Test session started: {session}")
 
 def pytest_sessionfinish(session, exitstatus):
-    """Session finish hook to log completion."""
-    logging.info(f"Session finished with exit status: {exitstatus}")
+    """
+    Pytest hook called at the end of test session.
+    
+    Args:
+        session: The pytest session object.
+        exitstatus: The exit status of the test session.
+    """
+    logging.info(f"Test session finished with status: {exitstatus}")
 
-@pytest.fixture
-def temp_data_dir(tmp_path):
-    """Provide a temporary data directory for tests."""
-    data_dir = tmp_path / "data"
-    data_dir.mkdir(exist_ok=True)
-    return data_dir
+@pytest.fixture(scope="session")
+def temp_data_dir() -> Generator[Path, None, None]:
+    """
+    Fixture providing a temporary directory for test data.
+    
+    Yields:
+        Path: A temporary directory path for storing test data.
+    """
+    temp_dir = Path(tempfile.mkdtemp(prefix="llmXive_test_data_"))
+    try:
+        yield temp_dir
+    finally:
+        # Cleanup after tests
+        import shutil
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)
 
-@pytest.fixture
-def temp_results_dir(tmp_path):
-    """Provide a temporary results directory for tests."""
-    results_dir = tmp_path / "results"
-    results_dir.mkdir(exist_ok=True)
-    return results_dir
+@pytest.fixture(scope="session")
+def temp_results_dir() -> Generator[Path, None, None]:
+    """
+    Fixture providing a temporary directory for test results.
+    
+    Yields:
+        Path: A temporary directory path for storing test results.
+    """
+    temp_dir = Path(tempfile.mkdtemp(prefix="llmXive_test_results_"))
+    try:
+        yield temp_dir
+    finally:
+        # Cleanup after tests
+        import shutil
+        if temp_dir.exists():
+            shutil.rmtree(temp_dir)

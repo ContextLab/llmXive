@@ -1,1 +1,2 @@
-# Placeholder for state storage
+# This file ensures the state/projects directory is tracked by git.
+# Pipeline state tracking files will be stored here.

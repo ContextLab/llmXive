@@ -1,2 +1,6 @@
-# llmXive Project: The Impact of Interoceptive Awareness on Emotional Regulation
-# This package contains the implementation logic for the research pipeline.
+"""
+llmXive Research Pipeline - Code Module
+
+This package contains all the research scripts and utilities for the
+automated science pipeline.
+"""

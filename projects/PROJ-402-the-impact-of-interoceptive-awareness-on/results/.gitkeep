@@ -1,1 +1,2 @@
-# Placeholder for results storage
+# This file ensures the results directory is tracked by git.
+# Analysis outputs and reports will be stored here.

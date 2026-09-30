@@ -1,30 +1,55 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "BIDS events.tsv schema for interoception/stress tasks"
-description: "JSON Schema for validating BIDS events.tsv files in the interoception study."
-type: "object"
+title: "BIDS events.tsv Schema for Interoceptive Awareness Study"
+description: |
+  JSON Schema for validating BIDS events.tsv files in the context of
+  the 'Impact of Interoceptive Awareness on Emotional Regulation' study.
+  
+  Defines the structure for task events including 'Schandry', 'heartbeat',
+  'TSST', 'rest', and 'baseline'.
+  
+  Note: 'Schandry' and 'heartbeat' are the ONLY values that indicate the
+  presence of the behavioral task per FR-002. 'TSST', 'rest', and 'baseline'
+  are included for phase identification but do not indicate the presence
+  of the behavioral task.
+type: object
 properties:
   task:
-    type: "string"
-    description: "The task label for the event."
+    description: "Name of the task or condition. REQUIRED column."
+    type: string
     enum:
-      - "Schandry"
-      - "heartbeat"
-      - "TSST"
-      - "rest"
-      - "baseline"
+      - Schandry
+      - heartbeat
+      - TSST
+      - rest
+      - baseline
+    minLength: 1
   onset:
-    type: "number"
-    description: "Time of event onset in seconds."
+    description: "Onset time of the event in seconds."
+    type: number
+    minimum: 0
   duration:
-    type: "number"
     description: "Duration of the event in seconds."
+    type: number
+    minimum: 0
   value:
-    type: "number"
-    description: "Optional value associated with the event (e.g., heart rate)."
+    description: "Optional numeric value associated with the event."
+    type: number
   trial_type:
-    type: "string"
-    description: "Optional trial type classification."
+    description: "Optional string describing the specific trial type."
+    type: string
 required:
-  - "task"
-  - "onset"
-  - "duration"
+  - task
+  - onset
+  - duration
+additionalProperties: true
+examples:
+  - task: Schandry
+    onset: 10.0
+    duration: 120.0
+    trial_type: "interoceptive counting"
+  - task: TSST
+    onset: 150.0
+    duration: 300.0
+  - task: rest
+    onset: 0.0
+    duration: 60.0

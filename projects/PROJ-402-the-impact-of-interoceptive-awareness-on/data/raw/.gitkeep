@@ -1,1 +1,2 @@
-# Placeholder for raw data storage
+# Raw data directory - stores downloaded datasets
+# Files here are large and should be .gitignored
