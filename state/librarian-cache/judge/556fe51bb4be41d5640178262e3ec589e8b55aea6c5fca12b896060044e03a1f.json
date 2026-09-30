@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.11114",
+  "judged_at": "2026-09-30T18:41:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same core mechanism (MoE routing behavior and expert selection patterns) and domain (Sparse Mixture-of-Experts Transformers) as the user's question, providing empirical evidence on how routing signatures correlate with task structure, which is essential for any follow-up study on redesigning or analyzing these routers.",
+  "relevant": true
+}

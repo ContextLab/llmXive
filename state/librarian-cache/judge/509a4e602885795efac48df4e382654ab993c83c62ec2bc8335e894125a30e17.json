@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.15021",
+  "judged_at": "2026-09-30T18:41:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it studies the core mechanism of Mixture-of-Experts (MoE) architectures, specifically focusing on routing behavior, expert utilization, and optimization dynamics (Hessian sharpness), which are the foundational components of the user's proposed \"Manifold Power Iteration\" router redesign. Although it applies these concepts to vision rather than LLMs, it provides the necessary empirical baseline and canonical analysis of MoE routing mechanisms that a lit",
+  "relevant": true
+}

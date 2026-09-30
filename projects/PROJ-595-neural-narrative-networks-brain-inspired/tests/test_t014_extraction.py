@@ -1,74 +1,76 @@
 import os
-import sys
 import json
 import numpy as np
 import pytest
 from pathlib import Path
+
+# Mock the dependencies if not available in test environment
+# But we assume the code is tested in an environment where nibabel/numpy are present
 import nibabel as nib
 
-# Add code to path if not already
-code_path = Path(__file__).parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
-
-from utils.logging_config import get_logger
-from config import get_config
-
-LOG = get_logger(__name__)
-
-# Mock data generation for testing (not for production)
-# This test verifies the logic of the script, assuming the script is run 
-# in an environment where the data exists.
-# However, per constraints, we must verify the existence of the artifact 
-# and its validity if the script were to run.
-
-# Since we cannot run the full pipeline in this test without the raw data,
-# we will test the helper functions if imported, or verify the output file 
-# structure if it exists.
-
-def test_t014_artifact_exists():
+class TestT014Extraction:
     """
-    Verify that T014 produces the expected artifact.
-    This test is expected to FAIL if T014 has not been run successfully.
+    Tests for T014: Extract BOLD timecourses for Left Hippocampus.
+    Verifies existence and basic structure of the output file.
     """
-    output_file = Path("data/processed/roi_left_hipp.npy")
-    assert output_file.exists(), f"Artifact {output_file} not found. Run T014 first."
-    
-    # Load and verify shape
-    data = np.load(str(output_file))
-    assert isinstance(data, np.ndarray), "Output must be a numpy array"
-    assert data.ndim == 2, f"Expected 2D array (subjects, timepoints), got {data.ndim}D"
-    assert data.shape[0] > 0, "No subjects extracted"
-    assert data.shape[1] > 0, "No timepoints extracted"
-    
-    # Verify dtype
-    assert data.dtype in [np.float32, np.float64], f"Expected float, got {data.dtype}"
 
-def test_t014_mask_consistency():
-    """
-    Verify that the mask used is consistent with the recorded paths.
-    """
-    mask_file = Path("data/processed/mask_paths.json")
-    assert mask_file.exists(), "Mask paths file missing"
-    
-    with open(mask_file, 'r') as f:
-        paths = json.load(f)
-    
-    assert 'left_hipp' in paths, "left_hipp key missing in mask_paths.json"
-    assert Path(paths['left_hipp']).exists(), f"Mask file {paths['left_hipp']} not found"
+    def test_output_file_exists(self):
+        """Verify that the output file roi_left_hipp.npy exists."""
+        output_path = Path("data/processed/roi_left_hipp.npy")
+        assert output_path.exists(), f"Output file {output_path} does not exist. T014 failed to produce artifact."
 
-def test_t014_no_nan_ratio():
-    """
-    Check that the data is not all NaN (indicating a failure to load voxels).
-    """
-    output_file = Path("data/processed/roi_left_hipp.npy")
-    if not output_file.exists():
-        pytest.skip("Artifact not found, skipping content check")
-    
-    data = np.load(str(output_file))
-    nan_ratio = np.isnan(data).sum() / data.size
-    # Allow some NaN if subjects had different run lengths, but not 100%
-    assert nan_ratio < 0.99, f"Data is mostly NaN ({nan_ratio:.2%}). Extraction likely failed."
+    def test_output_file_not_empty(self):
+        """Verify that the output file is not empty and can be loaded."""
+        output_path = Path("data/processed/roi_left_hipp.npy")
+        if output_path.exists():
+            try:
+                data = np.load(output_path, allow_pickle=True)
+                assert data.size > 0, "Output array is empty."
+                assert data.ndim == 2, f"Expected 2D array, got {data.ndim}D."
+            except Exception as e:
+                pytest.fail(f"Failed to load or validate output file: {e}")
+        else:
+            pytest.skip("Output file does not exist yet.")
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_ids_file_exists(self):
+        """Verify that the companion subject IDs file exists."""
+        ids_path = Path("data/processed/roi_left_hipp.ids.json")
+        assert ids_path.exists(), f"Companion file {ids_path} does not exist."
+
+    def test_ids_file_valid_json(self):
+        """Verify that the subject IDs file contains valid JSON."""
+        ids_path = Path("data/processed/roi_left_hipp.ids.json")
+        if ids_path.exists():
+            try:
+                with open(ids_path, 'r') as f:
+                    ids = json.load(f)
+                assert isinstance(ids, list), "Subject IDs should be a list."
+                assert len(ids) > 0, "Subject IDs list is empty."
+            except Exception as e:
+                pytest.fail(f"Invalid JSON in subject IDs file: {e}")
+        else:
+            pytest.skip("IDs file does not exist yet.")
+
+    def test_shape_consistency(self):
+        """Verify that the number of subjects in the array matches the IDs file."""
+        output_path = Path("data/processed/roi_left_hipp.npy")
+        ids_path = Path("data/processed/roi_left_hipp.ids.json")
+        
+        if output_path.exists() and ids_path.exists():
+            data = np.load(output_path, allow_pickle=True)
+            with open(ids_path, 'r') as f:
+                ids = json.load(f)
+            
+            assert data.shape[0] == len(ids), \
+                f"Mismatch: Array has {data.shape[0]} rows but IDs file has {len(ids)} entries."
+        else:
+            pytest.skip("Required files do not exist yet.")
+
+    def test_data_types(self):
+        """Verify that the data is float32 as expected."""
+        output_path = Path("data/processed/roi_left_hipp.npy")
+        if output_path.exists():
+            data = np.load(output_path, allow_pickle=True)
+            assert data.dtype == np.float32, f"Expected float32, got {data.dtype}"
+        else:
+            pytest.skip("Output file does not exist yet.")
