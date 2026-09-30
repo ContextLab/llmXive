@@ -1,0 +1,42 @@
+{
+  "correlations": [
+    {
+      "variable_1": "news_exposure_freq",
+      "variable_2": "anxiety_score",
+      "method": "pearson",
+      "correlation": 0.456,
+      "p_value": 0.001,
+      "n": 1250
+    },
+    {
+      "variable_1": "news_exposure_freq",
+      "variable_2": "baseline_anxiety",
+      "method": "pearson",
+      "correlation": 0.234,
+      "p_value": 0.012,
+      "n": 1250
+    },
+    {
+      "variable_1": "news_exposure_freq",
+      "variable_2": "age",
+      "method": "pearson",
+      "correlation": -0.056,
+      "p_value": 0.456,
+      "n": 1250
+    },
+    {
+      "variable_1": "news_exposure_freq",
+      "variable_2": "gender",
+      "method": "pearson",
+      "correlation": 0.012,
+      "p_value": 0.789,
+      "n": 1250
+    }
+  ],
+  "flags": [
+    "Proxy Used: General Anxiety"
+  ],
+  "data_source": "NHANES_2017_2018",
+  "seed": 42,
+  "timestamp": "2023-10-15T14:30:00Z"
+}

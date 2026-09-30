@@ -18,12 +18,43 @@ T035:
     \ report, or updated documentation) is present, and no artifacts matching the\
     \ task\u2019s requirement are provided. The implementer has not supplied any files\
     \ or results demonstrating that the quickstart guide was validated."
-T037:
+T038:
   c: false
-  h: f159c436466a901b4bccdf1dd38b59bcf21beda647d1f084f421b3f233984d05
-  r: "The repository lacks `data/processed/metadata.json`, and `code/ingest.py` does\
-    \ not contain the required logic to (1) attempt downloading the NHANES 2017\u2011\
-    2018 dataset and check for the `DMQ010` variable, (2) fall back sequentially to\
-    \ GSS, Pew, and YouGov on schema failure, (3) halt only after all sources fail,\
-    \ or (4) write the verified schema and source information to `metadata.json`.\
-    \ These essential task requirements are missing."
+  h: 38944ba9ce9d69d7c4ad7602c6277d3ce05198933ff21a4aab337e5cdae3145c
+  r: "The required artifact `code/main.py` does not exist on disk, so the pipeline\
+    \ cannot be run or verified against the NHANES dataset. Without this script (and\
+    \ its output), the task\u2019s core requirement is unmet."
+T039:
+  c: false
+  h: 99ac2aca3632dcc00692f8640d048ad17338197b0dec4847a273ef0491fc3124
+  r: "The `outputs/correlation_results.json` file is missing, and both existing JSON\
+    \ files lack a `flags` array (so they cannot confirm the required \u201CProxy\
+    \ Used: General Anxiety\u201D flag). Consequently the audit cannot verify that\
+    \ no hard\u2011coded or synthetic values were used nor that the proxy flag is\
+    \ present."
+T040:
+  c: false
+  h: 99ac2aca3632dcc00692f8640d048ad17338197b0dec4847a273ef0491fc3124
+  r: The `outputs/correlation_results.json` file is missing, and there is no evidence
+    that the three output files were compared to a prior run (no logs, hashes, or
+    `np.allclose` checks). Consequently the reproducibility verification requirement
+    is not satisfied.
+T042:
+  c: false
+  h: 214efb31c70a0cb7794ddf3be9a79e08b4ad3edb09103ce9aed611fbbef5dd27
+  r: "The required `code/main.py` file is absent, so a complete manual review of all\
+    \ four modules cannot be performed; without it the reviewer cannot verify overall\
+    \ data flow or the presence of hard\u2011coded or synthetic logic across the entire\
+    \ pipeline."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No zip file containing the `data/processed/`, `outputs/`, and `code/` directories
+    was provided; the required archive artifact is missing, so the task is not satisfied.
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No data ingestion script or resulting CSV/JSON with the required columns was\
+    \ provided, nor any regression model output, diagnostic plots, or robustness\u2011\
+    check visualizations. The claim lacks the concrete artifacts the task explicitly\
+    \ requires."

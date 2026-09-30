@@ -1,149 +1,204 @@
-"""
-Tests for T040: Reproducibility Verification
-"""
-import pytest
 import json
-import hashlib
 import os
 import sys
+import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-import pandas as pd
+import pytest
 import numpy as np
+from unittest.mock import patch, MagicMock
 
 # Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-from reproducibility_check import compute_file_hash, normalize_json_for_comparison, compare_json_files
-from config import load_config
+from reproducibility_check import (
+    get_file_hash,
+    load_json_safe,
+    normalize_floats,
+    compare_results,
+    run_reproducibility_check
+)
 
-class TestReproducibilityHelpers:
-    """Unit tests for helper functions in reproducibility_check.py"""
-
-    def test_compute_file_hash(self, tmp_path):
-        """Test SHA-256 hash computation"""
+class TestFileHashing:
+    """Test file hashing functionality."""
+    
+    def test_get_file_hash(self, tmp_path):
+        """Test that hash is calculated correctly."""
         test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
         
-        hash1 = compute_file_hash(test_file)
-        hash2 = compute_file_hash(test_file)
+        hash1 = get_file_hash(test_file)
+        hash2 = get_file_hash(test_file)
         
         assert hash1 == hash2
-        assert len(hash1) == 64  # SHA-256 hex length
-        assert hash1 == hashlib.sha256(content).hexdigest()
+        assert len(hash1) == 64  # SHA256 hex length
+    
+    def test_different_content_different_hash(self, tmp_path):
+        """Test that different content produces different hashes."""
+        file1 = tmp_path / "file1.txt"
+        file2 = tmp_path / "file2.txt"
+        
+        file1.write_bytes(b"Content 1")
+        file2.write_bytes(b"Content 2")
+        
+        hash1 = get_file_hash(file1)
+        hash2 = get_file_hash(file2)
+        
+        assert hash1 != hash2
 
-    def test_compute_file_hash_not_found(self, tmp_path):
-        """Test hash computation on non-existent file"""
+class TestJsonLoading:
+    """Test JSON loading functionality."""
+    
+    def test_load_json_valid(self, tmp_path):
+        """Test loading valid JSON."""
+        test_file = tmp_path / "test.json"
+        test_data = {"key": "value", "number": 42}
+        test_file.write_text(json.dumps(test_data))
+        
+        loaded = load_json_safe(test_file)
+        assert loaded == test_data
+    
+    def test_load_json_not_found(self, tmp_path):
+        """Test that missing file raises error."""
+        test_file = tmp_path / "nonexistent.json"
+        
         with pytest.raises(FileNotFoundError):
-            compute_file_hash(tmp_path / "non_existent.txt")
+            load_json_safe(test_file)
+    
+    def test_load_json_invalid(self, tmp_path):
+        """Test that invalid JSON raises error."""
+        test_file = tmp_path / "invalid.json"
+        test_file.write_text("{invalid json}")
+        
+        with pytest.raises(json.JSONDecodeError):
+            load_json_safe(test_file)
 
-    def test_normalize_json_float_precision(self):
-        """Test that floating point numbers are normalized to 10 decimal places"""
+class TestFloatNormalization:
+    """Test float normalization for comparison."""
+    
+    def test_round_float(self):
+        """Test that floats are rounded correctly."""
+        data = {"value": 3.141592653589793}
+        normalized = normalize_floats(data)
+        
+        assert normalized["value"] == 3.1415926536  # Rounded to 10 decimals
+    
+    def test_nested_floats(self):
+        """Test normalization of nested structures."""
         data = {
-            "value": 3.141592653589793,
-            "nested": {
-                "coeff": 0.123456789012345
-            },
-            "list": [1.000000000000001, 2.0]
+            "level1": {
+                "level2": [1.123456789012345, 2.987654321098765]
+            }
         }
+        normalized = normalize_floats(data)
         
-        normalized = normalize_json_for_comparison(Path("dummy.json")) # Mocking file read not needed for logic test if we pass dict directly, but function expects Path.
-        # Let's adjust the test to match the function signature or mock the file.
-        # Actually, the function loads from file. Let's create a temp file.
+        assert normalized["level1"]["level2"][0] == 1.123456789
+        assert normalized["level1"]["level2"][1] == 2.987654321
+    
+    def test_mixed_types(self):
+        """Test normalization with mixed data types."""
+        data = {
+            "string": "test",
+            "int": 42,
+            "float": 3.141592653589793,
+            "list": [1, 2.5, "three"]
+        }
+        normalized = normalize_floats(data)
         
-        import tempfile
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(data, f)
-            temp_path = Path(f.name)
-        
-        try:
-            result = normalize_json_for_comparison(temp_path)
-            assert result["value"] == round(3.141592653589793, 10)
-            assert result["nested"]["coeff"] == round(0.123456789012345, 10)
-            assert result["list"][0] == round(1.000000000000001, 10)
-        finally:
-            os.unlink(temp_path)
+        assert normalized["string"] == "test"
+        assert normalized["int"] == 42
+        assert normalized["float"] == 3.1415926536
+        assert normalized["list"] == [1, 2.5, "three"]
 
-    def test_compare_json_identical(self, tmp_path):
-        """Test comparison of identical JSON files"""
-        data = {"a": 1, "b": 2.5, "c": [1, 2, 3]}
+class TestResultComparison:
+    """Test result comparison functionality."""
+    
+    def test_identical_results(self):
+        """Test that identical results compare as equal."""
+        data = {"value": 3.141592653589793, "list": [1, 2, 3]}
         
-        file1 = tmp_path / "file1.json"
-        file2 = tmp_path / "file2.json"
+        assert compare_results(data, data) is True
+    
+    def test_float_tolerance(self):
+        """Test that floats within tolerance compare as equal."""
+        data1 = {"value": 3.141592653589793}
+        data2 = {"value": 3.141592653589794}  # Tiny difference
         
-        file1.write_text(json.dumps(data))
-        file2.write_text(json.dumps(data))
-        
-        match, reason = compare_json_files(file1, file2)
-        assert match is True
-        assert "matches" in reason.lower()
-
-    def test_compare_json_float_tolerance(self, tmp_path):
-        """Test comparison of JSON files with minor float differences"""
-        data1 = {"value": 1.0000000001}
-        data2 = {"value": 1.0000000002}
-        
-        file1 = tmp_path / "file1.json"
-        file2 = tmp_path / "file2.json"
-        
-        file1.write_text(json.dumps(data1))
-        file2.write_text(json.dumps(data2))
-        
-        # Should match because difference is < 1e-10
-        match, reason = compare_json_files(file1, file2)
-        assert match is True
-
-    def test_compare_json_different(self, tmp_path):
-        """Test comparison of JSON files with significant differences"""
+        assert compare_results(data1, data2) is True
+    
+    def test_different_results(self):
+        """Test that significantly different results compare as unequal."""
         data1 = {"value": 1.0}
         data2 = {"value": 2.0}
         
-        file1 = tmp_path / "file1.json"
-        file2 = tmp_path / "file2.json"
+        assert compare_results(data1, data2) is False
+    
+    def test_nested_structures(self):
+        """Test comparison of nested structures."""
+        data1 = {
+            "level1": {
+                "level2": [1.1, 2.2, 3.3]
+            }
+        }
+        data2 = {
+            "level1": {
+                "level2": [1.1, 2.2, 3.3]
+            }
+        }
         
-        file1.write_text(json.dumps(data1))
-        file2.write_text(json.dumps(data2))
-        
-        match, reason = compare_json_files(file1, file2)
-        assert match is False
-        assert "differs" in reason.lower()
+        assert compare_results(data1, data2) is True
 
-class TestReproducibilityIntegration:
-    """Integration tests for the reproducibility check logic"""
+class TestReproducibilityCheck:
+    """Test the main reproducibility check function."""
+    
+    @patch('reproducibility_check.verify_and_apply_seed')
+    @patch('reproducibility_check.load_json_safe')
+    @patch('reproducibility_check.Path.exists')
+    def test_check_with_existing_files(
+        self, 
+        mock_exists, 
+        mock_load_json, 
+        mock_apply_seed,
+        tmp_path
+    ):
+        """Test check when files exist."""
+        # Setup mocks
+        mock_exists.return_value = True
+        mock_load_json.return_value = {"test": 3.141592653589793}
+        
+        # Create mock file paths
+        with patch('reproducibility_check.Path') as mock_path_class:
+            mock_path = MagicMock()
+            mock_path.exists.return_value = True
+            mock_path_class.return_value = mock_path
+            
+            results = run_reproducibility_check(seed=42)
+            
+            assert results['seed'] == 42
+            assert len(results['files_checked']) > 0
+            assert 'all_passed' in results
+    
+    @patch('reproducibility_check.verify_and_apply_seed')
+    @patch('reproducibility_check.Path.exists')
+    def test_check_with_missing_files(
+        self, 
+        mock_exists, 
+        mock_apply_seed,
+        tmp_path
+    ):
+        """Test check when files are missing."""
+        # Setup mocks
+        mock_exists.return_value = False
+        
+        with patch('reproducibility_check.Path') as mock_path_class:
+            mock_path = MagicMock()
+            mock_path.exists.return_value = False
+            mock_path_class.return_value = mock_path
+            
+            results = run_reproducibility_check(seed=42)
+            
+            assert results['all_passed'] is False
+            assert any(not r['exists'] for r in results['details'].values())
 
-    @patch('reproducibility_check.run_pipeline_step')
-    @patch('reproducibility_check.load_config')
-    def test_main_runs_twice_and_comparisons(self, mock_load_config, mock_run_pipeline, tmp_path):
-        """Test that main runs the pipeline twice and compares results"""
-        # Mock config
-        mock_load_config.return_value = {'seed': 42}
-        
-        # Mock file system operations
-        original_dir = Path.cwd()
-        os.chdir(tmp_path)
-        
-        try:
-            # Create dummy output files for the mock
-            outputs_dir = tmp_path / "outputs"
-            outputs_dir.mkdir()
-            baseline_dir = tmp_path / "outputs" / "baseline_run"
-            baseline_dir.mkdir(parents=True)
-            
-            # Create a dummy file that will be copied
-            dummy_file = outputs_dir / "regression_results.json"
-            dummy_file.write_text('{"coeff": 0.5}')
-            
-            # Mock run_pipeline_step to do nothing (we already have files)
-            mock_run_pipeline.return_value = None
-            
-            # Import and run main
-            from reproducibility_check import main
-            
-            # We can't easily test the exit code in a unit test without sys.exit mocking,
-            # so we just verify the logic flow by checking if files were copied/compared.
-            # For a true integration test, we would run the actual pipeline.
-            # This test verifies the structure of the test file exists and imports correctly.
-            assert True 
-        finally:
-            os.chdir(original_dir)
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -109,3 +109,63 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-20T23:21:02Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/README.md
+  attempts: 1
+  canonical: news exposure frequency is a significant predictor of anxiety controlling
+    for age gender and baseline anxiety
+  claim_id: c_0f9a39e9
+  context: 'Key Findings: Regression: Multiple linear regression indicates that news
+    exposure frequency is a significant predictor of anxiety, controlling for age,
+    gender, and baseline anxiety.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/News_exposure_frequency_is_a_significant_predictor_of_anxiet
+  kind: entity_fact
+  raw_text: Multiple linear regression indicates that news exposure frequency is a
+    significant predictor of anxiety, controlling for age, gender, and baseline anxiety.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T05:43:42Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/README.md
+  attempts: 1
+  canonical: relationship holds within high-engagement subset top 25th percentile
+  claim_id: c_d1f98cbb
+  context: 'Key Findings: Robustness: The relationship holds within the high-engagement
+    subset (top 25th percentile), confirming the stability of the effect.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Relationship_holds_within_high-engagement_subset_top_25th_pe
+  kind: entity_fact
+  raw_text: The relationship holds within the high-engagement subset (top 25th percentile),
+    confirming the stability of the effect.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T05:44:04Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/README.md
+  attempts: 1
+  canonical: analysis utilized general anxiety as proxy for anticipatory anxiety due
+    to data availability constraints
+  claim_id: c_55bc6183
+  context: 'Key Findings: Limitations: The analysis utilized "general anxiety" as
+    a proxy for "anticipatory anxiety" due to data availability constraints (FR-008).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_utilized_general_anxiety_as_proxy_for_anticipatory
+  kind: entity_fact
+  raw_text: The analysis utilized "general anxiety" as a proxy for "anticipatory anxiety"
+    due to data availability constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T05:44:25Z'
