@@ -1,7 +1,12 @@
-T004:
+T002a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the required `data/raw/` and `data/processed/` directories or\
-    \ any logging infrastructure (e.g., configuration files, logger initialization\
-    \ code) was provided. The implementer\u2019s claim cannot be verified because\
-    \ the necessary artifacts are missing."
+  r: "No `.flake8` configuration file was presented or referenced in the provided\
+    \ evidence, so the required artifact is missing. The implementer must add a non\u2011\
+    empty `.flake8` file with appropriate linting settings to satisfy task T002a."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.pylintrc` configuration file was presented in the evidence; the required
+    artifact is missing, so the task of creating a linting configuration has not been
+    satisfied.

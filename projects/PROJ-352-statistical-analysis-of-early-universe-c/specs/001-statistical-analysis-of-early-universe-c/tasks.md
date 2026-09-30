@@ -87,7 +87,7 @@
 - [ ] T015 [US1] Implement `code/mask.py`: Apply the Schmalzing & Gorski analytical correction as the PRIMARY and SOLE method for mask correction, strictly adhering to plan.md Phase 1 Step 1.4 which mandates using the mask's own Minkowski Functionals to correct observed MFs analytically. DO NOT use buffer zones as the primary correction method.
 - [ ] T015b [US1] Implement `code/mask.py`: Apply a 2-pixel buffer zone as a SECONDARY verification step ONLY; compare T015 output against analytical expectations and log comparison to `data/processed/mask_verification.log`.
 - [ ] T018 [US1] Save masked map to `data/processed/masked_cmb_n128.fits`
-- [ ] T016a [US1] Verify ≥2.5M valid pixels are present in masked map (input: `data/processed/masked_cmb_n128.fits`) and save verification result to `data/processed/coverage_report.json` with schema {"sky_coverage": float, "valid_pixels": int, "total_pixels": int}.
+- [ ] T016a [US1] {{claim:c_2e64795e}} (input: `data/processed/masked_cmb_n128.fits`) and save verification result to `data/processed/coverage_report.json` with schema {"sky_coverage": float, "valid_pixels": int, "total_pixels": int}.
 - [ ] T017 [US1] Compute basic statistics (mean, std) on masked map (input: `data/processed/masked_cmb_n128.fits`) and save mean/std to `data/processed/map_stats.json` with schema {"mean": float, "std": float}.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -109,11 +109,11 @@
 
 - [ ] T021 [US2] Implement `code/minkowski.py`: Compute Area, Perimeter, and Genus functionals using `healpy` and `numpy`
 - [ ] T022 [US2] Implement `code/minkowski.py`: Apply Schmalzing & Gorski mask correction to MF results
-- [ ] T023 [US2] Compute functionals at thresholds {±0.5σ, ±1σ, 0σ} and store results in a dictionary with keys corresponding to threshold values.
+- [ ] T023 [US2] Compute functionals at thresholds {±0.5σ, ±1σ, 0σ} [UNRESOLVED-CLAIM: c_cfa7e974 — status=not_enough_info] and store results in a dictionary with keys corresponding to threshold values.
 - [ ] T024a [US2] Generate theoretical genus curve for Gaussian Random Field as a STATIC REFERENCE derived analytically from the Planck power spectrum and save to `data/processed/theoretical_genus_curve.json`.
 - [ ] T024c [US2] Compute RMS deviation between observed MFs (from T025) and theoretical genus curve (from T024a) to verify computation accuracy.
 - [ ] T025 [US2] Save MF results to `data/processed/minkowski_functionals_observed.json`
-- [ ] T024 [US2] Verify numerical precision (≥6 decimal places) and reproducibility (±0.001% tolerance) and save report to `data/processed/precision_report.json`.
+- [ ] T024 [US2] Verify numerical precision (≥6 decimal places) and reproducibility (±0.001% tolerance) [UNRESOLVED-CLAIM: c_2155ed38 — status=not_enough_info] and save report to `data/processed/precision_report.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,7 +134,7 @@
 
 - [ ] T028 [US3] Implement `code/simulate.py`: Load theoretical LCDM power spectrum (Planck TT, TE, EE)
 - [ ] T029 [US3] Implement `code/simulate.py`: Load Planck beam transfer function and SMICA noise covariance maps
-- [ ] T030 [US3] Implement `code/simulate.py`: Generate N=1,000 Gaussian random field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (σ²=1.1 μK²) using streaming/batch processing to ensure runtime ≤6h (FR-007). Process simulations in batches (Generate -> Compute MF -> Discard Map) to stay under available RAM constraints.
+- [ ] T030 [US3] Implement `code/simulate.py`: Generate N=1,000 Gaussian random field realizations with beam smoothing (FWHM=5.0 arcmin) and noise (σ²=1.1 μK²) [UNRESOLVED-CLAIM: c_d97322f6 — status=not_enough_info] using streaming/batch processing to ensure runtime ≤6h (FR-007). Process simulations in batches (Generate -> Compute MF -> Discard Map) to stay under available RAM constraints.
 - [ ] T031 [US3] (Deprecated - merged into T030)
 - [ ] T032 [US3] Compute Minkowski Functionals for each simulation using `code/minkowski.py`
 - [ ] T036a [US3] (Deprecated - alternative hypothesis handled via theoretical model)
