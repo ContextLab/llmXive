@@ -1,1 +1,1 @@
-# Test suite root
+# Tests package initialization

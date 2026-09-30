@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with dependencies (numpy, scipy, h5py, pandas, matplotlib, seaborn, scikit-learn, tenpy, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001 Create project structure per implementation plan (folders: `code/`, `data/`, `tests/`, `docs/`)
+- [X] T002 Initialize Python 3.11 project with dependencies (numpy, scipy, h5py, pandas, matplotlib, seaborn, scikit-learn, tenpy, pytest) in `requirements.txt`
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -56,8 +56,9 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T004 Create base `QuantumState` entity class in `code/models/quantum_state.py` supporting sparse representation
-- [X] T005a [P] Implement external dataset validation in `code/data_loader.py` per FR-009: Check for Zenodo/HuggingFace datasets at startup. If absent or malformed, raise `E_DATASET_MISSING` and **exit immediately**. **NO internal generation fallback is permitted here**; internal generation is a separate feature (T013/T014) and not a recovery path for missing external data.
+- [X] T005a [P] Implement external dataset validation in `code/data_loader.py` per FR-009: At startup, check for Zenodo/HuggingFace datasets. If absent or malformed, **exit immediately with error code `E_DATASET_MISSING` and log the error**. Do NOT proceed to internal generation.
 - [X] T005b [P] Implement internal data generation interface in `code/data_loader.py` for N=10-40; define the interface for ED/DMRG generators (T013/T014) to ensure consistent output format (HDF5/NumPy).
+- [ ] T005c [P] Implement data generation orchestration in `code/main.py` to trigger internal generation (T013/T014) ONLY if the `--internal-only` flag is passed. If the flag is NOT passed, the system MUST rely on external datasets validated by T005a and exit with `E_DATASET_MISSING` if they are absent.
 - [X] T006 [P] Setup sparse matrix utility functions in `code/utils/sparse_helpers.py` (CSR/CSC conversion, memory profiling)
 - [X] T007 Create configuration manager for random seeds and system parameters in `code/config.py`
 - [X] T008 Setup logging infrastructure to track numerical instabilities (NaN/Inf) and data exclusion in `code/logging_config.py`
@@ -69,7 +70,7 @@
 
 ## Phase 3: User Story 1 - Compute and correlate entanglement entropy with complexity (Priority: P1) 🎯 MVP
 
-**Goal**: Load 1D Heisenberg/Ising wavefunctions, compute bipartite entanglement entropy via sparse SVD, estimate complexity via NCD, and correlate them.
+**Goal**: Load 1D Heisenberg/Ising wavefunctions, compute bipartite entanglement entropy via sparse SVD, estimate complexity via NCD on reduced representations, and correlate them.
 
 **Independent Test**: Run pipeline on 10 fixed configurations (N=10-20); verify output includes valid correlation coefficient (r), p-value, and scatter plot; ensure runtime < 6h and RAM < 7GB.
 
@@ -86,10 +87,10 @@
 - [X] T013 [US1] Implement Exact Diagonalization (ED) generator in `code/data_loader.py` for N <= 20 using `scipy.sparse.linalg.eigsh` (Output: raw wavefunction coefficients in HDF5). Depends on T005b.
 - [X] T014 [US1] Implement DMRG generator in `code/data_loader.py` for N > 20 using `tenpy` with streaming/chunked processing to stay within RAM (Output: raw wavefunction coefficients in HDF5). Depends on T005b.
 - [X] T015 [US1] Implement bipartite entanglement entropy calculation in `code/metrics.py` using sparse SVD (`scipy.sparse.linalg.svds` with ARPACK). **MUST convert reduced density matrix to CSR/CSC format before calling svds**. Input: T013/T014 output. Output: Entanglement entropy and entropy per spin written to `data/processed/entanglement_metrics.csv`.
-- [X] T016 [US1] Implement complexity estimation in `code/metrics.py`: 1) **Quantize raw wavefunction coefficients to fixed-point signed integers** (16-bit) per FR-003a; 2) **Generate an internal size-matched random baseline** (random phases on product basis) locally for the NCD calculation; 3) Calculate **Normalized Compression Distance (NCD)** using gzip/lzma/bzip2 on the **quantized full wavefunction coefficients** relative to the internal baseline; 4) Output NCD as the primary complexity metric. **Self-contained: does not depend on T023**.
-- [X] T017 [US1] Implement correlation analysis in `code/statistics.py` using **partial correlation controlling for system size N** and **stratified analysis** (entropy per spin) to decouple system size from entanglement structure.
-- [X] T018 [US1] Implement scatter plot generation with regression line and annotations in `code/viz.py`
-- [X] T019 [US1] Add numerical stability checks (NaN/Inf exclusion) and fail-fast logic (E_DATA_INSUFFICIENT) in `code/metrics.py`
+- [ ] T016 [US1] Implement complexity estimation in `code/metrics.py`: 1) **Quantize input wavefunction coefficients to 16-bit signed integers** per FR-003a; 2) **Generate an internal size-matched random baseline** (random phases on product basis) locally; 3) **Quantize the internal baseline to 16-bit signed integers**; 4) **Calculate the raw compression ratio** (compressed_size / original_size) on **quantized reduced representations** (singular values of the reduced density matrix or subsystem vectors) and record it; 5) Calculate **Normalized Compression Distance (NCD)** using gzip/lzma/bzip2 on **quantized reduced representations** relative to the quantized baseline; 6) Output NCD, raw ratio, and quantized state hashes to `data/processed/complexity_metrics.csv`. **Self-contained: does not depend on T023**.
+- [ ] T017 [US1] Implement correlation analysis in `code/statistics.py` using **partial correlation controlling for system size N** and **stratified analysis** (entropy per spin) to decouple system size from entanglement structure.
+- [ ] T018 [US1] Implement scatter plot generation with regression line and annotations in `code/viz.py`
+- [ ] T019 [US1] Add numerical stability checks (NaN/Inf exclusion) and fail-fast logic (E_DATA_INSUFFICIENT) in `code/metrics.py`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,17 +104,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for random product state generation in `tests/unit/test_null_models.py`
-- [X] T021 [P] [US2] Unit test for Haar-random ensemble generation in `tests/unit/test_null_models.py`
-- [X] T022 [P] [US2] Integration test for null model comparison statistics in `tests/integration/test_us2_null_models.py`
+- [ ] T020 [P] [US2] Unit test for random product state generation in `tests/unit/test_null_models.py`
+- [ ] T021 [P] [US2] Unit test for Haar-random ensemble generation in `tests/unit/test_null_models.py`
+- [ ] T022 [P] [US2] Integration test for null model comparison statistics in `tests/integration/test_us2_null_models.py`
 
 ### Implementation for User Story 2
 
-- [X] T023 [US2] Implement random product state generator in `code/null_models.py` (random phases on product basis). **Generates the full set of random product states for comparative analysis (FR-010), distinct from the internal baseline used in T016**.
-- [X] T024 [US2] Implement Haar-random pure state ensemble generator in `code/null_models.py` (a sample set of states) to approximate maximally mixed states.
-- [X] T025 [US2] Implement metric calculation for null models in `code/metrics.py` (reusing US1 logic for Entanglement and NCD)
-- [X] T026 [US2] Implement statistical comparison (Welch's t-test/ANOVA) between physical states and null models in `code/statistics.py`
-- [X] T027 [US2] Add visualization logic to plot null model clusters alongside physical states in `code/viz.py`
+- [ ] T023 [US2] Implement random product state generator in `code/null_models.py` (random phases on product basis). **Generates the full set of random product states for comparative analysis (FR-010), distinct from the internal baseline used in T016**.
+- [ ] T024 [US2] Implement Haar-random pure state ensemble generator in `code/null_models.py` (a sample set of states) to approximate maximally mixed states.
+- [ ] T025 [US2] Implement metric calculation for null models in `code/metrics.py` (reusing US1 logic for Entanglement and NCD)
+- [ ] T026 [US2] Implement statistical comparison (Welch's t-test/ANOVA) between physical states and null models in `code/statistics.py`
+- [ ] T027 [US2] Add visualization logic to plot null model clusters alongside physical states in `code/viz.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,30 +128,48 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T028 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_statistics.py`
-- [X] T029 [P] [US3] Unit test for bias-corrected percentile method selection in `tests/unit/test_statistics.py`
+- [ ] T028 [P] [US3] Unit test for bootstrap resampling logic in `tests/unit/test_statistics.py`
+- [ ] T029 [P] [US3] Unit test for bias-corrected percentile method selection in `tests/unit/test_statistics.py`
 
 ### Implementation for User Story 3
 
-- [X] T030 [US3] Implement bootstrap resampling engine with a sufficient number of iterations in `code/statistics.py` using **partial correlation controlling for system size N** and **stratified analysis** logic from T017. **Output: 95% confidence interval for the correlation coefficient**.
-- [ ] T031 [US3] Implement confidence interval calculation (standard vs. bias-corrected based on skewness) in `code/statistics.py`.
+- [ ] T030 [US3] Implement bootstrap resampling engine with **exactly 1000 iterations** in `code/statistics.py` using the **partial correlation function (output artifact of T017)** and **stratified analysis** logic. **Output: Confidence interval for the correlation coefficient**.
+- [ ] T031 [US3] Implement confidence interval calculation in `code/statistics.py`: Calculate skewness of the bootstrap distribution; if skewness > 0.5, use **bias-corrected percentile method**; otherwise, use **standard percentile method**.
+- [ ] T031a [US3] Implement runtime verification for bootstrap in `tests/integration/test_us3_runtime.py`: Run 1000 iterations on a representative dataset and assert total runtime < 6 hours (SC-003).
 - [ ] T032 [US3] Integrate bootstrap results into final correlation output structure in `code/statistics.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: Research Review Revision - Grounding in Physics of Information (Priority: P1)
+
+**Goal**: Address David Krakauer's review by implementing Matrix Product State (MPS) bond dimension as a computable surrogate for algorithmic complexity and comparing it against compression-based estimates.
+
+**Independent Test**: Run pipeline on generated states; verify MPS bond dimension is computed; verify correlation exists between bond dimension and NCD; update research.md with Calabrese/Cardy and Brown/Susskind citations.
+
+### Implementation for Research Review Revision
+
+- [ ] T033 [P] [US1] Implement MPS bond dimension extraction in `code/metrics.py`. Use `tenpy` to convert wavefunctions (from T013/T014) to MPS form and extract the maximum bond dimension (χ) required to represent the state within a truncation error threshold (e.g., 1e-8). This serves as the "minimal bond dimension" surrogate.
+- [ ] T034 [P] [US1] Implement correlation analysis between MPS bond dimension (χ) and compression-based NCD in `code/statistics.py`. Compare the strength of this correlation against the entanglement entropy vs. NCD correlation.
+- [ ] T035 [P] [US1] Update `docs/research.md` to cite Calabrese & Cardy (2005) for entanglement entropy scaling and Brown & Susskind (2016) for circuit depth/complexity. Explicitly frame the MPS bond dimension as the tractable stand-in for algorithmic complexity proposed in the review.
+- [ ] T036 [P] [US1] Add visualization in `code/viz.py` to plot MPS bond dimension (log scale) vs. Entanglement Entropy, and MPS bond dimension vs. NCD, to visually demonstrate the tripartite relationship.
+- [ ] T037 [P] [US1] Add unit tests for MPS bond dimension extraction and correlation logic in `tests/unit/test_metrics.py` and `tests/unit/test_statistics.py`.
+
+**Checkpoint**: Research methodology grounded in established physics literature; surrogate complexity metric validated.
+
+---
+
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-**Note**: Tasks T033-T037 (MPS analysis) were removed as they implemented unapproved scope not present in the spec.
-
-- [ ] T033 [P] Documentation updates in `docs/` including `quickstart.md` and `data-model.md`
-- [ ] T034 Code cleanup and refactoring for memory efficiency
-- [ ] T035 Performance optimization for DMRG streaming and sparse SVD
-- [ ] T036 [P] Additional unit tests for edge cases (N=40, numerical instabilities) in `tests/unit/`
-- [ ] T037 Run quickstart.md validation
+- [ ] T038a [P] Update `docs/quickstart.md` with CLI usage examples and data generation instructions
+- [ ] T038b [P] Update `docs/data-model.md` with entity definitions and schema details
+- [ ] T039 [P] Refactor T014 (DMRG generator) to use streaming iterators for wavefunction generation to ensure memory usage stays < 7GB on N=40.
+- [ ] T040 [P] Add memory profiling to T015 (SVD calculation) and enforce a hard limit of < 6GB RAM on N=40; fail with E_MEMORY_EXCEEDED if exceeded.
+- [ ] T041 [P] Additional unit tests for edge cases (N=40, numerical instabilities) in `tests/unit/`
+- [ ] T042 Run quickstart.md validation
 
 ---
 
@@ -163,14 +182,16 @@
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Phase 6)**: Depends on all desired user stories being complete
+- **Research Review Revision (Phase 6)**: Depends on Foundational phase completion; can run in parallel with US1 implementation but requires US1 data structures.
+- **Polish (Phase 7)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories (Self-contained NCD baseline)
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Generates baseline for comparative analysis (FR-010)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data structure
-- **Polish (Phase 6)**: Depends on US1, US2, US3 implementation
+- **Research Review Revision (Phase 6)**: Depends on US1 data generation (T013/T014) to compute MPS metrics; depends on T016 for NCD comparison.
+- **Polish (Phase 7)**: Depends on US1, US2, US3, and Phase 6 implementation
 
 ### Within Each User Story
 
@@ -184,7 +205,7 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1, US2, US3 can start in parallel
+- Once Foundational phase completes, US1, US2, US3, and Phase 6 can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 
 ---
@@ -219,7 +240,8 @@ Task: "Implement DMRG generator in code/data_loader.py"
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Research Review Revision (Phase 6) → Validate surrogate metrics → Deploy/Demo
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -230,6 +252,7 @@ With multiple developers:
  - Developer A: User Story 1 (Core Metrics) - Self-contained
  - Developer B: User Story 2 (Null Models) - Independent of A
  - Developer C: User Story 3 (Bootstrap)
+ - Developer D: Research Review Revision (MPS Surrogate) - Depends on A's data generation
 3. Stories complete and integrate independently
 
 ---
@@ -237,14 +260,19 @@ With multiple developers:
 ## Notes
 
 - [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
+- [Story] label maps task to traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: T005a implements the mandatory external dataset validation (FR-009) with strict exit behavior.
-- **Critical**: T015 and T016 implement NCD and 16-bit quantization on full wavefunction coefficients as primary metrics per Spec FR-003/FR-003a, with internal baseline generation to ensure US1 independence.
+- **Critical**: T005a enforces FR-009 by exiting with E_DATASET_MISSING if external data is missing. Internal generation is conditional on --internal-only flag.
+- **Critical**: T016 implements NCD on **quantized reduced representations** (singular values/subsystem vectors) to satisfy the 7GB RAM constraint (SC-004) and Constitution Principle VI.
+- **Critical**: T016 explicitly includes quantization of the input wavefunction coefficients to 16-bit integers and calculation of the raw compression ratio.
 - **Critical**: T017, T030 implement partial correlation and stratified analysis to avoid confounding.
-- **Critical**: Phase 6 (MPS analysis) has been removed as it was unapproved scope.
-- **Note**: T005a follows Spec FR-009 (exit on missing). The Plan's assumption that "No external datasets exist" contradicts this requirement; if the Plan is correct, FR-009 must be updated to make internal generation the primary source.
+- **Critical**: Phase 6 (MPS analysis) has been added to address David Krakauer's review regarding the need for a computable surrogate (minimal bond dimension) for algorithmic complexity.
+- **New**: T038a and T038b split documentation updates into specific file targets.
+- **Note**: T030 explicitly specifies 1000 iterations to match Spec US-3.
+- **New**: T033-T037 implement the MPS bond dimension surrogate and comparative analysis requested in the research review.
+- **New**: T031a added to verify bootstrap runtime against the 6-hour constraint.
+- **New**: T039 and T040 replaced vague cleanup tasks with specific refactoring and profiling actions.

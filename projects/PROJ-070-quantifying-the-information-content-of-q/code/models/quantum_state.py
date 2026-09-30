@@ -1,468 +1,466 @@
 """
-QuantumState entity class supporting sparse representation.
+QuantumState entity class supporting sparse representation for many-body quantum systems.
 
-This module defines the core `QuantumState` entity used throughout the pipeline.
-It supports both dense (numpy array) and sparse (scipy.sparse) representations
-of wavefunctions, with automatic conversion and validation.
+This module defines the core data structure for representing quantum states in the
+llmXive pipeline. It supports both dense numpy arrays and sparse scipy matrices,
+with automatic conversion and validation capabilities.
+
+Key features:
+- Support for sparse (CSR/CSC) and dense representations
+- Automatic normalization and validation
+- Integration with logging infrastructure for numerical stability checks
+- Compatibility with HDF5 serialization via data_loader
 """
 
 import numpy as np
 from scipy import sparse
 from typing import Optional, Union, Tuple, Dict, Any
-
 from logging_config import logger
 
 
 class QuantumStateError(Exception):
-    """Custom exception for QuantumState operations."""
+    """Custom exception for QuantumState related errors."""
     pass
 
 
 class QuantumState:
     """
-    Represents a quantum many-body state vector.
+    Represents a quantum state in a many-body system.
 
-    Supports both dense and sparse representations internally.
-    Automatically handles conversion between formats as needed.
+    This class supports both dense and sparse representations of quantum states,
+    automatically handling conversions and maintaining numerical stability.
 
     Attributes:
-        data (np.ndarray | sparse.csr_matrix): The state vector data.
-        num_qubits (int): Number of qubits/spins in the system.
-        is_sparse (bool): True if stored in sparse format.
+        data (Union[np.ndarray, sparse.csr_matrix]): The state vector or density matrix.
+        system_size (int): Number of qubits/spins in the system.
+        subsystem_split (Optional[Tuple[int, int]]): Split point for bipartite analysis.
+        is_normalized (bool): Whether the state is normalized.
+        representation_type (str): 'dense' or 'sparse'.
+        metadata (Dict[str, Any]): Additional state information.
     """
 
     def __init__(
         self,
-        data: Union[np.ndarray, sparse.spmatrix],
-        num_qubits: Optional[int] = None,
-        validate: bool = True
+        data: Union[np.ndarray, sparse.csr_matrix, sparse.csc_matrix],
+        system_size: Optional[int] = None,
+        subsystem_split: Optional[Tuple[int, int]] = None,
+        metadata: Optional[Dict[str, Any]] = None
     ):
         """
-        Initialize a QuantumState.
+        Initialize a QuantumState instance.
 
         Args:
-            data: State vector as dense numpy array or sparse matrix.
-            num_qubits: Explicit number of qubits. If None, inferred from data size.
-            validate: If True, perform validation checks.
+            data: State vector (1D) or density matrix (2D). Can be dense numpy array
+                 or sparse matrix (CSR/CSC format).
+            system_size: Number of qubits/spins. If None, inferred from data shape.
+            subsystem_split: Tuple (A_size, B_size) for bipartite systems.
+            metadata: Optional dictionary for additional state information.
 
         Raises:
-            QuantumStateError: If data is invalid or dimensions mismatch.
+            QuantumStateError: If data is invalid or inconsistent with system_size.
         """
-        self._data: Union[np.ndarray, sparse.spmatrix] = None
-        self._num_qubits: int = num_qubits
-        self._is_sparse: bool = False
+        self.metadata = metadata or {}
+        self._validate_input(data)
 
+        # Convert to appropriate sparse format if needed
+        if sparse.issparse(data):
+            # Ensure CSR format for efficient operations
+            if not isinstance(data, (sparse.csr_matrix, sparse.csc_matrix)):
+                data = data.tocsr()
+            self.data = data
+            self.representation_type = 'sparse'
+        else:
+            self.data = np.asarray(data, dtype=np.complex128)
+            self.representation_type = 'dense'
+
+        # Infer or validate system size
+        if system_size is None:
+            system_size = self._infer_system_size()
+        self.system_size = system_size
+
+        # Set subsystem split if provided
+        if subsystem_split is not None:
+            if len(subsystem_split) != 2:
+                raise QuantumStateError("subsystem_split must be a tuple of two integers")
+            if sum(subsystem_split) != system_size:
+                raise QuantumStateError(
+                    f"subsystem_split {subsystem_split} does not sum to system_size {system_size}"
+                )
+        self.subsystem_split = subsystem_split
+
+        # Validate and normalize
+        self._check_numerical_stability()
+        self.is_normalized = self._normalize_if_needed()
+
+    def _validate_input(self, data: Any) -> None:
+        """Validate the input data format and content."""
         if data is None:
             raise QuantumStateError("Data cannot be None")
 
-        # Handle sparse input
         if sparse.issparse(data):
-            # Ensure it's a 1D vector (compressed)
-            if data.ndim == 2:
-                if data.shape[0] == 1:
-                    data = data.toarray().flatten()
-                elif data.shape[1] == 1:
-                    data = data.toarray().flatten()
-                else:
-                    raise QuantumStateError(
-                        f"Sparse input must be 1D vector or (1, N)/(N, 1) matrix, "
-                        f"got shape {data.shape}"
-                    )
-            self._data = sparse.csr_matrix(data)
-            self._is_sparse = True
-        else:
-            # Dense numpy array
-            data = np.asarray(data)
-            if data.ndim > 1:
-                data = data.flatten()
-            self._data = data
-            self._is_sparse = False
-
-        # Infer or validate num_qubits
-        dim = self._data.shape[0]
-        if self._num_qubits is None:
-            # Check if dim is a power of 2
-            if dim > 0 and (dim & (dim - 1)) == 0:
-                self._num_qubits = int(np.log2(dim))
-            else:
-                logger.warning(
-                    f"Dimension {dim} is not a power of 2. "
-                    "Setting num_qubits to None."
-                )
-                self._num_qubits = None
-        else:
-            expected_dim = 2 ** self._num_qubits
-            if dim != expected_dim:
+            if not isinstance(data, (sparse.csr_matrix, sparse.csc_matrix, sparse.coo_matrix)):
                 raise QuantumStateError(
-                    f"Dimension mismatch: data has {dim} elements, "
-                    f"but num_qubits={self._num_qubits} implies {expected_dim}"
+                    f"Sparse data must be CSR, CSC, or COO format, got {type(data)}"
+                )
+            if data.ndim not in (1, 2):
+                raise QuantumStateError(f"Sparse data must be 1D or 2D, got {data.ndim}D")
+        else:
+            try:
+                arr = np.asarray(data)
+            except (ValueError, TypeError) as e:
+                raise QuantumStateError(f"Cannot convert data to numpy array: {e}")
+
+            if arr.ndim not in (1, 2):
+                raise QuantumStateError(f"Dense data must be 1D or 2D, got {arr.ndim}D")
+
+            if not np.issubdtype(arr.dtype, np.complexfloating):
+                logger.warning(
+                    f"Data dtype {arr.dtype} is not complex, converting to complex128"
                 )
 
-        if validate:
-            self._validate()
+    def _infer_system_size(self) -> int:
+        """Infer system size (number of qubits) from data shape."""
+        dim = self.data.shape[0] if self.data.ndim == 1 else self.data.shape[0]
 
-    @property
-    def data(self) -> Union[np.ndarray, sparse.spmatrix]:
-        """Get the raw data (dense or sparse)."""
-        return self._data
+        # For state vectors: dim = 2^N
+        if self.data.ndim == 1 or (self.data.ndim == 2 and self.data.shape[0] == self.data.shape[1]):
+            # Check if dimension is a power of 2
+            if dim <= 0:
+                raise QuantumStateError(f"Invalid dimension {dim}")
 
-    @property
-    def num_qubits(self) -> Optional[int]:
-        """Get the number of qubits."""
-        return self._num_qubits
+            # Calculate N such that 2^N = dim
+            n = np.log2(dim)
+            if not np.isclose(n, round(n)):
+                # For density matrices, dim = (2^N)^2 = 4^N
+                n = np.log2(dim) / 2
+                if not np.isclose(n, round(n)):
+                    raise QuantumStateError(
+                        f"Dimension {dim} is not a valid power of 2 for state vector or density matrix"
+                    )
 
-    @property
-    def dimension(self) -> int:
-        """Get the Hilbert space dimension (2^num_qubits)."""
-        return self._data.shape[0]
+            return int(round(n))
 
-    @property
-    def is_sparse(self) -> bool:
-        """Check if data is stored in sparse format."""
-        return self._is_sparse
+        # For rectangular matrices (e.g., reshaped for SVD)
+        if self.data.ndim == 2 and self.data.shape[0] != self.data.shape[1]:
+            # This might be a reshaped state for bipartite analysis
+            # We'll store the total dimension and let subsystem_split clarify
+            total_dim = self.data.shape[0] * self.data.shape[1]
+            n = np.log2(total_dim)
+            if np.isclose(n, round(n)):
+                return int(round(n))
 
-    def _validate(self) -> None:
-        """Validate the state vector (normalization, NaN/Inf)."""
-        data = self._data
-        if sparse.issparse(data):
-            # For sparse, compute norm via sum of squares
-            norm_sq = data.dot(data.conj()).toarray().flatten()[0]
+        raise QuantumStateError(f"Cannot infer system size from shape {self.data.shape}")
+
+    def _check_numerical_stability(self) -> None:
+        """Check for NaN or Inf values in the data."""
+        if sparse.issparse(self.data):
+            # For sparse matrices, check the data attribute
+            if hasattr(self.data, 'data'):
+                if np.any(np.isnan(self.data.data)) or np.any(np.isinf(self.data.data)):
+                    logger.error("Numerical instability detected: NaN or Inf in sparse data")
+                    raise QuantumStateError("Numerical instability: NaN or Inf in state data")
         else:
-            norm_sq = np.vdot(data, data).real
+            if np.any(np.isnan(self.data)) or np.any(np.isinf(self.data)):
+                logger.error("Numerical instability detected: NaN or Inf in dense data")
+                raise QuantumStateError("Numerical instability: NaN or Inf in state data")
 
-        # Check for NaN/Inf in norm
-        if not np.isfinite(norm_sq):
-            raise QuantumStateError(f"Invalid norm: {norm_sq} (contains NaN/Inf)")
+    def _normalize_if_needed(self) -> bool:
+        """Normalize the state if it's not already normalized."""
+        norm = self.compute_norm()
 
-        # Warn if not normalized (within tolerance)
-        if not np.isclose(norm_sq, 1.0, atol=1e-6):
-            logger.warning(
-                f"State is not normalized (norm^2 = {norm_sq:.6f}). "
-                "Normalization is assumed for most calculations."
-            )
+        if np.isclose(norm, 1.0, atol=1e-10):
+            return True
+
+        if norm == 0:
+            raise QuantumStateError("Cannot normalize zero vector")
+
+        # Log the normalization
+        logger.debug(f"Normalizing state from norm {norm:.6f} to 1.0")
+
+        if sparse.issparse(self.data):
+            self.data = self.data / norm
+        else:
+            self.data = self.data / norm
+
+        return True
+
+    def compute_norm(self) -> float:
+        """Compute the L2 norm of the state vector."""
+        if sparse.issparse(self.data):
+            # For sparse matrices, compute norm efficiently
+            return np.sqrt(np.abs(self.data).multiply(self.data).sum())
+        else:
+            return np.linalg.norm(self.data)
+
+    def get_reduced_density_matrix(self, subsystem_A: int) -> Union[np.ndarray, sparse.csr_matrix]:
+        """
+        Compute the reduced density matrix for subsystem A.
+
+        Args:
+            subsystem_A: Size of subsystem A (number of qubits).
+
+        Returns:
+            Reduced density matrix for subsystem A.
+
+        Raises:
+            QuantumStateError: If state is not a pure state vector or subsystem size is invalid.
+        """
+        if self.data.ndim != 1:
+            raise QuantumStateError("Reduced density matrix computation requires a pure state vector")
+
+        N = self.system_size
+        n_A = subsystem_A
+        n_B = N - n_A
+
+        if n_A <= 0 or n_B <= 0:
+            raise QuantumStateError(f"Invalid subsystem sizes: A={n_A}, B={n_B}")
+
+        dim_A = 2 ** n_A
+        dim_B = 2 ** n_B
+
+        # Reshape state vector into a matrix for SVD
+        # |ψ⟩ = Σᵢⱼ ψᵢⱼ |i⟩_A ⊗ |j⟩_B
+        psi_matrix = self.data.reshape(dim_A, dim_B)
+
+        # Compute reduced density matrix: ρ_A = Tr_B(|ψ⟩⟨ψ|) = ψ_matrix @ ψ_matrix†
+        if sparse.issparse(psi_matrix):
+            # For sparse: ρ_A = psi_matrix @ psi_matrix.conj().T
+            rho_A = psi_matrix.dot(psi_matrix.conj().T).tocsr()
+        else:
+            rho_A = psi_matrix @ psi_matrix.conj().T
+
+        return rho_A
 
     def to_dense(self) -> np.ndarray:
-        """Convert to dense numpy array."""
-        if self._is_sparse:
-            self._data = self._data.toarray().flatten()
-            self._is_sparse = False
-        return self._data
+        """Convert sparse representation to dense numpy array."""
+        if self.representation_type == 'dense':
+            return self.data.copy()
+        return self.data.toarray()
 
     def to_sparse(self, format: str = 'csr') -> sparse.spmatrix:
-        """Convert to sparse matrix in specified format."""
-        if not self._is_sparse:
-            if self._data.ndim == 1:
-                self._data = sparse.csr_matrix(self._data)
-            else:
-                self._data = sparse.csr_matrix(self._data.flatten())
-            self._is_sparse = True
-
-        if format == 'csr':
-            return self._data.tocsr()
-        elif format == 'csc':
-            return self._data.tocsc()
-        elif format == 'coo':
-            return self._data.tocoo()
-        else:
-            raise QuantumStateError(f"Unsupported sparse format: {format}")
-
-    def get_reduced_density_matrix(self, subsystem: Tuple[int, ...]) -> np.ndarray:
         """
-        Compute the reduced density matrix for a given subsystem.
+        Convert dense representation to sparse matrix.
 
         Args:
-            subsystem: Tuple of qubit indices to keep (0-indexed).
+            format: Target sparse format ('csr', 'csc', 'coo', etc.)
 
         Returns:
-            Dense reduced density matrix.
-
-        Note:
-            This always returns a dense matrix as the reduced density
-            matrix is typically not sparse for entangled states.
+            Sparse matrix in the specified format.
         """
-        if self._num_qubits is None:
-            raise QuantumStateError("Cannot compute RDM: num_qubits is not set")
+        if self.representation_type == 'sparse':
+            if isinstance(self.data, getattr(sparse, f'{format}_matrix')):
+                return self.data
+            return self.data.asformat(format)
 
-        all_qubits = set(range(self._num_qubits))
-        subsystem_set = set(subsystem)
+        return sparse.csr_matrix(self.data).asformat(format)
 
-        if not subsystem_set.issubset(all_qubits):
+    def get_fidelity(self, other: 'QuantumState') -> float:
+        """
+        Compute fidelity between this state and another.
+
+        For pure states: F = |⟨ψ|φ⟩|²
+
+        Args:
+            other: Another QuantumState instance.
+
+        Returns:
+            Fidelity value between 0 and 1.
+        """
+        if not isinstance(other, QuantumState):
+            raise QuantumStateError("Fidelity computation requires another QuantumState")
+
+        if self.system_size != other.system_size:
             raise QuantumStateError(
-                f"Invalid subsystem indices: {subsystem}. "
-                f"Valid indices are 0 to {self._num_qubits - 1}"
+                f"System size mismatch: {self.system_size} vs {other.system_size}"
             )
 
-        # Get full density matrix (dense)
-        psi = self.to_dense()
-        rho_full = np.outer(psi, psi.conj())
+        # Ensure both are in compatible formats
+        if self.representation_type != other.representation_type:
+            # Convert to dense for comparison
+            vec1 = self.to_dense()
+            vec2 = other.to_dense()
+        else:
+            vec1 = self.data
+            vec2 = other.data
 
-        # Reshape to (2, 2, ..., 2) tensor
-        n_qubits = self._num_qubits
-        shape = [2] * n_qubits
-        rho_tensor = rho_full.reshape(shape + shape)
+        # Compute inner product
+        if sparse.issparse(vec1):
+            overlap = np.abs(vec1.conj().dot(vec2))
+        else:
+            overlap = np.abs(np.vdot(vec1, vec2))
 
-        # Trace out complement subsystem
-        # Indices to trace over (complement of subsystem)
-        trace_indices = sorted(all_qubits - subsystem_set)
+        return float(overlap ** 2)
 
-        # Number of qubits to keep
-        n_keep = len(subsystem)
-        n_trace = len(trace_indices)
-
-        # Reshape to separate kept and traced indices
-        # Current shape: (d1, d2, ..., dn, d1, d2, ..., dn)
-        # We want to trace over specific pairs
-
-        # Build permutation to group kept and traced indices
-        # Keep indices: first half of tensor, trace indices: second half
-        kept_indices = list(subsystem)
-
-        # Permute to group kept indices together, then traced
-        # New order: [kept...] [traced...] [kept...] [traced...]
-        new_order = kept_indices + trace_indices + [
-            n_qubits + i for i in kept_indices
-        ] + [n_qubits + i for i in trace_indices]
-
-        rho_perm = np.transpose(rho_tensor, new_order)
-
-        # Reshape to (2^k, 2^k, 2^t) where k=kept, t=traced
-        kept_dim = 2 ** n_keep
-        traced_dim = 2 ** n_trace
-
-        rho_reshaped = rho_perm.reshape(kept_dim, kept_dim, traced_dim)
-
-        # Trace over the last axis
-        rho_reduced = np.trace(rho_reshaped, axis1=0, axis2=2)
-
-        return rho_reduced
-
-    def entanglement_entropy(self, subsystem: Tuple[int, ...]) -> float:
+    def get_entropy_per_spin(self, subsystem_A: int) -> float:
         """
-        Compute the von Neumann entanglement entropy for a subsystem.
+        Compute entanglement entropy per spin for a bipartition.
 
         Args:
-            subsystem: Tuple of qubit indices defining the subsystem.
+            subsystem_A: Size of subsystem A.
 
         Returns:
-            Entanglement entropy in nats.
+            Entanglement entropy divided by subsystem size.
         """
-        rho_red = self.get_reduced_density_matrix(subsystem)
+        from metrics import calculate_entanglement_entropy
 
-        # Compute eigenvalues of reduced density matrix
-        eigenvalues = np.linalg.eigvalsh(rho_red)
+        rho_A = self.get_reduced_density_matrix(subsystem_A)
+        total_entropy = calculate_entanglement_entropy(rho_A)
 
-        # Filter out zero/negative eigenvalues (numerical noise)
-        eigenvalues = eigenvalues[eigenvalues > 1e-15]
-
-        # Compute entropy: -sum(p * log(p))
-        entropy = -np.sum(eigenvalues * np.log(eigenvalues))
-
-        return entropy
+        return total_entropy / subsystem_A
 
     def __repr__(self) -> str:
-        sparse_str = "sparse" if self._is_sparse else "dense"
-        qubits_str = str(self._num_qubits) if self._num_qubits else "unknown"
         return (
-            f"QuantumState(dimension={self.dimension}, "
-            f"num_qubits={qubits_str}, format={sparse_str})"
+            f"QuantumState(system_size={self.system_size}, "
+            f"representation={self.representation_type}, "
+            f"normalized={self.is_normalized})"
         )
 
-    def __eq__(self, other: 'QuantumState') -> bool:
-        if not isinstance(other, QuantumState):
-            return False
-        if self.dimension != other.dimension:
-            return False
-        # Compare data (handle sparse vs dense)
-        if sparse.issparse(self._data) and sparse.issparse(other._data):
-            return np.allclose(
-                self._data.toarray().flatten(),
-                other._data.toarray().flatten()
-            )
-        elif not sparse.issparse(self._data) and not sparse.issparse(other._data):
-            return np.allclose(self._data, other._data)
-        else:
-            # Mixed formats
-            return np.allclose(
-                self.to_dense(),
-                other.to_dense()
-            )
+    def __str__(self) -> str:
+        return (
+            f"QuantumState:\n"
+            f"  System size: {self.system_size} qubits\n"
+            f"  Representation: {self.representation_type}\n"
+            f"  Dimension: {self.data.shape}\n"
+            f"  Normalized: {self.is_normalized}\n"
+            f"  Subsystem split: {self.subsystem_split}"
+        )
 
-    def copy(self) -> 'QuantumState':
-        """Create a deep copy of this state."""
-        new_data = self._data.copy()
-        return QuantumState(new_data, self._num_qubits, validate=False)
+    def validate(self) -> Tuple[bool, str]:
+        """
+        Validate the quantum state for downstream processing.
+
+        Returns:
+            Tuple of (is_valid, error_message).
+        """
+        try:
+            # Check dimensions
+            dim = self.data.shape[0] if self.data.ndim == 1 else self.data.shape[0]
+            expected_dim = 2 ** self.system_size
+
+            if self.data.ndim == 1:
+                if dim != expected_dim:
+                    return False, f"Dimension mismatch: {dim} != {expected_dim}"
+            elif self.data.ndim == 2:
+                if dim != expected_dim or self.data.shape[1] != expected_dim:
+                    return False, f"Density matrix dimension mismatch"
+
+            # Check normalization
+            if not np.isclose(self.compute_norm(), 1.0, atol=1e-6):
+                return False, f"State not normalized: norm = {self.compute_norm()}"
+
+            # Check for numerical issues
+            if sparse.issparse(self.data):
+                if np.any(np.isnan(self.data.data)) or np.any(np.isinf(self.data.data)):
+                    return False, "Numerical instability: NaN or Inf detected"
+            else:
+                if np.any(np.isnan(self.data)) or np.any(np.isinf(self.data)):
+                    return False, "Numerical instability: NaN or Inf detected"
+
+            return True, "Valid"
+
+        except Exception as e:
+            return False, f"Validation failed: {str(e)}"
 
     @classmethod
-    def from_hdf5(cls, filepath: str, dataset_name: str = 'wavefunction') -> 'QuantumState':
+    def from_hdf5(cls, filepath: str) -> 'QuantumState':
         """
         Load a QuantumState from an HDF5 file.
 
         Args:
             filepath: Path to the HDF5 file.
-            dataset_name: Name of the dataset within the file.
 
         Returns:
-            Loaded QuantumState instance.
+            QuantumState instance.
+
+        Raises:
+            QuantumStateError: If file is invalid or cannot be read.
         """
         import h5py
 
-        with h5py.File(filepath, 'r') as f:
-            if dataset_name not in f:
-                raise QuantumStateError(
-                    f"Dataset '{dataset_name}' not found in {filepath}"
+        try:
+            with h5py.File(filepath, 'r') as f:
+                # Check for required datasets
+                if 'data' not in f:
+                    raise QuantumStateError("HDF5 file missing 'data' dataset")
+
+                if 'system_size' not in f.attrs:
+                    raise QuantumStateError("HDF5 file missing 'system_size' attribute")
+
+                # Load data
+                data = f['data'][...]
+
+                # Check if sparse
+                is_sparse = f.attrs.get('is_sparse', False)
+                if is_sparse:
+                    if 'indices' not in f or 'indptr' not in f:
+                        raise QuantumStateError("Sparse data missing indices/indptr")
+
+                    data = sparse.csr_matrix(
+                        (data, f['indices'][...], f['indptr'][...]),
+                        shape=f['data'].shape
+                    )
+
+                system_size = int(f.attrs['system_size'])
+                subsystem_split = None
+                if 'subsystem_split' in f.attrs:
+                    split_str = f.attrs['subsystem_split']
+                    if isinstance(split_str, bytes):
+                        split_str = split_str.decode('utf-8')
+                    subsystem_split = tuple(map(int, split_str.split(',')))
+
+                metadata = {}
+                if 'metadata' in f.attrs:
+                    meta_str = f.attrs['metadata']
+                    if isinstance(meta_str, bytes):
+                        meta_str = meta_str.decode('utf-8')
+                    # Simple JSON-like parsing for metadata
+                    try:
+                        import json
+                        metadata = json.loads(meta_str)
+                    except:
+                        metadata = {'raw': meta_str}
+
+                return cls(
+                    data=data,
+                    system_size=system_size,
+                    subsystem_split=subsystem_split,
+                    metadata=metadata
                 )
-            data = f[dataset_name][()]
-            num_qubits = f.attrs.get('num_qubits', None)
 
-        return cls(data, num_qubits=num_qubits)
+        except Exception as e:
+            raise QuantumStateError(f"Failed to load QuantumState from HDF5: {e}")
 
-    def to_hdf5(self, filepath: str, dataset_name: str = 'wavefunction') -> None:
+    def to_hdf5(self, filepath: str) -> None:
         """
         Save the QuantumState to an HDF5 file.
 
         Args:
-            filepath: Path to the HDF5 file.
-            dataset_name: Name of the dataset within the file.
+            filepath: Path to save the HDF5 file.
         """
         import h5py
+        import json
 
         with h5py.File(filepath, 'w') as f:
             # Store data
-            f.create_dataset(dataset_name, data=self.to_dense())
-            # Store metadata
-            if self._num_qubits is not None:
-                f.attrs['num_qubits'] = self._num_qubits
-            f.attrs['format'] = 'dense'  # Always save as dense for compatibility
+            if sparse.issparse(self.data):
+                f.create_dataset('data', data=self.data.data)
+                f.create_dataset('indices', data=self.data.indices)
+                f.create_dataset('indptr', data=self.data.indptr)
+                f.attrs['is_sparse'] = True
+                f['data'].shape = self.data.shape
+            else:
+                f.create_dataset('data', data=self.data)
+                f.attrs['is_sparse'] = False
 
-    @staticmethod
-    def generate_random(num_qubits: int, seed: Optional[int] = None) -> 'QuantumState':
-        """
-        Generate a random Haar-distributed quantum state.
+            # Store attributes
+            f.attrs['system_size'] = self.system_size
+            if self.subsystem_split:
+                split_str = ','.join(map(str, self.subsystem_split))
+                f.attrs['subsystem_split'] = split_str
 
-        Args:
-            num_qubits: Number of qubits.
-            seed: Random seed for reproducibility.
+            if self.metadata:
+                meta_str = json.dumps(self.metadata)
+                f.attrs['metadata'] = meta_str
 
-        Returns:
-            Random QuantumState.
-        """
-        if seed is not None:
-            np.random.seed(seed)
-
-        dim = 2 ** num_qubits
-        # Generate complex Gaussian random vector
-        real_part = np.random.randn(dim)
-        imag_part = np.random.randn(dim)
-        psi = real_part + 1j * imag_part
-
-        # Normalize
-        psi = psi / np.linalg.norm(psi)
-
-        return QuantumState(psi, num_qubits=num_qubits, validate=True)
-
-    @staticmethod
-    def generate_product_state(
-        num_qubits: int,
-        phases: Optional[np.ndarray] = None,
-        seed: Optional[int] = None
-    ) -> 'QuantumState':
-        """
-        Generate a product state (no entanglement).
-
-        Args:
-            num_qubits: Number of qubits.
-            phases: Optional array of phases for each qubit (default: 0).
-            seed: Random seed for reproducibility.
-
-        Returns:
-            Product state QuantumState.
-        """
-        if seed is not None:
-            np.random.seed(seed)
-
-        if phases is None:
-            phases = np.zeros(num_qubits)
-
-        # Each qubit is |0> + e^{i phi} |1>, normalized
-        # For product state, we can construct directly
-        # Simple case: all qubits in |0> state
-        psi = np.zeros(2 ** num_qubits, dtype=complex)
-        psi[0] = 1.0  # |00...0>
-
-        # Alternatively, generate random product states
-        if np.any(phases != 0):
-            # Construct product of single-qubit states
-            psi = np.array([1.0], dtype=complex)
-            for i in range(num_qubits):
-                phi = phases[i]
-                # |psi_i> = (|0> + e^{i phi} |1>) / sqrt(2)
-                qubit_state = np.array([1, np.exp(1j * phi)], dtype=complex) / np.sqrt(2)
-                psi = np.kron(psi, qubit_state)
-
-        return QuantumState(psi, num_qubits=num_qubits, validate=True)
-
-    @staticmethod
-    def generate_ghz_state(num_qubits: int) -> 'QuantumState':
-        """
-        Generate a GHZ state: (|00...0> + |11...1>) / sqrt(2).
-
-        Args:
-            num_qubits: Number of qubits.
-
-        Returns:
-            GHZ state QuantumState.
-        """
-        dim = 2 ** num_qubits
-        psi = np.zeros(dim, dtype=complex)
-        psi[0] = 1.0 / np.sqrt(2)
-        psi[dim - 1] = 1.0 / np.sqrt(2)
-
-        return QuantumState(psi, num_qubits=num_qubits, validate=True)
-
-    @staticmethod
-    def generate_w_state(num_qubits: int) -> 'QuantumState':
-        """
-        Generate a W state: (|100...0> + |010...0> + ... + |00...01>) / sqrt(N).
-
-        Args:
-            num_qubits: Number of qubits.
-
-        Returns:
-            W state QuantumState.
-        """
-        dim = 2 ** num_qubits
-        psi = np.zeros(dim, dtype=complex)
-
-        # Set positions with single excitation
-        for i in range(num_qubits):
-            idx = 2 ** (num_qubits - 1 - i)  # Position of i-th qubit being |1>
-            psi[idx] = 1.0 / np.sqrt(num_qubits)
-
-        return QuantumState(psi, num_qubits=num_qubits, validate=True)
-
-    @staticmethod
-    def generate_bell_state(bell_type: str = 'phi_plus') -> 'QuantumState':
-        """
-        Generate one of the four Bell states.
-
-        Args:
-            bell_type: One of 'phi_plus', 'phi_minus', 'psi_plus', 'psi_minus'.
-
-        Returns:
-            2-qubit Bell state QuantumState.
-        """
-        bell_states = {
-            'phi_plus': np.array([1, 0, 0, 1], dtype=complex) / np.sqrt(2),
-            'phi_minus': np.array([1, 0, 0, -1], dtype=complex) / np.sqrt(2),
-            'psi_plus': np.array([0, 1, 1, 0], dtype=complex) / np.sqrt(2),
-            'psi_minus': np.array([0, 1, -1, 0], dtype=complex) / np.sqrt(2),
-        }
-
-        if bell_type not in bell_states:
-            raise QuantumStateError(
-                f"Unknown Bell state type: {bell_type}. "
-                f"Choose from {list(bell_states.keys())}"
-            )
-
-        psi = bell_states[bell_type]
-        return QuantumState(psi, num_qubits=2, validate=True)
+            f.attrs['representation_type'] = self.representation_type
+            f.attrs['is_normalized'] = self.is_normalized

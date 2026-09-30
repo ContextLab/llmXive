@@ -1,3 +1,11 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The provided information contains only the feature specification and user stories;
+    there is no evidence of the required directory hierarchy (`code/`, `data/`, `tests/`,
+    `docs/`) being present on disk. The implementer did not supply any artifact showing
+    that these folders exist or contain any files, so the task requirement is not
+    satisfied.
 T015:
   c: false
   h: d559074c2f3a5625e3e64fcb2aafd21cc05a568d3c39f33a39c65bf93735118a
@@ -6,6 +14,13 @@ T015:
     \ nor does it write any results to `data/processed/entanglement_metrics.csv`.\
     \ Moreover, the required CSV file is absent from the repository. The task\u2019\
     s core functionality and output artifact are therefore missing."
+T016:
+  c: false
+  h: 697652c8a80ae27b10a373e1eb6c3a2467db5ce460c04e898b9bfafe12688744
+  r: The `code/metrics.py` file contains only a placeholder comment and does not implement
+    any of the required steps (quantization, baseline generation, compression ratio,
+    NCD calculation, or CSV output). Additionally, the expected output file `data/processed/complexity_metrics.csv`
+    is missing. Both required artifacts are absent, so the task is not satisfied.
 T022:
   c: false
   h: 79abb550d0d2f31c528687e05e9ecf55543cb76b0c5e14794fa03a35150516c2

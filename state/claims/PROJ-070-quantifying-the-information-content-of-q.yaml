@@ -1,0 +1,42 @@
+- artifact_path: projects/PROJ-070-quantifying-the-information-content-of-q/docs/research.md
+  attempts: 1
+  canonical: entanglement entropy in 1D critical systems scales logarithmically with
+    subsystem size
+  claim_id: c_d38f0d9c
+  context: 'The link between many-body entanglement and algorithmic complexity is
+    grounded in the history of the physics of information: 1. Entanglement Entropy
+    as Information Proxy: Early work by Calabrese and Cardy (2005) established that
+    entanglement entropy in 1D critical systems scales logarithmically with subsystem
+    size, treating entropy as a measure of quantum information shared across a cut.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Early work by Calabrese and Cardy (2005) established that entanglement
+    entropy in 1D critical systems scales logarithmically with subsystem size.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:33:32Z'
+- artifact_path: projects/PROJ-070-quantifying-the-information-content-of-q/docs/research.md
+  attempts: 1
+  canonical: circuit depth introduced as stand-in for Kolmogorov complexity in quantum
+    systems
+  claim_id: c_09e7b1be
+  context: '2. Complexity as Circuit Depth: Later computational-complexity studies,
+    notably Brown and Susskind (2016), introduced circuit depth as a more tractable
+    stand-in for Kolmogorov complexity in quantum systems, linking entanglement growth
+    to the difficulty of state preparation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Later computational-complexity studies, notably Brown and Susskind (2016),
+    introduced circuit depth as a more tractable stand-in for Kolmogorov complexity
+    in quantum systems.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:33:53Z'
