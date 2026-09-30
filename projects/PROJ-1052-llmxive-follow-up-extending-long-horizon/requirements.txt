@@ -1,18 +1,22 @@
-# Existing dependencies
-datasets
-pandas
-numpy
-scipy
-scikit-learn
-statsmodels
-pyyaml
-ruff
-black
-llama-cpp-python
-memory-profiler
-matplotlib
-seaborn
-
-# New dependencies for T005: Schema validation
+# Core dependencies
+datasets>=2.14.0
+pandas>=2.0.0
+numpy>=1.24.0
+pyyaml>=6.0
 jsonschema>=4.0.0
+ruff>=0.1.0
+black>=23.0.0
 yamllint>=1.30.0
+scipy>=1.11.0
+statsmodels>=0.14.0
+memory-profiler>=0.60.0
+
+# Model dependencies
+sentence-transformers>=2.2.0
+transformers>=4.30.0
+torch>=2.0.0
+accelerate>=0.20.0
+
+# Optional: For agent runner if needed
+# llama-cpp-python>=0.2.0
+# huggingface-hub>=0.16.0

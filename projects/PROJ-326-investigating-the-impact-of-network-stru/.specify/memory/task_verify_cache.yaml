@@ -1,28 +1,33 @@
 T005:
-  c: false
-  h: 4566f03743c0275cd67af7267e84ffd1945cc45cfbcd95f0aaec11aa3bd2e369
-  r: '`data/run_log.json` does not exist; the task required the file to be present
-    as an empty JSON array `[]`. Without this file the verification step fails, even
-    though `logging.py` implements the required functions. The missing log file must
-    be created (or `init_logging` must be invoked to create it) to satisfy the task.'
+  c: true
+  h: 74055314d68f314d3e8846e8e6365de1ba476edd62e74c0d8bb9a691f4780c22
+  r: The repository contains `code/src/utils/logging.py` with the required `init_logging`
+    and `log_metric` functions, and `data/run_log.json` exists initialized as an empty
+    JSON array `[]`. The `log_metric` implementation validates the exact schema and
+    event types before appending entries.
 T018b:
   c: false
-  h: 98e3702ab3b33d561e87ebfcade30d56911b0bc37fe999444b38ea19c1aa6d0c
-  r: "The repository contains a `batch_runner.py` file, but it does not define a `main()`\
-    \ function that loads `config.yaml` and starts the generation pipeline. Moreover,\
-    \ the required `config.yaml` file is absent from the project. Both the essential\
-    \ entry\u2011point logic and the configuration file are missing, so the task is\
-    \ not satisfied."
+  h: 43a4e5aa188c4d534cafdeebc109332ed081635b4866905fbbf20839fe33d7cb
+  r: The repository lacks a `config.yaml` file, which the task explicitly requires
+    to be loaded. Moreover, the provided `batch_runner.py` snippet does not contain
+    a `main()` function or any orchestration logic that calls `load_config` and initializes
+    the generation pipeline. Both the essential configuration file and the required
+    `main()` implementation are missing.
+T018c:
+  c: false
+  h: a573d1fd31cd48d26da5166d7153ff486f93f9ac89e209f7f4011db8fb540d07
+  r: "The required output file `contracts/manifest.schema.yaml` does not exist, so\
+    \ the JSON schema was never provided. Consequently the task\u2019s core deliverable\
+    \ is missing."
 T018f:
   c: false
-  h: 1f4847a1c8c252ea9f088a7dcb8a7bee4fa7234db3eecd23e9b94056e1a286c4
-  r: "The provided `batch_runner.py` only contains a partially shown `GlobalSuccessRateMonitor`\
-    \ class and does not demonstrate the full logic for per\u2011graph failed\u2011\
-    attempt tracking, global success\u2011rate enforcement, batch failure handling,\
-    \ or logging to `data/run_log.json`. Moreover, the required `data/run_log.json`\
-    \ and `config.yaml` files are absent, and no verification test is supplied. These\
-    \ missing artifacts and incomplete implementation mean the task requirements are\
-    \ not met."
+  h: e300de1d3d29c35d79e009766c3d1775c9676c275c0df568a897c69221de6224
+  r: "The `batch_runner.py` defines a `GlobalSuccessRateMonitor` but it contains errors\
+    \ (e.g., typo `self.min_success_rat`), does not read `config.yaml` (which is missing),\
+    \ never writes the final success rate to `data/run_log.json` (the file remains\
+    \ an empty list), and there is no evidence that the monitor is integrated into\
+    \ the batch process or that a test exercising low success rates is provided. These\
+    \ gaps mean the task\u2019s requirements are not satisfied."
 T027:
   c: false
   h: f623ffc6a29cbc4d42f2034c12a3790683fc387cb10c0d71508999840687bb6f
@@ -55,3 +60,11 @@ T070:
     \ to `data/analysis/profiler_report.json`. Moreover, the required JSON report\
     \ file does not exist. Hence the task\u2019s output artifact is missing and the\
     \ implementation is incomplete."
+T080:
+  c: false
+  h: ebf6e86c8eec9de9323228363207044e2bd1811ed77ab9a36c352a9598e6b497
+  r: "The provided `run_simulation.py` contains a generic `run_with_timeout` helper\
+    \ but never reads `simulation_timeout_seconds` from a `config.yaml` (the file\
+    \ is missing) nor applies the min\u2011with\u2011MAX_TIMEOUT logic, logs `timeout_reached`,\
+    \ or flags the result as `[TIMEOUT_EXCEEDED]`. Consequently the required timeout\
+    \ enforcement behavior is not demonstrated."

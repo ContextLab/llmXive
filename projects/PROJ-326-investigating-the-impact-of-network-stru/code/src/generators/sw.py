@@ -1,51 +1,39 @@
-"""
-Watts-Strogatz (Small-World) Graph Generator.
-
-Inherits from BaseGenerator.
-"""
-
 import logging
-import time
-from typing import Dict, Optional, Tuple, Any
-import networkx as nx
+import random
 import numpy as np
-
+import networkx as nx
 from code.src.generators.base import BaseGenerator
 
 logger = logging.getLogger(__name__)
 
-
 class WattsStrogatzGenerator(BaseGenerator):
     """
-    Generates Watts-Strogatz small-world networks.
+    Generator for Watts-Strogatz (WS) small-world graphs.
     """
-    
-    def __init__(self, config: Dict[str, Any]):
+
+    def __init__(self, config: dict):
         super().__init__(config)
-        self.n = config.get('simulation_params', {}).get('n_nodes', 100)
-        self.k = config.get('simulation_params', {}).get('k_neighbors', 4)
-        self.p_rewire = config.get('simulation_params', {}).get('rewiring_probability', 0.1)
-    
-    def generate(self, seed: Optional[int] = None) -> Tuple[nx.Graph, Dict[str, Any]]:
-        """
-        Generate a Watts-Strogatz graph.
-        """
-        if seed is not None:
-            np.random.seed(seed)
-        
-        start_time = time.time()
-        
-        # Use seed for networkx if possible
-        G = nx.watts_strogatz_graph(self.n, self.k, self.p_rewire, seed=seed)
-        
-        metadata = {
-            "algorithm": "watts_strogatz",
-            "n_nodes": self.n,
-            "k_neighbors": self.k,
-            "rewiring_probability": self.p_rewire,
-            "seed": seed,
-            "generation_time_seconds": time.time() - start_time,
-            "graph_id": f"WS_{seed}_{int(time.time()*1000)}"
-        }
-        
-        return G, metadata
+        self.n = config.get("topology_targets", {}).get("watts_strogatz", {}).get("n", 30)
+        self.k = config.get("topology_targets", {}).get("watts_strogatz", {}).get("k", 4)
+        self.p = config.get("topology_targets", {}).get("watts_strogatz", {}).get("p", 0.3)
+
+    def _generate_graph(self):
+        """Generate a WS graph."""
+        try:
+            # Ensure n is odd or k is even for WS graph to be valid
+            if self.n % 2 == 0 and self.k % 2 != 0:
+                self.k += 1
+                logger.warning(f"Adjusted k to {self.k} for valid WS graph")
+
+            g = nx.watts_strogatz_graph(self.n, self.k, self.p, seed=self.seed)
+            metadata = {
+                "algorithm": "watts_strogatz",
+                "n": self.n,
+                "k": self.k,
+                "p": self.p,
+                "seed": self.seed
+            }
+            return g, metadata
+        except Exception as e:
+            logger.error(f"WS generation failed: {e}")
+            return None, None

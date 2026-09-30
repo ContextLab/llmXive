@@ -1,58 +1,32 @@
-"""
-Erdős-Rényi Graph Generator.
-
-Inherits from BaseGenerator and implements ER specific logic.
-"""
-
 import logging
-import time
-from typing import Dict, Optional, Tuple, Any
-import networkx as nx
+import random
 import numpy as np
-
+import networkx as nx
 from code.src.generators.base import BaseGenerator
 
 logger = logging.getLogger(__name__)
 
-
 class ErdosRenyiGenerator(BaseGenerator):
     """
-    Generates Erdős-Rényi random graphs.
+    Generator for Erdos-Renyi (ER) random graphs.
     """
-    
-    def __init__(self, config: Dict[str, Any]):
+
+    def __init__(self, config: dict):
         super().__init__(config)
-        # Extract params
-        self.n = config.get('simulation_params', {}).get('n_nodes', 100)
-        self.p = config.get('simulation_params', {}).get('edge_probability', 0.1)
-    
-    def generate(self, seed: Optional[int] = None) -> Tuple[nx.Graph, Dict[str, Any]]:
-        """
-        Generate a single Erdős-Rényi graph.
-        
-        Args:
-            seed: Random seed for reproducibility.
-        
-        Returns:
-            Tuple of (networkx graph, metadata dict).
-        """
-        if seed is not None:
-            np.random.seed(seed)
-            # Note: networkx uses its own random state, we pass it if needed
-            # or rely on global seed if set.
-        
-        start_time = time.time()
-        
-        # Generate graph
-        G = nx.erdos_renyi_graph(self.n, self.p)
-        
-        metadata = {
-            "algorithm": "erdos_renyi",
-            "n_nodes": self.n,
-            "edge_probability": self.p,
-            "seed": seed,
-            "generation_time_seconds": time.time() - start_time,
-            "graph_id": f"ER_{seed}_{int(time.time()*1000)}"
-        }
-        
-        return G, metadata
+        self.n = config.get("topology_targets", {}).get("erdos_renyi", {}).get("n", 30)
+        self.p = config.get("topology_targets", {}).get("erdos_renyi", {}).get("p", 0.1)
+
+    def _generate_graph(self):
+        """Generate an ER graph."""
+        try:
+            g = nx.erdos_renyi_graph(self.n, self.p, seed=self.seed)
+            metadata = {
+                "algorithm": "erdos_renyi",
+                "n": self.n,
+                "p": self.p,
+                "seed": self.seed
+            }
+            return g, metadata
+        except Exception as e:
+            logger.error(f"ER generation failed: {e}")
+            return None, None

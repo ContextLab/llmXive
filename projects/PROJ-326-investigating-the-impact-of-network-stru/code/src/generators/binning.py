@@ -1,42 +1,38 @@
-"""
-Binning logic for clustering coefficients.
-"""
-
 import logging
-from typing import List, Optional, Tuple
-import networkx as nx
+from typing import List, Optional
 
 logger = logging.getLogger(__name__)
 
-
-def get_clustering_coefficient(graph: nx.Graph) -> float:
-    """
-    Calculate the global clustering coefficient of a graph.
-    """
-    if graph.number_of_nodes() < 3:
-        return 0.0
-    return nx.transitivity(graph)
-
-
-def classify_graph(graph: nx.Graph, bins: Optional[List[float]] = None) -> str:
+def classify_graph(graph: Any, bins: List[float]) -> Optional[str]:
     """
     Classify a graph into a bin based on its clustering coefficient.
-    
-    Args:
-        graph: The graph to classify.
-        bins: List of bin thresholds (e.g., [0.1, 0.2, 0.3]).
-    
-    Returns:
-        String identifier for the bin (e.g., "0.2").
+    bins: List of thresholds, e.g., [0.1, 0.2, 0.3, 0.4, 0.5]
+    Returns a string label like "bin_0.1" or None if outside range.
     """
-    if bins is None:
-        bins = [0.1, 0.2, 0.3, 0.4, 0.5]
-    
-    cc = get_clustering_coefficient(graph)
-    
+    try:
+        import networkx as nx
+        cc = nx.average_clustering(graph)
+    except Exception as e:
+        logger.error(f"Failed to compute clustering coefficient: {e}")
+        return None
+
+    # Determine bin
+    # Bins are defined as intervals: [0, b1), [b1, b2), ..., [bn, 1.0]
+    # Or strictly: < b1, < b2, ..., >= bn
+    # Let's assume bins represent upper bounds of intervals starting from 0
+    # e.g., bins=[0.1, 0.2] means:
+    # bin_0.1: 0 <= cc < 0.1
+    # bin_0.2: 0.1 <= cc < 0.2
+    # bin_max: cc >= 0.2
+
+    bin_label = None
     for i, threshold in enumerate(bins):
         if cc < threshold:
-            return str(threshold)
-    
-    # If larger than all bins, return the last bin or a special tag
-    return str(bins[-1])
+            bin_label = f"bin_{threshold}"
+            break
+    else:
+        # If cc is greater than or equal to all thresholds
+        bin_label = f"bin_{bins[-1]}_plus" if bins else "bin_unknown"
+
+    logger.debug(f"Graph classified into {bin_label} (cc={cc:.3f})")
+    return bin_label

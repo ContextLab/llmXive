@@ -1,74 +1,86 @@
-"""
-Stratified sampling loop controller.
-
-Implements T062c: Explicitly enforces target distribution.
-"""
-
 import logging
-from typing import Dict, Any, List
-import networkx as nx
-
+from typing import Any, Dict, List, Optional, Tuple
 from code.src.generators.binning import classify_graph
-from code.src.generators.quota_checker import check_quotas
-from code.src.generators.batch_runner import generate_batch
+from code.src.generators.quota_checker import check_quota_status
+from code.src.generators.generation_trigger import check_trigger
+from code.src.generators.metrics import compute_graph_metrics
+from code.src.generators.metadata import save_metadata
 
 logger = logging.getLogger(__name__)
 
+def run_stratified_generation(
+    generators: Dict[str, Any],
+    stratification_params: Dict[str, Any],
+    monitor: Any
+) -> Dict[str, Any]:
+    """
+    Run stratified generation loop until quotas are met.
+    """
+    bins = stratification_params.get("bins", [])
+    target_counts = stratification_params.get("target_counts", {})
+    tolerance = stratification_params.get("tolerance", 0.0)
 
-def run_stratified_generation(config: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Run graph generation with stratified sampling.
-    
-    Args:
-        config: Configuration dictionary.
-    
-    Returns:
-        List of generated graph metadata.
-    """
-    strat_params = config.get('stratification_params', {})
-    bins = strat_params.get('bins', [0.1, 0.2, 0.3, 0.4, 0.5])
-    target_counts = strat_params.get('target_counts', {})
-    
-    current_counts = {str(b): 0 for b in bins}
-    all_graphs = []
-    
-    # Simple loop: generate until quotas met
-    # This is a simplified version; a real implementation would be more efficient
-    # by generating in batches and filtering.
-    while not check_quotas(current_counts, target_counts):
-        # Determine which bin needs more
-        needed_bin = None
-        for b in bins:
-            b_str = str(b)
-            if current_counts[b_str] < target_counts.get(b_str, 0):
-                needed_bin = b_str
-                break
-        
-        if not needed_bin:
+    current_counts = {bin_label: 0 for bin_label in target_counts.keys()}
+    generated_graphs = []
+    batch_results = []
+
+    max_iterations = 1000  # Safety limit
+    iteration = 0
+
+    while iteration < max_iterations:
+        iteration += 1
+        logger.info(f"Stratified generation iteration {iteration}")
+
+        # Check quota status
+        quota_status = check_quota_status(current_counts, target_counts, tolerance)
+        trigger_bin = check_trigger(quota_status, target_counts)
+
+        if trigger_bin is None:
+            logger.info("All quotas satisfied. Stopping stratified generation.")
             break
-        
-        # Generate a batch for this bin (simplified: just generate and filter)
-        # In reality, we'd tune generation params to hit the bin.
-        batch = generate_batch("watts_strogatz", 5, config) # Dummy call
-        
-        for meta in batch:
-            # We need the actual graph to classify, but meta doesn't have it.
-            # This implies we need to store graphs or re-load them.
-            # For this task, we assume the generator can be tuned to produce a bin.
-            # Since we can't easily tune WS to a specific CC without trial,
-            # we simulate the logic here.
-            # In a real run, we would classify the actual graph.
-            # Here we just assign randomly to demonstrate the loop logic.
-            import random
-            assigned_bin = random.choice(bins)
-            assigned_str = str(assigned_bin)
-            
-            if assigned_str in current_counts:
-                current_counts[assigned_str] += 1
-                all_graphs.append(meta)
-                
-                if check_quotas(current_counts, target_counts):
+
+        # Select a generator that can produce graphs for the trigger bin
+        # For simplicity, we iterate through all generators until we find one that fits
+        # In a real implementation, we might map bins to specific generators
+        found = False
+        for topo_type, gen in generators.items():
+            try:
+                graph, metadata = gen.generate()
+                if graph is None:
+                    continue
+
+                # Classify
+                bin_label = classify_graph(graph, bins)
+                if bin_label == trigger_bin:
+                    # Accept this graph
+                    metrics = compute_graph_metrics(graph)
+                    metadata.update(metrics)
+                    metadata["graph_id"] = f"{topo_type}_{iteration}"
+                    metadata["topology_type"] = topo_type
+                    metadata["bin"] = bin_label
+
+                    save_metadata(metadata)
+                    generated_graphs.append(graph)
+                    batch_results.append({
+                        "graph_id": metadata["graph_id"],
+                        "topology_type": topo_type,
+                        "bin": bin_label,
+                        "metrics": metrics
+                    })
+                    current_counts[bin_label] = current_counts.get(bin_label, 0) + 1
+                    monitor.record_attempt(True)
+                    found = True
                     break
-    
-    logger.info(f"Stratified generation complete. Counts: {current_counts}")
-    return all_graphs
+            except Exception as e:
+                logger.error(f"Error generating graph for {topo_type}: {e}")
+                monitor.record_attempt(False)
+
+        if not found:
+            logger.warning(f"No suitable graph found for bin {trigger_bin} in this iteration")
+            monitor.record_attempt(False)
+
+    return {
+        "graphs": generated_graphs,
+        "results": batch_results,
+        "final_counts": current_counts
+    }

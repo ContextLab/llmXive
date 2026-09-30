@@ -1,208 +1,238 @@
 """
-T006/T014: State difference analysis for recovery segment identification.
+code/utils/state_diff.py
 
-Implements cosine similarity of sentence embeddings as a CPU-tractable proxy
-for attention-weighted token overlap to identify recovery-critical context segments.
+Implements recovery segment identification using cosine similarity of sentence embeddings.
+This is a CPU-tractable proxy for attention-weighted token overlap (FR-007).
 """
 import logging
 import math
+import os
 from typing import List, Dict, Any, Tuple, Optional
 import pandas as pd
 import numpy as np
 
+# Use sentence-transformers for embeddings.
+# If not installed, the import will fail loudly as per constraints.
+try:
+    from sentence_transformers import SentenceTransformer
+except ImportError:
+    raise ImportError(
+        "Required package 'sentence-transformers' not found. "
+        "Please install it via: pip install sentence-transformers"
+    )
+
 logger = logging.getLogger(__name__)
 
-def cosine_similarity(vec1: np.ndarray, vec2: np.ndarray) -> float:
+# Global model cache to avoid reloading the model on every call
+_model_cache: Optional[SentenceTransformer] = None
+
+def _get_model() -> SentenceTransformer:
+    """Load or retrieve the sentence embedding model."""
+    global _model_cache
+    if _model_cache is None:
+        # Using a small, efficient model optimized for CPU
+        logger.info("Loading sentence-transformer model 'all-MiniLM-L6-v2'...")
+        _model_cache = SentenceTransformer('all-MiniLM-L6-v2')
+        logger.info("Model loaded successfully.")
+    return _model_cache
+
+def cosine_similarity(vec_a: np.ndarray, vec_b: np.ndarray) -> float:
     """
-    Calculate cosine similarity between two vectors.
+    Compute cosine similarity between two vectors.
     
     Args:
-        vec1: First vector
-        vec2: Second vector
-        
+        vec_a: First vector (numpy array)
+        vec_b: Second vector (numpy array)
+    
     Returns:
-        Cosine similarity value between -1 and 1
+        Cosine similarity score (float between -1 and 1)
     """
-    if len(vec1) != len(vec2):
-        raise ValueError(f"Vector dimensions mismatch: {len(vec1)} vs {len(vec2)}")
+    norm_a = np.linalg.norm(vec_a)
+    norm_b = np.linalg.norm(vec_b)
     
-    norm1 = np.linalg.norm(vec1)
-    norm2 = np.linalg.norm(vec2)
-    
-    if norm1 == 0 or norm2 == 0:
+    if norm_a == 0 or norm_b == 0:
         return 0.0
     
-    return float(np.dot(vec1, vec2) / (norm1 * norm2))
+    return float(np.dot(vec_a, vec_b) / (norm_a * norm_b))
 
 def calculate_state_diff_embedding(observations: List[str]) -> np.ndarray:
     """
-    Calculate embedding representation of state differences between observations.
+    Calculate the embedding representation of the state change (diff) 
+    across a sequence of observations.
     
-    Uses a simple bag-of-words TF-IDF like approach as a CPU-tractable proxy.
-    In a full implementation, this would use sentence-transformers embeddings.
+    This function concatenates the observations into a single text block 
+    to represent the "state evolution" and computes its embedding.
     
     Args:
-        observations: List of observation strings from trajectory
-        
+        observations: List of observation strings from the trajectory.
+    
     Returns:
-        Numpy array representing the state difference embedding
+        A numpy array representing the embedding of the state sequence.
     """
     if not observations:
-        return np.array([0.0])
-    
-    # Simple word frequency embedding (proxy for sentence embeddings)
-    word_freq = {}
-    for obs in observations:
-        words = obs.lower().split()
-        for word in words:
-            word_freq[word] = word_freq.get(word, 0) + 1
-    
-    # Normalize to create embedding vector
-    total = sum(word_freq.values())
-    if total == 0:
-        return np.array([0.0])
-    
-    embedding = np.array([count / total for count in word_freq.values()])
+        return np.zeros(512) # Default zero vector if empty
+
+    model = _get_model()
+    # Join observations to capture the full context of the state change
+    # We use a separator to distinguish steps
+    text = " | ".join(observations)
+    embedding = model.encode(text, convert_to_numpy=True, show_progress_bar=False)
     return embedding
 
 def identify_recovery_segments(
-    trajectory: Dict[str, Any],
-    threshold_percentile: float = 0.95
-) -> List[Dict[str, Any]]:
+    trajectory: List[Dict[str, Any]],
+    threshold_ratio: float = 0.05
+) -> List[int]:
     """
-    Identify segments contributing to state changes (recovery-critical segments).
+    Identify segments contributing >5% to the total state change.
     
-    Uses cosine similarity of sentence embeddings to identify segments that
-    contribute >5% to state change (as per T014 specification).
+    Definition: contribution > 0.05 * sum(abs(state_diff) for all segments).
+    Since we use embeddings, we calculate the contribution of each segment
+    relative to the total magnitude of state changes in the trajectory.
     
     Args:
-        trajectory: Trajectory dictionary containing observations and rewards
-        threshold_percentile: Percentile threshold for segment contribution
-        
+        trajectory: List of step dictionaries, each containing 'observation'.
+        threshold_ratio: The threshold ratio (default 0.05 for 5%).
+    
     Returns:
-        List of identified recovery segments with their IDs and contribution scores
+        List of segment indices (0-based) that are considered recovery-critical.
     """
-    observations = trajectory.get('observations', [])
+    if not trajectory:
+        return []
+    
+    model = _get_model()
+    
+    # Extract observations
+    observations = [step.get('observation', '') for step in trajectory if 'observation' in step]
+    
     if len(observations) < 2:
-        logger.warning("Insufficient observations for recovery segment identification")
+        # Cannot compute diff if less than 2 observations
+        logger.warning("Trajectory has fewer than 2 observations. No segments identified.")
         return []
     
-    # Calculate state differences between consecutive observations
-    state_diffs = []
-    for i in range(1, len(observations)):
-        emb1 = calculate_state_diff_embedding([observations[i-1]])
-        emb2 = calculate_state_diff_embedding([observations[i]])
+    # Compute embeddings for each observation to measure state change
+    # We compute the difference between consecutive states
+    embeddings = []
+    for obs in observations:
+        emb = model.encode(obs, convert_to_numpy=True, show_progress_bar=False)
+        embeddings.append(emb)
+    
+    # Calculate pairwise distances (state changes)
+    # We treat the magnitude of the change between step i and i+1 as the "contribution"
+    # of that transition. The segment ID corresponds to the starting step of the transition.
+    contributions = []
+    
+    for i in range(len(embeddings) - 1):
+        diff_vec = embeddings[i+1] - embeddings[i]
+        # Use L2 norm of the difference as the magnitude of state change
+        magnitude = np.linalg.norm(diff_vec)
+        contributions.append(magnitude)
+    
+    if not contributions:
+        return []
         
-        # Calculate magnitude of state change
-        diff = np.abs(emb2 - emb1)
-        magnitude = np.linalg.norm(diff)
-        state_diffs.append({
-            'segment_index': i,
-            'magnitude': magnitude,
-            'embedding_diff': diff
-        })
+    total_change = sum(contributions)
     
-    if not state_diffs:
-        return []
-    
-    # Calculate total state change
-    total_change = sum(seg['magnitude'] for seg in state_diffs)
     if total_change == 0:
-        logger.warning("No state change detected in trajectory")
+        logger.warning("Total state change is zero. No segments identified.")
         return []
     
-    # Identify segments contributing >5% to state change
-    threshold = 0.05 * total_change
+    threshold_value = threshold_ratio * total_change
+    
     recovery_segments = []
+    for idx, contribution in enumerate(contributions):
+        if contribution > threshold_value:
+            # The segment index corresponds to the step where the significant change started
+            recovery_segments.append(idx)
     
-    for seg in state_diffs:
-        if seg['magnitude'] > threshold:
-            segment_id = f"seg_{seg['segment_index']}"
-            recovery_segments.append({
-                'segment_id': segment_id,
-                'segment_index': seg['segment_index'],
-                'contribution': seg['magnitude'] / total_change,
-                'magnitude': seg['magnitude']
-            })
-    
-    logger.info(f"Identified {len(recovery_segments)} recovery-critical segments")
+    logger.info(f"Identified {len(recovery_segments)} recovery-critical segments out of {len(trajectory)} steps.")
     return recovery_segments
 
-def process_baseline_logs_with_recovery_tags(baseline_logs_path: str) -> Optional[pd.DataFrame]:
+def process_baseline_logs_with_recovery_tags(
+    input_path: str,
+    output_path: str
+) -> None:
     """
-    Process baseline execution logs and add recovery segment tags.
+    Reads the baseline execution logs, computes recovery segments for each trajectory,
+    and writes the updated CSV with a 'recovery_segment_id' column.
     
-    This function reads the baseline execution logs, identifies recovery segments
-    for each trajectory, and adds the recovery_segment_id column.
+    The 'recovery_segment_id' column will contain a JSON string of the list of indices,
+    or an empty string if none were found.
     
     Args:
-        baseline_logs_path: Path to baseline_execution_logs.csv
-        
-    Returns:
-        DataFrame with added recovery_segment_id column
+        input_path: Path to the input CSV (data/processed/baseline_execution_logs.csv).
+        output_path: Path to the output CSV.
     """
-    if not os.path.exists(baseline_logs_path):
-        logger.error(f"Baseline logs file not found: {baseline_logs_path}")
-        return None
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    # Read baseline logs
-    try:
-        df = pd.read_csv(baseline_logs_path)
-    except Exception as e:
-        logger.error(f"Failed to read baseline logs: {e}")
-        return None
+    logger.info(f"Loading baseline logs from {input_path}...")
+    df = pd.read_csv(input_path)
     
-    if df.empty:
-        logger.warning("Baseline logs DataFrame is empty")
-        return None
+    # Verify required columns exist
+    required_cols = ['task_id', 'trajectory']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in input CSV: {missing_cols}")
     
-    # Process each trajectory to identify recovery segments
-    recovery_segment_ids = []
+    logger.info(f"Processing {len(df)} rows for recovery segment tagging...")
+    
+    recovery_ids = []
     
     for idx, row in df.iterrows():
-        task_id = row.get('task_id', f'task_{idx}')
+        task_id = row['task_id']
+        # The trajectory is stored as a JSON string in the CSV
+        try:
+            trajectory = json.loads(row['trajectory'])
+        except (json.JSONDecodeError, TypeError) as e:
+            logger.warning(f"Row {idx} (Task {task_id}): Invalid trajectory JSON. Skipping.")
+            recovery_ids.append("[]")
+            continue
         
-        # Extract trajectory data
-        trajectory = row.to_dict()
+        if not isinstance(trajectory, list):
+            logger.warning(f"Row {idx} (Task {task_id}): Trajectory is not a list. Skipping.")
+            recovery_ids.append("[]")
+            continue
         
-        # Identify recovery segments for this trajectory
-        recovery_segments = identify_recovery_segments(trajectory)
+        segments = identify_recovery_segments(trajectory)
+        recovery_ids.append(json.dumps(segments))
         
-        # Create recovery segment ID string
-        if recovery_segments:
-            segment_ids = [seg['segment_id'] for seg in recovery_segments]
-            recovery_segment_id = ','.join(segment_ids)
-        else:
-            recovery_segment_id = ''
-        
-        recovery_segment_ids.append(recovery_segment_id)
+        if idx % 100 == 0:
+            logger.info(f"Processed {idx}/{len(df)} rows...")
     
-    # Add recovery_segment_id column
-    df['recovery_segment_id'] = recovery_segment_ids
+    df['recovery_segment_id'] = recovery_ids
     
-    logger.info(f"Processed {len(df)} baseline trajectories with recovery tags")
-    return df
+    logger.info(f"Writing updated logs to {output_path}...")
+    df.to_csv(output_path, index=False)
+    logger.info("Done.")
 
 def main():
-    """Main entry point for T014 execution."""
-    import sys
-    from pathlib import Path
+    """Entry point for T014 execution."""
+    import json # Import here to avoid circular if needed, though not used in top level
     
-    baseline_path = Path(__file__).parent.parent.parent / "data" / "processed" / "baseline_execution_logs.csv"
-    output_path = Path(__file__).parent.parent.parent / "data" / "processed" / "baseline_execution_logs.csv"
+    # Define paths relative to project root
+    # Assuming script runs from project root or code/
+    base_dir = Path(__file__).resolve().parent.parent
+    input_path = base_dir / "data" / "processed" / "baseline_execution_logs.csv"
+    output_path = base_dir / "data" / "processed" / "baseline_execution_logs.csv" # Overwrite or save to new? Task says "Update"
     
-    if not baseline_path.exists():
-        print(f"Error: Baseline logs not found at {baseline_path}")
-        sys.exit(1)
+    # If the task implies creating a new file, we might rename, but "Update" implies in-place or overwrite.
+    # To be safe, we write to the same path.
     
-    result_df = process_baseline_logs_with_recovery_tags(str(baseline_path))
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
     
-    if result_df is not None:
-        result_df.to_csv(output_path, index=False)
-        print(f"Successfully processed and saved baseline logs with recovery tags to {output_path}")
-    else:
-        print("Failed to process baseline logs")
-        sys.exit(1)
+    try:
+        process_baseline_logs_with_recovery_tags(str(input_path), str(output_path))
+        logger.info("T014 Execution completed successfully.")
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error during T014 execution: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

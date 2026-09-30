@@ -4,23 +4,25 @@ import os
 import sys
 import random
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
-# Ensure the project root is in the path for imports if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def generate_state_mismatch(step_index: int) -> str:
+def generate_state_mismatch(step_index: int, context: Optional[str] = None) -> str:
     """
-    Generates a semantic contradiction string to be injected.
-    Matches the requirement: 'ERROR: State mismatch detected at step X'
+    Generates a semantic contradiction string for injection.
+    
+    Args:
+        step_index: The step index where the error is injected.
+        context: Optional context string (not used in this simple version but kept for API consistency).
+    
+    Returns:
+        A string representing a state mismatch error.
     """
     return f"ERROR: State mismatch detected at step {step_index}"
 
@@ -28,161 +30,135 @@ def inject_errors_into_trajectory(trajectory: Dict[str, Any]) -> Dict[str, Any]:
     """
     Injects a semantic contradiction into the last observation of a trajectory.
     
-    The task specifies modifying the 'observations' field.
-    We assume the trajectory structure contains a list of observations.
-    The injection happens at the **last observation** (index -1), 
-    which is the point immediately before the final success/failure state.
+    The error is appended to the last observation string, which represents the
+    state immediately before the final success/failure decision.
     
     Args:
-        trajectory: A dictionary representing a single trajectory from the dataset.
-                    Expected keys: 'observations' (List[str]), 'task_id', etc.
-                    
-    Returns:
-        Modified trajectory dictionary with injected error in the last observation.
-    """
-    if not trajectory:
-        raise ValueError("Trajectory cannot be empty")
-
-    if 'observations' not in trajectory:
-        logger.warning(f"Trajectory missing 'observations' key. Task ID: {trajectory.get('task_id', 'unknown')}")
-        # If no observations, we cannot inject into the last one. 
-        # We return the trajectory as is but log a warning.
-        # However, for strict adherence to T013, we might want to ensure we fail loudly 
-        # if the data structure is invalid for injection. 
-        # For now, we log and return.
-        return trajectory
-
-    observations = trajectory['observations']
+        trajectory: A dictionary representing a single trajectory with 'observations' key.
     
-    if not observations:
-        logger.warning(f"Observations list is empty. Task ID: {trajectory.get('task_id', 'unknown')}")
-        return trajectory
-
+    Returns:
+        The modified trajectory with the injected error.
+    
+    Raises:
+        ValueError: If 'observations' is missing or empty.
+    """
+    if "observations" not in trajectory:
+        raise ValueError("Trajectory missing 'observations' field")
+    
+    observations = trajectory["observations"]
+    if not observations or not isinstance(observations, list) or len(observations) == 0:
+        raise ValueError("Trajectory 'observations' must be a non-empty list")
+    
     # Identify the last observation index
     last_obs_index = len(observations) - 1
-    original_last_obs = observations[last_obs_index]
     
     # Generate the error string
-    error_string = generate_state_mismatch(last_obs_index)
+    error_msg = generate_state_mismatch(last_obs_index)
     
-    # Append the error to the existing observation
-    # The requirement says "Append a semantic contradiction string"
-    # We append to the end of the text to maintain context while adding the error signal.
-    new_observation = f"{original_last_obs}\n\n{error_string}"
+    # Append the error to the last observation
+    # We assume observations are strings. If they are dicts/objects, we might need to adjust.
+    # Based on the schema and typical trajectory logs, they are strings.
+    original_obs = observations[last_obs_index]
+    if not isinstance(original_obs, str):
+        original_obs = str(original_obs)
     
-    # Create a copy to avoid mutating the original source if it's shared, 
-    # though in a stream we often just build the new object.
+    # Inject the error
+    injected_obs = f"{original_obs} | {error_msg}"
+    
+    # Update the trajectory
     modified_trajectory = trajectory.copy()
-    modified_observations = observations.copy()
-    modified_observations[last_obs_index] = new_observation
-    modified_trajectory['observations'] = modified_observations
+    modified_trajectory["observations"] = observations.copy()
+    modified_trajectory["observations"][last_obs_index] = injected_obs
     
-    # Log the injection for traceability
-    logger.info(f"Injected error into Task ID {trajectory.get('task_id', 'unknown')} at observation index {last_obs_index}")
+    # Mark the injected error explicitly for verification
+    modified_trajectory["injected_error"] = error_msg
+    
+    logger.debug(f"Injected error '{error_msg}' at index {last_obs_index}")
     
     return modified_trajectory
 
 def main():
     """
-    Main entry point for T013.
-    Reads clean trajectories from data/processed/baseline_execution_logs.csv (T012 output),
-    injects errors, and writes to data/processed/injected_trajectories.jsonl.
+    Main entry point for T013: Error Injection.
+    Reads clean baseline execution logs (CSV or JSONL), injects errors,
+    and writes the result to data/processed/injected_trajectories.jsonl.
     """
-    input_path = Path("data/processed/baseline_execution_logs.csv")
-    output_path = Path("data/processed/injected_trajectories.jsonl")
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent
+    input_file = project_root / "data" / "processed" / "baseline_execution_logs.csv"
+    output_file = project_root / "data" / "processed" / "injected_trajectories.jsonl"
     
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("T012 (baseline execution) must be completed first to generate the input file.")
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        logger.error("Please ensure T012 has generated data/processed/baseline_execution_logs.csv")
         sys.exit(1)
-
-    logger.info(f"Starting error injection from {input_path} to {output_path}")
+    
+    logger.info(f"Reading clean trajectories from {input_file}")
     
     injected_count = 0
-    skipped_count = 0
+    error_count = 0
     
-    # We need to read the CSV, convert rows to trajectory dicts, inject, and write JSONL.
-    # The baseline execution logs from T012 are expected to contain the trajectory data.
-    # Assuming the CSV has columns like: task_id, success, trajectory (JSON string), ...
-    # Or it might be a flattened list of steps. 
-    # Given T012 description: "full trajectory", it likely stores the trajectory as a JSON string or a list of dicts.
-    # We will assume the CSV contains a 'trajectory' column that is a JSON string representation of the trajectory.
+    try:
+        import csv
+        with open(input_file, 'r', encoding='utf-8') as f_in:
+            reader = csv.DictReader(f_in)
+            
+            # Prepare output directory
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(output_file, 'w', encoding='utf-8') as f_out:
+                for row_idx, row in enumerate(reader):
+                    try:
+                        # Reconstruct trajectory object from CSV row
+                        # We expect the CSV to have columns: task_id, success, trajectory_json (or similar)
+                        # If the CSV stores observations as a JSON string in a column, we parse it.
+                        # If the CSV has flattened columns, we need to reconstruct.
+                        
+                        # Assumption based on T012 description: "full trajectory"
+                        # If the CSV has a 'trajectory' or 'observations' column as JSON string:
+                        if "observations" in row:
+                            try:
+                                obs_list = json.loads(row["observations"])
+                            except json.JSONDecodeError:
+                                # Fallback if it's a raw string representation or comma-separated
+                                # For robustness, treat as a single-item list if it's a string
+                                obs_list = [row["observations"]]
+                        else:
+                            # If no observations column, try to find a column that looks like trajectory data
+                            # Or skip if we can't reconstruct
+                            logger.warning(f"Row {row_idx} missing 'observations' column, skipping.")
+                            continue
+                        
+                        # Reconstruct the trajectory dict
+                        trajectory = {
+                            "task_id": row.get("task_id", f"unknown_{row_idx}"),
+                            "observations": obs_list,
+                            "success": row.get("success", False) == "True" if "success" in row else None,
+                            "actions": json.loads(row.get("actions", "[]")) if "actions" in row else []
+                        }
+                        
+                        # Inject error
+                        modified_trajectory = inject_errors_into_trajectory(trajectory)
+                        
+                        # Write as JSONL
+                        f_out.write(json.dumps(modified_trajectory) + "\n")
+                        injected_count += 1
+                        
+                    except Exception as e:
+                        logger.error(f"Error processing row {row_idx}: {e}")
+                        error_count += 1
+                        continue
     
-    import csv
-    
-    # Prepare output directory
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(input_path, 'r', encoding='utf-8') as infile, \
-         open(output_path, 'w', encoding='utf-8') as outfile:
-         
-         reader = csv.DictReader(infile)
-         
-         # Verify required columns exist
-         if 'trajectory' not in reader.fieldnames:
-             # Fallback: maybe the trajectory is split? Or maybe the whole row IS the trajectory?
-             # Based on T012 "full trajectory", it's most likely a JSON string in a column.
-             # If not, we try to reconstruct from other columns if they exist (observations, actions).
-             # But strict T012 output usually has a 'trajectory' column.
-             # Let's assume 'trajectory' is the column name. If not, we look for 'observations'.
-             if 'observations' in reader.fieldnames:
-                 # Reconstruct trajectory dict from CSV columns
-                 # This is a heuristic. If the CSV is flat, we might need to group.
-                 # However, T012 says "full trajectory", implying a nested structure or JSON string.
-                 # We will assume 'trajectory' column exists. If not, we raise error.
-                 raise ValueError("Input CSV must contain a 'trajectory' column (JSON string) or 'observations' column to reconstruct.")
-             else:
-                 raise ValueError(f"Input CSV missing expected 'trajectory' or 'observations' column. Found: {reader.fieldnames}")
-
-         for row_num, row in enumerate(reader):
-             try:
-                 # Parse the trajectory JSON
-                 if 'trajectory' in row:
-                     trajectory = json.loads(row['trajectory'])
-                 elif 'observations' in row:
-                     # Fallback: reconstruct minimal trajectory dict
-                     # This handles cases where T012 output might be flattened differently
-                     obs_list_str = row['observations']
-                     # If it's a JSON string
-                     if obs_list_str.startswith('['):
-                         obs_list = json.loads(obs_list_str)
-                     else:
-                         # Maybe it's a pipe-separated list? Or just a single string?
-                         # T012 "full trajectory" implies structure. 
-                         # We assume it's a JSON list of strings or dicts.
-                         # If it's a single string, we wrap it.
-                         obs_list = [obs_list_str]
-                     
-                     trajectory = {
-                         "task_id": row.get('task_id', f"unknown_{row_num}"),
-                         "observations": obs_list,
-                         "success": row.get('success', False)
-                     }
-                 else:
-                     continue
-                 
-                 # Inject error
-                 modified_trajectory = inject_errors_into_trajectory(trajectory)
-                 
-                 # Write to JSONL
-                 outfile.write(json.dumps(modified_trajectory, ensure_ascii=False) + '\n')
-                 injected_count += 1
-                 
-             except json.JSONDecodeError as e:
-                 logger.error(f"Failed to parse JSON in row {row_num}: {e}")
-                 skipped_count += 1
-             except Exception as e:
-                 logger.error(f"Unexpected error processing row {row_num}: {e}")
-                 skipped_count += 1
-
-    logger.info(f"Error injection complete. Injected: {injected_count}, Skipped: {skipped_count}")
-    logger.info(f"Output written to: {output_path}")
-    
-    # Verify output exists and is not empty
-    if output_path.exists() and output_path.stat().st_size > 0:
-        logger.info("Verification: Output file created successfully.")
-    else:
-        logger.error("Verification failed: Output file is missing or empty.")
+        logger.info(f"Injection complete. Processed {injected_count} trajectories, {error_count} errors.")
+        logger.info(f"Output written to {output_file}")
+        
+        # Verify output exists and is not empty
+        if not output_file.exists() or output_file.stat().st_size == 0:
+            logger.error("Output file is missing or empty!")
+            sys.exit(1)
+            
+    except Exception as e:
+        logger.exception(f"Fatal error during injection process: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

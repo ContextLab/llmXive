@@ -1,3 +1,2 @@
-"""
-Simulation package for spin system dynamics.
-"""
+# Simulation package initialization
+pass

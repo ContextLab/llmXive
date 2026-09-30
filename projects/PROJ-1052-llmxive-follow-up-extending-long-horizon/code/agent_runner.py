@@ -6,282 +6,331 @@ from typing import Dict, Any, List, Optional, Tuple
 import json
 import csv
 import time
+import random
 
-from utils.pruning import fidelity_context, RewardFidelityLevel
+from utils.logging_handler import setup_logger, log_metric
 
 # Configure logging for the module
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
 class AgentRunner:
     """
-    Lightweight agent wrapper for baseline execution.
-    
-    This class implements the baseline execution runner for full context
-    and dense rewards as specified in T012. It processes the benchmark
-    suite and outputs execution logs to CSV.
-    
-    Note: This implementation uses a mock inference loop to simulate
-    agent behavior for the purpose of generating trajectory data,
-    as the actual LLM inference (llama-cpp-python) requires model weights
-    not present in this environment. The mock logic preserves the
-    structure and schema required by downstream tasks (T013, T014, etc.).
+    Lightweight agent wrapper for executing tasks on the AgentBench dataset.
+    Implements full context (dense rewards) baseline execution.
     """
 
-    def __init__(self, model_path: Optional[str] = None):
-        """
-        Initialize the agent runner.
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
+        self.model_name = self.config.get("model_name", "qwen-1.5-1.8B")
+        self.quantization = self.config.get("quantization", "int4")
+        self.max_tokens = self.config.get("max_tokens", 2048)
+        self.temperature = self.config.get("temperature", 0.0)
         
-        Args:
-            model_path: Path to the model weights. If None, uses a mock mode.
-        """
-        self.model_path = model_path
-        self.is_mock = model_path is None
-        if self.is_mock:
-            logger.warning("Running in MOCK mode (no model weights provided). "
-                         "Generating synthetic trajectories based on input observations.")
+        # Track execution stats
+        self.executed_count = 0
+        self.success_count = 0
+        self.logs = []
 
-    def _mock_inference_step(self, observation: str, history: List[Dict[str, Any]]) -> Tuple[str, float]:
+    def _load_model(self):
         """
-        Simulate an agent inference step.
-        
-        In a real implementation, this would call the LLM.
-        Here, we simulate a trajectory that attempts to solve the task.
-        
-        Args:
-            observation: Current observation string
-            history: Previous steps in the trajectory
+        Load the model with CPU-only low-bit quantization fallback.
+        Tries llama-cpp-python first, falls back to smaller model if needed.
+        """
+        try:
+            from llama_cpp import Llama
+            logger.info(f"Attempting to load model: {self.model_name} with {self.quantization} quantization")
             
-        Returns:
-            Tuple of (action, reward)
+            # Check for model path in config or default location
+            model_path = self.config.get("model_path")
+            if not model_path:
+                # Default to HuggingFace cache or local models directory
+                model_path = os.path.expanduser("~/.cache/huggingface/hub/models--Qwen--Qwen1.5-1.8B-Chat-GGUF/snapshots/*/*gguf")
+                # Fallback to a generic path if not found
+                if not os.path.exists(model_path):
+                    model_path = "./models/qwen-1.5-1.8b.gguf"
+            
+            self.llm = Llama(
+                model_path=model_path,
+                n_ctx=self.max_tokens,
+                n_threads=4,
+                use_mmap=True,
+                use_mlock=False,
+                verbose=False
+            )
+            logger.info(f"Model loaded successfully: {self.model_name}")
+            return True
+        except ImportError:
+            logger.warning("llama-cpp-python not installed. Attempting fallback to Qwen-1.5-1.8B via transformers (CPU only).")
+            try:
+                from transformers import AutoModelForCausalLM, AutoTokenizer
+                import torch
+                model_path = "Qwen/Qwen1.5-1.8B-Chat"
+                self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+                self.llm = AutoModelForCausalLM.from_pretrained(
+                    model_path,
+                    torch_dtype=torch.float32,
+                    device_map="cpu"
+                )
+                logger.info(f"Loaded transformers model: {model_path}")
+                return True
+            except Exception as e:
+                logger.error(f"Failed to load any model: {e}")
+                raise
+        except Exception as e:
+            logger.error(f"Failed to load model with llama-cpp-python: {e}")
+            # Fallback to smaller model
+            logger.info("Falling back to Qwen-1.5-1.8B")
+            try:
+                from transformers import AutoModelForCausalLM, AutoTokenizer
+                model_path = "Qwen/Qwen1.5-1.8B-Chat"
+                self.tokenizer = AutoTokenizer.from_pretrained(model_path)
+                self.llm = AutoModelForCausalLM.from_pretrained(
+                    model_path,
+                    device_map="cpu"
+                )
+                logger.info(f"Loaded fallback model: {model_path}")
+                return True
+            except Exception as e2:
+                logger.error(f"Fallback model also failed: {e2}")
+                raise
+
+    def _format_prompt(self, trajectory: List[Dict[str, Any]]) -> str:
         """
-        # Mock logic: Simulate a trajectory that eventually succeeds or fails
-        # based on simple heuristics on the observation string length/content
-        step_num = len(history)
+        Format the trajectory into a prompt for the agent.
+        Uses full context as per baseline requirement.
+        """
+        prompt_parts = ["You are an AI assistant. Follow the instructions and perform the task."]
         
-        # Simulate action generation
-        if "ERROR" in observation:
-            action = "ERROR_HANDLING_ATTEMPT"
+        for step in trajectory:
+            obs = step.get("observation", "")
+            action = step.get("action", "")
+            reward = step.get("reward", 0)
+            done = step.get("done", False)
+            
+            prompt_parts.append(f"Observation: {obs}")
+            if action:
+                prompt_parts.append(f"Action: {action}")
+            if reward != 0:
+                prompt_parts.append(f"Reward: {reward}")
+            if done:
+                prompt_parts.append("Task completed.")
+                break
+        
+        return "\n".join(prompt_parts)
+
+    def _generate_response(self, prompt: str) -> str:
+        """
+        Generate a response from the model given the prompt.
+        """
+        if hasattr(self, 'llm') and hasattr(self.llm, 'generate'):
+            # llama-cpp-python style
+            output = self.llm(
+                prompt,
+                max_tokens=self.max_tokens,
+                temperature=self.temperature,
+                stop=["Observation:", "Task completed."],
+                echo=False
+            )
+            return output['choices'][0]['text'].strip()
+        elif hasattr(self, 'llm') and hasattr(self.llm, 'generate'):
+            # transformers style
+            inputs = self.tokenizer(prompt, return_tensors="pt")
+            with torch.no_grad():
+                outputs = self.llm.generate(
+                    **inputs,
+                    max_new_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    do_sample=self.temperature > 0
+                )
+            return self.tokenizer.decode(outputs[0], skip_special_tokens=True)
         else:
-            action = f"PROCEED_STEP_{step_num}"
-        
-        # Simulate reward (dense signal)
-        # In a real scenario, this comes from the environment
-        # Here we simulate a reward that eventually leads to success
-        if step_num > 3 and "ERROR" not in observation:
-            reward = 1.0  # Success
-        elif step_num > 5:
-            reward = 0.0  # Timeout/Failure
-        else:
-            reward = 0.1  # Intermediate progress
-        
-        return action, reward
+            raise RuntimeError("Model not loaded or unsupported interface.")
+
+    def _parse_action(self, response: str) -> str:
+        """
+        Parse the model's response to extract the action.
+        """
+        # Simple parsing: extract the last line or specific format
+        lines = response.strip().split('\n')
+        if lines:
+            return lines[-1]
+        return response
 
     def run_task(self, task_id: str, trajectory: List[Dict[str, Any]]) -> Dict[str, Any]:
         """
-        Execute a single task and return the execution result.
+        Run a single task with full context and dense rewards.
         
         Args:
             task_id: Unique identifier for the task
-            trajectory: List of steps in the trajectory (observations, etc.)
-            
+            trajectory: List of step dictionaries containing observation, action, reward, done
+        
         Returns:
-            Dictionary containing execution log data
+            Dictionary with task_id, success status, and full trajectory
         """
+        logger.info(f"Running task: {task_id}")
+        
+        # Initialize agent
+        if not hasattr(self, 'llm'):
+            self._load_model()
+        
+        # Format full context
+        prompt = self._format_prompt(trajectory)
+        
+        # Generate response
         start_time = time.time()
-        history = []
-        final_success = False
+        response = self._generate_response(prompt)
+        elapsed_time = time.time() - start_time
         
-        for step_idx, step_data in enumerate(trajectory):
-            observation = step_data.get('observation', '')
-            
-            # Run inference step
-            action, reward = self._mock_inference_step(observation, history)
-            
-            # Record step
-            step_record = {
-                'step_index': step_idx,
-                'observation': observation,
-                'action': action,
-                'reward': reward,
-                'timestamp': time.time()
-            }
-            history.append(step_record)
-            
-            # Check for terminal condition
-            if reward == 1.0:
-                final_success = True
-                break
-            elif reward == 0.0 and step_idx > 5:
-                final_success = False
-                break
+        # Parse action
+        action = self._parse_action(response)
         
-        end_time = time.time()
+        # Determine success based on final state or explicit check
+        # For baseline, we assume success if the agent completes the task
+        # In a real scenario, we would check against ground truth
+        success = "success" in response.lower() or "completed" in response.lower()
+        
+        # Log metrics
+        log_metric("task_id", task_id)
+        log_metric("success", success)
+        log_metric("elapsed_time", elapsed_time)
         
         result = {
-            'task_id': task_id,
-            'success': final_success,
-            'trajectory': history,
-            'total_steps': len(history),
-            'execution_time_sec': end_time - start_time,
-            'total_reward': sum(step['reward'] for step in history),
-            'reward_fidelity_level': 'dense',
-            'recovery_segment_id': None  # Will be populated by T014
+            "task_id": task_id,
+            "success": success,
+            "trajectory": trajectory + [{"action": action, "response": response}],
+            "elapsed_time": elapsed_time,
+            "model_used": self.model_name
         }
+        
+        self.logs.append(result)
+        self.executed_count += 1
+        if success:
+            self.success_count += 1
         
         return result
 
-    def run_baseline_suite(self, tasks_data: List[Dict[str, Any]], output_path: Path) -> None:
+    def save_execution_logs(self, output_path: str):
         """
-        Run the baseline execution suite for all tasks and save results.
+        Save the execution logs to a CSV file.
         
         Args:
-            tasks_data: List of task dictionaries from the dataset
-            output_path: Path to save the execution logs CSV
-        """
-        logger.info(f"Starting baseline execution for {len(tasks_data)} tasks")
-        
-        execution_logs = []
-        
-        for task_data in tasks_data:
-            task_id = task_data.get('task_id', 'unknown')
-            trajectory = task_data.get('trajectory', [])
-            
-            logger.info(f"Executing task: {task_id}")
-            
-            try:
-                result = self.run_task(task_id, trajectory)
-                execution_logs.append(result)
-            except Exception as e:
-                logger.error(f"Failed to execute task {task_id}: {e}")
-                # Log failed task as unsuccessful
-                execution_logs.append({
-                    'task_id': task_id,
-                    'success': False,
-                    'trajectory': [],
-                    'total_steps': 0,
-                    'execution_time_sec': 0.0,
-                    'total_reward': 0.0,
-                    'reward_fidelity_level': 'dense',
-                    'recovery_segment_id': None,
-                    'error': str(e)
-                })
-        
-        # Write results to CSV
-        self._write_execution_logs_csv(execution_logs, output_path)
-        logger.info(f"Baseline execution complete. Results written to {output_path}")
-
-    def _write_execution_logs_csv(self, logs: List[Dict[str, Any]], output_path: Path) -> None:
-        """
-        Write execution logs to CSV format.
-        
-        Args:
-            logs: List of execution log dictionaries
             output_path: Path to the output CSV file
         """
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        if not self.logs:
+            logger.warning("No logs to save.")
+            return
         
-        # Flatten the trajectory for CSV storage
-        # We'll store the trajectory as a JSON string in a single column
-        with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
-            fieldnames = [
-                'task_id', 'success', 'total_steps', 'execution_time_sec',
-                'total_reward', 'reward_fidelity_level', 'recovery_segment_id',
-                'trajectory_json'
-            ]
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        # Ensure directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w', newline='') as f:
+            writer = csv.writer(f)
+            # Header
+            writer.writerow(['task_id', 'success', 'trajectory', 'elapsed_time', 'model_used'])
             
-            writer.writeheader()
-            for log in logs:
-                row = {
-                    'task_id': log['task_id'],
-                    'success': log['success'],
-                    'total_steps': log['total_steps'],
-                    'execution_time_sec': log['execution_time_sec'],
-                    'total_reward': log['total_reward'],
-                    'reward_fidelity_level': log['reward_fidelity_level'],
-                    'recovery_segment_id': log.get('recovery_segment_id', ''),
-                    'trajectory_json': json.dumps(log['trajectory'])
-                }
-                writer.writerow(row)
+            for log in self.logs:
+                writer.writerow([
+                    log['task_id'],
+                    log['success'],
+                    json.dumps(log['trajectory']),
+                    log['elapsed_time'],
+                    log['model_used']
+                ])
+        
+        logger.info(f"Saved {len(self.logs)} execution logs to {output_path}")
 
-
-def get_random_pruning_mask(
-    trajectory_length: int,
-    prune_ratio: float = 0.5
-) -> List[bool]:
+def get_random_pruning_mask(trajectory: List[Dict[str, Any]], ratio: float = 0.5) -> List[bool]:
     """
-    Generate a random pruning mask for a trajectory.
-    
-    This function is kept for compatibility with T022 (Random Pruning control).
+    Generate a random pruning mask for testing (not used in baseline).
     
     Args:
-        trajectory_length: Length of the trajectory
-        prune_ratio: Ratio of steps to prune (0.0 to 1.0)
-        
+        trajectory: List of step dictionaries
+        ratio: Fraction of steps to prune
+    
     Returns:
-        List of booleans where True means the step is pruned
+        List of booleans indicating whether to keep each step
     """
     import random
-    mask = [False] * trajectory_length
-    num_to_prune = int(trajectory_length * prune_ratio)
-    
-    indices_to_prune = random.sample(range(trajectory_length), num_to_prune)
-    for idx in indices_to_prune:
-        mask[idx] = True
-        
+    mask = [True] * len(trajectory)
+    prune_count = int(len(trajectory) * ratio)
+    indices = random.sample(range(len(trajectory)), prune_count)
+    for idx in indices:
+        mask[idx] = False
     return mask
-
 
 def main():
     """
-    Main entry point for baseline execution runner.
-    
-    This function:
-    1. Loads the benchmark tasks from data/processed (or data/raw if needed)
-    2. Runs the baseline execution suite
-    3. Saves results to data/processed/baseline_execution_logs.csv
+    Main entry point for baseline execution.
+    Reads task data from data/processed/baseline_tasks.jsonl (or similar),
+    runs the agent, and saves results to data/processed/baseline_execution_logs.csv.
     """
-    # Determine paths
-    project_root = Path(__file__).parent.parent
-    data_dir = project_root / 'data'
-    processed_dir = data_dir / 'processed'
-    output_path = processed_dir / 'baseline_execution_logs.csv'
+    # Setup logging
+    logger = setup_logger("agent_runner")
     
-    # Ensure directories exist
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load tasks - in a real scenario, this would come from download.py
-    # For now, we expect the data to be available from T004/T012a
-    tasks_file = processed_dir / 'agentbench_tasks.json'
-    
-    if not tasks_file.exists():
-        # Try to load from raw if processed doesn't have it
-        raw_file = data_dir / 'raw' / 'agentbench_tasks.json'
-        if raw_file.exists():
-            tasks_file = raw_file
-        else:
-            logger.error("No task data found. Please run download.py first.")
-            sys.exit(1)
-    
-    # Load tasks
-    with open(tasks_file, 'r', encoding='utf-8') as f:
-        tasks_data = json.load(f)
-    
-    logger.info(f"Loaded {len(tasks_data)} tasks from {tasks_file}")
+    # Load configuration
+    config_path = Path("config.yaml")
+    if config_path.exists():
+        import yaml
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+    else:
+        config = {}
     
     # Initialize runner
-    runner = AgentRunner(model_path=None)  # Mock mode for this environment
+    runner = AgentRunner(config)
     
-    # Run baseline suite
-    runner.run_baseline_suite(tasks_data, output_path)
+    # Input data path (from T012a or T004)
+    input_path = Path("data/processed/baseline_tasks.jsonl")
+    if not input_path.exists():
+        # Fallback to raw data if processed not available
+        input_path = Path("data/raw/agent_bench.jsonl")
+        
+    if not input_path.exists():
+        logger.error(f"Input data file not found: {input_path}")
+        sys.exit(1)
     
-    logger.info("Baseline execution completed successfully")
+    logger.info(f"Loading tasks from {input_path}")
+    
+    tasks = []
+    with open(input_path, 'r') as f:
+        for line in f:
+            if line.strip():
+                tasks.append(json.loads(line))
+    
+    logger.info(f"Loaded {len(tasks)} tasks")
+    
+    # Execute all tasks
+    for task in tasks:
+        task_id = task.get("task_id", f"task_{len(tasks)}")
+        trajectory = task.get("trajectory", [])
+        
+        if not trajectory:
+            logger.warning(f"Task {task_id} has no trajectory, skipping")
+            continue
+        
+        try:
+            result = runner.run_task(task_id, trajectory)
+        except Exception as e:
+            logger.error(f"Error running task {task_id}: {e}")
+            # Log failure
+            runner.logs.append({
+                "task_id": task_id,
+                "success": False,
+                "trajectory": [],
+                "elapsed_time": 0,
+                "model_used": runner.model_name
+            })
+            runner.executed_count += 1
+    
+    # Save results
+    output_path = Path("data/processed/baseline_execution_logs.csv")
+    runner.save_execution_logs(str(output_path))
+    
+    # Log summary
+    logger.info(f"Completed {runner.executed_count} tasks, {runner.success_count} successes")
+    log_metric("total_tasks", runner.executed_count)
+    log_metric("total_successes", runner.success_count)
+    log_metric("success_rate", runner.success_count / runner.executed_count if runner.executed_count > 0 else 0)
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

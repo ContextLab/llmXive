@@ -1,23 +1,21 @@
-"""
-Quota checker for stratified sampling.
-"""
+import logging
+from typing import Dict, List, Optional
 
-from typing import Dict, Any
+logger = logging.getLogger(__name__)
 
-
-def check_quotas(current_counts: Dict[str, int], target_counts: Dict[str, int]) -> bool:
+def check_quota_status(current_counts: Dict[str, int], target_counts: Dict[str, int], tolerance: float = 0.0) -> Dict[str, bool]:
     """
-    Check if all bin quotas are met.
-    
-    Args:
-        current_counts: Current counts per bin.
-        target_counts: Target counts per bin.
-    
-    Returns:
-        True if all targets are met (current >= target), False otherwise.
+    Check if quotas for each bin are met.
+    Returns a dictionary of bin -> status (True if quota met).
     """
-    for bin_id, target in target_counts.items():
-        current = current_counts.get(bin_id, 0)
-        if current < target:
-            return False
-    return True
+    status = {}
+    for bin_label, target in target_counts.items():
+        current = current_counts.get(bin_label, 0)
+        # Allow tolerance
+        required = target * (1 - tolerance)
+        status[bin_label] = current >= required
+        if not status[bin_label]:
+            logger.debug(f"Quota not met for {bin_label}: {current}/{target}")
+        else:
+            logger.debug(f"Quota met for {bin_label}: {current}/{target}")
+    return status

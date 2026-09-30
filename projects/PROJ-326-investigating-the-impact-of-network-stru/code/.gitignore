@@ -20,19 +20,24 @@ wheels/
 .installed.cfg
 *.egg
 
-# Data
-data/
-paper/
+# Virtual Environment
+venv/
+ENV/
+env/
 
 # IDE
 .idea/
 .vscode/
-*.swp
-*.swo
+
+# Data
+data/
+paper/
+state/
+
+# Logs
+*.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Logs
-*.log

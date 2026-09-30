@@ -1,339 +1,229 @@
-"""
-Batch Runner for Network Topology Generation.
-
-Orchestrates the generation of synthetic spin network datasets across different
-topology classes (Erdős-Rényi, Watts-Strogatz, Barabási-Albert), enforcing
-connectivity constraints, retry logic, and global success rate monitoring.
-"""
-
 import json
 import logging
+import time
 import os
 import sys
-import time
-from datetime import datetime, timezone
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import networkx as nx
 
-# Import from local project structure
-from code.src.utils.config import load_config, get_global_config
-from code.src.utils.logging import log_metric, init_logging
+from code.src.utils.config import load_config, set_seed
+from code.src.utils.logging import log_metric, log_run, init_logging
 from code.src.generators.base import BaseGenerator
 from code.src.generators.er import ErdosRenyiGenerator
 from code.src.generators.sw import WattsStrogatzGenerator
 from code.src.generators.sf import BarabasiAlbertGenerator
-from code.src.generators.metrics import compute_graph_metrics
-from code.src.generators.metadata import save_graph_metadata
-from code.src.generators.binning import classify_graph_bin
-from code.src.generators.quota_checker import check_quota_status, update_quota
-from code.src.generators.manifest_updater import update_manifest
+from code.src.generators.metrics import extract_metrics
+from code.src.generators.binning import classify_graph
+from code.src.generators.quota_checker import check_quota_status
 
 # Constants
-DEFAULT_MAX_RETRIES = 10
-DEFAULT_SUCCESS_RATE_THRESHOLD = 0.95
-LOG_FILE_PATH = "data/run_log.json"
-MANIFEST_PATH = "data/raw/global_batch_manifest.json"
-
-logger = logging.getLogger(__name__)
-
-
-class BatchGenerationError(Exception):
-    """Custom exception for batch generation failures."""
-    pass
-
+MANIFEST_PATH = Path("data/raw/global_batch_manifest.json")
+LOG_FILE_PATH = Path("data/run_log.json")
+BATCH_SIZE_DEFAULT = 10
 
 class GlobalSuccessRateMonitor:
     """
-    Monitors the global success rate of graph generation across the entire batch.
-    Enforces the requirement that >=95% of graphs must be valid connected graphs
-    within the configured retry limit.
+    Tracks failed attempts per graph and global success rate.
+    Enforces the "≥95% valid connected graphs within 10 attempts" edge case logic.
     """
 
-    def __init__(self, config: Dict[str, Any]):
-        self.config = config
-        self.thresholds = config.get("thresholds", {})
-        self.success_rate_min = self.thresholds.get(
-            "success_rate_min", DEFAULT_SUCCESS_RATE_THRESHOLD
-        )
-        self.max_attempts = self.config.get("simulation_params", {}).get(
-            "max_generation_attempts", DEFAULT_MAX_RETRIES
-        )
+    def __init__(self, min_success_rate: float = 0.95, max_attempts: int = 10):
+        self.min_success_rate = min_success_rate
+        self.max_attempts = max_attempts
+        self.total_generated = 0
+        self.total_valid = 0
+        self.failed_attempts_per_graph: Dict[str, int] = {}
+        self.graph_successes: Dict[str, int] = {}
+        self.batch_failed = False
+        self.critical_error_message = ""
 
-        self.total_attempts = 0
-        self.total_successes = 0
-        self.total_failures = 0
-        self.failed_graphs: List[Dict[str, Any]] = []
-        self.successful_graphs: List[Dict[str, Any]] = []
+    def record_attempt(self, graph_id: str, success: bool) -> None:
+        """Record an attempt for a specific graph."""
+        if graph_id not in self.failed_attempts_per_graph:
+            self.failed_attempts_per_graph[graph_id] = 0
+            self.graph_successes[graph_id] = 0
 
-    def record_attempt(self, graph_id: str, success: bool, graph: Optional[nx.Graph] = None):
-        """Record a generation attempt result."""
-        self.total_attempts += 1
         if success:
-            self.total_successes += 1
-            if graph:
-                self.successful_graphs.append({
-                    "graph_id": graph_id,
-                    "node_count": graph.number_of_nodes(),
-                    "edge_count": graph.number_of_edges(),
-                    "timestamp": datetime.now(timezone.utc).isoformat()
-                })
+            self.total_valid += 1
+            self.graph_successes[graph_id] += 1
         else:
-            self.total_failures += 1
-            self.failed_graphs.append({
-                "graph_id": graph_id,
-                "attempts": self.max_attempts,
-                "reason": "Max retries exceeded (disconnected)",
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            })
+            self.failed_attempts_per_graph[graph_id] += 1
 
-    def get_current_success_rate(self) -> float:
-        """Calculate current success rate."""
-        if self.total_attempts == 0:
-            return 1.0
-        return self.total_successes / self.total_attempts
+        self.total_generated += 1
 
-    def check_threshold(self) -> Tuple[bool, str]:
+    def check_enforcement(self) -> bool:
         """
-        Check if the current success rate meets the minimum threshold.
-        Returns (is_valid, message).
+        Check if the success rate meets the threshold.
+        Returns True if enforcement is violated (rate < min).
         """
-        rate = self.get_current_success_rate()
-        if rate < self.success_rate_min:
-            msg = (
-                f"CRITICAL: Global success rate {rate:.2%} is below threshold "
-                f"{self.success_rate_min:.2%}. "
-                f"Total attempts: {self.total_attempts}, Successes: {self.total_successes}, "
-                f"Failures: {self.total_failures}. "
-                f"Failed graphs: {[g['graph_id'] for g in self.failed_graphs]}"
+        if self.total_generated == 0:
+            return False
+
+        current_rate = self.total_valid / self.total_generated
+        if current_rate < self.min_success_rate:
+            self.batch_failed = True
+            self.critical_error_message = (
+                f"Global success rate ({current_rate:.2%}) dropped below "
+                f"threshold ({self.min_success_rate:.2%}) after exhausting retries."
             )
-            return False, msg
-        return True, "Success rate within acceptable limits."
+            return True
+        return False
 
-    def log_final_metrics(self):
-        """Log final success rate metrics to the run log."""
-        rate = self.get_current_success_rate()
-        log_metric({
-            "event_type": "generation_summary",
-            "run_id": "batch_generation",
-            "seed": self.config.get("global_seed", 42),
-            "status": "completed" if rate >= self.success_rate_min else "critical_error",
-            "duration_seconds": 0.0, # Duration tracked per graph, summary is instantaneous
-            "metrics": {
-                "total_attempts": self.total_attempts,
-                "total_successes": self.total_successes,
-                "total_failures": self.total_failures,
-                "success_rate": rate,
-                "threshold": self.success_rate_min
-            }
-        })
-
+    def get_status(self) -> Dict[str, Any]:
+        """Return current status summary."""
+        rate = self.total_valid / self.total_generated if self.total_generated > 0 else 0.0
+        return {
+            "total_generated": self.total_generated,
+            "total_valid": self.total_valid,
+            "success_rate": rate,
+            "min_required": self.min_success_rate,
+            "batch_failed": self.batch_failed,
+            "critical_error": self.critical_error_message,
+            "failed_attempts_per_graph": self.failed_attempts_per_graph,
+        }
 
 def generate_single_graph(
-    generator_class: type,
-    graph_id: str,
-    params: Dict[str, Any],
-    max_retries: int
-) -> Tuple[Optional[nx.Graph], bool, int]:
+    generator: BaseGenerator, graph_id: str, max_attempts: int
+) -> Tuple[Optional[nx.Graph], bool]:
     """
-    Attempt to generate a single connected graph using the specified generator.
-    Returns (graph, success, attempts_used).
+    Attempt to generate a single connected graph.
+    Returns (graph, success).
     """
-    generator = generator_class()
-    attempts = 0
-    graph = None
-    success = False
-
-    for attempt in range(1, max_retries + 1):
-        attempts += 1
+    for attempt in range(max_attempts):
         try:
-            graph = generator.generate(params)
-            if nx.is_connected(graph):
-                success = True
-                break
-            else:
-                logger.warning(f"Graph {graph_id} attempt {attempt}: Disconnected. Retrying...")
+            # Generate graph
+            graph = generator.generate()
+            if graph is None:
+                continue
+
+            # Check connectivity
+            if not nx.is_connected(graph):
+                continue
+
+            # Success
+            return graph, True
         except Exception as e:
-            logger.warning(f"Graph {graph_id} attempt {attempt} failed with error: {e}. Retrying...")
-            graph = None
+            logging.warning(f"Attempt {attempt+1} failed for {graph_id}: {e}")
+            continue
 
-    return graph, success, attempts
+    return None, False
 
-
-def run_batch_generation(config_path: Optional[str] = None):
+def run_batch_generation(config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Main orchestration logic for batch generation.
-    1. Loads config.
-    2. Iterates over topology classes.
-    3. Generates graphs with retry logic.
-    4. Tracks global success rate.
-    5. Fails if global success rate < threshold.
-    6. Writes manifest and logs metrics.
+    Orchestrate the batch generation process with global success rate monitoring.
     """
-    # Initialize logging
     init_logging()
-    logger.info("Starting batch generation pipeline.")
+    seed = config.get("global_seed", 42)
+    set_seed(seed)
 
-    # Load configuration
-    if config_path:
-        config = load_config(config_path)
-    else:
-        config = load_config()
+    topology_targets = config.get("topology_targets", [])
+    batch_size = config.get("batch_size", BATCH_SIZE_DEFAULT)
+    max_attempts = config.get("thresholds", {}).get("max_attempts_per_graph", 10)
+    min_success_rate = config.get("thresholds", {}).get("success_rate_min", 0.95)
 
-    # Initialize Monitor
-    monitor = GlobalSuccessRateMonitor(config)
-
-    # Define topology classes and their generators/params
-    # This structure can be extended based on config.yaml topology_targets
-    topology_classes = [
-        {
-            "name": "erdos_renyi",
-            "generator": ErdosRenyiGenerator,
-            "params": {"n": 30, "p": 0.1}
-        },
-        {
-            "name": "watts_strogatz",
-            "generator": WattsStrogatzGenerator,
-            "params": {"n": 30, "k": 4, "p": 0.3}
-        },
-        {
-            "name": "barabasi_albert",
-            "generator": BarabasiAlbertGenerator,
-            "params": {"n": 30, "m": 2}
-        }
-    ]
-
-    # Override with config if specified
-    if "topology_targets" in config:
-        topology_classes = config["topology_targets"]
-
-    all_generated_graphs = []
-    max_attempts = config.get("simulation_params", {}).get("max_generation_attempts", DEFAULT_MAX_RETRIES)
-
-    logger.info(f"Generating graphs with max attempts: {max_attempts}")
-
-    # Iterate over topology classes
-    for topo in topology_classes:
-        name = topo["name"]
-        gen_class = topo["generator"]
-        params = topo.get("params", {})
-        count = topo.get("count", 1)
-
-        logger.info(f"Processing {count} graphs for topology: {name}")
-
-        for i in range(count):
-            graph_id = f"{name}_{i+1}"
-            start_time = time.time()
-
-            graph, success, attempts_used = generate_single_graph(
-                gen_class, graph_id, params, max_attempts
-            )
-
-            duration = time.time() - start_time
-
-            # Record in monitor
-            monitor.record_attempt(graph_id, success, graph)
-
-            if success:
-                # Compute metrics
-                metrics = compute_graph_metrics(graph)
-                
-                # Save metadata
-                save_graph_metadata(graph_id, {
-                    "algorithm": name,
-                    "params": params,
-                    "seed": config.get("global_seed"),
-                    "metrics": metrics,
-                    "attempts": attempts_used,
-                    "duration_seconds": duration
-                })
-
-                # Add to batch list
-                all_generated_graphs.append({
-                    "graph_id": graph_id,
-                    "topology": name,
-                    "metrics": metrics,
-                    "params": params,
-                    "success": True
-                })
-
-                # Update quota/binning if applicable
-                bin_name = classify_graph_bin(metrics.get("clustering_coefficient", 0.0), config)
-                update_quota(bin_name, config)
-                
-                # Log graph generated event
-                log_metric({
-                    "event_type": "graph_generated",
-                    "run_id": "batch_generation",
-                    "seed": config.get("global_seed"),
-                    "status": "success",
-                    "duration_seconds": duration,
-                    "graph_id": graph_id,
-                    "topology": name
-                })
-            else:
-                logger.error(f"Failed to generate valid connected graph for {graph_id} after {attempts_used} attempts.")
-                # Log failure
-                log_metric({
-                    "event_type": "graph_generated",
-                    "run_id": "batch_generation",
-                    "seed": config.get("global_seed"),
-                    "status": "failed",
-                    "duration_seconds": duration,
-                    "graph_id": graph_id,
-                    "topology": name,
-                    "reason": "Max retries exceeded"
-                })
-
-    # Final Success Rate Check
-    is_valid, message = monitor.check_threshold()
-    monitor.log_final_metrics()
-
-    if not is_valid:
-        logger.critical(message)
-        raise BatchGenerationError(message)
-
-    logger.info(message)
-
-    # Write Manifest
-    manifest = {
-        "batch_id": "batch_001",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "config_snapshot": config,
-        "total_graphs": len(all_generated_graphs),
-        "success_rate": monitor.get_current_success_rate(),
-        "graphs": all_generated_graphs
+    generators_map = {
+        "erdos_renyi": ErdosRenyiGenerator,
+        "watts_strogatz": WattsStrogatzGenerator,
+        "barabasi_albert": BarabasiAlbertGenerator,
     }
 
-    manifest_path = Path(MANIFEST_PATH)
-    manifest_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(manifest_path, "w", encoding="utf-8") as f:
+    monitor = GlobalSuccessRateMonitor(
+        min_success_rate=min_success_rate, max_attempts=max_attempts
+    )
+
+    results = []
+    run_id = f"batch_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+
+    logging.info(f"Starting batch generation with seed {seed} and run_id {run_id}")
+
+    for topology in topology_targets:
+        if topology not in generators_map:
+            logging.warning(f"Unknown topology target: {topology}")
+            continue
+
+        generator_class = generators_map[topology]
+        generator = generator_class(config=config)
+
+        for i in range(batch_size):
+            graph_id = f"{topology}_{i+1}"
+            start_time = time.time()
+            graph, success = generate_single_graph(generator, graph_id, max_attempts)
+            duration = time.time() - start_time
+
+            monitor.record_attempt(graph_id, success)
+
+            if success:
+                metrics = extract_metrics(graph)
+                bin_label = classify_graph(metrics["clustering_coefficient"], config)
+                result_entry = {
+                    "graph_id": graph_id,
+                    "topology": topology,
+                    "nodes": list(graph.nodes()),
+                    "edges": list(graph.edges()),
+                    "metrics": metrics,
+                    "bin_label": bin_label,
+                    "success": True,
+                    "duration_seconds": duration,
+                }
+                results.append(result_entry)
+                log_run(
+                    run_id=run_id,
+                    seed=seed,
+                    status="success",
+                    duration_seconds=duration,
+                    event_type="graph_generated",
+                )
+            else:
+                log_run(
+                    run_id=run_id,
+                    seed=seed,
+                    status="failed",
+                    duration_seconds=duration,
+                    event_type="graph_generated",
+                )
+                logging.error(f"Failed to generate valid graph for {graph_id} after {max_attempts} attempts")
+
+    # Final Enforcement Check
+    if monitor.check_enforcement():
+        logging.critical(monitor.critical_error_message)
+        # Log the critical failure to the run log
+        log_run(
+            run_id=run_id,
+            seed=seed,
+            status="critical_failure",
+            duration_seconds=0.0,
+            event_type="simulation_end", # Using end event to mark batch stop
+        )
+        raise RuntimeError(monitor.critical_error_message)
+
+    # Write Manifest
+    MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
+    manifest = {
+        "run_id": run_id,
+        "seed": seed,
+        "timestamp": datetime.now().isoformat(),
+        "total_graphs": len(results),
+        "success_rate": monitor.get_status()["success_rate"],
+        "results": results,
+    }
+
+    with open(MANIFEST_PATH, "w") as f:
         json.dump(manifest, f, indent=2)
 
-    logger.info(f"Manifest written to {MANIFEST_PATH}")
-
+    logging.info(f"Batch generation complete. Manifest written to {MANIFEST_PATH}")
     return manifest
 
-
 def main():
-    """Entry point for the batch runner script."""
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run batch generation of network topologies.")
-    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file.")
-    args = parser.parse_args()
-
+    """Main entry point for batch generation."""
+    config = load_config()
     try:
-        run_batch_generation(args.config)
-        logger.info("Batch generation completed successfully.")
-    except BatchGenerationError as e:
-        logger.error(f"Batch generation failed: {e}")
-        sys.exit(1)
+        run_batch_generation(config)
     except Exception as e:
-        logger.exception(f"Unexpected error during batch generation: {e}")
+        logging.error(f"Batch generation failed: {e}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()
