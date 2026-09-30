@@ -1,0 +1,3 @@
+"""
+Configuration data package.
+"""

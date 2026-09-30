@@ -13,7 +13,7 @@ This feature implements a rigorous experimental pipeline to validate the "Hybrid
 **Primary Dependencies**: `transformers` (CPU-quantized), `llama-cpp-python`, `datasets`, `scikit-learn`, `scipy`, `pandas`, `numpy`, `tiktoken`, `hypothesis`  
 **Storage**: Local file system (`data/` for raw/derived, `artifacts/` for logs/results)  
 **Testing**: `pytest` with `hypothesis` (strategies derived from JSON schemas in `contracts/`)  
-**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPU, sufficient RAM)  
 **Project Type**: Data Science / Experimental Research Pipeline  
 **Performance Goals**: Complete full experiment (chars × 50 probes × conditions) within 6 hours on CPU.  
 **Constraints**: No GPU access (CPU-only); models must be quantized (low-bit) to fit constrained RAM resources.  

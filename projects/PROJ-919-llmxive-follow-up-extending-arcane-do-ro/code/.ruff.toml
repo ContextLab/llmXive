@@ -1,32 +1,21 @@
+# Extended configuration for Ruff
+# Inherits from pyproject.toml but can override specific settings
+
 [lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-    "UP",  # pyupgrade
-    "S",   # flake8-bandit (security)
-    "RUF", # Ruff-specific rules
+# Additional rules to enforce
+extend-select = [
+    "ANN", # flake8-annotations (type hints)
+    "SIM", # flake8-simplify
+    "TCH", # flake8-type-checking
 ]
+
+# Ignore specific annotation rules for dynamic code areas
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "S101", # use of assert (acceptable in tests)
+    "ANN002", # Missing type annotation for *args
+    "ANN003", # Missing type annotation for **kwargs
+    "ANN204", # Missing return type annotation for special method
 ]
 
-[lint.per-file-ignores]
-"tests/*" = ["S101", "T201"] # Allow asserts and print in tests
-"scripts/*" = ["T201"]       # Allow print in scripts
-
-[lint.isort]
-known-first-party = ["src", "tests", "scripts", "setup_data_dirs", "setup_project_structure"]
-force-single-line = true
-lines-after-imports = 2
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.flake8-annotations]
+allow-star-arg-any = true
+ignore-fully-untyped = true

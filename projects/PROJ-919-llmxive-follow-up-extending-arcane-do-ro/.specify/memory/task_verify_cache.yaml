@@ -1,18 +1,17 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory listings or file listings were provided showing the required `src/`,
-    `tests/`, `data/`, and `specs/001-gene-regulation/` folders. Without concrete
-    evidence that these folders exist and contain any content, the claim that the
-    project structure was created cannot be verified. The implementer must supply
-    a directory tree or file list confirming the presence of the specified folders.
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black
-    settings, `.ruff.toml`, or a `requirements-dev.txt` including these tools) or
-    setup scripts are present in the provided evidence. Without such artifacts, the
-    task of configuring ruff and black cannot be verified as completed.
+  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
+    `.pre-commit-config.yaml` with black/ruff hooks) were presented, nor any evidence
+    that ruff and black have been set up and run. The required artifacts are missing,
+    so the task is not satisfied.
+T009a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer only supplied narrative user\u2011story specifications and no\
+    \ concrete dataset; there is no file, table, JSON, or any other artifact containing\
+    \ 20 human\u2011annotated character behaviors, nor any description of how it was\
+    \ generated reproducibly. The required Gold Standard dataset is missing."
 T021:
   c: false
   h: fdd80b2531e217677d26adb7c3174974b373d4471686af25e7b42bcffcdadb08
@@ -21,3 +20,20 @@ T021:
     \ snippet shows no implementation of the \u201CGeneration Limit Exceeded\u201D\
     \ error handling (logging, proceeding with \u226550 probes, or marking the character\
     \ invalid). Both the artifact and the required behavior are missing."
+T037a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the file `specs/001-llmxive-follow-up-extending-arcane-do-ro/quickstart.md`
+    being present or containing the required updates (new CLI flags from T036 and
+    data formats from T010) was provided. The implementer must supply the updated
+    markdown file showing the added sections.
+T049:
+  c: false
+  h: 62316bcbdac34810dbe9e1112c02968feb33edcda9e798ea2cf41c11783b62e6
+  r: "The repository contains a non\u2011empty `src/lib/stream_loader.py` that implements\
+    \ manual JSONL streaming and batching, satisfying the core implementation requirement.\
+    \ However, there is no evidence that T019 imports or uses this module, and the\
+    \ required data file `data/raw/arcane_corpus.jsonl` is missing, so the integration\
+    \ constraint is unmet. The next implementer should ensure T019 references `stream_loader.py`\
+    \ (e.g., via an import) and that the expected large file exists or is mocked for\
+    \ testing."

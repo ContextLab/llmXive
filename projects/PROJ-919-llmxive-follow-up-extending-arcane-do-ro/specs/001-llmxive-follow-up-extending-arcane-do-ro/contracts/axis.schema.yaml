@@ -1,41 +1,51 @@
-# Schema for Character Axis Definitions
-# This file defines the YAML structure for both Coarse and Fine Character Axis objects.
-# Used by the axis generator and validation services.
-
-Coarse:
-  type: object
-  required:
-    - character
-    - axis_name
-    - description
-  properties:
-    character:
-      type: string
-      description: "The name of the character being analyzed."
-    axis_name:
-      type: string
-      description: "The name of the psychological or behavioral axis."
-    description:
-      type: string
-      description: "A high-level description of the axis."
-
-Fine:
-  type: object
-  required:
-    - character
-    - axis_name
-    - description
-    - source_observation
-  properties:
-    character:
-      type: string
-      description: "The name of the character being analyzed."
-    axis_name:
-      type: string
-      description: "The name of the specific behavioral or psychological axis."
-    description:
-      type: string
-      description: "A detailed description of the axis."
-    source_observation:
-      type: string
-      description: "A specific observation or quote from the source text that supports this axis definition."
+$schema: http://json-schema.org/draft-07/schema#
+$id: https://llmxive.org/schemas/axis-definition
+title: Character Axis Definition
+description: >
+  JSON Schema for defining Coarse and Fine character psychological axes.
+  Used to validate input from researchers before processing.
+type: object
+properties:
+  coarse:
+    type: object
+    description: High-level character trait definition.
+    properties:
+      character:
+        type: string
+        description: Name of the character.
+      axis_name:
+        type: string
+        description: Name of the psychological axis.
+      description:
+        type: string
+        description: High-level description of the axis.
+    required:
+      - character
+      - axis_name
+      - description
+  fine:
+    type: object
+    description: Detailed, observation-backed character trait definition.
+    properties:
+      character:
+        type: string
+        description: Name of the character.
+      axis_name:
+        type: string
+        description: Name of the specific behavioral axis.
+      description:
+        type: string
+        description: Detailed description of the axis.
+      source_observation:
+        type: string
+        description: Specific observation or quote from source text.
+        minLength: 10
+    required:
+      - character
+      - axis_name
+      - description
+      - source_observation
+required:
+  - coarse
+  - fine
+additionalProperties: false

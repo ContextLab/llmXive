@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T02:17:06.906844Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-919-llmxive-follow-up-extending-arcane-do-ro
-last_run_id: 60bfb781-fa9a-479b-9f5e-eb7b29c138a5
+last_run_id: 9a83d946-9528-4ce1-8b96-134c5818684b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro
 title: 'llmXive follow-up: extending "ArcANE: Do Role-Playing Language Agents Stay
   in Character at the Right"'
-updated_at: '2026-09-29T07:20:00.392160Z'
+updated_at: '2026-09-30T19:27:09.438546Z'

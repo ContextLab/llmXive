@@ -9,83 +9,141 @@
 ## Installation
 
 1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro
-   ```
+ ```bash
+ git clone <repo-url>
+ cd projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro
+ ```
 
 2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
 
 3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` includes `transformers`, `llama-cpp-python`, `scipy`, `pandas`, `hypothesis`.*
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Note: `requirements.txt` includes `transformers`, `llama-cpp-python`, `scipy`, `pandas`, `hypothesis`, `sentence-transformers`, `textblob`.*
 
 ## Configuration
 
 1. **Define Character Axes**:
-   Edit `data/raw/axes.jsonl` to include your characters (e.g., "elizabeth_bennet", "sherlock_holmes").
-   ```json
-   {"character_id": "elizabeth_bennet", "coarse_axis": "Pride to Humility", "fine_axis": "Initial Arrogance to Self-Reflection"}
-   ```
+ Input Coarse and Fine axis definitions via CLI flags (see T011a).
+ Example JSON for `--coarse-file`:
+ ```json
+ {
+ "character": "Elizabeth Bennet",
+ "axis_name": "Pride to Humility",
+ "description": "A journey from initial arrogance and prejudice to self-reflection and humility."
+ }
+ ```
+ Example JSON for `--fine-file`:
+ ```json
+ {
+ "character": "Elizabeth Bennet",
+ "axis_name": "Initial Arrogance to Self-Reflection",
+ "description": "Specific behavioral shift from dismissing Darcy to recognizing her own misjudgments.",
+ "source_observation": "Elizabeth's reaction to Darcy's first proposal vs. her reaction to his letter."
+ }
+ ```
 
 2. **Set Random Seeds**:
-   Edit `config.yaml` to pin seeds for reproducibility.
-   ```yaml
-   seed: 42
-   ```
+ Configuration is handled via `src/lib/config.py`. Default seed is 42.
 
-## Running the Experiment
+## Data Pipeline Execution
 
-### Step 1: Axis Validation
-Run the axis validation step to ensure inter-rater reliability.
+The following steps must be executed in order. The CLI entry point `src/cli/run_experiment.py` (T036) enforces data integrity checks before proceeding.
+
+### Step 1: Data Preparation (Prerequisites)
+Ensure the source corpus and gold standard exist.
 ```bash
-python -m src.cli.run_experiment --mode validate_axes
-```
-*Expected Output: Kappa coefficient > 0.6. If not, the process aborts.*
+# Download source text (T013)
+python -m src.cli.download_text --character "Elizabeth Bennet"
 
-### Step 2: Calibration
-Run the Judge calibration to ensure reliability.
-```bash
-python -m src.cli.run_experiment --mode calibration
+# Generate Gold Standard if missing (T009a)
+python -m src.scripts.generate_gold_standard
 ```
-*Expected Output: Kappa coefficient > 0.6. If not, the process aborts.*
 
-### Step 3: Probe Generation
-Generate "Out-of-World" probes.
+### Step 2: Axis Validation (US1)
+Validate Coarse and Fine axis definitions for semantic independence.
 ```bash
-python -m src.cli.run_experiment --mode generate_probes
+python -m src.cli.axis_input --coarse-file path/to/coarse.json --fine-file path/to/fine.json
 ```
-*Expected Output: `data/derived/probes.jsonl` with a sufficient number of valid probes per character to support robust analysis.*
+*Expected Output: Validation pass/fail message. Validated axes are written to `data/derived/axes.jsonl` (T015).*
 
-### Step 4: Execution
-Run the main experiment (Target Model + Judge).
+### Step 3: Probe Generation (US2)
+Generate "Out-of-World" scenarios semantically distant from the source text.
 ```bash
-python -m src.cli.run_experiment --mode run_experiment
+python -m src.cli.generate_probes --character "Elizabeth Bennet" --output data/derived/probes.jsonl
 ```
-*Note: This may take up to 6 hours on CPU. Logs are written to `logs/experiment.log`. Timeouts are marked as missing.*
+*Expected Output: `data/derived/probes.jsonl` containing >= 50 unique probes per character.*
 
-### Step 5: Analysis
-Generate statistical results.
+### Step 4: Experiment Execution (US3)
+Run the target model under Coarse, Fine, and Hybrid conditions with Judge evaluation.
 ```bash
-python -m src.cli.run_experiment --mode analyze
+python -m src.cli.run_experiment
 ```
-*Expected Output: `data/derived/stats_summary.json` with ANOVA/Friedman results.*
+*Note: This command performs pre-flight checks (T053). It executes the full pipeline: Calibration (T029), Execution (T030), and Statistical Analysis (T033-T035).*
+*Expected Output: `data/derived/results_raw.jsonl`, `data/derived/stats_results.json`, `data/derived/results_final.jsonl`.*
+
+### Step 5: Statistical Analysis
+The analysis is automatically performed during Step 4.
+*Output: `data/derived/stats_results.json` containing ANOVA/Friedman results, p-values, and effect sizes.*
+
+## Data Formats
+
+### Axis Definition (`data/derived/axes.jsonl`)
+Follows the schema in `specs/001-llmxive-follow-up-extending-arcane-do-ro/contracts/axis.schema.yaml` (T010).
+```json
+{
+ "character": "Elizabeth Bennet",
+ "coarse": {
+ "character": "Elizabeth Bennet",
+ "axis_name": "Pride to Humility",
+ "description": "..."
+ },
+ "fine": {
+ "character": "Elizabeth Bennet",
+ "axis_name": "Initial Arrogance to Self-Reflection",
+ "description": "...",
+ "source_observation": "..."
+ }
+}
+```
+
+### Probe (`data/derived/probes.jsonl`)
+```json
+{
+ "character": "Elizabeth Bennet",
+ "probe_text": "You are in a cyberpunk city...",
+ "condition": "coarse",
+ "validity_score": 0.95
+}
+```
+
+### Results (`data/derived/results_final.jsonl`)
+```json
+{
+ "probe_id": "...",
+ "condition": "hybrid",
+ "judge_score": 0.82,
+ "rule_score": 0.75,
+ "consistency_score": 0.78,
+ "adherence_flag": true
+}
+```
 
 ## Verification
 
 1. **Check Data Integrity**:
-   ```bash
-   python -m src.lib.utils verify_checksums
-   ```
+ ```bash
+ python -m src.cli.check_data_integrity
+ ```
+ *Verifies checksums of `data/raw/arcane_corpus.jsonl`, `data/derived/probes.jsonl`, and `data/gold_standard/human_annotations.json`.*
 
 2. **Reproduce Results**:
-   ```bash
-   python -m src.cli.run_experiment --mode full_repro
-   ```
-   *This re-runs the entire pipeline from raw data to results.*
+ Ensure `CI_TIME_LIMIT_SECONDS` is set if running in a constrained environment.
+ ```bash
+ python -m src.cli.run_experiment
+ ```

@@ -2,6 +2,5 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No directory listings or file listings were provided showing the required `src/`, `tests/`, `data/`, and `specs/001-gene-regulation/` folders. Without concrete evidence that these folders exist and contain any content, the claim that the project structure was created cannot be verified. The implementer must supply a directory tree or file list confirming the presence of the specified folders.
-- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black settings, `.ruff.toml`, or a `requirements-dev.txt` including these tools) or setup scripts are present in the provided evidence. Without such artifacts, the task of configuring ruff and black cannot be verified as completed.
-- **T009** — declared artifact(s) missing/empty/invalid: data/gold_standard/human_annotations.json
+- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, `.pre-commit-config.yaml` with black/ruff hooks) were presented, nor any evidence that ruff and black have been set up and run. The required artifacts are missing, so the task is not satisfied.
+- **T037a** — No evidence of the file `specs/001-llmxive-follow-up-extending-arcane-do-ro/quickstart.md` being present or containing the required updates (new CLI flags from T036 and data formats from T010) was provided. The implementer must supply the updated markdown file showing the added sections.

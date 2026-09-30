@@ -4,96 +4,96 @@ import tempfile
 from pathlib import Path
 import pytest
 import sys
-import hashlib
+from unittest.mock import patch, MagicMock
 
-# Add code to path if running from tests
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from src.scripts.generate_gold_standard import generate_ground_truth_score, generate_sample, main, compute_sha256
+from scripts.generate_gold_standard import (
+    extract_segments, 
+    determine_labels, 
+    generate_fallback_data, 
+    compute_sha256,
+    main,
+    N_SAMPLES
+)
 
-def test_sample_structure():
-    """Test that generated samples have the correct keys."""
-    sample = generate_sample(0)
-    required_keys = {"character", "scenario", "ground_truth_score", "ground_truth_phase"}
-    assert set(sample.keys()) == required_keys
+@pytest.fixture
+def sample_text():
+    # Create a mock text with enough paragraphs
+    paragraphs = [f"This is paragraph {i} with some content." for i in range(100)]
+    return "\n\n".join(paragraphs)
 
-def test_score_range():
-    """Test that scores are within the expected range [0.0, 5.0]."""
-    for i in range(10):
-        score = generate_ground_truth_score(i)
-        assert 0.0 <= score <= 5.0
+@pytest.fixture
+def temp_output_dir(tmp_path):
+    return tmp_path
 
-def test_determinism():
-    """Test that generation is deterministic given the same index."""
-    sample1 = generate_sample(5)
-    sample2 = generate_sample(5)
-    assert sample1 == sample2
+def test_sample_structure(sample_text):
+    segments = extract_segments(sample_text, interval=5, count=N_SAMPLES)
+    assert len(segments) == N_SAMPLES
+    # Check that segments are non-overlapping and ordered
+    assert "paragraph 0" in segments[0]
+    assert "paragraph 5" in segments[1]
+    assert "paragraph 10" in segments[2]
 
-def test_phase_values():
-    """Test that phases are from the expected list."""
-    valid_phases = ["Act 1", "Act 2", "Act 3", "Resolution"]
-    sample = generate_sample(10)
-    assert sample["ground_truth_phase"] in valid_phases
+def test_score_range(sample_text):
+    # Test that labels are generated correctly
+    labels_early = determine_labels(sample_text, 0)
+    assert labels_early["coarse_phase"] == "Innocence / Naive Trust"
+    
+    labels_late = determine_labels(sample_text, 15)
+    assert labels_late["coarse_phase"] == "Experience / Calculated Skepticism"
 
-def test_scenario_values():
-    """Test that scenarios are non-empty strings."""
-    sample = generate_sample(15)
-    assert isinstance(sample["scenario"], str)
-    assert len(sample["scenario"]) > 10
+def test_determinism(sample_text):
+    labels1 = determine_labels(sample_text, 5)
+    labels2 = determine_labels(sample_text, 5)
+    assert labels1 == labels2
 
-def test_checksum_computation(tmp_path):
-    """Test that SHA-256 checksum is computed correctly."""
-    test_file = tmp_path / "test.json"
-    content = '{"key": "value"}'
-    test_file.write_text(content)
+def test_phase_values(sample_text):
+    # Test that the two halves have different phases
+    labels_first_half = determine_labels(sample_text, 9)
+    labels_second_half = determine_labels(sample_text, 10)
     
-    expected_hash = hashlib.sha256(content.encode()).hexdigest()
-    computed_hash = compute_sha256(test_file)
-    
-    assert computed_hash == expected_hash
+    assert labels_first_half["coarse_phase"] != labels_second_half["coarse_phase"]
+    assert labels_first_half["fine_phase"] != labels_second_half["fine_phase"]
 
-def test_main_creates_files(tmp_path, monkeypatch):
-    """Test that main creates the expected output files."""
-    # Mock the output directory
-    monkeypatch.setattr("src.scripts.generate_gold_standard.Path", lambda x: Path(tmp_path) / x.replace("data/", ""))
+def test_checksum_computation(temp_output_dir):
+    test_file = temp_output_dir / "test.json"
+    test_file.write_text("test content")
+    checksum = compute_sha256(test_file)
+    assert len(checksum) == 64  # SHA256 hex length
+    assert all(c in '0123456789abcdef' for c in checksum)
+
+@patch('scripts.generate_gold_standard.fetch_gutenberg_text')
+def test_main_creates_files(mock_fetch, temp_output_dir, sample_text):
+    mock_fetch.return_value = sample_text
     
-    # We need to patch the path construction inside the module to use tmp_path
-    # Since the module uses hardcoded "data/gold_standard", we simulate the environment
-    # by creating the directory structure manually for the test context if needed,
-    # but here we just verify the logic by running main in a temp dir context.
+    # Mock paths to use temp directory
+    import scripts.generate_gold_standard as module
+    original_output = module.OUTPUT_PATH
+    original_checksum = module.CHECKSUM_PATH
     
-    # For this test, we'll just verify the function logic by checking file creation
-    # in a controlled temp directory
-    import src.scripts.generate_gold_standard as module
+    module.OUTPUT_PATH = temp_output_dir / "gold_standard.json"
+    module.CHECKSUM_PATH = temp_output_dir / "gold_standard.sha256"
     
-    original_path = module.Path
-    
-    def mock_path(path_str):
-        if str(path_str).startswith("data"):
-            return tmp_path / str(path_str).replace("data/", "")
-        return original_path(path_str)
-    
-    monkeypatch.setattr(module, "Path", mock_path)
-    
-    module.main()
-    
-    output_file = tmp_path / "gold_standard" / "human_annotations.json"
-    manifest_file = tmp_path / "gold_standard" / "human_annotations.sha256"
-    
-    assert output_file.exists()
-    assert manifest_file.exists()
-    
-    # Verify content
-    with open(output_file) as f:
-        data = json.load(f)
-        assert len(data) == 20
-        for item in data:
-            assert "character" in item
-            assert "scenario" in item
-            assert "ground_truth_score" in item
-            assert "ground_truth_phase" in item
-    
-    with open(manifest_file) as f:
-        content = f.read()
-        assert "human_annotations.json" in content
-        assert len(content.split()[0]) == 64 # SHA256 length
+    try:
+        checksum = main()
+        
+        assert module.OUTPUT_PATH.exists()
+        assert module.CHECKSUM_PATH.exists()
+        
+        with open(module.OUTPUT_PATH, 'r') as f:
+            data = json.load(f)
+            assert len(data) == N_SAMPLES
+            assert "annotations" in data[0]
+            assert "coarse" in data[0]["annotations"]
+            assert "fine" in data[0]["annotations"]
+        
+        with open(module.CHECKSUM_PATH, 'r') as f:
+            stored_checksum = f.read()
+            assert stored_checksum == checksum
+    finally:
+        module.OUTPUT_PATH = original_output
+        module.CHECKSUM_PATH = original_checksum

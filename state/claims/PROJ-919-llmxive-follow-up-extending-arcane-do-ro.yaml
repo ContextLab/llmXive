@@ -1173,24 +1173,6 @@
   status: not_enough_info
   updated_at: '2026-09-26T04:38:50Z'
 - artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
-  attempts: 5
-  canonical: Generate at least 50 unique Out-of-World scenario prompts per character
-  claim_id: c_f4c3e479
-  context: 'Goal: Generate at least 50 unique ''Out-of-World'' scenario prompts per
-    character that are semantically distant from the source text.'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_unique_Out-of-World_scenario_prompts_pe
-  kind: magnitude
-  raw_text: Generate at least 50 unique 'Out-of-World' scenario prompts per character
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-26T04:39:30Z'
-- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
   attempts: 1
   canonical: Generation limit set to 150 retries
   claim_id: c_70d72799
@@ -1727,23 +1709,6 @@
   status: not_enough_info
   updated_at: '2026-09-26T04:50:17Z'
 - artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
-  attempts: 2
-  canonical: Average cosine similarity to source text is less than 0.3
-  claim_id: c_fe58e9cd
-  context: 'Independent Test: average cosine similarity to source text is < 0.3'
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Average_cosine_similarity_to_source_text_is_less_than_0.3
-  kind: magnitude
-  raw_text: Average cosine similarity to source text is less than 0.3.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-26T04:50:19Z'
-- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
   attempts: 1
   canonical: Generation retry limit set to 150 attempts
   claim_id: c_f2e42581
@@ -2000,3 +1965,993 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T04:55:15Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Gold Standard dataset size of 20 human-annotated behaviors
+  claim_id: c_7ce38486
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009a Generate Gold Standard
+    Dataset'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a deterministic, reproducible 'Gold Standard' dataset of n=20
+    human-annotated character behaviors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:42:44Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Pride and Prejudice text used for fallback dataset generation
+  claim_id: c_86ac7020
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009a Logic step a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pride_and_Prejudice_text_used_for_fallback_dataset_generatio
+  kind: entity_fact
+  raw_text: Load 'Pride and Prejudice' (Gutenberg ID) text.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:43:25Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Extraction of every 50th paragraph from Pride and Prejudice for dataset
+  claim_id: c_a71d5920
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T009a Logic step b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract a set of specific, non-overlapping text segments (e.g., every
+    50th paragraph starting at index 0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:43:44Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Semantic validation requires lexical overlap greater than 0.4 and cosine
+    distance less than 0.3
+  claim_id: c_1915b573
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T012 Logic step 3'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semantic_validation_requires_lexical_overlap_greater_than_0.
+  kind: magnitude
+  raw_text: Pass only if lexical overlap > 0.4 AND cosine distance < 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:44:10Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Generation of at least 50 unique Out-of-World scenario prompts per character
+  claim_id: c_4d5e7f47
+  context: 'Phase 4: User Story 2 - Goal'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generation_of_at_least_50_unique_Out-of-World_scenario_promp
+  kind: magnitude
+  raw_text: Generate at least 50 unique 'Out-of-World' scenario prompts per character.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:44:41Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Average cosine similarity to source text less than 0.3
+  claim_id: c_4583b8c7
+  context: 'Phase 4: User Story 2 - Independent Test'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Average_cosine_similarity_to_source_text_less_than_0.3
+  kind: magnitude
+  raw_text: average cosine similarity to source text is < 0.3
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:45:07Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Use of TinyLlama-1.1B quantized model on CPU for probe generation
+  claim_id: c_a5e66ca6
+  context: 'Phase 4: User Story 2 - T018 Implementation'
+  evidence:
+    asserted: '1.1'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: "Must use a small, quantized model (e., TinyLlama\u20111.1B) on CPU."
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T18:45:07Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Generation limit set to 150 retry attempts
+  claim_id: c_3058a5f6
+  context: 'Phase 4: User Story 2 - T020 Implementation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If retry count > 150, log 'Generation Limit Exceeded'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:45:08Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Character marked invalid if fewer than 50 valid probes after 150 attempts
+  claim_id: c_1714712d
+  context: 'Phase 4: User Story 2 - T022 Implementation'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Character_marked_invalid_if_fewer_than_50_valid_probes_after
+  kind: magnitude
+  raw_text: If `valid_probes < 50` after 150 attempts, set `character_status` to 'invalid'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:45:34Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Cohen's Kappa computed with quadratic weights for judge calibration
+  claim_id: c_ee9456d3
+  context: 'Phase 5: User Story 3 - T029 Logic'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohen's_Kappa_computed_with_quadratic_weights_for_judge_cali
+  kind: entity_fact
+  raw_text: Compute Cohen's Kappa (quadratic weights) between the Judge's scores and
+    the human annotations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:46:00Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Judge calibration failure threshold set at Kappa less than or equal to
+    0.6
+  claim_id: c_fc4eb943
+  context: 'Phase 5: User Story 3 - T029 Constraint'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Judge_calibration_failure_threshold_set_at_Kappa_less_than_o
+  kind: magnitude
+  raw_text: "If Kappa \u2264 0.6, raise a RuntimeError."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:46:54Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: 'Sentiment alignment score formula: 1 minus absolute difference between
+    response and target polarity'
+  claim_id: c_84f0cec7
+  context: 'Phase 5: User Story 3 - T027 Logic step 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute sentiment alignment score as `1 - abs(response_polarity - target_polarity)`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:47:13Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Final score calculation using 0.6 weight for keyword density and 0.4
+    for sentiment alignment
+  claim_id: c_bc1a5d2c
+  context: 'Phase 5: User Story 3 - T027 Logic step 4'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Combine: `final_score = (0.6 * keyword_density) + (0.4 * sentiment_alignment)`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:47:34Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: 'Hybrid stability condition: variance less than 1.2 times coarse variance'
+  claim_id: c_1a8d9035
+  context: 'Phase 5: User Story 3 - T035b Assessment Rule'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hybrid_stability_condition:_variance_less_than_1.2_times_coa
+  kind: magnitude
+  raw_text: If `hybrid_variance < 1.2 * coarse_variance`, set `hybrid_is_stable =
+    true`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:47:51Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Assumed sample size of at least 150 for statistical power analysis
+  claim_id: c_fbc4112c
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - T051'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assumed_sample_size_of_at_least_150_for_statistical_power_an
+  kind: magnitude
+  raw_text: "document the assumptions regarding sample size (N \u2265 150) and effect\
+    \ size used in the plan."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:48:46Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Gold Standard dataset size is 20 human-annotated character behaviors
+  claim_id: c_3ea0e2e2
+  context: 'T009a [US1/US3] Generate Gold Standard Dataset: Create a deterministic,
+    reproducible ''Gold Standard'' dataset of n=20 human-annotated character behaviors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create a deterministic, reproducible 'Gold Standard' dataset of n=20 human-annotated
+    character behaviors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:51:24Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Text segments extracted every 50th paragraph from Pride and Prejudice
+  claim_id: c_630cf34a
+  context: a. Load 'Pride and Prejudice' (Gutenberg ID) text. b. Extract a set of
+    specific, non-overlapping text segments (e.g., every 50th paragraph starting at
+    index 0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Extract a set of specific, non-overlapping text segments (e.g., every
+    50th paragraph starting at index 0) from 'Pride and Prejudice'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:52:09Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Semantic validation requires lexical overlap greater than 0.4 and cosine
+    distance less than 0.3
+  claim_id: c_7a2fcc42
+  context: '2. **Semantic Distance**: Embed both descriptions using `sentence-transformers/all-MiniLM-L6-v2`,
+    compute cosine distance. 3. **Constraint**: Pass only if lexical overlap > 0.4
+    AND cosine distance < 0.3.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semantic_validation_requires_lexical_overlap_greater_than_0.
+  kind: magnitude
+  raw_text: Pass only if lexical overlap > 0.4 AND cosine distance < 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:52:10Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Generation limit exceeded if retry count exceeds 150
+  claim_id: c_fb48094d
+  context: 'Step 4: If retry count > 150, log ''Generation Limit Exceeded'' and proceed
+    with available valid probes (if >= 50) or mark character as invalid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If retry count > 150, log 'Generation Limit Exceeded' and proceed with
+    available valid probes (if >= 50) or mark character as invalid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:52:55Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Judge calibration fails if Cohen's Kappa is less than or equal to 0.6
+  claim_id: c_5b4d0040
+  context: "Compute Cohen's Kappa (quadratic weights) between the Judge's scores and\
+    \ the human annotations. **Constraint**: If Kappa \u2264 0.6, raise a RuntimeError\
+    \ with a clear message: 'Judge calibration failed: Kappa {kappa} <= 0.6'."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Judge_calibration_fails_if_Cohen's_Kappa_is_less_than_or_equ
+  kind: magnitude
+  raw_text: "If Kappa \u2264 0.6, raise a RuntimeError with a clear message: 'Judge\
+    \ calibration failed: Kappa {kappa} <= 0.6'."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:53:42Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Final score formula is 0.6 times keyword density plus 0.4 times sentiment
+    alignment
+  claim_id: c_df8d0ece
+  context: '4. Combine: `final_score = (0.6 * keyword_density) + (0.4 * sentiment_alignment)`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final_score is computed as (0.6 * keyword_density) + (0.4 * sentiment_alignment).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:54:02Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Sample size assumption is N greater than or equal to 150
+  claim_id: c_d63bba80
+  context: "Create `src/analysis/power_analysis.py` to document the assumptions regarding\
+    \ sample size (N \u2265 150) and effect size used in the plan."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_assumption_is_N_greater_than_or_equal_to_150
+  kind: magnitude
+  raw_text: "Sample size assumption N \u2265 150."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:54:57Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Gold Standard dataset size is 20 human-annotated character behaviors
+  claim_id: c_f7583bee
+  context: 'T009a [US1/US3] **Generate Gold Standard Dataset**: Create a deterministic,
+    reproducible ''Gold Standard'' dataset of n=20 human-annotated character behaviors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a deterministic, reproducible 'Gold Standard' dataset of n=20
+    human-annotated character behaviors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:58:15Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 7
+  canonical: Generate at least 50 unique Out-of-World scenario prompts per character
+  claim_id: c_f4c3e479
+  context: 'Goal: Generate at least 50 unique ''Out-of-World'' scenario prompts per
+    character that are semantically distant from the source text.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_unique_Out-of-World_scenario_prompts_pe
+  kind: magnitude
+  raw_text: Generate at least 50 unique 'Out-of-World' scenario prompts per character
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:58:17Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 4
+  canonical: Average cosine similarity to source text is less than 0.3
+  claim_id: c_fe58e9cd
+  context: 'Independent Test: average cosine similarity to source text is < 0.3'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Average_cosine_similarity_to_source_text_is_less_than_0.3
+  kind: magnitude
+  raw_text: Average cosine similarity to source text is less than 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:58:19Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Semantic validation passes if lexical overlap > 0.4 and cosine distance
+    < 0.3
+  claim_id: c_bb9cf630
+  context: 'Constraint: Pass only if lexical overlap > 0.4 AND cosine distance < 0.3.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semantic_validation_passes_if_lexical_overlap_%3E_0.4_and_cosi
+  kind: magnitude
+  raw_text: Lexical overlap must be greater than 0.4 and cosine distance less than
+    0.3 to pass validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:58:48Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Generation limit is 150 attempts
+  claim_id: c_54dd1f9c
+  context: 'Step 4: If retry count > 150, log ''Generation Limit Exceeded'' and proceed
+    with available valid probes (if >= 50) or mark character as invalid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the retry count exceeds 150, the system logs 'Generation Limit Exceeded'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:59:09Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Embedding model is sentence-transformers/all-MiniLM-L6-v2
+  claim_id: c_22f0ee2e
+  context: 'Semantic Distance: Embed both descriptions using sentence-transformers/all-MiniLM-L6-v2,
+    compute cosine distance.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: embedding (i.e., all-MiniLM-L6-v2) in an
+      source_id: '2607.07974'
+      url: https://arxiv.org/abs/2607.07974
+      value: all-MiniLM-L6-v2
+    filled: true
+  kind: entity_fact
+  raw_text: The system uses the sentence-transformers/all-MiniLM-L6-v2 model for embedding
+    descriptions.
+  resolved_value: all-MiniLM-L6-v2
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T18:59:25Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Judge calibration fails if Cohen's Kappa <= 0.6
+  claim_id: c_7fddccc6
+  context: "Constraint: If Kappa \u2264 0.6, raise a RuntimeError with a clear message:\
+    \ 'Judge calibration failed: Kappa {kappa} <= 0.6'."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Judge_calibration_fails_if_Cohen's_Kappa_%3C=_0.6
+  kind: magnitude
+  raw_text: Judge calibration fails if Cohen's Kappa is less than or equal to 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T18:59:46Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Final score formula is 0.6 * keyword_density + 0.4 * sentiment_alignment
+  claim_id: c_4d5ff850
+  context: 'Combine: final_score = (0.6 * keyword_density) + (0.4 * sentiment_alignment).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final score is calculated as 0.6 * keyword_density + 0.4 * sentiment_alignment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:00:08Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Hybrid condition is stable if hybrid variance < 1.2 * coarse variance
+  claim_id: c_f4e47569
+  context: 'Assessment Rule: If hybrid_variance < 1.2 * coarse_variance, set hybrid_is_stable
+    = true; otherwise false.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hybrid_condition_is_stable_if_hybrid_variance_%3C_1.2_*_coarse
+  kind: magnitude
+  raw_text: If hybrid variance is less than 1.2 times the coarse variance, the hybrid
+    condition is considered stable.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:00:32Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis assumes sample size N >= 150
+  claim_id: c_7303ee7e
+  context: "Create src/analysis/power_analysis.py to document the assumptions regarding\
+    \ sample size (N \u2265 150) and effect size used in the plan."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The plan assumes a sample size of N \u2265 150 for statistical power\
+    \ analysis."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:00:32Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Pride and Prejudice Gutenberg ID 1342
+  claim_id: c_ee080c4d
+  context: 'Implement Gold Standard Fallback Generator: Fetch ''Pride and Prejudice''
+    (Gutenberg ID: 1342) using datasets.load_dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fetch ''Pride and Prejudice'' (Gutenberg ID: 1342) using datasets.load_dataset.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:17:06Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Configure ruff and black tools
+  claim_id: c_0b979152
+  context: T003 [P] Configure linting (ruff) and formatting (black) tools
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_ruff_and_black_tools
+  kind: entity_fact
+  raw_text: Configure linting (ruff) and formatting (black) tools.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:18:01Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 with mean pooling for semantic
+    distance
+  claim_id: c_aa47f9b6
+  context: 'Semantic Distance: Embed both descriptions using sentence-transformers/all-MiniLM-L6-v2
+    with ''mean'' pooling, compute cosine distance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_with_mean_pooling
+  kind: entity_fact
+  raw_text: Implement semantic validation using sentence-transformers/all-MiniLM-L6-v2
+    with 'mean' pooling.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:18:22Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Axis validation requires lexical overlap > 0.4 and cosine distance <
+    0.3
+  claim_id: c_625bc990
+  context: 'Constraint: Pass only if lexical overlap > 0.4 AND cosine distance < 0.3.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pass axis validation only if lexical overlap > 0.4 AND cosine distance
+    < 0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:18:22Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Generate at least 50 unique Out-of-World prompts per character
+  claim_id: c_1c1ae1e8
+  context: 'Goal: Generate at least 50 unique ''Out-of-World'' scenario prompts per
+    character that are semantically distant from the source text.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_at_least_50_unique_Out-of-World_prompts_per_charact
+  kind: magnitude
+  raw_text: Generate at least 50 unique 'Out-of-World' scenario prompts per character.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:18:24Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Average cosine similarity to source text less than 0.3
+  claim_id: c_2ad4e519
+  context: 'Independent Test: average cosine similarity to source text is < 0.3'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Average_cosine_similarity_to_source_text_less_than_0.3
+  kind: magnitude
+  raw_text: Average cosine similarity to source text must be < 0.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:18:48Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for semantic similarity check
+  claim_id: c_906091ca
+  context: Implement semantic similarity check (cosine similarity < 0.3) against data/raw/arcane_corpus.jsonl
+    (source text) in src/services/probe_generator.py using sentence-transformers/all-MiniLM-L6-v2.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_semantic_simi
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 for semantic similarity check
+    against source text.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:19:09Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Generation limit exceeded after 150 retries
+  claim_id: c_71b61469
+  context: If retry count > 150, log 'Generation Limit Exceeded' and proceed with
+    available valid probes (if >= 50) or mark character as invalid.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If retry count > 150, log 'Generation Limit Exceeded'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:19:09Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Mark character invalid if fewer than 50 valid probes after 150 attempts
+  claim_id: c_9dd657e2
+  context: If valid_probes < 50 after 150 attempts, set character_status to 'invalid'
+    in data/derived/probes.jsonl.
+  evidence:
+    entailment_evidence: Mark character invalid if fewer than 50 valid probes after
+      1
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Mark_character_invalid_if_fewer_than_50_valid_probes_after_1
+  kind: magnitude
+  raw_text: Mark character as invalid if valid_probes < 50 after 150 attempts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-30T19:19:35Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Load Phi-mini or TinyLlama-1.1B models
+  claim_id: c_c05e3cea
+  context: "Implement model loading utilities in src/models/loader.py (CPU\u2011quantized\
+    \ small language models, low\u2011bit quantization, specifically Phi\u2011\u2011\
+    mini or TinyLlama\u20111.1B via llama.cpp or low\u2011bit transformers per Constitution\
+    \ Principle VI)."
+  evidence:
+    asserted: '-1.1'
+    authority: (1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt)
+    constant: golden_ratio
+    corrected: true
+    mode: approximate
+    true_value: 1.618033988749895
+    url: https://en.wikipedia.org/wiki/Golden_ratio
+  kind: numeric
+  raw_text: Load Phi-mini or TinyLlama-1.1B via llama.cpp or low-bit transformers.
+  resolved_value: '1.6'
+  resolver: approximate
+  source_hash: a4ff0aa0826be2596d26479ec845db5c2eb65ba7d256cc2bdd2020c64abe3d98
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T19:19:36Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Calculate sentiment polarity using textblob
+  claim_id: c_d6fcee2b
+  context: Calculate sentiment polarity of the response using textblob (returns a
+    normalized polarity score).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "with its English version \u201DThis was a helpful example but I would\
+        \ prefer another one, gives us a 0.0 for both subjectivity"
+      source_id: '2207.09163'
+      url: https://arxiv.org/abs/2207.09163
+      value: '0.0'
+    filled: true
+  kind: entity_fact
+  raw_text: Calculate sentiment polarity using textblob.
+  resolved_value: '0.0'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T19:20:00Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Normalize polarity to unit interval with formula (polarity + 1.0) / 2.0
+  claim_id: c_5a53c2fa
+  context: 'Normalize polarity to a unit interval: normalized_polarity = (polarity
+    + 1.0) / 2.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Normalize polarity to a unit interval using (polarity + 1.0) / 2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:20:40Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: 'Target polarity values: positive 1.0, neutral 0.5, negative 0.0'
+  claim_id: c_76a5b094
+  context: Calculate target polarity from config (e.g., 'positive' -> 1.0, 'neutral'
+    -> 0.5, 'negative' -> 0.0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assign target polarity of 1.0 for 'positive', 0.5 for 'neutral', and 0.0
+    for 'negative'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:21:05Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Apply keyword penalty of 0.2 if count is less than 2
+  claim_id: c_2b23f68c
+  context: If count < 2, apply a keyword penalty (e.g., subtract 0.2 from the score).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Apply_keyword_penalty_of_0.2_if_count_is_less_than_2
+  kind: magnitude
+  raw_text: Apply a keyword penalty of 0.2 if keyword count < 2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:22:04Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Compute Cohen's Kappa with quadratic weights between Judge and human
+    annotations
+  claim_id: c_977973e4
+  context: Compute Cohen's Kappa (quadratic weights) between the Judge's scores and
+    the human annotations.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Cohen's_Kappa_with_quadratic_weights_between_Judge_a
+  kind: entity_fact
+  raw_text: Compute Cohen's Kappa (quadratic weights) between Judge scores and human
+    annotations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:22:06Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if Kappa is less than or equal to 0.6
+  claim_id: c_4bd6e2a1
+  context: "If Kappa \u2264 0.6, raise a RuntimeError with a clear message: 'Judge\
+    \ calibration failed: Kappa {kappa} <= 0.6'."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_RuntimeError_if_Kappa_is_less_than_or_equal_to_0.6
+  kind: magnitude
+  raw_text: "Raise RuntimeError if Kappa \u2264 0.6."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:22:08Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Perform Shapiro-Wilk test on judge_score residuals
+  claim_id: c_2390b527
+  context: "Implement check_normality(scores) in src/analysis/stats_engine.py to perform\
+    \ Shapiro\u2011Wilk test on the residuals of the judge_score field from data/derived/results_raw.jsonl\
+    \ (NOT aggregated) and return is_normal (bool)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Perform_Shapiro-Wilk_test_on_judge_score_residuals
+  kind: entity_fact
+  raw_text: "Perform Shapiro\u2011Wilk test on the residuals of the judge_score field."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:22:32Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Select ANOVA or Friedman test based on normality
+  claim_id: c_e13c3c7b
+  context: Implement select_statistical_test(is_normal) in src/analysis/stats_engine.py
+    to return the test type ('anova' or 'friedman') based on is_normal.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_ANOVA_or_Friedman_test_based_on_normality
+  kind: entity_fact
+  raw_text: Select ANOVA or Friedman test based on normality results.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:23:10Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Write p-value, effect size, mean scores, and variance to stats_results.json
+  claim_id: c_aa705839
+  context: "Execute the chosen statistical test (ANOVA or Friedman) and write the\
+    \ p\u2011value, effect size, mean scores, and variance to data/derived/stats_results.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Write_p-value,_effect_size,_mean_scores,_and_variance_to_sta
+  kind: entity_fact
+  raw_text: Write p-value, effect size, mean scores, and variance to data/derived/stats_results.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:23:44Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Compute ratio of hybrid variance to coarse variance
+  claim_id: c_82d62d7f
+  context: Compute the ratio hybrid_variance / coarse_variance.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_ratio_of_hybrid_variance_to_coarse_variance
+  kind: entity_fact
+  raw_text: Compute ratio of hybrid_variance to coarse_variance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:24:28Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Fallback timeout duration of several hours
+  claim_id: c_ab87e163
+  context: Read CI time limit from environment variable CI_TIME_LIMIT_SECONDS (fallback
+    to a timeout duration of several hours).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_timeout_duration_of_several_hours
+  kind: entity_fact
+  raw_text: Fallback timeout duration is several hours if CI_TIME_LIMIT_SECONDS is
+    not set.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:25:11Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Target model loading assumes 7GB RAM
+  claim_id: c_1f1b9886
+  context: Add a pre-flight check script scripts/check_cpu_feasibility.py that attempts
+    to load the target model (Phi-mini/TinyLlama) in quantized mode and the embedding
+    model on the target CI runner specs (cores, 7GB RAM).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_model_loading_assumes_7GB_RAM
+  kind: entity_fact
+  raw_text: Target model loading assumes 7GB RAM on CI runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:25:58Z'
+- artifact_path: projects/PROJ-919-llmxive-follow-up-extending-arcane-do-ro/specs/001-llmxive-follow-up-extending-arcane-do-ro/tasks.md
+  attempts: 1
+  canonical: Statistical power analysis assumes sample size N greater than or equal
+    to 150
+  claim_id: c_fa133bbd
+  context: "Create src/analysis/power_analysis.py with a docstring containing the\
+    \ assumptions regarding sample size (N \u2265 150) and effect size used in the\
+    \ plan."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_analysis_assumes_sample_size_N_greater_tha
+  kind: magnitude
+  raw_text: "Statistical power analysis placeholder assumes sample size N \u2265 150."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T19:27:05Z'

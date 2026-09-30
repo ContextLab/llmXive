@@ -8,8 +8,11 @@ numpy
 tiktoken
 hypothesis
 pytest
-sentence-transformers
-vaderSentiment
 ruff
 black
-mypy
+nltk
+sentence-transformers
+textblob
+pyyaml
+torch
+accelerate
