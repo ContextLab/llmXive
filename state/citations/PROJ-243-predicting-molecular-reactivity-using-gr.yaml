@@ -64,18 +64,18 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1021/acs.jpca.8b01234
   verified_at: '2026-08-08T16:58:50.701550Z'
-- artifact_hash: a19ed3be420e2c83a1b0c63b11ad178ff00cc8c5d3e4a9499f9cc0e2c38beb5f
+- artifact_hash: a05e6b35324746ee066512e6f4ba9174e7013b35b1e1365097ab625b88cf5322
   artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: s41597-020-00628-6
+  fetched_title: null
   kind: url
-  value: https://zenodo.org/api/records?doi=10.1038/s41597-020-00628-6`
-  verification_status: pending
-  verified_against_url: https://zenodo.org/api/records?doi=10.1038/s41597-020-00628-6
-  verified_at: '2026-09-27T04:01:39.339572Z'
-- artifact_hash: a19ed3be420e2c83a1b0c63b11ad178ff00cc8c5d3e4a9499f9cc0e2c38beb5f
+  value: https://api.zenodo.org/record/...`
+  verification_status: unreachable
+  verified_against_url: https://api.zenodo.org/record/
+  verified_at: '2026-09-30T20:56:00.857570Z'
+- artifact_hash: a05e6b35324746ee066512e6f4ba9174e7013b35b1e1365097ab625b88cf5322
   artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -86,8 +86,8 @@
   value: 10.1038/s41597-020-00628-6
   verification_status: pending
   verified_against_url: https://doi.org/10.1038/s41597-020-00628-6
-  verified_at: '2026-09-27T04:01:39.339572Z'
-- artifact_hash: a19ed3be420e2c83a1b0c63b11ad178ff00cc8c5d3e4a9499f9cc0e2c38beb5f
+  verified_at: '2026-09-30T20:56:00.857570Z'
+- artifact_hash: a05e6b35324746ee066512e6f4ba9174e7013b35b1e1365097ab625b88cf5322
   artifact_path: projects/PROJ-243-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -97,4 +97,4 @@
   value: 10.1093/nar/gky1079
   verification_status: pending
   verified_against_url: https://doi.org/10.1093/nar/gky1079
-  verified_at: '2026-09-27T04:01:39.339572Z'
+  verified_at: '2026-09-30T20:56:00.857570Z'
