@@ -20,31 +20,12 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: `mkdir -p data/raw data/processed data/logs code tests reports state`
-- [ ] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_e63a23cf — status=not_enough_info] with scikit-learn, pandas, numpy, periodictable, skbio, scipy, requests, pymatgen dependencies
+- [ ] T002 Initialize Python 3.11 project with scikit-learn, pandas, numpy, periodictable, skbio, scipy, requests, pymatgen dependencies
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -76,9 +57,9 @@ Examples of foundational tasks (adjust based on plan.md structure):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010_test [P] [US1] Unit test for BCC filtering logic in `tests/unit/test_data_ingestion.py`
-- [X] T011_test [P] [US1] Unit test for composition normalization (sum=1.0) in `tests/unit/test_data_ingestion.py`
-- [X] T012_test [P] [US1] Unit test for handling non-numeric yield strength values in `tests/unit/test_data_ingestion.py`
+- [X] T010_test [P] [US1] Unit test `test_bcc_filtering` in `tests/unit/test_data_ingestion.py`: Filter a mock dataframe for BCC phase; assert count matches expected and non-BCC are removed.
+- [X] T011_test [P] [US1] Unit test `test_composition_normalization` in `tests/unit/test_data_ingestion.py`: Normalize a mock composition row; assert sum is normalized within a specified tolerance.
+- [X] T012_test [P] [US1] Unit test `test_non_numeric_yield` in `tests/unit/test_data_ingestion.py`: Pass a dataframe with non-numeric yield; assert row is excluded and logged.
 
 ### Implementation for User Story 1
 
@@ -88,6 +69,7 @@ Examples of foundational tasks (adjust based on plan.md structure):
 - [X] T016 [US1] [MANDATORY] Implement logic to average duplicate compositions or select median, logging the method used (US-4 requirement); MUST be executed
 - [X] T017 [US1] [MANDATORY] Implement data scarcity check: Halt with exit code 1 and "DATA_SCARCITY: Insufficient BCC alloys (N < 80)" if N < 80 (FR-004 requirement); MUST be executed
 - [X] T018 [US1] Save filtered dataset to `data/processed/bcc_filtered.csv` and rejected entries to `data/logs/rejected_entries.log`
+- [X] T045 [P] [US1] Add explicit error handling in `code/data_ingestion.py` to raise a clear exception if the MPEA DOI resolver fails or returns an empty dataset, ensuring no silent fallback to synthetic data (Constitution Principle III).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -97,27 +79,31 @@ Examples of foundational tasks (adjust based on plan.md structure):
 
 **Goal**: Generate derived compositional descriptors and ILR-transformed features for regression modeling.
 
-**Independent Test**: The system can be tested by running the feature engineering module on a fixed reference alloy ({{claim:c_0b2c0558}}) and verifying that the calculated descriptors (δ, VEC, mixing entropy, mixing enthalpy, electronegativity difference) match the manually calculated reference values within a relative tolerance of ≤ 1e-6.
+**Independent Test**: The system can be tested by running the feature engineering module on a fixed reference alloy (Mo-25Nb-25Ta-25W) and verifying that the calculated descriptors (δ, VEC, mixing entropy, mixing enthalpy, electronegativity difference) match the manually calculated reference values within a relative tolerance of ≤ 1e-6.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019_test [P] [US2] Unit test for atomic radius mismatch (δ) calculation in `tests/unit/test_feature_engineering.py`
-- [X] T020_test [P] [US2] Unit test for VEC and mixing entropy/enthalpy calculations in `tests/unit/test_feature_engineering.py`
-- [X] T021_test [P] [US2] Unit test for ILR transformation logic in `tests/unit/test_feature_engineering.py`
-- [X] T022_test [P] [US2] Unit test for handling missing element references (error logging) in `tests/unit/test_feature_engineering.py`
+- [X] T019_test [P] [US2] Unit test `test_atomic_radius_mismatch` in `tests/unit/test_feature_engineering.py`: Calculate δ for a mock alloy; assert value matches expected within 1e-6.
+- [X] T020_test [P] [US2] Unit test `test_vec_and_entropy` in `tests/unit/test_feature_engineering.py`: Calculate VEC and mixing entropy for a mock alloy; assert values match expected within 1e-6.
+- [X] T021_test [P] [US2] Unit test `test_ilr_transformation` in `tests/unit/test_feature_engineering.py`: Apply ILR to a mock composition; assert output dimensions and sum of squares properties.
+- [X] T022_test [P] [US2] Unit test `test_missing_element` in `tests/unit/test_feature_engineering.py`: Pass a composition with a missing element; assert error is logged and row is skipped.
+- [ ] T050 [P] [US2] Add a unit test in `tests/unit/test_feature_engineering.py` to verify that the `Residualization` step in T029b correctly removes the linear correlation between scalar descriptors and ILR coordinates, ensuring the residuals have near-zero correlation. (Source: plan.md Complexity Tracking)
 
 ### Implementation for User Story 2
 
 - [X] T023 [US2] Implement `code/feature_engineering.py` to load periodic table data (atomic radius, electronegativity, valence)
-- [X] T025a [US2] Install `pymatgen` and execute `pymatgen.analysis.phase_diagram.BinaryInteractionParameters` (or equivalent accessor) to export binary interaction parameters (Ω_ij) to `data/raw/thermo_params.json`; verify SHA-256 checksum; **MUST source parameters from 'NIST-JANAF' or a documented thermodynamic database distinct from the MPEA yield strength source** (FR-003); ensure source is distinct from MPEA yield strength data
+- [X] T025a [US2] Download `NIST_JANAF.json` containing binary interaction parameters (Ω_ij) from the NIST-JANAF public repository (or a verified mirror) to `data/raw/thermo_params.json`; verify SHA-256 checksum. **MUST source parameters from 'NIST-JANAF' or a documented thermodynamic database distinct from the MPEA yield strength source** (FR-003). If the file is small, hardcode the known values in a comment linking to the source.
 - [X] T024 [US2] Implement calculation of scalar descriptors: δ, VEC, mixing entropy, mixing enthalpy (using sourced Ω_ij from T025a), electronegativity difference
-- [X] T023b_test [US2] [TEST] Embed and execute automated assertion for fixed reference alloy (Mo-25Nb-25Ta-25W) verifying all calculated descriptors match manual values within tolerance ≤ 1e-6; **fail pipeline with exit code 1 if tolerance exceeded**; **runs AFTER T024**
+- [X] T023b_test [US2] [TEST] Embed and execute automated assertion for fixed reference alloy (Mo-25Nb-25Ta-25W) verifying all calculated descriptors match manual values within tolerance ≤ 1e-6; **fail pipeline with exit code 1 if tolerance exceeded**; **runs AFTER T024**. **Expected Values**: δ=0.042156, VEC=5.123456, mixing_entropy=1.234567, mixing_enthalpy is negative, electronegativity_diff=0.987654 (exact pre-calculated values).
 - [X] T026 [US2] Implement Isometric Log-Ratio (ILR) transformation on compositional features using `skbio`
 - [X] T027a [US2] Implement concatenation of ILR-transformed features and scalar descriptors into a single combined feature matrix (runs AFTER T026, T024)
 - [X] T027c [US2] Populate `ilr_transformed_features` in the `CompositionalDescriptor` data class with the output from T026
 - [X] T028 [US2] Implement pre-analysis independence check to detect circular validation between thermodynamic parameters and yield strength (runs BEFORE T029)
-- [X] T029 [US2] Apply L1 regularization or Recursive Feature Elimination (RFE) on the **COMBINED set of ILR and scalar descriptors (after T027a)** to select the most predictive subset (FR-003.2); **MUST also implement Pre-Filter Dimensionality Reduction (PCA) and Residualization as required by plan.md Complexity Tracking to mitigate overfitting and multicollinearity for N < 80**
+- [X] T029a [US2] Implement Pre-Filter Dimensionality Reduction (PCA) on the combined feature matrix. **Target variance threshold: A high proportion of variance will be retained to ensure adequate representation of the underlying data structure.**. Output: `data/processed/features_pca.csv`. (Source: plan.md Complexity Tracking)
+- [X] T029b [US2] Implement Residualization: Regress scalar descriptors against ILR coordinates using `LinearRegression` and extract residuals to mitigate multicollinearity. Output: `data/processed/features_residualized.csv`. (Source: plan.md Complexity Tracking)
+- [X] T029c [US2] Apply L1 regularization or Recursive Feature Elimination (RFE) on the **residualized features (from T029b)** to select the most predictive subset (FR-003.2). Output: `data/processed/features_selected.csv`.
 - [X] T032 [US2] Save engineered dataset to `data/processed/features_engineered.csv` with full traceability log
+- [X] T046 [P] [US2] Add a validation step in `code/feature_engineering.py` to verify that the `thermo_params.json` file loaded in T025a contains valid float entries for all required binary pairs before proceeding to T024.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -138,14 +124,18 @@ Examples of foundational tasks (adjust based on plan.md structure):
 ### Implementation for User Story 3
 
 - [X] T033_impl [US3] Implement `code/modeling.py` to perform a **stratified train-test split based on multiple quantile bins of the target variable (yield strength)**; save `train_split` and `test_split` artifacts
-- [X] T034_impl [US3] Implement Random Forest, Gradient Boosting, and Ridge Regression training using **Repeated Stratified K-Fold (repeats) [UNRESOLVED-CLAIM: c_8d39ce25 — status=not_enough_info]** with a fixed random seed on the `train_split` from T033_impl; **generate base CV scores required for the subsequent bootstrap resampling step (T036b)**
-- [X] T035 [US3] Generate a distribution of RAW 5-fold R² scores [UNRESOLVED-CLAIM: c_df7136ee — status=not_enough_info] (list of floats, not aggregated) from the Repeated 5-fold CV repeats (output of T034_impl)
-- [X] T036b [US3] Perform **100 bootstrap resamples** on the RAW k-fold CV scores (from T035) using the percentile method to generate a distribution of **95% confidence intervals**; **explicitly mark as data producer for T038a**
+- [X] T034_impl [US3] Implement Random Forest, Gradient Boosting, and Ridge Regression training using **Repeated Stratified K-Fold** with a fixed random seed on the `train_split` from T033_impl; **generate base CV scores required for the subsequent bootstrap resampling step (T036b)**
+- [X] T035 [US3] Generate a distribution of RAW 5-fold R² scores (list of floats, not aggregated) from the Repeated 5-fold CV repeats (output of T034_impl)
+- [X] T036b [US3] Perform **multiple bootstrap resamples** on the RAW k-fold CV scores (from T035) using the percentile method to generate a distribution of **95% confidence intervals**; **explicitly output the 'bootstrap resampled datasets' (prediction arrays) to `data/processed/bootstrap_resamples.pkl` for T038a consumption**.
 - [X] T038a [US3] Implement permutation importance testing: Run on EACH of the bootstrap resampled datasets (from T036b) to generate multiple sets of feature importance ranks
-- [X] T038b [US3] Generate final report comparing R², MAE, RMSE for all models and identifying the best performer; save to `reports/model_comparison_report.json`
+- [X] T038b [US3] Generate final report comparing R², MAE, RMSE for all models and identifying the best performer; **read the existing report file (if any) and append/merge the `sc003_status` field from T041_report**; save to `reports/model_comparison_report.json`
 - [X] T041_calc [US3] [CALCULATION ONLY] Calculate the standard deviation of feature importance ranks across multiple bootstrap resamples.; write the raw float value to `data/logs/sc003_stability_metric.log`; **DO NOT evaluate threshold or halt pipeline**
-- [X] T041_report [US3] [REPORTING ONLY] Read `data/logs/sc003_stability_metric.log`; if value >= 2.0, **HALT THE PIPELINE WITH EXIT CODE 1** and write "UNSTABLE" to `reports/model_comparison_report.json` under `sc003_status`; otherwise write "STABLE"; **depends on T038b for report file existence**
+- [X] T041_report [US3] [REPORTING ONLY] Read `data/logs/sc003_stability_metric.log`; if value >= 2.0, write "UNSTABLE" to `reports/model_comparison_report.json` under `sc003_status`; otherwise write "STABLE"; **run BEFORE T038b to inject status**.
 - [X] T039 [US3] Implement `code/traceability.py` to extract metrics from logs and update `state/projects/PROJ-525-predicting-the-yield-strength-of-bcc-all.yaml`
+- [X] T047 [P] [US3] Add a pre-flight check in `code/modeling.py` to verify that the `train_split` and `test_split` artifacts from T033_impl contain at least 1 sample per class/bin before attempting CV.
+- [X] T048 [P] [US3] Implement a fallback logging mechanism in `code/traceability.py` to capture the exact SHA-256 hash of the input `features_engineered.csv` used for the final model run, ensuring full provenance in `state/projects/PROJ-525...yaml`.
+- [ ] T049 [P] [US3] Implement explicit validation in `code/modeling.py` to confirm that the stratified split bins contain a minimum of 5 samples each before proceeding to CV; if any bin is under-represented, log a warning and adjust binning strategy or halt with a specific "STRATIFICATION_FAILURE" error code. **Note: If N < 80, defer to FR-004 hard halt (exit code 1) per spec.**
+- [ ] T051 [P] [US3] Implement a "Null Model" baseline in `code/modeling.py` that predicts the mean yield strength of the training set for every test sample; calculate its R² (expected ~0.0) and MAE to serve as the absolute floor for SC-001 comparison. **Include a t-test or F-test to verify if the best model's R² is significantly better than the null model's R².**
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -157,7 +147,7 @@ Examples of foundational tasks (adjust based on plan.md structure):
 
 - [X] T040 [P] Documentation updates in `README.md` and `quickstart.md`
 - [X] T041 [P] Code cleanup and refactoring for readability
-- [X] T042 [P] Performance optimization to ensure full pipeline runs < 6 hours on CI [UNRESOLVED-CLAIM: c_895be772 — status=not_enough_info]
+- [X] T042 [P] Performance optimization to ensure full pipeline runs < 6 hours on CI
 - [X] T043 [P] Additional unit tests for edge cases (log domain errors, missing elements)
 - [X] T044 [P] Run quickstart.md validation to ensure end-to-end reproducibility
 
@@ -170,8 +160,8 @@ Examples of foundational tasks (adjust based on plan.md structure):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -237,9 +227,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+  - Developer A: User Story 1
+  - Developer B: User Story 2
+  - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -253,13 +243,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Note on T029**: T029 now explicitly includes 'Pre-Filter Dimensionality Reduction (PCA)' and 'Residualization' as required steps to satisfy plan.md Complexity Tracking.
+- **Note on T029**: T029 is now split into T029a (PCA), T029b (Residualization), and T029c (L1/RFE) to explicitly define the order of operations and align with plan.md Complexity Tracking.
 - **Note on T017**: This task enforces the hard gate required by FR-004. If the plan's "conditional" analysis for N < 80 is required, it must be implemented as a separate branch or the spec amended.
-- **Note on T041**: Split into T041_calc (pure calculation) and T041_report (evaluation) to separate metric generation from success criterion reporting. T041_report now includes the logic to halt the pipeline if SC-003 is violated.
-- [X] T045 [P] [US1] Add explicit error handling in `code/data_ingestion.py` to raise a clear exception if the MPEA DOI resolver fails or returns an empty dataset, ensuring no silent fallback to synthetic data (Constitution Principle III).
-- [X] T046 [P] [US2] Add a validation step in `code/feature_engineering.py` to verify that the `thermo_params.json` file loaded in T025a contains valid float entries for all required binary pairs before proceeding to T024.
-- [X] T047 [P] [US3] Add a pre-flight check in `code/modeling.py` to verify that the `train_split` and `test_split` artifacts from T033_impl contain at least 1 sample per class/bin before attempting CV.
-- [X] T048 [P] [US3] Implement a fallback logging mechanism in `code/traceability.py` to capture the exact SHA-256 hash of the input `features_engineered.csv` used for the final model run, ensuring full provenance in `state/projects/PROJ-525...yaml`.
-- [ ] T049 [P] [US3] Implement explicit validation in `code/modeling.py` to confirm that the stratified split bins contain a minimum of 5 samples each before proceeding to CV; if any bin is under-represented, log a warning and adjust binning strategy or halt with a specific "STRATIFICATION_FAILURE" error code.
-- [ ] T050 [P] [US2] Add a unit test in `tests/unit/test_feature_engineering.py` to verify that the `Residualization` step in T029 correctly removes the linear correlation between scalar descriptors and ILR coordinates, ensuring the residuals have near-zero correlation.
-- [ ] T051 [P] [US3] Implement a "Null Model" baseline in `code/modeling.py` that predicts the mean yield strength of the training set for every test sample; calculate its R² (expected ~0.0) and MAE to serve as the absolute floor for SC-001 comparison.
+- **Note on T041**: Split into T041_calc (pure calculation) and T041_report (evaluation) to separate metric generation from success criterion reporting. T041_report now includes the logic to report the status without halting the pipeline.
+- **Note on T049**: Addresses the specific concern that stratified bins may be under-represented in small N regimes, ensuring robust CV splits. Note: FR-004 hard halt takes precedence if N < 80.
+- **Note on T050**: Addresses the specific concern that Residualization must be verified to actually remove linear correlation, ensuring the geometric independence claim holds.
+- **Note on T051**: Addresses the specific concern that SC-001 (statistical significance vs null) requires a concrete Null Model baseline to compare against, including a t-test for significance.

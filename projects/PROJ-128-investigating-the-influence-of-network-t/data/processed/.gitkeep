@@ -1,2 +1,2 @@
-# This directory is intended for processed metrics and intermediate results.
-# Do not commit large files to git.
+# This directory is for processed data (metrics, centroids, etc.)
+# Output from pipeline stages will be stored here

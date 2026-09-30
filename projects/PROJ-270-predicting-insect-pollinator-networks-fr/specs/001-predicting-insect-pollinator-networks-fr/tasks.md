@@ -95,11 +95,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T026 [US2] Implement `code/model_training.py`: **OOM Protection**. Implement chunked processing or memory profiling for large ecosystems.
+- [X] T026 [US2] Implement `code/model_training.py`: **OOM Protection**. Implement chunked processing or memory profiling for large ecosystems.
 - [ ] T027 [US2] Implement `code/model_training.py`: **Logging Setup**. Add logging for CV metrics and importance scores to `results/metrics.json`.
-- [ ] T028 [US2] Implement `code/model_training.py`: Random Forest configuration (class_weight='balanced', stratified k-fold CV)
-- [ ] T029 [US2] Implement `code/model_training.py`: Cross-validation loop (mean AUC-ROC, std dev)
-- [ ] T030 [US2] Implement `code/model_training.py`: Permutation importance calculation (top traits ranking)
+- [X] T028 [US2] Implement `code/model_training.py`: Random Forest configuration (class_weight='balanced', stratified k-fold CV)
+- [X] T029 [US2] Implement `code/model_training.py`: Cross-validation loop (mean AUC-ROC, std dev)
+- [X] T030 [US2] Implement `code/model_training.py`: Permutation importance calculation (top traits ranking)
 - [ ] T031 [US2] Implement `code/model_training.py`: Model serialization (save to `data/processed/model.pkl`)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -114,14 +114,14 @@
 
 ### Tests for User Story 3
 
-- [ ] T032 [P] [US3] Unit test for LOEO loop logic in `tests/test_validation.py`
-- [ ] T033 [P] [US3] Unit test for Trait-Shuffled Null Model in `tests/test_validation.py`
-- [ ] T034 [P] [US3] Unit test for Degree-Preserving Null Model in `tests/test_validation.py`
-- [ ] T035 [P] [US3] Unit test for NetworkX visualization generation in `tests/test_visualization.py`
+- [X] T032 [P] [US3] Unit test for LOEO loop logic in `tests/test_validation.py`
+- [X] T033 [P] [US3] Unit test for Trait-Shuffled Null Model in `tests/test_validation.py`
+- [X] T034 [P] [US3] Unit test for Degree-Preserving Null Model in `tests/test_validation.py`
+- [X] T035 [P] [US3] Unit test for NetworkX visualization generation in `tests/test_visualization.py`
 
 ### Implementation for User Story 3
 
-- [ ] T036 [US3] Implement `code/validation.py`: **LOEO Loop & Primary Validation**. Implement Leave-One-Ecosystem-Out (LOEO) cross-validation loop. **Implement the Trait-Shuffled Null Model as the primary validation metric** for trait efficacy within this loop, comparing against the CV mean.
+- [X] T036 [US3] Implement `code/validation.py`: **LOEO Loop & Primary Validation**. Implement Leave-One-Ecosystem-Out (LOEO) cross-validation loop. **Implement the Trait-Shuffled Null Model as the primary validation metric** for trait efficacy within this loop, comparing against the CV mean.
 - [ ] T037 [US3] Implement `code/validation.py`: **CV Mean Baseline Calculation**. Explicitly calculate and report the 'cross-validation mean' (mean of internal 5-fold CV on full dataset or N-1 folds) required by SC-003 for comparison against LOEO results.
 - [ ] T038 [US3] Implement `code/validation.py`: Trait-Shuffled Null Model (primary validation for trait efficacy) - **Logic integrated into T036**.
 - [ ] T039 [US3] Implement `code/validation.py`: Degree-Preserving Null Model (secondary, topology-focused)

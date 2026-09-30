@@ -70,7 +70,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils/update_state.py` to read `data/` checksums and update `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml` with `artifact_hashes` map
+- [X] T004 Implement `code/utils/update_state.py` to read `data/` checksums and update `state/projects/PROJ-204-quantifying-the-impact-of-spatial-correl.yaml` with `artifact_hashes` map
 - [ ] T005 [P] Setup directory structure: `data/raw/`, `data/processed/`, `code/data/`, `code/preprocess/`, `code/analysis/`, `code/modeling/`, `code/validation/`, `code/report/`, `tests/`
 - [X] T006 [P] Create base configuration loader for environment variables, random seeds, and thresholds (e.g., `min_sample_count`, `ingestion_success_threshold`) in `code/utils/config.py`
 - [X] T007 Implement `code/main_pipeline.py` entry point: accepts `--config` path, logs to `logs/pipeline.log`, orchestrates download -> preprocess -> analyze -> report steps
@@ -88,15 +88,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] **Data Feasibility Check**: Verify programmatic access to EDS maps. Search NREL Perovskite Database and Zenodo for a verified URL/DOI. If no verified source is found, halt execution and generate "Data Availability Report". Output: `state/data_feasibility_status.yaml` (success/fail + URL). <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T010 [US1] **Data Feasibility Check**: Verify programmatic access to EDS maps. Search NREL Perovskite Database and Zenodo for a verified URL/DOI. If no verified source is found, halt execution and generate "Data Availability Report". Output: `state/data_feasibility_status.yaml` (success/fail + URL). <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [ ] T011 [US1] **Conditional Download**: If T010 succeeded, fetch EDS maps from the verified URL determined by T010 (not placeholder URLs) and Zenodo, saving raw files to `data/raw/`. If T010 failed, skip this task. (FR-001) <!-- FAILED: unspecified -->
 - [X] T012 [US1] Implement `code/data/align.py` to resample maps to a common pixel grid and handle dimension mismatches (US-1 Edge Case)
 - [X] T013 [US1] Implement `code/preprocess/calibrate.py` to mask defective regions (dead pixels, artifacts) and log masked area percentage (US-1 Scenario 2)
 - [ ] T014c [US1] Implement `code/data/ingest.py` to orchestrate download, alignment, and masking, outputting a unified CSV to `data/processed/unified_dataset.csv` with columns: sample_id, Pb_map_path, I_map_path, MA_map_path, PCE, J_sc, V_oc. **Note**: This task produces the "pre-filter" valid dataset used for sensitivity analysis.
-- [~] T015 [US1] Add validation logic to exclude samples with missing performance metrics and log warnings with specific sample IDs (US-1 Scenario 3)
+- [ ] T015 [US1] Add validation logic to exclude samples with missing performance metrics and log warnings with specific sample IDs (US-1 Scenario 3)
 - [X] T016 [US1] Implement co-location validation check in `code/validation/co_location.py` to verify EDS map and PCE originate from the same device by matching `device_id` metadata fields, setting a `validation_flag` for each sample (FR-007)
 - [X] T023 [US1] Implement depth resolution validation in `code/validation/depth_check.py` to flag samples where bulk EDS may not correlate with surface PCE, setting a `depth_flag` (FR-008)
-- [~] T010b [US1] **Calculate Ingestion Rate**: Compute `ingestion_success_rate` (N_processed / N_requested) from T010/T011 results and write to `state/ingestion_stats.json` for reporting.
+- [ ] T010b [US1] **Calculate Ingestion Rate**: Compute `ingestion_success_rate` (N_processed / N_requested) from T010/T011 results and write to `state/ingestion_stats.json` for reporting.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,11 +110,11 @@
 
 ### Implementation for User Story 2
 
-- [~] T019 [US2] Implement `code/analysis/spatial_metrics.py` to compute 2-D autocorrelation functions for Pb, I, and MA maps, writing results to `data/processed/spatial_metrics.csv` with columns: sample_id, element, correlation_length, model_type, AIC (FR-002)
+- [ ] T019 [US2] Implement `code/analysis/spatial_metrics.py` to compute 2-D autocorrelation functions for Pb, I, and MA maps, writing results to `data/processed/spatial_metrics.csv` with columns: sample_id, element, correlation_length, model_type, AIC (FR-002)
 - [X] T020 [US2] Implement decay model fitting (exponential, Gaussian, power-law) in `code/analysis/spatial_metrics.py` with AIC-based best-fit selection (FR-002)
-- [~] T021 [US2] Implement logic to flag "undefined" correlation lengths when decay does not occur within image bounds and record lower bounds (US-2 Scenario 3)
+- [ ] T021 [US2] Implement logic to flag "undefined" correlation lengths when decay does not occur within image bounds and record lower bounds (US-2 Scenario 3)
 - [X] T022 [US2] Implement `code/analysis/spatial_metrics.py` to compute 2-D Fourier transforms and integrated low-frequency spectral power (low-frequency range) (FR-003)
-- [~] T024 [US2] Aggregate all spatial metrics into a structured DataFrame in `data/processed/spatial_metrics.csv`
+- [ ] T024 [US2] Aggregate all spatial metrics into a structured DataFrame in `data/processed/spatial_metrics.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -148,8 +148,8 @@
 - [~] T034a [P] Update `README.md` with usage instructions and example commands
 - [~] T035 Add docstrings to all public functions in `code/` (Complete coverage of public API)
 - [~] T036 Optimize memory usage: ensure peak RAM < 7GB during full pipeline run on CPU-only CI
-- [ ] T037 [P] Add additional unit tests to achieve >80% code coverage in `tests/unit/`
-- [ ] T038 Run quickstart.md validation
+- [~] T037 [P] Add additional unit tests to achieve >80% code coverage in `tests/unit/`
+- [~] T038 Run quickstart.md validation
 
 ---
 

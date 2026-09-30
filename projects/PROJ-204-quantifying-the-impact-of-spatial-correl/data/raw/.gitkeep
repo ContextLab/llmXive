@@ -1,1 +1,2 @@
-# This file ensures the data/raw directory exists in git
+# This directory is for raw downloaded data (EDS maps, etc.)
+# Files will be added by T011/T014c

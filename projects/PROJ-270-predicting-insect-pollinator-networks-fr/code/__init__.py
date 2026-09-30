@@ -1,1 +1,2 @@
-# Package initializer for code
+# llmXive: Predicting Insect Pollinator Networks
+# This file initializes the code package.

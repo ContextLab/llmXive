@@ -100,7 +100,7 @@
  3. Calculate per-subject dynamic metrics: **Mean Dwell Time** and **Number of Visited States**.
  4. **Output**: Save per-subject state assignments and metrics to `data/processed/state_assignments.csv` and `data/processed/dynamic_metrics.csv`. **Schema for dynamic_metrics.csv**: Columns `[subject_id, state_id, mean_dwell_time, num_visits]`.
 - [ ] T019 [US1] Implement subject exclusion logging *within* the per-subject loop. Log exclusions (convergence failure, sparsity >90%) to `data/logs/exclusion_log.json` immediately upon detection. **Schema**: `[{subject_id, reason, timestamp}]`.
-- [ ] T018 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: Requires `contracts/output.schema.yaml` (completed in T010) and completion of T015-T017. **Note**: Ensure T019 exclusion logic runs before aggregation so excluded subjects are omitted.
+- [ ] T018 [US1] Implement batch processing logic in `code/main.py` to aggregate metrics into `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`. **Dependency**: Requires `contracts/output.schema.yaml` (completed in T010) and completion of T015-T017. **Note**: Ensure T019 exclusion logic runs before aggregation so excluded subjects are omitted. <!-- FAILED: unspecified -->
 - [ ] T019b [US1] **Data Completeness Report**: Implement a script in `code/analysis/` to read `data/logs/exclusion_log.json` and `data/processed/structural_metrics.csv`. Calculate the percentage of processed subjects against the total cohort size and categorize exclusion reasons (count "convergence failure" vs "sparsity >90%"). **Output**: Save `data/processed/completeness_report.json` to satisfy SC-005.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -121,9 +121,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement normality testing (Shapiro-Wilk, α=0.05) in `code/analysis/correlation.py` to select Pearson vs. Spearman.
-- [ ] T025 [US2] Implement correlation calculation between structural and dynamic metrics across the cohort in `code/analysis/correlation.py`.
-- [ ] T026 [US2] Implement Benjamini-Hochberg FDR correction (q=0.05) on all p-values in `code/analysis/correlation.py`.
+- [X] T024 [US2] Implement normality testing (Shapiro-Wilk, α=0.05) in `code/analysis/correlation.py` to select Pearson vs. Spearman.
+- [X] T025 [US2] Implement correlation calculation between structural and dynamic metrics across the cohort in `code/analysis/correlation.py`.
+- [X] T026 [US2] Implement Benjamini-Hochberg FDR correction (q=0.05) on all p-values in `code/analysis/correlation.py`.
 - [ ] T027 [US2] Generate `data/processed/correlation_results.csv` containing r-values, raw p-values, and FDR-corrected p-values.
 - [ ] T028 [US2] Handle edge case: If FDR correction yields zero significant findings, ensure report explicitly states this rather than omitting results.
 
@@ -139,12 +139,12 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`.
-- [ ] T030 [P] [US3] Integration test for full robustness report generation in `tests/integration/test_robustness.py`.
+- [X] T029 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`.
+- [X] T030 [P] [US3] Integration test for full robustness report generation in `tests/integration/test_robustness.py`. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] **Mandatory 20 TR Validation**: Implement a full re-run of the dynamic metric extraction (T016/T017) and correlation analysis (T025) using `WINDOW_LENGTH_VALIDATION = 20` TR. **Requirement**: This is a mandatory validation of metric stability (Constitution Principle VII). Compare these results against the 30 TR baseline. **Output**: Save `data/processed/sensitivity_comparison.csv` containing the absolute difference in correlation coefficients for all metric pairs between 30 TR and 20 TR.
+- [ ] T031 [US3] **Mandatory 20 TR Validation**: Implement a full re-run of the dynamic metric extraction (T016/T017) and correlation analysis (T025) using `WINDOW_LENGTH_VALIDATION = 20` TR. **Requirement**: This is a mandatory validation of metric stability (Constitution Principle VII). Compare these results against the 30 TR baseline. **Output**: Save `data/processed/sensitivity_comparison.csv` containing the absolute difference in correlation coefficients for all metric pairs between 30 TR and 20 TR. <!-- ATOMIZE: requested -->
 - [ ] T032 [US3] Aggregate structural density sensitivity results (from T015b) and correlation stability to verify robustness to graph thresholding (FR-008).
 - [ ] T033 [US3] Implement resource usage monitoring (peak RAM, runtime) in `code/main.py` to verify CPU-only constraints (GB/h).
 - [ ] T034 [US3] Generate final report in `code/reports/generate_report.py` with explicit "associational" framing (FR-007) and sensitivity tables. **Requirement**: The report MUST explicitly calculate and display:

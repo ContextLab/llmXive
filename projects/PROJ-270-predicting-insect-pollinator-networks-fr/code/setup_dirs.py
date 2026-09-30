@@ -1,61 +1,49 @@
+"""
+Script to initialize the project directory structure.
+This script creates the required directories for the llmXive project.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Creates the required directory structure for the project.
+    """Create the standard project directory structure."""
+    project_root = Path(__file__).resolve().parent.parent
     
-    Directories created:
-    - code/
-    - data/raw/
-    - data/processed/
-    - tests/
-    - docs/
-    - results/
+    # Define the directories to create relative to the project root
+    # Based on T001a requirements: code/, data/raw/, data/processed/, tests/, docs/, results/
+    # Note: 'code/' already exists as the parent of this script, but we ensure it and subdirs
     
-    Also creates __init__.py files to initialize Python packages where needed.
-    """
-    # Get the project root (parent of code/)
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
-    
-    # Define relative paths for required directories
-    directories = [
+    dirs_to_create = [
         "code",
         "data/raw",
         "data/processed",
         "tests",
         "docs",
-        "results"
+        "results",
+        "figures",  # Often needed for outputs, good practice to include
+        "results/metrics",
+        "results/reports",
     ]
-    
-    # Create directories
-    created_dirs = []
-    for dir_path in directories:
+
+    created_count = 0
+    for dir_path in dirs_to_create:
         full_path = project_root / dir_path
-        full_path.mkdir(parents=True, exist_ok=True)
-        created_dirs.append(str(full_path))
-        print(f"Created directory: {full_path}")
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path.relative_to(project_root)}")
+            created_count += 1
+        else:
+            # Ensure it's actually a directory
+            if not full_path.is_dir():
+                raise ValueError(f"Path exists but is not a directory: {full_path}")
+            print(f"Directory already exists: {full_path.relative_to(project_root)}")
+
+    if created_count > 0:
+        print(f"\nSuccessfully created {created_count} new directories.")
+    else:
+        print("\nAll required directories already exist.")
     
-    # Create __init__.py files for Python packages
-    init_files = [
-        "code/__init__.py",
-        "tests/__init__.py",
-        "code/utils/__init__.py"
-    ]
-    
-    created_init_files = []
-    for init_path in init_files:
-        full_path = project_root / init_path
-        # Ensure parent directory exists
-        full_path.parent.mkdir(parents=True, exist_ok=True)
-        # Create empty __init__.py file
-        full_path.touch(exist_ok=True)
-        created_init_files.append(str(full_path))
-        print(f"Created package initializer: {full_path}")
-    
-    print(f"\nSuccessfully created {len(created_dirs)} directories and {len(created_init_files)} package initializers.")
     return 0
 
 if __name__ == "__main__":

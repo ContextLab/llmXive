@@ -1,9 +1,3 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `code/`, `data/`, `contracts/`, or `tests/` directories
-    is provided; the claim lacks any artifact confirming the directory structure was
-    created.
 T003:
   c: true
   h: 28c454cdacd165956cb464c39c1810707fcff6a8b3bd70843187afd768f04105
@@ -19,12 +13,12 @@ T012:
     unfinished.
 T015b:
   c: false
-  h: 43bd3a1c0e7f0776dc29db3dc531af006133666e07796d1a100d444859259f1f
-  r: "The repository contains `code/preprocess/structural.py`, but it only defines\
-    \ metric calculation and a single\u2011subject processing function; there is no\
-    \ code that iterates over `DENSITY_THRESHOLD_VARIATIONS` and writes a CSV. Moreover,\
-    \ the required output file `data/processed/structural_density_sensitivity.csv`\
-    \ does not exist. The sensitivity analysis and result export are therefore missing."
+  h: dac337130aede19574e721da677236c89390d6b1c9a06ad1d27456a2e9aa668c
+  r: The repository contains `code/preprocess/structural.py`, but the visible portion
+    only defines `calculate_graph_metrics` and does not show any loop over `DENSITY_THRESHOLD_VARIATIONS`
+    or code that writes a CSV file. Moreover, the required output file `data/processed/structural_density_sensitivity.csv`
+    is absent. Hence the mandated sensitivity analysis and its result file are not
+    present.
 T017:
   c: false
   h: 6dd7dd6b3d7c890722e0db91e61ad34a35136babeb022ce68c9bb0e510e6dfcb
@@ -38,6 +32,16 @@ T018:
   r: The required output files `data/processed/structural_metrics.csv` and `data/processed/dynamic_metrics.csv`
     are absent, and the referenced `contracts/output.schema.yaml` (schema.yaml) is
     also missing. Consequently the batch aggregation logic cannot be verified as implemented.
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test, or documentation artifact was provided showing that the pipeline\
+    \ now checks for zero significant findings after FDR correction and explicitly\
+    \ writes a statement to the report. Without a concrete implementation or evidence\
+    \ (e.g., updated script, unit test, or example report), the requirement is not\
+    \ satisfied. The next implementer must add the edge\u2011case handling logic,\
+    \ a test confirming the behavior, and an example output demonstrating the explicit\
+    \ statement."
 T051:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

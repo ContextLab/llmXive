@@ -1,2 +1,1 @@
-# This directory is intended for exclusion logs and execution logs.
-# Do not commit large files to git.
+# This directory is for log files (exclusion logs, runtime logs)

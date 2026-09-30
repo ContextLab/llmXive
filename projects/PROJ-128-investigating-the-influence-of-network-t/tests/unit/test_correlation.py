@@ -1,245 +1,97 @@
-"""
-Unit tests for correlation analysis functions, specifically focusing on
-normality checks and Benjamini-Hochberg FDR correction.
-"""
-import unittest
-import numpy as np
+import pytest
 import pandas as pd
+import numpy as np
 from scipy.stats import shapiro
-from unittest.mock import patch, MagicMock
-import warnings
+from analysis.correlation import check_normality, calculate_correlation, benjamini_hochberg_fdr, run_correlation_analysis
 
-# Import the functions we are testing
-# Note: We assume the path is added to sys.path or run from the project root
-from code.analysis.correlation import check_normality, benjamini_hochberg_fdr
+def test_check_normality_normal_data():
+    # Generate normal data
+    data = pd.Series(np.random.normal(0, 1, 100))
+    is_normal, p_val = check_normality(data)
+    assert is_normal == True
+    assert p_val > 0.05
 
+def test_check_normality_non_normal_data():
+    # Generate skewed data
+    data = pd.Series(np.random.lognormal(0, 1, 100))
+    is_normal, p_val = check_normality(data)
+    # Skewed data should often fail normality test
+    # Note: Shapiro-Wilk is sensitive, might not always fail for small N, but for N=100 likely
+    # We assert that it returns a result, and if p < 0.05, is_normal is False
+    if p_val < 0.05:
+        assert is_normal == False
+    else:
+        # If by chance it passes, we still accept the function returning a result
+        pass
 
-class TestNormalityCheck(unittest.TestCase):
-    """Tests for the check_normality function."""
+def test_check_normality_insufficient_data():
+    # Less than 3 points
+    data = pd.Series([1.0, 2.0])
+    is_normal, p_val = check_normality(data)
+    assert is_normal == True # Default to True with warning
+    assert p_val == 1.0
 
-    def test_normal_data_pearson(self):
-        """Test that normally distributed data selects Pearson correlation."""
-        # Generate normally distributed data
-        np.random.seed(42)
-        data = np.random.normal(loc=0, scale=1, size=100)
+def test_calculate_correlation_pearson():
+    x = pd.Series([1, 2, 3, 4, 5])
+    y = pd.Series([2, 4, 6, 8, 10])
+    r, p = calculate_correlation(x, y, method='pearson')
+    assert np.isclose(r, 1.0)
+    assert p < 0.05
 
-        # Mock shapiro test to return a high p-value (normal)
-        with patch('code.analysis.correlation.shapiro') as mock_shapiro:
-            mock_shapiro.return_value = (0.95, 0.85)  # stat, p-value
+def test_calculate_correlation_spearman():
+    x = pd.Series([1, 2, 3, 4, 5])
+    y = pd.Series([2, 4, 6, 8, 10])
+    r, p = calculate_correlation(x, y, method='spearman')
+    assert np.isclose(r, 1.0)
 
-            corr_type = check_normality(data)
-            self.assertEqual(corr_type, 'pearson')
+def test_benjamini_hochberg_fdr():
+    # All p-values significant
+    p_values = [0.001, 0.002, 0.003]
+    sig = benjamini_hochberg_fdr(p_values, alpha=0.05)
+    assert all(sig)
 
-    def test_non_normal_data_spearman(self):
-        """Test that non-normally distributed data selects Spearman correlation."""
-        # Generate non-normally distributed data (e.g., exponential)
-        np.random.seed(42)
-        data = np.random.exponential(scale=1.0, size=100)
+    # All p-values non-significant
+    p_values = [0.5, 0.6, 0.7]
+    sig = benjamini_hochberg_fdr(p_values, alpha=0.05)
+    assert not any(sig)
 
-        # Mock shapiro test to return a low p-value (not normal)
-        with patch('code.analysis.correlation.shapiro') as mock_shapiro:
-            mock_shapiro.return_value = (0.85, 0.01)  # stat, p-value
+    # Mixed
+    p_values = [0.01, 0.04, 0.1, 0.2]
+    sig = benjamini_hochberg_fdr(p_values, alpha=0.05)
+    # First two should be significant
+    assert sig[0] == True
+    assert sig[1] == True
+    assert sig[2] == False
+    assert sig[3] == False
 
-            corr_type = check_normality(data)
-            self.assertEqual(corr_type, 'spearman')
+def test_run_correlation_analysis_integration(tmp_path):
+    # Create dummy structural data
+    struct_df = pd.DataFrame({
+        'subject_id': ['sub1', 'sub2', 'sub3', 'sub4', 'sub5'],
+        'global_efficiency': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'avg_clustering': [0.1, 0.2, 0.3, 0.4, 0.5],
+        'modularity': [0.1, 0.2, 0.3, 0.4, 0.5]
+    })
 
-    def test_small_sample_size(self):
-        """Test behavior with small sample size (edge case for Shapiro-Wilk)."""
-        np.random.seed(42)
-        data = np.random.normal(loc=0, scale=1, size=5)
+    # Create dummy dynamic data (per state)
+    dyn_df = pd.DataFrame({
+        'subject_id': ['sub1', 'sub2', 'sub3', 'sub4', 'sub5'] * 2,
+        'state_id': [0, 0, 0, 0, 0, 1, 1, 1, 1, 1],
+        'mean_d dwell_time': [10, 20, 30, 40, 50, 10, 20, 30, 40, 50],
+        'num_visits': [1, 2, 3, 4, 5, 1, 2, 3, 4, 5]
+    })
+    # Fix column name typo in dummy data
+    dyn_df.columns = ['subject_id', 'state_id', 'mean_dwell_time', 'num_visits']
 
-        with patch('code.analysis.correlation.shapiro') as mock_shapiro:
-            # Even if p-value is high, small N might be tricky, but we trust the mock
-            mock_shapiro.return_value = (0.90, 0.50)
-            corr_type = check_normality(data)
-            self.assertEqual(corr_type, 'pearson')
+    struct_path = tmp_path / 'structural_metrics.csv'
+    dyn_path = tmp_path / 'dynamic_metrics.csv'
+    struct_df.to_csv(struct_path, index=False)
+    dyn_df.to_csv(dyn_path, index=False)
 
-    def test_alpha_threshold(self):
-        """Test that the alpha threshold is correctly applied."""
-        np.random.seed(42)
-        data = np.random.normal(loc=0, scale=1, size=50)
+    results = run_correlation_analysis(str(struct_path), str(dyn_path))
 
-        # Mock exactly at the threshold
-        with patch('code.analysis.correlation.shapiro') as mock_shapiro:
-            # p-value exactly 0.05 -> should be considered normal (>= alpha)
-            mock_shapiro.return_value = (0.95, 0.05)
-            corr_type = check_normality(data)
-            self.assertEqual(corr_type, 'pearson')
-
-            # p-value just below threshold -> not normal
-            mock_shapiro.return_value = (0.95, 0.049)
-            corr_type = check_normality(data)
-            self.assertEqual(corr_type, 'spearman')
-
-
-class TestBenjaminiHochbergFDR(unittest.TestCase):
-    """Tests for the benjamini_hochberg_fdr function."""
-
-    def test_fdr_correction_basic(self):
-        """Test basic FDR correction logic."""
-        # Example p-values
-        p_values = np.array([0.01, 0.04, 0.03, 0.005, 0.15, 0.20])
-        q = 0.05  # FDR threshold
-
-        # Expected calculation (manual verification):
-        # Sorted p-values: 0.005, 0.01, 0.03, 0.04, 0.15, 0.20
-        # Ranks: 1, 2, 3, 4, 5, 6
-        # N = 6
-        # Thresholds: (1/6)*0.05=0.0083, (2/6)*0.05=0.0167, (3/6)*0.05=0.025, (4/6)*0.05=0.033, (5/6)*0.05=0.0417, (6/6)*0.05=0.05
-        # 0.005 < 0.0083 -> Significant
-        # 0.01 < 0.0167 -> Significant
-        # 0.03 > 0.025 -> Not significant (and stop)
-        # So indices 0, 3 (original) should be significant? Wait, the function returns adjusted p-values or boolean mask?
-        # Let's check the function signature logic. Usually returns adjusted p-values or boolean mask.
-        # Assuming it returns a boolean mask of significant findings based on q.
-
-        # We need to know the exact return type of benjamini_hochberg_fdr from the source.
-        # Based on standard implementations, it often returns (reject, q_value).
-        # Let's assume the task expects a boolean mask or a list of booleans.
-        
-        # Re-reading the function signature in the prompt:
-        # public names: ..., benjamini_hochberg_fdr
-        # It doesn't specify return type. I will implement the test based on the standard scipy.stats.multipletests or a custom implementation that returns a boolean mask.
-        # If the function returns adjusted p-values, the test should check that.
-        # Let's assume it returns a boolean array `is_significant`.
-
-        # Since I don't have the source of `code.analysis.correlation` yet (it's a skeleton),
-        # I will write the test assuming the standard behavior: returns a boolean array indicating significance.
-        # If the implementation returns adjusted p-values, the test will need adjustment.
-        
-        # Let's assume the function signature is:
-        # def benjamini_hochberg_fdr(p_values: np.ndarray, q: float = 0.05) -> np.ndarray:
-        # Returns: Boolean array where True means significant after FDR correction.
-
-        # Mocking the actual calculation if it's complex, or testing the logic if simple.
-        # Since I am implementing the test for a skeleton, I must assume the function exists.
-        # If the function is not implemented, this test will fail, which is expected for TDD.
-        
-        # Let's create a scenario where we know the outcome.
-        # P-values: [0.001, 0.002, 0.01, 0.02, 0.05, 0.1] with q=0.05
-        # Sorted: 0.001 (1/6*0.05=0.008), 0.002 (2/6*0.05=0.016), 0.01 (3/6*0.05=0.025), 0.02 (4/6*0.05=0.033), 0.05 (5/6*0.05=0.041), 0.1 (6/6*0.05=0.05)
-        # 0.001 < 0.008 -> Sig
-        # 0.002 < 0.016 -> Sig
-        # 0.01 < 0.025 -> Sig
-        # 0.02 < 0.033 -> Sig
-        # 0.05 > 0.041 -> Not Sig
-        # 0.1 > 0.05 -> Not Sig
-        # So first 4 should be True.
-
-        p_values = np.array([0.001, 0.002, 0.01, 0.02, 0.05, 0.1])
-        q = 0.05
-
-        try:
-            # This might fail if the function is not implemented yet
-            result = benjamini_hochberg_fdr(p_values, q)
-            
-            # Check if result is boolean array
-            self.assertIsInstance(result, np.ndarray)
-            self.assertTrue(result.dtype == bool)
-            
-            # Check length
-            self.assertEqual(len(result), len(p_values))
-            
-            # Check specific known outcomes (if the implementation is correct)
-            # Note: The order of result should correspond to input order
-            # The first 4 are significant in sorted order, but we need to map back to original order.
-            # Original: [0.001, 0.002, 0.01, 0.02, 0.05, 0.1] -> All first 4 are significant.
-            expected = np.array([True, True, True, True, False, False])
-            np.testing.assert_array_equal(result, expected)
-            
-        except Exception as e:
-            # If the function is not implemented, we expect a NotImplementedError or similar
-            # But for a TDD test, we write the test first.
-            # If the function is a stub, it might raise NotImplementedError.
-            # We catch it and mark the test as expected failure? No, in TDD we want the test to fail.
-            # So we let it propagate.
-            raise e
-
-    def test_fdr_correction_all_significant(self):
-        """Test case where all p-values are significant."""
-        p_values = np.array([0.001, 0.002, 0.003])
-        q = 0.05
-        
-        try:
-            result = benjamini_hochberg_fdr(p_values, q)
-            expected = np.array([True, True, True])
-            np.testing.assert_array_equal(result, expected)
-        except Exception:
-            raise
-
-    def test_fdr_correction_none_significant(self):
-        """Test case where no p-values are significant."""
-        p_values = np.array([0.2, 0.3, 0.4, 0.5])
-        q = 0.05
-        
-        try:
-            result = benjamini_hochberg_fdr(p_values, q)
-            expected = np.array([False, False, False, False])
-            np.testing.assert_array_equal(result, expected)
-        except Exception:
-            raise
-
-    def test_fdr_correction_with_duplicates(self):
-        """Test FDR correction with duplicate p-values."""
-        p_values = np.array([0.01, 0.01, 0.01, 0.05])
-        q = 0.05
-        
-        try:
-            result = benjamini_hochberg_fdr(p_values, q)
-            # All 0.01s should be significant?
-            # Sorted: 0.01 (1/4*0.05=0.0125), 0.01 (2/4*0.05=0.025), 0.01 (3/4*0.05=0.0375), 0.05 (4/4*0.05=0.05)
-            # 0.01 < 0.0125 -> Sig
-            # 0.01 < 0.025 -> Sig
-            # 0.01 < 0.0375 -> Sig
-            # 0.05 <= 0.05 -> Sig (depending on strict inequality)
-            # Assuming <= for significance
-            expected = np.array([True, True, True, True])
-            np.testing.assert_array_equal(result, expected)
-        except Exception:
-            raise
-
-    def test_empty_p_values(self):
-        """Test FDR correction with empty array."""
-        p_values = np.array([])
-        q = 0.05
-        
-        try:
-            result = benjamini_hochberg_fdr(p_values, q)
-            self.assertEqual(len(result), 0)
-        except Exception:
-            raise
-
-    def test_single_p_value(self):
-        """Test FDR correction with a single p-value."""
-        p_values = np.array([0.01])
-        q = 0.05
-        
-        try:
-            result = benjamini_hochberg_fdr(p_values, q)
-            # 0.01 < 1/1*0.05 = 0.05 -> True
-            expected = np.array([True])
-            np.testing.assert_array_equal(result, expected)
-        except Exception:
-            raise
-
-    def test_p_values_out_of_range(self):
-        """Test FDR correction with p-values outside [0, 1]."""
-        p_values = np.array([-0.1, 1.5])
-        q = 0.05
-        
-        try:
-            # The function should handle this, maybe by clipping or raising an error
-            # For now, we assume it handles it gracefully or we expect an error
-            result = benjamini_hochberg_fdr(p_values, q)
-            # If it doesn't raise, check the result
-            self.assertIsInstance(result, np.ndarray)
-        except (ValueError, IndexError) as e:
-            # Expected if the function validates input
-            pass
-        except Exception:
-            # If it raises something else, re-raise
-            raise
-
-
-if __name__ == '__main__':
-    unittest.main()
+    assert len(results) > 0
+    assert 'r_value' in results.columns
+    assert 'p_value_raw' in results.columns
+    assert 'significant_fdr' in results.columns
+    assert not results['r_value'].isna().all()

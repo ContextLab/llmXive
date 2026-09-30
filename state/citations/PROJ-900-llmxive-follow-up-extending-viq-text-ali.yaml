@@ -31,7 +31,7 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-07-14T02:40:58.288428Z'
-- artifact_hash: 6de4c73c53aa077f815d11c468209dbbed86c4da7892e60ce57597af75449c75
+- artifact_hash: 56ec8bf7a26f947d59efbda26e9395607385ce0a7994e2fd7ed8f751f1e65eba
   artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -42,8 +42,8 @@
   value: https://arxiv.org/abs/2411.07379
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2411.07379
-  verified_at: '2026-08-29T18:54:49.186840Z'
-- artifact_hash: 6de4c73c53aa077f815d11c468209dbbed86c4da7892e60ce57597af75449c75
+  verified_at: '2026-09-30T12:54:19.130510Z'
+- artifact_hash: 56ec8bf7a26f947d59efbda26e9395607385ce0a7994e2fd7ed8f751f1e65eba
   artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -53,4 +53,4 @@
   value: https://arxiv.org/abs/2011.02803
   verification_status: pending
   verified_against_url: https://arxiv.org/abs/2011.02803
-  verified_at: '2026-08-29T18:54:49.186840Z'
+  verified_at: '2026-09-30T12:54:19.130510Z'

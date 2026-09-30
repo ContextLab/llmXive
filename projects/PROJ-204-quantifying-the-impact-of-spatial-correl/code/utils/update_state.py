@@ -4,6 +4,7 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any, List
 import logging
+from datetime import datetime
 
 __all__ = [
     "compute_file_hash",
@@ -121,7 +122,6 @@ def update_state_file(state_path: Path, new_hashes: Dict[str, str]) -> None:
     state["artifact_hashes"].update(new_hashes)
     
     # Update timestamp
-    from datetime import datetime
     state["last_updated"] = datetime.utcnow().isoformat()
 
     # Ensure directory exists

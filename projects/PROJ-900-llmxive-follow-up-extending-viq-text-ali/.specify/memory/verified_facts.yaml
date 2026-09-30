@@ -1,11 +1,20 @@
-'|contrastive loss weight':
-  quote: 2048 65.3 67.6 69.0 70.1
-  source_id: '2011.02803'
-  url: https://arxiv.org/abs/2011.02803
-  value: '0.1'
-'|db psnr':
-  quote: Detection of 15 dB Squeezed States of Light and their Application for the
-    Absolute
-  source_id: '2411.07379'
-  url: https://arxiv.org/abs/2411.07379
-  value: '15'
+'|contrastive loss temperature':
+  quote: "S and QQP, standard L2 normalization with \u03C4 \u201C 0.055 for CQA-A,\
+    \ \u03C4 \u201C 0.07 for CQA-B, and"
+  source_id: '2110.15725'
+  url: https://arxiv.org/abs/2110.15725
+  value: '0.07'
+'|size ssim window':
+  quote: "In order to evaluate the image quality, this formula is usually applied\
+    \ only on luma, although it may also be applied on color (e.g., RGB) values or\
+    \ chromatic (e.g. YCbCr) values. The resultant SSIM index is a decimal value between\
+    \ -1 and 1, where 1 indicates perfect similarity, 0 indicates no similarity, and\
+    \ -1 indicates perfect anti-correlation. For an image, it is typically calculated\
+    \ using a sliding Gaussian window of size 11\xD711 or a block window of size 8\xD7\
+    8. The window can be displaced pixel-by-pixel on the image to create an SSIM quality\
+    \ map of the image. In the case of video quality assessment, the authors propose\
+    \ to use only a subgroup of the possible windows to reduce the complexity of the\
+    \ calculation."
+  source_id: Structural similarity index measure
+  url: https://en.wikipedia.org/wiki/Structural_similarity_index_measure
+  value: "11\xD711"

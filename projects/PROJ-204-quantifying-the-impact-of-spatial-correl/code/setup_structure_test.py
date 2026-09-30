@@ -1,45 +1,79 @@
-"""
-Test for project structure creation.
-"""
 import os
 import pytest
 from pathlib import Path
-from setup_structure import create_project_structure
+import shutil
+import tempfile
+from setup_structure import create_project_structure, ensure_init_files
 
-def test_create_project_structure_creates_directories():
-    """Verify that the required directories are created."""
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to simulate project root."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    # Cleanup after test
+    shutil.rmtree(temp_dir)
+
+def test_create_project_structure_creates_directories(temp_project_root):
+    """Test that all required directories are created."""
     required_dirs = [
-        "code",
         "data/raw",
         "data/processed",
-        "tests",
-        "state",
-        "docs",
-        "logs"
-    ]
-    
-    # Run the setup
-    create_project_structure()
-    
-    # Verify each directory exists
-    for dir_path in required_dirs:
-        full_path = Path(dir_path)
-        assert full_path.exists(), f"Directory {full_path} was not created"
-        assert full_path.is_dir(), f"{full_path} exists but is not a directory"
-
-def test_create_project_structure_creates_submodules():
-    """Verify that code submodules are created."""
-    required_subdirs = [
         "code/data",
         "code/preprocess",
         "code/analysis",
         "code/modeling",
         "code/validation",
-        "code/report"
+        "code/report",
+        "tests",
+        "state",
+        "docs",
+        "logs",
+        "figures",
     ]
+
+    create_project_structure(temp_project_root)
+
+    for dir_path_str in required_dirs:
+        full_path = temp_project_root / dir_path_str
+        assert full_path.exists(), f"Directory {dir_path_str} was not created"
+        assert full_path.is_dir(), f"{dir_path_str} exists but is not a directory"
+
+def test_create_project_structure_creates_submodules(temp_project_root):
+    """Test that __init__.py files are created for Python packages."""
+    # First create the structure
+    create_project_structure(temp_project_root)
     
-    create_project_structure()
+    # Then ensure init files
+    ensure_init_files(temp_project_root)
+
+    python_package_dirs = [
+        "code/data",
+        "code/preprocess",
+        "code/analysis",
+        "code/modeling",
+        "code/validation",
+        "code/report",
+        "code/utils",
+        "tests",
+    ]
+
+    for dir_path_str in python_package_dirs:
+        full_path = temp_project_root / dir_path_str
+        init_file = full_path / "__init__.py"
+        
+        assert full_path.exists(), f"Directory {dir_path_str} should exist"
+        assert init_file.exists(), f"__init__.py missing in {dir_path_str}"
+        assert init_file.is_file(), f"{init_file} exists but is not a file"
+
+def test_idempotency(temp_project_root):
+    """Test that running the setup twice does not cause errors."""
+    create_project_structure(temp_project_root)
+    ensure_init_files(temp_project_root)
     
-    for dir_path in required_subdirs:
-        full_path = Path(dir_path)
-        assert full_path.exists(), f"Subdirectory {full_path} was not created"
+    # Run again
+    create_project_structure(temp_project_root)
+    ensure_init_files(temp_project_root)
+    
+    # Should still exist
+    assert (temp_project_root / "data/raw").exists()
+    assert (temp_project_root / "code/data" / "__init__.py").exists()

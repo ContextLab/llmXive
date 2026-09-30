@@ -1,1 +1,1 @@
-"""Validation modules package."""
+# Validation package

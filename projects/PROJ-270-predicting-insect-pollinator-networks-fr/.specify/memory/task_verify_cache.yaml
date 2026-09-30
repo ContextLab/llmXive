@@ -1,26 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I could find no listed artifacts showing that the required directories (`code/`,\
-    \ `data/raw/`, `data/processed/`, `tests/`, `docs/`, `results/`) actually exist\
-    \ in the repository; the evidence provided contains only the task description\
-    \ and no filesystem snapshot. The implementer must add these directories (non\u2011\
-    empty or at least present) to satisfy the requirement."
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of the three required `__init__.py` files (in `code/`, `tests/`,\
-    \ and `code/utils/`) is presented; the artifact list is empty, so we cannot verify\
-    \ that the files exist or are non\u2011empty. The implementer must add those empty\
-    \ `__init__.py` files at the specified locations."
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I looked for any linting/formatting/type\u2011checking configuration artifacts\
-    \ (e.g., `pyproject.toml`, `.ruff.toml`, `black.cfg`, `mypy.ini`, or CI scripts)\
-    \ but none were presented in the evidence. Without those files the requirement\
-    \ to configure `ruff`, `black`, and `mypy` is not satisfied. The implementer must\
-    \ add the appropriate configuration files and ensure they are non\u2011empty."
 T008:
   c: true
   h: 5883a1516fff37762a401b95c2a81b30735d8011a94acbd591cc53ed5cc7ae18
@@ -44,3 +21,18 @@ T022:
     logic is not present, and the missing `schema.yaml` further indicates incomplete
     work. The next implementer must add the actual validation implementation and ensure
     it is invoked where appropriate.
+T027:
+  c: false
+  h: 461f67a8bdca755a692a3728184a88031e507ec61c10ecf5c19a8d70b891f2f0
+  r: "The repository contains `code/model_training.py`, but the shown code (and the\
+    \ rest of the file) does not include any logic that writes cross\u2011validation\
+    \ metrics or feature\u2011importance scores to `results/metrics.json`. Moreover,\
+    \ the `results/metrics.json` file is absent from the project. Consequently, the\
+    \ required logging setup is not implemented."
+T031:
+  c: false
+  h: 1b53d06ea3ac3e1c6dcdc5a25d68367ccd173158682785ce43684c15d7df810b
+  r: "The repository contains a partially shown `code/model_training.py` that does\
+    \ not include any code to serialize and save a trained model, and the expected\
+    \ output file `data/processed/model.pkl` is absent. Without model\u2011saving\
+    \ logic and the resulting pickle file, the task requirement is not met."

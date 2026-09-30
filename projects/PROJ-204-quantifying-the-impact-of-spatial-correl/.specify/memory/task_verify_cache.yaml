@@ -27,6 +27,12 @@ T005:
     \ `code/preprocess/`, `code/analysis/`, `code/modeling/`, `code/validation/`,\
     \ `code/report/`, `tests/`) is present; the implementer did not supply any file\u2011\
     system listing or screenshots showing the structure. The task remains undone."
+T010b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/ingestion_stats.json` file or any code showing the calculation of `ingestion_success_rate`
+    (N_processed / N_requested) is present. The implementer did not provide the required
+    artifact, so the task is not satisfied.
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -36,9 +42,34 @@ T011:
     \ are absent, so the task\u2019s core requirement is not satisfied."
 T014c:
   c: false
-  h: 9e15fb8fad0452fa6c10c6f9d5f7a08cb8cef96fce47d076922d042bece6435d
-  r: "The `code/data/ingest.py` file contains only placeholder download logic and\
-    \ a truncated `ingest_and_filter_dataset` function that never writes the required\
-    \ unified CSV, and the expected output file `data/processed/unified_dataset.csv`\
-    \ is absent. The script does not produce the specified columns or a non\u2011\
-    empty dataset, so the task is not fulfilled."
+  h: 618d81fe49e96b3174e94dc33fc1dc6974e16070d89f474f76516a9a17efa759
+  r: The repository contains an `ingest.py` file, but it does not include any logic
+    that creates or writes `data/processed/unified_dataset.csv`, and the expected
+    CSV file is absent from the project. Consequently the required unified dataset
+    output is missing, so the task is not fulfilled.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or log output was provided showing validation logic that excludes
+    samples with missing performance metrics and logs warnings with the specific sample
+    IDs. The required artifact is missing, so the task is not satisfied.
+T019:
+  c: false
+  h: 2779fe6712ca8b7405d26b7cc218746f56ccd4884d7a010290f06a03553fbe83
+  r: "The repository contains `code/analysis/spatial_metrics.py`, but the required\
+    \ output file `data/processed/spatial_metrics.csv` is absent, indicating the script\
+    \ does not (or has not yet) written the results to the specified location. Without\
+    \ this CSV, the task\u2019s core deliverable is missing."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required logic to flag \u201C\
+    undefined\u201D correlation lengths and record lower\u2011bound values is present.\
+    \ The claim lacks any artifact (e.g., function, module, test case, or output file)\
+    \ demonstrating that the scenario is handled, so the requirement is not satisfied."
+T024:
+  c: false
+  h: b1d3443bb142ef0ec23f9e0b3f8b1611f069fa47320ef1ef4fbce0e6d0e868aa
+  r: The required artifact `data/processed/spatial_metrics.csv` does not exist, so
+    no aggregated DataFrame is present to satisfy the task. The implementer must create
+    the CSV file containing the compiled spatial metrics.

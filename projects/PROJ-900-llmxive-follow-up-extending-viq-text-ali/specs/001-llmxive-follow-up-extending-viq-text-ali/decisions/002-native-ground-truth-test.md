@@ -1,21 +1,29 @@
-# Decision Record 002: Native Ground Truth and Paired Statistical Testing
+# Decision Record 002: Native Ground Truth & Paired Statistical Tests
 
 ## Status
 Accepted
 
 ## Context
-The original specification contained two methodological choices that were identified as scientifically unsound during the planning phase:
-
-1. **FR-004 (Upsampled Ground Truth)**: The spec required comparing high-resolution reconstructions against an *upsampled* low-resolution ground truth. This introduces artificial smoothing and biases the fidelity metrics (PSNR/SSIM) in favor of the upsampling method, rather than measuring true reconstruction fidelity against the original high-resolution signal.
-2. **SC-005 (One-Sample t-test)**: The spec proposed using a one-sample t-test to compare reconstruction errors. However, since we are comparing paired observations (the same image at low-res vs. high-res, or reconstruction vs. ground truth for the *same* image), a one-sample test is inappropriate. The observations are dependent, not independent.
+The original specification contained two scientifically unsound requirements:
+1. **FR-004**: Required the use of "upsampled ground truth" (interpolating low-res images to match high-res dimensions) as the baseline for fidelity measurement. This approach introduces artificial smoothing and fails to represent the true high-frequency information present in native high-resolution images, leading to biased metric calculations (PSNR/SSIM).
+2. **SC-005**: Specified a "one-sample t-test" for comparing reconstruction errors. A one-sample test compares a sample mean against a known constant, which is inappropriate for comparing two related measurements (low-res vs. high-res reconstructions of the *same* image).
 
 ## Decision
-We hereby **reject** the original FR-004 and SC-005 and adopt the following corrections:
+1. **Native Ground Truth**: All fidelity metrics (PSNR, SSIM) will be calculated by comparing the model's reconstruction against the **native 1024x1024 ground truth** image, not an upsampled version of the low-resolution input. This ensures the metrics reflect the true loss of information due to the quantization and resolution shift process.
 
-1. **Native Ground Truth**: All fidelity metrics (PSNR, SSIM) for high-resolution (1024x1024) evaluations will be calculated against the **native 1024x1024 ground truth** images available in the ImageNet-1K and COCO validation sets. No upsampling will be performed on the ground truth.
-2. **Paired Statistical Testing**: All statistical comparisons of reconstruction errors between resolutions or against baselines will use **paired t-tests** (if normality assumptions hold, verified via Shapiro-Wilk) or **Wilcoxon signed-rank tests** (if normality is violated).
+2. **Paired Statistical Tests**: The statistical analysis comparing texture complexity and reconstruction error will utilize **paired t-tests** (if normality assumptions hold) or **Wilcoxon signed-rank tests** (if assumptions fail). This correctly models the dependency between the two measurements taken on the same sample.
 
 ## Consequences
-- **Positive**: The evaluation methodology is now statistically rigorous. Metrics reflect true reconstruction quality against the actual high-resolution signal.
-- **Negative**: Fidelity scores may appear lower than the upsampled baseline would have suggested, as the metric is now harder.
-- **Implementation**: T021 and T022 were updated to implement these corrected calculation and testing methods. T036c updates the spec to reflect these changes.
+- **Positive**:
+ - Metrics are scientifically valid and reflect true image fidelity.
+ - Statistical tests correctly handle the paired nature of the data, increasing the power and validity of the hypothesis testing.
+ - Aligns the implementation with rigorous scientific standards.
+
+- **Negative**:
+ - Requires access to the original high-resolution images in the dataset, which is available for ImageNet-1K and COCO but necessitates the exclusion of any dataset where only low-res versions are available.
+ - The analysis pipeline must be updated to handle paired data structures instead of independent samples.
+
+## References
+- Plan.md: "FR-004 (upsampled baseline) and SC-005 (one-sample t-test) are amended per Decision Record 002."
+- T021: Metric aggregation script calculates against native ground truth.
+- T022: Correlation analysis script implements Shapiro-Wilk and paired tests.

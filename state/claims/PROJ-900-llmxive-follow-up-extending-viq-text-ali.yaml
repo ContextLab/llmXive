@@ -1168,3 +1168,568 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-08-29T18:54:48Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Tests are optional and only included if explicitly requested in the feature
+    specification
+  claim_id: c_ce5105d8
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tests_are_optional_and_only_included_if_explicitly_requested
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:43:46Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Project initialized with Python 3.11 and specific library versions including
+    torch 2.1.0+cpu, transformers 4.36.0, datasets 2.14.0, scikit-learn 1.3.0, opencv-python-headless
+    4.8.0, numpy 1.24.0, pandas 2.0.0, matplotlib 3.7.0, scipy 1.10.0
+  claim_id: c_fb086bce
+  context: 'T002 Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu , transformers==4.36.0 , datasets==2.14.0
+    , scikit-learn==1.3.0 , opencv-python-headless==4.8.0 , numpy==1.24.0 , pandas==2.0.0
+    , matplotlib==3.7.0 , scipy==1.10.0 .'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions: torch==2.1.0+cpu, transformers==4.36.0, datasets==2.14.0,
+    scikit-learn==1.3.0, opencv-python-headless==4.8.0, numpy==1.24.0, pandas==2.0.0,
+    matplotlib==3.7.0, scipy==1.10.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T12:43:46Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ViQ-Base placeholder ID is viq-base-v
+  claim_id: c_cc34ab8a
+  context: T006 [P] [Foundational] Implement code/model.py defining VQ-VAE Codebook,
+    Projection Head, and Frozen ViQ/CLIP wrappers. Use ViQ-Base placeholder ID 'viq-base-v'.
+  evidence:
+    entailment_evidence: ViQ-Base placeholder ID is viq-base-v
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/ViQ-Base_placeholder_ID_is_viq-base-v
+  kind: entity_fact
+  raw_text: Use ViQ-Base placeholder ID 'viq-base-v'.
+  resolved_value: ViQ-Base placeholder ID is viq-base-v
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T12:43:49Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Fallback architecture is ResNet based VQ-VAE with hidden_dim 512 and
+    codebook_size 1024
+  claim_id: c_7eacb53f
+  context: 'If checkpoint missing, define fallback architecture: ResNet based VQ-VAE
+    with hidden_dim=512, codebook_size=1024, and global average pooling for resolution
+    invariance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fallback architecture: ResNet based VQ-VAE with hidden_dim=512, codebook_size=1024,
+    and global average pooling for resolution invariance.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:44:03Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: COCO dataset loaded with split train and streaming enabled
+  claim_id: c_39636acc
+  context: T005 [P] Implement code/data_loader.py to load COCO (datasets.load_dataset('coco',
+    split='train', streaming=True)) with standard spatial resize to a fixed resolution
+    and ImageNet-1K (datasets.load_dataset('imagenet', split='validation', streaming=False))
+    with batch handling; explicitly exclude ChestX-ray14 per Decision Record 001 (T036a);
+    fail loudly if fetch fails.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/COCO_dataset_loaded_with_split_train_and_streaming_enabled
+  kind: entity_fact
+  raw_text: Load COCO (datasets.load_dataset('coco', split='train', streaming=True))
+    with standard spatial resize to a fixed resolution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:44:24Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ImageNet-1K dataset loaded with split validation and streaming disabled
+  claim_id: c_58091d65
+  context: T005 [P] Implement code/data_loader.py to load COCO (datasets.load_dataset('coco',
+    split='train', streaming=True)) with standard spatial resize to a fixed resolution
+    and ImageNet-1K (datasets.load_dataset('imagenet', split='validation', streaming=False))
+    with batch handling; explicitly exclude ChestX-ray14 per Decision Record 001 (T036a);
+    fail loudly if fetch fails.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ImageNet-1K_dataset_loaded_with_split_validation_and_streami
+  kind: entity_fact
+  raw_text: Load ImageNet-1K (datasets.load_dataset('imagenet', split='validation',
+    streaming=False)) with batch handling.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:44:55Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: 'Configuration defaults: batch_size 8, learning_rate 1e-4, seed 42'
+  claim_id: c_ba1be93f
+  context: 'T004 Implement code/config.py with explicit keys: batch_size (default
+    8), learning_rate (default 1e-4), seed (default 42), dataset_limits (e.g., max_train_samples),
+    paths (data dirs), and thresholds (e.g., semantic_threshold).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/config.py with explicit keys: batch_size (default 8),
+    learning_rate (default 1e-4), seed (default 42).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:45:15Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Training loop uses InfoNCE contrastive loss with temperature 0.07 and
+    in-batch negative sampling
+  claim_id: c_227abdf1
+  context: 'T012 [US1] Implement code/train.py with CPU-only training loop, frozen
+    ViQ encoder, and VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07,
+    negative sampling via in-batch negatives) loss. Weights: VQ loss weight = 1.0,
+    {{claim:c_a0a122ca}} (2011.02803, https://arxiv.org/abs/2011.02803).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/train.py` with CPU-only training loop, frozen ViQ encoder,
+    and VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07, negative sampling
+    via in-batch negatives) loss.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:45:34Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: VQ loss weight is 1.0
+  claim_id: c_74164df0
+  context: 'T012 [US1] Implement code/train.py with CPU-only training loop, frozen
+    ViQ encoder, and VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07,
+    negative sampling via in-batch negatives) loss. Weights: VQ loss weight = 1.0,
+    {{claim:c_a0a122ca}} (2011.02803, https://arxiv.org/abs/2011.02803).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VQ loss weight = 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:45:56Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Batch size tuning verifies peak RAM is less than 7 GB
+  claim_id: c_89f6f9ed
+  context: 'T013 [US1] Implement dataset sampling strategy and batch size tuning loop
+    in code/train.py to fit 64x64 images within 7GB RAM. Deliverable: Script must
+    dynamically adjust batch size, log the specific batch_size value found, and verify
+    peak RAM < 7GB in logs using psutil to log peak RSS.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batch_size_tuning_verifies_peak_RAM_is_less_than_7_GB
+  kind: magnitude
+  raw_text: Script must dynamically adjust batch size, log the specific batch_size
+    value found, and verify peak RAM < 7GB in logs using psutil to log peak RSS.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:46:17Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: PSNR calculated on 64x64 samples
+  claim_id: c_9255d0ab
+  context: T014 [US1] Implement reconstruction verification script in code/eval_low_res.py
+    to calculate PSNR on 64x64 samples.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PSNR_calculated_on_64x64_samples
+  kind: entity_fact
+  raw_text: Calculate PSNR on 64x64 samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:46:38Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Semantic baseline results saved with keys mean_similarity, count, and
+    resolution
+  claim_id: c_0a19b9ad
+  context: 'T015 [US1] Implement code/eval_semantic_baseline.py to load data/results/codebook_v0.pth
+    and a small batch of 64x64 COCO images/captions, compute projected visual embeddings,
+    and calculate mean cosine similarity against frozen CLIP text embeddings. Deliverable:
+    Save results to data/results/semantic_baseline.json with keys mean_similarity,
+    count, and resolution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_baseline_results_saved_with_keys_mean_similarity,_c
+  kind: entity_fact
+  raw_text: Save results to data/results/semantic_baseline.json with keys mean_similarity,
+    count, and resolution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:47:00Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Training log written to JSON with fields step, total_loss, vq_loss, contrastive_loss,
+    elapsed_time
+  claim_id: c_e7ce0b64
+  context: 'T016 [US1] Add logging for training loss, reconstruction loss, and codebook
+    usage statistics. Deliverable: Write metrics in JSON format to data/results/train_log.json
+    with fields step, total_loss, vq_loss, contrastive_loss, elapsed_time.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_log_written_to_JSON_with_fields_step,_total_loss,_v
+  kind: entity_fact
+  raw_text: Write metrics in JSON format to data/results/train_log.json with fields
+    step, total_loss, vq_loss, contrastive_loss, elapsed_time.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:47:39Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Texture complexity calculated as Variance of Laplacian on grayscale normalized
+    by number of pixels
+  claim_id: c_246fa5b7
+  context: 'T020 [US2] Implement texture complexity calculation in code/utils.py:
+    Variance of Laplacian (cv2.Laplacian) on grayscale, normalized by the number of
+    pixels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Texture_complexity_calculated_as_Variance_of_Laplacian_on_gr
+  kind: entity_fact
+  raw_text: 'Implement texture complexity calculation in code/utils.py: Variance of
+    Laplacian (cv2.Laplacian) on grayscale, normalized by the number of pixels.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:48:05Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Correlation analysis input is pandas DataFrame with columns texture_complexity
+    and psnr; output is JSON with spearman_r, p_value, method
+  claim_id: c_72cb9e42
+  context: 'Input: pandas DataFrame with columns [texture_complexity, psnr], Output:
+    JSON {spearman_r, p_value, method}. Dependency: T036c (Spec Update), T038, T039.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlation_analysis_input_is_pandas_DataFrame_with_columns
+  kind: entity_fact
+  raw_text: 'Input: pandas DataFrame with columns [texture_complexity, psnr], Output:
+    JSON {spearman_r, p_value, method}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:48:27Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Semantic difference calculated as abs(high_res_mean - low_res_mean) /
+    low_res_mean * scaling_factor
+  claim_id: c_c1e83688
+  context: 'T028 [US3] Implement statistical comparison script in code/analysis.py
+    to calculate percentage difference between high-res (from data/results/semantic_high_res.json
+    produced by T027) and low-res baseline (from data/results/semantic_baseline.json
+    produced by T015) similarity scores. Deliverable: Depends on T015 and T027. Output
+    file: data/results/semantic_diff.json. Logic: abs(high_res_mean - low_res_mean)
+    / low_res_mean * scaling_factor.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_difference_calculated_as_abs(high_res_mean_-_low_re
+  kind: entity_fact
+  raw_text: 'Output file: data/results/semantic_diff.json. Logic: abs(high_res_mean
+    - low_res_mean) / low_res_mean * scaling_factor.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:48:54Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Baseline batch load time measured and logged with keys baseline_time_ms
+    and optimized_time_ms
+  claim_id: c_19483c79
+  context: 'T032 [P] Performance optimization for streaming data loading in code/data_loader.py:
+    Measure baseline batch load time for a representative set of batches; log before/after
+    times to data/results/baseline_metrics.json with keys baseline_time_ms and optimized_time_ms.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_batch_load_time_measured_and_logged_with_keys_basel
+  kind: entity_fact
+  raw_text: Measure baseline batch load time for a representative set of batches;
+    log before/after times to data/results/baseline_metrics.json with keys baseline_time_ms
+    and optimized_time_ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:49:13Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksums calculated and stored for all downloaded raw datasets
+    (COCO, ImageNet) immediately after download
+  claim_id: c_1a08d021
+  context: T040 [P] [Foundational] Implement code/verify_data_integrity.py to calculate
+    and store SHA-256 checksums for all downloaded raw datasets (COCO, ImageNet) immediately
+    after download in data/raw/checksums.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/verify_data_integrity.py to calculate and store SHA-256
+    checksums for all downloaded raw datasets (COCO, ImageNet) immediately after download
+    in data/raw/checksums.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:49:29Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: torch 2.1.0+cpu, transformers 4.36.0, datasets
+    2.14.0, scikit-learn 1.3.0, opencv-python-headless 4.8.0, numpy 1.24.0, pandas
+    2.0.0, matplotlib 3.7.0, scipy 1.10.0'
+  claim_id: c_253738c4
+  context: Initialize Python 3.11 project with projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/requirements.txt
+    pinning exact versions
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: torch==2.1.0+cpu, transformers==4.36.0, datasets==2.14.0, scikit-learn==1.3.0,
+    opencv-python-headless==4.8.0, numpy==1.24.0, pandas==2.0.0, matplotlib==3.7.0,
+    scipy==1.10.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T12:51:02Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: 'Fallback architecture: ResNet based VQ-VAE with hidden_dim 512 and codebook_size
+    1024'
+  claim_id: c_fdb86f4e
+  context: 'If checkpoint missing, define fallback architecture: ResNet based VQ-VAE
+    with hidden_dim=512, codebook_size=1024, and global average pooling for resolution
+    invariance'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ResNet based VQ-VAE with hidden_dim=512, codebook_size=1024
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:51:21Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Contrastive loss InfoNCE temperature 0.07
+  claim_id: c_30c85da8
+  context: VQ-VAE (codebook+commitment) + Contrastive (InfoNCE, temp=0.07, negative
+    sampling via in-batch negatives) loss
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "S and QQP, standard L2 normalization with \u03C4 \u201C 0.055 for CQA-A,\
+        \ \u03C4 \u201C 0.07 for CQA-B, and"
+      source_id: '2110.15725'
+      url: https://arxiv.org/abs/2110.15725
+      value: '0.07'
+    filled: true
+  kind: numeric
+  raw_text: contrastive loss temperature 0.07
+  resolved_value: '0.07'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T12:51:47Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: SSIM calculation uses window size 11
+  claim_id: c_94d88d3a
+  context: Calculate PSNR using standard formula and SSIM using window_size=11 on
+    native 1024x1024 images
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In order to evaluate the image quality, this formula is usually applied\
+        \ only on luma, although it may also be applied on color (e.g., RGB) values\
+        \ or chromatic (e.g. YCbCr) values. The resultant SSIM index is a decimal\
+        \ value between -1 and 1, where 1 indicates perfect similarity, 0 indicates\
+        \ no similarity, and -1 indicates perfect anti-correlation. For an image,\
+        \ it is typically calculated using a sliding Gaussian window of size 11\xD7\
+        11 or a block window of size 8\xD78. The window can be displaced pixel-by-pixel\
+        \ on the image to create an SSIM quality map of the image. In the case of\
+        \ video quality assessment, the authors propose to use only a subgroup of\
+        \ the possible windows to reduce the complexity of the calculation."
+      source_id: Structural similarity index measure
+      url: https://en.wikipedia.org/wiki/Structural_similarity_index_measure
+      value: "11\xD711"
+    filled: true
+  kind: numeric
+  raw_text: SSIM window size 11
+  resolved_value: "11\xD711"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T12:51:55Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Shapiro-Wilk test performed on error distribution to determine statistical
+    test method
+  claim_id: c_f24233ea
+  context: Perform Shapiro-Wilk test on error distribution; if p > 0.05 use paired
+    t-test, else use Wilcoxon signed-rank test
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Shapiro-Wilk_test_performed_on_error_distribution_to_determi
+  kind: entity_fact
+  raw_text: Shapiro-Wilk test on error distribution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:52:13Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Training loop monitored for 6-hour CPU time limit
+  claim_id: c_b56dda69
+  context: If the training loop approaches the 6-hour limit (e.g., > 5.5 hours) without
+    convergence, log a CRITICAL warning and save the current state
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training loop approaches 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:52:44Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage verified to be less than 7GB
+  claim_id: c_60b9ebad
+  context: Script must dynamically adjust batch size, log the specific batch_size
+    value found, and verify peak RAM < 7GB in logs using psutil
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_verified_to_be_less_than_7GB
+  kind: magnitude
+  raw_text: peak RAM < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:53:12Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: ImageNet-1K validation set used for high-resolution inference
+  claim_id: c_13575a84
+  context: Process 1024x1024 images from ImageNet-1K and COCO without resizing
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/ImageNet-1K_validation_set_used_for_high-resolution_inferenc
+  kind: entity_fact
+  raw_text: ImageNet-1K validation set
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:53:51Z'
+- artifact_path: projects/PROJ-900-llmxive-follow-up-extending-viq-text-ali/specs/001-llmxive-follow-up-extending-viq-text-ali/tasks.md
+  attempts: 1
+  canonical: COCO train split used for low-resolution training
+  claim_id: c_ba68f0e7
+  context: Load COCO (datasets.load_dataset('coco', split='train', streaming=True))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/COCO_train_split_used_for_low-resolution_training
+  kind: entity_fact
+  raw_text: COCO train split
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:54:18Z'

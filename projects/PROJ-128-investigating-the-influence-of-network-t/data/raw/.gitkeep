@@ -1,2 +1,2 @@
-# This directory is intended for raw HCP data downloaded from OpenNeuro.
-# Do not commit large files to git.
+# This directory is for raw data downloads (e.g., HCP OpenNeuro data)
+# Data should be placed here before processing

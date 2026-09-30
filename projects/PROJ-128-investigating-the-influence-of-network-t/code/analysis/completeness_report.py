@@ -4,39 +4,38 @@ import sys
 import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, List
-
-# Ensure we can import from the project root if run as a script
-# The project structure expects imports relative to the root
-try:
-    from config import get_config_dict
-except ImportError:
-    # Fallback if run directly without path setup
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from config import get_config_dict
-
+from config import get_config_dict
 
 def load_exclusion_log(log_path: str) -> List[Dict[str, Any]]:
-    """Load the exclusion log JSON file."""
-    if not os.path.exists(log_path):
+    """
+    Load the exclusion log JSON file.
+    Returns an empty list if the file does not exist or is empty.
+    """
+    path = Path(log_path)
+    if not path.exists():
         return []
     try:
-        with open(log_path, 'r') as f:
-            return json.load(f)
-    except (json.JSONDecodeError, IOError) as e:
-        print(f"Warning: Could not load exclusion log at {log_path}: {e}")
+        with open(path, 'r') as f:
+            data = json.load(f)
+            if not isinstance(data, list):
+                return []
+            return data
+    except (json.JSONDecodeError, IOError):
         return []
-
 
 def load_structural_metrics(csv_path: str) -> pd.DataFrame:
-    """Load the structural metrics CSV file."""
-    if not os.path.exists(csv_path):
+    """
+    Load the structural metrics CSV file.
+    Returns an empty DataFrame if the file does not exist.
+    """
+    path = Path(csv_path)
+    if not path.exists():
         return pd.DataFrame()
     try:
-        return pd.read_csv(csv_path)
-    except (pd.errors.EmptyDataError, IOError) as e:
-        print(f"Warning: Could not load structural metrics at {csv_path}: {e}")
+        df = pd.read_csv(path)
+        return df
+    except (pd.errors.EmptyDataError, IOError):
         return pd.DataFrame()
-
 
 def calculate_completeness_report(
     exclusion_log: List[Dict[str, Any]],
@@ -44,59 +43,53 @@ def calculate_completeness_report(
     total_cohort_size: int
 ) -> Dict[str, Any]:
     """
-    Calculate the data completeness report.
+    Calculate the data completeness report based on exclusion logs and processed metrics.
 
     Args:
         exclusion_log: List of exclusion records from data/logs/exclusion_log.json
-        structural_metrics: DataFrame of processed structural metrics
-        total_cohort_size: Total number of subjects in the original cohort
+        structural_metrics: DataFrame from data/processed/structural_metrics.csv
+        total_cohort_size: Total number of subjects in the cohort
 
     Returns:
-        Dictionary containing the completeness report metrics
+        Dictionary containing completeness statistics
     """
-    # Count processed subjects
     processed_count = len(structural_metrics)
     excluded_count = len(exclusion_log)
 
     # Calculate percentage
     if total_cohort_size > 0:
         completion_percentage = (processed_count / total_cohort_size) * 100
-        exclusion_percentage = (excluded_count / total_cohort_size) * 100
     else:
         completion_percentage = 0.0
-        exclusion_percentage = 0.0
 
     # Categorize exclusion reasons
     reason_counts: Dict[str, int] = {}
-    for record in exclusion_log:
-        reason = record.get('reason', 'unknown')
+    for entry in exclusion_log:
+        reason = entry.get('reason', 'unknown')
         reason_counts[reason] = reason_counts.get(reason, 0) + 1
 
     report = {
         "total_cohort_size": total_cohort_size,
-        "processed_count": processed_count,
-        "excluded_count": excluded_count,
+        "processed_subjects": processed_count,
+        "excluded_subjects": excluded_count,
         "completion_percentage": round(completion_percentage, 2),
-        "exclusion_percentage": round(exclusion_percentage, 2),
-        "exclusion_reasons": reason_counts,
-        "report_generated_from": {
-            "exclusion_log_path": "data/logs/exclusion_log.json",
-            "structural_metrics_path": "data/processed/structural_metrics.csv"
-        }
+        "exclusion_reasons": reason_counts
     }
 
     return report
 
-
 def main():
-    """Main entry point for generating the completeness report."""
+    """
+    Main entry point to generate the data completeness report.
+    Reads exclusion log and structural metrics, calculates statistics,
+    and saves the report to data/processed/completeness_report.json.
+    """
     config = get_config_dict()
-    base_dir = Path(config.get('PROJECT_ROOT', Path.cwd()))
-    
-    # Define paths based on project structure
-    exclusion_log_path = base_dir / "data" / "logs" / "exclusion_log.json"
-    structural_metrics_path = base_dir / "data" / "processed" / "structural_metrics.csv"
-    output_path = base_dir / "data" / "processed" / "completeness_report.json"
+    base_dir = Path(config.get('PROJECT_ROOT', '.'))
+
+    exclusion_log_path = base_dir / 'data' / 'logs' / 'exclusion_log.json'
+    structural_metrics_path = base_dir / 'data' / 'processed' / 'structural_metrics.csv'
+    output_path = base_dir / 'data' / 'processed' / 'completeness_report.json'
 
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -106,41 +99,37 @@ def main():
     structural_metrics = load_structural_metrics(str(structural_metrics_path))
 
     # Determine total cohort size
-    # We infer this from the union of processed and excluded subjects if possible,
-    # or rely on a known constant if the cohort size is fixed in the config.
-    # For HCP 1200, the cohort is typically 1200, but we might have a smaller subset.
-    # We will try to infer from the unique subject IDs in the exclusion log + metrics.
-    
-    processed_subjects = set(structural_metrics['subject_id'].tolist()) if not structural_metrics.empty else set()
-    excluded_subjects = set(record['subject_id'] for record in exclusion_log if 'subject_id' in record)
-    
-    inferred_cohort_size = len(processed_subjects | excluded_subjects)
-    
-    # If we can't infer, we might need to check a manifest or config. 
-    # For now, we use the inferred size. If 0, we report 0 to avoid division by zero.
-    total_cohort_size = inferred_cohort_size if inferred_cohort_size > 0 else 0
-
-    print(f"Processing completeness report...")
-    print(f"  - Exclusion log entries: {len(exclusion_log)}")
-    print(f"  - Processed subjects: {len(processed_subjects)}")
-    print(f"  - Inferred cohort size: {total_cohort_size}")
+    # If structural_metrics exists, we can infer cohort size from processed + excluded
+    # Otherwise, we need a way to know the total. For now, we assume the sum of processed and excluded
+    # is the best estimate if no external config provides the total.
+    total_cohort_size = structural_metrics['subject_id'].nunique() + len(exclusion_log)
 
     if total_cohort_size == 0:
-        print("Warning: Could not determine cohort size. Report will show 0% completion.")
-        report = calculate_completeness_report(exclusion_log, structural_metrics, 0)
+        print("Warning: No data found to calculate completeness. Cohort size is 0.")
+        report = {
+            "total_cohort_size": 0,
+            "processed_subjects": 0,
+            "excluded_subjects": 0,
+            "completion_percentage": 0.0,
+            "exclusion_reasons": {},
+            "message": "No data available. Ensure data loading pipeline has run."
+        }
     else:
-        report = calculate_completeness_report(exclusion_log, structural_metrics, total_cohort_size)
+        report = calculate_completeness_report(
+            exclusion_log,
+            structural_metrics,
+            total_cohort_size
+        )
 
     # Save report
     with open(output_path, 'w') as f:
         json.dump(report, f, indent=2)
 
     print(f"Completeness report saved to: {output_path}")
-    print(f"  - Completion rate: {report['completion_percentage']}%")
-    print(f"  - Exclusion breakdown: {report['exclusion_reasons']}")
+    print(f"Total Cohort: {report['total_cohort_size']}, Processed: {report['processed_subjects']}, Excluded: {report['excluded_subjects']}")
+    print(f"Completion Rate: {report['completion_percentage']}%")
+    if report['exclusion_reasons']:
+        print(f"Exclusion Reasons: {report['exclusion_reasons']}")
 
-    return report
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

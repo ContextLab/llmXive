@@ -1,32 +1,74 @@
 name: Pipeline_Output_Schema
-version: '1.0.0'
-description: Schema for pipeline output metrics
-outputs:
-  structural_metrics:
+version: 1.0.0
+description: Schema for structural and dynamic metrics output
+files:
+  structural_metrics.csv:
     type: csv
     columns:
-    - subject_id
-    - global_efficiency
-    - clustering_coeff
-    - modularity
-    - density
-  dynamic_metrics:
+    - name: subject_id
+      type: string
+    - name: global_efficiency
+      type: number
+    - name: avg_clustering_coeff
+      type: number
+    - name: modularity
+      type: number
+    - name: density
+      type: number
+    - name: avg_path_length
+      type: number
+  dynamic_metrics.csv:
     type: csv
     columns:
-    - subject_id
-    - state_id
-    - mean_dwell_time
-    - num_visits
-  correlation_results:
+    - name: subject_id
+      type: string
+    - name: state_id
+      type: integer
+    - name: mean_dwell_time
+      type: number
+    - name: num_visits
+      type: integer
+  correlation_results.csv:
     type: csv
     columns:
-    - metric_pair
-    - r_value
-    - p_value
-    - fdr_corrected
-  exclusion_log:
+    - name: struct_metric
+      type: string
+    - name: dyn_metric
+      type: string
+    - name: correlation_r
+      type: number
+    - name: p_value
+      type: number
+    - name: fdr_p_value
+      type: number
+    - name: significant
+      type: boolean
+  exclusion_log.json:
     type: json
-    schema:
-    - subject_id: string
-      reason: string
-      timestamp: string
+    structure:
+      type: array
+      items:
+        type: object
+        properties:
+          subject_id:
+            type: string
+          reason:
+            type: string
+          timestamp:
+            type: string
+            format: date-time
+  completeness_report.json:
+    type: json
+    structure:
+      type: object
+      properties:
+        total_subjects:
+          type: integer
+        processed_subjects:
+          type: integer
+        excluded_subjects:
+          type: integer
+        completion_percentage:
+          type: number
+        exclusion_breakdown:
+          type: object
