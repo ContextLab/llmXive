@@ -1,0 +1,282 @@
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds004173 is the primary dataset for the project
+  claim_id: c_8a8391f9
+  context: Implement code/download.py to fetch raw data to data/raw/ using the ID
+    from data/selected_dataset_id.txt with checksumming (SHA-256). Attempt to fetch
+    the specific OpenNeuro dataset ds004173 (as mandated by FR-001 and Spec Assumptions)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds004173_is_the_primary_dataset_for_the_pr
+  kind: entity_fact
+  raw_text: The task mandates fetching the specific OpenNeuro dataset ds004173.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:20:28Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: EEG preprocessing uses 1-45 Hz bandpass filter
+  claim_id: c_a6047b7e
+  context: "Implement code/preprocess.py to apply a 1\u201345 Hz bandpass filter (low\
+    \ cutoff 1 Hz, high cutoff 45 Hz) as mandated by FR-002 and US-1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The preprocessing pipeline applies a 1\u201345 Hz bandpass filter with\
+    \ a low cutoff of 1 Hz and a high cutoff of 45 Hz."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:21:01Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Exclusion threshold of 10 valid trials per condition
+  claim_id: c_2ffce6ed
+  context: 'Implement logic to exclude subjects with <10 valid trials/condition (reason:
+    insufficient trials) or >50% artifact removal (reason: excessive artifact removal)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclusion_threshold_of_10_valid_trials_per_condition
+  kind: magnitude
+  raw_text: Subjects are excluded if they have fewer than 10 valid trials per condition.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:21:43Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Exclusion threshold of 50% artifact removal
+  claim_id: c_2dcded36
+  context: 'Implement logic to exclude subjects with <10 valid trials/condition (reason:
+    insufficient trials) or >50% artifact removal (reason: excessive artifact removal)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclusion_threshold_of_50%25_artifact_removal
+  kind: magnitude
+  raw_text: Subjects are excluded if more than 50% of their data is removed due to
+    artifacts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:22:19Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Peak RSS memory limit of 6.5 GB
+  claim_id: c_75fc28ee
+  context: "Independent Test: Run on a single subject; verify output contains valid\
+    \ epoch objects with correct time window and no NaN artifacts; verify peak RSS\
+    \ \u2264 6.5 GB."
+  evidence:
+    asserted: '6.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline enforces a memory constraint where peak RSS must not exceed
+    6.5 GB.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T11:22:19Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: ICA rejection threshold kurtosis > 5
+  claim_id: c_73907c80
+  context: 'Implement code/preprocess.py component rejection logic: identify and remove
+    ICA components exhibiting a kurtosis > 5 or a spectral peak > 30 Hz.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ICA_rejection_threshold_kurtosis_%3E_5
+  kind: magnitude
+  raw_text: ICA component rejection is triggered by a kurtosis value greater than
+    5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:22:42Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: ICA rejection threshold spectral peak > 30 Hz
+  claim_id: c_bc95c133
+  context: 'Implement code/preprocess.py component rejection logic: identify and remove
+    ICA components exhibiting a kurtosis > 5 or a spectral peak > 30 Hz.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ICA_rejection_threshold_spectral_peak_%3E_30_Hz
+  kind: magnitude
+  raw_text: ICA component rejection is triggered by a spectral peak greater than 30
+    Hz.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:23:06Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Theta band definition 4-7 Hz
+  claim_id: c_e62f405b
+  context: "Verification: Verify power spectral density peaks exist within the defined\
+    \ theta (4\u20137 Hz) and gamma (30\u201345 Hz) bands for the current subject's\
+    \ data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Synchrony analysis is performed in the theta band defined as 4\u2013\
+    7 Hz."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:23:37Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Gamma band definition 30-45 Hz
+  claim_id: c_85d108b6
+  context: "Verification: Verify power spectral density peaks exist within the defined\
+    \ theta (4\u20137 Hz) and gamma (30\u201345 Hz) bands for the current subject's\
+    \ data."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Synchrony analysis is performed in the gamma band defined as 30\u2013\
+    45 Hz."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:24:03Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Spectral peak definition >3dB above adjacent 2Hz bins
+  claim_id: c_45c1f5b9
+  context: A 'peak' is defined as a local maximum in the power spectrum that exceeds
+    the mean power of the adjacent 2Hz bins by >3dB.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Spectral_peak_definition_%3E3dB_above_adjacent_2Hz_bins
+  kind: magnitude
+  raw_text: A spectral peak is defined as a local maximum exceeding the mean power
+    of adjacent 2Hz bins by more than 3dB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:25:03Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Pipeline timeout limit of 6 hours
+  claim_id: c_0d7a340c
+  context: Implement global runtime wrapper in code/main.py that tracks total pipeline
+    execution time; immediately log a timeout violation to logs/processing.log and
+    data/metrics/runtime_log.json and HALT execution if total runtime > 6 hours
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline halts execution if the total runtime exceeds 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:25:25Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Synchrony calculation timeout of 30 minutes per subject
+  claim_id: c_51b0a146
+  context: Implement timing wrapper in code/synchrony.py that logs duration to data/metrics/synchrony_timing.json
+    and RAISES EXCEPTION if duration > 30 minutes per subject to verify US-2 Acceptance
+    3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synchrony calculation step raises an exception if the duration exceeds
+    30 minutes per subject.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:25:56Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Type I error rate <= 5% across 1000 iterations
+  claim_id: c_dec7380d
+  context: "Independent Test: Run on a mock null dataset (randomly shuffled data);\
+    \ verify Type I error rate \u2264 5% across 1000 iterations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 3 requires verifying a Type I error
+    rate of 5% or less across 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:26:49Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis stability threshold r change < 0.1
+  claim_id: c_1bc06748
+  context: 'Implement code/analysis.py sensitivity analysis logic: repeat correlation
+    for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05)
+    against primary result.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_stability_threshold_r_change_%3C_0.1
+  kind: magnitude
+  raw_text: The sensitivity analysis validates stability by checking if the correlation
+    coefficient change is less than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:27:24Z'
+- artifact_path: projects/PROJ-498-investigating-the-relationship-between-n/specs/001-investigating-the-relationship-between-n/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis stability threshold p < 0.05
+  claim_id: c_70fecb7b
+  context: 'Implement code/analysis.py sensitivity analysis logic: repeat correlation
+    for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05)
+    against primary result.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_stability_threshold_p_%3C_0.05
+  kind: magnitude
+  raw_text: The sensitivity analysis validates stability by checking if the p-value
+    is less than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T11:27:50Z'

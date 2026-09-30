@@ -1,11 +1,6 @@
 """
-Dataset Discovery and Download Module for PROJ-498.
-
-This module handles:
-1. Querying the OpenNeuro API for datasets containing 'task-switching' events.
-2. Selecting the first valid dataset and saving its ID.
-3. Generating a Data Gap Report if no dataset is found.
-4. Downloading and extracting the dataset with checksum verification.
+Download module for fetching EEG datasets from OpenNeuro.
+Implements T012 (Dataset Selection) and T013 (Raw Data Fetching with Checksum).
 """
 import json
 import os
@@ -13,246 +8,278 @@ import sys
 import hashlib
 import urllib.request
 import urllib.error
-import logging
+import tarfile
+import shutil
 from pathlib import Path
-from typing import Optional, List, Dict, Any
-from datetime import datetime
+from typing import Optional, Dict, Any, List
 
-# Import shared logging utility to ensure compatibility with the project's
-# tolerance for different logger signatures (fixing the shared-module contract).
-# The project's logging_setup.py defines get_logger() which is the standard entry point.
+# Import shared logging utility
 try:
-    from logging_setup import get_logger
+    from synchrony import get_logger
 except ImportError:
-    # Fallback if logging_setup is not yet imported in the chain, though it should be.
-    # We define a minimal tolerant logger here to prevent immediate crashes if
-    # this module is imported in isolation, but the project structure expects logging_setup.
-    class TolerantLogger:
-        def info(self, *args, **kwargs): pass
-        def error(self, *args, **kwargs): pass
-        def warning(self, *args, **kwargs): pass
-        def debug(self, *args, **kwargs): pass
-        def log(self, *args, **kwargs): pass
-    
+    # Fallback for isolated execution if synchrony.py is not yet in path
+    import logging
     def get_logger(*args, **kwargs):
-        return TolerantLogger()
+        return logging.getLogger("download")
 
-logger = get_logger(__name__)
+logger = get_logger("download")
 
-# Project Paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-LOGS_DIR = PROJECT_ROOT / "logs"
-CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+# Constants
+OPENNEURO_API_URL = "https://api.openneuro.org/crn/datasets"
+DATASET_ID_FILE = "data/selected_dataset_id.txt"
+DATA_GAP_REPORT_PATH = "data/data_gap_report.json"
+RAW_DATA_DIR = "data/raw"
+LOG_FILE_PATH = "logs/processing.log"
 
 # Ensure directories exist
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-(DATA_DIR / "raw").mkdir(parents=True, exist_ok=True)
+Path(RAW_DATA_DIR).mkdir(parents=True, exist_ok=True)
+Path("logs").mkdir(parents=True, exist_ok=True)
+Path("data").mkdir(parents=True, exist_ok=True)
 
-# Schema paths
-DATA_GAP_SCHEMA_PATH = CONTRACTS_DIR / "data_gap_report.schema.yaml"
-DATA_GAP_REPORT_PATH = DATA_DIR / "data_gap_report.json"
-SELECTED_DATASET_ID_PATH = DATA_DIR / "selected_dataset_id.txt"
+def log_to_file(message: str) -> None:
+    """Append a message to the processing log."""
+    from datetime import datetime
+    timestamp = datetime.utcnow().isoformat()
+    log_line = f"[{timestamp}] {message}\n"
+    with open(LOG_FILE_PATH, "a", encoding="utf-8") as f:
+        f.write(log_line)
 
-# OpenNeuro GraphQL Endpoint
-OPENNEURO_API_URL = "https://api.openneuro.org/graphql"
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load a JSON schema from disk."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema not found: {schema_path}")
+    with open(schema_path, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load a JSON schema file. Note: The task mentions .yaml but we handle JSON/YAML logic."""
-    if not schema_path.exists():
-        logger.warning(f"Schema file not found at {schema_path}. Using default structure.")
-        return {}
-    # Simple loader for JSON/YAML if pyyaml is available, otherwise fallback to JSON
-    try:
-        import yaml
-        with open(schema_path, 'r') as f:
-            return yaml.safe_load(f) or {}
-    except ImportError:
+def query_openneuro_api(query: str) -> List[Dict[str, Any]]:
+    """
+    Query OpenNeuro API for datasets matching a query.
+    Returns a list of dataset metadata dicts.
+    """
+    url = f"{OPENNEURO_API_URL}?_sort=modified&_expand=license&_embed=authors&_embed=groups"
+    # Note: The public API might be limited. We attempt a direct fetch of known dataset if query is specific.
+    # For general search, we might need a GraphQL endpoint, but standard REST is attempted here.
+    # Since the API is complex, we fallback to checking specific IDs if the query is an ID.
+    if query.startswith("ds"):
+        # Direct fetch for specific ID
+        specific_url = f"{OPENNEURO_API_URL}/{query}"
         try:
-            with open(schema_path, 'r') as f:
-                return json.load(f)
-        except Exception:
-            return {}
-
-def query_openneuro_api(query: str) -> Optional[List[Dict[str, Any]]]:
-    """
-    Query the OpenNeuro API with a GraphQL query.
-    Returns a list of datasets or None if the query fails.
-    """
-    headers = {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-    }
+            req = urllib.request.Request(specific_url, headers={'User-Agent': 'llmXive/1.0'})
+            with urllib.request.urlopen(req, timeout=30) as response:
+                data = json.loads(response.read().decode('utf-8'))
+                return [data] if isinstance(data, dict) else []
+        except Exception as e:
+            log_to_file(f"API fetch for {query} failed: {e}")
+            return []
     
-    payload = json.dumps({"query": query}).encode('utf-8')
-    
+    # Fallback for general search (simplified)
     try:
-        req = urllib.request.Request(OPENNEURO_API_URL, data=payload, headers=headers, method='POST')
+        req = urllib.request.Request(url, headers={'User-Agent': 'llmXive/1.0'})
         with urllib.request.urlopen(req, timeout=30) as response:
             data = json.loads(response.read().decode('utf-8'))
-            if "errors" in data:
-                logger.error(f"API returned errors: {data['errors']}")
-                return None
-            return data.get("data", {}).get("datasets", [])
-    except urllib.error.URLError as e:
-        logger.error(f"Failed to connect to OpenNeuro API: {e}")
-        return None
+            # Filter manually if needed
+            return data.get("datasets", [])
     except Exception as e:
-        logger.error(f"Unexpected error during API query: {e}")
-        return None
+        log_to_file(f"General API search failed: {e}")
+        return []
 
-def select_dataset(datasets: List[Dict[str, Any]]) -> Optional[str]:
+def check_dataset_availability(dataset_id: str) -> bool:
+    """Check if a specific dataset ID exists on OpenNeuro."""
+    results = query_openneuro_api(dataset_id)
+    return len(results) > 0 and results[0].get("id") == dataset_id
+
+def select_dataset(primary_id: str = "ds004173", fallback_query: str = "task-switching") -> Optional[str]:
     """
-    Select the first valid dataset from the list.
-    A dataset is valid if it has an ID and a description indicating task-switching.
+    Attempt to select the primary dataset. If unavailable, search for fallback.
+    Returns the dataset ID or None.
     """
-    if not datasets:
-        return None
+    # 1. Try Primary
+    if check_dataset_availability(primary_id):
+        log_to_file(f"Primary dataset {primary_id} found and available.")
+        return primary_id
+
+    log_to_file(f"Primary dataset {primary_id} unavailable. Searching fallback...")
+
+    # 2. Try Fallback Search
+    # Note: Real API search might require GraphQL. We simulate a check for known fallbacks or search.
+    # For this implementation, we attempt to find any dataset with 'switching' in name if we can.
+    # Since we can't easily parse the full list without a robust API, we return None if primary fails
+    # unless we have a known fallback list.
+    # However, the spec says: "query the OpenNeuro API for datasets containing 'task-switching' events"
+    # We will attempt a direct query if the API supports it, otherwise we assume failure.
     
-    for ds in datasets:
-        ds_id = ds.get("id")
-        if not ds_id:
-            continue
-        
-        # Basic validation: ID must start with 'ds'
-        if ds_id.startswith("ds"):
-            logger.info(f"Selected valid dataset: {ds_id}")
-            return ds_id
-    
+    # Attempting a direct search via the API (simplified)
+    fallbacks = query_openneuro_api(fallback_query)
+    for ds in fallbacks:
+        # Check if name or description contains 'switching'
+        name = ds.get("name", "").lower()
+        desc = ds.get("description", {}).get("text", "").lower() if isinstance(ds.get("description"), dict) else ""
+        if "switching" in name or "switching" in desc:
+            log_to_file(f"Fallback dataset {ds.get('id')} found.")
+            return ds.get("id")
+
+    log_to_file("No fallback dataset found.")
     return None
 
-def generate_data_gap_report(reason: str = "No task-switching dataset found") -> bool:
+def generate_data_gap_report(dataset_id: Optional[str], reason: str, fallback_id: Optional[str] = None) -> Dict[str, Any]:
     """
-    Generate the data gap report JSON file adhering to the schema.
-    Returns True if successful, False otherwise.
+    Generate the data gap report adhering to contracts/data_gap_report.schema.yaml.
+    Returns the report dict and writes it to disk.
     """
+    from datetime import datetime
     report = {
-        "dataset_id": None,
+        "dataset_id": dataset_id,
         "reason": reason,
         "timestamp": datetime.utcnow().isoformat(),
-        "fallback_id": None  # Explicitly null as per spec
+        "fallback_id": fallback_id if fallback_id else None
     }
     
-    try:
-        with open(DATA_GAP_REPORT_PATH, 'w') as f:
-            json.dump(report, f, indent=2)
-        logger.info(f"Data gap report generated at {DATA_GAP_REPORT_PATH}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to generate data gap report: {e}")
-        return False
+    # Ensure data directory exists
+    Path("data").mkdir(parents=True, exist_ok=True)
+    
+    with open(DATA_GAP_REPORT_PATH, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+    
+    log_to_file(f"Data gap report generated: {DATA_GAP_REPORT_PATH}")
+    return report
 
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path: str) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Error computing checksum for {file_path}: {e}")
-        return ""
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-def download_dataset(dataset_id: str, output_dir: Path) -> bool:
+def download_dataset(dataset_id: str, output_dir: str) -> bool:
     """
-    Download the dataset using openneuro-py if available, or fallback to manual download.
-    For this implementation, we assume openneuro-py is installed as per requirements.
+    Download the dataset from OpenNeuro.
+    Uses the OpenNeuro API to get the latest snapshot and downloads the tarball.
     """
+    # Construct download URL for the latest snapshot
+    # Format: https://openneuro.org/datasets/{id}/versions/latest/download
+    # Or via API: https://api.openneuro.org/crn/datasets/{id}/download
+    # We will use the direct tarball URL if possible, or the API download endpoint.
+    # Since direct tarball links change, we use the API to get the download link.
+    
+    download_url = f"https://api.openneuro.org/crn/datasets/{dataset_id}/download"
+    # Note: This might require authentication or specific headers.
+    # Alternative: Use the public snapshot URL structure if available.
+    # https://openneuro.org/datasets/{id}/versions/{version}/download
+    
+    # Attempt to get the download URL via API
     try:
-        import openneuro
-        from openneuro import download as dl
-        
-        logger.info(f"Downloading dataset {dataset_id} to {output_dir}")
-        # Using the openneuro-py library
-        dl.download(dataset_id=dataset_id, download_dir=str(output_dir), delete_completed=True)
+        # OpenNeuro v2 API download
+        req = urllib.request.Request(download_url, headers={'User-Agent': 'llmXive/1.0'})
+        # This endpoint might return a redirect or the file directly.
+        # If it returns JSON with a URL, we follow it.
+        with urllib.request.urlopen(req, timeout=120) as response:
+            # If it's a file, we write it
+            if response.headers.get('Content-Type', '').startswith('application/octet-stream') or 'tar' in response.headers.get('Content-Type', ''):
+                tar_path = os.path.join(output_dir, f"{dataset_id}.tar.gz")
+                with open(tar_path, 'wb') as f:
+                    f.write(response.read())
+                log_to_file(f"Downloaded {tar_path}")
+                return True
+    except urllib.error.HTTPError as e:
+        log_to_file(f"HTTP Error downloading {dataset_id}: {e.code} {e.reason}")
+        # Fallback: Try the snapshot URL directly if API download fails
+        # This is a heuristic for public datasets
+        snapshot_url = f"https://openneuro.org/datasets/{dataset_id}/versions/latest/download"
+        try:
+            req = urllib.request.Request(snapshot_url, headers={'User-Agent': 'llmXive/1.0'})
+            with urllib.request.urlopen(req, timeout=120) as response:
+                tar_path = os.path.join(output_dir, f"{dataset_id}.tar.gz")
+                with open(tar_path, 'wb') as f:
+                    f.write(response.read())
+                log_to_file(f"Downloaded {tar_path} (fallback method)")
+                return True
+        except Exception as e2:
+            log_to_file(f"Fallback download failed: {e2}")
+            return False
+    except Exception as e:
+        log_to_file(f"Download error: {e}")
+        return False
+
+def extract_and_verify(tar_path: str, dest_dir: str) -> bool:
+    """Extract the tarball and verify basic structure."""
+    try:
+        with tarfile.open(tar_path, "r:gz") as tar:
+            tar.extractall(path=dest_dir)
+        log_to_file(f"Extracted {tar_path} to {dest_dir}")
+        # Verify basic BIDS structure (dataset_description.json)
+        bids_check = os.path.join(dest_dir, "dataset_description.json")
+        if not os.path.exists(bids_check):
+            log_to_file("Warning: dataset_description.json not found after extraction.")
+            # Still return True if extraction happened, as some datasets might be raw
         return True
-    except ImportError:
-        logger.warning("openneuro-py not found. Attempting manual download or failing.")
-        # Fallback to manual download logic if library not present
-        # This is a simplified fallback; in production, rely on the library.
-        # We will raise an error if the library is missing as per strict requirements.
-        raise RuntimeError("openneuro-py is required but not installed. Please install it.")
     except Exception as e:
-        logger.error(f"Download failed: {e}")
+        log_to_file(f"Extraction failed: {e}")
         return False
-
-def extract_and_verify(dataset_id: str, raw_dir: Path) -> bool:
-    """
-    Verify the downloaded dataset structure and checksums if available.
-    """
-    dataset_path = raw_dir / dataset_id
-    if not dataset_path.exists():
-        logger.error(f"Dataset path {dataset_path} does not exist after download.")
-        return False
-    
-    # Basic verification: check for dataset_description.json
-    desc_file = dataset_path / "dataset_description.json"
-    if not desc_file.exists():
-        logger.warning(f"dataset_description.json not found in {dataset_path}.")
-        # Not strictly failing, as some datasets might be raw dumps
-    
-    logger.info(f"Verification passed for {dataset_id}")
-    return True
 
 def main():
     """
-    Main entry point for T012.
-    Sequence: Search -> Fail -> Generate Report -> Log -> Halt (if fail)
+    Main entry point for T012 and T013.
+    1. Reads selected_dataset_id.txt (if exists) or runs T012 logic to find one.
+    2. Downloads the dataset to data/raw/.
+    3. Computes SHA-256 checksum.
     """
-    logger.info("Starting T012: Dataset Discovery")
+    # Step 1: Ensure we have a dataset ID
+    dataset_id = None
     
-    # 1. Query OpenNeuro API for 'task-switching'
-    # GraphQL query to search for datasets with 'task-switching' in the description or name
-    query = """
-    {
-      datasets(first: 100, filter: {keyword: "task-switching"}) {
-        edges {
-          node {
-            id
-            name
-            description
-          }
-        }
-      }
-    }
-    """
+    if os.path.exists(DATASET_ID_FILE):
+        with open(DATASET_ID_FILE, "r", encoding="utf-8") as f:
+            dataset_id = f.read().strip()
+        log_to_file(f"Loaded dataset ID from file: {dataset_id}")
+    else:
+        # Run T012 logic inline if file missing (as per task dependency chain)
+        log_to_file("Dataset ID file missing. Running selection logic (T012).")
+        dataset_id = select_dataset()
+        if dataset_id:
+            with open(DATASET_ID_FILE, "w", encoding="utf-8") as f:
+                f.write(dataset_id)
+            log_to_file(f"Saved selected dataset ID: {dataset_id}")
+        else:
+            # Generate gap report and halt
+            generate_data_gap_report(
+                dataset_id=None,
+                reason="Primary dataset ds004173 unavailable and no fallback found.",
+                fallback_id=None
+            )
+            log_to_file("Halting execution due to missing dataset.")
+            sys.exit(1)
+
+    # Step 2: Download
+    log_to_file(f"Starting download for {dataset_id}")
+    success = download_dataset(dataset_id, RAW_DATA_DIR)
     
-    logger.info("Querying OpenNeuro API for 'task-switching' datasets...")
-    datasets = query_openneuro_api(query)
-    
-    if datasets is None:
-        # API Error
-        logger.error("API query failed. Cannot proceed.")
-        generate_data_gap_report("OpenNeuro API query failed.")
+    if not success:
+        log_to_file("Download failed. Generating gap report.")
+        generate_data_gap_report(
+            dataset_id=dataset_id,
+            reason="Download failed (network or API error).",
+            fallback_id=None
+        )
         sys.exit(1)
-    
-    # 2. Select the first valid dataset
-    selected_id = select_dataset(datasets)
-    
-    if not selected_id:
-        # No valid dataset found
-        logger.warning("No valid dataset found containing 'task-switching'.")
-        generate_data_gap_report("No valid dataset found containing 'task-switching'.")
+
+    # Step 3: Verify Checksum
+    tar_path = os.path.join(RAW_DATA_DIR, f"{dataset_id}.tar.gz")
+    if os.path.exists(tar_path):
+        checksum = compute_sha256(tar_path)
+        log_to_file(f"Checksum computed for {dataset_id}: {checksum}")
+        # Note: We don't have a reference checksum, so we just log it.
+        # In a real scenario, we would compare against a known hash.
+    else:
+        log_to_file(f"Tarball not found at {tar_path} for checksum verification.")
         sys.exit(1)
-    
-    # 3. Save ID to file
-    try:
-        with open(SELECTED_DATASET_ID_PATH, 'w') as f:
-            f.write(selected_id)
-        logger.info(f"Selected dataset ID saved to {SELECTED_DATASET_ID_PATH}: {selected_id}")
-    except Exception as e:
-        logger.error(f"Failed to save selected dataset ID: {e}")
+
+    # Step 4: Extract
+    if not extract_and_verify(tar_path, RAW_DATA_DIR):
+        log_to_file("Extraction failed.")
         sys.exit(1)
-    
-    # 4. Download the dataset (if required by subsequent tasks, T012 primarily focuses on discovery)
-    # The task description says "If found, select... and save its ID".
-    # It does not explicitly mandate downloading the full dataset in T012 (T013 handles that),
-    # but we ensure the infrastructure is ready.
-    # We will attempt a lightweight check or just confirm selection.
-    
-    logger.info("T012 completed successfully.")
+
+    log_to_file("Download and verification complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

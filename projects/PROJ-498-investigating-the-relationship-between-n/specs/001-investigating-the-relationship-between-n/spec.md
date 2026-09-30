@@ -25,7 +25,7 @@ The researcher downloads the OpenNeuro task-switching dataset (e.g., dsXXXX) and
 
 ### User Story 2 - Compute Pre-Stimulus Frontoparietal Synchrony Metrics (Priority: P2)
 
-The researcher calculates Phase-Locking Value (PLV) or weighted Phase-Lag Index (wPLI) between frontoparietal electrode pairs (approximating DLPFC and parietal cortex) in a pre-stimulus baseline window relative to stimulus onset for theta (4–7 Hz) and gamma (30–45 Hz) bands.
+The researcher calculates Phase-Locking Value (PLV) or weighted Phase-Lag Index (wPLI) between frontoparietal electrode pairs (approximating DLPFC and parietal cortex) in a pre-stimulus baseline window relative to stimulus onset for theta and gamma bands.
 
 **Why this priority**: This is the core predictor generation. It transforms raw signals into the specific metric hypothesized to predict behavior. It must run without GPU acceleration.
 

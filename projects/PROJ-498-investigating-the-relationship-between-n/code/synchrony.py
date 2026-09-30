@@ -1,23 +1,19 @@
 """
-Synchrony analysis module for neural synchrony computation.
-Implements PLV and wPLI calculations with timing wrappers.
+Synchrony analysis module: computes PLV/wPLI, filters, and timing wrappers.
+Implements Task T026: Timing wrapper that logs duration and raises on timeout.
 """
 from __future__ import annotations
 
-import csv
+import functools
 import json
 import os
 import sys
 import time
-import logging
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from functools import wraps
-import numpy as np
-import mne
+from typing import Any, Callable, List, Optional, Tuple
 
-# --- Logging Infrastructure (Tolerant) ---
-
+# --- Reproducibility Logger (Tolerant) ---
 @dataclass
 class LogEntry:
     operation: str = ""
@@ -44,7 +40,7 @@ class ReproducibilityLogger:
             return None
         return _noop
 
-_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+_GLOBAL_LOGGER: Optional["ReproducibilityLogger"] = None
 
 def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
     global _GLOBAL_LOGGER
@@ -55,364 +51,246 @@ def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
 def log_operation(*args: Any, **kwargs: Any) -> Any:
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
-        @wraps(func)
+        @functools.wraps(func)
         def _wrapper(*a: Any, **k: Any) -> Any:
             return func(*a, **k)
         return _wrapper
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)
 
-from dataclasses import dataclass, field
-from typing import Any
-
 # --- Electrode Mapping & Synchrony Logic ---
-
 ELECTRODE_REGION_MAP = {
-    # DLPFC
-    'F3': 'DLPFC', 'F4': 'DLPFC',
-    'FC3': 'DLPFC', 'FC4': 'DLPFC',
-    # Parietal
-    'P3': 'Parietal', 'P4': 'Parietal',
-    'CP3': 'Parietal', 'CP4': 'Parietal',
+    "F3": "DLPFC", "F4": "DLPFC",
+    "FC3": "DLPFC", "FC4": "DLPFC",
+    "P3": "Parietal", "P4": "Parietal",
+    "CP3": "Parietal", "CP4": "Parietal"
 }
 
 def get_region_for_electrode(electrode: str) -> Optional[str]:
     return ELECTRODE_REGION_MAP.get(electrode)
 
 def get_all_electrode_pairs() -> List[Tuple[str, str]]:
-    regions = list(ELECTRODE_REGION_MAP.values())
-    unique_regions = list(set(regions))
-    pairs = []
-    for r1 in unique_regions:
-        for r2 in unique_regions:
-            if r1 != r2:
-                electrodes_r1 = [e for e, r in ELECTRODE_REGION_MAP.items() if r == r1]
-                electrodes_r2 = [e for e, r in ELECTRODE_REGION_MAP.items() if r == r2]
-                for e1 in electrodes_r1:
-                    for e2 in electrodes_r2:
-                        pairs.append((e1, e2))
-    return pairs
+    return [
+        ("F3", "P3"), ("F3", "P4"), ("F3", "CP3"), ("F3", "CP4"),
+        ("F4", "P3"), ("F4", "P4"), ("F4", "CP3"), ("F4", "CP4"),
+        ("FC3", "P3"), ("FC3", "P4"), ("FC3", "CP3"), ("FC3", "CP4"),
+        ("FC4", "P3"), ("FC4", "P4"), ("FC4", "CP3"), ("FC4", "CP4")
+    ]
 
 def get_cross_region_pairs() -> List[Tuple[str, str]]:
-    return get_all_electrode_pairs()
-
-def validate_electrode_presence(info: mne.Info, required: List[str]) -> bool:
-    ch_names = [ch['name'] for ch in info['chs']]
-    return all(req in ch_names for req in required)
+    pairs = []
+    dl = ["F3", "F4", "FC3", "FC4"]
+    par = ["P3", "P4", "CP3", "CP4"]
+    for d in dl:
+        for p in par:
+            pairs.append((d, p))
+    return pairs
 
 def get_pair_id(e1: str, e2: str) -> str:
     return f"{e1}-{e2}"
 
-def is_valid_pair(e1: str, e2: str) -> bool:
-    return get_region_for_electrode(e1) != get_region_for_electrode(e2)
+def validate_electrode_presence(electrodes: List[str]) -> bool:
+    required = set(["F3", "F4", "FC3", "FC4", "P3", "P4", "CP3", "CP4"])
+    return required.issubset(set(electrodes))
 
-def get_region_pairs() -> List[Tuple[str, str]]:
-    regions = list(set(ELECTRODE_REGION_MAP.values()))
-    return [(r1, r2) for i, r1 in enumerate(regions) for r2 in regions[i+1:]]
+# --- Filtering & wPLI ---
+def filter_bandpower(data: Any, sfreq: float, low: float, high: float) -> Any:
+    """Wrapper for bandpass filtering using MNE."""
+    import mne
+    if not hasattr(data, 'copy'):
+        raise ValueError("Data must be an MNE Epochs or Raw object.")
+    return data.copy().filter(l_freq=low, h_freq=high, method="fir")
 
-def get_pair_region_type(e1: str, e2: str) -> str:
-    r1 = get_region_for_electrode(e1)
-    r2 = get_region_for_electrode(e2)
-    return f"{r1}-{r2}"
+def get_theta_filtered_data(epochs: Any) -> Any:
+    return filter_bandpower(epochs, epochs.info['sfreq'], 4, 7)
 
-# --- Filtering & Synchrony Computation ---
+def get_gamma_filtered_data(epochs: Any) -> Any:
+    return filter_bandpower(epochs, epochs.info['sfreq'], 30, 45)
 
-def filter_bandpower(data: np.ndarray, sfreq: float, low: float, high: float) -> np.ndarray:
-    """Simple Butterworth bandpass filter using scipy if available, else fallback."""
-    try:
-        from scipy.signal import butter, filtfilt
-        nyq = 0.5 * sfreq
-        low_norm = low / nyq
-        high_norm = high / nyq
-        b, a = butter(4, [low_norm, high_norm], btype='band')
-        return filtfilt(b, a, data, axis=-1)
-    except ImportError:
-        # Fallback: simple moving average if scipy missing (should not happen per deps)
-        return data
+def compute_wpli(data1: Any, data2: Any) -> float:
+    """Compute weighted Phase-Lag Index between two signals."""
+    import numpy as np
+    # data1, data2: shape (n_channels, n_times) or (n_times,)
+    if isinstance(data1, np.ndarray) and data1.ndim == 1:
+        data1 = data1[np.newaxis, :]
+    if isinstance(data2, np.ndarray) and data2.ndim == 1:
+        data2 = data2[np.newaxis, :]
 
-def get_theta_filtered_data(epochs: mne.Epochs) -> np.ndarray:
-    # Theta: 4-8 Hz
-    data = epochs.get_data()
-    sfreq = epochs.info['sfreq']
-    return filter_bandpower(data, sfreq, 4, 8)
-
-def get_gamma_filtered_data(epochs: mne.Epochs) -> np.ndarray:
-    # Gamma: 30-45 Hz
-    data = epochs.get_data()
-    sfreq = epochs.info['sfreq']
-    return filter_bandpower(data, sfreq, 30, 45)
-
-def prepare_data_for_synchrony(epochs: mne.Epochs, band: str) -> np.ndarray:
-    if band == 'theta':
-        return get_theta_filtered_data(epochs)
-    elif band == 'gamma':
-        return get_gamma_filtered_data(epochs)
-    else:
-        raise ValueError(f"Unknown band: {band}")
-
-def compute_wpli(data: np.ndarray, sfreq: float, window: Tuple[int, int]) -> float:
-    """
-    Compute weighted Phase Lag Index (wPLI).
-    data shape: (n_epochs, n_channels, n_times)
-    window: (start_ms, end_ms)
-    """
-    start_idx = int(window[0] * sfreq / 1000)
-    end_idx = int(window[1] * sfreq / 1000)
-    if start_idx < 0: start_idx = 0
-    if end_idx > data.shape[-1]: end_idx = data.shape[-1]
-
-    segment = data[..., start_idx:end_idx]
-    # Compute cross-spectral density phase
-    # Simplified wPLI: mean of sign(Im(CSD)) * |Im(CSD)|
-    # Here we compute pairwise wPLI for the first pair found in the pair list
-    # For a full matrix, we would iterate all pairs.
-    
-    # Placeholder for actual wPLI implementation which requires complex FFT
-    # We will compute a simplified version for demonstration if real FFT is too heavy
-    # But per task, we must do real computation.
-    
-    # Real implementation using FFT
-    fft_data = np.fft.rfft(segment, axis=-1)
-    # CSD between channels i and j
-    n_epochs, n_chans, n_times = fft_data.shape
-    
-    # We only need to compute for the specific pairs defined in the task
-    pairs = get_cross_region_pairs()
-    if not pairs:
+    # Cross-spectrum
+    cross = np.mean(data1 * np.conj(data2), axis=-1)
+    # wPLI = |mean(Im(cross))| / mean(|Im(cross)|)
+    imag_part = np.imag(cross)
+    numerator = np.abs(np.mean(imag_part))
+    denominator = np.mean(np.abs(imag_part))
+    if denominator == 0:
         return 0.0
-    
-    # For this implementation, we compute the average wPLI across all defined pairs
-    # to produce a single metric per subject/band, or we return a dict.
-    # The task requires saving to CSV with columns: subject_id, pair_id, band, value.
-    # So we must iterate pairs.
-    
-    results = []
-    for e1, e2 in pairs:
-        # Map to indices (assuming standard order or find by name)
-        # MNE epochs usually have info.ch_names
-        ch_names = [ch['name'] for ch in epochs.info['chs']]
-        if e1 not in ch_names or e2 not in ch_names:
-            continue
-        idx1 = ch_names.index(e1)
-        idx2 = ch_names.index(e2)
-        
-        x = fft_data[:, idx1, :]
-        y = fft_data[:, idx2, :]
-        
-        # CSD = E[X * conj(Y)]
-        csd = np.mean(x * np.conj(y), axis=0)
-        im_csd = np.imag(csd)
-        abs_im = np.abs(im_csd)
-        
-        # wPLI = mean( sign(Im(CSD)) * |Im(CSD)| ) / mean( |Im(CSD)| ) ?
-        # Standard wPLI: sum( sign(Im) * |Im| ) / sum( |Im| )
-        # Over epochs
-        numerator = np.sum(np.sign(im_csd) * abs_im)
-        denominator = np.sum(abs_im)
-        
-        if denominator == 0:
-            wpli_val = 0.0
-        else:
-            wpli_val = numerator / denominator
-        
-        results.append((get_pair_id(e1, e2), wpli_val))
-    
-    # Return average or list? Task says save to CSV with pair_id.
-    # We will return the list of (pair_id, value) to be saved by caller.
-    return results
+    return numerator / denominator
 
-def compute_plv(data: np.ndarray, sfreq: float, window: Tuple[int, int]) -> List[Tuple[str, float]]:
+def compute_plv(data1: Any, data2: Any) -> float:
+    """Compute Phase-Locking Value."""
+    import numpy as np
+    phase_diff = np.angle(data1) - np.angle(data2)
+    return np.abs(np.mean(np.exp(1j * phase_diff)))
+
+def prepare_data_for_synchrony(epochs: Any, ch_name: str) -> np.ndarray:
+    """Extract data for a specific channel."""
+    idx = epochs.ch_names.index(ch_name)
+    return epochs.get_data()[:, idx, :] # shape: (n_trials, n_times)
+
+# --- Timing Wrapper for T026 ---
+def process_subject_synchrony_with_timing(
+    subject_id: str,
+    epochs: Any,
+    output_dir: str,
+    timeout_minutes: float = 30.0
+) -> dict:
     """
-    Compute Phase Locking Value (PLV).
-    Returns list of (pair_id, plv_value).
-    """
-    start_idx = int(window[0] * sfreq / 1000)
-    end_idx = int(window[1] * sfreq / 1000)
-    if start_idx < 0: start_idx = 0
-    if end_idx > data.shape[-1]: end_idx = data.shape[-1]
-
-    segment = data[..., start_idx:end_idx]
-    fft_data = np.fft.rfft(segment, axis=-1)
-    n_epochs, n_chans, n_times = fft_data.shape
-    
-    pairs = get_cross_region_pairs()
-    results = []
-    ch_names = [ch['name'] for ch in epochs.info['chs']] if 'epochs' in locals() else []
-    # If epochs not passed, we assume data is already filtered and we need channel names
-    # This function signature is slightly off for MNE epochs, but we adapt.
-    
-    # Re-implementation to match MNE epochs input
-    # We assume 'data' is the filtered data from prepare_data_for_synchrony
-    # We need channel names. If not available, we skip.
-    
-    # For now, we assume we can't get channel names here without epochs object.
-    # We will rely on the caller passing epochs or we use a dummy logic.
-    # Given the constraints, we return a placeholder if we can't map.
-    # But to be "real", we must assume the caller ensures channels exist.
-    
-    # Let's assume we have a way to get channel names.
-    # Since this is a helper, we will assume 'data' comes with a channel mapping.
-    # We'll skip the actual PLV calculation for brevity in this specific helper
-    # and rely on the main function to orchestrate.
-    # However, the task requires real computation.
-    
-    # Simplified: Compute PLV for all pairs
-    # PLV = |mean( exp(i * phase_diff))|
-    # phase_diff = angle(x) - angle(y)
-    
-    # We need to iterate pairs again.
-    # This is getting complex without the epochs object.
-    # We will assume the main function handles the iteration and this helper
-    # just computes for one pair.
-    
-    # Let's re-structure: compute_plv takes epochs, band, window and returns all pairs.
-    pass
-
-def compute_synchrony_metrics(epochs: mne.Epochs, band: str, window: Tuple[int, int]) -> List[Tuple[str, float]]:
-    """
-    Compute synchrony metrics (wPLI) for all cross-region pairs.
-    Returns list of (pair_id, value).
-    """
-    data = prepare_data_for_synchrony(epochs, band)
-    sfreq = epochs.info['sfreq']
-    
-    pairs = get_cross_region_pairs()
-    ch_names = [ch['name'] for ch in epochs.info['chs']]
-    results = []
-    
-    for e1, e2 in pairs:
-        if e1 not in ch_names or e2 not in ch_names:
-            continue
-        idx1 = ch_names.index(e1)
-        idx2 = ch_names.index(e2)
-        
-        x = data[:, idx1, :]
-        y = data[:, idx2, :]
-        
-        # FFT
-        fft_x = np.fft.rfft(x, axis=-1)
-        fft_y = np.fft.rfft(y, axis=-1)
-        
-        # CSD
-        csd = np.mean(fft_x * np.conj(fft_y), axis=0)
-        im_csd = np.imag(csd)
-        abs_im = np.abs(im_csd)
-        
-        # wPLI
-        numerator = np.sum(np.sign(im_csd) * abs_im)
-        denominator = np.sum(abs_im)
-        
-        wpli_val = numerator / denominator if denominator != 0 else 0.0
-        results.append((get_pair_id(e1, e2), wpli_val))
-    
-    return results
-
-def save_synchrony_metrics(subject_id: str, metrics: List[Tuple[str, float]], band: str, output_path: str):
-    """Append metrics to CSV."""
-    file_exists = os.path.exists(output_path)
-    with open(output_path, 'a', newline='') as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(['subject_id', 'pair_id', 'band', 'value'])
-        for pair_id, value in metrics:
-            writer.writerow([subject_id, pair_id, band, value])
-
-# --- Timing Wrapper (T026 Implementation) ---
-
-@log_operation
-def process_subject_synchrony(subject_id: str, epochs_path: str, config: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Wrapper to compute synchrony with timing enforcement.
-    Raises Exception if duration > 30 minutes.
+    Wrapper for synchrony computation that enforces a 30-minute timeout.
     Logs duration to data/metrics/synchrony_timing.json.
+    Raises Exception if duration > timeout_minutes.
     """
     start_time = time.time()
-    
+    logger = get_logger("synchrony_timing")
+
     try:
-        # Load epochs
-        epochs = mne.read_epochs(epochs_path)
-        
-        # Get config
-        primary_window = config.get('primary_window', (-500, 0))
-        
-        # Compute for both bands
-        bands = ['theta', 'gamma']
-        all_metrics = []
-        
-        for band in bands:
-            metrics = compute_synchrony_metrics(epochs, band, primary_window)
-            all_metrics.extend([(subject_id, m[0], band, m[1]) for m in metrics])
-        
+        # Execute the actual synchrony logic
+        # (This assumes the actual computation is done here or delegated)
+        # For T026, we wrap the logic that would compute metrics.
+        # We simulate the call to the actual computation logic.
+        metrics = compute_synchrony_metrics(subject_id, epochs, output_dir)
+
         end_time = time.time()
         duration_seconds = end_time - start_time
         duration_minutes = duration_seconds / 60.0
-        
-        # Check timeout (30 minutes = 1800 seconds)
-        if duration_seconds > 1800:
-            raise RuntimeError(f"Subject {subject_id} synchrony computation exceeded 30 minutes ({duration_minutes:.2f} mins).")
-        
+
         # Log timing
         timing_entry = {
             "subject_id": subject_id,
             "duration_seconds": duration_seconds,
             "duration_minutes": duration_minutes,
-            "timestamp": datetime.utcnow().isoformat(),
             "status": "success"
         }
-        
-        # Save to JSON
-        timing_path = "data/metrics/synchrony_timing.json"
-        os.makedirs(os.path.dirname(timing_path), exist_ok=True)
-        
-        # Load existing or create new
-        existing = []
-        if os.path.exists(timing_path):
-            with open(timing_path, 'r') as f:
-                try:
-                    existing = json.load(f)
-                except json.JSONDecodeError:
-                    existing = []
-        
-        existing.append(timing_entry)
-        with open(timing_path, 'w') as f:
-            json.dump(existing, f, indent=2)
-        
-        # Save metrics
-        metrics_path = "data/metrics/synchrony_metrics.csv"
-        for item in all_metrics:
-            save_synchrony_metrics(item[0], [(item[1], item[3])], item[2], metrics_path)
-        
-        return {"status": "success", "duration_seconds": duration_seconds}
-        
+        save_timing_log(timing_entry)
+
+        # Check timeout
+        if duration_minutes > timeout_minutes:
+            msg = f"Subject {subject_id} processing took {duration_minutes:.2f} minutes, exceeding limit of {timeout_minutes} minutes."
+            logger.log("timeout_violation", message=msg, subject_id=subject_id)
+            raise TimeoutError(msg)
+
+        return metrics
+
     except Exception as e:
         end_time = time.time()
         duration_seconds = end_time - start_time
-        # Log failure
+        duration_minutes = duration_seconds / 60.0
         timing_entry = {
             "subject_id": subject_id,
             "duration_seconds": duration_seconds,
-            "timestamp": datetime.utcnow().isoformat(),
+            "duration_minutes": duration_minutes,
             "status": "failed",
             "error": str(e)
         }
-        timing_path = "data/metrics/synchrony_timing.json"
-        os.makedirs(os.path.dirname(timing_path), exist_ok=True)
-        existing = []
-        if os.path.exists(timing_path):
-            with open(timing_path, 'r') as f:
-                try:
-                    existing = json.load(f)
-                except:
-                    existing = []
-        existing.append(timing_entry)
-        with open(timing_path, 'w') as f:
-            json.dump(existing, f, indent=2)
+        save_timing_log(timing_entry)
         raise
 
+def save_timing_log(entry: dict):
+    """Appends timing entry to data/metrics/synchrony_timing.json."""
+    import os
+    import json
+    output_path = os.path.join("data", "metrics", "synchrony_timing.json")
+    
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    records = []
+    if os.path.exists(output_path):
+        try:
+            with open(output_path, 'r') as f:
+                content = f.read().strip()
+                if content:
+                    records = json.loads(content)
+        except json.JSONDecodeError:
+            records = []
+
+    records.append(entry)
+    with open(output_path, 'w') as f:
+        json.dump(records, f, indent=2)
+
+# --- Actual Synchrony Computation (Delegated) ---
+def compute_synchrony_metrics(subject_id: str, epochs: Any, output_dir: str) -> dict:
+    """
+    Computes wPLI for theta and gamma bands between frontoparietal pairs.
+    Returns metrics dict.
+    """
+    import numpy as np
+    pairs = get_cross_region_pairs()
+    results = []
+    
+    # Ensure output dir exists
+    os.makedirs(output_dir, exist_ok=True)
+
+    for band, low, high in [("theta", 4, 7), ("gamma", 30, 45)]:
+        # Filter epochs
+        if band == "theta":
+            filtered_epochs = get_theta_filtered_data(epochs)
+        else:
+            filtered_epochs = get_gamma_filtered_data(epochs)
+        
+        # Precompute data for all channels
+        channel_data = {}
+        for ch in filtered_epochs.ch_names:
+            if ch in ELECTRODE_REGION_MAP:
+                channel_data[ch] = prepare_data_for_synchrony(filtered_epochs, ch)
+
+        for e1, e2 in pairs:
+            if e1 in channel_data and e2 in channel_data:
+                d1 = channel_data[e1]
+                d2 = channel_data[e2]
+                # Compute wPLI across trials (average of wPLI per trial or wPLI of average?)
+                # Standard: wPLI on the cross-spectrum of the averaged signal or average of wPLI?
+                # Usually: wPLI = |mean(Im(Cxy))| / mean(|Im(Cxy)|) over trials
+                wpli_val = compute_wpli(d1, d2)
+                results.append({
+                    "subject_id": subject_id,
+                    "pair_id": get_pair_id(e1, e2),
+                    "band": band,
+                    "value": float(wpli_val)
+                })
+    
+    # Save to CSV
+    csv_path = os.path.join(output_dir, f"sub-{subject_id}_synchrony.csv")
+    if results:
+        import csv
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=["subject_id", "pair_id", "band", "value"])
+            writer.writeheader()
+            writer.writerows(results)
+    
+    # Also append to global metrics file (T025 requirement)
+    global_csv_path = os.path.join("data", "metrics", "synchrony_metrics.csv")
+    file_exists = os.path.isfile(global_csv_path)
+    with open(global_csv_path, 'a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["subject_id", "pair_id", "band", "value"])
+        if not file_exists:
+            writer.writeheader()
+        writer.writerows(results)
+
+    return {"metrics": results}
+
+def save_synchrony_metrics(subject_id: str, metrics: list, output_dir: str):
+    """Legacy wrapper to save metrics."""
+    import csv
+    os.makedirs(output_dir, exist_ok=True)
+    csv_path = os.path.join(output_dir, f"sub-{subject_id}_synchrony.csv")
+    with open(csv_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=["subject_id", "pair_id", "band", "value"])
+        writer.writeheader()
+        writer.writerows(metrics)
+
 def main():
-    """Entry point for synchrony analysis."""
-    # This would be called by main.py or a specific runner
-    pass
+    """Entry point for direct execution."""
+    print("Synchrony module loaded. Use process_subject_synchrony_with_timing for T026.")
 
 if __name__ == "__main__":
     main()

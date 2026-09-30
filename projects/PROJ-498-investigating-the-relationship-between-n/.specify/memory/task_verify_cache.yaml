@@ -1,27 +1,26 @@
-T012:
+T013:
   c: false
-  h: 3b08708596443c1056d4f0f7737ad0f881d035527f0f782ddf8984cb1265b48c
-  r: The provided `code/download.py` is incomplete (truncated) and does not show the
-    logic for saving the selected dataset ID, generating a gap report adhering to
-    the schema, logging to `logs/processing.log`, or halting execution as required.
-    Additionally, the expected output files `data/selected_dataset_id.txt` and `data/data_gap_report.json`
-    are absent. The implementation therefore does not satisfy the task specifications.
+  h: 25c04dde55243645232629c45630c77599d573eea8672a131ad0972b51c7ad2a
+  r: "The required `data/selected_dataset_id.txt` file is absent, so the script cannot\
+    \ obtain the dataset ID. Moreover, the provided `code/download.py` is truncated\
+    \ and shows no concrete implementation of downloading files to `data/raw/` or\
+    \ computing a SHA\u2011256 checksum. Both the essential input file and the core\
+    \ functionality are missing."
 T014:
   c: false
-  h: b5a814fcdcb90419cf4c139708b3846aae55e32307f8df8c6d0bd0c029394610
-  r: "The provided `code/preprocess.py` does not implement the required band\u2011\
-    pass filter with a lower cutoff of\u202F45\u202FHz (it uses 1\u202FHz\u202F\u2013\
-    \u202F45\u202FHz), lacks any memory\u2011monitoring logic with `psutil`, and does\
-    \ not write a `data/metrics/memory_profile.json` file (the file is missing). Consequently\
-    \ the task\u2019s core requirements are not satisfied."
-T015:
+  h: dc0a5a07d3c251ee37b2fe359c2332fa3ab90e6f5377a8b7041e28b87222958c
+  r: "The provided `code/preprocess.py` contains a band\u2011pass filter but lacks\
+    \ any `psutil` memory monitoring, `try/finally` logging, or code that writes `peak_rss_gb`\
+    \ to `data/metrics/memory_profile.json`. The required JSON file is absent, and\
+    \ `data/exclusions.csv` does not contain any entry with reason \u201Cmemory_limit_exceeded\u201D\
+    . The memory\u2011constraint portion of the task is therefore unimplemented."
+T015b:
   c: false
   h: f10ee34c7736fa9ba0863e5ee070e0bf187b1fa2253ecfff7dbbdf37ad29dd77
-  r: "The repository contains a partially\u2011implemented `code/preprocess.py` that\
-    \ stops mid\u2011function and never writes `data/processed/ica_components.csv`.\
-    \ The required CSV file is absent, and the ICA removal logic does not actually\
-    \ compute kurtosis or spectral peaks nor record rejected component IDs. The task\
-    \ therefore remains unfinished."
+  r: "The required `data/processed/ica_components.csv` file does not exist, and the\
+    \ `perform_ica_and_remove_artifacts` function in `code/preprocess.py` is truncated/incomplete,\
+    \ lacking the logic to compute kurtosis, spectral peaks, and write the CSV. The\
+    \ task\u2019s core output is therefore missing."
 T016:
   c: false
   h: b5a814fcdcb90419cf4c139708b3846aae55e32307f8df8c6d0bd0c029394610
@@ -40,6 +39,21 @@ T017:
     and to record them with the appropriate reason is therefore not demonstrated.
     The artifact file must contain rows with `subject_id` and `reason` for any subjects
     meeting the exclusion criteria.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No filtered epoch files were provided in `data/processed/band_filtered/`, nor\
+    \ any power spectral density plots or quantitative verification showing peaks\
+    \ in the theta (4\u20137\u202FHz) and gamma (30\u201345\u202FHz) bands as required.\
+    \ The claim lacks the concrete output artifacts and verification data needed to\
+    \ confirm the task was completed."
+T026:
+  c: false
+  h: 4f72901fb4b791bb94ce575f925acb84ea7a6a46e862821de6fbf16b7c8d5176
+  r: "The repository lacks the required `data/metrics/synchrony_timing.json` file,\
+    \ and the provided `code/synchrony.py` does not contain a timing wrapper that\
+    \ logs durations to that JSON or raises an exception for runs exceeding 30\u202F\
+    minutes. The task\u2019s core functionality is therefore missing."
 T033:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -62,11 +76,3 @@ T043:
     that the markdown was checked for correctness; instead only unrelated project
     specifications were shown. The required artifact (a verification of `quickstart.md`
     validation) is missing.
-T044:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, scripts, or documentation showing the claimed CPU\u2011efficiency refactoring\
-    \ were provided; the evidence section contains no artifacts at all, so the requirement\
-    \ for a cleaned\u2011up, refactored codebase is not satisfied. The next implementer\
-    \ must supply the actual refactored code (e.g., updated preprocessing and synchrony\
-    \ scripts) and demonstrate that it meets the CPU\u2011memory constraints."
