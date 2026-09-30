@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-09-30T03:25:52.510686+00:00"
+    "audited_at": "2026-09-30T03:57:50.875932+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-649-trust-region-behavior-blending-for-on-po",
-  "updated_at": "2026-09-30T03:25:52.510698+00:00"
+  "updated_at": "2026-09-30T03:57:50.875945+00:00"
 }
