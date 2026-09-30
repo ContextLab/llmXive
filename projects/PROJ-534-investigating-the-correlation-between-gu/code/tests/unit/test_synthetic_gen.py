@@ -1,9 +1,3 @@
-"""
-Unit tests for the synthetic data generator (T011).
-Verifies that the generator produces data with the correct structure
-and that the Null Hypothesis (independence) holds approximately.
-"""
-
 import pytest
 import pandas as pd
 import numpy as np
@@ -11,54 +5,62 @@ from code.src.data.synthetic_gen import generate_synthetic_cohort
 from code.src.utils.config import SEED
 
 class TestSyntheticGen:
-    def test_output_structure(self):
-        """Test that the output DataFrame has the expected columns."""
-        df = generate_synthetic_cohort(n_participants=100, n_species=10)
+    def test_generate_synthetic_cohort_structure(self):
+        """Test that the generated dataframe has the correct columns and types."""
+        df = generate_synthetic_cohort(n_participants=100)
         
-        required_cols = [
-            'participant_id', 'age', 'sex', 'bmi', 
-            'fiber_intake', 'antibiotic_use', 'cognitive_score'
+        expected_columns = [
+            "participant_id", "age", "sex", "bmi",
+            "cognitive_flexibility_score",
+            "shannon_diversity", "simpson_diversity", "chao1",
+            "dietary_fiber", "antibiotic_use"
         ]
         
-        # Check metadata columns
-        for col in required_cols:
-            assert col in df.columns, f"Missing column: {col}"
+        assert list(df.columns) == expected_columns
         
-        # Check species columns
-        species_cols = [c for c in df.columns if c.startswith('species_')]
-        assert len(species_cols) == 10, "Incorrect number of species columns"
-        
-        # Check total rows
-        assert len(df) == 100
-
-    def test_microbiome_sum_to_one(self):
-        """Test that microbiome relative abundances sum to 1.0 per row."""
-        df = generate_synthetic_cohort(n_participants=50, n_species=5)
-        species_cols = [c for c in df.columns if c.startswith('species_')]
-        
-        row_sums = df[species_cols].sum(axis=1)
-        # Allow for small floating point errors
-        assert np.allclose(row_sums, 1.0), "Microbiome abundances must sum to 1.0"
+        # Check types
+        assert df["participant_id"].dtype == object
+        assert df["age"].dtype in [np.int64, np.int32]
+        assert df["sex"].dtype == object
+        assert df["bmi"].dtype in [np.float64, np.float32]
+        assert df["cognitive_flexibility_score"].dtype in [np.float64, np.float32]
+        assert df["shannon_diversity"].dtype in [np.float64, np.float32]
+        assert df["antibiotic_use"].dtype == bool
 
     def test_null_hypothesis_independence(self):
         """
-        Verify the Null Hypothesis: Cognitive score should be independent 
-        of microbiome composition in the generated data.
-        
-        We check that the correlation between cognitive_score and the 
-        first species is close to 0 (within statistical noise for small N).
+        Verify that cognitive_flexibility_score and shannon_diversity are statistically
+        independent (correlation coefficient close to 0).
+        This validates the Null Hypothesis setup.
         """
-        np.random.seed(SEED) # Ensure deterministic run for this test
-        df = generate_synthetic_cohort(n_participants=1000, n_species=10)
+        df = generate_synthetic_cohort(n_participants=2000) # Larger sample for stability
         
-        # Calculate correlation between cognitive score and first species
-        corr = df['cognitive_score'].corr(df['species_000'])
+        corr, p_value = df["cognitive_flexibility_score"].corr(
+            df["shannon_diversity"], method="pearson"
+        ), 0.0 # Placeholder for p-value logic if needed, but we check correlation magnitude
         
-        # In a true null hypothesis with N=1000, correlation should be very low (< 0.1)
-        assert abs(corr) < 0.15, f"Unexpected correlation ({corr}) found between cognitive score and species_000. Null hypothesis may be violated."
-
-    def test_age_distribution(self):
-        """Verify age is generated in the expected range (50-85)."""
+        # Recalculate p-value properly for the assertion
+        from scipy import stats
+        corr, p_value = stats.pearsonr(df["cognitive_flexibility_score"], df["shannon_diversity"])
+        
+        # With N=2000, a correlation > 0.1 would be significant. 
+        # We expect it to be very close to 0.
+        assert abs(corr) < 0.1, f"Correlation between cognition and shannon is {corr}, expected ~0. Null hypothesis violated."
+        
+    def test_age_range(self):
+        """Verify age is within the expected range [60, 90]."""
         df = generate_synthetic_cohort(n_participants=100)
-        assert df['age'].min() >= 50
-        assert df['age'].max() <= 85
+        assert df["age"].min() >= 60
+        assert df["age"].max() <= 90
+
+    def test_sex_distribution(self):
+        """Verify sex is binary M/F."""
+        df = generate_synthetic_cohort(n_participants=100)
+        unique_sexs = df["sex"].unique()
+        assert set(unique_sexs).issubset({"M", "F"})
+
+    def test_antibiotic_use_type(self):
+        """Verify antibiotic_use is boolean."""
+        df = generate_synthetic_cohort(n_participants=100)
+        assert df["antibiotic_use"].dtype == bool
+        assert df["antibiotic_use"].isin([True, False]).all()

@@ -1,107 +1,87 @@
-participant:
-  type: object
-  required:
-    - participant_id
-    - age
-    - sex
-    - bmi
-  properties:
-    participant_id:
-      type: string
-      description: Unique identifier for the participant
-    age:
-      type: integer
-      minimum: 0
-      description: Age in years
-    sex:
-      type: string
-      enum: ["M", "F"]
-      description: Biological sex
-    bmi:
-      type: number
-      minimum: 0
-      description: Body Mass Index
+# Dataset Schema for Gut Microbiome and Cognitive Flexibility Study
+# Strictly adheres to spec.md FR-002 covariates.
+# Excludes SES and dietary_pattern fields as per constraints.
+version: "1.0.0"
+description: >
+  Defines the schema for the merged synthetic cohort dataset.
+  Includes participant demographics, lifestyle factors, microbiome diversity metrics,
+  and cognitive assessment scores.
 
-lifestyle:
-  type: object
-  required:
-    - fiber_intake
-    - antibiotics_use
-  properties:
-    fiber_intake:
-      type: number
-      minimum: 0
-      description: Daily fiber intake in grams
-    antibiotics_use:
-      type: boolean
-      description: Whether participant used antibiotics in the last 6 months
+entity: Dataset
+fields:
+  - name: participant_id
+    type: str
+    description: Unique identifier for each participant.
+    constraints:
+      - primary_key: true
+      - not_null: true
+      - unique: true
 
-microbiome:
-  type: object
-  required:
-    - shannon_diversity
-    - simpson_diversity
-    - chao1
-  properties:
-    shannon_diversity:
-      type: number
-      description: Shannon diversity index
-    simpson_diversity:
-      type: number
-      description: Simpson diversity index
-    chao1:
-      type: number
-      description: Chao1 richness estimator
+  - name: age
+    type: int
+    description: Age of the participant in years.
+    constraints:
+      - not_null: true
+      - minimum: 0
 
-cognitive:
-  type: object
-  required:
-    - cognitive_score
-  properties:
-    cognitive_score:
-      type: number
-      description: Cognitive flexibility score
+  - name: sex
+    type: enum
+    description: Biological sex of the participant.
+    allowed_values:
+      - "Male"
+      - "Female"
+      - "Other"
+    constraints:
+      - not_null: true
 
-filtered_cohort:
-  type: object
-  allOf:
-    - $ref: '#/participant'
-    - $ref: '#/lifestyle'
-    - $ref: '#/microbiome'
-    - $ref: '#/cognitive'
-  required:
-    - participant_id
-    - age
-    - sex
-    - bmi
-    - fiber_intake
-    - antibiotics_use
-    - shannon_diversity
-    - simpson_diversity
-    - chao1
-    - cognitive_score
-  properties:
-    participant_id:
-      type: string
-    age:
-      type: integer
-      minimum: 65
-    sex:
-      type: string
-      enum: ["M", "F"]
-    bmi:
-      type: number
-      minimum: 0
-    fiber_intake:
-      type: number
-      minimum: 0
-    antibiotics_use:
-      type: boolean
-    shannon_diversity:
-      type: number
-    simpson_diversity:
-      type: number
-    chao1:
-      type: number
-    cognitive_score:
-      type: number
+  - name: bmi
+    type: float
+    description: Body Mass Index (kg/m^2).
+    constraints:
+      - not_null: false
+      - minimum: 0.0
+
+  - name: cognitive_flexibility_score
+    type: float
+    description: Score from the cognitive flexibility assessment task.
+    constraints:
+      - not_null: false
+
+  - name: shannon_diversity
+    type: float
+    description: Shannon diversity index (alpha diversity).
+    constraints:
+      - not_null: false
+      - minimum: 0.0
+
+  - name: simpson_diversity
+    type: float
+    description: Simpson diversity index (alpha diversity).
+    constraints:
+      - not_null: false
+      - minimum: 0.0
+
+  - name: chao1
+    type: float
+    description: Chao1 richness estimator (alpha diversity).
+    constraints:
+      - not_null: false
+      - minimum: 0.0
+
+  - name: dietary_fiber
+    type: float
+    description: Average daily dietary fiber intake (grams).
+    constraints:
+      - not_null: false
+      - minimum: 0.0
+
+  - name: antibiotic_use
+    type: bool
+    description: Boolean flag indicating recent antibiotic use (within 6 months).
+    constraints:
+      - not_null: false
+
+notes:
+  - "SES (Socioeconomic Status) and dietary_pattern are explicitly excluded per FR-002 scope control."
+  - "All float fields allow nulls to support listwise deletion during filtering (T013)."
+  - "Sex is an enum to prevent invalid string entries."

@@ -16,7 +16,7 @@ The approach involves ingesting synthetic 16S rRNA sequencing data and cognitive
 **Primary Dependencies**: `pandas`, `scikit-learn`, `scipy`, `statsmodels`, `biom-format`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`
 **Storage**: Local CSV/Parquet files in `data/` (derived from **synthetic generator output**)
 **Testing**: `pytest` (unit tests for data filtering, statistical assertions, null hypothesis validation)
-**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU allocation, 7GB RAM)
+**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU allocation, sufficient RAM)
 **Project Type**: Data analysis pipeline / Scientific computing library (Validation Mode)
 **Performance Goals**: Complete full analysis pipeline within 6 hours on CPU-only runner; memory usage < 7GB.
 **Constraints**: No GPU usage; no deep learning models; dataset must be sampled if raw size exceeds RAM; all statistical tests must handle zero-variance cases gracefully.

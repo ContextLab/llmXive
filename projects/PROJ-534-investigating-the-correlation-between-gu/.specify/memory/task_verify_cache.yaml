@@ -1,3 +1,22 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`src/`, `tests/`, `data/raw`, `data/processed`,
+    `data/results`, `logs/`) is provided; the claim cannot be verified without actual
+    filesystem artifacts.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest configuration file (e.g., `pytest.ini` or `pyproject.toml` with pytest
+    settings) or test directory structure (e.g., `tests/` with `__init__.py` and sample
+    test modules) was presented. The required artifacts to satisfy task T006 are missing.
+T013:
+  c: false
+  h: 90939ba1ad9998636be38453ead61d225f88a6ae4fab44aae86ab75e1f6a5594
+  r: "The required file `src/data/filtering.py` does not exist, and the schema file\
+    \ `contracts/dataset.schema.yaml` (or `schema.yaml`) is also missing, so no listwise\u2011\
+    deletion logic or logging can be present. The implementer must add the filtering\
+    \ module and the schema definition to satisfy the task."
 T017:
   c: false
   h: c33b9160893b55d9c5caaaa3bfe4ade5c1b722926da2f83d2b009fe67926f296

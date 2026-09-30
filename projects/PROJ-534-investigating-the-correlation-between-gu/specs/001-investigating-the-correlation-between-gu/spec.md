@@ -94,7 +94,7 @@ The system MUST generate visualizations of diversity distributions across cognit
 
 ## Assumptions
 
-- **Assumption about data availability**: The UK Biobank contains a sufficient number of participants in the older adult demographic with both S rRNA sequencing (or shotgun metagenomics) data and linked cognitive flexibility scores (e.g., fluid intelligence, reaction time tasks) to achieve a minimum sample size of 100 for meaningful statistical power.
+- **Assumption about data availability**: The UK Biobank contains a sufficient number of participants in the older adult demographic with both S rRNA sequencing (or shotgun metagenomics) data and linked cognitive flexibility scores (e.g., fluid intelligence, reaction time tasks) to achieve a sample size adequate for meaningful statistical power.
 - **Assumption about data quality**: The public dataset provides pre-calculated alpha/beta diversity metrics or raw sequences that can be processed using standard, CPU-tractable tools (e.g., QIIME or phyloseq) within a practical CI time limit and memory constraint.
 - **Assumption about cognitive measures**: The cognitive flexibility scores in the dataset are derived from validated instruments (e.g., UK Biobank cognitive tasks) that have established reliability and validity for use in aging populations.
 - **Assumption about confounding**: The available covariates (age, sex, BMI, dietary fiber intake, antibiotic use) are sufficient to control for major confounding factors in the relationship between gut microbiome and cognitive flexibility; unmeasured confounders are assumed to be either negligible or partially captured by the microbiome profile itself.

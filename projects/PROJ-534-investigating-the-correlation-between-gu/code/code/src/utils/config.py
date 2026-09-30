@@ -1,10 +1,9 @@
 """
-Configuration management for the Gut Microbiome - Cognitive Flexibility study.
+Configuration module for the gut microbiome and cognitive flexibility project.
 
-This module handles:
-- Fixed random seeds for reproducibility
-- Project path configurations
-- Directory creation utilities
+This module defines fixed random seeds for reproducibility and path configurations
+for all project directories. It also provides utility functions for setting
+global seeds and ensuring directory structures exist.
 """
 import os
 import random
@@ -12,75 +11,67 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 import numpy as np
 import logging
+import sys
 
-# ============================================================================
-# Project Root and Directory Paths
-# ============================================================================
+# Fixed random seed for reproducibility across all random number generators
+SEED = 42
 
-# Determine the project root: the directory containing this config file's parent
-# Structure: code/code/src/utils/config.py -> project root is code/code/
-_CURRENT_FILE = Path(__file__).resolve()
-PROJECT_ROOT = _CURRENT_FILE.parent.parent.parent.parent
-CODE_ROOT = PROJECT_ROOT / "code"
-SRC_ROOT = CODE_ROOT / "src"
+# Project root directory (assumes this file is at code/code/src/utils/config.py)
+# We traverse up two levels from the current file location
+_CURRENT_FILE_PATH = Path(__file__).resolve()
+PROJECT_ROOT = _CURRENT_FILE_PATH.parent.parent.parent.parent
+CODE_ROOT = _CURRENT_FILE_PATH.parent.parent.parent
 
 # Data directories
-DATA_DIR = PROJECT_ROOT / "data"
+DATA_DIR = CODE_ROOT / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 RESULTS_DIR = DATA_DIR / "results"
-
-# Logs directory
-LOGS_DIR = PROJECT_ROOT / "logs"
-
-# Figures directory
 FIGURES_DIR = DATA_DIR / "figures"
 
-# ============================================================================
-# Random Seeds for Reproducibility
-# ============================================================================
+# Logs directory
+LOGS_DIR = CODE_ROOT / "logs"
 
-# Fixed seed for all random number generation
-SEED = 42
-
-# ============================================================================
-# Configuration Dictionary
-# ============================================================================
-
+# Configuration dictionary
 CONFIG: Dict[str, Any] = {
     "seed": SEED,
     "paths": {
         "project_root": str(PROJECT_ROOT),
+        "code_root": str(CODE_ROOT),
         "data_dir": str(DATA_DIR),
         "raw_data_dir": str(RAW_DATA_DIR),
         "processed_data_dir": str(PROCESSED_DATA_DIR),
         "results_dir": str(RESULTS_DIR),
-        "logs_dir": str(LOGS_DIR),
         "figures_dir": str(FIGURES_DIR),
+        "logs_dir": str(LOGS_DIR),
     },
     "analysis": {
-        "alpha_diversity_metrics": ["shannon", "simpson", "chao1"],
-        "beta_diversity_metrics": ["bray_curtis", "unifrac_weighted"],
-        "correlation_methods": ["pearson", "spearman"],
-        "covariates": ["age", "sex", "bmi", "fiber", "antibiotics"],
-        "age_cutoff": 65,
         "confidence_level": 0.95,
-        "fdr_method": "fdr_bh",  # Benjamini-Hochberg
+        "alpha": 0.05,
+        "max_skewness_threshold": 1.0,
+        "shapiro_wilk_threshold": 0.05,
+        "fdr_method": "benjamini_hochberg",
     },
-    "logging": {
-        "level": logging.INFO,
-        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        "file": str(LOGS_DIR / "pipeline.log"),
-    },
+    "covariates": [
+        "age",
+        "sex",
+        "bmi",
+        "dietary_fiber",
+        "antibiotic_use"
+    ],
+    "diversity_metrics": {
+        "alpha": ["shannon", "simpson", "chao1"],
+        "beta": ["bray_curtis", "unifrac_weighted"]
+    }
 }
-
-# ============================================================================
-# Helper Functions
-# ============================================================================
 
 def get_project_root() -> Path:
     """Return the project root directory."""
     return PROJECT_ROOT
+
+def get_code_root() -> Path:
+    """Return the code root directory."""
+    return CODE_ROOT
 
 def get_data_dir() -> Path:
     """Return the main data directory."""
@@ -108,10 +99,10 @@ def get_figures_dir() -> Path:
 
 def set_global_seed(seed: Optional[int] = None) -> None:
     """
-    Set the global random seed for reproducibility.
+    Set the random seed for reproducibility across all libraries.
     
     Args:
-        seed: The seed value. Defaults to CONFIG['seed'].
+        seed: Random seed value. Defaults to CONFIG['seed'] if not provided.
     """
     if seed is None:
         seed = SEED
@@ -119,36 +110,24 @@ def set_global_seed(seed: Optional[int] = None) -> None:
     random.seed(seed)
     np.random.seed(seed)
     
-    # Log the seed setting
-    logger = logging.getLogger(__name__)
-    logger.info(f"Global random seed set to {seed}")
+    # Set PYTHONHASHSEED for reproducibility in hash-based operations
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+    logging.info(f"Global random seed set to {seed}")
 
 def ensure_directories() -> None:
-    """
-    Create all required directories if they do not exist.
-    
-    This function ensures the following directories exist:
-    - data/raw
-    - data/processed
-    - data/results
-    - data/figures
-    - logs
-    """
-    dirs = [
+    """Create all required directories if they don't exist."""
+    directories = [
         RAW_DATA_DIR,
         PROCESSED_DATA_DIR,
         RESULTS_DIR,
         FIGURES_DIR,
-        LOGS_DIR,
+        LOGS_DIR
     ]
     
-    logger = logging.getLogger(__name__)
-    
-    for directory in dirs:
+    for directory in directories:
         directory.mkdir(parents=True, exist_ok=True)
-        logger.debug(f"Ensured directory exists: {directory}")
-    
-    logger.info("All required directories created/verified.")
+        logging.debug(f"Ensured directory exists: {directory}")
 
 def get_config() -> Dict[str, Any]:
     """Return the full configuration dictionary."""
@@ -156,66 +135,79 @@ def get_config() -> Dict[str, Any]:
 
 def get_path(key: str) -> Path:
     """
-    Retrieve a path from the configuration.
+    Get a path from the configuration by key.
     
     Args:
-        key: The path key (e.g., 'raw_data_dir', 'results_dir').
+        key: Configuration key (e.g., 'raw_data_dir', 'results_dir')
     
     Returns:
-        The corresponding Path object.
+        Path object for the requested directory
     
     Raises:
-        KeyError: If the key is not found in the paths configuration.
+        KeyError: If the key is not found in the configuration
     """
-    try:
-        path_str = CONFIG["paths"][key]
-        return Path(path_str)
-    except KeyError:
-        raise KeyError(f"Path key '{key}' not found in configuration. Available keys: {list(CONFIG['paths'].keys())}")
+    path_keys = {
+        "project_root": PROJECT_ROOT,
+        "code_root": CODE_ROOT,
+        "data_dir": DATA_DIR,
+        "raw_data_dir": RAW_DATA_DIR,
+        "processed_data_dir": PROCESSED_DATA_DIR,
+        "results_dir": RESULTS_DIR,
+        "figures_dir": FIGURES_DIR,
+        "logs_dir": LOGS_DIR,
+    }
+    
+    if key not in path_keys:
+        raise KeyError(f"Path key '{key}' not found in configuration")
+    
+    return path_keys[key]
 
-# ============================================================================
-# Logging Configuration
-# ============================================================================
-
-def setup_logging(log_level: int = logging.INFO) -> None:
+def setup_logging(log_level: int = logging.INFO) -> logging.Logger:
     """
-    Configure the logging system for the project.
+    Configure the root logger to write to the logs directory.
     
     Args:
-        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
+        log_level: Logging level (default: INFO)
+    
+    Returns:
+        Configured logger instance
     """
     # Ensure logs directory exists
-    ensure_directories()
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
     
-    log_file = LOGS_DIR / "pipeline.log"
+    # Configure root logger
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
     
-    # Create formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
+    # Clear existing handlers to avoid duplicates
+    logger.handlers.clear()
     
     # File handler
-    file_handler = logging.FileHandler(log_file)
+    file_handler = logging.FileHandler(LOGS_DIR / "pipeline.log")
     file_handler.setLevel(log_level)
-    file_handler.setFormatter(formatter)
     
     # Console handler
-    console_handler = logging.StreamHandler()
+    console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(log_level)
+    
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    file_handler.setFormatter(formatter)
     console_handler.setFormatter(formatter)
     
-    # Root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+    # Add handlers
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
     
-    # Avoid duplicate handlers
-    if not root_logger.handlers:
-        root_logger.addHandler(file_handler)
-        root_logger.addHandler(console_handler)
+    return logger
 
-# ============================================================================
-# Module Initialization
-# ============================================================================
-
-# Set the global seed when the module is imported
-set_global_seed(SEED)
+# Initialize directories and logging when module is imported
+if __name__ == "__main__":
+    ensure_directories()
+    setup_logging()
+    logging.info("Configuration module initialized successfully")
+    logging.info(f"Project root: {PROJECT_ROOT}")
+    logging.info(f"Data directory: {DATA_DIR}")

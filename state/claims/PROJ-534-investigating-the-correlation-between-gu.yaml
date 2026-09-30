@@ -22,3 +22,47 @@
   source_type: external
   status: verified
   updated_at: '2026-07-07T00:59:36Z'
+- artifact_path: projects/PROJ-534-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: calculate sample size for 80% power at alpha 0.05
+  claim_id: c_852e545c
+  context: "Implement src/power/estimation.py to calculate required sample size for\
+    \ 80% power at \u03B1 = 0.05. Logic: Read the observed effect size from data/results/correlation_results.json\
+    \ (T021 output)."
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: '[1] 72.6096'
+      source_id: '2201.02486'
+      url: https://arxiv.org/abs/2201.02486
+      value: '72.6096'
+    filled: true
+  kind: numeric
+  raw_text: "Calculate required sample size for 80% power at \u03B1 = 0.05."
+  resolved_value: '72.6096'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T06:12:00Z'
+- artifact_path: projects/PROJ-534-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: delta_coefficient diversity term less than 0.1
+  claim_id: c_9e03eda4
+  context: Add a specific validation test in tests/unit/test_confounding.py. Assert
+    that delta_coefficient for the diversity term is < 0.1 between Model 1 and Model
+    3. If >= 0.1, log a warning that covariates confound the result.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Delta_coefficient_diversity_term_less_than_0.1
+  kind: magnitude
+  raw_text: Assert that delta_coefficient for the diversity term is < 0.1 between
+    Model 1 and Model 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T06:12:24Z'
