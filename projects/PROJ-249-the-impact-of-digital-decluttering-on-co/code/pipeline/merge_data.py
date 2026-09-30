@@ -1,286 +1,246 @@
+"""
+Data Merger Module for Digital Decluttering Study.
+
+This module implements the logic to join baseline and post-intervention records
+with compliance scores, producing a unified dataset for analysis.
+
+Input:
+    - data/raw/baseline_raw.csv
+    - data/processed/compliance_scores.csv
+Output:
+    - data/processed/merged_data.csv
+"""
+
 import os
 import csv
 import json
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional, Tuple
-import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Project root resolution (assumes code/pipeline/ is in the project root or parent)
+# We use a relative path from the script location to ensure portability
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
 
-# Define expected paths based on project structure
-DATA_PROCESSED_DIR = Path("data/processed")
-BASELINE_RAW_PATH = Path("data/raw/baseline_raw.csv")
-COMPLIANCE_SCORES_PATH = Path("data/processed/compliance_scores.csv")
-MERGED_OUTPUT_PATH = Path("data/processed/merged_data.csv")
-EXCLUSIONS_PATH = Path("data/processed/exclusions.json")
+# Input/Output paths as defined in tasks.md
+INPUT_BASELINE_PATH = DATA_RAW_DIR / "baseline_raw.csv"
+INPUT_COMPLIANCE_PATH = DATA_PROCESSED_DIR / "compliance_scores.csv"
+OUTPUT_MERGED_PATH = DATA_PROCESSED_DIR / "merged_data.csv"
 
-def load_csv_data(file_path: Path, required_columns: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+def load_csv_data(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Load data from a CSV file into a list of dictionaries.
-    
+    Load a CSV file into a list of dictionaries.
+
     Args:
-        file_path: Path to the CSV file
-        required_columns: Optional list of columns that must be present
-        
+        file_path: Path to the CSV file.
+
     Returns:
-        List of dictionaries representing rows
-        
+        List of dictionaries representing rows.
+
     Raises:
-        FileNotFoundError: If the file does not exist
-        ValueError: If required columns are missing
+        FileNotFoundError: If the file does not exist.
+        ValueError: If the file is empty or has no headers.
     """
     if not file_path.exists():
-        raise FileNotFoundError(f"Data file not found: {file_path}")
-    
+        raise FileNotFoundError(f"Required input file not found: {file_path}")
+
     data = []
     with open(file_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
+        if not reader.fieldnames:
+            raise ValueError(f"CSV file {file_path} is empty or has no headers.")
         for row in reader:
             data.append(row)
-    
-    if not data:
-        logger.warning(f"Loaded 0 rows from {file_path}")
-        return data
 
-    if required_columns:
-        first_row_keys = set(data[0].keys())
-        missing = set(required_columns) - first_row_keys
-        if missing:
-            raise ValueError(f"Missing required columns in {file_path}: {missing}")
-    
+    if not data:
+        raise ValueError(f"CSV file {file_path} contains no data rows.")
+
     return data
 
-def validate_compliance_scores(file_path: Path) -> bool:
+def validate_compliance_scores(data: List[Dict[str, Any]]) -> None:
     """
-    Validate that the compliance scores file exists and has valid structure.
-    This is a dependency check for T029 output.
-    
-    Args:
-        file_path: Path to the compliance scores CSV
-        
-    Returns:
-        True if valid
-        
-    Raises:
-        FileNotFoundError: If file is missing
-        ValueError: If structure is invalid
-    """
-    if not file_path.exists():
-        raise FileNotFoundError(
-            f"Dependency check failed: Compliance scores file not found at {file_path}. "
-            "Please ensure T029 (aggregate_compliance) has run successfully."
-        )
-    
-    try:
-        data = load_csv_data(file_path)
-        if not data:
-            raise ValueError(f"Compliance scores file is empty: {file_path}")
-        
-        # Validate expected columns for compliance scores
-        # Based on T029 output schema: participant_id, daily_score, weekly_score, compliance_rate
-        expected_cols = {'participant_id', 'daily_score', 'weekly_score', 'compliance_rate'}
-        actual_cols = set(data[0].keys())
-        
-        if not expected_cols.issubset(actual_cols):
-            missing = expected_cols - actual_cols
-            raise ValueError(f"Compliance scores file missing columns: {missing}")
-        
-        logger.info(f"Compliance scores validation passed: {len(data)} records found.")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Compliance scores validation failed: {e}")
-        raise
+    Validate that the compliance scores data has the expected structure.
 
-def merge_baseline_post(baseline_data: List[Dict], post_data: List[Dict]) -> List[Dict]:
-    """
-    Merge baseline and post-intervention data by participant_id.
-    
     Args:
-        baseline_data: List of baseline records
-        post_data: List of post-intervention records
-        
-    Returns:
-        Merged list of records
+        data: List of compliance score records.
+
+    Raises:
+        ValueError: If required columns are missing.
     """
-    # Index post data by participant_id
-    post_map = {row['participant_id']: row for row in post_data}
+    required_cols = {'participant_id', 'compliance_score', 'days_compliant'}
+    if not data:
+        raise ValueError("Compliance scores data is empty.")
+
+    first_row = data[0]
+    missing = required_cols - set(first_row.keys())
+    if missing:
+        raise ValueError(f"Compliance scores data missing required columns: {missing}")
+
+def merge_baseline_post(baseline_data: List[Dict[str, Any]], 
+                        post_data: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
+    """
+    Merge baseline and post-intervention data on participant_id.
     
+    Note: This implementation assumes post-intervention data is already aggregated
+    or merged into the baseline_raw.csv by previous steps (T022/T049), or that
+    baseline_raw.csv contains both timepoints. If post_data is provided, it joins
+    those specific records.
+    
+    For T031, we primarily focus on joining the baseline/post records (already
+    potentially in one file or needing a simple join) with compliance scores.
+    If baseline_raw.csv contains both 'baseline' and 'post' rows, we pivot or
+    mark them. However, based on typical pipeline flow:
+    1. baseline_raw.csv might have all raw measurements.
+    2. We need to join with compliance_scores.csv.
+    
+    This function performs the join on 'participant_id'.
+    """
+    if not baseline_data:
+        return []
+
+    # Index baseline by participant_id
+    # We assume multiple rows per participant in raw data (different metrics/times)
+    # The merge will duplicate the compliance score for each row of that participant.
     merged = []
+    
     for row in baseline_data:
-        pid = row['participant_id']
+        pid = row.get('participant_id')
+        if not pid:
+            continue
+        
         new_row = dict(row)
-        if pid in post_map:
-            # Add post-intervention columns with prefix or direct mapping
-            # Assuming schema: baseline has 'metric_type', 'value'; post has same
-            # We need to handle the join logic carefully
-            post_row = post_map[pid]
-            for key, val in post_row.items():
-                if key != 'participant_id':
-                    new_row[f'post_{key}'] = val
+        
+        # If post_data is provided and we need to merge it specifically here:
+        # (This handles cases where post data is separate)
+        if post_data:
+            for p_row in post_data:
+                if p_row.get('participant_id') == pid:
+                    new_row['post_metric_value'] = p_row.get('value')
+                    new_row['post_timestamp'] = p_row.get('timestamp')
+        
         merged.append(new_row)
     
     return merged
 
-def merge_compliance(merged_data: List[Dict], compliance_data: List[Dict]) -> List[Dict]:
+def merge_compliance(merged_data: List[Dict[str, Any]], 
+                     compliance_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Merge compliance scores into the merged dataset.
-    This function enforces the dependency on T029.
-    
-    Args:
-        merged_data: List of merged baseline/post records
-        compliance_data: List of compliance score records
-        
-    Returns:
-        Updated merged list with compliance data
-    """
-    # Index compliance data by participant_id
-    compliance_map = {row['participant_id']: row for row in compliance_data}
-    
-    result = []
-    for row in merged_data:
-        pid = row['participant_id']
-        new_row = dict(row)
-        if pid in compliance_map:
-            comp_row = compliance_map[pid]
-            for key, val in comp_row.items():
-                if key != 'participant_id':
-                    new_row[f'comp_{key}'] = val
-        else:
-            # Log warning but do not fail; some participants might not have compliance data
-            logger.warning(f"No compliance data found for participant {pid}")
-        result.append(new_row)
-    
-    return result
+    Join compliance scores with the merged baseline/post data.
 
-def write_merged_data(data: List[Dict], output_path: Path) -> None:
-    """
-    Write merged data to a CSV file.
-    
     Args:
-        data: List of dictionaries to write
-        output_path: Path to output file
+        merged_data: List of merged participant records.
+        compliance_data: List of compliance score records.
+
+    Returns:
+        List of fully merged records.
+    """
+    # Create a lookup for compliance by participant_id
+    compliance_lookup = {}
+    for comp in compliance_data:
+        pid = comp.get('participant_id')
+        if pid:
+            compliance_lookup[pid] = comp
+
+    final_data = []
+    for row in merged_data:
+        pid = row.get('participant_id')
+        if pid and pid in compliance_lookup:
+            # Merge compliance fields into the row
+            comp_record = compliance_lookup[pid]
+            for key, value in comp_record.items():
+                if key != 'participant_id': # Avoid overwriting ID if redundant
+                    row[f'comp_{key}'] = value
+        else:
+            # If no compliance data found, add nulls or flag
+            row['comp_compliance_score'] = None
+            row['comp_days_compliant'] = None
+            row['comp_status'] = 'missing'
+        
+        final_data.append(row)
+
+    return final_data
+
+def write_merged_data(data: List[Dict[str, Any]], output_path: Path) -> None:
+    """
+    Write the merged data to a CSV file.
+
+    Args:
+        data: List of dictionaries to write.
+        output_path: Path to the output file.
     """
     if not data:
-        logger.warning("No data to write to merged file.")
-        # Create empty file with headers if needed, or skip
-        with open(output_path, 'w', newline='', encoding='utf-8') as f:
-            f.write("")
-        return
+        raise ValueError("No data to write.")
 
-    fieldnames = list(data[0].keys())
-    
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+
+    fieldnames = list(data[0].keys())
+
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
-    
-    logger.info(f"Wrote {len(data)} records to {output_path}")
 
-def run_merge_pipeline(baseline_path: Path = BASELINE_RAW_PATH, 
-                       compliance_path: Path = COMPLIANCE_SCORES_PATH,
-                       output_path: Path = MERGED_OUTPUT_PATH) -> Dict[str, Any]:
+def run_merge_pipeline() -> str:
     """
-    Run the full merge pipeline with dependency checks.
-    
-    This function implements T054:
-    - Verifies that compliance_scores.csv (from T029) exists before merging.
-    - Merges baseline and post data.
-    - Merges compliance scores.
-    - Writes the final merged dataset.
-    
-    Args:
-        baseline_path: Path to baseline raw data
-        compliance_path: Path to compliance scores (T029 output)
-        output_path: Path for merged output
-        
+    Execute the full data merge pipeline.
+
+    1. Load baseline_raw.csv
+    2. Validate and load compliance_scores.csv
+    3. Merge data
+    4. Write to merged_data.csv
+
     Returns:
-        Dictionary with pipeline status and counts
-        
+        Path to the output file as a string.
+
     Raises:
-        FileNotFoundError: If mandatory dependencies are missing
+        FileNotFoundError: If required input files are missing.
+        ValueError: If data validation fails.
     """
-    logger.info("Starting merge data pipeline...")
-    
-    # 1. Dependency Check (T054 Requirement)
-    logger.info(f"Checking dependency: {compliance_path}")
-    try:
-        validate_compliance_scores(compliance_path)
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(f"Pipeline aborted due to missing/invalid dependency: {e}")
-        raise
+    # Step 1: Load Baseline Data
+    print(f"Loading baseline data from {INPUT_BASELINE_PATH}...")
+    baseline_data = load_csv_data(INPUT_BASELINE_PATH)
+    print(f"Loaded {len(baseline_data)} rows from baseline.")
 
-    # 2. Load Baseline Data
-    logger.info(f"Loading baseline data from {baseline_path}")
-    try:
-        baseline_data = load_csv_data(baseline_path)
-    except FileNotFoundError:
-        # Handle case where baseline might be missing (though less likely to be a dependency error)
-        logger.error(f"Baseline data not found: {baseline_path}")
-        raise
+    # Step 2: Load and Validate Compliance Scores
+    print(f"Loading compliance scores from {INPUT_COMPLIANCE_PATH}...")
+    compliance_data = load_csv_data(INPUT_COMPLIANCE_PATH)
+    validate_compliance_scores(compliance_data)
+    print(f"Loaded {len(compliance_data)} rows from compliance scores.")
 
-    # 3. Load Post-Intervention Data
-    # Assuming post data is in a separate file or part of baseline_raw with a flag
-    # For this implementation, we assume a standard structure where post data might be
-    # in data/raw/post_intervention_raw.csv or similar. 
-    # However, looking at T031 context, it merges baseline and post.
-    # Let's assume post data is in data/raw/post_intervention_raw.csv for now, 
-    # or if not available, we treat baseline as the only source and merge compliance.
-    # Based on T032 (change scores), we need paired data.
-    # Let's assume there is a file 'data/raw/post_intervention_raw.csv'
-    post_path = Path("data/raw/post_intervention_raw.csv")
-    post_data = []
-    if post_path.exists():
-        logger.info(f"Loading post-intervention data from {post_path}")
-        post_data = load_csv_data(post_path)
-    else:
-        logger.warning(f"Post-intervention data not found at {post_path}. Proceeding with baseline only.")
+    # Step 3: Merge (Baseline + Compliance)
+    # Note: If post-intervention data is separate, it should be merged into baseline_data
+    # before this call or handled here if a separate file is provided.
+    # For this task, we assume baseline_raw.csv contains the necessary pre/post rows
+    # or that the "post" data is implicitly part of the baseline_raw structure 
+    # (e.g., via a 'timepoint' column). We proceed to join with compliance.
+    merged = merge_baseline_post(baseline_data)
+    final_data = merge_compliance(merged, compliance_data)
 
-    # 4. Merge Baseline and Post
-    merged_data = merge_baseline_post(baseline_data, post_data)
-    logger.info(f"Baseline-Post merge complete: {len(merged_data)} records.")
+    # Step 4: Write Output
+    print(f"Writing merged data to {OUTPUT_MERGED_PATH}...")
+    write_merged_data(final_data, OUTPUT_MERGED_PATH)
+    print(f"Pipeline complete. Output written to {OUTPUT_MERGED_PATH}")
 
-    # 5. Load and Merge Compliance Data
-    logger.info(f"Loading compliance data from {compliance_path}")
-    compliance_data = load_csv_data(compliance_path)
-    final_data = merge_compliance(merged_data, compliance_data)
-    logger.info(f"Compliance merge complete: {len(final_data)} records.")
-
-    # 6. Write Output
-    logger.info(f"Writing merged data to {output_path}")
-    write_merged_data(final_data, output_path)
-
-    return {
-        "status": "success",
-        "baseline_count": len(baseline_data),
-        "post_count": len(post_data),
-        "compliance_count": len(compliance_data),
-        "final_count": len(final_data),
-        "output_path": str(output_path)
-    }
+    return str(OUTPUT_MERGED_PATH)
 
 def main():
-    """Main entry point for the merge data script."""
+    """Entry point for the merge_data script."""
     try:
-        result = run_merge_pipeline()
-        print(json.dumps(result, indent=2))
-        logger.info("Merge pipeline completed successfully.")
+        output_path = run_merge_pipeline()
+        print(f"Success: {output_path}")
     except FileNotFoundError as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+        print(f"Error: {e}")
+        # Fail loudly as per requirements
+        raise
+    except ValueError as e:
+        print(f"Validation Error: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Pipeline failed with unexpected error: {e}")
-        sys.exit(1)
+        print(f"Unexpected Error: {e}")
+        raise
 
 if __name__ == "__main__":
-    import sys
     main()

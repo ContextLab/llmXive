@@ -1,3 +1,32 @@
+T009:
+  c: false
+  h: 4597374f973ff302b8c066b016acbdd6656e3a50917d9c2ce369b9ffe4cb8fd8
+  r: The required output file `data/raw/synthetic_baseline.csv` does not exist, and
+    the provided `synthetic_baseline.py` script is truncated (the `main()` function
+    ends abruptly without applying the seed, generating the data, or writing the CSV).
+    Consequently, the generator does not actually produce the deterministic CSV with
+    the specified columns. The next implementer must complete the script (ensure deterministic
+    RNG using the config seed, generate rows, write them) and verify that the CSV
+    file is created with valid metric values.
+T010:
+  c: false
+  h: 6c9ea2dc1c0463552319676870fa58d980e159decc9d60c8cd9b2714946db4b5
+  r: "The repository contains a `power_simulation.py` script, but the provided excerpt\
+    \ stops before the core simulation loop and does not show any code that writes\
+    \ `results/power_analysis.json`. Moreover, the required output file is absent\
+    \ from the project. Consequently, the task\u2019s required artifact (the JSON\
+    \ results file with the specified keys) is missing, so the implementation is incomplete."
+T031:
+  c: false
+  h: 0d8ce4be3d117e2fa5452d49dac5a5da116f404f1c92500f5f11ce4df89e23d6
+  r: "The `merge_data.py` file is present but only a partial implementation is shown\
+    \ (truncated before any write\u2011out logic), and the required input files (`baseline_raw.csv`,\
+    \ `compliance_scores.csv`) and the expected output file (`merged_data.csv`) are\
+    \ all missing, so the script cannot be verified to actually perform the merge\
+    \ or produce the output. The next implementer must provide a complete merging\
+    \ function that writes `data/processed/merged_data.csv` and include the necessary\
+    \ input CSVs (or at least sample files) to demonstrate correct behavior and the\
+    \ required failure when `compliance_scores.cs"
 T044:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

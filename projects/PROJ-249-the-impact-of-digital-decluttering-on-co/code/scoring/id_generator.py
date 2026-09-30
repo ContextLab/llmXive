@@ -1,15 +1,11 @@
 """
-Pseudonymous ID Generator for Digital Decluttering Study.
+ID Generator Module for Pseudonymous Participant Identification.
 
-Implements FR-001: Generates participant IDs adhering to the pattern P\d{3}
-(e.g., P001, P002, ..., P999).
+This module implements the generation and validation of pseudonymous IDs
+adhering to the FR-001 requirement: pattern `P\d{3}` (e.g., P001, P099).
 
-Supports deterministic ID generation from:
-1. A recruitment CSV file (reading existing IDs or assigning new ones)
-2. A synthetic source (generating a sequence of IDs for simulation)
-
-Ensures deterministic linking of baseline/post data by maintaining a mapping
-or generating IDs in a reproducible order.
+It ensures deterministic linking of baseline and post-intervention data
+by generating IDs from a recruitment CSV or an existing registry.
 """
 import os
 import re
@@ -18,282 +14,241 @@ from pathlib import Path
 from typing import List, Dict, Optional, Union, Iterator
 import numpy as np
 
-from utils.random_seed import get_rng, set_global_seed
-
-# Regex pattern for valid IDs: P followed by exactly 3 digits
-ID_PATTERN = re.compile(r'^P\d{3}$')
+# Constants
+ID_PATTERN = r'^P\d{3}$'
+DEFAULT_ID_PREFIX = 'P'
+DEFAULT_ID_LENGTH = 3  # Total length including prefix 'P' + 3 digits
 MAX_ID_VALUE = 999
 
 def validate_id_format(participant_id: str) -> bool:
     """
-    Validates that a participant ID matches the required P\d{3} pattern.
+    Validates if a given ID matches the required pattern P\d{3}.
 
     Args:
         participant_id: The ID string to validate.
 
     Returns:
-        True if valid, False otherwise.
+        True if the ID matches the pattern, False otherwise.
     """
-    return bool(ID_PATTERN.match(participant_id))
+    if not isinstance(participant_id, str):
+        return False
+    return bool(re.match(ID_PATTERN, participant_id))
 
-def parse_id_suffix(participant_id: str) -> int:
+
+def parse_id_suffix(participant_id: str) -> Optional[int]:
     """
-    Extracts the numeric suffix from a valid P\d{3} ID.
+    Extracts the numeric suffix from a P\d{3} ID.
 
     Args:
         participant_id: The ID string (e.g., 'P042').
 
     Returns:
-        The integer suffix (e.g., 42).
-
-    Raises:
-        ValueError: If the ID format is invalid.
+        The integer suffix (e.g., 42), or None if invalid.
     """
     if not validate_id_format(participant_id):
-        raise ValueError(f"Invalid ID format: {participant_id}. Must match P\\d{{3}}.")
+        return None
     return int(participant_id[1:])
 
-def generate_sequence_ids(start: int = 1, count: int = 1, seed: Optional[int] = None) -> List[str]:
+
+def generate_sequence_ids(start: int = 1, count: int = 100) -> Iterator[str]:
     """
-    Generates a deterministic sequence of P\d{3} IDs.
+    Generates a sequence of pseudonymous IDs starting from a given index.
 
     Args:
-        start: The starting integer suffix (1-999). Defaults to 1.
+        start: The starting numeric index (inclusive).
         count: The number of IDs to generate.
-        seed: Optional random seed for reproducibility if shuffling is needed later,
-              though this function generates a strict sequence.
 
-    Returns:
-        A list of valid P\d{3} strings.
+    Yields:
+        Strings formatted as 'P001', 'P002', etc.
 
     Raises:
-        ValueError: If start + count exceeds 999.
+        ValueError: If the sequence exceeds the maximum allowed ID (P999).
     """
-    if start < 1 or start > MAX_ID_VALUE:
-        raise ValueError(f"Start index must be between 1 and {MAX_ID_VALUE}.")
-    if start + count - 1 > MAX_ID_VALUE:
-        raise ValueError(f"Cannot generate {count} IDs starting from {start}. Max ID is P{MAX_ID_VALUE}.")
+    if start < 1:
+        raise ValueError("Start index must be >= 1")
+    
+    current = start
+    for _ in range(count):
+        if current > MAX_ID_VALUE:
+            raise ValueError(f"Exceeded maximum ID limit ({MAX_ID_VALUE}). Cannot generate more IDs.")
+        yield f"{DEFAULT_ID_PREFIX}{current:03d}"
+        current += 1
 
-    ids = [f"P{i:03d}" for i in range(start, start + count)]
-    return ids
 
-def load_ids_from_csv(csv_path: Union[str, Path], id_column: Optional[str] = None) -> List[str]:
+def load_ids_from_csv(csv_path: Union[str, Path]) -> List[str]:
     """
-    Loads existing participant IDs from a recruitment CSV file.
+    Loads existing participant IDs from a CSV file.
 
-    If `id_column` is provided, it reads from that column. Otherwise, it assumes
-    the first column contains IDs or scans for a column named 'participant_id'.
+    Expects the CSV to have a column named 'participant_id'.
 
     Args:
-        csv_path: Path to the recruitment CSV.
-        id_column: Optional name of the column containing IDs.
+        csv_path: Path to the CSV file.
 
     Returns:
-        A list of valid P\d{3} IDs found in the file.
+        List of existing participant ID strings.
 
     Raises:
         FileNotFoundError: If the CSV file does not exist.
-        ValueError: If no valid IDs are found or the format is incorrect.
+        KeyError: If 'participant_id' column is missing.
     """
     path = Path(csv_path)
     if not path.exists():
-        raise FileNotFoundError(f"Recruitment CSV not found: {csv_path}")
-
+        raise FileNotFoundError(f"Registry file not found: {path}")
+    
     ids = []
     with open(path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
+        if 'participant_id' not in reader.fieldnames:
+            raise KeyError(f"CSV must contain 'participant_id' column. Found: {reader.fieldnames}")
         
-        # Determine the ID column
-        if id_column:
-            target_col = id_column
-        else:
-            # Try common names, then fallback to first column
-            possible_cols = ['participant_id', 'id', 'pid', 'subject_id']
-            if reader.fieldnames:
-                found = next((col for col in possible_cols if col in reader.fieldnames), None)
-                if not found and len(reader.fieldnames) > 0:
-                    found = reader.fieldnames[0]
-                if not found:
-                    raise ValueError("Could not determine ID column. Please specify 'id_column'.")
-                target_col = found
-            else:
-                raise ValueError("CSV file appears to be empty or missing headers.")
-
         for row in reader:
-            raw_id = row.get(target_col, "").strip()
-            if not raw_id:
-                continue
-            
-            if not validate_id_format(raw_id):
-                # Log warning or skip? For strictness, we raise or skip invalid ones.
-                # Given the requirement for deterministic linking, we should probably fail
-                # if the source data is malformed, or just skip and warn.
-                # Let's skip invalid ones to be robust, but ensure we have at least some.
-                continue
-            
-            ids.append(raw_id)
-
-    if not ids:
-        raise ValueError(f"No valid P\\d{{3}} IDs found in {csv_path} under column '{target_col}'.")
-    
+            pid = row['participant_id'].strip()
+            if pid:
+                if not validate_id_format(pid):
+                    raise ValueError(f"Invalid ID format in registry: {pid}")
+                ids.append(pid)
     return ids
+
 
 def get_next_available_id(existing_ids: List[str], start: int = 1) -> str:
     """
-    Finds the next available ID in the sequence P\d{3} that is not in `existing_ids`.
+    Finds the next available ID starting from 'start' that is not in 'existing_ids'.
 
     Args:
-        existing_ids: List of IDs already in use.
-        start: The starting index to search from.
+        existing_ids: List of currently used IDs.
+        start: Starting index to search from.
 
     Returns:
         The next available ID string.
+
+    Raises:
+        ValueError: If no ID is available up to P999.
     """
-    used_suffixes = set()
-    for pid in existing_ids:
-        if validate_id_format(pid):
-            used_suffixes.add(parse_id_suffix(pid))
-    
+    existing_set = set(existing_ids)
     current = start
     while current <= MAX_ID_VALUE:
-        if current not in used_suffixes:
-            return f"P{current:03d}"
+        candidate = f"{DEFAULT_ID_PREFIX}{current:03d}"
+        if candidate not in existing_set:
+            return candidate
         current += 1
-    
-    raise RuntimeError("All possible P\\d{{3}} IDs are exhausted.")
+    raise ValueError(f"No available IDs found between P{start:03d} and P{MAX_ID_VALUE}.")
+
 
 class IDGenerator:
     """
-    A generator class to manage pseudonymous ID assignment for the study.
-    Ensures deterministic linking and adherence to FR-001.
+    A class to manage the generation of pseudonymous IDs for participants.
+    It handles state (used IDs) and ensures uniqueness and format compliance.
     """
-    def __init__(self, seed: Optional[int] = None):
+    
+    def __init__(self, registry_path: Optional[Union[str, Path]] = None):
         """
-        Initializes the ID generator.
+        Initializes the IDGenerator.
 
         Args:
-            seed: Optional seed for reproducibility if randomization is introduced later.
+            registry_path: Optional path to an existing registry CSV to load used IDs from.
         """
-        self.seed = seed
-        if seed is not None:
-            set_global_seed(seed)
-        self._used_ids: set = set()
-        self._rng = get_rng()
+        self.used_ids: set = set()
+        self.next_index: int = 1
+        self.registry_path = Path(registry_path) if registry_path else None
 
-    def add_existing_ids(self, ids: List[str]) -> None:
-        """
-        Registers existing IDs to prevent duplication.
+        if self.registry_path and self.registry_path.exists():
+            self._load_registry()
+        
+        # Determine the next index based on the highest existing ID
+        if self.used_ids:
+            max_suffix = max(parse_id_suffix(pid) for pid in self.used_ids if parse_id_suffix(pid))
+            self.next_index = max_suffix + 1
 
-        Args:
-            ids: List of existing P\d{3} IDs.
-        """
-        for pid in ids:
-            if not validate_id_format(pid):
-                raise ValueError(f"Invalid ID provided: {pid}")
-            self._used_ids.add(pid)
-
-    def load_from_csv(self, csv_path: Union[str, Path], id_column: Optional[str] = None) -> int:
-        """
-        Loads existing IDs from a CSV file to initialize the generator.
-
-        Args:
-            csv_path: Path to the CSV.
-            id_column: Optional column name.
-
-        Returns:
-            The number of IDs loaded.
-        """
-        ids = load_ids_from_csv(csv_path, id_column)
-        self.add_existing_ids(ids)
-        return len(ids)
+    def _load_registry(self):
+        """Loads existing IDs from the registry file."""
+        try:
+            loaded_ids = load_ids_from_csv(self.registry_path)
+            self.used_ids.update(loaded_ids)
+        except FileNotFoundError:
+            # If registry doesn't exist yet, start fresh
+            pass
+        except (KeyError, ValueError) as e:
+            # Log error but allow initialization to proceed (or fail loudly depending on strictness)
+            # For this implementation, we raise to ensure data integrity
+            raise RuntimeError(f"Failed to load registry due to data integrity error: {e}")
 
     def generate(self, count: int = 1) -> List[str]:
         """
-        Generates new unique IDs.
+        Generates a specified number of new unique IDs.
 
         Args:
             count: Number of IDs to generate.
 
         Returns:
-            List of new unique P\d{3} IDs.
-        """
-        if len(self._used_ids) + count > MAX_ID_VALUE:
-            raise RuntimeError(f"Cannot generate {count} more IDs. Only {MAX_ID_VALUE - len(self._used_ids)} remaining.")
-        
-        new_ids = []
-        current = 1
-        while len(new_ids) < count:
-            candidate = f"P{current:03d}"
-            if candidate not in self._used_ids:
-                new_ids.append(candidate)
-                self._used_ids.add(candidate)
-            current += 1
-            if current > MAX_ID_VALUE:
-                break # Should be caught by the length check, but safe guard
-        
-        return new_ids
+            List of generated ID strings.
 
-    def reset(self) -> None:
-        """Resets the generator state."""
-        self._used_ids.clear()
+        Raises:
+            ValueError: If unable to generate the requested number of IDs.
+        """
+        generated = []
+        for _ in range(count):
+            try:
+                new_id = get_next_available_id(list(self.used_ids), self.next_index)
+                self.used_ids.add(new_id)
+                # Update next_index to be one past the generated ID
+                self.next_index = parse_id_suffix(new_id) + 1
+                generated.append(new_id)
+            except ValueError as e:
+                raise ValueError(f"Could not generate {count} IDs. Reason: {e}")
+        return generated
+
+    def save_registry(self, output_path: Union[str, Path]):
+        """
+        Saves the current state of used IDs to a CSV file.
+
+        Args:
+            output_path: Path to save the registry CSV.
+        """
+        path = Path(output_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=['participant_id'])
+            writer.writeheader()
+            for pid in sorted(self.used_ids):
+                writer.writerow({'participant_id': pid})
+
+    def get_stats(self) -> Dict[str, int]:
+        """Returns statistics about the current ID usage."""
+        return {
+            'total_generated': len(self.used_ids),
+            'next_available_index': self.next_index,
+            'max_possible': MAX_ID_VALUE
+        }
 
 def main():
     """
-    Command-line entry point for testing the ID generator.
-    Demonstrates generating IDs from a synthetic source and validating format.
+    Main entry point for testing the ID generator module.
+    Demonstrates generation, validation, and registry saving.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Pseudonymous ID Generator for Digital Decluttering Study")
-    parser.add_argument("--mode", choices=["sequence", "csv", "next"], default="sequence",
-                        help="Mode of operation: generate sequence, load from CSV, or find next available.")
-    parser.add_argument("--count", type=int, default=5, help="Number of IDs to generate (for sequence mode).")
-    parser.add_argument("--start", type=int, default=1, help="Starting index (for sequence mode).")
-    parser.add_argument("--csv-path", type=str, help="Path to recruitment CSV (for csv/next mode).")
-    parser.add_argument("--id-column", type=str, help="Column name in CSV containing IDs.")
-    parser.add_argument("--output", type=str, help="Optional output file path (CSV).")
+    import sys
     
-    args = parser.parse_args()
-
-    generator = IDGenerator(seed=42) # Fixed seed for reproducibility in examples
-
-    if args.mode == "sequence":
-        ids = generate_sequence_ids(start=args.start, count=args.count)
-        print(f"Generated {len(ids)} sequence IDs:")
-        for pid in ids:
-            print(f"  {pid}")
-        
-        if args.output:
-            with open(args.output, 'w', newline='', encoding='utf-8') as f:
-                writer = csv.writer(f)
-                writer.writerow(['participant_id'])
-                for pid in ids:
-                    writer.writerow([pid])
-            print(f"Written to {args.output}")
-
-    elif args.mode == "csv":
-        if not args.csv_path:
-            parser.error("--csv-path is required for csv mode.")
-        try:
-            ids = load_ids_from_csv(args.csv_path, args.id_column)
-            print(f"Loaded {len(ids)} valid IDs from {args.csv_path}")
-            print(f"First 5: {ids[:5]}")
-            
-            # Validate all
-            all_valid = all(validate_id_format(pid) for pid in ids)
-            print(f"All IDs valid (P\\d{{3}}): {all_valid}")
-        except Exception as e:
-            print(f"Error loading CSV: {e}")
-
-    elif args.mode == "next":
-        if not args.csv_path:
-            parser.error("--csv-path is required for next mode.")
-        try:
-            existing = load_ids_from_csv(args.csv_path, args.id_column)
-            next_id = get_next_available_id(existing)
-            print(f"Next available ID: {next_id}")
-        except Exception as e:
-            print(f"Error finding next ID: {e}")
+    # Example usage
+    print("Initializing ID Generator...")
+    generator = IDGenerator()
+    
+    # Generate 5 IDs
+    new_ids = generator.generate(5)
+    print(f"Generated IDs: {new_ids}")
+    
+    # Validate them
+    for pid in new_ids:
+        assert validate_id_format(pid), f"Invalid format: {pid}"
+    
+    # Save to a temporary registry for demonstration
+    output_path = "data/raw/test_registry.csv"
+    generator.save_registry(output_path)
+    print(f"Registry saved to {output_path}")
+    
+    # Load and verify
+    loaded = load_ids_from_csv(output_path)
+    assert set(loaded) == set(new_ids), "Loaded IDs do not match generated IDs"
+    print("Verification successful.")
 
 if __name__ == "__main__":
     main()
