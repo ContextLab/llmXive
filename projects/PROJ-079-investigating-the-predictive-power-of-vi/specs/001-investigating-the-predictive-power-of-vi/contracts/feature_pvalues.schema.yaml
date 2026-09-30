@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature P-Values Schema"
+description: "Schema for the output of the Debiased Lasso feature significance test."
+type: "object"
+properties:
+  features:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        coefficient:
+          type: "number"
+        p_value_raw:
+          type: "number"
+        p_value_fdr:
+          type: "number"
+          description: "Benjamini-Hochberg adjusted p-value."
+      required:
+        - feature_name
+        - coefficient
+        - p_value_raw
+        - p_value_fdr
+required:
+  - features
+additionalProperties: false

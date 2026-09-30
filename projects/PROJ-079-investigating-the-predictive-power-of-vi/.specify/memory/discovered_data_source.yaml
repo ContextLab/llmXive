@@ -1,0 +1,34 @@
+status: verified
+kind: pypi_package
+ref: GEOparse
+access_python: "import GEOparse\n\ngse = GEOparse.get_GEO('GSE147507')\nrecords =\
+  \ []\nfor gsm_name, gsm in gse.gsms.items():\n    meta = gsm.metadata\n    rec =\
+  \ {\n        \"gse_accession\": gse.get_accession(),\n        \"gsm_id\": gsm_name,\n\
+  \        \"tissue_type\": meta.get('source_name_ch1', [''])[0],\n        \"infection_time_point\"\
+  : meta.get('characteristics_ch1', [''])[0],\n        \"normalized_expression_matrix\"\
+  : gsm.table.values.tolist()\n    }\n    records.append(rec)\n\nprint(f\"RECORDS={len(records)}\"\
+  )\nprint(\"FIELDS=\" + (\",\".join(records[0].keys()) if records else \"\"))"
+record_count: 110
+sample_fields:
+- gse_accession
+- gsm_id
+- tissue_type
+- infection_time_point
+- normalized_expression_matrix
+field_coverage: 0.5
+required_fields:
+- virus_id
+- virus_accession
+- genome_sequence
+- genome_length
+- gc_content
+- host_species
+- sample_id
+- gse_accession
+- gsm_id
+- tissue_type
+- infection_time_point
+- normalized_expression_matrix
+intent: NCBI Virus genomes GEO transcriptomics interferon response score dataset python
+  package dataset
+cache_key: 50ac7416cbd54884a1683d2ac362e11805f335945e0555e77c2f250ae286623e

@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Permutation Test Output Schema"
+description: "Schema for the output of the global permutation test."
+type: "object"
+properties:
+  observed_r2:
+    type: "number"
+    description: "R² value of the model on the actual test set."
+  observed_rmse:
+    type: "number"
+    description: "RMSE value of the model on the actual test set."
+  p_value:
+    type: "number"
+    description: "Empirical p-value from the permutation test."
+  n_permutations:
+    type: "integer"
+    description: "Number of permutations performed (must be >= 1000)."
+  permutation_r2s:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of R² values from permuted datasets."
+required:
+  - observed_r2
+  - observed_rmse
+  - p_value
+  - n_permutations
+  - permutation_r2s
+additionalProperties: false

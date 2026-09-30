@@ -23,7 +23,7 @@ properties:
     description: "Global GC content (0.0 to 1.0)"
   kmer_counts:
     type: "object"
-    description: "Dictionary of k-mer frequencies (k=3, 4 only)"
+    description: "Dictionary of k-mer frequencies (k=3, 4, 5, 6)"
     additionalProperties:
       type: "number"
   repeat_density:
@@ -31,11 +31,13 @@ properties:
     description: "Percentage of genome covered by repeats"
   protein_stability:
     type: "number"
-    description: "Predicted protein stability score (Uniform Proxy)"
+    description: "Predicted protein stability score (ESM-1b or Proxy)"
   stability_method:
     type: "string"
-    const: "proxy"
-    description: "Method used for stability calculation (Fixed to 'proxy')"
+    enum:
+      - "esm1b"
+      - "proxy"
+    description: "Method used for stability calculation"
 required:
   - "strain_id"
   - "virus_accession"

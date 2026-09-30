@@ -2,89 +2,86 @@
 
 ## Prerequisites
 
--   **Python**: 3.11+
--   **System**: Linux (Ubuntu 20.04+ recommended).
--   **R Environment**: R (>= 4.0) must be installed and accessible in the PATH. This is required for `edgeR` TMM normalization via `rpy2`.
--   **Dependencies**: `conda` or `pip` (pinned versions in `requirements.txt`).
--   **Network**: Internet access for downloading NCBI Virus and GEO data.
+- Python 3.11+
+- Git
+- Internet access (for downloading datasets)
+- 14 GB disk space (for raw data and artifacts)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-079-investigating-the-predictive-power-of-vi
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-079-investigating-the-predictive-power-of-vi
+   ```
 
-2.  **Create and activate environment**:
-    ```bash
-    conda create -n immune-predict python=3.11 r-base=4.2
-    conda activate immune-predict
-    pip install -r requirements.txt
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install R Packages**:
-    The pipeline requires the `edgeR` package for TMM normalization. Install it within the R environment:
-    ```bash
-    R -e "if (!requireNamespace('BiocManager', quietly = TRUE)) install.packages('BiocManager'); BiocManager::install('edgeR')"
-    ```
-
-4.  **Verify dependencies**:
-    ```bash
-    python -c "import biopython; import sklearn; import rpy2; print('OK')"
-    ```
-
-## Configuration
-
-Before running the pipeline, ensure the `config/studies.yaml` file exists. Since the "Verified datasets" block does not contain the specific GEO/NCBI data, you must define the study scope here.
-
-**Example `config/studies.yaml`**:
-```yaml
-studies:
-  - geo_series: "GSE12345"  # Replace with actual study ID
-    virus_accessions:
-      - "NC_000001"
-      - "NC_000002"
-  - geo_series: "GSE67890"
-    virus_accessions:
-      - "NC_000003"
-```
-
-*Note: If you do not have specific studies, the pipeline will attempt to fetch a default set if configured in `src/utils/config.py`, but manual specification is recommended for reproducibility.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Running the Pipeline
 
-Execute the full pipeline:
+The pipeline is executed via the `main.py` script.
 
+### Step 1: Download Data
 ```bash
-python src/main.py --config config/studies.yaml
+python src/main.py --step download
+```
+- Downloads viral genomes from NCBI Virus and host expression data from GEO.
+- Generates `data/manifest.json` with checksums.
+
+### Step 2: Preprocess
+```bash
+python src/main.py --step preprocess
+```
+- Normalizes counts (TMM).
+- Maps ISG genes (with orthologs if needed).
+- Calculates ISG-PC1 scores.
+
+### Step 3: Extract Features
+```bash
+python src/main.py --step features
+```
+- Computes CAI, GC content, k-mers (3-6), repeat density.
+- Calculates protein stability (ESM-1b or Proxy).
+
+### Step 4: Model Training
+```bash
+python src/main.py --step train
+```
+- Splits data (strain-level).
+- Trains Elastic Net with 5-fold CV.
+- Runs 1000-permutation test.
+- Computes Debiased Lasso p-values.
+
+### Step 5: Visualization
+```bash
+python src/main.py --step viz
+```
+- Generates feature importance plots.
+- Generates partial dependence plots.
+
+### Full Pipeline
+```bash
+python src/main.py --step all
 ```
 
-**Expected Output**:
--   `data/raw/`: Downloaded FASTA and GEO matrices.
--   `data/processed/feature_matrix.csv`: Merged dataset.
--   `data/artifacts/metrics.json`: R², RMSE, p-values.
--   `data/artifacts/plots/`: Feature importance and partial dependence plots.
+## Output
 
-## Verification
-
-1.  **Check Data Existence**:
-    ```bash
-    ls -lh data/processed/feature_matrix.csv
-    ```
-2.  **Check Metrics**:
-    ```bash
-    cat data/artifacts/metrics.json
-    # Should contain: {"r2": 0.30, "rmse": 0.15, "min_p":,...}
-    ```
-3.  **Run Unit Tests**:
-    ```bash
-    pytest tests/unit/ -v
-    ```
+- **Metrics**: `data/artifacts/model_metrics.json` (R², RMSE, p-values).
+- **Plots**: `data/artifacts/plots/` (Feature importance, PDP).
+- **Models**: `data/artifacts/model.joblib`.
+- **Logs**: `logs/pipeline.log`.
 
 ## Troubleshooting
 
--   **"No genomes found"**: Ensure `config/studies.yaml` has valid NCBI accessions.
--   **"Runtime exceeded 4 hours"**: The Uniform Stability Proxy is used. If still too slow, reduce the number of k-mers or samples in `config/studies.yaml`.
--   **"Insufficient samples"**: The pipeline aborts if <30 samples or <5 test strains are found. Expand `config/studies.yaml`.
--   **"edgeR not found"**: Ensure R is installed and the `edgeR` package was installed via the `R -e` command in the Installation steps.
+- **Runtime Exceeds 4 Hours**: The pipeline will abort. Check `logs/pipeline.log` for the bottleneck. Consider reducing the dataset size or switching to a GPU escape hatch if ESM-1b is the bottleneck.
+- **Missing Genomes**: If >10% of samples lack a virus strain link, the pipeline aborts (FR-014). Verify the GEO metadata.
+- **Small Dataset**: If <30 observations, the pipeline aborts (FR-013).

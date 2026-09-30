@@ -1,85 +1,86 @@
 # Research: Predictive Modeling of Host Immune Response from Viral Sequence Features
 
-## Domain Overview
+## Scientific Background
 
-The project investigates the relationship between viral genomic characteristics and the host's interferon (IFN) response. The hypothesis is that viral sequence features (e.g., codon usage, GC content, k-mer frequencies, protein stability) contain predictive signals regarding the magnitude of the host immune response.
+The study investigates whether intrinsic properties of viral genomes (codon usage, k-mer frequencies, structural stability) correlate with the host's transcriptional immune response (Interferon Response). This is a hypothesis-driven computational study aiming to identify viral "signatures" of immune evasion or activation.
+
+### Key Concepts
+- **Interferon Response (ISG-PC1)**: The first principal component of a set of Interferon-Stimulated Genes (ISGs). It serves as a quantitative proxy for the magnitude of the host's antiviral state.
+- **Codon Adaptation Index (CAI)**: Measures the similarity of codon usage in a viral genome to that of the host, potentially indicating translational efficiency.
+- **k-mer Frequencies**: Short sequence motifs (k=3,4,5,6) that capture local sequence composition and potential regulatory elements.
+- **Protein Stability**: Predicted stability of viral proteins, which may influence antigen presentation or immune recognition.
 
 ## Dataset Strategy
 
-**CRITICAL NOTE**: The "Verified datasets" block provided in the user message contains **no** datasets relevant to viral genomics or host transcriptomics (it lists medical imaging and unrelated road data). Consequently, this research plan **cannot** cite those URLs as the primary data source.
+### Verified Datasets
+The plan relies exclusively on the following verified sources:
 
-Per the project constraints and the "No verified source" rule:
-1.  **Viral Genomes**: Will be fetched dynamically from **NCBI Virus** using `biopython` Entrez or `ncbi-genome-download`. The specific accessions will be derived from the metadata of the selected GEO studies.
-2.  **Host Transcriptomics**: Will be fetched from **GEO (Gene Expression Omnibus)** using `GEOparse` or direct API calls. The selection of studies will be based on the "Verified datasets" block's *absence* of relevant data, requiring a programmatic search for studies matching "virus infection" AND "human/mouse" AND "transcriptome" keywords, or using a predefined list of high-quality studies if the spec implied specific ones (which it does not, it says "selected GEO studies").
-3.  **Fallback**: If the spec implies specific studies (e.g., "the selected GEO studies"), the pipeline must hardcode a list of known relevant GEO Series (e.g., GSE12345) or allow user configuration. Since the provided "Verified datasets" block is irrelevant, the plan assumes the user will provide a configuration file `config/studies.yaml` mapping virus IDs to GEO accessions.
+| Dataset | Purpose | Source URL | Access Method |
+|:--- |:--- |:--- |:--- |
+| **NCBI GEO (Gene Expression Omnibus)** | Host transcriptomic data (raw counts) and metadata | `https://www.ncbi.nlm.nih.gov/geo/` | `GEOparse` (programmatic fetch from NCBI FTP) |
+| **NCBI Virus** | Viral genome sequences | ` | `ncbi-virus` CLI or direct FTP download |
 
-**Dataset Table**:
+**Note on Data Access**:
+- **GEO Data**: The pipeline uses `GEOparse` to programmatically retrieve raw count matrices and Series Matrix files (containing `virus_strain_accession` metadata) directly from NCBI GEO FTP servers. This ensures access to the raw, unnormalized data required for TMM normalization (FR-002) and the specific metadata linkage required for strain-level aggregation.
+- **NCBI Virus**: The pipeline queries the NCBI Virus database via the `ncbi-virus` tool or direct FTP access using the specific accession IDs extracted from the GEO metadata.
 
-| Dataset | Source | Access Method | Relevance to Spec | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| **NCBI Virus Genomes** | NCBI Virus | `biopython.Entrez` | FR-001: Source of ViralGenome | **Programmatic Fetch** (No verified URL in block) |
-| **GEO Transcriptomics** | GEO (NCBI) | `GEOparse` | FR-002: Source of HostExpressionSample | **Programmatic Fetch** (No verified URL in block) |
-| **Interferome v2.0** | Interferome | `requests` (JSON/CSV) | FR-002: ISG gene set (n=50) | **Public Resource** (Standard set) |
-| **Ensembl Compara** | Ensembl | `rpy2` / API | FR-015: Ortholog mapping | **Programmatic Load** |
+### Data Flow
+1. **Download**: Fetch target GEO series (e.g., GSE147507) using `GEOparse`. Extract sample metadata to identify virus strain accessions.
+2. **Fetch Genomes**: For each unique strain accession found in GEO metadata, download the corresponding FASTA from NCBI Virus.
+3. **Merge**: Join host expression data with viral genome data based on the strain accession.
 
-**Data Volume Estimation**:
--   **Genomes**: A representative sample of viral strains (typical for a focused study). Small data units each. Total < 50MB.
--   **Expression**: ~100 samples. Matrix storage requirements are moderate, typically on the order of megabytes per matrix. Total < 100MB.
-- **Features**: k-mers (k=3, 4 only) + stability + CAI. Matrix size ~100 rows x [deferred] columns. ~4MB.
--   **Feasibility**: Well within the RAM and disk limits.
+### Handling Missing Data
+- **Missing Genomes**: If a strain accession in GEO has no corresponding entry in NCBI Virus, log a warning and exclude that strain (FR-013).
+- **Missing Metadata**: If `virus_strain_accession` is missing or ambiguous in GEO metadata, exclude the sample (FR-014). Abort if >10% of samples are excluded.
+- **Small Dataset**: If the final merged dataset has <30 paired observations, abort with a fatal error (FR-013).
 
-## Feature Engineering Strategy
+## Statistical Methodology
 
-1.  **Codon Adaptation Index (CAI)**: Calculated relative to a reference set (e.g., highly expressed human genes for human viruses). **Limitation**: This assumes the virus is adapting to human codon usage. For viruses with complex life cycles or multiple hosts, this metric may be confounded by viral taxonomy. The plan will include virus family as a potential covariate if feasible.
-2.  **GC Content**: Global and sliding window (region-specific) for k=1000bp.
-3.  **k-mer Frequencies**: Counts for **k=3, 4 ONLY**. **Rationale**: The dataset size (N ~ tens of strains) is insufficient to support the dimensionality of k=5 or k=6 (which would yield >100,000 features). Restricting to k=3 and k=4 is a fixed, a priori dimensionality reduction strategy required to make the problem tractable for Elastic Net and Debiased Lasso inference. k=5, 6 are explicitly excluded. Normalized by total k-mer count.
-4.  **Repeat Density**: Percentage of genome covered by RepeatMasker annotations (if available) or simple repeat detection (e.g., `trf`).
-5.  **Protein Stability**:
-    -   **Method**: **Uniform Stability Proxy** using **Amino Acid Composition (AAC)** and **Hydrophobicity Scales** (e.g., Kyte-Doolittle).
-    -   **Rationale**: ESM-1b is too large for limited CPU cores in <4h and, more importantly, a conditional fallback (Proxy for slow, ESM for fast) would introduce a systematic bias correlated with sequence length/complexity. Therefore, the Proxy is used as the **mandatory, uniform** method for **all** samples.
-    -   **Spec Flag**: FR-003 (ESM-1b) is flagged for amendment to reflect the CPU-only reality and the need for a uniform method.
+### Model: Elastic Net Regression
+- **Rationale**: Elastic Net handles high-dimensional data (many k-mers) and correlated predictors (collinearity) better than Lasso or Ridge alone.
+- **Tuning**: 5-fold cross-validation within the training set to select optimal `alpha` (mixing) and `lambda` (regularization strength).
+- **Splitting**: Train/Test split at the **virus strain level** (FR-005) to ensure generalization to unseen strains.
 
-## Modeling Strategy
+### Validation & Rigor
+- **Permutation Test**: 1,000 random label shuffles to generate an empirical p-value for the global model fit (FR-007). **This count is non-negotiable.** If the runtime for 1,000 permutations exceeds the 4-hour limit, the pipeline MUST ABORT with a fatal error rather than reduce the permutation count.
+- **Debiased Lasso**: Used to compute p-values for individual coefficients (FR-012).
+- **FDR Correction**: Benjamini-Hochberg procedure applied to Debiased Lasso p-values (FR-009).
+- **Collinearity Check**: Variance Inflation Factor (VIF) calculated for all predictors; flag if VIF > 5 (FR-008).
 
-1.  **Target Variable**: Interferon-Response Score (ISG-PC1).
-    -   Compute PCA on the expression matrix of the 50 ISG genes.
-    -   PC1 captures the dominant variation (activation vs. suppression).
-2.  **Predictors**: The feature vector described above (k=3, 4 only).
-3.  **Model**: Elastic Net Regression.
-    -   **Regularization**: L1+L2 mix.
-    -   **Hyperparameter Tuning**: k-fold CV on training set only (FR-006).
-4.  **Inference**:
-    -   **Debiased Lasso**: To obtain p-values for coefficients (FR-012). **Assumption Check**: Verify design matrix incoherence before applying.
-    -   **VIF**: Check for multicollinearity (FR-008). **Note**: VIF is **diagnostic only**. Features are NOT excluded dynamically based on VIF thresholds, as this would invalidate the Debiased Lasso inference (post-selection bias).
-    -   **Permutation Test**: A substantial number of shuffles will be performed to ensure statistical robustness. to establish null distribution (FR-007). **Crucial**: For each permutation, **re-run PCA** on the permuted data to preserve the HDLSS structure and prevent inflated Type I errors.
-5.  **Validation**:
-    -   **Strain-Level Split**: Ensure no strain leakage (FR-005).
-    -   **Metrics**: R², RMSE, min FDR p-value.
+### Power Analysis
+- **Constraint**: The study requires a minimum of 5 distinct virus strains in the test set (FR-005) and 30 total observations (FR-013).
+- **Limitation**: If the available GEO data yields fewer than 30 observations, the study cannot proceed. This is a hard constraint, not a soft recommendation.
 
-## Power Analysis & Dimensionality
+## Compute Feasibility & Escape Hatch
 
--   **Sample Size**: The pipeline requires ≥30 samples (FR-013) and ≥5 test strains (FR-017).
-- **Dimensionality**: With N < 100 strains and P [deferred] features (k=3,4), the system is severely underdetermined.
--   **Mitigation**: The restriction to k=3 and k=4 is the primary mitigation strategy. While this reduces the feature space, it remains high-dimensional relative to N. Elastic Net is chosen specifically for its ability to handle this regime, but the statistical power to detect small effect sizes is low.
--   **Interpretation**: The success criterion R² ≥ 0.30 (SC-001) is interpreted as a heuristic for "presence of a strong predictive signal" rather than a definitive proof of a specific causal mechanism. Given the sample size, the study is underpowered to distinguish subtle effects from noise, and results should be viewed as hypothesis-generating.
+### CPU-First Strategy
+- **Goal**: Run entirely on GitHub Actions free-tier (standard CPU, 7GB RAM).
+- **Strategy**:
+ - Stream GEO data if necessary (though GEO datasets are typically small enough to fit in memory).
+ - Process viral genomes in batches.
+ - Use `scikit-learn` and `statsmodels` which are CPU-optimized.
+ - **ESM-1b**: If full ESM-1b inference exceeds memory/time, the pipeline will:
+ 1. Attempt to run on a subset of proteins (top 5 longest ORFs).
+ 2. If this still fails, **ABORT** with a clear error message indicating that the feature (ESM-1b) cannot be computed within the resource constraints.
+ 3. **Do NOT** silently switch to the "Uniform Stability Proxy" without a ratified amendment.
 
-## Statistical Rigor & Assumptions
+### GPU Escape Hatch (Kaggle)
+- **Trigger**: If the pipeline explicitly detects a CUDA requirement (e.g., `device="cuda"` in a future model version) or if a specific ESM-1b configuration requires GPU.
+- **Action**: The execution stage will auto-offload to a Kaggle GPU with substantial VRAM capacity.
+- **Plan**: The current plan assumes CPU execution. If ESM-1b proves intractable on CPU even with batching, the plan will be updated to use a smaller, quantized model (e.g., `esm2_t6_8M`) on the GPU escape hatch, strictly limited to a few hundred examples to fit the 9h kernel limit.
 
--   **Multiple Comparisons**: Benjamini-Hochberg (FDR) applied to Debiased Lasso p-values (FR-009).
--   **Power Analysis**: The plan requires ≥30 samples (FR-013) and ≥5 test strains (FR-017). This is a hard constraint; if data is insufficient, the pipeline aborts (FR-017).
--   **Causal Inference**: The study is **observational**. Claims will be limited to "associational" or "predictive" power. No causal claims (e.g., "X causes Y") will be made.
--   **Collinearity**: k-mer frequencies are highly correlated. VIF > 5 triggers a **flag** (FR-008). The plan will report VIFs but will **not** exclude features dynamically based on VIF, as this would introduce post-selection bias invalidating the Debiased Lasso p-values. Elastic Net handles collinearity via regularization.
--   **Measurement Validity**: ISG-PC1 is a validated proxy for IFN response. Protein stability proxy (AAC/Hydrophobicity) is less precise than ESM-1b but robust for CPU and uniform across samples.
+## Decision Rationale
 
-## Risk Assessment & Mitigation
+- **Why Elastic Net?** It balances feature selection (Lasso) and coefficient shrinkage (Ridge), ideal for k-mer features where many are correlated.
+- **Why Strain-Level Split?** Prevents data leakage where the model learns strain-specific noise rather than generalizable viral features.
+- **Why 1000 Permutations?** Required by Constitution Principle VII for statistical rigor. Reducing this count invalidates the p-value. The pipeline must abort if time exceeds limits rather than silently lowering the bar.
+- **Why Abort on Resource Exceed?** Fabricating a "proxy" or reducing statistical power violates the Constitution and the Spec. It is better to fail than to produce unscientific results.
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Missing Genomes** | High | FR-013: Log warning, exclude virus, proceed if ≥30 samples remain. |
-| **Missing Strain Metadata** | High | FR-014: Abort if >10% samples lack link (Step 2.2). |
-| **ESM-1b Timeout** | N/A | **Uniform Proxy** used as standard method. No timeout needed. |
-| **Low Sample Size** | High | FR-013/FR-017: Abort with error if <30 samples or <5 test strains. |
-| **High Collinearity** | Medium | VIF check (FR-008); report collinearity in results; do not exclude features dynamically. |
-| **HDLSS Permutation Error** | High | Re-run PCA within the permutation loop (Step 4.3). |
-| **CAI Confounding** | Medium | Include virus family as a covariate if feasible; acknowledge limitation. |
-| **Ortholog/ISG Missing** | High | Step 2.1/2.4: Explicit validation checks before PCA; exclude samples if set is empty. |
+## Proxy Validation Strategy
+
+To address the concern of unverified extrapolation (data_resources-c74a6ebc), the plan implements a **Proxy Validation** step:
+1. **Subset Selection**: Select a representative subset of strains by genome length.
+2. **Dual Calculation**: Calculate both ESM-1b (if feasible) and the Proxy for these 5 strains.
+3. **Correlation Check**: Compute R² between ESM-1b and Proxy scores.
+4. **Threshold**: If R² < 0.8, the pipeline aborts with `FatalError: Proxy validation failed (R² < 0.8)`.
+5. **Full Application**: Only if the threshold is met is the Proxy applied to the full dataset.

@@ -1,93 +1,74 @@
 # Data Model: Predictive Modeling of Host Immune Response from Viral Sequence Features
 
-## Entity Relationship Diagram (Conceptual)
+## Entities
 
-```mermaid
-erDiagram
-    VIRAL_GENOME ||--o{ HOST_EXPRESSION_SAMPLE : "infects"
-    VIRAL_GENOME ||--o{ VIRAL_FEATURES : "has"
-    HOST_EXPRESSION_SAMPLE ||--o{ VIRAL_FEATURES : "paired_with"
-    VIRAL_FEATURES ||--o{ MODEL_PREDICTION : "used_in"
+### 1. ViralGenome
+Represents a complete viral nucleotide sequence.
+- **Attributes**:
+  - `accession_id`: str (NCBI Virus Accession)
+  - `virus_family`: str
+  - `genome_sequence`: str (FASTA string)
+  - `host_species`: str (e.g., "Homo sapiens", "Mus musculus")
+  - `source_url`: str (NCBI Virus URL)
+  - `download_date`: str (ISO 8601)
 
-    VIRAL_GENOME {
-        string accession_id PK
-        string family
-        string strain
-        string fasta_path
-        timestamp download_ts
-    }
+### 2. HostExpressionSample
+Represents a GEO transcriptomic sample.
+- **Attributes**:
+  - `gsm_id`: str (GEO Sample ID)
+  - `gse_accession`: str (GEO Series ID)
+  - `virus_strain_accession`: str (Linked to ViralGenome)
+  - `raw_counts`: dict (Gene -> Count)
+  - `normalized_counts`: dict (Gene -> Normalized Value)
+  - `isg_score`: float (ISG-PC1 score)
+  - `host_species`: str
+  - `infection_time_point`: str
 
-    HOST_EXPRESSION_SAMPLE {
-        string geo_sample_id PK
-        string virus_strain_accession FK
-        string host_species
-        string raw_counts_path
-        float isg_pc1_score
-        string status "valid|excluded"
-    }
+### 3. FeatureMatrix
+Tabular entity linking ViralGenome to HostExpressionSample.
+- **Attributes**:
+  - `strain_accession`: str (Primary Key)
+  - `isg_score`: float (Target Variable)
+  - `cai`: float (Codon Adaptation Index)
+  - `gc_content_global`: float
+  - `gc_content_region_1`: float ... `gc_content_region_N`: float
+  - `kmer_3_freq_*`: float (Flattened frequencies for k=3)
+  - `kmer_4_freq_*`: float
+  - `kmer_5_freq_*`: float
+  - `kmer_6_freq_*`: float
+  - `repeat_density`: float
+  - `protein_stability_score`: float (ESM-1b or Proxy)
+  - `vif_score`: float (Calculated post-hoc)
+  - `is_collinear`: bool
 
-    VIRAL_FEATURES {
-        string accession_id PK, FK
-        float cai
-        float gc_global
-        float gc_region_1000
-        json kmer_frequencies
-        float repeat_density
-        float protein_stability_score
-        string stability_method "proxy"
-    }
+## Data Flow Diagram
 
-    MODEL_PREDICTION {
-        string strain_id PK
-        float predicted_response
-        float residual
-        float vif_score
-        float p_value
-    }
-```
+1. **Raw Data**:
+   - `data/raw/viral_genomes.fasta` (NCBI Virus)
+   - `data/raw/geo_counts.csv` (GEO)
+2. **Processed Data**:
+   - `data/raw/manifest.json` (Provenance)
+   - `data/processed/normalized_counts.csv` (TMM normalized)
+   - `data/processed/ortholog_map.csv` (Gene mapping)
+   - `data/processed/isg_scores.csv` (PC1 scores)
+   - `data/processed/viral_features.csv` (CAI, k-mers, etc.)
+   - `data/processed/merged_dataset.csv` (Features + ISG)
+3. **Artifacts**:
+   - `data/artifacts/model.joblib` (Trained Elastic Net)
+   - `data/artifacts/permutation_pvalue.json` (Global test)
+   - `data/artifacts/feature_pvalues.json` (Debiased Lasso)
+   - `data/artifacts/plots/` (Feature importance, PDP)
 
-## Data Dictionary
+## Schema Definitions
 
-### 1. `ViralGenome` (Raw/Intermediate)
--   `accession_id`: (String) NCBI Accession (e.g., `NC_000001`). Primary Key.
--   `family`: (String) Virus family (e.g., `Coronaviridae`).
--   `strain`: (String) Strain name.
--   `fasta_path`: (String) Relative path to downloaded FASTA file.
--   `download_ts`: (Timestamp) ISO8601 timestamp of download.
+- **Manifest**: JSON with checksums, versions, and source URLs.
+- **Counts Matrix**: CSV with genes as rows, samples as columns.
+- **Feature Matrix**: CSV with strains as rows, features as columns.
+- **Permutation Output**: JSON with `observed_r2`, `p_value`, `n_permutations`.
 
-### 2. `HostExpressionSample` (Raw/Processed)
--   `geo_sample_id`: (String) GEO Sample ID (e.g., `GSM123456`). Primary Key.
--   `virus_strain_accession`: (String) FK to `ViralGenome.accession_id`.
--   `host_species`: (String) `Homo sapiens` or `Mus musculus`.
--   `raw_counts_path`: (String) Path to raw count matrix subset.
--   `isg_pc1_score`: (Float) First PC of ISG genes.
--   `status`: (Enum) `valid` (used in model), `excluded` (missing link/ISG).
+## Constraints
 
-### 3. `FeatureMatrix` (Processed/Model Input)
--   `strain_id`: (String) Unique strain identifier (PK).
--   `cai`: (Float) Codon Adaptation Index.
--   `gc_global`: (Float) Global GC content (0.0 - 1.0).
--   `gc_region_1000`: (Float) Mean GC content in 1kb windows.
--   `kmer_counts`: (JSON) Dictionary of k-mer frequencies (keys: "AAA", "AAC"...). **Note**: Only k=3 and k=4 are present.
--   `repeat_density`: (Float) Percentage (0.0 - 100.0).
--   `protein_stability`: (Float) Stability score (Uniform Proxy).
--   `stability_method`: (String) **Fixed value**: "proxy". (ESM-1b is not used).
-
-### 4. `ModelOutput` (Final)
--   `strain_id`: (String) FK to `FeatureMatrix`.
--   `actual_response`: (Float) ISG-PC1.
--   `predicted_response`: (Float) Model prediction.
--   `residual`: (Float) Actual - Predicted.
--   `vif`: (Float) Variance Inflation Factor.
--   `p_value`: (Float) Debiased Lasso p-value.
--   `fdr_p_value`: (Float) BH-corrected p-value.
-
-## Data Flow
-
-1.  **Ingestion**: `download.py` fetches FASTA and GEO matrices.
-2.  **Preprocessing**: `preprocess.py` normalizes counts, maps orthologs (if needed), computes ISG-PC1.
-3.  **Feature Extraction**: `preprocess.py` calculates CAI, k-mers (k=3,4), stability (Proxy).
-4.  **Aggregation**: `merge.py` averages ISG-PC1 per strain (FR-016).
-5.  **Splitting**: `merge.py` splits into Train/Test (Strain-level).
-6.  **Modeling**: `train.py` and `evaluate.py` produce `ModelOutput`.
-7.  **Storage**: All intermediate and final data stored in `data/processed` and `data/artifacts`.
+- **Uniqueness**: `strain_accession` must be unique in the merged dataset.
+- **Completeness**: No missing values in `isg_score` or `strain_accession`.
+- **Range**: `cai` in [0, 1], `gc_content` in [0, 1], `repeat_density` in [0, 1].
+- **VIF**: All retained predictors must have VIF <= 5 (FR-008).

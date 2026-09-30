@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+description: "Schema for the final merged dataset used for training and testing."
+type: "object"
+properties:
+  strain_accession:
+    type: "string"
+    description: "Unique NCBI Virus accession for the strain."
+  isg_score:
+    type: "number"
+    description: "First principal component of Interferon-Stimulated Genes."
+  cai:
+    type: "number"
+    description: "Codon Adaptation Index (0 to 1)."
+  gc_content_global:
+    type: "number"
+    description: "Global GC content (0 to 1)."
+  gc_content_region_1:
+    type: "number"
+    description: "GC content of the first region."
+  gc_content_region_2:
+    type: "number"
+    description: "GC content of the second region."
+  kmer_3_freq_AAA:
+    type: "number"
+    description: "Frequency of k-mer AAA (k=3)."
+  kmer_3_freq_AAC:
+    type: "number"
+    description: "Frequency of k-mer AAC (k=3)."
+  # ... (all k=3, 4, 5, 6 k-mers)
+  repeat_density:
+    type: "number"
+    description: "Percentage of genome covered by repeats (0 to 1)."
+  protein_stability_score:
+    type: "number"
+    description: "Predicted protein stability score (ESM-1b or Proxy)."
+  vif_score:
+    type: "number"
+    description: "Variance Inflation Factor for collinearity check."
+  is_collinear:
+    type: "boolean"
+    description: "True if VIF > 5."
+required:
+  - strain_accession
+  - isg_score
+  - cai
+  - gc_content_global
+  - repeat_density
+  - protein_stability_score
+  - vif_score
+  - is_collinear
+additionalProperties: false

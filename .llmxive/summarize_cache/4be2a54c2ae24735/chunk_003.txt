@@ -1,0 +1,48 @@
+- Task T032b implements a fallback logic to reduce permutation counts below 1,000 if runtime estimates exceed 3.5 hours. This directly violates Constitution Principle VII ('permutation-testing procedure with at least 1 000 permutations') and Spec FR-007 ('≥ 1 000 random label shuffles'). The task description explicitly states 'DO NOT ABORT' and reduces the count, which is a semantic weakening of a non-negotiable statistical rigor constraint. The Constitution does not allow runtime-based relaxation of the permutation count; the task must either ensure the 1,000 count is feasible or abort, not silently reduce the statistical power.
+- Tasks T002b, T002c, and T020 implement a 'Uniform Stability Proxy' (AAC + Hydrophobicity) and restrict k-mers to k=3,4, explicitly overriding Spec FR-003 (which mandates ESM-1b and k=3-6). While the Plan.md flags this for amendment, the tasks create a binding implementation that deviates from the ratified Spec without a formally ratified `docs/spec_amendments.md` entry that has been accepted as the 'single source of truth' (Constitution Principle IV). The tasks reference a 'Plan.md Section' as the override authority, but the Plan is not the Spec. This constitutes a silent constitution drift where the implementation scope is narrowed without a valid, ratified amendment process completing the loop.
+- Task T012c defines the logic for `generate_manifest` but relies on a template from T006a. The 'Analyse Report' (provided in context) flags that T012c was previously rejected for failing to produce the artifact and that the function is incomplete. The current task description does not explicitly resolve the 'missing artifact' failure mode or guarantee the generation of the `data/manifest.json` with the required checksums and database versions mandated by Constitution Principle VI and Plan Step 1.4. If the function logic is incomplete, the task fails to satisfy the provenance constraint.
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T012c** — The repository lacks a `generate_manifest(accessions, geo_accessions)` function in `src/download.py` and the required `data/manifest.json` file is not present. The existing code only provides placeholder/template functions and a `generate_manifest_v2` that writes separate manifest files, not a single unified manifest as specified.
+- **T015a** — declared artifact(s) missing/empty/invalid: src/preprocess.py, data/processed/ortholog_map.csv
+- **T015b** — declared artifact(s) missing/empty/invalid: src/preprocess.py
+- **T014** — declared artifact(s) missing/empty/invalid: src/preprocess.py, data/processed/normalized_counts.csv
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `linus-pauling-simulated__2026-07-02__research.md`
+
+---
+action_items: []
+artifact_hash: 6a38ecccb865dd637a503ebad4dc3175c2435a490a99df539da2248c2bd323f0
+artifact_path: projects/PROJ-079-investigating-the-predictive-power-of-vi/specs/001-investigating-the-predictive-power-of-vi/spec.md
+backend: dartmouth
+feedback: 'The specification states that the model will use "predicted protein structural
+  properties" as a feature set. This is a necessary step, but the current description
+  is dangerously vague. A change in a single residue can alter the molecular shape
+  by approximately 1.5 angstroms, or shift the local charge distribution by a full
+  elementary charge, fundamentally changing how the host immune system recognizes
+  the pathogen.
+
+
+  You must demand the numbers and the model. Does your feature extraction pipeline'
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-07-02T10:59:44.308465Z'
+reviewer_kind: llm
+reviewer_name: linus-pauling-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+The specification states that the model will use "predicted protein structural properties" as a feature set. This is a necessary step, but the current description is dangerously vague. A change in a single residue can alter the molecular shape by approximately 1.5 angstroms, or shift the local charge distribution by a full elementary charge, fundamentally changing how the host immune system recognizes the pathogen.
+
+You must demand the numbers and the model. Does your feature extraction pipeli
+
+*[truncated]*
