@@ -31,7 +31,7 @@ The system must train a CPU-tractable machine learning model (Random Forest Regr
 **Independent Test**: The system can be tested by training the model on a subset of the data, evaluating the R² score (or accuracy for classification) on a held-out test set, and verifying that the output includes a sorted list of metabolite names with their corresponding importance scores.
 
 **Acceptance Scenarios**:
-1. **Given** a preprocessed dataset split into [deferred] training and [deferred] test sets by genotype, **When** the Random Forest model (n_estimators=100, max_depth=10) is trained, **Then** the model produces a prediction file with resistance scores and a feature importance table where the cumulative importance of the top 5 metabolites is reported as an empirical observation.
+1. **Given** a preprocessed dataset split into [deferred] training and [deferred] test sets by genotype, **When** the Random Forest model (n_estimators=100, max_depth=10) is trained, **Then** the model produces a prediction file with resistance scores and a feature importance table where the cumulative importance of the top-ranked metabolites is reported as an empirical observation.
 2. **Given** a dataset with >100 metabolite features, **When** the model trains, **Then** the system automatically filters out features with near-zero variance (variance < 0.001) before training to prevent overfitting on noise.
 3. **Given** a test set, **When** predictions are generated, **Then** the system calculates the Mean Squared Error (MSE) and R² score (or accuracy for classification), ensuring the score is reported in the summary logs even if negative (indicating a null result).
 
@@ -43,7 +43,7 @@ The system must perform permutation testing to validate that the model's perform
 
 **Why this priority**: This ensures methodological soundness. Without permutation testing, we cannot distinguish signal from noise. Without multiplicity correction, the "5-20 metabolites" claim risks being a statistical artifact.
 
-**Independent Test**: The system can be tested by running the permutation test (1,000 iterations) and verifying that the p-value for the model's R² score is < 0.05, and that the final list of significant metabolites includes the adjusted p-values (q-values).
+**Independent Test**: The system can be tested by running the permutation test (sufficient iterations) and verifying that the p-value for the model's R² score is < 0.05, and that the final list of significant metabolites includes the adjusted p-values (q-values).
 
 **Acceptance Scenarios**:
 1. **Given** the trained model and test set, **When** the permutation test runs (shuffling resistance scores [deferred] times, stratified by study ID if metadata exists), **Then** the system generates a null distribution of R² scores and calculates a p-value; if p < 0.05, the result is flagged as "Statistically Significant."
@@ -55,7 +55,7 @@ The system must perform permutation testing to validate that the model's perform
 ### Edge Cases
 
 - **What happens when** the public dataset contains no numeric resistance metric? **Then** the system must fail gracefully with a clear error message: "No quantifiable resistance metric found in metadata. Aborting."
-- **How does the system handle** datasets where the number of samples (genotypes) is less than the number of metabolites (p >> n)? **Then** the system must apply dimensionality reduction (PCA) to the top 50 variance metabolites before training to avoid singular matrices, and log a warning about low sample size.
+- **How does the system handle** datasets where the number of samples (genotypes) is less than the number of metabolites (p >> n)? **Then** the system must apply dimensionality reduction (PCA) to the top variance metabolites before training to avoid singular matrices, and log a warning about low sample size.
 - **What happens when** the NCBI GEO download fails due to network timeout? **Then** the system retries up to 3 times with exponential backoff (1s, 2s, 4s) before failing the job.
 
 ## Requirements
@@ -65,7 +65,7 @@ The system must perform permutation testing to validate that the model's perform
 - **FR-001**: System MUST download plant metabolomic datasets from NCBI GEO using `wget` or `curl` without requiring authentication, and parse associated metadata to extract resistance scores. (See US-1)
 - **FR-002**: System MUST preprocess metabolomic data by normalizing abundances, filtering low-coverage metabolites, and imputing missing values using k-nearest neighbors (k=5). (See US-1)
 - **FR-003**: System MUST train a Random Forest Regressor (n_estimators=100, max_depth=10) on the training set and evaluate performance on a genotype-held-out test set. If the target variable is categorical, the system MUST use an Ordinal Regression or Classification model instead. (See US-2)
-- **FR-004**: System MUST extract and rank the top 20 metabolites by feature importance and output a CSV containing metabolite names, importance scores, and univariate correlation coefficients. (See US-2)
+- **FR-004**: System MUST extract and rank the top metabolites by feature importance and output a CSV containing metabolite names, importance scores, and univariate correlation coefficients. (See US-2)
 - **FR-005**: System MUST perform permutation testing to generate a null distribution and calculate the p-value for the model's R² score. (See US-3)
 - **FR-006**: System MUST apply Benjamini-Hochberg correction to all metabolite-resistance correlation p-values and report q-values, filtering results to q < 0.10. (See US-3)
 - **FR-007**: System MUST stratify permutation testing by study ID or batch if metadata indicates multiple sources, OR include batch as a covariate in the model if feasible, to control for confounding variables. (See US-3)
@@ -84,7 +84,7 @@ The system must perform permutation testing to validate that the model's perform
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
-- **SC-001**: The prediction performance (R² score or accuracy) is measured against the null distribution generated by 1,000 permutations to determine statistical significance. (See US-3)
+- **SC-001**: The prediction performance (R² score or accuracy) is measured against the null distribution generated by a sufficient number of permutations to determine statistical significance. (See US-3)
 - **SC-002**: The false discovery rate is measured against the Benjamini-Hochberg adjusted p-values (q-values) to ensure the reported biomarker list is not due to multiple testing artifacts. (See US-3)
 - **SC-003**: The predictive signal strength is measured against the baseline of random guessing (R² = 0) to confirm that metabolite profiles contain non-random information about resistance. (See US-3)
 - **SC-004**: The dataset-variable fit is measured against the requirement that every predictor (metabolite) and outcome (resistance) must be present; the system outputs a dataset with [deferred] variable coverage or aborts. (See US-1)
@@ -95,7 +95,7 @@ The system must perform permutation testing to validate that the model's perform
 - **Dataset Availability**: Publicly available NCBI GEO datasets contain both raw metabolomic intensity files and explicit, quantifiable resistance metrics (e.g., % leaf area loss, damage rating) in the associated metadata for the same samples.
 - **Inference Framing**: The study design is observational; therefore, all findings will be framed as **associational** correlations between metabolite abundance and resistance, not causal claims of defense mechanisms, as no randomization of metabolites is possible.
 - **Measurement Validity**: The resistance metrics extracted from metadata (e.g., "leaf area loss") are considered valid proxies for herbivore resistance, consistent with standard ecological literature, without requiring re-validation of the specific scoring rubrics used in the source studies. Note: This assumes herbivore pressure is relatively constant or normalized.
-- **Compute Constraints**: The total number of samples across the selected public datasets will be ≤ 500, allowing the entire dataset to fit within 7 GB RAM and the Random Forest training to complete within the 6-hour GitHub Actions limit without GPU acceleration.
-- **Threshold Justification**: The significance threshold for metabolite selection (q < 0.10) is chosen based on common exploratory genomics/metabolomics standards; a sensitivity analysis sweeping this threshold over {0.05, 0.10, 0.15} will be performed to report how the number of identified biomarkers varies.
+- **Compute Constraints**: The total number of samples across the selected public datasets will be ≤ 500, allowing the entire dataset to fit within 7 GB RAM and the Random Forest training to complete within the GitHub Actions time limit without GPU acceleration.
+- **Threshold Justification**: The significance threshold for metabolite selection (q < 0.10) is chosen based on common exploratory genomics/metabolomics standards; a sensitivity analysis sweeping this threshold over a range of low significance levels will be performed to report how the number of identified biomarkers varies.
 - **Imputation Method**: The k-nearest neighbors (k=5) imputation method is assumed to be sufficient for handling missing metabolite values in this specific dataset size and sparsity profile, without introducing significant bias.
 - **Herbivore Pressure Normalization**: If metadata does not provide herbivore density or species information, the system will treat 'damage' as a direct proxy for 'resistance' but will explicitly flag this limitation in the output report (FR-008).

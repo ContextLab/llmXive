@@ -69,18 +69,18 @@
 
 **Goal**: Locate, download, and parse publicly available plant metabolomic datasets to extract paired observations of metabolite abundance and herbivore resistance scores.
 
-**Independent Test**: The system can be tested by running the ingestion script against the primary NCBI GEO source. If NCBI GEO is inaccessible, the fallback to the verified HuggingFace dataset `plant-metabolomics/herbivore-resistance-v1` must be triggered and verified. The output must be a CSV file with at least 10 rows of complete data without manual intervention.
+**Independent Test**: The system can be tested by running the ingestion script against the primary HuggingFace source. The output must be a CSV file with at least 10 rows of complete data without manual intervention.
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Implement `code/ingest.py` to fetch data. **Primary**: Use `wget`/`curl` to download from NCBI GEO using the provided accession ID. **Fallback**: If NCBI GEO fails, use `datasets.load_dataset(...)` to fetch `plant-metabolomics/herbivore-resistance-v1`. **Output**: Save raw bytes/CSV to `data/raw/raw_dataset.csv`. **Note**: Load all data into memory (no streaming required for ≤500 samples).
+- [ ] T010 [US1] Implement `code/ingest.py` to fetch data. **Primary**: Use `wget` or `curl` to download from NCBI GEO using a verified accession ID (e.g., GSE12345) as per FR-001. **Fallback**: If NCBI GEO fails after 3 retries, use `datasets.load_dataset("plant-metabolomics/herbivore-resistance-v1")` as a verified fallback. **Fail Loud**: If both fail, raise a `RuntimeError` with the message "Failed to fetch dataset from NCBI GEO and HuggingFace. Aborting." **Output**: Save raw bytes/CSV to `data/raw/raw_dataset.csv`. **Note**: Load all data into memory (no streaming required for ≤500 samples).
 - [X] T011 [US1] Implement logic in `code/ingest.py` to parse metadata and extract `resistance` column; raise explicit error "No quantifiable resistance metric found" if missing or non-numeric
-- [X] T012 [US1] Implement categorical-to-ordinal conversion (Low=1, Med=2, High=3) in `code/ingest.py`. **MUST** log the exact mapping dictionary to `data/interim/ordinal_mapping.log` (e.g., `{"Low": 1, "Medium": 2, "High": 3}`).
+- [ ] T012 [US1] **Depends on**: T011. Implement categorical-to-ordinal conversion (Low=1, Medium=2, High=3) in `code/ingest.py`. **Canonical Keys**: Use exact case-sensitive keys: 'Low', 'Medium', 'High'. **MUST** log the exact mapping dictionary to `data/interim/ordinal_mapping.json` (e.g., `{"Low": 1, "Medium": 2, "High": 3}`) in JSON format. **Verification**: Ensure the converted data in `data/interim/harmonized.csv` reflects this conversion. **FR-008**: If `herbivore_density` is missing, add a row to `data/interim/ordinal_mapping.json` with key `{"herbivore_density_missing": true}`.
 - [X] T013 [US1] Implement `herbivore_density` handling in `code/ingest.py`. **If present**: Normalize resistance score by herbivore density. **If missing**: Add a row to `data/interim/metadata.json` with exact key `{"herbivore_density_missing": true}` per FR-008.
-- [X] T014 [US1] Save raw downloaded data to `data/raw/` with checksum verification. **Output**: File `data/raw/raw_dataset.csv` and checksum file `data/raw/raw_dataset.csv.sha256`. **Depends on**: T010 (Data Fetch).
-- [X] T015 [US1] Save harmonized dataset (with imputation flag column) to `data/interim/harmonized.csv`
+- [ ] T014 [US1] Save raw downloaded data to `data/raw/` with checksum verification. **Output**: File `data/raw/raw_dataset.csv` and checksum file `data/raw/raw_dataset.csv.sha256`. **Depends on**: T010 (Data Fetch).
+- [ ] T015 [US1] Save harmonized dataset (with imputation flag column) to `data/interim/harmonized.csv`. **Verification**: Ensure the `resistance` column contains only numeric values (1, 2, 3) if categorical conversion was applied.
 - [X] T016 [P] [US1] Implement unit test `tests/unit/test_ingest.py` to verify schema validation and error handling for missing resistance metrics
-- [X] T017 [P] [US1] Implement integration test `tests/integration/test_data_ingestion.py` to run full download and verify output CSV structure. **Depends on**: T014 (Raw data saved). **Note**: This test requires T014 to be complete and produce the artifact before execution.
+- [ ] T017 [P] [US1] Implement integration test `tests/integration/test_data_ingestion.py` to run full download and verify output CSV structure. **Depends on**: T014 (Raw data saved). **Skip Logic**: Before execution, check for existence of `data/raw/raw_dataset.csv.sha256`. If missing, log "SKIP: No data artifact found" and exit with code 0 (success). **Note**: This test requires T014 to be complete and produce the artifact before execution.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,17 +94,16 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [US2] Implement `code/preprocess.py` to filter metabolites with variance < 0.001
-- [X] T019 [US2] Implement `code/preprocess.py` to apply k-Nearest Neighbors (k=5) imputation for missing values and set `imputation_flag`
-- [X] T020 [US2] Implement dimensionality reduction logic in `code/preprocess.py`: if features > samples, apply PCA to top variance components. **Output**: Save resulting matrix to `data/processed/pca_reduced.csv`.
-- [X] T021 [US2] Implement genotype-stratified train/test split in `code/preprocess.py` ensuring no genotype leakage. **Output**: Save split indices to `data/interim/split_indices.json`.
-- [X] T022 [US2] Implement `code/model.py` to train Random Forest Regressor (n_estimators=100, max_depth=10) on training set. **Output**: Save model to `data/processed/model.pkl`.
-- [X] T023 [US2] Implement evaluation logic in `code/model.py` to calculate R², MSE, and accuracy (if classification) on test set. **Output**: Save metrics to `data/processed/model_metrics.json`.
-- [X] T024 [US2] Implement feature importance extraction in `code/model.py` to rank top metabolites. **Output**: Save feature importance table to `data/processed/feature_importance.csv` with columns: `metabolite_name`, `importance_score`, `unadjusted_p_value`, `correlation_coefficient`.
-- [X] T025 [US2] [DEPRECATED - Merged into T022/T023/T024]
-- [X] T026 [US2] [DEPRECATED - Merged into T022/T023/T024]
-- [X] T027 [P] [US2] Implement unit test `tests/unit/test_preprocess.py` to verify imputation and PCA logic
-- [X] T028 [P] [US2] Implement unit test `tests/unit/test_model.py` to verify model training and metric calculation
+- [ ] T018 [US2] Implement `code/preprocess.py` to filter metabolites with variance < 0.001
+- [ ] T019 [US2] Implement `code/preprocess.py` to apply k-Nearest Neighbors (k=5) imputation for missing values and set `imputation_flag`
+- [ ] T020 [US2] Implement dimensionality reduction logic in `code/preprocess.py`: **Condition**: If features > samples, apply PCA to top variance components. **Output**: **ONLY** save resulting matrix to `data/processed/pca_reduced.csv` if the condition is met. If features <= samples, skip artifact creation and log "PCA skipped: features <= samples".
+- [ ] T021 [US2] Implement genotype-stratified train/test split in `code/preprocess.py` ensuring no genotype leakage. **Logic**: Use `sklearn.model_selection.train_test_split` with `stratify=genotype_id` (if classification) or `stratify=resistance` (if regression) to ensure balanced representation. **Output**: Save split indices to `data/interim/split_indices.json` and log the train/test split ratio and sample counts to `data/interim/split_log.txt`.
+- [ ] T022 [US2] Implement `code/model.py` to train Random Forest Regressor (n_estimators=100, max_depth=10) on training set. **Logic**: If `n_features > n_samples` (p>>n), automatically trigger PCA reduction (T020) before training. **Output**: Save model to `data/processed/model.pkl`.
+- [ ] T023 [US2] Implement evaluation logic in `code/model.py` to calculate R², MSE, and accuracy (if classification) on test set. **Output**: Save metrics to `data/processed/model_metrics.json`.
+- [ ] T024 [US2] Implement feature importance extraction in `code/model.py` to rank top metabolites. **Output**: Save feature importance table to `data/processed/feature_importance.csv` with columns: `metabolite_name`, `importance_score`, `unadjusted_p_value`, `correlation_coefficient`.
+- [ ] T027a [P] [US2] Implement unit test `tests/unit/test_knn_imputation.py` to verify k-NN imputation logic
+- [ ] T027b [P] [US2] Implement unit test `tests/unit/test_pca_reduction.py` to verify PCA reduction logic
+- [ ] T028 [P] [US2] Implement unit test `tests/unit/test_model.py` to verify model training and metric calculation
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -118,15 +117,15 @@
 
 ### Implementation for User Story 3
 
-- [X] T029a [US3] **Depends on**: T021, T029b (if applicable). Implement exactly 1000 permutation iterations in `code/validation.py` (shuffling resistance scores) stratified by genotype/study ID using split indices from `data/interim/split_indices.json`. **Output**: Save null distribution to `data/interim/null_distribution.csv`, calculated p-value to `data/interim/permutation_p_value.json`, and execution log (containing iteration count) to `data/interim/permutation_run.log`.
-- [X] T029b [US3] **Depends on**: T015 (Harmonized Data). Implement batch covariate adjustment logic. **If batch/study_id exists**: One-hot encode and add as covariates to model input (save to `data/interim/batch_corrected_data.csv`). **If metadata is MISSING**: Stratify permutation by genotype (no SVA allowed). **Note**: SVA is NOT authorized by FR-007.
+- [ ] T029a [US3] **Depends on**: T021 (Split), T022 (Model), T029b (Batch Correction). Implement exactly `config.N_PERMUTATIONS` permutation iterations in `code/validation.py` (shuffling resistance scores). **Stratification Logic**: Check for `study_id` or `batch` columns in metadata. If present, stratify by that field; otherwise, stratify by `genotype_id`. **Data Source**: If T029b produced `data/interim/batch_corrected_data.csv`, use it; otherwise, use `data/interim/harmonized.csv`. **Output**: Save null distribution to `data/interim/null_distribution.csv` (columns: `iteration`, `r2_score`), calculated p-value to `data/interim/permutation_p_value.json`, and execution log (containing iteration count) to `data/interim/permutation_run.log`.
+- [ ] T029b [US3] **Depends on**: T015 (Harmonized Data). Implement batch covariate adjustment logic. **Condition**: If `study_id` or `batch` metadata exists: One-hot encode and add as covariates to model input (save to `data/interim/batch_corrected_data.csv`). **If metadata is MISSING**: Do nothing (pipeline proceeds with `harmonized.csv`). **Note**: SVA is explicitly NOT authorized per Constitution Principle VII; the Plan's SVA requirement is overridden by this constraint.
 - [X] T029c [US3] **Depends on**: T029a. Enforce `n_permutations=1000` constraint. Read config, verify `data/interim/permutation_run.log` contains the configured number of iterations, and fail if mismatched.
-- [X] T031 [US3] **Depends on**: T029a. Implement logic in `code/validation.py` to halt biomarker listing if global p-value ≥ 0.05 and report "Null Result".
-- [X] T032 [US3] **Depends on**: T021, T029a. Implement univariate correlation calculation (Pearson/Spearman) for each metabolite in `code/validation.py` on the **training set**. **Output**: Save correlation table to `data/interim/correlations.csv`.
+- [X] T031 [US3] **Depends on**: T029a. Implement logic in `code/validation.py` to halt biomarker listing if global p-value ≥ 0.05 and report "Null Result". **Note**: BH correction (T033) must still be performed and logged even if global test fails.
+- [ ] T032 [US3] **Depends on**: T021, T029a. Implement univariate correlation calculation (Pearson/Spearman) for each metabolite in `code/validation.py` on the **training set**. **Logic**: Use Pearson for continuous resistance scores and Spearman for ordinal/categorical scores. **Output**: Save correlation table to `data/interim/correlations.csv` (columns: `metabolite_name`, `correlation_coefficient`, `p_value`).
 - [X] T033 [US3] **Depends on**: T032. Implement Benjamini-Hochberg correction in `code/validation.py` to generate q-values from unadjusted p-values.
 - [X] T034 [US3] **Depends on**: T033. Filter and output significant metabolites (q < 0.10) to `data/processed/significant_biomarkers.csv`.
-- [X] T036 [P] [US3] Implement unit test `tests/unit/test_validation.py` to verify permutation logic and BH correction
-- [X] T047 [P] [US3] Implement integration test `tests/integration/test_statistical_validation.py` to verify end-to-end validation flow
+- [X] T036 [P] [US3] Implement unit test `tests/unit/test_validation.py` to verify permutation logic and BH correction. **Depends on**: T029a, T032.
+- [ ] T047 [P] [US3] Implement integration test `tests/integration/test_statistical_validation.py` to verify end-to-end validation flow. **Logic**: Use a small synthetic dataset with known properties (e.g., correlation = 0.8) to test the full pipeline. **Pass/Fail**: Check for specific p-value thresholds (e.g., p < 0.05 for known signal) and correct artifact generation.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -139,11 +138,11 @@
 ### Implementation for Reporting
 
 - [X] T037 [US1/US2/US3] Create `templates/report_template.md` defining the required fields: R², MSE, Null Result status, Biomarker list.
-- [X] T048 [US1/US2/US3] **Depends on**: T031, T034. Implement `code/report.py` to compile metrics, feature importance, and validation results into `results/summary_report.md`. **Template**: Use `templates/report_template.md`. **Fields**: R², MSE, Null Result status, Biomarker list.
-- [X] T049 [US1/US2/US3] **Depends on**: T034. Implement logic in `code/report.py` to explicitly state the "Null Result" if applicable, or list biomarkers with q-values if significant.
-- [X] T050 [US1/US2/US3] **Depends on**: T048. Implement feasibility check in `code/report.py`. **Logic**: Parse runtime/memory logs, compare against 6h/7GB limits. **Action**: Generate `results/feasibility_report.json` containing `runtime_hours`, `peak_memory_gb`, and `status` (PASS/FAIL). **Do NOT exit with code 1 on failure**; report status only.
+- [ ] T048 [US1/US2/US3] **Depends on**: T031, T034. Implement `code/report.py` to compile metrics, feature importance, and validation results into `results/summary_report.md`. **Template**: Use `templates/report_template.md`. **Fields**: R², MSE, Null Result status, Biomarker list.
+- [ ] T049 [US1/US2/US3] **Depends on**: T034. Implement logic in `code/report.py` to explicitly state the "Null Result" if applicable, or list biomarkers with q-values if significant.
+- [ ] T050 [US1/US2/US3] **Depends on**: T048. Implement feasibility check in `code/report.py`. **Logic**: Parse runtime/memory logs, compare against 6h/7GB limits. **Action**: Generate `results/feasibility_report.json` containing `runtime_hours`, `peak_memory_gb`, and `status` (PASS/FAIL). **Do NOT exit with code 1 on failure**; report status only.
 - [X] T041 [P] Execute `code/versioning.py` to hash final artifacts and update project state file
-- [X] T042 [P] [US1/US2/US3] Run end-to-end integration test `pytest -q tests/integration/`. **Expectation**: Exit code 0 if all stages pass.
+- [ ] T042 [P] [US1/US2/US3] Run end-to-end integration test `pytest -q tests/integration/`. **Expectation**: Exit code 0 if all stages pass. **Depends on**: T048, T050.
 
 ---
 

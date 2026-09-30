@@ -1,16 +1,56 @@
+T010:
+  c: false
+  h: 922c8bed240935c7376f1da37dfc7c581746f19241e361aacfa89009432f3c0e
+  r: The repository lacks the required `data/raw/raw_dataset.csv` file, and the provided
+    `code/ingest.py` does not implement a functional download (the primary NCBI GEO
+    function immediately raises a `ConnectionError`) nor a complete fallback using
+    `datasets.load_dataset` that writes the data to the expected CSV path. The script
+    is truncated and does not save any output.
+T012:
+  c: false
+  h: f9a90b820d9362f8bf8b45029e7228e75df3dabafe91d259322d8b1b4cd44ce9
+  r: "The `code/ingest.py` file does not contain any implementation that maps categorical\
+    \ resistance values (\u201CLow\u201D, \u201CMedium\u201D, \u201CHigh\u201D) to\
+    \ ordinal numbers, nor does it write such a mapping to a log file. Additionally,\
+    \ the required `data/interim/ordinal_mapping.log` file is absent from the repository.\
+    \ Both the functional code change and the logging artifact are missing."
 T020:
   c: false
-  h: ea61818817e014347936ab3b8bd70c7975cbf995714b10758c51da526d912cb0
-  r: "The `code/preprocess.py` contains a PCA step and a save function, but the required\
-    \ output file `data/processed/pca_reduced.csv` is absent, so the artifact the\
-    \ task demands does not exist. Additionally, the PCA call uses `n_components=None`\
-    \ rather than explicitly selecting a subset of top\u2011variance components. The\
-    \ missing CSV file must be generated (and ideally the component selection clarified)\
-    \ to satisfy the task."
+  h: c77f843c22179fce3c6b99d59ccf2e09da3a24ee63d8eb18007af83ed1ed28a6
+  r: "The `code/preprocess.py` file only contains a partially shown `apply_pca_if_needed`\
+    \ function that is truncated and does not demonstrate saving the PCA\u2011reduced\
+    \ matrix to `data/processed/pca_reduced.csv`. Moreover, the required output file\
+    \ `data/processed/pca_reduced.csv` is missing from the repository. The task\u2019\
+    s core requirement\u2014performing PCA when features\u202F>\u202Fsamples and writing\
+    \ the result to the specified CSV\u2014is not fulfilled."
+T023:
+  c: false
+  h: db011a19c0df9c77668dfee0dd3c744dd517caf4bc3c6b8fffbee1ed0d891683
+  r: "The `code/model.py` file only defines `evaluate_model` that computes R\xB2 and\
+    \ MSE for regression and does not handle classification accuracy, nor does it\
+    \ contain any logic to write the resulting metrics to `data/processed/model_metrics.json`.\
+    \ Moreover, the required `data/processed/model_metrics.json` file is missing from\
+    \ the repository. Both the missing output file and the incomplete evaluation implementation\
+    \ mean the task is not fully satisfied."
+T024:
+  c: false
+  h: 61002f641ff9a51b0cc90307ca94ef38b0478137bd355a7596b0a7a1f487944b
+  r: "The repository lacks the required `data/processed/feature_importance.csv` file,\
+    \ and the `code/model.py` implementation is incomplete (the `extract_feature_importance`\
+    \ function is truncated and never writes the DataFrame to the specified CSV).\
+    \ Consequently, the task\u2019s output specifications are not met."
 T029a:
   c: false
-  h: 3512e62f9783e00e4af814fe4c346e4964656d76826d4efee54205075851f03b
-  r: "The repository lacks the required output files (`null_distribution.csv`, `permutation_p_value.json`,\
-    \ `permutation_run.log`) and the `run_permutation_test` function is truncated/incomplete,\
-    \ with no evidence that it performs stratified shuffling or writes the specified\
-    \ artifacts. The task\u2019s core deliverables are therefore not present."
+  h: 2931f29a42052e69156e8d494d9f48e99b2710598ba3499bdf5f13ff21e5a344
+  r: "The repository lacks the required `data/interim/null_distribution.csv` and `data/interim/permutation_run.log`\
+    \ files, and the shown `code/validation.py` is truncated and does not demonstrate\
+    \ a call that performs exactly 1000 stratified permutation iterations or writes\
+    \ the null distribution and log. Consequently the task\u2019s output artifacts\
+    \ are missing and the implementation is incomplete."
+T032:
+  c: false
+  h: 1f91a334401f023f4a6876ac06459615f32aa6efe1827240323aab4d63aebf76
+  r: "The repository does not contain `data/interim/correlations.csv` (the required\
+    \ output file is missing), and the provided `code/validation.py` shows no implementation\
+    \ of per\u2011metabolite Pearson/Spearman correlation calculation or code that\
+    \ writes such a table to CSV. The task therefore remains unfinished."

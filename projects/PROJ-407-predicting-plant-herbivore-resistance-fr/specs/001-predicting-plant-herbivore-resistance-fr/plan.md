@@ -32,7 +32,7 @@ This project implements a CPU-tractable machine learning pipeline to predict pla
 | **III. Data Hygiene** | Raw data stored in `data/raw` with checksums. Derived files in `data/processed` with distinct filenames. PII scan passed (no PII expected in public metabolomics). |
 | **IV. Single Source of Truth** | All figures/stats in final report trace to specific rows in `data/processed` and code blocks in `code/`. |
 | **V. Versioning Discipline** | **Mechanism**: A `versioning.py` script is executed at the end of each phase. It computes `sha256` hashes of all artifacts in `data/` and `code/`, updates the `state/projects/PROJ-407-predicting-plant-herbivore-resistance-fr.yaml` `artifact_hashes` map, and updates the `updated_at` timestamp. |
-| **VI. Public-Dataset Provenance** | Relies *only* on verified public URLs (HuggingFace `plant-metabolomics/herbivore-resistance-v1`). Metadata parsing is explicit; no inference of resistance where none exists. |
+| **VI. Public-Dataset Provenance** | Relies *only* on verified public URLs (HuggingFace `plant-metabolomics/herbivore-resistance-v`). Metadata parsing is explicit; no inference of resistance where none exists. |
 | **VII. Computational Reproducibility** | Random Forest (CPU), a set of permutations (CPU). Memory-optimized data loading. |
 
 ## Project Structure

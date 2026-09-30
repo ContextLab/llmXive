@@ -1,6 +1,6 @@
 status: none
-intent: GEOparse python package NCBI GEO plant metabolomics herbivore resistance python
-  package dataset
+intent: download plant metabolomics herbivore resistance dataset GSE12345 from NCBI
+  GEO and HuggingFace plant-metabolomics/herbivore-resistance-v1 python package dataset
 required_fields:
 - genotype_id
 - resistance_score
@@ -9,6 +9,7 @@ required_fields:
 - metabolite_3
 - metabolite_4
 - metabolite_5
-cache_key: 67252aedf732458cbacf2c8a9c9792b96a26f90185db1518e9c45a6701e07bce
-searched_at: '2026-07-31T00:34:01.846322+00:00'
+- imputation_flag
+cache_key: 31905920c436a5cea4fd9dc5e3a7a071393e1e9707daee8839d62fd762637254
+searched_at: '2026-09-30T10:10:33.130871+00:00'
 retry_count: 1

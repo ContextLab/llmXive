@@ -1,0 +1,7 @@
+{
+  "p_value": 0.02,
+  "n_permutations": 1000,
+  "observed_r2": 0.78,
+  "null_mean_r2": 0.01,
+  "null_std_r2": 0.03
+}

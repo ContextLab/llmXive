@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-407-predicting-plant-herbivore-resistance-fr",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/model.py --input data/processed/GSE12345_processed.csv --output data/processed/; python code/report.py --input data/processed/ --output results/; 3 command(s) failed: python code/ingest.py --accession GSE12345 --output data/raw/ (rc=1); python code/preprocess.py --input data/raw/GSE12345_raw.csv --output data/processed/ (rc=1); python code/validation.py --input data/processed/GSE12345_processed.csv --model data/processed/GSE12345_model.pkl --output data/processed/ (rc=1); 6 declared deliverable(s) absent: data/interim/batch_corrected_data.csv; data/interim/harmonized.csv; data/processed/feature_importance.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/ingest.py --accession GSE12345 --output data/raw/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/ingest.py\", line 1, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/preprocess.py --input data/raw/GSE12345_raw.csv --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/preprocess.py\", line 9, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/model.py --input data/processed/GSE12345_processed.csv --output data/processed/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/model.py': [Errno 2] No such file or directory",
+    "python code/validation.py --input data/processed/GSE12345_processed.csv --model data/processed/GSE12345_model.pkl --output data/processed/ -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/validation.py\", line 4, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/report.py --input data/processed/ --output results/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-407-predicting-plant-herbivore-resistance-fr/code/report.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-30T10:09:48Z"
+}

@@ -7,4 +7,3 @@ datasets==2.14.0
 jsonschema==4.19.0
 pytest==7.4.0
 tenacity==8.2.3
-pyyaml==6.0.1

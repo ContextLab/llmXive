@@ -1,87 +1,104 @@
 """
-Unit tests for Task T014: save_raw_data.py
+Unit tests for code/save_raw_data.py (Task T014).
 """
 import os
 import tempfile
 import hashlib
 from pathlib import Path
-import pandas as pd
 import pytest
+import pandas as pd
 
-# Mock the ingest module's load_raw_dataset to return a known dataset
-class MockDataset:
-    def __init__(self):
-        self.data = {
-            'sample_id': ['S1', 'S2', 'S3'],
-            'genotype_id': ['G1', 'G1', 'G2'],
-            'resistance': [1.5, 2.0, 3.0],
-            'metabolite_A': [0.1, 0.2, 0.3]
-        }
-    
-    def to_pandas(self):
-        return pd.DataFrame(self.data)
-    
-    def __len__(self):
-        return len(self.data['sample_id'])
+# Import the function to test
+from save_raw_data import compute_sha256, main
+import sys
+from io import StringIO
 
-def mock_load_raw_dataset():
-    return MockDataset()
+def test_compute_sha256_valid_file():
+    """Test compute_sha256 with a valid file."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        f.write("col1,col2\n1,2\n3,4\n")
+        temp_path = f.name
 
-def test_compute_sha256():
-    """Test SHA256 computation on a temporary file."""
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"test data")
-        tmp_path = tmp.name
-    
     try:
-        # Compute expected hash
-        expected_hash = hashlib.sha256(b"test data").hexdigest()
-        
-        # Import the function from the module (we'll patch the import path)
-        import sys
-        from pathlib import Path
-        project_root = Path(__file__).parent.parent
-        sys.path.insert(0, str(project_root))
-        
-        # We need to test the function logic directly since we can't easily import
-        # the full module in isolation without dependencies
-        sha256_hash = hashlib.sha256()
-        with open(tmp_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        actual_hash = sha256_hash.hexdigest()
-        
-        assert actual_hash == expected_hash
+        hash1 = compute_sha256(temp_path)
+        hash2 = compute_sha256(temp_path)
+        assert hash1 == hash2
+        assert len(hash1) == 64  # SHA256 hex length
     finally:
-        os.unlink(tmp_path)
+        os.unlink(temp_path)
 
-def test_csv_structure(tmp_path):
-    """Test that the saved CSV has the expected structure."""
-    # Create a mock dataset
-    mock_df = pd.DataFrame({
-        'sample_id': ['S1', 'S2'],
-        'genotype_id': ['G1', 'G2'],
-        'resistance': [1.0, 2.0],
-        'metabolite_X': [0.1, 0.2]
-    })
-    
-    # Save to temp file
-    csv_path = tmp_path / "test.csv"
-    mock_df.to_csv(csv_path, index=False)
-    
-    # Read back and verify
-    df = pd.read_csv(csv_path)
-    assert list(df.columns) == ['sample_id', 'genotype_id', 'resistance', 'metabolite_X']
-    assert len(df) == 2
-    
-    # Verify checksum file format
-    checksum_path = tmp_path / "test.csv.sha256"
-    expected_hash = hashlib.sha256(mock_df.to_csv(index=False).encode()).hexdigest()
-    with open(checksum_path, "w") as f:
-        f.write(f"{expected_hash}  test.csv\n")
-    
-    with open(checksum_path, "r") as f:
-        content = f.read().strip()
-    
-    assert content.startswith(expected_hash)
-    assert "test.csv" in content
+def test_compute_sha256_file_not_found():
+    """Test compute_sha256 raises FileNotFoundError for missing file."""
+    with pytest.raises(FileNotFoundError):
+        compute_sha256("/nonexistent/path/file.csv")
+
+def test_compute_sha256_empty_file():
+    """Test compute_sha256 raises ValueError for empty file."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        temp_path = f.name
+
+    try:
+        # Ensure file is empty
+        with open(temp_path, 'w') as _:
+            pass
+
+        with pytest.raises(ValueError):
+            compute_sha256(temp_path)
+    finally:
+        os.unlink(temp_path)
+
+def test_main_integration(tmp_path):
+    """Test main function creates checksum file correctly."""
+    # Create a sample CSV
+    sample_csv = tmp_path / "test_data.csv"
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+    df.to_csv(sample_csv, index=False)
+
+    output_dir = tmp_path / "output"
+    output_dir.mkdir()
+
+    # Mock sys.argv
+    original_argv = sys.argv
+    sys.argv = [
+        "test_save_raw_data.py",
+        "--input", str(sample_csv),
+        "--output_dir", str(output_dir)
+    ]
+
+    try:
+        main()
+
+        # Check checksum file exists
+        checksum_file = output_dir / "test_data.csv.sha256"
+        assert checksum_file.exists()
+
+        # Verify content format
+        with open(checksum_file, 'r') as f:
+            content = f.read()
+            parts = content.split()
+            assert len(parts) == 2
+            assert len(parts[0]) == 64  # Hash length
+            assert parts[1] == "test_data.csv"
+
+        # Verify hash correctness
+        expected_hash = hashlib.sha256(sample_csv.read_bytes()).hexdigest()
+        assert parts[0] == expected_hash
+
+    finally:
+        sys.argv = original_argv
+
+def test_main_missing_input():
+    """Test main exits with error when input file is missing."""
+    original_argv = sys.argv
+    sys.argv = [
+        "test_save_raw_data.py",
+        "--input", "/nonexistent/file.csv",
+        "--output_dir", "/tmp"
+    ]
+
+    try:
+        with pytest.raises(SystemExit) as exc_info:
+            main()
+        assert exc_info.value.code == 1
+    finally:
+        sys.argv = original_argv
