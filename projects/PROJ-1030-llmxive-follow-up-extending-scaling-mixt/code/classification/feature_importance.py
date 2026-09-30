@@ -1,382 +1,208 @@
-"""
-Feature Importance Analysis using SHAP.
-
-This module implements SHAP (SHapley Additive exPlanations) analysis to identify
-predictive sub-networks in the trained classifier. It compares feature importance
-results against the baseline distribution from T032.1 to highlight which expert
-activations and latent dimensions are most predictive of physical validity.
-
-Dependencies:
-- shap (must be installed via requirements.txt)
-- numpy, pandas, scikit-learn, pickle
-"""
-
 import os
 import sys
 import json
 import logging
 import pickle
 import argparse
-from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-
 import numpy as np
-import pandas as pd
+from pathlib import Path
+from typing import Dict, Any, List, Tuple
 import shap
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.inspection import permutation_importance
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants for file paths (relative to project root)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-FEATURES_PATH = PROJECT_ROOT / "data" / "processed" / "features.npy"
-LABELS_PATH = PROJECT_ROOT / "data" / "processed" / "labels.csv"
-METADATA_PATH = PROJECT_ROOT / "data" / "processed" / "metadata.json"
-BASELINE_DIST_PATH = PROJECT_ROOT / "data" / "processed" / "activation_distribution.json"
-CLASSIFIER_PATH = PROJECT_ROOT / "data" / "processed" / "classifier.pkl"
-OUTPUT_REPORT_PATH = PROJECT_ROOT / "data" / "processed" / "feature_importance_report.json"
-OUTPUT_PLOT_PATH = PROJECT_ROOT / "docs" / "figures" / "feature_importance_summary.png"
-OUTPUT_BEESWARM_PATH = PROJECT_ROOT / "docs" / "figures" / "feature_importance_beeswarm.png"
-
-def load_filtered_data_for_importance() -> Tuple[np.ndarray, np.ndarray, pd.DataFrame]:
-    """
-    Load filtered features and labels for importance analysis.
-    
-    Returns:
-        Tuple of (X_features, y_labels, metadata_df)
-    """
-    logger.info(f"Loading features from {FEATURES_PATH}")
-    if not FEATURES_PATH.exists():
-        raise FileNotFoundError(f"Features file not found: {FEATURES_PATH}")
-    
-    features = np.load(FEATURES_PATH, allow_pickle=True)
-    
-    logger.info(f"Loading labels from {LABELS_PATH}")
-    if not LABELS_PATH.exists():
-        raise FileNotFoundError(f"Labels file not found: {LABELS_PATH}")
-    
-    labels_df = pd.read_csv(LABELS_PATH)
-    
-    # Filter out null labels as per T030.1 requirement
-    filtered_labels_df = labels_df[labels_df['label'].isin(['valid', 'invalid'])]
-    logger.info(f"Filtered {len(labels_df) - len(filtered_labels_df)} null samples for analysis")
-    
-    # Ensure features and labels are aligned
-    # Assuming features are stored in order of clip_ids
-    if 'clip_id' in filtered_labels_df.columns:
-        # We assume the order in features.npy matches the order in the filtered labels
-        # For robustness, we could join on clip_id if features had that metadata
-        pass
-    
-    X = features[:len(filtered_labels_df)]  # Truncate to match filtered labels if needed
-    y = (filtered_labels_df['label'] == 'invalid').astype(int).values  # Binary: 1=invalid, 0=valid
-    
-    logger.info(f"Loaded {X.shape[0]} samples with {X.shape[1]} features")
-    logger.info(f"Class distribution: {np.bincount(y)} (0=valid, 1=invalid)")
-    
-    return X, y, filtered_labels_df
-
-def load_baseline_distribution() -> Dict[str, Any]:
-    """
-    Load the baseline activation distribution from T032.1.
-    
-    Returns:
-        Dictionary containing baseline statistics.
-    """
-    logger.info(f"Loading baseline distribution from {BASELINE_DIST_PATH}")
-    if not BASELINE_DIST_PATH.exists():
-        raise FileNotFoundError(f"Baseline distribution file not found: {BASELINE_DIST_PATH}")
-    
-    with open(BASELINE_DIST_PATH, 'r') as f:
-        baseline = json.load(f)
-    
-    return baseline
-
-def load_classifier() -> Any:
-    """
-    Load the trained classifier from T031.
-    
-    Returns:
-        Trained model object.
-    """
-    logger.info(f"Loading classifier from {CLASSIFIER_PATH}")
-    if not CLASSIFIER_PATH.exists():
-        raise FileNotFoundError(f"Classifier file not found: {CLASSIFIER_PATH}")
-    
-    with open(CLASSIFIER_PATH, 'rb') as f:
-        model = pickle.load(f)
-    
-    return model
-
-def compute_shap_values(model: Any, X: np.ndarray, X_background: Optional[np.ndarray] = None) -> np.ndarray:
-    """
-    Compute SHAP values for the model on the input data.
-    
-    Args:
-        model: Trained classifier model.
-        X: Input feature matrix.
-        X_background: Background dataset for SHAP (defaults to a sample of X).
-    
-    Returns:
-        SHAP values array.
-    """
-    logger.info("Computing SHAP values...")
-    
-    if X_background is None:
-        # Use a stratified sample of 100 points as background
-        n_samples = min(100, len(X))
-        indices = np.random.choice(len(X), n_samples, replace=False)
-        X_background = X[indices]
-        logger.info(f"Using {n_samples} samples as background for SHAP")
-    
-    # Choose explainer based on model type
+def load_filtered_data_for_importance(train_path: str = "data/processed/filtered_train.csv",
+                                    test_path: str = "data/processed/filtered_test.csv") -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Load filtered training and test data for importance analysis."""
     try:
-        if hasattr(model, 'feature_importances_'):
-            # Tree-based models (RandomForest, XGBoost, etc.)
-            logger.info("Detected tree-based model, using TreeExplainer")
-            explainer = shap.TreeExplainer(model, X_background)
-        else:
-            # Generic model, use DeepExplainer or KernelExplainer
-            logger.info("Using KernelExplainer for generic model")
-            explainer = shap.KernelExplainer(model.predict_proba, X_background)
+        train_data = np.load(train_path, allow_pickle=True).item()
+        test_data = np.load(test_path, allow_pickle=True).item()
         
-        shap_values = explainer.shap_values(X)
+        X_train = train_data['features']
+        y_train = train_data['labels']
+        X_test = test_data['features']
+        y_test = test_data['labels']
         
-        # Handle multi-class output if necessary (binary classification returns list of 2 arrays)
-        if isinstance(shap_values, list):
-            # For binary classification, we usually care about the positive class (index 1)
-            shap_values = shap_values[1]
+        logger.info(f"Loaded {len(y_train)} training samples and {len(y_test)} test samples for importance analysis")
+        return X_train, y_train, X_test, y_test
+    except Exception as e:
+        logger.error(f"Error loading filtered data for importance: {e}")
+        raise
+
+def load_baseline_distribution(path: str = "data/processed/baseline_f1.json") -> Dict[str, Any]:
+    """Load baseline distribution from JSON file."""
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading baseline distribution: {e}")
+        raise
+
+def load_classifier(model_path: str = "data/processed/classifier.pkl") -> Any:
+    """Load trained classifier from pickle file."""
+    try:
+        with open(model_path, 'rb') as f:
+            return pickle.load(f)
+    except Exception as e:
+        logger.error(f"Error loading classifier: {e}")
+        raise
+
+def compute_shap_values(model: Any, X_train: np.ndarray, X_test: np.ndarray, 
+                       feature_names: List[str] = None) -> Tuple[np.ndarray, np.ndarray]:
+    """Compute SHAP values for feature importance."""
+    try:
+        # Create SHAP explainer
+        explainer = shap.Explainer(model, X_train)
         
-        logger.info(f"Computed SHAP values with shape {shap_values.shape}")
-        return shap_values
+        # Compute SHAP values for test set
+        shap_values = explainer(X_test)
         
+        logger.info(f"Computed SHAP values with shape: {shap_values.values.shape}")
+        return shap_values.values, shap_values
     except Exception as e:
         logger.error(f"Error computing SHAP values: {e}")
-        logger.warning("Falling back to permutation importance as a backup")
-        return compute_permutation_importance(model, X)
+        raise
 
-def compute_permutation_importance(model: Any, X: np.ndarray) -> np.ndarray:
-    """
-    Compute permutation importance as a fallback.
-    
-    Args:
-        model: Trained classifier model.
-        X: Input feature matrix.
-    
-    Returns:
-        Permutation importance values (normalized to absolute mean).
-    """
-    logger.info("Computing permutation importance...")
-    
-    # Create a simple dummy y if not available (we need to pass something)
-    # In a real scenario, we would pass the actual y
-    y_dummy = np.zeros(len(X))
-    
-    result = permutation_importance(model, X, y_dummy, n_repeats=10, random_state=42, n_jobs=-1)
-    
-    # Return absolute mean importance
-    importance = np.abs(result.importances_mean)
-    logger.info(f"Computed permutation importance with shape {importance.shape}")
-    return importance
+def compute_permutation_importance(model: Any, X_test: np.ndarray, y_test: np.ndarray,
+                                  feature_names: List[str] = None) -> np.ndarray:
+    """Compute permutation importance for feature importance."""
+    try:
+        result = permutation_importance(model, X_test, y_test, n_repeats=10, random_state=42, n_jobs=-1)
+        logger.info(f"Computed permutation importance with mean shape: {result.importances_mean.shape}")
+        return result.importances_mean
+    except Exception as e:
+        logger.error(f"Error computing permutation importance: {e}")
+        raise
 
-def analyze_importance_against_baseline(
-    shap_values: np.ndarray, 
-    baseline: Dict[str, Any], 
-    feature_names: Optional[List[str]] = None
-) -> Dict[str, Any]:
-    """
-    Analyze feature importance against the baseline distribution.
+def analyze_importance_against_baseline(shap_values: np.ndarray, permutation_importance: np.ndarray,
+                                       baseline_data: Dict[str, Any], feature_names: List[str]) -> Dict[str, Any]:
+    """Analyze feature importance against baseline."""
+    # Calculate mean absolute SHAP values
+    mean_shap = np.abs(shap_values).mean(axis=0)
     
-    Args:
-        shap_values: SHAP values array.
-        baseline: Baseline distribution statistics.
-        feature_names: Optional list of feature names.
-    
-    Returns:
-        Dictionary containing analysis results.
-    """
-    logger.info("Analyzing importance against baseline...")
-    
-    # Calculate mean absolute SHAP values for each feature
-    mean_abs_shap = np.mean(np.abs(shap_values), axis=0)
-    
-    # Identify top features
-    top_k = 20
-    top_indices = np.argsort(mean_abs_shap)[::-1][:top_k]
-    
-    analysis = {
-        "top_features": [],
-        "baseline_comparison": {},
-        "summary": {}
+    # Create importance analysis
+    importance_analysis = {
+        "shap_importance": {
+            "values": mean_shap.tolist(),
+            "feature_names": feature_names
+        },
+        "permutation_importance": {
+            "values": permutation_importance.tolist(),
+            "feature_names": feature_names
+        },
+        "baseline_comparison": {
+            "baseline_f1": baseline_data.get("baseline_f1", 0),
+            "description": "Feature importance analysis compared against majority class baseline"
+        },
+        "top_features": []
     }
     
-    # Map indices to feature names if available, else use generic names
-    if feature_names is None:
-        feature_names = [f"feature_{i}" for i in range(len(mean_abs_shap))]
-    
+    # Get top 10 features by SHAP importance
+    top_indices = np.argsort(mean_shap)[::-1][:10]
     for idx in top_indices:
-        feature_name = feature_names[idx]
-        mean_val = float(mean_abs_shap[idx])
-        
-        # Compare with baseline mean/std if available
-        baseline_mean = baseline.get("mean", 0.0)
-        baseline_std = baseline.get("std", 1.0)
-        
-        # Calculate z-score relative to baseline
-        z_score = (mean_val - baseline_mean) / (baseline_std + 1e-8)
-        
-        analysis["top_features"].append({
-            "name": feature_name,
-            "mean_abs_shap": mean_val,
-            "baseline_mean": baseline_mean,
-            "baseline_std": baseline_std,
-            "z_score": float(z_score),
-            "is_predictive": z_score > 2.0  # Heuristic threshold
+        importance_analysis["top_features"].append({
+            "feature_name": feature_names[idx] if feature_names else f"feature_{idx}",
+            "shap_importance": float(mean_shap[idx]),
+            "permutation_importance": float(permutation_importance[idx])
         })
     
-    # Summary statistics
-    analysis["summary"] = {
-        "total_features": len(mean_abs_shap),
-        "top_k_analyzed": top_k,
-        "num_predictive_features": sum(1 for f in analysis["top_features"] if f["is_predictive"]),
-        "mean_importance": float(np.mean(mean_abs_shap)),
-        "std_importance": float(np.std(mean_abs_shap))
-    }
-    
-    logger.info(f"Analysis complete. Found {analysis['summary']['num_predictive_features']} predictive features.")
-    return analysis
+    return importance_analysis
 
-def generate_plots(
-    shap_values: np.ndarray, 
-    X: np.ndarray, 
-    feature_names: Optional[List[str]] = None,
-    output_dir: Optional[Path] = None
-) -> Tuple[Optional[str], Optional[str]]:
-    """
-    Generate SHAP summary plots and save them.
+def generate_interpretation_report(importance_analysis: Dict[str, Any], 
+                                  output_path: str = "shap_interpretation.md") -> None:
+    """Generate human-readable interpretation report."""
+    report = """# Feature Importance Analysis Report
+
+## Important Note: Associational Findings Only
+
+**This report presents associational findings only. The correlations identified between features and physical validity labels do not imply causation. These results are derived from observational data and should be interpreted as patterns of association, not causal relationships.**
+
+## Methodology
+
+1. **SHAP Values**: Computed using the TreeExplainer/ShapExplainer to measure feature contribution to model predictions
+2. **Permutation Importance**: Measured by randomly shuffling each feature and observing the decrease in model performance
+3. **Baseline Comparison**: Compared against majority class predictor baseline
+
+## Top 10 Most Important Features
+
+"""
     
-    Args:
-        shap_values: SHAP values array.
-        X: Input feature matrix.
-        feature_names: Optional list of feature names.
-        output_dir: Directory to save plots.
+    for i, feature in enumerate(importance_analysis["top_features"], 1):
+        report += f"{i}. **{feature['feature_name']}**: SHAP={feature['shap_importance']:.4f}, Perm={feature['permutation_importance']:.4f}\n"
     
-    Returns:
-        Tuple of (summary_plot_path, beeswarm_plot_path)
-    """
-    logger.info("Generating SHAP plots...")
+    report += f"""
+## Baseline Comparison
+
+- Baseline F1 Score (Majority Class): {importance_analysis['baseline_comparison']['baseline_f1']:.4f}
+- Model Performance: See evaluation metrics for comparison
+
+## Limitations
+
+1. **Associational Nature**: All findings are correlational, not causal
+2. **Data Limitations**: Results are specific to the dataset used
+3. **Model Dependency**: Importance values are model-specific
+
+## Conclusion
+
+This analysis identifies features that are strongly associated with physical validity predictions. However, these associations should not be interpreted as causal relationships without further experimental validation.
+"""
     
-    if output_dir is None:
-        output_dir = OUTPUT_PLOT_PATH.parent
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.write(report)
     
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    summary_path = None
-    beeswarm_path = None
-    
-    try:
-        # Use a subset for plotting to avoid memory issues
-        n_plot = min(500, len(X))
-        X_plot = X[:n_plot]
-        shap_plot = shap_values[:n_plot]
-        
-        if feature_names is None:
-            feature_names = [f"feature_{i}" for i in range(shap_plot.shape[1])]
-        
-        # Summary plot (bar plot of mean absolute SHAP values)
-        summary_path = str(output_dir / "feature_importance_summary.png")
-        plt = shap.summary_plot(
-            shap_plot, 
-            X_plot, 
-            feature_names=feature_names, 
-            plot_type="bar",
-            show=False
-        )
-        plt.savefig(summary_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        logger.info(f"Saved summary plot to {summary_path}")
-        
-        # Beeswarm plot (distribution of SHAP values)
-        beeswarm_path = str(output_dir / "feature_importance_beeswarm.png")
-        plt = shap.summary_plot(
-            shap_plot, 
-            X_plot, 
-            feature_names=feature_names, 
-            plot_type="violin", # or 'dot' or 'beeswarm'
-            show=False
-        )
-        plt.savefig(beeswarm_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        logger.info(f"Saved beeswarm plot to {beeswarm_path}")
-        
-    except Exception as e:
-        logger.error(f"Error generating plots: {e}")
-        logger.warning("Plots could not be generated. Continuing without visualization files.")
-    
-    return summary_path, beeswarm_path
+    logger.info(f"Interpretation report saved to: {output_path}")
 
 def main():
-    """Main entry point for feature importance analysis."""
-    parser = argparse.ArgumentParser(description="Analyze feature importance using SHAP")
-    parser.add_argument("--output", type=str, default=str(OUTPUT_REPORT_PATH),
-                      help="Path to save the feature importance report JSON")
-    parser.add_argument("--plot-dir", type=str, default=str(OUTPUT_PLOT_PATH.parent),
-                      help="Directory to save SHAP plots")
+    """Main function to compute feature importance."""
+    parser = argparse.ArgumentParser(description="Compute feature importance using SHAP and permutation")
+    parser.add_argument("--train", default="data/processed/filtered_train.csv", help="Path to filtered training data")
+    parser.add_argument("--test", default="data/processed/filtered_test.csv", help="Path to filtered test data")
+    parser.add_argument("--model", default="data/processed/classifier.pkl", help="Path to trained classifier")
+    parser.add_argument("--baseline", default="data/processed/baseline_f1.json", help="Path to baseline distribution")
+    parser.add_argument("--output", default="data/processed/feature_importance.json", help="Output path for importance analysis")
+    parser.add_argument("--report", default="shap_interpretation.md", help="Output path for interpretation report")
     args = parser.parse_args()
     
+    logger.info("Computing feature importance...")
+    
     try:
-        # 1. Load data
-        X, y, labels_df = load_filtered_data_for_importance()
-        baseline = load_baseline_distribution()
-        model = load_classifier()
+        # Load data
+        X_train, y_train, X_test, y_test = load_filtered_data_for_importance(args.train, args.test)
+        model = load_classifier(args.model)
+        baseline_data = load_baseline_distribution(args.base)
         
-        # 2. Compute SHAP values
-        shap_values = compute_shap_values(model, X)
+        # Define feature names (adjust based on actual feature dimensions)
+        n_features = X_train.shape[1]
+        feature_names = [f"feature_{i}" for i in range(n_features)]
         
-        # 3. Analyze against baseline
-        analysis_results = analyze_importance_against_baseline(shap_values, baseline)
+        # Compute SHAP values
+        shap_values, shap_obj = compute_shap_values(model, X_train, X_test, feature_names)
         
-        # 4. Generate plots
-        plot_dir = Path(args.plot_dir)
-        summary_plot, beeswarm_plot = generate_plots(shap_values, X, output_dir=plot_dir)
+        # Compute permutation importance
+        perm_importance = compute_permutation_importance(model, X_test, y_test, feature_names)
         
-        # 5. Compile final report
-        report = {
-            "analysis_results": analysis_results,
-            "plots": {
-                "summary_plot_path": summary_plot,
-                "beeswarm_plot_path": beeswarm_plot
-            },
-            "metadata": {
-                "total_samples_analyzed": len(X),
-                "num_features": X.shape[1],
-                "baseline_source": str(BASELINE_DIST_PATH),
-                "classifier_source": str(CLASSIFIER_PATH)
-            }
-        }
+        # Analyze importance
+        importance_analysis = analyze_importance_against_baseline(shap_values, perm_importance, baseline_data, feature_names)
         
-        # 6. Save report
-        output_path = Path(args.output)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
+        # Save results
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        with open(args.output, 'w') as f:
+            json.dump(importance_analysis, f, indent=2)
+        logger.info(f"Feature importance saved to: {args.output}")
         
-        logger.info(f"Feature importance report saved to {output_path}")
-        logger.info("Analysis complete.")
+        # Generate interpretation report
+        generate_interpretation_report(importance_analysis, args.report)
         
-    except FileNotFoundError as e:
-        logger.error(f"Missing required file: {e}")
-        sys.exit(1)
+        logger.info("Feature importance computation completed successfully")
     except Exception as e:
-        logger.error(f"Error during analysis: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
-        sys.exit(1)
+        logger.error(f"Feature importance computation failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

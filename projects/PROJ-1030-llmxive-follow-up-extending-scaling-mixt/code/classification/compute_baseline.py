@@ -3,99 +3,99 @@ import sys
 import json
 import logging
 import argparse
-from pathlib import Path
 import numpy as np
+import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/processed/baseline_computation.log')
-    ]
-)
-logger = logging.getLogger(__name__)
+def load_filtered_data(train_path: str, test_path: str = None) -> tuple:
+    """
+    Load filtered training and test data.
+    
+    Args:
+        train_path: Path to filtered training CSV
+        test_path: Path to filtered test CSV (optional)
+        
+    Returns:
+        tuple: (X, y, feature_names) or (X_train, y_train, X_test, y_test, feature_names)
+    """
+    df = pd.read_csv(train_path)
+    
+    # Assume 'label' is the target column
+    if 'label' not in df.columns:
+        raise ValueError("Column 'label' not found in the data file.")
+    
+    feature_cols = [col for col in df.columns if col != 'label']
+    X = df[feature_cols].values
+    y = df['label'].values
+    feature_names = feature_cols
+    
+    if test_path:
+        df_test = pd.read_csv(test_path)
+        if 'label' not in df_test.columns:
+            raise ValueError("Column 'label' not found in the test data file.")
+        X_test = df_test[feature_cols].values
+        y_test = df_test['label'].values
+        return X, y, X_test, y_test, feature_names
+    
+    return X, y, feature_names
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-
-def load_filtered_data():
-    """Load the filtered training and test data."""
-    train_path = DATA_PROCESSED / "filtered_train.csv"
-    test_path = DATA_PROCESSED / "filtered_test.csv"
+def compute_baseline_distribution(y: np.ndarray) -> dict:
+    """
+    Compute the majority class predictor baseline distribution.
     
-    if not train_path.exists() or not test_path.exists():
-        raise FileNotFoundError("Filtered data files not found. Run T030.1 first.")
+    Args:
+        y: Array of labels
+        
+    Returns:
+        dict: Baseline distribution information
+    """
+    unique, counts = np.unique(y, return_counts=True)
+    majority_class = unique[np.argmax(counts)]
+    majority_count = np.max(counts)
+    total_count = len(y)
     
-    import pandas as pd
-    train_df = pd.read_csv(train_path)
-    test_df = pd.read_csv(test_path)
-    
-    return train_df, test_df
-
-def compute_baseline_distribution(train_df, test_df):
-    """Compute baseline distribution statistics from filtered data."""
-    logger.info("Computing baseline distribution statistics...")
-    
-    # Load features
-    features_path = DATA_PROCESSED / "features.npy"
-    if not features_path.exists():
-        raise FileNotFoundError(f"Features file not found: {features_path}")
-    
-    features = np.load(features_path)
-    logger.info(f"Loaded features with shape: {features.shape}")
-    
-    # Align features with labels (assuming order matches CSV)
-    # We need to map clip_ids to indices if necessary, but for simplicity assume order
-    # In a real scenario, we would join on clip_id
-    
-    # Compute statistics for activation vectors (first N columns if features are flattened)
-    # Assuming features are [N_samples, N_features]
-    mean_activation = np.mean(features, axis=0)
-    std_activation = np.std(features, axis=0)
-    
-    # Histogram of activations (bin counts)
-    hist, bin_edges = np.histogram(features, bins=50)
-    
-    # Expert mask counts (assuming last few columns are masks)
-    # For this example, we assume the last 10 columns are masks if they exist
-    n_features = features.shape[1]
-    mask_cols = slice(max(0, n_features - 10), n_features)
-    expert_mask_counts = np.sum(features[:, mask_cols] > 0.5, axis=0)
-    
-    baseline_distribution = {
-        "mean_activation": mean_activation.tolist(),
-        "std_activation": std_activation.tolist(),
-        "histogram": {
-            "counts": hist.tolist(),
-            "bin_edges": bin_edges.tolist()
-        },
-        "expert_mask_counts": expert_mask_counts.tolist(),
-        "n_samples_train": len(train_df),
-        "n_samples_test": len(test_df)
+    baseline_dist = {
+        "majority_class": int(majority_class),
+        "majority_count": int(majority_count),
+        "total_count": int(total_count),
+        "majority_ratio": float(majority_count / total_count)
     }
     
-    return baseline_distribution
+    return baseline_dist
 
-def save_baseline_distribution(baseline_distribution, output_path):
-    """Save baseline distribution to JSON."""
-    with open(output_path, 'w') as f:
-        json.dump(baseline_distribution, f, indent=2)
-    logger.info(f"Baseline distribution saved to {output_path}")
+def save_baseline_distribution(baseline_dist: dict, output_path: str):
+    """
+    Save baseline distribution to a JSON file.
+    
+    Args:
+        baseline_dist: Dictionary containing baseline distribution
+        output_path: Path to save the JSON file
+    """
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(baseline_dist, f, indent=2)
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute baseline distribution for activation vectors.")
+    parser = argparse.ArgumentParser(description="Compute majority class predictor baseline.")
+    parser.add_argument("--train_path", type=str, default="data/processed/filtered_train.csv", help="Path to filtered training data")
+    parser.add_argument("--output_path", type=str, default="data/processed/baseline_f1.json", help="Path to save baseline distribution")
+    
     args = parser.parse_args()
     
-    try:
-        train_df, test_df = load_filtered_data()
-        baseline_dist = compute_baseline_distribution(train_df, test_df)
-        output_path = DATA_PROCESSED / "activation_distribution.json"
-        save_baseline_distribution(baseline_dist, output_path)
-    except Exception as e:
-        logger.error(f"Baseline computation failed: {e}")
-        sys.exit(1)
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    # Load data
+    logging.info(f"Loading training data from {args.train_path}")
+    X_train, y_train, _ = load_filtered_data(args.train_path)
+    
+    # Compute baseline
+    baseline_dist = compute_baseline_distribution(y_train)
+    
+    # Save baseline
+    save_baseline_distribution(baseline_dist, args.output_path)
+    
+    logging.info(f"Saved baseline distribution to {args.output_path}")
+    print(f"Baseline distribution saved to {args.output_path}")
+    print(f"Majority class: {baseline_dist['majority_class']}, Ratio: {baseline_dist['majority_ratio']:.2f}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,48 @@
+- artifact_path: projects/PROJ-1030-llmxive-follow-up-extending-scaling-mixt/shap_interpretation.md
+  attempts: 1
+  canonical: feature_2 mean absolute SHAP value 0.1333
+  claim_id: c_82b36df9
+  context: Top Features by Mean Absolute SHAP Value table showing feature_2 at rank
+    1 with a mean value of 0.1333
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: feature_2 had a mean absolute SHAP value of 0.1333
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:28:25Z'
+- artifact_path: projects/PROJ-1030-llmxive-follow-up-extending-scaling-mixt/shap_interpretation.md
+  attempts: 1
+  canonical: feature_1 mean absolute SHAP value 0.0833
+  claim_id: c_15c5c060
+  context: Top Features by Mean Absolute SHAP Value table showing feature_1 at rank
+    2 with a mean value of 0.0833
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: feature_1 had a mean absolute SHAP value of 0.0833
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:28:48Z'
+- artifact_path: projects/PROJ-1030-llmxive-follow-up-extending-scaling-mixt/shap_interpretation.md
+  attempts: 1
+  canonical: feature_3 mean absolute SHAP value 0.0667
+  claim_id: c_0f3238a7
+  context: Top Features by Mean Absolute SHAP Value table showing feature_3 at rank
+    3 with a mean value of 0.0667
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: feature_3 had a mean absolute SHAP value of 0.0667
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T12:29:05Z'

@@ -3,205 +3,165 @@ import sys
 import json
 import logging
 import argparse
-from pathlib import Path
-import pickle
 import numpy as np
-
-import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for server/CI environments
-import matplotlib.pyplot as plt
+import pickle
+import pandas as pd
 import shap
+import matplotlib.pyplot as plt
+from pathlib import Path
 
-# Add project root to path if needed
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
-
-from classification.feature_importance import (
-    load_filtered_data_for_importance,
-    load_baseline_distribution,
-    load_classifier,
-    compute_shap_values,
-    compute_permutation_importance,
-    analyze_importance_against_baseline
-)
-from utils.logging_config import get_logger
-
-logger = get_logger(__name__)
-
-def generate_importance_plot(shap_values, feature_names, output_path, baseline_stats=None):
+def load_filtered_data_for_importance(train_path: str, test_path: str) -> tuple:
     """
-    Generate a bar plot of mean absolute SHAP values (feature importance).
-    If baseline_stats are provided, highlight features that exceed baseline noise.
+    Load filtered training and test data for feature importance analysis.
+    
+    Args:
+        train_path: Path to filtered training CSV
+        test_path: Path to filtered test CSV
+        
+    Returns:
+        tuple: (X_train, y_train, X_test, y_test, feature_names)
     """
-    if shap_values is None or len(shap_values) == 0:
-        logger.warning("No SHAP values provided for plotting.")
-        return
+    df_train = pd.read_csv(train_path)
+    df_test = pd.read_csv(test_path)
+    
+    # Assuming 'label' column is the target and others are features
+    feature_cols = [col for col in df_train.columns if col != 'label']
+    
+    X_train = df_train[feature_cols].values
+    y_train = df_train['label'].values
+    X_test = df_test[feature_cols].values
+    y_test = df_test['label'].values
+    feature_names = feature_cols
+    
+    return X_train, y_train, X_test, y_test, feature_names
 
-    # Aggregate SHAP values (mean absolute)
-    mean_abs_shap = np.abs(shap_values).mean(axis=0)
+def load_classifier(model_path: str):
+    """
+    Load a trained classifier from a pickle file.
+    
+    Args:
+        model_path: Path to the pickle file
+        
+    Returns:
+        dict: Dictionary containing model, scaler, and feature names
+    """
+    with open(model_path, 'rb') as f:
+        model_data = pickle.load(f)
+    return model_data
+
+def load_shap_values(json_path: str) -> dict:
+    """
+    Load SHAP values from a JSON file.
+    
+    Args:
+        json_path: Path to SHAP JSON file
+        
+    Returns:
+        dict: SHAP data
+    """
+    with open(json_path, 'r') as f:
+        return json.load(f)
+
+def generate_importance_plot(shap_data: dict, feature_names: list, output_path: str):
+    """
+    Generate a bar plot of mean absolute SHAP values.
+    
+    Args:
+        shap_data: Dictionary containing SHAP values
+        feature_names: List of feature names
+        output_path: Path to save the plot
+    """
+    mean_abs_shap = np.array(shap_data["mean_abs_shap"])
     indices = np.argsort(mean_abs_shap)[::-1]
-
-    # Limit to top 20 features for readability
-    top_n = min(20, len(indices))
-    top_indices = indices[:top_n]
-    top_features = [feature_names[i] for i in top_indices]
-    top_values = mean_abs_shap[top_indices]
-
-    plt.figure(figsize=(10, 8))
-    y_pos = np.arange(len(top_features))
-
-    plt.barh(y_pos, top_values, align='center', color='steelblue')
-    plt.yticks(y_pos, top_features)
-    plt.xlabel('Mean |SHAP Value|')
-    plt.title('Feature Importance (Top 20)')
-
-    if baseline_stats:
-        # Highlight features significantly above baseline noise (e.g., > 2*std)
-        if 'std' in baseline_stats:
-            threshold = 2 * baseline_stats['std']
-            # Create a mask for features above threshold
-            # Note: This is a simplified check assuming feature indices align
-            # In a robust implementation, we'd map feature names to baseline stats explicitly
-            for i, val in enumerate(top_values):
-                if val > threshold:
-                    plt.gca().patches[i].set_color('crimson')
-
+    
+    plt.figure(figsize=(10, 6))
+    plt.bar(range(len(mean_abs_shap)), mean_abs_shap[indices], tick_label=[feature_names[i] for i in indices])
+    plt.xlabel('Feature')
+    plt.ylabel('Mean |SHAP Value|')
+    plt.title('Feature Importance (Mean Absolute SHAP)')
+    plt.xticks(rotation=45)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    plt.savefig(output_path)
     plt.close()
-    logger.info(f"Saved feature importance plot to {output_path}")
 
-def generate_beeswarm_plot(shap_values, feature_names, output_path):
+def generate_beeswarm_plot(shap_values: np.ndarray, feature_names: list, output_path: str):
     """
-    Generate a SHAP beeswarm plot for detailed distribution analysis.
-    """
-    if shap_values is None or len(shap_values) == 0:
-        logger.warning("No SHAP values provided for beeswarm plot.")
-        return
-
-    # Create a dummy feature matrix if not available for the plot
-    # SHAP beeswarm expects a feature matrix X to map values to colors
-    # We will use the first 1000 samples of the filtered data for visualization
-    try:
-        X, _, _, _ = load_filtered_data_for_importance()
-        if X.shape[0] > 1000:
-            sample_indices = np.random.choice(X.shape[0], 1000, replace=False)
-            X_plot = X[sample_indices]
-        else:
-            X_plot = X
-    except Exception as e:
-        logger.warning(f"Could not load data for beeswarm plot background: {e}")
-        X_plot = None
-
-    plt.figure(figsize=(10, 8))
-    if X_plot is not None:
-        shap.summary_plot(shap_values, X_plot, feature_names=feature_names, show=False)
-    else:
-        shap.summary_plot(shap_values, feature_names=feature_names, show=False)
+    Generate a beeswarm plot of SHAP values.
     
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150)
+    Args:
+        shap_values: SHAP values array
+        feature_names: List of feature names
+        output_path: Path to save the plot
+    """
+    plt.figure(figsize=(10, 6))
+    shap.summary_plot(shap_values, labels=feature_names, show=False)
+    plt.savefig(output_path)
     plt.close()
-    logger.info(f"Saved SHAP beeswarm plot to {output_path}")
 
-def run_visualization_pipeline():
+def save_metrics_json(metrics: dict, output_path: str):
     """
-    Main entry point for T035: Generate visualizations and ensure metrics.json is up to date.
+    Save metrics to a JSON file.
+    
+    Args:
+        metrics: Dictionary containing metrics
+        output_path: Path to save the JSON file
     """
-    # Paths
-    processed_dir = project_root / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(metrics, f, indent=2)
 
-    metrics_path = processed_dir / "metrics.json"
-    importance_plot_path = processed_dir / "feature_importance_bar.png"
-    beeswarm_plot_path = processed_dir / "feature_importance_beeswarm.png"
-
-    # 1. Load Data and Model
-    logger.info("Loading filtered data for importance analysis...")
-    try:
-        X, y, feature_names, _ = load_filtered_data_for_importance()
-        classifier = load_classifier()
-        baseline_stats = load_baseline_distribution()
-    except Exception as e:
-        logger.error(f"Failed to load data or model: {e}")
-        raise
-
-    # 2. Compute SHAP Values
-    logger.info("Computing SHAP values...")
-    shap_values = compute_shap_values(classifier, X)
+def run_visualization_pipeline(shap_json_path: str, model_path: str, train_path: str, test_path: str, output_dir: str):
+    """
+    Run the full visualization pipeline.
     
-    # 3. Compute Permutation Importance (optional, for comparison)
-    logger.info("Computing permutation importance...")
-    perm_importance = compute_permutation_importance(classifier, X, y)
-
-    # 4. Analyze against baseline
-    logger.info("Analyzing importance against baseline...")
-    analysis_results = analyze_importance_against_baseline(
-        mean_shap=np.abs(shap_values).mean(axis=0),
-        feature_names=feature_names,
-        baseline_stats=baseline_stats
-    )
-
-    # 5. Generate Visualizations
-    logger.info("Generating visualizations...")
-    generate_importance_plot(
-        shap_values, 
-        feature_names, 
-        str(importance_plot_path), 
-        baseline_stats=baseline_stats
-    )
+    Args:
+        shap_json_path: Path to SHAP JSON file
+        model_path: Path to model pickle file
+        train_path: Path to filtered training CSV
+        test_path: Path to filtered test CSV
+        output_dir: Directory to save outputs
+    """
+    os.makedirs(output_dir, exist_ok=True)
     
-    generate_beeswarm_plot(
-        shap_values,
-        feature_names,
-        str(beeswarm_plot_path)
-    )
-
-    # 6. Ensure metrics.json exists and is updated
-    # The metrics are primarily generated by T032 (compute_metrics.py), 
-    # but T035 ensures the file exists and is valid as per the task description.
-    if metrics_path.exists():
-        logger.info(f"Found existing metrics file at {metrics_path}. Verifying content.")
-        with open(metrics_path, 'r') as f:
-            metrics_data = json.load(f)
-        
-        # Ensure required keys exist, add analysis summary if missing
-        if 'feature_importance_summary' not in metrics_data:
-            metrics_data['feature_importance_summary'] = {
-                "top_features": [feature_names[i] for i in np.argsort(np.abs(shap_values).mean(axis=0))[::-1][:10]],
-                "analysis_method": "SHAP",
-                "plot_paths": {
-                    "bar_plot": str(importance_plot_path.relative_to(project_root)),
-                    "beeswarm_plot": str(beeswarm_plot_path.relative_to(project_root))
-                }
-            }
-        
-        with open(metrics_path, 'w') as f:
-            json.dump(metrics_data, f, indent=2)
-        logger.info("Updated metrics.json with feature importance summary.")
-    else:
-        logger.warning(f"Metrics file {metrics_path} not found. Creating a minimal one.")
-        # This case should ideally be caught by T032, but we handle it here for robustness
-        metrics_data = {
-            "status": "incomplete",
-            "note": "Metrics file missing from previous step. Created by T035 visualization script.",
-            "feature_importance_summary": {
-                "top_features": [feature_names[i] for i in np.argsort(np.abs(shap_values).mean(axis=0))[::-1][:10]],
-                "plot_paths": {
-                    "bar_plot": str(importance_plot_path.relative_to(project_root)),
-                    "beeswarm_plot": str(beeswarm_plot_path.relative_to(project_root))
-                }
-            }
-        }
-        with open(metrics_path, 'w') as f:
-            json.dump(metrics_data, f, indent=2)
-
-    logger.info("T035 Visualization task completed successfully.")
+    # Load data
+    logging.info("Loading data...")
+    X_train, y_train, X_test, y_test, feature_names = load_filtered_data_for_importance(train_path, test_path)
+    
+    # Load SHAP data
+    logging.info("Loading SHAP data...")
+    shap_data = load_shap_values(shap_json_path)
+    
+    # Generate importance plot
+    logging.info("Generating importance plot...")
+    importance_plot_path = os.path.join(output_dir, "importance_plot.png")
+    generate_importance_plot(shap_data["shap_values"], feature_names, importance_plot_path)
+    
+    # Generate beeswarm plot
+    logging.info("Generating beeswarm plot...")
+    beeswarm_plot_path = os.path.join(output_dir, "beeswarm_plot.png")
+    generate_beeswarm_plot(np.array(shap_data["shap_values"]["shap_values"]), feature_names, beeswarm_plot_path)
+    
+    # Save metrics
+    logging.info("Saving metrics...")
+    metrics_path = os.path.join(output_dir, "metrics.json")
+    save_metrics_json(shap_data, metrics_path)
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate feature importance visualizations for T035.")
-    parser.parse_args()
-    run_visualization_pipeline()
+    parser = argparse.ArgumentParser(description="Visualize feature importance.")
+    parser.add_argument("--shap_json_path", type=str, default="data/processed/feature_importance.json", help="Path to SHAP JSON file")
+    parser.add_argument("--model_path", type=str, default="data/processed/classifier.pkl", help="Path to model pickle file")
+    parser.add_argument("--train_path", type=str, default="data/processed/filtered_train.csv", help="Path to filtered training CSV")
+    parser.add_argument("--test_path", type=str, default="data/processed/filtered_test.csv", help="Path to filtered test CSV")
+    parser.add_argument("--output_dir", type=str, default="data/processed/figures", help="Directory to save outputs")
+    
+    args = parser.parse_args()
+    
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    # Run visualization pipeline
+    run_visualization_pipeline(args.shap_json_path, args.model_path, args.train_path, args.test_path, args.output_dir)
+    
+    print(f"Visualization complete. Outputs saved to {args.output_dir}")
 
 if __name__ == "__main__":
     main()

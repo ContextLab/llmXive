@@ -15,10 +15,12 @@ T017:
     \ to record peak RAM usage to that path is not fulfilled."
 T024:
   c: false
-  h: 71e52952eba06ea01fc159b5db09a7a9b981816f91609dc793d5deee9bb46477
-  r: "Both required artifacts (`data/processed/labels.csv` and `data/processed/excluded_samples.log`)\
-    \ are missing from the repository, so the labeling step and logging side\u2011\
-    effect have not been provided. The task therefore remains unfinished."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts were supplied; the claim provides only\
+    \ a textual description of the required extraction and labeling steps. Consequently,\
+    \ there is no script to download the model, extract latent vectors and masks,\
+    \ nor any generated NumPy arrays, CSV/JSON labels, or evidence that the process\
+    \ runs on a CPU\u2011only environment. The required artifacts are missing."
 T032:
   c: false
   h: 8cfb46c7baaf8b3f5baf1b2d2294086fb9eaac1db22fc8b24883bb2c0b25e22d
@@ -42,3 +44,10 @@ T033:
     \ were provided, nor any comparison against the baseline distribution from T032.1.\
     \ The claim lacks any artifact (script, notebook, data files, or report) that\
     \ demonstrates the required analysis, so the task is not satisfied."
+T040:
+  c: false
+  h: 9da68c8247618737ace019f1bf9ff442c4530f291ba5ac9f1457e2d070e794a5
+  r: "The required `data/processed/memory_verification.json` file is missing, so the\
+    \ task\u2019s artifact was not produced despite the log showing peak usage under\
+    \ 7\u202FGB. The implementer must create this JSON file containing the pass/fail\
+    \ status."

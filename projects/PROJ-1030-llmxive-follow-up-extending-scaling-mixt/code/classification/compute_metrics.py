@@ -3,191 +3,173 @@ import sys
 import json
 import logging
 import argparse
-from pathlib import Path
+import pickle
 import numpy as np
 import pandas as pd
-from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import f1_score, precision_score, recall_score
+from sklearn.preprocessing import StandardScaler
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-def calculate_majority_baseline(y_true: np.ndarray) -> float:
+def load_filtered_data(train_path: str, test_path: str = None) -> tuple:
     """
-    Calculate the F1-score of a majority-class predictor.
-    This serves as the 'random guessing' baseline for binary classification.
+    Load filtered training and test data.
     
     Args:
-        y_true: Array of true labels (0 or 1)
+        train_path: Path to filtered training CSV
+        test_path: Path to filtered test CSV (optional)
         
     Returns:
-        F1-score of the majority-class predictor
+        tuple: (X, y, feature_names) or (X_train, y_train, X_test, y_test, feature_names)
     """
-    if len(y_true) == 0:
-        return 0.0
-        
-    # Determine majority class
-    majority_class = 1 if np.sum(y_true) > len(y_true) / 2 else 0
+    df = pd.read_csv(train_path)
     
-    # Create predictions (all majority class)
-    y_pred_majority = np.full_like(y_true, majority_class)
+    # Assume 'label' is the target column
+    if 'label' not in df.columns:
+        raise ValueError("Column 'label' not found in the data file.")
     
-    # Calculate F1-score
-    return f1_score(y_true, y_pred_majority)
+    feature_cols = [col for col in df.columns if col != 'label']
+    X = df[feature_cols].values
+    y = df['label'].values
+    feature_names = feature_cols
+    
+    if test_path:
+        df_test = pd.read_csv(test_path)
+        if 'label' not in df_test.columns:
+            raise ValueError("Column 'label' not found in the test data file.")
+        X_test = df_test[feature_cols].values
+        y_test = df_test['label'].values
+        return X, y, X_test, y_test, feature_names
+    
+    return X, y, feature_names
 
-def compute_metrics(y_true: np.ndarray, y_pred: np.ndarray, y_scores: np.ndarray = None) -> dict:
+def load_baseline_distribution(baseline_path: str) -> dict:
     """
-    Compute standard classification metrics.
+    Load baseline distribution from a JSON file.
     
     Args:
-        y_true: True labels
-        y_pred: Predicted labels
-        y_scores: Predicted probabilities (optional, for AUC)
+        baseline_path: Path to baseline JSON file
         
     Returns:
-        Dictionary of metrics
+        dict: Baseline distribution
     """
+    with open(baseline_path, 'r') as f:
+        return json.load(f)
+
+def load_classifier(model_path: str):
+    """
+    Load a trained classifier from a pickle file.
+    
+    Args:
+        model_path: Path to the pickle file
+        
+    Returns:
+        dict: Dictionary containing model, scaler, and feature names
+    """
+    with open(model_path, 'rb') as f:
+        model_data = pickle.load(f)
+    return model_data
+
+def calculate_majority_baseline(y_test: np.ndarray, baseline_dist: dict) -> float:
+    """
+    Calculate the F1 score of the majority class predictor on the test set.
+    
+    Args:
+        y_test: Test labels
+        baseline_dist: Baseline distribution dictionary
+        
+    Returns:
+        float: F1 score of majority class predictor
+    """
+    majority_class = baseline_dist["majority_class"]
+    y_pred = np.full_like(y_test, majority_class)
+    return f1_score(y_test, y_pred, average='binary')
+
+def compute_metrics(model, X_test: np.ndarray, y_test: np.ndarray, scaler: StandardScaler) -> dict:
+    """
+    Compute evaluation metrics for the model.
+    
+    Args:
+        model: Trained model
+        X_test: Test features
+        y_test: Test labels
+        scaler: Scaler used for training
+        
+    Returns:
+        dict: Dictionary containing metrics
+    """
+    X_test_scaled = scaler.transform(X_test)
+    y_pred = model.predict(X_test_scaled)
+    
     metrics = {
-        'precision': precision_score(y_true, y_pred),
-        'recall': recall_score(y_true, y_pred),
-        'f1': f1_score(y_true, y_pred),
-        'confusion_matrix': confusion_matrix(y_true, y_pred).tolist()
+        "f1": float(f1_score(y_test, y_pred, average='binary')),
+        "precision": float(precision_score(y_test, y_pred, average='binary')),
+        "recall": float(recall_score(y_test, y_pred, average='binary'))
     }
     
-    if y_scores is not None:
-        from sklearn.metrics import roc_auc_score
-        try:
-            metrics['roc_auc'] = roc_auc_score(y_true, y_scores)
-        except ValueError:
-            # Handle case where only one class is present
-            metrics['roc_auc'] = None
-    
     return metrics
 
-def run_metrics_evaluation(
-    features_path: str,
-    labels_path: str,
-    model_path: str,
-    metrics_output_path: str,
-    test_size: float = 0.2,
-    random_state: int = 42
-):
+def run_metrics_evaluation(model_data: dict, X_test: np.ndarray, y_test: np.ndarray, baseline_dist: dict) -> dict:
     """
-    Run the full metrics evaluation pipeline.
+    Run full metrics evaluation including baseline comparison.
     
     Args:
-        features_path: Path to features.npy
-        labels_path: Path to labels.csv
-        model_path: Path to trained classifier.pkl
-        metrics_output_path: Path to save metrics.json
-        test_size: Proportion of data to use for testing
-        random_state: Random seed for reproducibility
+        model_data: Dictionary containing model, scaler, and feature names
+        X_test: Test features
+        y_test: Test labels
+        baseline_dist: Baseline distribution
+        
+    Returns:
+        dict: Evaluation results
     """
-    logger.info(f"Loading features from {features_path}")
-    features = np.load(features_path, allow_pickle=True)
+    model = model_data["model"]
+    scaler = model_data["scaler"]
     
-    logger.info(f"Loading labels from {labels_path}")
-    labels_df = pd.read_csv(labels_path)
+    model_metrics = compute_metrics(model, X_test, y_test, scaler)
+    baseline_f1 = calculate_majority_baseline(y_test, baseline_dist)
     
-    # Filter out null labels (as per T030 requirement)
-    valid_labels = labels_df[labels_df['label'] != 'null']
-    if len(valid_labels) == 0:
-        raise ValueError("No valid labels found after filtering null values.")
+    evaluation_results = {
+        "model_metrics": model_metrics,
+        "baseline_f1": float(baseline_f1),
+        "improvement_over_baseline": float(model_metrics["f1"] - baseline_f1)
+    }
     
-    # Extract clip IDs and labels
-    clip_ids = valid_labels['clip_id'].values
-    y_true = valid_labels['label'].map({'valid': 1, 'invalid': 0}).values
-    
-    # Ensure features and labels are aligned by clip_id
-    # Assuming features.npy contains a structure with clip_ids and feature vectors
-    if isinstance(features, dict):
-        clip_ids_features = features['clip_ids']
-        X = features['features']
-    else:
-        # If features is just a numpy array, we assume it's already filtered
-        # and in the same order as valid_labels
-        X = features
-        clip_ids_features = clip_ids
-    
-    # Create a mapping from clip_id to feature index
-    clip_id_to_idx = {cid: idx for idx, cid in enumerate(clip_ids_features)}
-    
-    # Filter features to only include those with valid labels
-    valid_indices = [clip_id_to_idx[cid] for cid in clip_ids if cid in clip_id_to_idx]
-    X = X[valid_indices]
-    y_true = y_true[:len(valid_indices)]
-    
-    logger.info(f"Dataset size: {len(X)} samples")
-    
-    # Split into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y_true, test_size=test_size, random_state=random_state, stratify=y_true
-    )
-    
-    logger.info(f"Training set size: {len(X_train)}, Test set size: {len(X_test)}")
-    
-    # Load the trained model
-    logger.info(f"Loading model from {model_path}")
-    import pickle
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
-    
-    # Make predictions
-    y_pred = model.predict(X_test)
-    
-    # Get prediction probabilities if available
-    y_scores = None
-    if hasattr(model, 'predict_proba'):
-        y_scores = model.predict_proba(X_test)[:, 1]
-    
-    # Calculate metrics
-    metrics = compute_metrics(y_test, y_pred, y_scores)
-    
-    # Calculate majority class baseline
-    baseline_f1 = calculate_majority_baseline(y_test)
-    metrics['majority_baseline_f1'] = baseline_f1
-    metrics['improvement_over_baseline'] = metrics['f1'] - baseline_f1
-    
-    # Add test set information
-    metrics['test_set_size'] = len(y_test)
-    metrics['test_set_positive_ratio'] = float(np.mean(y_test))
-    
-    # Save metrics
-    logger.info(f"Saving metrics to {metrics_output_path}")
-    os.makedirs(os.path.dirname(metrics_output_path), exist_ok=True)
-    with open(metrics_output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    
-    logger.info("Metrics evaluation completed successfully")
-    return metrics
+    return evaluation_results
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute classification metrics")
-    parser.add_argument("--features", type=str, required=True, help="Path to features.npy")
-    parser.add_argument("--labels", type=str, required=True, help="Path to labels.csv")
-    parser.add_argument("--model", type=str, required=True, help="Path to trained classifier.pkl")
-    parser.add_argument("--output", type=str, required=True, help="Path to save metrics.json")
-    parser.add_argument("--test-size", type=float, default=0.2, help="Test set proportion")
-    parser.add_argument("--random-state", type=int, default=42, help="Random seed")
+    parser = argparse.ArgumentParser(description="Compute evaluation metrics and compare with baseline.")
+    parser.add_argument("--train_path", type=str, default="data/processed/filtered_train.csv", help="Path to filtered training data")
+    parser.add_argument("--test_path", type=str, default="data/processed/filtered_test.csv", help="Path to filtered test data")
+    parser.add_argument("--model_path", type=str, default="data/processed/classifier.pkl", help="Path to trained model")
+    parser.add_argument("--baseline_path", type=str, default="data/processed/baseline_f1.json", help="Path to baseline distribution")
+    parser.add_argument("--output_path", type=str, default="data/processed/evaluation_metrics.json", help="Path to save evaluation metrics")
     
     args = parser.parse_args()
     
-    try:
-        run_metrics_evaluation(
-            features_path=args.features,
-            labels_path=args.labels,
-            model_path=args.model,
-            metrics_output_path=args.output,
-            test_size=args.test_size,
-            random_state=args.random_state
-        )
-    except Exception as e:
-        logger.error(f"Metrics evaluation failed: {str(e)}")
-        raise
+    # Configure logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    
+    # Load data
+    logging.info(f"Loading data from {args.train_path} and {args.test_path}")
+    X_train, y_train, X_test, y_test, feature_names = load_filtered_data(args.train_path, args.test_path)
+    
+    # Load model
+    logging.info(f"Loading model from {args.model_path}")
+    model_data = load_classifier(args.model_path)
+    
+    # Load baseline
+    logging.info(f"Loading baseline from {args.baseline_path}")
+    baseline_dist = load_baseline_distribution(args.baseline_path)
+    
+    # Run evaluation
+    logging.info("Running evaluation...")
+    evaluation_results = run_metrics_evaluation(model_data, X_test, y_test, baseline_dist)
+    
+    # Save results
+    with open(args.output_path, 'w', encoding='utf-8') as f:
+        json.dump(evaluation_results, f, indent=2)
+    
+    logging.info(f"Saved evaluation metrics to {args.output_path}")
+    print(f"Evaluation metrics saved to {args.output_path}")
+    print(f"Model F1: {evaluation_results['model_metrics']['f1']:.2f}, Baseline F1: {evaluation_results['baseline_f1']:.2f}")
 
 if __name__ == "__main__":
     main()

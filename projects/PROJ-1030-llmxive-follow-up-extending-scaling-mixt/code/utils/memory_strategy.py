@@ -10,231 +10,175 @@ from .memory_manager import (
     generate_temporal_chunks,
     get_processing_plan
 )
-from .logging_config import get_logger, fail_loudly
+from .logging_config import get_logger
 
 logger = get_logger(__name__)
 
-# Constants for memory limits (FR-006: 7 GB RAM limit)
-MEMORY_LIMIT_GB = 7.0
-MEMORY_LIMIT_MB = MEMORY_LIMIT_GB * 1024
-# Threshold to switch between subsampling and chunking (in frames)
-SUBSAMPLE_THRESHOLD_FRAMES = 300
-CHUNK_SIZE_FRAMES = 256
+# Constants for memory constraints (FR-006: 7 GB limit)
+MAX_RAM_GB = 7.0
+MAX_RAM_MB = MAX_RAM_GB * 1024
+SAFETY_FACTOR = 0.8  # Keep usage at 80% of limit to prevent OOM spikes
+SAFE_MAX_RAM_MB = MAX_RAM_MB * SAFETY_FACTOR
+
+# Thresholds for strategy selection
+# If a clip has more than this many frames, we MUST chunk temporally regardless of subsampling
+TEMPORAL_CHUNK_THRESHOLD = 120  # Frames
+# If a clip is short but still large, we subsample
+SUBSAMPLE_THRESHOLD = 30  # Frames
 
 def estimate_clip_memory(num_frames: int, frame_height: int = 224, frame_width: int = 224, channels: int = 3) -> float:
     """
-    Estimate memory usage for processing a video clip.
-    Returns memory in MB.
-    
-    Args:
-        num_frames: Number of frames in the clip
-        frame_height: Height of frames (default 224)
-        frame_width: Width of frames (default 224)
-        channels: Number of channels (default 3 for RGB)
-        
-    Returns:
-        Estimated memory usage in MB
+    Estimate memory usage in MB for loading a video clip into memory for processing.
+    Assumes float32 tensors (4 bytes per value).
     """
-    # Estimate per-frame memory (float32: 4 bytes per pixel)
-    bytes_per_pixel = 4
-    frame_size_bytes = frame_height * frame_width * channels * bytes_per_pixel
+    # Calculate raw pixel data size: H * W * C * 4 bytes
+    frame_size_bytes = frame_height * frame_width * channels * 4
     total_bytes = num_frames * frame_size_bytes
-    return total_bytes / (1024 * 1024)
+    total_mb = total_bytes / (1024 * 1024)
+    
+    # Add overhead for model weights and intermediate activations (conservative estimate)
+    # LingBot-Video / DiT models can be large. We add a fixed overhead buffer.
+    model_overhead_mb = 2048.0  # 2 GB buffer for model + activations
+    
+    return total_mb + model_overhead_mb
 
-def determine_strategy(clip_duration_seconds: float, fps: float, clip_id: str) -> Dict[str, Any]:
+def determine_strategy(num_frames: int, frame_height: int = 224, frame_width: int = 224, channels: int = 3) -> Dict[str, Any]:
     """
-    Determine whether to use subsampling or temporal chunking based on clip properties.
+    Determine the optimal memory management strategy for a given clip.
     
-    Strategy:
-    - Short clips (under threshold): Use frame subsampling to reduce memory
-    - Long clips (over threshold): Use temporal chunking to split into manageable segments
-    
-    Args:
-        clip_duration_seconds: Duration of the clip in seconds
-        fps: Frames per second of the video
-        clip_id: Identifier for the clip (for logging)
-        
-    Returns:
-        Dictionary containing the strategy decision and parameters
+    Returns a dictionary containing:
+    - 'strategy': 'none', 'subsample', or 'chunk'
+    - 'target_frames': number of frames to process in one go
+    - 'chunk_indices': list of tuples (start, end) if chunking, else None
+    - 'subsample_indices': list of indices if subsampling, else None
     """
-    total_frames = int(clip_duration_seconds * fps)
-    estimated_memory = estimate_clip_memory(total_frames)
+    estimated_memory = estimate_clip_memory(num_frames, frame_height, frame_width, channels)
     
-    logger.info(f"Clip {clip_id}: {total_frames} frames, est. memory: {estimated_memory:.2f} MB")
-    
-    if estimated_memory > MEMORY_LIMIT_MB:
-        # Force chunking if even the full clip exceeds memory limit
-        strategy = "chunk"
-        logger.warning(f"Clip {clip_id} exceeds memory limit ({estimated_memory:.2f} MB > {MEMORY_LIMIT_MB} MB). Using chunking.")
-    elif total_frames > SUBSAMPLE_THRESHOLD_FRAMES:
-        # Long clip: use temporal chunking
-        strategy = "chunk"
-        logger.info(f"Clip {clip_id}: Long clip ({total_frames} frames). Using temporal chunking.")
-    else:
-        # Short clip: use subsampling
-        strategy = "subsample"
-        logger.info(f"Clip {clip_id}: Short clip ({total_frames} frames). Using frame subsampling.")
-    
-    return {
-        "clip_id": clip_id,
-        "strategy": strategy,
-        "total_frames": total_frames,
-        "estimated_memory_mb": estimated_memory,
-        "fps": fps,
-        "duration_seconds": clip_duration_seconds
-    }
-
-def apply_strategy(strategy_info: Dict[str, Any], frame_height: int = 224, frame_width: int = 224) -> Dict[str, Any]:
-    """
-    Apply the determined strategy to generate processing plan.
-    
-    Args:
-        strategy_info: Dictionary from determine_strategy
-        frame_height: Height of frames
-        frame_width: Width of frames
-        
-    Returns:
-        Processing plan with frame indices or chunks
-    """
-    clip_id = strategy_info["clip_id"]
-    strategy = strategy_info["strategy"]
-    total_frames = strategy_info["total_frames"]
-    fps = strategy_info["fps"]
-    duration = strategy_info["duration_seconds"]
-    
-    result = {
-        "clip_id": clip_id,
-        "strategy": strategy,
-        "total_frames": total_frames,
-        "fps": fps,
-        "duration_seconds": duration
+    strategy = {
+        'strategy': 'none',
+        'target_frames': num_frames,
+        'chunk_indices': None,
+        'subsample_indices': None,
+        'estimated_memory_mb': estimated_memory
     }
     
-    if strategy == "subsample":
-        # Calculate subsampling rate to keep memory under limit
-        max_frames = calculate_max_frames(MEMORY_LIMIT_MB, frame_height, frame_width)
-        subsample_rate = max(1, math.ceil(total_frames / max_frames))
-        subsample_indices = generate_subsample_indices(total_frames, subsample_rate)
-        
-        result["subsample_rate"] = subsample_rate
-        result["original_frames"] = total_frames
-        result["processed_frames"] = len(subsample_indices)
-        result["frame_indices"] = subsample_indices.tolist()
-        result["chunk_boundaries"] = []
-        
-        logger.info(f"Clip {clip_id}: Subsampled from {total_frames} to {len(subsample_indices)} frames (rate: {subsample_rate})")
-        
-    elif strategy == "chunk":
-        # Split into temporal chunks
-        chunks = generate_temporal_chunks(total_frames, CHUNK_SIZE_FRAMES)
-        
-        result["chunk_size"] = CHUNK_SIZE_FRAMES
-        result["num_chunks"] = len(chunks)
-        result["chunk_boundaries"] = [(int(start), int(end)) for start, end in chunks]
-        result["frame_indices"] = []  # Will be generated per chunk during processing
-        
-        logger.info(f"Clip {clip_id}: Split into {len(chunks)} chunks of ~{CHUNK_SIZE_FRAMES} frames each")
+    if estimated_memory <= SAFE_MAX_RAM_MB:
+        # Safe to process whole clip
+        logger.info(f"Clip with {num_frames} frames fits in memory ({estimated_memory:.2f} MB). No strategy needed.")
+        return strategy
     
-    else:
-        fail_loudly(f"Unknown strategy: {strategy}")
+    # If we are here, we need to reduce memory usage
+    # Priority 1: Temporal Chunking for very long clips
+    if num_frames > TEMPORAL_CHUNK_THRESHOLD:
+        logger.info(f"Clip with {num_frames} frames exceeds temporal threshold. Using temporal chunking.")
+        chunks = generate_temporal_chunks(num_frames, target_chunk_size=TEMPORAL_CHUNK_THRESHOLD)
+        # Estimate memory per chunk
+        chunk_size = TEMPORAL_CHUNK_THRESHOLD
+        chunk_memory = estimate_clip_memory(chunk_size, frame_height, frame_width, channels)
+        
+        strategy['strategy'] = 'chunk'
+        strategy['target_frames'] = chunk_size
+        strategy['chunk_indices'] = chunks
+        strategy['estimated_memory_mb'] = chunk_memory
+        return strategy
     
-    return result
+    # Priority 2: Subsampling for moderately long clips
+    logger.info(f"Clip with {num_frames} frames requires subsampling.")
+    # Calculate how many frames we can safely hold
+    max_safe_frames = calculate_max_frames(SAFE_MAX_RAM_MB, frame_height, frame_width, channels)
+    
+    if max_safe_frames < 1:
+        # Fallback to a minimal number, though this might still be tight
+        max_safe_frames = 10
+    
+    # Ensure we don't undersample too aggressively if the clip is already short
+    target_frames = min(num_frames, max_safe_frames)
+    
+    subsample_indices = generate_subsample_indices(num_frames, target_frames)
+    
+    strategy['strategy'] = 'subsample'
+    strategy['target_frames'] = target_frames
+    strategy['subsample_indices'] = subsample_indices.tolist()
+    
+    # Re-estimate memory with target frames
+    strategy['estimated_memory_mb'] = estimate_clip_memory(target_frames, frame_height, frame_width, channels)
+    
+    return strategy
 
-def save_chunking_config(config: Dict[str, Any], output_path: str) -> None:
+def apply_strategy(strategy: Dict[str, Any], frames: np.ndarray) -> List[np.ndarray]:
+    """
+    Apply the determined strategy to a numpy array of frames.
+    Returns a list of processed segments (either subsampled frames or chunks).
+    """
+    if strategy['strategy'] == 'none':
+        return [frames]
+    
+    if strategy['strategy'] == 'subsample':
+        indices = strategy['subsample_indices']
+        logger.debug(f"Subsampling frames to indices: {indices}")
+        return [frames[indices]]
+    
+    if strategy['strategy'] == 'chunk':
+        chunks = strategy['chunk_indices']
+        result = []
+        for start, end in chunks:
+            chunk = frames[start:end]
+            result.append(chunk)
+            logger.debug(f"Chunking frames from {start} to {end}")
+        return result
+    
+    raise ValueError(f"Unknown strategy: {strategy['strategy']}")
+
+def save_chunking_config(config: Dict[str, Any], output_path: str):
     """
     Save the chunking configuration to a JSON file.
-    
-    Args:
-        config: Dictionary containing all strategy configurations
-        output_path: Path to save the JSON file
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     with open(output_path, 'w') as f:
         json.dump(config, f, indent=2)
     logger.info(f"Chunking config saved to {output_path}")
 
-def generate_memory_log_entry(clip_id: str, strategy: str, memory_usage_mb: float, success: bool = True) -> Dict[str, Any]:
+def generate_memory_log_entry(clip_id: str, strategy: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Generate a memory log entry for a clip processing operation.
-    
-    Args:
-        clip_id: Identifier for the clip
-        strategy: Strategy used (subsample or chunk)
-        memory_usage_mb: Peak memory usage in MB
-        success: Whether the operation was successful
-        
-    Returns:
-        Dictionary containing the log entry
+    Generate a log entry for memory usage based on the applied strategy.
     """
     return {
-        "clip_id": clip_id,
-        "strategy": strategy,
-        "memory_usage_mb": round(memory_usage_mb, 2),
-        "success": success,
-        "timestamp": os.popen("date -u +'%Y-%m-%dT%H:%M:%SZ'").read().strip()
+        'clip_id': clip_id,
+        'strategy': strategy['strategy'],
+        'original_frames': strategy.get('original_frames', 0), # Should be passed in context
+        'processed_frames': strategy['target_frames'],
+        'estimated_memory_mb': strategy['estimated_memory_mb'],
+        'timestamp': int(time.time())
     }
 
 def main():
     """
-    Main function to demonstrate and test the memory strategy logic.
-    This generates a sample chunking config and memory log for validation.
+    Main entry point for testing the memory strategy module.
+    This is primarily for manual verification or integration tests.
     """
     import argparse
+    import time
     
-    parser = argparse.ArgumentParser(description="Memory Strategy Configuration Generator")
-    parser.add_argument("--output-dir", type=str, default="data/processed", help="Output directory for artifacts")
-    parser.add_argument("--clip-duration", type=float, default=10.0, help="Sample clip duration in seconds")
-    parser.add_argument("--fps", type=int, default=30, help="Frames per second")
-    parser.add_argument("--clip-id", type=str, default="sample_clip_001", help="Sample clip ID")
+    parser = argparse.ArgumentParser(description="Test memory strategy")
+    parser.add_argument("--frames", type=int, default=500, help="Number of frames to simulate")
+    parser.add_argument("--output", type=str, default="data/processed/chunking_config.json", help="Output config path")
     args = parser.parse_args()
     
-    # Determine strategy for sample clip
-    strategy_info = determine_strategy(args.clip_duration, args.fps, args.clip_id)
-    processing_plan = apply_strategy(strategy_info)
+    # Simulate a clip
+    clip_id = "test_clip_001"
+    num_frames = args.frames
+    frame_h, frame_w, ch = 224, 224, 3
     
-    # Create chunking config with sample data
-    chunking_config = {
-        "memory_limit_gb": MEMORY_LIMIT_GB,
-        "subsample_threshold_frames": SUBSAMPLE_THRESHOLD_FRAMES,
-        "chunk_size_frames": CHUNK_SIZE_FRAMES,
-        "strategies": [processing_plan]
-    }
+    strategy = determine_strategy(num_frames, frame_h, frame_w, ch)
+    strategy['original_frames'] = num_frames
     
-    # Save chunking config
-    output_path = os.path.join(args.output_dir, "chunking_config.json")
-    save_chunking_config(chunking_config, output_path)
+    # Save config
+    save_chunking_config(strategy, args.output)
     
-    # Generate sample memory log entry
-    sample_memory_usage = estimate_clip_memory(processing_plan.get("processed_frames", processing_plan["total_frames"]))
-    memory_entry = generate_memory_log_entry(
-        args.clip_id,
-        processing_plan["strategy"],
-        sample_memory_usage,
-        success=True
-    )
-    
-    # Save memory log (append mode for future entries)
-    memory_log_path = os.path.join(args.output_dir, "memory_log.json")
-    memory_log = [memory_entry]
-    
-    # If file exists, load existing entries
-    if os.path.exists(memory_log_path):
-        try:
-            with open(memory_log_path, 'r') as f:
-                existing_log = json.load(f)
-                if isinstance(existing_log, list):
-                    memory_log = existing_log + memory_log
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not load existing memory log: {e}. Starting fresh.")
-    
-    os.makedirs(args.output_dir, exist_ok=True)
-    with open(memory_log_path, 'w') as f:
-        json.dump(memory_log, f, indent=2)
-    
-    logger.info(f"Memory log saved to {memory_log_path}")
-    logger.info("Strategy determination complete. Artifacts generated successfully.")
-    
-    return 0
+    # Generate log entry
+    log_entry = generate_memory_log_entry(clip_id, strategy)
+    print(f"Strategy for {num_frames} frames: {strategy['strategy']}")
+    print(f"Log entry: {log_entry}")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

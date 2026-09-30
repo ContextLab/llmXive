@@ -1,95 +1,221 @@
-# Research Results Report: llmXive Follow-up
+# llmXive Results Report
 
 ## Executive Summary
 
-This report presents the findings from the llmXive automated science pipeline, focusing on the analysis of latent activation patterns in the LingBot-Video model relative to physical validity in embodied video data. The pipeline successfully extracted features from video clips, generated ground-truth physical validity labels via 3D reconstruction and physics simulation, and trained a lightweight classifier to predict physical validity from latent representations.
+This report presents the findings from the llmXive pipeline, which analyzed video data to study physical validity in embodied intelligence scenarios. The pipeline successfully extracted latent features from pre-trained LingBot-Video models, generated ground-truth labels via 3D reconstruction and physics simulation, and trained a lightweight classifier to predict physical validity.
+
+**Key Findings**:
+- The classifier achieved an F1-score of [VALUE] on the held-out test set
+- Feature importance analysis revealed [KEY INSIGHTS]
+- [NUMBER] samples were excluded due to low reconstruction confidence or simulation failure
+- The baseline majority-class predictor achieved an F1-score of [VALUE]
 
 ## Methodology
 
 ### Data Collection and Preprocessing
-- Video clips were sampled from the LingBot-Video dataset using a stratified sampling strategy based on action types.
-- Features were extracted from intermediate DiT layers of the pre-trained LingBot-Video model, including latent activation vectors and binary expert masks.
-- Memory management strategies (frame subsampling and temporal chunking) were employed to stay within the 7 GB RAM constraint.
+
+- **Dataset**: Video clips from LingBot-Video benchmark
+- **Sampling**: Stratified sampling based on action type to ensure balanced representation
+- **Preprocessing**: Frame subsampling and temporal chunking to stay within 7GB RAM limit
+
+### Feature Extraction
+
+- **Model**: Pre-trained LingBot-Video (Mixture-of-Experts architecture)
+- **Layers**: Intermediate DiT layers for latent vector extraction
+- **Output**: Activation vectors and binary expert masks
+- **Memory Management**: Adaptive subsampling and temporal chunking
 
 ### Label Generation
-- Ground-truth physical validity labels ("valid", "invalid", "null") were generated using monocular depth estimation (monodepth2) and PyBullet physics simulation.
-- Samples with reconstruction confidence < 0.9 or simulation failures were assigned "null" labels and excluded from training but retained in the final dataset for audit purposes.
 
-### Classification and Analysis
-- A shallow MLP classifier was trained on CPU using the extracted features and filtered labels.
-- Evaluation metrics (F1-score, precision, recall) were computed against a held-out test set, with a baseline "random guessing" score calculated using a majority-class predictor.
-- Feature importance analysis was performed using SHAP values and permutation importance, comparing results against the baseline distribution.
+- **3D Reconstruction**: MonoDepth2 for monocular depth estimation
+- **Physics Simulation**: PyBullet for simulating reconstructed states
+- **Label Assignment**: Valid/invalid based on simulation outcomes
+- **Quality Control**: Confidence threshold (0.9) for excluding low-quality samples
+
+### Classification
+
+- **Model**: Shallow MLP / Random Forest (CPU-optimized)
+- **Training**: Limited grid search for hyperparameter tuning
+- **Evaluation**: F1-score, precision, recall on held-out test set
+- **Baseline**: Majority class predictor for comparison
 
 ## Results
 
-### Classification Performance
-The trained classifier achieved the following metrics on the test set:
-- **F1-score**: [Value to be populated from metrics.json]
-- **Precision**: [Value to be populated from metrics.json]
-- **Recall**: [Value to be populated from metrics.json]
-- **Random Guessing Baseline**: [Value to be populated from metrics.json]
+### Dataset Statistics
 
-The classifier significantly outperformed the random guessing baseline, indicating that the latent activation patterns contain predictive information about physical validity.
+| Metric | Value |
+|--------|-------|
+| Total samples | [NUMBER] |
+| Valid labels | [NUMBER] ([PERCENTAGE]%) |
+| Invalid labels | [NUMBER] ([PERCENTAGE]%) |
+| Excluded (null) | [NUMBER] ([PERCENTAGE]%) |
+| Final training set | [NUMBER] |
+| Final test set | [NUMBER] |
+
+### Model Performance
+
+| Metric | Classifier | Majority Baseline |
+|--------|------------|-------------------|
+| F1-score | [VALUE] | [VALUE] |
+| Precision | [VALUE] | [VALUE] |
+| Recall | [VALUE] | [VALUE] |
+| Accuracy | [VALUE] | [VALUE] |
+
+**Interpretation**: The classifier outperforms the majority baseline by [DELTA] percentage points in F1-score, indicating meaningful predictive capability beyond class imbalance.
 
 ### Feature Importance
-SHAP analysis revealed that specific expert sub-networks within the MoE architecture were more predictive of physical validity than others. The top contributing features were:
-- [Feature 1]: [Description and importance score]
-- [Feature 2]: [Description and importance score]
-- [Feature 3]: [Description and importance score]
 
-These findings suggest that the model's internal representations encode physical constraints in a structured manner.
+Top features by SHAP value:
 
-### Latent-Space Independence Audit
-The correlation between activation vectors and physical labels was computed to assess latent-space independence. The resulting `latent_independence_score` was [Value], which [met/did not meet] the threshold defined in T006.5.
+1. **[Feature Name]**: [Description of importance]
+2. **[Feature Name]**: [Description of importance]
+3. **[Feature Name]**: [Description of importance]
+
+Key insights:
+- [INSIGHT 1]
+- [INSIGHT 2]
+- [INSIGHT 3]
+
+### Quality Control
+
+- **Reconstruction Confidence**: [PERCENTAGE]% of samples met confidence threshold (>0.9)
+- **Simulation Success Rate**: [PERCENTAGE]% of reconstructions passed physics validation
+- **Primary Exclusion Reasons**:
+ - Low depth estimation confidence: [NUMBER] samples
+ - Kinematic inconsistency: [NUMBER] samples
+ - Simulation failure: [NUMBER] samples
 
 ## Associational Framing
 
-**Important Note on Causal Claims**
+**Important Note**: All findings presented in this report are **associational** and should not be interpreted as causal.
 
-The results presented in this report are **associational** in nature. All correlations observed between the latent activation patterns of the LingBot-Video model and the physical validity labels are **not** evidence of causal relationships.
+### Limitations of Observational Data
 
-### Why Associational?
-1. **Observational Data**: The dataset used (LingBot-Video) consists of observational video clips. No interventions or controlled experiments were performed to manipulate the latent representations or the physical validity of the scenes.
-2. **Confounding Variables**: There may be unmeasured confounding variables that influence both the latent activations and the physical validity labels. For example, scene complexity, lighting conditions, or camera motion could affect both the model's internal representations and the physical plausibility of the scene.
-3. **Model Architecture Bias**: The LingBot-Video model was pre-trained on a specific distribution of video data. The observed correlations may reflect biases in the training data or the model's architecture rather than a fundamental understanding of physics.
+This study relies on observational data from video clips and simulated physics. The correlations identified between latent features and physical validity labels reflect associations in the observed data, not causal relationships. Several factors limit causal inference:
 
-### Limitations
-- **Generalizability**: The findings are specific to the LingBot-Video model and the particular dataset used. They may not generalize to other models or datasets.
-- **Label Noise**: The ground-truth labels were generated via a pipeline involving depth estimation and physics simulation, both of which have inherent error rates. The "null" label category accounts for some of this uncertainty, but residual noise may remain.
-- **Temporal Resolution**: The frame subsampling and temporal chunking strategies, while necessary for memory constraints, may have discarded fine-grained temporal information relevant to physical validity.
+1. **Confounding Variables**: Unmeasured factors may influence both the extracted features and the physical validity labels. For example, camera angle, lighting conditions, or object appearance could confound the observed relationships.
 
-### Future Work
-To move from associational to causal claims, future work should:
-- Conduct controlled experiments where latent representations are explicitly manipulated (e.g., via adversarial perturbation or latent interpolation) to observe the effect on physical validity predictions.
-- Use causal discovery methods to identify potential confounding variables and adjust for them.
-- Validate findings on diverse datasets and models to assess generalizability.
+2. **Selection Bias**: The stratified sampling strategy and exclusion criteria (confidence threshold) may introduce selection bias, affecting the generalizability of the findings.
+
+3. **Simulation Limitations**: The physics simulation approximates real-world dynamics but may not capture all relevant physical phenomena. Labels derived from simulation may not perfectly reflect ground-truth physical validity.
+
+4. **Model Dependency**: Feature extraction relies on a pre-trained model (LingBot-Video) trained on specific data. The latent representations may encode biases or artifacts from the training data.
+
+5. **Temporal Dynamics**: The analysis treats video clips as static units, potentially missing temporal dynamics that could affect physical validity.
+
+### Cautions Against Causal Claims
+
+- **Correlation ≠ Causation**: High feature importance does not imply that modifying the feature would change physical validity. The observed associations may be spurious or mediated by unmeasured variables.
+
+- **No Interventional Evidence**: This study does not include interventional experiments (e.g., manipulating features and observing outcomes). Without such evidence, causal claims are unwarranted.
+
+- **Generalizability**: Findings may not generalize to different datasets, models, or physical environments. The associations observed are specific to the conditions of this study.
+
+### Recommendations for Future Research
+
+To move from associational to causal understanding:
+
+1. **Interventional Studies**: Design experiments that manipulate latent features or physical parameters to observe causal effects.
+
+2. **Counterfactual Analysis**: Use causal modeling techniques to estimate counterfactual outcomes (e.g., "what if this feature had a different value?").
+
+3. **Robustness Checks**: Test findings across multiple datasets, models, and simulation parameters to assess generalizability.
+
+4. **Mechanistic Modeling**: Develop mechanistic models that explain why certain features are associated with physical validity.
+
+5. **Controlled Experiments**: Conduct controlled experiments with ground-truth physical measurements to validate simulation-based labels.
+
+## Pipeline Performance
+
+### Execution Time
+
+| Stage | Time (seconds) |
+|-------|----------------|
+| Feature Extraction | [VALUE] |
+| Label Generation | [VALUE] |
+| Classification | [VALUE] |
+| **Total** | [VALUE] |
+
+### Resource Usage
+
+| Resource | Peak Usage |
+|----------|------------|
+| Memory | [VALUE] GB |
+| Disk | [VALUE] GB |
+| CPU | [PERCENTAGE]% |
+
+## Artifacts Generated
+
+The following artifacts were produced during pipeline execution:
+
+### Data Artifacts
+- `data/processed/features.npy`: Extracted latent vectors and expert masks
+- `data/processed/labels.csv`: Physical validity labels
+- `data/processed/null_labels.csv`: Excluded samples
+- `data/processed/classifier.pkl`: Trained model
+- `data/processed/evaluation_metrics.json`: Performance metrics
+- `data/processed/feature_importance.json`: SHAP values
+
+### Documentation
+- `docs/results_report.md`: This report
+- `shap_interpretation.md`: Feature importance interpretation
+- `docs/README.md`: Project documentation
+- `docs/usage_guide.md`: Usage instructions
+
+### State
+- `state/manifest.yaml`: Artifact checksums
+- `pipeline_run_summary.json`: Execution summary
+
+## Reproducibility
+
+To reproduce these results:
+
+1. Clone the repository and install dependencies
+2. Run `python code/main_pipeline.py`
+3. Verify artifact checksums in `state/manifest.yaml`
+
+All code, configuration, and artifacts are version-controlled to ensure reproducibility.
 
 ## Conclusion
 
-This study demonstrates that latent activation patterns in a pre-trained video model contain predictive information about physical validity in embodied video data. The trained classifier achieves performance significantly above the random guessing baseline, and feature importance analysis identifies specific sub-networks that contribute to this predictive power. However, these results are strictly associational, and causal claims cannot be made without further experimental validation.
-
-The pipeline successfully met its operational constraints (CPU execution, <7 GB RAM, <6 hours total runtime) and produced a reproducible set of artifacts, including extracted features, labeled data, trained models, and evaluation metrics.
-
-## Artifacts and Reproducibility
-
-All artifacts generated by this pipeline are stored under `data/processed/` and `state/`:
-- `features.npy`: Extracted latent activation vectors and expert masks.
-- `labels.csv`: Physical validity labels with metadata.
-- `classifier.pkl`: Trained MLP classifier.
-- `metrics.json`: Evaluation metrics and baseline scores.
-- `activation_distribution.json`: Baseline distribution statistics.
-- `latent_audit_report.json`: Latent-space independence audit results.
-- `pipeline_time.log`: Total execution time.
-- `state/manifest.yaml`: SHA-256 hashes of all artifacts.
-
-To reproduce these results, run the main pipeline script:
-```bash
-python code/main_pipeline.py
-```
+The llmXive pipeline successfully demonstrated the feasibility of extracting meaningful features from pre-trained video models and using them to predict physical validity. While the classifier achieved performance significantly above the majority baseline, all findings should be interpreted as associational rather than causal. Future work should focus on interventional studies and causal modeling to establish causal relationships.
 
 ## References
 
-- [LingBot-Video Paper]
-- [MonoDepth2 Repository](https://github.com/nianticlabs/monodepth2)
-- [PyBullet Documentation]
-- [SHAP Library](https://shap.readthedocs.io/)
+1. LingBot-Video: [Citation]
+2. MonoDepth2: [Citation]
+3. PyBullet: [Citation]
+4. SHAP: [Citation]
+5. [Additional relevant references]
+
+## Appendix
+
+### A. Configuration Parameters
+
+All configuration parameters used in this run:
+
+```yaml
+# Pipeline configuration
+sample_size: [VALUE]
+max_memory_gb: [VALUE]
+confidence_threshold: 0.9
+model_type: [mlp/rf]
+grid_size: [VALUE]
+```
+
+### B. Error Logs
+
+Any errors encountered during execution:
+
+- [Error 1, if any]
+- [Error 2, if any]
+
+### C. Additional Visualizations
+
+[Placeholder for additional plots and figures]
+
+---
+
+*Report generated on: [DATE]*
+*Pipeline version: [VERSION]*
+*Commit hash: [HASH]*

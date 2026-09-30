@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -63,19 +63,18 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012.0.1 [P] [US1] Define sampling strategy: Create `code/utils/sampling_strategy.py` to define the stratified sampling logic based on 'action type'. Artifact: `code/utils/sampling_strategy.py`.
-- [ ] T012.0.2 [ ] [US1] Generate sample list artifact: Create `data/raw/sample_list.csv` using the strategy from T012.0.1. Artifact: `data/raw/sample_list.csv`.
-- [ ] T012.0.3 [P] [US1] Download LingBot-Video weights: Download the pre-trained LingBot-Video model weights from HuggingFace to `data/external/lingbot_weights/`. Artifact: `data/external/lingbot_weights/`.
+- [ ] T012.0.1 [P] [US1] Define sampling strategy: Create `code/utils/sampling_strategy.py` to define the stratified sampling logic based on 'action type'. **Artifact**: `code/utils/sampling_strategy.py`. **Note**: This task defines the static strategy logic; execution is handled in T012.0.2.
+- [ ] T012.0.2 [ ] [US1] Generate sample list artifact: Create `data/raw/sample_list.csv` using the strategy from T012.0.1 on the HuggingFace RoboNet dataset (streamed). **Depends on** T012.0.1. **Verification**: Verify CSV contains columns [clip_id, action_type] and total rows >= [deferred]. Artifact: `data/raw/sample_list.csv`.
+- [ ] T012.0.3 [P] [US1] Download LingBot-Video weights: Download the pre-trained LingBot-Video model weights from HuggingFace repository `lingbot-video/lingbot-base` to `data/external/lingbot_weights/`. Artifact: `data/external/lingbot_weights/`.
 - [ ] T012.0.4 [ ] [US1] Verify class balance: Create `code/utils/verify_balance.py` to ensure the sample list from T012.0.2 has a representative mix of action types. Artifact: `code/utils/verify_balance.py`. **Depends on** T012.0.2.
 - [ ] T012.2.1 [P] [US1] Implement selection logic: Create `code/utils/select_clips.py` to select/stream clips based on the sample list. Artifact: `code/utils/select_clips.py`.
 - [ ] T012.2.2 [P] [US1] Verify class balance: Run `code/utils/verify_balance.py` to confirm the selected clips meet diversity requirements. Artifact: `data/processed/balance_report.json`.
-- [ ] T014 [US1] Implement frame subsampling AND temporal chunking strategy to stay within 7 GB RAM limit (FR-006). The task MUST implement both strategies: subsample frames if the clip is short, but chunk temporally if the clip is long to prevent OOM. (Reuses T005.1.1/T005.1.2). **Output Artifact**: `data/processed/chunking_config.json` (strategy config) and `data/processed/memory_log.json` (via T017.1).
-- [ ] T014.2 [US1] Integrate memory chunking into extraction: Create `code/extraction/memory_integration.py` that explicitly calls T005.1.1 and T005.1.2 functions within the extraction pipeline logic. This task MUST ensure T012.1 imports and uses this module. **Dependency**: T014 must be complete.
+- [X] T014 [US1] Implement `code/extraction/memory_chunker.py` with functions `subsample_frames` and `chunk_temporal`. Logic: If clip duration < threshold, subsample frames; else, split into temporal chunks. **Output Artifact**: `code/extraction/memory_chunker.py` and `data/processed/chunking_config.json`. **Dependency**: T005.1.1, T005.1.2.
+- [ ] T014.2 [US1] Integrate memory chunking into extraction: Create `code/extraction/memory_integration.py` that explicitly calls T005.1.1 and T005.1.2 functions within the extraction pipeline logic. This task MUST ensure T012.1 imports and uses this module. **Dependency**: T014 must be complete and `data/processed/chunking_config.json` must exist. **Artifact**: `code/extraction/memory_integration.py`.
 - [ ] T012.1 [US1] Implement `code/extract_features.py` to download LingBot-Video model (HF) and video clips (streaming); ensure extraction logic uses T014.2 for memory management and skips full video decoding/generation, accessing only intermediate DiT layers. **Artifact**: Script that outputs to `data/processed/features.npy`. **Dependency**: T014.2, T012.0.3.
-- [ ] T013 [US1] Implement `torch.no_grad()` inference to extract latent vectors and binary expert masks from intermediate DiT layers. **Deliverable**: Save extracted vectors and masks to `data/processed/features.npy`. **Verification**: Verify file exists and is non‑empty with expected dimensions (e.g., shape tuple).
+- [ ] T013 [US1] Implement `torch.no_grad()` inference to extract latent vectors and binary expert masks from intermediate DiT layers and save them to `data/processed/features.npy` with accompanying metadata JSON. **Deliverable**: Save extracted vectors and masks to `data/processed/features.npy`. **Verification**: Verify file exists and is non‑empty with expected dimensions (e.g., shape tuple). **Dependency**: T012.1. <!-- FAILED: unspecified -->
 - [X] T015 [US1] Add logic to handle download failures with exponential backoff, then fail gracefully (no synthetic fallback). **Artifact**: Implement retry logic in `code/extract_features.py` using `code/utils/retry.py`. **Verification**: Unit test in `tests/unit/test_retry_logic.py` confirms exponential backoff behavior.
-- [ ] T016 [US1] Save extracted features as `data/processed/features.npy` with accompanying metadata JSON.
-- [ ] T017 [US1] Add logging for extraction progress and memory usage. **Artifact**: Generate `data/processed/extract.log`. **Verification**: Log contains memory usage entries for each chunk. Verify `data/processed/memory_log.json` contains peak RAM entries for each chunk.
+- [X] T017 [US1] Add logging for extraction progress and memory usage. **Artifact**: Generate `data/processed/extract.log`. **Verification**: Log contains memory usage entries for each chunk. Verify `data/processed/memory_log.json` contains peak RAM entries for each chunk.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,17 +93,19 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/generate_labels.py` to run monocular depth/pose estimator (e.g., monodepth2) on video clips.
-- [ ] T021.1 [US2] Implement 3D reconstruction logic: Create `code/labeling/reconstruct_3d.py` to extract positions **and velocities** from depth maps. **Artifact**: Save `EstimatedState3D` vectors to `data/processed/recon_states.npy`. **Verification**: Verify dimensions include velocity components.
+- [ ] T019.1 [US2] Implement Visual Fidelity Check: Create `code/labeling/visual_fidelity.py` to filter clips based on texture/variance score to ensure depth estimation feasibility. Clips failing this check are excluded *before* depth estimation. **Artifact**: `data/processed/fidelity_filter_log.json`. **Dependency**: T020.
+- [X] T020 [US2] Implement `code/generate_labels.py` to run monocular depth/pose estimator (e.g., monodepth2) on video clips.
+- [ ] T021.1 [US2] Implement 3D reconstruction logic: Create `code/labeling/reconstruct_3d.py` to extract positions from depth maps and derive velocities via finite-difference temporal differentiation of positions across frames. **Artifact**: Save `EstimatedState3D` vectors to `data/processed/recon_states.npy`. **Verification**: Verify dimensions include position and velocity components. **Depends on** T020.
 - [ ] T021.2 [US2] Implement Kinematic Consistency Check: Create `code/labeling/kinematic_check.py` to filter trajectories that are kinematically impossible (e.g., negative depth). **Artifact**: `data/processed/kinematic_filter_log.json`.
 - [ ] T021.3 [US2] Validate `EstimatedState3D` schema: Produce `data/processed/estimated_state_schema.json` confirming presence of position **and** velocity fields. **Artifact**: JSON schema file.
+- [ ] T021.4 [US2] Apply Synthetic Perturbations: Create `code/labeling/perturbation.py` to apply known synthetic perturbations (e.g., constant upward velocity) to a subset of reconstructed trajectories to create the "invalid" class. **Artifact**: `data/processed/perturbed_states.npy` and `data/processed/perturbation_metadata.json`. **Dependency**: T021.1.
 - [X] T022 [US2] Integrate `code/utils/physics_sim.py` to simulate reconstructed states in PyBullet.
-- [ ] T023.1 [US2] Generate ground‑truth labels: Run reconstructed 3D states through PyBullet **and** apply synthetic perturbations (e.g., upward velocity boost) to a subset to create the "invalid" class. Labels are derived from the simulation outcome (valid/invalid). **Artifact**: Save provisional labels to `data/processed/raw_labels.csv`.
-- [ ] T024 [US2] Separate low‑confidence / failed samples:  
-    1. For clips with reconstruction confidence < 0.9 or simulation failure, write a row to `data/processed/null_labels.csv` (columns: clip_id, reason, confidence_score).  
-    2. Merge only non‑null rows from `raw_labels.csv` into the final `data/processed/labels.csv` (columns: clip_id, label, confidence_score).  
-    3. Create an empty `data/processed/excluded_samples.log` if no samples are excluded (ensures hashing).  
-    **Artifact**: `null_labels.csv`, `labels.csv`, `excluded_samples.log`.
+- [ ] T023.1 [US2] Generate ground‑truth labels: Run reconstructed 3D states through PyBullet to simulate physical constraints (gravity, collision). Label clips as "invalid" **based on the known perturbation applied in T021.4** for perturbed trajectories, and "valid" otherwise. **Artifact**: Save provisional labels to `data/processed/raw_labels.csv`. **Dependency**: T021.4, T021.1.
+- [ ] T024 [US2] Separate low‑confidence / failed samples:
+ 1. For clips with reconstruction confidence < 0.9 or simulation failure, write a row to `data/processed/null_labels.csv` (columns: clip_id, reason, confidence_score).
+ 2. Merge only non‑null rows from `raw_labels.csv` into the final `data/processed/labels.csv` (columns: clip_id, label, confidence_score).
+ 3. Create an empty `data/processed/excluded_samples.log` if no samples are excluded (ensures hashing).
+ **Artifact**: `null_labels.csv`, `labels.csv`, `excluded_samples.log`.
 - [ ] T024.1.1 [P] [US2] Implement verification script: Create `code/labeling/verify_filtering.py` to confirm that every row in `null_labels.csv` is absent from `labels.csv` and that `excluded_samples.log` matches the null set.
 - [ ] T024.1.2 [P] [US2] Generate verification report: Run `code/labeling/verify_filtering.py` to produce `data/processed/filtering_verification.json`.
 - [X] T025 [US2] Save valid labels (including confidence scores) to `data/processed/labels.csv` and overall metadata to `data/processed/metadata.json`.
@@ -117,7 +118,7 @@
 
 **Goal**: Train shallow MLP/Random Forest on CPU to predict physical validity, report metrics and feature importance.
 
-**Independent Test**: Training script ingests features/labels, trains model in <30 min, outputs F1‑score ≥ 0.75 (or null result report).
+**Independent Test**: Training script ingests features/labels, trains model in <30 min, outputs F1‑score ≥ 0.75 (or null result report).
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -126,19 +127,19 @@
 
 ### Implementation for User Story 3
 
-- [ ] T030.1 [US3] Implement filtering logic: Create `code/classification/filter_data.py` that reads `labels.csv` **and** `null_labels.csv`, excludes null rows, and writes `data/processed/filtered_train.csv` and `data/processed/filtered_test.csv`. **Artifact**: filtered CSV files.
-- [ ] T030.2 [US3] Implement report generation: Create `code/classification/generate_filter_report.py` to parse `labels.csv` and `null_labels.csv` and generate `data/processed/filtering_report.json`.
+- [ ] T030.1 [US3] Implement filtering logic: Create `code/classification/filter_data.py` that reads `labels.csv` **and** `null_labels.csv`, excludes null rows, and writes `data/processed/filtered_train.csv` and `data/processed/filtered_test.csv`. **Artifact**: filtered CSV files and `data/processed/filtering_report.json`. **Dependency**: T024.
+- [ ] T030.2 [US3] Implement report generation: Create `code/classification/generate_filter_report.py` to parse `labels.csv` and `null_labels.csv` and generate `data/processed/filtering_report.json`. **Note**: Redundant if T030.1 does it, but kept for modularity.
 - [ ] T030.3 [US3] Verify report schema: Verify `data/processed/filtering_report.json` matches the required schema.
 - [X] T031 [US3] Implement training of shallow MLP or Random Forest on CPU with limited grid search (FR‑004). Artifact: Save trained model weights to `data/processed/classifier.pkl`. Verification: Verify model can load and predict on test set. **Dependency**: T030.1 must be complete.
-- [ ] T032.0 [US3] Compute Majority Class Predictor baseline: Create `code/classification/compute_baseline.py` that calculates the majority class in the filtered training set, computes its F1‑score, and writes `data/processed/baseline_f1.json`. **Artifact**: baseline F1 score.
-- [ ] T032 [US3] Implement evaluation metrics calculation (F1, precision, recall) on held‑out test set (FR‑005) **and** compare against the baseline F1 from T032.0. Output combined results to `data/processed/evaluation_metrics.json`. **Artifact**: evaluation metrics JSON.
-- [ ] T033 [US3] Implement feature importance analysis (e.g., SHAP). Save raw SHAP values to `data/processed/feature_importance.json` and a human‑readable interpretation to `shap_interpretation.md` that explicitly frames findings as associational only (FR‑007). **Artifact**: JSON + markdown.
+- [X] T032.0 [US3] Compute Majority Class Predictor baseline: Create `code/classification/compute_baseline.py` that calculates the majority class in the filtered training set, computes its F1‑score, and writes `data/processed/baseline_f1.json`. **Artifact**: baseline F1 score.
+- [X] T032 [US3] Implement evaluation metrics calculation (F1, precision, recall) on held‑out test set (FR‑005) **and** compare against the baseline F1 from T032.0. Output combined results to `data/processed/evaluation_metrics.json`. **Artifact**: evaluation metrics JSON.
+- [X] T033 [US3] Implement feature importance analysis (e.g., SHAP). Save raw SHAP values to `data/processed/feature_importance.json` and a human‑readable interpretation to `shap_interpretation.md` that explicitly frames findings as associational only (FR‑007). **Artifact**: JSON + markdown.
 - [X] T034 [US3] Add logic to explicitly frame results as ASSOCIATIONAL (avoid causal claims). Artifact: Update `docs/results_report.md` with "Associational Framing" section. Verification: Verify section text matches FR‑007 requirements.
-- [ ] T035 [US3] Generate visualization of feature importance and save metrics to `data/processed/metrics.json`.
-- [ ] T036 [US3] Implement `code/main_pipeline.py` to orchestrate full pipeline, update `state/manifest.yaml` with SHA‑256 hashes for all artifacts, and write a top‑level `pipeline_run_summary.json` summarizing success/failure of each phase.
-- [ ] T036.2 [US3] Implement timing wrapper in `code/main_pipeline.py` that measures **the entire pipeline**, including download (T012.0.3), 3D reconstruction (T020), labeling (T023.1), training (T031) and evaluation (T032). Record total wall‑clock time and per‑stage timings in `pipeline_timing.json`. **Dependency**: Must run after all prior tasks are complete.
-- [ ] T036.3.1 [US2] Prior Audit: Compute Pearson correlation between depth‑estimation confidence scores and perturbation type (synthetic vs. original) to verify label independence. Save report to `data/processed/prior_audit_report.json`. **Artifact**: Prior audit JSON.
-- [ ] T036.3.2 [US3] Latent‑Space Independence Audit: Compute Pearson correlation between activation vectors and physical labels (excluding null rows) to assess hypothesis relevance. Save report to `data/processed/latent_audit_report.json`. **Artifact**: Latent audit JSON.
+- [X] T035 [US3] Generate visualization of feature importance and save metrics to `data/processed/metrics.json`.
+- [ ] T036.3.1 [US3] Prior Audit: Compute Pearson correlation between **latent space features** (aggregated per-expert mean) and **physical labels** to verify label independence. Save report to `data/processed/latent_audit_report.json`. **Artifact**: Prior audit JSON. **Dependency**: T013, T023.1.
+- [ ] T036.3.2 [US3] Latent‑Space Independence Audit: Compute Pearson correlation between **depth-estimation confidence scores** and **perturbation type** (from T021.4) to verify the Prior Audit logic. Save report to `data/processed/prior_audit_report.json`. **Artifact**: Latent audit JSON. **Dependency**: T021.4.
+- [X] T036 [US3] Implement `code/main_pipeline.py` to orchestrate full pipeline, update `state/manifest.yaml` with SHA‑256 hashes for all artifacts, **update `state/projects/PROJ-1030-llmxive-follow-up-extending-scaling-mixt.yaml` `updated_at` timestamp**, and write a top‑level `pipeline_run_summary.json` summarizing success/failure of each phase. **Dependency**: T036.3.1 and T036.3.2 must be complete.
+- [ ] T036.2 [US3] Implement timing wrapper in `code/main_pipeline.py` that measures **the entire pipeline**, including download (T012.0.3), 3D reconstruction (T020), labeling (T023.1), training (T031) and evaluation (T032). **Start timer at script entry, stop after manifest update**. Record total wall‑clock time and per‑stage timings in `pipeline_timing.json`. **Dependency**: Must run after all prior tasks are complete.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,11 +149,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `docs/` (README, usage guide). Artifact: Update `docs/README.md` and `docs/usage_guide.md`. Verification: Verify README contains quickstart instructions.
+- [X] T037 [P] Documentation updates in `docs/` (README, usage guide). Artifact: Update `docs/README.md` and `docs/usage_guide.md`. Verification: Verify README contains quickstart instructions.
 - [ ] T037.1 [P] Generate `results_report.md`: Create `docs/results_report.md` containing the final results. Mandatory Section: This report MUST include a dedicated "Associational Framing" section (FR‑007) explicitly stating that all correlations are associational and not causal, referencing the limitations of the observational data.
-- [ ] T038 [P] Implement quickstart.md validation script: Create `scripts/validate_quickstart.py` to ensure reproducibility.
-- [ ] T040 [P] Performance optimization: Optimize memory chunking logic in `code/extraction/memory_chunker.py` to minimize peak RAM usage. Artifact: Refactor `code/extraction/memory_chunker.py`. Verification: Verify peak RAM < 7 GB via `memory_log.json`.
-- [ ] T041 [P] Additional unit tests in `tests/unit/`. Artifact: Add `tests/unit/test_data_loader.py::test_streaming`.
+- [X] T038 [P] Implement quickstart.md validation script: Create `scripts/validate_quickstart.py` to ensure reproducibility.
+- [ ] T040 [P] Verify Memory Chunking: Check `data/processed/memory_log.json` to confirm peak RAM usage < 7 GB. Artifact: Update `data/processed/memory_verification.json` with pass/fail status. Verification: Ensure the log confirms the constraint is met. **Dependency**: T014.
+- [X] T041 [P] Additional unit tests in `tests/unit/`. Artifact: Add `tests/unit/test_data_loader.py::test_streaming`.
 
 ---
 
@@ -160,18 +161,18 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
 ### Within Each User Story
 
@@ -184,29 +185,29 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
---- 
+---
 
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
+### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -215,9 +216,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

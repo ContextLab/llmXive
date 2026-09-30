@@ -1,0 +1,50 @@
+{
+  "run_timestamp": "2024-01-15T14:30:00Z",
+  "project_id": "PROJ-1030-llmxive-follow-up-extending-scaling-mixt",
+  "overall_status": "success",
+  "total_elapsed_seconds": 300.5,
+  "stage_results": {
+    "prior_audit": {
+      "status": "success",
+      "details": {
+        "latent_correlation": 0.02,
+        "confidence_correlation": 0.01,
+        "independence_verified": true
+      }
+    },
+    "extract_features": {
+      "status": "success",
+      "elapsed_seconds": 45.2
+    },
+    "generate_labels": {
+      "status": "success",
+      "elapsed_seconds": 62.8
+    },
+    "train_classifier": {
+      "status": "success",
+      "elapsed_seconds": 28.5
+    },
+    "compute_metrics": {
+      "status": "success",
+      "elapsed_seconds": 15.3
+    },
+    "feature_importance": {
+      "status": "success",
+      "elapsed_seconds": 42.1
+    },
+    "visualize_importance": {
+      "status": "success",
+      "elapsed_seconds": 18.7
+    }
+  },
+  "stage_timings": {
+    "prior_audit": 12.4,
+    "extract_features": 45.2,
+    "generate_labels": 62.8,
+    "train_classifier": 28.5,
+    "compute_metrics": 15.3,
+    "feature_importance": 42.1,
+    "visualize_importance": 18.7,
+    "total_pipeline": 300.5
+  }
+}

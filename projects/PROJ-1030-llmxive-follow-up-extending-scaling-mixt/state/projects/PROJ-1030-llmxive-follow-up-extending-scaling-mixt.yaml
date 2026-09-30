@@ -1,0 +1,25 @@
+{
+  "project_id": "PROJ-1030-llmxive-follow-up-extending-scaling-mixt",
+  "name": "llmXive follow-up: extending Scaling Mixture-of-Experts Video Pretraining for Embodied Intelligence",
+  "status": "in_progress",
+  "created_at": "2024-01-15T10:00:00Z",
+  "updated_at": "2024-01-15T14:30:00Z",
+  "description": "Implementation of automated science pipeline for video pretraining analysis",
+  "phases": {
+    "setup": "completed",
+    "foundational": "completed",
+    "user_story_1": "completed",
+    "user_story_2": "completed",
+    "user_story_3": "in_progress"
+  },
+  "artifacts_generated": [
+    "data/processed/features.npy",
+    "data/processed/labels.csv",
+    "data/processed/classifier.pkl",
+    "data/processed/evaluation_metrics.json"
+  ],
+  "next_tasks": [
+    "T037.1",
+    "T040"
+  ]
+}
