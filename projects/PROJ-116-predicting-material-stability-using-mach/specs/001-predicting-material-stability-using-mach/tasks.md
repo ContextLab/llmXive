@@ -84,9 +84,9 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Extend `feature_engineering.py` to compute local coordination features (Voronoi stats: coordination number, face area, solid angle; bond-length histograms) **using pymatgen on the raw crystal structures from data/raw/ (produced by T012)**. Append to the feature matrix.
+- [ ] T020 [US2] Extend `feature_engineering.py` to compute local coordination features (Voronoi stats: coordination number, face area, solid angle; bond-length histograms) **using pymatgen on the raw crystal structures from data/raw/ (produced by T012)**. Append to the feature matrix. <!-- ATOMIZE: requested -->
 - [ ] T021 [US2] Implement logic to handle degenerate Voronoi cells or missing bond lengths by skipping the feature for that entry and logging the count.
-- [ ] T022 [US2] Save the augmented feature set to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/augmented_features.parquet`.
+- [ ] T022 [US2] Save the augmented feature set to `projects/PROJ-116-predicting-material-stability-using-mach/data/processed/augmented_features.parquet`. <!-- FAILED: unspecified -->
 - [ ] T023 [US2] Implement `train_augmented.py` to train a second Gradient Boosting Regressor on the combined feature set **with hyperparameter tuning performed on the validation split**. Save model to `projects/PROJ-116-predicting-material-stability-using-mach/data/models/augmented_model.pkl` and save tuning results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/augmented_tuning_results.json`. **Verify that the tuning results are recorded in the JSON.**
 - [ ] T024 [US2] Implement comparative analysis in `evaluate.py` to calculate MAE and R² for the augmented model and the delta relative to the baseline. Output results to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/comparison_metrics.json` (must include MAE_delta and R2_delta).
 - [ ] T025 [US2] Generate a feature importance plot (SHAP or Permutation) highlighting the top local coordination features. Save to `projects/PROJ-116-predicting-material-stability-using-mach/outputs/figures/feature_importance.png`.
@@ -103,8 +103,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T035 [P] [US3] Unit test for convex hull distance calculation using `pymatgen` in `projects/PROJ-116-predicting-material-stability-using-mach/tests/unit/test_hull_distance.py`
-- [ ] T036 [P] [US3] Integration test for sensitivity analysis sweep in `projects/PROJ-116-predicting-material-stability-using-mach/tests/integration/test_sensitivity.py`
+- [X] T035 [P] [US3] Unit test for convex hull distance calculation using `pymatgen` in `projects/PROJ-116-predicting-material-stability-using-mach/tests/unit/test_hull_distance.py`
+- [X] T036 [P] [US3] Integration test for sensitivity analysis sweep in `projects/PROJ-116-predicting-material-stability-using-mach/tests/integration/test_sensitivity.py`
 
 ### Implementation for User Story 3
 

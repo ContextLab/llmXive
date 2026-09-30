@@ -10,6 +10,10 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T008** — declared artifact(s) missing/empty/invalid: src/data/synthetic_gen.py, data/raw/synthetic_data.csv, schema.yaml
 - **T009** — declared artifact(s) missing/empty/invalid: data/raw/synthetic_data.csv, schema.yaml
 - **T010** — declared artifact(s) missing/empty/invalid: src/data/ingestion.py, data/raw/synthetic_data.csv, schema.yaml
-- **T011** — declared artifact(s) missing/empty/invalid: src/data/filtering.py, data/processed/filtered_cohort.csv
-- **T012** — declared artifact(s) missing/empty/invalid: src/data/filtering.py
-- **T013** — The required file `src/data/filtering.py` does not exist, and the schema file `contracts/dataset.schema.yaml` (or `schema.yaml`) is also missing, so no listwise‑deletion logic or logging can be present. The implementer must add the filtering module and the schema definition to satisfy the task.
+- **T011** — The repository contains a partially‑implemented `src/data/filtering.py` that defines the filtering logic, but the file is truncated and does not include any code that writes the filtered DataFrame to `data/processed/filtered_cohort.csv`. Moreover, the required output CSV is absent from the project directory. The task’s core requirement—to produce and save the filtered cohort file—is therefore not satisfied.
+- **T013** — The `filtering.py` file is truncated and does not show the actual listwise‑deletion logic nor a log statement writing the dropped‑row count to `logs/filtering.log`. Moreover, the required schema file `contracts/dataset.schema.yaml` is missing, so we cannot confirm the covariate list matches the specification. The task therefore remains unfinished.
+- **T016** — The required `data/processed/filtered_cohort.csv` file does not exist, and the referenced `contracts/dataset.schema.yaml` (or `schema.yaml`) is also missing. Moreover, the provided test script is incomplete (truncated) and does not actually load and validate the CSV against the schema or check the required non‑null fields. The task’s core artifacts are absent, so the requirement is not satisfied.
+- **T017** — declared artifact(s) missing/empty/invalid: src/analysis/diversity.py
+- **T018** — declared artifact(s) missing/empty/invalid: src/analysis/correlation.py
+- **T019** — declared artifact(s) missing/empty/invalid: src/analysis/correlation.py
+- **T020** — declared artifact(s) missing/empty/invalid: src/analysis/beta_diversity.py

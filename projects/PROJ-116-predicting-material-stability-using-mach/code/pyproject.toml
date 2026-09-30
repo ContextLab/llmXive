@@ -1,11 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "material-stability-pipeline"
 version = "0.1.0"
-description = "Predicting Material Stability using Machine Learning and DFT"
+description = "Predicting material stability using machine learning and DFT"
 requires-python = ">=3.11"
 dependencies = [
     "pymatgen",
@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -40,15 +40,11 @@ exclude = '''
 
 [tool.isort]
 profile = "black"
-line_length = 100
-known_first_party = ["utils", "data_models", "config", "download_data", "feature_engineering"]
+line_length = 88
+known_first_party = ["utils", "scripts"]
+known_third_party = ["pymatgen", "sklearn", "pandas", "numpy", "matplotlib", "seaborn", "requests", "datasets", "shap", "matminer"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "unit: marks tests as unit tests",
-]
+addopts = "-v --tb=short"

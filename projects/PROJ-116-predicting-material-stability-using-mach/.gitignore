@@ -15,21 +15,10 @@ lib64/
 parts/
 sdist/
 venv/
+wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-
-# Data
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/models/*
-!data/models/.gitkeep
-
-# Outputs
-outputs/*
-!outputs/.gitkeep
 
 # IDE
 .idea/
@@ -37,11 +26,27 @@ outputs/*
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
+# Data
+data/raw/*.csv
+data/raw/*.parquet
+data/processed/*.parquet
+data/models/*.pkl
+outputs/*.json
+outputs/*.csv
+outputs/logs/*.log
+outputs/logs/*.txt
+outputs/figures/*.png
+outputs/metrics/*.json
 
 # Logs
 *.log
-outputs/logs/*
-!outputs/logs/.gitkeep
+
+# Environment
+.env
+.venv
+env/
+ENV/
+
+# OS
+.DS_Store
+Thumbs.db

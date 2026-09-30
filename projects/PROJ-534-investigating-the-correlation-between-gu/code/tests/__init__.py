@@ -1,3 +1,3 @@
 """
-Tests package for the gut microbiome cognitive flexibility project.
+Test suite for the Gut Microbiome and Cognitive Flexibility study.
 """

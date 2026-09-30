@@ -1,15 +1,13 @@
-# Large data files - exclude raw data from version control
+# Large data files
 data/raw/*
 !data/raw/.gitkeep
 
-# Python cache and bytecode
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
 
-# Virtual environments
+# Virtual environment
 venv/
 .venv/
 env/
@@ -22,29 +20,34 @@ env/
 *.swo
 *~
 
-# OS files
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Logs and temporary files
+# Logs
 *.log
-.cache/
-.temp/
+logs/
 
-# Build and distribution
-dist/
-build/
-*.egg-info/
+# Temporary files
+tmp/
+temp/
+*.tmp
 
-# Jupyter notebooks (optional, uncomment if desired)
-# *.ipynb_checkpoints
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
 
-# Coverage and test reports
+# Testing and coverage
+.pytest_cache/
 .coverage
 htmlcov/
-pytest.xml
-.pytest_cache/
+.tox/
 
-# Model artifacts (large files)
-data/models/*
-!data/models/.gitkeep
+# Build artifacts
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Environment configuration (sensitive)
+.env.local
+.env.*.local

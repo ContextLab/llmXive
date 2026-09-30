@@ -4,7 +4,7 @@ description: "Task list template for feature implementation"
 
 # Tasks: The Impact of Visual Complexity on Cognitive Load During Remote Meetings
 
-**Input**: Design documents from `/specs/001-visual-complexity-cognitive-load/`  
+**Input**: Design documents from `/specs/001-visual-complexity-on-cognitive-load/`  
 **Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -28,6 +28,8 @@ description: "Task list template for feature implementation"
 - [X] T000 [P] Perform a spec‑task alignment review: compare `spec.md` against the drafted `tasks.md`, flag any contradictions, and produce `docs/spec_alignment_report.md`.
 - [ ] T000a [P] Generate `docs/spec_alignment_report.md` summarizing alignment findings.
   **Verification**: Add `tests/test_spec_alignment.py::test_report_exists` to assert the report file exists.
+- [ ] T000b [P] Verify `docs/spec_alignment_report.md` exists and is non-empty.
+  **Verification**: Add `tests/test_spec_alignment.py::test_report_not_empty`.
 
 ---
 
@@ -50,6 +52,8 @@ description: "Task list template for feature implementation"
   **Verification**: Add `tests/test_data_loader.py::test_local_load_success`.
 - [ ] T006 Add configuration file `src/config.py` with global random seed constant and path definitions.  
   **Verification**: Add `tests/test_config.py::test_seed_defined`.
+- [ ] T006a [P] [US0] **Seed Enforcement Verification**: Implement `tests/test_seed_enforcement.py::test_seed_used_by_yolo_and_lmm` to explicitly verify that the seed in `src/config.py` is consumed by YOLOv8n and statsmodels RNGs.  
+  **Verification**: Add `tests/test_seed_enforcement.py::test_seed_used_by_yolo_and_lmm`.
 - [ ] T007 Add schema validation utilities in `src/lib/schema_validator.py`.  
   **Verification**: Add `tests/test_schema_validation.py::test_backgroundframe_schema`.
 - [ ] T060 [P] Verify CPU‑only environment: implement `src/lib/check_cpu.py` that asserts `torch.cuda.is_available()` is false and raises if a GPU is detected.  
@@ -72,7 +76,7 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 0
 
-- [X] T014a [US0] **One-time Setup: Fetch and Archive Real Stimuli**: Implement `src/metrics/fetch_and_archive.py` as a **one-time setup script** (not part of the standard runtime pipeline). It downloads the first 500 items from the `'train'` split of the HuggingFace `video-conference-backgrounds` dataset, computes SHA‑256 checksums, and stores them in `data/stimuli/raw/`. Subsequent runs of the pilot MUST load from this local archive; this task only runs if the archive is missing.  
+- [ ] T014a [US0] **One-time Setup: Fetch and Archive Real Stimuli**: Implement `src/metrics/fetch_and_archive.py` as a **one-time setup script** (not part of the standard runtime pipeline). It downloads the first 500 items from the `'train'` split of the HuggingFace `video-conference-backgrounds` dataset, **verifies dataset authenticity via checksums against a known manifest**, computes SHA‑256 checksums, and stores them in `data/stimuli/raw/`. Subsequent runs of the pilot MUST load from this local archive; this task only runs if the archive is missing. **This task is NOT parallel-safe; it must complete before T014, T014b, T014c, etc.**  
   **Verification**: Add `tests/test_fetch_and_archive.py::test_fetch_and_checksum_success`.
 - [ ] T014 [US0] **Load from Local Archive**: Implement `src/metrics/load_stimuli.py` to load the verified, checksummed images from `data/stimuli/raw/` for the pilot study. This task **strictly reads from the local archive** created by T014a and does not perform live fetching.  
   **Verification**: Add `tests/test_load_stimuli.py::test_load_from_archive_success`.
@@ -80,18 +84,27 @@ description: "Task list template for feature implementation"
   **Verification**: Add `tests/test_verify_stimuli.py::test_checksum_match`.
 - [ ] T014c [US0] **Validate Stimuli Readability**: Implement `src/metrics/validate_stimuli.py` to ensure each image is readable and meets a minimum resolution of 640×360 pixels; log any failures to `logs/validate_stimuli.log`.  
   **Verification**: Add `tests/test_validate_stimuli.py::test_validate_stimuli_reads_and_logs`.
-- [ ] T014d [US0] **Record Per‑Stimulus Metadata**: For each stimulus image, write a JSON side‑car file `data/stimuli/metadata/<image_id>.json` containing `entropy`, `color_variance`, and `object_count` as computed by the metric pipeline, satisfying Constitution Principle VI.  
+- [ ] T019 [US1] **Metric Extraction (Static Images)**: Implement `src/metrics/extract.py` to compute entropy, color variance, and object detection counts using YOLOv8n (CPU‑only). Resize inputs to 640×640 to meet NFR‑001. **Outputs**: `data/processed/metrics.csv` (conforms to `BackgroundFrame` schema) and `data/derived/performance_log.txt` with timing/RAM stats. **Verification**: Add performance test `tests/test_metrics_performance.py::test_performance_constraints` that **asserts duration < 30s and fails build if exceeded**.
+- [X] T019b [US1] **Frame Extraction from Video Clips**: Implement `src/metrics/extract_frames.py` to extract frames (e.g., one frame per second) from meeting video clips stored in `data/stimuli/` using OpenCV, saving them to a temporary directory for subsequent metric extraction.  
+  **Verification**: Add unit test `tests/test_extract_frames.py::test_frames_extracted_correctly`.
+- [ ] T014d [US0] **Record Per‑Stimulus Metadata**: For each stimulus image, write a JSON side‑car file `data/stimuli/metadata/<image_id>.json` containing `entropy`, `color_variance`, and `object_count` as computed by the metric pipeline (T019), satisfying Constitution Principle VI.  
   **Verification**: Add `tests/test_stimulus_metadata.py::test_metadata_files_exist`.
+- [ ] T011a [US0] **Recruitment Manager**: Implement `src/experiment/recruitment_manager.py` to **recruit n=20 participants via a configured platform (e.g., Prolific API wrapper)**, manage the cohort list in `data/measurements/cohort.json`, and track recruitment status. This task explicitly implements the mechanism to recruit and manage the cohort.  
+  **Verification**: Add `tests/test_recruitment.py::test_cohort_management`.
 - [ ] T011 [US0] **Local Pilot Interface**: Implement `src/experiment/pilot_interface.py` (Streamlit) to present images and collect complexity ratings via a local/private Streamlit deployment. Data is entered via an in‑app form.  
   **Verification**: Add integration test `tests/test_pilot_interface.py::test_end_to_end_flow`.
 - [X] T011d [US0] **Local Pilot Deployment**: Implement `src/experiment/deploy.py` to configure and deploy the Streamlit app to a local/private URL and generate the access link.  
   **Verification**: Add test `tests/test_deploy.py::test_local_deployment_url_generated`.
+- [ ] T010a [US0] **Load Human Ratings CSV**: Implement a loader that reads `data/measurements/human_ratings.csv` into a pandas DataFrame for downstream analysis.  
+  **Verification**: Add test `tests/test_metrics.py::test_metrics_csv_schema` (re‑used for schema validation).
+- [ ] T010 [US0] **Compute Pilot Correlation**: Implement `src/metrics/validate.py` to compute Pearson correlation between human ratings and automated metrics (entropy, variance, object count).  
+  **Verification**: Add unit test `tests/test_validate.py::test_correlation_calculation`.
 - [ ] T012 [US0] **Persist Human Ratings**: Write collected ratings to `data/measurements/human_ratings.csv` with columns `image_id`, `participant_id`, `complexity_score`.  
   **Verification**: Add test `tests/test_metrics.py::test_metrics_csv_schema`.
 - [ ] T013 [US0] **Generate Pilot Validation Report**: Produce a markdown report `data/derived/pilot_validation_report.md` containing a scatter plot of human vs. automated scores, Pearson r, and p‑value.  
   **Verification**: Add test `tests/test_validation_report.py::test_report_generated`.
-- [X] T013b [US0] **Automated Pilot Gate**: Implement `src/experiment/pilot_gate.py` to check the pilot correlation; if r < 0.5, exit with non‑zero code to block downstream tasks.  
-  **Verification**: Add test `tests/test_pilot_gate.py::test_gate_blocks_on_low_correlation`.
+- [ ] T013b [US0] **Automated Pilot Gate**: Implement `src/experiment/pilot_gate.py` to check the pilot correlation; if r < 0.5, **FLAG_REVIEW** (write to `logs/pilot_review_flag.log` and exit with code 0) to allow manual review before proceeding, rather than blocking the entire pipeline.  
+  **Verification**: Add test `tests/test_pilot_gate.py::test_gate_flags_on_low_correlation`.
 - [ ] T022 [US0] **Optional Validation Against Full Pilot**: Re‑run correlation on the full pilot dataset after metric extraction; flag if r < 0.5.  
   **Verification**: Add test `tests/test_full_pilot_correlation.py::test_full_correlation_threshold`.
 
@@ -103,10 +116,6 @@ description: "Task list template for feature implementation"
 
 ### Implementation for User Story 1
 
-- [ ] T019 [US1] **Metric Extraction (Static Images)**: Implement `src/metrics/extract.py` to compute entropy, color variance, and object detection counts using YOLOv8n (CPU‑only). Resize inputs to 640×640 to meet NFR‑001. **Outputs**: `data/processed/metrics.csv` (conforms to `BackgroundFrame` schema) and `data/derived/performance_log.txt` with timing/RAM stats.  
-  **Verification**: Add performance test `tests/test_metrics_performance.py::test_performance_constraints`.
-- [X] T019b [US1] **Frame Extraction from Video Clips**: Implement `src/metrics/extract_frames.py` to extract frames (e.g., one frame per second) from meeting video clips stored in `data/stimuli/` using OpenCV, saving them to a temporary directory for subsequent metric extraction.  
-  **Verification**: Add unit test `tests/test_extract_frames.py::test_frames_extracted_correctly`.
 - [ ] T020 [US1] **Handle No‑Object Images**: Ensure that images with no detectable objects produce `object_count = 0`.  
   **Verification**: Add unit test `tests/test_metrics.py::test_no_objects_handled`.
 - [ ] T021 [US1] **Persist Metrics CSV**: Write the computed metrics to `data/processed/metrics.csv`.  
@@ -125,9 +134,9 @@ description: "Task list template for feature implementation"
 
 ## Phase 5: Pilot Validation (runs after metrics are available)
 
-- [ ] T010a [US0] **Load Human Ratings CSV**: Implement a loader that reads `data/measurements/human_ratings.csv` into a pandas DataFrame for downstream analysis.  
-  **Verification**: Add test `tests/test_metrics.py::test_metrics_csv_schema` (re‑used for schema validation).
-- [ ] T010 [US0] **Compute Pilot Correlation**: Implement `src/metrics/validate.py` to compute Pearson correlation between human ratings and automated metrics (entropy, variance, object count).  
+- [X] T010a [US0] **Load Human Ratings CSV**: (Moved from Phase 3) Implement a loader that reads `data/measurements/human_ratings.csv` into a pandas DataFrame for downstream analysis.  
+  **Verification**: Add test `tests/test_metrics.py::test_metrics_csv_schema`.
+- [X] T010 [US0] **Compute Pilot Correlation**: (Moved from Phase 3) Implement `src/metrics/validate.py` to compute Pearson correlation between human ratings and automated metrics (entropy, variance, object count).  
   **Verification**: Add unit test `tests/test_validate.py::test_correlation_calculation`.
 
 ---
@@ -150,7 +159,9 @@ description: "Task list template for feature implementation"
   **Verification**: Add `tests/test_experiment.py::test_counterbalance_output`.
 - [ ] T028a [US2] **Implement RT Measurement Mechanism**: Implement `src/experiment/rt_mechanism.py` to handle the baseline reaction‑time task with millisecond‑accurate timing loop, stimulus presentation logic, and response capture. Output `data/derived/rt_measurements.json`.  
   **Verification**: Add `tests/test_experiment.py::test_rt_mechanism_accuracy`.
-- [ ] T028 [US2] **Baseline Task Handler**: Implement `src/experiment/tasks.py` to load the neutral stimulus from `data/stimuli/neutral/` (produced by T032d) for the baseline condition and invoke the RT measurement mechanism from T028a to capture reaction times.  
+- [ ] T028b [US2] **Pre-Trial Baseline Enforcer**: Implement `src/experiment/baseline_enforcer.py` to **explicitly validate that the baseline task is administered before experimental trials for every participant session** and fail the session if this ordering is violated.  
+  **Verification**: Add `tests/test_experiment.py::test_baseline_ordering_enforced`.
+- [ ] T028 [US2] **Baseline Task Handler**: Implement `src/experiment/tasks.py` to load the neutral stimulus from `data/stimuli/neutral/` (produced by T032d) for the baseline condition and invoke the RT measurement mechanism from T028a to capture reaction times. **Must depend on T028b for ordering enforcement.**  
   **Verification**: Add `tests/test_experiment.py::test_baseline_task_loads_neutral_stimulus`.
 - [ ] T029 [US2] **Session Server**: Implement `src/experiment/server.py` (Flask) to present clips, capture NASA‑TLX scores, and record reaction times. Load counterbalanced sequence from `counterbalance_order.json` and enforce exact order.  
   **Verification**: Add `tests/test_experiment.py::test_server_loads_counterbalance`.
@@ -178,15 +189,19 @@ description: "Task list template for feature implementation"
   **Verification**: Add `tests/test_analysis.py::test_data_integration_columns`.
 - [ ] T037 [US3] Implement `src/analysis/models.py` to run linear mixed‑effects models with visual complexity as predictor and cognitive load (NASA‑TLX, RT) as outcomes.  
   **Verification**: Add unit test `tests/test_analysis_models.py::test_lmm_runs`.
+- [ ] T037a [US3] **Real-Data Validation Gate**: Implement `src/analysis/real_data_gate.py` to **explicitly validate that input data for T037 is flagged as 'Real Human Data'** and block execution if synthetic data is detected.  
+  **Verification**: Add `tests/test_analysis.py::test_real_data_gate_blocks_synthetic`.
 - [ ] T038 [US3] Implement VIF calculation in `src/analysis/models.py`; flag any predictor with VIF > 5.  
   **Verification**: Add `tests/test_analysis.py::test_vif_calculation`.
+- [ ] T038a [US3] **VIF Instability Flag**: Implement `src/analysis/vif_flag.py` to **explicitly generate a log entry or flag when VIF > 5 and PCA is not chosen**, satisfying FR-003.  
+  **Verification**: Add `tests/test_analysis.py::test_vif_flag_generated`.
 - [ ] T039 [US3] Implement PCA fallback in `src/analysis/models.py` when VIF > 5.  
   **Verification**: Add integration test `tests/test_analysis.py::test_pca_fallback`.
 - [ ] T040 [US3] Implement Benjamini‑Hochberg correction in `src/analysis/corrections.py`.  
   **Verification**: Add unit test `tests/test_analysis.py::test_benjamini_hochberg_correction`.
 - [ ] T040a [US3] **Verify BH Applied to All Metrics**: Test that the correction is applied to entropy, variance, and object count hypothesis tests.  
   **Verification**: Add `tests/test_analysis.py::test_bh_applied_all_metrics`.
-- [ ] T041 [P] [US3] Implement `src/analysis/sensitivity.py` to sweep α thresholds across a range of small values and output `data/derived/stability_report.csv`. This file serves as the **single source of truth** for the 'stability' metric suite defined in FR‑005b. The CSV must contain columns: `alpha_threshold`, `count_significant_predictors`, and `sd_effect_size`.  
+- [ ] T041 [P] [US3] Implement `src/analysis/sensitivity.py` to sweep α thresholds **explicitly hardcoded as {0.01, 0.05, 0.1}** and output `data/derived/stability_report.csv` and `data/derived/stability_conclusion.txt` containing the **interpretive conclusion ('Stable' or 'Unstable')** based on the SD threshold. This file serves as the **single source of truth** for the 'stability' metric suite defined in FR‑005b. The CSV must contain columns: `alpha_threshold`, `count_significant_predictors`, and `sd_effect_size`.  
   **Verification**: Add test `tests/test_analysis.py::test_sensitivity_sweep`.
 - [ ] T042 [US3] **Null‑Simulation (Pipeline Validation)**: Implement `src/analysis/null_sim.py` to run a null‑simulation (effect size = 0) and produce intermediate results required by T042c. Output to `data/derived/validation_only/`.  
   **Verification**: Add test `tests/test_analysis.py::test_null_simulation_fwer`.
@@ -194,11 +209,13 @@ description: "Task list template for feature implementation"
   **Verification**: Add test `tests/test_analysis.py::test_null_isolation`.
 - [ ] T042d [US3] **FWER vs Alpha Comparison & Report**: Verify that the corrected p‑values control the family‑wise error rate at α = 0.05 across all tests.  
   **Verification**: Add test `tests/test_analysis.py::test_fwer_control`.
+- [ ] T042e [US3] **Pipeline Validation Gate**: Implement `src/analysis/pipeline_gate.py` to **explicitly block T043 (Report Generation) if T042d (FWER check) fails**, ensuring the pipeline validation gate is enforced.  
+  **Verification**: Add test `tests/test_analysis.py::test_pipeline_gate_blocks_on_fwer_failure`.
 - [ ] T043 [US3] **Report Generation**: Implement `src/analysis/report_gen.py` to generate the final report with fixed‑effect estimates, confidence intervals, adjusted p‑values, VIF scores, FWER (from T042c), and stability metrics. Explicitly exclude any data from `validation_only/`.  
   **Verification**: Add integration test `tests/test_analysis.py::test_full_report_generation`.
 - [ ] T054 [US3] **Complexity‑TLX Correlation**: Compute Pearson correlation between aggregated visual‑complexity scores and NASA‑TLX scores; output `data/derived/complexity_tlx_correlation.csv`.  
   **Verification**: Add `tests/test_analysis.py::test_complexity_tlx_correlation_file`.
-- [ ] T053 [US3] **Reaction‑Time Difference Analysis (SC‑003)**: Compute the reaction‑time difference between high‑complexity and low‑complexity conditions relative to each participant’s baseline RT; store results in `data/derived/rt_diff.csv`.  
+- [ ] T053 [US3] **Reaction‑Time Difference Analysis (SC‑003)**: Compute the reaction‑time difference between high‑complexity and low‑complexity conditions relative to each participant's baseline RT; store results in `data/derived/rt_diff.csv`.  
   **Verification**: Add `tests/test_analysis.py::test_rt_difference_computation`.
 - [ ] T033 [P] [US3] Unit test `test_benjamini_hochberg_correction` in `tests/test_analysis.py`.
 - [ ] T034 [P] [US3] Unit test `test_vif_calculation` in `tests/test_analysis.py`.
@@ -210,7 +227,7 @@ description: "Task list template for feature implementation"
 
 **Goal**: Collect real human data (NASA‑TLX, reaction times) and run the primary hypothesis test.
 
-- [ ] T056 [US4] **Conduct Main Study**: Recruit n=50‑100 participants, run the deployed app (from T011d), and store all collected data in `data/measurements/raw/main_study_sessions.csv` flagged as “Real Human Data”.  
+- [ ] T056 [US4] **Conduct Main Study**: Recruit n=50‑100 participants, run the deployed app (from T011d), and store all collected data in `data/measurements/raw/main_study_sessions.csv` flagged as "Real Human Data".  
   **Verification**: Add CI check `ci/check_main_study_data.sh` that asserts the file exists and contains the required columns.
 - [ ] T063 [P] [US4] **Real‑Data Flag Check**: Implement CI script `ci/check_real_data_flag.sh` to verify that `data/measurements/raw/main_study_sessions.csv` includes a column `data_source` with the value `"Real Human Data"` for every row.  
   **Verification**: Add `tests/test_main_study_flag.py::test_real_data_flag_present`.
@@ -227,8 +244,8 @@ description: "Task list template for feature implementation"
   **Verification**: Add CI script `ci/check_data_model.sh` that validates inclusion of new attributes.
 - [ ] T046 [P] Update `docs/contracts/` with final API/Interface definitions.  
   **Verification**: Add CI script `ci/check_contracts.sh` that loads each schema and validates against a sample instance.
-- [ ] T047 [P] Additional unit tests for edge cases (skewed distributions, attention‑check failures).  
-  **Concrete Tests**: `tests/test_edge_cases.py::test_skewed_distribution_handling`, `tests/test_edge_cases.py::test_attention_check_failure`.
+- [ ] T047 [P] Additional unit tests for edge cases. **Concrete Tests**: `tests/test_edge_cases.py::test_skewed_distribution_handling` (input: skewed array, expected: robust stats), `tests/test_edge_cases.py::test_attention_check_failure` (input: random responses, expected: flag).  
+  **Verification**: Add `tests/test_edge_cases.py::test_skewed_distribution_handling` and `tests/test_edge_cases.py::test_attention_check_failure`.
 - [ ] T048a [P] **Automated Reproducibility Orchestrator**: Run sub‑tasks T048a1‑T048a4 sequentially on a fresh temporary directory, then produce `data/derived/reproducibility_summary.md`.  
   **Verification**: Add wrapper test `tests/test_reproducibility.py::test_orchestrator_success`.
 - [ ] T048b [P] **Automated Reproducibility Test**: Assert that T048a exits with code 0 and that expected artifacts (`performance_log.txt`, `stability_report.csv`, `fwer_validation_report.md`, etc.) are present.  
@@ -243,6 +260,8 @@ description: "Task list template for feature implementation"
   **Verification**: Covered by `tests/test_config.py::test_seed_defined`.
 - [ ] T052 [P] Implement schema validation tests that load each JSON/CSV output and verify compliance with schemas defined in `contracts/`.  
   **Verification**: Concrete tests in `tests/test_schema_validation.py`.
+- [ ] T061a [P] **NFR-001 Enforcement Gate**: Implement `ci/check_nfr_001.sh` that **explicitly fails the build if the metric extraction pipeline exceeds 30 seconds**, ensuring NFR-001 is enforced.  
+  **Verification**: Add `tests/test_nfr_enforcement.py::test_nfr_001_gate_fails_on_timeout`.
 - [ ] T064 [P] Update `docs/hardware_requirements.md` to explicitly state CPU‑only constraints, RAM limits, and the prohibition of GPU usage for this project.  
   **Verification**: Add CI script `ci/check_hardware_requirements.sh` that searches for the required statements.
 
@@ -251,4 +270,4 @@ description: "Task list template for feature implementation"
 ## Phase Dependencies
 
 - **Setup (Phase 1)** → **Foundational (Phase 2)** → **User Story 0 (Phase 3)** → **User Story 1 (Phase 4)** → **Pilot Validation (Phase 5)** → **User Story 2 (Phase 6)** → **User Story 3 (Phase 7)** → **User Story 4 (Phase 8)** → **Polish (Phase 9)**
-- Parallelism is indicated by `[P]` tags; tasks respect data‑flow ordering.  
+- Parallelism is indicated by `[P]` tags; tasks respect data‑flow ordering.

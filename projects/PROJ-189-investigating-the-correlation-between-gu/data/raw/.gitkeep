@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists in git
+# This directory stores raw data files.
+# .gitkeep ensures the directory is tracked by git even if empty.

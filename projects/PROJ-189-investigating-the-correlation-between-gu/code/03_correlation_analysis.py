@@ -1,8 +1,8 @@
 """
-Correlation Analysis Module (US2)
+User Story 2: Associational Correlation Analysis
 
-Implements Spearman rank correlation between genus-level microbial abundances
-and cognitive test scores, with CLR transformation and FDR correction.
+Implements Spearman rank correlations between genus-level microbial abundances
+and cognitive test scores with CLR transformation and FDR correction.
 """
 import os
 import sys
@@ -14,228 +14,246 @@ from pathlib import Path
 from scipy.stats import spearmanr
 from statsmodels.stats.multitest import multipletests
 
-# Import project config and utils
-sys.path.insert(0, str(Path(__file__).parent))
-from config import get_config
+# Import project utilities
 from utils.logging import get_logger
+from utils.resource_guard import check_cpu_only
 
+# Configure logging
 logger = get_logger(__name__)
-config = get_config()
 
-def load_preprocessed_data(input_path: str) -> pd.DataFrame:
+def load_preprocessed_data(data_path: str) -> pd.DataFrame:
     """
-    Load the preprocessed analysis dataset.
-    Expects a CSV with microbial genera columns and cognitive score columns.
+    Load the preprocessed dataset from the specified path.
+    
+    Args:
+        data_path: Path to the processed CSV file.
+        
+    Returns:
+        DataFrame with microbial abundances and cognitive scores.
     """
-    path = Path(input_path)
+    path = Path(data_path)
     if not path.exists():
-        raise FileNotFoundError(f"Preprocessed data not found at {input_path}")
+        raise FileNotFoundError(f"Preprocessed data not found at {data_path}")
     
     df = pd.read_csv(path)
-    logger.info(f"Loaded preprocessed data: {df.shape}")
+    logger.info(f"Loaded preprocessed data: {df.shape[0]} rows, {df.shape[1]} columns")
     return df
 
-def clr_transform(data: pd.DataFrame, epsilon: float = 1e-6) -> pd.DataFrame:
+def clr_transform(abundance_df: pd.DataFrame, epsilon: float = 1e-6) -> pd.DataFrame:
     """
-    Apply Centered Log-Ratio (CLR) transformation to microbial abundance data.
+    Apply Centered Log-Ratio (CLR) transformation to rarefied taxonomic data.
     
     Args:
-        data: DataFrame with microbial abundance columns (non-negative)
-        epsilon: Small constant to avoid log(0)
-    
+        abundance_df: DataFrame of relative abundances (rows=samples, cols=taxa).
+        epsilon: Small constant to avoid log(0).
+        
     Returns:
-        DataFrame with CLR-transformed values
+        DataFrame with CLR-transformed values.
     """
-    logger.info("Applying CLR transformation...")
+    # Ensure non-negative values and add epsilon
+    data = abundance_df.clip(lower=0) + epsilon
     
-    # Ensure non-negative
-    data_clamped = data.clip(lower=0)
+    # Calculate geometric mean for each sample
+    # Using log-sum-exp trick for numerical stability: log(gm) = mean(log(x))
+    log_data = np.log(data)
+    log_gm = log_data.mean(axis=1)
     
-    # Add pseudo-count to avoid log(0)
-    data_pseudo = data_clamped + epsilon
+    # Subtract geometric mean from each log value
+    clr_data = log_data.sub(log_gm, axis=0)
     
-    # Calculate geometric mean for each sample (row)
-    # Using log-sum-exp trick for numerical stability
-    log_data = np.log(data_pseudo)
-    log_geometric_mean = log_data.mean(axis=1)
-    
-    # CLR: log(x) - mean(log(x))
-    clr_data = log_data - log_geometric_mean.values[:, np.newaxis]
-    
-    logger.info("CLR transformation complete.")
-    return pd.DataFrame(clr_data, index=data.index, columns=data.columns)
+    return pd.DataFrame(clr_data, index=abundance_df.index, columns=abundance_df.columns)
 
-def calculate_spearman_correlations(abundance_df: pd.DataFrame, score_df: pd.Series) -> pd.DataFrame:
+def calculate_spearman_correlations(
+    features: pd.DataFrame, 
+    target: pd.Series
+) -> pd.DataFrame:
     """
-    Calculate Spearman rank correlations between each genus and the cognitive score.
+    Calculate Spearman rank correlation between each feature and the target.
     
     Args:
-        abundance_df: DataFrame of CLR-transformed genus abundances
-        score_df: Series of cognitive scores
-    
+        features: DataFrame of predictor variables (e.g., CLR-transformed abundances).
+        target: Series of target variable (e.g., cognitive score).
+        
     Returns:
-        DataFrame with correlation coefficients (rho) and p-values
+        DataFrame with correlation coefficients (rho) and p-values.
     """
-    logger.info("Calculating Spearman correlations...")
-    
     results = []
     
-    for genus in abundance_df.columns:
-        rho, p_value = spearmanr(abundance_df[genus], score_df)
+    for col in features.columns:
+        # Drop pairs with any missing values
+        valid_pairs = features[col].notna() & target.notna()
+        if valid_pairs.sum() < 10:
+            logger.warning(f"Skipping {col}: insufficient valid pairs ({valid_pairs.sum()})")
+            continue
+            
+        rho, p_val = spearmanr(
+            features.loc[valid_pairs, col], 
+            target.loc[valid_pairs]
+        )
+        
         results.append({
-            'genus': genus,
-            'score_name': score_df.name,
+            'taxon': col,
             'rho': rho,
-            'p_value': p_value
+            'p_value': p_val
         })
     
-    results_df = pd.DataFrame(results)
-    logger.info(f"Calculated {len(results_df)} correlations.")
-    return results_df
+    return pd.DataFrame(results)
 
-def apply_fdr_correction(results_df: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
+def apply_fdr_correction(p_values: pd.Series, alpha: float = 0.05) -> pd.Series:
     """
-    Apply Benjamini-Hochberg FDR correction to p-values.
+    Apply Benjamini-Hochberg FDR correction to raw p-values.
     
     Args:
-        results_df: DataFrame with 'p_value' column
-        alpha: Significance threshold
-    
+        p_values: Series of raw p-values.
+        alpha: Significance threshold.
+        
     Returns:
-        DataFrame with added 'adj_p_value' and 'significant' columns
+        Series of adjusted p-values (q-values).
     """
-    logger.info(f"Applying FDR correction (alpha={alpha})...")
+    # Use statsmodels for BH correction
+    # method='fdr_bh' implements Benjamini-Hochberg
+    rejected, pvals_corrected, _, _ = multipletests(
+        p_values, 
+        alpha=alpha, 
+        method='fdr_bh'
+    )
     
-    p_values = results_df['p_value'].values
-    
-    # Apply BH correction
-    reject, p_values_corrected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
-    
-    results_df['adj_p_value'] = p_values_corrected
-    results_df['significant'] = reject
-    
-    logger.info(f"FDR correction complete. {reject.sum()} significant associations found.")
-    return results_df
+    return pd.Series(pvals_corrected, index=p_values.index)
 
-def filter_significant_associations(results_df: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
+def filter_significant_associations(
+    results_df: pd.DataFrame, 
+    alpha: float = 0.05,
+    label: str = "associational"
+) -> pd.DataFrame:
     """
-    Filter for significant associations (adj_p < alpha) and label as 'associational'.
+    Filter results for significant associations and add labels.
     
     Args:
-        results_df: DataFrame with 'adj_p_value' and 'significant' columns
-        alpha: Significance threshold
-    
+        results_df: DataFrame with correlation results including adj_p_value.
+        alpha: Significance threshold for adjusted p-values.
+        label: Label to apply to significant associations.
+        
     Returns:
-        Filtered DataFrame with significant associations only
+        Filtered DataFrame with significant associations only.
     """
-    logger.info(f"Filtering significant associations (adj_p < {alpha})...")
+    if 'adj_p_value' not in results_df.columns:
+        raise ValueError("Input DataFrame must contain 'adj_p_value' column")
+        
+    significant = results_df[results_df['adj_p_value'] < alpha].copy()
+    significant['significance_label'] = label
     
-    significant_df = results_df[results_df['significant']].copy()
-    
-    # Add explicit label
-    significant_df['association_type'] = 'associational'
-    
-    logger.info(f"Found {len(significant_df)} significant genus-score pairs.")
-    return significant_df
+    logger.info(f"Found {len(significant)} significant associations at alpha={alpha}")
+    return significant
 
-def generate_summary_report(significant_df: pd.DataFrame, output_path: str):
+def generate_summary_report(
+    significant_df: pd.DataFrame, 
+    output_path: str
+) -> None:
     """
     Generate a summary report of significant genus-score pairs.
     
     Args:
-        significant_df: DataFrame of significant associations
-        output_path: Path to save the CSV report
+        significant_df: DataFrame of significant associations.
+        output_path: Path to save the CSV report.
     """
-    logger.info(f"Generating summary report to {output_path}...")
+    if significant_df.empty:
+        logger.warning("No significant associations found. Creating empty report.")
     
     # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Sort by adjusted p-value
-    report_df = significant_df.sort_values('adj_p_value')
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
     # Save to CSV
-    report_df.to_csv(output_path, index=False)
+    significant_df.to_csv(output_path, index=False)
+    logger.info(f"Saved summary report to {output_path}")
     
-    logger.info(f"Summary report saved: {len(report_df)} rows.")
-    
-    # Log top hits
-    if len(report_df) > 0:
-        logger.info("Top 5 significant associations:")
-        for _, row in report_df.head().iterrows():
-            logger.info(f"  {row['genus']} vs {row['score_name']}: rho={row['rho']:.3f}, adj_p={row['adj_p_value']:.4f}")
+    # Log summary statistics
+    if not significant_df.empty:
+        logger.info(f"Report contains {len(significant_df)} significant pairs")
+        logger.info(f"Top 5 by absolute rho:\n{significant_df.nlargest(5, 'rho_abs')}")
 
-def run_analysis_pipeline(input_path: str, output_path: str, alpha: float = 0.05):
+def run_analysis_pipeline(
+    input_path: str,
+    output_path: str,
+    cognitive_score_col: str = 'cognitive_score',
+    alpha: float = 0.05
+) -> pd.DataFrame:
     """
     Run the full correlation analysis pipeline.
     
     Args:
-        input_path: Path to preprocessed data CSV
-        output_path: Path to save correlation results CSV
-        alpha: FDR significance threshold
+        input_path: Path to preprocessed data.
+        output_path: Path to save correlation results.
+        cognitive_score_col: Name of the cognitive score column.
+        alpha: FDR significance threshold.
+        
+    Returns:
+        DataFrame of significant associations.
     """
-    logger.info("Starting correlation analysis pipeline...")
-    
     # 1. Load data
     df = load_preprocessed_data(input_path)
     
-    # Identify microbial genera columns (assume they don't contain 'score' or 'age' or 'id')
-    # This is a heuristic; in practice, column names should be known
-    meta_cols = ['participant_id', 'age', 'bmi', 'education', 'score', 'score_name']
-    genus_cols = [c for c in df.columns if c not in meta_cols and c != 'score_name']
+    # Identify microbial columns (assume they start with 'genus_' or are not covariates)
+    # Based on preprocessing, microbial cols are likely numeric and not ID/covariate columns
+    exclude_cols = ['participant_id', 'age', 'bmi', 'education', cognitive_score_col]
+    microbial_cols = [c for c in df.columns if c not in exclude_cols and df[c].dtype in ['float64', 'int64']]
     
-    if len(genus_cols) == 0:
-        raise ValueError("No microbial genus columns found in input data.")
+    if len(microbial_cols) == 0:
+        raise ValueError("No microbial abundance columns found in input data")
+        
+    logger.info(f"Analyzing {len(microbial_cols)} microbial genera")
     
-    # Extract cognitive score (assume single score column for this pipeline, or handle multiple)
-    # The spec implies a single cognitive score column for correlation
-    if 'score' in df.columns:
-        score_col = 'score'
-    elif 'score_name' in df.columns:
-        # If we have multiple scores, we might need to iterate, but for now assume one
-        score_col = df.columns[0] # Fallback
-        logger.warning(f"Using first column as score: {score_col}")
-    else:
-        raise ValueError("No cognitive score column found.")
+    # 2. CLR Transform microbial data
+    microbial_df = df[microbial_cols]
+    clr_df = clr_transform(microbial_df)
     
-    score_series = df[score_col]
-    abundance_df = df[genus_cols]
+    # 3. Calculate correlations
+    target = df[cognitive_score_col]
+    corr_results = calculate_spearman_correlations(clr_df, target)
     
-    # 2. CLR Transform
-    abundance_clr = clr_transform(abundance_df)
+    # 4. Apply FDR correction
+    corr_results['adj_p_value'] = apply_fdr_correction(corr_results['p_value'])
     
-    # 3. Calculate Spearman Correlations
-    corr_results = calculate_spearman_correlations(abundance_clr, score_series)
+    # 5. Calculate absolute rho for sorting
+    corr_results['rho_abs'] = corr_results['rho'].abs()
     
-    # 4. Apply FDR Correction
-    corr_results = apply_fdr_correction(corr_results, alpha=alpha)
+    # 6. Filter significant associations
+    significant_df = filter_significant_associations(
+        corr_results, 
+        alpha=alpha,
+        label="associational"
+    )
     
-    # 5. Filter Significant
-    significant_df = filter_significant_associations(corr_results, alpha=alpha)
-    
-    # 6. Generate Summary Report
+    # 7. Generate summary report
     generate_summary_report(significant_df, output_path)
     
-    logger.info("Correlation analysis pipeline complete.")
     return significant_df
 
 def main():
-    """
-    Main entry point for the correlation analysis script.
-    """
-    # Setup paths
-    base_dir = Path(__file__).parent.parent
-    input_path = base_dir / "data" / "processed" / "analysis_dataset.csv"
-    output_path = base_dir / "data" / "processed" / "correlation_results.csv"
+    """Entry point for correlation analysis."""
+    check_cpu_only()
     
-    # Check config for overrides
-    if hasattr(config, 'correlation_input'):
-        input_path = Path(config.correlation_input)
-    if hasattr(config, 'correlation_output'):
-        output_path = Path(config.correlation_output)
+    # Default paths
+    input_path = "data/processed/preprocessed_data.csv"
+    output_path = "data/processed/correlation_results.csv"
     
-    # Run pipeline
-    run_analysis_pipeline(str(input_path), str(output_path))
+    # Allow override via command line
+    if len(sys.argv) > 1:
+        input_path = sys.argv[1]
+    if len(sys.argv) > 2:
+        output_path = sys.argv[2]
+        
+    logger.info(f"Starting correlation analysis pipeline")
+    logger.info(f"Input: {input_path}")
+    logger.info(f"Output: {output_path}")
+    
+    try:
+        results = run_analysis_pipeline(input_path, output_path)
+        logger.info("Pipeline completed successfully")
+        return results
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        raise
 
 if __name__ == "__main__":
     main()

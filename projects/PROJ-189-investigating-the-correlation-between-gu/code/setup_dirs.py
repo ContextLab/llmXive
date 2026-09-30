@@ -1,23 +1,22 @@
 """
 Script to create the required project directory structure for PROJ-189.
-This script ensures all necessary folders for data, code, tests, and docs exist.
+This satisfies task T001b.
 """
 import os
 from pathlib import Path
 
 def main():
-    # Define the project root based on the task description
-    # The task assumes we are running from the project root or code directory
-    # We will resolve relative to the script's location or current working directory
-    base_path = Path.cwd()
+    # Determine the project root relative to this script's location
+    # The script is in code/, so root is one level up
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent.parent
     
-    # Define the required subdirectories relative to the base path
-    # Based on T001b requirements:
-    # data/raw, data/processed, data/models
-    # code, code/utils
-    # tests, tests/contract, tests/integration, tests/unit
-    # docs
-    directories = [
+    # Define the required subdirectories relative to project root
+    # Per task description: data/raw, data/processed, data/models, code, code/utils, 
+    # tests, tests/contract, tests/integration, tests/unit, docs
+    # Note: 'code' and 'code/utils' already exist, but we ensure them anyway.
+    
+    dirs_to_create = [
         "data/raw",
         "data/processed",
         "data/models",
@@ -31,23 +30,17 @@ def main():
     ]
 
     created_count = 0
-    existing_count = 0
-
-    print(f"Creating directory structure in: {base_path}")
-
-    for dir_path in directories:
-        full_path = base_path / dir_path
+    for dir_rel in dirs_to_create:
+        full_path = project_root / dir_rel
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {full_path}")
+            print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Exists: {full_path}")
-            existing_count += 1
+            print(f"Directory already exists: {full_path}")
 
-    print(f"\nDirectory creation complete.")
-    print(f"Created: {created_count} new directories.")
-    print(f"Already existed: {existing_count} directories.")
+    print(f"\nDirectory creation complete. Created {created_count} new directories.")
+    print(f"Project root: {project_root}")
 
 if __name__ == "__main__":
     main()

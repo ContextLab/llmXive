@@ -66,3 +66,21 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T06:12:24Z'
+- artifact_path: projects/PROJ-534-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu/tasks.md
+  attempts: 1
+  canonical: delta_coefficient threshold 0.1 for confounding check
+  claim_id: c_c31059aa
+  context: Add a specific validation test in tests/unit/test_confounding.py. Assert
+    that delta_coefficient for the diversity term is < 0.1 between Model 1 and Model
+    3. If >= 0.1, log a warning that covariates confound the result.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Assert that delta_coefficient for the diversity term is < 0.1 between
+    Model 1 and Model 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T21:32:30Z'

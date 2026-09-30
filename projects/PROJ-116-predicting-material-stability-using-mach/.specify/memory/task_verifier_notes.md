@@ -16,3 +16,4 @@ A separate model checked the artifacts you produced for the tasks below and judg
 - **T023** — declared artifact(s) missing/empty/invalid: data/models/augmented_model.pkl, outputs/augmented_tuning_results.json
 - **T024** — declared artifact(s) missing/empty/invalid: outputs/comparison_metrics.json
 - **T025** — declared artifact(s) missing/empty/invalid: outputs/figures/feature_importance.png
+- **T037** — No code, data files, logs, or output (e.g., a script using `pymatgen.PhaseDiagram`, a report showing excluded entries, or a verification that the regression set contains N entries) were provided. Consequently, the required convex‑hull distance calculation, the exclusion‑handling logic, and the verification of the filtered regression dataset are not demonstrated. The implementer must supply the implementation and the accompanying evidence (e.g., source file, execution logs, and a summary confirming the entry counts).

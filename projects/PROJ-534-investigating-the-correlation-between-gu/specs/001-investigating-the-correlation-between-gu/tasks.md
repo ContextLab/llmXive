@@ -76,7 +76,7 @@
 
 - [ ] T010 [US1] Implement `src/data/ingestion.py` to ingest 16S rRNA sequencing data and linked cognitive assessment data from `data/raw` (synthetic). **Logic**: Load synthetic 16S rRNA sequencing data and linked cognitive assessment data from `data/raw/synthetic_data.csv`. Merge on `participant_id` as per FR-001. Validate output against `contracts/dataset.schema.yaml`.
 - [ ] T011 [US1] Implement `src/data/filtering.py` to filter for age >= 65, non-null Shannon/Cognitive scores, and required covariates (age, sex, BMI, dietary_fiber, antibiotic_use). **Action**: Save output to `data/processed/filtered_cohort.csv`.
-- [ ] T012 [US1] Add logic in `src/data/filtering.py` to handle zero-variance datasets by flagging and skipping correlation (Edge Case).
+- [X] T012 [US1] Add logic in `src/data/filtering.py` to handle zero-variance datasets by flagging and skipping correlation (Edge Case).
 - [ ] T013 [US1] Implement listwise deletion for missing covariates in `src/data/filtering.py`. **Action**: Log the count of dropped rows to `logs/filtering.log` using the logger initialized in T002. **Constraint**: Strictly use listwise deletion for covariates defined in `contracts/dataset.schema.yaml` (age, sex, BMI, dietary_fiber, antibiotic_use). Do NOT attempt to handle SES or dietary_pattern as these are not in the schema.
 
 ### Tests for User Story 1
@@ -85,7 +85,7 @@
 
 - [X] T014 [US1] Unit test for age filtering logic in `tests/unit/test_filtering.py`. **Prerequisite**: Must run after T011 implementation exists.
 - [X] T015 [US1] Unit test for null-value exclusion in `tests/unit/test_filtering.py`.
-- [ ] T016 [US1] Contract test validating `data/processed/filtered_cohort.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_schemas.py`. **Prerequisite**: Must run after T011 completes. Verify all rows have non-null `age`, `shannon_diversity`, `cognitive_flexibility_score`, and required covariates (age, sex, BMI, fiber, antibiotics).
+- [ ] T016 [US1] Contract test validating `data/processed/filtered_cohort.csv` against `contracts/dataset.schema.yaml` in `tests/contract/test_schemas.py`. **Prerequisite**: Must run after T011 completes. Verify all rows have non-null `age`, `shannon_diversity`, `cognitive_flexibility_score`, and required covariates (age, sex, BMI, fiber, antibiotics). <!-- FAILED: unspecified -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 

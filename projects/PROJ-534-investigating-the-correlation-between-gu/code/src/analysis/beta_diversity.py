@@ -1,208 +1,216 @@
-"""
-Beta Diversity Analysis Module.
-
-Implements PERMANOVA (Permutational Multivariate Analysis of Variance)
-to test for associations between beta diversity distances and continuous
-cognitive flexibility scores.
-"""
-
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
-
+from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
-from scipy import stats
 import skbio
-from skbio.stats.distance import permanova
-
-from code.src.utils.config import (
-    get_project_root,
-    get_results_dir,
-    get_processed_data_dir,
-    set_global_seed,
-    SEED
-)
+from skbio.stats.distance import permanova, DistanceMatrix
+from skbio.diversity import beta_diversity
+from code.src.utils.config import get_processed_data_dir, get_results_dir, get_logs_dir, set_global_seed
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
-
 
 def load_filtered_cohort() -> pd.DataFrame:
     """
     Load the filtered cohort data from the processed directory.
-
-    Returns:
-        pd.DataFrame: The filtered cohort with microbiome and cognitive data.
-
-    Raises:
-        FileNotFoundError: If the filtered cohort file does not exist.
+    Expects 'data/processed/filtered_cohort.csv' based on T011 output.
     """
     processed_dir = get_processed_data_dir()
     cohort_path = processed_dir / "filtered_cohort.csv"
-
+    
     if not cohort_path.exists():
         raise FileNotFoundError(
             f"Filtered cohort not found at {cohort_path}. "
-            "Please run the ingestion and filtering pipeline first."
+            "Please ensure T011 (filtering) has been executed successfully."
         )
+    
+    df = pd.read_csv(cohort_path)
+    logger.info(f"Loaded {len(df)} rows from {cohort_path}")
+    return df
 
-    logger.info(f"Loading filtered cohort from {cohort_path}")
-    return pd.read_csv(cohort_path)
-
-
-def load_distance_matrix(cohort: pd.DataFrame) -> Tuple[pd.DataFrame, skbio.DistanceMatrix]:
+def load_distance_matrix(cohort_df: pd.DataFrame, metric: str = "braycurtis") -> DistanceMatrix:
     """
-    Calculate Bray-Curtis dissimilarity matrix from OTU table.
-
-    Args:
-        cohort (pd.DataFrame): The filtered cohort containing OTU counts.
-
-    Returns:
-        Tuple[pd.DataFrame, skbio.DistanceMatrix]:
-            - The OTU table (participants x taxa) as DataFrame.
-            - The calculated Bray-Curtis distance matrix.
+    Calculate the beta diversity distance matrix from the OTU table portion of the cohort.
+    
+    The cohort is expected to contain columns for participant metadata and 
+    OTU counts (columns starting with 'otu_' or similar, based on T008/T010 schema).
+    For this implementation, we assume OTU columns are those not in the metadata schema.
+    
+    Metadata schema columns (from T003):
+    participant_id, age, sex, bmi, cognitive_flexibility_score, 
+    shannon_diversity, simpson_diversity, chao1, dietary_fiber, antibiotic_use
     """
-    # Identify OTU columns (assuming they start with 'otu_' or contain specific pattern)
-    # Based on synthetic_gen, OTU columns are typically named 'otu_1', 'otu_2', etc.
-    otu_columns = [col for col in cohort.columns if col.startswith('otu_')]
-
-    if not otu_columns:
+    metadata_cols = [
+        'participant_id', 'age', 'sex', 'bmi', 'cognitive_flexibility_score',
+        'shannon_diversity', 'simpson_diversity', 'chao1', 'dietary_fiber', 'antibiotic_use'
+    ]
+    
+    # Identify OTU columns (everything not in metadata_cols)
+    otu_cols = [col for col in cohort_df.columns if col not in metadata_cols]
+    
+    if not otu_cols:
         raise ValueError(
-            "No OTU columns found in the cohort. "
-            "Expected columns starting with 'otu_'."
+            "No OTU columns found in the dataset. "
+            "Expected columns starting with 'otu_' or similar based on schema."
         )
-
-    logger.info(f"Found {len(otu_columns)} OTU columns for beta diversity calculation.")
-
-    otu_table = cohort.set_index('participant_id')[otu_columns]
-
-    # Convert to skbio OrdinationTable / DistanceMatrix compatible format
-    # skbio expects a 2D array-like where rows are samples
-    distance_matrix = skbio.stats.distance.braycurtis(otu_table.values)
-
-    # Create a proper skbio DistanceMatrix object
-    dm = skbio.DistanceMatrix(distance_matrix, ids=otu_table.index)
-
-    return otu_table, dm
-
+    
+    otu_table = cohort_df[otu_cols].astype(float)
+    
+    # Ensure no negative values (OTU counts should be non-negative)
+    if (otu_table < 0).any().any():
+        logger.warning("Negative values found in OTU table. Clipping to zero.")
+        otu_table = otu_table.clip(lower=0)
+    
+    # Calculate distance matrix
+    logger.info(f"Calculating {metric} distance matrix for {len(otu_cols)} OTUs...")
+    try:
+        # skbio.beta_diversity expects a 2D array or DataFrame
+        distance_matrix = beta_diversity(
+            metric=metric,
+            data=otu_table,
+            ids=cohort_df['participant_id'].astype(str),
+            validate=True
+        )
+        logger.info(f"Distance matrix calculated: shape {distance_matrix.shape}")
+        return distance_matrix
+    except Exception as e:
+        logger.error(f"Error calculating distance matrix: {e}")
+        raise
 
 def run_permanova(
-    distance_matrix: skbio.DistanceMatrix,
-    cohort: pd.DataFrame,
-    variable: str = 'cognitive_score',
-    permutations: int = 999
+    distance_matrix: DistanceMatrix, 
+    cohort_df: pd.DataFrame, 
+    grouping_var: str = 'cognitive_quartile'
 ) -> Dict[str, Any]:
     """
-    Perform PERMANOVA analysis to test association between distance matrix
-    and a continuous variable (cognitive score).
-
-    Args:
-        distance_matrix (skbio.DistanceMatrix): The beta diversity distance matrix.
-        cohort (pd.DataFrame): The cohort dataframe containing the variable.
-        variable (str): Name of the continuous variable to test against.
-        permutations (int): Number of permutations for the test.
-
-    Returns:
-        Dict[str, Any]: Dictionary containing PERMANOVA results.
+    Run PERMANOVA analysis using skbio.stats.distance.permanova.
+    
+    Handles heavily skewed cognitive distributions by using cognitive quartiles
+    as the grouping variable, as specified in the task requirements.
+    
+    Returns a dictionary with PERMANOVA results.
     """
-    if variable not in cohort.columns:
-        raise ValueError(f"Variable '{variable}' not found in cohort.")
-
-    # Ensure the distance matrix IDs match the cohort index
-    # PERMANOVA expects the grouping/continuous variable to align with the distance matrix rows
-    # We need to pass the dataframe with the variable aligned to the distance matrix IDs
-    df_for_permanova = cohort.set_index('participant_id')[[variable]]
-
-    # Filter to only include samples present in both
-    common_ids = list(set(distance_matrix.ids) & set(df_for_permanova.index))
+    # Prepare metadata for PERMANOVA
+    # Ensure the grouping variable exists
+    if grouping_var not in cohort_df.columns:
+        logger.warning(f"Grouping variable '{grouping_var}' not found. Creating cognitive quartiles.")
+        cognitive_scores = cohort_df['cognitive_flexibility_score']
+        
+        # Check for skewness
+        skewness = cognitive_scores.skew()
+        logger.info(f"Cognitive flexibility score skewness: {skewness:.3f}")
+        
+        if abs(skewness) > 1.0:
+            logger.info("High skewness detected. Using quartile-based grouping for PERMANOVA.")
+            # Create quartiles
+            cohort_df = cohort_df.copy()
+            cohort_df['cognitive_quartile'] = pd.qcut(
+                cognitive_scores, 
+                q=4, 
+                labels=['Q1', 'Q2', 'Q3', 'Q4'],
+                duplicates='drop'
+            )
+            grouping_var = 'cognitive_quartile'
+        else:
+            # If not highly skewed, we could use continuous, but PERMANOVA requires categorical
+            # Fall back to quartiles anyway for consistency
+            cohort_df = cohort_df.copy()
+            cohort_df['cognitive_quartile'] = pd.qcut(
+                cognitive_scores, 
+                q=4, 
+                labels=['Q1', 'Q2', 'Q3', 'Q4'],
+                duplicates='drop'
+            )
+            grouping_var = 'cognitive_quartile'
     
-    if len(common_ids) == 0:
-        raise ValueError("No common participant IDs between distance matrix and cohort.")
+    # Extract metadata for the grouping variable
+    metadata = cohort_df[[grouping_var]].astype(str)
     
-    logger.info(f"Running PERMANOVA with {len(common_ids)} samples.")
-
-    # Subset the dataframe to match the distance matrix order
-    df_aligned = df_for_permanova.loc[common_ids]
-
     # Run PERMANOVA
-    # Note: skbio.stats.distance.permanova expects the dataframe to have the variable
-    result = permanova(
-        distance_matrix,
-        df_aligned,
-        column=variable,
-        permutations=permutations
-    )
-
-    logger.info(f"PERMANOVA completed. F-statistic: {result['test_statistic']:.4f}, p-value: {result['p_value']:.4f}")
-
-    return {
-        "method": "PERMANOVA",
-        "distance_metric": "bray_curtis",
-        "variable": variable,
-        "n_permutations": permutations,
-        "n_samples": len(common_ids),
-        "f_statistic": result["test_statistic"],
-        "r_squared": result["pseudo_f"] if "pseudo_f" in result else result.get("r_squared", None), # skbio returns pseudo_f in some versions, or r_squared
-        "p_value": result["p_value"],
-        "p_value_method": result.get("p_value_method", "permutation")
-    }
-
+    logger.info(f"Running PERMANOVA with grouping variable: {grouping_var}")
+    try:
+        permanova_result = permanova(
+            distance_matrix=distance_matrix,
+            metadata=metadata,
+            column=grouping_var,
+            permutations=999
+        )
+        
+        results = {
+            'test_type': 'PERMANOVA',
+            'metric': 'Bray-Curtis', # Default, could be parameterized
+            'grouping_variable': grouping_var,
+            'f_statistic': float(permanova_result['test statistic']),
+            'p_value': float(permanova_result['p-value']),
+            'r_squared': float(permanova_result['R2']),
+            'n_permutations': 999,
+            'sample_size': len(cohort_df),
+            'skewness_check': float(cohort_df['cognitive_flexibility_score'].skew())
+        }
+        
+        logger.info(f"PERMANOVA completed: R2={results['r_squared']:.4f}, p={results['p_value']:.4f}")
+        return results
+        
+    except Exception as e:
+        logger.error(f"PERMANOVA failed: {e}")
+        raise
 
 def main():
     """
-    Main entry point for Beta Diversity Analysis.
-    Executes PERMANOVA and saves results to data/results/beta_diversity_results.json
-    """
-    logger.info("Starting Beta Diversity Analysis (PERMANOVA)...")
+    Main entry point for beta diversity analysis.
     
-    # Set global seed for reproducibility
-    set_global_seed(SEED)
-
+    Workflow:
+    1. Load filtered cohort
+    2. Calculate beta diversity distance matrix
+    3. Run PERMANOVA with cognitive quartiles
+    4. Save results to data/results/beta_diversity_results.json
+    """
+    set_global_seed(42)
+    logs_dir = get_logs_dir()
+    results_dir = get_results_dir()
+    
+    # Setup file logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(logs_dir / 'beta_diversity.log'),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    
     try:
-        # 1. Load Data
-        cohort = load_filtered_cohort()
+        # Step 1: Load data
+        logger.info("Step 1: Loading filtered cohort...")
+        cohort_df = load_filtered_cohort()
         
-        # 2. Calculate Distance Matrix
-        otu_table, distance_matrix = load_distance_matrix(cohort)
+        # Step 2: Calculate distance matrix
+        logger.info("Step 2: Calculating beta diversity distance matrix...")
+        distance_matrix = load_distance_matrix(cohort_df, metric='braycurtis')
         
-        # 3. Run PERMANOVA
-        results = run_permanova(
-            distance_matrix, 
-            cohort, 
-            variable='cognitive_score',
-            permutations=999
-        )
-
-        # 4. Save Results
-        results_dir = get_results_dir()
-        output_path = results_dir / "beta_diversity_results.json"
+        # Step 3: Run PERMANOVA
+        logger.info("Step 3: Running PERMANOVA...")
+        results = run_permanova(distance_matrix, cohort_df, grouping_var='cognitive_flexibility_score')
         
+        # Step 4: Save results
+        output_path = results_dir / 'beta_diversity_results.json'
         import json
         with open(output_path, 'w') as f:
             json.dump(results, f, indent=2)
         
         logger.info(f"Results saved to {output_path}")
-        print(f"PERMANOVA Analysis Complete. Results saved to: {output_path}")
-        print(json.dumps(results, indent=2))
-
+        print(f"PERMANOVA Analysis Complete. Results saved to {output_path}")
+        print(f"R-squared: {results['r_squared']:.4f}")
+        print(f"P-value: {results['p_value']:.4f}")
+        
     except FileNotFoundError as e:
-        logger.error(f"Data file error: {e}")
-        sys.exit(1)
-    except ValueError as e:
-        logger.error(f"Value error: {e}")
-        sys.exit(1)
+        logger.error(f"Data file missing: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Unexpected error during PERMANOVA: {e}")
-        import traceback
-        traceback.print_exc()
-        sys.exit(1)
+        logger.error(f"Analysis failed: {e}")
+        raise
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

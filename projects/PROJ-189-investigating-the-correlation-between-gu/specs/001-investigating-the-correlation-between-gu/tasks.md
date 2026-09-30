@@ -119,7 +119,7 @@
 - [X] T022 [US2] Implement Spearman rank correlation calculation between genus abundances and cognitive scores (PRIMARY METHOD per Spec FR-003) in `code/03_correlation_analysis.py`
 - [X] T023 [US2] Implement Benjamini-Hochberg FDR correction (α = 0.05) on raw p-values in `code/03_correlation_analysis.py`
 - [ ] T024 [US2] Filter and flag significant associations (adj-p < 0.05) and explicitly label as "associational" in results output
-- [ ] T025 [US2] Generate summary report of significant genus-score pairs in `data/processed/correlation_results.csv`
+- [X] T025 [US2] Generate summary report of significant genus-score pairs in `data/processed/correlation_results.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

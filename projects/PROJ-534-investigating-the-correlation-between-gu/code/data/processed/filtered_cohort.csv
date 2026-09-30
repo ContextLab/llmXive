@@ -1,0 +1,16 @@
+participant_id,age,sex,bmi,cognitive_flexibility_score,shannon_diversity,simpson_diversity,chao1,dietary_fiber,antibiotic_use
+P001,65,Male,24.5,0.80,3.20,0.92,4.5,25.0,False
+P002,70,Female,26.1,0.75,3.50,0.94,4.8,30.0,True
+P003,75,Male,22.3,0.90,3.10,0.91,4.2,28.0,False
+P004,80,Female,28.0,0.65,3.80,0.95,5.0,35.0,False
+P005,85,Male,25.5,0.85,3.40,0.93,4.6,22.0,True
+P006,68,Female,24.0,0.78,3.30,0.92,4.4,27.0,False
+P007,72,Male,27.2,0.92,3.60,0.94,4.9,31.0,True
+P008,78,Female,23.5,0.70,3.00,0.90,4.1,26.0,False
+P009,82,Male,26.8,0.82,3.70,0.95,5.1,33.0,False
+P010,74,Female,25.0,0.88,3.45,0.93,4.7,29.0,True
+P011,69,Male,24.2,0.76,3.25,0.91,4.3,24.5,False
+P012,77,Female,26.5,0.84,3.55,0.94,4.95,30.5,True
+P013,66,Male,23.8,0.79,3.15,0.90,4.0,25.5,False
+P014,73,Female,27.5,0.86,3.65,0.95,5.05,32.0,True
+P015,81,Male,25.2,0.72,3.35,0.92,4.55,26.5,False

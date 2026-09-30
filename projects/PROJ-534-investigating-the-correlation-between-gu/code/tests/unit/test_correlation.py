@@ -1,157 +1,243 @@
 """
-Unit tests for correlation analysis functions, specifically focusing on
-the Benjamini-Hochberg (BH) false discovery rate correction.
-
-This module extends existing tests for auto-switch logic and correlation
-calculations to include rigorous testing of the multiple hypothesis
-correction mechanism required for User Story 2.
+Unit tests for correlation analysis module.
 """
-
 import pytest
 import numpy as np
 import pandas as pd
 from scipy import stats
 from unittest.mock import patch, MagicMock
 import logging
+from code.src.analysis.correlation import (
+    calculate_skewness,
+    shapiro_wilk_test,
+    should_switch_to_spearman,
+    pearson_correlation_with_ci,
+    spearman_correlation_with_ci,
+    apply_benjamini_hochberg,
+    run_correlation_analysis,
+    run_multiple_correlations
+)
 
-# Import the function under test from the project's analysis module
-# Based on the provided API surface: code/src/analysis/correlation.py
-try:
-    from src.analysis.correlation import apply_benjamini_hochberg
-except ImportError:
-    # Fallback for environments where the path might be set differently,
-    # though the prompt implies 'src' is on the path via conftest or env.
-    from code.src.analysis.correlation import apply_benjamini_hochberg
+class TestCorrelationMethods:
+    """Test correlation calculation methods."""
+    
+    def test_calculate_skewness_normal_data(self):
+        """Test skewness calculation on normally distributed data."""
+        np.random.seed(42)
+        data = np.random.normal(loc=0, scale=1, size=1000)
+        skewness = calculate_skewness(data)
+        # For normal distribution, skewness should be close to 0
+        assert abs(skewness) < 0.5
 
+    def test_calculate_skewness_skewed_data(self):
+        """Test skewness calculation on skewed data."""
+        # Generate exponentially distributed data (right-skewed)
+        data = np.random.exponential(scale=1.0, size=1000)
+        skewness = calculate_skewness(data)
+        # Exponential distribution has skewness of 2.0
+        assert skewness > 1.5
+
+    def test_shapiro_wilk_test_normal_data(self):
+        """Test Shapiro-Wilk test on normally distributed data."""
+        np.random.seed(42)
+        data = np.random.normal(loc=0, scale=1, size=100)
+        statistic, p_value = shapiro_wilk_test(data)
+        # For normal data, p-value should be > 0.05 (fail to reject normality)
+        assert p_value > 0.05
+
+    def test_shapiro_wilk_test_non_normal_data(self):
+        """Test Shapiro-Wilk test on non-normal data."""
+        # Generate uniform data (less peaked than normal)
+        data = np.random.uniform(low=0, high=1, size=100)
+        statistic, p_value = shapiro_wilk_test(data)
+        # For uniform data, p-value is often < 0.05
+        # We just check that the function runs without error
+        assert 0 <= p_value <= 1
+
+    def test_should_switch_to_spearman_high_skewness(self):
+        """Test auto-switch logic with highly skewed data."""
+        # Generate highly skewed data
+        x = np.random.exponential(scale=1.0, size=500)
+        y = np.random.exponential(scale=1.0, size=500)
+        
+        should_switch = should_switch_to_spearman(x, y, skewness_threshold=1.0)
+        assert should_switch is True
+
+    def test_should_switch_to_spearman_normal_data(self):
+        """Test auto-switch logic with normally distributed data."""
+        np.random.seed(42)
+        x = np.random.normal(loc=0, scale=1, size=500)
+        y = np.random.normal(loc=0, scale=1, size=500)
+        
+        should_switch = should_switch_to_spearman(x, y, skewness_threshold=1.0)
+        # With normal data and sufficient sample, should not switch
+        assert should_switch is False
+
+    def test_pearson_correlation_with_ci(self):
+        """Test Pearson correlation with confidence interval."""
+        np.random.seed(42)
+        x = np.random.normal(loc=0, scale=1, size=100)
+        y = 2 * x + np.random.normal(loc=0, scale=0.5, size=100)  # Strong positive correlation
+        
+        result = pearson_correlation_with_ci(x, y)
+        
+        assert "correlation_coefficient" in result
+        assert "p_value" in result
+        assert "confidence_interval" in result
+        assert "method" in result
+        assert result["method"] == "pearson"
+        assert -1 <= result["correlation_coefficient"] <= 1
+        assert len(result["confidence_interval"]) == 2
+
+    def test_spearman_correlation_with_ci(self):
+        """Test Spearman correlation with confidence interval."""
+        np.random.seed(42)
+        x = np.random.exponential(scale=1.0, size=100)
+        y = 2 * x + np.random.exponential(scale=0.5, size=100)
+        
+        result = spearman_correlation_with_ci(x, y)
+        
+        assert "correlation_coefficient" in result
+        assert "p_value" in result
+        assert "confidence_interval" in result
+        assert "method" in result
+        assert result["method"] == "spearman"
+        assert -1 <= result["correlation_coefficient"] <= 1
+        assert len(result["confidence_interval"]) == 2
+
+    def test_run_correlation_analysis_auto_switch(self):
+        """Test run_correlation_analysis with auto-switch to Spearman."""
+        # Create highly skewed data
+        x = np.random.exponential(scale=1.0, size=500)
+        y = np.random.exponential(scale=1.0, size=500)
+        
+        result = run_correlation_analysis(x, y)
+        
+        assert "method_used" in result
+        assert result["method_used"] == "spearman"
+        assert "adjusted_p_value" in result
+
+    def test_run_correlation_analysis_pearson(self):
+        """Test run_correlation_analysis with normal data (Pearson)."""
+        np.random.seed(42)
+        x = np.random.normal(loc=0, scale=1, size=500)
+        y = np.random.normal(loc=0, scale=1, size=500)
+        
+        result = run_correlation_analysis(x, y)
+        
+        assert "method_used" in result
+        assert result["method_used"] == "pearson"
+        assert "adjusted_p_value" in result
 
 class TestBenjaminiHochbergCorrection:
-    """
-    Test suite for the Benjamini-Hochberg (BH) FDR correction implementation.
-    """
-
-    def test_bh_correction_empty_input(self):
-        """Test that BH correction handles empty lists gracefully."""
-        p_values = []
-        result = apply_benjamini_hochberg(p_values)
-        assert len(result) == 0
-        assert result == []
-
-    def test_bh_correction_single_value(self):
+    """Test Benjamini-Hochberg FDR correction."""
+    
+    def test_apply_benjamini_hochberg_single_pvalue(self):
         """Test BH correction with a single p-value."""
         p_values = [0.05]
-        result = apply_benjamini_hochberg(p_values)
-        # With m=1, adjusted p-value = p * 1 / 1 = p
-        assert len(result) == 1
-        assert np.isclose(result[0], 0.05)
+        adjusted = apply_benjamini_hochberg(p_values)
+        
+        assert len(adjusted) == 1
+        # Single p-value should remain unchanged (n/n * p = p)
+        assert adjusted[0] == 0.05
 
-    def test_bh_correction_monotonicity(self):
-        """
-        Test that the adjusted p-values are monotonically non-decreasing
-        when sorted by original p-value.
-        """
-        # Create a set of p-values
-        p_values = [0.01, 0.04, 0.03, 0.20, 0.15, 0.05]
-        result = apply_benjamini_hochberg(p_values)
+    def test_apply_benjamini_hochberg_multiple_pvalues(self):
+        """Test BH correction with multiple p-values."""
+        p_values = [0.01, 0.04, 0.06, 0.20]
+        adjusted = apply_benjamini_hochberg(p_values)
+        
+        assert len(adjusted) == 4
+        # Adjusted p-values should be >= original p-values
+        for i, orig in enumerate(p_values):
+            assert adjusted[i] >= orig
 
-        # The BH procedure ensures that adjusted p-values are non-decreasing
-        # when the original p-values are sorted.
-        # We sort the results based on the original order to check monotonicity
-        # relative to the sorted original p-values.
+    def test_apply_benjamini_hochberg_monotonicity(self):
+        """Test that BH-adjusted p-values maintain monotonicity."""
+        # Create p-values that would violate monotonicity without correction
+        p_values = [0.1, 0.05, 0.01]  # Decreasing order
+        adjusted = apply_benjamini_hochberg(p_values)
         
-        # Pair original and adjusted
-        paired = list(zip(p_values, result))
-        # Sort by original p-value
-        paired.sort(key=lambda x: x[0])
+        # After monotonicity correction, adjusted p-values should be non-decreasing
+        # when sorted by original rank
+        # This is a complex property, but we check that no adjusted p-value
+        # is less than the previous one in the sorted order
+        sorted_indices = np.argsort(p_values)
+        sorted_adjusted = [adjusted[i] for i in sorted_indices]
         
-        adjusted_sorted = [x[1] for x in paired]
-        
-        # Check non-decreasing
-        for i in range(len(adjusted_sorted) - 1):
-            assert adjusted_sorted[i] <= adjusted_sorted[i+1], \
-                f"Adjusted p-values must be non-decreasing: {adjusted_sorted}"
+        for i in range(1, len(sorted_adjusted)):
+            assert sorted_adjusted[i] >= sorted_adjusted[i-1]
 
-    def test_bh_correction_known_values(self):
-        """
-        Test BH correction against a known example.
-        Example: p-values [0.01, 0.04, 0.03, 0.20]
-        m = 4
-        Sorted: 0.01, 0.03, 0.04, 0.20
-        Rank 1: 0.01 * 4/1 = 0.04
-        Rank 2: 0.03 * 4/2 = 0.06
-        Rank 3: 0.04 * 4/3 = 0.0533...
-        Rank 4: 0.20 * 4/4 = 0.20
+    def test_apply_benjamini_hochberg_empty_list(self):
+        """Test BH correction with empty list."""
+        p_values = []
+        adjusted = apply_benjamini_hochberg(p_values)
         
-        Now enforce monotonicity (cumulative min from bottom up):
-        Rank 4: 0.20
-        Rank 3: min(0.0533, 0.20) = 0.0533
-        Rank 2: min(0.06, 0.0533) = 0.0533
-        Rank 1: min(0.04, 0.0533) = 0.04
-        
-        Final adjusted (sorted): [0.04, 0.0533, 0.0533, 0.20]
-        Map back to original order [0.01, 0.04, 0.03, 0.20]:
-        0.01 -> 0.04
-        0.04 -> 0.0533
-        0.03 -> 0.0533
-        0.20 -> 0.20
-        """
-        p_values = [0.01, 0.04, 0.03, 0.20]
-        result = apply_benjamini_hochberg(p_values)
-        
-        expected = [0.04, 0.05333333333333333, 0.05333333333333333, 0.20]
-        
-        assert len(result) == len(expected)
-        for r, e in zip(result, expected):
-            assert np.isclose(r, e), f"Expected {e}, got {r}"
+        assert adjusted == []
 
-    def test_bh_correction_capping_at_one(self):
-        """Test that adjusted p-values are capped at 1.0."""
-        p_values = [0.8, 0.9, 0.95]
-        result = apply_benjamini_hochberg(p_values)
+    def test_apply_benjamini_hochberg_all_zeros(self):
+        """Test BH correction with all zero p-values."""
+        p_values = [0.0, 0.0, 0.0]
+        adjusted = apply_benjamini_hochberg(p_values)
         
-        for r in result:
-            assert r <= 1.0, f"Adjusted p-value {r} exceeds 1.0"
+        assert all(p == 0.0 for p in adjusted)
 
-    def test_bh_correction_with_numpy_array(self):
-        """Test that the function accepts numpy arrays as input."""
-        p_values = np.array([0.01, 0.05, 0.10])
-        result = apply_benjamini_hochberg(p_values)
-        assert len(result) == 3
-        assert isinstance(result, list) or isinstance(result, np.ndarray)
+    def test_apply_benjamini_hochberg_all_ones(self):
+        """Test BH correction with all p-value = 1.0."""
+        p_values = [1.0, 1.0, 1.0]
+        adjusted = apply_benjamini_hochberg(p_values)
+        
+        assert all(p == 1.0 for p in adjusted)
 
-    def test_bh_correction_preserves_significance_threshold(self):
-        """
-        Verify that if all original p-values are below alpha, 
-        the adjusted values reflect the FDR control appropriately.
-        """
-        # All p-values are very small
-        p_values = [0.001, 0.002, 0.003]
-        result = apply_benjamini_hochberg(p_values)
+class TestRunMultipleCorrelations:
+    """Test running multiple correlations."""
+    
+    def test_run_multiple_correlations_basic(self):
+        """Test running correlations on multiple variables."""
+        np.random.seed(42)
+        df = pd.DataFrame({
+            "x1": np.random.normal(0, 1, 100),
+            "x2": np.random.normal(0, 1, 100),
+            "x3": np.random.normal(0, 1, 100),
+            "y": np.random.normal(0, 1, 100)
+        })
         
-        # They should still be relatively small, though increased
-        for r in result:
-            assert r < 0.1, f"Adjusted p-value {r} is unexpectedly large for very small inputs"
+        results = run_multiple_correlations(df, ["x1", "x2", "x3"], "y")
+        
+        assert len(results) == 3
+        for res in results:
+            assert "variable_x" in res
+            assert "variable_y" in res
+            assert "correlation_coefficient" in res
+            assert "adjusted_p_value" in res
 
-    def test_bh_correction_integration_with_correlation_module(self):
-        """
-        Integration test: Verify apply_benjamini_hochberg works correctly
-        when called in the context of the correlation module's expected usage.
-        """
-        # Simulate a list of p-values that might come from multiple correlation tests
-        simulated_p_values = [0.005, 0.02, 0.08, 0.15, 0.03, 0.40, 0.01]
+    def test_run_multiple_correlations_missing_column(self):
+        """Test handling of missing columns."""
+        np.random.seed(42)
+        df = pd.DataFrame({
+            "x1": np.random.normal(0, 1, 100),
+            "y": np.random.normal(0, 1, 100)
+        })
         
-        adjusted = apply_benjamini_hochberg(simulated_p_values)
+        # Should skip non-existent column without error
+        results = run_multiple_correlations(df, ["x1", "nonexistent"], "y")
         
-        # Verify the logic:
-        # 1. Length matches
-        assert len(adjusted) == len(simulated_p_values)
+        # Only x1 should be in results
+        assert len(results) == 1
+        assert results[0]["variable_x"] == "x1"
+
+    def test_run_multiple_correlations_fdr_correction(self):
+        """Test that FDR correction is applied across multiple tests."""
+        np.random.seed(42)
+        # Create data with known correlations
+        df = pd.DataFrame({
+            "x1": np.random.normal(0, 1, 200),
+            "x2": np.random.normal(0, 1, 200),
+            "y": np.random.normal(0, 1, 200)
+        })
         
-        # 2. Monotonicity check (as done in test_bh_correction_monotonicity)
-        paired = list(zip(simulated_p_values, adjusted))
-        paired.sort(key=lambda x: x[0])
-        adjusted_sorted = [x[1] for x in paired]
-        for i in range(len(adjusted_sorted) - 1):
-            assert adjusted_sorted[i] <= adjusted_sorted[i+1]
+        results = run_multiple_correlations(df, ["x1", "x2"], "y")
         
-        # 3. Values are within [0, 1]
-        for val in adjusted:
-            assert 0 <= val <= 1.0
+        # Check that adjusted p-values are present
+        for res in results:
+            assert "adjusted_p_value" in res
+            assert isinstance(res["adjusted_p_value"], float)

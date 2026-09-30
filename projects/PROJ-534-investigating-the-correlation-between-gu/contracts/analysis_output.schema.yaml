@@ -1,35 +1,51 @@
-version: "1.0"
+# Analysis Output Schema
+# Defines the structure for statistical analysis results (correlation, regression, etc.)
+# Used by T021 to validate data before saving to data/results/correlation_results.json
+# and by T025 for contract testing.
+
 entity: AnalysisResult
-description: >
-  Schema for the output of correlation and regression analyses.
-  Defines the structure for statistical results including coefficients,
-  p-values, adjusted p-values, confidence intervals, and R-squared values.
+description: |
+  Represents a single statistical test result from the correlation or regression analysis.
+  Includes both raw statistics and corrected values (e.g., Benjamini-Hochberg adjusted p-values).
 fields:
   - name: test_type
     type: str
-    description: Type of statistical test performed (e.g., 'pearson', 'spearman', 'linear_regression').
+    description: Type of statistical test performed (e.g., 'pearson', 'spearman', 'linear_regression', 'permanova')
     required: true
   - name: metric_name
     type: str
-    description: Name of the microbiome metric or variable being tested (e.g., 'shannon_diversity', 'cognitive_flexibility_score').
+    description: Name of the specific diversity metric or variable being tested (e.g., 'shannon_diversity', 'simpson_diversity')
     required: true
   - name: correlation_coefficient
     type: float
-    description: The primary correlation coefficient (r) or regression beta coefficient.
+    description: The primary effect size (Pearson/Spearman r, or regression beta). Can be negative.
     required: true
   - name: p_value
     type: float
-    description: The raw p-value associated with the test statistic.
+    description: Raw p-value from the statistical test.
     required: true
   - name: adjusted_p_value
     type: float
-    description: The Benjamini-Hochberg adjusted p-value for multiple testing correction.
+    description: P-value adjusted for multiple comparisons (e.g., Benjamini-Hochberg).
     required: true
   - name: confidence_interval
     type: array[float, float]
-    description: The 95% confidence interval for the coefficient [lower_bound, upper_bound].
+    description: Two-element array representing the lower and upper bounds of the confidence interval (default 95%).
     required: true
+    min_items: 2
+    max_items: 2
   - name: r_squared
     type: float
-    description: The R-squared value for regression models, or NaN for simple correlations.
+    description: Coefficient of determination. For simple correlation, this is r^2. For regression, model R^2.
     required: true
+    nullable: false
+    default: 0.0
+constraints:
+  - p_value >= 0.0 and p_value <= 1.0
+  - adjusted_p_value >= 0.0 and adjusted_p_value <= 1.0
+  - correlation_coefficient >= -1.0 and correlation_coefficient <= 1.0 (for correlation tests)
+  - r_squared >= 0.0 and r_squared <= 1.0
+usage:
+  - T021: Save results to data/results/correlation_results.json
+  - T025: Contract test validation
+  - T018/T019: Output structure for analysis modules

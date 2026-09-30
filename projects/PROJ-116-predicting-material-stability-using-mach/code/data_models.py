@@ -5,35 +5,34 @@ import json
 
 @dataclass
 class MaterialEntry:
-    """Data model for a material entry."""
-    material_id: str
-    composition: Union[str, Dict[str, float]]
-    structure: Any  # pymatgen Structure or string representation
+    """Represents a single material entry from a dataset."""
+    composition: str
     formation_energy_per_atom: float
+    structure: Optional[Any] = None  # pymatgen Structure object
+    entry_id: Optional[str] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "material_id": self.material_id,
             "composition": self.composition,
-            "structure": str(self.structure) if hasattr(self.structure, '__str__') else self.structure,
             "formation_energy_per_atom": self.formation_energy_per_atom,
+            "entry_id": self.entry_id,
             "metadata": self.metadata
         }
 
 @dataclass
 class FeatureVector:
-    """Data model for a feature vector associated with a material."""
-    material_id: str
+    """Represents a feature vector associated with a material."""
     features: Dict[str, float]
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    material_id: Optional[str] = None
+    source: str = "magpie"  # e.g., magpie, voronoi, combined
 
-    def to_numpy(self) -> np.ndarray:
+    def to_array(self) -> np.ndarray:
         return np.array(list(self.features.values()))
 
     def to_dict(self) -> Dict[str, Any]:
         return {
-            "material_id": self.material_id,
             "features": self.features,
-            "metadata": self.metadata
+            "material_id": self.material_id,
+            "source": self.source
         }

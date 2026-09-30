@@ -1,22 +1,24 @@
-"""
-Utility functions for feature engineering and analysis.
-"""
 import logging
 from typing import List
 
-logger = logging.getLogger(__name__)
-
 def identify_local_features(feature_names: List[str]) -> List[str]:
     """
-    Identify columns that correspond to local coordination features.
-    Based on T020, these are Voronoi stats and bond-length histograms.
+    Identify features that represent local coordination environments.
+
+    Args:
+        feature_names: List of all feature names
+
+    Returns:
+        List of local coordination feature names
     """
-    local_keywords = [
-        'voronoi', 'coordination', 'face_area', 'solid_angle',
-        'bond_length', 'histogram', 'local'
+    local_feature_keywords = [
+        'coordination', 'voronoi', 'bond_length', 'solid_angle',
+        'face_area', 'nearest_neighbor', 'local'
     ]
+
     local_features = []
-    for col in feature_names:
-        if any(kw in col.lower() for kw in local_keywords):
-            local_features.append(col)
+    for name in feature_names:
+        if any(keyword in name.lower() for keyword in local_feature_keywords):
+            local_features.append(name)
+
     return local_features

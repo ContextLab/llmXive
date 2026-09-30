@@ -1,27 +1,23 @@
 # Predicting Material Stability using Machine Learning and DFT Calculations
 
 ## Project Overview
-This project implements a pipeline to predict material stability using machine learning models trained on DFT-calculated formation energies. It utilizes bulk compositional descriptors (Magpie features) and local coordination environment features (Voronoi statistics) to train Gradient Boosting Regressors.
+This project implements a machine learning pipeline to predict material stability,
+focusing on Li-rich rock-salt structures. It utilizes DFT calculation data from
+the OQMD dataset and combines bulk compositional descriptors with local coordination
+features to improve prediction accuracy.
 
 ## Structure
-- `code/`: Python source code, utilities, and scripts
-- `data/`: Raw and processed datasets, trained models
-- `outputs/`: Logs, evaluation metrics, figures, and reports
-- `specs/`: Feature specifications and design documents
+- `code/`: Python source code, scripts, and utilities
+- `data/`: Raw and processed datasets, models
+- `outputs/`: Logs, metrics, figures, and reports
 - `tests/`: Unit and integration tests
+- `specs/`: Feature specifications and design documents
 
-## Prerequisites
-- Python 3.11+
-- Dependencies listed in `code/requirements.txt`
-
-## Usage
+## Quick Start
 1. Install dependencies: `pip install -r code/requirements.txt`
-2. Configure environment: Set `DATA_PATH` and `SEED` in `code/config.py` or environment variables.
-3. Run the pipeline:
- - Download data: `python code/download_data.py`
- - Feature engineering: `python code/feature_engineering.py`
- - Train baseline: `python code/train_baseline.py`
- - Evaluate: `python code/evaluate.py`
+2. Download data: `python code/download_data.py`
+3. Run baseline model: `python code/train_baseline.py`
+4. Run augmented model: `python code/train_augmented.py`
+5. Evaluate results: `python code/evaluate.py`
 
-## License
-MIT
+See `quickstart.md` for detailed instructions.

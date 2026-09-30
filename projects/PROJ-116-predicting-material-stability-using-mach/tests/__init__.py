@@ -1,3 +1,3 @@
 """
-Test package initialization.
+Test suite for the material stability prediction pipeline.
 """

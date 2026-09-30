@@ -5,179 +5,199 @@ from typing import Tuple, Optional, List
 import pandas as pd
 import numpy as np
 
-from code.src.utils.config import get_processed_data_dir, get_logs_dir, ensure_directories, set_global_seed
+from code.src.utils.config import get_processed_data_dir, get_logs_dir, get_project_root
 from code.src.utils.validation import load_schema, validate_dataframe_against_schema
 
-# Configure logging
-LOGS_DIR = get_logs_dir()
-ensure_directories()
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(LOGS_DIR / 'filtering.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+# Initialize logger for this module
 logger = logging.getLogger(__name__)
 
-# Required covariates as per spec FR-002 and dataset.schema.yaml
-REQUIRED_COVARIATES = ['age', 'sex', 'bmi', 'dietary_fiber', 'antibiotic_use']
-REQUIRED_METRICS = ['shannon_diversity', 'cognitive_flexibility_score']
-
-def check_zero_variance(df: pd.DataFrame, column: str) -> bool:
+def check_zero_variance(df: pd.DataFrame, columns: List[str]) -> Tuple[bool, List[str]]:
     """
-    Check if a column has zero variance (all values are the same).
-    Returns True if zero variance is detected, False otherwise.
-    """
-    if column not in df.columns:
-        logger.warning(f"Column '{column}' not found in dataframe.")
-        return True  # Treat missing as zero variance for safety
-
-    unique_values = df[column].nunique()
-    if unique_values <= 1:
-        logger.warning(f"Column '{column}' has zero variance (unique values: {unique_values}).")
-        return True
-    return False
-
-def filter_cohort(input_path: Path, output_path: Path) -> pd.DataFrame:
-    """
-    Filter the cohort based on:
-    1. Age >= 65
-    2. Non-null Shannon Diversity and Cognitive Flexibility Score
-    3. Non-null Required Covariates (listwise deletion)
-    4. Zero-variance check (flag and skip if detected in critical columns)
-
-    Args:
-        input_path: Path to the ingested dataset (CSV).
-        output_path: Path to save the filtered cohort (CSV).
-
-    Returns:
-        Filtered pandas DataFrame.
-    """
-    logger.info(f"Loading data from {input_path}")
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows. Columns: {list(df.columns)}")
-
-    # 1. Filter for Age >= 65
-    logger.info("Filtering for age >= 65...")
-    initial_count = len(df)
-    df = df[df['age'] >= 65]
-    dropped_age = initial_count - len(df)
-    logger.info(f"Dropped {dropped_age} rows due to age < 65. Remaining: {len(df)}")
-
-    # 2. Check Zero Variance in Critical Columns before dropping nulls
-    # We check the metrics and covariates that will be used in analysis
-    critical_cols = REQUIRED_METRICS + REQUIRED_COVARIATES
-    for col in critical_cols:
-        if col in df.columns:
-            if check_zero_variance(df, col):
-                logger.error(f"Critical column '{col}' has zero variance. Analysis cannot proceed safely.")
-                # Depending on strictness, we might raise an error here.
-                # For this task, we flag it but continue to see if data exists.
-
-    # 3. Listwise Deletion for Missing Values
-    # Drop rows where any of the required metrics or covariates are null
-    logger.info("Applying listwise deletion for missing required fields...")
-    cols_to_check = REQUIRED_METRICS + REQUIRED_COVARIATES
-    missing_cols = [c for c in cols_to_check if c not in df.columns]
-    if missing_cols:
-        logger.warning(f"Missing required columns in dataset: {missing_cols}. Skipping deletion for these.")
-    else:
-        initial_count = len(df)
-        df = df.dropna(subset=cols_to_check)
-        dropped_nulls = initial_count - len(df)
-        logger.info(f"Dropped {dropped_nulls} rows due to missing required data. Remaining: {len(df)}")
-
-    # 4. Final Zero Variance Check on the filtered set
-    # If the remaining dataset has zero variance in the target variable, log a warning
-    if len(df) > 0:
-        for col in REQUIRED_METRICS:
-            if check_zero_variance(df, col):
-                logger.warning(f"Final dataset has zero variance in '{col}'.")
-
-    # 5. Validate against schema (optional but good practice before saving)
-    schema_path = Path("code/contracts/dataset.schema.yaml")
-    if schema_path.exists():
-        try:
-            schema = load_schema(schema_path)
-            validate_dataframe_against_schema(df, schema)
-            logger.info("Filtered cohort validated against schema.")
-        except Exception as e:
-            logger.error(f"Schema validation failed: {e}")
-            # We proceed to save, but log the error
-
-    # Ensure output directory exists
-    ensure_directories()
+    Check if any of the specified columns in the DataFrame have zero variance (constant values).
     
-    logger.info(f"Saving filtered cohort to {output_path}")
-    df.to_csv(output_path, index=False)
-    logger.info(f"Successfully saved {len(df)} rows to {output_path}")
+    Zero variance in key variables (e.g., diversity scores or cognitive scores) makes
+    correlation analysis impossible and can cause statistical errors.
+    
+    Args:
+        df: The DataFrame to check.
+        columns: List of column names to check for zero variance.
+        
+    Returns:
+        Tuple of (has_zero_variance, list_of_zero_variance_columns)
+    """
+    zero_variance_cols = []
+    
+    for col in columns:
+        if col not in df.columns:
+            logger.warning(f"Column '{col}' not found in DataFrame, skipping variance check.")
+            continue
+        
+        # Check if column is numeric
+        if not np.issubdtype(df[col].dtype, np.number):
+            logger.info(f"Column '{col}' is not numeric, skipping variance check.")
+            continue
+        
+        # Calculate variance (ddof=1 for sample variance)
+        variance = df[col].var()
+        
+        if pd.isna(variance) or variance == 0.0:
+            zero_variance_cols.append(col)
+            logger.warning(f"Column '{col}' has zero variance (constant value). "
+                         f"Correlation analysis will be skipped for this variable.")
+    
+    has_zero_variance = len(zero_variance_cols) > 0
+    return has_zero_variance, zero_variance_cols
 
-    return df
+def filter_cohort(
+    df: pd.DataFrame,
+    min_age: int = 65,
+    required_columns: Optional[List[str]] = None,
+    check_variance: bool = True,
+    variance_columns: Optional[List[str]] = None
+) -> Tuple[pd.DataFrame, dict]:
+    """
+    Filter the cohort based on age, non-null values, and optional zero-variance checks.
+    
+    This function implements the core filtering logic for User Story 1:
+    1. Filter for age >= min_age
+    2. Remove rows with missing values in required columns (listwise deletion)
+    3. Optionally check for zero-variance in key analysis columns
+    
+    Args:
+        df: Input DataFrame with cohort data.
+        min_age: Minimum age threshold (default 65).
+        required_columns: List of columns that must not be null (default: schema-defined covariates).
+        check_variance: Whether to check for zero variance in key columns.
+        variance_columns: List of columns to check for zero variance (default: diversity and cognitive scores).
+        
+    Returns:
+        Tuple of (filtered DataFrame, status dictionary with counts and flags)
+    """
+    if required_columns is None:
+        # Required columns per spec: age, sex, BMI, dietary_fiber, antibiotic_use
+        # Plus the key analysis variables
+        required_columns = ['age', 'sex', 'bmi', 'dietary_fiber', 'antibiotic_use',
+                          'shannon_diversity', 'cognitive_flexibility_score']
+    
+    if variance_columns is None:
+        variance_columns = ['shannon_diversity', 'simpson_diversity', 
+                          'chao1', 'cognitive_flexibility_score']
+    
+    initial_count = len(df)
+    logger.info(f"Starting cohort filtering. Initial rows: {initial_count}")
+    
+    # Step 1: Age filtering
+    df_filtered = df[df['age'] >= min_age].copy()
+    age_filtered_count = len(df_filtered)
+    logger.info(f"After age filter (>= {min_age}): {age_filtered_count} rows "
+               f"(dropped {initial_count - age_filtered_count})")
+    
+    # Step 2: Listwise deletion for missing required columns
+    df_filtered = df_filtered.dropna(subset=required_columns)
+    after_null_count = len(df_filtered)
+    logger.info(f"After listwise deletion for required columns: {after_null_count} rows "
+               f"(dropped {age_filtered_count - after_null_count})")
+    
+    # Step 3: Zero-variance check (edge case handling)
+    status = {
+        'initial_rows': initial_count,
+        'after_age_filter': age_filtered_count,
+        'after_null_removal': after_null_count,
+        'zero_variance_detected': False,
+        'zero_variance_columns': [],
+        'final_rows': after_null_count
+    }
+    
+    if check_variance and after_null_count > 0:
+        has_zero_var, zero_var_cols = check_zero_variance(df_filtered, variance_columns)
+        status['zero_variance_detected'] = has_zero_var
+        status['zero_variance_columns'] = zero_var_cols
+        
+        if has_zero_var:
+            logger.warning(f"Zero variance detected in columns: {zero_var_cols}. "
+                         f"Correlation analysis should be skipped or handled specially.")
+    
+    logger.info(f"Cohort filtering complete. Final rows: {after_null_count}")
+    return df_filtered, status
 
 def main():
-    """Main entry point for the filtering script."""
-    set_global_seed()
+    """
+    Main entry point for the filtering script.
+    Reads the ingested cohort, applies filters, and saves the result.
+    """
+    project_root = get_project_root()
     processed_dir = get_processed_data_dir()
+    logs_dir = get_logs_dir()
     
-    input_file = processed_dir.parent / "raw" / "synthetic_data.csv" # Assuming ingestion output location
-    # If ingestion saved directly to processed, adjust path. 
-    # Based on T010, ingestion saves to data/processed/merged_cohort.csv or similar.
-    # Let's assume the standard path from T010 logic:
-    input_file = Path("code/data/raw/synthetic_data.csv") 
+    # Ensure directories exist
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    logs_dir.mkdir(parents=True, exist_ok=True)
     
-    # Correction: T010 says "Ingest ... from data/raw". 
-    # T011 says "Save output to data/processed/filtered_cohort.csv".
-    # We need to know where T010 saved the data. 
-    # Assuming T010 saved to data/raw/synthetic_data.csv (as per T008) or a merged file.
-    # The task description for T010 says "Load ... from data/raw/synthetic_data.csv".
-    # It doesn't explicitly state where it saves. Let's assume it saves to data/processed/merged_cohort.csv.
-    # However, the T011 description says "filter ... from data/raw (synthetic)".
-    # Let's assume the input is the synthetic data generated in T008 which is at data/raw/synthetic_data.csv.
-    # Wait, T010 says "Ingest ... from data/raw". It likely produces a merged file.
-    # Let's check T008: "Output to data/raw/synthetic_data.csv".
-    # If T010 merges, it might output to data/processed/merged_cohort.csv.
-    # To be safe, we will look for the most likely input from T010.
-    # If T010 didn't save a merged file, we use the raw synthetic data.
+    # Setup logging for this script
+    log_file = logs_dir / "filtering.log"
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ))
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.INFO)
     
-    # Standardizing paths based on project structure:
-    raw_data_path = Path("code/data/raw/synthetic_data.csv")
-    processed_data_path = Path("code/data/processed/filtered_cohort.csv")
+    # Load schema for validation
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    schema = load_schema(schema_path)
     
-    # If the ingestion script (T010) produced a merged file, we should use that.
-    # But since T010 is "Implement ingestion", and T011 is "Implement filtering",
-    # we assume the input for T011 is the output of T010.
-    # If T010 saved to data/processed/merged_cohort.csv, we use that.
-    # If not, we fallback to raw.
+    # Input file path
+    input_path = project_root / "data" / "raw" / "synthetic_data.csv"
+    output_path = processed_dir / "filtered_cohort.csv"
     
-    input_candidates = [
-        Path("code/data/processed/merged_cohort.csv"),
-        Path("code/data/raw/synthetic_data.csv")
-    ]
+    logger.info(f"Loading data from {input_path}")
     
-    input_file = None
-    for candidate in input_candidates:
-        if candidate.exists():
-            input_file = candidate
-            logger.info(f"Found input file: {input_file}")
-            break
-    
-    if input_file is None:
-        logger.error("No input file found. Expected merged_cohort.csv or synthetic_data.csv.")
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
         sys.exit(1)
-
-    output_file = Path("code/data/processed/filtered_cohort.csv")
     
     try:
-        filtered_df = filter_cohort(input_file, output_file)
-        logger.info("Filtering completed successfully.")
+        df = pd.read_csv(input_path)
     except Exception as e:
-        logger.error(f"Filtering failed: {e}", exc_info=True)
+        logger.error(f"Failed to load input data: {e}")
         sys.exit(1)
+    
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    
+    # Apply filtering
+    filtered_df, status = filter_cohort(
+        df,
+        min_age=65,
+        required_columns=['age', 'sex', 'bmi', 'dietary_fiber', 'antibiotic_use',
+                        'shannon_diversity', 'cognitive_flexibility_score'],
+        check_variance=True,
+        variance_columns=['shannon_diversity', 'simpson_diversity',
+                        'chao1', 'cognitive_flexibility_score']
+    )
+    
+    # Validate against schema
+    logger.info("Validating filtered data against schema...")
+    try:
+        validate_dataframe_against_schema(filtered_df, schema)
+        logger.info("Schema validation passed.")
+    except Exception as e:
+        logger.error(f"Schema validation failed: {e}")
+        sys.exit(1)
+    
+    # Save results
+    filtered_df.to_csv(output_path, index=False)
+    logger.info(f"Filtered cohort saved to {output_path}")
+    
+    # Log status summary
+    logger.info(f"Filtering summary: {status}")
+    
+    # Print summary to stdout
+    print(f"Filtering complete. Final cohort size: {status['final_rows']}")
+    print(f"Zero variance detected: {status['zero_variance_detected']}")
+    if status['zero_variance_columns']:
+        print(f"Affected columns: {', '.join(status['zero_variance_columns'])}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

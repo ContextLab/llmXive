@@ -1,7 +1,3 @@
-"""
-Logging utilities for dataset and training metrics.
-Implements T017: Add logging for dataset size, feature count, and training metrics.
-"""
 import os
 import json
 import logging
@@ -12,165 +8,207 @@ from datetime import datetime
 from config import OUTPUTS_LOGS_DIR
 from utils.logging import setup_logger
 
-
 def log_dataset_metrics(
-    logger_name: str,
-    dataset_size: int,
-    feature_count: int,
-    source: str = "unknown",
-    filter_criteria: Optional[str] = None
-) -> None:
+    dataset_name: str,
+    total_entries: int,
+    valid_entries: int,
+    skipped_entries: int,
+    feature_columns: Optional[list] = None,
+    target_column: str = "formation_energy_per_atom",
+) -> Dict[str, Any]:
     """
-    Log dataset statistics including size and feature dimensions.
+    Logs dataset size and composition metrics.
 
     Args:
-        logger_name: Name of the logger instance to use.
-        dataset_size: Total number of entries in the dataset.
-        feature_count: Number of features in the feature matrix.
-        source: Source of the data (e.g., 'OQMD', 'filtered').
-        filter_criteria: Optional description of filters applied.
-    """
-    logger = setup_logger(logger_name)
+        dataset_name: Name of the dataset being processed.
+        total_entries: Total number of raw entries.
+        valid_entries: Number of entries that passed validation.
+        skipped_entries: Number of entries skipped due to validation failures.
+        feature_columns: List of feature column names if available.
+        target_column: Name of the target variable.
 
-    log_msg = (
-        f"Dataset Metrics | Source: {source} | "
-        f"Size: {dataset_size} entries | Features: {feature_count}"
+    Returns:
+        Dictionary containing the logged metrics.
+    """
+    logger = setup_logger("dataset_metrics")
+
+    timestamp = datetime.now().isoformat()
+    metrics = {
+        "timestamp": timestamp,
+        "dataset_name": dataset_name,
+        "total_entries": total_entries,
+        "valid_entries": valid_entries,
+        "skipped_entries": skipped_entries,
+        "validity_rate": valid_entries / total_entries if total_entries > 0 else 0.0,
+        "feature_count": len(feature_columns) if feature_columns else 0,
+        "target_column": target_column,
+    }
+
+    logger.info(
+        f"Dataset '{dataset_name}': {total_entries} total, "
+        f"{valid_entries} valid, {skipped_entries} skipped. "
+        f"Features: {metrics['feature_count']}"
     )
 
-    if filter_criteria:
-        log_msg += f" | Filter: {filter_criteria}"
+    # Ensure log directory exists
+    OUTPUTS_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = OUTPUTS_LOGS_DIR / "dataset_metrics.json"
 
-    logger.info(log_msg)
+    # Append to existing log file or create new one
+    all_metrics = []
+    if log_file.exists():
+        try:
+            with open(log_file, "r") as f:
+                all_metrics = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            all_metrics = []
 
-    # Also write a structured JSON record for programmatic consumption
-    log_file_path = OUTPUTS_LOGS_DIR / "dataset_metrics.json"
+    all_metrics.append(metrics)
 
-    try:
-        # Load existing records if file exists
-        if log_file_path.exists():
-            with open(log_file_path, "r") as f:
-                records = json.load(f)
-        else:
-            records = []
+    with open(log_file, "w") as f:
+        json.dump(all_metrics, f, indent=2)
 
-        record = {
-            "timestamp": datetime.now().isoformat(),
-            "source": source,
-            "dataset_size": dataset_size,
-            "feature_count": feature_count,
-            "filter_criteria": filter_criteria
-        }
-        records.append(record)
-
-        with open(log_file_path, "w") as f:
-            json.dump(records, f, indent=2)
-
-    except Exception as e:
-        logger.warning(f"Failed to write structured dataset metrics to JSON: {e}")
-
+    return metrics
 
 def log_training_metrics(
-    logger_name: str,
     model_name: str,
-    metrics: Dict[str, Any],
-    hyperparameters: Optional[Dict[str, Any]] = None
-) -> None:
+    training_samples: int,
+    validation_samples: int,
+    test_samples: int,
+    best_params: Dict[str, Any],
+    validation_scores: Dict[str, float],
+    test_scores: Optional[Dict[str, float]] = None,
+    runtime_seconds: Optional[float] = None,
+) -> Dict[str, Any]:
     """
-    Log training performance metrics and hyperparameters.
+    Logs training metrics including split sizes, hyperparameters, and scores.
 
     Args:
-        logger_name: Name of the logger instance to use.
-        model_name: Identifier for the model (e.g., 'baseline', 'augmented').
-        metrics: Dictionary of performance metrics (MAE, RMSE, R2, etc.).
-        hyperparameters: Optional dictionary of model hyperparameters used.
+        model_name: Name of the model being trained.
+        training_samples: Number of samples in training set.
+        validation_samples: Number of samples in validation set.
+        test_samples: Number of samples in test set.
+        best_params: Best hyperparameters found during tuning.
+        validation_scores: Scores on validation set.
+        test_scores: Optional scores on test set.
+        runtime_seconds: Optional total training runtime.
+
+    Returns:
+        Dictionary containing the logged metrics.
     """
-    logger = setup_logger(logger_name)
+    logger = setup_logger("training_metrics")
 
-    # Format metrics string
-    metrics_str = ", ".join([f"{k}: {v:.4f}" for k, v in metrics.items()])
-    log_msg = f"Training Metrics | Model: {model_name} | {metrics_str}"
+    timestamp = datetime.now().isoformat()
+    metrics = {
+        "timestamp": timestamp,
+        "model_name": model_name,
+        "dataset_splits": {
+            "train": training_samples,
+            "validation": validation_samples,
+            "test": test_samples,
+        },
+        "best_params": best_params,
+        "validation_scores": validation_scores,
+        "test_scores": test_scores,
+        "runtime_seconds": runtime_seconds,
+    }
 
-    if hyperparameters:
-        hp_str = ", ".join([f"{k}={v}" for k, v in list(hyperparameters.items())[:5]])
-        log_msg += f" | HP: {hp_str}..."
-
-    logger.info(log_msg)
-
-    # Write structured JSON record
-    log_file_path = OUTPUTS_LOGS_DIR / "training_metrics.json"
-
-    try:
-        if log_file_path.exists():
-            with open(log_file_path, "r") as f:
-                records = json.load(f)
-        else:
-            records = []
-
-        record = {
-            "timestamp": datetime.now().isoformat(),
-            "model_name": model_name,
-            "metrics": metrics,
-            "hyperparameters": hyperparameters
-        }
-        records.append(record)
-
-        with open(log_file_path, "w") as f:
-            json.dump(records, f, indent=2)
-
-    except Exception as e:
-        logger.warning(f"Failed to write structured training metrics to JSON: {e}")
-
-
-def log_feature_engineering_summary(
-    logger_name: str,
-    input_size: int,
-    output_size: int,
-    features_added: list,
-    skipped_entries: int = 0,
-    imputed_entries: int = 0
-) -> None:
-    """
-    Log summary of feature engineering process.
-
-    Args:
-        logger_name: Name of the logger instance to use.
-        input_size: Number of entries before feature engineering.
-        output_size: Number of entries after feature engineering.
-        features_added: List of feature names added.
-        skipped_entries: Count of entries skipped due to validation failures.
-        imputed_entries: Count of entries with imputed values.
-    """
-    logger = setup_logger(logger_name)
-
-    log_msg = (
-        f"Feature Engineering Summary | Input: {input_size} | Output: {output_size} | "
-        f"Features: {len(features_added)} | Skipped: {skipped_entries} | Imputed: {imputed_entries}"
+    logger.info(
+        f"Model '{model_name}': Train={training_samples}, "
+        f"Val={validation_samples}, Test={test_samples}. "
+        f"Best params: {best_params}"
     )
 
-    logger.info(log_msg)
+    if test_scores:
+        logger.info(f"Test scores: {test_scores}")
 
-    # Write structured JSON record
-    log_file_path = OUTPUTS_LOGS_DIR / "fe_summary.json"
+    if runtime_seconds:
+        logger.info(f"Training runtime: {runtime_seconds:.2f} seconds")
 
-    try:
-        if log_file_path.exists():
-            with open(log_file_path, "r") as f:
-                records = json.load(f)
-        else:
-            records = []
+    # Ensure log directory exists
+    OUTPUTS_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = OUTPUTS_LOGS_DIR / "training_metrics.json"
 
-        record = {
-            "timestamp": datetime.now().isoformat(),
-            "input_size": input_size,
-            "output_size": output_size,
-            "features_added": features_added,
-            "skipped_entries": skipped_entries,
-            "imputed_entries": imputed_entries
-        }
-        records.append(record)
+    # Append to existing log file or create new one
+    all_metrics = []
+    if log_file.exists():
+        try:
+            with open(log_file, "r") as f:
+                all_metrics = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            all_metrics = []
 
-        with open(log_file_path, "w") as f:
-            json.dump(records, f, indent=2)
+    all_metrics.append(metrics)
 
-    except Exception as e:
-        logger.warning(f"Failed to write structured FE summary to JSON: {e}")
+    with open(log_file, "w") as f:
+        json.dump(all_metrics, f, indent=2)
+
+    return metrics
+
+def log_feature_engineering_summary(
+    stage_name: str,
+    input_rows: int,
+    output_rows: int,
+    imputed_count: int,
+    dropped_count: int,
+    feature_names: Optional[list] = None,
+    imputation_strategy: str = "median",
+) -> Dict[str, Any]:
+    """
+    Logs feature engineering summary including imputation and dropping counts.
+
+    Args:
+        stage_name: Name of the feature engineering stage (e.g., 'Magpie', 'Voronoi').
+        input_rows: Number of rows before feature engineering.
+        output_rows: Number of rows after feature engineering.
+        imputed_count: Number of values imputed.
+        dropped_count: Number of rows dropped.
+        feature_names: List of generated feature names.
+        imputation_strategy: Strategy used for imputation.
+
+    Returns:
+        Dictionary containing the logged metrics.
+    """
+    logger = setup_logger("feature_engineering")
+
+    timestamp = datetime.now().isoformat()
+    metrics = {
+        "timestamp": timestamp,
+        "stage_name": stage_name,
+        "input_rows": input_rows,
+        "output_rows": output_rows,
+        "rows_kept": input_rows - dropped_count,
+        "imputed_count": imputed_count,
+        "dropped_count": dropped_count,
+        "imputation_strategy": imputation_strategy,
+        "feature_count": len(feature_names) if feature_names else 0,
+    }
+
+    logger.info(
+        f"Feature Engineering '{stage_name}': "
+        f"Input={input_rows}, Output={output_rows}, "
+        f"Imputed={imputed_count}, Dropped={dropped_count}"
+    )
+
+    if feature_names:
+        logger.debug(f"Generated features: {feature_names}")
+
+    # Ensure log directory exists
+    OUTPUTS_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    log_file = OUTPUTS_LOGS_DIR / "feature_engineering_summary.json"
+
+    # Append to existing log file or create new one
+    all_metrics = []
+    if log_file.exists():
+        try:
+            with open(log_file, "r") as f:
+                all_metrics = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            all_metrics = []
+
+    all_metrics.append(metrics)
+
+    with open(log_file, "w") as f:
+        json.dump(all_metrics, f, indent=2)
+
+    return metrics
