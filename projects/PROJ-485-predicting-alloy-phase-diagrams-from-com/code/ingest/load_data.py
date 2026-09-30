@@ -1,481 +1,261 @@
 """
-Data ingestion module for alloy phase diagram prediction pipeline.
-
-Handles loading data from URLs, local fallbacks, streaming large datasets,
-and implementing real sampling strategies with proper documentation.
+Data ingestion module for loading and processing alloy phase data.
+Implements streaming, filtering, checksumming, and state management.
 """
-
 import os
 import sys
 import time
 import json
 import hashlib
 import csv
-import logging
-from typing import Dict, List, Any, Optional, Tuple, Iterator
-from urllib.parse import urlparse
-import requests
-import itertools
-
+from typing import Dict, List, Any, Optional, Tuple
+import pandas as pd
 from utils.logging import get_logger, log_info, log_error, log_warning
 from utils.error_codes import ErrorCode
+from utils.checksum import compute_file_sha256, verify_file_checksum
 from utils.config import get_config
 
 logger = get_logger(__name__)
 
-# Configuration constants
-MAX_RETRIES = 3
-RETRY_BACKOFF_BASE = 2.0  # seconds
-CHUNK_SIZE = 8192  # bytes for streaming
-DEFAULT_SAMPLE_SIZE = 10000  # Default sample size if not specified
-
 def check_data_source_availability() -> bool:
-    """
-    Check if configured data sources are available.
-    
-    Returns:
-        bool: True if at least one source is configured and accessible, False otherwise.
-        
-    Raises:
-        ValueError: With ErrorCode.DATA_SOURCE_MISSING if no sources are available.
-    """
+    """Check if data sources are available in config."""
     config = get_config()
-    
     nist_url = config.get('nist_janaf_url', '')
     sgte_url = config.get('sgte_url', '')
     local_path = config.get('local_fallback_path', '')
-    
-    sources_available = False
-    
-    # Check URLs
-    for url_name, url in [('NIST-JANAF', nist_url), ('SGTE', sgte_url)]:
-        if url and url.strip():
-            try:
-                # Quick HEAD request to check availability
-                response = requests.head(url, timeout=10)
-                if response.status_code == 200:
-                    sources_available = True
-                    log_info(f"{url_name} URL is accessible: {url}")
-                else:
-                    log_warning(f"{url_name} URL returned status {response.status_code}: {url}")
-            except requests.RequestException as e:
-                log_warning(f"{url_name} URL not accessible: {e}")
-    
-    # Check local fallback
-    if local_path and local_path.strip():
-        if os.path.exists(local_path):
-            sources_available = True
-            log_info(f"Local fallback file exists: {local_path}")
-        else:
-            log_warning(f"Local fallback path does not exist: {local_path}")
-    
-    if not sources_available:
-        error_msg = "No data sources available. Please configure nist_janaf_url, sgte_url, or local_fallback_path in config.yaml."
-        log_error(f"{ErrorCode.DATA_SOURCE_MISSING.value}: {error_msg}")
-        raise ValueError(f"{ErrorCode.DATA_SOURCE_MISSING.value}: {error_msg}")
-    
+
+    if not nist_url and not sgte_url and not local_path:
+        log_error(ErrorCode.DATA_SOURCE_MISSING, "No data sources configured in config.yaml")
+        return False
     return True
 
-def stream_data(url: str, chunk_size: int = CHUNK_SIZE) -> Iterator[bytes]:
-    """
-    Stream data from a URL in chunks.
-    
-    Args:
-        url: The URL to stream from.
-        chunk_size: Size of each chunk in bytes.
-        
-    Yields:
-        bytes: Chunks of data from the URL.
-    """
+def stream_data(url: str, chunk_size: int = 10000) -> List[Dict[str, Any]]:
+    """Stream data from URL in chunks to avoid memory overflow."""
+    import requests
+    all_data = []
     try:
-        response = requests.get(url, stream=True, timeout=30)
+        response = requests.get(url, stream=True, timeout=60)
         response.raise_for_status()
         
-        for chunk in response.iter_content(chunk_size=chunk_size):
-            if chunk:
-                yield chunk
-                
-    except requests.RequestException as e:
-        log_error(f"Failed to stream data from {url}: {e}")
-        raise
+        # Read as CSV chunks
+        text_io = response.iter_lines(decode_unicode=True)
+        reader = csv.DictReader(text_io)
+        
+        chunk = []
+        for row in reader:
+            chunk.append(row)
+            if len(chunk) >= chunk_size:
+                all_data.extend(chunk)
+                chunk = []
+        
+        if chunk:
+            all_data.extend(chunk)
+            
+    except requests.exceptions.RequestException as e:
+        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Failed to stream data from {url}: {str(e)}")
+        raise ValueError(f"DATA_SOURCE_MISSING: {str(e)}")
+        
+    return all_data
 
-def load_data_from_url(url: str, target_path: str) -> str:
-    """
-    Load data from a URL with exponential backoff retry logic.
+def load_data_from_url(url: str) -> pd.DataFrame:
+    """Load data from a URL with retry logic."""
+    max_retries = 3
+    base_delay = 2
     
-    Args:
-        url: The URL to load data from.
-        target_path: Local path to save the downloaded data.
-        
-    Returns:
-        str: Path to the saved file.
-        
-    Raises:
-        ValueError: If data cannot be loaded after retries.
-    """
-    attempt = 0
-    last_error = None
-    
-    while attempt < MAX_RETRIES:
+    for attempt in range(max_retries):
         try:
-            log_info(f"Attempting to download from {url} (attempt {attempt + 1}/{MAX_RETRIES})")
-            
-            # Create parent directory if needed
-            os.makedirs(os.path.dirname(target_path), exist_ok=True)
-            
-            # Stream and write to file
-            with open(target_path, 'wb') as f:
-                for chunk in stream_data(url):
-                    f.write(chunk)
-            
-            log_info(f"Successfully downloaded data to {target_path}")
-            return target_path
-            
-        except Exception as e:
-            last_error = e
-            attempt += 1
-            if attempt < MAX_RETRIES:
-                wait_time = RETRY_BACKOFF_BASE ** attempt
-                log_warning(f"Download failed, retrying in {wait_time}s: {e}")
-                time.sleep(wait_time)
+            log_info(None, f"Attempting to load data from {url} (attempt {attempt + 1})")
+            if url.startswith('http'):
+                data = stream_data(url)
             else:
-                log_error(f"Failed to download from {url} after {MAX_RETRIES} attempts: {e}")
+                # Local file path
+                if not os.path.exists(url):
+                    raise FileNotFoundError(f"Local file not found: {url}")
+                data = pd.read_csv(url).to_dict('records')
+            
+            if data:
+                log_info(None, f"Successfully loaded {len(data)} rows")
+                return pd.DataFrame(data)
+            else:
+                raise ValueError("No data loaded")
+                
+        except Exception as e:
+            if attempt == max_retries - 1:
+                log_error(ErrorCode.DATA_SOURCE_MISSING, f"Failed to load data after {max_retries} attempts: {str(e)}")
+                raise ValueError(f"DATA_SOURCE_MISSING: {str(e)}")
+            time.sleep(base_delay * (2 ** attempt))
+            
+def load_data_from_local_fallback(local_path: str) -> pd.DataFrame:
+    """Load data from local fallback path."""
+    if not local_path or not os.path.exists(local_path):
+        log_error(ErrorCode.DATA_SOURCE_MISSING, f"Local fallback path invalid: {local_path}")
+        raise ValueError(f"DATA_SOURCE_MISSING: Local file not found: {local_path}")
     
-    raise ValueError(f"Failed to load data from {url} after {MAX_RETRIES} retries: {last_error}")
+    log_info(None, f"Loading data from local fallback: {local_path}")
+    return pd.read_csv(local_path)
 
-def load_data_from_local_fallback(local_path: str) -> str:
-    """
-    Load data from a local fallback file.
+def filter_missing_temperature(df: pd.DataFrame) -> pd.DataFrame:
+    """Filter out rows with missing temperature values."""
+    initial_count = len(df)
     
-    Args:
-        local_path: Path to the local CSV file.
-        
-    Returns:
-        str: Path to the loaded file.
-        
-    Raises:
-        ValueError: If the file doesn't exist or is invalid.
-    """
-    if not local_path or not local_path.strip():
-        raise ValueError(f"{ErrorCode.DATA_SOURCE_MISSING.value}: Local fallback path is empty")
+    # Handle binary systems: skip entries with missing temperature
+    if 'temperature' in df.columns:
+        df = df.dropna(subset=['temperature'])
     
-    if not os.path.exists(local_path):
-        raise ValueError(f"{ErrorCode.DATA_SOURCE_MISSING.value}: Local fallback file does not exist: {local_path}")
+    # Handle ternary systems: skip entries lacking temperature-composition coordinates
+    ternary_mask = df['system_type'] == 'ternary' if 'system_type' in df.columns else pd.Series([False] * len(df))
+    ternary_with_missing_temp = ternary_mask & (df['temperature'].isna() | (df['composition'].isna()))
     
-    # Verify it's a readable CSV
-    try:
-        with open(local_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.reader(f)
-            header = next(reader, None)
-            if not header:
-                raise ValueError(f"Empty CSV file: {local_path}")
-            log_info(f"Successfully loaded local fallback: {local_path} with columns: {header}")
-    except Exception as e:
-        raise ValueError(f"Invalid CSV file at {local_path}: {e}")
+    if ternary_with_missing_temp.any():
+        log_warning(ErrorCode.MISSING_TEMP_COORDS, f"Excluded {ternary_with_missing_temp.sum()} ternary rows missing temperature-composition coordinates")
+        # Log each excluded row to pipeline.log
+        for idx in df[ternary_with_missing_temp].index:
+            log_warning(ErrorCode.MISSING_TEMP_COORDS, f"Row {idx} excluded: ternary system missing temperature-composition coordinates")
     
-    return local_path
-
-def filter_missing_temperature(data_iterator: Iterator[Dict[str, Any]], system_type: str = 'binary') -> Iterator[Dict[str, Any]]:
-    """
-    Filter out entries with missing temperature values.
+    df = df[~ternary_with_missing_temp]
+    final_count = len(df)
+    log_info(None, f"Filtered {initial_count - final_count} rows with missing temperature data")
     
-    Args:
-        data_iterator: Iterator of data rows.
-        system_type: Type of system ('binary' or 'ternary').
-        
-    Yields:
-        Dict: Rows with valid temperature values.
-    """
-    for row in data_iterator:
-        temp_value = row.get('temperature')
-        
-        if temp_value is None or temp_value == '' or str(temp_value).strip() == '':
-            if system_type == 'ternary':
-                # Log MISSING_TEMP_COORDS for ternary systems
-                log_error({
-                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-                    "level": "ERROR",
-                    "code": ErrorCode.MISSING_TEMP_COORDS.value,
-                    "message": f"Row excluded: ternary system missing temperature-composition coordinates"
-                })
-            continue  # Skip rows with missing temperature
-        
-        try:
-            float(temp_value)  # Validate it's a number
-            yield row
-        except (ValueError, TypeError):
-            continue
+    return df.reset_index(drop=True)
 
 def compute_row_checksum(row: Dict[str, Any]) -> str:
-    """
-    Compute SHA-256 checksum for a single row.
-    
-    Args:
-        row: Dictionary representing a data row.
-        
-    Returns:
-        str: Hexadecimal SHA-256 hash of the row.
-    """
-    # Create a canonical string representation
-    canonical = json.dumps(row, sort_keys=True)
-    return hashlib.sha256(canonical.encode('utf-8')).hexdigest()
+    """Compute SHA-256 checksum for a single row."""
+    row_str = json.dumps(row, sort_keys=True)
+    return hashlib.sha256(row_str.encode()).hexdigest()
 
-def compute_dataset_checksum(file_path: str) -> str:
-    """
-    Compute SHA-256 checksum for an entire file.
-    
-    Args:
-        file_path: Path to the file.
-        
-    Returns:
-        str: Hexadecimal SHA-256 hash of the file contents.
-    """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+def compute_dataset_checksum(df: pd.DataFrame) -> str:
+    """Compute SHA-256 checksum for the entire dataset."""
+    # Convert to JSON string for consistent hashing
+    data_str = df.to_json(orient='records', date_format='iso')
+    return hashlib.sha256(data_str.encode()).hexdigest()
 
-def update_state_with_checksum(artifact_path: str, checksum: str) -> None:
-    """
-    Update the state file with a checksum for an artifact.
+def update_state_with_checksum(checksum: str, artifact_path: str):
+    """Update state file with checksum."""
+    state_path = 'state/PROJ-485/pipeline_state.yaml'
+    state = {}
     
-    Args:
-        artifact_path: Path to the artifact file.
-        checksum: SHA-256 checksum of the artifact.
-    """
-    state_dir = "state/PROJ-485"
-    state_file = os.path.join(state_dir, "pipeline_state.yaml")
-    
-    os.makedirs(state_dir, exist_ok=True)
-    
-    # Load existing state or create new
-    if os.path.exists(state_file):
+    if os.path.exists(state_path):
         import yaml
-        with open(state_file, 'r') as f:
+        with open(state_path, 'r') as f:
             state = yaml.safe_load(f) or {}
-    else:
-        state = {"artifacts": {}, "steps": {}, "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     
-    # Update artifact checksum
-    if "artifacts" not in state:
-        state["artifacts"] = {}
-    
-    state["artifacts"][artifact_path] = {
-        "checksum": checksum,
-        "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    state['artifacts'] = state.get('artifacts', {})
+    state['artifacts'][artifact_path] = {
+        'checksum': checksum,
+        'updated_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
     }
     
-    # Save state
-    with open(state_file, 'w') as f:
-        import yaml
+    os.makedirs(os.path.dirname(state_path), exist_ok=True)
+    import yaml
+    with open(state_path, 'w') as f:
         yaml.dump(state, f, default_flow_style=False)
-    
-    log_info(f"Updated state with checksum for {artifact_path}: {checksum}")
+    log_info(None, f"Updated state with checksum for {artifact_path}")
 
-def sample_real_data(file_path: str, sample_size: int = DEFAULT_SAMPLE_SIZE, seed: int = 42) -> Tuple[List[Dict[str, Any]], str]:
+def verify_processed_data_integrity(artifact_path: str, expected_checksum: str) -> bool:
     """
-    Implement a well-defined real sampling strategy for large datasets.
-    
-    This function samples the first N rows from a real CSV file to handle
-    datasets that are too large to process in memory, while ensuring the
-    data remains real (not synthetic).
-    
-    Args:
-        file_path: Path to the real CSV file.
-        sample_size: Number of rows to sample.
-        seed: Random seed for reproducibility (used for random sampling if needed).
-        
-    Returns:
-        Tuple of (sampled_rows, sampling_description)
-        
-    Raises:
-        ValueError: If the file doesn't exist or is invalid.
+    Verify the integrity of processed data by re-computing checksum and comparing.
+    This is the final verification step for T061.
     """
-    if not os.path.exists(file_path):
-        raise ValueError(f"Sample source file does not exist: {file_path}")
+    if not os.path.exists(artifact_path):
+        log_error(ErrorCode.DATA_INTEGRITY_VIOLATION, f"Processed artifact not found: {artifact_path}")
+        raise ValueError(f"DATA_INTEGRITY_VIOLATION: File not found - {artifact_path}")
     
-    sampled_rows = []
-    total_rows = 0
+    # Compute current checksum
+    current_checksum = compute_file_sha256(artifact_path)
     
-    # Strategy 1: First N rows (deterministic, fast)
-    # This is the primary strategy for large datasets
-    try:
-        with open(file_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            header = reader.fieldnames
-            
-            if not header:
-                raise ValueError(f"CSV file has no header: {file_path}")
-            
-            for i, row in enumerate(reader):
-                if i >= sample_size:
-                    break
-                sampled_rows.append(row)
-                total_rows = i + 1
-                
-    except Exception as e:
-        log_error(f"Failed to sample data from {file_path}: {e}")
-        raise
+    if current_checksum != expected_checksum:
+        log_error(ErrorCode.DATA_INTEGRITY_VIOLATION, 
+                 f"Checksum mismatch for {artifact_path}. Expected: {expected_checksum}, Got: {current_checksum}")
+        raise ValueError(f"DATA_INTEGRITY_VIOLATION: Checksum mismatch - {artifact_path}")
     
-    # Create sampling description
-    sampling_description = (
-        f"Real data sampling: First {sample_size} rows from {file_path}. "
-        f"Total rows available: {total_rows}. "
-        f"Strategy: itertools.islice (first N rows). "
-        f"Note: This is a subset of real data, not synthetic. "
-        f"Representativeness: Limited to first {sample_size} entries; may not capture full dataset distribution."
-    )
-    
-    log_info(sampling_description)
-    
-    return sampled_rows, sampling_description
+    log_info(None, f"Data integrity verified for {artifact_path}: {current_checksum}")
+    return True
 
-def load_data(output_path: str = "data/processed/descriptors.csv") -> str:
-    """
-    Main data loading function that orchestrates the entire pipeline.
-    
-    This function:
-    1. Checks data source availability
-    2. Loads data from URL or local fallback
-    3. Streams large datasets if needed
-    4. Filters missing temperatures
-    5. Implements sampling for large datasets
-    6. Computes and records checksums
-    7. Updates state with artifact information
-    
-    Args:
-        output_path: Path to save the processed data.
-        
-    Returns:
-        str: Path to the processed data file.
-    """
+def load_data() -> pd.DataFrame:
+    """Main function to load and process data."""
     config = get_config()
     
-    # Step 1: Check data source availability
-    log_info("Checking data source availability...")
-    check_data_source_availability()
+    # Check data source availability
+    if not check_data_source_availability():
+        raise ValueError("DATA_SOURCE_MISSING: No valid data sources configured")
     
-    # Step 2: Determine source and load data
-    local_path = config.get('local_fallback_path', '')
+    # Try to load from configured sources
+    df = None
+    
+    # Try URL sources first
     nist_url = config.get('nist_janaf_url', '')
     sgte_url = config.get('sgte_url', '')
     
-    temp_file = None
+    if nist_url:
+        try:
+            df = load_data_from_url(nist_url)
+        except Exception as e:
+            log_warning(None, f"NIST-JANAF load failed: {str(e)}")
     
-    try:
-        if local_path and os.path.exists(local_path):
-            log_info(f"Loading from local fallback: {local_path}")
-            source_file = load_data_from_local_fallback(local_path)
-            
-        elif nist_url:
-            temp_file = "data/raw/nist_janaf_temp.csv"
-            log_info(f"Loading from NIST-JANAF URL: {nist_url}")
-            source_file = load_data_from_url(nist_url, temp_file)
-            
-        elif sgte_url:
-            temp_file = "data/raw/sgte_temp.csv"
-            log_info(f"Loading from SGTE URL: {sgte_url}")
-            source_file = load_data_from_url(sgte_url, temp_file)
-            
-        else:
-            raise ValueError(f"{ErrorCode.DATA_SOURCE_MISSING.value}: No valid data source configured")
-        
-        # Step 3: Check file size and decide on sampling
-        file_size_mb = os.path.getsize(source_file) / (1024 * 1024)
-        log_info(f"Source file size: {file_size_mb:.2f} MB")
-        
-        # If file is large (> 100MB), implement sampling
-        if file_size_mb > 100:
-            log_warning(f"Large dataset detected ({file_size_mb:.2f} MB). Implementing real sampling strategy.")
-            sampled_rows, sampling_desc = sample_real_data(source_file, sample_size=DEFAULT_SAMPLE_SIZE)
-            
-            # Write sampled data to output
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            with open(output_path, 'w', newline='', encoding='utf-8') as f:
-                if sampled_rows:
-                    writer = csv.DictWriter(f, fieldnames=sampled_rows[0].keys())
-                    writer.writeheader()
-                    writer.writerows(sampled_rows)
-            
-            # Log sampling information
-            with open("data/logs/sampling_log.json", 'w') as f:
-                json.dump({
-                    "source_file": source_file,
-                    "output_file": output_path,
-                    "sampling_description": sampling_desc,
-                    "sample_size": len(sampled_rows),
-                    "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
-                }, f, indent=2)
-            
-            log_info(f"Sampled data written to {output_path}")
-            
-        else:
-            # Process entire file (streaming for safety)
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
-            
-            with open(source_file, 'r', newline='', encoding='utf-8') as infile, \
-                 open(output_path, 'w', newline='', encoding='utf-8') as outfile:
-                
-                reader = csv.DictReader(infile)
-                fieldnames = reader.fieldnames
-                
-                if not fieldnames:
-                    raise ValueError("CSV file has no header")
-                
-                writer = csv.DictWriter(outfile, fieldnames=fieldnames)
-                writer.writeheader()
-                
-                row_count = 0
-                for row in filter_missing_temperature(reader):
-                    writer.writerow(row)
-                    row_count += 1
-                
-                log_info(f"Processed {row_count} rows from {source_file}")
-        
-        # Step 4: Compute checksum and update state
-        checksum = compute_dataset_checksum(output_path)
-        update_state_with_checksum(output_path, checksum)
-        
-        log_info(f"Data loading complete. Output: {output_path}, Checksum: {checksum}")
-        return output_path
-        
-    finally:
-        # Clean up temporary files
-        if temp_file and os.path.exists(temp_file):
+    if df is None and sgte_url:
+        try:
+            df = load_data_from_url(sgte_url)
+        except Exception as e:
+            log_warning(None, f"SGTE load failed: {str(e)}")
+    
+    # Fallback to local file
+    if df is None:
+        local_path = config.get('local_fallback_path', '')
+        if local_path:
             try:
-                os.remove(temp_file)
-                log_info(f"Cleaned up temporary file: {temp_file}")
+                df = load_data_from_local_fallback(local_path)
             except Exception as e:
-                log_warning(f"Failed to clean up temporary file {temp_file}: {e}")
+                log_error(ErrorCode.DATA_SOURCE_MISSING, f"Local fallback failed: {str(e)}")
+                raise ValueError(f"DATA_SOURCE_MISSING: {str(e)}")
+        else:
+            raise ValueError("DATA_SOURCE_MISSING: No valid data source found")
+    
+    # Filter missing temperature data
+    df = filter_missing_temperature(df)
+    
+    # Compute and store checksum
+    checksum = compute_dataset_checksum(df)
+    log_info(None, f"Dataset checksum computed: {checksum}")
+    
+    # Update state
+    update_state_with_checksum(checksum, 'data/processed/descriptors.csv')
+    
+    return df
 
 def main():
-    """Main entry point for the data loading script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Load and process alloy phase diagram data")
-    parser.add_argument('--output', '-o', default='data/processed/descriptors.csv',
-                      help='Output path for processed data')
-    parser.add_argument('--sample-size', type=int, default=DEFAULT_SAMPLE_SIZE,
-                      help='Sample size for large datasets')
-    
-    args = parser.parse_args()
-    
+    """Entry point for data ingestion."""
     try:
-        output_path = load_data(args.output)
-        print(f"Data loaded successfully to: {output_path}")
+        log_info(None, "Starting data ingestion pipeline")
+        df = load_data()
         
-        # Verify output exists
-        if os.path.exists(output_path):
-            size_mb = os.path.getsize(output_path) / (1024 * 1024)
-            print(f"Output file size: {size_mb:.2f} MB")
-        else:
-            print("ERROR: Output file was not created")
-            sys.exit(1)
+        # Save processed data
+        output_path = 'data/processed/descriptors.csv'
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        df.to_csv(output_path, index=False)
+        
+        # Final integrity check (T061)
+        config = get_config()
+        state_path = 'state/PROJ-485/pipeline_state.yaml'
+        
+        if os.path.exists(state_path):
+            import yaml
+            with open(state_path, 'r') as f:
+                state = yaml.safe_load(f) or {}
             
+            expected_checksum = state.get('artifacts', {}).get('data/processed/descriptors.csv', {}).get('checksum')
+            
+            if expected_checksum:
+                verify_processed_data_integrity(output_path, expected_checksum)
+                log_info(None, "Final integrity check passed")
+            else:
+                log_warning(None, "No expected checksum found in state, skipping integrity verification")
+        
+        log_info(None, f"Data ingestion complete. Output: {output_path}")
+        return df
+        
     except Exception as e:
-        log_error(f"Data loading failed: {e}")
-        sys.exit(1)
+        log_error(None, f"Data ingestion failed: {str(e)}")
+        raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

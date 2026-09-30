@@ -1,126 +1,61 @@
 import os
+import yaml
 import json
 from typing import Dict, Any, Optional
-from .logging import get_logger, log_info, log_error, log_warning
+from .logging import get_logger, log_info, log_error
 from .error_codes import ErrorCode
 
-logger = get_logger(__name__)
-
 class ConfigManager:
-    """
-    Manages configuration loading and validation for the alloy phase diagram project.
-    Enforces Constitution Principle II by validating required schema keys.
-    """
+    _config = {}
 
-    def __init__(self, config_path: str = "code/config.yaml"):
-        self.config_path = config_path
-        self._config: Dict[str, Any] = {}
-        self._load_config()
-
-    def _load_config(self) -> None:
-        """Loads the YAML configuration file."""
+    @classmethod
+    def load(cls, path: str = "code/config.yaml"):
+        if not os.path.exists(path):
+            log_error(f"Config file not found: {path}")
+            return False
         try:
-            import yaml
-            if not os.path.exists(self.config_path):
-                log_error(
-                    self,
-                    ErrorCode.DATA_SOURCE_MISSING,
-                    f"Configuration file not found: {self.config_path}"
-                )
-                raise FileNotFoundError(f"Config file not found: {self.config_path}")
-            
-            with open(self.config_path, 'r', encoding='utf-8') as f:
-                self._config = yaml.safe_load(f) or {}
-            
-            log_info(self, "Configuration loaded successfully.")
-        except yaml.YAMLError as e:
-            log_error(
-                self,
-                ErrorCode.INVALID_DATA_SCHEMA,
-                f"Failed to parse YAML configuration: {e}"
-            )
-            raise
+            with open(path, 'r') as f:
+                cls._config = yaml.safe_load(f)
+            log_info(f"Config loaded from {path}")
+            return True
         except Exception as e:
-            log_error(
-                self,
-                ErrorCode.DATA_SOURCE_MISSING,
-                f"Unexpected error loading configuration: {e}"
-            )
-            raise
+            log_error(f"Failed to load config: {e}")
+            return False
 
-    def get(self, key: str, default: Any = None) -> Any:
-        """Retrieves a configuration value by key."""
-        return self._config.get(key, default)
+    @classmethod
+    def get(cls, key: str, default: Any = None):
+        keys = key.split('.')
+        val = cls._config
+        for k in keys:
+            if isinstance(val, dict) and k in val:
+                val = val[k]
+            else:
+                return default
+        return val
 
-    def validate_data_sources(self) -> bool:
-        """
-        Validates that required data source URLs and paths are present.
-        Returns True if valid, raises an error with ErrorCode.DATA_SOURCE_MISSING if not.
-        """
-        required_keys = ["nist_janaf_url", "sgte_url", "local_fallback_path"]
-        
-        for key in required_keys:
-            value = self._config.get(key)
-            if value is None or (isinstance(value, str) and value.strip() == ""):
-                msg = f"Required configuration key '{key}' is missing or empty."
-                log_error(self, ErrorCode.DATA_SOURCE_MISSING, msg)
-                raise ValueError(msg)
-        
-        log_info(self, "Data source configuration validated successfully.")
+    @classmethod
+    def get_config(cls):
+        return cls._config
+
+    @classmethod
+    def validate_data_sources(cls):
+        # Check for required keys
+        required = ['nist_janaf_url', 'sgte_url', 'local_fallback_path', 'data_schema']
+        for key in required:
+            if key not in cls._config:
+                log_error(f"Missing required config key: {key}")
+                return False
         return True
 
-    def validate_data_schema(self) -> bool:
-        """
-        Validates the data_schema section for required phase boundary coordinates.
-        Specifically checks for 'temperature' and 'composition' as required columns.
-        """
-        schema = self._config.get("data_schema", {})
-        required_columns = schema.get("required_columns", [])
-        
-        required_coords = ["temperature", "composition"]
-        missing = [coord for coord in required_coords if coord not in required_columns]
-        
-        if missing:
-            msg = f"Data schema validation failed: Missing required phase boundary coordinates: {missing}"
-            log_error(self, ErrorCode.INVALID_DATA_SCHEMA, msg)
-            raise ValueError(msg)
-        
-        log_info(self, "Data schema validation passed (phase boundary coordinates present).")
-        return True
+    @classmethod
+    def reset(cls):
+        cls._config = {}
 
-    def validate_all(self) -> bool:
-        """Runs all validation checks."""
-        self.validate_data_sources()
-        self.validate_data_schema()
-        return True
+def get_config():
+    return ConfigManager.get_config()
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Returns the raw configuration dictionary."""
-        return self._config.copy()
+def validate_data_sources():
+    return ConfigManager.validate_data_sources()
 
-
-# Global config instance
-_global_config: Optional[ConfigManager] = None
-
-def get_config(config_path: str = "code/config.yaml") -> ConfigManager:
-    """
-    Returns the singleton ConfigManager instance.
-    Creates it if it doesn't exist.
-    """
-    global _global_config
-    if _global_config is None:
-        _global_config = ConfigManager(config_path)
-    return _global_config
-
-def reset_config() -> None:
-    """Resets the global config instance (useful for testing)."""
-    global _global_config
-    _global_config = None
-
-def validate_data_sources(config: Optional[ConfigManager] = None) -> bool:
-    """
-    Convenience function to validate data sources.
-    """
-    if config is None:
-        config = get_config()
-    return config.validate_data_sources()
+def reset_config():
+    ConfigManager.reset()

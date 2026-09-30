@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-485-predicting-alloy-phase-diagrams-from-com",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/main.py (rc=1); 6 declared deliverable(s) absent: data/artifacts/baseline_comparison.json; data/artifacts/fidelity_report.json; data/artifacts/resource_log.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-485-predicting-alloy-phase-diagrams-from-com/code/main.py\", line 10, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-30T00:16:35Z"
+}
