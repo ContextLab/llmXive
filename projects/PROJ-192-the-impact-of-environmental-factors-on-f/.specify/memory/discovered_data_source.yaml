@@ -1,0 +1,18 @@
+status: none
+intent: download ITS amplicon sequences with environmental metadata from SRA and IMG/M
+  python package dataset
+required_fields:
+- sample_id
+- asv_id
+- asv_sequence
+- taxonomy
+- pH
+- nitrogen
+- phosphorus
+- potassium
+- temperature
+- moisture
+- biome
+cache_key: d5d0a8383546b968c7b08003c831ed6ad4778659365cfe27828f4b41daef3e7f
+searched_at: '2026-09-30T21:41:31.719494+00:00'
+retry_count: 1

@@ -12,3 +12,5 @@ pytest
 ruff
 black
 pydantic
+numpy  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv

@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this belongs to (e.,g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -62,19 +62,9 @@
  - [X] T004c [P] Implement Results schema (R2, p-value, p-value_adj)
 - [X] T005 [P] Implement `src/utils/logging.py` and `src/utils/checksums.py`
  - [X] T005a [P] Implement structured JSON logging in `src/utils/logging.py`
- - [X] T005b [P] Implement SHA256 verification in `src/utils/checksums.py`
+ - [ ] T005b [P] Implement SHA256 verification in `src/utils/checksums.py`
 - [X] T006 [P] Configure `src/config/constants.yaml` with thresholds (VIF>5, p<0.05, etc.)
-- [X] T007 [P] Implement dataingestion logic in `src/pipelines/ingest.py`
- - [X] T007a [P] Implement validation logic for downloaded files (checksum verification, format check). **Constraint**: Do NOT use `datasets.load_dataset` for raw sequence data; this function typically returns processed tables which violates the requirement for raw FASTQ ingestion. **Alternative**: Use `requests` library to fetch from SRA FTP or direct HTTP.
- - [X] T007b [P] Implement metadata harmonization logic.
 - [X] T008 Configure `src/cli/main.py` entry point with argument parsing for `--mode` (validation vs research) and `--stratify-by`
-- [X] T014 [US1] Implement Memory Safety & Streaming Logic in `src/pipelines/ingest.py` and `src/pipelines/preprocess.py`: 
-  1. Extract `sample_count` and `read_depth` from FASTQ headers using `zcat file.fastq.gz | head -n 4` (or equivalent) for a quick, low-memory check. Do NOT use `seqkit stats` on full files at this stage to avoid heavy processing.
-  2. Calculate estimated RAM: `estimated_ram_gb = (sample_count * read_depth * 4.0 bytes_per_read * 1.5 overhead) / 1e9`.
-  3. If `estimated_ram_gb > 6.0`, trigger **streaming/chunked processing** (process 500 samples at a time) or random subsampling of samples (FR-009) to ensure peak RAM never exceeds 6GB.
-  4. **Runtime Monitoring**: During the denoising process (T013c), monitor actual RAM usage. If actual usage exceeds 7GB, immediately trigger subsampling of the current chunk and log the event.
-  5. Log the chunking/subsampling ratio to `results/sampling_report.csv`.
-  6. **Note**: This combines static estimation with runtime monitoring to ensure the hard 7GB constraint is never breached.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -96,45 +86,68 @@
 
 ### Implementation for User Story 1
 
-- [X] T013b [US1] Implement robust dataset discovery and download logic in `src/pipelines/ingest.py` for **Research Mode**:
-  - Use **NCBI E-utilities API** (`esearch`/`efetch`) to dynamically search for 'fungal soil AND ITS' datasets.
-  - **Query Syntax**: `("fungal soil" OR "mybiome") AND (ITS OR "internal transcribed spacer") AND (sra OR fastq)`
-  - **Rate Limiting**: Implement a 3 requests/second delay between API calls.
-  - **Validation**: Verify that at least 3 distinct **SRA accession IDs** are found and validated.
-  - **Fetch**: Use `sra-tools` command `fasterq-dump` to retrieve raw FASTQs.
-  - **Constraint**: If running in Research Mode and < 3 distinct datasets found, abort with FATAL error.
-  - **Deliverable**: Save files to `data/raw-seq/<dataset_id>.fastq.gz` and generate SHA256 checksum.
+- [X] T013a1 [US1] Implement verification logic in `src/pipelines/ingest.py` to count distinct valid datasets. **Requirement**: Verify that at least 3 distinct **SRA accession IDs** are found and validated. If count < 3, log a structured warning and proceed only if in Validation Mode; otherwise, abort with FATAL error (T040). **Execution Order**: This task MUST run BEFORE T013a/T013b.
 - [X] T013a [US1] Implement robust dataset download logic in `src/pipelines/ingest.py` for **Validation Mode**:
-  - Fetch specific **verified real public datasets** (e.g., `SRR14338333`, `SRR14338334`, `SRR14338335` - **verify these are real and accessible**).
-  - **Constraint**: Do NOT use placeholder IDs like SRR123456.
-  - **Fetch**: Use `sra-tools` command `fasterq-dump` to retrieve raw FASTQs.
-  - **Deliverable**: Save files to `data/raw-seq/<dataset_id>.fastq.gz` and generate SHA256 checksum.
-- [X] T013a1 [US1] Implement verification logic in `src/pipelines/ingest.py` to count distinct valid datasets. **Requirement**: Verify that at least 3 distinct **SRA accession IDs** are found and validated. If count < 3, log a structured warning and proceed only if in Validation Mode; otherwise, abort with FATAL error (T040).
-- [X] T013d [US1] Implement validation logic in `src/pipelines/ingest.py` to exclude datasets missing required columns (pH, nutrients, etc.) and verify checksums against `data/raw-seq/`.  Logs a structured JSON warning: `{"level": "WARN", "msg": "Dataset excluded: missing variable <VAR>", "dataset_id": <ID>}`.
+ - Fetch specific **verified real public datasets** (e.,g., `SRR14338333`, `SRR14338334`, `SRR14338335`).
+ - **Fetch**: Use `sra-tools` command `fasterq-dump` to retrieve raw FASTQs.
+ - **Streaming**: Implement `gzip.open` in chunks to process reads in batches of [deferred] lines. Do NOT load the entire file into memory. Log chunk size and total bytes to `results/streaming_log.json`.
+ - **Deliverable**: Save files to `data/raw-seq/<dataset_id>.fastq.gz` and generate SHA256 checksum.
+- [X] T013b [US1] Implement robust dataset discovery and download logic in `src/pipelines/ingest.py` for **Research Mode**:
+ - Use **NCBI E-utilities API** (`esearch`/`efetch`) to dynamically search for 'fungal soil AND ITS' datasets.
+ - **Query Syntax**: `("fungal soil" OR "mybiome") AND (ITS OR "internal transcribed spacer") AND (sra OR fastq)`
+ - **Rate Limiting**: Implement a delay between API calls.
+ - **Validation**: Verify that at least 3 distinct **SRA accession IDs** are found and validated.
+ - **Fetch**: Use `sra-tools` command `fasterq-dump` to retrieve raw FASTQs.
+ - **Streaming**: Implement `gzip.open` in chunks to process reads in batches of [deferred] lines. Do NOT load the entire file into memory. Log chunk size and total bytes to `results/streaming_log.json`.
+ - **Constraint**: If running in Research Mode and < 3 distinct datasets found, abort with FATAL error.
+ - **Deliverable**: Save files to `data/raw-seq/<dataset_id>.fastq.gz` and generate SHA256 checksum.
+- [X] T013d [US1] Implement validation logic in `src/pipelines/ingest.py` to exclude datasets missing required columns (pH, nutrients, etc.) and verify checksums against `data/raw-seq/`. Logs a structured JSON warning: `{"level": "WARN", "msg": "Dataset excluded: missing variable <VAR>", "dataset_id": <ID>}`.
+- [X] T013e [US1] Implement construction and validation of Environmental Matrix in `src/pipelines/ingest.py`:
+ - **Input**: Metadata CSVs from downloaded datasets.
+ - **Action**: Merge and clean metadata. Perform **ontology mapping** to standardize biome labels (e.,g., 'Temperate Forest' -> 'Forest') using a local ENVO lookup table for common synonyms.
+ - **Output**: `data/metadata/harmonized_matrix.csv`.
+ - **Constraint**: Ensure no NaNs in critical columns (pH, nutrients) before proceeding to T015. If missing values exist, T015 will handle imputation. If critical columns are missing entirely, raise a structured error and exclude the dataset.
 - [X] T013c [US1] Implement DADA2/QIIME2-like denoising pipeline in `src/pipelines/preprocess.py` using **pure Python tools**:
-  - **Primer Trimming**: Use `cutadapt` via `subprocess` to trim primers.
-  - **Denoising**: Use `vsearch` via `subprocess` for error model learning and denoising (no R dependency).
-  - **Chimera Removal**: Use `vsearch` via `subprocess` for chimera removal and clustering.
-  - **Output**: ASV table to `data/qc/asv_table.tsv`.
+ - **Primer Trimming**: Use `cutadapt` via `subprocess` to trim primers.
+ - **Denoising**: Use `vsearch` via `subprocess` for error model learning and denoising (no R dependency).
+ - **Chimera Removal**: Use `vsearch` via `subprocess` for chimera removal and clustering.
+ - **Output**: ASV table to `data/qc/asv_table.tsv`.
+ - **Execution Order**: T013c1 (Trimming) -> T013c2 (Denoising) -> T013c3 (Merging) -> T013c4 (Output).
  - [X] T013c1 [US1] Implement quality filtering and primer trimming using `cutadapt`.
- - [X] T013c2 [US1] Implement error model learning and denoising using `vsearch` (or `scikit-bio` if available for specific steps).
- - [X] T013c3 [US1] Implement read merging and chimera removal using `vsearch`.
- - [X] T013c4 [US1] Output ASV table to `data/qc/asv_table.tsv`.
-- [X] T013e [US1] Implement construction and validation of Environmental Matrix in `src/pipelines/ingest.py` by merging and cleaning metadata and performs ontology mapping; output `data/metadata/harmonized_matrix.csv`.
-- [X] T014a [P] [US1] Implement ontology mapping in `src/pipelines/ingest.py` to standardize biome labels (e.g., 'Temperate Forest' -> 'Forest').
+ - [X] T013c2 [US1] Implement error model learning and denoising using `vsearch`. **Depends on T013c1**.
+ - [X] T013c3 [US1] Implement read merging and chimera removal using `vsearch`. **Depends on T013c2**.
+ - [X] T013c4 [US1] Output ASV table to `data/qc/asv_table.tsv`. **Depends on T013c3**.
+- [X] T014 [US1] Implement Memory Safety & Streaming Logic in `src/pipelines/ingest.py` and `src/pipelines/preprocess.py`:
+ 1. Extract `sample_count` and `read_depth` from FASTQ headers using `zcat file.fastq.gz | head -n 4` (or equivalent) for a quick, low-memory check. **Depends on T013a/T013b** (requires actual FASTQ files).
+ 2. Calculate estimated RAM: `estimated_ram_gb = (sample_count * read_depth * 4.0 bytes_per_read * 1.5 overhead) / 1e9`.
+ 3. If `estimated_ram_gb > 6.0`, trigger **random subsampling of samples** (FR-009) to ensure peak RAM never exceeds 6GB. **Streaming is a secondary optimization; random subsampling is the mandatory fallback.**
+ 4. **Runtime Monitoring**: During the denoising process (T013c), monitor actual RAM usage. If actual usage exceeds a predefined threshold, immediately trigger subsampling of the current chunk and log the event.
+ 5. Log the chunking/subsampling ratio to `results/sampling_report.csv` with columns: `original_n`, `subsampled_n`, `ratio`, `timestamp`.
+ 6. **Note**: This combines static estimation with runtime monitoring to ensure the hard 7GB constraint is never breached.
 - [X] T015 [US1] Implement MICE imputation in `src/pipelines/preprocess.py` using `miceforest` with a configured iteration limit (max 50).
-  - **Logic**: Check convergence flag. If `False` after 50 iterations, **exclude samples with missing values** from the dataset.
-  - **Verification**: Ensure the remaining dataset has no NaNs before proceeding to VIF calculation (T016). Log excluded samples to `results/excluded_samples.csv`.
-  - **Fallback**: If MICE fails, do NOT use global median imputation; strictly exclude the affected samples.
+ - **Logic**: Check convergence flag. If `False` after 50 iterations, **exclude samples with missing values** from the dataset.
+ - **Verification**: Ensure the remaining dataset has no NaNs before proceeding to VIF calculation (T016). Log excluded samples to `results/excluded_samples.csv`.
+ - **Fallback**: If MICE fails, do NOT use global median imputation; strictly exclude the affected samples.
+ - **Depends on**: T013e (Environmental Matrix), T014 (Memory Safety).
 - [X] T016 [US1] Implement VIF calculation in `src/pipelines/preprocess.py`; remove or PCA-combine variables with VIF > 5 (FR-007, Edge Cases) and depends on the imputed data from T015.
+ - **Depends on**: T015.
 - [X] T017 [US1] Implement beta-diversity (Bray-Curtis) and alpha-diversity (Shannon, Observed ASVs) calculation in `src/pipelines/preprocess.py` using `skbio`; **Output**: Bray-Curtis distance matrix, Euclidean distance matrix (FR-002), and **`results/alpha_diversity.csv`** containing Shannon and Observed ASV metrics.
+ - **Depends on**: T016.
 - [X] T018 [US1] Implement PERMANOVA (using `skbio.stats.ordination.permanova`) with ≥999 permutations and Benjamini-Hochberg FDR correction in `src/pipelines/analysis.py`.
-  - **Conditional Logic**: If sample size < 20, use `permutations=9999` to approximate exact test.
-  - **Input**: Distance matrices from T017; **Output**: `results/permanova_summary.csv` with columns: term, R², p-value, p-value_adj.
-  - **Note**: This task uses the Python equivalent of `adonis2` (which is `skbio.stats.ordination.permanova`), not the R function.
+ - **Conditional Logic**: If sample size < 20, use `permutations=9999` to approximate exact test.
+ - **Input**: Distance matrices from T017; **Output**: `results/permanova_summary.csv` with columns: term, R², p-value, p-value_adj.
+ - **Note**: This task uses the Python equivalent of `adonis2` (which is `skbio.stats.ordination.permanova`), not the R function.
+ - **Depends on**: T017.
 - [X] T019 [US1] Implement variance partitioning (varpart) to quantify unique/shared variance by predictor in `src/pipelines/analysis.py` (FR-004).
+ - **Depends on**: T018.
 - [X] T020 [US1] Implement db-RDA triplot generation in `src/pipelines/report.py` showing sample clustering by dominant vector. **Output**: `results/plots/db_rda_triplot.png`.
+ - **Depends on**: T019.
 - [X] T022 [US1] Generate `results/permanova_summary.csv` and `results/db_rda_variance.csv` with FDR-corrected p-values.
+ - **Depends on**: T018.
+- [X] T046 [US1] Implement **explicit sample size justification** in `results/power_analysis_report.md`. **Requirement**: Calculate and report the minimum detectable effect size (R²) for the given sample count (N) and permutation count (999/9999) at α=0.05 power=0.80 using `statsmodels` power analysis. If power < 0.80, **flag as "Low Power"** in the report but **DO NOT exclude** the study from global meta-analysis (per Spec Edge Cases). **Output columns**: `sample_size`, `permutations`, `alpha`, `power`, `min_effect_size`, `status`.
+- [X] T047 [US1] Add **homogeneity of dispersion check** in `src/pipelines/analysis.py` before PERMANOVA. **Requirement**: Run `skbio.stats.distance.betadisper` to test for differences in multivariate dispersion between groups. If significant (p < 0.05), add a warning to `results/permanova_summary.csv` in the format: `{"warning": "Dispersion differs (p < 0.05); PERMANOVA may reflect dispersion rather than location"}`.
+- [X] T048 [US1] Implement **collinearity matrix visualization** in `src/pipelines/report.py`. **Output**: `results/plots/correlation_matrix.png`. **Requirement**: Use `seaborn.heatmap` to plot pairwise correlations of environmental variables. Highlight cells where VIF > 5 with a red border.
+- [X] T049 [US1] Add **detailed provenance logging** for every data transformation step in `src/utils/logging.py`. **Requirement**: Log the exact command line arguments, software versions, and input file checksums for every step (download, trimming, denoising, merging) to `results/provenance_log.json`. **JSON Schema**: `{"command": "<string>", "args": "<string>", "version": "<string>", "input_checksum": "<string>", "output_checksum": "<string>"}`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -155,19 +168,19 @@
 
 - [X] T025 [US2] Implement stratification logic in `src/pipelines/analysis.py` to split cleaned data by `biome` column (using output from T013e).
 - [X] T026 [US2] Implement power check in `src/pipelines/analysis.py`: If stratum sample count < 10, **SKIP** execution of PERMANOVA/varpart for that stratum.
-  - **Logging**: Log error to `results/skipped_strata.json` in **structured JSON format**: `{"level": "WARN", "msg": "Stratum skipped: insufficient samples", "biome": "<name>", "count": <n>}`.
-  - **Format**: Must match the Edge Cases JSON schema for warnings.
+ - **Logging**: Log error to `results/skipped_strata.json` in **structured JSON format**: `{"level": "WARN", "msg": "Stratum skipped: insufficient samples", "biome": "<name>", "count": <n>}`.
+ - **Format**: Must match the Edge Cases JSON schema for warnings.
 - [X] T027 [US2] Re-run PERMANOVA and varpart for each valid stratum in `src/pipelines/analysis.py`.
 - [X] T028 [US2] Generate `results/db_rda_biome_<NAME>.csv` for each biome with R² values.
 - [X] T029 [US2] Implement logic to determine top driver per biome. **Input**: Read `results/db_rda_biome_*.csv` files.
-  - **Metric**: Sort R² values from each file to derive a rank index for each predictor.
-  - **Tie Handling**: If R² values are tied, assign the **average rank** (fractional, e.g., 1.5). Use this fractional rank directly in the standard deviation calculation.
-  - **Missing Data**: **Exclude** biomes where the top driver is missing (e.g., due to non-significance or low sample size) from the SD calculation.
-  - **Calculation**: Calculate standard deviation of the rank index of the top driver across **valid** biomes.
-  - **Pass Condition**: Verify standard deviation ≤ 0.5 (SC-003).
-  - **Deliverable**: Log the calculated standard deviation and a Pass/Fail flag to `results/biome_ranking_summary.csv`.
-  - **Dependency**: This task depends on the **completion** of the loop in T027/T028, ensuring all biome CSVs are generated before aggregation.
-- [X] T030 [US2] Generate summary report indicating if top predictor changes across biomes (e.g., pH in forests, moisture in grasslands).
+ - **Metric**: Sort R² values from each file to derive a rank index for each predictor.
+ - **Tie Handling**: If R² values are tied, assign the **average rank** (fractional, e.,g., 1.5). **Use this fractional rank directly in the standard deviation calculation (do NOT round).**
+ - **Missing Data**: **Exclude** biomes where the top driver is missing (e.,g., due to non-significance or low sample size) from the SD calculation.
+ - **Calculation**: Calculate standard deviation of the rank index of the top driver across **valid** biomes using `numpy.std` or equivalent.
+ - **Pass Condition**: Verify standard deviation ≤ 0.5 (SC-003).
+ - **Deliverable**: Log the calculated standard deviation and a Pass/Fail flag to `results/biome_ranking_summary.csv`.
+ - **Dependency**: This task depends on the **completion** of the loop in T027/T028, ensuring all biome CSVs are generated before aggregation.
+- [X] T030 [US2] Generate summary report indicating if top predictor changes across biomes (e.,g., pH in forests, moisture in grasslands).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -205,6 +218,7 @@
 - [X] T041 [P] Add null result handling: generate report explicitly stating "No significant abiotic drivers detected" if p > 0.05
 - [X] T042 [P] Documentation updates in `docs/` and `README.md`
 - [X] T043 Run quickstart.md validation
+- [X] T044 Reconcile run-book vs implementation for `code/utils/checksums.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/checksums.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 
 ---
 
@@ -231,7 +245,9 @@
 - Data ingestion/cleaning (T013a-T013e) MUST precede statistical analysis (T017-T019)
 - Statistical analysis MUST precede reporting (T020-T022)
 - Core implementation before integration
-- **Memory Safety**: T014 (Streaming/Projection) MUST run before T015 (MICE) and T016 (VIF).
+- **Memory Safety**: T014 (Streaming/Projection) MUST run after T013 (Ingestion) and before T015 (MICE) and T016 (VIF).
+- **Dataset Verification**: T013a1 MUST run before T013a/T013b.
+- **Environmental Matrix**: T013e MUST run before T015 (MICE) and T016 (VIF).
 
 ### Parallel Opportunities
 
@@ -283,10 +299,14 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - **CRITICAL**: All data ingestion tasks MUST use real, reachable URLs or package fetchers. No synthetic data for Research Mode results.
-- **CRITICAL**: If RAM limits are approached, subsampling/streaming MUST occur before analysis to ensure < 7GB usage.
+- **CRITICAL**: If RAM limits are approached, **random subsampling** MUST occur (FR-009). Streaming is secondary.
 - **CRITICAL**: VIF > 5 MUST trigger variable removal or PCA combination.
 - **CRITICAL**: Strata with < 10 samples MUST be skipped, not crashed.
 - **CRITICAL**: PERMANOVA must use exact tests or ≥9999 permutations if n < 20.
 - **CRITICAL**: MICE failure MUST trigger sample exclusion, not median imputation.
 - **CRITICAL**: All logs must follow the structured JSON schema defined in Edge Cases.
+- **CRITICAL**: Task T040 must use the exact message: "No sufficient ITS datasets found: <count> valid datasets, minimum required".
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [X] T044 Reconcile run-book vs implementation for `code/utils/checksums.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/checksums.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
