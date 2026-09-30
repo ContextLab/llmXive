@@ -1,205 +1,193 @@
-"""
-Logging infrastructure for the llmXive pipeline.
-Handles logger setup, file rotation, and quality report initialization.
-"""
 import logging
 import os
 import csv
+import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
+from datetime import datetime
 
-# Project root is assumed to be the parent of the 'code' directory
-# When running as a module, we resolve relative to this file's location
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-LOGS_DIR = PROJECT_ROOT / "logs"
-RESULTS_DIR = PROJECT_ROOT / "results"
-
-# Ensure directories exist
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+# Ensure the results directory exists
+RESULTS_DIR = Path(__file__).parent.parent / "results"
 RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
-LOG_FILE_PATH = LOGS_DIR / "preprocess.log"
 QUALITY_REPORT_PATH = RESULTS_DIR / "quality_report.csv"
 
-# Logger name
-LOGGER_NAME = "llmXive_pipeline"
-
-def setup_logging(log_level: str = "INFO") -> logging.Logger:
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> None:
     """
-    Configure the root logger for the pipeline.
-    Creates a file handler writing to logs/preprocess.log and a console handler.
-    
+    Configure the root logger.
+
     Args:
-        log_level: Logging level string (e.g., 'DEBUG', 'INFO', 'WARNING').
-    
-    Returns:
-        The configured logger instance.
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        log_file: Optional path to a log file. If None, logs only to console.
     """
-    logger = logging.getLogger(LOGGER_NAME)
-    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
 
-    # Prevent adding handlers multiple times if called repeatedly
-    if logger.handlers:
-        return logger
+    # Clear existing handlers to avoid duplicates in interactive environments
+    root_logger.handlers = []
 
-    # Clear existing handlers to ensure clean state
-    logger.handlers.clear()
-
-    # Formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_format = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
+    console_handler.setFormatter(console_format)
+    root_logger.addHandler(console_handler)
 
-    # File Handler
-    file_handler = logging.FileHandler(LOG_FILE_PATH, mode='a', encoding='utf-8')
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    # File handler if specified
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_path)
+        file_handler.setFormatter(console_format)
+        root_logger.addHandler(file_handler)
 
-    # Console Handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    return logger
-
-def initialize_quality_report() -> bool:
+def get_logger(name: str) -> logging.Logger:
     """
-    Initializes the quality report CSV file at results/quality_report.csv.
-    Writes the header row if the file does not exist or is empty.
-    
+    Get a logger instance with the specified name.
+
+    Args:
+        name: Logger name (usually __name__).
+
     Returns:
-        True if initialization was successful, False otherwise.
+        Configured Logger instance.
     """
-    try:
-        # Check if file exists and has content
-        if QUALITY_REPORT_PATH.exists() and QUALITY_REPORT_PATH.stat().st_size > 0:
-            # File exists and has content, verify headers
-            with open(QUALITY_REPORT_PATH, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.reader(f)
-                header = next(reader, None)
-                if header == ['exclusion_type', 'count']:
-                    return True
-                # If headers are wrong, we might want to raise an error or overwrite?
-                # Per task: "initialize... with headers". If it exists with wrong headers,
-                # it's a state corruption. We'll assume for now we just return True if
-                # it looks valid, or overwrite if we want to be strict.
-                # Strict interpretation: Initialize means ensure it has the right headers.
-                # Let's overwrite to ensure correctness as per "initialize" instruction.
-        
-        # Create/Overwrite with headers
-        with open(QUALITY_REPORT_PATH, 'w', newline='', encoding='utf-8') as f:
+    return logging.getLogger(name)
+
+def initialize_quality_report() -> None:
+    """
+    Initialize the quality report CSV file with headers if it does not exist.
+    Headers: [exclusion_type, count]
+    """
+    if not QUALITY_REPORT_PATH.exists():
+        with open(QUALITY_REPORT_PATH, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['exclusion_type', 'count'])
-        
-        return True
-    except Exception as e:
-        logging.getLogger(LOGGER_NAME).error(f"Failed to initialize quality report: {e}")
-        return False
 
-def write_quality_entry(exclusion_type: str, count: int) -> bool:
+def write_quality_entry(exclusion_type: str, count: int) -> None:
     """
-    Appends a row to the quality report CSV.
-    
+    Append a single entry to the quality report CSV.
+
     Args:
-        exclusion_type: String describing the type of exclusion (e.g., 'blink', 'noise').
+        exclusion_type: String describing the type of exclusion (e.g., 'blink_loss', 'missing_data').
         count: Integer count of excluded items.
-    
-    Returns:
-        True if write was successful, False otherwise.
     """
-    try:
-        # Ensure file is initialized
-        if not QUALITY_REPORT_PATH.exists():
-            initialize_quality_report()
-        
-        with open(QUALITY_REPORT_PATH, 'a', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow([exclusion_type, count])
-        return True
-    except Exception as e:
-        logging.getLogger(LOGGER_NAME).error(f"Failed to write quality entry: {e}")
-        return False
+    timestamp = datetime.now().isoformat()
+    with open(QUALITY_REPORT_PATH, 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([exclusion_type, count])
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+class LoggingContext:
     """
-    Retrieves the configured logger.
-    
-    Args:
-        name: Optional sub-logger name. If None, returns the root pipeline logger.
-    
-    Returns:
-        Configured logger instance.
+    Context manager for tracking exclusions and writing a final report.
+
+    This class aggregates exclusion counts during a processing run and writes
+    them to `results/quality_report.csv` upon completion.
     """
-    logger = logging.getLogger(LOGGER_NAME)
-    if name:
-        return logger.getChild(name)
-    return logger
+
+    def __init__(self):
+        self.exclusions: Dict[str, int] = {}
+        # Ensure the report file exists with headers before we start
+        initialize_quality_report()
+
+    def add_exclusion(self, exclusion_type: str, count: int) -> None:
+        """
+        Record an exclusion event.
+
+        Args:
+            exclusion_type: The category of exclusion (e.g., 'blink_loss', 'missing_fixations').
+            count: The number of items excluded for this type.
+        """
+        if count < 0:
+            raise ValueError(f"Count for exclusion '{exclusion_type}' cannot be negative.")
+
+        if exclusion_type in self.exclusions:
+            self.exclusions[exclusion_type] += count
+        else:
+            self.exclusions[exclusion_type] = count
+
+        # Log the action for immediate visibility
+        logger = get_logger(__name__)
+        logger.debug(f"Exclusion recorded: {exclusion_type} (+{count})")
+
+    def write_report(self, path: Optional[str] = None) -> None:
+        """
+        Write all accumulated exclusions to the CSV file.
+
+        Args:
+            path: Optional path to write to. If None, writes to default QUALITY_REPORT_PATH.
+        """
+        output_path = Path(path) if path else QUALITY_REPORT_PATH
+
+        if not output_path.parent.exists():
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # If the file is new, we need headers. If it exists, we append.
+        # However, to ensure idempotency in testing or re-runs, we check if headers exist.
+        file_exists = output_path.exists()
+        file_empty = file_exists and os.getsize(output_path) == 0
+
+        with open(output_path, 'a', newline='') as f:
+            writer = csv.writer(f)
+
+            # If file is new or empty, write headers
+            if not file_exists or file_empty:
+                writer.writerow(['exclusion_type', 'count'])
+
+            timestamp = datetime.now().isoformat()
+            for exc_type, count in self.exclusions.items():
+                writer.writerow([exc_type, count])
+
+        logger = get_logger(__name__)
+        logger.info(f"Quality report written to {output_path} with {len(self.exclusions)} exclusion types.")
 
 def main():
     """
-    Main entry point for testing the logging configuration.
-    Verifies that:
-    1. The log file is created.
-    2. The quality report CSV is created with correct headers.
-    3. Writing to both works correctly.
+    Test entry point to verify LoggingContext functionality.
     """
-    logger = setup_logging("DEBUG")
-    logger.info("Starting logging infrastructure verification.")
+    # Remove existing file to test fresh initialization
+    if QUALITY_REPORT_PATH.exists():
+        os.remove(QUALITY_REPORT_PATH)
 
-    # Initialize quality report
-    success = initialize_quality_report()
-    if not success:
-        logger.error("Failed to initialize quality report.")
-        return 1
-    
-    logger.info("Quality report initialized successfully.")
+    # Initialize context
+    ctx = LoggingContext()
 
-    # Verify file existence and headers
-    if not QUALITY_REPORT_PATH.exists():
-        logger.error("Quality report file was not created.")
-        return 1
+    # Simulate some exclusions
+    ctx.add_exclusion("blink_loss", 15)
+    ctx.add_exclusion("missing_fixations", 5)
+    ctx.add_exclusion("blink_loss", 3) # Test accumulation
 
-    with open(QUALITY_REPORT_PATH, 'r') as f:
-        content = f.read()
-        if not content.startswith("exclusion_type,count"):
-            logger.error(f"Quality report has incorrect headers. Content: {content}")
-            return 1
-    
-    logger.info("Quality report headers verified.")
+    # Write the report
+    ctx.write_report()
 
-    # Write a test entry
-    write_quality_entry("test_exclusion", 1)
-    
-    # Verify the entry
+    # Verification assertions
+    assert QUALITY_REPORT_PATH.exists(), "Report file not created."
+
     with open(QUALITY_REPORT_PATH, 'r') as f:
         lines = f.readlines()
-        if len(lines) != 2:
-            logger.error("Expected 2 lines in quality report (header + 1 entry).")
-            return 1
-        
-        second_line = lines[1].strip()
-        if second_line != "test_exclusion,1":
-            logger.error(f"Quality report entry mismatch: {second_line}")
-            return 1
 
-    logger.info("Quality report entry verified.")
-    
-    # Write a log entry to verify log file
-    logger.info("Verification complete. All checks passed.")
-    
-    # Verify log file exists
-    if not LOG_FILE_PATH.exists():
-        logger.error("Log file was not created.")
-        return 1
+    # Check headers
+    assert lines[0].strip() == "exclusion_type,count", f"Headers mismatch: {lines[0]}"
 
-    logger.info("Log file existence verified.")
-    
-    print("Logging infrastructure verification PASSED.")
-    return 0
+    # Check content rows (3 rows: blink_loss 15, missing_fixations 5, blink_loss 3 -> accumulated)
+    # Note: write_report writes the accumulated dict, so we expect 2 rows for 2 unique keys
+    assert len(lines) == 3, f"Expected 3 lines (1 header + 2 data), got {len(lines)}"
+
+    # Check accumulation logic (blink_loss should be 15+3=18)
+    data_lines = [line.strip().split(',') for line in lines[1:]]
+    blink_rows = [row for row in data_lines if row[0] == 'blink_loss']
+    missing_rows = [row for row in data_lines if row[0] == 'missing_fixations']
+
+    assert len(blink_rows) == 1, "blink_loss should appear once (accumulated)"
+    assert int(blink_rows[0][1]) == 18, f"blink_loss count should be 18, got {blink_rows[0][1]}"
+
+    assert len(missing_rows) == 1, "missing_fixations should appear once"
+    assert int(missing_rows[0][1]) == 5, f"missing_fixations count should be 5, got {missing_rows[0][1]}"
+
+    print("SUCCESS: LoggingContext works correctly. File created at:", QUALITY_REPORT_PATH)
+    print("Content:")
+    with open(QUALITY_REPORT_PATH, 'r') as f:
+        print(f.read())
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

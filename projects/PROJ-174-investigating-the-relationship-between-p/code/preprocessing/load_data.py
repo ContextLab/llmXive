@@ -6,227 +6,217 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 import pandas as pd
 import numpy as np
+from datasets import load_dataset
 
-# Import config loader from project root
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from config import load_config
-from logging_config import get_logger
 
-# Constants for output
-UNIFIED_OUTPUT_PATH = "data/processed/unified_eye_tracking.csv"
+# Ensure logging is configured before use
+try:
+    from logging_config import get_logger
+    logger = get_logger("load_data")
+except ImportError:
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("load_data")
 
-def load_raw_data_from_dataset(source_path: str) -> pd.DataFrame:
+def load_raw_data_from_dataset(dataset_id: str, split: str = "train") -> pd.DataFrame:
     """
-    Ingest raw files from verified eye-tracking sources.
-    Handles common formats (CSV, TSV) and normalizes column names.
+    Ingest raw data from a verified OpenNeuro dataset using the HuggingFace datasets library.
+    This function handles the streaming/download of the real dataset to ensure no synthetic data is used.
     
     Args:
-        source_path: Path to the raw data file or directory of files.
-        
+        dataset_id: The OpenNeuro dataset ID (e.g., 'ds00XXXX').
+        split: The dataset split to load (default: 'train').
+    
     Returns:
-        DataFrame with raw data.
-        
+        A pandas DataFrame containing the raw eye-tracking data.
+    
     Raises:
-        FileNotFoundError: If source path does not exist.
-        ValueError: If no valid data files are found.
+        RuntimeError: If the dataset cannot be found or loaded.
     """
-    source = Path(source_path)
-    if not source.exists():
-        raise FileNotFoundError(f"Source path not found: {source}")
+    logger.info(f"Attempting to load raw dataset: {dataset_id}, split: {split}")
     
-    dataframes = []
-    
-    if source.is_file():
-        files = [source]
-    elif source.is_dir():
-        # Look for common data extensions
-        files = list(source.glob("*.csv")) + list(source.glob("*.tsv")) + list(source.glob("*.txt"))
-    else:
-        raise ValueError(f"Invalid source path type: {source}")
-    
-    if not files:
-        raise ValueError(f"No valid data files found in {source}")
-    
-    logger = get_logger()
-    
-    for file_path in files:
-        try:
-            if file_path.suffix.lower() in ['.csv']:
-                df = pd.read_csv(file_path)
-            elif file_path.suffix.lower() in ['.tsv', '.txt']:
-                df = pd.read_csv(file_path, sep='\t')
-            else:
-                logger.warning(f"Skipping unsupported file format: {file_path}")
-                continue
-            
-            # Basic validation
-            if df.empty:
-                logger.warning(f"File {file_path} is empty, skipping.")
-                continue
-                
-            dataframes.append(df)
-        except Exception as e:
-            logger.error(f"Error reading {file_path}: {e}")
-            continue
-    
-    if not dataframes:
-        raise ValueError("No valid data could be loaded from the source.")
+    try:
+        # Load dataset using streaming to handle large files efficiently
+        # This fetches REAL data from the HuggingFace hub
+        ds = load_dataset(dataset_id, split=split, streaming=True)
         
-    return pd.concat(dataframes, ignore_index=True)
+        # Convert the first few chunks to a DataFrame to verify structure
+        # We assume the dataset contains a key 'data' or similar with eye-tracking columns
+        # If the structure is unknown, we attempt to find the first available table
+        table_name = None
+        for key in ds:
+            table_name = key
+            break
 
-def normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+        if table_name is None:
+            raise RuntimeError(f"Dataset {dataset_id} has no available tables.")
+
+        # Load the specific table
+        df = ds[table_name].to_pandas()
+        
+        if df.empty:
+            raise RuntimeError(f"Dataset {dataset_id} table '{table_name}' is empty.")
+
+        logger.info(f"Successfully loaded {len(df)} rows from {dataset_id}")
+        return df
+
+    except Exception as e:
+        logger.error(f"Failed to load dataset {dataset_id}: {str(e)}")
+        raise RuntimeError(f"Failed to load verified dataset {dataset_id}. Pipeline cannot proceed without real data.") from e
+
+def normalize_columns(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Normalize column names to the standard schema:
-    timestamp, x, y, pupil_diameter
+    Normalize column names to the uniform schema required by the pipeline.
+    
+    Expected output columns: timestamp, x, y, pupil_diameter
     
     Args:
-        df: Raw DataFrame.
-        
+        df: The raw DataFrame.
+        config: Configuration dictionary containing column mappings.
+    
     Returns:
-        Normalized DataFrame.
-        
-    Raises:
-        ValueError: If required columns are missing after normalization.
+        A DataFrame with normalized columns.
     """
-    logger = get_logger()
-    df = df.copy()
-    df.columns = df.columns.str.lower().str.strip()
+    logger.info("Normalizing data columns...")
     
-    # Mapping strategies for common column names
-    mappings = {
-        'timestamp': ['timestamp', 'time', 'time_ms', 'time_sec', 't', 'sample_time'],
-        'x': ['x', 'x_pos', 'x_coordinate', 'horizontal', 'x_eye'],
-        'y': ['y', 'y_pos', 'y_coordinate', 'vertical', 'y_eye'],
-        'pupil_diameter': ['pupil_diameter', 'pupil', 'pupil_size', 'pupil_mm', 'diam', 'pupil_dia']
-    }
+    # Define standard mapping based on common OpenNeuro formats (e.g., ASL, EyeLink)
+    # The config can override these if specific datasets use different naming
+    col_map = config.get('column_mapping', {
+        'time': ['timestamp', 'time', 't', 'trial_time'],
+        'x': ['x', 'x_coord', 'eye_x', 'position_x'],
+        'y': ['y', 'y_coord', 'eye_y', 'position_y'],
+        'pupil': ['pupil_diameter', 'pupil', 'pupil_size', 'diam', 'pupil_mm']
+    })
     
-    normalized_map = {}
-    
-    for std_name, candidates in mappings.items():
-        found = False
-        for candidate in candidates:
-            if candidate in df.columns:
-                normalized_map[std_name] = candidate
-                found = True
-                logger.debug(f"Mapped '{candidate}' to '{std_name}'")
-                break
-        
-        if not found:
-            # Try fuzzy match (contains)
+    def find_column(df, candidates):
+        for cand in candidates:
+            if cand in df.columns:
+                return cand
+        return None
+
+    # Map columns
+    mapped = {}
+    for standard_name, candidates in col_map.items():
+        found = find_column(df, candidates)
+        if found:
+            mapped[standard_name] = found
+        else:
+            # Try to find a case-insensitive match
             for col in df.columns:
-                if any(cand in col for cand in candidates):
-                    normalized_map[std_name] = col
-                    logger.debug(f"Fuzzy matched '{col}' to '{std_name}'")
-                    found = True
+                if col.lower() in [c.lower() for c in candidates]:
+                    mapped[standard_name] = col
                     break
-        
-        if not found:
-            logger.error(f"Could not find column for standard '{std_name}'")
-            raise ValueError(f"Missing required column mapping for '{std_name}'. "
-                           f"Found columns: {list(df.columns)}")
-    
-    # Rename columns
-    rename_dict = {v: k for k, v in normalized_map.items()}
-    df = df.rename(columns=rename_dict)
-    
-    # Ensure numeric types
-    numeric_cols = ['timestamp', 'x', 'y', 'pupil_diameter']
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    return df[['timestamp', 'x', 'y', 'pupil_diameter']]
 
-def save_to_csv(df: pd.DataFrame, output_path: str) -> None:
+    if len(mapped) < 4:
+        missing = set(mapped.keys()) ^ {'timestamp', 'x', 'y', 'pupil_diameter'}
+        raise ValueError(f"Cannot find columns for: {missing}. Available columns: {list(df.columns)}")
+    
+    # Rename
+    rename_map = {mapped[k]: k for k in mapped}
+    df_normalized = df.rename(columns=rename_map)
+    
+    # Ensure types
+    df_normalized['timestamp'] = pd.to_numeric(df_normalized['timestamp'], errors='coerce')
+    df_normalized['x'] = pd.to_numeric(df_normalized['x'], errors='coerce')
+    df_normalized['y'] = pd.to_numeric(df_normalized['y'], errors='coerce')
+    df_normalized['pupil_diameter'] = pd.to_numeric(df_normalized['pupil_diameter'], errors='coerce')
+    
+    # Drop rows with missing critical data
+    df_normalized = df_normalized.dropna(subset=['timestamp', 'pupil_diameter'])
+    
+    logger.info(f"Normalized columns: {list(df_normalized.columns)}")
+    return df_normalized
+
+def save_to_csv(df: pd.DataFrame, output_path: Path):
     """
-    Save the unified DataFrame to CSV.
+    Save the normalized DataFrame to a CSV file.
     
     Args:
-        df: Processed DataFrame.
-        output_path: Destination path.
+        df: The DataFrame to save.
+        output_path: The path to the output file.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False)
-    logging.getLogger(__name__).info(f"Saved unified data to {output_path}")
+    if not output_path.parent.exists():
+        logger.info(f"Creating directory: {output_path.parent}")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    logger.info(f"Saving processed data to: {output_path}")
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_path}")
 
-def process_single_file(input_path: str, output_path: str) -> None:
+def process_single_file(dataset_id: str, output_path: Path, config: Dict[str, Any]):
     """
-    Process a single input file and save the unified output.
+    Process a single dataset: load, normalize, and save.
     
     Args:
-        input_path: Path to raw input.
-        output_path: Path for unified output.
+        dataset_id: The OpenNeuro dataset ID.
+        output_path: Path to the output CSV.
+        config: Configuration dictionary.
     """
-    logger = get_logger()
-    logger.info(f"Processing {input_path} -> {output_path}")
+    logger.info(f"Processing dataset: {dataset_id}")
     
-    raw_df = load_raw_data_from_dataset(input_path)
-    logger.info(f"Loaded {len(raw_df)} rows from {input_path}")
+    # Load real data
+    raw_df = load_raw_data_from_dataset(dataset_id)
     
-    normalized_df = normalize_columns(raw_df)
-    logger.info(f"Normalized to standard schema ({len(normalized_df)} rows)")
+    # Normalize
+    norm_df = normalize_columns(raw_df, config)
     
-    save_to_csv(normalized_df, output_path)
+    # Save
+    save_to_csv(norm_df, output_path)
+    
+    logger.info(f"Successfully processed {dataset_id} -> {output_path}")
 
-def run_loading_pipeline(config: Dict[str, Any] = None) -> None:
+def run_loading_pipeline(config_path: Optional[str] = None):
     """
     Main pipeline entry point for data loading.
-    Reads configuration, finds raw data, and produces unified CSV.
+    
+    Reads config.yaml to determine which datasets to load and where to save them.
     
     Args:
-        config: Optional config dict. If None, loads from code/config.yaml.
+        config_path: Path to the configuration file. Defaults to 'code/config.yaml'.
     """
-    logger = get_logger()
-    logger.info("Starting data loading pipeline")
+    if config_path is None:
+        config_path = Path(__file__).parent.parent / "config.yaml"
     
-    if config is None:
-        config = load_config()
+    config_path = Path(config_path)
     
-    # Determine input source
-    paths_cfg = config.get('paths', {})
-    raw_data_path = paths_cfg.get('raw_data', 'data/raw')
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found at {config_path}")
     
-    # Determine output path
-    output_path = paths_cfg.get('unified_data', UNIFIED_OUTPUT_PATH)
+    config = load_config(config_path)
     
-    logger.info(f"Input source: {raw_data_path}")
-    logger.info(f"Output target: {output_path}")
+    # Get list of datasets to process from config
+    datasets_to_process = config.get('datasets', [])
+    output_dir = Path(config.get('paths', {}).get('processed', 'data/processed'))
     
-    if not Path(raw_data_path).exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_data_path}. "
-                              "Please run verify_data_availability.py first.")
+    if not datasets_to_process:
+        logger.warning("No datasets configured in config.yaml. Nothing to process.")
+        return
+
+    logger.info(f"Starting loading pipeline for {len(datasets_to_process)} datasets...")
     
-    process_single_file(raw_data_path, output_path)
-    
-    logger.info("Data loading pipeline completed successfully")
+    for ds_config in datasets_to_process:
+        dataset_id = ds_config.get('id')
+        if not dataset_id:
+            logger.warning("Skipping entry without 'id' in config.")
+            continue
+
+        output_filename = ds_config.get('output_filename', f"{dataset_id}_processed.csv")
+        output_path = output_dir / output_filename
+
+        try:
+            process_single_file(dataset_id, output_path, config)
+        except Exception as e:
+            logger.error(f"Failed to process dataset {dataset_id}: {e}")
+            # Fail loudly as per constraints - do not continue with partial data if critical
+            raise
 
 def main():
-    """CLI entry point."""
-    parser = argparse.ArgumentParser(description="Load and unify raw eye-tracking data.")
-    parser.add_argument('--config', type=str, default='code/config.yaml',
-                      help='Path to configuration file')
-    parser.add_argument('--input', type=str, default=None,
-                      help='Override input path')
-    parser.add_argument('--output', type=str, default=None,
-                      help='Override output path')
-    
+    """Command line entry point."""
+    parser = argparse.ArgumentParser(description="Load and normalize raw eye-tracking data.")
+    parser.add_argument('--config', type=str, default=None, help='Path to config.yaml')
     args = parser.parse_args()
     
-    # Load config
-    config = load_config(args.config)
-    
-    # Override paths if provided
-    if args.input:
-        if 'paths' not in config:
-            config['paths'] = {}
-        config['paths']['raw_data'] = args.input
-    if args.output:
-        if 'paths' not in config:
-            config['paths'] = {}
-        config['paths']['unified_data'] = args.output
-    
-    run_loading_pipeline(config)
+    run_loading_pipeline(args.config)
 
 if __name__ == "__main__":
     main()

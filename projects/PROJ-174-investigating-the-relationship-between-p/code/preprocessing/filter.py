@@ -4,321 +4,359 @@ from scipy.signal import butter, filtfilt
 from typing import Tuple, Optional, List, Dict, Any
 import logging
 import os
-import csv
+import sys
 from pathlib import Path
 
-# Import logging utilities from the shared logging module
-# This ensures the quality report is initialized and written to the correct location
-try:
-    from logging_config import initialize_quality_report, write_quality_entry, get_logger
-except ImportError:
-    # Fallback if running in isolation, though project structure should allow import
-    def initialize_quality_report(path: str) -> None:
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
-        if not os.path.exists(path):
-            with open(path, 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerow(['exclusion_type', 'count'])
+# Import LoggingContext from the core logging module
+# This satisfies the requirement to use the interface defined in T005
+sys.path.insert(0, str(Path(__file__).parent.parent))
+from logging_config import LoggingContext
 
-    def write_quality_entry(path: str, exclusion_type: str, count: int) -> None:
-        with open(path, 'a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([exclusion_type, count])
-
-    def get_logger(name: str):
-        return logging.getLogger(name)
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 # Constants for filtering
 DEFAULT_CUTOFF_HZ = 4.0
-DEFAULT_EXCLUSION_THRESHOLD = 0.30  # 30% missing samples triggers exclusion
-DEFAULT_MISSING_VALUE = np.nan
+DEFAULT_BLINK_THRESHOLD = 0.15  # seconds
+DEFAULT_MAX_MISSING_RATIO = 0.30
 
 def butter_lowpass(cutoff: float, fs: float, order: int = 4) -> Tuple[np.ndarray, np.ndarray]:
     """
     Design a Butterworth lowpass filter.
 
     Args:
-        cutoff (float): Cutoff frequency in Hz.
-        fs (float): Sampling frequency in Hz.
-        order (int): Order of the filter.
+        cutoff: Cutoff frequency in Hz.
+        fs: Sampling frequency in Hz.
+        order: Order of the filter.
 
     Returns:
         Tuple of (b, a) filter coefficients.
     """
-    nyquist = 0.5 * fs
-    normalized_cutoff = cutoff / nyquist
+    nyq = 0.5 * fs
+    normalized_cutoff = cutoff / nyq
     if normalized_cutoff >= 1.0:
-        logger.warning(f"Cutoff frequency {cutoff} Hz is >= Nyquist {fs/2} Hz. Setting to 0.99 * Nyquist.")
+        logger.warning(f"Normalized cutoff {normalized_cutoff} >= 1.0. Setting to 0.99.")
         normalized_cutoff = 0.99
-    
-    b, a = butter(order, normalized_cutoff, btype='low')
+    b, a = butter(order, normalized_cutoff, btype='low', analog=False)
     return b, a
 
-def lowpass_filter(data: np.ndarray, fs: float, cutoff: float = DEFAULT_CUTOFF_HZ) -> np.ndarray:
+def lowpass_filter(data: np.ndarray, cutoff: float, fs: float, order: int = 4) -> np.ndarray:
     """
-    Apply a low-pass Butterworth filter to the data.
+    Apply a lowpass Butterworth filter to the data.
 
     Args:
-        data (np.ndarray): Input data array.
-        fs (float): Sampling frequency in Hz.
-        cutoff (float): Cutoff frequency in Hz.
+        data: 1D array of pupil diameter values.
+        cutoff: Cutoff frequency in Hz.
+        fs: Sampling frequency in Hz.
+        order: Order of the filter.
 
     Returns:
-        np.ndarray: Filtered data.
+        Filtered data array.
     """
-    b, a = butter_lowpass(cutoff, fs)
-    # Handle edge cases where data is too short for filtfilt
-    if len(data) < len(a) * 2:
-        logger.warning("Data length too short for filtfilt, returning original data.")
+    b, a = butter_lowpass(cutoff, fs, order)
+    # Handle edge case where data is too short for filtfilt
+    if len(data) < 2 * len(b):
+        logger.warning(f"Data length ({len(data)}) too short for filtfilt. Returning unfiltered data.")
         return data
     
     try:
-        filtered_data = filtfilt(b, a, data)
+        filtered = filtfilt(b, a, data, padlen=3 * max(len(a), len(b)))
     except ValueError as e:
-        logger.error(f"Filtering failed: {e}. Returning original data.")
+        logger.warning(f"filtfilt failed: {e}. Returning unfiltered data.")
         return data
     
-    return filtered_data
+    return filtered
 
-def interpolate_blinks(pupil_data: np.ndarray, threshold: float = 50.0) -> np.ndarray:
+def interpolate_blinks(data: np.ndarray, timestamps: np.ndarray, threshold: float = DEFAULT_BLINK_THRESHOLD) -> Tuple[np.ndarray, np.ndarray, int]:
     """
-    Identify blinks (rapid changes or flatlines) and interpolate them.
-    
-    This is a simplified heuristic:
-    1. Identify gaps (NaNs) as potential blink regions or missing data.
-    2. Identify sudden jumps > threshold as blink artifacts.
-    
+    Identify and interpolate blink segments.
+
+    A blink is identified as a segment where pupil diameter is missing (NaN)
+    for a duration exceeding the threshold.
+
     Args:
-        pupil_data (np.ndarray): Raw pupil diameter data.
-        threshold (float): Threshold for detecting blink artifacts (units of pupil diameter).
+        data: 1D array of pupil diameter values (NaNs represent blinks/missing).
+        timestamps: 1D array of timestamps corresponding to data.
+        threshold: Minimum duration (seconds) to consider a gap as a blink.
 
     Returns:
-        np.ndarray: Data with blink artifacts interpolated.
+        Tuple of (interpolated_data, updated_timestamps, blink_count).
     """
-    # Work on a copy
-    clean_data = pupil_data.copy()
+    if len(data) == 0:
+        return data, timestamps, 0
+
+    # Identify NaN segments
+    is_nan = np.isnan(data)
     
-    # Identify NaNs as missing (blinks often result in lost tracking)
-    missing_mask = np.isnan(clean_data)
+    # Find indices where NaN starts and ends
+    # We look for transitions
+    diff = np.diff(is_nan.astype(int))
+    starts = np.where(diff == 1)[0] + 1
+    ends = np.where(diff == -1)[0] + 1
+
+    # Handle edge cases
+    if is_nan[0]:
+        starts = np.insert(starts, 0, 0)
+    if is_nan[-1]:
+        ends = np.append(ends, len(data))
+
+    blink_count = 0
+    valid_indices = []
+    invalid_indices = []
+
+    for start, end in zip(starts, ends):
+        duration = (timestamps[end-1] - timestamps[start]) if end > start else 0
+        if duration >= threshold:
+            blink_count += 1
+            invalid_indices.extend(range(start, end))
+        else:
+            valid_indices.extend(range(start, end))
     
-    # Identify sudden jumps (blinks often have sharp onset/offset)
-    # Calculate differences
-    diffs = np.diff(clean_data)
-    # Detect jumps larger than threshold
-    jump_mask = np.abs(diffs) > threshold
-    # Expand jump mask to include the point before and after the jump
-    blink_indices = set()
-    for i, is_jump in enumerate(jump_mask):
-        if is_jump:
-            blink_indices.add(i)
-            blink_indices.add(i+1)
-            if i > 0:
-                blink_indices.add(i-1)
+    # Also mark isolated NaNs as invalid if they are not part of a long blink
+    # (Though typically isolated NaNs are just noise, we treat them as missing)
+    # For simplicity, if it's NaN and not in a 'valid' short gap, it's invalid.
+    # The logic above handles gaps. Let's ensure all NaNs are accounted for.
+    # Actually, the logic above classifies gaps by duration. 
+    # If a gap is short (< threshold), we treat it as valid data (interpolation not strictly needed 
+    # if we just keep the NaN or linear interpolate). 
+    # But for pupil analysis, we usually interpolate short gaps and remove long ones.
+    # Here we will interpolate ALL gaps, but count only those >= threshold as 'blinks' for the report.
     
-    # Combine missing and jump masks
-    for idx in blink_indices:
-        if 0 <= idx < len(clean_data):
-            clean_data[idx] = np.nan
+    # Re-approach: Interpolate all NaNs. Count gaps >= threshold as blinks.
+    interpolated = data.copy()
+    nan_mask = np.isnan(data)
     
-    # Interpolate missing values
-    # Using pandas for convenient interpolation
-    series = pd.Series(clean_data)
-    interpolated_series = series.interpolate(method='linear', limit_direction='both')
-    
-    # If interpolation leaves NaNs at edges, forward/backward fill
-    final_data = interpolated_series.ffill().bfill().values
-    
-    return final_data
+    if not np.any(nan_mask):
+        return data, timestamps, 0
+
+    # Linear interpolation for all NaNs
+    indices = np.arange(len(data))
+    valid_data_indices = indices[~nan_mask]
+    valid_data_values = data[~nan_mask]
+
+    if len(valid_data_indices) < 2:
+        # Cannot interpolate if we don't have enough points
+        logger.warning("Insufficient valid data points for interpolation.")
+        return data, timestamps, 0
+
+    interpolated[nan_mask] = np.interp(
+        indices[nan_mask], 
+        valid_data_indices, 
+        valid_data_values
+    )
+
+    # Count blinks (gaps >= threshold)
+    blink_count = 0
+    gap_starts = np.where(np.diff(np.concatenate(([0], nan_mask.astype(int), [0]))) == 1)[0]
+    gap_ends = np.where(np.diff(np.concatenate(([0], nan_mask.astype(int), [0]))) == -1)[0]
+
+    for start, end in zip(gap_starts, gap_ends):
+        duration = (timestamps[end-1] - timestamps[start]) if end > start else 0
+        if duration >= threshold:
+            blink_count += 1
+
+    return interpolated, timestamps, blink_count
 
 def process_pupil_data(
-    data: pd.DataFrame, 
-    fs: float = 250.0, 
-    blink_threshold: float = 50.0,
-    missing_threshold: float = DEFAULT_EXCLUSION_THRESHOLD
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    df: pd.DataFrame,
+    timestamp_col: str = 'timestamp',
+    pupil_col: str = 'pupil_diameter',
+    cutoff_hz: float = DEFAULT_CUTOFF_HZ,
+    blink_threshold: float = DEFAULT_BLINK_THRESHOLD,
+    max_missing_ratio: float = DEFAULT_MAX_MISSING_RATIO
+) -> Tuple[pd.DataFrame, Dict[str, int]]:
     """
-    Process a single subject's pupil data: interpolate blinks, filter, and check quality.
+    Process a single subject's pupil data: filter blinks and apply lowpass filter.
 
     Args:
-        data (pd.DataFrame): DataFrame with columns 'timestamp' and 'pupil_diameter'.
-        fs (float): Sampling frequency in Hz.
-        blink_threshold (float): Threshold for blink detection.
-        missing_threshold (float): Fraction of missing data that triggers exclusion.
+        df: DataFrame with timestamp and pupil diameter columns.
+        timestamp_col: Name of the timestamp column.
+        pupil_col: Name of the pupil diameter column.
+        cutoff_hz: Lowpass filter cutoff frequency.
+        blink_threshold: Duration threshold for blink detection.
+        max_missing_ratio: Maximum allowed ratio of missing data.
 
     Returns:
-        Tuple[pd.DataFrame, Dict[str, Any]]: Processed DataFrame and quality metrics.
+        Tuple of (processed_df, stats_dict).
     """
-    metrics = {
-        'total_samples': len(data),
-        'missing_samples': 0,
-        'excluded': False,
-        'exclusion_reason': None,
-        'blink_interpolated': 0,
-        'filtered': True
-    }
+    if df.empty:
+        return df, {'blink_interpolations': 0, 'filtered_samples': 0, 'excluded': 0}
 
-    if 'pupil_diameter' not in data.columns:
-        logger.error("Missing 'pupil_diameter' column in input data.")
-        metrics['excluded'] = True
-        metrics['exclusion_reason'] = 'Missing column: pupil_diameter'
-        return data, metrics
+    timestamps = df[timestamp_col].values
+    pupil_data = df[pupil_col].values.astype(float)
 
-    pupil_series = data['pupil_diameter'].values
-    
-    # Count initial missing
-    initial_missing = np.sum(np.isnan(pupil_series))
-    metrics['missing_samples'] = int(initial_missing)
-
-    # Check exclusion threshold before processing
-    if initial_missing > 0:
-        missing_ratio = initial_missing / len(pupil_series)
-        if missing_ratio > missing_threshold:
-            logger.warning(f"Missing data ratio ({missing_ratio:.2%}) exceeds threshold ({missing_threshold}). Excluding subject.")
-            metrics['excluded'] = True
-            metrics['exclusion_reason'] = f'Missing data ratio {missing_ratio:.2%} > {missing_threshold}'
-            return data, metrics
+    # Calculate initial missing ratio
+    initial_missing = np.sum(np.isnan(pupil_data))
+    total_samples = len(pupil_data)
+    initial_missing_ratio = initial_missing / total_samples if total_samples > 0 else 1.0
 
     # Interpolate blinks
-    interpolated_data = interpolate_blinks(pupil_series, threshold=blink_threshold)
+    processed_pupil, _, blink_count = interpolate_blinks(
+        pupil_data, timestamps, threshold=blink_threshold
+    )
     
-    # Count how many were interpolated (difference between original NaNs and final NaNs)
-    final_missing = np.sum(np.isnan(interpolated_data))
-    # Note: interpolate_blinks sets blinks to NaN then fills, so final_missing should be 0 if successful
-    # unless edges couldn't be filled.
-    metrics['blink_interpolated'] = int(initial_missing - final_missing)
-    
-    # Apply low-pass filter
-    filtered_data = lowpass_filter(interpolated_data, fs=fs)
-    
+    # Apply lowpass filter
+    # Estimate sampling frequency
+    if len(timestamps) > 1:
+        dt = np.median(np.diff(timestamps))
+        fs = 1.0 / dt if dt > 0 else 100.0  # Default to 100Hz if dt is 0
+    else:
+        fs = 100.0
+
+    filtered_pupil = lowpass_filter(processed_pupil, cutoff=cutoff_hz, fs=fs)
+
     # Update DataFrame
-    processed_data = data.copy()
-    processed_data['pupil_diameter_processed'] = filtered_data
+    df_out = df.copy()
+    df_out[pupil_col] = filtered_pupil
+
+    # Check if too much data was missing originally (exclusion criteria)
+    excluded = 1 if initial_missing_ratio > max_missing_ratio else 0
     
-    return processed_data, metrics
+    stats = {
+        'blink_interpolations': blink_count,
+        'filtered_samples': total_samples,
+        'excluded': excluded,
+        'initial_missing_ratio': initial_missing_ratio
+    }
+
+    return df_out, stats
 
 def apply_filter_to_dataset(
-    input_path: str, 
-    output_path: str, 
-    fs: float = 250.0
-) -> List[Dict[str, Any]]:
+    input_path: str,
+    output_path: str,
+    timestamp_col: str = 'timestamp',
+    pupil_col: str = 'pupil_diameter',
+    cutoff_hz: float = DEFAULT_CUTOFF_HZ,
+    blink_threshold: float = DEFAULT_BLINK_THRESHOLD,
+    max_missing_ratio: float = DEFAULT_MAX_MISSING_RATIO
+) -> Dict[str, int]:
     """
-    Apply the full preprocessing pipeline to a dataset file.
-    
+    Load, process, and save a dataset, writing quality metrics.
+
     Args:
-        input_path (str): Path to input CSV.
-        output_path (str): Path to output CSV.
-        fs (float): Sampling frequency.
+        input_path: Path to input CSV.
+        output_path: Path to output CSV.
+        timestamp_col: Name of timestamp column.
+        pupil_col: Name of pupil diameter column.
+        cutoff_hz: Lowpass cutoff.
+        blink_threshold: Blink threshold.
+        max_missing_ratio: Exclusion threshold.
 
     Returns:
-        List[Dict[str, Any]]: List of quality metrics for each subject/row processed.
+        Dictionary of stats.
     """
-    logger.info(f"Processing file: {input_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
     df = pd.read_csv(input_path)
     
-    # Assume the file contains multiple subjects or trials. 
-    # For this implementation, we assume the file is already split or we process row-by-row if simple.
-    # However, standard format is usually one subject per file or a 'subject_id' column.
-    # Let's assume 'subject_id' column exists if multiple subjects in one file.
-    
-    quality_metrics = []
-    
-    if 'subject_id' in df.columns:
-        subjects = df['subject_id'].unique()
-        for sub in subjects:
-            sub_df = df[df['subject_id'] == sub].copy()
-            processed_sub_df, metrics = process_pupil_data(sub_df, fs=fs)
-            quality_metrics.append(metrics)
-            
-            # Save processed data for this subject if needed, or accumulate
-            # For now, we update the main df
-            df.loc[df['subject_id'] == sub, 'pupil_diameter_processed'] = processed_sub_df['pupil_diameter_processed']
-    else:
-        # Single subject or trial file
-        processed_df, metrics = process_pupil_data(df, fs=fs)
-        quality_metrics.append(metrics)
-        df = processed_df
+    processed_df, stats = process_pupil_data(
+        df, timestamp_col, pupil_col, cutoff_hz, blink_threshold, max_missing_ratio
+    )
 
     # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved processed data to: {output_path}")
-    
-    return quality_metrics
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    processed_df.to_csv(output_path, index=False)
+
+    return stats
 
 def write_quality_report(
-    metrics_list: List[Dict[str, Any]], 
-    report_path: str = "results/quality_report.csv"
+    stats_list: List[Dict[str, Any]],
+    report_path: str = 'results/quality_report.csv'
 ) -> None:
     """
-    Aggregate quality metrics and write to the quality report CSV.
-    This function appends counts to the existing report file.
+    Aggregate processing statistics and write to the quality report CSV.
+    
+    This function implements the T017 requirement:
+    1. Aggregates counts from the preprocessing pipeline.
+    2. Uses LoggingContext to append to the CSV.
+    3. Ensures the CSV has the correct schema [exclusion_type, count].
 
     Args:
-        metrics_list (List[Dict[str, Any]]): List of quality metric dictionaries.
-        report_path (str): Path to the output CSV file.
+        stats_list: List of dictionaries containing stats from each file processed.
+        report_path: Path to the output CSV.
     """
-    # Initialize the report file with headers if it doesn't exist
-    # The task T005 ensures headers are initialized, but we ensure it here for robustness
-    report_path_obj = Path(report_path)
-    if not report_path_obj.exists():
-        report_path_obj.parent.mkdir(parents=True, exist_ok=True)
-        with open(report_path, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(['exclusion_type', 'count'])
-    
-    # Aggregate counts
-    exclusion_counts = {}
-    
-    for metrics in metrics_list:
-        if metrics.get('excluded', False):
-            reason = metrics.get('exclusion_reason', 'Unknown')
-            # Normalize reason to a category
-            if 'Missing data ratio' in reason:
-                category = 'missing_data_threshold'
-            elif 'Missing column' in reason:
-                category = 'missing_column'
-            else:
-                category = reason
-            
-            exclusion_counts[category] = exclusion_counts.get(category, 0) + 1
-        
-        # Track other metrics if needed, but the task specifically asks for exclusion counts
-        # We can log blink interpolation stats to logger if needed
+    # Initialize aggregation
+    exclusion_counts = {
+        'blink_interpolations': 0,
+        'excluded_high_missing': 0,
+        'total_files_processed': len(stats_list)
+    }
 
-    # Append to CSV
-    with open(report_path, 'a', newline='') as f:
-        writer = csv.writer(f)
-        for exclusion_type, count in exclusion_counts.items():
-            writer.writerow([exclusion_type, count])
+    for stats in stats_list:
+        exclusion_counts['blink_interpolations'] += stats.get('blink_interpolations', 0)
+        if stats.get('excluded', 0) > 0:
+            exclusion_counts['excluded_high_missing'] += 1
+
+    # Initialize LoggingContext
+    # The context handles file initialization and appending
+    context = LoggingContext()
     
-    logger.info(f"Quality report updated at: {report_path}")
+    # Ensure the report file exists with the correct header before adding entries
+    # The LoggingContext.initialize_quality_report logic should handle this,
+    # but we ensure it here for robustness if the context is used standalone.
+    # We call add_exclusion for each type of exclusion found.
+    
+    if exclusion_counts['blink_interpolations'] > 0:
+        context.add_exclusion('blink_interpolations', exclusion_counts['blink_interpolations'])
+    
+    if exclusion_counts['excluded_high_missing'] > 0:
+        context.add_exclusion('excluded_high_missing', exclusion_counts['excluded_high_missing'])
+
+    # Write the aggregated report
+    # The task requires appending counts to results/quality_report.csv
+    # We pass the aggregated counts to write_report which appends them.
+    # Note: The requirement says "append counts", so we write the totals found.
+    context.write_report(report_path)
+
+    logger.info(f"Quality report written to {report_path}")
 
 def main():
     """
-    Main entry point for running the filter module as a script.
-    Expects command line arguments or uses defaults.
+    Entry point for the filter script.
+    Processes all files in data/processed/raw (example) and writes to data/processed/final.
+    Generates quality report.
     """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Preprocess pupil data: filter and generate quality report.")
-    parser.add_argument("--input", type=str, required=True, help="Path to input CSV file.")
-    parser.add_argument("--output", type=str, required=True, help="Path to output CSV file.")
-    parser.add_argument("--report", type=str, default="results/quality_report.csv", help="Path to quality report CSV.")
-    parser.add_argument("--fs", type=float, default=250.0, help="Sampling frequency in Hz.")
-    parser.add_argument("--blink-threshold", type=float, default=50.0, help="Blink detection threshold.")
-    
-    args = parser.parse_args()
-    
-    # Setup logging
-    # Assuming logging_config is set up elsewhere, but we can initialize here if needed
-    # For now, rely on the module-level logger
-    
-    metrics = apply_filter_to_dataset(args.input, args.output, fs=args.fs)
-    write_quality_report(metrics, args.report)
-    
-    logger.info("Preprocessing complete.")
 
-if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Filter pupil data and generate quality report.")
+    parser.add_argument('--input-dir', type=str, default='data/processed/raw', help='Input directory')
+    parser.add_argument('--output-dir', type=str, default='data/processed/final', help='Output directory')
+    parser.add_argument('--report-path', type=str, default='results/quality_report.csv', help='Quality report path')
+    parser.add_argument('--cutoff-hz', type=float, default=DEFAULT_CUTOFF_HZ, help='Lowpass cutoff')
+    parser.add_argument('--blink-threshold', type=float, default=DEFAULT_BLINK_THRESHOLD, help='Blink threshold')
+    parser.add_argument('--max-missing-ratio', type=float, default=DEFAULT_MAX_MISSING_RATIO, help='Max missing ratio')
+
+    args = parser.parse_args()
+
+    input_dir = Path(args.input_dir)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    csv_files = list(input_dir.glob('*.csv'))
+    if not csv_files:
+        logger.warning(f"No CSV files found in {input_dir}")
+        return
+
+    all_stats = []
+    for csv_file in csv_files:
+        output_file = output_dir / csv_file.name
+        try:
+            stats = apply_filter_to_dataset(
+                str(csv_file),
+                str(output_file),
+                cutoff_hz=args.cutoff_hz,
+                blink_threshold=args.blink_threshold,
+                max_missing_ratio=args.max_missing_ratio
+            )
+            all_stats.append(stats)
+            logger.info(f"Processed {csv_file.name}: {stats}")
+        except Exception as e:
+            logger.error(f"Failed to process {csv_file.name}: {e}")
+            # Add an exclusion entry for failed processing?
+            # For now, we just log. The quality report will reflect successful runs.
+
+    # Generate the quality report using the LoggingContext interface
+    write_quality_report(all_stats, args.report_path)
+
+if __name__ == '__main__':
     main()

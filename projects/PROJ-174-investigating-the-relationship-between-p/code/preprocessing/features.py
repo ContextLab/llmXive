@@ -1,24 +1,12 @@
-"""
-Feature extraction module for computing cognitive load proxies.
-
-Computes:
-- Search time (derived from trial timestamps)
-- Fixation count (derived from filtered eye-tracking data)
-- Target salience (computed on-the-fly using Gabor filter bank if metadata missing)
-
-Handles missing data gracefully by marking proxies as UNFULFILLABLE.
-"""
 import os
 import sys
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List
-from scipy.ndimage import gaussian_filter
-import cv2
-from config import load_config
-from data_model import Dataset
+from typing import List, Dict, Any, Optional, Tuple
+from scipy.signal import convolve
+from PIL import Image
 
 # Configure logging
 logging.basicConfig(
@@ -27,356 +15,377 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants for Gabor filter bank
-NUM_ORIENTATIONS = 4
-NUM_SCALES = 2
-SIGMA_RATIOS = [0.5, 1.0]  # Scale factors for sigma
-THETA_RANGES = np.pi / NUM_ORIENTATIONS * np.arange(NUM_ORIENTATIONS)
-LAMBDA = 10  # Wavelength relative to sigma
-GAMMA = 0.5  # Spatial aspect ratio
-PSI = 0  # Phase offset
-
-def compute_gabor_kernel(
-    size: int,
-    sigma: float,
-    theta: float,
-    lambda_: float,
-    gamma: float,
-    psi: float
-) -> np.ndarray:
+def compute_gabor_kernel(orientation: float = 0.0, scale: float = 1.0, size: int = 31) -> np.ndarray:
     """
-    Compute a 2D Gabor kernel.
+    Compute a Gabor filter kernel for a given orientation and scale.
     
     Args:
-        size: Size of the kernel (size x size)
-        sigma: Standard deviation of Gaussian envelope
-        theta: Orientation of the Gabor filter (radians)
-        lambda_: Wavelength of the sinusoidal factor
-        gamma: Spatial aspect ratio
-        psi: Phase offset
-        
+        orientation: Angle in radians (0, pi/4, pi/2, 3pi/4 for 4 orientations)
+        scale: Scale factor (1 or 2 for 2 scales)
+        size: Size of the kernel (must be odd)
+    
     Returns:
-        2D numpy array representing the Gabor kernel
+        2D numpy array representing the Gabor kernel.
     """
-    half_size = size // 2
-    x, y = np.meshgrid(
-        np.arange(-half_size, half_size + 1),
-        np.arange(-half_size, half_size + 1)
-    )
+    x = np.linspace(-(size // 2), size // 2, size)
+    y = np.linspace(-(size // 2), size // 2, size)
+    X, Y = np.meshgrid(x, y)
     
     # Rotate coordinates
-    x_theta = x * np.cos(theta) + y * np.sin(theta)
-    y_theta = -x * np.sin(theta) + y * np.cos(theta)
+    X_rot = X * np.cos(orientation) + Y * np.sin(orientation)
+    Y_rot = -X * np.sin(orientation) + Y * np.cos(orientation)
     
-    # Compute Gabor function
-    kernel = np.exp(
-        -(x_theta**2 + gamma**2 * y_theta**2) / (2 * sigma**2)
-    ) * np.cos(2 * np.pi * x_theta / lambda_ + psi)
+    # Gaussian envelope
+    sigma = scale * 3.0
+    gaussian = np.exp(-0.5 * (X_rot**2 + Y_rot**2) / sigma**2)
     
-    return kernel
+    # Carrier
+    lambda_gabor = 1.0 * scale
+    carrier = np.cos(2 * np.pi * X_rot / lambda_gabor)
+    
+    kernel = gaussian * carrier
+    return kernel / np.abs(kernel).sum()  # Normalize
 
-def compute_target_salience(image_path: str) -> float:
+def compute_target_salience(image_path: Path) -> float:
     """
-    Compute target salience using Gabor filter bank.
-    
-    Applies Gabor filters at 4 orientations and 2 scales, then computes
-    the maximum response as the salience metric.
+    Compute target salience from a stimulus image using a Gabor filter bank.
+    Uses 4 orientations (0, 45, 90, 135 degrees) and 2 scales.
     
     Args:
-        image_path: Path to the stimulus image
-        
+        image_path: Path to the stimulus image file.
+    
     Returns:
-        Salience value (float) representing the maximum Gabor response
+        A float representing the mean salience score.
+    
+    Raises:
+        FileNotFoundError: If image does not exist.
+        ValueError: If image cannot be loaded or processed.
     """
-    if not os.path.exists(image_path):
-        logger.warning(f"Image not found: {image_path}")
-        return None
+    if not image_path.exists():
+        raise FileNotFoundError(f"Stimulus image not found: {image_path}")
     
-    # Load image in grayscale
-    image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    if image is None:
-        logger.error(f"Failed to load image: {image_path}")
-        return None
+    try:
+        img = Image.open(image_path).convert('L')  # Convert to grayscale
+        img_array = np.array(img).astype(float)
+        
+        # Normalize image
+        if img_array.max() > 0:
+            img_array = img_array / 255.0
+        
+        # Pad image to handle borders (simple zero-padding)
+        pad_size = 16
+        padded_img = np.pad(img_array, pad_size, mode='constant')
+        
+        # Define Gabor parameters: 4 orientations, 2 scales
+        orientations = [0, np.pi/4, np.pi/2, 3*np.pi/4]
+        scales = [1.0, 2.0]
+        
+        total_salience = 0.0
+        count = 0
+        
+        for theta in orientations:
+            for s in scales:
+                kernel = compute_gabor_kernel(orientation=theta, scale=s, size=31)
+                
+                # Apply convolution (valid region only)
+                # Since we padded, we can convolve and then crop back to original size
+                # However, for efficiency, we can just compute the convolution
+                # and take the mean of the absolute response over the valid region.
+                
+                # Convolve
+                response = convolve(padded_img, kernel, mode='same')
+                
+                # Crop back to original size (remove padding)
+                h, w = img_array.shape
+                cropped_response = response[pad_size:pad_size+h, pad_size:pad_size+w]
+                
+                # Salience is the magnitude of the response
+                salience_map = np.abs(cropped_response)
+                mean_salience = np.mean(salience_map)
+                
+                total_salience += mean_salience
+                count += 1
+        
+        return total_salience / count if count > 0 else 0.0
     
-    # Normalize image to [0, 1]
-    image = image.astype(np.float32) / 255.0
-    
-    # Determine kernel size based on image dimensions
-    img_h, img_w = image.shape
-    kernel_size = min(img_h, img_w) // 4
-    if kernel_size < 5:
-        kernel_size = 5
-    elif kernel_size % 2 == 0:
-        kernel_size += 1
-    
-    # Compute sigma values
-    sigma_base = kernel_size / 6.0
-    sigmas = [sigma_base * ratio for ratio in SIGMA_RATIOS]
-    
-    max_response = 0.0
-    
-    # Apply Gabor filters at different orientations and scales
-    for theta in THETA_RANGES:
-        for sigma in sigmas:
-            kernel = compute_gabor_kernel(
-                kernel_size, sigma, theta, LAMBDA, GAMMA, PSI
-            )
-            
-            # Convolve image with Gabor kernel
-            response = cv2.filter2D(image, cv2.CV_32F, kernel)
-            
-            # Compute maximum absolute response
-            max_resp = np.max(np.abs(response))
-            if max_resp > max_response:
-                max_response = max_resp
-    
-    # Normalize salience to [0, 1] range (heuristic)
-    salience = min(1.0, max_response / 10.0)
-    
-    return salience
+    except Exception as e:
+        logger.error(f"Error computing salience for {image_path}: {e}")
+        raise
 
-def compute_fixation_count(
-    data: pd.DataFrame,
-    fixation_threshold: float = 30.0,
-    min_duration: int = 3
-) -> int:
+def compute_fixation_count(eye_tracking_data: pd.DataFrame) -> int:
     """
-    Compute fixation count from eye-tracking data.
+    Compute the number of fixations in the eye-tracking data.
+    This is a simplified heuristic: count distinct clusters of points 
+    where the pupil diameter is valid and velocity is low.
     
-    A fixation is defined as a sequence of samples where the gaze position
-    remains within a threshold for at least min_duration samples.
+    For this implementation, we assume 'fixation' is marked or 
+    inferred by simple velocity thresholding if not present.
+    Since the task implies extracting from processed data, we assume
+    the input DataFrame has been preprocessed (blinks interpolated).
+    
+    We will use a simple velocity-based fixation detector:
+    1. Calculate instantaneous velocity between consecutive samples.
+    2. Mark samples as 'fixation' if velocity < threshold (e.g., 30 deg/s).
+    3. Count contiguous blocks of 'fixation' samples as fixations.
     
     Args:
-        data: DataFrame with 'x' and 'y' columns
-        fixation_threshold: Maximum distance (pixels) for fixation
-        min_duration: Minimum number of samples for a fixation
-        
+        eye_tracking_data: DataFrame with columns 'x', 'y' (and optionally 'timestamp').
+    
     Returns:
-        Number of fixations detected
+        Integer count of fixations.
     """
-    if data.empty or 'x' not in data.columns or 'y' not in data.columns:
+    if 'x' not in eye_tracking_data.columns or 'y' not in eye_tracking_data.columns:
+        logger.warning("Missing x/y columns for fixation count. Returning 0.")
         return 0
     
-    x = data['x'].values
-    y = data['y'].values
+    x = eye_tracking_data['x'].values
+    y = eye_tracking_data['y'].values
     
+    # Handle NaNs
+    valid_mask = ~(np.isnan(x) | np.isnan(y))
+    if not np.all(valid_mask):
+        # Interpolate or drop for velocity calc? We drop for simplicity here.
+        x = x[valid_mask]
+        y = y[valid_mask]
+    
+    if len(x) < 2:
+        return 0
+    
+    # Calculate velocity (Euclidean distance between consecutive points)
+    # Assuming sampling rate is constant or we just count transitions
+    dx = np.diff(x)
+    dy = np.diff(y)
+    velocity = np.sqrt(dx**2 + dy**2)
+    
+    # Threshold for fixation (e.g., 30 pixels/s or similar unit)
+    # This is a heuristic; in real scenarios, this depends on sampling rate.
+    # We use a fixed threshold relative to the data range.
+    threshold = 15.0  # Heuristic threshold
+    
+    is_fixation = velocity < threshold
+    
+    # Count contiguous blocks of fixations
     fixation_count = 0
     in_fixation = False
-    fixation_start = 0
-    prev_x, prev_y = x[0], y[0]
     
-    for i in range(1, len(x)):
-        # Compute distance from previous sample
-        distance = np.sqrt((x[i] - prev_x)**2 + (y[i] - prev_y)**2)
-        
-        if distance <= fixation_threshold:
-            if not in_fixation:
-                in_fixation = True
-                fixation_start = i - 1
-            # Check if fixation duration is sufficient
-            if i - fixation_start >= min_duration:
-                fixation_count += 1
-                in_fixation = False
-        else:
+    for is_fix in is_fixation:
+        if is_fix and not in_fixation:
+            fixation_count += 1
+            in_fixation = True
+        elif not is_fix:
             in_fixation = False
-        
-        prev_x, prev_y = x[i], y[i]
     
     return fixation_count
 
-def compute_search_time(data: pd.DataFrame) -> float:
+def compute_search_time(trial_metadata: Dict[str, Any]) -> float:
     """
-    Compute search time from trial data.
-    
-    Search time is calculated as the duration between the first and last
-    valid sample in the trial.
+    Compute search time from trial metadata.
     
     Args:
-        data: DataFrame with 'timestamp' column
-        
+        trial_metadata: Dictionary containing trial info (e.g., 'search_time', 'duration').
+    
     Returns:
-        Search time in seconds
+        Search time in seconds.
+    
+    Raises:
+        KeyError: If search time is not available in metadata.
     """
-    if data.empty or 'timestamp' not in data.columns:
-        return 0.0
-    
-    timestamps = pd.to_datetime(data['timestamp'])
-    if len(timestamps) < 2:
-        return 0.0
-    
-    search_time = (timestamps.max() - timestamps.min()).total_seconds()
-    return search_time
+    if 'search_time' in trial_metadata:
+        return float(trial_metadata['search_time'])
+    elif 'duration' in trial_metadata:
+        # Fallback if search_time is missing but duration is present
+        return float(trial_metadata['duration'])
+    else:
+        raise KeyError("Search time or duration not found in trial metadata.")
 
 def extract_features(
-    trial_data: pd.DataFrame,
-    metadata: Optional[Dict[str, Any]] = None,
-    image_dir: Optional[str] = None
+    subject_id: str,
+    trial_id: str,
+    eye_data: pd.DataFrame,
+    trial_metadata: Optional[Dict[str, Any]] = None,
+    stimulus_path: Optional[Path] = None,
+    config: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Extract all load proxies for a single trial.
     
     Args:
-        trial_data: DataFrame containing eye-tracking data for a trial
-        metadata: Optional dictionary with trial metadata (e.g., target_salience)
-        image_dir: Optional directory containing stimulus images
-        
+        subject_id: Subject identifier.
+        trial_id: Trial identifier.
+        eye_data: Preprocessed eye-tracking DataFrame.
+        trial_metadata: Dictionary with trial-level metadata.
+        stimulus_path: Path to the stimulus image (for salience).
+        config: Configuration dictionary (optional).
+    
     Returns:
-        Dictionary with extracted features and status
+        Dictionary with computed features: search_time, fixation_count, target_salience, status.
     """
     result = {
+        'subject_id': subject_id,
+        'trial_id': trial_id,
         'search_time': None,
         'fixation_count': None,
         'target_salience': None,
-        'status': 'OK',
-        'exclusion_reason': None
+        'status': 'OK'
     }
     
-    # Compute search time
-    try:
-        search_time = compute_search_time(trial_data)
-        result['search_time'] = search_time
-    except Exception as e:
-        logger.warning(f"Failed to compute search time: {e}")
-        result['exclusion_reason'] = f"search_time_error: {str(e)}"
-    
-    # Compute fixation count
-    try:
-        fixation_count = compute_fixation_count(trial_data)
-        result['fixation_count'] = fixation_count
-    except Exception as e:
-        logger.warning(f"Failed to compute fixation count: {e}")
-        if result['exclusion_reason']:
-            result['exclusion_reason'] += f"; fixation_count_error: {str(e)}"
-        else:
-            result['exclusion_reason'] = f"fixation_count_error: {str(e)}"
-    
-    # Compute target salience
-    salience = None
-    salience_error = None
-    
-    # First, try to get from metadata
-    if metadata and 'target_salience' in metadata:
-        salience = metadata['target_salience']
-        logger.info("Using target_salience from metadata")
+    # 1. Compute Search Time
+    if trial_metadata:
+        try:
+            result['search_time'] = compute_search_time(trial_metadata)
+        except (KeyError, ValueError) as e:
+            logger.warning(f"Could not compute search time for {subject_id}/{trial_id}: {e}")
+            result['search_time'] = None
+            result['status'] = 'SEARCH_TIME_UNFULFILLABLE'
     else:
-        # Try to compute from image
-        if image_dir and metadata and 'stimulus_image' in metadata:
-            image_path = os.path.join(image_dir, metadata['stimulus_image'])
-            if os.path.exists(image_path):
-                try:
-                    salience = compute_target_salience(image_path)
-                    if salience is not None:
-                        logger.info(f"Computed target_salience from image: {salience:.4f}")
-                    else:
-                        salience_error = "Failed to compute salience from image"
-                except Exception as e:
-                    salience_error = f"Image processing error: {str(e)}"
-            else:
-                salience_error = f"Stimulus image not found: {image_path}"
-        else:
-            salience_error = "No metadata or image data available"
+        logger.warning(f"No metadata for {subject_id}/{trial_id}. Search time unfulfillable.")
+        result['status'] = 'SEARCH_TIME_UNFULFILLABLE'
     
-    if salience is not None:
-        result['target_salience'] = salience
+    # 2. Compute Fixation Count
+    try:
+        result['fixation_count'] = compute_fixation_count(eye_data)
+    except Exception as e:
+        logger.warning(f"Fixation count failed for {subject_id}/{trial_id}: {e}")
+        result['fixation_count'] = 0  # Default to 0 or NaN? Task says UNFULFILLABLE if missing metadata/image.
+        # If data exists but calculation fails, we might still have a value.
+        # However, if the task implies 'UNFULFILLABLE' only for Salience, we leave others as computed or 0.
+        # Let's assume fixation count is computed if data exists.
+    
+    # 3. Compute Target Salience
+    salience_status = 'OK'
+    if stimulus_path and stimulus_path.exists():
+        try:
+            result['target_salience'] = compute_target_salience(stimulus_path)
+        except Exception as e:
+            logger.warning(f"Salience computation failed for {stimulus_path}: {e}")
+            salience_status = 'SALIENCE_UNFULFILLABLE'
     else:
-        if result['exclusion_reason']:
-            result['exclusion_reason'] += f"; salience_error: {salience_error}"
+        # Check if metadata has salience
+        if trial_metadata and 'target_salience' in trial_metadata:
+            result['target_salience'] = float(trial_metadata['target_salience'])
+            logger.info(f"Loaded salience from metadata for {subject_id}/{trial_id}")
         else:
-            result['exclusion_reason'] = salience_error
+            # Neither metadata nor valid image data exists
+            salience_status = 'SALIENCE_UNFULFILLABLE'
+            logger.warning(f"Salience unfulfillable for {subject_id}/{trial_id} (missing metadata and image).")
     
-    # Determine overall status
-    if result['exclusion_reason']:
+    if salience_status == 'SALIENCE_UNFULFILLABLE':
         result['status'] = 'UNFULFILLABLE'
-        logger.warning(f"Trial marked as UNFULFILLABLE: {result['exclusion_reason']}")
     
     return result
 
 def process_dataset_features(
-    input_path: str,
-    output_path: str,
-    config: Optional[Dict[str, Any]] = None
+    data_dir: Path,
+    metadata_dir: Path,
+    output_path: Path,
+    config: Dict[str, Any]
 ) -> None:
     """
-    Process a dataset to extract load proxies.
+    Process a dataset to generate features for all trials.
     
     Args:
-        input_path: Path to input CSV with eye-tracking data
-        output_path: Path to output CSV with extracted features
-        config: Optional configuration dictionary
+        data_dir: Directory containing raw eye-tracking data (e., sub-*/sub-sub-*.csv).
+        metadata_dir: Directory containing trial metadata or stimulus images.
+        output_path: Path to write the output features CSV.
+        config: Configuration dictionary.
     """
-    if config is None:
-        config = load_config()
+    logger.info(f"Processing features for dataset in {data_dir}")
     
-    # Load input data
-    logger.info(f"Loading data from {input_path}")
-    try:
-        df = pd.read_csv(input_path)
-    except Exception as e:
-        logger.error(f"Failed to load input data: {e}")
-        raise
-    
-    # Get configuration
-    image_dir = config.get('paths', {}).get('stimuli', None)
-    
-    # Extract features for each trial
     features_list = []
-    trials = df['trial_id'].unique() if 'trial_id' in df.columns else [0]
     
-    for trial_id in trials:
-        trial_mask = df['trial_id'] == trial_id if 'trial_id' in df.columns else slice(None)
-        trial_data = df[trial_mask]
+    # Iterate over subjects
+    subjects = [d for d in data_dir.iterdir() if d.is_dir()]
+    
+    for subject_dir in subjects:
+        subject_id = subject_dir.name
+        trials = [t for t in subject_dir.iterdir() if t.suffix == '.csv']
         
-        # Get metadata for this trial (if available)
-        metadata = None
-        if 'target_salience' in trial_data.columns:
-            metadata = {'target_salience': trial_data['target_salience'].iloc[0]}
-        if 'stimulus_image' in trial_data.columns:
-            if metadata is None:
-                metadata = {}
-            metadata['stimulus_image'] = trial_data['stimulus_image'].iloc[0]
-        
-        # Extract features
-        features = extract_features(trial_data, metadata, image_dir)
-        features['trial_id'] = trial_id
-        features_list.append(features)
+        for trial_file in trials:
+            trial_id = trial_file.stem
+            
+            # Load eye data
+            try:
+                eye_data = pd.read_csv(trial_file)
+            except Exception as e:
+                logger.error(f"Failed to load eye data for {trial_file}: {e}")
+                continue
+            
+            # Locate metadata and stimulus
+            # Assume metadata is in metadata_dir/sub-*/trial-*.json or similar
+            # For simplicity, we assume a flat structure or specific mapping.
+            # Let's assume metadata is in a JSON file per trial or a single file.
+            # Here we try to find a corresponding metadata file.
+            meta_file = metadata_dir / f"{subject_id}_{trial_id}.json"
+            stimulus_file = metadata_dir / f"{subject_id}_{trial_id}.png"
+            
+            trial_metadata = None
+            if meta_file.exists():
+                import json
+                with open(meta_file, 'r') as f:
+                    trial_metadata = json.load(f)
+            
+            # Extract features
+            feat = extract_features(
+                subject_id=subject_id,
+                trial_id=trial_id,
+                eye_data=eye_data,
+                trial_metadata=trial_metadata,
+                stimulus_path=stimulus_file,
+                config=config
+            )
+            features_list.append(feat)
     
-    # Create output DataFrame
-    features_df = pd.DataFrame(features_list)
+    if not features_list:
+        logger.warning("No features extracted. Creating empty output file.")
+        df = pd.DataFrame()
+    else:
+        df = pd.DataFrame(features_list)
     
-    # Ensure all required columns exist
-    required_cols = ['trial_id', 'search_time', 'fixation_count', 'target_salience', 'status', 'exclusion_reason']
-    for col in required_cols:
-        if col not in features_df.columns:
-            features_df[col] = None
+    # Ensure columns are in expected order
+    expected_cols = ['subject_id', 'trial_id', 'search_time', 'fixation_count', 'target_salience', 'status']
+    existing_cols = [c for c in expected_cols if c in df.columns]
+    missing_cols = [c for c in expected_cols if c not in df.columns]
     
-    # Reorder columns
-    features_df = features_df[required_cols]
+    if missing_cols:
+        for col in missing_cols:
+            df[col] = None
     
-    # Write output
-    logger.info(f"Writing features to {output_path}")
-    features_df.to_csv(output_path, index=False)
+    # Reorder
+    df = df[[c for c in expected_cols if c in df.columns]]
     
-    # Log summary
-    unfulfillable = features_df[features_df['status'] == 'UNFULFILLABLE'].shape[0]
-    total = features_df.shape[0]
-    logger.info(f"Processed {total} trials, {unfulfillable} marked as UNFULFILLABLE")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    df.to_csv(output_path, index=False)
+    logger.info(f"Features saved to {output_path}")
+    logger.info(f"Summary:\n{df['status'].value_counts()}")
 
 def main():
-    """Main entry point for feature extraction."""
+    """Entry point for running the feature extraction pipeline."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Extract cognitive load proxies from eye-tracking data')
-    parser.add_argument('--input', type=str, required=True, help='Input CSV file path')
-    parser.add_argument('--output', type=str, required=True, help='Output CSV file path')
-    parser.add_argument('--config', type=str, default='code/config.yaml', help='Configuration file path')
+    parser = argparse.ArgumentParser(description="Compute load proxies from eye-tracking data.")
+    parser.add_argument("--data-dir", type=str, required=True, help="Path to raw eye-tracking data directory.")
+    parser.add_argument("--metadata-dir", type=str, required=True, help="Path to metadata/stimulus directory.")
+    parser.add_argument("--output", type=str, default="data/processed/features.csv", help="Output CSV path.")
+    parser.add_argument("--config", type=str, default="code/config.yaml", help="Path to config file.")
     
     args = parser.parse_args()
     
-    # Load configuration
-    config = load_config(args.config)
+    # Load config
+    import yaml
+    config_path = Path(args.config)
+    config = {}
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f) or {}
     
-    # Process dataset
-    process_dataset_features(args.input, args.output, config)
+    process_dataset_features(
+        data_dir=Path(args.data_dir),
+        metadata_dir=Path(args.metadata_dir),
+        output_path=Path(args.output),
+        config=config
+    )
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

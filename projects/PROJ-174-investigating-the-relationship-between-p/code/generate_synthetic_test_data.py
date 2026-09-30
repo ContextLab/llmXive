@@ -1,12 +1,11 @@
 """
 Synthetic Test Data Generator for Unit Tests Only.
 
-This script generates synthetic eye-tracking data strictly for unit testing purposes.
-It MUST be invoked with the --test-mode flag.
-It is NEVER called by the main pipeline (main.py).
-Outputs are hashed and recorded in state/test_artifacts.yaml to prevent accidental
-usage as real data.
+This script generates synthetic pupil dilation and cognitive load data
+strictly for unit testing purposes. It must NEVER be called by the main
+pipeline. Execution requires the explicit '--test-mode' flag.
 """
+
 import argparse
 import os
 import sys
@@ -14,178 +13,183 @@ import hashlib
 import json
 import numpy as np
 import pandas as pd
-from datetime import datetime, timezone
 from pathlib import Path
+from datetime import datetime, timezone
 
-# Ensure we can import project modules if needed, though this script is standalone
-# for test generation.
-PROJECT_ROOT = Path(__file__).parent.parent
-STATE_DIR = PROJECT_ROOT / "state"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+# Ensure we can import from the code root if run as a script
+# (Assumes script is run from the project root or code root)
+if 'code' not in sys.path:
+    code_root = Path(__file__).parent
+    if code_root.name == 'code':
+        sys.path.insert(0, str(code_root))
+
+from data_model import Dataset
 
 def generate_synthetic_dataset(
-    n_subjects: int = 2,
-    n_trials_per_subject: int = 5,
-    n_samples_per_trial: int = 100,
+    num_subjects: int = 5,
+    num_trials: int = 20,
     seed: int = 42
 ) -> pd.DataFrame:
     """
     Generates a synthetic dataset mimicking the structure of real eye-tracking data.
 
-    Columns: subject_id, trial_id, timestamp, pupil_diameter, x, y, search_time, target_salience, fixation_count
-
-    Note: This data is random noise with structural validity, NOT real measurements.
+    This data is purely for unit testing validation logic, not for scientific analysis.
     """
-    np.random.seed(seed)
+    rng = np.random.default_rng(seed)
     rows = []
 
-    for s in range(n_subjects):
-        subject_id = f"SUB_{s:03d}"
-        for t in range(n_trials_per_subject):
-            trial_id = f"TR_{t:03d}"
-            # Simulate 100 samples per trial (approx 100Hz sampling)
-            timestamps = np.arange(n_samples_per_trial) * 0.01
-            
-            # Random walk for pupil diameter (simulating noise)
-            pupil_diameter = 4.0 + np.cumsum(np.random.normal(0, 0.01, n_samples_per_trial))
-            # Add some blinks (NaNs)
-            blink_indices = np.random.choice(n_samples_per_trial, size=5, replace=False)
-            pupil_diameter[blink_indices] = np.nan
+    for sub_idx in range(num_subjects):
+        subject_id = f"SUB{sub_idx:03d}"
+        for trial_idx in range(num_trials):
+            trial_id = f"TR{trial_idx:03d}"
+            # Simulate 2 seconds of data at 1000Hz
+            timestamps = np.arange(0, 2.0, 0.001)
+            n_samples = len(timestamps)
 
-            # Random gaze coordinates
-            x = np.random.normal(0.5, 0.1, n_samples_per_trial)
-            y = np.random.normal(0.5, 0.1, n_samples_per_trial)
+            # Simulate pupil diameter (mm) with some noise and blink artifacts
+            base_pupil = 4.5 + rng.normal(0, 0.1)
+            pupil_diameter = base_pupil + rng.normal(0, 0.05, n_samples)
 
-            # Aggregate features for the trial
-            search_time = np.random.uniform(2.0, 5.0)
-            target_salience = np.random.uniform(0.0, 1.0)
-            fixation_count = np.random.randint(5, 20)
+            # Simulate gaze coordinates (degrees)
+            x = rng.normal(0.5, 0.2, n_samples)
+            y = rng.normal(0.5, 0.2, n_samples)
 
-            for i in range(n_samples_per_trial):
+            # Create some blink artifacts (dropouts)
+            blink_indices = rng.choice(n_samples, size=10, replace=False)
+            pupil_diameter[blink_indices] = 0.0
+
+            # Simulate derived metrics for the row
+            search_time = rng.uniform(0.5, 2.5)
+            target_salience = rng.uniform(0.1, 0.9)
+            fixation_count = rng.integers(5, 15)
+
+            for i in range(n_samples):
                 rows.append({
-                    "subject_id": subject_id,
-                    "trial_id": trial_id,
-                    "timestamp": timestamps[i],
-                    "pupil_diameter": pupil_diameter[i],
-                    "x": x[i],
-                    "y": y[i],
-                    "search_time": search_time,
-                    "target_salience": target_salience,
-                    "fixation_count": fixation_count
+                    'subject_id': subject_id,
+                    'trial_id': trial_id,
+                    'timestamp': timestamps[i],
+                    'pupil_diameter': pupil_diameter[i],
+                    'x': x[i],
+                    'y': y[i],
+                    'search_time': search_time,
+                    'target_salience': target_salience,
+                    'fixation_count': fixation_count
                 })
 
     return pd.DataFrame(rows)
 
-def hash_file_content(file_path: str) -> str:
-    """Calculate SHA-256 hash of a file's content."""
+def hash_file_content(filepath: str) -> str:
+    """
+    Computes SHA-256 hash of a file's content.
+    """
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
+    with open(filepath, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 def write_test_artifacts_manifest(artifacts: list, output_path: str):
     """
-    Writes a manifest of generated test artifacts to state/test_artifacts.yaml.
-    This ensures the main pipeline knows these are test-only artifacts.
+    Writes a YAML-like manifest (JSON for simplicity in Python) of test artifacts
+    and their hashes to state/test_artifacts.yaml (stored as .json or .yaml).
+    The task requires state/test_artifacts.yaml. We will write it as a valid YAML file.
     """
-    # Ensure state directory exists
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    
     manifest = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source_script": "generate_synthetic_test_data.py",
-        "mode": "TEST_ONLY",
-        "artifacts": artifacts
+        "artifacts": []
     }
 
-    # Simple YAML-like serialization (avoiding extra dependency for this specific script if possible, 
-    # but using standard dict-to-string for safety)
-    # Since requirements.txt includes pyyaml, we can use it if available, but let's stick to standard lib for robustness
-    # or assume pyyaml is installed as per T002a.
-    try:
-        import yaml
-        yaml_str = yaml.dump(manifest, default_flow_style=False, sort_keys=False)
-    except ImportError:
-        # Fallback to manual formatting if yaml is missing (should not happen based on T002a)
-        yaml_str = f"generated_at: {manifest['generated_at']}\n"
-        yaml_str += "source_script: generate_synthetic_test_data.py\n"
-        yaml_str += "mode: TEST_ONLY\n"
-        yaml_str += "artifacts:\n"
-        for art in artifacts:
-            yaml_str += f"  - path: {art['path']}\n"
-            yaml_str += f"    hash: {art['hash']}\n"
+    for artifact in artifacts:
+        file_hash = hash_file_content(artifact['path'])
+        manifest['artifacts'].append({
+            "path": artifact['path'],
+            "hash": file_hash,
+            "size_bytes": os.stat(artifact['path']).st_size
+        })
 
-    with open(output_path, "w") as f:
-        f.write(yaml_str)
+    # Write as YAML compatible JSON (or simple text format)
+    # Since we need a .yaml file, we'll format it manually to avoid extra deps
+    yaml_content = "generated_at: {}\nsource_script: generate_synthetic_test_data.py\nartifacts:\n".format(
+        manifest['generated_at']
+    )
+    for item in manifest['artifacts']:
+        yaml_content += "  - path: {}\n    hash: {}\n    size_bytes: {}\n".format(
+            item['path'], item['hash'], item['size_bytes']
+        )
+
+    # Ensure state directory exists
+    state_dir = Path(output_path).parent
+    if not state_dir.exists():
+        state_dir.mkdir(parents=True)
+
+    with open(output_path, 'w') as f:
+        f.write(yaml_content)
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate synthetic test data for unit tests ONLY. "
-                    "Must be run with --test-mode flag."
+        description="Generate synthetic test data. MUST be run with --test-mode flag."
     )
     parser.add_argument(
         "--test-mode",
         action="store_true",
         required=True,
-        help="Flag to explicitly enable test data generation. Without this, script exits."
+        help="REQUIRED FLAG: Confirms this script is running in test mode only."
     )
     parser.add_argument(
         "--output-dir",
         type=str,
-        default=str(DATA_RAW_DIR),
-        help="Directory to save the synthetic CSV file."
+        default="data/raw",
+        help="Directory to write synthetic data files."
     )
     parser.add_argument(
-        "--n-subjects",
+        "--num-subjects",
         type=int,
-        default=2,
+        default=5,
         help="Number of synthetic subjects."
     )
     parser.add_argument(
-        "--n-trials",
+        "--num-trials",
         type=int,
-        default=5,
-        help="Trials per subject."
+        default=20,
+        help="Number of trials per subject."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility."
     )
 
     args = parser.parse_args()
 
+    # Safety check: Ensure we are not accidentally running in production
     if not args.test_mode:
-        print("ERROR: --test-mode flag is required. This script is for unit tests only.")
+        print("ERROR: This script is for unit tests ONLY. Use --test-mode flag to proceed.")
         sys.exit(1)
 
     output_dir = Path(args.output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if not output_dir.exists():
+        output_dir.mkdir(parents=True)
 
-    output_file = output_dir / "synthetic_test_data.csv"
-    manifest_file = STATE_DIR / "test_artifacts.yaml"
-
-    print(f"Generating synthetic dataset with {args.n_subjects} subjects...")
+    print(f"Generating synthetic data for {args.num_subjects} subjects...")
     df = generate_synthetic_dataset(
-        n_subjects=args.n_subjects,
-        n_trials_per_subject=args.n_trials,
-        seed=42
+        num_subjects=args.num_subjects,
+        num_trials=args.num_trials,
+        seed=args.seed
     )
 
-    # Save to CSV
+    output_file = output_dir / "synthetic_test_data.csv"
     df.to_csv(output_file, index=False)
     print(f"Saved synthetic data to: {output_file}")
 
-    # Hash the file
-    file_hash = hash_file_content(str(output_file))
+    # Generate manifest for state tracking
+    manifest_path = "state/test_artifacts.yaml"
+    artifacts_list = [{"path": str(output_file)}]
+    write_test_artifacts_manifest(artifacts_list, manifest_path)
+    print(f"Generated test artifacts manifest at: {manifest_path}")
 
-    # Write manifest
-    artifacts_list = [
-        {
-            "path": str(output_file.relative_to(PROJECT_ROOT)),
-            "hash": file_hash,
-            "type": "synthetic_test_data"
-        }
-    ]
-    write_test_artifacts_manifest(artifacts_list, str(manifest_file))
-    print(f"Test artifacts manifest written to: {manifest_file}")
-    print("WARNING: This data is synthetic and marked for testing only. Do not use for analysis.")
+    print("Test data generation complete.")
 
 if __name__ == "__main__":
     main()

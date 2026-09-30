@@ -1,17 +1,20 @@
 seeds:
   random: 42
   numpy: 42
+
 thresholds:
-  min_trials_per_subject: 20
-  vif_threshold: 5.0
-  missing_data_exclusion_pct: 0.30
-  lowpass_cutoff_hz: 4.0
+  correlation: 0.3
+  vif: 5.0
+  min_trials: 20
+  classification: [0.40, 0.50, 0.60]
+
 paths:
-  data_raw: data/raw
-  data_processed: data/processed
+  raw_data: data/raw
+  processed_data: data/processed
   results: results
-  logs: code/logs
-  state: state
-flags:
-  allow_aggregation: true
-  strict_mode: false
+  figures: figures
+  quality_report: results/quality_report.csv
+
+aggregation:
+  enabled: false
+  description: "If true, aggregate across subjects when trial count is low. If false, raise RuntimeError for subjects with < 20 trials."

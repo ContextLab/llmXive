@@ -1,114 +1,103 @@
-"""
-Unit tests for code/preprocessing/load_data.py
-"""
-
 import os
 import sys
-import tempfile
-import unittest
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pandas as pd
 import numpy as np
 
-# Add parent directory to path for imports
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from preprocessing.load_data import (
-    normalize_columns,
-    save_to_csv,
-    TARGET_COLUMNS,
-    REQUIRED_RAW_COLUMNS
-)
+from preprocessing.load_data import normalize_columns, load_raw_data_from_dataset
+from config import load_config
 
-class TestLoadData(unittest.TestCase):
-
-    def setUp(self):
-        """Set up test fixtures."""
-        self.test_dir = tempfile.mkdtemp()
-        self.output_path = Path(self.test_dir) / "test_output.csv"
-
-    def tearDown(self):
-        """Clean up test files."""
-        if self.output_path.exists():
-            self.output_path.unlink()
-
-    def test_normalize_columns_standard(self):
-        """Test normalization with standard column names."""
+class TestNormalizeColumns:
+    def test_normalize_columns_basic(self):
+        """Test basic column normalization."""
+        # Create a mock raw dataframe
         data = {
-            'timestamp': [1.0, 2.0, 3.0],
-            'x': [10.0, 20.0, 30.0],
-            'y': [5.0, 15.0, 25.0],
-            'pupil_diameter': [4.0, 4.1, 3.9]
+            'time': [1, 2, 3, 4, 5],
+            'x_coord': [10.0, 11.0, 12.0, 13.0, 14.0],
+            'y_coord': [20.0, 21.0, 22.0, 23.0, 24.0],
+            'pupil': [3.0, 3.1, 3.2, 3.3, 3.4]
         }
         df = pd.DataFrame(data)
-        result = normalize_columns(df)
-        
-        self.assertEqual(list(result.columns), TARGET_COLUMNS)
-        self.assertEqual(len(result), 3)
 
-    def test_normalize_columns_alternative_names(self):
-        """Test normalization with alternative column names."""
+        config = {
+            'column_mapping': {
+                'time': ['time', 'timestamp'],
+                'x': ['x_coord', 'x'],
+                'y': ['y_coord', 'y'],
+                'pupil': ['pupil', 'pupil_diameter']
+            }
+        }
+
+        result = normalize_columns(df, config)
+
+        # Check that standard columns exist
+        assert 'timestamp' in result.columns
+        assert 'x' in result.columns
+        assert 'y' in result.columns
+        assert 'pupil_diameter' in result.columns
+
+        # Check values are preserved
+        assert result['timestamp'].tolist() == [1, 2, 3, 4, 5]
+        assert result['x'].tolist() == [10.0, 11.0, 12.0, 13.0, 14.0]
+
+    def test_normalize_columns_missing_data(self):
+        """Test handling of missing data in normalization."""
         data = {
-            'time': [1.0, 2.0, 3.0],
-            'x_pos': [10.0, 20.0, 30.0],
-            'y_pos': [5.0, 15.0, 25.0],
-            'pupil_size': [4.0, 4.1, 3.9]
+            'time': [1, None, 3],
+            'x': [10.0, None, 12.0],
+            'y': [20.0, 21.0, 22.0],
+            'pupil_diameter': [3.0, None, 3.2]
         }
         df = pd.DataFrame(data)
-        result = normalize_columns(df)
-        
-        self.assertEqual(list(result.columns), TARGET_COLUMNS)
-        # Verify values are preserved
-        np.testing.assert_array_equal(result['timestamp'], data['time'])
-        np.testing.assert_array_equal(result['pupil_diameter'], data['pupil_size'])
 
-    def test_normalize_columns_nan_handling(self):
-        """Test that rows with NaN in critical columns are dropped."""
+        config = {
+            'column_mapping': {
+                'time': ['time'],
+                'x': ['x'],
+                'y': ['y'],
+                'pupil': ['pupil_diameter']
+            }
+        }
+
+        result = normalize_columns(df, config)
+
+        # Should drop rows with missing critical data
+        assert len(result) == 2
+
+    def test_normalize_columns_invalid_names(self):
+        """Test error when required columns cannot be found."""
         data = {
-            'timestamp': [1.0, np.nan, 3.0],
-            'x': [10.0, 20.0, 30.0],
-            'y': [5.0, 15.0, np.nan],
-            'pupil_diameter': [4.0, 4.1, 3.9]
+            'wrong_time': [1, 2, 3],
+            'wrong_x': [10.0, 11.0, 12.0],
+            'wrong_y': [20.0, 21.0, 22.0],
+            'wrong_pupil': [3.0, 3.1, 3.2]
         }
         df = pd.DataFrame(data)
-        result = normalize_columns(df)
-        
-        # Row 1 has NaN in timestamp, Row 2 has NaN in y
-        # Both should be dropped.
-        self.assertEqual(len(result), 0)
 
-    def test_save_to_csv(self):
-        """Test saving DataFrame to CSV."""
-        data = {
-            'timestamp': [1.0, 2.0],
-            'x': [10.0, 20.0],
-            'y': [5.0, 15.0],
-            'pupil_diameter': [4.0, 4.1]
+        config = {
+            'column_mapping': {
+                'time': ['time'],
+                'x': ['x'],
+                'y': ['y'],
+                'pupil': ['pupil_diameter']
+            }
         }
-        df = pd.DataFrame(data)
-        
-        save_to_csv(df, self.output_path)
-        
-        self.assertTrue(self.output_path.exists())
-        
-        # Read back and verify
-        loaded_df = pd.read_csv(self.output_path)
-        self.assertEqual(list(loaded_df.columns), TARGET_COLUMNS)
-        np.testing.assert_array_equal(loaded_df['timestamp'], df['timestamp'])
 
-    def test_normalize_columns_missing_required(self):
-        """Test that normalization raises error if required columns are missing."""
-        data = {
-            'timestamp': [1.0, 2.0],
-            'x': [10.0, 20.0],
-            # Missing y and pupil_diameter
-        }
-        df = pd.DataFrame(data)
-        
-        with self.assertRaises(ValueError):
-            normalize_columns(df)
+        with pytest.raises(ValueError):
+            normalize_columns(df, config)
 
-if __name__ == '__main__':
-    unittest.main()
+class TestConfigLoading:
+    def test_config_structure(self):
+        """Test that config.yaml has required structure."""
+        config_path = Path(__file__).parent.parent / "config.yaml"
+        if config_path.exists():
+            config = load_config(config_path)
+            assert 'paths' in config
+            assert 'processed' in config['paths']
+            assert 'datasets' in config
+        else:
+            pytest.skip("config.yaml not found")

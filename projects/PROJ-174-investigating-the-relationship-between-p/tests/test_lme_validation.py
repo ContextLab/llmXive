@@ -1,53 +1,60 @@
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import sys
 import os
+import sys
+from pathlib import Path
+from unittest.mock import patch
 
-# Add parent to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-from analysis.lme_model import validate_sufficient_trials
+from analysis.lme_model import validate_sufficient_trials, mitigate_collinearity, handle_unfulfillable_predictors
 
-def test_validate_sufficient_trials_pass():
-    """Test that valid data passes validation."""
-    df = pd.DataFrame({
-        'subject_id': [1, 1, 1, 2, 2, 2],
-        'trial': [1, 2, 3, 1, 2, 3]
+@pytest.fixture
+def mock_df():
+    return pd.DataFrame({
+        'subject_id': ['S1', 'S1', 'S1', 'S2', 'S2', 'S2', 'S2'],
+        'search_time': [1.2, 1.5, 1.3, 2.0, 2.1, 2.2, 2.3],
+        'pupil_diameter': [3.1, 3.2, 3.1, 4.0, 4.1, 4.2, 4.3]
     })
-    # 2 trials per subject, min is 2 -> should pass
-    validate_sufficient_trials(df, subject_col='subject_id', min_trials=2)
 
-def test_validate_sufficient_trials_fail():
-    """Test that insufficient data raises RuntimeError."""
-    df = pd.DataFrame({
-        'subject_id': [1, 1, 2, 2],
-        'trial': [1, 2, 1, 2]
+@pytest.fixture
+def mock_df_low_trials():
+    return pd.DataFrame({
+        'subject_id': ['S1', 'S1', 'S2', 'S2', 'S2'],
+        'search_time': [1.2, 1.5, 2.0, 2.1, 2.2],
+        'pupil_diameter': [3.1, 3.2, 4.0, 4.1, 4.2]
     })
-    # 2 trials per subject, min is 3 -> should fail
-    with pytest.raises(RuntimeError, match="Subject validation failed"):
-        validate_sufficient_trials(df, subject_col='subject_id', min_trials=3)
 
-def test_validate_sufficient_trials_aggregation():
-    """Test that aggregation flag allows failure."""
-    df = pd.DataFrame({
-        'subject_id': [1, 1, 2, 2],
-        'trial': [1, 2, 1, 2]
-    })
-    # Should not raise, but log warning
-    try:
-        validate_sufficient_trials(
-            df, 
-            subject_col='subject_id', 
-            min_trials=3, 
-            allow_aggregation=True
-        )
-    except RuntimeError:
-        pytest.fail("Validation should not raise when allow_aggregation is True")
+def test_validate_sufficient_trials_pass(mock_df):
+    """Test that validation passes when all subjects have >= 20 trials (mocked threshold)."""
+    # In real scenario, we would have 20+ trials. Here we test the logic with a lower threshold
+    # by passing a custom min_trials.
+    assert validate_sufficient_trials(mock_df, min_trials=2, aggregation_enabled=False) == True
 
-def test_validate_missing_subject_column():
-    """Test that missing subject column raises ValueError."""
-    df = pd.DataFrame({'trial': [1, 2, 3]})
-    with pytest.raises(ValueError, match="Subject column"):
-        validate_sufficient_trials(df, subject_col='nonexistent')
+def test_validate_sufficient_trials_fail(mock_df_low_trials):
+    """Test that validation fails when a subject has < 20 trials."""
+    with pytest.raises(RuntimeError, match="Subject S1 has < 20 trials"):
+        validate_sufficient_trials(mock_df_low_trials, min_trials=3, aggregation_enabled=False)
+
+def test_validate_sufficient_trials_aggregation_enabled(mock_df_low_trials):
+    """Test that validation passes when aggregation is enabled."""
+    assert validate_sufficient_trials(mock_df_low_trials, min_trials=3, aggregation_enabled=True) == True
+
+def test_mitigate_collinearity_no_reduction(mock_df):
+    """Test that no predictor is dropped if VIF is low."""
+    predictors = ['search_time']
+    remaining, dropped = mitigate_collinearity(mock_df, predictors, threshold=5.0)
+    assert dropped is None
+    assert remaining == predictors
+
+def test_handle_unfulfillable_predictors(mock_df):
+    """Test handling of predictors with NA values."""
+    # Add a column with all NA
+    df_na = mock_df.copy()
+    df_na['target_salience'] = np.nan
+    
+    usable, unfulfillable = handle_unfulfillable_predictors(df_na, ['search_time', 'target_salience'])
+    assert 'search_time' in usable
+    assert 'target_salience' in unfulfillable

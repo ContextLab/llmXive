@@ -4,16 +4,44 @@ T010:
   r: "The required artifact `tests/test_data_loader.py` does not exist on disk, so\
     \ no unit test for data loader validation is present. The task cannot be considered\
     \ completed until a non\u2011empty test file is added at the specified location."
-T034a:
+T015:
+  c: false
+  h: af854b19c0d7f0a80504b39cdc8a7692469425e66306e9bdb3af9c29dd17a1db
+  r: The provided `features.py` contains only parts of the Gabor filter implementation
+    and a stub for fixation count; it lacks logic for computing search time, handling
+    missing metadata, marking proxies as `UNFULFILLABLE`, logging exclusion reasons,
+    and writing the required `data/processed/features.csv`. Moreover, the CSV output
+    file is missing entirely. The task therefore is not satisfied.
+T016b:
+  c: false
+  h: 3d69642cc6b89828afea2fcbfec3f2b77ba341331101fbf270b0db375d7f0591
+  r: "The repository lacks a `results/correlations.csv` file, and the provided `correlations.py`\
+    \ does not contain any Benjamini\u2011Hochberg correction implementation or code\
+    \ that writes an `adj_p` column. Both the required output file and the correction\
+    \ logic are missing."
+T017:
+  c: false
+  h: 3b756df8055fc5254e0308f31339b37857ab927a625abf9407132752004d477d
+  r: The provided `filter.py` snippet shows the import of `LoggingContext` but contains
+    no visible calls to `LoggingContext.add_exclusion` or `LoggingContext.write_report`;
+    the file is truncated before any processing logic that could contain them. Moreover,
+    `results/quality_report.csv` only contains the header line and no rows with `[exclusion_type,
+    count]` data, indicating the report generation was never executed. The implementer
+    must add the required LoggingContext calls in the preprocessing flow and ensure
+    the CSV is populated with exclusion counts.
+T029:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No refactored versions of `preprocess.py` and `analysis.py` are present, and\
-    \ there is no radon cyclomatic\u2011complexity report showing all functions scoring\
-    \ below 15. The required code changes and verification output are missing."
-T035a:
+  r: "No code, script, or report file is provided that shows the ground\u2011truth\
+    \ labeling logic (median split of search time when the independent measure is\
+    \ missing) nor the required documentation of the \u201CSearch\u2011Time Estimation\u201D\
+    \ limitation or the error handling for an \u2018UNFULFILLABLE\u2019 search_time.\
+    \ The implementer\u2019s claim cannot be verified without these artifacts."
+T031:
   c: false
-  h: a037615c375062863e4b09d5e6bafceb21a6dea5d55a132b5ef9cb922b1eec7e
-  r: The `scripts/profile_memory.py` file is present, but there is no evidence that
-    it has been executed successfully (no `results/memory_profile.csv` was created)
-    and the provided code is truncated, so we cannot confirm it actually runs without
-    errors. The required output CSV is missing, indicating the task is not fully satisfied.
+  h: 7f8b6deded901571b321378ad006b9f0b1e6df3e2822d7abddd14a4629560157
+  r: "The implementer\u2019s claim cannot be verified because the required files `config.yaml`\
+    \ and `results/sensitivity_analysis.csv` are absent, so no metric tables, relative\
+    \ decrease calculations, or stability pass/fail reporting are present. The missing\
+    \ artifacts must be created and populated with the specified analysis results\
+    \ for the task to be considered complete."
