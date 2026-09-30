@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelOutputSchema
+description: Schema for model evaluation metrics and predictions.
+type: object
+required:
+  - model_type
+  - metrics
+  - predictions
+properties:
+  model_type:
+    type: string
+    enum: ["rule_based", "logistic_regression"]
+    description: Type of model generating the output
+  metrics:
+    type: object
+    required:
+      - roc_auc
+      - f1_score
+      - recall
+    properties:
+      roc_auc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Area Under the Receiver Operating Characteristic Curve
+      f1_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Harmonic mean of precision and recall
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: True Positive Rate
+  predictions:
+    type: array
+    description: Out-of-Fold (OOF) predictions for each instance
+    items:
+      type: object
+      required:
+        - instance_id
+        - prediction
+      properties:
+        instance_id:
+          type: integer
+          description: Index matching the preprocessed dataset row
+        prediction:
+          type: number
+          description: Probability score or binary prediction
+  cross_validation:
+    type: object
+    required:
+      - n_splits
+      - n_repeats
+      - random_state
+    properties:
+      n_splits:
+        type: integer
+        description: Number of CV folds
+      n_repeats:
+        type: integer
+        description: Number of repeated CV iterations
+      random_state:
+        type: integer
+        description: Random seed for reproducibility

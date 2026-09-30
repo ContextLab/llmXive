@@ -1,82 +1,117 @@
-import os
+"""
+setup_project_structure.py
+--------------------------
+
+This module creates the standard project directory hierarchy required for the
+repository to pass the T001 verification step. It ensures that the following
+directories exist (creating them if necessary) and places a ``.gitkeep`` file
+inside each to keep empty directories under version control:
+
+- code/
+- data/
+- data/raw/
+- data/processed/
+- data/consent/
+- tests/
+
+It also creates a non‑empty ``README.md`` at the repository root if one does
+not already exist.
+
+The script can be executed directly:
+
+    python code/setup_project_structure.py
+
+which will perform the setup and log the actions performed.
+"""
+
+import logging
 from pathlib import Path
-from config import get_project_root, get_raw_data_dir, get_processed_data_dir, get_consent_dir, get_specs_dir, get_contracts_dir, get_figures_dir
+
+from config import (
+    get_project_root,
+    get_code_dir,
+    get_data_dir,
+    get_raw_data_dir,
+    get_processed_data_dir,
+    get_consent_dir,
+    get_tests_dir,
+)
 from logging_config import setup_logging, get_logger
 
-def create_directories():
-    """
-    Create the project directory hierarchy:
-    - code/
-    - data/raw/
-    - data/processed/
-    - data/consent/
-    - data/results/ (implied by get_results_dir usage elsewhere, ensuring it exists)
-    - figures/
-    - tests/
-    - specs/ (already exists per task description, but we ensure it)
-    - contracts/ (already exists per task description, but we ensure it)
-    
-    Also creates a .gitkeep in data directories to ensure they are tracked by git.
-    """
-    logger = get_logger()
-    logger.info("Starting directory structure creation...")
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
 
-    project_root = get_project_root()
-    
-    # Define directories to create
-    # We use the helper functions from config.py to ensure consistency
-    # Note: get_project_root returns the root, so we construct sub-paths relative to it
-    # if the helpers don't return absolute paths including the root.
-    # Based on typical usage, these helpers return Path objects relative to project root or absolute.
-    # Let's assume they return absolute paths or paths relative to project_root.
-    # To be safe, we will resolve them against project_root if they are relative.
-    
-    dirs_to_create = [
-        get_project_root() / "code",
-        get_project_root() / "data" / "raw",
-        get_project_root() / "data" / "processed",
-        get_project_root() / "data" / "consent",
-        get_project_root() / "data" / "results",
-        get_project_root() / "figures",
-        get_project_root() / "tests",
-        get_project_root() / "specs",
-        get_project_root() / "contracts",
+
+def _ensure_dir(path: Path) -> None:
+    """
+    Ensure a directory exists and contains a ``.gitkeep`` file.
+
+    Parameters
+    ----------
+    path: Path
+        The directory to create.
+    """
+    path.mkdir(parents=True, exist_ok=True)
+    gitkeep = path / ".gitkeep"
+    # Touch the file; ``exist_ok=True`` avoids overwriting if it already exists.
+    gitkeep.touch(exist_ok=True)
+
+
+def create_directories() -> None:
+    """
+    Create the required project directory hierarchy.
+
+    The function is idempotent – running it multiple times will not raise
+    errors and will leave the directory layout unchanged.
+    """
+    logger = get_logger(__name__)
+
+    # List of directories to create
+    dirs = [
+        get_project_root(),
+        get_code_dir(),
+        get_data_dir(),
+        get_raw_data_dir(),
+        get_processed_data_dir(),
+        get_consent_dir(),
+        get_tests_dir(),
     ]
-    
-    # Ensure specific data subdirs exist via config helpers if they exist, 
-    # otherwise rely on the list above.
-    # The config helpers likely return absolute paths or paths relative to project root.
-    # We will just create the explicit list above.
-    
-    created_count = 0
-    for dir_path in dirs_to_create:
-        dir_path = Path(dir_path)
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            logger.debug(f"Directory already exists: {dir_path}")
-        
-        # Create .gitkeep in data subdirectories
-        if dir_path.parent.name == "data" or dir_path.name == "data":
-            gitkeep = dir_path / ".gitkeep"
-            if not gitkeep.exists():
-                gitkeep.touch()
-                logger.info(f"Created .gitkeep in: {dir_path}")
 
-    logger.info(f"Directory structure creation complete. {created_count} new directories created.")
-    return True
+    for d in dirs:
+        _ensure_dir(Path(d))
+        logger.info("Ensured directory exists: %s", d)
 
-def main():
-    setup_logging()
-    success = create_directories()
-    if success:
-        print("Project structure created successfully.")
-        return 0
+    # Ensure a non‑empty README.md at the repository root
+    readme_path = Path(get_project_root()) / "README.md"
+    if not readme_path.is_file():
+        readme_content = (
+            "# Project Title\\n"
+            "\\n"
+            "This repository contains the implementation of the "
+            "`the-impact-of-text-message-tone-on-perce` study.  The "
+            "project structure was generated automatically by "
+            "`setup_project_structure.py`.\\n"
+        )
+        readme_path.write_text(readme_content, encoding="utf-8")
+        logger.info("Created README.md at %s", readme_path)
     else:
-        print("Failed to create project structure.")
-        return 1
+        logger.info("README.md already exists at %s", readme_path)
+
+
+# ----------------------------------------------------------------------
+# Entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Entry point for ``python code/setup_project_structure.py``.
+    """
+    setup_logging()
+    logger = get_logger(__name__)
+    logger.info("Starting project structure setup")
+    create_directories()
+    logger.info("Project structure setup complete")
+
 
 if __name__ == "__main__":
-    exit(main())
+    main()

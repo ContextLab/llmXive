@@ -77,9 +77,9 @@
  3. Punctuation-Dominant: `{"emoji": 0.2, "punctuation": 0.6, "length": 0.2}`
  **Verification**: JSON file exists with exact numeric weights as specified. *Maps to FR‑005*.
 
-- [ ] T090b **(Synthetic Power‑Analysis Datasets)** Generate synthetic datasets for power analysis (`data/processed/synthetic_power_datasets.zip`). **Depends on: T090**. **Verification**: Zip contains datasets with N=60, effect size 0.25, random‑effects structure (Participant, Stimulus). *Supports FR‑002*.
+- [ ] T090b **(Synthetic Power‑Analysis Datasets)** Generate synthetic datasets for power analysis (`data/processed/synthetic_power_datasets.zip`). **Depends on: T090**. **Verification**: Zip contains datasets with N=60, effect size 0.25, random‑effects structure (Participant, Stimulus). [UNRESOLVED-CLAIM: c_3f374191 — status=not_enough_info] *Supports FR‑002*.
 
-- [ ] T091 **(Run Power‑Analysis Simulation)** Execute `code/00_run_power_simulation.py` using the synthetic datasets to produce `data/processed/power_analysis_results.json`. **Depends on: T090b**. **Verification**: JSON includes keys `estimated_power`, `target_N`, `method` and `estimated_power` ≥ 0.80. *Maps to FR‑002*.
+- [ ] T091 **(Run Power‑Analysis Simulation)** Execute `code/00_run_power_simulation.py` using the synthetic datasets to produce `data/processed/power_analysis_results.json`. **Depends on: T090b**. **Verification**: JSON includes keys `estimated_power`, `target_N`, `method` and `estimated_power` ≥ 0.80. [UNRESOLVED-CLAIM: c_a8b9e08b — status=not_enough_info] *Maps to FR‑002*.
 
 - [ ] T091-ValidateScript **(Power‑Analysis Validation Script)** Implement `code/00_validate_power.py` that checks the JSON for required keys and thresholds. **Verification**: Script exits with error if `estimated_power` < 0.80 or `target_N` < 60.
 
@@ -89,7 +89,7 @@
 
 ## Phase 1: Stimulus Generation & Data Collection (User Story 1 – P1)
 
-- [~] T013 **(Stimulus Generation)** Implement factorial generator `code/01_generate_stimuli.py` producing `data/raw/stimuli.csv` with columns `id,text,emoji_count,punctuation_type,length_category,scenario_id,cue_intensity`. **Depends on: T001, T005, T090**. **Verification**: `python code/01_generate_stimuli.py --verify` exits 0 confirming uniqueness of all feature combinations.
+- [ ] T013 **(Stimulus Generation)** Implement factorial generator `code/01_generate_stimuli.py` producing `data/raw/stimuli.csv` with columns `id,text,emoji_count,punctuation_type,length_category,scenario_id,cue_intensity`. **Depends on: T001, T005, T090**. **Verification**: `python code/01_generate_stimuli.py --verify` exits 0 confirming uniqueness of all feature combinations.
 
 - [ ] T014 **(Counterbalancing)** Create `code/02_counterbalance.py` that assigns **every** stimulus to **both** relationship contexts ("friend" and "acquaintance") for **every** participant, ensuring a fully within-subjects design. Output `data/processed/counterbalanced_trials.csv`. **Depends on: T013**. **Verification**: Row counts per stimulus per context are correct; test `tests/contract/test_counterbalance.py` passes, explicitly checking that the number of rows corresponds to the product of N_participants, N_stimuli, and the required trial structure per participant.
 
@@ -135,7 +135,7 @@
 
 - [ ] T021 **(Primary LMM Fit)** Fit a Linear Mixed‑Effects Model using `statsmodels.MixedLM` in `code/04_fit_lmm.py` with formula `rating ~ relationship * cue_intensity + (1|participant_id) + (1|stimulus_id)`. **Method**: Use **Wald-Z** approximation for degrees of freedom as `statsmodels` does not support Satterthwaite. This is the standard Python-native approach for this stack, as now formally amended in the plan. Output `data/results/lmm_summary.csv` containing `fixed_effect,estimate,stderr,z_value,p_value`. **Depends on: T020**. **Verification**: CSV present; test `tests/contract/test_lmm_summary_schema.py` passes.
 
-- [ ] T021-DocumentMethod **(Methodological Limitation Document)** Create `data/results/methodological_limitations.md` explicitly stating: "The analysis uses the Wald-Z approximation for degrees of freedom. [UNRESOLVED-CLAIM: c_40a089ae — status=not_enough_info] The original Spec (FR-003) and Plan (Phase 3) requested Satterthwaite approximation; however, the Python-only stack (Plan Phase 3) restricts us to `statsmodels`, which only provides Wald-Z. The Plan and Spec have been formally amended to reflect this constraint." **Depends on: T021-AmendPlan, T021**.
+- [ ] T021-DocumentMethod **(Methodological Limitation Document)** Create `data/results/methodological_limitations.md` explicitly stating: "The analysis uses the Wald-Z approximation for degrees of freedom. The original Spec (FR-003) and Plan (Phase 3) requested Satterthwaite approximation; however, the Python-only stack (Plan Phase 3) restricts us to `statsmodels`, which only provides Wald-Z. The Plan and Spec have been formally amended to reflect this constraint." **Depends on: T021-AmendPlan, T021**.
 
 - [ ] T024 **(Tukey‑Corrected Post‑hoc)** Implement `code/05_posthoc.py` to run Tukey HSD on interaction marginal means when the interaction term is significant (p < 0.05). Always generate `data/results/posthoc_tukey.csv` with a `significant` flag. **Depends on: T021**. **Verification**: Schema validated by `tests/contract/test_posthoc_schema.py`.
 

@@ -1,0 +1,61 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MolecularToxicityDataset
+description: Schema for the preprocessed molecular toxicity dataset used in the pipeline.
+type: object
+required:
+  - metadata
+  - records
+properties:
+  metadata:
+    type: object
+    required:
+      - source
+      - assay_id
+      - assay_type
+      - total_compounds
+      - processed_at
+      - checksum
+    properties:
+      source:
+        type: string
+        description: Origin of the dataset (e.g., 'PubChem', 'ToxCast')
+      assay_id:
+        type: string
+        description: Specific assay identifier (e.g., 'AID1851')
+      assay_type:
+        type: string
+        description: Type of assay (e.g., 'Ames', 'Mutagenicity')
+      total_compounds:
+        type: integer
+        minimum: 1000
+        description: Number of valid compounds after preprocessing
+      processed_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of processing
+      checksum:
+        type: string
+        description: SHA-256 checksum of the raw data source
+  records:
+    type: array
+    description: List of molecular records
+    items:
+      type: object
+      required:
+        - smiles
+        - label
+        - molecular_weight
+      properties:
+        smiles:
+          type: string
+          description: Canonical SMILES string
+        label:
+          type: integer
+          enum: [0, 1]
+          description: Binary toxicity label (0: inactive, 1: active)
+        molecular_weight:
+          type: number
+          description: Molecular weight in Daltons
+        instance_id:
+          type: integer
+          description: Unique row index in the preprocessed dataset

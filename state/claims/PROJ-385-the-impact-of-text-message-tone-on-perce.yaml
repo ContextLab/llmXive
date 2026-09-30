@@ -3397,3 +3397,268 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-03T16:50:19Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: cue intensity weights equal 0.33 0.33 0.34; emoji-dominant 0.6 0.2 0.2;
+    punctuation-dominant 0.2 0.6 0.2
+  claim_id: c_3a70122c
+  context: The task T090 specifies the creation of a JSON file with three weighting
+    schemes for cue intensity, each defined by precise numeric values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create `data/processed/cue_intensity_weights.json` containing three weighting
+    dictionaries with exact numeric values: 1. Equal: {"emoji": 0.33, "punctuation":
+    0.33, "length": 0.34} 2. Emoji-Dominant: {"emoji": 0.6, "punctuation": 0.2, "length":
+    0.2} 3. Punctuation-Dominant: {"emoji": 0.2, "punctuation": 0.6, "length": 0.2}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:49:17Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: synthetic power analysis datasets have N=60 and effect size 0.25
+  claim_id: c_d3e45eb9
+  context: Task T090b describes the production of synthetic datasets used for power
+    analysis, stating the sample size and effect size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate synthetic datasets for power analysis (`data/processed/synthetic_power_datasets.zip`).\
+    \ Zip contains datasets with N=60, effect size 0.25, random\u2011effects structure\
+    \ (Participant, Stimulus)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:49:47Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: statsmodels MixedLM does not support Satterthwaite approximation
+  claim_id: c_f929a487
+  context: "Task T021 notes that the linear mixed\u2011effects model will employ the\
+    \ Wald\u2011Z approximation because the statsmodels library lacks Satterthwaite\
+    \ support."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statsmodels_MixedLM_does_not_support_Satterthwaite_approxima
+  kind: entity_fact
+  raw_text: Use Wald-Z approximation for degrees of freedom as `statsmodels` does
+    not support Satterthwaite.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:51:48Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 0
+  canonical: statsmodels MixedLM lacks Satterthwaite support
+  claim_id: c_a5220ef3
+  context: The methodological amendment notes that statsmodels.MixedLM cannot compute
+    Satterthwaite degrees of freedom.
+  evidence:
+    entailment_evidence: MixedLM does not support Satterthwaite approxima
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Statsmodels.MixedLM_does_not_support_Satterthwaite_approxima
+  kind: entity_fact
+  raw_text: statsmodels.MixedLM does not support Satterthwaite approximation
+  resolved_value: statsmodels.MixedLM does not support Satterthwaite approximation
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T00:52:24Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: estimated_power at least 0.80 in power analysis JSON
+  claim_id: c_a8b9e08b
+  context: "The power\u2011analysis simulation task (T091) verifies that the output\
+    \ JSON contains an `estimated_power` field that meets or exceeds 0.80."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Estimated_power_at_least_0.80_in_power_analysis_JSON
+  kind: magnitude
+  raw_text: "JSON includes keys `estimated_power`, `target_N`, `method` and `estimated_power`\
+    \ \u2265\u202F0.80."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:52:52Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: synthetic datasets have N=60 and effect size 0.25
+  claim_id: c_3f374191
+  context: "The synthetic power\u2011analysis datasets generated in task T090b are\
+    \ specified to contain 60 participants and an effect size of 0.25."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Zip contains datasets with N=60, effect size 0.25, random\u2011effects\
+    \ structure (Participant, Stimulus)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:53:25Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: synthetic datasets effect size 0.25
+  claim_id: c_85239660
+  context: "The synthetic power\u2011analysis datasets generated in task T090b are\
+    \ specified to have an effect size of 0.25."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect size 0.25
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:55:38Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: equal cue intensity weights 0.33 emoji 0.33 punctuation 0.34 length
+  claim_id: c_dc909af7
+  context: "Task T090 creates a JSON file with three cue\u2011intensity weighting\
+    \ dictionaries, the first being the Equal scheme with those values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Equal weighting: {"emoji": 0.33, "punctuation": 0.33, "length": 0.34}'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:55:54Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "emoji\u2011dominant cue intensity weights 0.6 emoji 0.2 punctuation\
+    \ 0.2 length"
+  claim_id: c_7dfcb8b1
+  context: "Task T090 creates a JSON file with three cue\u2011intensity weighting\
+    \ dictionaries, the second being the Emoji\u2011Dominant scheme."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Emoji\u2011Dominant weighting: {\"emoji\": 0.6, \"punctuation\": 0.2,\
+    \ \"length\": 0.2}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:56:11Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "punctuation\u2011dominant cue intensity weights 0.2 emoji 0.6 punctuation\
+    \ 0.2 length"
+  claim_id: c_e3b9d6bb
+  context: "Task T090 creates a JSON file with three cue\u2011intensity weighting\
+    \ dictionaries, the third being the Punctuation\u2011Dominant scheme."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Punctuation\u2011Dominant weighting: {\"emoji\": 0.2, \"punctuation\"\
+    : 0.6, \"length\": 0.2}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:56:11Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: three cue intensity weighting schemes
+  claim_id: c_f448c75a
+  context: Task T090 creates a JSON file containing three weighting dictionaries.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Three_cue_intensity_weighting_schemes
+  kind: entity_fact
+  raw_text: three weighting dictionaries with exact numeric values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:56:46Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "pipeline runtime \u2264 6 hours documented"
+  claim_id: c_57f52552
+  context: "Task T099 updates plan.md and README.md to include the performance phrase\
+    \ \"\u2264\u202F6\u202Fhours\"."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "documentation states \"\u2264\u202F6\u202Fhours\""
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:57:23Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: "pipeline runtime must be \u2264 21600 seconds"
+  claim_id: c_54b37bdd
+  context: Task T135 adds a runtime benchmark that causes CI to fail when total pipeline
+    execution exceeds 21600 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "benchmark fails if runtime >\u202F21600\u202Fseconds"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:57:51Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: LMM analysis uses Wald-Z approximation
+  claim_id: c_5670ca71
+  context: "Task T021 documents that the Linear Mixed\u2011Effects Model fit uses\
+    \ the Wald\u2011Z approximation due to statsmodels limitations."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LMM_analysis_uses_Wald-Z_approximation
+  kind: entity_fact
+  raw_text: "analysis uses the Wald\u2011Z approximation for degrees of freedom"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T00:59:52Z'
+- artifact_path: projects/PROJ-385-the-impact-of-text-message-tone-on-perce/specs/001-the-impact-of-text-message-tone-on-perce/tasks.md
+  attempts: 1
+  canonical: cohens_f_interaction non-negative
+  claim_id: c_3cf91b0b
+  context: "Task T133 updates the LMM summary to include a `cohens_f_interaction`\
+    \ column that must be non\u2011negative."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cohens_f_interaction_non-negative
+  kind: entity_fact
+  raw_text: "`cohens_f_interaction` column is non\u2011negative"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:04:35Z'

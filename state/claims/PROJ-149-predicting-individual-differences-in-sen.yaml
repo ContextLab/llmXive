@@ -3045,21 +3045,6 @@
   updated_at: '2026-09-03T06:30:11Z'
 - artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
   attempts: 1
-  canonical: Primary analysis uses 4-second window size
-  claim_id: c_29810114
-  context: The 4-second window is fixed for this primary run as per Spec FR-003.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The primary analysis uses a 4-second window size for PSD extraction.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-03T06:30:49Z'
-- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
-  attempts: 1
   canonical: 'EEG bands: delta, theta, alpha, low-beta, high-beta, gamma'
   claim_id: c_fd7e9ca3
   context: Aggregate power into canonical bands (delta, theta, alpha, low-beta, high-beta,
@@ -3466,3 +3451,209 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-24T01:17:18Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: PhysioNet EEG Motor Movement/Imagery Dataset used as EEG source
+  claim_id: c_679b5fd5
+  context: Create `code/download_data.py` to fetch the PhysioNet EEG Motor Movement/Imagery
+    Dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PhysioNet_EEG_Motor_Movement/Imagery_Dataset_used_as_EEG_sou
+  kind: entity_fact
+  raw_text: The PhysioNet EEG Motor Movement/Imagery Dataset is used as the source
+    for raw EEG files.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:07:48Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: 50/60 Hz notch filter applied in EEG preprocessing
+  claim_id: c_c220dad8
+  context: "Implement `code/utils/eeg_helpers.py` with band\u2011pass (low-frequency\
+    \ cutoff), notch (50/60 Hz), and variance\u2011rejection utilities."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: It is important to be able to distinguish artifacts from genuine brain
+        activity in order to prevent incorrect interpretations of EEG data. General
+        approaches for the removal of artifacts from the data are, prevention, rejection
+        and cancellation. The goal of any approach is to develop methodology capable
+        of identifying and removing artifacts without affecting the quality of the
+        EEG signal. As artifact sources are quite different the majority of researchers
+        focus on developing algorithms that will identify and remove a single type
+        of noise in the signal. Simple filtering using a notch filter is commonly
+        employed to reject components with a 50/60 Hz frequency. However such simple
+        filters are not an appropriate choice for dealing with all artifacts, as for
+        some, their frequencies will overlap with the EEG frequencies.
+      source_id: Electroencephalography
+      url: https://en.wikipedia.org/wiki/Electroencephalography
+      value: 50/60 Hz
+    filled: true
+  kind: numeric
+  raw_text: A notch filter at 50/60 Hz is applied during EEG preprocessing.
+  resolved_value: 50/60 Hz
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T01:07:58Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for 6 bands at alpha 0.0083
+  claim_id: c_bcd09879
+  context: "Apply Bonferroni correction for 6 bands (\u03B1 = 0.0083). Flag significant\
+    \ results and write `data/processed/correlations_corrected.csv`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied for 6 bands with an alpha threshold of
+    0.0083.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:10:02Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Permutation test with 10000 shuffles
+  claim_id: c_665be544
+  context: "For each of 10000 shuffles: Shuffle labels, Apply split indices, Train\
+    \ model, Predict, Compute R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test performs 10,000 shuffles to generate a null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:10:09Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis effect size based on R2 0.10
+  claim_id: c_b50e9d93
+  context: "Calculate `effect_size` (Cohen's f = sqrt(0.10 / (1-0.10))) corresponding\
+    \ to R\xB2=0.10."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The post-hoc power analysis calculates effect size (Cohen's f) corresponding\
+    \ to an R\xB2 of 0.10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:10:18Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Post-hoc power analysis targets power 0.80 at alpha 0.05
+  claim_id: c_7bef6fad
+  context: "Pass this to `statsmodels.stats.power.FTestPower.solve_power` with alpha=0.05\
+    \ to find `required_n` for power \u2265 0.80."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Post-hoc_power_analysis_targets_power_0.80_at_alpha_0.05
+  kind: magnitude
+  raw_text: The post-hoc power analysis targets a power of at least 0.80 with an alpha
+    of 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:10:29Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant exclusion if channel rejection ratio > 0.30
+  claim_id: c_bc802baf
+  context: Exclude participants if `channels_rejected_ratio > 0.30`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Participants are excluded if the ratio of rejected channels exceeds 0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:12:23Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: RT outliers defined as < 100ms or > 2000ms
+  claim_id: c_cce26a72
+  context: Parse RT logs, exclude outliers (`RT < 100ms`, `RT > 2000ms`) **BEFORE**
+    calculating the median.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RT_outliers_defined_as_%3C_100ms_or_%3E_2000ms
+  kind: entity_fact
+  raw_text: Reaction time outliers are defined as trials with RT < 100ms or RT > 2000ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:13:29Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Participant retention requires >= 70% trials remaining
+  claim_id: c_be0ad49c
+  context: "Retain participants with \u2265 70 % trials remaining."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Participant_retention_requires_%3E=_70%25_trials_remaining
+  kind: magnitude
+  raw_text: Participants are retained only if at least 70% of trials remain after
+    outlier exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:14:46Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 2
+  canonical: Primary analysis uses 4-second window size
+  claim_id: c_29810114
+  context: The 4-second window is fixed for this primary run as per Spec FR-003.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis uses a 4-second window size for PSD extraction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:15:14Z'
+- artifact_path: projects/PROJ-149-predicting-individual-differences-in-sen/specs/001-predicting-individual-differences-in-sen/tasks.md
+  attempts: 1
+  canonical: Feasibility requires continuous segment >= 5 minutes
+  claim_id: c_a6a09092
+  context: Retain ONLY participants who have at least ONE single continuous segment
+    >= 5 minutes.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feasibility_requires_continuous_segment_%3E=_5_minutes
+  kind: magnitude
+  raw_text: The feasibility check enforces a constraint of at least one continuous
+    segment of 5 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:16:12Z'

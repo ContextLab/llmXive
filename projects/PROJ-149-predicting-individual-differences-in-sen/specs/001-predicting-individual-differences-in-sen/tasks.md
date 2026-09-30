@@ -45,7 +45,7 @@ description: "Task list template for feature implementation"
 - [X] T006 [P] Implement `code/utils/stats_helpers.py` with Bonferroni correction, permutation utilities, and MDES calculations. **Depends on** T004a & T004b.
 - [X] Ta [P] Create `code/download_data.py` to fetch the PhysioNet EEG Motor Movement/Imagery Dataset.
  - **URL**: `
- - **Logic**: Use the `physionet` Python package to download raw EDF files. Verify cryptographic checksums against `checksums.txt` fetched from `. **Do not use placeholder checksums**. The script MUST fetch the `checksums.txt` from the dataset root to verify file integrity. If checksum verification fails, exit with code 1. [UNRESOLVED-CLAIM: c_57638194 — status=not_enough_info]
+ - **Logic**: Use the `physionet` Python package to download raw EDF files. Verify cryptographic checksums against `checksums.txt` fetched from `. **Do not use placeholder checksums**. The script MUST fetch the `checksums.txt` from the dataset root to verify file integrity. If checksum verification fails, exit with code 1.
  - **Output**: `data/raw/eegmmidb/` and `data/interim/data_source_manifest.json` (containing file paths and verified hashes).
  - **Dependencies**: T001a, T001b, T003.
 - [X] T007b [P] Create `code/01_download_rt_data.py` to fetch the Simple Reaction Time dataset (Dataset ID: **ds000224**, Source: OpenNeuro).

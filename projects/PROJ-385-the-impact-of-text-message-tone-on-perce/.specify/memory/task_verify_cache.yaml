@@ -44,13 +44,11 @@ T010a:
     must be added for the task to be considered complete.
 T013:
   c: false
-  h: 6ab4d39b5729023726c2f6512b39c27841196c75d709f467d80902775711997d
-  r: "The required output file `data/raw/stimuli.csv` does not exist, so the generator\u2019\
-    s primary artifact is missing. Consequently the verification step cannot succeed,\
-    \ and the task\u2019s deliverable is not satisfied. The next implementer must\
-    \ ensure the script creates the CSV with the specified columns and that `python\
-    \ code/01_generate_stimuli.py --verify` runs successfully, confirming uniqueness\
-    \ of all combinations."
+  h: 1030ebdf9ffb8b256df36283544e586bccbb293cd70553aae56d22e3f28c0f3c
+  r: "The repository contains the generator script, but the required output file `data/raw/stimuli.csv`\
+    \ is missing, and there is no evidence that the script runs with `--verify` to\
+    \ confirm unique feature combinations. The task\u2019s core deliverable has not\
+    \ been produced."
 T014:
   c: false
   h: cbc0040203ebfa5b5fa3c47142d02c81994bb1f478da4458bcf2107943300509

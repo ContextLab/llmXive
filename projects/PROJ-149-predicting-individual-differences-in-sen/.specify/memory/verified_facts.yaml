@@ -1,6 +1,14 @@
-'|cv fold perform':
-  quote: cross-validation across both backbones, totaling 180 trained models, and
-    (ii)
-  source_id: '2604.10702'
-  url: https://arxiv.org/abs/2604.10702
-  value: '180'
+60|applied during eeg filter hz notch preprocessing:
+  quote: It is important to be able to distinguish artifacts from genuine brain activity
+    in order to prevent incorrect interpretations of EEG data. General approaches
+    for the removal of artifacts from the data are, prevention, rejection and cancellation.
+    The goal of any approach is to develop methodology capable of identifying and
+    removing artifacts without affecting the quality of the EEG signal. As artifact
+    sources are quite different the majority of researchers focus on developing algorithms
+    that will identify and remove a single type of noise in the signal. Simple filtering
+    using a notch filter is commonly employed to reject components with a 50/60 Hz
+    frequency. However such simple filters are not an appropriate choice for dealing
+    with all artifacts, as for some, their frequencies will overlap with the EEG frequencies.
+  source_id: Electroencephalography
+  url: https://en.wikipedia.org/wiki/Electroencephalography
+  value: 50/60 Hz

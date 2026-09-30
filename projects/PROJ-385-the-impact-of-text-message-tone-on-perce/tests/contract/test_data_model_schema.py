@@ -1,56 +1,39 @@
-"""
-tests/contract/test_data_model_schema.py
+"""Test that the data‑model validation script runs successfully.
 
-Contract test to verify that the data-model.md file matches the required schema.
-This test imports and runs the verification logic from code/verify_data_model.py.
+The script should exit with status code ``0`` and produce a validation
+report that states all required entities are present.
 """
 
-import sys
-import os
 import subprocess
+import sys
 from pathlib import Path
 
-# Add the code directory to the path so we can import the script logic if needed,
-# or we can just run the script as a subprocess to ensure it's executable.
-# Given the task requirement to "import the verification script", we will do both:
-# 1. Ensure the script can be imported (syntax check)
-# 2. Run the script to validate the file content.
 
-CODE_DIR = Path(__file__).resolve().parent.parent.parent / "code"
-SCRIPT_PATH = CODE_DIR / "verify_data_model.py"
+def _project_root() -> Path:
+    """Return the repository root (two levels up from this test file)."""
+    return Path(__file__).resolve().parents[2]
 
-def test_data_model_script_imports():
-    """Test that the verification script is syntactically valid and can be imported."""
-    try:
-        # We need to add the code dir to sys.path to import it as a module
-        sys.path.insert(0, str(CODE_DIR))
-        import verify_data_model
-        assert hasattr(verify_data_model, 'main')
-        assert hasattr(verify_data_model, 'validate_schema')
-        assert hasattr(verify_data_model, 'extract_entities_from_markdown')
-    except ImportError as e:
-        raise AssertionError(f"Failed to import verify_data_model: {e}")
-    finally:
-        # Clean up
-        if str(CODE_DIR) in sys.path:
-            sys.path.remove(str(CODE_DIR))
 
-def test_data_model_validation():
-    """
-    Run the verification script to ensure the data-model.md file is valid.
-    This executes the script as a subprocess to capture the exit code and output.
-    """
+def test_verify_data_model_script():
+    """Execute ``code/verify_data_model.py`` and check its output."""
+    script_path = _project_root() / "code" / "verify_data_model.py"
+    # Run the script in a subprocess so we can inspect the exit code.
     result = subprocess.run(
-        [sys.executable, str(SCRIPT_PATH)],
+        [sys.executable, str(script_path)],
         capture_output=True,
-        text=True
+        text=True,
     )
-    
-    # The script should exit with 0 if valid, 1 if invalid
+    # The script must exit cleanly.
     assert result.returncode == 0, (
-        f"Data model validation failed.\n"
-        f"STDOUT:\n{result.stdout}\n"
-        f"STDERR:\n{result.stderr}"
+        f"Verification script failed (exit {result.returncode}).\\n"
+        f"stderr: {result.stderr}"
     )
-    
-    assert "SUCCESS" in result.stdout, "Expected 'SUCCESS' in output but not found."
+
+    # Verify that the validation report was created and contains the success line.
+    report_path = _project_root() / "data" / "validation_report.txt"
+    assert report_path.is_file(), "validation_report.txt was not created."
+    report_content = report_path.read_text(encoding="utf-8")
+    assert "All expected entities are present" in report_content, (
+        "Report does not indicate successful validation.\\n"
+        f"Report content: {report_content}"
+    )

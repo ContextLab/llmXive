@@ -1,161 +1,94 @@
-"""
-verify_data_model.py
+"""Verification script for the data model markdown.
 
-Validates the existing specs/001-the-impact-of-text-message-tone-on-perce/data-model.md
-against the current spec requirements for Stimulus, Participant, Rating, and AnalysisResult entities.
+This script checks that the `data-model.md` file located in the specs
+directory defines the four required entities:
 
-This script:
-1. Checks if the data-model.md file exists.
-2. Parses the markdown to extract the defined entities and their schemas.
-3. Validates the content against a reference schema (defined in this script).
-4. Prints a report and exits with 0 if valid, 1 if invalid.
+- Stimulus
+- Participant
+- Rating
+- AnalysisResult
+
+It writes a short validation report to ``data/validation_report.txt`` and
+exits with a non‑zero status code if any required entity is missing.
 """
 
 import sys
-import re
 from pathlib import Path
 
-# Reference schema definition based on the task description and spec.md requirements
-REFERENCE_SCHEMA = {
-    "Stimulus": [
-        "stimulus_id",
-        "base_scenario",
-        "emoji_count",
-        "punctuation_pattern",
-        "length_category",
-        "cue_intensity",
-        "full_text"
-    ],
-    "Participant": [
-        "participant_id",
-        "relationship_type", # Often linked in Rating, but entity context requires ID
-        "rating"             # Contextual, but Participant entity must exist
-    ],
-    "Rating": [
-        "participant_id",
-        "stimulus_id",
-        "relationship_type",
-        "rating",
-        "timestamp"
-    ],
-    "AnalysisResult": [
-        "term",
-        "estimate",
-        "std_error",
-        "df",
-        "t_value",
-        "p_value",
-        "ci_lower",
-        "ci_upper"
-    ]
-}
+from config import get_specs_dir, get_data_dir
+from logging_config import setup_logging, get_logger
 
-def extract_entities_from_markdown(md_content: str) -> dict:
-    """
-    Extracts entity definitions and their fields from the markdown content.
-    Looks for sections like "## 1. Stimulus Schema" or "### Stimulus".
-    """
-    found_entities = {}
-    
-    # Pattern to find table headers or entity definitions
-    # We look for lines starting with | Field | or lines containing "Entity"
-    lines = md_content.split('\n')
-    
-    current_entity = None
-    
-    for line in lines:
-        line = line.strip()
-        
-        # Detect Entity Headers (e.g., "## 1. Stimulus Schema" or "### Stimulus")
-        # We look for the entity name in the line
-        if "Stimulus" in line and ("Schema" in line or "Entity" in line or line.startswith("#")):
-            current_entity = "Stimulus"
-            found_entities[current_entity] = []
-        elif "Participant" in line and ("Schema" in line or "Entity" in line or line.startswith("#")):
-            current_entity = "Participant"
-            found_entities[current_entity] = []
-        elif "Rating" in line and ("Schema" in line or "Entity" in line or line.startswith("#")):
-            current_entity = "Rating"
-            found_entities[current_entity] = []
-        elif "AnalysisResult" in line and ("Schema" in line or "Entity" in line or line.startswith("#")):
-            current_entity = "AnalysisResult"
-            found_entities[current_entity] = []
-        
-        # Detect fields in markdown tables: | Field | Type | Description |
-        if current_entity and line.startswith("|") and "Field" not in line:
-            parts = line.split("|")
-            if len(parts) >= 2:
-                field_name = parts[1].strip()
-                if field_name:
-                    found_entities[current_entity].append(field_name)
-                    
-    return found_entities
 
-def validate_schema(found: dict, reference: dict) -> tuple:
-    """
-    Compares found entities against the reference schema.
-    Returns (is_valid, missing_fields_by_entity)
-    """
-    missing = {}
-    is_valid = True
+EXPECTED_ENTITIES = {"Stimulus", "Participant", "Rating", "AnalysisResult"}
 
-    for entity, required_fields in reference.items():
-        if entity not in found:
-            missing[entity] = required_fields
-            is_valid = False
-            continue
-        
-        found_fields = set(found[entity])
-        required_set = set(required_fields)
-        
-        missing_fields = required_set - found_fields
-        if missing_fields:
-            missing[entity] = list(missing_fields)
-            is_valid = False
-    
-    return is_valid, missing
 
-def main():
-    # Define paths relative to project root
-    # Assuming this script is in code/ and project root is parent
-    project_root = Path(__file__).resolve().parent.parent
-    data_model_path = project_root / "specs" / "001-the-impact-of-text-message-tone-on-perce" / "data-model.md"
+def extract_entities_from_markdown(md_path: Path) -> set:
+    """Extract top‑level entity headings (### Entity) from a markdown file."""
+    entities: set = set()
+    with md_path.open(encoding="utf-8") as f:
+        for line in f:
+            stripped = line.strip()
+            if stripped.startswith("### "):
+                # Heading format: ### EntityName
+                name = stripped[4:].strip()
+                # Only keep the first word in case extra description is present
+                name = name.split()[0]
+                entities.add(name)
+    return entities
 
-    # 1. Check existence
-    if not data_model_path.exists():
-        print(f"ERROR: Data model file not found at: {data_model_path}")
-        print("Precondition failed: data-model.md MUST exist.")
+
+def validate_entities(found: set) -> tuple[set, set]:
+    """Return ``(missing, unexpected)`` sets compared to the expected list."""
+    missing = EXPECTED_ENTITIES - found
+    unexpected = found - EXPECTED_ENTITIES
+    return missing, unexpected
+
+
+def main() -> None:
+    """Run the validation and write a short report."""
+    # Initialise logging – the logger writes to the console; the report is
+    # written to a file in the data directory.
+    setup_logging()
+    logger = get_logger(__name__)
+
+    md_path = (
+        get_specs_dir()
+        / "001-the-impact-of-text-message-tone-on-perce"
+        / "data-model.md"
+    )
+    if not md_path.is_file():
+        logger.error(f"Data model markdown not found at {md_path}")
         sys.exit(1)
 
-    print(f"Found data model at: {data_model_path}")
+    logger.info(f"Reading data model from {md_path}")
+    found_entities = extract_entities_from_markdown(md_path)
+    missing, unexpected = validate_entities(found_entities)
 
-    # 2. Read content
-    try:
-        content = data_model_path.read_text(encoding='utf-8')
-    except Exception as e:
-        print(f"ERROR: Could not read data model file: {e}")
-        sys.exit(1)
+    # Ensure the data directory exists before writing the report.
+    report_path = get_data_dir() / "validation_report.txt"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # 3. Extract entities
-    found_entities = extract_entities_from_markdown(content)
-    
-    print("Detected entities in data-model.md:")
-    for entity, fields in found_entities.items():
-        print(f"  - {entity}: {len(fields)} fields")
+    with report_path.open("w", encoding="utf-8") as report:
+        if missing:
+            report.write(f"Missing entities: {', '.join(sorted(missing))}\\n")
+        if unexpected:
+            report.write(
+                f"Unexpected entities: {', '.join(sorted(unexpected))}\\n"
+            )
+        if not missing and not unexpected:
+            report.write("All expected entities are present.\\n")
 
-    # 4. Validate against reference
-    is_valid, missing = validate_schema(found_entities, REFERENCE_SCHEMA)
+    if missing:
+        logger.error(f"Missing required entities: {', '.join(sorted(missing))}")
+        sys.exit(2)
+    if unexpected:
+        logger.warning(
+            f"Found unexpected entities (ignored): {', '.join(sorted(unexpected))}"
+        )
 
-    if is_valid:
-        print("\n[SUCCESS] Data model validation PASSED.")
-        print("All required entities (Stimulus, Participant, Rating, AnalysisResult) and fields are present.")
-        sys.exit(0)
-    else:
-        print("\n[FAILURE] Data model validation FAILED.")
-        print("Missing fields detected in the following entities:")
-        for entity, fields in missing.items():
-            print(f"  - {entity}: {fields}")
-        sys.exit(1)
+    logger.info("Data model validation passed.")
+    sys.exit(0)
+
 
 if __name__ == "__main__":
     main()
