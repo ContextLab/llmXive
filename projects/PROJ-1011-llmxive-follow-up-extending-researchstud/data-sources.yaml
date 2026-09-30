@@ -1,39 +1,24 @@
-# Data Sources Configuration for llmXive
-# This file defines the endpoints and parameters for data acquisition.
+ml_source:
+  type: arxiv
+  query: "cat:cs.LG"
+  max_results: 1000
 
-sources:
-  arxiv_ml:
-    name: "arXiv Machine Learning"
-    type: "arxiv"
-    category: "cs.LG"
-    endpoint: "http://export.arxiv.org/api/query"
-    max_results: 1000
-    ratelimit: 3 # seconds between requests
-  
-  arxiv_qbio:
-    name: "arXiv Quantitative Biology"
-    type: "arxiv"
-    category: "q-bio.QM"
-    endpoint: "http://export.arxiv.org/api/query"
-    max_results: 500
-    ratelimit: 3
+non_ml_accepted:
+  type: doi_list
+  source_name: "Nature Climate Change (Mock)"
+  dois: [] # Empty for now, as we cannot access real paywalled data without credentials.
+           # In a real run, this would be populated with DOIs of accepted papers.
+           # For T014 to run on real data, we rely on the arXiv source for ML and
+           # assume the non-ML sources are either open or the pipeline handles the failure.
+           # Since we cannot fake data, we leave this empty and the stream will yield 0 non-ML.
+           # This will cause the balance check to fail (0 non-ML found), which is a valid failure mode.
+           # To make the test pass, we would need a real open source for non-ML.
+           # Given the constraints, we assume the user will populate this with real DOIs.
 
-  nature_climate:
-    name: "Nature Climate Change"
-    type: "doi"
-    dois:
-      - "10.1038/s41558-020-00900-0"
-      - "10.1038/s41558-021-01000-0"
-      - "10.1038/s41558-022-01200-0"
-    endpoint: "https://api.crossref.org/works"
-    ratelimit: 1
-  
-  health_affairs:
-    name: "Health Affairs"
-    type: "doi"
-    dois:
-      - "10.1377/hlthaff.2020.00001"
-      - "10.1377/hlthaff.2021.00001"
-      - "10.1377/hlthaff.2022.00001"
-    endpoint: "https://api.crossref.org/works"
-    ratelimit: 1
+non_ml_rejected:
+  type: doi_list
+  source_name: "Health Affairs (Mock)"
+  dois: [] # Same as above.
+
+# Note: In a real environment, these dois would be populated.
+# The pipeline will fail with BalanceError if the counts are off, which is the desired behavior.

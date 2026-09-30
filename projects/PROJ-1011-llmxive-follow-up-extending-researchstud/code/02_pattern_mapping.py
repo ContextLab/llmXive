@@ -1,217 +1,258 @@
 """
-Pattern Mapping Module for llmXive.
+Pattern Mapping Module (T020)
 
-Implements logic to map non-ML problem statements to ML-derived ideation patterns
-using sentence-transformers embeddings.
+Implements retrieve_top_k_patterns() using sentence-transformers for CPU-tractable embeddings.
+Uses 'all-MiniLM-L6-v2' quantized model to stay within memory constraints.
 """
+
 import logging
 import json
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 
-try:
-    from sentence_transformers import SentenceTransformer
-except ImportError:
-    raise ImportError(
-        "sentence-transformers is required. Install via: pip install sentence-transformers"
-    )
-
 from utils.config import get_model_config, set_seed
-from utils.logging_config import get_logger
 
-# Constants
-DEFAULT_MODEL_NAME = "all-MiniLM-L6-v2"
-DEFAULT_QUANTIZATION = True
-DEFAULT_TOP_K = 3
-DEFAULT_SIMILARITY_THRESHOLD = 0.6
+# Configure logging
+logger = logging.getLogger(__name__)
 
-logger = get_logger(__name__)
+# Global model instance to avoid reloading
+_model_instance = None
 
-_model_cache: Optional[Any] = None
-
-
-def get_model(model_name: str = DEFAULT_MODEL_NAME, quantize: bool = DEFAULT_QUANTIZATION) -> SentenceTransformer:
+def get_model(model_name: str = "all-MiniLM-L6-v2"):
     """
-    Load or retrieve the cached sentence-transformers model.
-    Uses quantization if requested to fit within CPU memory constraints.
+    Load or retrieve the sentence-transformers model.
+    Uses CPU-optimized settings for memory constraints.
     """
-    global _model_cache
-    if _model_cache is not None:
-        return _model_cache
+    global _model_instance
+    
+    if _model_instance is not None:
+        return _model_instance
 
-    logger.info(f"Loading sentence-transformer model: {model_name} (quantize={quantize})")
     try:
-        model = SentenceTransformer(model_name)
-        if quantize:
-            # Quantize to float32 to reduce memory footprint (default is often float32,
-            # but explicit conversion ensures consistency and lower precision if needed)
-            # Note: sentence-transformers doesn't have a direct 'quantize' flag in init,
-            # but we can ensure dtype is float32 and potentially use torch.quantization if needed.
-            # For CPU tractability in this context, ensuring float32 is the primary step.
-            # If the model loads as float16 on some backends, we cast to float32 to avoid
-            # precision issues, but for memory saving on CPU, float32 is standard.
-            # To strictly reduce memory, we could use model.half() if supported, but float32 is safer for cosine sim.
-            # The task asks for 'quantized' to fit RAM. We ensure we don't load unnecessary overhead.
-            pass 
+        from sentence_transformers import SentenceTransformer
+
+        logger.info(f"Loading embedding model: {model_name}")
+        # Load with CPU optimization
+        _model_instance = SentenceTransformer(model_name, device="cpu")
         
-        _model_cache = model
-        logger.info("Model loaded successfully.")
-        return model
+        # Quantize for memory efficiency if available
+        try:
+            _model_instance.quantize()
+            logger.info("Model quantized for memory efficiency")
+        except Exception as qe:
+            logger.warning(f"Quantization failed (expected on some devices): {qe}")
+
+        logger.info("Model loaded successfully")
+        return _model_instance
+
+    except ImportError:
+        logger.error("sentence-transformers not installed. Please install: pip install sentence-transformers")
+        raise
     except Exception as e:
         logger.error(f"Failed to load model {model_name}: {e}")
         raise
 
-
-def encode_text(model: SentenceTransformer, texts: List[str], batch_size: int = 8) -> np.ndarray:
+def encode_text(model, texts: List[str]) -> np.ndarray:
     """
-    Encode a list of texts into vectors using the provided model.
+    Encode a list of texts into embeddings.
+    
+    Args:
+        model: The loaded SentenceTransformer model
+        texts: List of text strings to encode
+    
+    Returns:
+        numpy array of shape (n_texts, embedding_dim)
     """
     if not texts:
-        return np.array([])
-    
-    embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
-    # Ensure float32 for memory efficiency and consistency
-    if embeddings.dtype != np.float32:
-        embeddings = embeddings.astype(np.float32)
-    return embeddings
+        return np.empty((0, model.get_sentence_embedding_dimension()))
 
+    try:
+        embeddings = model.encode(texts, convert_to_numpy=True, show_progress_bar=False)
+        return embeddings
+    except Exception as e:
+        logger.error(f"Encoding failed: {e}")
+        raise
 
-def cosine_similarity_matrix(query_emb: np.ndarray, corpus_emb: np.ndarray) -> np.ndarray:
+def cosine_similarity_matrix(embeddings: np.ndarray, query_embeddings: np.ndarray) -> np.ndarray:
     """
     Compute cosine similarity between query embeddings and corpus embeddings.
+    
+    Args:
+        embeddings: Corpus embeddings of shape (N, D)
+        query_embeddings: Query embeddings of shape (M, D)
+    
+    Returns:
+        Similarity matrix of shape (M, N)
     """
     # Normalize embeddings
-    query_norm = query_emb / (np.linalg.norm(query_emb, axis=1, keepdims=True) + 1e-9)
-    corpus_norm = corpus_emb / (np.linalg.norm(corpus_emb, axis=1, keepdims=True) + 1e-9)
-    
-    return np.dot(query_norm, corpus_norm.T)
+    norm_corpus = embeddings / (np.linalg.norm(embeddings, axis=1, keepdims=True) + 1e-9)
+    norm_queries = query_embeddings / (np.linalg.norm(query_embeddings, axis=1, keepdims=True) + 1e-9)
 
+    # Compute cosine similarity
+    similarity = np.dot(norm_queries, norm_corpus.T)
+    return similarity
 
 def retrieve_top_k_patterns(
     problem_statement: str,
-    pattern_corpus_path: str,
-    model_name: str = DEFAULT_MODEL_NAME,
-    top_k: int = DEFAULT_TOP_K,
-    similarity_threshold: float = DEFAULT_SIMILARITY_THRESHOLD,
+    pattern_cards: List[Dict[str, Any]],
+    model_name: str = "all-MiniLM-L6-v2",
+    k: int = 5,
+    threshold: float = 0.6,
     seed: int = 42
 ) -> List[Dict[str, Any]]:
     """
-    Retrieve the top-k patterns most similar to a given problem statement.
-
+    Retrieve top-k patterns for a given problem statement based on cosine similarity.
+    
+    Logic:
+        1. Encode the problem statement.
+        2. Encode all pattern card descriptions (or titles/abstracts).
+        3. Compute cosine similarity.
+        4. Filter by threshold (>= 0.6).
+        5. Return top-k patterns sorted by similarity.
+    
     Args:
-        problem_statement: The text of the non-ML problem to match.
-        pattern_corpus_path: Path to the JSONL file containing pattern cards.
-        model_name: Name of the sentence-transformer model to use.
-        top_k: Number of top patterns to return.
-        similarity_threshold: Minimum cosine similarity required to include a pattern.
-        seed: Random seed for reproducibility.
-
+        problem_statement: The text of the problem to find patterns for.
+        pattern_cards: List of pattern card dictionaries. Must contain 'id' and 'description' (or 'abstract').
+        model_name: Sentence-transformers model name.
+        k: Number of top patterns to return.
+        threshold: Minimum cosine similarity threshold.
+        seed: Random seed for reproducibility (if needed).
+    
     Returns:
-        A list of dictionaries containing pattern metadata and similarity score.
-        Each dict has keys: 'pattern_id', 'title', 'abstract', 'similarity'.
-        Returns an empty list if no patterns meet the threshold.
+        List of pattern cards that meet the threshold, sorted by similarity (descending).
     """
     set_seed(seed)
-    
-    # Load patterns
-    patterns = []
-    path = Path(pattern_corpus_path)
-    if not path.exists():
-        logger.error(f"Pattern corpus file not found: {pattern_corpus_path}")
-        return []
 
-    logger.info(f"Loading pattern corpus from {pattern_corpus_path}")
-    with open(path, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                try:
-                    patterns.append(json.loads(line))
-                except json.JSONDecodeError:
-                    logger.warning(f"Skipping malformed JSON line in pattern corpus")
-
-    if not patterns:
-        logger.warning("No valid patterns found in corpus.")
-        return []
-
-    # Prepare corpus for embedding
-    # We assume each pattern has a 'title' and 'abstract' or 'description'
-    # We concatenate them for better semantic matching
-    corpus_texts = []
-    pattern_ids = []
-    pattern_titles = []
-    
-    for p in patterns:
-        text_parts = [p.get('title', ''), p.get('abstract', ''), p.get('description', '')]
-        full_text = " ".join(filter(None, text_parts))
-        if not full_text.strip():
-            continue
-        corpus_texts.append(full_text)
-        pattern_ids.append(p.get('id', 'unknown'))
-        pattern_titles.append(p.get('title', 'Untitled'))
-
-    if not corpus_texts:
-        logger.warning("No valid text content found in patterns.")
+    if not pattern_cards:
+        logger.warning("No pattern cards provided for retrieval.")
         return []
 
     # Load model
     model = get_model(model_name)
 
-    # Encode problem statement
-    query_emb = encode_text(model, [problem_statement])
+    # Prepare texts for encoding
+    # Prioritize 'description', fallback to 'abstract', then 'title'
+    pattern_texts = []
+    valid_indices = []
 
-    # Encode corpus
-    corpus_emb = encode_text(model, corpus_texts)
+    for idx, card in enumerate(pattern_cards):
+        text = card.get("description") or card.get("abstract") or card.get("title", "")
+        if text and text.strip():
+            pattern_texts.append(text)
+            valid_indices.append(idx)
 
-    # Compute similarities
-    similarities = cosine_similarity_matrix(query_emb, corpus_emb)[0]
+    if not pattern_texts:
+        logger.warning("No valid pattern descriptions found.")
+        return []
 
-    # Find top-k above threshold
-    results = []
-    for i, sim in enumerate(similarities):
-        if sim >= similarity_threshold:
-            results.append({
-                "pattern_id": pattern_ids[i],
-                "title": pattern_titles[i],
-                "similarity": float(sim),
-                "full_pattern": patterns[i] # Include full pattern data if needed
-            })
+    # Encode
+    query_embedding = encode_text(model, [problem_statement])[0]
+    pattern_embeddings = encode_text(model, pattern_texts)
 
-    # Sort by similarity descending
-    results.sort(key=lambda x: x["similarity"], reverse=True)
+    # Compute similarity
+    similarities = cosine_similarity_matrix(pattern_embeddings, query_embedding.reshape(1, -1))[0]
 
-    # Return top_k
-    final_results = results[:top_k]
+    # Filter by threshold
+    valid_mask = similarities >= threshold
+    valid_similarities = similarities[valid_mask]
+    valid_pattern_indices = np.array(valid_indices)[valid_mask]
 
-    logger.info(f"Retrieved {len(final_results)} patterns for problem statement (threshold={similarity_threshold})")
-    return final_results
+    if len(valid_pattern_indices) == 0:
+        logger.info(f"No patterns found above threshold {threshold} for problem: {problem_statement[:50]}...")
+        return []
 
+    # Sort by similarity (descending) and take top k
+    top_k_indices = np.argsort(valid_similarities)[::-1][:k]
+
+    result = []
+    for i in top_k_indices:
+        original_idx = valid_pattern_indices[i]
+        pattern_card = pattern_cards[original_idx]
+        pattern_card_with_score = pattern_card.copy()
+        pattern_card_with_score["similarity_score"] = float(valid_similarities[i])
+        result.append(pattern_card_with_score)
+
+    logger.info(f"Retrieved {len(result)} patterns for problem statement.")
+    return result
 
 def main():
     """
-    CLI entry point for testing pattern retrieval.
+    Main function to demonstrate pattern retrieval.
+    Reads processed corpus and pattern cards (if available), and performs retrieval.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Retrieve top-k patterns for a problem statement.")
-    parser.add_argument("--problem", type=str, required=True, help="The problem statement text.")
-    parser.add_argument("--corpus", type=str, default="data/processed/patterns.jsonl", help="Path to pattern corpus.")
-    parser.add_argument("--model", type=str, default=DEFAULT_MODEL_NAME, help="Model name.")
-    parser.add_argument("--top-k", type=int, default=DEFAULT_TOP_K, help="Number of patterns to return.")
-    parser.add_argument("--threshold", type=float, default=DEFAULT_SIMILARITY_THRESHOLD, help="Similarity threshold.")
-    
-    args = parser.parse_args()
-    
-    results = retrieve_top_k_patterns(
-        problem_statement=args.problem,
-        pattern_corpus_path=args.corpus,
-        model_name=args.model,
-        top_k=args.top_k,
-        similarity_threshold=args.threshold
-    )
-    
-    print(json.dumps(results, indent=2))
+    # Paths
+    corpus_path = Path("data/processed/corpus.jsonl")
+    patterns_path = Path("data/processed/patterns.jsonl")  # Assumed location
+    output_path = Path("data/results/pattern_mapping_sample.json")
 
+    # Load configuration
+    config = get_model_config()
+    seed = config.get("seed", 42)
+    model_name = config.get("pattern_model", "all-MiniLM-L6-v2")
+    threshold = config.get("similarity_threshold", 0.6)
+    k = config.get("top_k_patterns", 5)
+
+    set_seed(seed)
+
+    # Load corpus (problem statements)
+    if not corpus_path.exists():
+        logger.error(f"Corpus not found at {corpus_path}. Please run data acquisition first.")
+        return
+
+    problem_statements = []
+    with open(corpus_path, "r", encoding="utf-8") as f:
+        for line in f:
+            data = json.loads(line)
+            # Extract problem statement (e.g., from abstract or specific field)
+            problem_statements.append({
+                "id": data.get("id"),
+                "text": data.get("abstract") or data.get("title")
+            })
+
+    if not problem_statements:
+        logger.error("No problem statements found in corpus.")
+        return
+
+    # Load pattern cards
+    pattern_cards = []
+    if patterns_path.exists():
+        with open(patterns_path, "r", encoding="utf-8") as f:
+            for line in f:
+                pattern_cards.append(json.loads(line))
+    else:
+        logger.warning(f"Pattern cards not found at {patterns_path}. Using empty list.")
+
+    # Perform retrieval for the first few problem statements
+    results = []
+    sample_size = min(10, len(problem_statements))  # Demo on first 10
+
+    logger.info(f"Processing {sample_size} problem statements...")
+
+    for i in range(sample_size):
+        ps = problem_statements[i]
+        matched_patterns = retrieve_top_k_patterns(
+            problem_statement=ps["text"],
+            pattern_cards=pattern_cards,
+            model_name=model_name,
+            k=k,
+            threshold=threshold,
+            seed=seed
+        )
+        results.append({
+            "problem_id": ps["id"],
+            "problem_text_preview": ps["text"][:100],
+            "matched_patterns": matched_patterns
+        })
+
+    # Save results
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
+
+    logger.info(f"Pattern mapping results saved to {output_path}")
+
+    return results
 
 if __name__ == "__main__":
     main()

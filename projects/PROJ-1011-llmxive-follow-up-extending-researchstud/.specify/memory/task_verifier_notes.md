@@ -2,9 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T049** — declared artifact(s) missing/empty/invalid: tests/unit/test_streaming_logic.py
-- **T050** — declared artifact(s) missing/empty/invalid: tests/unit/test_pattern_mapping.py
-- **T051** — The required test file `tests/unit/test_evaluation_loader.py` does not exist, so the `test_blind_evaluation_metadata_stripping` implementation is missing entirely. Without this file, the assertion about metadata stripping cannot be verified.
-- **T049#1** — declared artifact(s) missing/empty/invalid: tests/unit/test_streaming_logic.py
-- **T050#1** — declared artifact(s) missing/empty/invalid: tests/unit/test_pattern_mapping.py
-- **T051#1** — The required test file `tests/unit/test_evaluation_loader.py` does not exist, so the implementation of `test_blind_evaluation_metadata_stripping` is missing entirely. Without this artifact, the task’s assertion and fixture cannot be verified.
+- **T024b** — The repository lacks `data/results/power_analysis_config.json`, and the shown portion of `code/05_statistical_analysis.py` contains no function that computes a required sample size `n` and writes it to that JSON file. Consequently the required artifact and functionality are missing.
+- **T024** — The required `data/results/power_analysis_config.json` file is missing, so the script cannot read the target sample size `n` nor assert its existence as specified. Moreover, the provided `generated_proposals.jsonl` contains only 10 entries (5 pairs) and there is no evidence in the shown code that a full generation loop reads `n` and produces exactly that many pairs with metadata stripped. The task’s core requirement is therefore not satisfied.
+- **T059** — The repository contains partially‑implemented `04_evaluation_loader.py` and `05_statistical_analysis.py` (both files are truncated and lack the logic to distribute proposals, collect expert ratings, or write the blinded pairs). Crucially, the required output `data/results/ratings_filled.csv` is absent, so the expert evaluation workflow and the expected CSV schema are not satisfied.
+- **T030** — The required `data/results/ratings_filled.csv` file is absent, so the loader cannot read any expert ratings. Moreover, the provided `code/04_evaluation_loader.py` is truncated (ends mid‑function) and does not contain a complete implementation for loading, validating, or blinding the ratings as specified. Both the essential data artifact and a functional loader are missing.

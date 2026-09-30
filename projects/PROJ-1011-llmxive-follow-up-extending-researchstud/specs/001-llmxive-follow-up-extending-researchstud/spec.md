@@ -87,10 +87,10 @@ The system must aggregate expert ratings for feasibility, bottleneck identificat
 
 ## Assumptions
 
-- The 15 ML-derived ideation patterns are sufficiently abstract to be applicable to non-ML domains like public health and climate adaptation, or their inapplicability will be detectable as a significant drop in "contextual alignment" scores.
+- A set of ML-derived ideation patterns is sufficiently abstract to be applicable to non-ML domains like public health and climate adaptation, or their inapplicability will be detectable as a significant drop in "contextual alignment" scores.
 - The dataset of abstracts (ML and non-ML) is representative of the broader research landscape in their respective fields and contains no systematic bias that would invalidate the comparison.
 - The `all-MiniLM-L6-v2` (quantized) model can operate within the 7 GB RAM limit of the GitHub Actions runner when processing the dataset in batches.
 - The expert raters recruited for the evaluation will have sufficient domain expertise in public health or climate adaptation to provide valid assessments of "feasibility" and "contextual alignment."
 - The LLM used for proposal generation (via API or local quantized model) will not introduce hallucinations that systematically bias the "bottleneck identification" metric in favor of either the pattern-guided or baseline group.
-- The 6-hour time limit on the GitHub Actions runner is sufficient to complete the embedding, generation, and statistical analysis steps, assuming efficient batching and no network latency spikes.
+- The time limit on the GitHub Actions runner is sufficient to complete the embedding, generation, and statistical analysis steps, assuming efficient batching and no network latency spikes.
 - The statistical power of the test (n=50 pairs, 3 raters per proposal) is sufficient to detect a medium effect size (Cohen's d ≈ 0.5) at α=0.05, accounting for expected inter-rater variance in creative evaluation.

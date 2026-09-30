@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-1011-llmxive-follow-up-extending-researchstud",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/04_evaluation_recruitment.py: self-declared fabricated metric \u2014 \u201c\u2026e rows (commented out or with placeholder values)         # to guide the user\u2026\u201d; code/models/pattern_card.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026., 'Transfer Learning', 'Synthetic Data'     key_components: Lis\u2026\u201d; 3 run-book script(s) missing (plan/impl path mismatch): python code/04_evaluation_loader.py; python code/05_statistical_analysis.py; python code/05_statistical_analysis.py --dry-run; 4 command(s) failed: python code/01_data_acquisition.py (rc=1); python code/02_pattern_mapping.py (rc=1); python code/02_pattern_validation.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/01_data_acquisition.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/01_data_acquisition.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/02_pattern_mapping.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/02_pattern_mapping.py\", line 11, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/02_pattern_validation.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/02_pattern_validation.py\", line 13, in <module>\n    from utils.error_handling import ValidationError\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/utils/error_handling.py\", line 5, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/03_proposal_generation.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/03_proposal_generation.py\", line 21, in <module>\n    from utils.config import set_seed, get_model_config\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/utils/config.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/04_evaluation_loader.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/04_evaluation_loader.py': [Errno 2] No such file or directory",
+    "python code/05_statistical_analysis.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/05_statistical_analysis.py': [Errno 2] No such file or directory",
+    "python code/05_statistical_analysis.py --dry-run -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-1011-llmxive-follow-up-extending-researchstud/code/05_statistical_analysis.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-30T13:14:26Z"
+}

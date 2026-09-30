@@ -4,6 +4,14 @@ import hashlib
 import logging
 from typing import Optional, Dict, Any, Tuple, List
 import numpy as np
+
+# Import torch if available for seed pinning, but handle gracefully if not installed
+try:
+    import torch
+    TORCH_AVAILABLE = True
+except ImportError:
+    TORCH_AVAILABLE = False
+
 from utils.logging_config import log_model_switch, log_memory_error, log_fallback_success, log_fallback_failure
 
 # Configuration constants for model fallback
@@ -13,10 +21,36 @@ FALLBACK_EMBEDDING_MODEL = os.getenv("FALLBACK_EMBEDDING_MODEL", "all-distilrobe
 DEFAULT_MAX_MEMORY_GB = 7.0
 
 def set_seed(seed: int) -> None:
-    """Set the random seed for reproducibility."""
-    random.seed(seed)
-    np.random.seed(seed)
+    """
+    Set the random seed for reproducibility across Python, NumPy, and PyTorch.
+    
+    Args:
+        seed: A positive integer seed value.
+        
+    Raises:
+        ValueError: If seed is not a positive integer.
+    """
+    if not validate_seed(seed):
+        raise ValueError(f"Seed must be a positive integer, got: {seed}")
+    
+    # Set Python hash seed for reproducibility
     os.environ['PYTHONHASHSEED'] = str(seed)
+    
+    # Set Python's random module seed
+    random.seed(seed)
+    
+    # Set NumPy's random seed
+    np.random.seed(seed)
+    
+    # Set PyTorch's random seed if available
+    if TORCH_AVAILABLE:
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)  # If using multi-GPU
+            # Ensure deterministic behavior in CuDNN (optional, can impact performance)
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
 
 def get_environment_hash() -> str:
     """Get a hash of the current environment configuration."""

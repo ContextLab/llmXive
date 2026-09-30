@@ -45,6 +45,13 @@ T019:
     fixture nor assert that the `preprocessing_pipeline` raises a `ValueError` or
     filters out empty entries as specified. The fixture file itself is missing. The
     task therefore remains unfinished.
+T024b:
+  c: false
+  h: 9d971df3f48d52468292b21fea0f95d4da213d132c0eb03befbde2650dff4e21
+  r: "The repository lacks `data/results/power_analysis_config.json`, and the shown\
+    \ portion of `code/05_statistical_analysis.py` contains no function that computes\
+    \ a required sample size\u202F`n` and writes it to that JSON file. Consequently\
+    \ the required artifact and functionality are missing."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -53,6 +60,14 @@ T025:
     \u202F7\u202FGB, or that the full generation of 100 proposals completes within\
     \ 4\u202Fhours. The claim lacks any concrete artifact (e.g., updated pipeline\
     \ files, benchmark results, or CI logs) required to verify the requirement."
+T030:
+  c: false
+  h: f5e241d1cb2b65bde90b99e93725ccfb22d0d4c4c8b0f7e555874a1665c6ee7b
+  r: "The required `data/results/ratings_filled.csv` file is absent, so the loader\
+    \ cannot read any expert ratings. Moreover, the provided `code/04_evaluation_loader.py`\
+    \ is truncated (ends mid\u2011function) and does not contain a complete implementation\
+    \ for loading, validating, or blinding the ratings as specified. Both the essential\
+    \ data artifact and a functional loader are missing."
 T030a:
   c: false
   h: 31a8cbcefb31d9a380cf98752cbd4ee2963d845368aae8af963c93c703a9a051
@@ -93,3 +108,11 @@ T048:
   r: The required `state/manifest.yaml` file is missing entirely, so no checksum information
     is present to satisfy the update task. The implementer must create the file and
     populate it with the final artifact checksums.
+T059:
+  c: false
+  h: a3ef0303f29fa6117c2690b76a72d4699b0a0b9aa86e0de3634702d25d3bf74a
+  r: "The repository contains partially\u2011implemented `04_evaluation_loader.py`\
+    \ and `05_statistical_analysis.py` (both files are truncated and lack the logic\
+    \ to distribute proposals, collect expert ratings, or write the blinded pairs).\
+    \ Crucially, the required output `data/results/ratings_filled.csv` is absent,\
+    \ so the expert evaluation workflow and the expected CSV schema are not satisfied."

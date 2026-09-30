@@ -1,0 +1,5 @@
+numpy  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+sentence_transformers  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv
