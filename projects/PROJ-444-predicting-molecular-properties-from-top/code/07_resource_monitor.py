@@ -1,187 +1,184 @@
 """
-Resource Monitor for the llmXive Automated Science Pipeline.
+Resource Monitor for llmXive Pipeline (SC-004 Enforcement).
 
-This script acts as a pipeline wrapper to enforce "fail-fast" on resource limits
-as per SC-004. It monitors RAM usage and CPU time in real-time.
+This module implements a "fail-fast" wrapper for the main pipeline execution.
+It monitors RAM usage and CPU time in real-time. If resource limits are exceeded,
+it raises SystemExit(1) with a descriptive error message.
 
-Limits:
-  - RAM: 6.3 GB
-  - CPU Time: 5.4 hours (19440 seconds)
-
-Usage:
-  python code/07_resource_monitor.py <script_to_run> [args...]
-
-If the monitored script exceeds limits, this wrapper raises SystemExit(1)
-with a descriptive error message.
+Limits (SC-004):
+  - Max RAM: 6.3 GB
+  - Max CPU Time: 5.4 hours
 """
+
 import os
 import sys
 import time
 import resource
 import subprocess
 import argparse
-from pathlib import Path
+import logging
+from typing import Callable, List, Optional
 
-# Constants defined in SC-004
-RAM_LIMIT_GB = 6.3
-CPU_TIME_LIMIT_HOURS = 5.4
-CPU_TIME_LIMIT_SECONDS = CPU_TIME_LIMIT_HOURS * 3600
+# Constants for SC-004
+MAX_RAM_GB = 6.3
+MAX_CPU_HOURS = 5.4
 
-# Convert GB to bytes (1 GB = 1024^3 bytes)
-RAM_LIMIT_BYTES = RAM_LIMIT_GB * (1024 ** 3)
+MAX_RAM_BYTES = MAX_RAM_GB * 1024 * 1024 * 1024
+MAX_CPU_SECONDS = MAX_CPU_HOURS * 3600
+
+# Setup logging
+LOG_FILE = "data/logs/resource_monitor.log"
+os.makedirs("data/logs", exist_ok=True)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger("ResourceMonitor")
+
 
 def get_current_ram_usage_bytes() -> int:
     """
-    Get the current resident set size (RSS) of the current process in bytes.
-    Uses resource module for POSIX systems.
+    Returns the current resident set size (RSS) of the process in bytes.
+    Uses the resource module (Unix/Unix-like systems).
     """
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_maxrss is in kilobytes on Linux/macOS
-    return usage.ru_maxrss * 1024
+    # ru_maxrss is in kilobytes on Linux, bytes on macOS.
+    # We normalize to bytes for consistency.
+    maxrss_kb = usage.ru_maxrss
+    if os.system("uname -s | grep -q Darwin") == 0:
+        # macOS: already in bytes
+        return maxrss_kb
+    else:
+        # Linux/Unix: in kilobytes
+        return maxrss_kb * 1024
+
 
 def get_elapsed_cpu_time_seconds() -> float:
     """
-    Get the total CPU time (user + system) consumed by the current process in seconds.
+    Returns the total CPU time (user + system) used by the process in seconds.
     """
     usage = resource.getrusage(resource.RUSAGE_SELF)
     return usage.ru_utime + usage.ru_stime
 
+
 def check_resources() -> bool:
     """
-    Check if current resource usage exceeds limits.
-    Returns True if limits are exceeded, False otherwise.
+    Checks current RAM and CPU time against SC-004 limits.
+
+    Returns:
+        True if resources are within limits.
+        Raises SystemExit(1) if limits are exceeded.
     """
     current_ram = get_current_ram_usage_bytes()
-    current_cpu_time = get_elapsed_cpu_time_seconds()
+    current_cpu = get_elapsed_cpu_time_seconds()
 
-    ram_exceeded = current_ram > RAM_LIMIT_BYTES
-    cpu_exceeded = current_cpu_time > CPU_TIME_LIMIT_SECONDS
+    if current_ram > MAX_RAM_BYTES:
+        ram_gb = current_ram / (1024 ** 3)
+        logger.error(f"SC-004 Violation: RAM limit exceeded. Current: {ram_gb:.2f}GB > Limit: {MAX_RAM_GB}GB")
+        raise SystemExit(1)
 
-    if ram_exceeded:
-        print(f"ERROR: RAM limit exceeded.", file=sys.stderr)
-        print(f"  Limit: {RAM_LIMIT_GB} GB ({RAM_LIMIT_BYTES} bytes)", file=sys.stderr)
-        print(f"  Current: {current_ram / (1024**3):.2f} GB ({current_ram} bytes)", file=sys.stderr)
-    
-    if cpu_exceeded:
-        print(f"ERROR: CPU time limit exceeded.", file=sys.stderr)
-        print(f"  Limit: {CPU_TIME_LIMIT_HOURS} hours ({CPU_TIME_LIMIT_SECONDS} seconds)", file=sys.stderr)
-        print(f"  Current: {current_cpu_time:.2f} seconds", file=sys.stderr)
+    if current_cpu > MAX_CPU_SECONDS:
+        cpu_hours = current_cpu / 3600
+        logger.error(f"SC-004 Violation: CPU time limit exceeded. Current: {cpu_hours:.2f}h > Limit: {MAX_CPU_HOURS}h")
+        raise SystemExit(1)
 
-    return ram_exceeded or cpu_exceeded
+    logger.debug(f"Resources OK: RAM={current_ram/(1024**3):.2f}GB, CPU={current_cpu/3600:.2f}h")
+    return True
 
-def run_monitored_command(args: list) -> int:
+
+def run_monitored_command(
+    command: List[str],
+    check_interval: float = 1.0,
+    on_interval: Optional[Callable[[], None]] = None
+) -> int:
     """
-    Run the target script under resource monitoring.
-    Returns the exit code of the target script, or 1 if resource limits are hit.
+    Runs a subprocess command while monitoring the *parent* process resources.
+    If the parent process exceeds limits, it exits immediately.
+
+    Note: This monitors the runner's memory (e.g., the Python script itself).
+    For strict subprocess isolation, the subprocess would need its own monitor,
+    but SC-004 typically applies to the pipeline runner's footprint.
+
+    Args:
+        command: List of arguments for the subprocess.
+        check_interval: Seconds between resource checks.
+        on_interval: Optional callback to run between checks.
+
+    Returns:
+        Exit code of the subprocess if successful, or 1 if resource limits hit.
     """
-    print(f"Starting resource monitor for: {' '.join(args)}")
-    print(f"Limits: RAM < {RAM_LIMIT_GB}GB, CPU Time < {CPU_TIME_LIMIT_HOURS}h")
-    
-    # We need to monitor the subprocess.
-    # Since resource limits are per-process, we monitor the parent (this script)
-    # which includes the child's memory if the child is forked, but for a 
-    # subprocess.Popen, we need to check the parent's usage periodically 
-    # OR rely on the fact that the parent waits for the child.
-    # However, `resource` measures the current process. If we spawn a subprocess,
-    # the subprocess memory is separate.
-    # To strictly enforce SC-004, we should monitor the subprocess.
-    # But Python's `resource` module doesn't easily monitor a PIDs of children 
-    # without OS-specific calls (like /proc on Linux).
-    # Given the constraint to use standard libraries where possible and 
-    # the "fail-fast" nature, we will monitor the parent process which 
-    # accumulates memory if the child is run in the same process (unlikely for scripts).
-    # 
-    # Better approach for a wrapper: Monitor the subprocess PID.
-    # We will use a polling strategy on the subprocess PID if available.
-    
+    logger.info(f"Starting monitored execution: {' '.join(command)}")
+    logger.info(f"SC-004 Limits: RAM < {MAX_RAM_GB}GB, CPU < {MAX_CPU_HOURS}h")
+
+    start_time = time.time()
+    process = subprocess.Popen(command)
+
     try:
-        # Start the process
-        proc = subprocess.Popen(args)
-        
-        start_time = time.time()
-        interval = 1.0  # Check every second
-        
-        while proc.poll() is None:
-            # Check elapsed CPU time of the wrapper (approximation)
-            # For precise child CPU time, we would need `psutil` or /proc, 
-            # but `resource` on the parent is a safe proxy for the "pipeline" context
-            # if the child is a forked process (common in bash wrappers).
-            # If the child is a separate process, we check the child's memory via /proc (Linux)
-            # or resource (if we could).
-            # Let's implement a robust check for the child process if on Linux.
-            
-            pid = proc.pid
-            if os.name == 'posix' and pid:
-                try:
-                    with open(f'/proc/{pid}/statm', 'r') as f:
-                        # statm: size resident shared text lib data dt (in pages)
-                        parts = f.read().split()
-                        if len(parts) >= 2:
-                            # RSS is the second field (index 1) in pages
-                            page_size = os.sysconf('SC_PAGE_SIZE')
-                            child_rss_bytes = int(parts[1]) * page_size
-                            if child_rss_bytes > RAM_LIMIT_BYTES:
-                                print(f"ERROR: Child process RAM limit exceeded.", file=sys.stderr)
-                                print(f"  Limit: {RAM_LIMIT_GB} GB", file=sys.stderr)
-                                print(f"  Child RSS: {child_rss_bytes / (1024**3):.2f} GB", file=sys.stderr)
-                                proc.kill()
-                                return 1
-                except (FileNotFoundError, ProcessLookupError, PermissionError):
-                    # Process might have exited or no permission
-                    pass
+        while process.poll() is None:
+            # Check resources
+            check_resources()
 
-            # Check parent CPU time (accumulated)
-            if get_elapsed_cpu_time_seconds() > CPU_TIME_LIMIT_SECONDS:
-                print(f"ERROR: CPU time limit exceeded (parent).", file=sys.stderr)
-                proc.kill()
-                return 1
+            # Optional callback
+            if on_interval:
+                on_interval()
 
-            time.sleep(interval)
-        
-        # Process finished
-        return proc.returncode
+            # Sleep before next check
+            time.sleep(check_interval)
 
-    except FileNotFoundError:
-        print(f"ERROR: Script not found: {args[0]}", file=sys.stderr)
-        return 1
-    except Exception as e:
-        print(f"ERROR: Failed to run monitored script: {e}", file=sys.stderr)
-        return 1
+        return process.returncode
+
+    except SystemExit as e:
+        logger.warning("Resource limit exceeded. Terminating subprocess...")
+        process.terminate()
+        try:
+            process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+        raise e
+
 
 def main():
+    """
+    Entry point for the resource monitor.
+    Parses arguments and runs the specified command.
+
+    Usage:
+        python code/07_resource_monitor.py -- python code/02_tda_computation.py
+    """
     parser = argparse.ArgumentParser(
-        description="Resource Monitor Wrapper for Pipeline Execution"
+        description="Run a command with SC-004 resource monitoring."
     )
     parser.add_argument(
-        "script",
-        help="Path to the script to execute"
-    )
-    parser.add_argument(
-        "args",
+        "command",
         nargs=argparse.REMAINDER,
-        help="Arguments to pass to the script"
+        help="The command and its arguments to execute."
+    )
+    parser.add_argument(
+        "--interval",
+        type=float,
+        default=1.0,
+        help="Check interval in seconds (default: 1.0)"
     )
 
     args = parser.parse_args()
 
-    if not args.script:
-        parser.print_help()
+    if not args.command:
+        logger.error("No command provided to monitor.")
         sys.exit(1)
 
-    # Construct the command list
-    cmd = [args.script] + args.args
+    try:
+        exit_code = run_monitored_command(args.command, check_interval=args.interval)
+        logger.info(f"Process completed with exit code: {exit_code}")
+        sys.exit(exit_code)
+    except SystemExit as e:
+        # Re-raise the specific exit code from resource check
+        sys.exit(e.code)
 
-    # Run the monitored command
-    exit_code = run_monitored_command(cmd)
-
-    if exit_code != 0:
-        # If the child exited with an error or was killed by us, propagate or exit 1
-        # If we killed it due to resource limits, we already printed the error.
-        # The return code from kill is usually 1 or 137 (SIGKILL).
-        # We want to ensure the pipeline fails loudly.
-        sys.exit(1)
-    
-    sys.exit(exit_code)
 
 if __name__ == "__main__":
     main()

@@ -1,16 +1,15 @@
 """
-Feature Engineering Module for Molecular Property Prediction.
+Feature Engineering Module (T017)
 
-This module handles the merging of traditional molecular descriptors
-and topological data analysis (TDA) features to create a combined
+Merges traditional molecular descriptors with TDA features to create a combined
 feature matrix for downstream modeling.
 
-Dependencies:
-    - pandas: for data manipulation
-    - os, sys, logging: for system interaction and logging
-    - pathlib: for path handling
+Inputs:
+    data/processed/traditional_descriptors.csv
+    data/processed/tda_features.csv
+Output:
+    data/processed/combined_features.csv
 """
-
 import os
 import sys
 import logging
@@ -19,259 +18,217 @@ from typing import Tuple, Optional
 
 import pandas as pd
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
-
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Configure project paths
+PROJECT_ROOT = Path(__file__).parent.parent
 DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+INPUT_TRADITIONAL = DATA_PROCESSED_DIR / "traditional_descriptors.csv"
+INPUT_TDA = DATA_PROCESSED_DIR / "tda_features.csv"
+OUTPUT_COMBINED = DATA_PROCESSED_DIR / "combined_features.csv"
+LOGS_DIR = PROJECT_ROOT / "data" / "logs"
 
-# Input files (produced by previous tasks)
-TRADITIONAL_DESCRIPTORS_FILE = DATA_PROCESSED_DIR / "traditional_descriptors.csv"
-TDA_FEATURES_FILE = DATA_PROCESSED_DIR / "tda_features.csv"
+def setup_logging() -> logging.Logger:
+    """Setup logging configuration for the feature engineering module."""
+    os.makedirs(LOGS_DIR, exist_ok=True)
+    log_file = LOGS_DIR / "feature_engineering.log"
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    return logging.getLogger(__name__)
 
-# Output file
-COMBINED_FEATURES_FILE = DATA_PROCESSED_DIR / "combined_features.csv"
-
-def load_traditional_descriptors(filepath: Optional[Path] = None) -> pd.DataFrame:
+def load_traditional_descriptors(logger: logging.Logger) -> pd.DataFrame:
     """
-    Load traditional molecular descriptors from CSV.
+    Load the traditional molecular descriptors from CSV.
     
     Args:
-        filepath: Optional path to the CSV file. Defaults to the standard location.
+        logger: Logger instance for recording progress/errors.
         
     Returns:
-        DataFrame containing traditional descriptors.
+        DataFrame containing molecular descriptors.
         
     Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or has no data.
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
     """
-    if filepath is None:
-        filepath = TRADITIONAL_DESCRIPTORS_FILE
-        
-    if not filepath.exists():
-        raise FileNotFoundError(f"Traditional descriptors file not found: {filepath}")
-        
-    logger.info(f"Loading traditional descriptors from {filepath}")
-    df = pd.read_csv(filepath)
+    logger.info(f"Loading traditional descriptors from: {INPUT_TRADITIONAL}")
     
-    if df.empty:
-        raise ValueError(f"Traditional descriptors file is empty: {filepath}")
-        
-    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
+    if not INPUT_TRADITIONAL.exists():
+        logger.error(f"Input file not found: {INPUT_TRADITIONAL}")
+        raise FileNotFoundError(f"Input file not found: {INPUT_TRADITIONAL}")
+    
+    df = pd.read_csv(INPUT_TRADITIONAL)
+    
+    required_cols = {"molecule_id", "MW", "logP"}
+    missing_cols = required_cols - set(df.columns)
+    
+    if missing_cols:
+        logger.error(f"Missing required columns in traditional descriptors: {missing_cols}")
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    
+    logger.info(f"Loaded {len(df)} rows from traditional descriptors.")
     return df
 
-def load_tda_features(filepath: Optional[Path] = None) -> pd.DataFrame:
+def load_tda_features(logger: logging.Logger) -> pd.DataFrame:
     """
-    Load TDA features from CSV.
+    Load the TDA features (persistence images) from CSV.
     
     Args:
-        filepath: Optional path to the CSV file. Defaults to the standard location.
+        logger: Logger instance for recording progress/errors.
         
     Returns:
         DataFrame containing TDA features.
         
     Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or has no data.
+        FileNotFoundError: If the input file does not exist.
+        ValueError: If required columns are missing.
     """
-    if filepath is None:
-        filepath = TDA_FEATURES_FILE
-        
-    if not filepath.exists():
-        raise FileNotFoundError(f"TDA features file not found: {filepath}")
-        
-    logger.info(f"Loading TDA features from {filepath}")
-    df = pd.read_csv(filepath)
+    logger.info(f"Loading TDA features from: {INPUT_TDA}")
     
-    if df.empty:
-        raise ValueError(f"TDA features file is empty: {filepath}")
-        
-    logger.info(f"Loaded {len(df)} rows and {len(df.columns)} columns")
+    if not INPUT_TDA.exists():
+        logger.error(f"Input file not found: {INPUT_TDA}")
+        raise FileNotFoundError(f"Input file not found: {INPUT_TDA}")
+    
+    df = pd.read_csv(INPUT_TDA)
+    
+    # Verify at least molecule_id exists; TDA columns are dynamic (p_img_0...p_img_99)
+    if "molecule_id" not in df.columns:
+        logger.error("Missing required column 'molecule_id' in TDA features.")
+        raise ValueError("Missing required column 'molecule_id' in TDA features.")
+    
+    logger.info(f"Loaded {len(df)} rows from TDA features.")
     return df
 
-def merge_features(traditional_df: pd.DataFrame, tda_df: pd.DataFrame) -> pd.DataFrame:
+def merge_features(
+    traditional_df: pd.DataFrame, 
+    tda_df: pd.DataFrame, 
+    logger: logging.Logger
+) -> pd.DataFrame:
     """
-    Merge traditional descriptors and TDA features based on a common index or ID.
-    
-    This function assumes both DataFrames share a common identifier column (e.g., 'smiles'
-    or an integer index) that allows for a precise merge. If 'smiles' exists, it is used.
-    Otherwise, the index is used.
+    Merge traditional and TDA feature DataFrames on 'molecule_id'.
     
     Args:
-        traditional_df: DataFrame with traditional descriptors.
-        tda_df: DataFrame with TDA features.
+        traditional_df: DataFrame of traditional descriptors.
+        tda_df: DataFrame of TDA features.
+        logger: Logger instance.
         
     Returns:
-        Merged DataFrame containing both feature sets.
+        Merged DataFrame.
         
     Raises:
-        ValueError: If merge results in fewer rows than expected (indicating data mismatch).
+        ValueError: If merge results in unexpected row count.
     """
-    logger.info("Merging traditional and TDA features")
+    logger.info("Merging feature sets on 'molecule_id'...")
     
-    # Determine merge key
-    if 'smiles' in traditional_df.columns and 'smiles' in tda_df.columns:
-        merge_key = 'smiles'
-        logger.info(f"Merging on 'smiles' column")
-    elif traditional_df.index.equals(tda_df.index):
-        merge_key = None
-        logger.info("Merging on index")
-    else:
-        # Try to find a common column
-        common_cols = set(traditional_df.columns) & set(tda_df.columns)
-        if common_cols:
-            merge_key = list(common_cols)[0]
-            logger.info(f"Merging on common column: {merge_key}")
-        else:
-            raise ValueError("No common merge key found between traditional and TDA datasets")
+    # Perform inner join to ensure we only keep molecules present in both sets
+    merged_df = pd.merge(
+        traditional_df, 
+        tda_df, 
+        on="molecule_id", 
+        how="inner"
+    )
     
-    if merge_key:
-        merged_df = pd.merge(traditional_df, tda_df, on=merge_key, how='inner')
-    else:
-        merged_df = pd.concat([traditional_df, tda_df], axis=1)
-        
-    # Validate merge
-    min_rows = min(len(traditional_df), len(tda_df))
-    if len(merged_df) < min_rows:
-        logger.warning(f"Merge resulted in fewer rows ({len(merged_df)}) than input ({min_rows}). Check for duplicate keys or missing data.")
-        
-    logger.info(f"Merged DataFrame shape: {merged_df.shape}")
+    expected_rows = min(len(traditional_df), len(tda_df))
+    actual_rows = len(merged_df)
+    
+    if actual_rows == 0:
+        logger.error("Merge resulted in zero rows. Check for mismatched molecule IDs.")
+        raise ValueError("Merge resulted in zero rows.")
+    
+    logger.info(f"Merged successfully. Rows: {actual_rows} (Traditional: {len(traditional_df)}, TDA: {len(tda_df)})")
     return merged_df
 
-def prepare_combined_feature_matrix(df: pd.DataFrame) -> Tuple[pd.DataFrame, list, list]:
+def prepare_combined_feature_matrix(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
     """
-    Prepare the combined feature matrix for modeling.
-    
-    This function separates the feature matrix from the target variable (if present)
-    and returns the clean feature matrix along with lists of feature names.
+    Finalize the combined feature matrix (ensure correct dtypes, no nulls in key cols).
     
     Args:
-        df: The merged DataFrame.
+        df: Merged DataFrame.
+        logger: Logger instance.
         
     Returns:
-        Tuple containing:
-            - X: Feature matrix (DataFrame)
-            - feature_names: List of all feature column names
-            - tda_feature_names: List of TDA feature column names
+        Cleaned DataFrame ready for modeling.
     """
-    logger.info("Preparing combined feature matrix")
+    logger.info("Validating and preparing combined feature matrix...")
     
-    # Identify target column if present (common names: 'logP', 'target', 'y')
-    target_candidates = ['logP', 'target', 'y', 'Label']
-    target_col = None
-    for col in target_candidates:
-        if col in df.columns:
-            target_col = col
-            break
+    # Ensure molecule_id is string
+    df["molecule_id"] = df["molecule_id"].astype(str)
     
-    if target_col:
-        logger.info(f"Detected target column: {target_col}")
-        X = df.drop(columns=[target_col])
+    # Check for nulls in critical columns (MW, logP, and all TDA columns)
+    tda_cols = [col for col in df.columns if col.startswith("p_img_")]
+    numeric_cols = ["MW", "logP"] + tda_cols
+    
+    null_counts = df[numeric_cols].isnull().sum()
+    if null_counts.any():
+        logger.warning(f"Found null values in numeric columns:\n{null_counts[null_counts > 0]}")
+        # Drop rows with any nulls in numeric features to ensure model compatibility
+        drop_indices = df[df[numeric_cols].isnull().any(axis=1)].index
+        if len(drop_indices) > 0:
+            logger.info(f"Dropping {len(drop_indices)} rows with null values.")
+            df = df.drop(index=drop_indices)
+    
+    logger.info(f"Final combined matrix shape: {df.shape}")
+    return df
+
+def save_combined_features(df: pd.DataFrame, logger: logging.Logger) -> None:
+    """
+    Save the combined feature matrix to CSV.
+    
+    Args:
+        df: Final combined DataFrame.
+        logger: Logger instance.
+    """
+    logger.info(f"Saving combined features to: {OUTPUT_COMBINED}")
+    
+    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+    df.to_csv(OUTPUT_COMBINED, index=False)
+    
+    if OUTPUT_COMBINED.exists():
+        logger.info("Successfully saved combined features.")
     else:
-        X = df.copy()
-        logger.warning("No target column detected. Assuming all columns are features.")
-    
-    # Identify TDA features (usually prefixed or named specifically)
-    # Based on T013/T014, TDA features might have specific naming conventions
-    tda_feature_names = [col for col in X.columns if 'persistence' in col.lower() or 'betti' in col.lower() or 'diagram' in col.lower()]
-    
-    if not tda_feature_names:
-        # Fallback: assume columns not in traditional set are TDA
-        # This requires knowing traditional columns, which we don't explicitly have here
-        # So we just return all as features
-        logger.info("Could not automatically identify TDA features by name. All columns treated as features.")
-        tda_feature_names = list(X.columns) # Placeholder logic
-    
-    logger.info(f"Feature matrix shape: {X.shape}")
-    logger.info(f"Number of TDA features identified: {len(tda_feature_names)}")
-    
-    return X, list(X.columns), tda_feature_names
+        logger.error("Failed to save combined features.")
+        raise IOError("Failed to write output file.")
 
-def save_combined_features(df: pd.DataFrame, filepath: Optional[Path] = None) -> Path:
+def run_feature_engineering() -> None:
     """
-    Save the combined feature matrix to a CSV file.
-    
-    Args:
-        df: The DataFrame to save.
-        filepath: Optional output path. Defaults to standard location.
-        
-    Returns:
-        Path to the saved file.
+    Main orchestration function for feature engineering.
     """
-    if filepath is None:
-        filepath = COMBINED_FEATURES_FILE
-        
-    # Ensure directory exists
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+    logger = setup_logging()
+    logger.info("Starting Feature Engineering (T017)...")
     
-    logger.info(f"Saving combined features to {filepath}")
-    df.to_csv(filepath, index=False)
-    
-    logger.info(f"Saved {len(df)} rows and {len(df.columns)} columns")
-    return filepath
-
-def run_feature_engineering() -> Path:
-    """
-    Execute the full feature engineering pipeline.
-    
-    1. Load traditional descriptors.
-    2. Load TDA features.
-    3. Merge datasets.
-    4. Prepare feature matrix.
-    5. Save combined features.
-    
-    Returns:
-        Path to the saved combined features file.
-        
-    Raises:
-        SystemExit: If any step fails.
-    """
     try:
-        logger.info("Starting feature engineering pipeline")
+        # Load inputs
+        traditional_df = load_traditional_descriptors(logger)
+        tda_df = load_tda_features(logger)
         
-        # 1. Load data
-        traditional_df = load_traditional_descriptors()
-        tda_df = load_tda_features()
+        # Merge
+        merged_df = merge_features(traditional_df, tda_df, logger)
         
-        # 2. Merge
-        merged_df = merge_features(traditional_df, tda_df)
+        # Prepare
+        final_df = prepare_combined_feature_matrix(merged_df, logger)
         
-        # 3. Prepare matrix (for validation/logging, though we save the full merged df)
-        X, feature_names, tda_names = prepare_combined_feature_matrix(merged_df)
+        # Save
+        save_combined_features(final_df, logger)
         
-        # 4. Save
-        output_path = save_combined_features(merged_df)
-        
-        logger.info("Feature engineering pipeline completed successfully")
-        return output_path
+        logger.info("Feature Engineering completed successfully.")
         
     except FileNotFoundError as e:
-        logger.error(f"Data file missing: {e}")
+        logger.error(f"Data file error: {e}")
         sys.exit(1)
     except ValueError as e:
-        logger.error(f"Data validation error: {e}")
+        logger.error(f"Validation error: {e}")
         sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error during feature engineering: {e}")
-        import traceback
-        logger.error(traceback.format_exc())
         sys.exit(1)
 
-def main():
-    """Entry point for the script."""
-    logger.info("Running 03_feature_engineering.py")
-    output_path = run_feature_engineering()
-    logger.info(f"Output saved to: {output_path}")
+def main() -> None:
+    """Entry point."""
+    run_feature_engineering()
 
 if __name__ == "__main__":
     main()

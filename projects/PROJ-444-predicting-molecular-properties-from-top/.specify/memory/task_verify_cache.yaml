@@ -14,19 +14,36 @@ T004:
     \ was presented. Without these artifacts the task\u2019s requirement cannot be\
     \ confirmed."
 T010:
-  c: true
-  h: e256dbae72d04eb13de3302bb174f0cc20d3b4d17033eefa0688c368494b181b
-  r: "The `tests/contract/test_tda_schema.py` file exists, is non\u2011empty, and\
-    \ defines contract tests that verify the existence, column set, data types, null\u2011\
-    value absence, and feature vector length of `data/processed/tda_features.csv`\
-    \ as required. No further artifacts are needed for this task."
+  c: false
+  h: 3014e33badc9968003d87007ae9a8f15d543dd5137280174aace06cb70a178a8
+  r: The test file `tests/contract/test_tda_schema.py` exists, but it references a
+    schema at `specs/001-predicting-molecular-properties-from-top/contracts/feature_matrix.schema.yaml`
+    which is missing, so the test cannot perform the required validation. The schema
+    file must be added (with the correct column and type definitions) for the contract
+    test to be functional.
+T013:
+  c: false
+  h: 4938bef6df5098a2adc46b166d15fc07d0af771a87d7915c29403510a81aecbb
+  r: "The required output file `data/processed/persistence_images_10x10.csv` is missing,\
+    \ so the primary deliverable does not exist. Consequently the task\u2019s core\
+    \ requirement\u2014producing a 10\xD710 persistence\u2011image CSV with the specified\
+    \ schema and no NaNs\u2014has not been satisfied. The presence of `code/02_tda_computation.py`\
+    \ alone is insufficient without the generated CSV."
 T015a:
   c: false
-  h: 3d0ffa27a51f7380cee4bc04a0ea2f339158f36380e708e353eeaa1a749ccce3
-  r: "The required artifacts `data/logs/invalid_smiles.log` and `data/excluded_smiles_manifest.csv`\
-    \ do not exist, and there is no evidence that the state file `state/projects/PROJ-444...yaml`\
-    \ was updated with a hash of the manifest. Consequently the error\u2011handling,\
-    \ logging, manifest creation, and state\u2011tracking steps are not fulfilled."
+  h: fe2c01f20a1cccc4869f3f6147326b6c652759bea716ecb4d43d97f8f1c4454e
+  r: "The `data/excluded_smiles_manifest.csv` file is present, but `data/logs/invalid_smiles.log`\
+    \ does not exist and the script\u2019s logging configuration writes to `tda_computation.log`\
+    \ instead of the required `invalid_smiles.log`. The implementation therefore fails\
+    \ to meet the logging requirement."
+T017:
+  c: false
+  h: b9a9e4d9f59e890e1685b1c61166ae760c3ee876867c31977d4df5e495409613
+  r: The repository contains a partially shown `code/03_feature_engineering.py`, but
+    the required input CSVs (`data/processed/traditional_descriptors.csv`, `data/processed/tda_features.csv`)
+    are absent, and the expected output file (`data/processed/combined_features.csv`)
+    was never generated. Consequently the merging functionality cannot be verified
+    or executed.
 T018:
   c: false
   h: d556d3d4b85574f36c389eeb4fd3329817d8c05ba9b957e33bffac17049c1208

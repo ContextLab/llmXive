@@ -122,12 +122,8 @@ def main():
     # Compute checksums for all raw files
     raw_files = get_raw_data_files(str(data_dir))
     if not raw_files:
-        print("No raw data files found. Run data ingestion first.")
-        # Create empty checksum file to indicate state
-        ensure_directory(str(checksum_file.parent))
-        checksum_file.touch()
-        print(f"Created empty checksum file at {checksum_file}")
-        sys.exit(0)
+        print("Data Hygiene Failed: No raw data found to checksum.")
+        sys.exit(1)
     
     checksums = {}
     for file_path in raw_files:

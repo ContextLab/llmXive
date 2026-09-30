@@ -1629,3 +1629,131 @@
   source_type: external
   status: verified
   updated_at: '2026-09-26T19:46:53Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: compute_filtration uses Dijkstra's algorithm for shortest-path distances
+  claim_id: c_6675a43e
+  context: 'T006 [P] Implement code/utils/persistence_utils.py for shortest-path filtration
+    and empty diagram handling. Deliverable: Implement compute_filtration(graph: Graph)
+    -> Diagram using Dijkstra''s algorithm for shortest-path distances.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_filtration_uses_Dijkstra%27s_algorithm_for_shortest-pa
+  kind: entity_fact
+  raw_text: 'Implement function compute_filtration(graph: Graph) -> Diagram using
+    Dijkstra''s algorithm for shortest-path distances.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:34:43Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: 5-fold split performed with seed=42
+  claim_id: c_14033a48
+  context: 'T008b [P] [US1] Implement code/01_data_ingestion.py (Part 2): Enforce
+    min scaffolds check (>=100 unique scaffolds per Plan.md ''Scaffold Validation''),
+    implement a custom scaffold splitter using rdkit.Chem.Scaffolds.MurckoScaffold.GetScaffoldForMol
+    to group molecules, perform a 5-fold split with seed=42, and save split indices
+    to data/processed/splits.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a 5-fold split with seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:35:10Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: scipy.sparse.csr_matrix used if estimated RAM usage > 6.0GB
+  claim_id: c_2e7f9121
+  context: 'T015b [US1] Implement sparse matrix logic with memory threshold checks
+    in code/utils/persistence_utils.py to handle extremely large molecular weights
+    (Edge Case). Threshold: If estimated RAM usage > 6.0GB, use scipy.sparse.csr_matrix
+    format.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated RAM usage > 6.0GB, use scipy.sparse.csr_matrix format
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:35:11Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Linear Regression alpha=1.0 and Random Forest 100 trees max_depth=10
+  claim_id: c_093e5174
+  context: 'T019 [US2] Implement code/04_model_training.py: Train Linear Regression
+    (alpha=1.0) and Random Forest (100 trees, max_depth=10) on 3 feature sets.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:35:45Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction applied to p-values
+  claim_id: c_2ae7ddf8
+  context: 'T025 [US3] Implement code/06_diagnostics.py: Apply Holm-Bonferroni correction
+    to p-values generated in T019/T020. Dependency: T019, T020. Plan Override Note:
+    This task implements ''Holm-Bonferroni'' as mandated by the Plan''s ''Critical
+    Methodological Update'', overriding the Spec''s FR-005 ''Bonferroni'' text.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_applied_to_p-values
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction to p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:36:26Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: Predictors with VIF > 5 flagged
+  claim_id: c_b2044824
+  context: 'T026 [US3] Implement code/06_diagnostics.py: Calculate VIF; flag predictors
+    > 5 (FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag predictors with VIF > 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:36:26Z'
+- artifact_path: projects/PROJ-444-predicting-molecular-properties-from-top/specs/001-predicting-molecular-properties-from-top/tasks.md
+  attempts: 1
+  canonical: FWER controlled at 0.05 using Holm-Bonferroni method
+  claim_id: c_ebbf70cc
+  context: 'T028 [US3] Generate reports/metrics/diagnostics.json with VIF flags, corrected
+    p-values, MI scores, and Methodological Summary. Schema: { "vif": { "feature":
+    value }, "corrected_pvalues": { "test": value }, "mutual_information": value,
+    "methodology": { "correction_method": "Holm-Bonferroni", "controlled_alpha": 0.05
+    } }.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Control FWER at 0.05 using Holm-Bonferroni method
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T01:38:16Z'
