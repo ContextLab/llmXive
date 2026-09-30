@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-874-llmxive-follow-up-extending-enhancing-tr",
+  "tasks": [
+    {
+      "task_key": "T022",
+      "reject_count": 1,
+      "last_reason": "No code, script, or documentation implementing the non\u2011differentiable warping and smoothing logic is provided, nor is there any evidence of a check for the existence of T021 flow fields with an abort\u2011on\u2011missing error. The required artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-09-30T19:01:44.363823+00:00",
+      "last_seen": "2026-09-30T19:01:44.363823+00:00"
+    },
+    {
+      "task_key": "T023",
+      "reject_count": 1,
+      "last_reason": "The submission provides only high\u2011level user stories and testing criteria; there is no code, script, or module that implements the required fallback logic (nearest\u2011neighbor interpolation for failed flow estimation). Consequently, the core artifact the task demands is missing.",
+      "first_seen": "2026-09-30T19:01:44.365324+00:00",
+      "last_seen": "2026-09-30T19:01:44.365324+00:00"
+    },
+    {
+      "task_key": "T024",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: results/invalid_frames.log",
+      "first_seen": "2026-09-30T19:01:44.366399+00:00",
+      "last_seen": "2026-09-30T19:01:44.366399+00:00"
+    }
+  ],
+  "updated_at": "2026-09-30T19:01:44.366399+00:00"
+}

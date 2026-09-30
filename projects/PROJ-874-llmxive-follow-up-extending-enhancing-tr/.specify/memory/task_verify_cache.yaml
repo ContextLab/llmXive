@@ -1,3 +1,50 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or `ls -R` output was provided to demonstrate that `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/`
+    contains the required subfolders (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
+    `tests/`, `docs/`, `contracts/`). The implementer must supply the actual `ls`
+    output showing the full hierarchy.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no linting or formatting configuration files (e.g.,
+    `pyproject.toml` with Black settings, `.ruff.toml` or `.flake8`), nor any documentation
+    showing that ruff/flake8 and Black have been installed and integrated into the
+    project workflow. Without these artifacts, the requirement to configure linting
+    and formatting tools is not satisfied.
+T005:
+  c: false
+  h: 4a6ce8ae4d25d6919dd9c3a87879ed056bd0c5e9553ae0aa4df9b7d2ef6f1c48
+  r: "The repository contains the checksum functions in `code/download.py`, but the\
+    \ required schema files `contracts/dataset.schema.yaml` and `contracts/metrics.schema.yaml`\
+    \ are absent (the only mentioned `schema.yaml` is missing). Consequently the task\u2019\
+    s primary deliverable \u2013 the two contract schema files \u2013 has not been\
+    \ provided."
+T013:
+  c: false
+  h: 75181fbea82a80f824ebe760407c1faf4386a6f34c1bad7b8d4af47ee972231b
+  r: "The provided `code/generate.py` is truncated and shows no implementation of\
+    \ the `--mode baseline-full` or `--mode baseline-naive` logic, nor any code that\
+    \ measures and writes a per\u2011video `total_wall_clock_time` entry in ISO8601\
+    \ format. Moreover, the required output file `results/generation_times.log` does\
+    \ not exist. The task\u2019s core requirements are therefore unmet."
+T014a:
+  c: false
+  h: 75181fbea82a80f824ebe760407c1faf4386a6f34c1bad7b8d4af47ee972231b
+  r: "The repository contains a partially implemented `code/generate.py` with a JSON\u2011\
+    line logger, but the file is truncated before any generation loop and does not\
+    \ show timing with `time.time()` or logging of `video_id`, `mode`, and `inference_time_seconds`.\
+    \ Moreover, the required `results/generation_times.log` file is absent. The task\u2019\
+    s core requirement\u2014recording isolated inference times as JSON lines\u2014\
+    is therefore not satisfied."
+T014b:
+  c: false
+  h: 75181fbea82a80f824ebe760407c1faf4386a6f34c1bad7b8d4af47ee972231b
+  r: The required artifact `results/generation_times.log` is absent; there is no evidence
+    that `code/generate.py` was executed or that a log with the specified JSON fields
+    was produced. The implementer must run the script and provide the generated log
+    file containing valid JSON lines.
 T017:
   c: false
   h: fc6fe0fbcf9f03219a97f3e2ac95d4fbf7666f4b368d1b3f26d66361ad160a8c
@@ -12,49 +59,12 @@ T019:
   r: "The required file `tests/integration/test_flow_correction.py` does not exist,\
     \ so no integration test for the flow correction pipeline is present. The task\u2019\
     s core deliverable is missing."
-T022:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing the non\u2011differentiable warping\
-    \ and smoothing logic is provided, nor is there any evidence of a check for the\
-    \ existence of T021 flow fields with an abort\u2011on\u2011missing error. The\
-    \ required artifact is missing, so the task is not satisfied."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The submission provides only high\u2011level user stories and testing criteria;\
-    \ there is no code, script, or module that implements the required fallback logic\
-    \ (nearest\u2011neighbor interpolation for failed flow estimation). Consequently,\
-    \ the core artifact the task demands is missing."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The provided material only contains the feature specification and user\u2011\
-    story descriptions; there is no code, script, log output, or test evidence showing\
-    \ that frames with tearing are detected, logged, and flagged for manual review.\
-    \ Consequently, the required artifact (implementation of detection and logging)\
-    \ is missing."
-T028:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing the adaptive statistical testing\
-    \ logic is provided; there is no artifact showing a normality check that triggers\
-    \ a Wilcoxon signed\u2011rank test when p\u202F<\u202F0.05 and a paired t\u2011\
-    test otherwise. The required implementation is missing."
 T029:
   c: false
   h: 5d03cec4f650dceb55f736f5aca2d21d03acb058f988516895bcda231d9a4a72
   r: "The required output file `results/failure_cases.json` does not exist, so the\
     \ failure\u2011case identification logic was not produced nor logged as specified.\
     \ The task therefore remains unfinished."
-T030:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CSV report was provided; there is no artifact containing the required columns\
-    \ (`video_id`, `condition`, `vbench_score`, `fvd`, `object_permanence`, `p_value`,\
-    \ `test_type`, `power_sufficient`). Without this file, the task\u2019s requirement\
-    \ cannot be verified. The next implementer must generate and supply the CSV report\
-    \ consuming T030a\u2019s output."
 T032a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
