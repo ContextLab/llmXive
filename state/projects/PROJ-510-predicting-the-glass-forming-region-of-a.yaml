@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-510-predicting-the-glass-forming-region-of-a
-last_run_id: 3c05f216-1192-4d14-87e0-48cdecb4fcfe
+last_run_id: 3786c273-0711-4263-8500-ec138a3fe1cf
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-510-predicting-the-glass-forming-region-of-a/specs/001-predicting-the-glass-forming-region-of-a
 title: Predicting the Glass Forming Region of Alloy Systems with Machine Learning
-updated_at: '2026-09-26T19:02:05.935281Z'
+updated_at: '2026-09-30T11:53:27.976332Z'

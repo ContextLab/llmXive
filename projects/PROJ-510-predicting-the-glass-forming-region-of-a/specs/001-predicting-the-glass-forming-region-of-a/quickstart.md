@@ -3,12 +3,12 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Internet access (for downloading MatsSci-Glass data)
+- `pip` or `conda`
+- Internet access (for downloading BMG data)
 
 ## Installation
 
-1.  **Clone the repository** (if not already done).
+1.  **Clone the repository** and navigate to the project directory.
 2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
@@ -18,42 +18,64 @@
     ```bash
     pip install -r requirements.txt
     ```
-    *Note: `requirements.txt` will contain `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `mendeleev`.*
+    *Note: `requirements.txt` pins all dependencies (pandas, scikit-learn, etc.) to ensure reproducibility.*
 
 ## Running the Pipeline
 
-The pipeline is executed in three sequential steps:
+The pipeline consists of three main stages: Ingestion, Modeling, and Analysis.
 
 ### 1. Data Ingestion & Feature Engineering
-Downloads the MatsSci-Glass dataset, cleans it, and computes thermodynamic descriptors.
+Download the **BMG data**, filter for ternary alloys, and compute thermodynamic descriptors.
+
 ```bash
 python code/ingestion.py
-python code/features.py
 ```
-*Output*: `data/processed/featurized_alloys.csv` (contains ≥500 rows if successful).
+- **Output**: `data/processed/processed_alloys.csv`
+- **Logs**: `data/logs/exclusion_log.txt`, `data/logs/ingestion_hash.txt`
+- **Error Handling**: If the dataset is empty after filtering, the script raises a `ValueError` and logs to `data/logs/empty_dataset_error.log`.
 
-### 2. Model Training & Cross-Validation
-Trains the Random Forest model and performs 5-fold CV.
+### 2. Model Training & Validation
+Train the Random Forest model and perform 5-fold cross-validation.
+
 ```bash
-python code/train.py
+python code/modeling.py
 ```
-*Output*: `data/outputs/model_metrics.json`, `data/outputs/trained_model.pkl`.
+- **Output**: `data/models/random_forest_model.pkl`, `data/models/cv_metrics.json`
+- **Metrics**: Prints Mean CV RMSE and Test RMSE to console.
 
-### 3. Analysis & Sensitivity
-Performs permutation importance and threshold sensitivity analysis.
+### 3. Sensitivity & Importance Analysis
+Perform permutation importance and threshold sensitivity analysis.
+
 ```bash
-python code/analyze.py
+python code/analysis.py
 ```
-*Output*: `data/outputs/sensitivity_report.json`, `data/outputs/feature_importance.csv`.
+- **Output**: `data/models/sensitivity_report.json`
+- **Validation**: Checks for collinearity and flags high-correlation pairs.
 
-## Validation
+## Running Tests
 
-To verify the pipeline:
-1.  Ensure `data/processed/featurized_alloys.csv` has at least 500 rows.
-2.  Check `data/outputs/model_metrics.json` for `p_value_null` < 0.05.
-3.  Run `pytest tests/` to verify unit tests for feature calculations.
+Execute unit and integration tests to verify data integrity and pipeline correctness.
 
-## Troubleshooting
+```bash
+pytest tests/ -v
+```
+- **Unit Tests**: `tests/unit/test_features.py` (validates thermodynamic formulas).
+- **Integration Tests**: `tests/integration/test_pipeline.py` (validates end-to-end flow).
 
-- **Data Availability Error**: If the script fails with "Insufficient data", the verified MatsSci-Glass URL may not contain the required `critical_cooling_rate` column. Check the raw data file manually.
-- **Memory Error**: If running out of RAM, ensure no other heavy processes are running. The pipeline is optimized for moderate RAM requirements.
+## Validating Schemas
+
+Ensure all generated artifacts match the defined contracts.
+
+```bash
+python code/validate_schemas.py
+```
+- **Output**: Prints validation status for `processed_alloys.csv`, `cv_metrics.json`, and `sensitivity_report.json`.
+
+## Reproducibility Check
+
+To verify reproducibility, re-run the ingestion step and compare the hash:
+
+```bash
+python code/utils.py --check-hash
+```
+- Compares the SHA-256 hash of `data/processed/processed_alloys.csv` against the stored value in `data/logs/ingestion_hash.txt`.

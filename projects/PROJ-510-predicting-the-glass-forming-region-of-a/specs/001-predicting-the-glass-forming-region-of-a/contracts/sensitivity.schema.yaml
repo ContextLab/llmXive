@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Report Schema"
+type: "object"
+properties:
+  thresholds:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of tested K/s thresholds (must be [50, 100, 150])"
+    minItems: 3
+    maxItems: 3
+    prefixItems:
+      - type: "number"
+        const: 50
+      - type: "number"
+        const: 100
+      - type: "number"
+        const: 150
+  rmse_at_thresholds:
+    type: "array"
+    items:
+      type: "number"
+    description: "RMSE corresponding to each threshold"
+    minItems: 3
+    maxItems: 3
+  rmse_variance:
+    type: "number"
+    description: "Variance of RMSE across thresholds"
+  collinearity_flags:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_pair:
+          type: "array"
+          items:
+            type: "string"
+          description: "Pair of collinear features"
+        correlation:
+          type: "number"
+          description: "Correlation coefficient (>0.8)"
+      required:
+        - "feature_pair"
+        - "correlation"
+    description: "List of flagged collinear pairs"
+required:
+  - "thresholds"
+  - "rmse_at_thresholds"
+  - "rmse_variance"
+  - "collinearity_flags"
+additionalProperties: false

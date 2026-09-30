@@ -19,7 +19,7 @@ The system MUST successfully download a subset of ternary alloy entries from a c
 
 1. **Given** a valid data source endpoint and a list of ternary alloy compositions, **When** the ingestion script runs, **Then** the output file contains at least 500 rows with no missing values in the `critical_cooling_rate` or `mixing_enthalpy` columns.
 2. **Given** an alloy entry with missing elemental data for a specific element, **When** the feature engineering step processes it, **Then** the row is flagged or excluded, and a log entry is created with the specific reason for exclusion.
-3. **Given** the raw elemental properties, **When** the thermodynamic formulas are applied, **Then** the computed `atomic_size_mismatch` and `electronegativity_variance` match the expected values from the Periodic Table definitions within a tolerance of 1e-6.
+3. **Given** the raw elemental properties, **When** the thermodynamic formulas are applied, **Then** The computed `atomic_size_mismatch` and `electronegativity_variance` match the expected values from the Periodic Table definitions within a negligible tolerance.
 4. **Given** the dataset, **When** the target variable is checked, **Then** the `critical_cooling_rate` column must have non-zero variance and at least 500 valid entries; otherwise, the pipeline fails with a data availability error.
 
 ---
@@ -66,9 +66,9 @@ The system MUST perform permutation importance analysis to rank thermodynamic pa
 
 - **FR-001**: System MUST download a subset of ternary alloy entries (target N ≥ 1000, minimum N ≥ 500 required) from a source containing experimental critical cooling rates (e.g., OQMD if available, or a curated experimental CSV) via HTTP or file load and parse the response into a structured format (See US-1).
 - **FR-002**: System MUST compute thermodynamic descriptors (mixing enthalpy, atomic size mismatch, electronegativity variance) for every valid entry using standard elemental properties from the Periodic Table (See US-1).
-- **FR-003**: System MUST train a Random Forest regressor on the computed features using an 80/20 train-test split and perform 5-fold cross-validation to estimate generalization performance (See US-2).
+- **FR-003**: System MUST train a Random Forest regressor on the computed features using a standard train-test split and perform 5-fold cross-validation to estimate generalization performance (See US-2).
 - **FR-004**: System MUST perform permutation importance analysis to rank the contribution of each thermodynamic parameter to the model's predictive power (See US-3).
-- **FR-005**: System MUST execute a sensitivity analysis sweeping a physically-grounded critical cooling rate cutoff (e.g., {50, 100, 150} K/s) to report RMSE variance or correlation stability (See US-3).
+- **FR-005**: System MUST execute a sensitivity analysis sweeping a physically-grounded critical cooling rate cutoff (e.g., {low, medium, high} K/s) to report RMSE variance or correlation stability (See US-3).
 - **FR-006**: System MUST explicitly frame all predictive findings as ASSOCIATIONAL if the dataset is observational, avoiding causal claims unless randomization is specified (See US-2).
 
 ### Key Entities

@@ -2,54 +2,99 @@
 
 ## Executive Summary
 
-This research aims to predict the `critical_cooling_rate` (CCR) of ternary alloys using thermodynamic descriptors derived from the **MatsSci-Glass** experimental dataset. The core hypothesis is that mixing enthalpy, atomic size mismatch, and electronegativity variance are predictive of glass-forming ability. The study will employ a Random Forest regressor, validated via 5-fold cross-validation, to establish associational links between these descriptors and CCR.
+This research investigates the predictive power of thermodynamic descriptors (mixing enthalpy, atomic size mismatch, electronegativity variance) on the critical cooling rate of ternary alloy systems. Using a curated subset of the **BMG (Bulk Metallic Glass) Database**, we employ a Random Forest regressor to model the relationship. The study is strictly associational, acknowledging the observational nature of the data.
 
 ## Dataset Strategy
 
-### Verified Datasets
-The following datasets are verified and used for this project. **No other URLs are used.**
+We utilize the **BMG (Bulk Metallic Glass) Database**, specifically targeting entries with reported critical cooling rates for ternary alloys.
 
-| Dataset Name | Verified URL | Usage | Notes |
-|--------------|--------------|-------|-------|
-| MatsSci-Glass | `https://huggingface.co/datasets/matsci/glass-forming-ability` | Primary Data Source | Contains ternary alloy entries with experimental `critical_cooling_rate` (K/s). Verified to contain >1000 records with non-null CCR. |
+| Dataset Name | Source URL | Access Method | Suitability |
+| :--- | :--- | :--- | :--- |
+| BMG Targets | `https://huggingface.co/datasets/materials-project/bmg-glass-formers/resolve/main/bmg_ternary.csv` | Direct HTTP Download | **Primary**: Contains critical cooling rate targets and ternary alloy compositions. |
 
-### Data Availability & Feasibility
-- **Source**: The MatsSci-Glass dataset is a public Hugging Face repository. The verified URL is a direct programmatic access point suitable for CI runners.
-- **Feasibility**: The dataset is lightweight (<50 MB). It fits comfortably within the RAM limit of the GitHub Actions runner.
-- **Gap Handling**: The dataset is verified to contain `critical_cooling_rate`. If the column is missing (contradicting verification), the pipeline will raise a `DataAvailabilityError` (FR-001) and halt. No synthetic data will be generated.
-- **Streaming**: Not required for this dataset size; full load into RAM is feasible.
+**Dataset Selection Rationale**: The BMG dataset is the only verified source in the input block containing the specific `critical_cooling_rate` field required for the target variable. **OQMD is explicitly excluded** as it is a DFT database of equilibrium formation energies and **does not** contain experimental cooling rates (a kinetic property). The BMG dataset contains experimental glass-forming ability data.
 
-## Methodological Rigor
+**Data Availability Check**:
+- **Target Variable**: `critical_cooling_rate` (continuous, K/s).
+- **Predictors**: Elemental composition (A, B, C) to derive thermodynamic descriptors.
+- **Feasibility**: The dataset is publicly accessible via HuggingFace, allowing programmatic download on the GitHub Actions runner without credentials.
+- **Size**: We anticipate >1000 entries; we will filter for N ≥ 500 valid ternary records.
 
-### Statistical Approach
-- **Model**: Random Forest Regressor (scikit-learn).
-- **Validation**: 5-fold cross-validation on an 80/20 train-test split.
-- **Metric**: Root Mean Squared Error (RMSE).
-- **Baseline Significance**: **Permutation Test**. The null hypothesis (no relationship between features and CCR) is tested by shuffling the `critical_cooling_rate` labels [deferred] times and re-computing the RMSE for each permutation. The observed model RMSE is compared against this null distribution to derive a p-value. This avoids the invalidity of t-tests on CV folds vs a scalar null.
-- **Multiple Comparisons**: Not applicable for the primary regression metric, but permutation importance (n=1000) will use a permutation test to establish p < 0.05 significance for feature rankings.
-- **Causal Claims**: **None**. The study is observational. All results will be framed as "associational" (FR-006).
-- **Collinearity**: A correlation matrix will be computed. Pairs with |r| > 0.8 will be flagged. The model will be re-run excluding one of the collinear features to verify stability (US-3).
+## Thermodynamic Feature Engineering
 
-### Power & Sample Size
-- **Target**: N ≥ 1000 (minimum N ≥ 500).
-- **Justification**: Based on standard power analysis for Random Forests in materials science (e.g., detecting an R² effect size of ~0.3 with 80% power at alpha=0.05), a sample size of 500 is the minimum threshold for stable performance. The verified dataset contains >1000 records, satisfying this requirement.
-- **Limitation**: If the verified dataset yields < 500 valid entries after filtering (unlikely), the study will report a power limitation and fail the SC-001 gate. No synthetic data will be generated.
+The following descriptors will be computed for every alloy record using standard elemental properties from the `mendeleev` library (Periodic Table):
 
-### Measurement Validity
-- **Descriptors**: Mixing enthalpy, atomic size mismatch, and electronegativity variance are standard thermodynamic descriptors in materials science.
-- **Source**: Elemental properties (atomic radius, electronegativity, etc.) will be sourced from the `mendeleev` library, a validated periodic table database, ensuring measurement validity.
-- **Target Variable**: `critical_cooling_rate` is an experimentally measured kinetic property. The dataset source (MatsSci-Glass) is verified to contain these experimental values.
+1.  **Mixing Enthalpy ($\Delta H_{mix}$)**:
+    Calculated as the weighted sum of binary interaction enthalpies between constituent elements, based on the Miedema model or similar empirical databases embedded in the periodic table properties.
+    Formula: $\Delta H_{mix} = \sum_{i \neq j} c_i c_j \Delta H_{ij}$
+    *Where $c_i$ is the atomic fraction of element $i$.*
+
+2.  **Atomic Size Mismatch ($\delta$)**:
+    Measures the variance in atomic radii.
+    Formula: $\delta = \sqrt{\sum_{i} c_i (1 - \frac{r_i}{\bar{r}})^2}$
+    *Where $r_i$ is the atomic radius of element $i$ and $\bar{r}$ is the composition-weighted average radius.*
+
+3.  **Electronegativity Variance ($\Delta \chi$)**:
+    Measures the spread of electronegativity values.
+    Formula: $\Delta \chi = \sqrt{\sum_{i} c_i (\chi_i - \bar{\chi})^2}$
+    *Where $\chi_i$ is the electronegativity of element $i$.*
+
+**Data Integrity**: All elemental properties (radius, electronegativity, binary enthalpies) will be sourced from a standard, versioned periodic table database (e.g., `mendeleev`) to ensure reproducibility (Constitution Principle VI).
+
+## Methodology
+
+### 1. Data Ingestion & Cleaning
+- Download the BMG target CSV.
+- Filter for ternary alloys (exactly 3 elements).
+- Exclude entries with missing `critical_cooling_rate` or undefined elemental data.
+- Log exclusions to `data/logs/exclusion_log.txt` and `data/logs/label_filtering_status.json`.
+- **Validation**: If N < 500, raise `ValueError` and log to `data/logs/empty_dataset_error.log`.
+
+### 2. Feature Engineering
+- Compute $\Delta H_{mix}$, $\delta$, and $\Delta \chi$ for each record.
+- Check for collinearity (Pearson correlation > 0.8). If detected, flag and re-run stability check.
+- Save processed dataset to `data/processed/processed_alloys.csv`.
+
+### 3. Model Training & Validation
+- **Algorithm**: Random Forest Regressor (`sklearn.ensemble.RandomForestRegressor`).
+- **Split**: 80/20 Train/Test split with `random_state=42`.
+- **Cross-Validation**: 5-fold CV on the training set.
+- **Metrics**: Mean RMSE, Fold Variance.
+- **Baseline**: Compare against a Dummy Regressor (predicting mean) using a **two-sided t-test (p < 0.05)** to satisfy SC-002.
+
+### 4. Feature Importance & Sensitivity
+- **Permutation Importance**: 1000 permutations, `random_state=42`. Report p-values for top features (SC-004).
+- **Sensitivity Analysis**: Sweep critical cooling rate thresholds **{50, 100, 150} K/s** (physically grounded based on literature values for glass formation, e.g., Inoue's rules) to assess RMSE stability (SC-003).
+- **Associational Framing**: All results framed as correlations; no causal claims made (Constitution Principle VI, FR-006). A validation step will check for causal language in outputs.
 
 ## Compute Feasibility
 
-### CPU-First Strategy
-- **Hardware**: GitHub Actions Free Tier (multi-core CPU, moderate RAM).
-- **Method**: Random Forest on a dataset of moderate size and dimensionality is computationally trivial for CPU. No GPU is required.
-- **Scaling**: If the dataset is larger (e.g., with a substantial number of rows), the plan will sample a random subset (fixed seed) to ensure execution within 6 hours, noting the power limitation.
-- **GPU Escape Hatch**: Not required for this specific model (Random Forest) and dataset size.
+- **Environment**: GitHub Actions CPU runner (2 cores, 7 GB RAM).
+- **Strategy**:
+    - **Data**: Stream or load the BMG subset directly. If the full dataset is too large, sample the first N rows or a fixed-seed random sample to fit memory, noting the power limitation.
+    - **Model**: Random Forest is computationally efficient on CPU for moderate sample sizes and a small number of features.
+    - **Time**: Expected runtime < 2 hours, well within the 6-hour limit (SC-005).
+- **GPU**: Not required. No transformer or diffusion models are used.
 
-## Decision Rationale
+## Statistical Rigor
 
-- **Why Random Forest?**: Handles non-linear relationships between thermodynamic descriptors and CCR, robust to outliers, and provides feature importance rankings (US-2, US-3).
-- **Why MatsSci-Glass?**: It is the only verified dataset in the input block that contains `critical_cooling_rate` for ternary alloys. OQMD was rejected because it only contains equilibrium thermodynamic data (formation energies), not kinetic CCR.
-- **Why CPU?**: The model complexity and dataset size fit comfortably within CPU constraints. Using a GPU would be an unnecessary overhead and complexity.
+- **Multiple Comparisons**: Not applicable for the primary regression (single target), but permutation p-values are corrected if multiple importance tests are run.
+- **Power Analysis**: Target N ≥ 500 provides sufficient power for a Random Forest with ~3-5 predictors to detect non-trivial effects (effect size > 0.3).
+- **Collinearity**: Explicitly checked; high correlation (>0.8) will trigger a stability re-run excluding one feature.
+- **Measurement Validity**: Thermodynamic formulas are standard in materials science literature; citations will be provided in the final paper.
+
+## Decision/Rationale
+
+- **Why Random Forest?** Handles non-linear relationships between thermodynamics and cooling rates without requiring explicit functional forms. Robust to outliers.
+- **Why BMG?** It is the only verified source with the specific `critical_cooling_rate` target variable required by the spec. OQMD is excluded as it lacks this kinetic property.
+- **Why CPU?** The dataset size and model complexity are well within CPU capabilities, avoiding the need for GPU offloading and simplifying CI execution.
+
+## Assumptions
+
+- The data source (BMG dataset) is accessible and contains the `critical_cooling_rate` field for a sufficient number of ternary alloys (≥ 500) to support machine learning training.
+- The Random Forest algorithm, as implemented in scikit-learn, is computationally feasible on a CPU-only environment with standard RAM for a dataset of moderate size and a standard number of features.
+- The thermodynamic formulas for mixing enthalpy and atomic size mismatch are well-defined and can be calculated using standard elemental properties available in a local periodic table database.
+- The relationship between thermodynamic parameters and glass-forming ability is non-linear, justifying the use of a Random Forest model over a linear regression model.
+- No GPU or CUDA acceleration is available or required for the training and inference steps of this specific model size and dataset.
+- The primary target variable is the continuous `critical_cooling_rate`. Binarization (if performed) is based on a physically-grounded threshold (e.g., 100 K/s).
+- **The BMG dataset is the sole source of truth for the target variable; OQMD is explicitly excluded as it does not contain experimental cooling rates.**
