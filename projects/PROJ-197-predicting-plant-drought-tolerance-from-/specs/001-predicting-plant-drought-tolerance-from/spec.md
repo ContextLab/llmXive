@@ -25,7 +25,7 @@ The system must successfully download, parse, and merge physiological trait data
 
 ### User Story 2 - Model Training and Validation (Priority: P2)
 
-The system must train two supervised classifiers (Random Forest and XGBoost) on the constructed dataset using a stratified train-test split and 5-fold cross-validation, ensuring the models are trained without GPU acceleration and complete within the CI limit. Additionally, the system must validate that the combined features provide statistically significant improvement over a phylogeny-only baseline.
+The system must train two supervised classifiers (Random Forest and XGBoost) on the constructed dataset using a stratified train-test split and k-fold cross-validation, ensuring the models are trained without GPU acceleration and complete within the CI limit. Additionally, the system must validate that the combined features provide statistically significant improvement over a phylogeny-only baseline.
 
 **Why this priority**: This validates the core scientific hypothesis that genomic and physiological markers can predict drought tolerance beyond phylogenetic relatedness. It also confirms the computational feasibility of the approach on free-tier CI resources.
 
@@ -33,7 +33,7 @@ The system must train two supervised classifiers (Random Forest and XGBoost) on 
 
 **Acceptance Scenarios**:
 
-1. **Given** the merged dataset with a binary drought-tolerance label, **When** the training script executes, **Then** both RandomForest and XGBoost models are trained using default hyperparameters for all parameters except tree count, which is grid-searched across values {100, 200, 500}.
+1. **Given** the merged dataset with a binary drought-tolerance label, **When** the training script executes, **Then** both RandomForest and XGBoost models are trained using default hyperparameters for all parameters except tree count, which is grid-searched across a range of values.
 2. **Given** the stratified train/test split, **When** the models are evaluated on the held-out test set, **Then** the ROC-AUC score is calculated and logged for both models, and the best performing model (highest mean AUC) is identified.
 3. **Given** the 2-core CPU environment constraint, **When** the training job runs, **Then** the process completes without OOM (Out Of Memory) errors or GPU-related exceptions within 30 minutes.
 4. **Given** the best performing model and the phylogeny-only baseline, **When** the comparison test is executed, **Then** DeLong's test is used to verify the best model's AUC is statistically significantly higher than the baseline (p < 0.05).
@@ -86,7 +86,7 @@ The system must perform a statistical comparison of the two classifiers' perform
 ### Measurable Outcomes
 
 - **SC-001**: The ROC-AUC of the best performing model (Random Forest or XGBoost) on the held-out test set is measured against the phylogeny-only baseline model (FR-009) using DeLong's test to ensure the combined features outperform the baseline by at least 0.05 AUC with p < 0.05 (See US-2).
-- **SC-002**: The total execution time of the data pipeline and model training is measured against the 6-hour GitHub Actions job limit to ensure CPU feasibility (See US-2).
+- **SC-002**: The total execution time of the data pipeline and model training is measured against the standard CI/CD job time limits to ensure CPU feasibility. (See US-2).
 - **SC-003**: The p-value from the paired t-test on cross-validated AUC scores is measured against the significance threshold of α = 0.05 to determine if one model significantly outperforms the other (See US-3).
 - **SC-004**: The number of successfully merged species in the final dataset is measured against the input species list to verify data completeness (See US-1).
 - **SC-005**: The top 10 feature importance scores are measured against a list of 15 independent ABA-signaling genes (distinct from the training features) to verify that at least 3 of these 15 genes appear in the top 10 ranks (See US-3).
