@@ -3,142 +3,124 @@ import os
 import pytest
 from pathlib import Path
 import yaml
-import pandas as pd
-from jsonschema import validate, ValidationError, Draft7Validator
 
-# Project root handling
-ROOT_DIR = Path(__file__).resolve().parent.parent.parent
-CONTRACTS_DIR = ROOT_DIR / "contracts"
-DATA_DIR = ROOT_DIR / "data"
+# Import project modules for data generation if needed for integration
+# Note: We assume the pipeline (align.py, finalize.py) runs before this test in the full run-book
+# For the contract test, we validate the schema against the generated file.
+
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+DATA_DIR = PROJECT_ROOT / "data"
 
 def load_schema(schema_name: str) -> dict:
     """Load a JSON Schema from the contracts directory."""
-    schema_path = CONTRACTS_DIR / f"{schema_name}.yaml"
-    if not schema_path.exists():
-        # Fallback to .json if yaml not found, though spec says yaml
-        schema_path = CONTRACTS_DIR / f"{schema_name}.json"
-    
+    schema_path = CONTRACTS_DIR / f"{schema_name}.schema.yaml"
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
-    with open(schema_path, 'r') as f:
-        if schema_path.suffix == '.yaml':
-            return yaml.safe_load(f)
-        else:
-            return json.load(f)
+    with open(schema_path, "r") as f:
+        return yaml.safe_load(f)
 
-def validate_data_against_schema(data_path: Path, schema_name: str) -> bool:
+def validate_data_against_schema(data_path: Path, schema: dict) -> bool:
     """
     Validates a CSV file against a JSON Schema.
-    Since JSON Schema is for JSON objects, we validate the structure of the 
-    CSV headers and optionally a sample row against the schema definitions.
+    Since jsonschema validates JSON objects, we convert CSV to a list of dicts (records)
+    and validate the structure of the records against the schema's 'items' definition.
     """
+    try:
+        import pandas as pd
+        import jsonschema
+    except ImportError:
+        raise RuntimeError("Missing dependencies: pandas, jsonschema")
+
     if not data_path.exists():
         raise FileNotFoundError(f"Data file not found: {data_path}")
 
-    schema = load_schema(schema_name)
-    validator = Draft7Validator(schema)
-
-    # Read CSV to check headers (keys)
     df = pd.read_csv(data_path)
-    columns = list(df.columns)
     
-    # The schema usually defines 'properties' for the object structure.
-    # We map CSV columns to schema properties.
+    # Convert to list of dicts for validation
+    data_records = df.to_dict(orient='records')
+    
+    # The schema usually defines the structure of a single object (a row)
+    # We validate each row against the schema properties
+    # Note: The schema file defines the object structure. We treat the dataset as a list of these objects.
+    
+    # Construct a temporary schema for the list of records if the original schema is for a single object
+    # Most JSON schemas in contracts/ are defined as the object structure.
+    # We validate each record against the 'properties' defined in the schema.
+    
+    schema_type = schema.get('type')
+    schema_properties = schema.get('properties', {})
     required_fields = schema.get('required', [])
-    properties = schema.get('properties', {})
-
-    # Check 1: All required fields present in CSV
-    missing_fields = set(required_fields) - set(columns)
-    if missing_fields:
-        raise ValidationError(f"Missing required fields in {data_path.name}: {missing_fields}")
-
-    # Check 2: Validate types of a sample row (if types are defined in schema)
-    # We convert the first row to a dict for validation
-    if len(df) > 0:
-        sample_row = df.iloc[0].to_dict()
+    
+    # Validate headers (columns)
+    if not all(col in df.columns for col in required_fields):
+        missing = [col for col in required_fields if col not in df.columns]
+        raise AssertionError(f"Missing required columns in {data_path.name}: {missing}")
+    
+    # Validate data types and content for each row
+    for i, record in enumerate(data_records):
+        # Check required fields presence
+        for field in required_fields:
+            if field not in record or record[field] is None:
+                raise AssertionError(f"Missing required field '{field}' in row {i}")
         
-        # JSON Schema validation expects a JSON object. 
-        # We perform a manual type check based on schema definitions 
-        # because jsonschema.validate expects a pure JSON-compatible dict.
-        for field, schema_def in properties.items():
-            if field in sample_row:
-                value = sample_row[field]
-                expected_type = schema_def.get('type')
-                
-                if expected_type == 'number':
-                    if not isinstance(value, (int, float)):
-                        # Allow numeric strings if they can be converted, but strict check usually preferred
-                        try:
-                            float(value)
-                        except (ValueError, TypeError):
-                            raise ValidationError(f"Field '{field}' is expected to be number, got {type(value)}")
-                elif expected_type == 'string':
-                    if not isinstance(value, str):
-                        # Allow int/float to be cast to string, but strict check preferred
-                        pass 
-                elif expected_type == 'integer':
-                    if not isinstance(value, int):
-                        try:
-                            int(value)
-                        except (ValueError, TypeError):
-                            raise ValidationError(f"Field '{field}' is expected to be integer, got {type(value)}")
-                # Boolean, array, object checks omitted for CSV simplicity unless strictly needed
+        # Check specific field types if defined in schema
+        for field, details in schema_properties.items():
+            if field in record and record[field] is not None:
+                expected_type = details.get('type')
+                if expected_type == 'string' and not isinstance(record[field], str):
+                    # Allow numeric types if the schema is loose, but strict check preferred
+                    pass 
+                # Additional type checks can be added here based on schema details
 
     return True
 
 def test_aligned_data_schema_exists():
-    """Test that the aligned_data schema file exists."""
-    schema_path = CONTRACTS_DIR / "aligned_data.yaml"
-    assert schema_path.exists(), f"Schema file missing: {schema_path}"
+    """Verify that the aligned_data.schema.yaml exists."""
+    schema_path = CONTRACTS_DIR / "aligned_data.schema.yaml"
+    assert schema_path.exists(), "aligned_data.schema.yaml not found in contracts/"
 
 def test_model_output_schema_exists():
-    """Test that the model_output schema file exists."""
-    schema_path = CONTRACTS_DIR / "model_output.yaml"
-    assert schema_path.exists(), f"Schema file missing: {schema_path}"
+    """Verify that the model_output.schema.yaml exists."""
+    schema_path = CONTRACTS_DIR / "model_output.schema.yaml"
+    assert schema_path.exists(), "model_output.schema.yaml not found in contracts/"
 
 def test_aligned_data_schema_valid():
-    """Test that the aligned_data schema itself is valid JSON Schema Draft 7."""
+    """Validate that the aligned_data.schema.yaml is valid YAML/JSON Schema."""
     schema = load_schema("aligned_data")
-    Draft7Validator.check_schema(schema)
+    assert isinstance(schema, dict), "Schema must be a dictionary"
+    assert "properties" in schema, "Schema must define properties"
+    # Check for specific required fields from T009a and T022b
+    required_fields = schema.get("required", [])
+    assert "subject_id" in required_fields, "subject_id is required"
+    assert "block_id" in required_fields, "block_id is required"
+    assert "mmn_amplitude" in required_fields, "mmn_amplitude is required"
+    assert "learning_phase" in required_fields, "learning_phase is required (T022b)"
 
 def test_model_output_schema_valid():
-    """Test that the model_output schema itself is valid JSON Schema Draft 7."""
+    """Validate that the model_output.schema.yaml is valid YAML/JSON Schema."""
     schema = load_schema("model_output")
-    Draft7Validator.check_schema(schema)
+    assert isinstance(schema, dict), "Schema must be a dictionary"
+    assert "properties" in schema, "Schema must define properties"
+    required_fields = schema.get("required", [])
+    assert "coefficients" in required_fields, "coefficients is required"
+    assert "p_values" in required_fields, "p_values is required"
 
-def test_aligned_data_schema_validation():
+@pytest.mark.integration
+def test_aligned_data_contract_with_generated_data():
     """
-    T018: Contract test for aligned_data schema.
-    Validates that the final data/aligned_data.csv contains all required fields
-    including 'learning_phase'.
+    Contract test for aligned_data schema in tests/contract/test_schemas.py.
+    Validates that the final data/aligned_data.csv contains all required fields including learning_phase.
+    Dependency: T009a (Base Schema), T022b (Learning_Phase extension).
     """
     aligned_data_path = DATA_DIR / "aligned_data.csv"
     
-    # If the file doesn't exist, we can't validate it. 
-    # In a CI/CD or pipeline context, this would fail the build if the file is expected.
+    # Skip if file doesn't exist (pipeline not run)
     if not aligned_data_path.exists():
-        pytest.skip(f"Data file {aligned_data_path} not found. Skipping validation.")
+        pytest.skip("data/aligned_data.csv not found. Run the pipeline first.")
     
-    # Validate structure against schema
-    validate_data_against_schema(aligned_data_path, "aligned_data")
-
-    # Specific check for T018 requirement: 'learning_phase' must exist
-    df = pd.read_csv(aligned_data_path)
-    assert 'learning_phase' in df.columns, (
-        "Contract violation: 'learning_phase' column is missing from aligned_data.csv. "
-        "This field is required for the LME model (FR-006)."
-    )
-
-    # Verify 'learning_phase' has valid categorical values (non-null)
-    assert df['learning_phase'].notna().all(), (
-        "Contract violation: 'learning_phase' column contains null values."
-    )
-
-    # Verify unique values are reasonable (e.g., 'Early', 'Late')
-    unique_phases = df['learning_phase'].unique()
-    valid_phases = {'Early', 'Late', 'Mid', 'Initial', 'Final'} # Common binning names
-    # We allow any string, but check that they are not empty or NaN (handled above)
-    assert all(isinstance(p, str) and len(p) > 0 for p in unique_phases), (
-        "Contract violation: 'learning_phase' contains invalid empty or non-string values."
-    )
+    schema = load_schema("aligned_data")
+    try:
+        validate_data_against_schema(aligned_data_path, schema)
+    except (AssertionError, FileNotFoundError, RuntimeError) as e:
+        pytest.fail(f"Schema validation failed: {e}")

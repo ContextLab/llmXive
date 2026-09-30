@@ -1,67 +1,77 @@
-# Quickstart Guide
+# Quickstart Guide: Neural Correlates of Predictive Error Signals
 
-This guide outlines the steps to run the full pipeline for the **Neural Correlates of Predictive Error Signals** project.
+This guide describes how to run the full pipeline for project **PROJ-500-neural-correlates-of-predictive-error-si**.
 
 ## Prerequisites
 
 - Python 3.11+
-- Virtual environment activated (`.venv`)
-- Dependencies installed (`pip install -r requirements.txt`)
+- `pip` and `virtualenv`
 
-## Execution Steps
+## Setup
 
-The pipeline is executed in stages. Each stage produces intermediate artifacts required by the next.
+1. **Clone and Setup Environment**
+ ```bash
+ cd code
+ python -m venv.venv
+ source.venv/bin/activate
+ pip install -r requirements.txt
+ ```
 
-### 1. Data Ingestion
-Fetches and validates the dataset.
+2. **Initialize Project Structure (if not already done)**
+ ```bash
+ python scripts/create_project_structure.py
+ python scripts/init_git.py
+ python scripts/generate_project_state.py
+ ```
+
+## Running the Pipeline
+
+The pipeline consists of sequential stages. Run them in order to generate the final `aligned_data.csv`.
+
+### Step 1: Data Ingestion (T014)
+Downloads and streams raw EEG data.
 ```bash
-python code/src/data/ingest.py
+python src/data/ingest.py
 ```
-*Output*: `data/validation_report.json`, raw data files (processed in memory or temp)
+*Output*: `data/interim_raw_chunks/`, `data/streaming_log.json`
 
-### 2. Preprocessing
-Filters, ICA, and epochs the data.
+### Step 2: Preprocessing (T015, T016, T017)
+Filters, applies ICA, and epochs data.
 ```bash
-python code/src/data/preprocess.py
+python src/data/preprocess.py
 ```
-*Output*: `data/excluded_subjects.csv`, preprocessed epochs
+*Output*: `data/epochs/`, `data/power_report.csv`
 
-### 3. Behavioral Binning (T021)
-Calculates accuracy over configurable blocks.
+### Step 3: Alignment (T020, T021, T022, T022b)
+Calculates MMN, bins accuracy, and performs lagged alignment.
 ```bash
-python code/src/data/align.py --task bin
+python src/data/align.py
 ```
-*Output*: `data/accuracy_blocks.csv`
+*Output*: `data/accuracy_blocks.csv`, `data/interim_lagged_mmns.csv`
 
-### 4. Lagged Alignment (T022)
-Aligns MMN signals to subsequent accuracy blocks.
+### Step 4: Finalization (T023, T024)
+Filters data based on power analysis and merges into the final aligned dataset.
 ```bash
-python code/src/data/align.py --task lag
-```
-*Output*: `data/interim_lagged_mmns.csv`
-
-### 5. Finalization (T024)
-Merges data, applies exclusion filters, and writes the final aligned dataset.
-```bash
-python code/src/data/finalize.py
+python src/data/finalize.py
 ```
 *Output*: `data/aligned_data.csv`
 
-### 6. Statistical Modeling (T027-T031)
-Fits LME models and runs permutation tests.
+### Step 5: Modeling (T027, T028, T029)
+Fits the LME model and runs permutation tests.
 ```bash
-python code/src/analysis/model.py
+python src/analysis/model.py
 ```
 *Output*: `analysis/results/model_output.json`, `analysis/results/permutation_stability_log.json`
 
 ## Verification
 
-After running the full sequence, verify the existence of the following key artifacts:
-- `data/validation_report.json`
-- `data/excluded_subjects.csv`
-- `data/accuracy_blocks.csv`
-- `data/interim_lagged_mmns.csv`
-- `data/aligned_data.csv`
-- `analysis/results/model_output.json`
+Verify the final output exists and matches the schema:
+```bash
+python -m pytest tests/contract/test_schemas.py -v
+```
 
-If any step fails, check the logs in `logs/pipeline.log` for detailed error messages.
+## Notes
+
+- Ensure `DATA_DIR` environment variable is set if not using the default `data/` folder.
+- For large datasets, ensure sufficient disk space and RAM (see `requirements.txt` for memory profiling tools).
+- The `ANALYSIS_MODE` environment variable can be set to `error_signal` or `stimulus_driven` to control filtering logic in T023/T024.

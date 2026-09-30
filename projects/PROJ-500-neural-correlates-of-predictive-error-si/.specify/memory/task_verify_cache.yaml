@@ -31,6 +31,15 @@ T006:
   r: The `pyproject.toml` file is present and contains a proper `[tool.black]` configuration,
     but the required `ruff.toml` file is missing entirely, so the linting tool is
     not configured as specified. The task therefore remains incomplete.
+T019:
+  c: false
+  h: e98b9bab9c7e2cca229c11b0d1947ffdc019f0ff145cccce0515e233de557d70
+  r: "The repository contains a partially shown `tests/integration/test_alignment.py`,\
+    \ but the required output file `data/interim_lagged_mmns.csv` does not exist,\
+    \ and the test code is truncated before it can be verified that it creates and\
+    \ validates the file with the exact schema. The missing CSV (and incomplete test\
+    \ script) means the integration test does not demonstrably satisfy the task\u2019\
+    s verification criteria."
 T020:
   c: false
   h: 10c4d5147836ffb55e3060eb55568240d1499698fd08ea5ab1e68a60b1088964
@@ -39,6 +48,36 @@ T020:
     \ with the required columns or validates the lagged\u2011window logic. Moreover,\
     \ the expected output file `data/interim_lagged_mmns.csv` is absent from the project.\
     \ The task\u2019s verification criteria are therefore not met."
+T021:
+  c: false
+  h: 3fcd3b3935eb99f665a24cd73a8dfa411a51b4166a23bea2afc44b254fa33d84
+  r: "The `src/utils/config.py` does not define an `ACCURACY_BLOCK_SIZE` (or any multi\u2011\
+    trial block size) and the required output file `data/accuracy_blocks.csv` is absent.\
+    \ Moreover, the shown portion of `src/data/align.py` contains no implementation\
+    \ of the behavioral binning logic described in the task. The artifact needed to\
+    \ satisfy the requirement is missing."
+T022:
+  c: false
+  h: 6c66442efc30184130275c50456905450927fd885619f56f7f7c34269f42fbcf
+  r: "The required output file `data/interim_lagged_mmns.csv` is absent, and the provided\
+    \ `src/data/align.py` excerpt shows no implementation that writes such a CSV or\
+    \ enforces a 50\u2011trial source window. The task\u2019s deliverable is therefore\
+    \ not satisfied."
+T022b:
+  c: false
+  h: 6923874c32ebdfd2f32d388bf8805a57718faab243c3612f5d1300aaedadea7a
+  r: The repository contains `src/data/align.py`, but the file does not show any implementation
+    that creates a `learning_phase` column nor writes `data/interim_lagged_mmns.csv`
+    or `data/learning_phases.csv`. Both expected output files are absent, so the required
+    feature generation is not present.
+T027:
+  c: false
+  h: 5f0e992e5f90bdedc49ad3accbd785539ab24852cb900b4c9452356f3b4ce854
+  r: "The repository lacks the required input file `data/aligned_data.csv` and the\
+    \ output file `analysis/results/model_output.json`. Moreover, `src/analysis/model.py`\
+    \ is truncated and does not contain a complete implementation of the Gaussian\
+    \ LME fitting, under\u2011powered warning handling, or JSON output generation.\
+    \ These essential artifacts are missing, so the task is not satisfied."
 T035:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,12 +85,3 @@ T035:
     referenced in the evidence, so the required documentation updates are missing.
     The implementer must add and populate these files with the appropriate project
     documentation.
-T040:
-  c: false
-  h: 6c66442efc30184130275c50456905450927fd885619f56f7f7c34269f42fbcf
-  r: "The required output file `data/interim_lagged_mmns.csv` does not exist, so the\
-    \ verification step cannot be performed. Moreover, the provided `src/data/align.py`\
-    \ excerpt shows only preliminary MMN\u2011window setup and a truncated `load_epoched_data`\
-    \ function, with no visible implementation of the lagged\u2011window sanity check\
-    \ (non\u2011overlap assertion and minimum\u2011trial check). Both the artifact\
-    \ and the expected CSV output are missing, so the task is not genuinely completed."

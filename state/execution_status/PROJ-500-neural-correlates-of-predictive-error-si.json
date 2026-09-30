@@ -10,11 +10,11 @@
     "python src/main.py --task model --all -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-500-neural-correlates-of-predictive-error-si/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-500-neural-correlates-of-predictive-error-si/src/main.py': [Errno 2] No such file or directory",
     "python src/main.py --task robustness --windows \"140-240,160-260\" -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-500-neural-correlates-of-predictive-error-si/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-500-neural-correlates-of-predictive-error-si/src/main.py': [Errno 2] No such file or directory"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
   "failure_class": "execution_bug",
   "evidence": [],
-  "updated_at": "2026-09-19T15:33:27Z"
+  "updated_at": "2026-09-30T07:29:03Z"
 }

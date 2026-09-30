@@ -1,432 +1,327 @@
-"""
-Statistical Modeling Module for Neural Correlates of Predictive Error Signals.
-
-Implements Gaussian Linear Mixed-Effects (LME) modeling to analyze the relationship
-between MMN amplitude, accuracy, and learning phase.
-
-Model Specification: MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject)
-"""
-
 import os
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple, Union
-
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.stats.multitest import multipletests
 
-from src.utils.logging import get_logger, log_event, log_error
-from src.utils.env_config import get_env_config
+from src.utils.logging import get_logger
+from src.utils.config import get_config
 
-# Initialize logger
 logger = get_logger(__name__)
 
-# Constants
-RESULTS_DIR = Path("code/analysis/results")
-DATA_DIR = Path("code/data")
-
-def load_aligned_data(filepath: Optional[Union[str, Path]] = None) -> pd.DataFrame:
+def load_aligned_data(data_path: Union[str, Path]) -> pd.DataFrame:
     """
     Load the aligned dataset from CSV.
     
     Args:
-        filepath: Path to the aligned_data.csv file. Defaults to code/data/aligned_data.csv.
+        data_path: Path to data/aligned_data.csv
         
     Returns:
-        DataFrame containing the aligned data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is empty or missing required columns.
+        DataFrame containing aligned data
     """
-    if filepath is None:
-        filepath = DATA_DIR / "aligned_data.csv"
-    else:
-        filepath = Path(filepath)
-        
-    logger.info(f"Loading aligned data from {filepath}")
+    path = Path(data_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Aligned data file not found at {path}")
     
-    if not filepath.exists():
-        logger.error(f"Aligned data file not found: {filepath}")
-        raise FileNotFoundError(f"Aligned data file not found: {filepath}")
-        
-    df = pd.read_csv(filepath)
+    logger.info(f"Loading aligned data from {path}")
+    df = pd.read_csv(path)
     
-    if df.empty:
-        logger.error("Aligned data file is empty.")
-        raise ValueError("Aligned data file is empty.")
-        
-    required_columns = ['subject_id', 'block_id', 'mmn_amplitude', 'accuracy', 'learning_phase']
-    missing_cols = [col for col in required_columns if col not in df.columns]
+    # Ensure required columns exist
+    required_cols = ['subject_id', 'mmn_amplitude', 'accuracy', 'learning_phase']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns in aligned data: {missing}")
     
-    if missing_cols:
-        logger.error(f"Missing required columns: {missing_cols}")
-        raise ValueError(f"Missing required columns: {missing_cols}")
-        
-    logger.info(f"Loaded {len(df)} rows from aligned data.")
     return df
 
-def fit_lme_model(
-    df: pd.DataFrame,
-    formula: str = "mmn_amplitude ~ accuracy + learning_phase + (1|subject_id)",
-    random_state: Optional[int] = None
-) -> Dict[str, Any]:
+def fit_lme_model(df: pd.DataFrame, formula: str = None) -> Tuple[Any, Dict[str, Any]]:
     """
-    Fit a Gaussian Linear Mixed-Effects model to the data.
+    Fit a Gaussian Linear Mixed Effects model.
     
     Args:
-        df: DataFrame containing the aligned data.
-        formula: Model formula in R-style syntax (using patsy/statsmodels).
-        random_state: Random seed for reproducibility.
+        df: DataFrame with aligned data
+        formula: Model formula (default: MMN_Amplitude ~ Accuracy + Learning_Phase + (1|Subject))
         
     Returns:
-        Dictionary containing model results (coefficients, p-values, etc.).
+        Tuple of (fitted model object, results dictionary)
     """
+    if formula is None:
+        formula = "mmn_amplitude ~ accuracy + learning_phase + (1|subject_id)"
+    
     logger.info(f"Fitting LME model with formula: {formula}")
     
-    # Ensure learning_phase is treated as categorical
+    # Convert categorical variables
     df['learning_phase'] = df['learning_phase'].astype('category')
     df['subject_id'] = df['subject_id'].astype('category')
     
-    # Handle missing values
-    df_clean = df.dropna(subset=['mmn_amplitude', 'accuracy', 'learning_phase'])
-    
-    if len(df_clean) == 0:
-        logger.error("No valid data points remaining after dropping NaNs.")
-        raise ValueError("No valid data points remaining after dropping NaNs.")
-        
-    if len(df_clean) < len(df):
-        logger.warning(f"Dropped {len(df) - len(df_clean)} rows with missing values.")
-        
-    # Fit the model using MixedLM (statsmodels)
-    # Note: statsmodels MixedLM uses a different syntax than lme4 in R.
-    # We need to parse the formula or use a simpler approach.
-    # For the formula "y ~ x1 + x2 + (1|group)", we use:
-    # endog = y, exog = [x1, x2], groups = group
-    
-    # Parse formula components manually for statsmodels compatibility
-    # Expected format: "mmn_amplitude ~ accuracy + learning_phase + (1|subject_id)"
-    parts = formula.split('~')
-    if len(parts) != 2:
-        raise ValueError(f"Invalid formula format: {formula}")
-        
-    lhs = parts[0].strip()
-    rhs = parts[1].strip()
-    
-    # Extract random effects group
-    if "(1|" in rhs:
-        # Extract group name from (1|subject_id)
-        group_part = rhs.split("+ (1|")[1].split(")")[0]
-        rhs_fixed = rhs.replace(f" + (1|{group_part})", "")
-        group_col = group_part
-    else:
-        rhs_fixed = rhs
-        group_col = None
-        
-    # Build design matrix for fixed effects
-    # Use patsy to create design matrices if available, otherwise manual
     try:
-        import patsy
-        y, X = patsy.dmatrices(f"{lhs} ~ {rhs_fixed}", data=df_clean, return_type='dataframe')
-    except ImportError:
-        logger.warning("patsy not found, using manual design matrix construction.")
-        # Fallback: create dummy variables manually
-        # This is a simplified approach; patsy is preferred.
-        formula_simple = f"{lhs} ~ {rhs_fixed}"
-        y, X = patsy.dmatrices(formula_simple, data=df_clean, return_type='dataframe')
-        
-    # Fit the model
-    if group_col:
-        # Mixed Linear Model
-        model = sm.MixedLM(y, X, groups=df_clean[group_col])
-        result = model.fit(reml=False) # Use ML for fixed effects inference
-    else:
-        # OLS if no random effects
-        model = sm.OLS(y, X)
+        # Use statsmodels mixedlm for LME
+        # Note: statsmodels uses different syntax than lme4 in R
+        # We'll use the formula interface
+        model = smf.mixedlm(formula.replace("(1|subject_id)", ""), 
+                          df, 
+                          groups=df['subject_id'])
         result = model.fit()
         
-    # Extract results
-    coefficients = result.params.to_dict()
-    p_values = result.pvalues.to_dict()
-    std_errors = result.bse.to_dict()
-    
-    # Log results
-    log_event("model_fit_complete", {
-        "num_observations": len(df_clean),
-        "num_groups": df_clean[group_col].nunique() if group_col else 1,
-        "converged": result.converged,
-        "log_likelihood": result.llf
-    })
-    
-    logger.info(f"Model fit complete. Converged: {result.converged}")
-    
-    return {
-        "coefficients": coefficients,
-        "p_values": p_values,
-        "std_errors": std_errors,
-        "log_likelihood": result.llf,
-        "converged": result.converged,
-        "num_observations": len(df_clean),
-        "num_groups": df_clean[group_col].nunique() if group_col else 1
-    }
+        # Extract coefficients and p-values
+        params = result.params
+        p_values = result.pvalues
+        std_err = result.bse
+        
+        results_dict = {
+            'formula': formula,
+            'coefficients': params.to_dict(),
+            'p_values': p_values.to_dict(),
+            'std_errors': std_err.to_dict(),
+            'log_likelihood': result.llf,
+            'aic': result.aic,
+            'bic': result.bic,
+            'converged': result.converged
+        }
+        
+        logger.info(f"Model converged: {result.converged}")
+        logger.info(f"AIC: {result.aic:.4f}, BIC: {result.bic:.4f}")
+        
+        return result, results_dict
+        
+    except Exception as e:
+        logger.error(f"Failed to fit LME model: {str(e)}")
+        raise
 
 def apply_fdr_correction(p_values: Dict[str, float], alpha: float = 0.05) -> Dict[str, float]:
     """
     Apply Benjamini-Hochberg FDR correction to p-values.
     
     Args:
-        p_values: Dictionary of p-values.
-        alpha: Significance level.
+        p_values: Dictionary of p-values
+        alpha: Significance threshold
         
     Returns:
-        Dictionary of FDR-corrected p-values.
+        Dictionary of FDR-corrected p-values
     """
-    logger.info(f"Applying FDR correction with alpha={alpha}")
+    logger.info("Applying FDR correction")
     
-    # Filter out non-numeric or NaN p-values
-    valid_p_values = {k: v for k, v in p_values.items() if isinstance(v, (int, float)) and not np.isnan(v)}
+    names = list(p_values.keys())
+    raw_p = list(p_values.values())
     
-    if not valid_p_values:
-        logger.warning("No valid p-values to correct.")
+    if len(raw_p) == 0:
         return {}
-        
-    names = list(valid_p_values.keys())
-    raw_pvals = list(valid_p_values.values())
     
     # Apply BH correction
-    rejected, corrected_pvals, _, _ = multipletests(raw_pvals, alpha=alpha, method='fdr_bh')
+    reject, pvals_corrected, _, _ = multipletests(raw_p, alpha=alpha, method='fdr_bh')
     
-    fdr_p_values = {name: pval for name, pval in zip(names, corrected_pvals)}
+    corrected_dict = {name: p for name, p in zip(names, pvals_corrected)}
     
-    logger.info(f"FDR correction complete. {sum(rejected)} hypotheses rejected.")
+    logger.info(f"Original p-values: {raw_p}")
+    logger.info(f"Corrected p-values: {list(corrected_dict.values())}")
     
-    return fdr_p_values
+    return corrected_dict
 
-def run_permutation_test(
-    df: pd.DataFrame,
-    formula: str = "mmn_amplitude ~ accuracy + learning_phase + (1|subject_id)",
-    n_permutations: int = 1000,
-    random_state: Optional[int] = None
-) -> Dict[str, Any]:
+def run_permutation_test(df: pd.DataFrame, n_permutations: int = 1000, seed: int = 42) -> Dict[str, Any]:
     """
-    Run a permutation test to assess the significance of the main effect of accuracy.
+    Run a permutation test for the LME model.
     
     Args:
-        df: DataFrame containing the aligned data.
-        formula: Model formula.
-        n_permutations: Number of permutations.
-        random_state: Random seed.
+        df: DataFrame with aligned data
+        n_permutations: Number of permutations
+        seed: Random seed for reproducibility
         
     Returns:
-        Dictionary containing permutation test results.
+        Dictionary with permutation test results
     """
-    logger.info(f"Running permutation test with n={n_permutations}")
+    logger.info(f"Running permutation test with {n_permutations} permutations")
     
-    if random_state is not None:
-        np.random.seed(random_state)
-        
-    # Prepare data
-    df_clean = df.dropna(subset=['mmn_amplitude', 'accuracy', 'learning_phase'])
-    if len(df_clean) < 10:
-        logger.error("Insufficient data for permutation test.")
-        raise ValueError("Insufficient data for permutation test.")
-        
+    np.random.seed(seed)
+    
     # Fit original model to get observed statistic
-    # We will use the t-statistic for the 'accuracy' coefficient
-    try:
-        import patsy
-        y, X = patsy.dmatrices(f"mmn_amplitude ~ accuracy + learning_phase", data=df_clean, return_type='dataframe')
-        group = df_clean['subject_id'].values
-    except ImportError:
-        raise ImportError("patsy is required for permutation test.")
-        
-    # Fit original model
-    model_orig = sm.MixedLM(y, X, groups=group)
-    result_orig = model_orig.fit(reml=False)
-    obs_stat = result_orig.tvalues['accuracy']
+    _, orig_results = fit_lme_model(df)
+    observed_stat = abs(orig_results['coefficients'].get('accuracy', 0))
     
-    # Permutation loop
     perm_stats = []
+    
     for i in range(n_permutations):
-        # Shuffle the predictor of interest (accuracy)
-        df_perm = df_clean.copy()
-        df_perm['accuracy'] = np.random.permutation(df_perm['accuracy'].values)
-        
-        y_perm, X_perm = patsy.dmatrices(f"mmn_amplitude ~ accuracy + learning_phase", data=df_perm, return_type='dataframe')
+        # Shuffle the outcome variable (mmn_amplitude) to break the relationship
+        shuffled_df = df.copy()
+        shuffled_df['mmn_amplitude'] = np.random.permutation(shuffled_df['mmn_amplitude'].values)
         
         try:
-            model_perm = sm.MixedLM(y_perm, X_perm, groups=df_perm['subject_id'].values)
-            result_perm = model_perm.fit(reml=False)
-            perm_stats.append(result_perm.tvalues['accuracy'])
+            _, perm_results = fit_lme_model(shuffled_df)
+            perm_stat = abs(perm_results['coefficients'].get('accuracy', 0))
+            perm_stats.append(perm_stat)
         except Exception as e:
-            # If model fails to converge, skip this permutation
-            logger.debug(f"Permutation {i} failed: {e}")
+            logger.warning(f"Permutation {i} failed: {str(e)}")
             continue
-            
-    perm_stats = np.array(perm_stats)
     
-    # Calculate p-value (two-tailed)
-    p_value = np.mean(np.abs(perm_stats) >= np.abs(obs_stat))
+    if len(perm_stats) == 0:
+        raise RuntimeError("All permutation tests failed")
     
-    logger.info(f"Permutation test complete. Observed t={obs_stat:.4f}, p={p_value:.4f}")
+    # Calculate permutation p-value
+    # Two-tailed test: proportion of permuted stats >= observed stat
+    p_perm = np.mean(np.array(perm_stats) >= observed_stat)
     
-    return {
-        "observed_statistic": obs_stat,
-        "p_value": p_value,
-        "n_permutations": len(perm_stats),
-        "null_distribution": perm_stats.tolist()
-    }
-
-def analyze_multiple_electrodes(
-    df: pd.DataFrame,
-    electrode_columns: List[str] = ['mmn_amplitude_cp3', 'mmn_amplitude_cp4', 'mmn_amplitude_c3', 'mmn_amplitude_c4'],
-    formula: str = "mmn_amplitude ~ accuracy + learning_phase + (1|subject_id)"
-) -> Dict[str, Dict[str, Any]]:
-    """
-    Analyze multiple electrode columns if present in the data.
-    
-    Args:
-        df: DataFrame containing the aligned data.
-        electrode_columns: List of column names for MMN amplitudes at different electrodes.
-        formula: Model formula.
+    # Stability check
+    if n_permutations >= 1000:
+        # Check variance of p-value in chunks
+        chunk_size = 100
+        chunk_p_values = []
+        for start in range(0, len(perm_stats), chunk_size):
+            chunk = perm_stats[start:start+chunk_size]
+            if len(chunk) > 0:
+                chunk_p = np.mean(np.array(chunk) >= observed_stat)
+                chunk_p_values.append(chunk_p)
         
-    Returns:
-        Dictionary of results for each electrode.
-    """
-    results = {}
-    
-    # Check which electrode columns exist
-    existing_cols = [col for col in electrode_columns if col in df.columns]
-    
-    if not existing_cols:
-        logger.warning("No electrode columns found. Using default 'mmn_amplitude'.")
-        # Fall back to single column analysis if specific electrodes not found
-        if 'mmn_amplitude' in df.columns:
-            results['mmn_amplitude'] = fit_lme_model(df, formula)
-        else:
-            logger.error("No MMN amplitude column found.")
-            return results
-    else:
-        for col in existing_cols:
-            logger.info(f"Analyzing electrode: {col}")
-            # Create a temporary dataframe with the specific electrode column
-            df_temp = df.copy()
-            df_temp['mmn_amplitude'] = df_temp[col]
+        if len(chunk_p_values) >= 3:
+            variance = np.var(chunk_p_values)
+            logger.info(f"P-value variance across chunks: {variance:.4f}")
             
-            try:
-                res = fit_lme_model(df_temp, formula)
-                res['electrode'] = col
-                results[col] = res
-            except Exception as e:
-                logger.error(f"Failed to fit model for {col}: {e}")
-                results[col] = {"error": str(e)}
-                
+            results = {
+                'n_permutations': n_permutations,
+                'observed_statistic': observed_stat,
+                'permutation_p_value': p_perm,
+                'p_value_variance': variance,
+                'stable': variance < 0.05
+            }
+        else:
+            results = {
+                'n_permutations': n_permutations,
+                'observed_statistic': observed_stat,
+                'permutation_p_value': p_perm,
+                'p_value_variance': None,
+                'stable': True
+            }
+    else:
+        results = {
+            'n_permutations': n_permutations,
+            'observed_statistic': observed_stat,
+            'permutation_p_value': p_perm,
+            'p_value_variance': None,
+            'stable': True
+        }
+    
+    logger.info(f"Permutation p-value: {p_perm:.4f}, Stable: {results['stable']}")
     return results
 
-def run_modeling_pipeline(
-    data_path: Optional[Union[str, Path]] = None,
-    output_path: Optional[Union[str, Path]] = None,
-    n_permutations: int = 1000
-) -> Dict[str, Any]:
+def analyze_multiple_electrodes(df: pd.DataFrame) -> Dict[str, Dict[str, Any]]:
     """
-    Run the full modeling pipeline: load data, fit LME, apply FDR, run permutation test.
+    Run analysis for multiple electrodes (CP3, CP4, C3, C4).
     
     Args:
-        data_path: Path to aligned_data.csv.
-        output_path: Path to save results JSON.
-        n_permutations: Number of permutations for the permutation test.
+        df: DataFrame with aligned data (assumes mmn_amplitude is aggregated or per-electrode)
         
     Returns:
-        Dictionary containing all results.
+        Dictionary of results per electrode
     """
-    logger.info("Starting modeling pipeline.")
+    # If data is already aggregated, just run one model
+    # If per-electrode, we'd need to split by electrode column
+    
+    # For now, assume single mmn_amplitude column (aggregated or single electrode)
+    # If the schema supports multiple electrodes, we'd iterate over them
+    
+    results = {}
+    result, stats = fit_lme_model(df)
+    results['all_electrodes'] = stats
+    
+    return results
+
+def run_modeling_pipeline(data_path: Union[str, Path], output_path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Run the full modeling pipeline.
+    
+    Args:
+        data_path: Path to aligned data CSV
+        output_path: Path to output JSON file
+        
+    Returns:
+        Dictionary containing all model results
+    """
+    logger.info("Starting modeling pipeline")
     
     # Load data
     df = load_aligned_data(data_path)
+    logger.info(f"Loaded {len(df)} rows of aligned data")
+    
+    # Check for power status
+    warnings = []
+    if 'power_status' in df.columns:
+        underpowered_count = len(df[df['power_status'] == 'underpowered_primary'])
+        if underpowered_count > 0:
+            warnings.append("Underpowered dataset")
+            logger.warning(f"Dataset has {underpowered_count} underpowered subjects")
     
     # Fit LME model
-    lme_results = fit_lme_model(df)
+    result, model_stats = fit_lme_model(df)
     
-    # Apply FDR correction
-    fdr_p_values = apply_fdr_correction(lme_results['p_values'])
-    lme_results['fdr_p_values'] = fdr_p_values
+    # Apply FDR correction if multiple tests (for now, single test)
+    fdr_p_values = apply_fdr_correction(model_stats['p_values'])
+    model_stats['fdr_p_values'] = fdr_p_values
     
     # Run permutation test
-    perm_results = run_permutation_test(df, n_permutations=n_permutations)
+    perm_results = run_permutation_test(df, n_permutations=1000)
     
-    # Compile final results
-    final_results = {
-        "model_type": "Gaussian LME",
-        "formula": "mmn_amplitude ~ accuracy + learning_phase + (1|subject_id)",
-        "lme_results": lme_results,
-        "permutation_test": perm_results,
-        "timestamp": pd.Timestamp.now().isoformat()
+    # Compile final output
+    output = {
+        'model_type': 'Gaussian LME',
+        'link_function': 'identity',
+        'formula': model_stats['formula'],
+        'coefficients': model_stats['coefficients'],
+        'p_values': model_stats['p_values'],
+        'fdr_p_values': model_stats['fdr_p_values'],
+        'permutation_p_value': perm_results['permutation_p_value'],
+        'permutation_details': {
+            'n_permutations': perm_results['n_permutations'],
+            'observed_statistic': perm_results['observed_statistic'],
+            'stable': perm_results['stable']
+        },
+        'model_fit': {
+            'log_likelihood': model_stats['log_likelihood'],
+            'aic': model_stats['aic'],
+            'bic': model_stats['bic'],
+            'converged': model_stats['converged']
+        },
+        'warnings': warnings,
+        'data_rows': len(df),
+        'data_path': str(data_path)
     }
     
-    # Save results
-    if output_path is None:
-        output_path = RESULTS_DIR / "model_output.json"
-    else:
-        output_path = Path(output_path)
-        
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Convert numpy types to Python types for JSON serialization
-    def convert_numpy_types(obj):
-        if isinstance(obj, np.integer):
-            return int(obj)
-        elif isinstance(obj, np.floating):
-            return float(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, dict):
-            return {k: convert_numpy_types(v) for k, v in obj.items()}
-        elif isinstance(obj, list):
-            return [convert_numpy_types(i) for i in obj]
-        return obj
-        
-    final_results = convert_numpy_types(final_results)
-    
+    # Write output
     with open(output_path, 'w') as f:
-        json.dump(final_results, f, indent=2)
-        
-    logger.info(f"Results saved to {output_path}")
-    log_event("modeling_pipeline_complete", {"output_file": str(output_path)})
+        json.dump(output, f, indent=2)
     
-    return final_results
+    logger.info(f"Model output written to {output_path}")
+    return output
 
 def main():
-    """Main entry point for the modeling script."""
-    logger.info("Running model.py as main script.")
+    """Main entry point for the modeling task."""
+    config = get_config()
+    
+    data_dir = Path(config.get('data_dir', 'data'))
+    analysis_dir = Path(config.get('analysis_dir', 'analysis'))
+    
+    aligned_data_path = data_dir / 'aligned_data.csv'
+    output_path = analysis_dir / 'results' / 'model_output.json'
+    
+    # Ensure directories exist
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     
     try:
-        # Get paths from environment or use defaults
-        config = get_env_config()
-        data_path = config.get('DATA_DIR', 'code/data')
-        if isinstance(data_path, Path):
-            data_path = data_path / 'aligned_data.csv'
-        else:
-            data_path = Path(data_path) / 'aligned_data.csv'
-            
-        output_path = Path("code/analysis/results/model_output.json")
-        
-        results = run_modeling_pipeline(
-            data_path=data_path,
-            output_path=output_path,
-            n_permutations=1000
-        )
-        
-        print(f"Modeling pipeline completed successfully.")
-        print(f"Results saved to: {output_path}")
-        
+        results = run_modeling_pipeline(str(aligned_data_path), str(output_path))
+        logger.info("Modeling pipeline completed successfully")
+        print(f"Results saved to {output_path}")
+    except FileNotFoundError as e:
+        logger.error(f"Data file not found: {e}")
+        raise
     except Exception as e:
-        log_error("model_main_error", str(e))
-        logger.exception("Error in main:")
+        logger.error(f"Modeling pipeline failed: {e}")
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
