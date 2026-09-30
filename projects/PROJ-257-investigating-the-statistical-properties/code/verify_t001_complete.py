@@ -1,62 +1,58 @@
-"""
-Verification script for T001: Initialize Project Directory Structure.
-This script checks for the existence of all required directories and
-prints a verification report to stdout.
-"""
 import os
 import sys
+import json
 from pathlib import Path
 
-def verify_t001_complete() -> bool:
+def verify_t001_complete():
     """
-    Verify that all required directories for T001 exist.
-    
-    Required directories:
-    - src/, tests/, data/raw/, data/processed/, output/results/, output/figures/, logs/
-    - src/data/, src/analysis/, src/viz/, src/utils/
-    - tests/unit/, tests/integration/, tests/contract/
-    
-    Returns:
-        bool: True if all directories exist, False otherwise.
+    Verify T001 completion by checking directory existence and generating
+    project_structure_manifest.json.
     """
-    required_dirs = [
-        "src",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "output/results",
-        "output/figures",
-        "logs",
-        "src/data",
-        "src/analysis",
-        "src/viz",
-        "src/utils",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-    ]
+    base = Path(".")
     
+    required_dirs = {
+        "src": ["data", "analysis", "viz", "utils"],
+        "tests": ["unit", "integration", "contract"],
+        "data": ["raw", "processed"],
+        "output": ["results", "figures"],
+        "logs": []
+    }
+    
+    manifest = {}
     all_exist = True
-    missing_dirs = []
     
-    for dir_path in required_dirs:
-        full_path = Path(dir_path)
-        if full_path.is_dir():
-            print(f"[OK] {dir_path} exists")
-        else:
-            print(f"[MISSING] {dir_path} does not exist")
-            missing_dirs.append(dir_path)
+    for top_dir, sub_dirs in required_dirs.items():
+        top_path = base / top_dir
+        if not top_path.is_dir():
+            print(f"MISSING: {top_path}")
             all_exist = False
+            manifest[top_dir] = []
+            continue
+        
+        # Verify subdirectories
+        existing_subs = []
+        for sub in sub_dirs:
+            sub_path = top_path / sub
+            if sub_path.is_dir():
+                existing_subs.append(sub)
+            else:
+                print(f"MISSING SUBDIR: {sub_path}")
+                all_exist = False
+        
+        manifest[top_dir] = existing_subs
     
     if all_exist:
-        print("\n✅ T001 Verification PASSED: All required directories exist.")
+        # Write the manifest
+        manifest_path = base / "project_structure_manifest.json"
+        with open(manifest_path, "w") as f:
+            json.dump(manifest, f, indent=2)
+        print(f"SUCCESS: All directories exist. Manifest written to {manifest_path}")
+        return True
     else:
-        print(f"\n❌ T001 Verification FAILED: Missing directories: {missing_dirs}")
-    
-    return all_exist
+        print("FAILURE: Some directories are missing.")
+        return False
 
 def main():
-    """Main entry point for verification."""
     success = verify_t001_complete()
     sys.exit(0 if success else 1)
 

@@ -1,44 +1,44 @@
-"""
-Configure linting (ruff) and formatting (black) tools for the project.
-
-This script ensures that ruff and black are installed in the virtual environment
-and creates the necessary configuration files (pyproject.toml) with sensible defaults.
-"""
 import subprocess
 import sys
 import os
 from pathlib import Path
 
-
-def ensure_package_installed(package_name: str) -> None:
-    """Install a package if it is not already present in the current environment."""
+def ensure_package_installed(package_name: str, pip_name: str = None) -> bool:
+    """
+    Ensure a package is installed in the current environment.
+    Returns True if installed, False otherwise.
+    """
+    if pip_name is None:
+        pip_name = package_name
+    
     try:
-        __import__(package_name.replace("-", "_"))
-    except ImportError:
-        print(f"Installing {package_name}...")
-        subprocess.check_call([sys.executable, "-m", "pip", "install", package_name])
-
+        subprocess.check_call([sys.executable, "-m", "pip", "install", pip_name], 
+                            stdout=subprocess.DEVNULL, 
+                            stderr=subprocess.DEVNULL)
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
 def create_ruff_config() -> None:
-    """Create a basic ruff.toml configuration file."""
-    config_content = """# Ruff configuration
+    """
+    Create a minimal ruff.toml configuration file in the project root.
+    """
+    ruff_config_content = """
 [lint]
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
-    "F",  # Pyflakes
+    "F",  # pyflakes
     "I",  # isort
-    "C",  # flake8-comprehensions
     "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
 ]
 ignore = [
     "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
 ]
 
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
+[lint.isort]
+known-first-party = ["src"]
 
 [format]
 quote-style = "double"
@@ -46,60 +46,129 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 """
-    Path("ruff.toml").write_text(config_content)
-    print("Created ruff.toml")
-
+    root_dir = Path(__file__).parent.parent
+    config_path = root_dir / "ruff.toml"
+    
+    with open(config_path, 'w') as f:
+        f.write(ruff_config_content.strip())
+    
+    print(f"Created ruff configuration at: {config_path}")
 
 def create_pyproject_config() -> None:
-    """Create or update pyproject.toml with black configuration."""
-    pyproject_path = Path("pyproject.toml")
-    if pyproject_path.exists():
-        content = pyproject_path.read_text()
-        if "[tool.black]" not in content:
-            content += "\n[tool.black]\nline-length = 88\ntarget-version = ['py311']\n"
-            pyproject_path.write_text(content)
-        else:
-            print("pyproject.toml already contains black configuration.")
-    else:
-        config_content = """[project]
-name = "llmXive-statistical-properties"
-version = "0.1.0"
-description = "Investigating the statistical properties of simulated black hole mergers"
-
+    """
+    Create/update pyproject.toml with black configuration.
+    """
+    root_dir = Path(__file__).parent.parent
+    pyproject_path = root_dir / "pyproject.toml"
+    
+    black_config = """
 [tool.black]
 line-length = 88
 target-version = ['py311']
-
-[tool.ruff]
-line-length = 88
+include = '\\.pyi?$'
+exclude = '''
+/(
+    \\.git
+    | \\.hg
+    | \\.mypy_cache
+    | \\.tox
+    | \\.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 """
-        pyproject_path.write_text(config_content)
-        print("Created pyproject.toml with black configuration.")
+    
+    if pyproject_path.exists():
+        # Read existing content
+        with open(pyproject_path, 'r') as f:
+            content = f.read()
+        
+        # Check if [tool.black] section already exists
+        if "[tool.black]" not in content:
+            content += "\n" + black_config
+            with open(pyproject_path, 'w') as f:
+                f.write(content)
+            print(f"Updated pyproject.toml with black configuration")
+        else:
+            print("Black configuration already exists in pyproject.toml")
+    else:
+        with open(pyproject_path, 'w') as f:
+            f.write(black_config.strip())
+        print(f"Created pyproject.toml with black configuration at: {pyproject_path}")
 
-
-def main() -> int:
-    """Main entry point for configuring linting and formatting tools."""
-    print("Configuring linting and formatting tools...")
-
+def main() -> None:
+    """
+    Main entry point to configure linting and formatting tools.
+    """
+    print("Configuring linting (ruff) and formatting (black) tools...")
+    
     # Ensure packages are installed
-    ensure_package_installed("ruff")
-    ensure_package_installed("black")
-
+    print("Checking/installing ruff...")
+    if not ensure_package_installed("ruff", "ruff"):
+        print("ERROR: Failed to install ruff")
+        sys.exit(1)
+    
+    print("Checking/installing black...")
+    if not ensure_package_installed("black", "black"):
+        print("ERROR: Failed to install black")
+        sys.exit(1)
+    
+    # Verify installations
+    try:
+        ruff_path = subprocess.check_output([sys.executable, "-m", "pip", "show", "ruff"], 
+                                          text=True).split('\n')[0]
+        print(f"Ruff found: {ruff_path}")
+    except subprocess.CalledProcessError:
+        print("ERROR: ruff not found in environment")
+        sys.exit(1)
+    
+    try:
+        black_path = subprocess.check_output([sys.executable, "-m", "pip", "show", "black"], 
+                                           text=True).split('\n')[0]
+        print(f"Black found: {black_path}")
+    except subprocess.CalledProcessError:
+        print("ERROR: black not found in environment")
+        sys.exit(1)
+    
     # Create configuration files
     create_ruff_config()
     create_pyproject_config()
-
-    # Verify installation
+    
+    # Run checks to verify configuration
+    print("\nRunning ruff check...")
     try:
-        subprocess.check_call([sys.executable, "-m", "ruff", "--version"])
-        subprocess.check_call([sys.executable, "-m", "black", "--version"])
-        print("Successfully verified ruff and black installation.")
-    except subprocess.CalledProcessError as e:
-        print(f"Error verifying tools: {e}")
-        return 1
-
-    return 0
-
+        result = subprocess.run([sys.executable, "-m", "ruff", "check", "."], 
+                              cwd=Path(__file__).parent.parent,
+                              capture_output=True, 
+                              text=True)
+        if result.returncode == 0:
+            print("✓ ruff check passed (no issues found)")
+        else:
+            print("ruff check found issues (expected if code is not yet formatted):")
+            print(result.stdout)
+            print(result.stderr)
+    except Exception as e:
+        print(f"Error running ruff check: {e}")
+    
+    print("\nRunning black check...")
+    try:
+        result = subprocess.run([sys.executable, "-m", "black", "--check", "."], 
+                              cwd=Path(__file__).parent.parent,
+                              capture_output=True, 
+                              text=True)
+        if result.returncode == 0:
+            print("✓ black check passed (all files formatted correctly)")
+        else:
+            print("black check found files that need formatting (expected if code is not yet formatted):")
+            print(result.stdout)
+            print(result.stderr)
+    except Exception as e:
+        print(f"Error running black check: {e}")
+    
+    print("\nLinting and formatting configuration complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

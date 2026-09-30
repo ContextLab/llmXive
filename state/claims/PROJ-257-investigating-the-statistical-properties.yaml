@@ -5611,24 +5611,6 @@
   updated_at: '2026-09-23T10:44:09Z'
 - artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   attempts: 1
-  canonical: Pipeline logs peak memory and disk usage
-  claim_id: c_d0e8aec3
-  context: 'T010: Implement src/main.py as the pipeline entry point... The pipeline
-    MUST log peak memory/disk usage.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Pipeline_logs_peak_memory_and_disk_usage
-  kind: entity_fact
-  raw_text: The pipeline MUST log peak memory/disk usage.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-23T10:45:24Z'
-- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
-  attempts: 1
   canonical: Pipeline exits with code 1 on resource breach
   claim_id: c_cdf0705f
   context: 'T010: ...If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST
@@ -5687,24 +5669,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-23T10:45:45Z'
-- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
-  attempts: 1
-  canonical: Bootstrapped dataset disk usage under 20GB
-  claim_id: c_787ab71a
-  context: 'T017: ...ensure memory usage stays within acceptable limits and disk usage
-    under 20GB.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Bootstrapped_dataset_disk_usage_under_20GB
-  kind: entity_fact
-  raw_text: Disk usage for the bootstrapped dataset must be under 20GB.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-23T10:46:09Z'
 - artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
   attempts: 1
   canonical: Bootstrapped dataset shape is at least 100 events by 1000 iterations
@@ -6134,3 +6098,1694 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-23T10:53:10Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: LVK selection efficiency files for GWTC-1 and GWTC-2
+  claim_id: c_2f460ee9
+  context: 'T032: Implement selection bias handling in src/analysis/selection_bias.py
+    (FR-016): Attempt to load official LVK selection efficiency files...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project attempts to load official LVK selection efficiency files from
+    data/raw/lvk_selection_efficiency.h5 (GWTC-1) and data/raw/lvk_selection_efficiency_GWTC2.h5
+    (GWTC-2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:19:03Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic generator produces 100 events
+  claim_id: c_970c6c18
+  context: "T022: Implement src/data/generate_synthetic.py... Output: data/processed/sim_catalog.csv\
+    \ with \u2265100 events."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_100_events
+  kind: magnitude
+  raw_text: The synthetic generator is required to produce a catalog with at least
+    100 events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:19:34Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic data cites Abbott et al. ApJL L7 power-law mass independent
+    spin
+  claim_id: c_9e53f0bc
+  context: 'T022: Implement src/data/generate_synthetic.py to create a catalog based
+    on a ''Power-law mass with independent spin'' hypothesis. Citation: Must cite
+    ''Abbott et al. (), ApJL, L7''...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_cites_Abbott_et_al._ApJL_L7_power-law_mass_in
+  kind: entity_fact
+  raw_text: The synthetic data generation is based on a 'Power-law mass with independent
+    spin' hypothesis and must cite Abbott et al., ApJL, L7.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:20:05Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps alpha 0.05 and 0.06
+  claim_id: c_5dd627db
+  context: "T031: Implement src/analysis/sensitivity.py to sweep \u03B1 over the fixed\
+    \ discrete set {0.05, 0.06} as mandated by FR-009."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps alpha over the fixed discrete set of 0.05
+    and 0.06.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:20:31Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Borderline flag if significance flips between alpha 0.05 and 0.06
+  claim_id: c_375cb160
+  context: "T031: Borderline Logic: If the significance status (significant/not significant)\
+    \ flips between \u03B1=0.05 and \u03B1=0.06, flag the result as 'borderline'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis flags a result as 'borderline' if the significance
+    status flips between alpha=0.05 and alpha=0.06.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:20:55Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Report includes sc002_effective_spin_nominal entry for alpha 0.05
+  claim_id: c_c7c56faf
+  context: "T033: ...Must include a dedicated entry 'sc002_effective_spin_nominal'\
+    \ with the p-value and pass/fail status for \u03B1=0.05."
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The final report must include a dedicated entry 'sc002_effective_spin_nominal'
+    with the p-value and pass/fail status for alpha=0.05.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:20:57Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Figures saved as PNG with 300 DPI
+  claim_id: c_fdaa51a6
+  context: "T045: Ensure all figures saved as PNG with resolution \u2265300 DPI (explicitly\
+    \ set dpi=300 in matplotlib)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Figures_saved_as_PNG_with_300_DPI
+  kind: magnitude
+  raw_text: All figures must be saved as PNG with a resolution of at least 300 DPI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:22:43Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-2 DOI 10.5281/zenodo.3966974
+  claim_id: c_589cbf14
+  context: 'T014: Implement src/data/download.py function to fetch GWTC-1 (DOI) AND
+    GWTC-2 (DOI 10.5281/zenodo.3966974)...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The project downloads GWTC-1 and GWTC-2 data, where GWTC-2 is identified
+    by DOI 10.5281/zenodo.3966974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:22:47Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bootstrapping samples 1000 medians per event
+  claim_id: c_ff5efe03
+  context: 'T017: ...For each event in the batch, sample 1000 medians from its respective
+    posterior distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The event-level bootstrapping samples 1000 medians from the posterior
+    distribution for each event.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:23:19Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bootstrapped dataset shape N_events 1000 4
+  claim_id: c_24d60122
+  context: 'T017: ...The file MUST contain a dataset named ''samples'' with shape
+    [N_events, 1000, 4] (Events, Iterations, Parameters: mass_ratio, effective_spin,
+    m1, m2)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped dataset is stored in HDF5 format with a dataset named
+    'samples' having shape [N_events, 1000, 4].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:23:47Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bootstrapping iterates in batches of 100
+  claim_id: c_d94bbcce
+  context: 'T017: Algorithm: Iterate over events in batches of 100.'
+  evidence:
+    asserted: '100.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The bootstrapping algorithm iterates over events in batches of 100.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:23:48Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Preprocessing validation requires 100 valid events
+  claim_id: c_8dcb3861
+  context: "T016: Implement validation in src/data/preprocess.py to ensure \u2265\
+    100 valid events remain..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_validation_requires_100_valid_events
+  kind: magnitude
+  raw_text: The pipeline requires at least 100 valid events to remain after preprocessing
+    to pass validation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:24:28Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: US1 test verifies 100 valid events in obs_catalog
+  claim_id: c_77e7dcc4
+  context: "Independent Test: Verify data/processed/obs_catalog.csv exists with \u2265\
+    100 valid events and correct checksums."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/US1_test_verifies_100_valid_events_in_obs_catalog
+  kind: magnitude
+  raw_text: The independent test for User Story 1 verifies that data/processed/obs_catalog.csv
+    exists with at least 100 valid events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:24:53Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: US1b test verifies 100 valid events in sim_catalog
+  claim_id: c_553ed03d
+  context: "Independent Test: Verify data/processed/sim_catalog.csv exists with \u2265\
+    100 valid events and matching schema."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/US1b_test_verifies_100_valid_events_in_sim_catalog
+  kind: magnitude
+  raw_text: The independent test for User Story 1b verifies that data/processed/sim_catalog.csv
+    exists with at least 100 valid events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:25:20Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: US3 test verifies 2 PNG files
+  claim_id: c_ec91d7e3
+  context: "Independent Test: Verify output/figures/ contains \u22652 PNGs (300 DPI)\
+    \ with annotated divergence regions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/US3_test_verifies_2_PNG_files
+  kind: magnitude
+  raw_text: The independent test for User Story 3 verifies that output/figures/ contains
+    at least 2 PNG files.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:25:41Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline logs SELECTION_BIAS_MISSING warning
+  claim_id: c_61be8b3f
+  context: 'T032: If files are missing: DO NOT HALT. Log a warning [SELECTION_BIAS_MISSING]...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_logs_SELECTION_BIAS_MISSING_warning
+  kind: entity_fact
+  raw_text: The pipeline logs a '[SELECTION_BIAS_MISSING]' warning if LVK selection
+    efficiency files are missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:26:24Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline logs RESOURCE_BREACH on threshold exceedance
+  claim_id: c_0d79b0ba
+  context: 'T010: If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST
+    log a [RESOURCE_BREACH] message...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_logs_RESOURCE_BREACH_on_threshold_exceedance
+  kind: entity_fact
+  raw_text: The pipeline logs a '[RESOURCE_BREACH]' message if time, RAM, or Disk
+    thresholds are exceeded.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:27:01Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 1 on resource breach
+  claim_id: c_3e3f7aa2
+  context: 'T010: ...then exit with code 1 to signal failure...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline exits with code 1 if resource thresholds are exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:27:38Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bootstrapped dataset dtype float64
+  claim_id: c_4ccafe3a
+  context: 'T017: ...dtype float64.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrapped_dataset_dtype_float64
+  kind: entity_fact
+  raw_text: The bootstrapped dataset must have a data type of float64.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:28:17Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis evaluates alpha 0.05 and 0.06
+  claim_id: c_f68386ee
+  context: "T031: Algorithm: For each \u03B1 in {0.05, 0.06}, evaluate significance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis algorithm evaluates significance for each alpha
+    in the set {0.05, 0.06}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:28:42Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Power analysis consumes KS results and sensitivity report
+  claim_id: c_6c000be5
+  context: 'T036: ...This task MUST consume output/results/ks_test_results.json (from
+    T033) and data/results/sensitivity_report.json (from T031) as inputs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_consumes_KS_results_and_sensitivity_report
+  kind: entity_fact
+  raw_text: The power analysis task must consume output/results/ks_test_results.json
+    and data/results/sensitivity_report.json as inputs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:29:10Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Report includes Limitations section with power and selection bias notes
+  claim_id: c_24787fc9
+  context: 'T039: Update report generation to include ''Limitations'' section with
+    power notes, MDES interpretation (FR-010, SC-011), and explicit notes on any selection
+    bias limitations...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_Limitations_section_with_power_and_selection
+  kind: entity_fact
+  raw_text: The report generation must include a 'Limitations' section with power
+    notes, MDES interpretation, and explicit notes on selection bias limitations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:29:43Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-1 and GWTC-2 files downloaded with valid checksums
+  claim_id: c_25ba322d
+  context: Task T014 implements download function for GWTC-1 and GWTC-2; verification
+    requires files to exist with valid checksums.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Downloaded files must exist in data/raw/ with valid checksums.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:30:34Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bootstrapped samples dataset shape [N_events, 1000, 4] with dtype float64
+  claim_id: c_6c44366c
+  context: Task T017 specifies the schema for the bootstrapped observational samples
+    HDF5 file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The file data/processed/bootstrapped_obs_samples.h5 must contain a dataset
+    named samples with shape [N_events, 1000, 4] and dtype float64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:30:51Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bootstrapped samples file size under 20GB
+  claim_id: c_4d9d8ae2
+  context: Task T017 requires chunked writing to ensure disk usage stays under 20GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrapped_samples_file_size_under_20GB
+  kind: entity_fact
+  raw_text: The file data/processed/bootstrapped_obs_samples.h5 must have a size under
+    20GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:31:22Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bootstrapped samples dataset contains at least 100 events
+  claim_id: c_3ab3e81b
+  context: Task T017 verification step asserts f['samples'].shape[0] >= 100.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrapped_samples_dataset_contains_at_least_100_events
+  kind: magnitude
+  raw_text: The file data/processed/bootstrapped_obs_samples.h5 must contain at least
+    100 events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:31:49Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic catalog contains at least 100 events
+  claim_id: c_3ef9a811
+  context: Task T023 requires the synthetic generator to produce >= 100 events with
+    specific parameters.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_catalog_contains_at_least_100_events
+  kind: magnitude
+  raw_text: The synthetic generator must produce at least 100 events with mass_ratio,
+    effective_spin, component_mass_1, and component_mass_2.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:32:12Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic data cites Abbott et al. ApJL L7
+  claim_id: c_dc0c6535
+  context: Task T022 mandates citation of a specific LVC population paper for the
+    power-law mass hypothesis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_cites_Abbott_et_al._ApJL_L7
+  kind: entity_fact
+  raw_text: The synthetic catalog generation must cite 'Abbott et al. (), ApJL, L7'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:32:30Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps alpha values 0.05 and 0.06
+  claim_id: c_09fc4bad
+  context: Task T031 implements a sensitivity analysis sweeping alpha over the specific
+    set {0.05, 0.06}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis must sweep alpha over the fixed discrete set
+    {0.05, 0.06}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:33:00Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: KS test results include sc002_effective_spin_nominal entry for alpha=0.05
+  claim_id: c_cab36977
+  context: Task T033 requires generating ks_test_results.json with a specific entry
+    for effective spin at alpha=0.05.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The report must include a dedicated entry 'sc002_effective_spin_nominal'
+    with the p-value and pass/fail status for alpha=0.05.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:33:01Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Visualization figures saved at 300 DPI
+  claim_id: c_4668a17f
+  context: Task T045 requires all figures to be saved with explicit dpi=300 in matplotlib.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All figures must be saved as PNG with resolution >= 300 DPI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:33:28Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: At least 2 PNG figures generated
+  claim_id: c_ffcd3ef4
+  context: Independent test for User Story 3 requires verification that output/figures/
+    contains >= 2 PNGs.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_2_PNG_figures_generated
+  kind: magnitude
+  raw_text: The output/figures/ directory must contain at least 2 PNG files.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:33:57Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Observational catalog contains at least 100 valid events
+  claim_id: c_0dfe0bde
+  context: Independent test for User Story 1 requires verification of obs_catalog.csv
+    with >= 100 events.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Observational_catalog_contains_at_least_100_valid_events
+  kind: magnitude
+  raw_text: The data/processed/obs_catalog.csv file must exist with >= 100 valid events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:34:13Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Simulation catalog contains at least 100 valid events
+  claim_id: c_41a94a3b
+  context: Independent test for User Story 1b requires verification of sim_catalog.csv
+    with >= 100 events.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_catalog_contains_at_least_100_valid_events
+  kind: magnitude
+  raw_text: The data/processed/sim_catalog.csv file must exist with >= 100 valid events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:34:26Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 2
+  canonical: Pipeline logs peak memory and disk usage
+  claim_id: c_d0e8aec3
+  context: 'T010: Implement src/main.py as the pipeline entry point... The pipeline
+    MUST log peak memory/disk usage.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_logs_peak_memory_and_disk_usage
+  kind: entity_fact
+  raw_text: The pipeline MUST log peak memory/disk usage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:36:55Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 1 upon resource breach
+  claim_id: c_91c393dd
+  context: 'T010: ...If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST
+    log a [RESOURCE_BREACH] message... then exit with code 1.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a
+    [RESOURCE_BREACH] message and exit with code 1.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:36:56Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline attempts to load LVK selection efficiency files for GWTC-1 and
+    GWTC-2
+  claim_id: c_f18e811f
+  context: 'T032: Implement selection bias handling... Attempt to load official LVK
+    selection efficiency files...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must attempt to load official LVK selection efficiency files
+    from data/raw/lvk_selection_efficiency.h5 (GWTC-1) and data/raw/lvk_selection_efficiency_GWTC2.h5
+    (GWTC-2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:37:22Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline uses uniform weighting if LVK files are missing
+  claim_id: c_e9ec0ae5
+  context: 'T032: If files are missing: DO NOT HALT... proceed with uniform weighting,
+    and record the method as uniform_approximation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_uniform_weighting_if_LVK_files_are_missing
+  kind: entity_fact
+  raw_text: If LVK selection files are missing, the pipeline must proceed with uniform
+    weighting and record the method as uniform_approximation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:38:03Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: 1000 medians sampled per event from posterior
+  claim_id: c_d9577da7
+  context: 'T017: For each event in the batch, sample 1000 medians from its respective
+    posterior distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each event in a batch, 1000 medians must be sampled from its respective
+    posterior distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:38:38Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Bootstrapped dataset shape N_events by 1000 by 4 dtype float64
+  claim_id: c_ad0fedfe
+  context: 'T017: The file MUST contain a dataset named samples with shape [N_events,
+    1000, 4]... and dtype float64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped dataset must be saved in HDF5 format with a dataset named
+    samples of shape [N_events, 1000, 4] and dtype float64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:38:53Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 2
+  canonical: Bootstrapped dataset disk usage under 20GB
+  claim_id: c_787ab71a
+  context: 'T017: ...ensure memory usage stays within acceptable limits and disk usage
+    under 20GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrapped_dataset_disk_usage_under_20GB
+  kind: entity_fact
+  raw_text: Disk usage for the bootstrapped dataset must be under 20GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:39:22Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic generator produces at least 100 events
+  claim_id: c_70c9315f
+  context: "T022: Output: data/processed/sim_catalog.csv with \u2265100 events."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_produces_at_least_100_events
+  kind: magnitude
+  raw_text: The synthetic generator must produce a catalog with at least 100 events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:40:41Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic generator cites Abbott et al. ApJL on power-law mass independent
+    spin
+  claim_id: c_d74945a6
+  context: 'T022: Citation: Must cite Abbott et al. (), ApJL, L7 (or similar LVC population
+    paper).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_cites_Abbott_et_al._ApJL_on_power-law_ma
+  kind: entity_fact
+  raw_text: The synthetic generator must cite Abbott et al. in ApJL regarding the
+    Power-law mass with independent spin hypothesis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:41:05Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps alpha over 0.05 and 0.06
+  claim_id: c_c84965ec
+  context: "T031: Implement src/analysis/sensitivity.py to sweep \u03B1 over the fixed\
+    \ discrete set {0.05, 0.06}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis must sweep alpha over the fixed discrete set
+    {0.05, 0.06}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:41:06Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Result flagged as borderline if significance flips between 0.05 and 0.06
+  claim_id: c_a2939482
+  context: "T031: If the significance status (significant/not significant) flips between\
+    \ \u03B1=0.05 and \u03B1=0.06, flag the result as borderline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the significance status flips between alpha=0.05 and alpha=0.06, the
+    result must be flagged as borderline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:41:27Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: ks_test_results.json includes sc002_effective_spin_nominal entry for
+    alpha 0.05
+  claim_id: c_17a57c75
+  context: "T033: Must include a dedicated entry sc002_effective_spin_nominal with\
+    \ the p-value and pass/fail status for \u03B1=0.05."
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The ks_test_results.json must include a dedicated entry sc002_effective_spin_nominal
+    with the p-value and pass/fail status for alpha=0.05.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:41:28Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 2
+  canonical: Power analysis detects simulation sample size less than 50% of observational
+  claim_id: c_e4eebc2e
+  context: 'T037: Implement logic in src/analysis/power.py to detect if simulation
+    sample size < 50% of observational size.'
+  evidence:
+    candidates:
+    - - ''
+      - 50.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_detects_simulation_sample_size_less_than_50%25
+  kind: magnitude
+  raw_text: The simulation sample size detection logic checks if the size is less
+    than 50% of the observational size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-30T15:41:31Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Figures saved as PNG with at least 300 DPI
+  claim_id: c_d35bc0b5
+  context: "T045: Ensure all figures saved as PNG with resolution \u2265300 DPI (explicitly\
+    \ set dpi=300 in matplotlib)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Figures_saved_as_PNG_with_at_least_300_DPI
+  kind: magnitude
+  raw_text: All figures must be saved as PNG with a resolution of at least 300 DPI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:41:34Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Independent test requires 100 valid events in obs_catalog.csv
+  claim_id: c_e274370c
+  context: "Independent Test: Verify data/processed/obs_catalog.csv exists with \u2265\
+    100 valid events and correct checksums."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Independent_test_requires_100_valid_events_in_obs_catalog.cs
+  kind: magnitude
+  raw_text: The independent test for User Story 1 requires data/processed/obs_catalog.csv
+    to exist with at least 100 valid events.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:41:57Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Independent test requires 100 valid events in sim_catalog.csv
+  claim_id: c_09af243b
+  context: "Independent Test: Verify data/processed/sim_catalog.csv exists with \u2265\
+    100 valid events and matching schema."
+  evidence:
+    entailment_evidence: Independent test requires 100 valid events in sim catalog.cs
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Independent_test_requires_100_valid_events_in_sim_catalog.cs
+  kind: magnitude
+  raw_text: The independent test for User Story 1b requires data/processed/sim_catalog.csv
+    to exist with at least 100 valid events.
+  resolved_value: Independent test requires 100 valid events in sim_catalog.csv
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:42:01Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Independent test requires at least 2 PNGs with annotated divergence regions
+  claim_id: c_c4fc6651
+  context: "Independent Test: Verify output/figures/ contains \u22652 PNGs (300 DPI)\
+    \ with annotated divergence regions."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Independent_test_requires_at_least_2_PNGs_with_annotated_div
+  kind: magnitude
+  raw_text: The independent test for User Story 3 requires output/figures/ to contain
+    at least 2 PNGs with annotated divergence regions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:42:29Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: CI workflow timeout set to 360 minutes
+  claim_id: c_8df774e7
+  context: 'T047: ...Must include runs-on: ubuntu-latest, timeout-minutes: 360 (6
+    hours)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI workflow must include a timeout-minutes setting of 360.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:42:54Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Project uses ruff for linting and black for formatting
+  claim_id: c_de5d239c
+  context: 'T004: Configure linting (ruff) and formatting (black) tools.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_uses_ruff_for_linting_and_black_for_formatting
+  kind: entity_fact
+  raw_text: The project must use ruff for linting and black for formatting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:43:45Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: requirements.txt pins versions for numpy scipy pandas matplotlib requests
+    tqdm pytest h5py statsmodels
+  claim_id: c_808490ef
+  context: 'T002: Create requirements.txt with pinned versions (numpy, scipy, pandas,
+    matplotlib, requests, tqdm, pytest, h5py, statsmodels).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requirements.txt_pins_versions_for_numpy_scipy_pandas_matplo
+  kind: entity_fact
+  raw_text: The project must pin versions for numpy, scipy, pandas, matplotlib, requests,
+    tqdm, pytest, h5py, and statsmodels in requirements.txt.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:44:10Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline downloads GWTC-1 and GWTC-2 with retry backoff
+  claim_id: c_273a4451
+  context: 'T014: Implement src/data/download.py function to fetch GWTC-1 (DOI) AND
+    GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must download GWTC-1 and GWTC-2 with unified retry/backoff
+    logic.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:44:42Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-2 catalog at DOI 10.5281/zenodo.3966974
+  claim_id: c_cb785cb3
+  context: 'T014: ...fetch GWTC-1 (DOI) AND GWTC-2 (DOI 10.5281/zenodo.3966974)...'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The GWTC-2 catalog is hosted at DOI 10.5281/zenodo.3966974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:44:45Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Project limited to comparing GWTC data against single synthetic baseline
+  claim_id: c_133e4d2b
+  context: 'Scope Boundary: This project is strictly limited to comparing existing
+    GWTC data against the single synthetic baseline defined in US-1b and US-2.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_limited_to_comparing_GWTC_data_against_single_synthe
+  kind: entity_fact
+  raw_text: The project is strictly limited to comparing existing GWTC data against
+    a single synthetic baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:45:18Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Code runs CPU-only no GPU large model
+  claim_id: c_9e5c598f
+  context: 'Critical Constraint: All code must run on CPU-only, -core, limited RAM.
+    No GPU, no large model loading.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_runs_CPU-only_no_GPU_large_model
+  kind: entity_fact
+  raw_text: All code must run on CPU-only with no GPU or large model loading.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:45:45Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: obs_catalog.csv contains at least 100 valid events
+  claim_id: c_751526a9
+  context: "Independent Test: Verify data/processed/obs_catalog.csv exists with \u2265\
+    100 valid events and correct checksums."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Obs_catalog.csv_contains_at_least_100_valid_events
+  kind: magnitude
+  raw_text: "The pipeline must generate data/processed/obs_catalog.csv with \u2265\
+    100 valid events."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:47:11Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: synthetic catalog contains at least 100 events with specified parameters
+  claim_id: c_63083501
+  context: "T023 [US1b] Ensure synthetic generator produces \u2265100 events with\
+    \ mass_ratio, effective_spin, component_mass_1, component_mass_2."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_catalog_contains_at_least_100_events_with_specifie
+  kind: magnitude
+  raw_text: "The synthetic generator must produce \u2265100 events with mass_ratio,\
+    \ effective_spin, component_mass_1, and component_mass_2."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:47:32Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps alpha over 0.05 and 0.06
+  claim_id: c_f18f12c4
+  context: "T031 [US2] Implement src/analysis/sensitivity.py to sweep \u03B1 over\
+    \ the fixed discrete set {0.05, 0.06} as mandated by FR-009."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sensitivity analysis must sweep \u03B1 over the fixed discrete set\
+    \ {0.05, 0.06}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:48:08Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: bootstrapped_obs_samples.h5 has shape N_events by 1000 by 4 and dtype
+    float64
+  claim_id: c_3441b83e
+  context: 'T017 [US1] ... The file MUST contain a dataset named samples with shape
+    [N_events, 1000, 4] (Events, Iterations, Parameters: mass_ratio, effective_spin,
+    m1, m2) and dtype float64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped dataset must have shape [N_events, 1000, 4] with dtype
+    float64.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:48:28Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: bootstrapped_obs_samples.h5 size is under 20GB
+  claim_id: c_f2c27243
+  context: 'Constraint: MUST implement chunked writing/streaming (batches of 100)
+    to ensure memory usage stays within acceptable limits and disk usage under 20GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrapped_obs_samples.h5_size_is_under_20GB
+  kind: entity_fact
+  raw_text: The disk usage for the bootstrapped dataset must be under 20GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:48:32Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: synthetic generation cites Abbott et al. ApJL
+  claim_id: c_775fda64
+  context: 'T022 [US1b] ... Citation: Must cite ''Abbott et al. (), ApJL, L7 '' (or
+    similar LVC population paper).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generation_cites_Abbott_et_al._ApJL
+  kind: entity_fact
+  raw_text: The synthetic catalog generation must cite Abbott et al. in ApJL.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:48:52Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: final report includes limitations section with power notes and MDES interpretation
+  claim_id: c_e16398c5
+  context: T039 [US2c] Update report generation to include 'Limitations' section with
+    power notes, MDES interpretation (FR-010, SC-011), and explicit notes on any selection
+    bias limitations (from T032).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_includes_limitations_section_with_power_notes_a
+  kind: entity_fact
+  raw_text: The final report must include a 'Limitations' section with power notes
+    and MDES interpretation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:49:33Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: figures saved as PNG with at least 300 DPI
+  claim_id: c_fd51dd65
+  context: "T045 [US3] Ensure all figures saved as PNG with resolution \u2265300 DPI\
+    \ (explicitly set dpi=300 in matplotlib)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Figures_saved_as_PNG_with_at_least_300_DPI
+  kind: magnitude
+  raw_text: "All figures must be saved as PNG with resolution \u2265300 DPI."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:49:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: CI workflow timeout is 360 minutes
+  claim_id: c_24012775
+  context: 'T047 [US0] Configure .github/workflows/ci.yml. Content: Must include runs-on:
+    ubuntu-latest, timeout-minutes: 360 (6 hours)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CI workflow must have a timeout-minutes setting of 360.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:49:59Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-2 fetched from Zenodo DOI 10.5281/zenodo.3966974
+  claim_id: c_710e3bbd
+  context: T014 [P] [US1] Implement src/data/download.py function to fetch GWTC-1
+    (DOI) AND GWTC-2 (DOI 10.5281/zenodo.3966974)...
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: GWTC-2 data must be fetched from Zenodo DOI 10.5281/zenodo.3966974.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:50:02Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: bootstrapping iterates in batches of 100
+  claim_id: c_09692320
+  context: 'T017 [US1] ... Algorithm: Iterate over events in batches of 100. For each
+    batch: a. For each event in the batch, sample 1000 medians...'
+  evidence:
+    asserted: '100.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The bootstrapping algorithm must iterate over events in batches of 100.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:50:04Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: GWTC-1 and GWTC-2 files exist in data/raw with valid checksums
+  claim_id: c_61b4b2d5
+  context: T014 Implement src/data/download.py function to fetch GWTC-1 (DOI) AND
+    GWTC-2 (DOI 10.5281/zenodo.3966974) with unified retry/backoff logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Downloaded files must exist in data/raw/ with valid checksums.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:52:14Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: obs_catalog.csv exists with 100 or more valid events
+  claim_id: c_498435c5
+  context: "Independent Test: Verify data/processed/obs_catalog.csv exists with \u2265\
+    100 valid events and correct checksums."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify data/processed/obs_catalog.csv exists with \u2265100 valid events\
+    \ and correct checksums."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:52:15Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: bootstrapped_obs_samples.h5 contains samples dataset with shape [N_events,
+    1000, 4] and dtype float64
+  claim_id: c_2868fd7b
+  context: 'Output B (CRITICAL): Save the full bootstrapped dataset to data/processed/bootstrapped_obs_samples.h5
+    (HDF5 format). Schema: The file MUST contain a dataset named samples with shape
+    [N_events, 1000, 4] (Events, Iterations, Parameters: mass_ratio, effective_spin,
+    m1, m2) and dtype float64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain a dataset named samples with shape [N_events, 1000,
+    4] (Events, Iterations, Parameters: mass_ratio, effective_spin, m1, m2) and dtype
+    float64.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:52:49Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: sim_catalog.csv exists with 100 or more valid events
+  claim_id: c_1d9f2b1a
+  context: "Independent Test: Verify data/processed/sim_catalog.csv exists with \u2265\
+    100 valid events and matching schema."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify data/processed/sim_catalog.csv exists with \u2265100 valid events\
+    \ and matching schema."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:52:51Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: sim_catalog.csv contains 100 or more events
+  claim_id: c_f04f3708
+  context: "T022 Implement src/data/generate_synthetic.py to create a catalog based\
+    \ on a 'Power-law mass with independent spin' hypothesis. Citation: Must cite\
+    \ 'Abbott et al. (), ApJL, L7 ' (or similar LVC population paper). Parameters:\
+    \ Output: data/processed/sim_catalog.csv with \u2265100 events."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output: data/processed/sim_catalog.csv with \u2265100 events."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:52:52Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic catalog cites Abbott et al. ApJL L7
+  claim_id: c_e78c28a3
+  context: 'T022 Implement src/data/generate_synthetic.py to create a catalog based
+    on a ''Power-law mass with independent spin'' hypothesis. Citation: Must cite
+    ''Abbott et al. (), ApJL, L7 '' (or similar LVC population paper).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_catalog_cites_Abbott_et_al._ApJL_L7
+  kind: entity_fact
+  raw_text: 'Citation: Must cite ''Abbott et al. (), ApJL, L7 '' (or similar LVC population
+    paper).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:53:12Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: output/figures contains 2 or more PNGs at 300 DPI
+  claim_id: c_40ca4c10
+  context: "Independent Test: Verify output/figures/ contains \u22652 PNGs (300 DPI)\
+    \ with annotated divergence regions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify output/figures/ contains \u22652 PNGs (300 DPI) with annotated\
+    \ divergence regions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:53:13Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Generated figures are PNGs at 300 DPI
+  claim_id: c_8a49a826
+  context: "T045 Ensure all figures saved as PNG with resolution \u2265300 DPI (explicitly\
+    \ set dpi=300 in matplotlib). Verification: Check file properties of generated\
+    \ PNGs using stat or identify (ImageMagick) to confirm DPI."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure all figures saved as PNG with resolution \u2265300 DPI (explicitly\
+    \ set dpi=300 in matplotlib)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:53:40Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: LVK selection efficiency files for GWTC-1 and GWTC-2 attempted from specific
+    paths
+  claim_id: c_c14ecab3
+  context: 'T032 Implement selection bias handling in src/analysis/selection_bias.py
+    (FR-016): Attempt to load official LVK selection efficiency files from data/raw/lvk_selection_efficiency.h5
+    (GWTC-1) and data/raw/lvk_selection_efficiency_GWTC2.h5 (GWTC-2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Attempt to load official LVK selection efficiency files from data/raw/lvk_selection_efficiency.h5
+    (GWTC-1) and data/raw/lvk_selection_efficiency_GWTC2.h5 (GWTC-2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:54:06Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Inverse Probability Weighting applied if LVK files exist
+  claim_id: c_b0ae0b7b
+  context: 'If files exist: Apply Inverse Probability Weighting (IPW) and record the
+    method used as ipw in data/results/selection_bias_status.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Inverse_Probability_Weighting_applied_if_LVK_files_exist
+  kind: entity_fact
+  raw_text: Apply Inverse Probability Weighting (IPW) and record the method used as
+    ipw in data/results/selection_bias_status.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:54:35Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Uniform weighting used if LVK files are missing
+  claim_id: c_871a5454
+  context: 'If files are missing: DO NOT HALT. Log a warning [SELECTION_BIAS_MISSING],
+    proceed with uniform weighting, and record the method as uniform_approximation
+    in data/results/selection_bias_status.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uniform_weighting_used_if_LVK_files_are_missing
+  kind: entity_fact
+  raw_text: Proceed with uniform weighting, and record the method as uniform_approximation
+    in data/results/selection_bias_status.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:55:00Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline logs peak memory and disk usage
+  claim_id: c_b5aaf415
+  context: T010 Implement src/main.py as the pipeline entry point with argument parsing,
+    orchestration logic, and integrated resource monitoring hooks. The pipeline MUST
+    log peak memory/disk usage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_logs_peak_memory_and_disk_usage
+  kind: entity_fact
+  raw_text: The pipeline MUST log peak memory/disk usage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:55:03Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 1 on resource threshold breach
+  claim_id: c_08e0610e
+  context: If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a [RESOURCE_BREACH]
+    message with the specific metric and value, then exit with code 1 to signal failure,
+    ensuring hard constraints (FR-011) are enforced.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If thresholds (time, RAM, Disk) are exceeded, the pipeline MUST log a
+    [RESOURCE_BREACH] message with the specific metric and value, then exit with code
+    1 to signal failure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:55:35Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: ks_test_results.json includes sc002_effective_spin_nominal entry for
+    alpha 0.05
+  claim_id: c_c7dfe6d9
+  context: "T033 Generate output/results/ks_test_results.json with all statistics,\
+    \ adjusted p-values, and significance flags. Specific Artifact: Must include a\
+    \ dedicated entry sc002_effective_spin_nominal with the p-value and pass/fail\
+    \ status for \u03B1=0.05."
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Must include a dedicated entry sc002_effective_spin_nominal with the\
+    \ p-value and pass/fail status for \u03B1=0.05."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:55:36Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: bootstrapped_obs_samples.h5 file size under 20GB
+  claim_id: c_2cfdcfdc
+  context: 'Constraint: MUST implement chunked writing/streaming (batches of 100)
+    to ensure memory usage stays within acceptable limits and disk usage under 20GB.
+    Verification: Run du -sh data/processed/bootstrapped_obs_samples.h5 to confirm
+    size < 20GB.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bootstrapped_obs_samples.h5_file_size_under_20GB
+  kind: entity_fact
+  raw_text: Data/processed/bootstrapped_obs_samples.h5 size must be under 20GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:56:12Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: samples dataset shape is [N_events, 1000, 4] with float64 dtype
+  claim_id: c_cc06aa10
+  context: 'Schema: The file MUST contain a dataset named samples with shape [N_events,
+    1000, 4] (Events, Iterations, Parameters: mass_ratio, effective_spin, m1, m2)
+    and dtype float64.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The file MUST contain a dataset named samples with shape [N_events, 1000,
+    4] (Events, Iterations, Parameters: mass_ratio, effective_spin, m1, m2) and dtype
+    float64.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:56:14Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: samples dataset has at least 100 events, 1000 iterations, and 4 parameters
+  claim_id: c_84a7a305
+  context: 'Verification: Run a Python snippet: import h5py; f=h5py.File(''data/processed/bootstrapped_obs_samples.h5'',''r'');
+    assert f[''samples''].shape[0] >= 100 and f[''samples''].shape[1] == 1000 and
+    f[''samples''].shape[2] == 4; assert f[''samples''].dtype == ''float64''; f.close().'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Samples_dataset_has_at_least_100_events,_1000_iterations,_an
+  kind: magnitude
+  raw_text: assert f['samples'].shape[0] >= 100 and f['samples'].shape[1] == 1000
+    and f['samples'].shape[2] == 4
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:57:08Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: 1000 medians sampled per event from posterior distribution
+  claim_id: c_4a957a82
+  context: 'Specific Mechanism: Algorithm: Iterate over events in batches of 100.
+    For each batch: a. For each event in the batch, sample 1000 medians from its respective
+    posterior distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For each event in the batch, sample 1000 medians from its respective posterior
+    distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:57:38Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Temporary 3D array segment shape is [100, 1000, 4]
+  claim_id: c_4a788f86
+  context: b. Stack these samples into a temporary 3D array segment of shape [100,
+    1000, 4].
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stack these samples into a temporary 3D array segment of shape [100, 1000,
+    4].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:58:08Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Events processed in batches of 100
+  claim_id: c_e7550aea
+  context: 'Specific Mechanism: Algorithm: Iterate over events in batches of 100.
+    For each batch:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over events in batches of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:58:35Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: CI workflow uses ubuntu-latest, 360 minute timeout, and pytest
+  claim_id: c_e0a674cf
+  context: 'T047 Configure .github/workflows/ci.yml. Content: Must include runs-on:
+    ubuntu-latest, timeout-minutes: 360 (6 hours), and a step running pytest (e.g.,
+    python -m pytest tests/ -v).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_workflow_uses_ubuntu-latest,_360_minute_timeout,_and_pyte
+  kind: magnitude
+  raw_text: 'Must include runs-on: ubuntu-latest, timeout-minutes: 360 (6 hours),
+    and a step running pytest.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:59:23Z'
+- artifact_path: projects/PROJ-257-investigating-the-statistical-properties/specs/001-investigating-the-statistical-properties/tasks.md
+  attempts: 1
+  canonical: Synthetic catalog generation cites Abbott et al. ApJL L7
+  claim_id: c_8ec71e6c
+  context: 'T022 Implement src/data/generate_synthetic.py to create a catalog based
+    on a ''Power-law mass with independent spin'' hypothesis. Citation: Must cite
+    ''Abbott et al. (), ApJL, L7 '' (or similar LVC population paper).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_catalog_generation_cites_Abbott_et_al._ApJL_L7
+  kind: entity_fact
+  raw_text: 'Citation: Must cite ''Abbott et al. (), ApJL, L7 '' (or similar LVC population
+    paper).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:59:27Z'
