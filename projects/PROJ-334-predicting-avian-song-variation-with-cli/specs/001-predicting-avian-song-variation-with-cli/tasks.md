@@ -56,11 +56,11 @@
 
 - [ ] T002 [P] Initialize Python project with dependencies: pandas, numpy, scikit-learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and initialize `data/checksums.txt` with a CSV header (`filename,hash`) AND initialize the project state file `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` with an empty `artifact_hashes` map to satisfy Constitution Principle III. **Depends on T001a.**
-- [ ] T005 [P] Create base configuration loader for environment variables and paths, including a configurable `join_radius_km` parameter with a **default value of 10km ** (based on WorldClim resolution) to ensure reproducibility without manual intervention.
+- [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and initialize `data/checksums.txt` with a CSV header (`filename,sha256_hash`). Initialize the project state file `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` with an empty `artifact_hashes` map and `updated_at: "1970-01-01T00:00:00Z"`. **Depends on T001a.**
+- [ ] T005 [P] Create base configuration loader for environment variables and paths, including a configurable `join_radius_km` parameter with a **default value of 10km** (based on WorldClim resolution) to ensure reproducibility without manual intervention.
 - [ ] T007 [P] Create schema definition files `contracts/song_record.schema.yaml` (fields: species_id, lat, lon, song_metric_1, song_metric_2), `contracts/climate_snapshot.schema.yaml` (fields: lat, lon, temperature, precipitation, elevation), `contracts/analysis_dataset.schema.yaml` (fields: all above merged)
 - [X] T008 [P] Implement schema validation utilities (`code/utils.py`) for `SongRecord`, `ClimateSnapshot`, and `AnalysisDataset`, AND implement coordinate reprojection logic (WGS84/NAD83) in the same utility module
-- [X] T009 [P] Create data source contracts (`contracts/data_sources.yaml`) defining {{claim:c_5ade1739}} ({{claim:c_b9be9184}}, {{claim:c_8865816b}}) and WorldClim v2.1 [UNRESOLVED-CLAIM: c_62d807c9 — status=not_enough_info] URLs, sample paths, and version pinning logic
+- [X] T009 [P] Create `code/data_sources.yaml` defining Xeno-Canto API () and WorldClim v2.1 ( Temporary failure in name resolution)"))]) URLs, sample paths, and version pinning logic. **Must use verified URLs; remove any unresolved claim references.**
 - [X] T010 [P] Create `code/main.py` orchestration entry point with argument parsing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -69,16 +69,16 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Variable Alignment (Priority: P1) 🎯 MVP
 
-**Goal**: Load real avian acoustic data ({{claim:c_5ade1739}}) and climate data (WorldClim v2.1 [UNRESOLVED-CLAIM: c_62d807c9 — status=not_enough_info]), align by location/species, and produce a unified `AnalysisDataset`.
+**Goal**: Load real avian acoustic data (Xeno-Canto) and climate data (WorldClim v2.1), align by location/species, and produce a unified `AnalysisDataset`.
 
 **Independent Test**: Can be fully tested by executing `code/ingestion.py` against the provided sample CSVs or real fetch and verifying the output schema contains required columns with no duplicate rows.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `fetch_xeno_canto.py` to download real metadata (species_id, lat, lon) from {{claim:c_5ade1739}} API (referencing T009 for URL/version), using `streaming=True` or `itertools.islice` to handle large datasets, record SHA256 checksum immediatelyto `data/checksums.txt` **AND update `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` `artifact_hashes`**, and abort on fetch failure. **Depends on T009, T004.**
-- [ ] T012 [US1 ({{claim:c_5797672a}}, {{claim:c_9b1f041a}})] Implement `fetch_worldclim.py` to download real climate variables (temp, precip, elev) from WorldClim v2.1 [UNRESOLVED-CLAIM: c_62d807c9 — status=not_enough_info] (referencing T009 for URL/version), using `streaming=True` or `itertools.islice` to handlelarge datasets, record SHA256 checksum immediately to `data/checksums.txt` **AND update `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` `artifact_hashes`**, and abort on fetch failure. **Depends on T009, T004.** <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement `code/ingestion.py` to load raw CSVs (from T011/T012), validate against `contracts/*.schema.yaml` (using T008 utilities), and handle coordinate reprojection (WGS84) using T008 utilities. **Must explicitly detect CRS mismatch by reading CRS from GeoTIFF metadata or inferring from coordinate bounds before applying reprojection.** **Depends on T007, T008, T005, T011, T012.**
-- [X] T014 [US1] Implement spatial join logic in `code/ingestion.py` to merge `SongRecord` and `ClimateSnapshot` by performing a spatial join within the `join_radius_km` (defined in T005 config). **Depends on T013.**
+- [ ] T011 [US1] Implement `fetch_xeno_canto.py` to load real metadata (species_id, lat, lon) from Xeno-Canto API (referencing T009 for URL/version). **FIRST attempt to load `data/raw/xeno_canto_sample.csv` if it exists; if missing, fetch real data using `streaming=True` or `itertools.islice` to handle large datasets, record SHA256 checksum immediately to `data/checksums.txt` AND update `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` `artifact_hashes`, and abort on fetch failure.** **Depends on T009, T004.**
+- [ ] T012 [US1] Implement `fetch_worldclim.py` to load real climate variables (temp, precip, elev) from WorldClim v2.1 (referencing T009 for URL/version). **FIRST attempt to load `data/raw/worldclim_sample.csv` if it exists; if missing, fetch real data using `streaming=True` or `itertools.islice` to handle large datasets, record SHA256 checksum immediately to `data/checksums.txt` AND update `state/projects/PROJ-334-predicting-avian-song-variation-with-cli.yaml` `artifact_hashes`, and abort on fetch failure.** **Depends on T009, T004.**
+- [ ] T013 [US1] Implement `code/ingestion.py` to load raw CSVs (from T011/T012), validate against `contracts/*.schema.yaml` (using T008 utilities), and handle coordinate reprojection (WGS84) using T008 utilities. **Inputs are strictly CSV/Tabular; do NOT attempt to read CRS from GeoTIFF metadata. Infer CRS from coordinate bounds (e.g., lat/lon range checks) or assume WGS84 if metadata is absent before applying reprojection.** **Depends on T007, T008, T005, T011, T012.**
+- [ ] T014 [US1] Implement spatial join logic in `code/ingestion.py` to merge `SongRecord` and `ClimateSnapshot`. **Perform a vector-vector spatial join on the CSV-derived point data within the `join_radius_km` (defined in T005 config, derived from WorldClim raster resolution). This step operates on the validated CSV points, not raster files.** **Depends on T013.**
 - [X] T015 [US1] Calculate and log match rate (matched/total) and verify no duplicates in `code/ingestion.py`
 - [X] T016 [US1] Implement exclusion logic for unmatched species and logging of warnings in `code/ingestion.py`. **Output:** Write a JSON file `data/logs/excluded_species.json` with schema `{ "excluded_ids": ["..."], "count": 0, "reason": "..." }`. **Depends on T014.**
 - [ ] T017 [US1] Save the unified `AnalysisDataset` to `data/processed/analysis_dataset.csv` and update `data/checksums.txt` **and state file**. **Must complete before T021.**
@@ -104,9 +104,8 @@
 - [ ] T021 [US2] Implement `code/eda.py` to load `AnalysisDataset` (validating against T007/T008 schemas), generate summary statistics (mean, std, range). **Depends on T017.**
 - [ ] T022 [US2] Implement Pearson correlation matrix calculation between song metrics and environmental predictors in `code/eda.py`
 - [ ] T023 [US2] Implement multicollinearity threshold check (default 0.8) and flagging in `code/eda.py`
-- [ ] T024 [US2] Implement Variance Inflation Factor (VIF) calculation for all predictors in `code/eda.py`
-- [ ] T024a [US2] Verify VIF output and generate flag report for any predictor with VIF > 5 in `code/eda.py`
-- [ ] T026 [US2] Generate and save EDA report (`data/eda_report.json`) containing `correlation_matrix`, `summary_stats`, and `vif_flags` (keys explicitly required). Ensure correlation matrix values are strictly within [-1.0, 1.0] and include a validation step to assert this.
+- [ ] T024 [US2] Implement Variance Inflation Factor (VIF) calculation for all predictors in `code/eda.py` **AND verify VIF output to generate flag report for any predictor with VIF > 5, saving flags to the EDA report.** **Depends on T021.**
+- [ ] T026 [US2] Generate and save EDA report (`data/eda_report.json`) containing `correlation_matrix`, `summary_stats`, and `vif_flags` (keys explicitly required). Ensure correlation matrix values are strictly within [-1.0, 1.0] and include a validation step to assert this. **Depends on T024.**
 
 ### Tests for User Story 2
 
@@ -130,7 +129,7 @@
 - [ ] T030b [US3] Calculate and report the **delta R²** (R²_model - R²_null) for both metrics in `code/modeling.py` and save to `data/model_performance.json`. **Depends on T029, T030a.**
 - [ ] T031a [US3] **Explicitly aggregate p-values**: Extract p-value vectors from the outputs of Model A and Model B (from T029) for both `song_metric_1` and `song_metric_2`, concatenate them into a single list, and save to `data/aggregated_pvalues.json`. **Depends on T029.**
 - [ ] T031 [US3] Implement sensitivity analysis: sweep p-value thresholds across {0.01, 0.05, 0.10}, track significant predictors, calculate Jaccard index (J = |A∩B| / |A∪B|) comparing sets of significant predictors at each threshold pair, and save results (including Jaccard values) to `data/sensitivity_report.json`. **Depends on T029.**
-- [ ] T032a [US3] Implement {{claim:c_26c166a0}} (2607.12208, https://arxiv.org/abs/2607.12208) in `code/modeling.py` to adjust p-values using the **aggregated list** from T031a. **Depends on T031a.**
+- [ ] T032a [US3] Implement Benjamini-Hochberg procedure using `statsmodels.stats.multitest.multipletests` with `method='fdr_bh'` in `code/modeling.py` to adjust p-values using the **aggregated list** from T031a. **Depends on T031a.**
 - [ ] T032 [US3] Apply FDR correction to p-values in `code/modeling.py` using the procedure from T032a and save adjusted p-values to the sensitivity report. **Depends on T032a.**
 - [ ] T033 [US3] Save fitted models (`data/models/model_a.pkl`, `data/models/model_b.pkl`) and sensitivity report (`data/sensitivity_report.json`) including FDR-adjusted p-values
 - [ ] T034 [US3] Add error handling for zero-variance predictors and abort with clear message in `code/modeling.py`
