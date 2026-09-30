@@ -3,12 +3,12 @@
   "audit": {
     "passed": true,
     "defects": [],
-    "audited_at": "2026-09-30T22:03:44.641331+00:00"
+    "audited_at": "2026-09-30T22:27:11.853777+00:00"
   },
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "audited",
   "failure": null,
   "paper_id": "PROJ-850-dopd-dual-on-policy-distillation",
-  "updated_at": "2026-09-30T22:03:44.641344+00:00"
+  "updated_at": "2026-09-30T22:27:11.853792+00:00"
 }
