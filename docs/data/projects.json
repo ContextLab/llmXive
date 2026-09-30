@@ -28666,7 +28666,7 @@
       "name": "yanqiong Jiang"
     }
   ],
-  "generated_at": "2026-09-30T00:30:00.114387+00:00",
+  "generated_at": "2026-09-30T00:57:10.221485+00:00",
   "personalities": [
     {
       "display_name": "Ada Lovelace",
@@ -128615,7 +128615,7 @@
       },
       "authors": [
         {
-          "contributions": 15004,
+          "contributions": 15014,
           "kind": "llm",
           "name": "qwen.qwen3.5-122b",
           "roles": [
@@ -128675,83 +128675,83 @@
       "last_run_log": [
         {
           "agent": "implementer",
-          "duration_s": 1.405179,
-          "ended_at": "2026-09-29T23:27:05.213914Z",
+          "duration_s": 0.857352,
+          "ended_at": "2026-09-30T00:56:55.246634Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:27:03.808735Z"
+          "started_at": "2026-09-30T00:56:54.389282Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.123102,
-          "ended_at": "2026-09-29T23:27:03.740432Z",
+          "duration_s": 0.918383,
+          "ended_at": "2026-09-30T00:56:54.356776Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:27:02.617330Z"
+          "started_at": "2026-09-30T00:56:53.438393Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 1.137843,
-          "ended_at": "2026-09-29T23:27:02.547599Z",
+          "duration_s": 0.916321,
+          "ended_at": "2026-09-30T00:56:53.405776Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:27:01.409756Z"
+          "started_at": "2026-09-30T00:56:52.489455Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.816591,
-          "ended_at": "2026-09-29T23:27:01.340456Z",
+          "duration_s": 0.915855,
+          "ended_at": "2026-09-30T00:56:52.457141Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:27:00.523865Z"
+          "started_at": "2026-09-30T00:56:51.541286Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.811344,
-          "ended_at": "2026-09-29T23:27:00.452926Z",
+          "duration_s": 1.544712,
+          "ended_at": "2026-09-30T00:56:51.508483Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:26:59.641582Z"
+          "started_at": "2026-09-30T00:56:49.963771Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.711405,
-          "ended_at": "2026-09-29T23:26:59.556151Z",
+          "duration_s": 1.142998,
+          "ended_at": "2026-09-30T00:56:49.931422Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:26:58.844746Z"
+          "started_at": "2026-09-30T00:56:48.788424Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.841633,
-          "ended_at": "2026-09-29T23:26:58.776429Z",
+          "duration_s": 1.1396,
+          "ended_at": "2026-09-30T00:56:48.754613Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:26:57.934796Z"
+          "started_at": "2026-09-30T00:56:47.615013Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.813489,
-          "ended_at": "2026-09-29T23:26:57.811494Z",
+          "duration_s": 2.556389,
+          "ended_at": "2026-09-30T00:56:47.538821Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:26:56.998005Z"
+          "started_at": "2026-09-30T00:56:44.982432Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 0.844991,
-          "ended_at": "2026-09-29T23:26:56.928999Z",
+          "duration_s": 0.866749,
+          "ended_at": "2026-09-30T00:56:44.950430Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:26:56.084008Z"
+          "started_at": "2026-09-30T00:56:44.083681Z"
         },
         {
           "agent": "implementer",
-          "duration_s": 4.095976,
-          "ended_at": "2026-09-29T23:26:56.007106Z",
+          "duration_s": 4.137914,
+          "ended_at": "2026-09-30T00:56:44.034817Z",
           "model": "qwen.qwen3.5-122b",
           "outcome": "success",
-          "started_at": "2026-09-29T23:26:51.911130Z"
+          "started_at": "2026-09-30T00:56:39.896903Z"
         }
       ],
       "paper_status": null,
@@ -165928,6 +165928,126 @@
   "recent_activity": [
     {
       "agent": "implementer",
+      "duration_s": 0.857352,
+      "ended_at": "2026-09-30T00:56:55.246634Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:54.389282Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.918383,
+      "ended_at": "2026-09-30T00:56:54.356776Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:53.438393Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.916321,
+      "ended_at": "2026-09-30T00:56:53.405776Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:52.489455Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.915855,
+      "ended_at": "2026-09-30T00:56:52.457141Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:51.541286Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.544712,
+      "ended_at": "2026-09-30T00:56:51.508483Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:49.963771Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.142998,
+      "ended_at": "2026-09-30T00:56:49.931422Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:48.788424Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 1.1396,
+      "ended_at": "2026-09-30T00:56:48.754613Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:47.615013Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 2.556389,
+      "ended_at": "2026-09-30T00:56:47.538821Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:44.982432Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 0.866749,
+      "ended_at": "2026-09-30T00:56:44.950430Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:44.083681Z"
+    },
+    {
+      "agent": "implementer",
+      "duration_s": 4.137914,
+      "ended_at": "2026-09-30T00:56:44.034817Z",
+      "failure_reason": "",
+      "model": "qwen.qwen3.5-122b",
+      "outcome": "success",
+      "project_id": "PROJ-591-neuromorphic-transformer-networks-spikin",
+      "project_stage": "in_progress",
+      "severity": "ok",
+      "started_at": "2026-09-30T00:56:39.896903Z"
+    },
+    {
+      "agent": "implementer",
       "duration_s": 0.897387,
       "ended_at": "2026-09-30T00:15:09.166758Z",
       "failure_reason": "",
@@ -171805,126 +171925,6 @@
       "project_stage": "planned",
       "severity": "ok",
       "started_at": "2026-09-29T17:31:17.167927Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 51.358197,
-      "ended_at": "2026-09-29T17:31:17.166028Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:30:25.807831Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 55.321017,
-      "ended_at": "2026-09-29T17:30:25.805911Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:29:30.484894Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 60.872056,
-      "ended_at": "2026-09-29T17:29:30.482958Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:28:29.610902Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 135.850672,
-      "ended_at": "2026-09-29T17:28:29.608849Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:26:13.758177Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 40.842435,
-      "ended_at": "2026-09-29T17:26:13.756009Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:25:32.913574Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 48.196913,
-      "ended_at": "2026-09-29T17:25:32.911632Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:24:44.714719Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 66.933301,
-      "ended_at": "2026-09-29T17:24:44.712707Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:23:37.779406Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 58.913989,
-      "ended_at": "2026-09-29T17:23:37.777286Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:22:38.863297Z"
-    },
-    {
-      "agent": "implementer",
-      "duration_s": 2.252569,
-      "ended_at": "2026-09-29T17:21:41.101554Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:21:38.848985Z"
-    },
-    {
-      "agent": "tasker",
-      "duration_s": 790.802856,
-      "ended_at": "2026-09-29T17:21:38.810974Z",
-      "failure_reason": "",
-      "model": "qwen.qwen3.5-122b",
-      "outcome": "success",
-      "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
-      "project_stage": "planned",
-      "severity": "ok",
-      "started_at": "2026-09-29T17:08:28.008118Z"
     }
   ],
   "reviewed_preprints": [
