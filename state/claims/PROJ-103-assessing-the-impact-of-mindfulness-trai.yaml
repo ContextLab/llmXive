@@ -1,0 +1,429 @@
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: permutation testing uses 10000 iterations
+  claim_id: c_e670c548
+  context: 'Phase 4: User Story 2 - DMN Functional Connectivity Analysis. T025 [US2]
+    Implement permutation testing (10,000 iterations) as alternative to AR(1) at src/analysis/permutation_test.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement permutation testing (10,000 iterations) as alternative to AR(1)
+    at src/analysis/permutation_test.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:30:03Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: bootstrapped 95% CI calculation uses 10000 iterations
+  claim_id: c_5d429128
+  context: 'Phase 4: User Story 2 - DMN Functional Connectivity Analysis. T027 [US2]
+    Implement bootstrapped 95% CI calculation (10,000 iterations) for Cohen''s d at
+    src/analysis/effect_sizes.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement bootstrapped 95% CI calculation (10,000 iterations) for Cohen's
+    d at src/analysis/effect_sizes.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:30:51Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: NBS correction uses primary threshold t >= 3.1 and alpha = 0.05
+  claim_id: c_88573e29
+  context: "Phase 4: User Story 2 - DMN Functional Connectivity Analysis. T028 [US2]\
+    \ Implement Network-Based Statistic (NBS) correction with primary threshold t\u2265\
+    3.1 and component-wise family-wise error correction at \u03B1=0.05 at src/analysis/nbs_correction.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement Network-Based Statistic (NBS) correction with primary threshold\
+    \ t\u22653.1 and component-wise family-wise error correction at \u03B1=0.05"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:30:56Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: I-squared heterogeneity statistic is calculated
+  claim_id: c_0ec72baf
+  context: "Phase 5: User Story 3 - Cross-Dataset Meta-Analysis. T035 [US3] Create\
+    \ I\xB2 heterogeneity statistic calculation at src/analysis/heterogeneity.py"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/I-squared_heterogeneity_statistic_is_calculated
+  kind: entity_fact
+  raw_text: "Create I\xB2 heterogeneity statistic calculation"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:05Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis performed for motion thresholds
+  claim_id: c_7d337cc8
+  context: 'Phase 4: User Story 2 - DMN Functional Connectivity Analysis. T031 [US2]
+    Implement sensitivity analysis for motion thresholds across varying magnitudes
+    at src/analysis/motion_sensitivity.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_performed_for_motion_thresholds
+  kind: entity_fact
+  raw_text: Implement sensitivity analysis for motion thresholds across varying magnitudes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:19Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: dataset design verification confirms pre/post resting-state scans with
+    mindfulness metadata
+  claim_id: c_96e40b03
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline. T012
+    [US1] Implement dataset design verification to confirm pre/post resting-state
+    scans with mindfulness metadata at src/datasets/verify_design.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_design_verification_confirms_pre/post_resting-state
+  kind: entity_fact
+  raw_text: Create dataset design verification to confirm pre/post resting-state scans
+    with mindfulness metadata
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:28Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: motion exclusion threshold is >3mm translation or >3 degrees rotation
+  claim_id: c_ab715b85
+  context: "Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline. T015\
+    \ [US1] Create motion exclusion filter (>3mm translation or >3\xB0 rotation) at\
+    \ src/preprocessing/motion_filter.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Motion exclusion filter applies >3mm translation or >3\xB0 rotation"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:29Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: random seed value is 42
+  claim_id: c_39afbc93
+  context: 'Phase 2: Foundational. T008 [P] Implement random seed pinning for reproducibility
+    at src/utils/seeding.py with seed value 42 for numpy, random, torch modules'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement random seed pinning for reproducibility with seed value 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:39Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: power analysis target is >= 80 percent
+  claim_id: c_79ea8f23
+  context: "Phase 2: Foundational. T019 [P] Implement post-hoc power analysis script\
+    \ using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py with\
+    \ sample-size requirements documentation (power \u226580% target)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power analysis targets power \u226580%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:39Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: meta-analysis performed across >= 3 datasets
+  claim_id: c_169b6075
+  context: "Phase 5: User Story 3 - Cross-Dataset Meta-Analysis. Goal: Perform random-effects\
+    \ meta-analysis across \u22653 datasets with heterogeneity assessment"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Meta-analysis performed across \u22653 datasets"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:40Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: Nilearn fallback preprocessing uses 6mm smoothing
+  claim_id: c_06423691
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline. T016
+    [US1] Implement Nilearn lightweight preprocessing fallback (motion correction,
+    slice timing, MNI152 normalization, 6mm smoothing, bandpass)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Nilearn_fallback_preprocessing_uses_6mm_smoothing
+  kind: entity_fact
+  raw_text: Nilearn lightweight preprocessing fallback includes 6mm smoothing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:45Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: NBS permutation testing runtime < 2 hours on 2 cores for 10 subjects
+  claim_id: c_a48e2b2b
+  context: 'Phase 6: Polish & Cross-Cutting Concerns. T042 Performance optimization
+    for NBS permutation testing on 2 cores with success criteria: runtime <2h on 2
+    cores for 10 subjects'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Performance optimization target: runtime <2h on 2 cores for 10 subjects
+    for NBS permutation testing'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:31:48Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: motion sensitivity analysis checks 2, 3, and 4mm magnitudes
+  claim_id: c_383f2730
+  context: "Notes section: Motion Thresholds: >3mm translation or >3\xB0 rotation\
+    \ for exclusion (sensitivity analysis 2/3/4mm)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Motion sensitivity analysis checks 2/3/4mm magnitudes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:32:39Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: random seed 42 for numpy random and torch modules
+  claim_id: c_14b72377
+  context: 'Implement random seed pinning for reproducibility at src/utils/seeding.py
+    with seed value 42 for numpy, random, torch modules; verification criteria: deterministic
+    output on re-run'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Seed value 42 for numpy, random, and torch modules is used for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:37:14Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: motion exclusion thresholds greater than 3mm translation or 3 degrees
+    rotation
+  claim_id: c_eaf06e9c
+  context: "Create motion exclusion filter (>3mm translation or >3\xB0 rotation) at\
+    \ src/preprocessing/motion_filter.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Motion_exclusion_thresholds_greater_than_3mm_translation_or
+  kind: magnitude
+  raw_text: "Motion exclusion filter uses thresholds of >3mm translation or >3\xB0\
+    \ rotation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:37:22Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: permutation testing uses 10000 iterations
+  claim_id: c_66ec0106
+  context: Implement permutation testing (10,000 iterations) as alternative to AR(1)
+    at src/analysis/permutation_test.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing uses 10,000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:37:36Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: bootstrapped 95 percent CI calculation for Cohen's d uses 10000 iterations
+  claim_id: c_f2854809
+  context: Implement bootstrapped 95% CI calculation (10,000 iterations) for Cohen's
+    d at src/analysis/effect_sizes.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrapped 95% confidence interval calculation for Cohen's d uses 10,000
+    iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:37:43Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: NBS correction primary threshold t greater than or equal to 3.1 and alpha
+    0.05
+  claim_id: c_2132f658
+  context: "Implement Network-Based Statistic (NBS) correction with primary threshold\
+    \ t\u22653.1 and component-wise family-wise error correction at \u03B1=0.05 at\
+    \ src/analysis/nbs_correction.py"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NBS_correction_primary_threshold_t_greater_than_or_equal_to
+  kind: magnitude
+  raw_text: "Network-Based Statistic (NBS) correction uses a primary threshold of\
+    \ t\u22653.1 and component-wise family-wise error correction at \u03B1=0.05."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:37:59Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: meta-analysis performed across at least 3 datasets
+  claim_id: c_41b21902
+  context: "Goal: Perform random-effects meta-analysis across \u22653 datasets with\
+    \ heterogeneity assessment"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Meta-analysis_performed_across_at_least_3_datasets
+  kind: magnitude
+  raw_text: Meta-analysis is performed across three or more datasets.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:38:11Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: leave-one-out sensitivity analysis triggered if I squared greater than
+    50 percent
+  claim_id: c_8296fa41
+  context: "Implement leave-one-out sensitivity analysis for I\xB2 > 50% at src/analysis/sensitivity_analysis.py"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Leave-one-out_sensitivity_analysis_triggered_if_I_squared_gr
+  kind: magnitude
+  raw_text: "Leave-one-out sensitivity analysis is triggered if I\xB2 > 50%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:39:55Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: power analysis target power greater than or equal to 80 percent
+  claim_id: c_e2b7e8a8
+  context: "Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower\
+    \ at src/analysis/power_analysis.py with sample-size requirements documentation\
+    \ (power \u226580% target) for methods output"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: magnitude
+  raw_text: "Power analysis targets a power of \u226580%."
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T03:40:12Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: NBS performance optimization runtime less than 2 hours on 2 cores for
+    10 subjects
+  claim_id: c_282b3191
+  context: 'Performance optimization for NBS permutation testing on 2 cores with success
+    criteria: runtime <2h on 2 cores for 10 subjects'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/NBS_performance_optimization_runtime_less_than_2_hours_on_2
+  kind: magnitude
+  raw_text: NBS performance optimization success criteria is runtime <2 hours on 2
+    cores for 10 subjects.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:40:23Z'
+- artifact_path: projects/PROJ-103-assessing-the-impact-of-mindfulness-trai/specs/001-assessing-the-impact-of-mindfulness-trai/tasks.md
+  attempts: 1
+  canonical: AAL atlas used per Constitution Principle VI
+  claim_id: c_856c701b
+  context: Implement AAL atlas DMN region extraction (PCC, mPFC, IPL, angular gyrus)
+    per Constitution Principle VI at src/analysis/extract_dmn_rois.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AAL_atlas_used_per_Constitution_Principle_VI
+  kind: entity_fact
+  raw_text: AAL atlas is used per Constitution Principle VI.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T03:40:32Z'

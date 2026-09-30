@@ -1,190 +1,227 @@
-"""
-Unit tests for the dataset design verification module.
-"""
-
 import pytest
 import json
 import tempfile
 import os
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 from src.datasets.verify_design import (
+    DesignVerificationError,
+    DesignMetadata,
     validate_metadata_fields,
     validate_design_logic,
     verify_dataset_design,
-    DesignVerificationError
+    verify_all_datasets
 )
 
-
 class TestValidateMetadataFields:
-    """Tests for validate_metadata_fields function."""
-
     def test_valid_metadata(self):
-        """Test with all required fields present and correct types."""
-        metadata = {
+        dataset_info = {
             'pre_scan_count': 1,
             'post_scan_count': 1,
-            'intervention_type': 'mindfulness',
+            'intervention_type': 'Mindfulness Training',
             'scan_type': 'rs-fMRI'
         }
-        is_valid, errors = validate_metadata_fields(metadata)
+        is_valid, metadata, errors = validate_metadata_fields(dataset_info)
+        
         assert is_valid is True
         assert errors == []
+        assert isinstance(metadata, DesignMetadata)
+        assert metadata.pre_scan_count == 1
+        assert metadata.post_scan_count == 1
+        assert metadata.intervention_type == 'Mindfulness Training'
+        assert metadata.scan_type == 'rs-fMRI'
 
     def test_missing_field(self):
-        """Test with a missing required field."""
-        metadata = {
+        dataset_info = {
             'pre_scan_count': 1,
-            'post_scan_count': 1,
-            'intervention_type': 'mindfulness'
+            'intervention_type': 'Mindfulness'
         }
-        is_valid, errors = validate_metadata_fields(metadata)
+        is_valid, metadata, errors = validate_metadata_fields(dataset_info)
+        
         assert is_valid is False
-        assert "Missing required field: scan_type" in errors
+        assert metadata is None
+        assert len(errors) == 2
+        assert any('post_scan_count' in e for e in errors)
+        assert any('scan_type' in e for e in errors)
 
     def test_wrong_type(self):
-        """Test with incorrect field types."""
-        metadata = {
-            'pre_scan_count': '1',  # Should be int
+        dataset_info = {
+            'pre_scan_count': '1',
             'post_scan_count': 1,
-            'intervention_type': 'mindfulness',
+            'intervention_type': 'Mindfulness',
             'scan_type': 'rs-fMRI'
         }
-        is_valid, errors = validate_metadata_fields(metadata)
+        is_valid, metadata, errors = validate_metadata_fields(dataset_info)
+        
         assert is_valid is False
-        assert any("pre_scan_count" in err for err in errors)
-
-    def test_multiple_errors(self):
-        """Test with multiple missing and invalid fields."""
-        metadata = {
-            'pre_scan_count': '1',
-            'intervention_type': 123
-        }
-        is_valid, errors = validate_metadata_fields(metadata)
-        assert is_valid is False
-        assert len(errors) == 3  # pre_scan_count type, intervention_type type, missing post_scan_count, missing scan_type
-
+        assert metadata is None
+        assert any('pre_scan_count must be int' in e for e in errors)
 
 class TestValidateDesignLogic:
-    """Tests for validate_design_logic function."""
-
-    def test_valid_design(self):
-        """Test with valid design logic."""
-        metadata = {
-            'pre_scan_count': 2,
-            'post_scan_count': 2,
-            'intervention_type': 'MBSR Training',
-            'scan_type': 'rs-fMRI'
-        }
+    def test_valid_logic(self):
+        metadata = DesignMetadata(
+            pre_scan_count=2,
+            post_scan_count=2,
+            intervention_type='MBSR Program',
+            scan_type='resting'
+        )
         is_valid, errors = validate_design_logic(metadata)
+        
         assert is_valid is True
         assert errors == []
 
     def test_zero_pre_scan(self):
-        """Test with zero pre-scan count."""
-        metadata = {
-            'pre_scan_count': 0,
-            'post_scan_count': 2,
-            'intervention_type': 'mindfulness',
-            'scan_type': 'resting'
-        }
+        metadata = DesignMetadata(
+            pre_scan_count=0,
+            post_scan_count=2,
+            intervention_type='Mindfulness',
+            scan_type='rs-fMRI'
+        )
         is_valid, errors = validate_design_logic(metadata)
+        
         assert is_valid is False
-        assert any("pre_scan_count" in err for err in errors)
+        assert any('pre_scan_count must be > 0' in e for e in errors)
 
     def test_invalid_intervention_type(self):
-        """Test with invalid intervention type."""
-        metadata = {
-            'pre_scan_count': 1,
-            'post_scan_count': 1,
-            'intervention_type': 'Yoga',
-            'scan_type': 'rs-fMRI'
-        }
+        metadata = DesignMetadata(
+            pre_scan_count=1,
+            post_scan_count=1,
+            intervention_type='Yoga',
+            scan_type='rs-fMRI'
+        )
         is_valid, errors = validate_design_logic(metadata)
+        
         assert is_valid is False
-        assert any("intervention_type" in err for err in errors)
+        assert any('does not match pattern' in e for e in errors)
 
     def test_invalid_scan_type(self):
-        """Test with invalid scan type."""
-        metadata = {
-            'pre_scan_count': 1,
-            'post_scan_count': 1,
-            'intervention_type': 'mindfulness',
-            'scan_type': 'task-fMRI'
-        }
+        metadata = DesignMetadata(
+            pre_scan_count=1,
+            post_scan_count=1,
+            intervention_type='MBC',
+            scan_type='task-based'
+        )
         is_valid, errors = validate_design_logic(metadata)
+        
         assert is_valid is False
-        assert any("scan_type" in err for err in errors)
+        assert any('must be one of' in e for e in errors)
 
     def test_case_insensitive_intervention(self):
-        """Test that intervention type matching is case-insensitive."""
-        metadata = {
-            'pre_scan_count': 1,
-            'post_scan_count': 1,
-            'intervention_type': 'MBC Program',
-            'scan_type': 'resting'
-        }
+        metadata = DesignMetadata(
+            pre_scan_count=1,
+            post_scan_count=1,
+            intervention_type='mbsr',
+            scan_type='rs-fMRI'
+        )
         is_valid, errors = validate_design_logic(metadata)
+        
         assert is_valid is True
-
-    def test_resting_scan_type(self):
-        """Test that 'resting' is a valid scan type."""
-        metadata = {
-            'pre_scan_count': 1,
-            'post_scan_count': 1,
-            'intervention_type': 'mindfulness',
-            'scan_type': 'resting'
-        }
-        is_valid, errors = validate_design_logic(metadata)
-        assert is_valid is True
-
 
 class TestVerifyDatasetDesign:
-    """Tests for verify_dataset_design function."""
-
-    def test_verify_with_valid_metadata_file(self):
-        """Test verification with a valid metadata file."""
-        metadata = {
-            'pre_scan_count': 1,
-            'post_scan_count': 1,
-            'intervention_type': 'mindfulness',
+    def test_full_valid_dataset(self):
+        dataset_info = {
+            'pre_scan_count': 2,
+            'post_scan_count': 2,
+            'intervention_type': 'Mindfulness-Based Stress Reduction',
             'scan_type': 'rs-fMRI'
         }
+        is_valid, metadata, errors = verify_dataset_design(dataset_info)
+        
+        assert is_valid is True
+        assert metadata is not None
+        assert errors == []
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(metadata, f)
-            temp_path = f.name
-
-        try:
-            result = verify_dataset_design("test_dataset", temp_path)
-            assert result["verified"] is True
-            assert result["dataset_id"] == "test_dataset"
-            assert result["metadata"] == metadata
-        finally:
-            os.unlink(temp_path)
-
-    def test_verify_with_invalid_metadata_file(self):
-        """Test verification with invalid metadata (missing fields)."""
-        metadata = {
-            'pre_scan_count': 0,
-            'intervention_type': 'Yoga'
+    def test_invalid_metadata_fields(self):
+        dataset_info = {
+            'pre_scan_count': 1,
+            'post_scan_count': 1
         }
+        is_valid, metadata, errors = verify_dataset_design(dataset_info)
+        
+        assert is_valid is False
+        assert metadata is None
+        assert len(errors) == 2
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(metadata, f)
-            temp_path = f.name
+    def test_valid_fields_invalid_logic(self):
+        dataset_info = {
+            'pre_scan_count': 0,
+            'post_scan_count': 1,
+            'intervention_type': 'Yoga',
+            'scan_type': 'task'
+        }
+        is_valid, metadata, errors = verify_dataset_design(dataset_info)
+        
+        assert is_valid is False
+        assert metadata is not None
+        assert len(errors) == 3
 
-        try:
-            result = verify_dataset_design("test_dataset", temp_path)
-            assert result["verified"] is False
-            assert len(result["field_validation"]["errors"]) > 0
-            assert len(result["logic_validation"]["errors"]) > 0
-        finally:
-            os.unlink(temp_path)
+class TestVerifyAllDatasets:
+    @patch('src.datasets.verify_design.get_data_dir')
+    def test_no_design_files(self, mock_get_data_dir):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            mock_get_data_dir.return_value = tmpdir
+            # Create empty raw directory
+            Path(tmpdir, 'raw').mkdir()
+            
+            results = verify_all_datasets(Path(tmpdir) / 'raw')
+            
+            assert results['total_datasets'] == 0
+            assert results['verified_datasets'] == []
+            assert results['failed_datasets'] == []
 
-    def test_verify_with_nonexistent_file(self):
-        """Test verification when metadata file does not exist."""
-        result = verify_dataset_design("test_dataset", "/nonexistent/path/file.json")
-        assert result["verified"] is False
-        assert "No metadata file found" in result["message"]
-        assert result["field_validation"]["errors"] == ["No metadata file found"]
+    @patch('src.datasets.verify_design.get_data_dir')
+    def test_mixed_results(self, mock_get_data_dir):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            raw_dir = Path(tmpdir) / 'raw'
+            raw_dir.mkdir()
+            
+            # Valid dataset
+            valid_dir = raw_dir / 'ds001'
+            valid_dir.mkdir()
+            with open(valid_dir / 'design.json', 'w') as f:
+                json.dump({
+                    'pre_scan_count': 1,
+                    'post_scan_count': 1,
+                    'intervention_type': 'Mindfulness',
+                    'scan_type': 'resting'
+                }, f)
+            
+            # Invalid dataset
+            invalid_dir = raw_dir / 'ds002'
+            invalid_dir.mkdir()
+            with open(invalid_dir / 'design.json', 'w') as f:
+                json.dump({
+                    'pre_scan_count': 0,
+                    'post_scan_count': 1,
+                    'intervention_type': 'Yoga',
+                    'scan_type': 'task'
+                }, f)
+            
+            mock_get_data_dir.return_value = tmpdir
+            results = verify_all_datasets()
+            
+            assert results['total_datasets'] == 2
+            assert results['summary']['verified_count'] == 1
+            assert results['summary']['failed_count'] == 1
+            assert len(results['verified_datasets']) == 1
+            assert len(results['failed_datasets']) == 1
+
+    @patch('src.datasets.verify_design.get_data_dir')
+    def test_corrupt_json(self, mock_get_data_dir):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            raw_dir = Path(tmpdir) / 'raw'
+            raw_dir.mkdir()
+            
+            bad_dir = raw_dir / 'ds001'
+            bad_dir.mkdir()
+            with open(bad_dir / 'design.json', 'w') as f:
+                f.write('not valid json')
+            
+            mock_get_data_dir.return_value = tmpdir
+            results = verify_all_datasets()
+            
+            assert results['total_datasets'] == 1
+            assert results['summary']['failed_count'] == 1
+            assert len(results['failed_datasets']) == 1
+            assert 'Failed to read design.json' in results['failed_datasets'][0]['error']

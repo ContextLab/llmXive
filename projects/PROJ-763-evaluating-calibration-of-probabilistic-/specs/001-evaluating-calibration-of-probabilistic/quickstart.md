@@ -1,53 +1,103 @@
 # Quickstart: Evaluating Calibration of Probabilistic Weather Forecasts
 
 ## Prerequisites
-
 - Python 3.11+
-- `pip`
-- Access to a GitHub Actions runner (or local machine with sufficient RAM).
+- GitHub Actions runner (multi-core CPU, sufficient RAM, and adequate disk storage)
+- Internet access for dataset download
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    cd projects/PROJ-763-evaluating-calibration-of-probabilistic-/code/
-    pip install -r requirements.txt
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-763-evaluating-calibration-of-probabilistic-/code/
+   ```
 
-## Execution
+2. **Create virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   ```
 
-Run the full pipeline:
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
+## Running the Pipeline
+
+### Step 1: Download and Verify Dataset
 ```bash
-cd projects/PROJ-763-evaluating-calibration-of-probabilistic-/code/
-python main.py
+bash data/download.sh
+bash data/verify.sh
 ```
+- Downloads SubseasonalRodeo (or NOAA GFS substitute) from verified source.
+- Verifies checksum; halts if missing `probability_value` field (exit code 1).
 
-### Steps Performed
-1.  **Download**: Fetches SubseasonalRodeo data. Checks for `probability_value`.
-2.  **Align**: Joins forecasts and observations.
-3.  **Baseline**: Computes Brier/CRPS for raw forecasts.
-4.  **Isotonic**: Applies recalibration and sensitivity analysis.
-5.  **Bayesian**: Runs MCMC (with a timeout fallback).
-6.  **Compare**: Runs Diebold-Mariano/Wilcoxon tests.
+### Step 2: Baseline Calibration Assessment
+```bash
+python analysis/baseline/align.py
+python analysis/baseline/metrics.py
+python analysis/baseline/plots.py
+```
+- Aligns forecasts with observations.
+- Computes Brier scores, CRPS.
+- Generates reliability diagrams and PIT histograms.
+- Outputs: `results_baseline.csv`, `reliability_diagram_raw.png`.
 
-## Output
+### Step 3: Isotonic Recalibration
+```bash
+python analysis/isotonic/train.py
+python analysis/isotonic/evaluate.py
+python analysis/isotonic/sensitivity.py
+```
+- Fits isotonic regression per lead time and variable.
+- Computes recalibrated metrics.
+- Runs sensitivity analysis with varying split ratios.
+- Outputs: `results_isotonic.csv`, `reliability_diagram_isotonic.png`.
 
-Results are saved in `projects/PROJ-763-evaluating-calibration-of-probabilistic-/results/`:
+### Step 4: Bayesian Hierarchical Recalibration
+```bash
+python analysis/bayesian/model.py
+python analysis/bayesian/prior_sensitivity.py
+python analysis/bayesian/diagnostics.py
+```
+- Runs MCMC sampling (multiple chains, sufficient draws).
+- Checks convergence (R-hat, ESS).
+- If fails, generates `results_fallback.csv`.
+- Outputs: `results_bayesian.csv` (if converged) or `results_fallback.csv`.
 
-- `results_baseline.csv`: Raw metrics.
-- `results_isotonic.csv`: Isotonic metrics + sensitivity logs.
-- `results_bayesian.csv`: Bayesian metrics + convergence status.
-- `figures/`: Reliability diagrams and PIT histograms.
+### Step 5: Statistical Comparison
+```bash
+python analysis/comparison/diebold_mariano.py
+python analysis/comparison/summary.py
+```
+- Runs DM-HAC or Block Bootstrap tests.
+- Generates final comparison table.
+- Outputs: `results/` directory with all files.
+
+## Expected Outputs
+
+- `results/results_baseline.csv`: Baseline metrics.
+- `results/results_isotonic.csv`: Isotonic recalibration metrics.
+- `results/results_bayesian.csv`: Bayesian recalibration metrics (if converged).
+- `results/results_fallback.csv`: Fallback isotonic results (if Bayesian failed).
+- `results/reliability_diagram_*.png`: Reliability diagrams.
+- `results/pit_histogram_*.png`: PIT histograms.
+- `results/convergence_diagnostics.json`: Bayesian convergence diagnostics.
+- `results/pipeline.log`: Full pipeline log.
 
 ## Troubleshooting
 
-- **Data Availability Gate Failed**: The dataset lacks `probability_value`. Check the download source.
-- **Bayesian Timeout**: The model exceeded the time threshold. Results will fall back to Isotonic. Check logs for `convergence_status: Timeout`.
-- **Convergence Failed**: R-hat > 1.05. Check `results_bayesian.csv` for `Unconverged` status.
+- **Dataset download failed**: Check internet connection; verify URL; ensure checksum matches.
+- **Data Availability Gate Failed**: Dataset lacks `probability_value`; halt execution.
+- **Bayesian convergence failed**: Check R-hat, ESS; if > thresholds, fallback to isotonic.
+- **Memory overflow**: Use streaming or sample; log power limitation.
+- **Autocorrelation in errors**: Shapiro-Wilk test fails; use Block Bootstrap.
+
+## Verification
+
+- **Unit Tests**: `pytest tests/unit/`
+- **Integration Tests**: `pytest tests/integration/`
+- **Contract Tests**: `pytest tests/contract/`
+- **Pipeline Test**: `bash run_pipeline.sh` (entire pipeline within 6 hours).

@@ -55,7 +55,7 @@ properties:
       - "Unconverged"
       - "Prior_Dominated"
       - "Insufficient_Data"
-    description: "Reason for any fallback or exclusion."
+    description: "Reason for any fallback or exclusion. 'Prior_Dominated' if flat prior performs better."
 required:
   - method_type
   - lead_time

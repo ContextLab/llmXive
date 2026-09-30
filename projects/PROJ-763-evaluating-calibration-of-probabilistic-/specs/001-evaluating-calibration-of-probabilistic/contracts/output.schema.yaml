@@ -1,0 +1,159 @@
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Output Schema for Calibration Results
+description: Schema for results CSVs and logs
+type: object
+properties:
+  results_baseline:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+          enum:
+            - Brier
+            - CRPS
+          description: Name of metric
+        lead_time:
+          type: integer
+          description: Lead time for this metric
+        variable:
+          type: string
+          description: Variable name
+        method:
+          type: string
+          const: raw
+          description: Method used (raw)
+        value:
+          type: number
+          description: Computed metric value
+        sample_size:
+          type: integer
+          description: Number of samples used
+      required:
+        - metric_name
+        - lead_time
+        - variable
+        - method
+        - value
+        - sample_size
+  results_isotonic:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+          enum:
+            - Brier
+            - CRPS
+          description: Name of metric
+        lead_time:
+          type: integer
+          description: Lead time for this metric
+        variable:
+          type: string
+          description: Variable name
+        method:
+          type: string
+          const: isotonic
+          description: Method used (isotonic)
+        value:
+          type: number
+          description: Computed metric value
+        sample_size:
+          type: integer
+          description: Number of samples used
+      required:
+        - metric_name
+        - lead_time
+        - variable
+        - method
+        - value
+        - sample_size
+  results_bayesian:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+          enum:
+            - Brier
+            - CRPS
+          description: Name of metric
+        lead_time:
+          type: integer
+          description: Lead time for this metric
+        variable:
+          type: string
+          description: Variable name
+        method:
+          type: string
+          enum:
+            - bayesian
+            - bayesian_fallback
+          description: Method used (bayesian or fallback)
+        value:
+          type: number
+          description: Computed metric value
+        sample_size:
+          type: integer
+          description: Number of samples used
+        convergence_status:
+          type: string
+          enum:
+            - converged
+            - unconverged
+            - timeout
+          description: Bayesian convergence status
+      required:
+        - metric_name
+        - lead_time
+        - variable
+        - method
+        - value
+        - sample_size
+        - convergence_status
+  results_fallback:
+    type: array
+    items:
+      type: object
+      properties:
+        metric_name:
+          type: string
+          enum:
+            - Brier
+            - CRPS
+          description: Name of metric
+        lead_time:
+          type: integer
+          description: Lead time for this metric
+        variable:
+          type: string
+          description: Variable name
+        method:
+          type: string
+          const: isotonic
+          description: Method used (isotonic)
+        value:
+          type: number
+          description: Computed metric value
+        sample_size:
+          type: integer
+          description: Number of samples used
+        status:
+          type: string
+          const: fallback
+          description: Fallback status
+      required:
+        - metric_name
+        - lead_time
+        - variable
+        - method
+        - value
+        - sample_size
+        - status
+required:
+  - results_baseline
+  - results_isotonic

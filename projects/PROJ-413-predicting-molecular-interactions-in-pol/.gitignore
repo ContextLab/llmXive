@@ -1,64 +1,48 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
+# Byte-compiled / optimized code
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
+*.pyd
+*.pyi
 
-# Distribution / packaging
-.eggs/
+# Python distribution directories
+__pycache__/
+build/
+dist/
+eggs/
 *.egg-info/
-*.egg
-MANIFEST
+.eggs/
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.nox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# Environments
-.env
-.venv
-env/
+# Virtual environments
+.venv/
 venv/
+env/
 ENV/
-env.bak/
-venv.bak/
 
-# IDE
+# IDE and editors
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
+.project
+.settings/
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+*.cover
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Environment variables
+.env
+.env.local
 
 # Project specific
 data/raw/
@@ -66,8 +50,7 @@ data/curated/
 data/processed/
 results/
 analysis/
-docs/
 state/
-logs/
+*.log
 .DS_Store
 Thumbs.db

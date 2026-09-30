@@ -1,13 +1,9 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 1 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'science'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
 
-- `T010` (rejected 1x): The `code/download.py` script contains a hard‑coded `limit: 300`, never updates the offset for pagination, never writes the collected records to `data/raw/occurrence_1970_2000.csv`, and does not read the species list from `code/config.py`. Moreover, the required CSV file is missing.
-- `T013b` (rejected 1x): The required `data/raw/occurrence_2005_2020.csv` file is missing, and the provided `code/preprocess.py` excerpt shows no logic that reads this CSV, counts records per species, or appends entries to `metrics/data_sufficiency.json` as specified. Consequently the task’s core requirement is not satisfied.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- FABRICATED-RESULT signal — projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md: self-declared fabricated metric — “…_DISTANCE_KM`** (do not use a hardcoded value or vague terms). Use `geopand…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.

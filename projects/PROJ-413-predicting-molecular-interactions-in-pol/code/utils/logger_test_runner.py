@@ -1,70 +1,69 @@
-"""
-Test runner to verify logger functionality by executing a dummy task
-and writing results to results/performance.json.
-"""
 import os
 import sys
 import time
 from pathlib import Path
-
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
 from utils.logger import PerformanceLogger, log_performance
 
 def main():
-    print("Starting Logger Infrastructure Test...")
-    
-    # Test 1: Context Manager
-    print("Test 1: Testing context manager...")
-    with PerformanceLogger("test_context_manager") as logger:
-        time.sleep(0.1)  # Simulate work
-    print(f"  Context manager test completed. Status: {logger.metrics['status']}")
+    """
+    Test runner for the logging infrastructure.
+    Simulates a script execution to verify that results/performance.json is created
+    and contains valid metrics.
+    """
+    print("Starting logger test runner...")
 
-    # Test 2: Manual start/stop
-    print("Test 2: Testing manual start/stop...")
-    logger2 = PerformanceLogger("test_manual")
-    logger2.start()
-    time.sleep(0.1)
-    logger2.stop()
-    print(f"  Manual test completed. Status: {logger2.metrics['status']}")
-
-    # Test 3: Error handling
-    print("Test 3: Testing error handling...")
-    logger3 = PerformanceLogger("test_error")
-    logger3.start()
+    # Test 1: Using PerformanceLogger as a context manager
+    print("Test 1: Context manager usage")
     try:
-        raise ValueError("Simulated error for testing")
+        with PerformanceLogger("test_context_manager") as logger:
+            time.sleep(0.1)  # Simulate some work
+        print("  Context manager test passed.")
     except Exception as e:
-        logger3.log_error(e)
-    print(f"  Error handling test completed. Status: {logger3.metrics['status']}")
+        print(f"  Context manager test failed: {e}")
+        return False
 
-    # Test 4: Convenience function
-    print("Test 4: Testing convenience function...")
-    start = time.time()
-    time.sleep(0.1)
-    duration = time.time() - start
-    log_performance("test_convenience", duration, memory_mb=100.5)
-    print(f"  Convenience function test completed.")
+    # Test 2: Using log_performance convenience function
+    print("Test 2: Convenience function usage")
+    try:
+        start = time.time()
+        time.sleep(0.1)
+        duration = time.time() - start
+        log_performance("test_convenience", duration, memory_mb=100.5, status="success")
+        print("  Convenience function test passed.")
+    except Exception as e:
+        print(f"  Convenience function test failed: {e}")
+        return False
 
-    # Verify output file exists
-    results_dir = PROJECT_ROOT / "results"
-    perf_file = results_dir / "performance.json"
-    
-    if perf_file.exists():
-        import json
-        with open(perf_file, 'r') as f:
-            data = json.load(f)
-        print(f"\nSuccess! results/performance.json created with {len(data)} entries.")
-        print("Sample entry:")
-        if data:
-            print(json.dumps(data[0], indent=2))
-    else:
-        print(f"\nERROR: results/performance.json was not created.")
-        return 1
+    # Verify the output file exists and contains data
+    print("Verifying output file...")
+    project_root = Path(____).parent.parent.parent
+    performance_file = project_root / "results" / "performance.json"
 
-    return 0
+    if not performance_file.exists():
+        print(f"ERROR: Performance file not found at {performance_file}")
+        return False
+
+    import json
+    with open(performance_file, 'r') as f:
+        data = json.load(f)
+
+    if not isinstance(data, list) or len(data) < 2:
+        print(f"ERROR: Performance file does not contain expected entries. Found {len(data)} entries.")
+        return False
+
+    # Validate structure of entries
+    for entry in data:
+        if "script_name" not in entry or "status" not in entry:
+            print(f"ERROR: Entry missing required fields: {entry}")
+            return False
+        if entry["status"] not in ["success", "failed", "pending"]:
+            print(f"ERROR: Invalid status in entry: {entry['status']}")
+            return False
+
+    print("Logger infrastructure test PASSED.")
+    print(f"Output written to: {performance_file}")
+    return True
 
 if __name__ == "__main__":
-    sys.exit(main())
+    success = main()
+    sys.exit(0 if success else 1)

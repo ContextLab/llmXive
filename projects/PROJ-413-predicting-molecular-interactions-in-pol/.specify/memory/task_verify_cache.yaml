@@ -1,24 +1,3 @@
-T001a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the `projects/PROJ-413-predicting-molecular-interactions-in-pol/`
-    directory or its subfolders (`data/raw`, `data/curated`, `data/processed`, `code/data`,
-    `code/models`, `code/analysis`, `code/utils`, `results`, `analysis`, `docs`, `tests/contract`,
-    `tests/integration`) is provided. The required directory tree must be created
-    and shown (e.g., via a directory listing) to satisfy the task.
-T001b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of a Git repository being initialized in the specified path nor a
-    `.gitignore` file for Python is present; the required artifacts are missing.
-T005:
-  c: false
-  h: eed4b553d2fa5e71e843f3381b42dfd33a54fe2f09435c52ee4b1371e4177d0c
-  r: The `code/utils/logger.py` defines a `PerformanceLogger` but the snippet is truncated
-    before the `_save` method that actually writes to `results/performance.json`,
-    and the `results/performance.json` file is missing entirely. Without a functioning
-    save routine and the required output file, the logging infrastructure is not fully
-    set up.
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

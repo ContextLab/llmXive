@@ -1,42 +1,113 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Aligned Weather Forecast Dataset"
-type: "object"
+$schema: https://json-schema.org/draft/2020-12/schema
+title: Dataset Schema for Weather Forecast Calibration
+description: Schema for raw and aligned forecast/observation records
+type: object
 properties:
-  grid_id:
-    type: "integer"
-    description: "Unique identifier for the grid point."
-  lead_time:
-    type: "integer"
-    description: "Forecast lead time (hours or days)."
-  forecast_date:
-    type: "string"
-    format: "date-time"
-    description: "Date and time the forecast was issued."
-  probability_value:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Continuous probability of the event occurring. CRITICAL: Must exist for Brier/CRPS."
-  event_occurred:
-    type: "integer"
-    description: "Binary indicator (0 or 1) of whether the event occurred."
-  method:
-    type: "string"
-    enum:
-      - "raw"
-      - "isotonic"
-      - "bayesian"
-    description: "Recalibration method used."
-  calibrated_probability:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Recalibrated probability value."
+  forecast_records:
+    type: array
+    items:
+      type: object
+      properties:
+        grid_id:
+          type: string
+          description: Unique identifier for geographic grid point
+        lead_time:
+          type: integer
+          description: Forecast lead time (hours or days)
+        forecast_date:
+          type: string
+          format: date-time
+          description: Date/time of forecast issuance
+        probability_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Continuous probability of event (0.0–1.0)
+        precip_prob:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Alternative field name for probability (NOAA GFS compatibility)
+        raw_ensemble_mean:
+          type: number
+          description: Mean of ensemble members
+        ensemble_members:
+          type: array
+          items:
+            type: number
+          description: Individual ensemble member values
+      required:
+        - grid_id
+        - lead_time
+        - forecast_date
+        - oneOf:
+            - probability_value
+            - precip_prob
+  observation_records:
+    type: array
+    items:
+      type: object
+      properties:
+        grid_id:
+          type: string
+          description: Unique identifier for geographic grid point
+        observation_date:
+          type: string
+          format: date-time
+          description: Date/time of observation
+        event_occurred:
+          type: boolean
+          description: Binary indicator of event occurrence
+        event_value:
+          type: number
+          description: Continuous value (e.g., precipitation amount, temperature)
+        variable:
+          type: string
+          description: Variable name (e.g., "precipitation", "temperature")
+      required:
+        - grid_id
+        - observation_date
+        - event_occurred
+        - variable
+  aligned_records:
+    type: array
+    items:
+      type: object
+      properties:
+        grid_id:
+          type: string
+          description: Unique identifier for geographic grid point
+        lead_time:
+          type: integer
+          description: Forecast lead time (hours or days)
+        forecast_date:
+          type: string
+          format: date-time
+          description: Date/time of forecast issuance
+        observation_date:
+          type: string
+          format: date-time
+          description: Date/time of observation
+        probability_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Continuous probability of event (0.0–1.0)
+        event_occurred:
+          type: boolean
+          description: Binary indicator of event occurrence
+        variable:
+          type: string
+          description: Variable name (e.g., "precipitation", "temperature")
+      required:
+        - grid_id
+        - lead_time
+        - forecast_date
+        - observation_date
+        - probability_value
+        - event_occurred
+        - variable
 required:
-  - "grid_id"
-  - "lead_time"
-  - "forecast_date"
-  - "probability_value"
-  - "event_occurred"
-  - "method"
-  - "calibrated_probability"
+  - forecast_records
+  - observation_records
+  - aligned_records

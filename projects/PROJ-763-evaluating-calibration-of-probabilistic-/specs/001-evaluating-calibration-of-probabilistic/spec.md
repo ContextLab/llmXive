@@ -51,7 +51,7 @@ The researcher needs to implement a Bayesian hierarchical logistic regression mo
 
 **Why this priority**: This explores the advanced method proposed in the idea. While computationally heavier, it offers potential gains in data-sparse regimes by borrowing strength across lead times. It is P3 because the isotonic method is the primary "simple" solution, and this is an enhancement.
 
-**Independent Test**: The pipeline executes the Bayesian model (using PyMC or statsmodels) with short MCMC chains (initial 2000 draws, 4 chains) on the training split, applies the posterior predictive probabilities to the test split, and outputs `results_bayesian.csv`. The test passes if:
+**Independent Test**: The pipeline executes the Bayesian model (using PyMC or statsmodels) with short MCMC chains (initial draws, 4 chains) on the training split, applies the posterior predictive probabilities to the test split, and outputs `results_bayesian.csv`. The test passes if:
 1. The model converges (R-hat ≤ 1.05 AND Effective Sample Size > 400 for all group-level parameters and hyperparameters) within 60 minutes.
 2. If convergence fails or time exceeds 60 minutes, the system MUST fallback to isotonic results, generate `results_fallback.csv` (containing isotonic results labeled as 'isotonic'), and log the status as "Unconverged" or "Timeout". `results_bayesian.csv` is NOT generated in this case.
 3. The Brier score is within 1% (relative reduction of the isotonic Brier score) of isotonic regression (or Diebold-Mariano p-value < 0.05 with alternative: Isotonic > Bayesian).

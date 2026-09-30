@@ -2,13 +2,14 @@
 Motion parameter extraction from fMRIPrep output.
 
 Extracts 6 rigid-body motion parameters (3 translations, 3 rotations)
-from fMRIPrep confounds files and writes them to a CSV summary.
+from fMRIPrep confounds TSV files and writes them to a CSV summary.
 """
 import os
 import csv
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+
 import pandas as pd
 
 from src.config.env import get_data_dir
@@ -17,221 +18,179 @@ logger = logging.getLogger(__name__)
 
 
 class MotionExtractionError(Exception):
-    """Custom exception for motion extraction failures."""
+    """Raised when motion parameter extraction fails."""
     pass
 
 
-def find_fmriprep_confounds(
-    processed_dir: Optional[Path] = None
-) -> List[Path]:
+def find_fmriprep_confounds(processed_dir: Path) -> List[Path]:
     """
-    Locate all fMRIPrep confounds TSV files in the processed directory.
+    Find all fMRIPrep confounds TSV files in the processed directory.
 
-    fMRIPrep typically outputs files named:
-    sub-<label>_task-<label>_desc-confounds_timeseries.tsv
+    fMRIPrep typically outputs confounds in:
+    <processed_dir>/sub-<label>/func/sub-<label>_task-<label>_desc-confounds_timeseries.tsv
 
     Args:
-        processed_dir: Path to the processed data directory.
-                       If None, uses data/processed/ from config.
+        processed_dir: Path to the processed data directory (data/processed/)
 
     Returns:
-        List of Path objects pointing to confounds TSV files.
+        List of paths to confounds TSV files
 
     Raises:
-        MotionExtractionError: If the processed directory does not exist.
+        MotionExtractionError: If no confounds files are found
     """
-    if processed_dir is None:
-        data_root = get_data_dir()
-        processed_dir = data_root / "processed"
-
-    if not processed_dir.exists():
-        raise MotionExtractionError(
-            f"Processed directory does not exist: {processed_dir}"
-        )
-
-    # Search recursively for confounds files
-    pattern = "*desc-confounds_timeseries.tsv"
-    confounds_files = list(processed_dir.rglob(pattern))
+    confounds_files = list(processed_dir.glob("**/sub-*/func/*desc-confounds_timeseries.tsv"))
 
     if not confounds_files:
-        logger.warning(
-            f"No confounds files found matching '{pattern}' in {processed_dir}"
+        # Also check for alternative naming patterns
+        confounds_files = list(processed_dir.glob("**/sub-*/func/*_confounds.tsv"))
+
+    if not confounds_files:
+        raise MotionExtractionError(
+            f"No fMRIPrep confounds files found in {processed_dir}. "
+            "Ensure fMRIPrep has completed preprocessing and output files exist."
         )
 
+    logger.info(f"Found {len(confounds_files)} confounds files")
     return confounds_files
 
 
-def extract_subject_id_from_path(file_path: Path) -> str:
+def extract_subject_id_from_path(confounds_path: Path) -> str:
     """
-    Extract the subject ID from a fMRIPrep file path.
-
-    Expected format: .../sub-<label>/...
-    Returns the <label> part.
+    Extract subject ID from a confounds file path.
 
     Args:
-        file_path: Path to the fMRIPrep output file.
+        confounds_path: Path to the confounds TSV file
 
     Returns:
-        Subject ID string.
+        Subject ID string (e.g., 'sub-01')
     """
-    # Look for 'sub-' pattern in the path parts
-    for part in file_path.parts:
+    # Path typically looks like: .../sub-01/func/sub-01_task-rest_desc-confounds_timeseries.tsv
+    parts = confounds_path.parts
+    for i, part in enumerate(parts):
         if part.startswith("sub-"):
-            return part.replace("sub-", "")
-    
-    # Fallback: use the directory name if pattern not found
-    logger.warning(
-        f"Could not extract subject ID from path: {file_path}. Using directory name."
-    )
-    return file_path.parent.name
+            return part
+    # Fallback: extract from filename
+    filename = confounds_path.stem
+    # Handle patterns like sub-01_task-rest_desc-confounds_timeseries
+    if "_" in filename:
+        return filename.split("_")[0]
+    return filename
 
 
-def extract_motion_parameters(confounds_path: Path) -> Optional[Dict[str, float]]:
+def extract_motion_parameters(confounds_path: Path) -> Optional[Dict[str, Any]]:
     """
-    Extract the 6 rigid-body motion parameters from a single confounds file.
+    Extract 6 rigid-body motion parameters from a single confounds file.
 
-    fMRIPrep provides:
-    - trans_x, trans_y, trans_z (translation in mm)
-    - rot_x, rot_y, rot_z (rotation in radians)
-
-    We compute the mean absolute displacement across all volumes for each parameter.
+    fMRIPrep outputs motion parameters in columns:
+    - trans_x, trans_y, trans_z (translations in mm)
+    - rot_x, rot_y, rot_z (rotations in radians)
 
     Args:
-        confounds_path: Path to the confounds TSV file.
+        confounds_path: Path to the confounds TSV file
 
     Returns:
-        Dictionary with keys:
-            subject_id, translation_x, translation_y, translation_z,
-            rotation_x, rotation_y, rotation_z
-        Values are the mean absolute values of the motion parameters.
-        Returns None if extraction fails.
+        Dictionary with subject_id and motion parameters (max values across time)
+        or None if extraction fails
     """
     try:
-        # Load the confounds file
-        df = pd.read_csv(confounds_path, sep='\t', low_memory=False)
-        
-        required_columns = [
-            'trans_x', 'trans_y', 'trans_z',
-            'rot_x', 'rot_y', 'rot_z'
-        ]
-        
+        df = pd.read_csv(confounds_path, sep='\t')
+
+        # Required motion parameter columns from fMRIPrep
+        motion_columns = {
+            'translation_x': 'trans_x',
+            'translation_y': 'trans_y',
+            'translation_z': 'trans_z',
+            'rotation_x': 'rot_x',
+            'rotation_y': 'rot_y',
+            'rotation_z': 'rot_z'
+        }
+
         # Check if all required columns exist
-        missing = [col for col in required_columns if col not in df.columns]
-        if missing:
+        missing_cols = [col for col, fmriprep_col in motion_columns.items()
+                      if fmriprep_col not in df.columns]
+
+        if missing_cols:
             logger.warning(
-                f"Missing columns in {confounds_path}: {missing}. "
-                "Skipping this file."
+                f"Missing motion columns in {confounds_path}: {missing_cols}. "
+                f"Available columns: {list(df.columns)}"
             )
             return None
 
-        # Extract subject ID
+        # Extract max absolute values for each motion parameter
+        # This gives a summary of the maximum motion for this subject
+        motion_data = {}
+        for output_col, input_col in motion_columns.items():
+            values = df[input_col].abs()
+            motion_data[output_col] = float(values.max())
+
         subject_id = extract_subject_id_from_path(confounds_path)
+        motion_data['subject_id'] = subject_id
 
-        # Calculate mean absolute motion for each parameter
-        # (absolute value to capture total displacement regardless of direction)
-        motion_data = {
-            'subject_id': subject_id,
-            'translation_x': float(df['trans_x'].abs().mean()),
-            'translation_y': float(df['trans_y'].abs().mean()),
-            'translation_z': float(df['trans_z'].abs().mean()),
-            'rotation_x': float(df['rot_x'].abs().mean()),
-            'rotation_y': float(df['rot_y'].abs().mean()),
-            'rotation_z': float(df['rot_z'].abs().mean()),
-        }
-
+        logger.info(f"Extracted motion parameters for {subject_id}")
         return motion_data
 
     except Exception as e:
-        logger.error(
-            f"Failed to extract motion parameters from {confounds_path}: {e}"
-        )
+        logger.error(f"Failed to extract motion from {confounds_path}: {e}")
         return None
 
 
-def extract_all_motion_parameters(
-    confounds_files: Optional[List[Path]] = None
-) -> List[Dict[str, Any]]:
+def extract_all_motion_parameters(confounds_files: List[Path]) -> List[Dict[str, Any]]:
     """
-    Extract motion parameters from all fMRIPrep confounds files.
+    Extract motion parameters from all confounds files.
 
     Args:
-        confounds_files: List of confounds file paths.
-                         If None, searches the default processed directory.
+        confounds_files: List of paths to confounds TSV files
 
     Returns:
-        List of dictionaries containing motion parameters for each subject.
+        List of dictionaries, each containing subject_id and motion parameters
     """
-    if confounds_files is None:
-        confounds_files = find_fmriprep_confounds()
-
     results = []
     for confounds_path in confounds_files:
         motion_data = extract_motion_parameters(confounds_path)
         if motion_data is not None:
             results.append(motion_data)
-            logger.info(
-                f"Extracted motion parameters for subject: {motion_data['subject_id']}"
-            )
 
-    logger.info(f"Successfully extracted motion for {len(results)} subjects.")
+    if not results:
+        raise MotionExtractionError(
+            "No motion parameters could be extracted from any confounds files. "
+            "Check that fMRIPrep output contains the required motion parameter columns."
+        )
+
+    logger.info(f"Successfully extracted motion from {len(results)} subjects")
     return results
 
 
-def write_motion_csv(
-    motion_data: List[Dict[str, Any]],
-    output_path: Optional[Path] = None
-) -> Path:
+def write_motion_csv(motion_data: List[Dict[str, Any]], output_path: Path) -> None:
     """
     Write motion parameters to a CSV file.
 
-    Output format:
-    - Columns: subject_id, translation_x, translation_y, translation_z,
-               rotation_x, rotation_y, rotation_z
-    - One row per subject
+    Output format: CSV with columns: subject_id, translation_x/y/z, rotation_x/y/z
 
     Args:
-        motion_data: List of motion parameter dictionaries.
-        output_path: Path for the output CSV.
-                     If None, uses data/results/motion_parameters.csv
-
-    Returns:
-        Path to the written CSV file.
-
-    Raises:
-        MotionExtractionError: If no data to write or write fails.
+        motion_data: List of dictionaries with motion parameters
+        output_path: Path to output CSV file
     """
     if not motion_data:
-        raise MotionExtractionError(
-            "No motion data provided to write. Cannot create CSV."
-        )
+        raise MotionExtractionError("Cannot write empty motion data to CSV")
 
-    if output_path is None:
-        data_root = get_data_dir()
-        output_path = data_root / "results" / "motion_parameters.csv"
-    
+    # Define column order
+    columns = ['subject_id', 'translation_x', 'translation_y', 'translation_z',
+               'rotation_x', 'rotation_y', 'rotation_z']
+
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    try:
-        df = pd.DataFrame(motion_data)
-        
-        # Ensure column order
-        expected_cols = [
-            'subject_id', 'translation_x', 'translation_y', 'translation_z',
-            'rotation_x', 'rotation_y', 'rotation_z'
-        ]
-        # Only include columns that exist in the data
-        cols_to_write = [c for c in expected_cols if c in df.columns]
-        df = df[cols_to_write]
+    # Write CSV
+    with open(output_path, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=columns)
+        writer.writeheader()
 
-        df.to_csv(output_path, index=False)
-        logger.info(f"Motion parameters written to {output_path}")
-        return output_path
+        for row in motion_data:
+            # Ensure all columns are present (fill with 0 if missing)
+            complete_row = {col: row.get(col, 0.0) for col in columns}
+            writer.writerow(complete_row)
 
-    except Exception as e:
-        raise MotionExtractionError(
-            f"Failed to write motion CSV to {output_path}: {e}"
-        )
+    logger.info(f"Wrote motion parameters to {output_path}")
 
 
 def run_motion_extraction(
@@ -239,59 +198,74 @@ def run_motion_extraction(
     output_path: Optional[Path] = None
 ) -> Path:
     """
-    Main entry point for running the motion extraction pipeline.
-
-    1. Finds all fMRIPrep confounds files in the processed directory.
-    2. Extracts 6 rigid-body motion parameters for each subject.
-    3. Writes results to a CSV file.
+    Main function to run motion parameter extraction.
 
     Args:
-        processed_dir: Path to the processed data directory.
-        output_path: Path for the output CSV file.
+        processed_dir: Path to processed data directory (defaults to data/processed/)
+        output_path: Path for output CSV (defaults to data/results/motion_parameters.csv)
 
     Returns:
-        Path to the generated CSV file.
+        Path to the output CSV file
     """
-    logger.info("Starting motion parameter extraction...")
-    
+    # Get data directory from environment
+    data_dir = Path(get_data_dir())
+
+    if processed_dir is None:
+        processed_dir = data_dir / "processed"
+
+    if output_path is None:
+        output_path = data_dir / "results" / "motion_parameters.csv"
+
+    logger.info(f"Starting motion extraction from {processed_dir}")
+
+    # Find confounds files
     confounds_files = find_fmriprep_confounds(processed_dir)
-    
-    if not confounds_files:
-        raise MotionExtractionError(
-            "No fMRIPrep confounds files found. "
-            "Ensure preprocessing has been run and processed_dir is correct."
-        )
 
+    # Extract motion parameters
     motion_data = extract_all_motion_parameters(confounds_files)
-    
-    if not motion_data:
-        raise MotionExtractionError(
-            "No motion data could be extracted from the found confounds files."
-        )
 
-    output_csv = write_motion_csv(motion_data, output_path)
-    
-    logger.info("Motion parameter extraction completed successfully.")
-    return output_csv
+    # Write output CSV
+    write_motion_csv(motion_data, output_path)
+
+    logger.info("Motion extraction completed successfully")
+    return output_path
 
 
-def main():
-    """CLI entry point for motion extraction."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+def main() -> None:
+    """Entry point for command-line execution."""
+    import argparse
+    from src.utils.logging import setup_logging
+
+    # Setup logging
+    setup_logging()
+
+    parser = argparse.ArgumentParser(
+        description="Extract motion parameters from fMRIPrep output"
     )
-    
+    parser.add_argument(
+        "--processed-dir",
+        type=Path,
+        default=None,
+        help="Path to processed data directory (default: data/processed/)"
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=None,
+        help="Path for output CSV (default: data/results/motion_parameters.csv)"
+    )
+
+    args = parser.parse_args()
+
     try:
-        output_file = run_motion_extraction()
-        print(f"Motion parameters extracted to: {output_file}")
+        output_path = run_motion_extraction(
+            processed_dir=args.processed_dir,
+            output_path=args.output
+        )
+        print(f"Motion parameters written to: {output_path}")
     except MotionExtractionError as e:
         logger.error(f"Motion extraction failed: {e}")
-        raise SystemExit(1)
+        raise
     except Exception as e:
-        logger.exception(f"Unexpected error during motion extraction: {e}")
-        raise SystemExit(1)
-
-
-if __name__ == "__main__":
-    main()
+        logger.error(f"Unexpected error during motion extraction: {e}")
+        raise

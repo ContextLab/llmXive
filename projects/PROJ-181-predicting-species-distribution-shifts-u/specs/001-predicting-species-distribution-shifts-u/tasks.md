@@ -1,3 +1,7 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Predicting Species Distribution Shifts Using Historical Occurrence Records and Climate Data
 
 **Input**: Design documents from `/specs/001-predicting-species-distribution-shifts/`
@@ -29,7 +33,7 @@
 - [X] T001b [P] Initialize project directory structure (Part 2): Create `projects/PROJ-181-predicting-species-distribution-shifts-u/` with subdirectories `tests/unit/`, `tests/integration/`, `metrics/`, `reports/`, `logs/`, `state/`, `contracts/`. Ensure all directories contain `.gitkeep` files.
 
 - [X] T002 [P] Initialize project with pinned dependencies (`requirements.txt`: `scikit-learn==1.5.0`, `geopandas==0.14.2`, `rasterio==1.3.9`, `pandas==2.2.2`, `numpy==1.26.4`, `requests==2.32.3`, `matplotlib==3.9.0`, `seaborn==0.13.2`); execute `pip install -r requirements.txt` in a fresh virtualenv to verify environment setup.
-- [X] T003 [P] Configure linting (flake8) and formatting (black) tools: Create `.flake8` (max-line-length=100, exclude=venv,*.egg) and `pyproject.toml` (black config) at repository root.
+- [X] T003 [P] Configure linting (flake8) and formatting (black) tools: Create `.flake8` (max-line-length=100, exclude=venv,*.egg) and `pypy.toml` (black config) at repository root.
 
 ---
 
@@ -91,16 +95,15 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Implement `code/download.py` to fetch North American bird occurrence data (late th century) via GBIF API (**URL: `). **Logic**: Read target species list from `code/config.py`; use a **dynamic pagination loop** to fetch records until a target count is reached or the API returns no more results (do NOT use a hardcoded `maxResults=300` limit). Authenticate using `GBIF_API_KEY` environment variable. Map API response fields to CSV columns: `scientificName` -> `species`, `decimalLatitude` -> `decimalLatitude`, `decimalLongitude` -> `decimalLongitude`, `eventDate` -> `eventDate`, `basisOfRecord` -> `source_identifier`, `downloadDateTime` -> `download_timestamp`, `datasetKey` -> `original_dataset_name`. Save to `data/raw/occurrence_1970_2000.csv`. **Constraint**: Must include `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns (Constitution Principle VI, FR-001).
-- [ ] T011 [US1] Implement `code/download.py` to fetch recent occurrence data (from the early 2000s to 2020) for evaluation. **Logic**: Same as T010 but year filter 2005-2020; use **dynamic pagination loop** to ensure sufficient records. Save to `data/raw/occurrence_2005_2020.csv`. **Constraint**: Must include `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns (Constitution Principle VI, FR-001).
-- [ ] T015 [US1] Implement `code/download.py` to download WorldClim historical climate rasters (1970-2000) and CMIP6 SSP2-4.5 future climate rasters (2050) for **all 19 Bioclim variables** (bio1 through bio19), saving as individual rasters (e.g., `bio1.tif`) to `data/raw/climate_historical/` and `data/raw/cmip6_future/` respectively. **Logic**: Use `wget` or `requests` to download from WorldClim (https://worldclim.org/data/bioclim.html) and CMIP6 (https://esgf-node.llnl.gov/projects/cmip6/) mirrors. Validate that all 19 variables are present and non-null in both directories. **Constraint**: Must exit with code 1 if any variable is missing or partially downloaded (FR-001). **Dependency**: Logically independent of T010/T011 completion to allow parallel execution.
+- [ ] T010 [US1] Implement `code/download.py` to fetch North American bird occurrence data (1970-2000) via GBIF API (**URL: `https://api.gbif.org/v1/occurrence/search`**). **Logic**: Read target species list from `code/config.py`; use a **dynamic pagination loop** to fetch records until a target count of **[deferred] records per species** is reached OR the API returns an empty result set. Authenticate using `GBIF_API_KEY` environment variable. Map API response fields to CSV columns: `scientificName` -> `species`, `decimalLatitude` -> `decimalLatitude`, `decimalLongitude` -> `decimalLongitude`, `eventDate` -> `eventDate`, `basisOfRecord` -> `source_identifier`, `downloadDateTime` -> `download_timestamp`, `datasetKey` -> `original_dataset_name`. Save to `data/raw/occurrence_1970_2000.csv`. **Constraint**: Must include `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns (Constitution Principle VI, FR-001).
+- [ ] T011 [US1] Implement `code/download.py` to fetch recent occurrence data (2005-2020) for evaluation. **Logic**: Same as T010 but year filter 2005-2020; use **dynamic pagination loop** to fetch until **[deferred] records per species** OR API returns empty result. Save to `data/raw/occurrence_2005_2020.csv`. **Constraint**: Must include `source_identifier`, `download_timestamp`, and `original_dataset_name` metadata columns (Constitution Principle VI, FR-001).
+- [ ] T015 [US1] Implement `code/download.py` to download WorldClim historical climate rasters (1970-2000) and CMIP6 SSP2-4.5 future climate rasters (2050) for **all 19 Bioclim variables** (bio1 through bio19), saving as individual rasters (e.g., `bio1.tif`) to `data/raw/climate_historical/` and `data/raw/cmip6_future/` respectively. **Logic**: Use `requests` to download from WorldClim (https://worldclim.org/data/bioclim.html) and CMIP6 (https://esgf-node.llnl.gov/projects/cmip6/) using specific dataset IDs and variable patterns (e.g., `cmip6_ssp245_bio1.tif`). **Validation**: Implement a loop that checks for the existence of all 19 files (`bio1.tif`...`bio19.tif`) in both directories; exit with code 1 if any variable is missing or partially downloaded (FR-001). **Dependency**: Logically independent of T010/T011 completion to allow parallel execution.
 
 - [X] T013 [US1] Implement `code/preprocess.py` to filter records by breeding season, remove duplicates, and spatially thin points to a **configurable minimum distance**. **Logic**: **Read the threshold value explicitly from `config.THINNING_DISTANCE_KM`** (do not use a hardcoded value or vague terms). Use `geopandas.sjoin_nearest` with a buffer defined by this config value. **Modularity**: Must implement this logic as a reusable function `thin_occurrences(input_path, output_path, distance_km)` in `code/preprocess.py`. Write `logs/preprocess_counts.yaml` with `species`, `before_count`, `after_count`, `timestamp`, and `distance_used_km`. **Constraint**: Must run AFTER T010, T011 completion. **Dependency**: T005 (logging) must be complete.
-- [ ] T013a [US1] Implement `code/preprocess.py` to check **historical (1970-2000)** data for FR-006 threshold (<100 records) **AFTER** T010 completion. **Logic**: Count raw records per species from `data/raw/occurrence_1970_2000.csv`; if <100, flag as 'INSUFFICIENT_DATA' in `metrics/data_sufficiency.json` with schema: `{"species": "str", "count": "int", "status": "INSUFFICIENT_DATA", "dataset_period": "historical"}`. **Dependency**: Must run AFTER T010 completion. **Note**: This runs in parallel with T013; it does not block T013 for species with sufficient data.
-- [ ] T013b [US1] Implement `code/preprocess.py` to check **recent (2005-2020)** data for FR-006 threshold (<100 records) **AFTER** T011 completion. **Logic**: Count raw records per species from `data/raw/occurrence_2005_2020.csv`; if <100, flag as 'INSUFFICIENT_DATA' in `metrics/data_sufficiency.json` (appending to the same file as T013a) with schema: `{"species": "str", "count": "int", "status": "INSUFFICIENT_DATA", "dataset_period": "recent"}`. **Dependency**: Must run AFTER T011 completion. **Note**: This runs in parallel with T013; it does not block T013 for species with sufficient data.
-- [X] T014 [US1] Implement `code/preprocess.py` to extract **ALL 19** climate variables from rasters (from T015) at occurrence coordinates (from T013), handling missing data via nearest neighbor imputation. **Logic**: Extract all variables first to satisfy FR-001 availability. **Dependency**: Must run AFTER T013, T015. <!-- FAILED: unspecified -->
+- [ ] T013c [US1] Implement `code/preprocess.py` to check **both historical (1970-2000)** and **recent (2005-2020)** data for FR-006 threshold (<100 records). **Logic**: Count raw records per species from `data/raw/occurrence_1970_2000.csv` and `data/raw/occurrence_2005_2020.csv`. If count < 100 for a species in a period, flag as 'INSUFFICIENT_DATA' in `metrics/data_sufficiency.json` with schema: `{"species": "str", "count": "int", "status": "INSUFFICIENT_DATA", "dataset_period": "historical|recent"}`. **Note**: This is a single atomic task to avoid race conditions; it performs both checks sequentially and writes to the JSON file in one pass. **Dependency**: Must run AFTER T010 and T011 completion. **Constraint**: FR-006 mandates the check for the *test period* (2005-2020); the historical check is optional for data quality monitoring.
+- [X] T014 [US1] Implement `code/preprocess.py` to extract **ALL 19** climate variables from rasters (from T015) at occurrence coordinates (from T013), handling missing data via nearest neighbor imputation. **Logic**: Extract all variables first to satisfy FR-001 availability. **Output**: Save the full 19-variable dataset to `data/processed/occurrence_full.csv`. **Dependency**: Must run AFTER T013, T015.
 - [X] T015a [US1] Implement `code/preprocess.py` (or new module `code/variable_selection.py`) to perform **Variance Inflation Factor (VIF)** analysis on the **extracted** climate variables (from T014) and select a non-collinear subset (target a reduced set of variables) for modeling. **Logic**: Load a **sample of 5000 occurrence points** (random stratified by species, seed=42) and extracted climate values; calculate VIF for all 19 variables; iteratively remove the highest VIF variable until all remaining variables have VIF < 5. Output the list of selected variable names to `metrics/selected_climate_variables.json`. **Note**: FR-001 is satisfied by T014's extraction of all 19 variables into `data/processed/`. T015a selects a subset for *modeling efficiency* only; the full dataset remains available. **Dependency**: Must run AFTER T014 completion.
-- [X] T014b [US1] Implement `code/preprocess.py` to filter the extracted climate dataset (from T014) to **only include variables selected in T015a**, producing the final modeling dataset. **Dependency**: Must run AFTER T015a.
+- [X] T014b [US1] Implement `code/preprocess.py` to filter the extracted climate dataset (from T014) to **only include variables selected in T015a**, producing the final modeling dataset. **Output**: Save the filtered dataset to `data/processed/occurrence_model.csv`. **Dependency**: Must run AFTER T015a.
 - [X] T017 [US1] Create `data/processed/occurrence_clean.csv` (using T014b output) and verify all records have non-null climate values; **exit with code 1 ONLY if unfixable missing data exists (e.g., coordinates outside raster bounds)**; otherwise log a warning for imputed values. **Dependency**: Must run AFTER T014b.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -119,13 +122,13 @@
 - [X] T019 [US2] Implement `code/bias_null.py` to create a bias-only null model using random background sampling (replacing KDE layer). **Verification**: Ensure output file `metrics/bias_null_metrics.csv` is generated and contains columns `species`, `algorithm`, `auc`, `tss`. **Dependency**: Must run AFTER T013 (preprocessed data).
 - [X] T020 [US2] Implement `code/power_analysis.py` to calculate minimum sample size for statistical power (post-thinning) using default parameters, outputting `metrics/power_analysis_report.json`
 - [ ] T027 [US2] Implement **pre-training GPU check** in `code/train.py` (or `code/utils/gpu_check.py`). **Logic**: Run `torch.cuda.is_available()` and check `sklearn` device flags; log results to `logs/gpu_check.log`. **Constraint**: Exit with code 1 if CUDA is detected or if any GPU library is active. **Dependency**: Must run **BEFORE** T021, T022, T023 to prevent wasted compute.
-- [ ] T021 [US2] Implement `code/train.py` to train Random RF (`sklearn.ensemble.RandomForestClassifier`) with `n_jobs=2` on CPU
-- [ ] T022 [US2] Implement `code/train.py` to train Bioclim algorithm (custom percentile envelope)
-- [ ] T023 [US2] Implement `code/train.py` to train Regularized Logistic Regression (Presence-Background) using `sklearn.linear_model.LogisticRegression` with L2 regularization. **Note: This implements the "MaxEnt-style" Presence-Background method described in US-2.**
-- [ ] T024 [US2] Implement spatial block cross-validation logic in `code/train.py` using `code/utils/spatial_blocks.py` (FR-007)
+- [ ] T021 [US2] Implement `code/train.py` to add function `train_rf()` which trains Random RF (`sklearn.ensemble.RandomForestClassifier`) with `n_jobs=2` on CPU. **Constraint**: Must consume spatial blocks generated by T024 as input for the training loop (FR-007). **Output**: Return pickled model object.
+- [ ] T022 [US2] Implement `code/train.py` to add function `train_bioclim()` which trains Bioclim algorithm (custom percentile envelope). **Constraint**: Must consume spatial blocks generated by T024 as input for the training loop (FR-007). **Output**: Return pickled model object.
+- [ ] T023 [US2] Implement `code/train.py` to add function `train_reg_log()` which trains Regularized Logistic Regression (Presence-Background) using `sklearn.linear_model.LogisticRegression` with L2 regularization. **Note: This implements the "MaxEnt-style" Presence-Background method described in US-2.** **Constraint**: Must consume spatial blocks generated by T024 as input for the training loop (FR-007). **Output**: Return pickled model object.
+- [ ] T024 [US2] Implement spatial block cross-validation logic in `code/train.py` using `code/utils/spatial_blocks.py` (FR-007). **Output**: Generate spatial block indices for each species.
 - [X] T025 [US2] Save trained model artifacts to `data/artifacts/model_{species}_{algo}.pkl`. **Dependency**: Must run AFTER T021, T022, T023.
 - [X] T026 [US2] Calculate and save AUC/TSS metrics to `metrics/training_metrics.csv`. **Dependency**: Must run AFTER T021, T022, T023.
-- [ ] T046a [P] [US2] Implement `code/train.py` (or `code/utils/batch_reader.py`) to support **chunked processing** of large occurrence datasets. **Logic**: If `data/processed/occurrence_clean.csv` > 500MB, process in batches of **[deferred] rows**, accumulating model updates or statistics. **Constraint**: Must NOT use `try/except` to fall back to synthetic data; if the stream fails, raise an exception.
+- [ ] T046a [P] [US2] Implement `code/train.py` (or `code/utils/batch_reader.py`) to support **chunked processing** of large occurrence datasets. **Logic**: If `data/processed/occurrence_model.csv` > 500MB, process in batches of **[deferred] rows**, accumulating model updates or statistics. **Constraint**: Must NOT use `try/except` to fall back to synthetic data; if the stream fails, raise an exception.
 - [ ] T046b [P] [US2] Implement `code/train.py` to support **batched model training** if the feature matrix is too large. **Logic**: Use `sklearn`'s `partial_fit` (if available) or implement a batched training loop where the dataset is read in chunks, and the model is updated incrementally or statistics are aggregated before final training. **Constraint**: Must ensure model convergence is not compromised by batched updates. **Dependency**: Must run AFTER T046a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -140,15 +143,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T029b [US3] Implement `code/preprocess.py` (or extend existing) to filter, deduplicate, and thin the raw data (from T011) into `data/processed/occurrence_recent_clean.csv` for evaluation. **CRITICAL**: Read `metrics/data_sufficiency.json` (produced by T013b) to ensure consistency; **exclude** any species flagged as 'INSUFFICIENT_DATA' for the recent period. THEN apply thinning ONLY if the species is not flagged. **Logging**: For every excluded species, **log the specific count and reason directly to `logs/exclusion_log.csv`** (schema: `species, count, status, period`) at the moment of the exclusion decision. **Modularity**: Must call the reusable `thin_occurrences` function implemented in T013 (`code/preprocess.py:thin_occurrences`). **Dependency**: Must run AFTER T011 and T013b completion. **Note**: This task is a blocking dependency for US3 start.
+- [ ] T029b [P] [US3] Implement `code/preprocess.py` (or extend existing) to filter, deduplicate, and thin the raw data (from T011) into `data/processed/occurrence_recent_clean.csv` for evaluation. **CRITICAL**: Read `metrics/data_sufficiency.json` (produced by T013c) to ensure consistency; **exclude** any species flagged as 'INSUFFICIENT_DATA' for the recent period. THEN apply thinning ONLY if the species is not flagged. **Logging**: For every excluded species, **log the specific count and reason directly to `logs/exclusion_log.csv`** (schema: `species, count, status, period`) at the moment of the exclusion decision. **Modularity**: Must call the reusable `thin_occurrences` function implemented in T013 (`code/preprocess.py:thin_occurrences`). **Dependency**: Must run AFTER T011 and T013c completion. **Note**: This task is a blocking dependency for US3 start.
 - [ ] T028 [P] [US3] Implement `code/project.py` to load trained models and project onto future climate rasters (`data/raw/cmip6_future/`), saving `data/artifacts/projection_{species}_{algo}_2050.tif`. **Dependency**: Must run AFTER T021/T022/T023 and T015. (Note: T029b is NOT a dependency for T028).
-- [ ] T047a [P] [US3] Update `code/project.py` to handle **large raster projections** by implementing **windowed reading** for rasters. **Logic**: Use `rasterio` windowed reading to avoid loading entire future climate rasters into memory.
-- [ ] T047b [P] [US3] Update `code/project.py` to implement **windowed writing** for projections. **Logic**: Use `rasterio` windowed writing to save projection tiles incrementally.
-- [ ] T047c [P] [US3] Update `code/project.py` to implement **tile stitching** for final projections. **Logic**: Combine windowed writes into a single coherent raster file. **Constraint**: Must NOT use `try/except` to fall back to synthetic data; if the stream fails, raise an exception.
+- [ ] T047 [P] [US3] Implement **windowed projection logic** in `code/project.py`. **Logic**: Use `rasterio` windowed reading to avoid loading entire future climate rasters into memory; implement windowed writing to save projection tiles incrementally; implement tile stitching to combine writes into a single coherent raster file. **Constraint**: Must NOT use `try/except` to fall back to synthetic data; if the stream fails, raise an exception.
 - [ ] T029 [US3] Implement `code/evaluate.py` to evaluate projections against recent occurrence records from `data/processed/occurrence_recent_clean.csv` (produced by T029b). **Dependency**: Must run AFTER T029b AND T028 (projections must be available).
 - [ ] T030 [US3] Implement `code/evaluate.py` to compute AUC and TSS for historical-to-future generalization (FR-009). **Dependency**: Must run AFTER T029.
 - [ ] T031 [US3] Implement `code/evaluate.py` to perform niche stability checks by **comparing model performance on historical data projected to historical climate versus projected to future climate**, reporting the degradation as a measure of non-stationarity (FR-009). **Dependency**: Must run AFTER T029.
-- [ ] T032 [US3] Implement `code/evaluate.py` to run non-parametric permutation tests or bootstrapped CI for model comparison (FR-010). **Logic**: Must read `metrics/data_sufficiency.json` and **exclude** any species flagged as 'INSUFFICIENT_DATA' before running tests. **Dependency**: Must run AFTER T019 (bias_null_metrics.csv) AND T029 (evaluation metrics).
+- [ ] T032 [US3] Implement `code/evaluate.py` to run non-parametric permutation tests or bootstrapped CI for model comparison (FR-010). **Logic**: Must read `metrics/data_sufficiency.json` generated by T013c and **exclude** any species flagged as 'INSUFFICIENT_DATA' before running tests, using the same exclusion logic as T029b. **Dependency**: Must run AFTER T019 (bias_null_metrics.csv) AND T029 (evaluation metrics).
 - [ ] T034 [US3] Implement `code/sensitivity.py` to sweep suitability thresholds (low, low-moderate, moderate) and apply **multiple-comparison correction** for the family of tests. **Logic**: Input p-values from statistical tests run in T032 (format: list of dicts with `p_value`); apply correction (e.g., Holm-Bonferroni) to the **family of all pairwise model comparisons across all species**; output `metrics/sensitivity_report.csv` with corrected p-values (FR-005, SC-003).
 - [X] T035 [US3] Save final results to `metrics/final_results.csv` and `metrics/sensitivity_report.csv`. **Dependency**: Must run AFTER T030, T031, T032, T034.
 - [X] T036 [US3] Generate `reports/associational_disclaimer.txt` explicitly stating findings are associational (FR-008). **Dependency**: Must run AFTER T035.
@@ -199,6 +200,16 @@
 
 ---
 
+## Phase 9: Run-Book Reconciliation (Revision Pass)
+
+**Goal**: Resolve the execution error where `quickstart.md` invokes `code/bias_correction.py` which does not exist in the current implementation plan.
+
+### Implementation for Reconciliation
+
+- [ ] T052 [General] Reconcile run-book vs implementation for `code/bias_correction.py`: the quickstart run-book invokes this script but it does not exist. **Action**: **Create `code/bias_correction.py`** implementing the bias layer generation logic (target-group background or KDE) as described in the Plan and Complexity Tracking table. This script must generate `data/processed/bias_layer.tif` and be invoked in the pipeline. **Do NOT** update the run-book to remove the invocation; the bias correction logic is a methodological requirement. **Dependency**: Must run AFTER T019 and T001 (project structure).
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -211,6 +222,7 @@
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 - **Robustness (Phase 7)**: Depends on core implementation (Phases 3-6) but can be implemented in parallel with Polish tasks.
 - **Streaming Pipeline (Phase 8)**: Depends on Phase 7 tasks for infrastructure readiness; can be implemented in parallel with other Phase 7 tasks.
+- **Run-Book Reconciliation (Phase 9)**: Must be completed before final validation to ensure the pipeline runs end-to-end.
 
 ### User Story Dependencies
 
@@ -234,6 +246,7 @@
 - Different user stories can be worked on in parallel by different team members
 - Phase 7 tasks are independent of each other and can run in parallel.
 - Phase 8 tasks are independent of each other and can run in parallel.
+- Phase 9 tasks are independent of Phase 7/8 but must be resolved before final validation.
 
 ---
 
@@ -276,6 +289,7 @@ With multiple developers:
  - Developer B: User Story 2 (Training)
  - Developer C: User Story 3 (Projection/Eval)
  - Developer D: Phase 7 (Robustness/Streaming)
+ - Developer E: Phase 9 (Run-Book Reconciliation)
 3. Stories complete and integrate independently
 
 ---
@@ -294,7 +308,7 @@ With multiple developers:
 - **Critical**: Constitution Principle VI requires `source_identifier`, `download_timestamp`, `original_dataset_name` in all raw CSVs.
 - **Critical**: T015 must explicitly download all 19 Bioclim variables (bio1-bio19) and validate them.
 - **Critical**: T014 extracts ALL 19 variables first; T015a performs VIF; T014b filters to selected variables.
-- **Critical**: T013a and T013b are the canonical checks for FR-006, writing to `metrics/data_sufficiency.json`.
+- **Critical**: T013c is the canonical check for FR-006, writing to `metrics/data_sufficiency.json`.
 - **Critical**: T013 enforces a configurable thinning distance from `config.THINNING_DISTANCE_KM` (FR-002) and logs the actual distance used.
 - **Critical**: T017 only fails on unfixable missing data (outside bounds), allowing imputation.
 - **Critical**: T027 runs BEFORE training (T021-T023) and uses Python-level checks (`torch.cuda.is_available()`).
@@ -307,15 +321,16 @@ With multiple developers:
 - **Critical**: T037 must log runtime to `metrics/runtime.log`, exit with code 1 if limit exceeded, and generate optimization recommendations.
 - **Critical**: T013 must implement a reusable `thin_occurrences` function.
 - **Critical**: T029b must call the reusable `thin_occurrences` function from T013 and log exclusion counts to `logs/exclusion_log.csv` at the moment of exclusion.
-- **Critical**: T044, T046a, T046b, T047a, T047b, T047c, T049, T050, T051 implement streaming/chunking to handle large datasets within memory constraints.
+- **Critical**: T044, T046a, T046b, T047, T049, T050, T051 implement streaming/chunking to handle large datasets within memory constraints.
 - **Critical**: T045, T048 ensure data integrity and provenance tracking.
 - **Critical**: No fallback to synthetic data on download failure; explicit exceptions must be raised.
-- **Critical**: T010 and T011 must use pagination loops, not hardcoded limits.
+- **Critical**: T010 and T011 must use pagination loops with specific stop conditions ([deferred] records or empty).
 - **Critical**: T032 must exclude species flagged in `metrics/data_sufficiency.json`.
 - **Critical**: T049, T050, T051 implement streaming ingestion and processing to handle occurrence datasets exceeding available RAM, ensuring the full real dataset (or a well-defined sample) is used without fabrication.
 - **Critical**: T049 must raise an exception on stream failure; no synthetic fallback.
 - **Critical**: T050 must maintain spatial index integrity across chunks to ensure accurate thinning.
 - **Critical**: T051 must ensure model convergence is not compromised by batched updates.
+- **Critical**: T052 must create `code/bias_correction.py` to resolve the run-book mismatch.
 
 <!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
-- [ ] T052 Reconcile run-book vs implementation for `code/bias_correction.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/bias_correction.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T052 Reconcile run-book vs implementation for `code/bias_correction.py`: the quickstart run-book invokes this script but it does not exist. **Action**: Create `code/bias_correction.py` implementing the bias layer generation logic (target-group background or KDE) as described in the Plan. Do NOT remove the invocation from the run-book. See `.specify/memory/execution_feedback.md` for the exact failing command.
