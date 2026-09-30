@@ -7,5 +7,4 @@ matplotlib
 requests
 pytest
 jsonschema
-seaborn
-pyyaml
+PyYAML

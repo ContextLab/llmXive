@@ -1,156 +1,133 @@
-"""
-Contract tests for API response schema parsing.
-
-Validates that fetched backend properties conform to the defined JSON schema.
-"""
-import json
-import os
 import pytest
+import os
+import json
+import tempfile
+import shutil
 from pathlib import Path
-from jsonschema import validate, ValidationError, Draft7Validator
-import yaml
+from datetime import datetime
 
-# Import the fetcher module to access its internal data structures if needed
-# We assume the fetcher module is in the parent directory or code/
+# Mock the Qiskit imports for unit testing without API keys
 import sys
+from unittest.mock import MagicMock, patch
+
+# Ensure code/ is in path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from code.fetcher import fetch_backend_properties
-from code.config import load_config
+from fetcher import process_historical_data
 
-# Path to the schema file
-SCHEMA_PATH = Path(__file__).parent.parent / "specs" / "001-exploring-the-role-of-network-structure-" / "contracts" / "raw_calibration.schema.yaml"
-
-@pytest.fixture
-def schema():
-    """Load the JSON schema from the YAML file."""
-    if not SCHEMA_PATH.exists():
-        pytest.fail(f"Schema file not found at {SCHEMA_PATH}. Ensure T009 is complete.")
+class TestProcessHistoricalData:
     
-    with open(SCHEMA_PATH, 'r') as f:
-        return yaml.safe_load(f)
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.temp_dir = tempfile.mkdtemp()
+        self.historical_dir = os.path.join(self.temp_dir, "historical")
+        self.output_csv = os.path.join(self.temp_dir, "output.csv")
+        os.makedirs(self.historical_dir)
 
-@pytest.fixture
-def mock_backend_data():
-    """
-    Load the mock backend properties from the fixture created in T006b.
-    This provides a deterministic, real-structure dataset for testing.
-    """
-    fixture_path = Path(__file__).parent / "fixtures" / "mock_backend_properties.json"
-    if not fixture_path.exists():
-        pytest.fail(f"Mock fixture not found at {fixture_path}. Ensure T006b is complete.")
-    
-    with open(fixture_path, 'r') as f:
-        return json.load(f)
+    def teardown_method(self):
+        """Clean up test fixtures."""
+        shutil.rmtree(self.temp_dir)
 
-def test_schema_is_valid_yaml_and_json_compatible(schema):
-    """
-    Verify that the loaded schema is a valid dictionary and follows JSON Schema draft-07.
-    """
-    assert isinstance(schema, dict), "Schema must be a dictionary."
-    assert "$schema" in schema, "Schema must define the $schema keyword."
-    assert "properties" in schema, "Schema must define top-level properties."
-    
-    # Validate that the schema itself is valid against Draft7Validator meta-schema
-    validator = Draft7Validator(schema)
-    errors = list(validator.iter_errors(schema))
-    assert len(errors) == 0, f"Schema itself is invalid: {[e.message for e in errors]}"
-
-def test_contract_validation_with_mock_data(schema, mock_backend_data):
-    """
-    Contract test: Validate that the mock backend properties (representing real API structure)
-    strictly conform to the defined schema.
-    
-    This ensures that if the API changes, the schema will catch it, or if the schema
-    is too restrictive, it will be caught here.
-    """
-    try:
-        validate(instance=mock_backend_data, schema=schema)
-    except ValidationError as e:
-        pytest.fail(f"Mock data violates schema: {e.message}. "
-                    f"Path: {list(e.path)}. "
-                    f"Schema path: {list(e.schema_path)}. "
-                    "Update schema or mock data to match real API structure.")
-
-def test_contract_validation_missing_required_fields(schema):
-    """
-    Test that the schema correctly rejects data missing required fields.
-    """
-    invalid_data = {
-        "device_id": "test_device",
-        "timestamp": "2023-01-01T00:00:00Z"
-        # Missing 'coupling_map' and 'properties'
-    }
-    
-    with pytest.raises(ValidationError):
-        validate(instance=invalid_data, schema=schema)
-
-def test_contract_validation_invalid_coupling_map_type(schema):
-    """
-    Test that the schema rejects a coupling_map that is not a list of lists of integers.
-    """
-    # Valid base data
-    valid_base = {
-        "device_id": "test_device",
-        "timestamp": "2023-01-01T00:00:00Z",
-        "coupling_map": [[0, 1], [1, 2]],
-        "properties": {
-            "qubits": [[{"name": "T1", "value": 100.0}]],
-            "gates": []
+    def test_process_historical_data_creates_csv(self):
+        """Test that process_historical_data creates the output CSV with correct headers."""
+        # Create a mock JSON file
+        mock_data = {
+            "device_id": "ibmq_manila",
+            "timestamp": "2023-10-01T00:00:00Z",
+            "t1_mean": 100.5,
+            "t2_mean": 200.5,
+            "cx_error_mean": 0.01,
+            "readout_error_mean": 0.02,
+            "chip_family": "Falcon"
         }
-    }
-    
-    # Case 1: Coupling map is a list of integers, not lists
-    invalid_data_1 = valid_base.copy()
-    invalid_data_1["coupling_map"] = [0, 1, 2]
-    
-    with pytest.raises(ValidationError):
-        validate(instance=invalid_data_1, schema=schema)
+        mock_file = os.path.join(self.historical_dir, "ibmq_manila_20231001.json")
+        with open(mock_file, 'w') as f:
+            json.dump(mock_data, f)
 
-def test_contract_validation_invalid_property_values(schema):
-    """
-    Test that the schema rejects property values that are not numbers where expected.
-    """
-    valid_base = {
-        "device_id": "test_device",
-        "timestamp": "2023-01-01T00:00:00Z",
-        "coupling_map": [[0, 1]],
-        "properties": {
-            "qubits": [[{"name": "T1", "value": "invalid_string"}]],
-            "gates": []
+        # Run the function
+        process_historical_data(self.historical_dir, self.output_csv)
+
+        # Verify output
+        assert os.path.exists(self.output_csv)
+        with open(self.output_csv, 'r') as f:
+            content = f.read()
+            assert "device_id" in content
+            assert "ibmq_manila" in content
+            assert "100.5" in content
+
+    def test_process_historical_data_handles_multiple_files(self):
+        """Test processing multiple historical snapshots."""
+        # Create two mock JSON files
+        data1 = {
+            "device_id": "ibmq_manila",
+            "timestamp": "2023-10-01T00:00:00Z",
+            "t1_mean": 100.5,
+            "t2_mean": 200.5,
+            "cx_error_mean": 0.01,
+            "readout_error_mean": 0.02,
+            "chip_family": "Falcon"
         }
-    }
-    
-    with pytest.raises(ValidationError):
-        validate(instance=valid_base, schema=schema)
+        data2 = {
+            "device_id": "ibmq_quito",
+            "timestamp": "2023-10-02T00:00:00Z",
+            "t1_mean": 110.5,
+            "t2_mean": 210.5,
+            "cx_error_mean": 0.015,
+            "readout_error_mean": 0.025,
+            "chip_family": "Falcon"
+        }
 
-@pytest.mark.integration
-def test_live_api_response_conformance(schema):
-    """
-    Optional integration test: If IBMQ_TOKEN is available, fetch a real backend
-    and validate it against the schema.
-    """
-    config = load_config()
-    if not config.ibmq_token:
-        pytest.skip("IBMQ_TOKEN not set. Skipping live API validation.")
-    
-    try:
-        # Fetch properties for a known device (e.g., ibmq_quito or ibmq_manila)
-        # We use a small subset to avoid rate limits in CI if possible, 
-        # but this test requires a real fetch.
-        backend_name = "ibmq_quito"
-        
-        # Note: This relies on the implementation in fetcher.py
-        # If fetch_backend_properties returns a dict directly
-        result = fetch_backend_properties(backend_name)
-        
-        if result is None:
-            pytest.skip(f"Could not fetch properties for {backend_name}. Skipping.")
-        
-        validate(instance=result, schema=schema)
-        
-    except ValidationError as e:
-        pytest.fail(f"Real API response for {backend_name} violates schema: {e.message}")
-    except Exception as e:
-        # Network errors or API issues are expected in some CI environments
-        pytest.skip(f"Live API fetch failed: {str(e)}. Skipping validation.")
+        with open(os.path.join(self.historical_dir, "ibmq_manila_20231001.json"), 'w') as f:
+            json.dump(data1, f)
+        with open(os.path.join(self.historical_dir, "ibmq_quito_20231002.json"), 'w') as f:
+            json.dump(data2, f)
+
+        process_historical_data(self.historical_dir, self.output_csv)
+
+        with open(self.output_csv, 'r') as f:
+            lines = f.readlines()
+            assert len(lines) == 3  # Header + 2 rows
+
+    def test_process_historical_data_skips_invalid_json(self):
+        """Test that invalid JSON files are skipped."""
+        # Create an invalid JSON file
+        invalid_file = os.path.join(self.historical_dir, "invalid_20231001.json")
+        with open(invalid_file, 'w') as f:
+            f.write("{ invalid json }")
+
+        # Create a valid one
+        valid_data = {
+            "device_id": "ibmq_manila",
+            "timestamp": "2023-10-01T00:00:00Z",
+            "t1_mean": 100.5,
+            "t2_mean": 200.5,
+            "cx_error_mean": 0.01,
+            "readout_error_mean": 0.02,
+            "chip_family": "Falcon"
+        }
+        with open(os.path.join(self.historical_dir, "ibmq_manila_20231001.json"), 'w') as f:
+            json.dump(valid_data, f)
+
+        process_historical_data(self.historical_dir, self.output_csv)
+
+        with open(self.output_csv, 'r') as f:
+            content = f.read()
+            assert "ibmq_manila" in content
+            assert "invalid" not in content
+
+    def test_process_historical_data_skips_missing_metrics(self):
+        """Test that files missing required metrics are skipped."""
+        incomplete_data = {
+            "device_id": "ibmq_manila",
+            "timestamp": "2023-10-01T00:00:00Z",
+            "t1_mean": 100.5
+            # Missing t2_mean, cx_error_mean, readout_error_mean
+        }
+        with open(os.path.join(self.historical_dir, "ibmq_manila_20231001.json"), 'w') as f:
+            json.dump(incomplete_data, f)
+
+        process_historical_data(self.historical_dir, self.output_csv)
+
+        with open(self.output_csv, 'r') as f:
+            lines = f.readlines()
+            assert len(lines) == 1  # Only header

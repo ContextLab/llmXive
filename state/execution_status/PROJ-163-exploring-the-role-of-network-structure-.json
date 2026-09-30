@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/snapshot_saver.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026eal data. \"             \"Mock data is not permitted.\"\u2026\u201d; run-book completed but produced no data/figure artifacts; 3 declared deliverable(s) absent: data/processed/correlation_results.csv; data/processed/graph_metrics.csv; data/processed/performance_metrics.csv",
+  "artifacts": [],
+  "failures": [
+    "python -c \"import networkx, scipy, pandas, qiskit_ibm_runtime, sklearn; print('Dependencies OK')\" -> rc=1\n    Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\nModuleNotFoundError: No module named 'sklearn'"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-30T08:54:20Z"
+}

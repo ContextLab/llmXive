@@ -1,9 +1,6 @@
 """
-Generate processed calibration CSV from raw snapshots.
-
-This module loads all raw JSON snapshots from data/raw/, extracts
-performance metrics and topology data, and aggregates them into
-a single CSV file at data/processed/raw_calibration.csv.
+Module to generate the performance metrics CSV from raw calibration snapshots.
+This implements Task T017a: Generate Performance Metrics CSV.
 """
 import json
 import os
@@ -13,176 +10,131 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-# Import existing functions from fetcher module
-from fetcher import extract_performance_metrics, extract_topology_data
+# Import from existing project modules
+from fetcher import extract_performance_metrics, extract_chip_family
 
 logger = logging.getLogger(__name__)
 
-def load_raw_snapshots(raw_dir: Path) -> List[Dict[str, Any]]:
-    """
-    Load all raw JSON snapshots from the specified directory.
+DATA_RAW_DIR = Path("data/raw")
+DATA_PROCESSED_DIR = Path("data/processed")
+OUTPUT_FILE = DATA_PROCESSED_DIR / "performance_metrics.csv"
 
-    Args:
-        raw_dir: Path to the data/raw/ directory
-
-    Returns:
-        List of dictionaries containing raw backend properties
+def load_raw_snapshots() -> List[Dict[str, Any]]:
     """
+    Load all raw JSON snapshots from data/raw directory.
+    Returns a list of dictionaries containing device_id, timestamp, and backend properties.
+    """
+    if not DATA_RAW_DIR.exists():
+        logger.warning(f"Directory {DATA_RAW_DIR} does not exist. No snapshots to load.")
+        return []
+
     snapshots = []
-    if not raw_dir.exists():
-        logger.warning(f"Raw data directory does not exist: {raw_dir}")
-        return snapshots
-
-    for file_path in sorted(raw_dir.glob("*.json")):
+    for file_path in DATA_RAW_DIR.glob("*.json"):
         try:
             with open(file_path, 'r') as f:
                 data = json.load(f)
-                snapshots.append(data)
-            logger.info(f"Loaded snapshot: {file_path.name}")
+                # Ensure we have the required fields
+                if 'device_id' in data and 'timestamp' in data and 'properties' in data:
+                    snapshots.append(data)
+                else:
+                    logger.warning(f"Skipping {file_path}: missing required fields.")
         except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Failed to load {file_path.name}: {e}")
-
+            logger.error(f"Failed to load {file_path}: {e}")
+    
     return snapshots
 
 def extract_device_metrics(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Extract metrics from a single raw snapshot.
-
-    Args:
-        snapshot: Raw backend properties dictionary
-
-    Returns:
-        Dictionary with device_id, timestamp, and aggregated metrics,
-        or None if extraction fails
+    Extract performance metrics and chip family from a raw snapshot.
+    Returns a dictionary with device_id, timestamp, t1_mean, t2_mean, 
+    cx_error_mean, readout_error_mean, chip_family.
     """
-    try:
-        # Extract device_id and timestamp
-        device_id = snapshot.get('backend_name') or snapshot.get('device_id')
-        if not device_id:
-            logger.warning("Snapshot missing backend_name or device_id")
-            return None
+    device_id = snapshot.get('device_id')
+    timestamp = snapshot.get('timestamp')
+    properties = snapshot.get('properties', {})
 
-        # Extract timestamp from properties or snapshot metadata
-        timestamp_str = snapshot.get('date') or snapshot.get('timestamp')
-        if timestamp_str:
-            try:
-                timestamp = datetime.fromisoformat(timestamp_str.replace('Z', '+00:00'))
-            except (ValueError, TypeError):
-                timestamp = datetime.now()
-        else:
-            timestamp = datetime.now()
-
-        # Extract performance metrics
-        perf_data = extract_performance_metrics(snapshot)
-        if not perf_data:
-            logger.warning(f"Failed to extract performance metrics for {device_id}")
-            return None
-
-        # Extract topology data
-        topo_data = extract_topology_data(snapshot)
-        if not topo_data:
-            logger.warning(f"Failed to extract topology data for {device_id}")
-            return None
-
-        return {
-            'device_id': device_id,
-            'timestamp': timestamp.isoformat(),
-            't1_mean': perf_data.get('t1_mean'),
-            't2_mean': perf_data.get('t2_mean'),
-            'cx_error_mean': perf_data.get('cx_error_mean'),
-            'readout_error_mean': perf_data.get('readout_error_mean'),
-            'coupling_map': json.dumps(topo_data.get('coupling_map', []))
-        }
-
-    except Exception as e:
-        logger.error(f"Error processing snapshot for device: {e}")
+    if not device_id or not timestamp:
+        logger.warning(f"Skipping snapshot: missing device_id or timestamp.")
         return None
+
+    # Extract performance metrics using existing fetcher logic
+    metrics = extract_performance_metrics(properties)
+    
+    if not metrics:
+        logger.warning(f"No performance metrics extracted for {device_id}.")
+        return None
+
+    # Extract chip family using existing fetcher logic
+    chip_family = extract_chip_family(device_id)
+
+    return {
+        'device_id': device_id,
+        'timestamp': timestamp,
+        't1_mean': metrics.get('t1_mean', 0.0),
+        't2_mean': metrics.get('t2_mean', 0.0),
+        'cx_error_mean': metrics.get('cx_error_mean', 0.0),
+        'readout_error_mean': metrics.get('readout_error_mean', 0.0),
+        'chip_family': chip_family
+    }
 
 def process_snapshot(snapshot: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Process a single snapshot and return extracted metrics.
-
-    Wrapper around extract_device_metrics for consistency.
-
-    Args:
-        snapshot: Raw backend properties dictionary
-
-    Returns:
-        Processed metrics dictionary or None
+    Process a single snapshot and return the performance metrics record.
     """
     return extract_device_metrics(snapshot)
 
 def main():
     """
-    Main entry point: Load all raw snapshots and generate processed CSV.
-
-    Output: data/processed/raw_calibration.csv
+    Main entry point to generate the performance metrics CSV.
+    Reads all raw snapshots, extracts metrics, and writes to CSV.
     """
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-
-    # Define paths
-    project_root = Path(__file__).parent.parent
-    raw_dir = project_root / 'data' / 'raw'
-    processed_dir = project_root / 'data' / 'processed'
-    output_file = processed_dir / 'raw_calibration.csv'
-
     # Ensure output directory exists
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
 
     # Load all raw snapshots
-    logger.info(f"Loading snapshots from {raw_dir}")
-    snapshots = load_raw_snapshots(raw_dir)
-
+    snapshots = load_raw_snapshots()
     if not snapshots:
-        logger.warning("No snapshots found. Cannot generate CSV.")
-        # Create empty CSV with headers to satisfy verification
-        with open(output_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                'device_id', 'timestamp', 't1_mean', 't2_mean',
-                'cx_error_mean', 'readout_error_mean', 'coupling_map'
+        logger.error("No raw snapshots found in data/raw/. Aborting.")
+        # Create an empty CSV with headers to satisfy schema validation
+        with open(OUTPUT_FILE, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=[
+                'device_id', 'timestamp', 't1_mean', 't2_mean', 
+                'cx_error_mean', 'readout_error_mean', 'chip_family'
             ])
+            writer.writeheader()
         return
 
-    # Process each snapshot
-    logger.info(f"Processing {len(snapshots)} snapshots")
+    logger.info(f"Processing {len(snapshots)} raw snapshots...")
+
     records = []
     for snapshot in snapshots:
         record = process_snapshot(snapshot)
         if record:
             records.append(record)
-            logger.info(f"Processed: {record['device_id']}")
 
     if not records:
-        logger.error("No valid records extracted from snapshots.")
-        # Create empty CSV with headers
-        with open(output_file, 'w', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow([
-                'device_id', 'timestamp', 't1_mean', 't2_mean',
-                'cx_error_mean', 'readout_error_mean', 'coupling_map'
-            ])
+        logger.error("No valid records extracted. Aborting.")
         return
 
+    # Sort by device_id for consistent output
+    records.sort(key=lambda x: x['device_id'])
+
     # Write to CSV
-    logger.info(f"Writing {len(records)} records to {output_file}")
     fieldnames = [
-        'device_id', 'timestamp', 't1_mean', 't2_mean',
-        'cx_error_mean', 'readout_error_mean', 'coupling_map'
+        'device_id', 'timestamp', 't1_mean', 't2_mean', 
+        'cx_error_mean', 'readout_error_mean', 'chip_family'
     ]
 
-    with open(output_file, 'w', newline='') as f:
+    with open(OUTPUT_FILE, 'w', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(records)
 
-    logger.info(f"Successfully generated {output_file}")
-    print(f"Generated: {output_file}")
-    print(f"Rows: {len(records)}")
+    logger.info(f"Successfully wrote {len(records)} records to {OUTPUT_FILE}")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     main()

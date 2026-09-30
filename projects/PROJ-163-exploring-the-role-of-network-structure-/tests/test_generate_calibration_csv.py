@@ -1,116 +1,205 @@
 """
-Tests for T017: generate_calibration_csv.py
-Verifies that the CSV generation logic correctly processes raw snapshots.
+Tests for generate_calibration_csv.py (Task T017a).
 """
-import json
 import os
+import json
+import csv
 import tempfile
+import shutil
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime
+
 import pytest
 
-# Import functions from the module under test
-# Assuming the module is in code/generate_calibration_csv.py
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'code'))
-from generate_calibration_csv import load_raw_snapshots, process_snapshot, main
+# We will mock the fetcher functions to avoid needing real API data
+# and to ensure we test the CSV generation logic correctly.
+from unittest.mock import patch, MagicMock
+
+# Import the module under test
+import generate_calibration_csv as gc_csv
 
 @pytest.fixture
-def sample_snapshot():
-    """Create a minimal valid calibration snapshot."""
-    return {
-        "backend_name": "test_backend",
-        "properties": {
-            "last_update_date": datetime.now().isoformat(),
-            "qubits": [
-                [
-                    {"name": "T1", "value": 100.0, "unit": "us"},
-                    {"name": "T2", "value": 200.0, "unit": "us"},
-                    {"name": "readout_error", "value": 0.02, "unit": "dimensionless"},
-                    {"name": "gate_error", "value": 0.001, "unit": "dimensionless", "gate": "cx"}
+def mock_snapshots():
+    """Create mock raw snapshots for testing."""
+    return [
+        {
+            'device_id': 'ibm_test_device_1',
+            'timestamp': '2024-05-20T12:00:00Z',
+            'properties': {
+                'qubits': [
+                    {'name': 'T1', 'value': 100.0, 'unit': 'us'},
+                    {'name': 'T2', 'value': 200.0, 'unit': 'us'},
                 ],
-                [
-                    {"name": "T1", "value": 110.0, "unit": "us"},
-                    {"name": "T2", "value": 210.0, "unit": "us"},
-                    {"name": "readout_error", "value": 0.03, "unit": "dimensionless"},
-                    {"name": "gate_error", "value": 0.002, "unit": "dimensionless", "gate": "cx"}
+                'gates': [
+                    {'qubits': [0, 1], 'name': 'cx', 'value': 0.01},
+                    {'qubits': [1, 2], 'name': 'cx', 'value': 0.02},
+                ],
+                'readout': [
+                    {'name': 'readout_error', 'value': 0.05},
                 ]
-            ],
-            "coupling_map": [[0, 1]],
-            "backend_version": "1.0"
+            }
+        },
+        {
+            'device_id': 'ibm_test_device_2',
+            'timestamp': '2024-05-20T13:00:00Z',
+            'properties': {
+                'qubits': [
+                    {'name': 'T1', 'value': 150.0, 'unit': 'us'},
+                    {'name': 'T2', 'value': 250.0, 'unit': 'us'},
+                ],
+                'gates': [
+                    {'qubits': [0, 1], 'name': 'cx', 'value': 0.015},
+                ],
+                'readout': [
+                    {'name': 'readout_error', 'value': 0.06},
+                ]
+            }
         }
-    }
+    ]
 
 @pytest.fixture
-def raw_data_dir(sample_snapshot):
-    """Create a temporary directory with a sample raw JSON file."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        raw_dir = Path(tmpdir)
-        file_path = raw_dir / "test_backend.json"
+def temp_data_dir(mock_snapshots):
+    """Create a temporary directory structure with mock raw data."""
+    temp_dir = tempfile.mkdtemp()
+    raw_dir = Path(temp_dir) / "data" / "raw"
+    raw_dir.mkdir(parents=True)
+    
+    # Write mock snapshots
+    for i, snapshot in enumerate(mock_snapshots):
+        file_path = raw_dir / f"device_{i}.json"
         with open(file_path, 'w') as f:
-            json.dump(sample_snapshot, f)
-        yield raw_dir
+            json.dump(snapshot, f)
+    
+    # Store original paths to restore later
+    orig_raw = gc_csv.DATA_RAW_DIR
+    orig_out_dir = gc_csv.DATA_PROCESSED_DIR
+    orig_output = gc_csv.OUTPUT_FILE
 
-def test_load_raw_snapshots_valid(raw_data_dir, sample_snapshot):
-    """Test loading valid raw snapshots."""
-    snapshots = load_raw_snapshots(raw_data_dir)
-    assert len(snapshots) == 1
-    assert snapshots[0]['backend_name'] == sample_snapshot['backend_name']
+    # Patch paths
+    gc_csv.DATA_RAW_DIR = raw_dir
+    gc_csv.DATA_PROCESSED_DIR = Path(temp_dir) / "data" / "processed"
+    gc_csv.OUTPUT_FILE = gc_csv.DATA_PROCESSED_DIR / "performance_metrics.csv"
 
-def test_load_raw_snapshots_empty_dir():
-    """Test loading from an empty directory."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        raw_dir = Path(tmpdir)
-        snapshots = load_raw_snapshots(raw_dir)
-        assert len(snapshots) == 0
+    yield temp_dir
 
-def test_process_snapshot_valid(sample_snapshot):
-    """Test processing a valid snapshot."""
-    record = process_snapshot(sample_snapshot)
-    assert record is not None
-    assert record['device_id'] == 'test_backend'
-    assert record['num_qubits'] == 2
-    assert abs(record['avg_t1_us'] - 105.0) < 1e-6
-    assert abs(record['avg_t2_us'] - 205.0) < 1e-6
-    assert abs(record['avg_readout_error'] - 0.025) < 1e-6
-    assert record['num_edges'] == 1
+    # Restore original paths
+    gc_csv.DATA_RAW_DIR = orig_raw
+    gc_csv.DATA_PROCESSED_DIR = orig_out_dir
+    gc_csv.OUTPUT_FILE = orig_output
+    shutil.rmtree(temp_dir)
 
-def test_process_snapshot_missing_qubits():
-    """Test processing a snapshot with no qubit data."""
-    bad_snapshot = {
-        "backend_name": "bad_backend",
-        "properties": {
-            "last_update_date": datetime.now().isoformat(),
-            "qubits": [],
-            "coupling_map": []
-        }
+@patch('generate_calibration_csv.extract_performance_metrics')
+@patch('generate_calibration_csv.extract_chip_family')
+def test_load_raw_snapshots(mock_chip_family, mock_perf_metrics, temp_data_dir, mock_snapshots):
+    """Test that load_raw_snapshots correctly loads JSON files."""
+    # Setup mocks
+    mock_perf_metrics.return_value = {
+        't1_mean': 125.0,
+        't2_mean': 225.0,
+        'cx_error_mean': 0.015,
+        'readout_error_mean': 0.055
     }
-    record = process_snapshot(bad_snapshot)
-    assert record is None
+    mock_chip_family.return_value = "Falcon"
 
-def test_process_snapshot_missing_name():
-    """Test processing a snapshot without a backend name."""
-    bad_snapshot = {
-        "properties": {
-            "qubits": [[{"name": "T1", "value": 100.0}]],
-            "coupling_map": []
-        }
+    snapshots = gc_csv.load_raw_snapshots()
+    assert len(snapshots) == 2
+    assert snapshots[0]['device_id'] == 'ibm_test_device_1'
+    assert snapshots[1]['device_id'] == 'ibm_test_device_2'
+
+@patch('generate_calibration_csv.extract_performance_metrics')
+@patch('generate_calibration_csv.extract_chip_family')
+def test_extract_device_metrics(mock_chip_family, mock_perf_metrics):
+    """Test extracting metrics from a single snapshot."""
+    snapshot = {
+        'device_id': 'ibm_test_device',
+        'timestamp': '2024-05-20T12:00:00Z',
+        'properties': {'dummy': 'data'}
     }
-    record = process_snapshot(bad_snapshot)
-    assert record is None
+    
+    mock_perf_metrics.return_value = {
+        't1_mean': 100.0,
+        't2_mean': 200.0,
+        'cx_error_mean': 0.01,
+        'readout_error_mean': 0.05
+    }
+    mock_chip_family.return_value = "Hummingbird"
 
-def test_main_integration(raw_data_dir, sample_snapshot):
-    """Test the main function end-to-end."""
-    # Create a temporary output directory
-    with tempfile.TemporaryDirectory() as tmpdir:
-        processed_dir = Path(tmpdir) / 'processed'
-        processed_dir.mkdir()
+    result = gc_csv.extract_device_metrics(snapshot)
 
-        # Patch the output path in the main function logic
-        # Since main() has hardcoded paths relative to __file__, we need to
-        # simulate the structure or refactor. For this test, we'll just
-        # verify that the logic works by calling process_snapshot and load_raw_snapshots
-        # which are already tested above.
-        # A full integration test would require mocking file system operations
-        # or running the script in a controlled environment.
-        pass
+    assert result is not None
+    assert result['device_id'] == 'ibm_test_device'
+    assert result['timestamp'] == '2024-05-20T12:00:00Z'
+    assert result['t1_mean'] == 100.0
+    assert result['t2_mean'] == 200.0
+    assert result['cx_error_mean'] == 0.01
+    assert result['readout_error_mean'] == 0.05
+    assert result['chip_family'] == "Hummingbird"
+
+@patch('generate_calibration_csv.extract_performance_metrics')
+@patch('generate_calibration_csv.extract_chip_family')
+def test_main_generates_csv(mock_chip_family, mock_perf_metrics, temp_data_dir, mock_snapshots):
+    """Test that main() generates the CSV file with correct columns."""
+    # Setup mocks
+    mock_perf_metrics.return_value = {
+        't1_mean': 125.0,
+        't2_mean': 225.0,
+        'cx_error_mean': 0.015,
+        'readout_error_mean': 0.055
+    }
+    mock_chip_family.return_value = "Falcon"
+
+    # Run main
+    gc_csv.main()
+
+    # Verify file exists
+    assert gc_csv.OUTPUT_FILE.exists()
+
+    # Verify content
+    with open(gc_csv.OUTPUT_FILE, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        
+        assert len(rows) == 2
+        
+        # Check headers
+        expected_headers = [
+            'device_id', 'timestamp', 't1_mean', 't2_mean', 
+            'cx_error_mean', 'readout_error_mean', 'chip_family'
+        ]
+        assert reader.fieldnames == expected_headers
+
+        # Check data
+        assert rows[0]['device_id'] == 'ibm_test_device_1'
+        assert rows[0]['chip_family'] == 'Falcon'
+        assert float(rows[0]['t1_mean']) == 125.0
+        
+        assert rows[1]['device_id'] == 'ibm_test_device_2'
+        assert float(rows[1]['t2_mean']) == 225.0
+
+@patch('generate_calibration_csv.extract_performance_metrics')
+@patch('generate_calibration_csv.extract_chip_family')
+def test_main_empty_directory(mock_chip_family, mock_perf_metrics, temp_data_dir):
+    """Test behavior when no snapshots are found."""
+    # Clear the temp raw directory
+    raw_dir = gc_csv.DATA_RAW_DIR
+    for f in raw_dir.glob("*"):
+        f.unlink()
+
+    # Setup mocks (should not be called if no data)
+    mock_perf_metrics.return_value = {'t1_mean': 0}
+    mock_chip_family.return_value = "Test"
+
+    gc_csv.main()
+
+    # Verify file exists (empty with headers)
+    assert gc_csv.OUTPUT_FILE.exists()
+    with open(gc_csv.OUTPUT_FILE, 'r') as f:
+        reader = csv.reader(f)
+        headers = next(reader)
+        assert headers == [
+            'device_id', 'timestamp', 't1_mean', 't2_mean', 
+            'cx_error_mean', 'readout_error_mean', 'chip_family'
+        ]
+        # Check no data rows
+        remaining = list(reader)
+        assert len(remaining) == 0

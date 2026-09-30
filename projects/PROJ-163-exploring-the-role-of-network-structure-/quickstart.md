@@ -1,113 +1,89 @@
-# Quick Start Guide
+# Quickstart Guide: Exploring Network Structure in Superconducting Qubit Coupling
+
+This guide walks you through the execution of the full research pipeline, from data fetching to statistical analysis and validation.
 
 ## Prerequisites
 
-1. Python 3.11+ installed
-2. IBM Quantum account and API token
-3. Git repository cloned
+1. **IBM Quantum Account**: Ensure you have an active account and a valid API token.
+2. **Environment Variable**: Set your IBM Quantum token:
+ ```bash
+ export IBMQ_TOKEN="your_token_here"
+ ```
+3. **Dependencies**: Install required packages:
+ ```bash
+ pip install -r requirements.txt
+ ```
+ *Note: Ensure `scikit-learn` is installed as it is required for statistical analysis.*
 
-## Step 1: Setup Environment
+## Execution Steps
 
+Follow these steps in order to generate all research artifacts.
+
+### 1. Fetch Calibration Data
+
+Retrieve the latest calibration data for all accessible backends.
 ```bash
-# Create virtual environment
-python -m venv.venv
-source.venv/bin/activate # Windows:.venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
+python code/fetcher.py --save-snapshots
 ```
+*Output: Raw JSON files in `data/raw/`*
 
-## Step 2: Configure IBM Quantum Access
+### 2. Generate Performance Metrics
 
-Set your API token as an environment variable:
-
+Process raw snapshots into a standardized CSV.
 ```bash
-# Linux/Mac
-export IBMQX_TOKEN="your-token-here"
-
-# Windows PowerShell
-$env:IBMQX_TOKEN="your-token-here"
+python code/generate_calibration_csv.py
 ```
+*Output: `data/processed/performance_metrics.csv`*
 
-Alternatively, use `qiskit-ibm-runtime` login:
+### 3. Compute Graph Metrics
+
+Analyze the topology of qubit coupling maps.
 ```bash
-python -c "from qiskit_ibm_runtime import QiskitRuntimeService; QiskitRuntimeService.save_account(token='your-token')"
+python code/graph_builder.py --generate-metrics
 ```
+*Output: `data/processed/graph_metrics.csv`*
 
-## Step 3: Initialize Project Structure
+### 4. Compute Correlations
 
-```bash
-python code/setup_project.py
-```
-
-This creates:
-- `code/` - Source modules
-- `data/raw/` - Raw API responses
-- `data/processed/` - Cleaned metrics
-- `tests/` - Test suite
-- `figures/` - Plots
-- `state/` - Project metadata
-
-## Step 4: Run the Pipeline
-
-### Fetch Calibration Data (US1)
-```bash
-python code/fetcher.py
-```
-Outputs:
-- `data/raw/*.json` - Raw snapshots
-- `data/processed/raw_calibration.csv` - Device metrics
-
-### Compute Graph Metrics (US2)
-```bash
-python code/generate_graph_metrics_csv.py
-```
-Outputs:
-- `data/processed/graph_metrics.csv` - Topological descriptors
-
-### Run Statistical Analysis (US3)
+Perform statistical correlation analysis between topology and performance.
 ```bash
 python code/generate_correlation_results.py
 ```
-Outputs:
-- `data/processed/correlation_results.csv` - Correlation statistics
+*Output: `data/processed/correlation_results.csv`*
 
-### Generate Report
+### 5. Validate Correlation Results (T054)
+
+Validate the generated correlation results against the defined schema.
+```bash
+python code/validate_correlation_results_schema.py
+```
+*Expected Output: "Validation PASSED: All records conform to the schema."*
+
+### 6. Generate Visualizations
+
+Create scatter plots and heatmaps for significant correlations.
+```bash
+python code/viz.py
+```
+*Output: Figures in `figures/`*
+
+### 7. Generate Final Report
+
+Compile all results into the final markdown report.
 ```bash
 python code/generate_report.py
 ```
-Outputs:
-- `docs/report.md` - Final analysis report
-- `figures/*.png` - Visualizations
+*Output: `docs/report.md`*
 
-## Step 5: Validate Results
+## Verification
 
+To ensure data integrity, run the hygiene script:
 ```bash
-# Run tests
-pytest tests/ -v
-
-# Check code quality
-ruff check code/
-black --check code/
+python code/hygiene.py
 ```
 
 ## Troubleshooting
 
-### "No backends available"
-- Verify your IBM Quantum token is set correctly
-- Ensure your account has access to public backends
-- Check network connectivity
-
-### "Data freshness check failed"
-- IBM Quantum may have limited backend availability
-- Retry after some time; calibration data updates periodically
-
-### "Import errors"
-- Ensure virtual environment is activated
-- Re-run `pip install -r requirements.txt`
-
-## Next Steps
-
-- Review `docs/report.md` for analysis results
-- Explore `specs/` for detailed feature requirements
-- Read `research.md` for methodology details
+- **Missing Dependencies**: If you encounter `ModuleNotFoundError`, ensure `pip install -r requirements.txt` completed successfully. Specifically check for `scikit-learn`, `pandas`, `networkx`, and `jsonschema`.
+- **Invalid Token**: If API calls fail, verify your `IBMQ_TOKEN` environment variable.
+- **Empty Data**: If output files are empty, check that the fetcher successfully retrieved data from the IBM Quantum API.

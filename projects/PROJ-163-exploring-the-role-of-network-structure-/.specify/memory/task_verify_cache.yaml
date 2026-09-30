@@ -13,6 +13,29 @@ T016:
     \ in `data/raw/\u2026`, nor is there a `state/projects/...yaml` entry with a matching\
     \ SHA\u2011256 hash to verify. Consequently the required artifact (the saved raw\
     \ file and its hash verification) is missing."
+T020:
+  c: false
+  h: 731de308f1202c8db7526c8ad6996892e5a93df32921e6192200f5f8517abc2d
+  r: "The repository lacks the required output file `data/processed/historical_performance_metrics.csv`,\
+    \ and `code/fetcher.py` does not contain a complete implementation of `process_historical_data`\
+    \ (the file is truncated, contains a syntax error, and no such function is defined).\
+    \ Consequently the task\u2019s specification is not met."
+T025b:
+  c: false
+  h: aa3253ed972770bf5f14265f4876014a9de1d5d1cffd97a8cf88192506d8cfcb
+  r: "The required `data/processed/graph_metrics.csv` file does not exist, and the\
+    \ provided `code/graph_builder.py` snippet shows only helper functions without\
+    \ any command\u2011line handling or CSV\u2011writing logic for the `--generate-metrics`\
+    \ entry point. Consequently the task\u2019s core output and verification steps\
+    \ are missing."
+T028:
+  c: false
+  h: 2ca0d97739584575b3ec322fcc155ec24700e5244bfd36f878ec93133bd01fc9
+  r: "The required input files `data/processed/performance_metrics.csv` and `data/processed/graph_metrics.csv`\
+    \ are absent, so the function cannot be exercised. Moreover, the implementation\
+    \ contains a typo in the `pd.merge` call (`perdf=` instead of `left=`), which\
+    \ would raise an error even if the files existed. Both issues prevent the task\u2019\
+    s verification from succeeding."
 T043:
   c: false
   h: 12662b2d7caefa5c918b0b70c75ebd15cebc171ceab4ab2b9d7234f3dfe82f18
