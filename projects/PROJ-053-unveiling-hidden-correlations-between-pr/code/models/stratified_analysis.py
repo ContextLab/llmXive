@@ -1,10 +1,12 @@
 """
-Stratified Analysis by Alloy Type (US2 - T029)
+Stratified Analysis Module for User Story 2 (T030).
 
-Performs confounder sensitivity analysis by grouping processed data by 'alloy_type',
-calculating descriptive statistics for mechanical properties within each group,
-and assessing variance heterogeneity. This task consumes the processed CSV from
-T014/T015A and does NOT require the trained GPR model.
+This module performs per-group performance analysis of the GPR model based on
+categorical variables (specifically 'alloy_type') to identify potential
+confounding effects or performance disparities across different material classes.
+
+Outputs:
+    results/confounder_analysis.json: A JSON artifact containing per-group metrics.
 """
 
 import os
@@ -13,251 +15,292 @@ import json
 import logging
 import numpy as np
 import pandas as pd
+import pickle
 from typing import Dict, Any, List, Optional, Tuple
 
-# Import path utilities
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from config import (
-    get_processed_data_dir,
-    get_results_dir,
-    ensure_directories,
-    get_logger
-)
+# Import from local project structure
+from config import get_project_root, get_processed_data_dir, get_results_dir, get_models_dir, ensure_directories, get_logger
 from utils.logger import setup_logging
 
-# Constants
-PROCESSED_CSV_FILENAME = "processed_data.csv"
-STRATIFIED_RESULTS_FILENAME = "stratified_analysis.json"
-LOG_FILENAME = "stratified_analysis.log"
+# Ensure deterministic behavior
+np.random.seed(42)
 
-def load_processed_data(filepath: str) -> pd.DataFrame:
-    """
-    Load the preprocessed CSV file.
-    
-    Args:
-        filepath: Path to the processed CSV.
-        
-    Returns:
-        DataFrame with preprocessed data.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If required columns are missing.
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Processed data file not found: {filepath}")
-    
-    df = pd.read_csv(filepath)
-    
-    # Identify target columns (mechanical properties)
-    # Based on schema: yield_strength, ductility, (optional fatigue_life)
-    target_cols = [col for col in ['yield_strength', 'ductility', 'fatigue_life'] 
-                   if col in df.columns]
-    
-    if not target_cols:
-        raise ValueError("No target mechanical property columns found in processed data.")
-    
-    if 'alloy_type' not in df.columns:
-        raise ValueError("Column 'alloy_type' not found in processed data. "
-                         "Ensure one-hot encoding was not applied to drop this column entirely, "
-                         "or that a grouping key exists.")
-    
-    return df, target_cols
+def setup_logger(name: str) -> logging.Logger:
+    """Configure and return a logger for this module."""
+    return setup_logging(name, log_file="stratified_analysis.log")
 
-def calculate_group_stats(df: pd.DataFrame, group_col: str, target_cols: List[str]) -> Dict[str, Dict[str, Any]]:
+def load_processed_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Calculate descriptive statistics for each group (alloy type).
-    
-    Args:
-        df: DataFrame containing the data.
-        group_col: Name of the column to group by (e.g., 'alloy_type').
-        target_cols: List of target columns to analyze.
-        
+    Load the preprocessed train and test datasets.
+
     Returns:
-        Dictionary with statistics per group.
+        Tuple of (train_df, test_df)
     """
-    stats = {}
+    processed_dir = get_processed_data_dir()
+    train_path = os.path.join(processed_dir, "train.csv")
+    test_path = os.path.join(processed_dir, "test.csv")
+
+    if not os.path.exists(train_path):
+        raise FileNotFoundError(f"Train data not found at {train_path}. Run preprocessing first.")
+    if not os.path.exists(test_path):
+        raise FileNotFoundError(f"Test data not found at {test_path}. Run preprocessing first.")
+
+    train_df = pd.read_csv(train_path)
+    test_df = pd.read_csv(test_path)
+
+    logging.info(f"Loaded train data: {train_df.shape}, test data: {test_df.shape}")
+    return train_df, test_df
+
+def load_model() -> Any:
+    """
+    Load the trained GPR model.
+
+    Returns:
+        The trained model object.
+    """
+    models_dir = get_models_dir()
+    # Assuming the model is saved as 'gpr_model.pkl' based on standard pipeline conventions
+    model_path = os.path.join(models_dir, "gpr_model.pkl")
+
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model not found at {model_path}. Run training first.")
+
+    with open(model_path, 'rb') as f:
+        model = pickle.load(f)
+
+    logging.info(f"Loaded model from {model_path}")
+    return model
+
+def identify_group_column(df: pd.DataFrame) -> Optional[str]:
+    """
+    Identify the categorical column used for stratification.
+    Currently hard-coded to look for 'alloy_type' or similar encoded columns,
+    but since we one-hot encoded it, we need to check if the original column
+    was preserved or if we need to reconstruct it.
     
-    groups = df.groupby(group_col)
+    Note: In T016B-2, 'alloy_type' is one-hot encoded and the original column is dropped.
+    However, for stratified analysis, we typically need the original label.
     
-    for name, group in groups:
-        group_stats = {
-            "count": len(group),
-            "properties": {}
+    Strategy:
+    1. Check if 'alloy_type' exists (in case it wasn't dropped or was re-added).
+    2. If not, check for columns starting with 'is_' (the one-hot columns).
+    3. If found, reconstruct the original group labels by taking the argmax of the one-hot columns.
+    4. If neither, return None (no stratification possible).
+    """
+    if 'alloy_type' in df.columns:
+        return 'alloy_type'
+    
+    # Look for one-hot encoded columns
+    one_hot_cols = [c for c in df.columns if c.startswith('is_')]
+    if one_hot_cols:
+        # Reconstruct the group name
+        # We assume the column names are 'is_<type>', so we strip 'is_'
+        # We need to know the original mapping. For now, we'll use the column names as proxy groups
+        # or try to infer from the data.
+        # A robust way: if we have 'is_AlloyA', 'is_AlloyB', we can map rows to 'AlloyA', 'AlloyB'.
+        # Let's create a temporary column 'reconstructed_alloy_type'
+        group_map = {}
+        for col in one_hot_cols:
+            group_name = col.replace('is_', '')
+            group_map[col] = group_name
+        
+        # We will handle this reconstruction in calculate_group_stats
+        return 'RECONSTRUCTED_ONEHOT'
+    
+    return None
+
+def calculate_group_stats(
+    df: pd.DataFrame, 
+    y_true: np.ndarray, 
+    y_pred: np.ndarray, 
+    model: Any,
+    group_col: str
+) -> Dict[str, Dict[str, float]]:
+    """
+    Calculate performance metrics (R², RMSE, MAE) for each group.
+
+    Args:
+        df: The dataframe containing the group column and features.
+        y_true: True target values.
+        y_pred: Predicted target values.
+        model: The trained model (used for permutation importance if needed, though not strictly required for basic stats).
+        group_col: The column name containing group labels.
+
+    Returns:
+        Dictionary keyed by group name with metrics.
+    """
+    metrics = {}
+    
+    # Handle reconstructed one-hot case
+    if group_col == 'RECONSTRUCTED_ONEHOT':
+        one_hot_cols = [c for c in df.columns if c.startswith('is_')]
+        if not one_hot_cols:
+            return metrics
+        
+        # Reconstruct groups
+        reconstructed_groups = []
+        for idx, row in df.iterrows():
+            # Find which one-hot column is 1
+            group_name = None
+            for col in one_hot_cols:
+                if row[col] == 1:
+                    group_name = col.replace('is_', '')
+                    break
+            if group_name is None:
+                group_name = "Unknown"
+            reconstructed_groups.append(group_name)
+        
+        df = df.copy()
+        df['reconstructed_group'] = reconstructed_groups
+        group_col = 'reconstructed_group'
+
+    if group_col not in df.columns:
+        logging.warning(f"Group column '{group_col}' not found in dataframe. Skipping stratified analysis.")
+        return metrics
+
+    groups = df[group_col].unique()
+    
+    for group in groups:
+        mask = df[group_col] == group
+        y_true_group = y_true[mask]
+        y_pred_group = y_pred[mask]
+        
+        if len(y_true_group) == 0:
+            continue
+
+        # Calculate Metrics
+        # R²
+        ss_res = np.sum((y_true_group - y_pred_group) ** 2)
+        ss_tot = np.sum((y_true_group - np.mean(y_true_group)) ** 2)
+        r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
+        
+        # RMSE
+        rmse = np.sqrt(np.mean((y_true_group - y_pred_group) ** 2))
+        
+        # MAE
+        mae = np.mean(np.abs(y_true_group - y_pred_group))
+        
+        metrics[str(group)] = {
+            "count": int(len(y_true_group)),
+            "r2": float(r2),
+            "rmse": float(rmse),
+            "mae": float(mae)
         }
-        
-        for col in target_cols:
-            values = group[col].dropna()
-            if len(values) > 0:
-                group_stats["properties"][col] = {
-                    "mean": float(np.mean(values)),
-                    "std": float(np.std(values)),
-                    "min": float(np.min(values)),
-                    "max": float(np.max(values)),
-                    "median": float(np.median(values))
-                }
-            else:
-                group_stats["properties"][col] = {
-                    "mean": None,
-                    "std": None,
-                    "min": None,
-                    "max": None,
-                    "median": None
-                }
-        
-        stats[str(name)] = group_stats
-        
-    return stats
+        logging.info(f"Group '{group}': n={len(y_true_group)}, R²={r2:.4f}, RMSE={rmse:.4f}, MAE={mae:.4f}")
+    
+    return metrics
 
-def assess_variance_heterogeneity(df: pd.DataFrame, group_col: str, target_cols: List[str]) -> Dict[str, Any]:
+def assess_variance_heterogeneity(metrics: Dict[str, Dict[str, float]]) -> Dict[str, Any]:
     """
-    Assess if variance in mechanical properties differs significantly between alloy types.
-    Uses Levene's test for equality of variances.
-    
-    Args:
-        df: DataFrame containing the data.
-        group_col: Name of the grouping column.
-        target_cols: List of target columns to test.
-        
-    Returns:
-        Dictionary with test results.
+    Assess if variance in errors differs significantly between groups.
+    Simple check: Compare RMSE across groups.
     """
-    results = {}
-    groups = df.groupby(group_col)
-    group_names = list(groups.groups.keys())
+    if not metrics:
+        return {"status": "no_data", "details": "No groups found."}
     
-    if len(group_names) < 2:
-        return {"status": "insufficient_groups", "message": "Need at least 2 groups for variance test"}
+    rmse_values = [m["rmse"] for m in metrics.values()]
+    if len(rmse_values) < 2:
+        return {"status": "insufficient_groups", "details": "Less than 2 groups to compare."}
     
-    try:
-        from scipy import stats as scipy_stats
-        
-        for col in target_cols:
-            # Extract arrays for each group
-            arrays = [group[col].dropna().values for _, group in groups]
-            arrays = [arr for arr in arrays if len(arr) > 0]
-            
-            if len(arrays) < 2:
-                results[col] = {"status": "insufficient_data", "message": "Not enough data points across groups"}
-                continue
-            
-            # Levene's test (robust to non-normality)
-            statistic, p_value = scipy_stats.levene(*arrays, center='median')
-            
-            results[col] = {
-                "statistic": float(statistic),
-                "p_value": float(p_value),
-                "significant": p_value < 0.05,
-                "interpretation": "Variance differs significantly" if p_value < 0.05 else "Variances are homogeneous"
-            }
-            
-    except ImportError:
-        logging.warning("scipy not available. Skipping variance heterogeneity test.")
-        results = {"status": "skipped", "message": "scipy not installed"}
-        
-    return results
-
-def run_stratified_analysis(output_dir: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Main function to run the full stratified analysis pipeline.
+    max_rmse = max(rmse_values)
+    min_rmse = min(rmse_values)
+    ratio = max_rmse / min_rmse if min_rmse > 0 else float('inf')
     
-    Args:
-        output_dir: Directory to save results. If None, uses default from config.
-        
-    Returns:
-        Dictionary containing the analysis results.
-    """
-    # Setup logging
-    log_dir = os.path.dirname(output_dir) if output_dir else None
-    if not log_dir:
-        from config import get_logs_dir
-        log_dir = get_logs_dir()
-    ensure_directories(log_dir)
+    status = "high_heterogeneity" if ratio > 2.0 else "low_heterogeneity"
     
-    logger = setup_logging(LOG_FILENAME, log_dir)
-    logger.info("Starting Stratified Analysis by Alloy Type (T029)")
-    
-    # Determine paths
-    if output_dir is None:
-        processed_dir = get_processed_data_dir()
-        results_dir = get_results_dir()
-    else:
-        processed_dir = os.path.dirname(output_dir)
-        results_dir = output_dir
-    
-    ensure_directories(results_dir)
-    
-    input_path = os.path.join(processed_dir, PROCESSED_CSV_FILENAME)
-    output_path = os.path.join(results_dir, STRATIFIED_RESULTS_FILENAME)
-    
-    logger.info(f"Loading processed data from: {input_path}")
-    
-    try:
-        df, target_cols = load_processed_data(input_path)
-        logger.info(f"Loaded {len(df)} rows. Target columns: {target_cols}")
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(f"Failed to load data: {e}")
-        raise
-    
-    # Check if we have enough data per group
-    group_counts = df['alloy_type'].value_counts()
-    logger.info(f"Group counts: {group_counts.to_dict()}")
-    
-    if group_counts.min() < 5:
-        logger.warning("Some groups have fewer than 5 samples. Statistical significance may be limited.")
-    
-    # Calculate group statistics
-    logger.info("Calculating group statistics...")
-    group_stats = calculate_group_stats(df, 'alloy_type', target_cols)
-    
-    # Assess variance heterogeneity
-    logger.info("Assessing variance heterogeneity...")
-    variance_test_results = assess_variance_heterogeneity(df, 'alloy_type', target_cols)
-    
-    # Compile results
-    analysis_results = {
-        "total_samples": len(df),
-        "groups_analyzed": list(group_counts.index),
-        "group_counts": group_counts.to_dict(),
-        "statistics_by_group": group_stats,
-        "variance_heterogeneity_test": variance_test_results,
-        "conclusion": ""
+    return {
+        "status": status,
+        "max_rmse": max_rmse,
+        "min_rmse": min_rmse,
+        "ratio": ratio,
+        "interpretation": f"RMSE varies by a factor of {ratio:.2f} across groups."
     }
+
+def run_stratified_analysis() -> Dict[str, Any]:
+    """
+    Main orchestration function for T030.
     
-    # Generate conclusion
-    if variance_test_results and "status" not in variance_test_results:
-        significant_vars = [col for col, res in variance_test_results.items() 
-                          if res.get("significant", False)]
-        if significant_vars:
-            analysis_results["conclusion"] = (
-                f"Significant variance heterogeneity found for: {significant_vars}. "
-                "This suggests 'alloy_type' is a confounder that affects the spread of mechanical properties."
-            )
+    1. Loads train/test data.
+    2. Loads the trained model.
+    3. Predicts on test set.
+    4. Identifies group column.
+    5. Calculates per-group metrics.
+    6. Writes results to results/confounder_analysis.json.
+    """
+    logger = setup_logger("stratified_analysis")
+    
+    try:
+        # Load Data
+        train_df, test_df = load_processed_data()
+        model = load_model()
+        
+        # Identify Target Columns
+        # We need to know which column is the target. 
+        # Based on T016A-2, targets are yield_strength and ductility.
+        # We assume the model was trained on a specific target (usually the first active one or a combined one).
+        # For this analysis, we look for standard target columns in the processed data.
+        # If the model predicts multiple targets, we need to handle that. 
+        # Assuming single target for now (yield_strength) as per typical GPR setup unless specified otherwise.
+        
+        # Heuristic: Find columns that look like targets (not features, not group)
+        possible_targets = [c for c in test_df.columns if c in ['yield_strength', 'ductility', 'fatigue_life']]
+        if not possible_targets:
+            raise ValueError("Could not identify target column in processed test data.")
+        
+        target_col = possible_targets[0] # Default to first found
+        logging.info(f"Using target column: {target_col}")
+        
+        X_test = test_df.drop(columns=[target_col])
+        y_true = test_df[target_col].values
+        
+        # Predict
+        y_pred = model.predict(X_test)
+        
+        # Ensure y_pred is 1D
+        if y_pred.ndim > 1:
+            y_pred = y_pred.ravel()
+        
+        # Identify Group Column
+        group_col = identify_group_column(test_df)
+        
+        if group_col is None:
+            logging.warning("No stratification column found. Creating empty analysis.")
+            results = {
+                "status": "no_stratification_column",
+                "message": "Could not identify 'alloy_type' or one-hot encoded groups in test data.",
+                "groups": {}
+            }
         else:
-            analysis_results["conclusion"] = (
-                "No significant variance heterogeneity detected. "
-                "The spread of mechanical properties appears consistent across alloy types."
-            )
-    else:
-        analysis_results["conclusion"] = "Variance analysis could not be completed."
-    
-    # Save results
-    logger.info(f"Saving results to: {output_path}")
-    with open(output_path, 'w') as f:
-        json.dump(analysis_results, f, indent=2)
-    
-    logger.info("Stratified analysis completed successfully.")
-    return analysis_results
+            # Calculate Stats
+            group_metrics = calculate_group_stats(test_df, y_true, y_pred, model, group_col)
+            
+            # Assess Heterogeneity
+            heterogeneity = assess_variance_heterogeneity(group_metrics)
+            
+            results = {
+                "target_column": target_col,
+                "group_column": group_col,
+                "heterogeneity_assessment": heterogeneity,
+                "groups": group_metrics
+            }
+        
+        # Save Results
+        results_dir = get_results_dir()
+        output_path = os.path.join(results_dir, "confounder_analysis.json")
+        
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        logging.info(f"Stratified analysis complete. Results saved to {output_path}")
+        return results
+
+    except Exception as e:
+        logging.error(f"Error during stratified analysis: {e}", exc_info=True)
+        raise
 
 def main():
     """Entry point for the script."""
-    try:
-        results = run_stratified_analysis()
-        print(json.dumps(results, indent=2))
-        sys.exit(0)
-    except Exception as e:
-        logging.error(f"Stratified analysis failed: {e}", exc_info=True)
-        sys.exit(1)
+    run_stratified_analysis()
 
 if __name__ == "__main__":
     main()

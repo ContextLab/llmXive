@@ -20,6 +20,9 @@ def setup_logger(name: str) -> logging.Logger:
 
 def load_schema(schema_path: str) -> dict:
     """Load the YAML schema definition."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
@@ -27,7 +30,7 @@ def load_schema(schema_path: str) -> dict:
 def validate_csv_schema(csv_path: str, schema: dict) -> bool:
     """
     Validate that the CSV file matches the schema.
-    Checks for required columns and numeric data types.
+    Checks for required columns exist and contain numeric data.
     """
     logger = logging.getLogger("schema_validator")
     logger.info(f"Validating CSV: {csv_path} against schema")
@@ -56,15 +59,15 @@ def validate_csv_schema(csv_path: str, schema: dict) -> bool:
             if prop.get('type') == 'number':
                 # Attempt to parse as float, handle scientific notation
                 try:
-                    pd.to_numeric(df[col])
-                except (ValueError, TypeError):
-                    raise ValueError(f"Column '{col}' contains non-numeric data")
+                    pd.to_numeric(df[col], errors='raise')
+                except (ValueError, TypeError) as e:
+                    raise ValueError(f"Column '{col}' contains non-numeric data: {e}")
 
     logger.info("Schema validation passed")
     return True
 
 
-def validate_and_report(csv_path: str, schema_path: str) -> None:
+def validate_and_report(csv_path: str, schema_path: str) -> bool:
     """Main validation entry point."""
     logger = setup_logger("schema_validation")
     ensure_directories()
@@ -73,9 +76,10 @@ def validate_and_report(csv_path: str, schema_path: str) -> None:
         schema = load_schema(schema_path)
         if validate_csv_schema(csv_path, schema):
             logger.info("Validation successful: CSV conforms to schema.")
+            return True
         else:
             logger.error("Validation failed: Schema mismatch detected.")
-            sys.exit(1)
+            return False
     except FileNotFoundError as fnf:
         logger.error(f"File not found: {fnf}")
         raise
@@ -94,12 +98,12 @@ def main():
     schema_path = os.path.join(contracts_dir, 'dataset.schema.yaml')
     csv_path = os.path.join(raw_dir, 'am_raw_data.csv')
 
+    logger = setup_logger("schema_validation")
+    ensure_directories()
+
     if not os.path.exists(csv_path):
-        # If file doesn't exist, we might be in a setup phase, but for T005/T006
-        # we just ensure the validator logic is sound.
-        # However, the task implies we must be able to run it.
-        # We will attempt to run it; if the file is missing, it fails loudly.
-        pass
+        logger.error(f"CSV file not found at {csv_path}. Please ensure the raw data is placed manually.")
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
 
     validate_and_report(csv_path, schema_path)
 

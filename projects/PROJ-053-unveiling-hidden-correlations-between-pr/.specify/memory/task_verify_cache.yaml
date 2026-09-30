@@ -1,9 +1,3 @@
-T006:
-  c: false
-  h: 0f0af30676194490f23836a4f9a0ec87697bba1d6f11c11ce7669ac4a6eea1ab
-  r: The `schema_validator.py` file is truncated (e.g., `if not os.path.exist` line
-    is incomplete) and would raise a syntax error, and the required `contracts/dataset.schema.yaml`
-    file is missing, so the validator cannot actually perform the specified validation.
 T022:
   c: false
   h: f2075164f7ebdae0f2b4511124f9bff4fe77365d6ab88b9af9e5e3997f649854
@@ -49,3 +43,9 @@ T051:
     \ and a third test (truncated in the preview) intended to verify the error\u2011\
     message content. This matches the task\u2019s requirement to test both the exception\
     \ and its message."
+T055:
+  c: false
+  h: 5b6fb6626fb7055cd5da181e6aa980bd75e8519c7687dd74899ed358c0c63f47
+  r: The `code/models/residual_analysis.py` file is present, but the required output
+    file `results/residual_analysis.json` does not exist, so the deliverable and verification
+    condition are not satisfied.
