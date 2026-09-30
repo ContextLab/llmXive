@@ -1,83 +1,79 @@
 """
-Schema definitions for ReactionRecord.
+Schema definition for ReactionRecord.
 
-This module defines the data structure for storing parsed reaction data,
-including reactants, products, and metadata required for topological analysis.
+This class represents a single reaction instance from the USPTO-50k dataset,
+filtered for Electrophilic Aromatic Substitution (EAS) reactions.
 """
 from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
-from rdkit import Chem
+from typing import Optional, List, Dict, Any
+from enum import Enum
 
+class ReactionType(Enum):
+    """Enumeration of supported reaction types."""
+    EAS = "EAS"
+    OTHER = "OTHER"
 
 @dataclass
 class ReactionRecord:
     """
-    Represents a single reaction record from the USPTO-50k dataset.
+    Data contract for a single reaction record.
 
     Attributes:
-        reaction_id: Unique identifier for the reaction (e.g., from USPTO).
-        smiles_reactants: List of SMILES strings for reactant molecules.
-        smiles_products: List of SMILES strings for product molecules.
-        reaction_smiles: The full reaction SMILES string (reactants >> products).
-        metadata: Additional metadata from the source (e.g., conditions, citations).
-        reactant_mols: Parsed RDKit Mol objects for reactants (computed on demand).
-        product_mols: Parsed RDKit Mol objects for products (computed on demand).
-        is_eas: Boolean flag indicating if this reaction is classified as Electrophilic Aromatic Substitution.
-        error_message: Optional error message if parsing or validation failed.
+        reaction_id: Unique identifier for the reaction (e.g., from USPTO dataset).
+        smiles_reactants: SMILES string of the reactant molecules.
+        smiles_products: SMILES string of the product molecules.
+        smiles_reagent: SMILES string of the reagent (if applicable).
+        reaction_type: The classified type of reaction (e.g., EAS).
+        metadata: Dictionary for additional raw data (e.g., yield, conditions).
+        is_valid: Boolean flag indicating if the SMILES parsing was successful.
+        error_message: Optional string describing parsing/validation errors.
     """
     reaction_id: str
-    smiles_reactants: List[str]
-    smiles_products: List[str]
-    reaction_smiles: str
+    smiles_reactants: str
+    smiles_products: str
+    smiles_reagent: Optional[str] = None
+    reaction_type: ReactionType = ReactionType.OTHER
     metadata: Dict[str, Any] = field(default_factory=dict)
-    reactant_mols: List[Chem.Mol] = field(default_factory=list)
-    product_mols: List[Chem.Mol] = field(default_factory=list)
-    is_eas: bool = False
+    is_valid: bool = True
     error_message: Optional[str] = None
 
-    def validate(self) -> bool:
-        """
-        Validates the record by attempting to parse SMILES into RDKit Mol objects.
-        
-        Returns:
-            bool: True if all SMILES parse successfully, False otherwise.
-        """
-        if not self.smiles_reactants or not self.smiles_products:
-            self.error_message = "Missing reactant or product SMILES"
-            return False
-
-        self.reactant_mols = []
-        self.product_mols = []
-
-        for smi in self.smiles_reactants:
-            mol = Chem.MolFromSmiles(smi)
-            if mol is None:
-                self.error_message = f"Failed to parse reactant SMILES: {smi}"
-                return False
-            self.reactant_mols.append(mol)
-
-        for smi in self.smiles_products:
-            mol = Chem.MolFromSmiles(smi)
-            if mol is None:
-                self.error_message = f"Failed to parse product SMILES: {smi}"
-                return False
-            self.product_mols.append(mol)
-
-        return True
+    def __post_init__(self):
+        """Validate basic constraints upon initialization."""
+        if not self.reaction_id:
+            raise ValueError("reaction_id cannot be empty")
+        if not self.smiles_reactants:
+            self.is_valid = False
+            self.error_message = "Missing reactant SMILES"
 
     def to_dict(self) -> Dict[str, Any]:
-        """
-        Converts the record to a dictionary for serialization.
-        
-        Returns:
-            dict: Dictionary representation of the record.
-        """
+        """Convert the record to a dictionary for serialization."""
         return {
             "reaction_id": self.reaction_id,
             "smiles_reactants": self.smiles_reactants,
             "smiles_products": self.smiles_products,
-            "reaction_smiles": self.reaction_smiles,
+            "smiles_reagent": self.smiles_reagent,
+            "reaction_type": self.reaction_type.value,
             "metadata": self.metadata,
-            "is_eas": self.is_eas,
+            "is_valid": self.is_valid,
             "error_message": self.error_message
         }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ReactionRecord":
+        """Create a ReactionRecord from a dictionary."""
+        reaction_type_str = data.get("reaction_type", "OTHER")
+        try:
+            reaction_type = ReactionType(reaction_type_str)
+        except ValueError:
+            reaction_type = ReactionType.OTHER
+
+        return cls(
+            reaction_id=data.get("reaction_id", ""),
+            smiles_reactants=data.get("smiles_reactants", ""),
+            smiles_products=data.get("smiles_products", ""),
+            smiles_reagent=data.get("smiles_reagent"),
+            reaction_type=reaction_type,
+            metadata=data.get("metadata", {}),
+            is_valid=data.get("is_valid", True),
+            error_message=data.get("error_message")
+        )

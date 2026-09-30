@@ -3,8 +3,3 @@
   source_id: Wilcoxon signed-rank test
   url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
   value: '0.05'
-'|loop multi run seed training':
-  quote: https://orcid.org/0009-0004-8154-3345
-  source_id: '2603.28921'
-  url: https://arxiv.org/abs/2603.28921
-  value: '5'

@@ -1,4 +1,18 @@
-# This file allows running `ruff check` without a pyproject.toml if desired,
-# though the configuration is primarily in pyproject.toml.
-# It extends the main config for any specific overrides if needed.
-extend = "pyproject.toml"
+# Ruff configuration file for PROJ-083
+# This file extends pyproject.toml settings if needed, or serves as the primary config
+# for environments where pyproject.toml is not detected.
+
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E", "W", "F", "I", "B", "C4", "UP", "N", "A", "C90"
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[lint.isort]
+known-first-party = ["code", "contracts", "tests"]

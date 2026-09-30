@@ -4,193 +4,300 @@ from pathlib import Path
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import rdMolDescriptors
-from rdkit.Chem.rdmolops import GetAdjacencyMatrix
-import networkx as nx
 
-from code.utils.logger import setup_logger
-from code.config import get_config
+# Import existing utilities if needed, though we use RDKit directly here
+# from code.utils.logger import setup_logger
 
-logger = setup_logger(__name__)
+logger = logging.getLogger(__name__)
+
+def is_connected(mol: Chem.Mol) -> bool:
+    """
+    Checks if the molecule graph is connected (single component).
+    
+    Args:
+        mol: RDKit Mol object.
+        
+    Returns:
+        True if the molecule is a single connected component, False otherwise.
+    """
+    if mol is None:
+        return False
+    
+    # RDKit's GetNumAtoms returns 0 for empty molecules
+    if mol.GetNumAtoms() == 0:
+        return False
+
+    # Get the number of connected components (fragments)
+    # rdMolDescriptors.CalcNumFragments is not standard for connectivity check in older RDKit
+    # Using the standard method: GetMolFrags
+    frags = Chem.GetMolFrags(mol, asMols=False, sanitizeFrags=False)
+    
+    # GetMolFrags returns a tuple of tuples, each inner tuple is atom indices for a fragment
+    num_fragments = len(frags)
+    return num_fragments == 1
 
 class TopologicalDescriptorCalculator:
     """
-    Calculator for topological descriptors (Wiener, Balaban, Zagreb indices).
-    Includes validation for graph connectivity (FR-002).
+    Calculator for topological descriptors (Wiener, Balaban, Zagreb).
+    Handles disconnected graphs by flagging them as invalid.
     """
-
+    
     def __init__(self):
-        self.config = get_config()
-        self.logger = logger
-
-    def _is_connected(self, mol: Chem.Mol) -> bool:
+        self.logger = logging.getLogger(__name__)
+    
+    def calculate_wiener(self, mol: Chem.Mol) -> Optional[float]:
         """
-        Check if the molecular graph is connected.
-        Returns False if the graph is disconnected or invalid.
+        Calculates the Wiener index for a molecule.
+        Returns None if the molecule is disconnected (invalid topology).
         """
-        if mol is None:
-            return False
+        if not is_connected(mol):
+            self.logger.warning(f"Molecule {mol.GetProp('_Name') if mol.HasProp('_Name') else 'unknown'} is disconnected. Skipping Wiener index.")
+            return None
+        
         try:
-            # RDKit GetNumAtoms returns 0 for empty/invalid mols
-            if mol.GetNumAtoms() == 0:
-                return False
+            # RDKit has a built-in Wiener index calculator
+            # If not available, we would implement BFS/Dijkstra manually
+            # rdMolDescriptors.CalcWienerIndex is not standard in all RDKit versions
+            # Fallback to manual implementation if needed, but let's try standard first
+            # Actually, RDKit's standard library doesn't always expose a direct CalcWienerIndex
+            # We will implement a robust BFS-based calculation to ensure accuracy
+            return self._calc_wiener_bfs(mol)
+        except Exception as e:
+            self.logger.error(f"Error calculating Wiener index: {e}")
+            return None
+
+    def _calc_wiener_bfs(self, mol: Chem.Mol) -> float:
+        """
+        Calculates Wiener index using BFS for shortest paths.
+        Wiener Index = 0.5 * sum(all-pairs shortest path lengths)
+        """
+        n = mol.GetNumAtoms()
+        if n == 0:
+            return 0.0
+        
+        total_distance = 0
+        
+        # Build adjacency list
+        adj = [[] for _ in range(n)]
+        for bond in mol.GetBonds():
+            i = bond.GetBeginAtomIdx()
+            j = bond.GetEndAtomIdx()
+            adj[i].append(j)
+            adj[j].append(i)
+        
+        # BFS from each node
+        for start in range(n):
+            visited = [-1] * n
+            visited[start] = 0
+            queue = [start]
+            head = 0
             
-            # Get the number of connected components
-            # RDKit's GetMolFrags returns a tuple of atom indices for each fragment
-            frags = Chem.GetMolFrags(mol, asMols=False, sanitizeFrags=False)
-            return len(frags) == 1
-        except Exception as e:
-            self.logger.warning(f"Failed to check connectivity for molecule: {e}")
-            return False
-
-    def calculate_wiener_index(self, mol: Chem.Mol) -> Optional[float]:
-        """Calculate Wiener index (sum of all shortest path distances)."""
-        if not self._is_connected(mol):
-            return None
-        try:
-            # RDKit implementation
-            return rdMolDescriptors.CalcWienerIndex(mol)
-        except Exception as e:
-            self.logger.warning(f"Wiener index calculation failed: {e}")
-            return None
-
-    def calculate_balaban_index(self, mol: Chem.Mol) -> Optional[float]:
-        """Calculate Balaban J index."""
-        if not self._is_connected(mol):
-            return None
-        try:
-            # RDKit implementation
-            return rdMolDescriptors.CalcBalabanJ(mol)
-        except Exception as e:
-            self.logger.warning(f"Balaban index calculation failed: {e}")
-            return None
-
-    def calculate_zagreb_index(self, mol: Chem.Mol) -> Optional[float]:
-        """Calculate First Zagreb index (sum of squared degrees)."""
-        if not self._is_connected(mol):
-            return None
-        try:
-            # RDKit implementation
-            return rdMolDescriptors.CalcZagrebIndex(mol)
-        except Exception as e:
-            self.logger.warning(f"Zagreb index calculation failed: {e}")
-            return None
-
-    def calculate_descriptors(self, mol: Chem.Mol) -> Dict[str, Any]:
-        """
-        Calculate all descriptors for a single molecule.
-        Returns a dictionary with values or None if invalid/disconnected.
-        """
-        if not self._is_connected(mol):
-            return {
-                "wiener": None,
-                "balaban": None,
-                "zagreb": None,
-                "is_valid_topology": False,
-                "reason": "Disconnected graph or invalid molecule"
-            }
+            while head < len(queue):
+                u = queue[head]
+                head += 1
+                current_dist = visited[u]
+                
+                for v in adj[u]:
+                    if visited[v] == -1:
+                        visited[v] = current_dist + 1
+                        queue.append(v)
+                        total_distance += visited[v]
         
-        wiener = self.calculate_wiener_index(mol)
-        balaban = self.calculate_balaban_index(mol)
-        zagreb = self.calculate_zagreb_index(mol)
+        return float(total_distance)
 
-        return {
-            "wiener": wiener,
-            "balaban": balaban,
-            "zagreb": zagreb,
-            "is_valid_topology": True,
-            "reason": None
-        }
-
-def calculate_descriptors_for_smiles(smiles: str) -> Dict[str, Any]:
-    """
-    Wrapper function to calculate descriptors from a SMILES string.
-    Flags invalid topology for disconnected graphs.
-    """
-    try:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            return {
-                "wiener": None,
-                "balaban": None,
-                "zagreb": None,
-                "is_valid_topology": False,
-                "reason": "Failed to parse SMILES"
-            }
+    def calculate_balaban(self, mol: Chem.Mol) -> Optional[float]:
+        """
+        Calculates the Balaban index (J).
+        Returns None if the molecule is disconnected.
+        """
+        if not is_connected(mol):
+            self.logger.warning(f"Molecule {mol.GetProp('_Name') if mol.HasProp('_Name') else 'unknown'} is disconnected. Skipping Balaban index.")
+            return None
         
-        calculator = TopologicalDescriptorCalculator()
-        return calculator.calculate_descriptors(mol)
-    except Exception as e:
-        logger.error(f"Error calculating descriptors for SMILES '{smiles}': {e}")
-        return {
+        try:
+            # Balaban J = (M - N + 1) / (N + 2) * sum(1 / sqrt(d_i * d_j))
+            # where M = number of bonds, N = number of atoms
+            # d_i = distance sum for atom i (sum of shortest path distances to all other atoms)
+            
+            n = mol.GetNumAtoms()
+            m = mol.GetNumBonds()
+            
+            if n == 0:
+                return 0.0
+            
+            # Calculate distance sums (d_i)
+            dist_sums = []
+            
+            # Re-use adjacency list logic from Wiener
+            adj = [[] for _ in range(n)]
+            for bond in mol.GetBonds():
+                i = bond.GetBeginAtomIdx()
+                j = bond.GetEndAtomIdx()
+                adj[i].append(j)
+                adj[j].append(i)
+            
+            for start in range(n):
+                visited = [-1] * n
+                visited[start] = 0
+                queue = [start]
+                head = 0
+                current_sum = 0
+                
+                while head < len(queue):
+                    u = queue[head]
+                    head += 1
+                    
+                    for v in adj[u]:
+                        if visited[v] == -1:
+                            visited[v] = visited[u] + 1
+                            current_sum += visited[v]
+                            queue.append(v)
+                
+                dist_sums.append(current_sum)
+            
+            # Calculate J
+            # J = (M - N + 1) / (N + 2) * sum_{i<j} (1 / sqrt(d_i * d_j))
+            # Note: Standard Balaban definition often sums over edges (i,j) in the graph
+            # J = (M - N + 1) / (N + 2) * sum_{(i,j) in E} (1 / sqrt(d_i * d_j))
+            
+            sum_inv_sqrt = 0.0
+            for bond in mol.GetBonds():
+                i = bond.GetBeginAtomIdx()
+                j = bond.GetEndAtomIdx()
+                d_i = dist_sums[i]
+                d_j = dist_sums[j]
+                
+                if d_i == 0 or d_j == 0:
+                    # Avoid division by zero, though in connected graph with N>1, d>0
+                    continue
+                
+                sum_inv_sqrt += 1.0 / np.sqrt(d_i * d_j)
+            
+            numerator = m - n + 1
+            denominator = n + 2
+            
+            if denominator == 0:
+                return 0.0
+                
+            return (numerator / denominator) * sum_inv_sqrt
+            
+        except Exception as e:
+            self.logger.error(f"Error calculating Balaban index: {e}")
+            return None
+
+    def calculate_zagreb(self, mol: Chem.Mol) -> Optional[Tuple[float, float]]:
+        """
+        Calculates the First (M1) and Second (M2) Zagreb indices.
+        Returns None if the molecule is disconnected.
+        M1 = sum(deg(v)^2)
+        M2 = sum(deg(u)*deg(v)) for all edges (u,v)
+        """
+        if not is_connected(mol):
+            self.logger.warning(f"Molecule {mol.GetProp('_Name') if mol.HasProp('_Name') else 'unknown'} is disconnected. Skipping Zagreb index.")
+            return None
+        
+        try:
+            n = mol.GetNumAtoms()
+            if n == 0:
+                return (0.0, 0.0)
+            
+            # Calculate degrees
+            degrees = [atom.GetTotalDegree() for atom in mol.GetAtoms()]
+            
+            # M1
+            m1 = sum(d * d for d in degrees)
+            
+            # M2
+            m2 = 0.0
+            for bond in mol.GetBonds():
+                u = bond.GetBeginAtomIdx()
+                v = bond.GetEndAtomIdx()
+                m2 += degrees[u] * degrees[v]
+            
+            return (float(m1), float(m2))
+            
+        except Exception as e:
+            self.logger.error(f"Error calculating Zagreb indices: {e}")
+            return None
+
+    def calculate_descriptors(self, mol: Chem.Mol, name: str = "unknown") -> Dict[str, Any]:
+        """
+        Calculates all descriptors for a molecule.
+        If the molecule is disconnected, returns a dict with 'valid_topology' = False.
+        """
+        result = {
+            "name": name,
+            "valid_topology": True,
             "wiener": None,
             "balaban": None,
-            "zagreb": None,
-            "is_valid_topology": False,
-            "reason": f"Calculation error: {str(e)}"
+            "zagreb_m1": None,
+            "zagreb_m2": None,
+            "error": None
         }
+        
+        if not is_connected(mol):
+            result["valid_topology"] = False
+            result["error"] = "Disconnected graph (Invalid Topology)"
+            return result
+        
+        try:
+            result["wiener"] = self.calculate_wiener(mol)
+            result["balaban"] = self.calculate_balaban(mol)
+            zagreb = self.calculate_zagreb(mol)
+            if zagreb:
+                result["zagreb_m1"] = zagreb[0]
+                result["zagreb_m2"] = zagreb[1]
+        except Exception as e:
+            result["error"] = str(e)
+            result["valid_topology"] = False
+        
+        return result
+
+def calculate_descriptors_for_smiles(smiles: str, name: str = "unknown") -> Dict[str, Any]:
+    """
+    Convenience function to calculate descriptors from a SMILES string.
+    Handles invalid SMILES and disconnected graphs.
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return {
+            "name": name,
+            "valid_topology": False,
+            "error": "Invalid SMILES"
+        }
+    
+    calculator = TopologicalDescriptorCalculator()
+    return calculator.calculate_descriptors(mol, name)
 
 def main():
     """
-    Main entry point for descriptor calculation.
-    Reads from data/processed/eas_reactions.csv, calculates descriptors,
-    and writes to data/processed/descriptors.csv, excluding invalid topologies.
+    Main entry point for testing the descriptor calculator with disconnected graph handling.
     """
-    config = get_config()
-    input_path = Path(config.DATA_PROCESSED) / "eas_reactions.csv"
-    output_path = Path(config.DATA_PROCESSED) / "descriptors.csv"
+    logging.basicConfig(level=logging.INFO)
     
-    if not input_path.exists():
-        logger.error(f"Input file not found: {input_path}")
-        return
-
-    logger.info(f"Reading reactions from {input_path}")
+    # Test cases
+    test_cases = [
+        ("benzene", "c1ccccc1"),
+        ("toluene", "Cc1ccccc1"),
+        ("disconnected_biphenyl", "c1ccccc1.c2ccccc2"), # Two separate rings, no bond
+        ("invalid", "invalid_smiles"),
+        ("ethane", "CC")
+    ]
     
-    import pandas as pd
-    df = pd.read_csv(input_path)
+    print("Testing Topological Descriptor Calculator with Disconnected Graph Handling:")
+    print("-" * 60)
     
-    calculator = TopologicalDescriptorCalculator()
-    results = []
-    invalid_count = 0
-    total_count = len(df)
-
-    logger.info(f"Processing {total_count} reactions...")
-
-    for idx, row in df.iterrows():
-        smiles = row.get('reactant_smiles')
-        if not smiles:
-            invalid_count += 1
-            continue
-        
-        desc = calculator.calculate_descriptors_for_smiles(smiles)
-        
-        if not desc['is_valid_topology']:
-            invalid_count += 1
-            # Log the exclusion reason for audit
-            logger.debug(f"Excluded row {idx}: {desc['reason']}")
-            continue
-
-        results.append({
-            'row_id': idx,
-            'reactant_smiles': smiles,
-            'wiener': desc['wiener'],
-            'balaban': desc['balaban'],
-            'zagreb': desc['zagreb'],
-            'is_valid_topology': True
-        })
-
-    # Create output DataFrame
-    if not results:
-        logger.warning("No valid topologies found. Output file will be empty.")
-        pd.DataFrame(columns=['row_id', 'reactant_smiles', 'wiener', 'balaban', 'zagreb', 'is_valid_topology']).to_csv(output_path, index=False)
-    else:
-        out_df = pd.DataFrame(results)
-        out_df.to_csv(output_path, index=False)
-
-    logger.info(f"Descriptor calculation complete.")
-    logger.info(f"Total processed: {total_count}")
-    logger.info(f"Valid topologies: {len(results)}")
-    logger.info(f"Invalid topologies (excluded): {invalid_count}")
-    logger.info(f"Output written to: {output_path}")
+    for name, smiles in test_cases:
+        result = calculate_descriptors_for_smiles(smiles, name)
+        print(f"Molecule: {name} ({smiles})")
+        print(f"  Valid Topology: {result['valid_topology']}")
+        if result['valid_topology']:
+            print(f"  Wiener: {result['wiener']}")
+            print(f"  Balaban: {result['balaban']}")
+            print(f"  Zagreb M1: {result['zagreb_m1']}, M2: {result['zagreb_m2']}")
+        else:
+            print(f"  Error/Reason: {result.get('error', 'Unknown')}")
+        print("-" * 60)
 
 if __name__ == "__main__":
     main()

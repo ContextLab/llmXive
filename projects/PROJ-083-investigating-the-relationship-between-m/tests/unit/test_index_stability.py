@@ -1,6 +1,7 @@
 import pytest
 from rdkit import Chem
 from code.utils.symmetry import check_canonicalization_invariance, get_symmetry_classes
+from code.descriptors import TopologicalDescriptorCalculator
 
 class TestIndexStability:
     """
@@ -11,63 +12,139 @@ class TestIndexStability:
     def test_wiener_invariance_permutation(self):
         """
         Verify Wiener index remains constant under graph permutation (canonicalization).
+        T044: Unit test for Wiener index invariance.
         """
-        # Test with Benzene
         smiles = "c1ccccc1"
         mol = Chem.MolFromSmiles(smiles)
         assert mol is not None, "Failed to parse benzene"
 
-        # The check_canonicalization_invariance function internally does:
-        # 1. Calculate index for original
-        # 2. Canonicalize SMILES -> re-parse
-        # 3. Calculate index for canonical
-        # 4. Assert equality
-        
         result = check_canonicalization_invariance(smiles)
         assert result is True, f"Wienner invariance check failed for {smiles}"
 
     def test_balaban_invariance_permutation(self):
         """
         Verify Balaban index remains constant under graph permutation.
-        Note: This test assumes the implementation of Balaban index calculation
-        exists or is mocked appropriately if not available in rdMolDescriptors.
-        For this preliminary check, we rely on the symmetry of the molecule
-        and the fact that the canonicalization process preserves topology.
+        T045: Unit test for Balaban index invariance.
         
-        Since rdMolDescriptors.CalcBalabanIndex might not be standard in all RDKit versions,
-        we test the structural invariance via the symmetry check function.
+        Logic:
+        1. Parse the original SMILES.
+        2. Calculate the Balaban index for the original molecule.
+        3. Canonicalize the SMILES string (which permutes atom indices).
+        4. Re-parse the canonical SMILES.
+        5. Calculate the Balaban index for the canonicalized molecule.
+        6. Assert that the two indices are equal (within floating point tolerance).
         """
-        smiles = "c1ccccc1"
-        # If the full check function handles Balaban internally, we test it.
-        # If not, we test the structural equivalence which is the prerequisite.
-        mol = Chem.MolFromSmiles(smiles)
-        assert mol is not None
-        
-        # We verify that the canonicalization process doesn't change the graph structure
-        # which is the basis for index invariance.
-        canonical_smiles = Chem.MolToSmiles(mol, isomericSmiles=False, canonical=True)
-        mol_canon = Chem.MolFromSmiles(canonical_smiles)
-        
-        # If the indices are to be invariant, the graphs must be isomorphic.
-        # We use the existing invariance check which tests Wiener (as a proxy for topology).
-        # A full Balaban test would require the specific function.
-        # For now, we assert the structural invariance.
-        assert check_canonicalization_invariance(smiles) is True
+        test_cases = [
+            ("Benzene", "c1ccccc1"),
+            ("Toluene", "Cc1ccccc1"),
+            ("Nitrobenzene", "c1ccccc1[N+](=O)[O-]"),
+            ("Naphthalene", "c1ccc2ccccc2c1"),
+        ]
+
+        for name, smiles in test_cases:
+            mol = Chem.MolFromSmiles(smiles)
+            assert mol is not None, f"Failed to parse {name}: {smiles}"
+
+            # Calculate original Balaban index
+            # Using RDKit's CalcBalabanIndex if available, otherwise fallback to our calculator
+            try:
+                from rdkit.Chem import rdMolDescriptors
+                balaban_orig = rdMolDescriptors.CalcBalabanIndex(mol)
+            except AttributeError:
+                # Fallback to project implementation if RDKit version lacks it
+                calc = TopologicalDescriptorCalculator(mol)
+                balaban_orig = calc.calculate_balaban_index()
+
+            # Canonicalize SMILES
+            # isomericSmiles=False ensures we only test topological permutation, not stereochemistry
+            canonical_smiles = Chem.MolToSmiles(mol, isomericSmiles=False, canonical=True)
+            
+            mol_canon = Chem.MolFromSmiles(canonical_smiles)
+            assert mol_canon is not None, f"Failed to re-parse canonicalized {name}"
+
+            # Calculate canonical Balaban index
+            try:
+                from rdkit.Chem import rdMolDescriptors
+                balaban_canon = rdMolDescriptors.CalcBalabanIndex(mol_canon)
+            except AttributeError:
+                calc_canon = TopologicalDescriptorCalculator(mol_canon)
+                balaban_canon = calc_canon.calculate_balaban_index()
+
+            # Assert equality with tolerance for floating point arithmetic
+            # Balaban indices are typically small floats; 1e-6 tolerance is safe
+            assert abs(balaban_orig - balaban_canon) < 1e-6, (
+                f"Balaban index invariance failed for {name} ({smiles}). "
+                f"Original: {balaban_orig}, Canonical: {balaban_canon}"
+            )
 
     def test_zagreb_invariance_permutation(self):
         """
         Verify Zagreb index remains constant under graph permutation.
-        Similar to Balaban, relies on topological invariance.
+        T046: Unit test for Zagreb index invariance.
+        
+        Logic:
+        1. Parse the original SMILES.
+        2. Calculate the First Zagreb index (sum of squared degrees) for the original molecule.
+        3. Canonicalize the SMILES string (which permutes atom indices).
+        4. Re-parse the canonical SMILES.
+        5. Calculate the First Zagreb index for the canonicalized molecule.
+        6. Assert that the two indices are equal.
+        
+        The Zagreb index is a topological invariant based on vertex degrees.
+        Since graph canonicalization preserves the graph structure (adjacency),
+        the degree sequence remains identical, and thus the sum of squared degrees
+        must be identical.
         """
-        smiles = "Cc1ccccc1" # Toluene
-        mol = Chem.MolFromSmiles(smiles)
-        assert mol is not None
+        test_cases = [
+            ("Benzene", "c1ccccc1"),
+            ("Toluene", "Cc1ccccc1"),
+            ("Nitrobenzene", "c1ccccc1[N+](=O)[O-]"),
+            ("Naphthalene", "c1ccc2ccccc2c1"),
+            ("Ethanol", "CCO"),
+        ]
 
-        # The invariance check ensures that the topological descriptors
-        # (which are functions of the graph structure) are invariant
-        # under the re-ordering of atoms that canonicalization performs.
-        result = check_canonicalization_invariance(smiles)
-        assert result is True, f"Zagreb (topological) invariance check failed for {smiles}"
+        for name, smiles in test_cases:
+            mol = Chem.MolFromSmiles(smiles)
+            assert mol is not None, f"Failed to parse {name}: {smiles}"
+
+            # Calculate original Zagreb index (First Zagreb Index M1)
+            # M1 = sum(degree(v)^2 for v in vertices)
+            try:
+                from rdkit.Chem import rdMolDescriptors
+                # RDKit does not have a direct CalcZagrebIndex in all versions,
+                # so we compute it manually to ensure consistency with our descriptor module
+                mol_no_h = Chem.RemoveHs(mol)
+                adj_matrix = Chem.GetAdjacencyMatrix(mol_no_h)
+                degrees = np.sum(adj_matrix, axis=1)
+                zagreb_orig = np.sum(degrees ** 2)
+            except Exception:
+                # Fallback to project implementation if RDKit utilities fail
+                calc = TopologicalDescriptorCalculator(mol)
+                zagreb_orig = calc.calculate_zagreb_index()
+
+            # Canonicalize SMILES
+            canonical_smiles = Chem.MolToSmiles(mol, isomericSmiles=False, canonical=True)
+            
+            mol_canon = Chem.MolFromSmiles(canonical_smiles)
+            assert mol_canon is not None, f"Failed to re-parse canonicalized {name}"
+
+            # Calculate canonical Zagreb index
+            try:
+                from rdkit.Chem import rdMolDescriptors
+                mol_no_h_canon = Chem.RemoveHs(mol_canon)
+                adj_matrix_canon = Chem.GetAdjacencyMatrix(mol_no_h_canon)
+                degrees_canon = np.sum(adj_matrix_canon, axis=1)
+                zagreb_canon = np.sum(degrees_canon ** 2)
+            except Exception:
+                calc_canon = TopologicalDescriptorCalculator(mol_canon)
+                zagreb_canon = calc_canon.calculate_zagreb_index()
+
+            # Assert equality. Zagreb indices are integers for simple graphs,
+            # so exact equality is expected, but we use a small tolerance for float safety.
+            assert abs(zagreb_orig - zagreb_canon) < 1e-9, (
+                f"Zagreb index invariance failed for {name} ({smiles}). "
+                f"Original: {zagreb_orig}, Canonical: {zagreb_canon}"
+            )
 
     def test_invariance_failure_on_malformed(self):
         """
@@ -85,7 +162,6 @@ class TestIndexStability:
         classes = get_symmetry_classes(mol)
         
         # Benzene has 6 atoms, all equivalent -> 1 symmetry class
-        # So all class IDs should be the same
         assert len(set(classes)) == 1, "Benzene should have 1 symmetry class"
 
     def test_symmetry_classes_asymmetric(self):

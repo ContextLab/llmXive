@@ -1,50 +1,53 @@
+"""
+Setup script to create the required project directory structure.
+This script ensures that data/raw, data/processed, data/models, code, and tests
+directories exist under the project root.
+"""
 import os
 import sys
 from pathlib import Path
 
+# Define the project root (assumed to be the parent of the 'code' directory)
+# If running as __main__, determine root relative to this file
+if __name__ == "__main__":
+    # Script is located in code/, so root is parent of code/
+    PROJECT_ROOT = Path(__file__).resolve().parent.parent
+else:
+    # When imported, assume current working directory or explicit root
+    PROJECT_ROOT = Path.cwd()
+
+# Define relative paths to be created
+DIRECTORIES = [
+    "data/raw",
+    "data/processed",
+    "data/models",
+    "code",
+    "tests",
+    "tests/unit",
+    "tests/integration",
+    "tests/perf",
+    "contracts",
+    "docs",
+    "docs/reports",
+    "specs",
+]
+
 def setup_directories():
-    """
-    Creates the required directory structure for the project:
-    - data/raw/
-    - data/processed/
-    - data/models/
-    - code/ (if not exists, though usually code files are already here)
-    - tests/
-    - specs/ (feature directory)
-    - docs/
-    - contracts/
-    
-    This script ensures the project skeleton exists before data ingestion or analysis begins.
-    """
-    # Define the project root relative to this script's location or current working directory
-    # Since this file is in `code/`, we go up one level to the project root
-    script_path = Path(__file__).resolve()
-    project_root = script_path.parent.parent
-    
-    directories = [
-        "data/raw",
-        "data/processed",
-        "data/models",
-        "code", # Ensure it exists
-        "tests",
-        "specs",
-        "docs",
-        "docs/reports",
-        "contracts"
-    ]
-    
+    """Create the required directory structure."""
     created_count = 0
-    for dir_path in directories:
-        full_path = project_root / dir_path
+    existing_count = 0
+
+    for rel_path in DIRECTORIES:
+        full_path = PROJECT_ROOT / rel_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
-    
-    print(f"Setup complete. {created_count} new directories created.")
-    return True
+            existing_count += 1
+
+    print(f"Setup complete. Created {created_count} new directories. {existing_count} already existed.")
+    return created_count
 
 if __name__ == "__main__":
     setup_directories()

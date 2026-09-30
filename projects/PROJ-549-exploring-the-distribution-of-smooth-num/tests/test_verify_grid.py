@@ -1,191 +1,207 @@
 """
-Tests for T023b: Grid Verification
+Tests for T023b: Verify Grid Generation
 """
+
 import csv
 import json
 import os
 import tempfile
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
-# Import the verification logic
-# We will test the logic by simulating file creation and running the verification function
-# Since main() is the entry point, we test the verify_file logic via the script's behavior
+# We need to import the verify_grid module logic
+# Since it's in code/verify_grid.py, we add the parent directory to sys.path
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-def test_verify_file_missing(tmp_path):
-    """Test that verify_file correctly reports missing file."""
-    # We need to import the function from the script
-    # Since verify_file is inside verify_grid.py, we import it
-    import sys
-    sys.path.insert(0, 'code')
-    from verify_grid import verify_file
-    
-    import logging
-    logger = logging.getLogger("test")
-    
-    result = verify_file(str(tmp_path / "nonexistent.csv"), "spec", logger)
-    
-    assert result["exists"] is False
-    assert result["error"] is not None
-    assert "not found" in result["error"]
+import verify_grid
 
-def test_verify_file_empty(tmp_path):
-    """Test that verify_file correctly reports empty file."""
-    import sys
-    sys.path.insert(0, 'code')
-    from verify_grid import verify_file
-    
-    import logging
-    logger = logging.getLogger("test")
-    
-    # Create empty file
-    filepath = tmp_path / "empty.csv"
-    filepath.write_text("")
-    
-    result = verify_file(str(filepath), "spec", logger)
-    
-    assert result["exists"] is True
-    assert result["non_zero_rows"] is False
-    assert result["error"] is not None
 
-def test_verify_file_schema_mismatch(tmp_path):
-    """Test that verify_file detects schema mismatch."""
-    import sys
-    sys.path.insert(0, 'code')
-    from verify_grid import verify_file
-    
-    import logging
-    logger = logging.getLogger("test")
-    
-    # Create file with wrong columns
-    filepath = tmp_path / "wrong_schema.csv"
-    content = "x,y,h\n100,200,300\n"
-    filepath.write_text(content)
-    
-    result = verify_file(str(filepath), "spec", logger)
-    
-    assert result["exists"] is True
-    assert result["schema_valid"] is False
-    assert result["error"] is not None
-    assert "Schema mismatch" in result["error"]
+class TestVerifyFile:
+    """Tests for the verify_file function."""
 
-def test_verify_file_wrong_source(tmp_path):
-    """Test that verify_file detects wrong source value."""
-    import sys
-    sys.path.insert(0, 'code')
-    from verify_grid import verify_file
-    
-    import logging
-    logger = logging.getLogger("test")
-    
-    # Create file with correct schema but wrong source
-    filepath = tmp_path / "wrong_source.csv"
-    content = "x,y,h,start_offset,count,density,ratio,source\n100,200,300,0,10,0.1,0.5,plan\n"
-    filepath.write_text(content)
-    
-    result = verify_file(str(filepath), "spec", logger)
-    
-    assert result["exists"] is True
-    assert result["source_valid"] is False
-    assert result["error"] is not None
-    assert "unexpected values" in result["error"]
+    def test_file_does_not_exist(self, tmp_path):
+        """Test that a non-existent file returns correct result."""
+        non_existent_path = str(tmp_path / "does_not_exist.csv")
+        result = verify_grid.verify_file(
+            non_existent_path,
+            'spec',
+            verify_grid.EXPECTED_COLUMNS
+        )
 
-def test_verify_file_valid(tmp_path):
-    """Test that verify_file passes for valid data."""
-    import sys
-    sys.path.insert(0, 'code')
-    from verify_grid import verify_file
-    
-    import logging
-    logger = logging.getLogger("test")
-    
-    # Create valid file
-    filepath = tmp_path / "valid.csv"
-    content = "x,y,h,start_offset,count,density,ratio,source\n100,200,300,0,10,0.1,0.5,spec\n"
-    filepath.write_text(content)
-    
-    result = verify_file(str(filepath), "spec", logger)
-    
-    assert result["exists"] is True
-    assert result["non_zero_rows"] is True
-    assert result["schema_valid"] is True
-    assert result["source_valid"] is True
-    assert result["error"] is None
+        assert result['exists'] is False
+        assert result['non_zero_rows'] is False
+        assert result['source_column_valid'] is False
+        assert result['schema_valid'] is False
+        assert len(result['errors']) > 0
+        assert "does not exist" in result['errors'][0]
 
-def test_main_integration(tmp_path, caplog):
-    """Test the main function integration with mock files."""
-    import sys
-    sys.path.insert(0, 'code')
-    from verify_grid import main
-    
-    # Create temp directory structure
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    
-    # Create mock spec file
-    spec_file = data_dir / "density_measurements_spec.csv"
-    spec_file.write_text("x,y,h,start_offset,count,density,ratio,source\n100,200,300,0,10,0.1,0.5,spec\n")
-    
-    # Create mock plan file
-    plan_file = data_dir / "density_measurements_plan.csv"
-    plan_file.write_text("x,y,h,start_offset,count,density,ratio,source\n100,200,300,0,10,0.1,0.5,plan\n")
-    
-    output_file = data_dir / "grid_verification.json"
-    
-    with patch('verify_grid.SPEC_FILE', str(spec_file)):
-        with patch('verify_grid.PLAN_FILE', str(plan_file)):
-            with patch('verify_grid.OUTPUT_FILE', str(output_file)):
-                with patch('verify_grid.sys.exit') as mock_exit:
-                    main()
-                    
-                    # Verify output file was created
-                    assert output_file.exists()
-                    
-                    # Verify content
-                    with open(output_file) as f:
-                        data = json.load(f)
-                    
-                    assert data["spec_valid"] is True
-                    assert data["plan_valid"] is True
-                    
-                    # Verify exit code was 0
-                    mock_exit.assert_called_once_with(0)
+    def test_empty_file(self, tmp_path):
+        """Test that an empty file (header only) is detected."""
+        file_path = tmp_path / "empty.csv"
+        with open(file_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=verify_grid.EXPECTED_COLUMNS)
+            writer.writeheader()
 
-def test_main_failure_integration(tmp_path, caplog):
-    """Test the main function when verification fails."""
-    import sys
-    sys.path.insert(0, 'code')
-    from verify_grid import main
-    
-    # Create temp directory structure
-    data_dir = tmp_path / "data"
-    data_dir.mkdir()
-    
-    # Create mock spec file (valid)
-    spec_file = data_dir / "density_measurements_spec.csv"
-    spec_file.write_text("x,y,h,start_offset,count,density,ratio,source\n100,200,300,0,10,0.1,0.5,spec\n")
-    
-    # Create mock plan file (missing - will fail)
-    plan_file = data_dir / "density_measurements_plan.csv"
-    # Intentionally not creating this file
-    
-    output_file = data_dir / "grid_verification.json"
-    
-    with patch('verify_grid.SPEC_FILE', str(spec_file)):
-        with patch('verify_grid.PLAN_FILE', str(plan_file)):
-            with patch('verify_grid.OUTPUT_FILE', str(output_file)):
-                with patch('verify_grid.sys.exit') as mock_exit:
-                    main()
-                    
-                    # Verify output file was created
-                    assert output_file.exists()
-                    
-                    # Verify content
-                    with open(output_file) as f:
-                        data = json.load(f)
-                    
-                    assert data["spec_valid"] is True
-                    assert data["plan_valid"] is False
-                    
-                    # Verify exit code was 1
-                    mock_exit.assert_called_once_with(1)
+        result = verify_grid.verify_file(
+            str(file_path),
+            'spec',
+            verify_grid.EXPECTED_COLUMNS
+        )
+
+        assert result['exists'] is True
+        assert result['non_zero_rows'] is False
+        assert result['row_count'] == 0
+        assert "zero data rows" in result['errors'][0]
+
+    def test_missing_columns(self, tmp_path):
+        """Test that missing required columns are detected."""
+        file_path = tmp_path / "missing_cols.csv"
+        # Write header with missing columns
+        partial_columns = {'x', 'y', 'h'}  # Missing start_offset, count, density, ratio
+        with open(file_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=partial_columns)
+            writer.writeheader()
+            writer.writerow({'x': 100, 'y': 10, 'h': 5})
+
+        result = verify_grid.verify_file(
+            str(file_path),
+            'spec',
+            verify_grid.EXPECTED_COLUMNS
+        )
+
+        assert result['schema_valid'] is False
+        assert "Missing required columns" in result['errors'][0]
+
+    def test_valid_file_with_correct_source(self, tmp_path):
+        """Test a valid file with the correct source value."""
+        file_path = tmp_path / "valid.csv"
+        with open(file_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=verify_grid.EXPECTED_COLUMNS)
+            writer.writeheader()
+            writer.writerow({
+                'x': 1000, 'y': 10, 'h': 50, 'start_offset': 0,
+                'count': 10, 'density': 0.2, 'ratio': 1.0, 'source': 'spec'
+            })
+            writer.writerow({
+                'x': 2000, 'y': 20, 'h': 100, 'start_offset': 10,
+                'count': 20, 'density': 0.2, 'ratio': 1.0, 'source': 'spec'
+            })
+
+        result = verify_grid.verify_file(
+            str(file_path),
+            'spec',
+            verify_grid.EXPECTED_COLUMNS
+        )
+
+        assert result['exists'] is True
+        assert result['non_zero_rows'] is True
+        assert result['row_count'] == 2
+        assert result['schema_valid'] is True
+        assert result['source_column_valid'] is True
+        assert len(result['errors']) == 0
+
+    def test_invalid_source_value(self, tmp_path):
+        """Test that an incorrect source value is detected."""
+        file_path = tmp_path / "invalid_source.csv"
+        with open(file_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=verify_grid.EXPECTED_COLUMNS)
+            writer.writeheader()
+            writer.writerow({
+                'x': 1000, 'y': 10, 'h': 50, 'start_offset': 0,
+                'count': 10, 'density': 0.2, 'ratio': 1.0, 'source': 'wrong_source'
+            })
+
+        result = verify_grid.verify_file(
+            str(file_path),
+            'spec',
+            verify_grid.EXPECTED_COLUMNS
+        )
+
+        assert result['source_column_valid'] is False
+        assert "does not contain expected value" in result['errors'][0]
+
+    def test_mixed_source_values(self, tmp_path):
+        """Test that mixed source values are detected as invalid for a single source file."""
+        file_path = tmp_path / "mixed_source.csv"
+        with open(file_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=verify_grid.EXPECTED_COLUMNS)
+            writer.writeheader()
+            writer.writerow({
+                'x': 1000, 'y': 10, 'h': 50, 'start_offset': 0,
+                'count': 10, 'density': 0.2, 'ratio': 1.0, 'source': 'spec'
+            })
+            writer.writerow({
+                'x': 2000, 'y': 20, 'h': 100, 'start_offset': 10,
+                'count': 20, 'density': 0.2, 'ratio': 1.0, 'source': 'plan'
+            })
+
+        # We expect this to fail because the file should only contain 'spec'
+        result = verify_grid.verify_file(
+            str(file_path),
+            'spec',
+            verify_grid.EXPECTED_COLUMNS
+        )
+
+        assert result['source_column_valid'] is False
+        assert "unexpected values" in result['errors'][0]
+
+class TestMainFunction:
+    """Tests for the main function logic (integration-like)."""
+
+    def test_main_with_missing_files(self, tmp_path, monkeypatch):
+        """Test main when files are missing."""
+        # Mock the file paths to point to tmp_path
+        monkeypatch.setattr(verify_grid, 'SPEC_FILE_PATH', str(tmp_path / "missing_spec.csv"))
+        monkeypatch.setattr(verify_grid, 'PLAN_FILE_PATH', str(tmp_path / "missing_plan.csv"))
+        monkeypatch.setattr(verify_grid, 'OUTPUT_REPORT_PATH', str(tmp_path / "report.json"))
+
+        exit_code = verify_grid.main()
+
+        assert exit_code == 1
+        assert os.path.exists(str(tmp_path / "report.json"))
+        with open(tmp_path / "report.json") as f:
+            report = json.load(f)
+        assert report['spec_valid'] is False
+        assert report['plan_valid'] is False
+
+    def test_main_with_valid_files(self, tmp_path, monkeypatch):
+        """Test main when files are valid."""
+        spec_path = tmp_path / "spec.csv"
+        plan_path = tmp_path / "plan.csv"
+        report_path = tmp_path / "report.json"
+
+        # Create valid spec file
+        with open(spec_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=verify_grid.EXPECTED_COLUMNS)
+            writer.writeheader()
+            writer.writerow({
+                'x': 1000, 'y': 10, 'h': 50, 'start_offset': 0,
+                'count': 10, 'density': 0.2, 'ratio': 1.0, 'source': 'spec'
+            })
+
+        # Create valid plan file
+        with open(plan_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=verify_grid.EXPECTED_COLUMNS)
+            writer.writeheader()
+            writer.writerow({
+                'x': 1000, 'y': 10, 'h': 50, 'start_offset': 0,
+                'count': 10, 'density': 0.2, 'ratio': 1.0, 'source': 'plan'
+            })
+
+        monkeypatch.setattr(verify_grid, 'SPEC_FILE_PATH', str(spec_path))
+        monkeypatch.setattr(verify_grid, 'PLAN_FILE_PATH', str(plan_path))
+        monkeypatch.setattr(verify_grid, 'OUTPUT_REPORT_PATH', str(report_path))
+
+        exit_code = verify_grid.main()
+
+        assert exit_code == 0
+        assert os.path.exists(report_path)
+        with open(report_path) as f:
+            report = json.load(f)
+        assert report['spec_valid'] is True
+        assert report['plan_valid'] is True
+        assert 'timestamp' in report
+        assert 'spec_details' in report
+        assert 'plan_details' in report

@@ -164,3 +164,125 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-26T09:53:59Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: 'Wiener index values for reference molecules: benzene 27, toluene 33,
+    nitrobenzene 45'
+  claim_id: c_b6b380c5
+  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
+    \ (Wiener=45); verify values within \xB10.1 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:48:08Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Tolerance for reference molecule Wiener index verification is 0.1
+  claim_id: c_a8cb0ef6
+  context: "Independent Test: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene\
+    \ (Wiener=45); verify values within \xB10.1 tolerance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify values within \xB10.1 tolerance"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:48:35Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Full dataset descriptor calculation time under 15 minutes on 2-core runner
+  claim_id: c_be6902d8
+  context: Performance test ensuring full dataset calculation < 15 mins on 2-core
+    runner in tests/perf/test_descriptor_perf.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: full dataset calculation < 15 mins on 2-core runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:48:35Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if number of EAS reactions is less than 100
+  claim_id: c_eb02ece8
+  context: Implement logic to log critical errors and halt if N_EAS < 100 (FR-001)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_number_of_EAS_reactions_is_less_than_100
+  kind: magnitude
+  raw_text: halt if N_EAS < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:49:25Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Cross-validation switches to Leave-One-Out if sample size is less than
+    20
+  claim_id: c_1c8d5761
+  context: Implement 5-fold CV logic with automatic switch to LOO if N < 20 in code/modeling.py
+    (FR-005)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cross-validation_switches_to_Leave-One-Out_if_sample_size_is
+  kind: magnitude
+  raw_text: switch to LOO if N < 20
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:50:37Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if symmetry validation fails for more than 1 percent of
+    the dataset
+  claim_id: c_4c9b0afc
+  context: 'If SymmetryValidator (from Phase 7) fails for >1% of the dataset, halt
+    with ''Data Integrity: Symmetry Violation'' error.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_symmetry_validation_fails_for_more_than_1
+  kind: magnitude
+  raw_text: SymmetryValidator fails for >1% of the dataset
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:51:10Z'
+- artifact_path: projects/PROJ-083-investigating-the-relationship-between-m/specs/001-investigating-the-relationship-between-m/tasks.md
+  attempts: 1
+  canonical: Binary classification threshold is greater than 1
+  claim_id: c_a2eb1319
+  context: Implement degenerate target detection (variance=0) and switch to Binary
+    Classification (threshold > 1) in code/modeling.py (FR-007)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Binary_classification_threshold_is_greater_than_1
+  kind: magnitude
+  raw_text: threshold > 1
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:52:01Z'

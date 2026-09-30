@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.09977",
+  "judged_at": "2026-09-30T15:38:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"translation as a bridging action: transferring manipulation skills fro\" computer science",
+  "rationale": "The paper focuses on \"vocabulary transfer\" for model compression, which is a distinct construct from the user's query regarding \"transferring manipulation skills\" (robotics/embodied AI) via translation as a bridging action. This falls under the rejection rule for distinct constructs sharing only homonym keywords (e.g., \"transfer\" in NLP vs. \"transfer\" in robotics), as the paper does not measure the same biological pathway, physical observable, or causal mechanism (skill transfer) the user is ask",
+  "relevant": false
+}

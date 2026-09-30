@@ -1,9 +1,8 @@
-rdkit
-pandas
-scikit-learn
-statsmodels
-pyyaml
-pytest
-ruff
-black
-networkx
+# Core dependencies for PROJ-083
+rdkit>=2023.9.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+pyyaml>=6.0
+networkx>=3.0
+numpy>=1.24.0

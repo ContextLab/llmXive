@@ -7829,3 +7829,336 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-30T07:20:25Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: Stability testing augmentation includes 10 degree rotations, 0.01 Gaussian
+    noise, and 10 percent brightness jitter
+  claim_id: c_c292f2df
+  context: "Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: "Implement augmentation pipeline for stability testing \u2013 rotations\
+    \ \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB110%."
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:53:35Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Synthetic generator ensures at least one sample each for steel, Al, and
+    Ti alloy families
+  claim_id: c_dd570507
+  context: 'The generator MUST: 1) Use CONFIG[''split_seed''] to initialize the random
+    number generator for alloy family assignment. 2) Assign ''alloy_family'' labels
+    ensuring at least one sample each for ''steel'', ''Al'', and ''Ti''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_generator_ensures_at_least_one_sample_each_for_ste
+  kind: magnitude
+  raw_text: The generator MUST assign 'alloy_family' labels ensuring at least one
+    sample each for 'steel', 'Al', and 'Ti'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:54:33Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Dataset targets minimum 200 images for statistical power
+  claim_id: c_c93e4bbf
+  context: Document in research.md that the generated dataset targets a sample size
+    defined in CONFIG['target_sample_size'], with a minimum of 200 images for statistical
+    power (justified by plan compute feasibility).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset targets a sample size defined in CONFIG['target_sample_size'],
+    with a minimum of 200 images for statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:55:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Full pipeline benchmark on 2000 images must complete within 6 hours
+  claim_id: c_08053880
+  context: Run a full pipeline benchmark on CONFIG['target_sample_size'] (2000) images
+    to verify completion within 6 hours on -core CPU. Script MUST time Ta (preprocess),
+    T023b (CNN train), T042b (Grad-CAM).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run a full pipeline benchmark on CONFIG['target_sample_size'] (2000) images
+    to verify completion within 6 hours on -core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:55:31Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Multi-seed training loop uses 5 seeds
+  claim_id: c_5b6ab892
+  context: Implement multi-seed training loop in code/train/train_cnn.py (5 (2603.28921,
+    https://arxiv.org/abs/2603.28921) seeds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement multi-seed training loop in code/train/train_cnn.py (5 seeds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:56:10Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Wilcoxon signed-rank test uses alpha of 0.05
+  claim_id: c_2d71bdb7
+  context: 'The test compares the distribution of MAE differences between the CNN
+    and each baseline model (Linear Regression and Random Forest) across multiple
+    seeds using alpha = 0.05 (Wikipedia: Wilcoxon signed-rank test, https://en.wikipedia.org/wiki/Wilcoxon_signed-rank
+    test).'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: data points, obtaining the corresponding p- value of 0.04 (<0.05). Thus,
+        the Wilcoxon singed-
+      source_id: '1812.08824'
+      url: https://arxiv.org/abs/1812.08824
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Wilcoxon signed-rank test compares distributions using alpha = 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:56:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: Attribution analysis subset size is at least 10 images
+  claim_id: c_be50c44a
+  context: 'Select and lock a random subset of test images for attribution analysis.
+    Use CONFIG[''subset_seed''] for reproducibility. Save the list of image IDs to
+    data/explainability/attrib_subset.json. Verification: python code/explain/select_subset.py
+    && python -c "import json; d=json.load(open(''data/explainability/attrib_subset.json''));
+    assert len(d) >= 10; print(''Subset locked with seed'')".'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Attribution_analysis_subset_size_is_at_least_10_images
+  kind: magnitude
+  raw_text: Select and lock a random subset of test images for attribution analysis;
+    ensure the subset size is at least 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:58:14Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: Wilcoxon signed-rank test alpha is 0.05
+  claim_id: c_b6ac7e80
+  context: The test compares the distribution of MAE differences between the CNN and
+    each baseline model (Linear Regression and Random Forest) across multiple seeds
+    using alpha = 0.05 (1812.08824, https://arxiv.org/abs/1812.08824) .
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Wilcoxon signed-rank test
+      url: https://en.wikipedia.org/wiki/Wilcoxon_signed-rank_test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The Wilcoxon signed-rank test uses an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:59:09Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 0
+  canonical: stability testing augmentation uses Gaussian noise sigma of 0.01
+  claim_id: c_6b3a75be
+  context: "Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The augmentation pipeline for stability testing uses Gaussian noise with
+    sigma=0.01.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T15:59:12Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: target sample size is 2000 images
+  claim_id: c_9ca7c430
+  context: Run a full pipeline benchmark on CONFIG['target_sample_size'] (2000) images
+    to verify completion within 6 hours on -core CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CONFIG['target_sample_size'] is 2000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T15:59:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: pipeline completion time limit is 6 hours
+  claim_id: c_cf4bf88e
+  context: Run a full pipeline benchmark on CONFIG['target_sample_size'] (2000) images
+    to verify completion within 6 hours on -core CPU.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must complete within 6 hours on a -core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T16:00:48Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: minimum sample size is 200 images for statistical power
+  claim_id: c_66ee3ef2
+  context: Document in research.md that the generated dataset targets a sample size
+    defined in CONFIG['target_sample_size'], with a minimum of 200 images for statistical
+    power (justified by plan compute feasibility).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generated dataset has a minimum of 200 images for statistical power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T16:01:23Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: target sample size configuration value is 500
+  claim_id: c_0a27160a
+  context: 'Verification: python -c "from code.utils.config import CONFIG; assert
+    isinstance(CONFIG[''split_seed''], int); assert CONFIG[''target_sample_size'']
+    == 500; assert ''subset_seed'' in CONFIG".'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CONFIG['target_sample_size'] is 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T16:01:24Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: multi-seed training loop uses 5 seeds
+  claim_id: c_50024b01
+  context: Implement multi-seed training loop in code/train/train_cnn.py (5 (2603.28921,
+    https://arxiv.org/abs/2603.28921) seeds).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The multi-seed training loop uses 5 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T16:02:05Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability testing augmentation uses rotations of 10 degrees
+  claim_id: c_e7059af2
+  context: "Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses rotations of \xB1\
+    10\xB0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T16:02:31Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: stability testing augmentation uses brightness jitter of 10 percent
+  claim_id: c_be2436ac
+  context: "Implement augmentation pipeline for stability testing (code/explain/stability.py)\
+    \ \u2013 rotations \xB110\xB0, Gaussian noise \u03C3=0.01, brightness jitter \xB1\
+    10%."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The augmentation pipeline for stability testing uses brightness jitter\
+    \ of \xB110%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T16:02:33Z'
+- artifact_path: projects/PROJ-266-machine-learning-prediction-of-fracture-/specs/001-machine-learning-prediction-of-fracture/tasks.md
+  attempts: 1
+  canonical: attribution analysis subset size is at least 10 images
+  claim_id: c_7f8a9071
+  context: 'Save the list of image IDs to data/explainability/attrib_subset.json.
+    Verification: python code/explain/select_subset.py && python -c "import json;
+    d=json.load(open(''data/explainability/attrib_subset.json'')); assert len(d) >=
+    10; print(''Subset locked with seed'')".'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Attribution_analysis_subset_size_is_at_least_10_images
+  kind: magnitude
+  raw_text: The subset of test images selected for attribution analysis contains at
+    least 10 images.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T16:03:15Z'

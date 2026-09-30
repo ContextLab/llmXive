@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.06985",
+  "judged_at": "2026-09-30T15:38:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"translation as a bridging action: transferring manipulation skills fro\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides empirical evidence on the specific mechanism of \"transfer learning of robotic manipulation skills\" and the variable of \"self-representation\" (body schema) in robotics, which directly corresponds to the core technical components of the user's question regarding transferring manipulation skills. Although the user's query mentions \"llmXive\" (likely a typo or specific project name) and \"Translation as a Bridging Action,\" the candidate paper ad",
+  "relevant": true
+}

@@ -1,23 +1,23 @@
 # PROJ-083: Investigating the Relationship Between Molecular Topology and Reaction Selectivity
 
 ## Overview
-This project investigates the relationship between molecular topology (Wiener, Balaban, Zagreb indices) and reaction selectivity in Electrophilic Aromatic Substitution (EAS) reactions.
+This project investigates the correlation between molecular topological indices (Wiener, Balaban, Zagreb) and reaction selectivity in Electrophilic Aromatic Substitution (EAS) reactions.
 
-## Project Structure
-- `data/`: Raw and processed datasets, model artifacts
-- `code/`: Source code for ingestion, descriptors, and modeling
+## Structure
+- `code/`: Source code for ingestion, descriptor calculation, and modeling
+- `data/`: Raw and processed data, model artifacts
 - `tests/`: Unit, integration, and performance tests
-- `contracts/`: Schema definitions for data records
-- `docs/`: Documentation and reports
-- `specs/`: Feature specifications
+- `specs/`: Feature specifications and design documents
+- `contracts/`: Data schema definitions
 
-## Setup
-1. Ensure Python 3.11+ is installed.
-2. Install dependencies: `pip install -r requirements.txt` (if available) or `pip install rdkit pandas scikit-learn statsmodels pyyaml`.
-3. Run the setup script to initialize directories: `python setup_project.py` (if not already run).
+## Quick Start
+1. Install dependencies: `pip install -r requirements.txt`
+2. Run ingestion: `python code/ingestion.py`
+3. Run descriptors: `python code/descriptors.py`
+4. Run modeling: `python code/modeling.py`
 
-## Execution
-Refer to `docs/quickstart.md` for detailed execution instructions.
-
-## License
-Proprietary Research Project.
+## Prerequisites
+- Python 3.11+
+- RDKit
+- scikit-learn
+- statsmodels

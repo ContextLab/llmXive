@@ -65,7 +65,7 @@
 - [X] T011 [US1] Implement USPTO-50k downloader in `code/ingestion.py` (FR-001)
 - [X] T012 [US1] Implement SMILES parser with error handling for malformed data in `code/ingestion.py` (FR-006)
 - [X] T013 [US1] Implement EAS pattern matcher (aromatic ring + electrophilic substitution logic) in `code/ingestion.py` (FR-001)
-- [ ] T014 [US1] Implement logic to log critical errors and halt if N_EAS < 100 (FR-001)
+- [ ] T014 [US1] Implement logic to log critical errors and halt if N_EAS < 100 [UNRESOLVED-CLAIM: c_eb02ece8 — status=not_enough_info] (FR-001)
  - **Gate Logic**: This task must enforce a hard stop. If N_EAS < 100, the pipeline MUST exit with code 1 and prevent Phase 5 execution.
 - [X] T015 [US1] Write filtered dataset to `data/processed/eas_reactions.csv` with checksum generation
 
@@ -78,13 +78,13 @@
 
 **Goal**: Compute Wiener, Balaban, and Zagreb indices for reactant molecules and verify symmetry invariance.
 
-**Independent Test**: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45); verify values within ±0.1 tolerance.
+**Independent Test**: Run on benzene (Wiener=27), toluene (Wiener=33), nitrobenzene (Wiener=45) [UNRESOLVED-CLAIM: c_b6b380c5 — status=not_enough_info]; verify values within ±0.1 tolerance [UNRESOLVED-CLAIM: c_a8cb0ef6 — status=not_enough_info].
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T016 [P] [US2] Unit test for Wiener index calculation on reference molecules in `tests/unit/test_descriptors.py`
 - [X] T017 [P] [US2] Unit test for Balaban and Zagreb index calculations in `tests/unit/test_descriptors.py`
-- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation < 15 mins on 2-core runner in `tests/perf/test_descriptor_perf.py` <!-- FAILED: unspecified -->
+- [ ] T018 [P] [US2] Performance test ensuring full dataset calculation < 15 mins on 2-core runner [UNRESOLVED-CLAIM: c_be6902d8 — status=not_enough_info] in `tests/perf/test_descriptor_perf.py` <!-- FAILED: unspecified -->
 - [X] T019 [P] [US2] Unit test for graph automorphism detection in `tests/unit/test_symmetry.py`
 
 ### Implementation for User Story 2 & Symmetry (FR-002, FR-008)
@@ -100,11 +100,11 @@
 - [ ] T027 [US2] Write descriptor table to `data/processed/descriptors.csv` with checksums
 
 ### Tests for Symmetry Invariance (Moved to Phase 4 for TDD)
-- [ ] T044 [P] [US2] Unit test `test_wiener_invariance_permutation` in `tests/unit/test_index_stability.py`
+- [X] T044 [P] [US2] Unit test `test_wiener_invariance_permutation` in `tests/unit/test_index_stability.py`
  - **Logic**: Verify Wiener index remains constant under graph permutation.
-- [ ] T045 [P] [US2] Unit test `test_balaban_invariance_permutation` in `tests/unit/test_index_stability.py`
+- [X] T045 [P] [US2] Unit test `test_balaban_invariance_permutation` in `tests/unit/test_index_stability.py`
  - **Logic**: Verify Balaban index remains constant under graph permutation.
-- [ ] T046 [P] [US2] Unit test `test_zagreb_invariance_permutation` in `tests/unit/test_index_stability.py`
+- [X] T046 [P] [US2] Unit test `test_zagreb_invariance_permutation` in `tests/unit/test_index_stability.py`
  - **Logic**: Verify Zagreb index remains constant under graph permutation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, and preliminary symmetry invariance is verified.
@@ -119,8 +119,8 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Contract test for Ordinal Logistic Regression training in `tests/unit/test_modeling.py`
-- [ ] T029 [P] [US3] Contract test for Random Forest regression in `tests/unit/test_modeling.py`
+- [X] T028 [P] [US3] Contract test for Ordinal Logistic Regression training in `tests/unit/test_modeling.py`
+- [X] T029 [P] [US3] Contract test for Random Forest regression in `tests/unit/test_modeling.py`
 - [ ] T030 [P] [US3] Contract test for Binary Classification fallback in `tests/integration/test_modeling_fallback.py`
 - [ ] T031 [P] [US3] Synthetic test with deterministic symmetry-based target generation in `tests/unit/test_modeling_synthetic.py`
  - **Logic**: Generate target via deterministic symmetry class logic (not Poisson).
@@ -133,9 +133,9 @@
  - **Depends on**: T015 (Filtered Dataset)
 - [ ] T033 [US3] Implement **Ordinal Logistic Regression** model in `code/modeling.py` (Plan Requirement)
 - [ ] T034 [US3] Implement **Random Forest** regression model using `sklearn.ensemble.RandomForestRegressor` with deterministic target handling in `code/modeling.py` (FR-004)
-- [ ] T035 [US3] Implement 5-fold CV logic with automatic switch to LOO if N < 20 in `code/modeling.py` (FR-005)
+- [ ] T035 [US3] Implement 5-fold CV logic with automatic switch to LOO if N < 20 [UNRESOLVED-CLAIM: c_1c8d5761 — status=not_enough_info] in `code/modeling.py` (FR-005)
 - [ ] T036 [US3] Implement VIF calculation for collinearity diagnostics and sequential analysis logic if VIF > 5 in `code/modeling.py`
-- [ ] T037 [US3] Implement degenerate target detection (variance=0) and switch to **Binary Classification** (threshold > 1) in `code/modeling.py` (FR-007)
+- [ ] T037 [US3] Implement degenerate target detection (variance=0) and switch to **Binary Classification** (threshold > 1 [UNRESOLVED-CLAIM: c_a2eb1319 — status=not_enough_info]) in `code/modeling.py` (FR-007)
  - **Note**: Zero-Inflated Poisson is explicitly excluded per Plan.
 - [ ] T038 [US3] Implement Bonferroni-corrected significance testing (p < 0.0167) and report generation in `code/modeling.py`
 - [ ] T039 [US3] Evaluate R² against SC-002 threshold (R² > 0.05). If MDE is unachievable, report descriptive statistics AND log explicit "Project Failed" state and halt in `data/models/results.json` (SC-002)

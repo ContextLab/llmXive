@@ -1,16 +1,15 @@
-- artifact_hash: 4e4bc23f0c6fa9506696c53e3e0800a9c2c274a0d2cde678c6f37101890f3eb8
+- artifact_hash: f90366c53bfdc680618292d2e222e3ab9cfd6ab66fcd1859ebaafbd082350b42
   artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: '[2603.26441] 120 Minutes and a Laptop: Minimalist Image-goal Navigation
-    via Unsupervised Exploration and Offline RL'
+  fetched_title: 120 Minutes - Wikipedia
   kind: url
-  value: https://arxiv.org/abs/2603.26441
+  value: https://en.wikipedia.org/wiki/120_Minutes_
   verification_status: pending
-  verified_against_url: https://arxiv.org/abs/2603.26441
-  verified_at: '2026-09-20T07:10:24.481119Z'
-- artifact_hash: 4e4bc23f0c6fa9506696c53e3e0800a9c2c274a0d2cde678c6f37101890f3eb8
+  verified_against_url: https://en.wikipedia.org/wiki/120_Minutes
+  verified_at: '2026-09-30T15:37:27.734350Z'
+- artifact_hash: f90366c53bfdc680618292d2e222e3ab9cfd6ab66fcd1859ebaafbd082350b42
   artifact_path: projects/PROJ-549-exploring-the-distribution-of-smooth-num/specs/001-exploring-the-distribution-of-smooth-num/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -20,4 +19,4 @@
   value: https://oeis.org/A114856
   verification_status: pending
   verified_against_url: https://oeis.org/A114856
-  verified_at: '2026-09-20T07:10:24.481119Z'
+  verified_at: '2026-09-30T15:37:27.734350Z'

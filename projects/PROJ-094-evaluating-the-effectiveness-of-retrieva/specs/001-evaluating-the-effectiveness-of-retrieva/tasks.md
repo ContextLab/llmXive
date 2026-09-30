@@ -154,6 +154,19 @@ The research question, method, and references remain unchanged as no specific va
 
 ---
 
+## Phase 7: Verification & Validation (New)
+
+**Purpose**: Ensure all critical requirements and constraints are explicitly tested and verified before finalization.
+
+- [ ] T039 [P] [US1/US2] Implement `tests/integration/test_data_integrity.py` to verify that `src/data/download.py` raises an exception on network failure and does NOT fall back to synthetic data (FR-001, Data Hygiene Rule).
+- [ ] T040 [P] [US1] Implement `tests/integration/test_retrieval_order.py` to verify that tasks producing `data/results/foo.json` (T012) are executed strictly before verification tasks consuming them (T013), preventing race conditions in the pipeline.
+- [ ] T041 [P] [US2] Implement `tests/unit/test_descriptor_scope.py` to assert that `src/data/descriptors.py` only processes query and ground truth snippets, raising an error if retrieved snippets are passed (FR-008, Circularity prevention).
+- [ ] T042 [P] [US3] Implement `tests/integration/test_resource_limits.py` to verify that `psutil` monitoring in `src/models/rag_pipeline.py` (T015, T027) correctly triggers subsampling or index quantization when RAM exceeds 1.05GB (FR-006).
+- [ ] T043 [P] [US2] Implement `tests/unit/test_statistical_significance.py` to verify that `src/analysis/correlation.py` correctly switches from t-test to Wilcoxon when Shapiro-Wilk p < 0.05 (FR-005, US-2).
+- [ ] T044 [P] [US2] Implement `tests/integration/test_control_experiment.py` to verify that the masked token correlation (T022) produces a distinct result from the unmasked baseline, confirming the correlation is not an artifact (FR-009).
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies
@@ -164,6 +177,7 @@ The research question, method, and references remain unchanged as no specific va
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Verification (Phase 7)**: Depends on the completion of all corresponding implementation tasks in Phases 3-6
 
 ### User Story Dependencies
 
@@ -187,6 +201,7 @@ The research question, method, and references remain unchanged as no specific va
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- All Verification tasks (Phase 7) can run in parallel once their respective implementation tasks are complete
 
 ---
 
@@ -250,3 +265,4 @@ With multiple developers:
 - **Reproducibility**: Fixed random seeds must be set at the start of every script.
 - **Descriptor Scope**: `src/data/descriptors.py` MUST compute descriptors ONLY for test set queries and ground truth snippets, NOT for retrieved snippets, to prevent circularity and ensure CPU feasibility.
 - **Human Task**: Task T023a is a required human intervention step; the pipeline must wait for `results/manual_noise_input.json` to be present before proceeding to T023b.
+- **Verification Priority**: Tasks T039-T044 are critical to prevent common failure modes (synthetic fallback, data race, circularity) and must be completed before the project is considered "analyzed".

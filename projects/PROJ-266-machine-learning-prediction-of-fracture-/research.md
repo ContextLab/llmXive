@@ -2,58 +2,61 @@
 
 ## Introduction
 
-This project investigates the feasibility of predicting fracture toughness ($K_{IC}$) from microstructure images using deep learning and explainable AI (XAI) techniques. The primary goal is to establish a pipeline that correlates visual microstructural features—such as grain boundaries, precipitate distributions, and phase morphology—with mechanical properties.
+This project investigates the feasibility of predicting fracture toughness ($K_{IC}$) of metallic alloys directly from microstructure images using deep learning. The core hypothesis is that microstructural features—such as grain boundaries, precipitate distributions, and phase morphology—contain sufficient information to estimate mechanical properties without explicit feature engineering.
 
-**Critical Note on Data Source**: This project uses a **Synthetic Microstructure Generator** because no verified real-world dataset exists that pairs high-resolution microstructure images with precise $K_{IC}$ measurements for the specific alloy families of interest (Steel, Aluminum, Titanium). Consequently, the results presented in this study validate the **pipeline methodology** and the statistical robustness of the model architecture, rather than claiming direct real-world physical prediction accuracy.
+**Synthetic Data Justification**: This project uses a **Synthetic Microstructure Generator** because no verified real-world dataset exists that pairs high-resolution microstructure images with precise $K_{IC}$ measurements for diverse alloy families. The synthetic generator implements a physics-informed model to create ground-truth labels. Consequently, the results of this pipeline validate the **methodology** and the end-to-end workflow, rather than establishing new real-world physical laws or replacing experimental testing.
 
 ## Methodology
 
-### 3.1 Data Generation Strategy
+### 2.1 Data Generation Strategy
 
-To address the lack of real-world labeled data, we employ a deterministic synthetic generation process. This process creates realistic-looking microstructure images (128x128 pixels) and assigns corresponding $K_{IC}$ values based on a physics-informed formula. The generation process ensures that the relationship between microstructure and properties is consistent, allowing the model to learn the underlying mapping.
+The dataset is generated using a deterministic synthetic engine that simulates microstructures for three alloy families: Steel, Aluminum, and Titanium. The generator creates 128x128 pixel images representing grain structures and precipitate distributions.
 
-### 3.2 Synthetic $K_{IC}$ Deterministic Logic
+### 2.2 Synthetic Ground Truth Logic
 
-The ground truth $K_{IC}$ values for the synthetic dataset are generated using a linear additive model with Gaussian noise. This formula approximates the contribution of key microstructural features to fracture toughness.
+The $K_{IC}$ values are not measured experimentally but are derived from a parametric model that reflects known physical trends: smaller grains generally increase toughness (Hall-Petch relationship), while precipitate density and alloy composition modulate the base value.
 
-The deterministic logic is defined as follows:
+#### 2.2.1 Deterministic Logic for $K_{IC}$ Generation
 
-$$K_{IC} = \text{base\_value} + \alpha \cdot \text{grain\_size} + \beta \cdot \text{precipitate\_density} + \text{noise}$$
+The ground truth $K_{IC}$ for each sample is calculated using the following deterministic formula:
+
+$$ K_{IC} = \text{base\_value} + \alpha \cdot \text{grain\_size} + \beta \cdot \text{precipitate\_density} + \text{noise} $$
 
 Where:
-- **`base_value`** (float): The baseline fracture toughness for the specific alloy family (e.g., Steel, Al, Ti) in MPa$\sqrt{m}$. This value represents the intrinsic toughness of the matrix material.
-- **`grain_size`** (float): A normalized metric representing the average grain diameter (in microns) extracted from the synthetic image. According to the Hall-Petch relationship, smaller grains generally increase strength but may affect toughness differently depending on the material; here, $\alpha$ captures the specific sensitivity for our synthetic model.
-- **`precipitate_density`** (float): A normalized metric (0.0 to 1.0) representing the area fraction of precipitates in the image. Precipitates often act as crack initiation sites or barriers; $\beta$ quantifies this effect.
-- **`alpha`** (float): The coefficient for the grain size effect.
-- **`beta`** (float): The coefficient for the precipitate density effect.
-- **`noise`** (float): A random variable drawn from a normal distribution $\mathcal{N}(0, \sigma^2)$, where $\sigma$ is the standard deviation representing unmodeled microstructural variations and experimental uncertainty.
+- `base_value`: A float representing the baseline toughness of the specific alloy family (e.g., Steel ~45 MPa√m, Al ~30 MPa√m, Ti ~60 MPa√m).
+- `alpha`: The coefficient for grain size (typically negative, reflecting the Hall-Petch strengthening effect where smaller grains increase strength/toughness in specific regimes).
+- `grain_size`: A scalar feature extracted from the generated image representing the average grain diameter in pixels.
+- `beta`: The coefficient for precipitate density (positive, indicating precipitation hardening contributions).
+- `precipitate_density`: A scalar feature representing the volume fraction or density of precipitates in the image.
+- `noise`: A random variable drawn from a normal distribution $\mathcal{N}(0, \sigma)$ to simulate experimental uncertainty and microstructural variance not captured by simple metrics.
 
-This formula is implemented in the codebase at `code/data/synthetic_gen.py` within the `calculate_physics_informed_k_ic` function. The parameters ($\alpha, \beta, \sigma$) are fixed constants defined in the configuration to ensure reproducibility across runs.
+This formula is implemented in `code/data/synthetic_gen.py` within the `calculate_physics_informed_k_ic` function. The parameters (`base_value`, `alpha`, `beta`) are fixed constants defined per alloy family to ensure reproducibility across the synthetic dataset.
 
-**Traceability**: The implementation of this logic is located in `code/data/synthetic_gen.py`. The generated values serve as the regression target for the CNN and baseline models.
+### 2.3 Imaging and Resolution Constraints
 
-### 3.3 Sample Preparation Protocol (Synthetic)
+The synthetic images simulate Transmission Electron Microscopy (TEM) and Scanning Electron Microscopy (SEM) inputs.
+- **Imaging Resolution**: The synthetic generator operates at a fixed resolution of 128x128 pixels.
+- **Minimum Resolvable Feature Size**: Features smaller than `CONFIG['min_feature_size_pixels']` are not generated, simulating the physical resolution limit of the imaging system.
+- **Sample Preparation Protocol**: Synthetic parameters for `magnification_calibration` (random uniform [lower, upper] pixels/micron) and `section_thickness` (random uniform [low, 50] nm) are applied to simulate variations in sample preparation.
 
-To simulate the variance found in real experimental data, the synthetic generator incorporates parameters for sample preparation:
-- **Magnification Calibration**: Randomly sampled from a uniform distribution $[lower\_bound, upper\_bound]$ (pixels/micron) to simulate different microscope settings.
-- **Section Thickness**: Randomly sampled from a uniform distribution $[low, 50]$ nm, acting as a proxy for TEM sample thickness or SEM depth of field effects, influencing the visibility of features.
+### 2.4 Statistical Power and Sample Size
 
-## Results
-
-(Results will be populated after execution of the training pipeline.)
+The dataset targets a sample size defined in `CONFIG['target_sample_size']` (default 500). This size is chosen to balance statistical power for training a lightweight CNN against computational feasibility, ensuring the full pipeline (preprocessing, training, attribution) completes within the 6-hour compute window.
 
 ## Discussion
 
-### 4.1 Synthetic Data Limitations
+### 4.1 Limitations and Scope
 
-This project validates the **pipeline methodology** using synthetic data. **No real-world dataset verification is performed** due to the unavailability of a public, high-quality dataset pairing microstructure images with $K_{IC}$ values for the target alloy families. The synthetic generator provides a controlled environment to test the model's ability to learn complex non-linear mappings and to evaluate the stability of XAI methods (Grad-CAM).
-
-The findings should be interpreted as a proof-of-concept for the data processing and modeling pipeline. Future work must involve the acquisition of real-world data to validate the physical accuracy of the predictions.
+**Synthetic Data Limitation**: This project validates the pipeline methodology using synthetic data. No real-world dataset verification is performed due to data unavailability (Plan Summary). The results demonstrate that the proposed architecture and explainability workflow (Grad-CAM, stability analysis) function correctly on a controlled, physics-informed dataset. They do not claim to predict $K_{IC}$ for real-world alloys without further experimental calibration.
 
 ### 4.2 Variance Analysis
 
-The model's predictions account for variance introduced by the synthetic preparation batches through the inclusion of the `noise` term in the $K_{IC}$ generation formula. The stability of the model across different seeds is evaluated to ensure that the learned features are robust to these synthetic variations.
+The model's predictions account for variance in feature extraction across different synthetic preparation batches through the inclusion of the `noise` term in the ground truth generation and the use of data augmentation during training.
 
-### 4.3 Resolution Limits
+### 4.3 Sample Preparation Protocol
 
-The synthetic generator enforces a minimum resolvable feature size defined by `min_feature_size_pixels` in the configuration. Features smaller than this threshold are not rendered, simulating the physical limits of optical or electron microscopy. This limitation affects the model's ability to detect sub-pixel grain boundary characters, which is a known constraint in experimental materials science.
+The synthetic generation includes specific protocols for:
+- **Magnification Calibration**: Simulated via random uniform distribution of pixels/micron.
+- **Section Thickness**: Simulated as a proxy for TEM sample thickness (nm).
+- **Surface Preparation**: Simulated via noise injection and texture variations for SEM proxies.
+Expected variance in feature extraction is explicitly modeled to test the robustness of the attribution stability metrics.

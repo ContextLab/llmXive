@@ -1,15 +1,8 @@
 """
-Contracts module for PROJ-083.
-
-This package defines the core data schemas used throughout the pipeline
-to ensure type safety and consistency between ingestion, descriptor calculation,
-and modeling stages.
+Contract definitions for the llmXive project.
+This module defines the data schemas for ReactionRecord and TopologicalDescriptor.
 """
 from .reaction_record import ReactionRecord
-from .topological_descriptor import TopologicalDescriptor, DescriptorType
+from .topological_descriptor import TopologicalDescriptor
 
-__all__ = [
-    "ReactionRecord",
-    "TopologicalDescriptor",
-    "DescriptorType"
-]
+__all__ = ["ReactionRecord", "TopologicalDescriptor"]

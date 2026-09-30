@@ -31,15 +31,14 @@ env/
 *.swp
 *.swo
 
-# Data (keep raw, ignore processed large files if needed, but track checksums)
+# Data
+data/raw/*.csv
 data/raw/*.zip
-data/raw/*.tar.gz
-data/models/*.h5
+data/raw/*.gz
+data/processed/*.csv
 data/models/*.pkl
+data/models/*.json
 
 # Logs
 *.log
-
-# OS
-.DS_Store
-Thumbs.db
+logs/
