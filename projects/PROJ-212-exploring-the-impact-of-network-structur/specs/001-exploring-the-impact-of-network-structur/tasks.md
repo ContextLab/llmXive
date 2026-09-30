@@ -121,6 +121,24 @@
 
 ---
 
+## Phase 6: Higher-Order Structure Analysis (Reviewer Concern: Dan Rockmore)
+
+**Goal**: Address the reviewer's concern regarding higher-order structures (motifs) and their potential impact on synchronization, extending the topological feature set beyond pairwise metrics.
+
+**Independent Test**: Compute motif counts (e.g., triangles, 4-cycles) for a subset of networks and verify they are added to the feature set without breaking the existing pipeline.
+
+### Implementation for User Story 6 (Extension to US1/US2)
+
+- [ ] T045 [P] [US1/US2] Extend `src/topology.py` to compute higher-order structural metrics: motif counts (3-node and 4-node motifs) and transitivity measures using `networkx` and `graph-tool` (if available) or custom implementations. **Verification**: Run `pytest -k test_motif_counts`.
+- [ ] T046 [P] [US1/US2] Update `src/data_models.py` to include `motif_counts` and `transitivity` fields in the `NetworkGraph` entity. **Verification**: Assert schema validation passes for updated `NetworkGraph`.
+- [ ] T047 [US2] Modify `src/stats.py` regression logic to optionally include motif features as predictors if `config.yaml` flag `include_motifs` is set to `true`. **Verification**: Run `pytest -k test_regression_with_motifs`.
+- [ ] T048 [US2] Update `results/regression_summary.json` schema to include a `motif_contributions` section if motif features were used, detailing their coefficients and p-values. **Verification**: Assert schema validation passes for updated `regression_summary.json`.
+- [ ] T049 [P] [US3] Implement `src/viz.py` to generate a comparative bar chart showing the relative importance (coefficient magnitude) of pairwise metrics vs. higher-order motifs in the regression model. **Verification**: Assert `results/motif_importance_plot.png` exists and size > 0.
+
+**Checkpoint**: Higher-order structure analysis is integrated and can be toggled via configuration.
+
+---
+
 ## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
@@ -143,6 +161,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
+- **Higher-Order Structure (Phase 6)**: Depends on Foundational and US1/US2 completion. Can run in parallel with US3 if resources allow.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -150,6 +169,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Consumes US1 output (T016/T017b)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Consumes US2 output
+- **Higher-Order Structure (Phase 6)**: Extends US1 and US2. Requires US1 topology module and US2 stats module to be functional.
 
 ### Within Each User Story
 
@@ -168,6 +188,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- Phase 6 (Higher-Order Structure) can run in parallel with Phase 5 (US3) if team capacity allows, as it primarily extends existing modules.
 
 ---
 
@@ -202,7 +223,8 @@ Task: "Implement src/simulation.py with Kuramoto model..."
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo (incorporating LOOCV/10-fold CV, VIF checks)
 4. Add User Story 3 → Test independently → Deploy/Demo (comparative plots)
-5. Each story adds value without breaking previous stories
+5. Add Higher-Order Structure (Phase 6) → Test independently → Deploy/Demo (motif analysis)
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -213,6 +235,7 @@ With multiple developers:
  - Developer A: User Story 1 (Simulation Core + Tests)
  - Developer B: User Story 2 (Regression Core + CV)
  - Developer C: User Story 3 (CV & Viz)
+ - Developer D (optional): Higher-Order Structure (Motif Analysis)
 3. Stories complete and integrate independently
 
 ---
@@ -232,5 +255,6 @@ With multiple developers:
 - **Validation**: SC-003 compliance ensured by T017b (SNAP list sorting and verification report generation).
 - **Constitution Alignment**: All tasks align with Plan.md and Constitution Principle VII (LOOCV/10-fold CV per Spec FR-005).
 - **Dependency Flow**: T005 checks raw count. T022 aggregates. T025 handles N < 10 logic. T030 depends on T029 (global wrapper).
-- **Reviewer Concern (Higher-Order Structure)**: Addressed by removing motif tasks (T018, T019, T021c, T031, T037, T044) to strictly adhere to Spec FR-001/FR-004 predictors.
+- **Reviewer Concern (Higher-Order Structure)**: Addressed by adding Phase 6 (T045-T049) to compute and analyze motif counts and transitivity, addressing Dan Rockmore's concern about pairwise metrics potentially missing higher-order structural influences on synchronization.
 - **Plan/Spec Conflict (CV Method)**: Tasks T028a/T028b explicitly follow Spec FR-005 (LOOCV for N<50, 10-fold for N>=50). The Plan's mention of "5x5-Fold" is overridden by the Spec. This conflict is flagged for Plan amendment to align with Spec FR-005.
+- **Motif Analysis Integration**: Phase 6 tasks are designed to be optional and configurable via `config.yaml` (`include_motifs: true/false`) to maintain backward compatibility with the original MVP while allowing exploration of higher-order structures.
