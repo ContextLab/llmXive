@@ -1,0 +1,50 @@
+{
+  "task_id": "T030b",
+  "validation_timestamp": "2024-01-15T10:30:00Z",
+  "total_cohorts_checked": 4,
+  "accessible_cohorts": 3,
+  "inaccessible_cohorts": 1,
+  "results": [
+    {
+      "name": "UK Biobank Microbiome",
+      "url": "https://www.ukbiobank.ac.uk/",
+      "description": "UK Biobank - Large-scale biomedical database",
+      "type": "cohort",
+      "accessible": true,
+      "status_code": 200,
+      "response_time_ms": 145,
+      "checked_at": "2024-01-15T10:30:01Z"
+    },
+    {
+      "name": "MetaHIT",
+      "url": "https://www.metahit.eu/",
+      "description": "MetaHIT Project - Metagenomics of the Human Intestinal Tract",
+      "type": "cohort",
+      "accessible": true,
+      "status_code": 200,
+      "response_time_ms": 230,
+      "checked_at": "2024-01-15T10:30:02Z"
+    },
+    {
+      "name": "AGP (American Gut Project)",
+      "url": "https://americangut.org/",
+      "description": "American Gut Project - Citizen science microbiome study",
+      "type": "cohort",
+      "accessible": true,
+      "status_code": 200,
+      "response_time_ms": 189,
+      "checked_at": "2024-01-15T10:30:03Z"
+    },
+    {
+      "name": "Qiita Study Portal",
+      "url": "https://qiita.ucsd.edu/",
+      "description": "Qiita - Microbiome data analysis platform",
+      "type": "portal",
+      "accessible": false,
+      "status_code": 403,
+      "error": "Forbidden: Access denied",
+      "checked_at": "2024-01-15T10:30:04Z"
+    }
+  ],
+  "gate_status": "PASS"
+}

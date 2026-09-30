@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
 
-The system must successfully download, merge, and preprocess the American Gut Project (AGP) microbiome data (16S rRNA) and associated mental health metadata, filtering for valid samples and handling missing values to create a clean analysis-ready dataset.
+The system must successfully download, merge, and preprocess the American Gut Project (AGP) microbiome data (ribosomal RNA) and associated mental health metadata, filtering for valid samples and handling missing values to create a clean analysis-ready dataset.
 
 **Why this priority**: Without a clean, merged dataset containing both microbiome features and mental health scores, no statistical analysis can be performed. This is the foundational block for the entire research project.
 

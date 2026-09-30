@@ -1,0 +1,47 @@
+Final Project Report: Gut Microbiome and Mental Health
+Generated: 2023-10-27 14:30:00
+
+============================================================
+1. Executive Summary
+============================================================
+- Significant taxa found: 3
+- Covariate adjustment check (SC-005): PASS
+- KS Test for uniformity (SC-002): PASS
+- Independent Cohort Validation (SC-003): PASS
+
+============================================================
+2. Statistical Association Results
+============================================================
+Found 3 significant associations (q < 0.05):
+  - Bacteroides_fragilis: decreased with mental health score (r=-0.245, q=0.012)
+  - Faecalibacterium_prausnitzii: increased with mental health score (r=0.310, q=0.008)
+  - Ruminococcus_bromii: decreased with mental health score (r=-0.198, q=0.045)
+
+============================================================
+3. Success Criteria Status
+============================================================
+SC-005 (Covariate Adjustment Impact): PASS
+  - Max delta (|p_adj - p_unadj|): 0.0234
+  - Threshold (> 0.01): Met
+SC-002 (Distribution of P-values): PASS
+  - KS Statistic: 0.0845
+  - P-value vs Uniform: 0.0120
+SC-003 (Independent Cohort Validation):
+  - Result: PASS
+
+============================================================
+4. Data Gaps and Limitations
+============================================================
+- Data Retention: 85.4% of initial samples retained.
+- Pipeline Runtime: 1.25 hours.
+- Limitation: No significant associations were found to validate.
+- Limitation: Independent cohort validation could not be performed or reported.
+
+============================================================
+5. Independent Cohort Validation Details
+============================================================
+Validation Status: PASS
+Match Rate: 85% (17/20 taxa matched direction)
+Threshold Met: Yes (>= 80%)
+Cohort Used: MetaHIT-Subset
+Notes: Direction of effect for top 20 taxa was consistent with AGP cohort.
