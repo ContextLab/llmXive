@@ -50,15 +50,15 @@ def load_data(split: str = "train"):
     y = torch.tensor(df['formation_energy'].values, dtype=torch.float32).unsqueeze(1)
     return X, y
 
-def train_single_model(input_dim: int, seed: int, epochs: int = 50):
+def train_single_model(input_dim: int, seed: int, epochs: int = 100):
     torch.manual_seed(seed)
     np.random.seed(seed)
     model = HeteroscedasticNN(input_dim)
     X, y = load_data("train")
     train_dataset = torch.utils.data.TensorDataset(X, y)
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=32, shuffle=True)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=64, shuffle=True)
 
-    optimizer = optim.Adam(model.parameters(), lr=1e-3)
+    optimizer = optim.Adam(model.parameters(), lr=0.001)
     
     for epoch in range(epochs):
         model.train()
@@ -77,11 +77,12 @@ def train_single_model(input_dim: int, seed: int, epochs: int = 50):
     
     return model
 
-def train_ensemble(input_dim: int, n_models: int = 5, seed: int = 42):
+def train_ensemble(input_dim: int, n_models: int = 5, base_seed: int = 42):
     models = []
-    for i in range(n_models):
-        logger.info(f"Training ensemble model {i+1}/{n_models} with seed {seed + i}")
-        model = train_single_model(input_dim, seed + i, epochs=50)
+    seeds = [base_seed + i for i in range(n_models)]
+    for i, seed in enumerate(seeds):
+        logger.info(f"Training ensemble model {i+1}/{n_models} with seed {seed}")
+        model = train_single_model(input_dim, seed, epochs=100)
         models.append(model)
     return models
 
@@ -102,31 +103,29 @@ class DeepEnsemble:
         means = torch.stack(means, dim=1)  # (N, n_models)
         vars_list = torch.stack(vars_list, dim=1)
         
-        # Aggregate: Mean of means, Mean of variances + Variance of means (Total Uncertainty)
-        # However, for storage in ensemble, we often store the individual predictions
-        # or the aggregated statistics. The task asks to "aggregate mean/variance".
-        # We return the stack of predictions for later aggregation by the runner.
         return means, vars_list
 
 def main(seed: int = 42):
     config = load_config()
     input_dim = 20
-    n_models = config.get('ensemble_size', 5)
+    # Task T013 requires exactly 5 models with seeds [42, 43, 44, 45, 46]
+    n_models = 5
     
     logger.info(f"Starting Deep Ensemble training with {n_models} models, base seed {seed}")
-    models = train_ensemble(input_dim, n_models=n_models, seed=seed)
+    models = train_ensemble(input_dim, n_models=n_models, base_seed=seed)
     
     out_dir = Path("results/models/ensemble")
     out_dir.mkdir(parents=True, exist_ok=True)
     
     for i, model in enumerate(models):
-        save_path = out_dir / f"ensemble_seed_{seed + i}.pt"
+        current_seed = seed + i
+        save_path = out_dir / f"ensemble_seed_{current_seed}.pt"
         torch.save({
             'model_state_dict': model.state_dict(),
-            'seed': seed + i,
+            'seed': current_seed,
             'input_dim': input_dim
         }, save_path)
-        logger.info(f"Saved model {i+1} to {save_path}")
+        logger.info(f"Saved model {i+1} (seed {current_seed}) to {save_path}")
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')

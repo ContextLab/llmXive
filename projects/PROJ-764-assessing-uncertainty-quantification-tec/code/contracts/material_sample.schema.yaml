@@ -1,73 +1,47 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Material Sample Schema
-description: Schema for material sample data used in uncertainty quantification studies.
+title: Material Sample
+description: Schema for material sample features extracted from OQMD.
 type: object
 required:
   - sample_id
-  - composition
-  - structure
   - formation_energy
-  - features
+  - element_fractions
 properties:
   sample_id:
     type: integer
     description: Unique identifier for the material sample.
-  composition:
-    type: object
-    description: Chemical composition of the material.
-    required:
-      - elements
-      - stoichiometry
-    properties:
-      elements:
-        type: array
-        items:
-          type: string
-        description: List of chemical elements present.
-      stoichiometry:
-        type: array
-        items:
-          type: number
-        description: Stoichiometric coefficients for each element.
-  structure:
-    type: object
-    description: Structural descriptors of the material.
-    required:
-      - crystal_system
-      - space_group
-      - radius
-      - packing_fraction
-    properties:
-      crystal_system:
-        type: string
-        enum:
-          - cubic
-          - tetragonal
-          - orthorhombic
-          - monoclinic
-          - triclinic
-          - hexagonal
-          - rhombohedral
-        description: Crystal system classification.
-      space_group:
-        type: integer
-        description: International Tables for Crystallography space group number.
-      radius:
-        type: number
-        description: Effective atomic radius in Angstroms.
-      packing_fraction:
-        type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Atomic packing fraction.
   formation_energy:
     type: number
-    description: Formation energy per atom in eV/atom.
-  features:
+    format: float64
+    description: Formation energy per atom (eV/atom).
+  bulk_modulus:
+    type: number
+    format: float64
+    nullable: true
+    description: Bulk modulus (GPa). May be missing if not available in source.
+  band_gap:
+    type: number
+    format: float64
+    nullable: true
+    description: Band gap (eV). May be missing if not available in source.
+  element_fractions:
     type: array
+    description: Compositional features (fractions of elements).
     items:
       type: number
-    description: Feature vector (e.g., PCA-reduced features).
+      format: float64
+    minItems: 1
+  radius:
+    type: number
+    format: float64
+    nullable: true
+    description: Mean atomic radius (Å). Optional structural descriptor.
+  packing_fraction:
+    type: number
+    format: float64
+    nullable: true
+    description: Packing fraction. Optional structural descriptor.
   target_bin:
     type: integer
-    description: Quantile bin assignment for the formation energy (used for stratified splitting).
+    nullable: true
+    description: Quantile bin index for the target variable (formation_energy). Added during preprocessing.

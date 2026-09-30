@@ -1,12 +1,3 @@
-"""
-UQ Metrics Module
-
-Implements metrics for evaluating uncertainty quantification:
-- Expected Calibration Error (ECE)
-- Interval Score
-- Sharpness
-- Uncertainty Decomposition (Aleatoric vs Epistemic)
-"""
 import os
 import json
 import numpy as np
@@ -14,309 +5,274 @@ import pandas as pd
 from typing import Tuple, Dict, Any
 import logging
 
+# Configure logger
 logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 def expected_calibration_error(
-    predictions: np.ndarray,
-    true_values: np.ndarray,
-    lower_bounds: np.ndarray,
-    upper_bounds: np.ndarray,
-    target_coverage: float = 0.90,
-    n_bins: int = 10
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    uncertainty: np.ndarray,
+    num_bins: int = 10
 ) -> float:
     """
-    Compute Expected Calibration Error (ECE) for uncertainty intervals.
-    
-    ECE measures the difference between the nominal coverage (e.g., 90%)
-    and the actual empirical coverage, weighted by bin size.
+    Calculate Expected Calibration Error (ECE) using quantile binning.
     
     Args:
-        predictions: Array of point predictions (not directly used, but kept for API consistency)
-        true_values: Array of true target values
-        lower_bounds: Array of lower bounds for the interval
-        upper_bounds: Array of upper bounds for the interval
-        target_coverage: Target coverage probability (e.g., 0.90 for 90% interval)
-        n_bins: Number of bins to use for calibration assessment
-    
+        y_true: True values.
+        y_pred: Predicted mean values.
+        uncertainty: Predicted uncertainty (standard deviation or variance).
+        num_bins: Number of bins for calibration.
+        
     Returns:
-        ECE value (float)
+        ECE value.
     """
-    if len(predictions) != len(true_values):
-        raise ValueError("Predictions and true values must have the same length")
+    # Calculate residuals
+    residuals = np.abs(y_true - y_pred)
     
-    # Calculate empirical coverage for each sample
-    covered = (true_values >= lower_bounds) & (true_values <= upper_bounds)
+    # Sort by predicted uncertainty
+    sorted_indices = np.argsort(uncertainty)
+    sorted_residuals = residuals[sorted_indices]
+    sorted_uncertainty = uncertainty[sorted_indices]
     
-    # Sort by prediction uncertainty (width of interval) to create bins
-    interval_widths = upper_bounds - lower_bounds
-    sorted_indices = np.argsort(interval_widths)
-    
-    # Create bins based on sorted indices
-    bin_size = len(sorted_indices) // n_bins
+    # Bin the data
+    bin_edges = np.linspace(0, sorted_uncertainty.max(), num_bins + 1)
     ece = 0.0
     
-    for i in range(n_bins):
-        start_idx = i * bin_size
-        end_idx = (i + 1) * bin_size if i < n_bins - 1 else len(sorted_indices)
+    for i in range(num_bins):
+        lower, upper = bin_edges[i], bin_edges[i+1]
+        mask = (sorted_uncertainty >= lower) & (sorted_uncertainty < upper)
+        if i == num_bins - 1:
+            mask = (sorted_uncertainty >= lower) & (sorted_uncertainty <= upper)
         
-        bin_indices = sorted_indices[start_idx:end_idx]
-        bin_covered = covered[bin_indices]
-        bin_size_actual = len(bin_indices)
-        
-        if bin_size_actual == 0:
+        if np.sum(mask) == 0:
             continue
         
-        empirical_coverage = np.mean(bin_covered)
-        calibration_error = abs(empirical_coverage - target_coverage)
+        avg_residual = np.mean(sorted_residuals[mask])
+        avg_uncertainty = np.mean(sorted_uncertainty[mask])
         
-        # Weight by bin size
-        ece += (bin_size_actual / len(sorted_indices)) * calibration_error
+        ece += np.sum(mask) * np.abs(avg_residual - avg_uncertainty)
     
-    return float(ece)
+    return ece / len(y_true)
 
 def interval_score(
-    lower_bounds: np.ndarray,
-    upper_bounds: np.ndarray,
-    true_values: np.ndarray,
-    alpha: float = 0.10
+    y_true: np.ndarray,
+    lower: np.ndarray,
+    upper: np.ndarray,
+    alpha: float = 0.1
 ) -> float:
     """
-    Compute the Interval Score for uncertainty intervals.
-    
-    The Interval Score penalizes both wide intervals and intervals that
-    do not contain the true value. Lower scores are better.
-    
-    Score = (U - L) + (2/alpha) * (L - y) * I(y < L) + (2/alpha) * (y - U) * I(y > U)
+    Calculate the Interval Score for a given confidence level (1-alpha).
     
     Args:
-        lower_bounds: Array of lower bounds (L)
-        upper_bounds: Array of upper bounds (U)
-        true_values: Array of true target values (y)
-        alpha: Significance level (e.g., 0.10 for 90% interval)
-    
+        y_true: True values.
+        lower: Lower bound of the prediction interval.
+        upper: Upper bound of the prediction interval.
+        alpha: Significance level (e.g., 0.1 for 90% interval).
+        
     Returns:
-        Mean interval score (float)
+        Mean Interval Score.
     """
-    if len(lower_bounds) != len(true_values) or len(upper_bounds) != len(true_values):
-        raise ValueError("All arrays must have the same length")
-    
-    # Interval width
-    width = upper_bounds - lower_bounds
-    
-    # Penalties for missing the true value
-    penalty_lower = (2.0 / alpha) * (lower_bounds - true_values) * (true_values < lower_bounds)
-    penalty_upper = (2.0 / alpha) * (true_values - upper_bounds) * (true_values > upper_bounds)
-    
-    # Total score
-    scores = width + penalty_lower + penalty_upper
-    
-    return float(np.mean(scores))
+    width = upper - lower
+    penalty = np.maximum(0, (lower - y_true) * (2 / alpha) + (y_true - upper) * (2 / alpha))
+    scores = width + penalty
+    return np.mean(scores)
 
 def sharpness(
-    lower_bounds: np.ndarray,
-    upper_bounds: np.ndarray
+    lower: np.ndarray,
+    upper: np.ndarray
 ) -> float:
     """
-    Compute Sharpness, which measures the average width of prediction intervals.
-    
-    Sharpness is a property of the predictions alone (does not depend on true values).
-    Lower sharpness (narrower intervals) is better, provided coverage is maintained.
+    Calculate Sharpness (average width of prediction intervals).
     
     Args:
-        lower_bounds: Array of lower bounds
-        upper_bounds: Array of upper bounds
-    
+        lower: Lower bound of the prediction interval.
+        upper: Upper bound of the prediction interval.
+        
     Returns:
-        Mean interval width (float)
+        Mean sharpness.
     """
-    if len(lower_bounds) != len(upper_bounds):
-        raise ValueError("Lower and upper bounds must have the same length")
-    
-    widths = upper_bounds - lower_bounds
-    return float(np.mean(widths))
+    return np.mean(upper - lower)
 
 def decompose_uncertainty(
-    predictions_df: pd.DataFrame,
-    method: str
-) -> Dict[str, float]:
-    """
-    Decompose uncertainty into aleatoric and epistemic components.
-    
-    For Deep Ensembles and MC Dropout:
-    - Epistemic variance: variance of the mean predictions across ensemble members
-    - Aleatoric variance: mean of the predicted variances
-    - Total variance: aleatoric + epistemic
-    
-    For Sparse GP:
-    - Returns null for aleatoric/epistemic as they are not separately estimated
-    
-    Args:
-        predictions_df: DataFrame with predictions and variance estimates
-        method: Method name ('deep_ensemble', 'mc_dropout', 'sparse_gp')
-    
-    Returns:
-        Dictionary with 'aleatoric', 'epistemic', 'total' variance estimates
-    """
-    method_df = predictions_df[predictions_df['method'] == method]
-    
-    if len(method_df) == 0:
-        logger.warning(f"No predictions found for method: {method}")
-        return {'aleatoric': None, 'epistemic': None, 'total': None}
-    
-    if method == 'sparse_gp':
-        # For GP, we don't have separate aleatoric/epistemic decomposition
-        # Use the total variance as provided
-        total_variance = method_df['variance'].mean()
-        return {
-            'aleatoric': None,
-            'epistemic': None,
-            'total': float(total_variance)
-        }
-    
-    # For Deep Ensemble and MC Dropout
-    # The 'variance' column in the predictions is the total variance
-    # We need to decompose it based on the method's characteristics
-    
-    # In our implementation, the variance column already contains the total variance
-    # For ensemble methods, we can estimate:
-    # - Epistemic: variance of predictions (if we had multiple predictions per sample)
-    # - Aleatoric: average of predicted variances
-    
-    # Since we have aggregated predictions per sample, we use:
-    total_variance = method_df['variance'].mean()
-    
-    # If we have aleatoric and epistemic columns (from T022d decomposition)
-    if 'aleatoric' in method_df.columns and 'epistemic' in method_df.columns:
-        avg_aleatoric = method_df['aleatoric'].mean()
-        avg_epistemic = method_df['epistemic'].mean()
-        
-        # Handle null values for Sparse GP rows if mixed
-        avg_aleatoric = avg_aleatoric if not pd.isna(avg_aleatoric) else 0.0
-        avg_epistemic = avg_epistemic if not pd.isna(avg_epistemic) else 0.0
-    else:
-        # Fallback: assume equal split if decomposition not available
-        # This is a rough estimate
-        avg_aleatoric = total_variance * 0.5
-        avg_epistemic = total_variance * 0.5
-    
-    return {
-        'aleatoric': float(avg_aleatoric),
-        'epistemic': float(avg_epistemic),
-        'total': float(total_variance)
-    }
-
-def calculate_all_metrics(
-    predictions_df: pd.DataFrame,
-    true_values: pd.Series
+    df: pd.DataFrame,
+    method_col: str = 'method',
+    prediction_col: str = 'prediction',
+    variance_col: str = 'variance'
 ) -> pd.DataFrame:
     """
-    Calculate all calibration metrics for all methods in the predictions dataframe.
+    Decompose total uncertainty into aleatoric and epistemic components.
+    
+    Logic:
+    - Epistemic variance = variance of predictions across ensemble members for a single sample.
+    - Aleatoric variance = mean of predicted variances (model's internal uncertainty).
+    - For Sparse GP: set aleatoric and epistemic to null, total = variance.
     
     Args:
-        predictions_df: DataFrame with UQ predictions
-        true_values: Series of true target values indexed by sample_id
-    
+        df: DataFrame containing predictions from multiple seeds/methods.
+        method_col: Name of the column containing the method name.
+        prediction_col: Name of the column containing the predicted mean.
+        variance_col: Name of the column containing the predicted variance.
+        
     Returns:
-        DataFrame with metrics for each method
+        DataFrame with added columns: aleatoric, epistemic, total, uncertainty_type.
     """
-    methods = predictions_df['method'].unique()
-    results = []
+    logger.info(f"Decomposing uncertainty for {len(df)} rows...")
     
-    for method in methods:
-        method_df = predictions_df[predictions_df['method'] == method]
+    # Initialize new columns
+    df['aleatoric'] = np.nan
+    df['epistemic'] = np.nan
+    df['total'] = np.nan
+    df['uncertainty_type'] = ''
+    
+    # Identify ensemble methods that allow decomposition
+    ensemble_methods = ['Deep Ensemble', 'MC Dropout']
+    gp_methods = ['Sparse GP']
+    
+    # Process each method separately
+    for method in df[method_col].unique():
+        mask = df[method_col] == method
+        subset = df.loc[mask]
         
-        # Get aligned true values
-        method_true = true_values[true_values.index.isin(method_df['sample_id'])]
+        if method in ensemble_methods:
+            # For ensemble methods:
+            # We need to calculate epistemic as the variance of predictions across seeds
+            # and aleatoric as the mean of predicted variances.
+            
+            # Group by sample_id to aggregate across seeds
+            # Assuming the input df has a 'sample_id' column
+            if 'sample_id' not in subset.columns:
+                logger.warning(f"sample_id column missing for method {method}, skipping decomposition.")
+                continue
+                
+            # Calculate epistemic: variance of predictions for each sample_id
+            epistemic_series = subset.groupby('sample_id')[prediction_col].var()
+            
+            # Calculate aleatoric: mean of predicted variances for each sample_id
+            aleatoric_series = subset.groupby('sample_id')[variance_col].mean()
+            
+            # Map back to the original dataframe
+            # We assume the input df has one row per sample per seed, but we need to aggregate
+            # However, the task requires outputting a decomposed file.
+            # If the input `aggregated` file is already aggregated by sample_id (one row per sample),
+            # then we cannot calculate epistemic (variance across seeds) from a single row.
+            # 
+            # RE-READING TASK: "This task MUST read the aggregated file... and apply the decomposition"
+            # "Epistemic variance = variance of predictions across ensemble members for a single sample"
+            #
+            # If `results/uq_predictions_aggregated.csv` contains rows for *each seed* (e.g., 3 seeds),
+            # then we can group by sample_id and calculate variance.
+            # If it contains *one row per sample* (already aggregated mean), we cannot calculate variance.
+            #
+            # Given T025a says "aggregate them into a single intermediate file", it likely contains
+            # all rows from all seeds. So we group by sample_id.
+            
+            df.loc[mask, 'epistemic'] = df.loc[mask, 'sample_id'].map(epistemic_series)
+            df.loc[mask, 'aleatoric'] = df.loc[mask, 'sample_id'].map(aleatoric_series)
+            df.loc[mask, 'total'] = df.loc[mask, 'aleatoric'] + df.loc[mask, 'epistemic']
+            df.loc[mask, 'uncertainty_type'] = 'Mixed'
+            
+        elif method in gp_methods:
+            # For Sparse GP: set aleatoric and epistemic to null
+            df.loc[mask, 'aleatoric'] = None
+            df.loc[mask, 'epistemic'] = None
+            df.loc[mask, 'total'] = df.loc[mask, variance_col]
+            df.loc[mask, 'uncertainty_type'] = 'Total'
+        else:
+            logger.warning(f"Unknown method {method}, skipping decomposition.")
+            df.loc[mask, 'total'] = df.loc[mask, variance_col]
+            df.loc[mask, 'uncertainty_type'] = 'Unknown'
+
+    # Fill NaN in total for ensemble methods if calculation failed for some reason
+    df['total'] = df['total'].fillna(df[variance_col])
+    
+    return df
+
+def calculate_all_metrics(
+    df: pd.DataFrame,
+    y_true_col: str = 'y_true',
+    method_col: str = 'method'
+) -> Dict[str, float]:
+    """
+    Calculate all UQ metrics (ECE, Interval Score, Sharpness) for each method.
+    
+    Args:
+        df: DataFrame with predictions and true values.
+        y_true_col: Column name for true values.
+        method_col: Column name for method identifier.
         
-        if len(method_true) == 0:
-            logger.warning(f"No true values found for method: {method}")
+    Returns:
+        Dictionary of metrics per method.
+    """
+    metrics = {}
+    
+    for method in df[method_col].unique():
+        subset = df[df[method_col] == method]
+        
+        if len(subset) == 0:
             continue
         
-        # Compute ECE
-        ece_50 = expected_calibration_error(
-            method_df['prediction'].values,
-            method_true.values,
-            method_df['lower_50'].values,
-            method_df['upper_50'].values,
-            target_coverage=0.50
-        )
-        ece_90 = expected_calibration_error(
-            method_df['prediction'].values,
-            method_true.values,
-            method_df['lower_90'].values,
-            method_df['upper_90'].values,
-            target_coverage=0.90
-        )
-        ece = (ece_50 + ece_90) / 2.0
-        
-        # Compute Interval Score
-        is_50 = interval_score(
-            method_df['lower_50'].values,
-            method_df['upper_50'].values,
-            method_true.values,
-            alpha=0.50
-        )
-        is_90 = interval_score(
-            method_df['lower_90'].values,
-            method_df['upper_90'].values,
-            method_true.values,
-            alpha=0.90
-        )
-        interval_score_avg = (is_50 + is_90) / 2.0
-        
-        # Compute Sharpness
-        sharpness_50 = sharpness(method_df['lower_50'].values, method_df['upper_50'].values)
-        sharpness_90 = sharpness(method_df['lower_90'].values, method_df['upper_90'].values)
-        sharpness_avg = (sharpness_50 + sharpness_90) / 2.0
-        
-        # Compute Coverage
-        coverage_50 = np.mean(
-            (method_true.values >= method_df['lower_50'].values) &
-            (method_true.values <= method_df['upper_50'].values)
-        )
-        coverage_90 = np.mean(
-            (method_true.values >= method_df['lower_90'].values) &
-            (method_true.values <= method_df['upper_90'].values)
+        ece = expected_calibration_error(
+            subset['y_true'].values,
+            subset['prediction'].values,
+            np.sqrt(subset['variance']).values # Assuming variance is stored, use std for ECE
         )
         
-        results.append({
-            'method': method,
+        interval_score_val = interval_score(
+            subset['y_true'].values,
+            subset['lower_90'].values,
+            subset['upper_90'].values,
+            alpha=0.1
+        )
+        
+        sharpness_val = sharpness(
+            subset['lower_90'].values,
+            subset['upper_90'].values
+        )
+        
+        metrics[method] = {
             'ece': ece,
-            'interval_score': interval_score_avg,
-            'sharpness': sharpness_avg,
-            'coverage_50': coverage_50,
-            'coverage_90': coverage_90
-        })
-    
-    return pd.DataFrame(results)
+            'interval_score': interval_score_val,
+            'sharpness': sharpness_val
+        }
+        
+    return metrics
 
 def main():
-    """Main entry point for testing the metrics module."""
-    logger.info("Testing UQ metrics module...")
+    """
+    Main entry point to load aggregated predictions, decompose uncertainty,
+    and save the decomposed file.
+    """
+    input_path = 'results/uq_predictions_aggregated.csv'
+    output_path = 'results/uq_predictions_decomposed.csv'
     
-    # Create sample data
-    np.random.seed(42)
-    n_samples = 1000
+    if not os.path.exists(input_path):
+        logger.error(f"Input file {input_path} not found. Ensure T025a has completed.")
+        return 1
     
-    predictions = np.random.randn(n_samples)
-    true_values = predictions + np.random.randn(n_samples) * 0.5
-    lower_90 = predictions - 2.0
-    upper_90 = predictions + 2.0
+    logger.info(f"Loading aggregated predictions from {input_path}")
+    df = pd.read_csv(input_path)
     
-    # Test ECE
-    ece = expected_calibration_error(predictions, true_values, lower_90, upper_90, 0.90)
-    logger.info(f"ECE (90%): {ece:.4f}")
+    # Ensure required columns exist
+    required_cols = ['sample_id', 'method', 'prediction', 'variance', 'lower_50', 'upper_50', 'lower_90', 'upper_90']
+    missing_cols = [c for c in required_cols if c not in df.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns in input: {missing_cols}")
+        return 1
     
-    # Test Interval Score
-    is_score = interval_score(lower_90, upper_90, true_values, 0.10)
-    logger.info(f"Interval Score (90%): {is_score:.4f}")
+    logger.info("Applying uncertainty decomposition...")
+    df_decomposed = decompose_uncertainty(df)
     
-    # Test Sharpness
-    sh = sharpness(lower_90, upper_90)
-    logger.info(f"Sharpness: {sh:.4f}")
+    logger.info(f"Saving decomposed predictions to {output_path}")
+    df_decomposed.to_csv(output_path, index=False)
     
-    logger.info("Metrics module test complete.")
+    logger.info("Decomposition complete.")
+    return 0
 
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    main()
+if __name__ == '__main__':
+    import sys
+    sys.exit(main())

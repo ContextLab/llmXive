@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: UQ Prediction Schema
-description: Schema for uncertainty quantification prediction outputs.
+title: UQ Prediction
+description: Schema for uncertainty quantification predictions and metrics.
 type: object
 required:
   - sample_id
@@ -21,45 +21,51 @@ properties:
       - deep_ensemble
       - mc_dropout
       - sparse_gp
-      - baseline
-    description: UQ method used for prediction.
+    description: The UQ method used to generate the prediction.
   prediction:
     type: number
-    description: Predicted formation energy (eV/atom).
+    format: float64
+    description: Point prediction for the target variable (e.g., formation energy).
   variance:
     type: number
-    minimum: 0.0
-    description: Total variance estimate.
+    format: float64
+    description: Total uncertainty variance estimate.
   lower_50:
     type: number
-    description: Lower bound of 50% confidence interval.
+    format: float64
+    description: Lower bound of the 50% confidence interval.
   upper_50:
     type: number
-    description: Upper bound of 50% confidence interval.
+    format: float64
+    description: Upper bound of the 50% confidence interval.
   lower_90:
     type: number
-    description: Lower bound of 90% confidence interval.
+    format: float64
+    description: Lower bound of the 90% confidence interval.
   upper_90:
     type: number
-    description: Upper bound of 90% confidence interval.
+    format: float64
+    description: Upper bound of the 90% confidence interval.
   aleatoric:
-    type:
-      - number
-      - "null"
-    description: Aleatoric uncertainty component (null for Sparse GP).
+    type: number
+    format: float64
+    nullable: true
+    description: Aleatoric uncertainty component. Null for Sparse GP.
   epistemic:
-    type:
-      - number
-      - "null"
-    description: Epistemic uncertainty component (null for Sparse GP).
+    type: number
+    format: float64
+    nullable: true
+    description: Epistemic uncertainty component. Null for Sparse GP.
   total:
-    type:
-      - number
-      - "null"
-    description: Total uncertainty (used for Sparse GP where aleatoric/epistemic are null).
+    type: number
+    format: float64
+    nullable: true
+    description: Total uncertainty (sum of aleatoric and epistemic). Null for Sparse GP.
   uncertainty_type:
     type: string
     enum:
       - total
-      - decomposed
-    description: Whether uncertainty is total or decomposed.
+      - aleatoric
+      - epistemic
+    nullable: true
+    description: Type of uncertainty being reported in the row.

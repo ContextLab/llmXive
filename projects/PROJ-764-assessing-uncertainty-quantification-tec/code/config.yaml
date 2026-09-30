@@ -1,4 +1,28 @@
 seed: 42
 split_ratio: [0.8, 0.1, 0.1]
-split_type: "stratified"
+split_type: stratified
 timeout_hours: 5.0
+
+data:
+  raw_dir: data/raw
+  processed_dir: data/processed
+  download_url: "https://huggingface.co/datasets/materials-toolkits/oqmd"
+
+model:
+  hidden_dims: [64, 32]
+  dropout_rate: 0.2
+
+training:
+  epochs: 100
+  lr: 0.001
+  batch_size: 64
+
+uq:
+  mc_dropout_passes: 30
+  mc_dropout_dropout_rate: 0.2
+  ensemble_size: 5
+  gp_inducing_points: 500
+
+paths:
+  results_dir: results
+  logs_dir: logs

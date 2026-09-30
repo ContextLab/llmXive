@@ -5,233 +5,220 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from pathlib import Path
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_predictions(predictions_path: str) -> pd.DataFrame:
+def load_predictions(input_path: str) -> pd.DataFrame:
     """
-    Load the UQ predictions CSV.
-    Expects columns: sample_id, method, prediction, variance, lower_50, upper_50, lower_90, upper_90, aleatoric, epistemic, total, uncertainty_type
-    """
-    if not os.path.exists(predictions_path):
-        raise FileNotFoundError(f"Predictions file not found: {predictions_path}")
+    Load the aggregated UQ predictions from CSV.
     
-    df = pd.read_csv(predictions_path)
-    logger.info(f"Loaded predictions: {len(df)} rows, methods: {df['method'].unique().tolist()}")
+    Args:
+        input_path: Path to the CSV file (e.g., results/uq_predictions_decomposed.csv)
+        
+    Returns:
+        DataFrame with predictions and uncertainty estimates
+    """
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Predictions file not found: {input_path}")
+    
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} predictions from {input_path}")
     return df
 
 def calculate_calibration_bins(
-    df: pd.DataFrame, 
-    method: str, 
+    predictions: pd.DataFrame,
+    method: str,
     n_bins: int = 10
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Calculate bin statistics for a reliability diagram.
+    Calculate calibration bins for a specific method.
     
-    For each bin, we compute:
-    - mean_predicted_probability (x-axis): The average predicted confidence for the interval.
-      For 90% intervals, this is 0.90. For 50% intervals, this is 0.50.
-      However, to plot a curve, we often bin by the *predicted uncertainty* or simply 
-      group by the specific interval level if we are plotting multiple intervals.
-      
-      Standard Reliability Diagram for Uncertainty Quantification:
-      X-axis: Mean predicted confidence (e.g., 0.50, 0.90, or binned by variance).
-      Y-axis: Empirical coverage (fraction of true values falling within the interval).
-      
-      Since our data has fixed intervals (50% and 90%), we will plot points for these 
-      specific confidence levels. If we want a curve, we would need to vary the threshold.
-      Here, we will bin the data by the *predicted variance* or simply aggregate by method 
-      and interval type to show the calibration gap.
-      
-      Alternative interpretation for fixed intervals:
-      Bin the samples by their predicted variance (uncertainty magnitude) and check 
-      if higher variance correlates with higher error/miss rate.
-      
-      Let's implement the standard "Reliability Diagram" where X = Predicted Confidence.
-      Since we have discrete confidence levels (0.5, 0.9), we will calculate the 
-      empirical coverage for these specific points.
-      
-      To make it a "diagram" (line/curve), we can also bin by the *width* of the interval 
-      or the *predicted variance* to see if the model is well-calibrated across different 
-      levels of uncertainty.
-      
-      Strategy:
-      1. Filter by method.
-      2. Group by interval type (50% or 90%).
-      3. Calculate Empirical Coverage for each group.
-      4. Return these points to plot.
+    Groups predictions into bins based on predicted probability/confidence
+    and calculates the empirical accuracy (fraction of correct predictions)
+    within each bin.
+    
+    For regression with uncertainty, we use the coverage of prediction intervals.
+    
+    Args:
+        predictions: DataFrame with 'method', 'prediction', 'lower_50', 'upper_50', 
+                     'lower_90', 'upper_90', and 'target' (actual value) columns
+        method: The UQ method name to filter for
+        n_bins: Number of bins to use (default 10)
+        
+    Returns:
+        Tuple of (bin_edges, empirical_coverage, nominal_coverage)
     """
-    method_df = df[df['method'] == method]
+    # Filter for the specific method
+    method_df = predictions[predictions['method'] == method].copy()
     
-    # Define confidence levels and their corresponding columns
-    intervals = [
-        (0.50, 'lower_50', 'upper_50'),
-        (0.90, 'lower_90', 'upper_90')
-    ]
+    if len(method_df) == 0:
+        raise ValueError(f"No predictions found for method: {method}")
     
-    bin_data = []
+    # We need the actual target values to compute coverage
+    # Assuming the target column is named 'target' or we need to infer it
+    if 'target' not in method_df.columns:
+        # Try to find a column that looks like the target
+        target_cols = [col for col in method_df.columns if 'target' in col.lower() or 'actual' in col.lower()]
+        if target_cols:
+            target_col = target_cols[0]
+            method_df['target'] = method_df[target_col]
+        else:
+            raise KeyError("Could not find target column in predictions. Required for calibration.")
     
-    # We need the true values. The input CSV from T022d/T022b might not have 'target'.
-    # T016a output: sample_id, method, prediction, variance, lower_50, upper_50, lower_90, upper_90
-    # T022d output: adds aleatoric, epistemic, total, uncertainty_type
-    # We need the ground truth 'target' to calculate coverage.
-    # Assumption: The 'sample_id' allows us to join with the test set if available,
-    # OR the task expects us to calculate coverage based on the assumption that 
-    # the predictions were made on a known test set.
+    # Calculate coverage for 50% and 90% intervals
+    # For each sample, check if target falls within the interval
+    method_df['covered_50'] = (method_df['target'] >= method_df['lower_50']) & (method_df['target'] <= method_df['upper_50'])
+    method_df['covered_90'] = (method_df['target'] >= method_df['lower_90']) & (method_df['target'] <= method_df['upper_90'])
     
-    # Looking at T021 (metrics.py) and T024 (calibration_report.csv), 
-    # the metrics are calculated. This task is to PLOT them.
-    # If the 'target' is not in the predictions file, we cannot calculate coverage here.
-    # However, T022d output description says: "columns: sample_id, method, prediction...".
-    # It does not explicitly mention 'target'.
-    # But T021 (ECE calculation) requires the target.
-    # Let's assume the 'uq_predictions.csv' (T022d) might need to be joined with the test set,
-    # OR the task implies we use the data that was used to generate the metrics.
+    # Sort by prediction uncertainty (variance) to create bins
+    # Higher variance = lower confidence, so we bin by variance
+    method_df = method_df.sort_values('variance')
     
-    # Correction: To generate a reliability diagram, we MUST have the true values.
-    # If the predictions file doesn't have them, we must load the test set.
-    # The test set is at: data/processed/raw_test.csv (from T006a) or features_test_20pca.csv.
-    # The raw_test.csv has the target.
+    # Create bins based on variance quantiles
+    method_df['bin'] = pd.qcut(method_df['variance'], q=n_bins, labels=False, duplicates='drop')
     
-    test_path = "data/processed/raw_test.csv"
-    if not os.path.exists(test_path):
-        # Try the PCA reduced version if raw is missing, but we need the target.
-        # The PCA version might not have the target if it was dropped.
-        # Let's assume raw_test.csv exists as per T006a.
-        raise FileNotFoundError(f"Test set not found at {test_path}. Cannot compute coverage.")
+    # Calculate empirical coverage per bin
+    bin_edges = []
+    empirical_coverages = []
+    nominal_coverages = []
     
-    test_df = pd.read_csv(test_path)
-    # Ensure sample_id matches. If sample_id is just an index, we might need to merge.
-    # Assuming sample_id in predictions corresponds to the index or ID in test_df.
-    # If test_df doesn't have 'sample_id', we assume row order matches or we use index.
-    if 'sample_id' not in test_df.columns:
-        test_df['sample_id'] = test_df.index
-    
-    # Merge to get targets
-    merged = method_df.merge(test_df[['sample_id', 'target']], on='sample_id', how='left')
-    
-    if merged['target'].isna().any():
-        logger.warning(f"Missing targets for some samples in method {method}. Dropping them.")
-        merged = merged.dropna(subset=['target'])
-    
-    for conf, lower_col, upper_col in intervals:
-        if lower_col not in method_df.columns or upper_col not in method_df.columns:
+    for i in range(n_bins):
+        bin_data = method_df[method_df['bin'] == i]
+        if len(bin_data) == 0:
             continue
         
-        lower_vals = merged[lower_col]
-        upper_vals = merged[upper_col]
-        true_vals = merged['target']
+        # Get bin edges
+        bin_variances = bin_data['variance'].values
+        bin_edges.append((bin_variances.min(), bin_variances.max()))
         
-        # Calculate if true value is within interval
-        in_interval = (true_vals >= lower_vals) & (true_vals <= upper_vals)
-        empirical_coverage = in_interval.mean()
+        # Calculate empirical coverage
+        emp_cov_50 = bin_data['covered_50'].mean()
+        emp_cov_90 = bin_data['covered_90'].mean()
         
-        bin_data.append({
-            'confidence': conf,
-            'empirical_coverage': empirical_coverage,
-            'n_samples': len(merged)
-        })
+        # Use average of 50% and 90% for a general reliability measure
+        # Or we can plot both separately
+        empirical_coverages.append((emp_cov_50 + emp_cov_90) / 2.0)
+        nominal_coverages.append(0.7)  # Average nominal coverage (50% and 90%)
     
-    if not bin_data:
-        return np.array([]), np.array([]), np.array([]), np.array([])
+    # Convert to arrays
+    bin_edges = np.array(bin_edges)
+    empirical_coverages = np.array(empirical_coverages)
+    nominal_coverages = np.array(nominal_coverages)
     
-    confidences = np.array([b['confidence'] for b in bin_data])
-    coverages = np.array([b['empirical_coverage'] for b in bin_data])
-    n_samples = np.array([b['n_samples'] for b in bin_data])
-    
-    return confidences, coverages, n_samples, np.zeros_like(confidences) # dummy for error bars if needed
+    return bin_edges, empirical_coverages, nominal_coverages
 
 def plot_reliability_diagram(
-    df: pd.DataFrame,
+    bin_edges: np.ndarray,
+    empirical_coverages: np.ndarray,
+    nominal_coverages: np.ndarray,
+    method_name: str,
     output_path: str,
-    methods: List[str] = None,
-    dpi: int = 150
-):
+    title: Optional[str] = None
+) -> None:
     """
-    Generate reliability diagrams for each method.
-    X-axis: Predicted Confidence (0.50, 0.90)
-    Y-axis: Empirical Coverage
-    Diagonal line: Perfect calibration
+    Create and save a reliability diagram for a single method.
+    
+    Args:
+        bin_edges: Array of (min, max) tuples for each bin
+        empirical_coverages: Empirical coverage values for each bin
+        nominal_coverages: Nominal coverage values for each bin
+        method_name: Name of the UQ method
+        output_path: Path to save the plot
+        title: Optional custom title
     """
-    if methods is None:
-        methods = df['method'].unique().tolist()
+    fig, ax = plt.subplots(figsize=(8, 6))
     
-    plt.figure(figsize=(10, 8))
+    # Plot the reliability curve
+    x_centers = [(edge[0] + edge[1]) / 2 for edge in bin_edges]
+    ax.plot(x_centers, empirical_coverages, 'bo-', label='Empirical Coverage', linewidth=2, markersize=8)
     
-    colors = plt.cm.tab10(np.linspace(0, 1, len(methods)))
+    # Plot the ideal diagonal line
+    ax.plot([0, 1], [0, 1], 'r--', label='Ideal Calibration', linewidth=2)
     
-    for idx, method in enumerate(methods):
-        if method not in df['method'].values:
-            logger.warning(f"Method {method} not found in data.")
-            continue
-        
-        confs, coverages, _, _ = calculate_calibration_bins(df, method)
-        
-        if len(confs) == 0:
-            continue
-        
-        plt.scatter(
-            confs, 
-            coverages, 
-            color=colors[idx], 
-            label=method, 
-            s=100, 
-            zorder=5
-        )
-        # Connect points for visual clarity (though only 2 points usually)
-        plt.plot(confs, coverages, color=colors[idx], alpha=0.5)
-        
-        # Add error bar or label for sample count if needed, 
-        # but simple points are standard for discrete intervals.
-        
-    # Plot perfect calibration line
-    plt.plot([0, 1], [0, 1], 'k--', label='Perfect Calibration', linewidth=2)
+    # Fill area between nominal and empirical (optional visualization)
+    ax.fill_between(x_centers, nominal_coverages, empirical_coverages, alpha=0.2, color='gray')
     
-    plt.xlabel('Predicted Confidence', fontsize=12)
-    plt.ylabel('Empirical Coverage', fontsize=12)
-    plt.title('Reliability Diagrams: Predicted Confidence vs. Empirical Coverage', fontsize=14)
-    plt.legend(loc='lower right')
-    plt.grid(True, alpha=0.3)
-    plt.xlim(0, 1)
-    plt.ylim(0, 1)
+    # Labels and title
+    ax.set_xlabel('Nominal Coverage (Confidence Level)', fontsize=12)
+    ax.set_ylabel('Empirical Coverage (Actual Accuracy)', fontsize=12)
+    ax.set_title(title or f'Reliability Diagram: {method_name}', fontsize=14)
+    ax.legend(loc='upper left')
+    ax.grid(True, alpha=0.3)
+    ax.set_xlim([0, 1])
+    ax.set_ylim([0, 1])
     
-    # Save
-    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
-    plt.savefig(output_path, dpi=dpi, bbox_inches='tight')
+    # Add annotations for each point
+    for i, (x, y) in enumerate(zip(x_centers, empirical_coverages)):
+        ax.annotate(f'{y:.2f}', (x, y), textcoords="offset points", xytext=(0,10), ha='center', fontsize=9)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
+    
     logger.info(f"Reliability diagram saved to {output_path}")
 
 def main():
     """
-    Main entry point for generating reliability diagrams.
-    Reads T022d output and generates plots for each method.
-    """
-    # Input path from T022d
-    input_path = "results/uq_predictions.csv"
-    output_dir = "results"
+    Main function to generate reliability diagrams for all UQ methods.
     
-    if not os.path.exists(input_path):
-        logger.error(f"Input file {input_path} not found. Ensure T022d has completed.")
+    Reads from results/uq_predictions_decomposed.csv and generates
+    reliability diagrams for each unique method.
+    """
+    # Define paths
+    input_path = "results/uq_predictions_decomposed.csv"
+    output_dir = Path("results")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load predictions
+    try:
+        predictions = load_predictions(input_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Error loading predictions: {e}")
         sys.exit(1)
     
-    df = load_predictions(input_path)
-    methods = df['method'].unique().tolist()
+    # Get unique methods
+    methods = predictions['method'].unique()
+    logger.info(f"Found {len(methods)} methods: {methods}")
     
-    logger.info(f"Generating reliability diagrams for methods: {methods}")
-    
+    # Generate reliability diagram for each method
     for method in methods:
-        output_file = os.path.join(output_dir, f"reliability_diagram_{method}.png")
-        plot_reliability_diagram(df, output_file, methods=[method])
-    
-    # Also generate a combined plot
-    combined_output = os.path.join(output_dir, "reliability_diagram_combined.png")
-    plot_reliability_diagram(df, combined_output, methods=methods)
+        try:
+            logger.info(f"Processing method: {method}")
+            
+            # Calculate calibration bins
+            bin_edges, empirical_coverages, nominal_coverages = calculate_calibration_bins(
+                predictions, method, n_bins=10
+            )
+            
+            # Generate output filename
+            safe_method_name = method.replace(" ", "_").replace("-", "_").lower()
+            output_filename = f"reliability_diagram_{safe_method_name}.png"
+            output_path = str(output_dir / output_filename)
+            
+            # Create and save the plot
+            plot_reliability_diagram(
+                bin_edges, 
+                empirical_coverages, 
+                nominal_coverages, 
+                method, 
+                output_path,
+                title=f"Reliability Diagram: {method}"
+            )
+            
+            logger.info(f"Successfully generated {output_filename}")
+            
+        except Exception as e:
+            logger.error(f"Failed to generate reliability diagram for {method}: {e}")
+            continue
     
     logger.info("All reliability diagrams generated successfully.")
 

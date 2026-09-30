@@ -4,13 +4,6 @@ T001a:
   r: No evidence of the required directories (`code/`, `data/`, `results/`, `tests/`,
     `docs/`) is provided; the implementer did not supply a directory listing or any
     files showing that the project structure exists. The task remains undone.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting (ruff) or formatting (black) configuration files (e.g., `pyproject.toml`,
-    `.ruff.toml`, `.pre-commit-config.yaml`) or any related setup scripts are present
-    in the provided artifacts, so the requirement to configure these tools is not
-    satisfied. The evidence only contains a feature specification unrelated to linting/formatting.
 T005a:
   c: false
   h: d7efa1d1d85da27707da729b19d90c8ecb8cee32498d118f6da6610d9982cc72
@@ -19,52 +12,60 @@ T005a:
     \ contains a placeholder hash instead of the real SHA\u2011256 of the parquet\
     \ file. Both the materialized dataset and a valid checksum are missing, so the\
     \ task is not genuinely completed."
-T006a:
+T005b:
   c: false
-  h: dd037ce01c0bb288ae799fb117b85e5968a0adc670cfe5902eaea0a4b0e31bac
-  r: "The provided `code/data/preprocess.py` is truncated and does not contain logic\
-    \ to write the three required CSV files, nor does it finish the `stratified_split`\
-    \ function (syntax error). The expected output files `data/processed/raw_train.csv`,\
-    \ `raw_val.csv`, and `raw_test.csv` are absent from the repository. Consequently,\
-    \ the implementation does not satisfy the task\u2019s requirements."
+  h: c8285695f5b3f3785b359b04a2bca92307d8bfcd164558b4dde4b7b95e91f1c9
+  r: The provided `code/data/download.py` defines a validator but does not write missing
+    columns to `data/validation_report.json` nor update a config flag, and the required
+    `data/validation_report.json` file is absent. Consequently the fallback logic
+    and flag setting are not implemented.
+T005d:
+  c: false
+  h: c8285695f5b3f3785b359b04a2bca92307d8bfcd164558b4dde4b7b95e91f1c9
+  r: "The repository lacks the required `data/validation_report.json` file, and the\
+    \ provided `code/data/download.py` does not contain any logic that writes counts\
+    \ of rows with structural descriptors or a list of missing columns to that JSON\
+    \ file. Consequently, the task\u2019s validation\u2011update requirement is not\
+    \ fulfilled."
+T014:
+  c: false
+  h: 6ea6b03db91dcdb0f611c631a2573a25497f97deccfbc65c1fea4f6b702d8791
+  r: "The provided `mc_dropout.py` stops mid\u2011definition of `run_mc_dropout_inference`\
+    \ (truncated) and does not contain code that performs 30 stochastic forward passes\
+    \ on the test set or writes a CSV file. Moreover, the required output file `results/uq_predictions_mc_dropout.csv`\
+    \ is absent. The task\u2019s core requirements are therefore unmet."
 T015a:
   c: true
-  h: 1a0dfb78ce87f8475acc6eb59be425a73808a8cfb1deff375f598e1ec7d22bb5
-  r: "The repository contains a non\u2011empty `code/models/sparse_gp.py` that defines\
-    \ `load_processed_data()` which verifies the presence of `data/processed/features_test_20pca.csv`\
-    \ and `data/processed/pca_transformer.pkl`, raising a `FileNotFoundError` if either\
-    \ is absent, and does not attempt to refit PCA. This satisfies the verification\
-    \ requirement."
+  h: 6ff5e728f73e1546dec932eaf2add206e35169e4b7d60f1994fc42859f71fae4
+  r: "The file `code/models/sparse_gp.py` defines `verify_dependencies()` which checks\
+    \ for `data/processed/features_test_20pca.csv` and `data/processed/pca_transformer.pkl`\
+    \ (along with a training file) and raises a `FileNotFoundError` with logging if\
+    \ any are absent, satisfying the \u201Cfail loudly\u201D requirement and contains\
+    \ no PCA re\u2011fitting logic. The required artifacts exist (the script) and\
+    \ implement the specified verification behavior."
+T015b:
+  c: false
+  h: f4cccf6cb56690c0a9a0a740d1a2f522c14ffb74de7acc50d6506b87225876fe
+  r: "The required data file `data/processed/features_train_20pca.csv` is absent,\
+    \ causing the verification step to fail, and the provided `sparse_gp.py` is incomplete\
+    \ (truncated) with no visible fitting logic, RBF kernel setup, or training routine.\
+    \ The task\u2019s core requirement\u2014loading the PCA features and fitting a\
+    \ Sparse GP with 500 inducing points\u2014is therefore not met."
 T015c:
   c: false
-  h: 224a6baf9112e5093b0df447d248de6475070a0bda38857ea99eefe242f2a163
-  r: The provided `code/models/sparse_gp.py` does not contain any code that trains
-    a Sparse GP and writes the resulting model to `results/models/sparse_gp_model.pt`,
-    and the expected output file `results/models/sparse_gp_model.pt` is absent. The
-    task therefore remains unfinished.
+  h: 77a5e25b95f0b1599baf16de64e5c85340d44cff97fe3cf951d1aa4072e1c1f1
+  r: "The `code/models/sparse_gp.py` file is incomplete (truncated mid\u2011definition,\
+    \ no training or save logic) and the required output file `results/models/sparse_gp_model.pt`\
+    \ is absent. Consequently the task of saving the fitted GP model to the specified\
+    \ path is not fulfilled."
 T016a:
   c: false
-  h: ae1905d49a70096b6568ed6427e0b19ae3c5e598efd2434323e4cf71abc76612
-  r: The provided `run_single_seed.py` does not generate the required CSV with the
-    exact columns (bounds are never computed or written), and the necessary model
-    weight file `results/models/sparse_gp_model.pt` is absent. Consequently the script
-    cannot fulfill the inference and output specifications.
-T022b:
-  c: false
-  h: 4db8d923de11c400b5cf98678549ce11a26b7bcd2eb4d65f37a49e42570a6979
-  r: "The repository contains `code/uq/metrics.py` with a `decompose_uncertainty`\
-    \ function, but there is no script or notebook that imports and runs this function\
-    \ to create `results/uq_predictions.csv`. Moreover, both `results/uq_predictions_base.csv`\
-    \ and the required output `results/uq_predictions.csv` are missing, so the specified\
-    \ CSV with the required columns has not been generated. The task\u2019s core requirement\u2014\
-    populating the predictions CSV using the decomposition function\u2014is therefore\
-    \ unmet."
-T023:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No PDF or PNG reliability diagram files are present in the `results/` directory
-    (or any other location). The required visual artifacts for each UQ method are
-    missing, so the task is not satisfied.
+  h: 0f52e4d1fa28c66810f384bff32e1bed2c8e26d670bc5a6d713a3a5bcc226cfb
+  r: "The repository lacks the required `results/models/sparse_gp_model.pt` file,\
+    \ and the provided `run_single_seed.py` is truncated (e.g., missing the logic\
+    \ to load model weights, iterate over the seed list, perform inference, and write\
+    \ the exact CSV columns). Consequently the script does not demonstrably fulfill\
+    \ the task\u2019s specifications."
 T025a:
   c: false
   h: 9af9028c3867c810131aa46bbb9d3080a769b231b6bdb42f36b9aa57d661e75d

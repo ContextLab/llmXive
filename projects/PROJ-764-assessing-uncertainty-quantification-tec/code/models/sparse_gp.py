@@ -4,221 +4,343 @@ import json
 import logging
 import argparse
 from pathlib import Path
-
-# Ensure parent directory is in path for imports if running as script
-# But since we are inside code/models, we assume standard project structure
-# where 'code' is the root or PYTHONPATH is set.
-# We rely on the API surface provided:
-# from models.sparse_gp import ...
-
-# Import configuration and data loading helpers if they exist in the project
-# Since the API surface lists load_config and load_processed_data, we assume they are defined
-# in this file or imported. Given the "extend" constraint and the provided API surface,
-# we will implement the missing logic here.
-
-import torch
-import gpytorch
-from gpytorch.mlls import ExactMarginalLogLikelihood
-from gpytorch.likelihoods import GaussianLikelihood
-from gpytorch.models import ExactGP
-from gpytorch.kernels import ScaleKernel, RBFKernel
-from gpytorch.means import ConstantMean
-from sklearn.decomposition import PCA
+import pickle
 import pandas as pd
 import numpy as np
-import joblib
+
+# Importing from sibling modules as per API surface
+from models.baseline_nn import load_config
 
 # Setup logger
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+def setup_logger(name: str) -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    return logger
 
-class SparseGPModel(ExactGP):
-    """
-    A simple Exact GP model using RBF kernel and Constant mean.
-    Designed to run on CPU.
-    """
-    def __init__(self, train_x, train_y, likelihood):
-        super(SparseGPModel, self).__init__(train_x, train_y, likelihood)
-        self.mean_module = ConstantMean()
-        self.covar_module = ScaleKernel(RBFKernel())
-        self.n_features = train_x.shape[1]
+logger = setup_logger("sparse_gp")
 
-    def forward(self, x):
-        mean_x = self.mean_module(x)
-        covar_x = self.covar_module(x)
-        return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
-
-def load_config():
-    """
-    Loads configuration from code/config.yaml.
-    Returns a dict with config values.
-    """
-    config_path = Path(__file__).parent.parent / "config.yaml"
+def load_config() -> dict:
+    config_path = Path("code/config.yaml")
     if not config_path.exists():
-        logger.warning(f"Config file not found at {config_path}, using defaults.")
-        return {"seed": 42, "num_inducing": 100}
-    
+        raise FileNotFoundError(f"Config file not found at {config_path}")
+    import yaml
     with open(config_path, 'r') as f:
-        import yaml
         return yaml.safe_load(f)
 
-def load_processed_data():
-    """
-    Loads the pre-processed test data and PCA transformer.
-    Returns X_test, y_test, pca_transformer.
-    """
-    # Paths as defined in T006b3
-    features_path = Path(__file__).parent.parent.parent / "data" / "processed" / "features_test_20pca.csv"
-    pca_path = Path(__file__).parent.parent.parent / "data" / "processed" / "pca_transformer.pkl"
+def load_processed_data(file_path: str) -> pd.DataFrame:
+    """Load processed data from CSV."""
+    path = Path(file_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Data file not found at {path}")
+    return pd.read_csv(path)
 
-    if not features_path.exists():
-        raise FileNotFoundError(f"Required file not found: {features_path}. "
-                                "Please ensure T006b3 (PCA Fit/Transform) has been completed successfully.")
+def verify_dependencies() -> bool:
+    """
+    T015a Implementation: Verification step.
+    Checks existence of required artifacts before execution.
+    Fails loudly if missing.
+    """
+    required_files = [
+        "data/processed/features_train_20pca.csv",
+        "data/processed/features_test_20pca.csv",
+        "data/processed/pca_transformer.pkl"
+    ]
     
-    if not pca_path.exists():
-        raise FileNotFoundError(f"Required file not found: {pca_path}. "
-                                "Please ensure T006b3 (PCA Fit/Transform) has been completed successfully.")
+    missing = []
+    for f in required_files:
+        if not Path(f).exists():
+            missing.append(f)
+            logger.error(f"Required artifact missing: {f}")
+        else:
+            logger.info(f"Verified artifact: {f}")
 
-    logger.info(f"Loading features from {features_path}")
-    df = pd.read_csv(features_path)
-    
-    # Assuming the target column is 'formation_energy' or similar, based on context
-    # We need to identify the target column. The spec mentions 'formation energy'.
-    # Let's assume the column name is 'formation_energy' or 'target'.
-    # If not present, we might need to infer.
-    target_col = None
-    for col in ['formation_energy', 'target', 'y']:
-        if col in df.columns:
-            target_col = col
-            break
-    
-    if target_col is None:
-        raise ValueError("Could not identify target column in features file.")
+    if missing:
+        error_msg = f"CRITICAL: Missing required artifacts: {missing}. " \
+                    "T015a verification failed. Cannot proceed to training (T015b)."
+        logger.critical(error_msg)
+        raise FileNotFoundError(error_msg)
 
-    X = df.drop(columns=[target_col]).values
-    y = df[target_col].values
+    logger.info("All dependencies verified. PCA transformer exists; re-fitting is prevented by design.")
+    return True
 
-    logger.info(f"Loading PCA transformer from {pca_path}")
-    pca = joblib.load(pca_path)
-
-    return X, y, pca
-
-def train_sparse_gp(X_train, y_train, num_inducing_points=100, seed=42):
+class SparseGPModel:
     """
-    Trains a Sparse GP model on the provided data.
+    Sparse Gaussian Process Model wrapper using GPyTorch.
+    Implements Stochastic Variational Inference with 500 inducing points.
     """
-    torch.manual_seed(seed)
+    def __init__(self, num_features: int, num_inducing: int = 500):
+        import torch
+        import gpytorch
+        
+        self.num_features = num_features
+        self.num_inducing = num_inducing
+        self.device = torch.device("cpu")
+        
+        # Initialize inducing points randomly (will be optimized during training)
+        self.inducing_points = torch.randn(num_inducing, num_features, device=self.device)
+        
+        # Model definition
+        class ExactGPModel(gpytorch.models.ExactGP):
+            def __init__(self, train_x, train_y, likelihood):
+                super().__init__(train_x, train_y, likelihood)
+                self.mean_module = gpytorch.means.ConstantMean()
+                self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
+            
+            def forward(self, x):
+                mean_x = self.mean_module(x)
+                covar_x = self.covar_module(x)
+                return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
+
+        class VariationalGPModel(gpytorch.models.VariationalGP):
+            def __init__(self, train_x, likelihood):
+                super().__init__(train_x, likelihood)
+                self.mean_module = gpytorch.means.ConstantMean()
+                self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
+            
+            def forward(self, x):
+                mean_x = self.mean_module(x)
+                covar_x = self.covar_module(x)
+                return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
+
+        class PredictiveGPModel(gpytorch.models.PredictiveGP):
+            def __init__(self, train_x, likelihood, inducing_points):
+                super().__init__(train_x, likelihood, inducing_points)
+                self.mean_module = gpytorch.means.ConstantMean()
+                self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
+            
+            def forward(self, x):
+                mean_x = self.mean_module(x)
+                covar_x = self.covar_module(x)
+                return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
+
+        # Using VariationalGP with Stochastic Variational Inference for scalability
+        self.likelihood = gpytorch.likelihoods.GaussianLikelihood().to(self.device)
+        self.model = VariationalGPModel(self.inducing_points, self.likelihood).to(self.device)
+        
+        self.train_x = None
+        self.train_y = None
+        self.is_fitted = False
+
+    def fit(self, X: np.ndarray, y: np.ndarray, epochs: int = 50, lr: float = 0.1):
+        """
+        Fit the Sparse GP model using Stochastic Variational Inference.
+        
+        Args:
+            X: Training features (n_samples, n_features)
+            y: Training targets (n_samples,)
+            epochs: Number of training iterations
+            lr: Learning rate for the optimizer
+        """
+        import torch
+        import gpytorch
+        
+        logger.info(f"Starting Sparse GP training with {X.shape[0]} samples, {X.shape[1]} features")
+        logger.info(f"Using {self.num_inducing} inducing points")
+
+        # Convert to tensors
+        self.train_x = torch.tensor(X, dtype=torch.float32).to(self.device)
+        self.train_y = torch.tensor(y, dtype=torch.float32).to(self.device)
+
+        # Update model's inducing points to match training data dimension
+        # Re-initialize with actual inducing points from data if possible
+        if X.shape[0] >= self.num_inducing:
+            # Use k-means or random sampling for inducing points
+            indices = np.random.choice(X.shape[0], self.num_inducing, replace=False)
+            self.inducing_points = torch.tensor(X[indices], dtype=torch.float32).to(self.device)
+            self.model = VariationalGPModel(self.inducing_points, self.likelihood).to(self.device)
+        else:
+            # Use all data as inducing points if less than requested
+            self.inducing_points = torch.tensor(X, dtype=torch.float32).to(self.device)
+            self.model = VariationalGPModel(self.inducing_points, self.likelihood).to(self.device)
+            self.num_inducing = X.shape[0]
+            logger.info(f"Adjusted inducing points to {self.num_inducing} (less than requested)")
+
+        # Set model to training mode
+        self.model.train()
+        self.likelihood.train()
+
+        # Optimizer
+        optimizer = torch.optim.Adam([
+            {'params': self.model.variational_parameters()},
+            {'params': self.likelihood.parameters()},
+            {'params': self.model.hyperparameters()},
+        ], lr=lr)
+
+        # Loss
+        mll = gpytorch.mlls.VariationalELBO(self.likelihood, self.model, num_data=self.train_y.size(0))
+
+        # Training loop
+        logger.info("Training loop started...")
+        for i in range(epochs):
+            optimizer.zero_grad()
+            output = self.model(self.train_x)
+            loss = -mll(output, self.train_y)
+            loss.backward()
+            optimizer.step()
+            
+            if (i + 1) % 10 == 0:
+                logger.info(f"Epoch {i+1}/{epochs} - Loss: {loss.item():.4f}")
+
+        self.is_fitted = True
+        logger.info("Sparse GP training completed successfully.")
+
+    def predict(self, X: np.ndarray) -> tuple:
+        """
+        Make predictions with uncertainty quantification.
+        
+        Args:
+            X: Test features (n_samples, n_features)
+            
+        Returns:
+            tuple: (mean predictions, variance predictions)
+        """
+        import torch
+        import gpytorch
+        
+        if not self.is_fitted:
+            raise RuntimeError("Model has not been fitted. Call fit() first.")
+
+        self.model.eval()
+        self.likelihood.eval()
+
+        with torch.no_grad(), gpytorch.settings.fast_pred_var():
+            test_x = torch.tensor(X, dtype=torch.float32).to(self.device)
+            observed_pred = self.likelihood(self.model(test_x))
+            
+            mean = observed_pred.mean.cpu().numpy()
+            variance = observed_pred.variance.cpu().numpy()
+            
+            return mean, variance
+
+    def save(self, path: str):
+        """Save the fitted model and inducing points."""
+        import torch
+        
+        save_data = {
+            'model_state_dict': self.model.state_dict(),
+            'likelihood_state_dict': self.likelihood.state_dict(),
+            'inducing_points': self.inducing_points,
+            'num_inducing': self.num_inducing,
+            'num_features': self.num_features,
+            'is_fitted': self.is_fitted
+        }
+        
+        torch.save(save_data, path)
+        logger.info(f"Model saved to {path}")
+
+    @classmethod
+    def load(cls, path: str) -> 'SparseGPModel':
+        """Load a fitted model."""
+        import torch
+        
+        save_data = torch.load(path, map_location=torch.device('cpu'))
+        
+        model = cls(
+            num_features=save_data['num_features'],
+            num_inducing=save_data['num_inducing']
+        )
+        
+        model.model.load_state_dict(save_data['model_state_dict'])
+        model.likelihood.load_state_dict(save_data['likelihood_state_dict'])
+        model.inducing_points = save_data['inducing_points']
+        model.is_fitted = save_data['is_fitted']
+        
+        logger.info(f"Model loaded from {path}")
+        return model
+
+def train_sparse_gp():
+    """
+    T015b Implementation: Fit Sparse GP model.
+    
+    Loads PCA-reduced features from data/processed/features_train_20pca.csv
+    and the transformer from data/processed/pca_transformer.pkl.
+    Fits Sparse GP with 500 inducing points and RBF kernel.
+    """
+    logger.info("Starting T015b: Sparse GP Fitting")
+    
+    # Verify dependencies first (T015a check)
+    verify_dependencies()
+    
+    # Load config
+    config = load_config()
+    seed = config.get('seed', 42)
     np.random.seed(seed)
-
-    # Convert to tensors
-    train_x = torch.tensor(X_train, dtype=torch.float32)
-    train_y = torch.tensor(y_train, dtype=torch.float32)
-
-    likelihood = GaussianLikelihood()
-    model = SparseGPModel(train_x, train_y, likelihood)
-
-    model.train()
-    likelihood.train()
-
-    optimizer = torch.optim.Adam([
-        {'params': model.parameters()},
-    ], lr=0.1)
-
-    mll = ExactMarginalLogLikelihood(likelihood, model)
-
-    training_iter = 50
-    for i in range(training_iter):
-        optimizer.zero_grad()
-        output = model(train_x)
-        loss = -mll(output, train_y)
-        loss.backward()
-        if (i + 1) % 10 == 0:
-            logger.info(f"Iter {i+1}/{training_iter} - Loss: {loss.item():.4f}")
-        optimizer.step()
-
-    model.eval()
-    likelihood.eval()
-
-    return model, likelihood
-
-def save_model(model, likelihood, output_path):
-    """
-    Saves the trained GP model and likelihood.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    state_dict = {
-        'model': model.state_dict(),
-        'likelihood': likelihood.state_dict()
-    }
-    torch.save(state_dict, output_path)
-    logger.info(f"Model saved to {output_path}")
+    # Load training data
+    logger.info("Loading training data...")
+    train_df = load_processed_data("data/processed/features_train_20pca.csv")
+    
+    # Extract features and target
+    # Assuming the target column is 'formation_energy' or similar
+    # Based on preprocessing tasks, the target should be present
+    target_col = 'formation_energy'
+    if target_col not in train_df.columns:
+        # Try alternative column names
+        possible_targets = ['target', 'y', 'formation_energy_eV']
+        target_col = None
+        for col in possible_targets:
+            if col in train_df.columns:
+                target_col = col
+                break
+        
+        if target_col is None:
+            raise ValueError(f"Could not find target column in {train_df.columns}")
+    
+    X_train = train_df.drop(columns=[target_col]).values
+    y_train = train_df[target_col].values
+    
+    logger.info(f"Training data shape: {X_train.shape}")
+    logger.info(f"Target range: [{y_train.min():.4f}, {y_train.max():.4f}]")
+    
+    # Initialize model
+    num_features = X_train.shape[1]
+    model = SparseGPModel(num_features=num_features, num_inducing=500)
+    
+    # Train model
+    logger.info("Fitting Sparse GP model...")
+    model.fit(X_train, y_train, epochs=100, lr=0.1)
+    
+    return model
+
+def save_model(model, path: str):
+    """
+    T015c Implementation: Save fitted model.
+    """
+    model.save(path)
+    logger.info(f"Model saved to {path}")
 
 def main():
     """
-    Main entry point for T015a (Verification) and subsequent fitting (T015b).
-    
-    T015a Requirement:
-    - Check existence of data/processed/features_test_20pca.csv and data/processed/pca_transformer.pkl
-    - Fail loudly if missing.
-    - Do not re-fit PCA.
-    
-    This function performs the verification and then proceeds to load data 
-    (assuming T015b fitting logic is also part of this flow or called subsequently).
-    For this task, we focus on the verification and preparation.
+    Entry point for T015b fitting.
     """
-    logger.info("Starting Sparse GP Verification (T015a)...")
-
-    # 1. Verification: Check existence of required files
-    features_path = Path(__file__).parent.parent.parent / "data" / "processed" / "features_test_20pca.csv"
-    pca_path = Path(__file__).parent.parent.parent / "data" / "processed" / "pca_transformer.pkl"
-
-    if not features_path.exists():
-        logger.error(f"CRITICAL: Required file not found: {features_path}")
-        logger.error("Task T006b3 (PCA Fit/Transform) must be completed before running this task.")
-        sys.exit(1)
-
-    if not pca_path.exists():
-        logger.error(f"CRITICAL: Required file not found: {pca_path}")
-        logger.error("Task T006b3 (PCA Fit/Transform) must be completed before running this task.")
-        sys.exit(1)
-
-    logger.info("Verification passed: Required data files exist.")
-
-    # 2. Load data (Preparation for T015b)
-    # We load the data to ensure it's valid, but we don't train yet in this specific 
-    # verification step unless we combine them. The task T015a is verification.
-    # However, to make the script useful and runnable as a unit, we will load the data
-    # and print a success message confirming readiness.
-    try:
-        X, y, pca = load_processed_data()
-        logger.info(f"Successfully loaded {X.shape[0]} samples with {X.shape[1]} features.")
-        logger.info(f"PCA transformer loaded. Components: {pca.n_components_}")
-        
-        # Optional: Verify PCA transform consistency if we had training data
-        # But for T015a, existence check is the primary goal.
-        
-        logger.info("T015a Verification: PASSED. Ready for T015b (Fitting).")
-        
-    except Exception as e:
-        logger.error(f"Failed to load processed data: {e}")
-        sys.exit(1)
-
-    # If the task implies running the full flow (T015a + T015b + T015c) in one go
-    # based on the "Implement ... (Verification)" description, we might need to 
-    # actually fit the model if the user intends to run the full pipeline step.
-    # Given the task description says "Implement ... (Verification)", strictly speaking,
-    # it's just the check. But to be helpful and "complete" as an implementer, 
-    # we can check if a flag is passed to train.
-    # However, T015b is a separate task. So we stop here for T015a.
+    logger.info("Starting T015b: Sparse GP Fitting")
     
-    # To ensure the script is "runnable" and produces an artifact if requested by the pipeline
-    # (though T015a doesn't produce an artifact, T015b does), we just exit successfully.
-    sys.exit(0)
+    try:
+        # 1. Verify dependencies (T015a check)
+        verify_dependencies()
+        
+        # 2. Train model
+        model = train_sparse_gp()
+        
+        # 3. Save model (T015c)
+        output_path = "results/models/sparse_gp_model.pt"
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        save_model(model, output_path)
+        
+        logger.info("T015b Fitting COMPLETED successfully.")
+        return 0
+
+    except FileNotFoundError as e:
+        logger.error(f"Fitting FAILED: {e}")
+        return 1
+    except Exception as e:
+        logger.exception(f"Unexpected error during fitting: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

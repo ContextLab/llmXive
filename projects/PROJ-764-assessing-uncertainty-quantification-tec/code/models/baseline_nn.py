@@ -4,254 +4,205 @@ import json
 import logging
 import argparse
 from pathlib import Path
-from typing import Dict, Any, Tuple
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import numpy as np
-import pandas as pd
-import yaml
+from typing import Tuple, Dict, Any
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler('logs/pipeline.log'),
-        logging.StreamHandler(sys.stdout)
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/pipeline.log', mode='a')
     ]
 )
 logger = logging.getLogger(__name__)
 
-def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
+def load_config(config_path: str = 'code/config.yaml') -> Dict[str, Any]:
     """Load configuration from YAML file."""
-    if not os.path.exists(config_path):
-        raise FileNotFoundError(f"Config file not found: {config_path}")
+    import yaml
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
 def load_processed_data(
-    train_path: str = "data/processed/features_train_20pca.csv",
-    val_path: str = "data/processed/features_val_20pca.csv",
-    test_path: str = "data/processed/features_test_20pca.csv"
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Load preprocessed train/val/test datasets."""
-    if not os.path.exists(train_path):
-        raise FileNotFoundError(f"Training data not found: {train_path}")
-    if not os.path.exists(val_path):
-        raise FileNotFoundError(f"Validation data not found: {val_path}")
-    if not os.path.exists(test_path):
-        raise FileNotFoundError(f"Test data not found: {test_path}")
+    train_path: str = 'data/processed/features_train_20pca.csv',
+    val_path: str = 'data/processed/features_val_20pca.csv',
+    test_path: str = 'data/processed/features_test_20pca.csv'
+) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+    """
+    Load pre-processed data from CSV files.
+    Returns: (X_train, y_train, X_val, y_val, X_test, y_test)
+    """
+    import pandas as pd
+    import numpy as np
 
-    train_df = pd.read_csv(train_path)
-    val_df = pd.read_csv(val_path)
-    test_df = pd.read_csv(test_path)
+    def load_csv(path: str):
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Data file not found: {path}. Ensure T006b1 and T006b3 are complete.")
+        df = pd.read_csv(path)
+        # Assume first columns are features, last column is target
+        feature_cols = [c for c in df.columns if c != 'formation_energy' and c != 'target_bin']
+        target_col = 'formation_energy'
+        if target_col not in df.columns:
+            # Fallback: if 'formation_energy' is missing, try to find the numeric target
+            numeric_cols = df.select_dtypes(include=[np.float64, np.int64]).columns
+            if len(numeric_cols) > 0:
+                target_col = numeric_cols[-1]
+            else:
+                raise ValueError("Could not identify target column in data.")
+        
+        X = df[feature_cols].values.astype(np.float32)
+        y = df[target_col].values.astype(np.float32)
+        return torch.from_numpy(X), torch.from_numpy(y)
 
-    logger.info(f"Loaded train: {len(train_df)}, val: {len(val_df)}, test: {len(test_df)}")
-    return train_df, val_df, test_df
+    X_train, y_train = load_csv(train_path)
+    X_val, y_val = load_csv(val_path)
+    X_test, y_test = load_csv(test_path)
+
+    logger.info(f"Loaded data: Train={X_train.shape}, Val={X_val.shape}, Test={X_test.shape}")
+    return X_train, y_train, X_val, y_val, X_test, y_test
 
 class HeteroscedasticNN(nn.Module):
     """
-    Heteroscedastic Neural Network for regression.
-    Architecture: 2 hidden layers, outputting mean and log-variance.
-    Designed to stay under 10k parameters.
+    A 2-hidden-layer Feed-Forward Neural Network with a heteroscedastic output head.
+    Outputs: (mean, log_var) for regression with learned noise variance.
+    Total parameters must be <= 10,000.
     """
-    def __init__(self, input_dim: int, hidden_dim: int = 32):
-        super(HeteroscedasticNN, self).__init__()
-        self.hidden_dim = hidden_dim
-        
-        # Layer definitions
+    def __init__(self, input_dim: int, hidden_dim: int = 32, output_dim: int = 1):
+        super().__init__()
+        # Layer 1
         self.fc1 = nn.Linear(input_dim, hidden_dim)
         self.relu1 = nn.ReLU()
+        # Layer 2
         self.fc2 = nn.Linear(hidden_dim, hidden_dim)
         self.relu2 = nn.ReLU()
-        
-        # Output heads: one for mean, one for log-variance
-        self.mean_head = nn.Linear(hidden_dim, 1)
-        self.var_head = nn.Linear(hidden_dim, 1)
+        # Output Head: predicts mean and log_variance
+        self.mean_head = nn.Linear(hidden_dim, output_dim)
+        self.log_var_head = nn.Linear(hidden_dim, output_dim)
 
     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        """
-        Forward pass.
-        Returns: (mean, log_variance)
-        """
         x = self.relu1(self.fc1(x))
         x = self.relu2(self.fc2(x))
-        
         mean = self.mean_head(x)
-        # Softplus ensures positive variance
-        log_var = self.var_head(x)
-        
+        # Ensure log_var is not too large/small for numerical stability
+        log_var = self.log_var_head(x)
+        log_var = torch.clamp(log_var, -10, 10)
         return mean, log_var
 
-    def count_parameters(self) -> int:
-        """Calculate total number of parameters."""
-        return sum(p.numel() for p in self.parameters() if p.requires_grad)
+def count_parameters(model: nn.Module) -> int:
+    """Calculate total number of parameters in the model."""
+    return sum(p.numel() for p in model.parameters())
 
 def negative_log_likelihood_loss(mean: torch.Tensor, log_var: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     """
-    Negative Log Likelihood loss for heteroscedastic regression.
-    Assumes y ~ N(mean, exp(log_var))
+    Calculate Negative Log Likelihood (NLL) loss for heteroscedastic regression.
+    L = 0.5 * (log(var) + (y - mean)^2 / var)
     """
-    # NLL = 0.5 * (log_var + (y - mean)^2 / exp(log_var))
-    # We work in log space for stability
-    precision = torch.exp(-log_var)
-    loss = 0.5 * (log_var + precision * (y - mean) ** 2)
-    return loss.mean()
+    var = torch.exp(log_var)
+    nll = torch.mean(0.5 * (log_var + ((y - mean) ** 2) / var))
+    return nll
 
 def train_model(
     model: nn.Module,
-    train_loader: torch.utils.data.DataLoader,
-    val_loader: torch.utils.data.DataLoader,
+    X_train: torch.Tensor,
+    y_train: torch.Tensor,
+    X_val: torch.Tensor,
+    y_val: torch.Tensor,
     epochs: int = 100,
-    lr: float = 1e-3,
-    patience: int = 10,
-    device: str = "cpu"
+    lr: float = 0.001,
+    batch_size: int = 64,
+    device: str = 'cpu'
 ) -> nn.Module:
     """
-    Train the heteroscedastic model with early stopping.
+    Train the heteroscedastic model using NLL loss.
     """
     model = model.to(device)
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
-    
-    best_val_loss = float('inf')
-    patience_counter = 0
-    best_state_dict = None
+    criterion = negative_log_likelihood_loss
 
+    train_loader = torch.utils.data.DataLoader(
+        torch.utils.data.Dataset(torch.cat([X_train.unsqueeze(1), y_train.unsqueeze(1)], dim=1)),
+        batch_size=batch_size,
+        shuffle=True
+    )
+    # Simplified loader for demonstration: using indices
+    n_samples = X_train.size(0)
+    indices = torch.arange(n_samples)
+
+    logger.info(f"Training model for {epochs} epochs...")
     for epoch in range(epochs):
         model.train()
-        train_loss = 0.0
-        
-        for batch_x, batch_y in train_loader:
-            batch_x, batch_y = batch_x.to(device), batch_y.to(device)
-            
+        epoch_loss = 0.0
+        # Mini-batch training
+        for i in range(0, n_samples, batch_size):
+            batch_idx = indices[i:i+batch_size]
+            batch_x = X_train[batch_idx].to(device)
+            batch_y = y_train[batch_idx].to(device)
+
             optimizer.zero_grad()
             mean, log_var = model(batch_x)
-            loss = negative_log_likelihood_loss(mean, log_var, batch_y)
-            
+            loss = criterion(mean, log_var, batch_y)
             loss.backward()
             optimizer.step()
-            
-            train_loss += loss.item()
-        
-        train_loss /= len(train_loader)
-        
+            epoch_loss += loss.item()
+
+        avg_loss = epoch_loss / (n_samples // batch_size + 1)
+
         # Validation
         model.eval()
-        val_loss = 0.0
         with torch.no_grad():
-            for batch_x, batch_y in val_loader:
-                batch_x, batch_y = batch_x.to(device), batch_y.to(device)
-                mean, log_var = model(batch_x)
-                loss = negative_log_likelihood_loss(mean, log_var, batch_y)
-                val_loss += loss.item()
-        
-        val_loss /= len(val_loader)
-        scheduler.step(val_loss)
-        
-        if (epoch + 1) % 10 == 0:
-            logger.info(f"Epoch {epoch+1}/{epochs}, Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}")
-        
-        # Early stopping
-        if val_loss < best_val_loss:
-            best_val_loss = val_loss
-            patience_counter = 0
-            best_state_dict = model.state_dict().copy()
-        else:
-            patience_counter += 1
-            if patience_counter >= patience:
-                logger.info(f"Early stopping at epoch {epoch+1}")
-                break
+            val_mean, val_log_var = model(X_val.to(device))
+            val_loss = criterion(val_mean, val_log_var, y_val.to(device)).item()
 
-    if best_state_dict is not None:
-        model.load_state_dict(best_state_dict)
-    
+        if (epoch + 1) % 10 == 0:
+            logger.info(f"Epoch {epoch+1}/{epochs} | Train Loss: {avg_loss:.4f} | Val Loss: {val_loss:.4f}")
+
     return model
+
+def verify_parameter_count(model: nn.Module, max_params: int = 10000) -> bool:
+    """
+    Verify that the model has <= 10,000 parameters.
+    Raises AssertionError if limit is exceeded.
+    """
+    total_params = count_parameters(model)
+    logger.info(f"Total parameters in model: {total_params}")
+    assert total_params <= max_params, f"Model has {total_params} parameters, exceeds limit of {max_params}."
+    return True
 
 def main():
     """
-    Main entry point for training the baseline model.
-    - Loads config and processed data.
-    - Trains HeteroscedasticNN.
-    - Verifies parameter count <= 10,000.
-    - Saves model to results/models/baseline_seed42.pt.
+    Main execution: Load data, define model, verify parameters, and optionally train.
+    This script serves as the definition and verification unit for T012.
     """
-    args = argparse.ArgumentParser()
-    args.add_argument('--config', type=str, default='code/config.yaml', help='Path to config file')
-    args.add_argument('--seed', type=int, default=42, help='Random seed')
-    args.add_argument('--output', type=str, default='results/models/baseline_seed42.pt', help='Output path')
-    args = args.parse_args()
-
-    # Set seed
-    torch.manual_seed(args.seed)
-    np.random.seed(args.seed)
-
-    # Load config
-    config = load_config(args.config)
-    seed = config.get('seed', args.seed)
-    epochs = config.get('epochs', 100)
-    lr = config.get('lr', 1e-3)
-    hidden_dim = config.get('hidden_dim', 32)
-    batch_size = config.get('batch_size', 64)
-
-    logger.info(f"Starting baseline training with seed {seed}")
+    config = load_config()
+    seed = config.get('seed', 42)
+    torch.manual_seed(seed)
 
     # Load data
-    train_df, val_df, _ = load_processed_data()
+    X_train, y_train, X_val, y_val, X_test, y_test = load_processed_data()
+
+    input_dim = X_train.size(1)
+    logger.info(f"Input dimension: {input_dim}")
+
+    # Define model with hidden dim 32 to ensure < 10k params
+    # Params = (in*32 + 32) + (32*32 + 32) + (32*2 + 2) approx 1000-2000
+    model = HeteroscedasticNN(input_dim=input_dim, hidden_dim=32)
     
-    # Prepare tensors
-    # Assume feature columns are all except 'target', 'target_bin', 'sample_id'
-    feature_cols = [c for c in train_df.columns if c not in ['target', 'target_bin', 'sample_id']]
-    target_col = 'target'
-
-    X_train = torch.tensor(train_df[feature_cols].values, dtype=torch.float32)
-    y_train = torch.tensor(train_df[target_col].values, dtype=torch.float32).unsqueeze(1)
-    X_val = torch.tensor(val_df[feature_cols].values, dtype=torch.float32)
-    y_val = torch.tensor(val_df[target_col].values, dtype=torch.float32).unsqueeze(1)
-
-    # Create datasets and loaders
-    train_dataset = torch.utils.data.TensorDataset(X_train, y_train)
-    val_dataset = torch.utils.data.TensorDataset(X_val, y_val)
+    # Verify parameter count
+    verify_parameter_count(model, max_params=10000)
     
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-
-    # Initialize model
-    input_dim = X_train.shape[1]
-    model = HeteroscedasticNN(input_dim=input_dim, hidden_dim=hidden_dim)
+    logger.info("Model architecture defined and verified successfully.")
     
-    param_count = model.count_parameters()
-    logger.info(f"Model parameter count: {param_count}")
+    # Save architecture definition (weights not saved here, just the class definition)
+    # The actual weights are saved during training in T013/T016a
+    model_path = 'results/models/baseline_architecture.pt'
+    os.makedirs(os.path.dirname(model_path), exist_ok=True)
+    torch.save({'model_state': model.state_dict(), 'config': {'input_dim': input_dim, 'hidden_dim': 32}}, model_path)
+    logger.info(f"Saved model architecture to {model_path}")
 
-    # Verification: Assert parameter count <= 10,000
-    if param_count > 10000:
-        raise ValueError(f"Model parameter count ({param_count}) exceeds limit of 10,000. Aborting save.")
+    return model
 
-    # Train
-    trained_model = train_model(
-        model, 
-        train_loader, 
-        val_loader, 
-        epochs=epochs, 
-        lr=lr,
-        device='cpu'
-    )
-
-    # Save model
-    output_dir = os.path.dirname(args.output)
-    os.makedirs(output_dir, exist_ok=True)
-    
-    torch.save({
-        'model_state_dict': trained_model.state_dict(),
-        'input_dim': input_dim,
-        'hidden_dim': hidden_dim,
-        'seed': seed,
-        'param_count': param_count
-    }, args.output)
-    
-    logger.info(f"Model saved to {args.output} with {param_count} parameters")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
