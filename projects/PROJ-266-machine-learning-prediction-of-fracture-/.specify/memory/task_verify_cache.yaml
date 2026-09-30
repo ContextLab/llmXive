@@ -1,3 +1,10 @@
+T000:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or its contents were supplied, so we cannot confirm that\
+    \ the required sentences (\u201CSynthetic Microstructure Generator\u201D and \u201C\
+    pipeline methodology\u201D) were added to Section\u202F1. The verification command\
+    \ cannot be run, indicating the artifact is missing."
 T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,31 +12,21 @@ T003:
     \ or pre\u2011commit hooks) or any other evidence of ruff/black being set up are\
     \ present. The required artifacts to demonstrate that linting and formatting tools\
     \ are configured are missing."
-T005b:
+T009:
   c: false
-  h: 085a83ef8cbf40c463322670eb206168937c13a73a6442da59f248b068743821
-  r: "The script `code/utils/benchmark_gen.py` exists, but running it does not create\
-    \ the required `data/benchmarks/generator_runtime_raw.json` file (the file is\
-    \ missing). Consequently the verification command fails, indicating the benchmark\
-    \ script is not fully functional or lacks a proper entry\u2011point to generate\
-    \ the JSON output. The next implementer should ensure the script executes (e.g.,\
-    \ add a `if __name__ == \"__main__\":` block that calls `run_benchmark`) and that\
-    \ the JSON file is written to `data/benchmarks/`."
-T006c#1:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file was presented in `projects/PROJ-266-machine-learning-prediction-of-fracture-/`,
+    nor any excerpt showing its contents. Consequently we cannot confirm that the
+    file exists or that it contains the required `## Introduction` and `## Methodology`
+    headings. The implementer must provide the actual `research.md` artifact with
+    those sections.
+T009a:
   c: false
-  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
-  r: The required file `contracts/dataset_schema.schema.yaml` is missing entirely,
-    so the schema cannot be verified for the new `magnification_calibration` and `section_thickness`
-    fields. The implementer must add the file with the appropriate properties.
-T013:
-  c: false
-  h: 2e9eae0939d55f833da64d39ea746484b20760ead1102e231613253fac1d5b3c
-  r: "The `preprocess.py` file is present but appears truncated (e.g., `normalize_intensity`\
-    \ ends abruptly and there is no visible CLI entry\u2011point that writes images\
-    \ to `data/processed`). Moreover, the expected output file `data/processed/train/sample_001.png`\
-    \ does not exist, so the verification command would fail and the required warning\
-    \ log cannot be confirmed. The pipeline therefore does not meet the task\u2019\
-    s specifications."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or Section\u202F3.2 with the deterministic K_IC generation\
+    \ logic and parameter definitions was provided; the only evidence is the project\
+    \ description, which does not contain the required methodology text. The task\
+    \ remains undone."
 T014:
   c: false
   h: 4e26d6f9c9c46d48e9596fee7d8256cbc839fcf6dadacaa54e751671cb8526b5
@@ -60,11 +57,3 @@ T021b:
     Without this file the training loop cannot run nor create `models/baselines/linear`.
     The missing features JSON must be provided (or generated) for the task to be considered
     complete.
-T022:
-  c: false
-  h: f028605671a73e8ee2c0ede00f9f3b12a9e9594852b12338122a27642dcbcf13
-  r: The `data/features.json` file does not exist, so the verification script cannot
-    load the required `band_pass_spectrum` key. Moreover, the provided `code/data/features.py`
-    is truncated and shows no implementation that writes a JSON file with a `band_pass_spectrum`
-    list, indicating the feature extraction and output steps are missing. The task
-    therefore remains unfinished.
