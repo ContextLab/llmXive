@@ -27,10 +27,11 @@ def action_download():
     log_execution_start("download")
     logger = logging.getLogger(__name__)
     try:
+        # This triggers discovery, IRB check, synthetic fallback if needed, and saving to data/raw
         load_or_generate_data()
-        # Generate seed if synthetic was triggered
+        # Generate seed file if synthetic path was taken (ensures artifact exists)
         generate_seed()
-        # Validate raw data
+        # Validate raw data variables and schema
         run_raw_validation()
     except Exception as e:
         logger.error(f"Download action failed: {e}", exc_info=True)
@@ -42,9 +43,9 @@ def action_preprocess():
     log_execution_start("preprocess")
     logger = logging.getLogger(__name__)
     try:
-        # Run preprocessing pipeline
+        # Run preprocessing pipeline: load, check missingness, impute (MICE), save
         run_preprocess()
-        # Validate imputed data
+        # Validate imputed data (T013b)
         run_imputed_validation()
     except Exception as e:
         logger.error(f"Preprocess action failed: {e}", exc_info=True)
@@ -56,13 +57,13 @@ def action_analyze():
     log_execution_start("analyze")
     logger = logging.getLogger(__name__)
     try:
-        # Run regression analysis
+        # Run regression analysis (ANCOVA) - T018, T019, T021
         run_regression_analysis()
-        # Run collinearity analysis (T022)
+        # Run collinearity analysis (T022) - updates diagnostics
         run_collinearity()
-        # Run bootstrap analysis
+        # Run bootstrap analysis (T025)
         run_bootstrap_analysis()
-        # Run sensitivity analysis
+        # Run sensitivity analysis (T028a, T028b, T027, T029, T029a)
         run_sensitivity()
     except Exception as e:
         logger.error(f"Analyze action failed: {e}", exc_info=True)
@@ -87,6 +88,7 @@ def action_report():
     log_execution_start("report")
     logger = logging.getLogger(__name__)
     try:
+        # Generates data/processed/final_report.json (T030, T030a)
         run_report_generation()
     except Exception as e:
         logger.error(f"Report action failed: {e}", exc_info=True)

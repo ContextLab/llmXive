@@ -1,268 +1,230 @@
-"""
-Unit test for parameter recovery bias calculation (|beta_hat - beta_true|).
-This test verifies that the sensitivity analysis module correctly calculates
-the bias between estimated coefficients and ground truth parameters when
-synthetic data is used.
-
-Note: This test relies on the ground truth parameters defined in the synthetic
-data generator (T010) and the coefficient estimation from the regression model (T018).
-"""
-
-import pytest
-import json
 import os
-import logging
-from pathlib import Path
-import sys
+import json
+import pytest
 import numpy as np
+from pathlib import Path
+import pandas as pd
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Import the specific function to test from the analysis module
+# Based on the provided API surface, this function exists in code/analysis/sensitivity.py
+from analysis.sensitivity import calculate_parameter_recovery
 
-from analysis.sensitivity import (
-    load_ground_truth_params,
-    load_estimated_coefficients,
-    calculate_parameter_recovery
-)
-from data.config import get_config
+# Helper to get project root relative to this test file
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_PROCESSED_PATH = PROJECT_ROOT / "data" / "processed"
+DATA_RAW_PATH = PROJECT_ROOT / "data" / "raw"
+STATE_PATH = PROJECT_ROOT / "state"
 
-# Configure logging for the test
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+def _ensure_directories():
+    """Ensure required directories exist for test artifacts."""
+    DATA_PROCESSED_PATH.mkdir(parents=True, exist_ok=True)
+    DATA_RAW_PATH.mkdir(parents=True, exist_ok=True)
+    STATE_PATH.mkdir(parents=True, exist_ok=True)
 
+def _create_synthetic_ground_truth_file():
+    """
+    Creates a synthetic ground truth file if one does not exist.
+    This mimics the output of T010/T012 to provide input for the test.
+    """
+    _ensure_directories()
+    gt_path = DATA_PROCESSED_PATH / "ground_truth_params.json"
+    
+    # Ground truth parameters as defined in T010
+    # intercept=0, main_effect_avatar=0.1, main_effect_comparison=0.1, interaction_beta=0.2, noise_sigma=1.0
+    ground_truth = {
+        "intercept": 0.0,
+        "main_effect_avatar": 0.1,
+        "main_effect_comparison": 0.1,
+        "interaction_beta": 0.2,
+        "noise_sigma": 1.0,
+        "data_source_type": "synthetic"
+    }
+    
+    with open(gt_path, 'w') as f:
+        json.dump(ground_truth, f, indent=2)
+    
+    return gt_path
 
-class TestParameterRecoveryBias:
-    """Tests for parameter recovery bias calculation."""
+def _create_mock_estimated_coefficients_file():
+    """
+    Creates a mock regression coefficients file to simulate T021 output.
+    Used to test the bias calculation logic without running the full regression.
+    """
+    _ensure_directories()
+    coeffs_path = DATA_PROCESSED_PATH / "regression_coefficients.csv"
+    
+    # Mock coefficients that are close to but not exactly the ground truth
+    # to simulate estimation error
+    data = {
+        'name': ['Intercept', 'avatar_condition', 'comparison_tendency', 'avatar_condition:comparison_tendency'],
+        'estimate': [0.05, 0.12, 0.09, 0.21], # Slight deviations
+        'std_err': [0.01, 0.02, 0.02, 0.03],
+        'p_value': [0.001, 0.02, 0.03, 0.01]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(coeffs_path, index=False)
+    return coeffs_path
 
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        """Set up test fixtures."""
-        self.config = get_config()
-        self.project_root = Path(__file__).parent.parent.parent
-        self.data_dir = self.project_root / "data"
-        self.processed_dir = self.data_dir / "processed"
-        self.state_dir = self.project_root / "state"
+def test_parameter_recovery_bias_calculation():
+    """
+    Unit test for parameter recovery bias calculation (|beta_hat - beta_true|).
+    This test verifies that the function correctly calculates the absolute difference
+    between estimated coefficients and ground truth parameters.
+    
+    Scenario:
+    1. Ground truth parameters are available (simulated synthetic data).
+    2. Estimated coefficients are available (simulated regression output).
+    3. The function calculates |beta_hat - beta_true| for each parameter.
+    4. The test asserts that the bias values are correct and non-negative.
+    """
+    # Setup: Create necessary input files
+    gt_path = _create_synthetic_ground_truth_file()
+    coeffs_path = _create_mock_estimated_coefficients_file()
+    
+    # Act: Call the function under test
+    result = calculate_parameter_recovery(
+        ground_truth_path=str(gt_path),
+        estimated_path=str(coeffs_path)
+    )
+    
+    # Assert: Verify the result structure and values
+    assert result is not None, "Result should not be None"
+    assert isinstance(result, dict), "Result should be a dictionary"
+    
+    # Check for expected keys
+    assert 'bias' in result, "Result should contain 'bias' key"
+    assert 'parameters' in result, "Result should contain 'parameters' key"
+    assert 'data_source_type' in result, "Result should contain 'data_source_type' key"
+    
+    # Verify data source type
+    assert result['data_source_type'] == 'synthetic', "Data source type should be synthetic"
+    
+    # Verify bias is a list of dictionaries
+    assert isinstance(result['bias'], list), "Bias should be a list"
+    assert len(result['bias']) > 0, "Bias list should not be empty"
+    
+    # Verify each bias entry
+    for entry in result['bias']:
+        assert 'parameter' in entry, "Each bias entry should have 'parameter' key"
+        assert 'true_value' in entry, "Each bias entry should have 'true_value' key"
+        assert 'estimated_value' in entry, "Each bias entry should have 'estimated_value' key"
+        assert 'bias' in entry, "Each bias entry should have 'bias' key"
+        
+        # Verify bias is non-negative (absolute difference)
+        assert entry['bias'] >= 0, "Bias should be non-negative (absolute difference)"
+        
+        # Verify calculation: bias = |estimated - true|
+        expected_bias = abs(entry['estimated_value'] - entry['true_value'])
+        assert np.isclose(entry['bias'], expected_bias), \
+            f"Bias calculation incorrect for {entry['parameter']}: expected {expected_bias}, got {entry['bias']}"
 
-        # Ensure directories exist
-        self.processed_dir.mkdir(parents=True, exist_ok=True)
-        self.state_dir.mkdir(parents=True, exist_ok=True)
+def test_parameter_recovery_with_exact_match():
+    """
+    Test that bias is exactly 0 when estimated values match ground truth.
+    """
+    _ensure_directories()
+    
+    # Create ground truth
+    gt_path = DATA_PROCESSED_PATH / "ground_truth_exact.json"
+    ground_truth = {
+        "intercept": 1.0,
+        "main_effect_avatar": 2.0,
+        "main_effect_comparison": 3.0,
+        "interaction_beta": 4.0,
+        "noise_sigma": 1.0,
+        "data_source_type": "synthetic"
+    }
+    with open(gt_path, 'w') as f:
+        json.dump(ground_truth, f, indent=2)
+    
+    # Create estimated coefficients that exactly match ground truth
+    coeffs_path = DATA_PROCESSED_PATH / "regression_exact.csv"
+    data = {
+        'name': ['Intercept', 'avatar_condition', 'comparison_tendency', 'avatar_condition:comparison_tendency'],
+        'estimate': [1.0, 2.0, 3.0, 4.0], # Exact match
+        'std_err': [0.01, 0.02, 0.02, 0.03],
+        'p_value': [0.001, 0.02, 0.03, 0.01]
+    }
+    pd.DataFrame(data).to_csv(coeffs_path, index=False)
+    
+    # Act
+    result = calculate_parameter_recovery(
+        ground_truth_path=str(gt_path),
+        estimated_path=str(coeffs_path)
+    )
+    
+    # Assert
+    for entry in result['bias']:
+        assert entry['bias'] == 0.0, f"Bias should be 0.0 for exact match, got {entry['bias']}"
 
-    def test_load_ground_truth_params_from_seed_file(self):
-        """Test loading ground truth parameters from synthetic seed file."""
-        seed_file = self.data_dir / "raw" / "synthetic_seed.json"
+def test_parameter_recovery_missing_files():
+    """
+    Test that the function handles missing files gracefully (returns None or raises appropriate error).
+    Based on the implementation, it should handle missing files by returning None or a specific status.
+    """
+    # Act with non-existent paths
+    result = calculate_parameter_recovery(
+        ground_truth_path="/nonexistent/path/gt.json",
+        estimated_path="/nonexistent/path/coeffs.csv"
+    )
+    
+    # Assert: The function should handle this case. 
+    # Depending on implementation, it might return None or a dict with error status.
+    # We assert that it doesn't crash and returns a recognizable state.
+    assert result is None or (isinstance(result, dict) and 'error' in result), \
+        "Function should handle missing files gracefully"
 
-        # Create a mock seed file if it doesn't exist for testing
-        if not seed_file.exists():
-            mock_params = {
-                "ground_truth": {
-                    "intercept": 0.0,
-                    "main_effect_avatar": 0.1,
-                    "main_effect_comparison": 0.1,
-                    "interaction_beta": 0.2,
-                    "noise_sigma": 1.0
-                },
-                "n_samples": 100,
-                "seed": 42
-            }
-            seed_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(seed_file, 'w') as f:
-                json.dump(mock_params, f, indent=2)
-
-        params = load_ground_truth_params(str(seed_file))
-
-        assert params is not None
-        assert "intercept" in params
-        assert "main_effect_avatar" in params
-        assert "main_effect_comparison" in params
-        assert "interaction_beta" in params
-        assert "noise_sigma" in params
-
-        # Verify expected values match T010 ground truth
-        assert params["intercept"] == 0.0
-        assert params["main_effect_avatar"] == 0.1
-        assert params["main_effect_comparison"] == 0.1
-        assert params["interaction_beta"] == 0.2
-
-    def test_load_estimated_coefficients_from_csv(self):
-        """Test loading estimated coefficients from regression output."""
-        coeffs_file = self.processed_dir / "regression_coefficients.csv"
-
-        # Create a mock coefficient file if it doesn't exist
-        if not coeffs_file.exists():
-            mock_coeffs = [
-                {"name": "Intercept", "estimate": 0.05, "std_err": 0.1, "p_value": 0.6},
-                {"name": "avatar_condition", "estimate": 0.12, "std_err": 0.15, "p_value": 0.42},
-                {"name": "comparison_tendency", "estimate": 0.08, "std_err": 0.12, "p_value": 0.5},
-                {"name": "avatar_condition:comparison_tendency", "estimate": 0.18, "std_err": 0.2, "p_value": 0.36}
-            ]
-            import pandas as pd
-            df = pd.DataFrame(mock_coeffs)
-            coeffs_file.parent.mkdir(parents=True, exist_ok=True)
-            df.to_csv(coeffs_file, index=False)
-
-        coeffs = load_estimated_coefficients(str(coeffs_file))
-
-        assert coeffs is not None
-        assert len(coeffs) > 0
-        assert any(c["name"] == "Intercept" for c in coeffs)
-        assert any(c["name"] == "avatar_condition" for c in coeffs)
-
-    def test_calculate_parameter_recovery_bias(self):
-        """Test the core bias calculation: |beta_hat - beta_true|."""
-        # Define ground truth
-        ground_truth = {
-            "intercept": 0.0,
-            "main_effect_avatar": 0.1,
-            "main_effect_comparison": 0.1,
-            "interaction_beta": 0.2
-        }
-
-        # Define estimated coefficients (with some noise)
-        estimated = [
-            {"name": "Intercept", "estimate": 0.05},
-            {"name": "avatar_condition", "estimate": 0.12},
-            {"name": "comparison_tendency", "estimate": 0.08},
-            {"name": "avatar_condition:comparison_tendency", "estimate": 0.18}
-        ]
-
-        # Map estimated names to ground truth keys
-        name_mapping = {
-            "Intercept": "intercept",
-            "avatar_condition": "main_effect_avatar",
-            "comparison_tendency": "main_effect_comparison",
-            "avatar_condition:comparison_tendency": "interaction_beta"
-        }
-
-        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
-
-        assert result is not None
-        assert "bias" in result
-        assert "absolute_errors" in result
-
-        # Verify bias calculation for Intercept: |0.05 - 0.0| = 0.05
-        assert result["absolute_errors"]["intercept"] == pytest.approx(0.05, abs=1e-6)
-        # Verify bias calculation for avatar_condition: |0.12 - 0.1| = 0.02
-        assert result["absolute_errors"]["main_effect_avatar"] == pytest.approx(0.02, abs=1e-6)
-        # Verify bias calculation for interaction: |0.18 - 0.2| = 0.02
-        assert result["absolute_errors"]["interaction_beta"] == pytest.approx(0.02, abs=1e-6)
-
-        # The overall bias is the mean of absolute errors
-        expected_mean_bias = (0.05 + 0.02 + 0.02 + 0.02) / 4
-        assert result["bias"] == pytest.approx(expected_mean_bias, abs=1e-6)
-
-    def test_parameter_recovery_with_perfect_estimates(self):
-        """Test bias calculation when estimates perfectly match ground truth."""
-        ground_truth = {
-            "intercept": 0.0,
-            "main_effect_avatar": 0.1,
-            "main_effect_comparison": 0.1,
-            "interaction_beta": 0.2
-        }
-
-        estimated = [
-            {"name": "Intercept", "estimate": 0.0},
-            {"name": "avatar_condition", "estimate": 0.1},
-            {"name": "comparison_tendency", "estimate": 0.1},
-            {"name": "avatar_condition:comparison_tendency", "estimate": 0.2}
-        ]
-
-        name_mapping = {
-            "Intercept": "intercept",
-            "avatar_condition": "main_effect_avatar",
-            "comparison_tendency": "main_effect_comparison",
-            "avatar_condition:comparison_tendency": "interaction_beta"
-        }
-
-        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
-
-        assert result["bias"] == pytest.approx(0.0, abs=1e-6)
-        assert all(v == 0.0 for v in result["absolute_errors"].values())
-
-    def test_parameter_recovery_handles_missing_coefficients(self):
-        """Test that missing coefficients are handled gracefully."""
-        ground_truth = {
-            "intercept": 0.0,
-            "main_effect_avatar": 0.1,
-            "main_effect_comparison": 0.1,
-            "interaction_beta": 0.2
-        }
-
-        # Missing "comparison_tendency" estimate
-        estimated = [
-            {"name": "Intercept", "estimate": 0.05},
-            {"name": "avatar_condition", "estimate": 0.12},
-            # Missing comparison_tendency
-            {"name": "avatar_condition:comparison_tendency", "estimate": 0.18}
-        ]
-
-        name_mapping = {
-            "Intercept": "intercept",
-            "avatar_condition": "main_effect_avatar",
-            "comparison_tendency": "main_effect_comparison",
-            "avatar_condition:comparison_tendency": "interaction_beta"
-        }
-
-        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
-
-        assert result is not None
-        # Should calculate bias only for available coefficients
-        assert "main_effect_comparison" not in result["absolute_errors"]
-        assert len(result["absolute_errors"]) == 3
-
-    def test_integration_with_full_pipeline_artifacts(self):
-        """
-        Integration test: Calculate parameter recovery using actual artifacts
-        generated by the pipeline (if they exist).
-        """
-        seed_file = self.data_dir / "raw" / "synthetic_seed.json"
-        coeffs_file = self.processed_dir / "regression_coefficients.csv"
-
-        # Only run if both files exist
-        if not seed_file.exists() or not coeffs_file.exists():
-            pytest.skip("Required artifacts (synthetic_seed.json, regression_coefficients.csv) not found. "
-                        "Run the full pipeline first to generate these files.")
-
-        # Load ground truth
-        ground_truth = load_ground_truth_params(str(seed_file))
-
-        # Load estimated coefficients
-        estimated = load_estimated_coefficients(str(coeffs_file))
-
-        # Map names
-        name_mapping = {
-            "Intercept": "intercept",
-            "avatar_condition": "main_effect_avatar",
-            "comparison_tendency": "main_effect_comparison",
-            "avatar_condition:comparison_tendency": "interaction_beta"
-        }
-
-        # Calculate recovery
-        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
-
-        assert result is not None
-        assert result["bias"] >= 0.0
-        assert "absolute_errors" in result
-        assert len(result["absolute_errors"]) > 0
-
-        logger.info(f"Parameter recovery bias: {result['bias']:.4f}")
-        logger.info(f"Absolute errors: {result['absolute_errors']}")
-
-    def test_bias_threshold_validation(self):
-        """
-        Test that the bias calculation correctly identifies when bias exceeds
-        a specified threshold (used in sensitivity analysis).
-        """
-        ground_truth = {"interaction_beta": 0.2}
-        estimated = [{"name": "avatar_condition:comparison_tendency", "estimate": 0.5}]
-        name_mapping = {"avatar_condition:comparison_tendency": "interaction_beta"}
-
-        result = calculate_parameter_recovery(estimated, ground_truth, name_mapping)
-
-        # Bias should be |0.5 - 0.2| = 0.3
-        assert result["absolute_errors"]["interaction_beta"] == pytest.approx(0.3, abs=1e-6)
-
-        # Simulate a threshold check (e.g., threshold = 0.1)
-        threshold = 0.1
-        exceeds_threshold = result["absolute_errors"]["interaction_beta"] > threshold
-        assert exceeds_threshold is True
+def test_parameter_recovery_mapping_correctness():
+    """
+    Test that the parameter names are correctly mapped between ground truth and estimated coefficients.
+    Ensures that 'main_effect_avatar' maps to 'avatar_condition', etc.
+    """
+    _ensure_directories()
+    
+    # Create ground truth with specific mapping
+    gt_path = DATA_PROCESSED_PATH / "ground_truth_map.json"
+    ground_truth = {
+        "intercept": 0.0,
+        "main_effect_avatar": 0.5,
+        "main_effect_comparison": 0.5,
+        "interaction_beta": 0.5,
+        "noise_sigma": 1.0,
+        "data_source_type": "synthetic"
+    }
+    with open(gt_path, 'w') as f:
+        json.dump(ground_truth, f, indent=2)
+    
+    # Create estimated coefficients
+    coeffs_path = DATA_PROCESSED_PATH / "regression_map.csv"
+    data = {
+        'name': ['Intercept', 'avatar_condition', 'comparison_tendency', 'avatar_condition:comparison_tendency'],
+        'estimate': [0.1, 0.6, 0.4, 0.6], # Deliberate deviations
+        'std_err': [0.01, 0.02, 0.02, 0.03],
+        'p_value': [0.001, 0.02, 0.03, 0.01]
+    }
+    pd.DataFrame(data).to_csv(coeffs_path, index=False)
+    
+    # Act
+    result = calculate_parameter_recovery(
+        ground_truth_path=str(gt_path),
+        estimated_path=str(coeffs_path)
+    )
+    
+    # Assert: Check that the mapping is correct
+    bias_dict = {entry['parameter']: entry for entry in result['bias']}
+    
+    # Check intercept
+    assert 'Intercept' in bias_dict, "Intercept should be mapped"
+    assert np.isclose(bias_dict['Intercept']['bias'], 0.1), "Intercept bias should be 0.1"
+    
+    # Check avatar_condition (maps to main_effect_avatar)
+    assert 'avatar_condition' in bias_dict, "avatar_condition should be mapped"
+    assert np.isclose(bias_dict['avatar_condition']['bias'], 0.1), "Avatar main effect bias should be 0.1"
+    
+    # Check comparison_tendency (maps to main_effect_comparison)
+    assert 'comparison_tendency' in bias_dict, "comparison_tendency should be mapped"
+    assert np.isclose(bias_dict['comparison_tendency']['bias'], 0.1), "Comparison main effect bias should be 0.1"
+    
+    # Check interaction (maps to interaction_beta)
+    assert 'avatar_condition:comparison_tendency' in bias_dict, "Interaction should be mapped"
+    assert np.isclose(bias_dict['avatar_condition:comparison_tendency']['bias'], 0.1), "Interaction bias should be 0.1"

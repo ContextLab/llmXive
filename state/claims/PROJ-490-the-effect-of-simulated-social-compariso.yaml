@@ -2494,3 +2494,156 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-29T08:57:24Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'Synthetic data generator parameters: N >= 100, beta_interaction = 0.2,
+    intercept = 0, main_effect_avatar = 0.1, main_effect_comparison = 0.1, noise_sigma
+    = 1.0'
+  claim_id: c_19bbe389
+  context: "T010 [P] [US1] Implement synthetic data generator in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/data/download.py`\
+    \ with N \u2265 100, interaction \u03B2 = 0.2, and 'Pipeline Validation Only'\
+    \ labeling (FR-011). **Ground Truth Parameters**: intercept=0, main_effect_avatar=0.1,\
+    \ main_effect_comparison=0.1, interaction_beta=0.2, noise_sigma=1.0."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The synthetic data generator is configured with N \u2265 100, interaction\
+    \ \u03B2 = 0.2, intercept=0, main_effect_avatar=0.1, main_effect_comparison=0.1,\
+    \ and noise_sigma=1.0."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T22:22:15Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity sweep threshold list: 0.0, 0.02, 0.04, 0.06, 0.08, 0.10,
+    0.12, 0.14, 0.16, 0.18, 0.20'
+  claim_id: c_559707c0
+  context: 'T028a [US3] **Implement Threshold Sensitivity Sweep Logic**... 1. **Threshold
+    List**: Generate a list of thresholds `[0.0, 0.02, 0.04, 0.06, 0.08, 0.10, 0.12,
+    0.14, 0.16, 0.18, 0.20]` for imputation limits and p-value thresholds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity sweep threshold list includes [0.0, 0.02, 0.04, 0.06,
+    0.08, 0.10, 0.12, 0.14, 0.16, 0.18, 0.20] for imputation limits and p-value thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T22:22:36Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap resampling: at least 1000 iterations or until CI width variance
+    < 0.01'
+  claim_id: c_752e4443
+  context: T025 [US3] Implement bootstrap resampling in `projects/PROJ-490-the-effect-of-simulated-social-compariso/code/analysis/bootstrap.py`
+    with **at least 1,000 iterations OR until CI width variance < 0.01 is achieved
+    (FR-005), whichever comes first**.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling:_at_least_1000_iterations_or_until_CI_w
+  kind: magnitude
+  raw_text: Bootstrap resampling is implemented with at least 1,000 iterations or
+    until CI width variance < 0.01 is achieved.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T22:23:05Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'MICE exclusion logic: rows with > 20% missingness excluded'
+  claim_id: c_129228c3
+  context: T014b [US2] **MICE Exclusion Logic**... If a row has > 20% missingness
+    across key variables, exclude it from imputation (FR-002).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/MICE_exclusion_logic:_rows_with_%3E_20%25_missingness_excluded
+  kind: magnitude
+  raw_text: Rows with more than 20% missingness across key variables are excluded
+    from imputation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T22:23:30Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'Sample size requirement: N >= 100'
+  claim_id: c_53b9809a
+  context: "T002a [P] Create `dataset.schema.yaml`... Include validation rules for\
+    \ N \u2265 100 participants (FR-001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The analysis requires a sample size of N \u2265 100 participants."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T22:23:30Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'Bootstrap memory limit: 7 GB'
+  claim_id: c_4549242f
+  context: 'T057 [P] [US3] **Add Bootstrap Memory Safety**: Modify `code/analysis/bootstrap.py`
+    (T025) to include a hard limit on memory usage (e.g., 7 GB) and dynamically adjust
+    the number of bootstrap iterations if the limit is approached.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrap resampling process includes a hard limit on memory usage
+    of 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T22:23:49Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'Streaming support threshold: 80% of available RAM'
+  claim_id: c_42417e3d
+  context: 'T056 [P] [US2] **Add Streaming Support for Large Datasets**: Modify `code/data/preprocess.py`
+    (T016) to support streaming large datasets using `datasets.load_dataset(..., streaming=True)`
+    if the dataset size exceeds 80% of available RAM.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset size exceeds 80% of available RAM, streaming support is
+    implemented for large datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T22:23:49Z'
+- artifact_path: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso/tasks.md
+  attempts: 1
+  canonical: 'Memory constraint action: sample dataset or reduce iterations if usage
+    > 80% RAM'
+  claim_id: c_b03baed0
+  context: 'T051 [US3] **CRITICAL**: Implement dynamic memory estimation in `code/analysis/bootstrap.py`.
+    Before starting bootstrap, estimate memory usage. If estimated usage exceeds 80%
+    of available RAM: 1. **First**: Attempt to sample the dataset... 2. **Second**:
+    If sampling is not possible... reduce iterations...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated memory usage exceeds 80% of available RAM, the system attempts
+    to sample the dataset or reduce bootstrap iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T22:23:50Z'

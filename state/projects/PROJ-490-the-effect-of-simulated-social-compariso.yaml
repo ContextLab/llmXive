@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-490-the-effect-of-simulated-social-compariso
-last_run_id: 8ecd44a3-d22f-47f1-9070-3571442f214c
+last_run_id: 334d4848-b5eb-404f-b28c-e297a443adae
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-490-the-effect-of-simulated-social-compariso/specs/001-the-effect-of-simulated-social-compariso
 title: The Effect of Simulated Social Comparison on Self-Esteem in Virtual Reality
-updated_at: '2026-09-29T09:20:36.531144Z'
+updated_at: '2026-09-30T22:55:32.901498Z'
