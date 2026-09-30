@@ -68,7 +68,7 @@ The researcher MUST be able to execute a multiple linear regression and ANOVA on
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST enable the researcher to deploy and manage a dynamic task scheduler across a physical mesh of 10–20 heterogeneous consumer devices connected via local Wi-Fi, collecting real-time heartbeat and completion feedback (See US-1).
+- **FR-001**: The system MUST enable the researcher to deploy and manage a dynamic task scheduler across a physical mesh of multiple heterogeneous consumer devices connected via local Wi-Fi, collecting real-time heartbeat and completion feedback (See US-1).
 - **FR-002**: The system MUST enable the researcher to instrument every node to capture wall-clock execution time, network packet counts (via `tcpdump`), and CPU utilization (via `mpstat`) during benchmark execution (See US-1).
 - **FR-003**: The system MUST enable the researcher to implement a configurable parameter sweep to vary task chunk sizes (fine/medium/coarse), active node counts (a scalable range), and artificially injected network latency/packet loss. (See US-2).
 - **FR-004**: The system MUST enable the researcher to calculate and log the coordination overhead ratio (time spent in handshake/management vs. actual computation) for every task execution to enable trade-off analysis (See US-2).

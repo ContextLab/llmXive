@@ -60,7 +60,7 @@ code/
 ├── analysis/
 │   ├── __init__.py
 │   ├── regression.py         # GAM regression & ANOVA
-│   └── theoretical_bound.py  # Ong & Motani (2007) validation
+│   └── theoretical_bound.py  # Ong & Motani () validation
 ├── simulation/
 │   ├── __init__.py
 │   └── des_model.py          # Discrete-event simulation for validation
