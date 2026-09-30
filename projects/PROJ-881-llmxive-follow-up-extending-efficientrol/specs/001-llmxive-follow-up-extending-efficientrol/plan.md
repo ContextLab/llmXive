@@ -28,7 +28,7 @@ This project implements a computational study to determine if intermediate-layer
 | Principle | Compliance Status | Action Plan |
 |-----------|-------------------|-------------|
 | I. Reproducibility | **PASS** | `requirements.txt` pinned; random seeds fixed in `code/config.py`; datasets fetched via `datasets.load_dataset` with explicit revision. |
-| II. Verified Accuracy | **PASS** | All citations in `research.md` restricted to the "Verified datasets" block; Reference-Validator Agent checks `CITATION_TITLE_OVERLAP_THRESHOLD` (0.7) on every artifact write. |
+| II. Verified Accuracy | **PASS** | All citations in `research.md` restricted to the "Verified datasets" block; Reference-Validator Agent checks `CITATION_TITLE_OVERLAP_THRESHOLD` on every artifact write. |
 | III. Data Hygiene | **PASS** | `data/` directory structure with checksums; raw data preserved; derivations written to new files with `derived_from` metadata. |
 | IV. Single Source of Truth | **PASS** | All statistics in `results/` trace to specific rows in `data/processed/`; no hand-typed numbers in `paper/`. |
 | V. Versioning Discipline | **PASS** | Content hashes recorded in `state/` via `state/...yaml` artifact_hashes map; `updated_at` timestamps updated on artifact changes by the Advancement-Evaluator Agent. |
@@ -100,7 +100,7 @@ projects/PROJ-881-llmxive-follow-up-extending-efficientrol/
 
 ### Phase 0: Research & Design
 - **T001**: Define Semantic Alignment logic for GSM8K/MiniGrid.
-- **T002**: Select Qwen1.5-0.5B model for CPU feasibility.
+- **T002**: Select Small-scale language model for CPU feasibility.
 - **T003**: Design GLMM with random intercepts for sequence_id.
 
 ### Phase 1: Data Acquisition & Ground Truth Labeling (FR-001, FR-002)
