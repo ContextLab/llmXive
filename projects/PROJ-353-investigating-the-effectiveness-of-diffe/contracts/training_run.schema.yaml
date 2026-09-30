@@ -1,55 +1,69 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: TrainingRun
-description: >
-  Schema for a single GCN training run result, including convergence metrics,
-  censorship status, and the full per-epoch trajectory as required by Constitution
-  Principle VI and US-2.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TrainingRun"
+description: |
+  Schema for a single training run result.
+  Captures convergence steps, censorship status, and the full per-epoch trajectory.
+  Required by Constitution Principle VI and US-2.
 type: object
 required:
   - run_id
   - graph_id
   - loss_type
+  - beta
+  - epochs_trained
   - convergence_status
   - steps_to_convergence
-  - epochs_trained
+  - final_accuracy
   - trajectory
-  - seed
 properties:
   run_id:
     type: string
-    description: Unique identifier for this training run.
+    description: "Unique identifier for this training run (e.g., UUID or hash)."
   graph_id:
     type: string
-    description: Reference to the graph used for this run.
+    description: "Reference to the source graph ID from data/raw/graphs.jsonl."
   loss_type:
     type: string
     enum:
-      - cross_entropy
-      - info_nce
-    description: The loss function used for training.
-  convergence_status:
-    type: string
-    enum:
-      - converged
-      - censored
-    description: >
-      Status indicating whether the model reached the accuracy threshold
-      (converged) or hit the maximum epoch limit without doing so (censored).
-  steps_to_convergence:
-    type: integer
-    minimum: 0
-    description: >
-      The epoch number at which convergence was first achieved.
-      If status is 'censored', this value equals the total epochs trained.
+      - "cross_entropy"
+      - "infonce"
+    description: "The loss function used for this training run."
+  beta:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "The rewiring probability beta of the Watts-Strogatz graph."
   epochs_trained:
     type: integer
     minimum: 1
-    description: Total number of epochs the model was trained for.
+    description: "Total number of epochs the model was trained for."
+  convergence_status:
+    type: string
+    enum:
+      - "converged"
+      - "censored"
+    description: |
+      Status indicating if the model reached the convergence threshold.
+      'converged': Accuracy >= CONVERGENCE_THRESHOLD (0.90) was reached.
+      'censored': Max epochs reached without convergence.
+  steps_to_convergence:
+    type: integer
+    minimum: 0
+    description: |
+      The epoch number at which convergence was first achieved.
+      If 'censored', this value equals 'epochs_trained' (max epochs).
+  final_accuracy:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy measured at the final epoch (or at convergence if earlier)."
   trajectory:
     type: array
-    description: >
-      Full per-epoch trajectory of loss and accuracy metrics.
-      Required by Constitution Principle VI and US-2.
+    minItems: 1
+    description: |
+      Full per-epoch recording of training metrics.
+      Required by Constitution Principle VI and US-2 for survival analysis.
+      Each entry corresponds to one epoch of training.
     items:
       type: object
       required:
@@ -60,53 +74,17 @@ properties:
         epoch:
           type: integer
           minimum: 1
-          description: The epoch number (1-indexed).
+          description: "1-based epoch index."
         loss:
           type: number
-          description: The loss value recorded at the end of this epoch.
+          description: "Loss value recorded at this epoch."
         accuracy:
           type: number
           minimum: 0.0
           maximum: 1.0
-          description: >
-            The accuracy metric recorded at the end of this epoch.
-            For InfoNCE, this is the linear probe accuracy.
-  seed:
-    type: integer
-    description: Random seed used for this specific run.
+          description: "Accuracy value recorded at this epoch."
   metadata:
     type: object
-    description: Optional additional metadata.
+    description: "Optional additional metadata (e.g., seed, hardware info)."
     additionalProperties: true
-examples:
-  - run_id: "run_001_ce"
-    graph_id: "graph_beta_0.2_seed_42"
-    loss_type: "cross_entropy"
-    convergence_status: "converged"
-    steps_to_convergence: 150
-    epochs_trained: 150
-    seed: 42
-    trajectory:
-      - epoch: 1
-        loss: 2.3025
-        accuracy: 0.10
-      - epoch: 2
-        loss: 2.1000
-        accuracy: 0.15
-      - epoch: 150
-        loss: 0.0500
-        accuracy: 0.92
-  - run_id: "run_002_infonce"
-    graph_id: "graph_beta_0.8_seed_99"
-    loss_type: "info_nce"
-    convergence_status: "censored"
-    steps_to_convergence: 1000
-    epochs_trained: 1000
-    seed: 99
-    trajectory:
-      - epoch: 1
-        loss: 3.0000
-        accuracy: 0.10
-      - epoch: 1000
-        loss: 0.8000
-        accuracy: 0.85
+additionalProperties: false

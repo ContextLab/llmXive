@@ -1,85 +1,70 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: SyntheticGraph
-description: >
-  Schema for a single generated Watts-Strogatz graph with topology annotations.
-  Corresponds to the SyntheticGraph entity in data-model.md (FR-001).
-type: object
+title: "SyntheticGraph"
+description: "Schema for a generated Watts-Strogatz small-world graph with topology annotations and community labels."
+type: "object"
 required:
-  - graph_id
-  - beta
-  - seed
-  - node_count
-  - clustering_coeff
-  - edge_list
-  - labels
+  - "id"
+  - "beta"
+  - "seed"
+  - "clustering_coefficient"
+  - "node_count"
+  - "edge_count"
+  - "edge_list"
+  - "labels"
+  - "is_connected"
 properties:
-  graph_id:
-    type: string
-    description: Unique identifier for the graph instance.
-    pattern: "^graph_[0-9a-f]{8}$"
+  id:
+    type: "string"
+    description: "Unique identifier for the graph instance."
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
   beta:
-    type: number
-    description: Rewiring probability parameter for Watts-Strogatz model.
+    type: "number"
+    description: "Rewiring probability parameter (0.0 to 1.0) for the Watts-Strogatz model."
     minimum: 0.0
     maximum: 1.0
   seed:
-    type: integer
-    description: Random seed used for reproducibility of this specific graph.
-    minimum: 0
+    type: "integer"
+    description: "Random seed used for reproducibility of this graph generation."
   node_count:
-    type: integer
-    description: Total number of nodes in the graph. Fixed at 110 per spec.
-    const: 110
-  clustering_coeff:
-    type: number
-    description: Measured global clustering coefficient of the generated graph.
+    type: "integer"
+    description: "Total number of nodes in the graph."
+    minimum: 1
+  edge_count:
+    type: "integer"
+    description: "Total number of edges in the graph."
+    minimum: 0
+  clustering_coefficient:
+    type: "number"
+    description: "Global clustering coefficient of the generated graph."
     minimum: 0.0
     maximum: 1.0
+  is_connected:
+    type: "boolean"
+    description: "True if the graph is a single connected component, False otherwise."
   edge_list:
-    type: array
-    description: List of edges represented as pairs of node indices.
+    type: "array"
+    description: "List of edges represented as pairs of node indices [u, v]."
     items:
-      type: array
+      type: "array"
       minItems: 2
       maxItems: 2
       items:
-        type: integer
+        type: "integer"
         minimum: 0
-        maximum: 109
   labels:
-    type: array
-    description: Community labels derived from the initial lattice structure before rewiring.
+    type: "array"
+    description: "Community labels derived from the initial ring lattice assignment for each node."
     items:
-      type: integer
-      minimum: 0
-    minItems: 110
-    maxItems: 110
+      type: "integer"
+    minItems: 1
   metadata:
-    type: object
-    description: Optional additional metadata.
+    type: "object"
+    description: "Optional additional metadata regarding the generation process."
     properties:
-      generated_at:
-        type: string
-        format: date-time
-      generator_version:
-        type: string
-additionalProperties: false
-examples:
-  - graph_id: "graph_a1b2c3d4"
-    beta: 0.1
-    seed: 42
-    node_count: 110
-    clustering_coeff: 0.452
-    edge_list:
-      - [0, 1]
-      - [1, 2]
-      - [0, 2]
-    labels:
-      - 0
-      - 0
-      - 1
-      - 1
-      - 2
-      - 2
-      - 3
-      - 3
+      k:
+        type: "integer"
+        description: "Number of neighbors to connect initially in the ring lattice."
+      p:
+        type: "number"
+        description: "Alias for beta, the rewiring probability."
+    additionalProperties: true

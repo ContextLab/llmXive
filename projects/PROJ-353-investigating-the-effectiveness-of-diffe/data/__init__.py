@@ -1,4 +1,1 @@
-"""
-Data directory for the llmXive project.
-Contains raw, logs, and analysis outputs.
-"""
+# llmXive Project 353: Data artifacts package

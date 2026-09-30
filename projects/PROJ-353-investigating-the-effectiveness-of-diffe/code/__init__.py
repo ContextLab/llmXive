@@ -1,2 +1,2 @@
-# llmXive project: Investigating the Effectiveness of Different Loss Functions on Small-World Graphs
-# Package initialization for code module
+# llmXive Project 353: Investigating Loss Functions on Small-World Graphs
+# Core code package

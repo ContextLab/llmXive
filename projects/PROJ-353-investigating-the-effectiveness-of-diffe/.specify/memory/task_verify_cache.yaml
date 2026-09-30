@@ -1,26 +1,14 @@
-T005b:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `data-model.md` file or its contents were provided; thus the required markdown\
-    \ document with the specified schema and JSON\u2011Schema Draft\u202F7 examples\
-    \ is missing. The task cannot be considered completed until the file exists and\
-    \ contains the appropriate entity definitions."
+  r: "No evidence was provided showing that the required `code/`, `tests/`, and `data/`\
+    \ directories actually exist in the project repository; the claim lacks any artifact\
+    \ or directory listing to verify the structure. The implementer must add these\
+    \ top\u2011level directories (and populate them as appropriate) before the task\
+    \ can be considered complete."
 T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
   r: "No `spec.md` file or its contents were provided, so we cannot verify that all\
     \ occurrences of \u201C50\u201D were replaced with \u201C110\u201D in FR\u2011\
     001 and US\u20111 Acceptance Scenario\u202F1. The required artifact is missing."
-T040a:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `research.md` file content was provided, and there is no evidence that it
-    exists or contains the required initial research questions and methodology summary.
-    The implementer must supply the actual `research.md` document meeting the specification.
-T040b:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `quickstart.md` file or its contents were provided in the evidence, so we\
-    \ cannot confirm that the required documentation exists or contains the necessary\
-    \ instructions to run the full pipeline. The implementer must add a non\u2011\
-    empty `quickstart.md` in the project root with the full pipeline usage guide."

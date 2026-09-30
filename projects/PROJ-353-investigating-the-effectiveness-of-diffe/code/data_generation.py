@@ -1,202 +1,198 @@
-"""
-Synthetic Graph Generation for Small-World Network Study.
-
-Generates N=110 Watts-Strogatz graphs with varying rewiring probabilities (beta)
-from 0.0 to 1.0, annotates nodes with community labels derived from the initial
-ring lattice, and saves the results to data/raw/graphs.jsonl.
-"""
 import json
 import os
 import random
 from pathlib import Path
-
 import networkx as nx
 import numpy as np
+import hashlib
+import yaml
 
-from utils import SAMPLE_SIZE, seed_all
+from utils import seed_all, hash_artifact, SAMPLE_SIZE, MAX_EPOCHS
+from losses import cross_entropy_loss, info_nce_loss, LinearProbe, compute_accuracy
+from models import GCNLayer, GCN2Layer, create_normalized_adjacency, build_gcn_model
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-N_NODES: int = 11
-K_NEIGHBORS: int = 2
-BETA_LEVELS: list[float] = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-GRAPHS_PER_BETA: int = 10
+# Constants for generation
+NUM_NODES = 100  # Fixed N for graph generation as per common small-world studies
+K_NEIGHBORS = 4  # Each node connected to 2 on each side in ring lattice
+BETA_LEVELS = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+GRAPHS_PER_BETA = 10
+MAX_RETRIES = 50
 
-OUTPUT_PATH: Path = Path("data/raw/graphs.jsonl")
-
-# ----------------------------------------------------------------------
-# Helper Functions
-# ----------------------------------------------------------------------
-def generate_watts_strogatz_graph(beta: float, seed: int) -> nx.Graph:
+def generate_watts_strogatz_graph(beta: float, seed: int, num_nodes: int = NUM_NODES, k: int = K_NEIGHBORS):
     """
-    Generate a Watts-Strogatz graph.
-
-    Args:
-        beta: Rewiring probability (0.0 to 1.0).
-        seed: Random seed for reproducibility.
-
-    Returns:
-        NetworkX Graph object.
+    Generate a Watts-Strogatz small-world graph.
+    Returns the graph object and the original lattice structure for label derivation.
     """
-    # Ensure seed is applied before generation
-    random.seed(seed)
-    np.random.seed(seed)
-
+    seed_all(seed)
     # Create the initial ring lattice
-    # n=11, k=2 (each node connected to 2 nearest neighbors on each side)
-    G = nx.WattsStrogatz_graph(n=N_NODES, k=K_NEIGHBORS, p=beta, seed=seed)
-    return G
+    G_lattice = nx.watts_strogatz_graph(n=num_nodes, k=k, p=0.0, seed=seed)
+    
+    # Rewire to create the small-world graph
+    # We use a fresh seed for the rewiring process to ensure independence if needed,
+    # but typically the seed passed controls the randomness of the whole process.
+    G = nx.watts_strogatz_graph(n=num_nodes, k=k, p=beta, seed=seed)
+    
+    return G, G_lattice
 
-def derive_community_labels(G: nx.Graph) -> dict[int, int]:
+def derive_community_labels(G_lattice, num_nodes: int = NUM_NODES):
     """
     Derive community labels from the initial ring lattice structure.
-    
-    Since the graph is generated from a ring lattice, nodes are naturally
-    ordered 0..N-1. We assign labels based on position in the ring.
-    For a simple ring of 11 nodes, we can assign labels 0, 1, 2 to create
-    a balanced distribution (3 groups: sizes 4, 4, 3 or similar).
-    
-    Args:
-        G: The generated graph (node indices 0..N-1).
-    
-    Returns:
-        Dictionary mapping node_id -> label_id.
+    In a ring lattice with k neighbors, we can define communities based on
+    the initial connectivity before rewiring. A simple approach is to divide
+    the ring into segments.
     """
-    n_nodes = len(G.nodes())
+    # For a ring lattice, we can define communities by dividing nodes into
+    # contiguous segments. With N nodes and assuming k is even, we can
+    # create communities of size roughly k+1 or based on the lattice structure.
+    # A robust method: use the initial connections to find connected components
+    # if the lattice was disconnected, but it's a single ring.
+    # Instead, we'll assign labels based on position in the ring to simulate
+    # community structure that is then disrupted by rewiring.
+    # Let's create 4 communities for simplicity, dividing the ring into quarters.
+    num_communities = 4
     labels = {}
-    
-    # Assign labels cyclically to ensure balance
-    # 11 nodes -> 3 classes roughly balanced (4, 4, 3)
-    for node_id in G.nodes():
-        labels[node_id] = node_id % 3
-        
+    for i in range(num_nodes):
+        labels[i] = (i * num_communities) // num_nodes
     return labels
 
-def compute_clustering_coefficient(G: nx.Graph) -> float:
+def compute_clustering_coefficient(G):
     """
     Compute the global clustering coefficient of the graph.
-    
-    Args:
-        G: NetworkX Graph.
-    
-    Returns:
-        Clustering coefficient (float).
     """
-    return nx.clustering_coefficient(G)
+    return nx.clustering(G)
 
-def validate_graph(G: nx.Graph, beta: float) -> bool:
+def validate_graph(G, labels, max_class_ratio=0.8):
     """
-    Validate the generated graph.
-    
-    Checks:
-    - No disconnected components (unless beta=1.0 where it's possible but rare for n=11)
-    - Class balance < 80%
-    
-    Args:
-        G: Graph to validate.
-        beta: Rewiring probability used.
-    
-    Returns:
-        True if valid, False otherwise.
+    Validate the generated graph:
+    1. Check for disconnected components (should be one giant component).
+    2. Check class balance (no class > max_class_ratio).
     """
-    # Check for disconnected components
-    components = list(nx.connected_components(G))
-    if len(components) > 1:
-        # If disconnected, we might want to regenerate or skip
-        # For N=11 and K=2, beta=1.0 can sometimes disconnect, but let's flag it
-        # The task says "detect disconnected components (regenerate/skip)"
-        # We will skip invalid graphs and try to generate more until we hit N=110
-        return False
-
+    # Check connectivity
+    if not nx.is_connected(G):
+        return False, "Graph is not connected"
+    
     # Check class balance
-    labels = derive_community_labels(G)
-    counts = {}
-    for l in labels.values():
-        counts[l] = counts.get(l, 0) + 1
+    if not labels:
+        return False, "No labels provided"
     
-    max_count = max(counts.values())
-    total = sum(counts.values())
-    if max_count / total >= 0.80:
-        return False
+    label_counts = {}
+    for label in labels.values():
+        label_counts[label] = label_counts.get(label, 0) + 1
+    
+    total_nodes = sum(label_counts.values())
+    max_count = max(label_counts.values())
+    
+    if max_count / total_nodes > max_class_ratio:
+        return False, f"Class imbalance detected: max ratio {max_count/total_nodes:.2f}"
+    
+    return True, "Valid"
 
-    return True
-
-# ----------------------------------------------------------------------
-# Main Generation Logic
-# ----------------------------------------------------------------------
 def main():
     """
-    Generate N=110 graphs and save to data/raw/graphs.jsonl.
+    Main function to generate the dataset of small-world graphs.
     """
-    # Verify Sample Size constraint
-    if SAMPLE_SIZE != 110:
-        raise ValueError(f"Spec constraint violated: SAMPLE_SIZE must be 110, got {SAMPLE_SIZE}")
-
-    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
-
+    # Ensure directories exist
+    data_dir = Path("data/raw")
+    data_dir.mkdir(parents=True, exist_ok=True)
+    state_dir = Path("state/projects/PROJ-353-investigating-the-effectiveness-of-diffe")
+    state_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_file = data_dir / "graphs.jsonl"
+    state_file = state_dir / "state.yaml"
+    
+    # Initialize seed
+    seed_all(42)
+    
     graphs_data = []
     generated_count = 0
-    attempts_per_beta = 20  # Allow some retries for invalid graphs
-
-    print(f"Starting generation for N={SAMPLE_SIZE} graphs...")
     
-    # We need 10 graphs per beta level for 11 levels = 110 total
-    # We will iterate through beta levels and generate 10 valid graphs for each
+    print(f"Generating {SAMPLE_SIZE} graphs...")
+    
+    # We need to generate SAMPLE_SIZE graphs.
+    # According to task: 10 graphs per beta level (11 levels) = 110 graphs.
+    # This matches SAMPLE_SIZE = 110.
+    
+    beta_indices = []
     for beta in BETA_LEVELS:
-        count_for_beta = 0
-        attempts = 0
+        for _ in range(GRAPHS_PER_BETA):
+            beta_indices.append(beta)
+    
+    if len(beta_indices) != SAMPLE_SIZE:
+        raise ValueError(f"Expected {SAMPLE_SIZE} graphs, but beta_levels * graphs_per_beta = {len(beta_indices)}")
+    
+    for idx, beta in enumerate(beta_indices):
+        seed = 42 + idx  # Unique seed for each graph
+        success = False
+        for retry in range(MAX_RETRIES):
+            try:
+                G, G_lattice = generate_watts_strogatz_graph(beta, seed)
+                labels = derive_community_labels(G_lattice)
+                
+                is_valid, msg = validate_graph(G, labels)
+                if is_valid:
+                    success = True
+                    break
+                else:
+                    # Retry with a different seed if validation fails
+                    seed += 1
+            except Exception as e:
+                print(f"Error generating graph {idx}: {e}")
+                seed += 1
+                continue
         
-        while count_for_beta < GRAPHS_PER_BETA and attempts < attempts_per_beta:
-            # Generate a seed based on beta level and attempt number
-            # Use a deterministic seed sequence
-            seed_val = int(beta * 1000) + attempts
-            seed_all(seed_val)
-            
-            G = generate_watts_strogatz_graph(beta, seed_val)
-            
-            if validate_graph(G, beta):
-                # Compute metrics
-                clustering = compute_clustering_coefficient(G)
-                labels = derive_community_labels(G)
-                
-                # Convert graph to edge list
-                edge_list = list(G.edges())
-                
-                # Create data record
-                record = {
-                    "id": f"graph_{beta}_{count_for_beta}",
-                    "beta": beta,
-                    "seed": seed_val,
-                    "clustering_coeff": clustering,
-                    "node_count": len(G.nodes()),
-                    "edge_list": edge_list,
-                    "labels": labels
-                }
-                
-                graphs_data.append(record)
-                count_for_beta += 1
-                generated_count += 1
-                print(f"Generated valid graph for beta={beta} (#{count_for_beta})")
-            else:
-                attempts += 1
-                print(f"Invalid graph for beta={beta} (attempt {attempts}), retrying...")
+        if not success:
+            raise RuntimeError(f"Failed to generate valid graph for beta={beta} after {MAX_RETRIES} retries")
         
-        if count_for_beta < GRAPHS_PER_BETA:
-            raise RuntimeError(f"Failed to generate {GRAPHS_PER_BETA} valid graphs for beta={beta}. Only got {count_for_beta}.")
-
-    # Final check
+        # Compute clustering coefficient
+        clustering_coeff = nx.clustering(G)
+        
+        # Prepare data for serialization
+        graph_entry = {
+            "id": f"graph_{idx:03d}",
+            "beta": beta,
+            "seed": seed,
+            "clustering_coeff": clustering_coeff,
+            "num_nodes": G.number_of_nodes(),
+            "num_edges": G.number_of_edges(),
+            "edge_list": list(G.edges()),
+            "labels": labels,
+            "is_connected": nx.is_connected(G)
+        }
+        
+        graphs_data.append(graph_entry)
+        generated_count += 1
+        print(f"Generated graph {generated_count}/{SAMPLE_SIZE} (beta={beta})")
+    
+    # Write to JSONL
+    with open(output_file, 'w') as f:
+        for entry in graphs_data:
+            f.write(json.dumps(entry) + '\n')
+    
+    print(f"Successfully generated {generated_count} graphs to {output_file}")
+    
+    # Verify count
     if generated_count != SAMPLE_SIZE:
-        raise RuntimeError(f"Generation failed: Expected {SAMPLE_SIZE} graphs, got {generated_count}.")
-
-    print(f"Successfully generated {generated_count} graphs.")
-
-    # Save to JSONL
-    with open(OUTPUT_PATH, "w") as f:
-        for record in graphs_data:
-            f.write(json.dumps(record) + "\n")
-
-    print(f"Graphs saved to {OUTPUT_PATH}")
+        raise ValueError(f"Generated {generated_count} graphs, expected {SAMPLE_SIZE}")
+    
+    # Generate checksum
+    checksum = hash_artifact(str(output_file))
+    
+    # Update state file
+    state_data = {}
+    if state_file.exists():
+        with open(state_file, 'r') as f:
+            state_data = yaml.safe_load(f) or {}
+    
+    if 'artifact_hashes' not in state_data:
+        state_data['artifact_hashes'] = {}
+    
+    state_data['artifact_hashes']['data/raw/graphs.jsonl'] = checksum
+    
+    with open(state_file, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False)
+    
+    print(f"Checksum recorded: {checksum}")
+    print("Graph generation pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

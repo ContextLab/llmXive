@@ -81,3 +81,80 @@ def test_compute_accuracy_random(dummy_data):
     # With 10 classes, random accuracy is ~0.1. It should not be 1.0.
     # (Probability of 1.0 by chance is extremely low for batch=32)
     assert acc.item() < 0.99
+
+def test_linear_probe_training(dummy_data):
+    """Test that LinearProbe can be trained to high accuracy on dummy data."""
+    probe = LinearProbe(dummy_data["embedding_dim"], dummy_data["num_classes"])
+    optimizer = torch.optim.Adam(probe.parameters(), lr=0.01)
+    
+    # Create a dataset where query maps perfectly to targets
+    # We'll simulate this by setting query = target one-hot (roughly)
+    # For this test, we just ensure the training loop runs and reduces loss
+    query = dummy_data["query"]
+    targets = dummy_data["targets"]
+    
+    initial_loss = None
+    final_loss = None
+    
+    for epoch in range(10):
+        optimizer.zero_grad()
+        logits = probe(query)
+        loss = torch.nn.functional.cross_entropy(logits, targets)
+        loss.backward()
+        optimizer.step()
+        
+        if epoch == 0:
+            initial_loss = loss.item()
+        if epoch == 9:
+            final_loss = loss.item()
+    
+    # Loss should decrease over training
+    assert final_loss < initial_loss
+
+def test_linear_probe_accuracy_metric(dummy_data):
+    """Test that LinearProbe accuracy can be measured correctly after training."""
+    probe = LinearProbe(dummy_data["embedding_dim"], dummy_data["num_classes"])
+    optimizer = torch.optim.Adam(probe.parameters(), lr=0.1)
+    
+    query = dummy_data["query"]
+    targets = dummy_data["targets"]
+    
+    # Train for a few epochs to get reasonable accuracy
+    for _ in range(20):
+        optimizer.zero_grad()
+        logits = probe(query)
+        loss = torch.nn.functional.cross_entropy(logits, targets)
+        loss.backward()
+        optimizer.step()
+    
+    # Measure accuracy using the compute_accuracy helper
+    logits = probe(query)
+    acc = compute_accuracy(logits, targets)
+    
+    # After training, accuracy should be significantly better than random (0.1)
+    # and ideally quite high, though we don't demand 1.0 for robustness
+    assert acc.item() > 0.2
+
+def test_info_nce_with_labels(dummy_data):
+    """Test InfoNCE loss with positive/negative pairs logic."""
+    # Simulate positive pairs (same index) and negatives (different indices)
+    query = dummy_data["query"]
+    key = dummy_data["key"]
+    
+    # Standard InfoNCE treats diagonal as positives
+    loss = info_nce_loss(query, key)
+    assert loss.item() >= 0.0
+
+def test_compute_accuracy_edge_cases(dummy_data):
+    """Test accuracy with edge cases like all same predictions."""
+    targets = dummy_data["targets"]
+    num_classes = dummy_data["num_classes"]
+    
+    # All predictions point to class 0
+    logits = torch.zeros_like(dummy_data["logits"])
+    logits[:, 0] = 1.0
+    
+    acc = compute_accuracy(logits, targets)
+    # Accuracy is proportion of targets that are 0
+    expected_acc = (targets == 0).float().mean().item()
+    assert abs(acc.item() - expected_acc) < 1e-6
