@@ -1,1 +1,11 @@
-[]
+- artifact_hash: db3eb33fac69db4295c8dbdaa1676c57b5f31a48d1a971e03305cb003efa62f4
+  artifact_path: projects/PROJ-846-llmxive-follow-up-extending-guava-an-eff/specs/001-llmxive-follow-up-extending-guava-an-eff/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.onnx`
+  verification_status: mismatch
+  verified_against_url: https://github.com/ultralytics/assets/releases/download/v8.3.0/yolov8n.onnx
+  verified_at: '2026-09-30T16:05:14.267878Z'
