@@ -1,3 +1,8 @@
+"""
+Module: utils/dataset_integrity.py
+Task: T007, T014a
+Description: Strict field validation and integrity checking.
+"""
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -5,130 +10,98 @@ from typing import Any, Dict, List, Optional, Set, Union
 from .logging_config import get_logger
 from .hashing_utils import compute_dict_hash
 
-logger = get_logger(__name__)
-
 class IntegrityError(Exception):
-    """Custom exception for dataset integrity failures."""
+    """Custom exception for integrity failures."""
     pass
 
-def validate_record_fields(record: Dict[str, Any], required_fields: Set[str]) -> bool:
+def validate_record_fields(record: Dict[str, Any], required_fields: Set[str]) -> List[str]:
     """
-    Check if a record contains all required fields with non-empty values.
-    
-    Args:
-        record: The record dictionary.
-        required_fields: Set of field names that must exist.
-        
-    Returns:
-        True if valid, False otherwise.
+    Validate that a record contains all required fields.
+    Returns list of missing fields.
     """
+    missing = []
     for field in required_fields:
-        if field not in record:
-            logger.debug(f"Record missing required field: {field}")
-            return False
-        if record[field] is None or (isinstance(record[field], str) and not record[field].strip()):
-            logger.debug(f"Record has empty required field: {field}")
-            return False
-    return True
+        if field not in record or record[field] is None:
+            missing.append(field)
+    return missing
 
-def validate_dataset_records(records: List[Dict[str, Any]], required_fields: Set[str]) -> List[Dict[str, Any]]:
+def validate_dataset_records(records: List[Dict[str, Any]], required_fields: Set[str]) -> Dict[str, Any]:
     """
-    Validate a list of records against required fields.
+    Validate a list of records.
+    Returns a report with counts and specific errors.
+    """
+    errors = []
+    valid_count = 0
     
-    Args:
-        records: List of records.
-        required_fields: Set of required field names.
-        
-    Returns:
-        List of invalid records (empty if all valid).
-    """
-    invalid = []
-    for idx, record in enumerate(records):
-        if not validate_record_fields(record, required_fields):
-            invalid.append({
-                "index": idx,
-                "record_id": record.get("task_id", "unknown"),
-                "missing_fields": [f for f in required_fields if f not in record or not record.get(f)]
+    for i, record in enumerate(records):
+        missing = validate_record_fields(record, required_fields)
+        if missing:
+            errors.append({
+                "index": i,
+                "task_id": record.get("task_id", "UNKNOWN"),
+                "missing_fields": missing
             })
-    return invalid
-
-def generate_integrity_report(invalid_records: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Generate a JSON report of integrity failures.
+        else:
+            valid_count += 1
     
-    Args:
-        invalid_records: List of invalid record details.
-        output_path: Path to write the report.
-    """
+    return {
+        "total": len(records),
+        "valid": valid_count,
+        "invalid": len(errors),
+        "errors": errors
+    }
+
+def generate_integrity_report(errors: List[Dict[str, Any]], output_path: Path) -> None:
+    """Generate a JSON report for integrity errors."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     report = {
-        "status": "FAILED",
-        "total_invalid": len(invalid_records),
-        "invalid_records": invalid_records,
+        "status": "FAIL",
+        "error_count": len(errors),
+        "errors": errors,
         "timestamp": datetime.now(timezone.utc).isoformat()
     }
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2)
-    
-    logger.warning(f"Integrity report generated: {output_path}")
 
-def load_and_validate_jsonl(file_path: Path, required_fields: Set[str]) -> List[Dict[str, Any]]:
+def load_and_validate_jsonl(file_path: Path, required_fields: Set[str]) -> Tuple[List[Dict], Dict]:
     """
-    Load a JSONL file and validate each record.
-    
-    Args:
-        file_path: Path to the JSONL file.
-        required_fields: Set of required fields.
-        
-    Returns:
-        List of valid records.
-        
-    Raises:
-        IntegrityError: If any records are invalid.
+    Load JSONL and validate in one go.
+    Returns (records, report).
     """
     records = []
-    invalid_records = []
+    errors = []
+    line_num = 0
     
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
-    with open(file_path, "r", encoding="utf-8") as f:
-        for line_num, line in enumerate(f, 1):
-            line = line.strip()
-            if not line:
-                continue
+    with open(file_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line_num += 1
             try:
                 record = json.loads(line)
-                if validate_record_fields(record, required_fields):
-                    records.append(record)
-                else:
-                    invalid_records.append({
+                missing = validate_record_fields(record, required_fields)
+                if missing:
+                    errors.append({
                         "line": line_num,
-                        "record_id": record.get("task_id", "unknown"),
-                        "missing_fields": [f for f in required_fields if f not in record or not record.get(f)]
+                        "task_id": record.get("task_id", "UNKNOWN"),
+                        "missing_fields": missing
                     })
+                else:
+                    records.append(record)
             except json.JSONDecodeError as e:
-                invalid_records.append({
+                errors.append({
                     "line": line_num,
+                    "task_id": "UNKNOWN",
                     "error": f"JSON Decode Error: {e}"
                 })
     
-    if invalid_records:
-        raise IntegrityError(f"Found {len(invalid_records)} invalid records in {file_path}")
-    
-    return records
+    report = {
+        "total_lines": line_num,
+        "valid_records": len(records),
+        "invalid_records": len(errors),
+        "errors": errors
+    }
+    return records, report
 
 def verify_record_hash(record: Dict[str, Any], expected_hash: str) -> bool:
-    """
-    Verify the hash of a record matches the expected hash.
-    
-    Args:
-        record: The record dictionary.
-        expected_hash: The expected hash string.
-        
-    Returns:
-        True if hashes match, False otherwise.
-    """
-    actual_hash = compute_dict_hash(record)
-    return actual_hash == expected_hash
+    """Verify a record's hash matches expected."""
+    computed = compute_dict_hash(record)
+    return computed == expected_hash

@@ -1,0 +1,232 @@
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Blind-Spots-Bench dataset used in study
+  claim_id: c_0a72baa7
+  context: The goal is to download Blind-Spots-Bench, filter for Abstract Reasoning
+    and Object-Centric categories, and validate data integrity.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: the resulting dataset of 235 samples. We further develop an automated
+        grading
+      source_id: '2607.08317'
+      url: https://arxiv.org/abs/2607.08317
+      value: '235'
+    filled: true
+  kind: entity_fact
+  raw_text: The study uses the Blind-Spots-Bench dataset.
+  resolved_value: '235'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T20:07:40Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Pilot study sample size N=10
+  claim_id: c_3add42c4
+  context: 'Implement code/pilot_study.py: Generate CoT traces for a small pilot set
+    (N=10) using the filtered dataset and T022a.'
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pilot study generates CoT traces for a sample size of N=10.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T20:07:40Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Validation sample size N=30
+  claim_id: c_00d1ab76
+  context: Human expert labels N=30 traces for Task Outcome and Constraint Mention.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation sample size for human expert annotation is N=30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:07:59Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Global runtime limit 6 hours
+  claim_id: c_4f8c8489
+  context: Before starting each new task, check if elapsed_time + per_task_timeout
+    > 6 hours. If true, halt immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The global runtime limit for the study is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:08:19Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Per-task timeout 10 minutes
+  claim_id: c_2781e088
+  context: Generate traces with temperature=0.0, enforce Fixed 10-minute wall-clock
+    timeout per task using signal.alarm.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The per-task timeout for model inference is 10 minutes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:08:51Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Classifier validation agreement rate threshold 85 percent
+  claim_id: c_e67af81b
+  context: "MUST verify the rate is \u2265 85% to validate the methodology as required\
+    \ by SC-006. If < 85%, raise SystemExit(1)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Classifier_validation_agreement_rate_threshold_85_percent
+  kind: magnitude
+  raw_text: The classifier validation requires an agreement rate of at least 85%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:09:22Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Consistency check agreement rate threshold 99 percent
+  claim_id: c_7de6115e
+  context: "MUST verify the rate is \u2265 99% and halt the pipeline if the threshold\
+    \ is not met."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Consistency_check_agreement_rate_threshold_99_percent
+  kind: magnitude
+  raw_text: The consistency check requires an agreement rate of at least 99%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:09:43Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: all-MiniLM-L6-v2 model used for semantic matching
+  claim_id: c_b9761060
+  context: 'Algorithm: Load all-MiniLM-L6-v2, compute embeddings for constraint and
+    trace segments, calculate cosine similarity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All-MiniLM-L6-v2_model_used_for_semantic_matching
+  kind: entity_fact
+  raw_text: The pilot study uses the all-MiniLM-L6-v2 model for semantic matching.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:10:07Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Mistral-7B-Int4 used as fallback model
+  claim_id: c_d5a6af48
+  context: If OOM occurs, fallback to a smaller 7B model (e.g., Mistral-7B-Int4) or
+    reduce context window.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mistral-7B-Int4_used_as_fallback_model
+  kind: entity_fact
+  raw_text: The fallback model strategy includes Mistral-7B-Int4.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:10:40Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Llama-3-8B-Int4 or Mistral-7B-Int4 used for trace generation
+  claim_id: c_78f23dd1
+  context: Load -bit quantized model (Llama-3-8B-Int4 or Mistral-7B-Int4) with device=cpu.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary models for trace generation are Llama-3-8B-Int4 or Mistral-7B-Int4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:10:57Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Dataset filtered for Abstract Reasoning and Object-Centric categories
+  claim_id: c_3cb51a15
+  context: 'Retain only Abstract Reasoning and Object-Centric categories. Filter criteria:
+    task_category in [''Abstract Reasoning'', ''Object-Centric''].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_filtered_for_Abstract_Reasoning_and_Object-Centric_c
+  kind: entity_fact
+  raw_text: The study filters the dataset for Abstract Reasoning and Object-Centric
+    categories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:11:24Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized
+  claim_id: c_30384451
+  context: Initialize Python 3.11 project with requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:11:45Z'
+- artifact_path: projects/PROJ-1072-llmxive-follow-up-extending-blind-spots/specs/001-llmxive-follow-up-extending-blind-spots/tasks.md
+  attempts: 1
+  canonical: Power analysis deferred due to sample size constraints
+  claim_id: c_91f51d3b
+  context: Power analysis was deferred by design to acknowledge sample size constraints;
+    the study's findings are associational and limited by the effective sample size.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Power_analysis_deferred_due_to_sample_size_constraints
+  kind: entity_fact
+  raw_text: The study defers power analysis due to sample size constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T20:12:32Z'

@@ -1,0 +1,13 @@
+validation:
+  sample_size: 30
+study:
+  min_sample_size: 40
+inference:
+  timeout_minutes: 10
+  model_name: "meta-llama/Llama-3-8B-Int4"
+  device: "cpu"
+dataset:
+  source_url: "BlindSpotsBench/blind-spots-bench"
+logging:
+  level: "INFO"
+  format: "json"

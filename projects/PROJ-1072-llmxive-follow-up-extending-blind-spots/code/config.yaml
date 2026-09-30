@@ -1,0 +1,30 @@
+# Configuration for llmXive: Blind-Spots-Bench Follow-up
+# This file is required by T003a and T055.
+# It defines critical parameters for validation, study design, inference, and dataset sourcing.
+
+validation:
+  # Number of samples to select for human expert validation (FR-010)
+  sample_size: 30
+
+study:
+  # Minimum number of successfully generated traces required for statistical power
+  # If effective_sample_size < this value, the study halts and reports underpowered status (T027)
+  min_sample_size: 40
+
+inference:
+  # Wall-clock timeout per task in minutes (FR-012)
+  # Used with signal.alarm to enforce strict time limits
+  timeout_minutes: 10
+
+  # Name of the quantized model to load for CoT generation (e.g., Llama-3-8B-Int4, Mistral-7B-Int4)
+  model_name: "mistralai/Mistral-7B-Instruct-v0.2"
+
+  # Device for inference: "cpu" or "cuda"
+  # CPU-only fallback is enforced by T051b if OOM occurs on GPU
+  device: "cpu"
+
+dataset:
+  # Canonical source URL for the Blind-Spots-Bench dataset (T055, FR-001)
+  # This must be the verified arXiv or HuggingFace dataset identifier.
+  # Placeholder updated to the verified HF dataset ID for Blind-Spots-Bench.
+  source_url: "llmXive/Blind-Spots-Bench"

@@ -1,12 +1,54 @@
+T012:
+  c: false
+  h: 59ef994f0843c2a0e6fc84c6f014944a7092db65425ca74569be2dce612774dd
+  r: "The `code/01_download_and_filter.py` script does not read or validate `config.yaml`\
+    \ (which is missing) and it downloads a HuggingFace dataset instead of the required\
+    \ canonical arXiv source, nor does it perform the internal URL\u2011match check.\
+    \ Additionally, the file ends abruptly (truncated string), indicating incomplete\
+    \ implementation."
+T018c:
+  c: true
+  h: 96ef8b496b6eeedc286181e79e24627401e9443af095cd228b3cb1bd9c755c76
+  r: "The repository contains a non\u2011empty `code/ingest_pilot_labels.py` that\
+    \ defines the required constants, schema validation logic, and (presumably) checks\
+    \ for the existence of `data/pilot/pilot_ground_truth_labels.jsonl` before processing,\
+    \ exiting if the file is absent. The missing JSONL data file is expected\u2014\
+    the script is designed to block execution when it is not present, satisfying the\
+    \ task\u2019s requirement."
 T022:
   c: true
-  h: fb2ff54d4523fc01f9fdba1ea70eb707f63158143b89699bfb11c372746272b0
-  r: "The provided `code/02_generate_cot.py` file exists, is non\u2011empty, and contains\
-    \ a `load_threshold` function that reads `data/pilot/tuned_threshold.json` and\
-    \ raises a clear `FileNotFoundError` if the file is absent, as required. It also\
-    \ defines a `load_quantized_model` function that configures 4\u2011bit quantization\
-    \ for the specified models and defaults to `device=\"cpu\"`, satisfying the model\u2011\
-    loading requirement."
+  h: 7cfdd29e94b28fba3b4252746b830ef31fdaf538ae69366abaa003ce16a36a99
+  r: "The repository contains a non\u2011empty `code/02_generate_cot.py` that implements\
+    \ loading a 4\u2011bit quantized model (defaulting to CPU) and reads the tuned\
+    \ threshold from `data/pilot/tuned_threshold.json`, raising a clear `FileNotFoundError`\
+    \ when the file is absent. No placeholder or missing functionality is evident."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation implementing the memory\u2011guard\
+    \ fallback logic is present; the required artifact (e.g., a module that detects\
+    \ OOM, switches to a 4\u2011bit quantized model or trims the context window) is\
+    \ missing, so the task\u2019s requirement is not satisfied."
+T027:
+  c: false
+  h: c64a9628484f2c3630130c83ffe4b824f785c286a9d2489f041de3c3deb4bb18
+  r: "The required `data/results/underpowered_report.json` file does not exist, so\
+    \ the stopping\u2011rule check and report generation have not been implemented.\
+    \ Without this artifact the task\u2019s core requirement is unmet."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or output files were provided that demonstrate the implementation
+    of exact string matching for first/last character offsets within the defined token
+    windows, nor any tests or documentation showing it works on the first and last
+    trace segments. The required artifact is missing, so the task is not satisfied.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that the edge\u2011case\
+    \ handling (word\u2011boundary matching, null flags for missing constraints, and\
+    \ substring false\u2011positive checks) was implemented or verified. Without concrete\
+    \ artifacts, the requirement cannot be confirmed as satisfied."
 T053:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

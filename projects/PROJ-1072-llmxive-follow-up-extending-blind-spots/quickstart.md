@@ -1,114 +1,79 @@
-# Quickstart Guide: llmXive Blind-Spots-Bench Analysis
+# Quickstart Guide: llmXive - Blind Spots Bench Follow-up
 
-This guide walks you through the end-to-end execution of the research pipeline.
-Ensure all prerequisites are installed and the project structure is correct.
+This guide explains how to run the pipeline end-to-end to reproduce the study on Blind Spots in Multimodal Models.
 
 ## Prerequisites
 
-1. Python 3.11+
-2. Install dependencies:
+- Python 3.11+
+- Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
+## Configuration
+
+Ensure `config.yaml` is populated with the correct dataset URL and model settings.
+Run the URL verification step first:
+```bash
+python code/00_verify_dataset_url.py
+```
+
 ## Execution Steps
 
-The pipeline is executed in the following order. Each step produces specific artifacts.
+The pipeline consists of several sequential steps. Run them in order.
 
-### Step 1: Acquire and Filter Data (US1)
-
-Downloads the Blind-Spots-Bench dataset, filters for target categories, and validates integrity.
-
+### Step 1: Dataset Acquisition and Filtering (US1)
+Downloads the dataset, filters for relevant categories, and validates integrity.
 ```bash
 python code/01_download_and_filter.py
 ```
-
-**Outputs:**
-- `data/filtered/filtered_tasks.jsonl`
-- `data/validation/integrity_pass.json` (or `integrity_error_report.json` on failure)
+**Output**: `data/filtered/filtered_tasks.jsonl`, `data/validation/integrity_pass.json`
 
 ### Step 2: Pilot Study (US2)
-
-Generates CoT traces for a small pilot set (N=10) to calibrate the semantic matcher.
-
+Generates a small set of CoT traces for threshold tuning.
 ```bash
 python code/pilot_study.py
 ```
+**Output**: `data/pilot/pilot_traces.jsonl`
 
-**Outputs:**
-- `data/pilot/pilot_traces.jsonl`
+### Step 3: Human Annotation (Manual)
+**Required**: Human experts must label the pilot traces.
+1. Run `python code/generate_pilot_annotation_request.py` to generate the request file.
+2. Manually label the traces and save to `data/pilot/pilot_ground_truth_labels.jsonl`.
+**Note**: The pipeline will halt if this file is missing.
 
-### Step 3: Ingest Pilot Labels (US2)
-
-(Manual Step: Human experts label `data/pilot/pilot_traces.jsonl` and save to `data/pilot/pilot_ground_truth_labels.jsonl`)
-
-Then ingest the labels:
-```bash
-python code/ingest_pilot_labels.py
-```
-
-### Step 4: Tune Threshold (US2)
-
-Iterates cosine similarity thresholds to maximize agreement with human labels.
-
+### Step 4: Threshold Tuning (US2 - T019)
+Computes the optimal semantic matching threshold based on human labels.
 ```bash
 python code/tune_threshold.py
 ```
+**Output**: `data/pilot/tuned_threshold.json`
 
-**Outputs:**
-- `data/pilot/tuned_threshold.json` (Required for Step 5)
-
-### Step 5: Generate CoT Traces (US2)
-
-Generates full CoT traces for the filtered dataset using the tuned threshold.
-
+### Step 5: Full CoT Generation (US2)
+Generates CoT traces for the full filtered dataset using the tuned threshold.
 ```bash
 python code/02_generate_cot.py
 ```
+**Output**: `data/traces/cot_traces.jsonl`
 
-**Outputs:**
-- `data/traces/cot_traces.jsonl`
-
-### Step 6: Parse and Classify (US2/US3)
-
+### Step 6: Parsing and Classification (US2/US3)
 Parses traces for constraint mentions and classifies errors.
-
 ```bash
 python code/03_parse_and_classify.py
 ```
-
-**Outputs:**
-- `data/results/parsed_traces.jsonl`
+**Output**: `data/results/parsed_traces.jsonl`
 
 ### Step 7: Statistical Analysis (US3)
-
 Performs statistical tests on the classified errors.
-
 ```bash
 python code/04_statistical_analysis.py
 ```
+**Output**: `data/results/statistical_report.json`
 
-**Outputs:**
-- `data/results/statistical_report.json`
+## Running the Full Pipeline
 
-## Full Run (Sample Size 5 for Testing)
-
-For a quick end-to-end test with a small sample:
-
+To run the entire pipeline (excluding manual steps), execute:
 ```bash
-python code/01_download_and_filter.py
-python code/pilot_study.py --sample-size 5
-python code/ingest_pilot_labels.py
-python code/tune_threshold.py
-python code/02_generate_cot.py --sample-size 5
-python code/03_parse_and_classify.py
-python code/04_statistical_analysis.py
+bash code/run_pipeline.sh
 ```
-
-## Verification
-
-After running, verify the presence of key artifacts:
-- `data/filtered/filtered_tasks.jsonl`
-- `data/pilot/tuned_threshold.json`
-- `data/traces/cot_traces.jsonl`
-- `data/results/statistical_report.json`
+*Note: Ensure manual annotation (Step 3) is completed before running the full script.*

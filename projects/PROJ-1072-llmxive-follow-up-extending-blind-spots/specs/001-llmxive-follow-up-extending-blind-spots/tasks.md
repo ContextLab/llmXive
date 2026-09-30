@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -49,12 +49,12 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes GPU fallback, streaming, and configuration.
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes CPU fallback, streaming, and configuration.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [X] T003 [P] Initialize Python 3.11 project with `requirements.txt` (include `datasets`, `transformers`, `torch`, `sentence-transformers`, `scikit-learn`, `scipy`, `pandas`, `statsmodels`)
-- [X] T003a [P] Create `config.yaml` with keys: `validation.sample_size`, `study.min_sample_size`, `inference.timeout_minutes`, `dataset.source_url`, `inference.model_name`, `inference.device`
+- [X] T003a Create `config.yaml` with keys: `validation.sample_size`, `study.min_sample_size`, `inference.timeout_minutes`, `dataset.source_url`, `inference.model_name`, `inference.device`
 - [X] T004 [P] Create specific YAML schema files: `dataset.schema.yaml`, `trace.schema.yaml`, `output.schema.yaml` in `specs/001-blind-spots-order-analysis/contracts/` (Matches Plan.md structure)
 - [X] T005 [P] Implement `code/utils/hashing_utils.py` for artifact content hashing (Constitution Principle V)
 - [X] T006 [P] Implement `code/utils/logging_config.py` for structured logging across pipeline stages
@@ -63,12 +63,12 @@
 - [X] T009 [P] Create `code/run_pipeline.sh` orchestrator script
 - [X] T050 [US2] Implement streaming data loader in `code/01_download_and_filter.py`: Replace full dataset loading with `datasets.load_dataset(..., streaming=True)` to process tasks in chunks, ensuring RAM usage stays within acceptable limits for large subsets (Plan: Memory & Compute Strategy).
 - [X] T051a [US2] Implement **OOM Detection Logic** in `code/02_generate_cot.py`: Add try/except block around model inference to catch `OutOfMemoryError`. Log error code `ERR_OOM` and trigger fallback sequence.
-- [X] T051b [US2] Implement **Kaggle API Integration** in `code/02_generate_cot.py`: Create function to submit a job to Kaggle using the `kaggle` CLI/API with the same script and pinned seed. Ensure the job runs on a single GPU.
-- [X] T051c [US2] Implement **Seed Pinning Logic** in `code/02_generate_cot.py`: Ensure `random`, `numpy`, `torch`, and `transformers` seeds are set to a fixed value (e.g., 42) before inference. Verify that the seed is passed to the Kaggle job environment variable.
-- [X] T051d [US2] Implement **Fallback Orchestration** in `code/02_generate_cot.py**: If T051a catches OOM, invoke T051b to offload to Kaggle. Ensure the script waits for the Kaggle job to complete and retrieves the results. **Do NOT** implement silent CPU fallbacks or synthetic data. The same code path must execute on GPU with pinned seeds for reproducibility. (Plan: Memory & Compute Strategy).
+- [X] T051b [US2] Implement **CPU-Only Fallback Strategy** in `code/02_generate_cot.py`: If OOM occurs, fallback to a smaller 7B model (e.g., Mistral-7B-Int4) or reduce context window. **Do NOT** implement external GPU offloading (Kaggle) to maintain reproducibility on GitHub Actions runners (Constitution Principle I). **Uses T050 logic**.
+- [X] T051c [US2] Implement **Seed Pinning Logic** in `code/02_generate_cot.py`: Ensure `random`, `numpy`, `torch`, and `transformers` seeds are set to a fixed value (e.g., 42) before inference. Verify that the seed is consistent across CPU and fallback runs.
+- [X] T051d [US2] Implement **Fallback Orchestration** in `code/02_generate_cot.py`: If T051a catches OOM, invoke T051b. Ensure the script logs the fallback action and continues with the smaller model. **Do NOT** implement silent CPU fallbacks or synthetic data. The same code path must execute with the fallback model for reproducibility. (Plan: Memory & Compute Strategy).
 - [X] T052 [US2] Add explicit sample-size logging in `code/02_generate_cot.py`: Log the exact number of tasks processed, skipped (timeout), and generated, including the streaming chunk size or random seed used if sampling is applied (Spec: Large real datasets).
 - [X] T053 [US2] Implement strict "No Synthetic Fallback" guard in `code/01_download_and_filter.py`: Ensure `try/except` blocks for data fetching **raise** immediately on failure without generating `mock_*` or `synthetic_*` data (Spec: The loader must FAIL LOUDLY).
-- [X] T055 [US1] **Verify and document the exact URL** for the Blind-Spots-Bench dataset. **Deliverable**: Write the verified URL to `config.yaml` under key `dataset.source_url`. **Verification**: Implement a script step to check URL reachability (HTTP 200) before any download logic runs. (FR-001, US-1).
+- [X] T055 [US1] **Verify and document the exact URL** for the Blind-Spots-Bench dataset. **Deliverable**: Write the verified URL to `config.yaml` under key `dataset.source_url`. **Verification**: Implement a script step to check URL reachability (HTTP 200) before any download logic runs. (FR-001, US-1). **Depends on T003a**. <!-- FAILED: unspecified -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -90,10 +90,10 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement `code/01_download_and_filter.py`: Download dataset from canonical arXiv source using `datasets` library (Streaming enabled per T050). **Internal check**: Verify the source URL matches `config.yaml` `dataset.source_url` before proceeding. **Depends on T050-T053**.
+- [X] T012 [US1] Implement `code/01_download_and_filter.py`: Download dataset from canonical arXiv source using `datasets` library (Streaming enabled per T050). **Internal check**: Verify the source URL matches `config.yaml` `dataset.source_url` before proceeding. **Depends on T050, T053, T055**. <!-- FAILED: unspecified -->
 - [X] T013 [US1] Implement filtering logic in T012: Retain only "Abstract Reasoning" and "Object-Centric" categories. **Filter criteria**: `task_category in ['Abstract Reasoning', 'Object-Centric']`. **Output path**: `data/filtered/filtered_tasks.jsonl`.
 - [X] T014a [US1] Implement integrity scan and error report generation in T012: Scan `data/filtered/filtered_tasks.jsonl` for missing `constraint` fields.
- - **If missing**: Generate `data/validation/integrity_error_report.json` with specific missing IDs, **raise `SystemExit(1)`** to halt execution immediately (FR-006).
+ - **If missing**: Generate `data/validation/integrity_error_report.json` with specific missing IDs, **raise `SystemExit(1)` to halt execution immediately (FR-006).
 - [X] T014b [US1] Implement integrity pass artifact generation in T012: **If clean**: Generate `data/validation/integrity_pass.json` with `status: 'PASS'` and proceed to T015. **Do NOT raise SystemExit on success.**
 - [X] T015 [US1] Write filtered data to `data/filtered/filtered_tasks.jsonl` with checksum generation (Depends on T014b success artifact).
 - [X] T016 [US1] Add CLI arguments for dataset path and output path in T012: `--input` (str, default=None), `--output` (str, default='data/filtered/filtered_tasks.jsonl').
@@ -106,12 +106,19 @@
 
 **Goal**: Validate semantic matching threshold on a small pilot set before full-scale generation.
 
-- [X] T022a [US2] Implement `code/02_generate_cot.py` (Pilot Mode): Load 4-bit quantized model (Llama-3-8B-Int4 or Mistral-7B-Int4) with `device="cpu"` (FR-002, FR-009). **Must support `--pilot` flag.** **Uses T050, T051 logic**.
+- [X] T022a [US2] Implement `code/02_generate_cot.py` (Pilot Mode): Load -bit quantized model (Llama-3-8B-Int4 or Mistral-7B-Int4) with `device="cpu"` (FR-002, FR-009). **Must support `--pilot` flag.** **Uses T050, T051 logic**. <!-- FAILED: unspecified -->
 - [X] T017 [US2] Implement `code/pilot_study.py`: Generate CoT traces for a small pilot set (N=10) using the filtered dataset and T022a. **Save to `data/pilot/` (separate from production traces)**. **Uses T050, T051 logic**.
 - [X] T018a [US2] Implement `code/generate_pilot_annotation_request.py`: Generate a request file for human experts to label the N=10 pilot traces for "Constraint Mention" (Yes/No) and "Task Outcome" (Correct/Incorrect).
-- [X] T018b [US2] **Manual Gate**: Human expert labels N=10 pilot traces. **Deliverable**: Save results to `data/pilot/pilot_ground_truth_labels.jsonl`. **Schema**: `[{"task_id": "...", "constraint_mention": "yes|no", "task_outcome": "correct|incorrect"}]`. **This is a completed gate definition; the task waits for the file to exist.**
-- [X] T018c [US2] Implement `code/ingest_pilot_labels.py`: Ingest labels from `data/pilot/pilot_ground_truth_labels.jsonl`. **Must verify file presence and schema before proceeding.** **Blocks T019 until file exists.**
-- [X] T019 [US2] Implement `code/tune_threshold.py`: Iterate cosine similarity threshold (range from the minimum to the maximum, step 0.05) to maximize agreement rate between automated semantic match and human labels. **Algorithm**: Load `all-MiniLM-L6-v2`, compute embeddings for constraint and trace segments, calculate cosine similarity, compare against threshold, count agreements. **Deliverable**: Save optimal threshold to `data/pilot/tuned_threshold.json`. **Blocked until T018c confirms file existence.**
+
+### Manual Step: Human Expert Annotation
+> **Note**: The following is a manual step outside automated code execution. **This step is PENDING external human input.**
+> 1. Generate annotation request file using T018a.
+> 2. Human expert labels N=10 pilot traces for "Constraint Mention" (Yes/No) and "Task Outcome" (Correct/Incorrect).
+> 3. Save results to `data/pilot/pilot_ground_truth_labels.jsonl`.
+> **Status**: This step is **PENDING** external human input. The pipeline cannot proceed until this file exists. **T018c and T019 are blocked until this file is present.**
+
+- [X] T018c [US2] Implement `code/ingest_pilot_labels.py`: Ingest labels from `data/pilot/pilot_ground_truth_labels.jsonl`. **Must verify file presence and schema before proceeding. Block execution if file is missing.** **Blocks T019 until file exists.**
+- [ ] T019 [US2] Implement `code/tune_threshold.py`: Iterate cosine similarity threshold across the full range with a fine-grained step size. to maximize agreement rate between automated semantic match and human labels. **Algorithm**: Load `all-MiniLM-L6-v2`, compute embeddings for constraint and trace segments, calculate cosine similarity, compare against threshold, count agreements. **Deliverable**: Save optimal threshold to `data/pilot/tuned_threshold.json`. **Depends on T018c. Block execution if `data/pilot/pilot_ground_truth_labels.jsonl` is missing.**
 
 **Checkpoint**: Threshold validated - ready for full-scale generation
 
@@ -130,17 +137,17 @@
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `code/02_generate_cot.py` (Full Mode): Load 4-bit quantized model (Llama-3-8B-Int4 or Mistral-7B-Int4) with `device="cpu"` (FR-002, FR-009). **Must read tuned threshold from `data/pilot/tuned_threshold.json`**. **If `tuned_threshold.json` is missing, raise FileNotFoundError with a clear message indicating T019 must be run first.** **Depends on T050-T053**.
-- [X] T023 [US2] Implement inference loop in T022: Generate traces with `temperature=0.0`, enforce **Fixed 10-minute wall-clock timeout per task** (FR-012) using `signal.alarm`, **SUBJECT TO the global runtime limit enforced by T023a**. **If timeout occurs, log error (ERR_TIMEOUT) and skip task; do NOT retry with extended time.** **Do not start a new task if the remaining time (6h - elapsed) is less than the per-task timeout.**
-- [X] T023a [US2] Implement **Global Runtime Monitor** in T022: Track cumulative runtime. **Before starting each new task**, check if `elapsed_time + per_task_timeout > 6 hours`. If true, **halt immediately** with `ERR_TIMEOUT_GLOBAL` and generate `data/results/runtime_limit_reached.json`. **This enforces the global 6-hour limit (FR-009) and prevents the per-task timeout from violating the global constraint.** (FR-009).
-- [X] T024 [US2] Implement error handling in T022: Log timeout/empty response errors (JSON structured logs, severity WARNING, codes ERR_TIMEOUT, ERR_EMPTY) and skip task without crashing (Edge Case).
-- [X] T025 [US2] Implement Memory Guard in T022: If OOM, fallback to Mistral-7B-Int4 (4-bit) or reduce context window to a constrained length (Plan T010). **Fallback must be 4-bit quantized.** **Uses T051a-T051d logic**.
-- [X] T026 [US2] Write raw CoT traces to `data/traces/cot_traces.jsonl` immediately upon generation (Constitution Principle VI). **Path MUST be `data/traces/` not `data/processed/`**.
-- [X] T027 [US2] Implement Stopping Rule Check and Underpowered Report: If count of *successfully generated* traces < `config.yaml` key `study.min_sample_size`, **halt execution** and generate `data/results/underpowered_report.json` with fields: `effective_sample_size`, `threshold`, `reason`, `timestamp`. **Raise `SystemExit(1)` after generating report.** (Merges T027 and T056 logic). **Schema**: `{ "effective_sample_size": int, "threshold": int, "reason": str, "timestamp": str }`.
+- [X] T022 [US2] Implement `code/02_generate_cot.py` (Full Mode): Load -bit quantized model (Llama-3-8B-Int4 or Mistral-7B-Int4) with `device="cpu"` (FR-002, FR-009). **Must read tuned threshold from `data/pilot/tuned_threshold.json`.** **If `tuned_threshold.json` is missing, raise FileNotFoundError with a clear message indicating T019 must be run first.** **Depends on T050-T053, T051a-T051d, T019**. <!-- ATOMIZE: requested -->
+- [ ] T023 [US2] Implement inference loop in T022: Generate traces with `temperature=0.0`, enforce **Fixed 10-minute wall-clock timeout per task** (FR-012) using `signal.alarm`, **SUBJECT TO the global runtime limit enforced by T023a**. **If timeout occurs, log error (ERR_TIMEOUT) and skip task; do NOT retry with extended time.** **Do not start a new task if the remaining time (6h - elapsed) is less than the per-task timeout.** <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [ ] T023a [US2] Implement **Global Runtime Monitor** in T022: Track cumulative runtime. **Before starting each new task**, check if `elapsed_time + per_task_timeout > 6 hours`. If true, **halt immediately** with `ERR_TIMEOUT_GLOBAL` and generate `data/results/runtime_limit_reached.json` with schema: `{ "elapsed_time": float, "reason": "Runtime limit exceeded", "timestamp": str, "effective_sample_size": int }`. **This enforces the global 6-hour limit (FR-009) and prevents the per-task timeout from violating the global constraint.** (FR-009).
+- [ ] T024 [US2] Implement error handling in T022: Log timeout/empty response errors (JSON structured logs, severity WARNING, codes ERR_TIMEOUT, ERR_EMPTY) and skip task without crashing (Edge Case).
+- [ ] T025 [US2] Implement Memory Guard in T022: If OOM, fallback to a smaller quantized model variant. or reduce context window to a constrained length (Plan T010). **Fallback must be 4-bit quantized.** **Uses T051a-T051d logic**.
+- [ ] T026 [US2] Write raw CoT traces to `data/traces/cot_traces.jsonl` immediately upon generation (Constitution Principle VI). **Path MUST be `data/traces/` not `data/processed/`**.
+- [ ] T027 [US2] Implement Stopping Rule Check and Underpowered Report: If count of *successfully generated* traces < `config.yaml` key `study.min_sample_size`, **halt execution** and generate `data/results/underpowered_report.json` with fields: `effective_sample_size`, `threshold`, `reason`, `timestamp`. **Raise `SystemExit(1)` after generating report.** (Merges T027 and T056 logic). **Schema**: `{ "effective_sample_size": int, "threshold": int, "reason": str, "timestamp": str }`. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T028 [US2] Implement `code/03_parse_and_classify.py`: Load traces and task records
-- [X] T029 [US2] Implement exact string matching in T028: Find first/last character offset of constraint in the **first segment** and **last segment** of the trace (FR-003, Plan T014). **Use the same tokenizer as the LLM. The fixed-token window is the definition of the 'step' for classification, not a search limit that ignores valid mentions outside the window. Apply word-boundary matching ONLY within the defined token windows to avoid false positives.**
-- [X] T030 [US2] Implement semantic matching in T028: Use `all-MiniLM-L6-v2` and tuned threshold from `data/pilot/tuned_threshold.json` (T019) to detect paraphrased constraints (FR-011). **Algorithm**: Load model, encode constraint and trace segments, compute cosine similarity, return True if similarity >= threshold.
-- [X] T031 [US2] Handle edge cases in T028: **Specifically handle**: Word-boundary matching (already defined in T029), null flags for missing constraints, and cases where the constraint appears as a substring within a different word (false positive check).
+- [ ] T029 [US2] Implement exact string matching in T028: Find first/last character offset of constraint in the **first segment** and **last segment** of the trace (FR-003, Plan T014). **Use the same tokenizer as the LLM. The fixed-token window is the definition of the 'step' for classification, not a search limit that ignores valid mentions outside the window. Apply word-boundary matching ONLY within the defined token windows to avoid false positives.**
+- [ ] T030 [US2] Implement semantic matching in T028: Use `all-MiniLM-L6-v2` and tuned threshold from `data/pilot/tuned_threshold.json` (T019) to detect paraphrased constraints (FR-011). **Algorithm**: Load model, encode constraint and trace segments, compute cosine similarity, return True if similarity >= threshold. **Depends on T019. Block execution if `data/pilot/tuned_threshold.json` is missing.**
+- [ ] T031 [US2] Handle edge cases in T028: **Specifically handle**: Word-boundary matching (already defined in T029), null flags for missing constraints, and cases where the constraint appears as a substring within a different word (false positive check).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -159,22 +166,23 @@
 
 ### Implementation for User Story 3
 
-- [X] T034 [US3] Implement classifier logic in `code/03_parse_and_classify.py`: Label traces as Perceptual, Procedural, or Correct based on first/last mention (FR-004). **Logic MUST be non-tautological: Predictor = Temporal Pattern, Outcome = Ground Truth (from dataset). Mapping: First Missing=Perceptual, First Present/Last Missing=Procedural, Both Present/Correct=Correct.**
-- [X] T035 [US3] Implement `code/04_statistical_analysis.py`: Compute proportions of error types per category (FR-005)
-- [X] T036 [US3] Implement Test Selection in T035: If expected cell counts < 5 (using `scipy.stats.chi2_contingency` expected counts), select Fisher's Exact; else Chi-squared (Plan T017).
-- [X] T037 [US3] Implement Framing Injection in T035: Explicitly set `framing` field to "Associational" in output (FR-007). **Do NOT add negative constraints like "no causal".**
-- [X] T038 [US3] Implement Multiple Comparison Correction in T035: Apply Bonferroni or Benjamini-Hochberg **if and only if >1 hypothesis test is performed** (FR-008, Plan T018). **Do NOT use arbitrary sample-size thresholds.**
-- [X] T039 [US3] Compute p-value and statistic in T035.
-- [X] T040 [US3] Generate `statistical_report.json` (SSoT) with all results. **Must include `limitations` field**: `{ "sample_size_limitation": "Power analysis deferred; sample size limited by runtime constraints.", "observational_design": true }` (Merges T040 and T057 logic).
-- [X] T041 [US3] Implement `code/generate_annotation_request.py`: Generate a request file for human experts to label a sample of traces (FR-010, SC-006). **Sample size MUST be read from `config.yaml` using key `validation.sample_size`.**
-- [X] T042 [US3] Implement `code/ingest_human_labels.py`: Ingest labels from `data/validation/ground_truth_labels.jsonl` (FR-010).
-- [X] T043 [US3] Implement `code/validate_classifier.py`: Compare automated labels (T034) against T042 labels to compute agreement rate (FR-010, SC-006). **MUST verify the rate is ≥ 85% to validate the methodology as required by SC-006. If < 85%, raise `SystemExit(1)` with error message "Classifier validation failed: agreement rate < 85%". HALT PIPELINE immediately to prevent generation of invalid results.** (Merges T043 and SC-006).
+- [ ] T034 [US3] Implement classifier logic in `code/03_parse_and_classify.py`: Label traces as Perceptual, Procedural, or Correct based on first/last mention (FR-004). **Logic MUST be non-tautological: Predictor = Temporal Pattern, Outcome = Ground Truth (from dataset). Mapping: First Missing=Perceptual, First Present/Last Missing=Procedural, Both Present/Correct=Correct.**
+- [ ] T035 [US3] Implement `code/04_statistical_analysis.py`: Compute proportions of error types per category (FR-005)
+- [ ] T036 [US3] Implement Test Selection in T035: If expected cell counts < 5 (using `scipy.stats.chi2_contingency` expected counts), select Fisher's Exact; else Chi-squared (Plan T017).
+- [ ] T037 [US3] Implement Framing Injection in T035: Explicitly set `framing` field to "Associational" in output (FR-007). **Do NOT add negative constraints like "no causal".**
+- [ ] T038 [US3] Implement Multiple Comparison Correction in T035: Apply Bonferroni or Benjamini-Hochberg **if and only if >1 hypothesis test is performed** (FR-008, Plan T018). **Do NOT use arbitrary sample-size thresholds.**
+- [ ] T039 [US3] Compute p-value and statistic in T035.
+- [ ] T040 [US3] Generate `statistical_report.json` (SSoT) with all results. **Must include `limitations` field**: `{ "sample_size_limitation": "Power analysis deferred; sample size limited by runtime constraints.", "observational_design": true }` (Merges T040 and T057 logic). **Includes documentation of the deferred power analysis per Spec Assumptions.**
+- [ ] T041 [US3] Implement `code/generate_annotation_request.py`: Generate a request file for human experts to label a sample of traces (FR-010, SC-006). **Sample size MUST be read from `config.yaml` using key `validation.sample_size`.**
 
-**Manual Step: Human Expert Annotation**
-> **Note**: The following is a manual step outside automated code execution.
+### Manual Step: Human Expert Annotation (Validation)
+> **Note**: The following is a manual step outside automated code execution. **This step is PENDING external human input.**
 > 1. Generate annotation request file using T041.
 > 2. Human expert labels N=30 traces for "Task Outcome" (Correct/Incorrect) and "Constraint Mention" (Yes/No).
 > 3. Save results to `data/validation/ground_truth_labels.jsonl`.
+
+- [ ] T042 [US3] Implement `code/ingest_human_labels.py`: Ingest labels from `data/validation/ground_truth_labels.jsonl`. **Must verify file presence and schema before proceeding. Block execution if file is missing.**
+- [ ] T043 [US3] Implement `code/validate_classifier.py`: Compare automated labels (T034) against T042 labels to compute agreement rate (FR-010, SC-006). **MUST verify the rate is ≥ 85% to validate the methodology as required by SC-006. If < 85%, raise `SystemExit(1)` with error message "Classifier validation failed: agreement rate < 85%". HALT PIPELINE immediately to prevent generation of invalid results.** **Depends on T042. Block execution if `data/validation/ground_truth_labels.jsonl` is missing. Check for file existence; if missing, halt with error code ERR_MANUAL_LABELS_MISSING.** (Merges T043 and SC-006).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -184,12 +192,15 @@
 
 **Purpose**: Final validation, artifact hashing, and documentation.
 
-- [X] T044 [P] Implement `code/generate_paper_sections.py`: Generate final paper sections based on `statistical_report.json` (Plan T023).
-- [X] T045 [P] Implement `code/update_state.py`: Hash `statistical_report.json` and `data/` artifacts, write to project state YAML (Plan T024).
-- [X] T046 [P] Implement `code/06_consistency_check.py`: Re-run parser on **the same fixed sample** used in the original run, calculate agreement rate, and write `data/results/consistency_report.json` with the calculated agreement rate percentage (SC-005). **MUST verify the rate is ≥ 99% and halt the pipeline if the threshold is not met (as this indicates a bug).**
-- [X] T047 [P] Generate content hashes for all `data/` and `code/` artifacts and record in `state/` (Constitution Principle V)
-- [X] T048 [P] Update `quickstart.md` with reproduction steps and document the **deferral** of power analysis (Spec: Assumptions). **Include the verified dataset source URL here.**
-- [X] T049 [P] Run end-to-end integration test in `tests/integration/test_end_to_end.py`
+- [ ] T060 [P] [US3] Implement `code/document_limitations.py`: Generate a "Limitations" section for the report and paper that explicitly states the power analysis was **deferred** per the Spec's Assumptions. **Deliverable**: Update `statistical_report.json` and `quickstart.md` to include the text: "Power analysis was deferred by design to acknowledge sample size constraints; the study's findings are associational and limited by the effective sample size." **Rationale**: Ensures transparency regarding the observational design and sample size constraints as required by the spec's assumptions, without implementing a post-hoc analysis that contradicts the design decision. **Depends on T040. Must complete before T044.**
+- [ ] T061 [P] [US3] Update `quickstart.md` and `research.md` to explicitly state the calculated power and its implications for the study's conclusions (e.g., "With N=40, the study had [deferred] power to detect a medium effect size"). **Rationale**: Ensures transparency regarding the observational design and sample size constraints as required by the spec's assumptions. **Depends on T060.**
+- [ ] T062 [P] [US3] Add a "Limitations" section to the generated paper sections (`code/generate_paper_sections.py`) that explicitly discusses the observational nature of the study and the limited statistical power, citing the results from T060. **Rationale**: Ensures the final output correctly frames the findings as associational and acknowledges the power limitations without overstating causality. **Depends on T060.**
+- [ ] T044 [P] Implement `code/generate_paper_sections.py`: Generate final paper sections based on `statistical_report.json` (Plan T023). **Depends on T060.**
+- [ ] T045 [P] Implement `code/update_state.py`: Hash `statistical_report.json` and `data/` artifacts, write to project state YAML (Plan T024).
+- [ ] T046 [P] Implement `code/06_consistency_check.py`: Re-run parser on **the same fixed sample** used in the original run, calculate agreement rate, and write `data/results/consistency_report.json` with the calculated agreement rate percentage (SC-005). **MUST verify the rate is ≥ 99% and halt the pipeline if the threshold is not met (as this indicates a bug).**
+- [ ] T047 [P] Generate content hashes for all `data/` and `code/` artifacts and record in `state/` (Constitution Principle V)
+- [ ] T048 [P] Update `quickstart.md` with reproduction steps and document the **deferral** of power analysis (Spec: Assumptions). **Include the verified dataset source URL here.**
+- [ ] T049 [P] Run end-to-end integration test in `tests/integration/test_end_to_end.py`
 
 ---
 
@@ -204,15 +215,17 @@
  - **Strict Data Flow**: T014b (Halt if missing) MUST complete before T015. **T014b must generate a 'PASS' artifact on success to allow T015 to proceed.**
  - **Strict Data Flow**: T015 (Write filtered data) MUST complete before T017 (Pilot Study).
  - **Strict Data Flow**: T015 (Write filtered data) MUST complete before T028 (Load traces and task records).
- - **Strict Data Flow**: T018b (Manual) -> T018c (Ingest) -> T019 (Tune). **T019 cannot start until T018c confirms the presence of the label file.**
+ - **Strict Data Flow**: T018c (Ingest) -> T019 (Tune). **T019 cannot start until T018c confirms the presence of the label file.** (T018b is a manual gate).
  - **Strict Data Flow**: T019 (Tuned Threshold) MUST complete before T022 (Generation). **T022 will fail if T019 artifact is missing.**
  - **Strict Data Flow**: T022-T026 (Generation) MUST complete before T028-T031 (Parsing)
  - **Strict Data Flow**: T028-T031 (Parsing) MUST complete before T034-T040 (Classification/Stats)
  - **Strict Data Flow**: T041 (Generate Request) -> T042 (Ingest Labels) -> T043 (Validate)
  - **Strict Data Flow**: T050-T051d (GPU/Streaming) are prerequisites for T012 and T022.
  - **Strict Data Flow**: T027 (Underpowered Check & Report) MUST complete before T022 and T028 to enforce the sample size halt.
- - **Strict Data Flow**: T055 (Verify URL) MUST complete before T012.
+ - **Strict Data Flow**: T055 (Verify URL) MUST complete before T012. **T012 depends on T055.**
  - **Strict Data Flow**: T023a (Global Runtime) runs concurrently with T022-T026.
+ - **Strict Data Flow**: T060 (Documentation) MUST complete before T044 (Paper Generation) to ensure the report includes power metrics.
+ - **Strict Data Flow**: T003a (Config) MUST complete before T055. **T055 depends on T003a.**
 
 ### User Story Dependencies
 
@@ -233,6 +246,7 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Unit tests for US1, US2, US3 can run in parallel once code is drafted
 - Hashing and validation (Phase 6) can run in parallel once all data is generated
+- Documentation updates (T060-T062) can run in parallel once statistical results are available.
 
 ---
 
@@ -253,7 +267,8 @@
 3. Add Pilot Study (Phase 3.5) → Validate threshold
 4. Add User Story 2 → Test independently → Deploy/Demo (Requires GPU/CPU scaling strategy)
 5. Add User Story 3 → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
+6. Add Documentation (Phase 6) → Quantify limitations
+7. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -285,6 +300,7 @@ With multiple developers:
 - **Strict Data Flow**: T015 MUST complete before T017. T019 output required by T022.
 - **Revision Note**: T050-T053 have been moved to Phase 2 to ensure they are implemented before execution. T056 merged into T027. T057 merged into T040.
 - **New Task T055**: Verifies real URL for dataset download and writes to config.
-- **Revision Note**: T051 updated to implement GPU Escape Hatch (split into T051a-T051d). T057 removed as redundant. T014 clarified for explicit halt/pass artifacts.
-- **Revision Note**: T018b reclassified as Manual Gate. T043 updated to enforce [deferred] agreement as hard gate. T023a added for global runtime enforcement.
+- **Revision Note**: T051 updated to implement CPU-Only Fallback (split into T051a-T051d). T057 removed as redundant. T014 clarified for explicit halt/pass artifacts.
+- **Revision Note**: T018b reclassified as Manual Gate (removed from task list, added as manual step). T043 updated to enforce [deferred] agreement as hard gate. T023a added for global runtime enforcement.
 - **Revision Note**: T023 updated to explicitly qualify the 10-minute timeout as subject to the global limit enforced by T023a. T043 updated to explicitly state the halt is required to validate the methodology per SC-006.
+- **New Phase 6**: Added T060-T062 to document the deferred power analysis assumption and ensure transparent reporting of statistical limitations. Moved from Phase 7 to Phase 6 to ensure they complete before T044.
