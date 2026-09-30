@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Input Schema"
+description: "Schema for the extracted triples used in T5-small training."
+type: "object"
+properties:
+  triples:
+    type: "array"
+    description: "List of (UI_state, Hint, Action) triples."
+    items:
+      type: "object"
+      required:
+        - "ui_state"
+        - "corrective_hint"
+        - "action"
+        - "trajectory_id"
+        - "status"
+      properties:
+        ui_state:
+          type: "string"
+          description: "Textual representation of the UI state."
+        corrective_hint:
+          type: "string"
+          description: "Purely linguistic hint for correction."
+        action:
+          type: "string"
+          description: "The ground truth action sequence."
+        trajectory_id:
+          type: "string"
+          description: "Unique identifier for the trajectory."
+        status:
+          type: "string"
+          enum:
+            - "failed_then_success"
+            - "success"
+            - "failed"
+            - "initial_success"
+          description: "Trajectory status filter."
+  metadata:
+    type: "object"
+    required:
+      - "source_log"
+      - "filter_criteria"
+      - "extraction_timestamp"
+    properties:
+      source_log:
+        type: "string"
+      filter_criteria:
+        type: "string"
+      extraction_timestamp:
+        type: "string"
+        format: "date-time"
+required:
+  - "triples"
+  - "metadata"
+additionalProperties: false

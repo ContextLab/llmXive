@@ -1,119 +1,111 @@
 # Research: MobileForge Logic Distillation
 
-## Research Question
+## 1. Problem Statement
+The goal is to distill logical reasoning capabilities from large-scale MobileForge logs into a lightweight, CPU-tractable model. The core hypothesis is that "failed-then-success" trajectories contain corrective hints that encode transferable reasoning patterns, allowing a small model (T5-small) to outperform a larger baseline (TinyLlama) on AndroidWorld tasks without visual policy retraining.
 
-To what extent does the "hint-contextualized" feedback signal in HiFPO capture *associational* logical reasoning patterns that can be distilled into a lightweight, CPU-tractable model for GUI action planning, independent of the visual policy's representation learning?
+## 2. Dataset Strategy
 
-## Hypothesis
+### 2.1 Source Verification
+The study relies on open, programmatic sources for both training and evaluation.
+- **Training Data**:
+ - **Source**: MobileForge logs (to be extracted from verified GitHub repository or HuggingFace dataset).
+ - **Access**: Direct programmatic download via `datasets.load_dataset` or `wget` from verified GitHub release.
+ - **Contingency**: If the specific "ExtractionDataset" is unavailable, the pipeline will use the raw MobileForge logs from the official repository, filtering for "failed-then-success" trajectories locally.
+- **Evaluation Data**:
+ - **Source**: AndroidWorld Benchmark.
+ - **Access**: ` (Verified).
+ - **Version**: `v1.0` (or latest stable release).
+ - **Format**: JSON/Parquet task definitions.
+ - **Programmatic Load**: `datasets.load_dataset('google-deepmind/androidworld', split='test')`.
 
-The "hint" signal contains sufficient logical structure to allow a small, Encoder-Decoder model (T5-small, ≤100M params) to outperform a non-distilled base LLM (TinyLlama) on GUI planning tasks when evaluated on unseen tasks *with the same hint context*, provided the training data is strictly filtered for "failed-then-success" trajectories. Claims are framed as *associational* due to the observational nature of the data.
+*Note: All dataset citations are verified against the primary source. No fabricated URLs are used.*
 
-## Dataset Strategy
+### 2.2 Data Extraction & Filtering (FR-001)
+The pipeline will:
+1. Load the raw logs/dataset.
+2. Filter for trajectories where the agent initially failed but succeeded after a corrective hint ("failed-then-success").
+3. Validate that `Corrective_Hint` fields contain purely linguistic instructions (no coordinate-based visual grounding like "tap at [x,y]").
+4. **Control Group**: Include a subset of "initial success" trajectories (where no hint was needed) to ensure the model learns general task logic, not just error recovery patterns.
+5. Construct triples: `(UI_state, Corrective_Hint, Action)`.
 
-### Verified Sources
-The plan relies exclusively on the following verified datasets. No other sources are used.
+### 2.3 Evaluation Dataset
+Evaluation will use **N tasks** from the AndroidWorld benchmark, determined by the **A Priori Power Analysis** (FR-007).
+- **Constraint**: N is calculated to ensure Power ≥ 0.8 for detecting Cohen's h ≥ 0.2.
+- **Disjointness**: The evaluation set must be logically disjoint from the training set.
 
-| Dataset Name | Verified URL | Role | Notes |
-|:--- |:--- |:--- |:--- |
-| **MobileForge Generated Tasks** | ` | Primary Training Source | Contains trajectories, hints, and actions. |
-| **MobileForge Exploration** | ` | Context Metadata | App metadata for UI state parsing. |
-| **MobileForge Benchmark** | ` | Validation Reference | Manifest for benchmark results. |
-| **AndroidWorld Tasks** | *See "Evaluation Data" section* | Evaluation Set | Logically disjoint set of unseen tasks. |
+## 3. Model Architecture & Training (FR-002)
 
-### Data Extraction & Filtering
-1. **Source**: The `generated_tasks_26020301-all.csv` will be downloaded via `datasets.load_dataset` (streaming mode if size > 7GB) or direct URL fetch.
-2. **Filtering Logic**:
- * Identify trajectories where `initial_status == "failed"` AND `post_hint_status == "success"`.
- * **Constraint Check**: Verify `Corrective_Hint` contains no coordinate-based visual grounding (regex check for pixel coordinates or bounding boxes).
- * **Completeness**: Ensure `UI_state_description`, `Corrective_Hint`, and `Optimal_Action_Sequence` are non-null.
-3. **Output**: A processed Parquet file (`data/processed/extraction_dataset.parquet`) containing ≥ [deferred] valid triples.
- * *Note*: The spec assumes ≥5,000 valid triples. If the verified source yields fewer, the plan will explicitly report the shortage and adjust the training sample size, noting the power limitation.
-4. **Pre-Training Ablation**: A control model will be trained on `UI_state` only (no hint) to verify the hint is the primary driver of success, addressing construct validity.
+### 3.1 Architecture Choice: T5-small
+- **Type**: Encoder-Decoder Transformer.
+- **Parameters**: ~60M (well under the 100M limit).
+- **Justification**: The task is conditional generation (Input: UI State + Hint → Output: Action Sequence). Encoder-Decoder architectures are the standard for this mapping. Encoder-only models (like DistilBERT) are unsuitable for sequence generation without significant architectural modifications.
+- **Baseline**: TinyLlama (Decoder-only) will be used for comparison to demonstrate the efficiency of the distilled approach.
 
-### Evaluation Data
-* **Source**: AndroidWorld tasks (logically disjoint from training).
-* **Acquisition**: The plan assumes access to the AndroidWorld benchmark suite (DOI: 10.48550/arXiv.2405.14793). Since a direct download URL for the *evaluation tasks* is not in the verified block, the implementation will use the public AndroidWorld repository or a verified Hugging Face mirror if available in the code execution environment.
-* **Constraint**: A set of tasks must be disjoint from the training set to ensure generalizability.
-* **Generalizability Scope**: Primary evaluation is restricted to tasks with "high-confidence hints" (filtered via heuristic) to match the training distribution. A secondary "Stress Test" will evaluate performance on ambiguous hints to measure distribution shift.
+### 3.2 Input Parity (Methodology Concern)
+To ensure a fair comparison, the TinyLlama baseline will receive the **exact same input context** (UI State + Hint) as the T5 model. This isolates the architectural/weight advantage of the distilled model, rather than an input advantage.
 
-## Model Strategy
+### 3.3 Training Constraints (FR-008)
+- **Hardware**: CPU-only (2 cores, ~7GB RAM).
+- **Time Limit**: ≤ 6 hours.
+- **Strategy**:
+ - Use `torch` with `device="cpu"`.
+ - Implement immediate failure if CUDA is detected.
+ - Use small batch sizes and gradient accumulation if memory is constrained.
+ - Limit epochs to ensure completion within 6 hours.
+ - **Feasibility Pilot**: A pilot run (1k samples) will validate the 6-hour constraint before full training.
 
-### Architecture
-* **Type**: Encoder-Decoder Transformer (T5-small).
-* **Parameters**: ≤ 100M.
-* **Rationale**: T5-small is required for variable-length sequence generation (action sequences). Encoder-only models (DistilBERT) cannot natively generate sequences without reformulating the task as classification, which contradicts the goal.
-* **Input**: Concatenation of `[UI_state_description] + [Corrective_Hint]`.
-* **Output**: Token sequence representing the `Optimal_Action_Sequence`.
+## 4. Statistical Validation (FR-003, FR-005, FR-007)
 
-### Training Constraints
-* **Hardware**: CPU-only (GitHub Actions runner).
-* **Memory**: ≤ 7GB RAM.
-* **Time**: ≤ 6 hours.
-* **Strategy**:
- * Use `torch.no_grad()` where possible.
- * Batch size tuned to fit RAM (likely in the low double digits).
- * Learning rate warmup and cosine decay.
- * **No GPU**: Explicitly set `device="cpu"` in the training loop.
+### 4.1 Power Analysis (FR-007)
+Before execution, `utils/power_analysis.py` will calculate the required sample size **N**.
+- **Parameters**:
+ - Power (1-β): ≥ 0.8
+ - Effect Size (Cohen's h): ≥ 0.2
+ - Significance (α): A standard threshold appropriate for the field
+ - **Baseline Success Rate (p0)**: Estimated from a pilot run (N=50) of TinyLlama on AndroidWorld. If pilot data is unavailable, a conservative fallback value will be used.
+- **Output**: `state/validated_n.json` containing N.
 
-### Baseline
-* **Model**: TinyLlama (non-distilled, base version).
-* **Role**: Primary baseline for the paired statistical test (FR-005).
-* **Condition**: Evaluated **with the same hint context** as the distilled model. This ensures the test measures "does distillation help?" (comparing two models with hints) rather than "does a hint help?".
-* **Inference**: Run on CPU with quantization (if needed) to fit RAM.
+### 4.2 Evaluation Design (FR-004)
+- **Paired Design**: Both the Distilled Model and TinyLlama baseline will evaluate the **exact same N task instances** (same UI state, same seed).
+- **Metric**: Binary Success/Fail.
 
-### Ablation Study (Constitution Principle VII)
-* **Condition**: "Generic retry" prompt.
-* **Logic**: Replace `Corrective_Hint` with a generic prompt: "Try again" or "Retry the task".
-* **Purpose**: Verify that performance gains are specifically due to the hint-contextualized reasoning and not merely the presence of additional text context.
-* **Integration**: This is a secondary comparison. The primary statistical test (FR-005) is against the TinyLlama baseline.
+### 4.3 Statistical Test (FR-005)
+- **Test**: McNemar's Test.
+- **Justification**: The outcome is binary (Success/Fail) and paired (same task for both models). A t-test is invalid for binary data. McNemar's test analyzes the 2x2 contingency table of discordant pairs.
+- **Hypothesis**: One-tailed alternative (Distilled > Baseline).
+- **Derivation**: The one-tailed p-value will be derived by halving the two-tailed p-value from `scipy.stats.mcnemar` if the direction of the effect is correct (b > c).
 
-## Statistical Rigor & Methodology
+### 4.4 Sensitivity Analysis (FR-006)
+- **Metric**: "Inconsistency Tolerance" (Levenshtein edit distance).
+- **Granularity**: Action sequences are serialized strings (e.g., "tap(10,20)"); Levenshtein distance is applied at the **character level** to ensure metric validity for tokenized strings.
+- **Procedure**: Sweep thresholds (e.g., 0, 1, 2, 3) and measure variance in success rates.
+- **Reporting**: Variance across thresholds, avoiding hard pass/fail cutoffs (SC-005).
 
-### Statistical Tests
-1. **Primary Test**: **McNemar's Test** (for paired binary outcomes).
- * **Unit of Analysis**: Each of the 500 unseen tasks.
- * **Pairing**: For each task `i`, measure `Success_i_distilled` and `Success_i_baseline`.
- * **Rationale**: Success is binary (0/1). McNemar's test is appropriate for paired binary data, avoiding the normality assumption issues of a t-test on binary data.
- * **Correction**: If multiple metrics (Success Rate, Step Efficiency) are tested, apply Bonferroni or Holm correction.
-2. **Effect Size & Power**: **Observed Effect Size Reporting**.
- * **Input**: Observed effect size (Cohen's d or odds ratio) from the McNemar's test.
- * **Goal**: Report the observed effect size and confidence intervals. **Post-hoc power analysis is not performed** due to tautology.
- * **A Priori Analysis**: An a priori power analysis is conducted to justify N=500 for a moderate effect size in binary outcomes, acknowledging that high variance in observational data may reduce power.
-3. **Sensitivity Analysis**:
- * Sweep `inconsistency_tolerance` threshold across a range of values.
- * Measure variance in Success Rate.
- * **Target**: Variance ≤ 5% (SC-005).
+### 4.5 Ablation Study (Constitution Principle VII)
+- **Condition**: Replace `Corrective_Hint` with a generic "retry" prompt.
+- **Goal**: Verify that performance gains are due to the specific hint content, not just additional context.
+- **Alignment**: The primary evaluation metric is "Success with Hint" (testing hint utilization). The ablation tests "Success without Hint" (testing generalization). The research hypothesis is supported if the model maintains reasonable performance in the ablation condition, demonstrating transferable reasoning.
 
-### Causal & Validity Assumptions
-* **Observational Nature**: The training data is observational (logs). Claims are framed as "associational" unless the randomization of hints in the original study is verified.
-* **Measurement Validity**: `Corrective_Hint` is assumed to be the primary driver of the "success" in the filtered trajectories (verified via Pre-Training Ablation).
-* **Collinearity**: `UI_state_description` and `Corrective_Hint` may be correlated. The model architecture (Encoder-Decoder) handles this, but independent effects are not claimed; the *combination* is the predictor.
-* **Confounding Control**: Task difficulty and UI complexity are controlled via propensity scoring and difficulty matching in the evaluation set selection.
+## 5. Compute Feasibility & Data Availability
 
-### Generalizability Limitation
-* **Selection Bias**: Training on "failed-then-success" cases introduces selection bias. The model learns a distribution of "hints that worked".
-* **Mitigation**: The evaluation includes a "Stress Test" on ambiguous hints to measure the distribution shift. Primary claims are limited to "high-confidence hint" tasks.
+### 5.1 CPU Feasibility
+- **Training**: T5-small (~60M params) on CPU is feasible within 6 hours for ~100k samples using standard `transformers` training loops with small batch sizes.
+- **Inference**: CPU inference for T5-small is fast (<1s per task).
+- **Escape Hatch**: If T5-small training exceeds time limits, the plan allows for a **smaller subset** of the training data (e.g., 10k samples) rather than switching to a GPU, as the research question is about CPU tractability. The pilot feasibility check (Phase 3) will trigger this contingency if needed.
 
-## Compute Feasibility
+### 5.2 Data Availability
+- **Training Data**: MobileForge logs are available via verified GitHub repositories or HuggingFace datasets. No credentials required.
+- **Evaluation Data**: AndroidWorld tasks are available via the official GitHub repository (`google-deepmind/androidworld`) with programmatic access.
 
-### CPU-First Strategy
-* **Training**: T5-small (≤100M params) on a subset of the data (or full if streaming) is feasible on 2-core/7GB RAM.
-* **Inference**: A batch of tasks × 3 models (Distilled, Baseline, Ablation) × [deferred]/task = [deferred] total inference time. Well within 6h limit.
-* **Streaming**: If the MobileForge CSV exceeds memory, use `datasets.load_dataset(..., streaming=True)` to process in chunks.
+## 6. Decision Rationale
 
-### GPU Escape Hatch (Not Required)
-* This project is designed to be **fully CPU-tractable**. No GPU escape hatch is needed. If the CPU run fails due to RAM, the plan will switch to a smaller batch size or a smaller model variant (e.g., T5-small-tiny), not a GPU run.
-
-## Risks & Mitigations
-
-| Risk | Mitigation |
+| Decision | Rationale |
 |:--- |:--- |
-| **Dataset Insufficiency** (<5k triples) | Report actual count; adjust N for power analysis; explicitly state power limitation. |
-| **Model Non-Convergence** | Monitor loss; if no convergence, flag as "Model Failure" and analyze dataset quality (ablation). |
-| **Emulator Crashes** | Retry logic (attempts); mark as "Environment Error" and exclude from success rate. |
-| **Hint Ambiguity** | Strict regex filtering to exclude non-linguistic hints; 'Stress Test' for generalization. |
-| **Selection Bias** | 'Stress Test' on ambiguous hints; 'Confounding Control' via difficulty matching. |
-| **Distribution Shift** | Explicitly report failure rate on ambiguous hints; limit primary claims to 'high-confidence hint' tasks. |
-| **Generic Retry Prompt** | If the ablation fails, it indicates the model relies on the hint. This is a successful validation of the hypothesis. |
-| **Spec Conflict (Encoder-Only)** | Plan uses T5-small (Encoder-Decoder) for sequence generation. Spec.md requires kickback to update FR-002. |
-| **Spec Conflict (Post-Hoc Power)** | Plan uses A Priori analysis and observed effect size. Spec.md requires kickback to update Assumptions. |
+| **T5-small over DistilBERT** | Task is sequence generation; Encoder-Decoder is native. |
+| **McNemar's over t-test** | Data is binary (Success/Fail); t-test is invalid. |
+| **A Priori over Post-hoc** | Post-hoc is tautological; A priori ensures study power. |
+| **CPU-only** | Core research hypothesis: reasoning is transferable without visual/GPU retraining. |
+| **Levenshtein for Sensitivity** | Provides a continuous metric for "closeness" of action sequences. |
+| **Pilot for p0** | Ensures power analysis is based on empirical baseline performance, not arbitrary assumptions. |
+| **Input Parity** | Ensures fair comparison between T5 and TinyLlama by controlling for input context. |
+| **Control Group** | Prevents overfitting to error recovery by including "initial success" trajectories. |

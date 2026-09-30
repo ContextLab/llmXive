@@ -25,23 +25,31 @@ The system must extract triples from raw logs, filter for "failed-then-success" 
 
 ### FR-002: Model Architecture
 The distilled model must utilize an **Encoder-Decoder architecture (e.g., T5-small)**.
-*Justification*: Sequence generation requires an Encoder-Decoder architecture; encoder-only models cannot natively generate variable-length sequences.
+*Justification*: While the idea proposed an encoder-only model, the distillation task (UI State + Hint → Action Sequence) is a conditional generation task. Encoder-Decoder architectures (like T5) are the standard for this input-output mapping, avoiding the complexity of adding decoding heads to encoder-only models. Although the baseline (TinyLlama) is Decoder-only, using an Encoder-Decoder for the distilled model is methodologically superior for learning the conditional generation of action sequences from UI states.
 *Constraint*: The model must be trainable on CPU within 6 hours and have ≤100M parameters.
 
 ### FR-003: Evaluation Dataset
-The evaluation must use **N tasks determined by A priori power analysis** (see FR-007), not a fixed arbitrary number like 500. The tasks must be logically disjoint from the training set.
+The evaluation must use **N tasks** determined by the output of the A priori power analysis required in **FR-007** (See US-3). The tasks must be logically disjoint from the training set.
+*Constraint*: The sample size N is calculated to ensure the study is adequately powered (≥0.8) to detect an effect size of Cohen's h ≥ 0.2, assuming a baseline success rate (p0) of 0.5, with a significance level α = 0.05. This requirement overrides the fixed "500 tasks" mentioned in the initial idea to ensure statistical validity and prevent underpowered studies.
 
 ### FR-004: Baseline Comparison
 The system must compare the distilled model against a TinyLlama baseline on the exact same set of tracked tasks to enable paired statistical testing.
+*Constraint*: The "paired" nature of the data must be established by evaluating the **exact same task instance** (same UI state, same seed) by both models under identical conditions.
 
 ### FR-005: Statistical Significance
-The system must perform **McNemar's test** for paired binary outcomes (success/fail) to determine statistical significance, replacing the previously proposed paired t-test which is unsuitable for binary data.
+The system must perform **McNemar's test** for paired binary outcomes (success/fail) to determine statistical significance.
+*Justification*: This requirement corrects the idea's proposal of a paired t-test, which is inappropriate for binary data. McNemar's test is the standard for paired nominal data (2x2 contingency table).
+*Constraint*: The test assumes a one-tailed alternative hypothesis (distilled model > baseline).
 
 ### FR-006: Sensitivity Analysis
 The system must perform a sensitivity sweep across "inconsistency tolerance" thresholds to measure variance in success rates.
+*Definition*: "Inconsistency tolerance" is defined as the **maximum allowable Levenshtein edit distance** between the generated action sequence and the ground truth.
+*Constraint*: A task is considered "successful" within the sweep if the edit distance is ≤ the current threshold. This links the continuous metric to the binary outcome required for the statistical test.
 
 ### FR-007: Power Analysis
-The system must conduct **A priori power analysis** to determine the required sample size (N) before execution, ensuring the study is adequately powered (≥0.8) to detect the expected effect size. Post-hoc power analysis is explicitly prohibited.
+The system must conduct **A priori power analysis** to determine the required sample size (N) before execution (See US-3).
+*Parameters*: The analysis must use a target Power ≥ 0.8, a minimum effect size of Cohen's h ≥ 0.2, a significance level α = 0.05, and an assumed baseline success rate (p0) of 0.5.
+*Prohibition*: Post-hoc power analysis is explicitly prohibited.
 
 ### FR-008: Resource Constraints
 All training and evaluation must run on CPU. Any detection of CUDA usage during training must trigger an immediate failure.
@@ -58,13 +66,13 @@ Data loaders must fail loudly on missing or corrupted real data; no synthetic fa
 Training must complete within 6 hours on a standard CPU runner.
 
 ### SC-004: Statistical Rigor
-All claims of improvement must be backed by statistically significant results (p < 0.05) from appropriate tests (McNemar's).
+All claims of improvement must be backed by statistically significant results (**p < 0.05, one-tailed**) from appropriate tests (McNemar's) with the alternative hypothesis that the distilled model performs better than the baseline.
 
 ### SC-005: Sensitivity Reporting
 Sensitivity analysis results must be reported as variance across thresholds, without hard pass/fail cutoffs.
 
-### SC-006: Statistical Power Measurement
-Statistical power measurement must reference McNemar's test results.
+### SC-006: Statistical Power Reporting
+Statistical power reporting must document the **a priori power calculation parameters** (Power ≥ 0.8, h ≥ 0.2, p0 = 0.5) and the resulting sample size N (See US-3). Post-hoc power measurements derived from test results are not permitted.
 
 ## 5. Data Models
 

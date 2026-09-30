@@ -1,138 +1,146 @@
 # Implementation Plan: MobileForge Logic Distillation
 
-**Branch**: `002-mobileforge-logic-distillation` | **Date**: 2026-08-27 | **Spec**: [link]
-**Input**: Feature specification from `specs/002-mobileforge-logic-distillation/spec.md`
+**Branch**: `930-logic-distillation` | **Date**: 2026-08-27 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/930-logic-distillation/spec.md`
 
 ## Summary
-
-This project investigates whether the "hint-contextualized" feedback signal in Hierarchical Feedback-Guided Policy Optimization (HiFPO) captures transferable *associational* logical reasoning patterns that can be distilled into a lightweight, CPU-tractable model for GUI action planning. The technical approach involves: (1) extracting "failed-then-success" trajectory triples from MobileForge logs, (2) training a T5-small (Encoder-Decoder) model on CPU to predict action sequences from UI states and hints (replacing the spec's 'encoder-only' requirement due to architectural necessity for sequence generation), and (3) evaluating the distilled model against a TinyLlama baseline (evaluated *with* the same hint context) and a 'generic retry' ablation on unseen AndroidWorld tasks. The evaluation includes a paired statistical test (McNemar's) and a sensitivity analysis.
+This plan implements CPU-tractable logic distillation for the MobileForge framework. It extracts `(UI_state, Corrective_Hint, Action)` triples from raw logs, filters for "failed-then-success" trajectories, and trains a T5-small Encoder-Decoder model to predict action sequences. The implementation strictly adheres to resource constraints (CPU-only, <6h training) and employs rigorous statistical validation (McNemar's test, a priori power analysis) to compare the distilled model against a TinyLlama baseline.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers`, `datasets`, `scikit-learn`, `pandas`, `pytest`, `torch` (CPU-only build)  
-**Storage**: Local CSV/Parquet files (intermediate), Hugging Face datasets (source only)  
-**Testing**: `pytest` (unit), `pytest` (integration with mock emulator)  
-**Target Platform**: Linux (GitHub Actions `ubuntu-22.04` runner)  
-**Project Type**: Research pipeline / CLI  
-**Performance Goals**: Training ≤6h on CPU; Inference <2s per task  
-**Constraints**: No GPU usage for training/inference; Memory ≤7GB; Disk ≤14GB  
-**Scale/Scope**: [deferred] training triples (deferred); evaluation tasks
-
-> Empirical specifics (exact counts, dataset sizes) are deferred to the research/implementation phase or cited from the spec.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `transformers` (T5-small), `datasets`, `scikit-learn`, `pandas`, `pytest`, `ruff`, `black`
+**Storage**: Local filesystem (`data/` for raw/processed data, `models/` for weights), HuggingFace Hub for model loading.
+**Testing**: `pytest` (unit, integration, contract tests).
+**Target Platform**: Linux (GitHub Actions CPU runner), Android Emulator (for evaluation simulation).
+**Project Type**: Research/Data Science Pipeline.
+**Performance Goals**: Training ≤ 6 hours on 2 CPU cores, 7GB RAM. Evaluation on N tasks (calculated via power analysis).
+**Constraints**: CPU-only execution (CUDA detection = failure), no synthetic data fallbacks, strict memory limits (~7GB RAM).
+**Scale/Scope**: ~100k training triples (sampled if larger), N evaluation tasks (calculated via `power_analysis`).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Evidence/Action |
+| Principle | Status | Verification Detail |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned seeds, explicit dataset URLs, and isolated virtualenv. |
-| **II. Verified Accuracy** | **PASS** | All dataset citations restricted to the "Verified datasets" block in the prompt. |
-| **III. Data Hygiene** | **PASS** | Plan specifies checksumming raw downloads and deriving new files for processed data. |
-| **IV. Single Source of Truth** | **PASS** | Metrics trace to `code/evaluation/results.csv`. **Enforcement**: The `stats.py` script reads results via a read-only stream; the `state/` update script computes a SHA-256 hash of `results.csv`. If the hash mismatches the recorded value, the script aborts, preventing manual editing from propagating. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes in `state/` updates. |
-| **VI. CPU-Only Inference** | **PASS** | Model selection (T5-small) and execution constraints explicitly forbid GPU. |
-| **VII. Hint-Specific Ablation** | **PASS** | Evaluation plan includes a 'generic retry' prompt ablation (replacing hint with "Try again") alongside the TinyLlama baseline. |
+| **I. Reproducibility** | **PASS** | Plan mandates `requirements.txt` pins, random seed management in `utils/`, and dataset checksumming in `state/` (pending creation). |
+| **II. Verified Accuracy** | **PENDING** | Requires updated `spec.md` with FR-005 change (McNemar's test) before PASS can be granted. |
+| **III. Data Hygiene** | **PASS** | Plan includes `data/` directory structure with checksums. Raw data is read-only; derived data goes to `data/processed/`. |
+| **IV. Single Source of Truth** | **PASS** | Metrics flow from `utils/metrics.py` and `state/` artifacts to the final report. No hand-typed stats. |
+| **V. Versioning Discipline** | **PENDING** | `state/` directory and `artifact_hashes` map are marked "To Be Implemented" in Project Structure. |
+| **VI. CPU-Only Inference** | **PASS** | Explicit check for CUDA availability in training script; immediate failure if detected. |
+| **VII. Hint-Specific Ablation** | **PASS** | Evaluation phase includes a specific ablation run replacing hints with "retry" prompts. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/002-mobileforge-logic-distillation/
+specs/930-logic-distillation/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── evaluation.schema.yaml
+│   └── power_analysis.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-930-llmxive-follow-up-extending-mobileforge/
-├── code/
-│   ├── data/
-│   │   ├── download_mobileforge.py    # Fetches raw logs
-│   │   ├── extract_triples.py         # Filters for failed-then-success
-│   │   └── schema.py                  # Pydantic/JSON schema definitions (ExtractionDataset, etc.)
-│   ├── models/
-│   │   ├── train_distilled.py         # CPU-only training loop (T5-small)
-│   │   └── t5_small_config.json
-│   ├── evaluation/
-│   │   ├── run_tasks.py               # Executes on Android emulator (headless)
-│   │   ├── metrics.py                 # Calculates Success Rate, Efficiency
-│   │   ├── stats.py                   # McNemar's test, Observed Effect Size, Sensitivity
-│   │   └── ablation.py                # Generic retry prompt comparison
-│   └── utils/
-│       ├── power_analysis.py          # A priori / Observed effect size logic
-│       └── constants.py               # Seeds, thresholds
+projects/930-llmxive-follow-up-extending-mobileforge/
 ├── data/
-│   ├── raw/                           # Downloaded logs (checksummed)
-│   └── processed/                     # Extracted triples, evaluation results
+│   ├── raw/                  # Downloaded parquet files
+│   ├── processed/            # Filtered triples, train/test splits
+│   └── checksums.json        # SHA256 hashes of raw data
+├── code/
+│   ├── __init__.py
+│   ├── config.py             # T008: [To Be Implemented] Env var loading
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── power_analysis.py # T009: [To Be Implemented] calculate_required_n
+│   │   ├── metrics.py        # T006: [To Be Implemented] Success Rate, Step Efficiency
+│   │   └── emulator.py       # T005: [To Be Implemented] launch, send_action, check_crash
+│   ├── pipeline/
+│   │   ├── extract.py        # FR-001: Data extraction
+│   │   ├── train.py          # FR-002: T5-small training (CPU)
+│   │   └── evaluate.py       # FR-003/004/005: Eval + McNemar
+│   ├── models/
+│   │   └── distilled_t5.py   # Model definition
+│   └── main.py               # Entry point
 ├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/                      # Validates against contracts/
-└── requirements.txt
+│   ├── contract/             # Schema validation tests
+│   ├── integration/          # End-to-end pipeline tests
+│   └── unit/                 # Unit tests for utils
+├── state/
+│   └── validated_n.json      # T009: Output of power analysis [To Be Implemented]
+├── requirements.txt          # T001/T002: Pinned dependencies
+├── pyproject.toml            # T003: Black/Ruff config
+└── .ruff.toml                # T003: Linting config
 ```
 
-**Structure Decision**: Single-project structure (`code/` subdirectories) chosen to align with the research pipeline nature (data → model → eval) and simplify dependency management for the CPU-only constraint.
-
-**Contract Mapping**:
-- `contracts/extraction_dataset.schema.yaml` is the SSoT for the `ExtractionDataset` entity.
-- `contracts/evaluation_result.schema.yaml` is the SSoT for the `EvaluationResult` entity (including ablation results).
-- `contracts/statistical_report.schema.yaml` is the SSoT for the `StatisticalReport` entity.
+**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) is selected. This aligns with the research nature of the project, keeping data processing, training, and evaluation in a unified pipeline under `code/`. The `state/` directory is explicitly created to satisfy Constitution Principle V and Task T004/T009.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Separate Ablation Script** | Constitution Principle VII requires a specific "generic retry" ablation distinct from the TinyLlama baseline. | Merging ablation into the main eval loop would obscure the specific comparison required by the principle. |
-| **T5-small Architecture** | Encoder-only models (BERT) cannot natively generate variable-length action sequences. T5-small (Encoder-Decoder) is required for the output format. | Using BERT would require reformulating the task as classification over a fixed vocabulary, which contradicts the "predict action sequences" goal. |
-| **Post-Training Ablation** | Constitution Principle VII requires a specific "generic retry" prompt ablation. | Merging ablation into the main eval loop would obscure the specific comparison required by the principle. |
-| **A Priori Power Analysis** | Spec FR-007 (post-hoc) was removed due to tautology. A priori analysis is needed to justify N=500 for binary outcomes. | Post-hoc power analysis is tautological and does not validate sample size sufficiency. |
-| **Stress Test** | Selection bias in training data requires a secondary evaluation on ambiguous hints to measure distribution shift. | Ignoring distribution shift would lead to over-optimistic generalization claims. |
-| **Confounding Control** | Observational data requires propensity scoring/difficulty matching to rule out confounders. | Simple pairing is insufficient to control for task difficulty and UI complexity. |
+|-----------|------------|-------------------------------------|
+| **A Priori Power Analysis** | Required by FR-007 and SC-006 to ensure statistical validity. | Post-hoc power analysis is tautological and prohibited by the spec. |
+| **McNemar's Test** | Required by FR-005 for binary paired data. | Paired t-test is statistically invalid for binary outcomes (Success/Fail). |
+| **T5-small (Encoder-Decoder)** | Required by FR-002 for conditional generation. | Encoder-only models (e.g., DistilBERT) cannot natively generate variable-length action sequences without complex decoding heads. |
+| **Ablation Study (Hint vs. Retry)** | Required by Constitution Principle VII. | Without this, we cannot isolate the "hint-contextualized" reasoning effect from generic context effects. |
+| **T009 (Power Analysis)** | Pending Implementation. | Artifact T009 is currently missing; plan acknowledges this status. |
 
 ## Implementation Phases
 
-### Phase 0: Data Preparation & Filtering
-1.  **Download**: Fetch `mobileforge_logs.csv` from the verified Hugging Face URL. Record SHA-256 checksum.
-2.  **Extract**: Filter for `initial_status == "failed"` AND `post_hint_status == "success"`. Verify `Corrective_Hint` is purely linguistic (regex).
-3.  **Validate**: Ensure ≥ [deferred] valid triples. If <5,000, report shortage and adjust N for power analysis.
-4.  **Pre-Training Ablation**: Train a control model on `UI_state` only (no hint) to verify the hint is the primary driver of success.
+### Phase 0: Setup & Verification
+1.  Initialize project structure (`data/`, `code/`, `tests/`, `state/`).
+2.  Create `requirements.txt` (T001) and `pyproject.toml`/`.ruff.toml` (T003).
+3.  Verify dataset sources (AndroidWorld, ExtractionDataset) and update `research.md`.
+4.  **Gate**: Confirm `spec.md` is updated with FR-005 (McNemar's test) to satisfy Constitution Principle II.
 
-### Phase 1: Model Training
-1.  **Configure**: Initialize T5-small (Encoder-Decoder, ≤100M params) for sequence generation.
-2.  **Train**: Train on CPU with `device="cpu"`. Batch size tuned to fit available RAM.
-3.  **Validate**: Monitor loss; ensure convergence (final loss ≤ 0.5). If no convergence, flag as "Model Failure".
+### Phase 1: Power Analysis & Setup (FR-007, SC-006)
+1.  **Pilot Run**: Execute a small pilot (N=50 tasks) to estimate baseline success rate (p0) for TinyLlama.
+2.  **Calculation**: Run `utils/power_analysis.py` (T009) using estimated p0 (or 0.5 fallback) to calculate N.
+3.  **Output**: Write `state/validated_n.json` with N and parameters.
+4.  **Reporting**: Document a priori parameters in `state/power_report.md` (SC-006).
 
-### Phase 2: Evaluation & Statistical Validation
-1.  **Load Tasks**: Load a set of unseen, logically disjoint AndroidWorld tasks.
-2.  **Run Distilled Model**: Evaluate on tasks with `Corrective_Hint`.
-3.  **Run Baseline**: Evaluate TinyLlama (non-distilled) on tasks with `Corrective_Hint`.
-4.  **Run Ablation**: Evaluate Distilled Model on tasks with `Corrective_Hint` replaced by "Try again".
-5.  **Stress Test**: Evaluate Distilled Model on a subset of tasks with ambiguous hints (if available).
-6.  **Calculate Metrics**: Success Rate, Step Efficiency.
-7.  **Statistical Test**: Perform **McNemar's test** (paired binary) comparing Distilled vs. Baseline.
-8.  **Sensitivity Analysis**: Sweep `inconsistency_tolerance` {0.01, 0.05, 0.1}.
-9.  **Effect Size**: Calculate Cohen's d and report observed power (no post-hoc claim).
+### Phase 2: Data Extraction & Validation (FR-001)
+1.  **Load**: Download raw logs/parquet files.
+2.  **Filter**: Extract "failed-then-success" trajectories.
+3.  **Validate**: Check `Corrective_Hint` fields for purely linguistic content (no coordinates).
+4.  **Control Group**: Ensure a subset of "initial success" trajectories is included to prevent overfitting to error recovery.
+5.  **Output**: `data/processed/train_splits.parquet`, `data/processed/test_splits.parquet`.
 
-### Phase 3: Reporting
-1.  **Generate Report**: Compile `statistical_report.json`.
-2.  **Verify SSoT**: Ensure all metrics trace to `results.csv` via hash check.
+### Phase 3: Model Training (FR-002, FR-008)
+1.  **Feasibility Check**: Run a pilot training (1k samples, 1 epoch) to verify CPU feasibility within 6h.
+    *   *Contingency*: If pilot fails, reduce sample size (e.g., 10k) or epochs.
+2.  **CUDA Guard**: Implement check in `pipeline/train.py` to abort immediately if CUDA is detected.
+3.  **Train**: Train T5-small on CPU.
+4.  **Output**: `models/distilled_t5/`.
 
-## Risks & Mitigations
+### Phase 4: Evaluation & Statistical Validation (FR-003, FR-004, FR-005)
+1.  **Input Parity**: Ensure TinyLlama baseline receives identical input (UI State + Hint) as T5 model.
+2.  **Run**: Evaluate both models on N tasks (from Phase 1).
+3.  **Test**: Perform McNemar's test (one-tailed derivation: p/2 if b>c).
+4.  **Output**: `state/evaluation_results.json`.
 
-| Risk | Mitigation |
-| :--- | :--- |
-| **Dataset Insufficiency** (<5k triples) | Report actual count; adjust N for power analysis; explicitly state power limitation. |
-| **Model Non-Convergence** | Monitor loss; if no convergence, flag as "Model Failure" and analyze dataset quality (ablation). |
-| **Emulator Crashes** | Retry logic (limited attempts); mark as "Environment Error" and exclude from success rate. |
-| **Hint Ambiguity** | Strict regex filtering to exclude non-linguistic hints; 'Stress Test' for generalization. |
-| **Selection Bias** | 'Stress Test' on ambiguous hints; 'Confounding Control' via difficulty matching. |
-| **Distribution Shift** | Explicitly report failure rate on ambiguous hints; limit primary claims to 'high-confidence hint' tasks. |
-| **Spec Conflict (Encoder-Only)** | Plan uses T5-small (Encoder-Decoder) for sequence generation. Spec.md requires kickback to update FR-002. |
-| **Spec Conflict (Post-Hoc Power)** | Plan uses A Priori analysis and observed effect size. Spec.md requires kickback to update Assumptions. |
+### Phase 5: Sensitivity Analysis (FR-006, SC-005)
+1.  **Sweep**: Vary "inconsistency tolerance" (Levenshtein distance) thresholds (0, 1, 2, 3).
+2.  **Metric**: Calculate success rates at each threshold.
+3.  **Report**: Report variance across thresholds (no hard cutoffs).
+4.  **Output**: Append to `state/evaluation_results.json`.
+
+### Phase 6: Ablation & Final Reporting (Constitution VII, SC-006)
+1.  **Ablation**: Run evaluation with "retry" prompt instead of `Corrective_Hint`.
+2.  **Report**: Document a priori parameters (SC-006) and ablation results in final report.
+3.  **Output**: Final `state/final_report.md`.
+
+## Post-Implementation Verification
+-   Run `pytest tests/` to validate all contracts.
+-   Verify `state/` directory contains all checksums and versioning artifacts.
+-   Confirm `spec.md` update is present for Constitution Principle II.

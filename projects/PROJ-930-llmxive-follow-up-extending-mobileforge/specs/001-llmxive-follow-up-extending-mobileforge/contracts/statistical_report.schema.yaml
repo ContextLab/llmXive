@@ -11,7 +11,7 @@ properties:
         type: "number"
       p_value:
         type: "number"
-        description: "P-value for the hypothesis test."
+        description: "P-value for the hypothesis test (one-tailed derived)."
       odds_ratio:
         type: "number"
         description: "Odds ratio for the paired binary outcome."

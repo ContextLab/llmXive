@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExtractionDataset"
+description: "Schema for the raw and processed triples dataset."
+type: "object"
+properties:
+  triples:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        ui_state:
+          type: "string"
+          description: "JSON string or caption representing the UI state."
+        corrective_hint:
+          type: "string"
+          description: "Linguistic instruction without coordinates."
+        action:
+          type: "string"
+          description: "Ground truth action sequence."
+        trajectory_status:
+          type: "string"
+          enum:
+            - "failed_then_success"
+            - "success"
+            - "failed"
+            - "initial_success"
+          description: "Status of the trajectory."
+      required:
+        - ui_state
+        - corrective_hint
+        - action
+        - trajectory_status
+  metadata:
+    type: "object"
+    properties:
+      source_log:
+        type: "string"
+        description: "Source log file name."
+      filtering_criteria:
+        type: "string"
+        description: "Criteria used to filter the data."
+    required:
+      - source_log
+      - filtering_criteria
+required:
+  - triples
+  - metadata

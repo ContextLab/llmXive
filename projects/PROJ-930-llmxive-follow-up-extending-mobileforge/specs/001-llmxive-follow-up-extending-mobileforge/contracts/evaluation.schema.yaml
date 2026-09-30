@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationResult"
+description: "Schema for the evaluation results including statistical tests."
+type: "object"
+properties:
+  metrics:
+    type: "object"
+    properties:
+      success_rate_distilled:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      success_rate_baseline:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      step_efficiency_distilled:
+        type: "number"
+      step_efficiency_baseline:
+        type: "number"
+    required:
+      - success_rate_distilled
+      - success_rate_baseline
+  statistical_test:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        const: "McNemar"
+      p_value:
+        type: "number"
+      significant:
+        type: "boolean"
+      contingency_table:
+        type: "array"
+        items:
+          type: "array"
+          items:
+            type: "integer"
+          minItems: 2
+          maxItems: 2
+        minItems: 2
+        maxItems: 2
+    required:
+      - test_type
+      - p_value
+      - significant
+      - contingency_table
+  power_analysis:
+    type: "object"
+    properties:
+      n_required:
+        type: "integer"
+        minimum: 1
+      power_target:
+        type: "number"
+      effect_size:
+        type: "number"
+      baseline_rate:
+        type: "number"
+      p0_source:
+        type: "string"
+        description: "Source of baseline rate estimate (e.g., 'Pilot Run', 'Fallback 0.5')."
+    required:
+      - n_required
+      - power_target
+      - effect_size
+      - baseline_rate
+      - p0_source
+  sensitivity_report:
+    type: "object"
+    properties:
+      thresholds:
+        type: "array"
+        items:
+          type: "integer"
+      success_rates:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - thresholds
+      - success_rates
+required:
+  - metrics
+  - statistical_test
+  - power_analysis
+  - sensitivity_report

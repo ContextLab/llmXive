@@ -1,77 +1,76 @@
 # Quickstart: MobileForge Logic Distillation
 
-## Prerequisites
+## 1. Prerequisites
+- Python 3.11+
+- Git
+- Access to a Linux environment (GitHub Actions or local Linux VM)
+- Sufficient free disk space is required.
 
-*   Python 3.11+
-*   Git
-*   Access to the `projects/PROJ-930-llmxive-follow-up-extending-mobileforge` repository.
+## 2. Setup
 
-## Installation
-
-1.  **Clone and Setup**:
-    ```bash
-    cd projects/PROJ-930-llmxive-follow-up-extending-mobileforge
-    python -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
-
-2.  **Verify Dependencies**:
-    Ensure `torch` is installed in CPU mode (no CUDA).
-    ```bash
-    python -c "import torch; print(torch.__version__, torch.cuda.is_available())"
-    # Expected: <version> False
-    ```
-
-## Workflow
-
-### Step 1: Data Preparation
-Download the MobileForge logs and extract the training triples.
+### 2.1 Clone and Install
 ```bash
-python code/data/download_mobileforge.py
-python code/data/extract_triples.py
+git clone <repo-url>
+cd projects/930-llmxive-follow-up-extending-mobileforge/code/
+pip install -r requirements.txt
 ```
-*Output*: `data/processed/extraction_dataset.parquet`
 
-### Step 2: Model Training
-Train the distilled model on CPU.
+### 2.2 Environment Configuration
+Set the following environment variables in `.env` or your shell:
 ```bash
-python code/models/train_distilled.py \
-  --data data/processed/extraction_dataset.parquet \
-  --output models/distilled_model/ \
-  --device cpu
+export DATASET_URL="" # Verified source
+export RANDOM_SEED=42
+export EVAL_TASKS_N=500 # Will be overwritten by power_analysis output
 ```
-*Output*: `models/distilled_model/` (config, weights, tokenizer)
 
-### Step 3: Evaluation
-Run the evaluation against the TinyLlama baseline and perform statistical tests.
+## 3. Execution Workflow
+
+### Step 1: Power Analysis (FR-007)
+Run the power analysis to determine the required sample size.
 ```bash
-python code/evaluation/run_tasks.py \
-  --model models/distilled_model/ \
-  --baseline tinyllama \
-  --tasks data/processed/androidworld_tasks.parquet \
-  --output data/processed/evaluation_results.csv
-  --ablation retry
+python utils/power_analysis.py
+# Output: state/validated_n.json
 ```
-*Output*: `data/processed/evaluation_results.csv` (includes distilled, baseline, and ablation results)
+*Note: This step includes a pilot run to estimate baseline success rate (p0).*
 
-### Step 4: Statistical Analysis
-Calculate metrics, perform McNemar's test, and run sensitivity analysis.
+### Step 2: Data Extraction & Filtering (FR-001)
+Extract and filter the dataset.
 ```bash
-python code/evaluation/stats.py \
-  --results data/processed/evaluation_results.csv \
-  --thresholds 0.01 0.05 0.1
+python pipeline/extract.py
+# Output: data/processed/train_splits.parquet, data/processed/test_splits.parquet
 ```
-*Output*: `data/processed/statistical_report.json` (includes p-values, effect size, variance).
 
-## Verification
+### Step 3: Feasibility Pilot & Training (FR-002, FR-008)
+Run a feasibility pilot (a small sample set) then full training.
+```bash
+python pipeline/train.py --pilot # Validates CPU feasibility
+python pipeline/train.py # Full training
+# Output: models/distilled_t5/
+```
+*Note: This script includes a check to abort if CUDA is detected.*
 
-*   **Check Convergence**: Ensure `final_loss` in the training log is ≤ 0.5.
-*   **Check Effect Size**: Verify `statistical_report.json` reports observed effect size and confidence intervals.
-*   **Check Robustness**: Verify `variance` across thresholds is ≤ 5%.
+### Step 4: Evaluation & Statistical Validation (FR-003, FR-005)
+Run evaluation against the baseline and perform McNemar's test.
+```bash
+python pipeline/evaluate.py
+# Output: state/evaluation_results.json
+```
 
-## Troubleshooting
+### Step 5: Sensitivity & Ablation (FR-006, Constitution VII)
+Run sensitivity sweep and ablation study.
+```bash
+python pipeline/evaluate.py --mode sensitivity
+python pipeline/evaluate.py --mode ablation
+```
 
-*   **OOM Error**: Reduce batch size in `train_distilled.py`.
-*   **Emulator Crash**: Check `logcat` output; ensure ADB is connected.
-*   **No GPU Error**: The script should run on CPU. If it fails with CUDA errors, ensure `device="cpu"` is set.
+## 4. Verification
+Run the test suite to ensure all contracts are met.
+```bash
+pytest tests/
+```
+
+## 5. Troubleshooting
+- **CUDA Detected**: If training fails with a CUDA error, ensure `CUDA_VISIBLE_DEVICES=""` is set.
+- **Memory Error**: Reduce batch size in `pipeline/train.py`.
+- **Missing Data**: Ensure `DATASET_URL` is accessible and the file is not corrupted.
+- **Power Analysis Fallback**: If pilot data is unavailable, the script defaults to p0=0.5.

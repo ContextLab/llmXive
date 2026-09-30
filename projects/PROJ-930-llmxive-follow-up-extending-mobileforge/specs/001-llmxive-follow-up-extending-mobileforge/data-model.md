@@ -1,64 +1,57 @@
 # Data Model: MobileForge Logic Distillation
 
-## Overview
+## 1. Overview
+This document defines the data schemas for the MobileForge Logic Distillation project. All data artifacts must conform to these schemas to ensure reproducibility and contract validation.
 
-This document defines the data structures, schemas, and transformation logic for the `ExtractionDataset`, `DistilledModel` artifacts, and `EvaluationResult` metrics. All data is processed according to the **Data Hygiene** principle (checksummed, immutable raw, derived new files).
+## 2. Data Flows
 
-## Entity Definitions
+1.  **Raw Extraction**: `MobileForge Logs` (GitHub/HF) → `data/raw/triples.parquet`
+2.  **Filtering**: `data/raw/triples.parquet` → `data/processed/train_splits.parquet`, `data/processed/test_splits.parquet`
+3.  **Training**: `data/processed/train_splits.parquet` → `models/distilled_t5/`
+4.  **Evaluation**: `models/distilled_t5/` + `models/tinyllama/` + `data/eval_tasks.json` → `state/evaluation_results.json`
+5.  **Power Analysis**: `utils/power_analysis.py` → `state/validated_n.json`
 
-### 1. ExtractionDataset
-The intermediate dataset containing `(UI_state, Corrective_Hint, Action)` triples.
+## 3. Schema Definitions
 
-*   **Source**: `data/raw/mobileforge_logs.csv` (derived from verified Hugging Face URL).
-*   **Filtering**: Only "failed-then-success" trajectories with purely linguistic hints.
-*   **Format**: Parquet (compressed).
-*   **Schema**:
-    *   `triples`: List of objects.
-        *   `ui_state_description` (string): Non-empty text describing the UI state.
-        *   `corrective_hint` (string): Non-empty text hint, no coordinates.
-        *   `optimal_action_sequence` (string): JSON list of actions or comma-separated string.
-        *   `trajectory_id` (string): Unique identifier for the source trajectory.
-        *   `source_app` (string): App name from metadata.
+### 3.1 ExtractionDataset (Raw)
+Source: MobileForge Logs (GitHub/HF).
+- `ui_state`: String (JSON representation of UI hierarchy or screenshot caption)
+- `corrective_hint`: String (Linguistic instruction)
+- `action`: String (Ground truth action sequence)
+- `trajectory_status`: String (e.g., "failed_then_success", "initial_success")
 
-### 2. DistilledModel
-The lightweight, CPU-optimized language model (T5-small).
+### 3.2 DistilledModel (Artifact)
+- `architecture`: String ("T5-small")
+- `weights_path`: String (Relative path to `models/distilled_t5/`)
+- `config`: JSON (Model hyperparameters, epochs, learning rate)
+- `checksum`: String (SHA256 of weights)
 
-*   **Format**: Hugging Face `transformers` directory (config.json, pytorch_model.bin, tokenizer).
-*   **Constraints**: ≤ 100M parameters, CPU-only weights.
-*   **Metadata**:
-    *   `training_seed` (int): Random seed used.
-    *   `final_loss` (float): Loss at end of training.
-    *   `training_time_hours` (float): Duration.
+### 3.3 EvaluationResult
+- `metrics`:
+  - `success_rate_distilled`: Float
+  - `success_rate_baseline`: Float
+  - `step_efficiency_distilled`: Float
+  - `step_efficiency_baseline`: Float
+- `statistical_test`:
+  - `test_type`: String ("McNemar")
+  - `p_value`: Float
+  - `significant`: Boolean
+  - `contingency_table`: List of Lists (2x2)
+- `power_analysis`:
+  - `n_required`: Integer
+  - `power_target`: Float
+  - `effect_size`: Float
+  - `baseline_rate`: Float
+  - `p0_source`: String ("Pilot Run" or "Fallback 0.5")
+- `sensitivity_report`:
+  - `thresholds`: List of Integers
+  - `success_rates`: List of Floats
+- `ablation`:
+  - `hint_success_rate`: Float
+  - `retry_success_rate`: Float
 
-### 3. EvaluationResult
-The output metrics for a specific task run.
-
-*   **Format**: CSV or JSON Lines.
-*   **Schema**:
-    *   `task_id` (string): Unique ID of the AndroidWorld task.
-    *   `model_type` (string): "distilled", "baseline_tinyllama", or "ablation_retry".
-    *   `success` (boolean): Task completed successfully.
-    *   `steps_taken` (int): Number of actions executed.
-    *   `optimal_steps` (int): Ground truth steps.
-    *   `inconsistency_tolerance` (float): Threshold used for matching.
-    *   `execution_time_sec` (float): Inference time.
-    *   **Generation Logic for `ablation_retry`**: The `corrective_hint` is replaced with a generic "Try again" prompt during inference.
-
-## Transformation Pipeline
-
-1.  **Download**: `download_mobileforge.py` fetches raw CSV from verified URL.
-    *   *Output*: `data/raw/mobileforge_logs.csv` (checksum recorded).
-2.  **Extract**: `extract_triples.py` filters raw logs.
-    *   *Input*: `data/raw/mobileforge_logs.csv`.
-    *   *Logic*: Regex for coordinates, status checks.
-    *   *Output*: `data/processed/extraction_dataset.parquet`.
-3.  **Train**: `train_distilled.py` consumes Parquet.
-    *   *Output*: `models/distilled_model/`.
-4.  **Evaluate**: `run_tasks.py` consumes model and AndroidWorld tasks.
-    *   *Output*: `data/processed/evaluation_results.csv`.
-
-## Data Integrity & Checksums
-
-*   **Raw Data**: SHA-256 checksum recorded in `state/...yaml` upon download.
-*   **Derived Data**: SHA-256 checksum recorded for `extraction_dataset.parquet` and `evaluation_results.csv`.
-*   **Immutability**: Raw files are never modified. All transformations write to new files.
+## 4. Data Integrity Rules
+- **Raw Data**: Immutable. Checksums stored in `data/checksums.json`.
+- **Derived Data**: New files with `_v{version}` suffix if source changes.
+- **PII**: No Personally Identifiable Information allowed.
+- **Missing Data**: Loaders must fail loudly; no synthetic fallbacks.

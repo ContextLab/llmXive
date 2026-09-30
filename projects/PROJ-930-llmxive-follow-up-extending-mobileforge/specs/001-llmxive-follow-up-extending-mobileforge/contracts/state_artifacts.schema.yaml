@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "State Artifacts Schema"
+description: "Schema for versioning and checksum management in the state directory."
+type: "object"
+properties:
+  artifact_hashes:
+    type: "object"
+    description: "Map of file paths to SHA256 checksums."
+    additionalProperties:
+      type: "string"
+  validated_n:
+    type: "object"
+    properties:
+      calculated_n:
+        type: "integer"
+      timestamp:
+        type: "string"
+        format: "date-time"
+      method:
+        type: "string"
+        const: "A priori Power Analysis (McNemar)"
+    required:
+      - "calculated_n"
+      - "timestamp"
+      - "method"
+required:
+  - "artifact_hashes"
+  - "validated_n"
+additionalProperties: false

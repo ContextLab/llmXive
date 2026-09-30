@@ -19,17 +19,21 @@ properties:
         type: "integer"
         minimum: 0
         description: "Number of valid triples extracted."
+      source_app:
+        type: "string"
+        description: "App name from metadata."
   triples:
     type: "array"
     items:
       type: "object"
       required:
-        - "ui_state_description"
+        - "ui_state"
         - "corrective_hint"
-        - "optimal_action_sequence"
+        - "action"
         - "trajectory_id"
+        - "status"
       properties:
-        ui_state_description:
+        ui_state:
           type: "string"
           minLength: 1
           description: "Text description of the UI state."
@@ -37,15 +41,20 @@ properties:
           type: "string"
           minLength: 1
           description: "Linguistic hint provided after failure."
-        optimal_action_sequence:
+        action:
           type: "string"
           description: "Serialized optimal action sequence."
         trajectory_id:
           type: "string"
           description: "Unique ID of the source trajectory."
-        source_app:
+        status:
           type: "string"
-          description: "App name from metadata."
+          enum:
+            - "failed_then_success"
+            - "success"
+            - "failed"
+            - "initial_success"
+          description: "Trajectory status filter."
     description: "List of valid training triples."
 required:
   - "metadata"

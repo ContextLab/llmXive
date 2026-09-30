@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PowerAnalysis"
+description: "Schema for the a priori power analysis output."
+type: "object"
+properties:
+  n_required:
+    type: "integer"
+    minimum: 1
+    description: "Calculated sample size N."
+  parameters:
+    type: "object"
+    properties:
+      power_target:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Target power (e.g., 0.8)."
+      effect_size:
+        type: "number"
+        description: "Cohen's h effect size."
+      significance_level:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Alpha level (e.g., 0.05)."
+      baseline_rate:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Assumed baseline success rate (p0)."
+      p0_source:
+        type: "string"
+        description: "Source of baseline rate (e.g., 'Pilot Run', 'Fallback 0.5')."
+    required:
+      - power_target
+      - effect_size
+      - significance_level
+      - baseline_rate
+      - p0_source
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of calculation."
+required:
+  - n_required
+  - parameters
+  - timestamp

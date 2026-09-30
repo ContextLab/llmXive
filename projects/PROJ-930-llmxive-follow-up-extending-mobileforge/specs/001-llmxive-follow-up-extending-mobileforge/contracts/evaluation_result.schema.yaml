@@ -1,42 +1,97 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EvaluationResult Schema"
-description: "Schema for the output metrics of the model evaluation against AndroidWorld tasks. Includes distilled, baseline, and ablation results."
+title: "Evaluation Result Schema"
+description: "Schema for the output of the evaluation pipeline, including statistical tests."
 type: "object"
 properties:
-  task_id:
-    type: "string"
-    description: "Unique identifier for the AndroidWorld task."
-  model_type:
-    type: "string"
-    enum:
-      - "distilled"
-      - "baseline_tinyllama"
-      - "ablation_retry"
-    description: "Type of model used for this run. 'ablation_retry' indicates the hint was replaced with 'Try again'."
-  success:
-    type: "boolean"
-    description: "Whether the task was completed successfully."
-  steps_taken:
-    type: "integer"
-    minimum: 0
-    description: "Number of steps taken by the model."
-  optimal_steps:
-    type: "integer"
-    minimum: 0
-    description: "Ground truth number of steps."
-  inconsistency_tolerance:
-    type: "number"
-    description: "Threshold used for action matching."
-  execution_time_sec:
-    type: "number"
-    minimum: 0
-    description: "Time taken for inference in seconds."
+  metrics:
+    type: "object"
+    properties:
+      success_rate:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      step_efficiency:
+        type: "number"
+        description: "Average steps per task."
+    required:
+      - "success_rate"
+      - "step_efficiency"
+  statistical_test:
+    type: "object"
+    properties:
+      test_name:
+        type: "string"
+        const: "McNemar's Test"
+      contingency_table:
+        type: "object"
+        properties:
+          a:
+            type: "integer"
+            description: "Both Success"
+          b:
+            type: "integer"
+            description: "Distilled Success, Baseline Fail"
+          c:
+            type: "integer"
+            description: "Distilled Fail, Baseline Success"
+          d:
+            type: "integer"
+            description: "Both Fail"
+        required:
+          - "a"
+          - "b"
+          - "c"
+          - "d"
+      p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      significant:
+        type: "boolean"
+        description: "p < 0.05 (one-tailed derived)"
+    required:
+      - "test_name"
+      - "contingency_table"
+      - "p_value"
+      - "significant"
+  power_analysis:
+    type: "object"
+    properties:
+      required_n:
+        type: "integer"
+      achieved_n:
+        type: "integer"
+      achieved_power:
+        type: "number"
+        description: "Calculated power for achieved N."
+      p0_source:
+        type: "string"
+        description: "Source of baseline rate estimate."
+    required:
+      - "required_n"
+      - "achieved_n"
+      - "achieved_power"
+      - "p0_source"
+  sensitivity_report:
+    type: "object"
+    properties:
+      thresholds:
+        type: "array"
+        items:
+          type: "number"
+      success_rates:
+        type: "array"
+        items:
+          type: "number"
+      variance:
+        type: "number"
+    required:
+      - "thresholds"
+      - "success_rates"
+      - "variance"
 required:
-  - "task_id"
-  - "model_type"
-  - "success"
-  - "steps_taken"
-  - "optimal_steps"
-  - "inconsistency_tolerance"
-  - "execution_time_sec"
+  - "metrics"
+  - "statistical_test"
+  - "power_analysis"
+  - "sensitivity_report"
 additionalProperties: false
