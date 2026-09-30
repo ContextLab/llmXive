@@ -1,121 +1,68 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://llmxive.org/schemas/model_performance.schema.yaml
-title: Model Performance Schema
-description: |
-  Schema for model evaluation metrics and performance results.
-  Captures regression metrics, statistical tests, and basin-stratified scores.
+title: Model Performance Metrics Schema
+description: Schema for validating model comparison and evaluation metrics artifacts (e.g., model_comparison.csv, significance_test.json).
 type: object
 required:
   - model_name
-  - model_type
-  - evaluation_timestamp
   - metrics
-  - basin_metrics
 properties:
   model_name:
     type: string
-    description: Name/identifier of the trained model
-  model_type:
-    type: string
+    description: Name of the model (e.g., "RandomForest", "SimpleVLM")
     enum:
-      - RANDOM_FOREST
-      - VLM_CLIP
-      - BASELINE
-    description: Type of model architecture
-  evaluation_timestamp:
-    type: string
-    format: date-time
-    description: Timestamp when evaluation was performed
-  dataset_version:
-    type: string
-    description: Version hash of the dataset used for evaluation
+      - RandomForest
+      - SimpleVLM
   metrics:
     type: object
+    description: Dictionary of performance metrics
     required:
       - rmse
-      - r_squared
+      - r2
       - mae
-      - n_samples
     properties:
       rmse:
         type: number
+        description: Root Mean Squared Error
         minimum: 0
-        description: Root Mean Square Error
-      r_squared:
+      r2:
         type: number
-        description: Coefficient of determination (R²)
+        description: Coefficient of Determination
       mae:
         type: number
-        minimum: 0
         description: Mean Absolute Error
-      n_samples:
-        type: integer
-        minimum: 1
-        description: Number of samples in the test set
-      runtime_seconds:
-        type: number
         minimum: 0
-        description: Wall-clock time for inference
-  basin_metrics:
-    type: object
-    description: Performance metrics stratified by ocean basin
-    additionalProperties:
-      type: object
-      required:
-        - rmse
-        - r_squared
-        - mae
-        - n_samples
-      properties:
-        rmse:
-          type: number
-          minimum: 0
-        r_squared:
-          type: number
-        mae:
-          type: number
-          minimum: 0
-        n_samples:
-          type: integer
-          minimum: 1
-  statistical_tests:
-    type: object
-    description: Results of statistical significance tests
-    properties:
-      paired_t_test:
-        type: object
-        properties:
-          p_value:
-            type: number
-            minimum: 0
-            maximum: 1
-          confidence_interval:
-            type: array
-            items:
+      basin_breakdown:
+        type: array
+        description: Optional per-basin metrics
+        items:
+          type: object
+          required:
+            - basin
+            - r2
+            - rmse
+            - mae
+          properties:
+            basin:
+              type: string
+            r2:
               type: number
-            minItems: 2
-            maxItems: 2
-          significant_at_005:
-            type: boolean
-      bootstrap:
-        type: object
-        properties:
-          mean_difference:
-            type: number
-          ci_lower:
-            type: number
-          ci_upper:
-            type: number
-  hyperparameters:
-    type: object
-    description: Model hyperparameters used for training
-  artifacts:
-    type: object
-    properties:
-      model_path:
-        type: string
-      config_path:
-        type: string
-      log_path:
-        type: string
+            rmse:
+              type: number
+            mae:
+              type: number
+  training_time_seconds:
+    type: number
+    description: Total wall-clock training time
+    minimum: 0
+  inference_time_per_sample_ms:
+    type: number
+    description: Average inference latency
+    minimum: 0
+  status:
+    type: string
+    description: Status of the model run
+    enum:
+      - success
+      - failed
+      - partial
 additionalProperties: false

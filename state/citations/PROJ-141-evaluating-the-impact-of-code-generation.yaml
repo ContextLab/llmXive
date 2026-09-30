@@ -134,7 +134,7 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2202.13169
   verified_at: '2026-07-11T01:05:54.829232Z'
-- artifact_hash: db6ce2dcce398259d21cf0c9d51dc02990ab999abc36dc191f0de6de9c30023f
+- artifact_hash: a37dadf7aa3e878cfde30a99711fd53163b2e10fefb91c26dd74ca569eb782f2
   artifact_path: projects/PROJ-141-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -144,4 +144,4 @@
   value: https://www.wikidata.org/wiki/Q6007191
   verification_status: pending
   verified_against_url: https://www.wikidata.org/wiki/Q6007191
-  verified_at: '2026-09-18T06:40:32.240598Z'
+  verified_at: '2026-09-30T09:37:39.678215Z'

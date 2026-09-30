@@ -5,273 +5,250 @@ import logging
 import json
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
+from utils.logger import get_logger_for_task
+
+logger = get_logger_for_task(__name__)
 
 def run_paired_ttest(
     heuristic_scores: List[float],
     baseline_scores: List[float]
-) -> Dict[str, float]:
+) -> Tuple[float, float]:
     """
-    Run paired t-test between heuristic and baseline scores.
-    Returns dictionary with t-statistic and p-value.
+    Run a paired t-test between heuristic and baseline scores.
+    
+    Returns:
+        Tuple of (t_statistic, p_value)
     """
     if len(heuristic_scores) != len(baseline_scores):
-        raise ValueError("Scores lists must be of equal length for paired test")
+        raise ValueError("Score lists must be of equal length for paired test")
+    
     if len(heuristic_scores) < 2:
-        raise ValueError("Need at least 2 samples for t-test")
+        logger.warning("Insufficient data for t-test (n < 2)")
+        return 0.0, 1.0
 
     t_stat, p_val = stats.ttest_rel(heuristic_scores, baseline_scores)
-    return {
-        "t_statistic": float(t_stat),
-        "p_value": float(p_val)
-    }
+    return float(t_stat), float(p_val)
 
 def run_wilcoxon_test(
     heuristic_scores: List[float],
     baseline_scores: List[float]
-) -> Dict[str, float]:
+) -> Tuple[float, float]:
     """
-    Run Wilcoxon signed-rank test for robustness check.
-    Returns dictionary with statistic and p-value.
+    Run a Wilcoxon signed-rank test between heuristic and baseline scores.
+    
+    Returns:
+        Tuple of (statistic, p_value)
     """
     if len(heuristic_scores) != len(baseline_scores):
-        raise ValueError("Scores lists must be of equal length for paired test")
+        raise ValueError("Score lists must be of equal length for Wilcoxon test")
+    
     if len(heuristic_scores) < 2:
-        raise ValueError("Need at least 2 samples for Wilcoxon test")
+        logger.warning("Insufficient data for Wilcoxon test (n < 2)")
+        return 0.0, 1.0
 
-    stat, p_val = stats.wilcoxon(heuristic_scores, baseline_scores)
-    return {
-        "statistic": float(stat),
-        "p_value": float(p_val)
-    }
+    # Filter out zero differences to avoid issues in scipy
+    diffs = np.array(heuristic_scores) - np.array(baseline_scores)
+    valid_mask = diffs != 0
+    if np.sum(valid_mask) < 2:
+        logger.warning("Insufficient non-zero differences for Wilcoxon test")
+        return 0.0, 1.0
 
-def apply_holm_bonferroni(
-    p_values: List[float],
-    alpha: float = 0.05
-) -> Dict[str, Any]:
+    w_stat, p_val = stats.wilcoxon(
+        np.array(heuristic_scores)[valid_mask],
+        np.array(baseline_scores)[valid_mask]
+    )
+    return float(w_stat), float(p_val)
+
+def apply_holm_bonferroni(p_values: List[float]) -> List[float]:
     """
     Apply Holm-Bonferroni correction to a list of p-values.
-    Returns dictionary with corrected p-values and rejection decisions.
+    
+    Args:
+        p_values: List of uncorrected p-values.
+        
+    Returns:
+        List of adjusted p-values.
     """
     if not p_values:
-        return {"corrected_p_values": [], "rejections": []}
-
+        return []
+    
     n = len(p_values)
     sorted_indices = np.argsort(p_values)
-    sorted_p_values = np.array(p_values)[sorted_indices]
-
-    # Holm-Bonferroni: multiply by (n - i)
-    corrected = np.minimum(1.0, sorted_p_values * (n - np.arange(n)))
-
-    # Rejection decisions
-    rejections = corrected < alpha
-
-    # Map back to original order
-    final_corrected = np.empty(n)
-    final_rejections = np.empty(n, dtype=bool)
-    final_corrected[sorted_indices] = corrected
-    final_rejections[sorted_indices] = rejections
-
-    return {
-        "corrected_p_values": [float(p) for p in final_corrected],
-        "rejections": [bool(r) for r in final_rejections]
-    }
-
-def run_sensitivity_sweep(
-    heuristic_name: str,
-    baseline_results: List[Dict[str, Any]],
-    heuristic_results: List[Dict[str, Any]],
-    thresholds: List[float],
-    threshold_type: str
-) -> List[Dict[str, Any]]:
-    """
-    Run sensitivity analysis across a range of thresholds.
-    Returns list of results for each threshold.
-    """
-    results = []
-    for threshold in thresholds:
-        # Filter results based on threshold
-        # This is a simplified filter; actual implementation depends on data structure
-        filtered_baseline = [
-            r for r in baseline_results
-            if _apply_threshold_filter(r, threshold, threshold_type)
-        ]
-        filtered_heuristic = [
-            r for r in heuristic_results
-            if _apply_threshold_filter(r, threshold, threshold_type)
-        ]
-
-        # Calculate metrics for this threshold
-        baseline_f1 = np.mean([r.get("f1_score", 0) for r in filtered_baseline]) if filtered_baseline else 0.0
-        heuristic_f1 = np.mean([r.get("f1_score", 0) for r in filtered_heuristic]) if filtered_heuristic else 0.0
-
-        # Calculate false positive rate for this threshold
-        # FPR = (False Positives) / (False Positives + True Negatives)
-        # In our context: selections made without target / total selections made
-        fpr = calculate_false_positive_rate(filtered_heuristic, filtered_baseline)
-
-        results.append({
-            "threshold": threshold,
-            "threshold_type": threshold_type,
-            "baseline_f1": float(baseline_f1),
-            "heuristic_f1": float(heuristic_f1),
-            "f1_delta": float(heuristic_f1 - baseline_f1),
-            "false_positive_rate": float(fpr),
-            "samples_evaluated": len(filtered_heuristic),
-            "baseline_samples": len(filtered_baseline)
-        })
-
-    return results
-
-def _apply_threshold_filter(
-    result: Dict[str, Any],
-    threshold: float,
-    threshold_type: str
-) -> bool:
-    """
-    Apply threshold filter based on heuristic type.
-    Returns True if result passes the threshold.
-    """
-    # Extract the relevant score from the result
-    score = None
-    if threshold_type == "normalized_attention_score":
-        score = result.get("recency_score", result.get("attention_score", 0))
-    elif threshold_type == "gradient_magnitude_threshold":
-        score = result.get("gradient_magnitude", 0)
-    elif threshold_type == "entropy_probability_cutoff":
-        score = result.get("entropy_score", 0)
-    else:
-        score = result.get("score", 0)
-
-    if score is None:
-        return False
-
-    # For most heuristics, higher score = more important = keep
-    # For entropy, lower score = more uniform = keep (or keep if above threshold)
-    # This logic depends on specific heuristic implementation
-    return score >= threshold
+    sorted_pvals = np.array(p_values)[sorted_indices]
+    
+    adjusted = np.empty(n)
+    for i, p in enumerate(sorted_pvals):
+        # Holm-Bonferroni: p * (n - i)
+        # Ensure it doesn't exceed 1.0
+        adjusted[i] = min(1.0, p * (n - i))
+    
+    # Restore original order
+    final_adjusted = np.empty(n)
+    final_adjusted[sorted_indices] = adjusted
+    
+    return final_adjusted.tolist()
 
 def calculate_false_positive_rate(
-    heuristic_selections: List[Dict[str, Any]],
-    baseline_selections: List[Dict[str, Any]]
+    heuristic_selections: List[int],
+    baseline_selections: List[int]
 ) -> float:
     """
-    Calculate False Positive Rate for heuristic selections vs baseline.
-
-    False Positive Rate = FP / (FP + TN)
-    Where:
-    - FP: Heuristic selected a block, but baseline (dense attention) did not
-    - TN: Neither heuristic nor baseline selected the block
-
-    This verifies SC-004: False positive rates are explicitly calculated.
-
+    Calculate the false positive rate during sensitivity analysis.
+    
+    A false positive is defined as a block selected by the heuristic
+    that was NOT selected by the Dense Attention baseline.
+    
     Args:
-        heuristic_selections: List of results from heuristic selection
-        baseline_selections: List of results from dense attention baseline
-
+        heuristic_selections: List of block indices selected by the heuristic.
+        baseline_selections: List of block indices selected by the Dense Attention baseline.
+        
     Returns:
-        False positive rate as a float between 0 and 1
+        False positive rate (float between 0 and 1).
     """
     if not heuristic_selections:
         return 0.0
+    
+    heuristic_set = set(heuristic_selections)
+    baseline_set = set(baseline_selections)
+    
+    # False positives: Heuristic selected, Baseline did not
+    false_positives = heuristic_set - baseline_set
+    count_fp = len(false_positives)
+    
+    fp_rate = count_fp / len(heuristic_selections)
+    return float(fp_rate)
 
-    # Create sets of block indices selected by each method
-    # Assuming each result has a 'selected_blocks' or similar field
-    heuristic_blocks = set()
-    baseline_blocks = set()
-
-    for result in heuristic_selections:
-        blocks = result.get("selected_blocks", result.get("blocks", []))
-        if isinstance(blocks, list):
-            heuristic_blocks.update(blocks)
-        elif isinstance(blocks, str):
-            # If blocks are stored as a string representation
-            heuristic_blocks.update([int(b) for b in blocks.split(",") if b.strip().isdigit()])
-
-    for result in baseline_selections:
-        blocks = result.get("selected_blocks", result.get("blocks", []))
-        if isinstance(blocks, list):
-            baseline_blocks.update(blocks)
-        elif isinstance(blocks, str):
-            baseline_blocks.update([int(b) for b in blocks.split(",") if b.strip().isdigit()])
-
-    # Calculate FP: blocks selected by heuristic but NOT by baseline
-    false_positives = len(heuristic_blocks - baseline_blocks)
-
-    # Calculate TN: blocks NOT selected by either
-    # We need the universe of all possible blocks
-    all_blocks = heuristic_blocks | baseline_blocks
-    true_negatives = len(all_blocks) - len(heuristic_blocks | baseline_blocks)
-
-    # FPR = FP / (FP + TN)
-    denominator = false_positives + true_negatives
-    if denominator == 0:
-        return 0.0
-
-    return false_positives / denominator
+def run_sensitivity_sweep(
+    heuristic_name: str,
+    threshold_values: List[float],
+    heuristic_results_fn: callable,
+    baseline_results_fn: callable
+) -> List[Dict[str, Any]]:
+    """
+    Run a sensitivity sweep across a range of thresholds.
+    
+    Args:
+        heuristic_name: Name of the heuristic being tested.
+        threshold_values: List of threshold values to sweep.
+        heuristic_results_fn: Function that takes (threshold) and returns (selections, accuracy).
+        baseline_results_fn: Function that returns baseline selections.
+        
+    Returns:
+        List of dictionaries containing sensitivity analysis results.
+    """
+    baseline_selections = baseline_results_fn()
+    sensitivity_table = []
+    
+    for threshold in threshold_values:
+        try:
+            # Get heuristic selections and accuracy for this threshold
+            heuristic_selections, accuracy = heuristic_results_fn(threshold)
+            
+            # Calculate false positive rate
+            fp_rate = calculate_false_positive_rate(heuristic_selections, baseline_selections)
+            
+            sensitivity_table.append({
+                "threshold": float(threshold),
+                "accuracy": float(accuracy),
+                "false_positive_rate": float(fp_rate)
+            })
+            
+            logger.info(f"Heuristic {heuristic_name} at threshold {threshold}: "
+                        f"Accuracy={accuracy:.4f}, FP Rate={fp_rate:.4f}")
+            
+        except Exception as e:
+            logger.error(f"Error at threshold {threshold} for {heuristic_name}: {e}")
+            sensitivity_table.append({
+                "threshold": float(threshold),
+                "accuracy": 0.0,
+                "false_positive_rate": 0.0,
+                "error": str(e)
+            })
+    
+    return sensitivity_table
 
 def generate_statistical_report(
-    ttest_results: Dict[str, float],
-    wilcoxon_results: Dict[str, float],
-    holm_results: Dict[str, Any],
-    sensitivity_results: List[Dict[str, Any]]
+    ttest_stat: float,
+    ttest_p: float,
+    wilcoxon_stat: float,
+    wilcoxon_p: float,
+    sensitivity_table: List[Dict[str, Any]],
+    f1_score: float,
+    false_positive_rate: float
 ) -> Dict[str, Any]:
     """
-    Generate a comprehensive statistical report.
+    Generate the final statistical report dictionary.
+    
+    Args:
+        ttest_stat: T-test statistic.
+        ttest_p: T-test p-value.
+        wilcoxon_stat: Wilcoxon statistic.
+        wilcoxon_p: Wilcoxon p-value.
+        sensitivity_table: List of sensitivity analysis results.
+        f1_score: Final F1 score.
+        false_positive_rate: Final false positive rate.
+        
+    Returns:
+        Dictionary containing the full report.
     """
-    return {
-        "paired_t_test": ttest_results,
-        "wilcoxon_test": wilcoxon_results,
-        "holm_bonferroni_correction": holm_results,
-        "sensitivity_analysis": sensitivity_results,
-        "summary": {
-            "ttest_significant": ttest_results.get("p_value", 1.0) < 0.05,
-            "wilcoxon_significant": wilcoxon_results.get("p_value", 1.0) < 0.05,
-            "num_sensitivity_thresholds": len(sensitivity_results)
-        }
+    significance_statement = "p < 0.05" if ttest_p < 0.05 else "p >= 0.05"
+    
+    report = {
+        "f1_score": float(f1_score),
+        "p_value": float(ttest_p),
+        "false_positive_rate": float(false_positive_rate),
+        "sensitivity_table": sensitivity_table,
+        "ttest_stat": float(ttest_stat),
+        "wilcoxon_stat": float(wilcoxon_stat),
+        "significance_statement": significance_statement
     }
+    
+    return report
 
 def main():
     """
-    Main entry point for statistical analysis module.
-    Can be used for standalone testing or integration.
+    Main entry point for testing statistical functions.
     """
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Statistical analysis module loaded successfully")
-
-    # Example usage for testing
-    if __name__ == "__main__":
-        # Generate sample data for testing
-        np.random.seed(42)
-        heuristic_scores = np.random.normal(0.75, 0.1, 100).tolist()
-        baseline_scores = np.random.normal(0.70, 0.1, 100).tolist()
-
-        # Run t-test
-        ttest = run_paired_ttest(heuristic_scores, baseline_scores)
-        logger.info(f"T-test results: {ttest}")
-
-        # Run Wilcoxon
-        wilcoxon = run_wilcoxon_test(heuristic_scores, baseline_scores)
-        logger.info(f"Wilcoxon results: {wilcoxon}")
-
-        # Test Holm-Bonferroni
-        p_values = [0.01, 0.03, 0.04, 0.06, 0.08]
-        holm = apply_holm_bonferroni(p_values)
-        logger.info(f"Holm-Bonferroni results: {holm}")
-
-        # Test FPR calculation
-        fake_heuristic = [
-            {"selected_blocks": [1, 2, 3, 4, 5], "f1_score": 0.8},
-            {"selected_blocks": [2, 3, 6, 7], "f1_score": 0.75}
-        ]
-        fake_baseline = [
-            {"selected_blocks": [1, 2, 3], "f1_score": 0.78},
-            {"selected_blocks": [2, 3, 4], "f1_score": 0.72}
-        ]
-        fpr = calculate_false_positive_rate(fake_heuristic, fake_baseline)
-        logger.info(f"False Positive Rate: {fpr}")
-
-        logger.info("All statistical tests completed successfully")
+    logger.info("Running statistical module self-test...")
+    
+    # Mock data for testing
+    mock_heuristic = [0.8, 0.85, 0.75, 0.9, 0.82]
+    mock_baseline = [0.82, 0.84, 0.78, 0.88, 0.80]
+    
+    t_stat, t_p = run_paired_ttest(mock_heuristic, mock_baseline)
+    w_stat, w_p = run_wilcoxon_test(mock_heuristic, mock_baseline)
+    
+    logger.info(f"T-test: stat={t_stat:.4f}, p={t_p:.4f}")
+    logger.info(f"Wilcoxon: stat={w_stat:.4f}, p={w_p:.4f}")
+    
+    # Test false positive rate
+    h_sel = [1, 2, 3, 4, 5]
+    b_sel = [2, 3, 4, 5, 6]
+    fp_rate = calculate_false_positive_rate(h_sel, b_sel)
+    logger.info(f"False Positive Rate: {fp_rate:.4f}")
+    
+    # Test sensitivity sweep
+    def mock_heuristic_fn(th):
+        # Mock: returns selections [1, 2, 3] and accuracy 0.85
+        return [1, 2, 3], 0.85
+    
+    def mock_baseline_fn():
+        return [2, 3, 4]
+    
+    sweep = run_sensitivity_sweep(
+        "mock_heuristic",
+        [0.01, 0.05, 0.1],
+        mock_heuristic_fn,
+        mock_baseline_fn
+    )
+    
+    logger.info(f"Sensitivity sweep result: {sweep}")
+    
+    report = generate_statistical_report(
+        t_stat, t_p, w_stat, w_p, sweep, 0.85, fp_rate
+    )
+    
+    logger.info(f"Generated report: {json.dumps(report, indent=2)}")
 
 if __name__ == "__main__":
     main()

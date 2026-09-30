@@ -1,6 +1,8 @@
-# Ruff configuration for llmXive project
+# Ruff configuration file (alternative to pyproject.toml)
+# This file is used if ruff is invoked directly without pyproject.toml settings
+
 target-version = "py311"
-line-length = 100
+line-length = 88
 
 [lint]
 select = [
@@ -12,9 +14,13 @@ select = [
     "B",  # flake8-bugbear
 ]
 ignore = [
-    "E501", # line too long (handled by formatter)
+    "E501", # line too long (black handles this)
     "B008", # do not perform function calls in argument defaults
 ]
 
 [lint.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in __init__.py
+"__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["code", "utils", "data", "heuristics", "eval", "models", "analysis"]
+force-single-line = false

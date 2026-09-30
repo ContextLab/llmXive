@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: VIF Scores Schema
+description: Schema for Variance Inflation Factor scores and feature selection results.
+type: object
+properties:
+  threshold:
+    type: number
+    const: 5.0
+  fallback_threshold:
+    type: integer
+    const: 50
+  total_features_initial:
+    type: integer
+    minimum: 200
+  features_remaining:
+    type: integer
+    minimum: 1
+  fallback_triggered:
+    type: boolean
+    description: "True if L1 regularization was used instead of further VIF pruning."
+  feature_scores:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        vif_score:
+          type: number
+          minimum: 1
+        removed:
+          type: boolean
+      required:
+        - feature_name
+        - vif_score
+        - removed
+required:
+  - threshold
+  - fallback_threshold
+  - total_features_initial
+  - features_remaining
+  - fallback_triggered
+  - feature_scores
+additionalProperties: false

@@ -14,10 +14,10 @@ properties:
         description: "Random seed used for reproducibility."
       clustering_method:
         type: "string"
-        const: "Correlation-Based (|r| > 0.8)"
+        const: "Hierarchical Clustering (Ward linkage)"
       features_count:
         type: "integer"
-        description: "Number of features (all retained, no pruning)."
+        description: "Number of features (after VIF/L1 selection)."
   predictions:
     type: "array"
     items:
@@ -53,7 +53,10 @@ properties:
     properties:
       bootstrap_resamples:
         type: "integer"
-        description: "Number of bootstrap resamples (SHAP-only)."
+        description: "Number of bootstrap resamples (100)."
+      resample_strategy:
+        type: "string"
+        description: "Full dataset resampling, 10k subsample per iteration."
       jaccard_similarity:
         type: "number"
         minimum: 0

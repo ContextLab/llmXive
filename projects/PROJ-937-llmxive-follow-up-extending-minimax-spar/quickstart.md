@@ -1,138 +1,169 @@
-# llmXive: MiniMax Sparse Attention Extension - Quick Start
+# Quickstart Guide: CPU-Only Execution
 
-This guide provides instructions for running the MiniMax Sparse Attention evaluation pipeline on a **CPU-only** environment with **7 GB RAM** constraints.
+This guide provides instructions for running the llmXive sparse attention evaluation pipeline on a CPU-only environment without GPU acceleration or quantization.
 
 ## Prerequisites
 
-- Python 3.11+
-- 7 GB+ available RAM
-- No GPU required (CPU-only execution enforced)
+- Python 3.11 or higher
+- 7 GB+ available RAM (14 GB+ recommended for full dataset processing)
+- Multi-core CPU (4+ cores recommended)
+- Internet connection (for initial dataset download)
 
 ## Installation
 
-1. **Clone and Navigate**:
- ```bash
- git clone <repository-url>
- cd llmxive-follow-up-extending-minimax-spar
- ```
-
-2. **Create Virtual Environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install Dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Project Structure
-
-The project is organized as follows:
-- `code/`: Source code for heuristics, evaluation, and utilities
-- `data/raw/`: Raw RULER dataset (automatically downloaded on first run)
-- `data/processed/`: Preprocessed data chunks
-- `results/`: Final benchmark reports and statistical analysis
-- `tests/`: Unit and integration tests
-
-## Execution Workflow
-
-The pipeline executes in three phases: Data Loading & Verification, Heuristic Execution, and Statistical Analysis.
-
-### 1. Data Preparation (Automatic)
-
-The first run of `code/main.py` will automatically download and verify the RULER dataset from HuggingFace.
-- **Source**: `datasets.load_dataset("hkunlp/ruler")`
-- **Verification**: SHA-256 checksum validation (Task T037)
-- **Location**: `data/raw/ruler/`
-
-### 2. Running the Main Pipeline
-
-Execute the full evaluation on CPU:
-
+1. Clone the repository and navigate to the project root:
 ```bash
-python code/main.py --device cpu --heuristic block_entropy --subset small
+git clone <repository-url>
+cd llmxive-follow-up-extending-minimax-spar
 ```
 
-**Arguments**:
-- `--device`: Must be `cpu` (enforced by `utils/config.py`)
-- `--heuristic`: Select heuristic (`block_entropy`, `gradient_magnitude`, `recency_bias`)
-- `--subset`: Data subset size (`small`, `medium`, `full`)
-- `--threshold`: Heuristic selection threshold (default: 0.05)
-
-**Memory Safety**:
-- The `MemoryGuard` (Task T040) monitors RAM usage.
-- If usage exceeds **6.5 GB**, the process exits with code 1 to prevent OOM crashes.
-- `code/data/preprocess.py` automatically reduces batch size if memory pressure is detected.
-
-### 3. Running Baseline (Dense Attention)
-
-To generate the ground truth baseline for comparison:
-
+2. Create a virtual environment and activate it:
 ```bash
-python code/eval/baseline_runner.py --device cpu --subset small
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
 ```
 
-This produces `results/baseline_metrics.json` required for statistical comparison.
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-### 4. Statistical Analysis
+## Configuration
 
-After running heuristics and baseline, run the statistical aggregation:
+The system enforces CPU-only execution by default. Key configuration options are managed in `code/utils/config.py`:
+
+- `device`: Always set to "cpu"
+- `seed`: Random seed for reproducibility (default: 42)
+- `memory_threshold`: RAM usage threshold for early exit (default: 6.5 GB)
+- `timeout_seconds`: Maximum execution time (default: 21600 seconds / 6 hours)
+
+## Running the Pipeline
+
+### Step 1: Download and Verify RULER Dataset
+
+The pipeline requires the RULER dataset from HuggingFace. This step downloads and verifies the data integrity:
+
+```bash
+python code/data/loader.py
+```
+
+This will:
+- Download the dataset to `data/raw/`
+- Verify file integrity using SHA256 checksums
+- Fail loudly if the download fails or checksums don't match
+
+### Step 2: Run the Baseline (Dense Attention)
+
+Execute the dense attention baseline to establish ground truth metrics:
+
+```bash
+python code/eval/baseline_runner.py
+```
+
+This generates baseline metrics and selection sets for comparison.
+
+### Step 3: Run Heuristic Experiments
+
+Execute the three heuristics (Block Entropy, Gradient Magnitude, Recency Bias):
+
+```bash
+python code/main.py --heuristic block_entropy
+python code/main.py --heuristic gradient_magnitude
+python code/main.py --heuristic recency_bias
+```
+
+Or run all heuristics in sequence:
+
+```bash
+python code/main.py --run-all
+```
+
+### Step 4: Generate Benchmark Report
+
+Aggregate results and generate the final statistical report:
 
 ```bash
 python code/eval/report_generator.py
 ```
 
-This generates `results/benchmark_report.json` containing:
-- Exact Match & F1 scores
-- Perplexity (PPL)
-- Paired t-test p-values (Primary)
-- Wilcoxon signed-rank test (Secondary)
+This produces `results/benchmark_report.json` containing:
+- F1 scores for each heuristic
+- Paired t-test and Wilcoxon signed-rank test results
+- Holm-Bonferroni corrected p-values
 - Sensitivity analysis tables
 - False positive rates
 
-## Unit Tests
+### Step 5: Verify Report Structure
 
-Run the full test suite to verify implementation:
+Validate that the report contains all required fields:
 
 ```bash
-pytest tests/unit/ -v --cpu-only
+python code/eval/report_verifier.py
 ```
 
-**Key Test Files**:
-- `tests/unit/test_heuristics.py`: Tests for entropy, gradient, and recency heuristics
-- `tests/unit/test_metrics.py`: Tests for Exact Match, F1, and Perplexity
-- `tests/unit/test_statistical.py`: Tests for t-test, Wilcoxon, and Holm-Bonferroni correction
+## Resource Monitoring
+
+The pipeline includes built-in resource monitoring:
+
+- **Memory Guard**: Automatically exits if RAM usage exceeds 6.5 GB
+- **Timeout Guard**: Terminates execution after 6 hours
+- **Batch Auto-Reducer**: Splits large batches if memory pressure is detected
+
+To monitor resource usage in real-time, check the logs:
+```bash
+tail -f logs/execution.log
+```
 
 ## Troubleshooting
 
-### Memory Errors
-If you encounter `MemoryError` or the process exits with code 1:
-1. Ensure no other heavy applications are running.
-2. Reduce the `--subset` size (e.g., use `small` instead of `medium`).
-3. Check `code/utils/resource_monitor.py` logs for memory usage history.
+### Out of Memory Errors
 
-### Data Integrity Failures
-If data verification fails:
-1. Delete `data/raw/ruler/` directory.
-2. Re-run `code/main.py` to trigger a fresh download and checksum verification.
+If you encounter memory errors:
+1. Reduce context window size in `code/utils/config.py`
+2. Reduce batch size to 1
+3. Use streaming mode for large datasets (enabled by default)
 
-### CUDA Errors
-If CUDA errors appear:
-1. Ensure `--device cpu` is explicitly passed.
-2. Verify `utils/config.py` is enforcing CPU (`torch.set_device("cpu")`).
-3. Check that `CUDA_VISIBLE_DEVICES` is unset or set to empty string.
+### Dataset Download Failures
 
-## Output Artifacts
+If the RULER dataset fails to download:
+1. Check your internet connection
+2. Verify HuggingFace is accessible
+3. The system will fail loudly with a clear error message (no synthetic fallback)
 
-Upon successful completion, the following files are generated:
-- `results/benchmark_report.json`: Final metrics and statistical significance
-- `results/baseline_metrics.json`: Dense attention ground truth
-- `results/sensitivity_analysis.json`: Threshold variance table
-- `logs/execution.log`: Detailed resource usage and heuristic logs
+### Long Execution Times
 
-## License
+If execution exceeds 6 hours:
+1. The Timeout Guard will automatically terminate the process
+2. Consider running on a smaller subset of the RULER dataset
+3. Use more CPU cores if available
 
-This project is part of the llmXive automated science pipeline.
-See `LICENSE` for details.
+## Output Files
+
+After successful execution, you will find:
+
+- `data/raw/ruler_dataset/`: Downloaded and verified RULER data
+- `data/processed/`: Preprocessed data chunks
+- `results/benchmark_report.json`: Final aggregated results
+- `logs/execution.log`: Detailed execution logs with resource usage
+
+## Verification
+
+To ensure all components are working correctly:
+
+```bash
+# Run unit tests
+pytest tests/unit/ -v
+
+# Run integration tests
+pytest tests/integration/ -v
+
+# Verify report structure
+python code/eval/report_verifier.py
+```
+
+## Notes
+
+- **No GPU Required**: This pipeline is designed exclusively for CPU execution
+- **No Quantization**: The MiniMax-M3 model runs in full precision (no 4-bit/8-bit quantization)
+- **Real Data Only**: All results are computed from the real RULER dataset (no synthetic data)
+- **Fail Loudly**: Any data fetch failure or memory constraint violation will cause an immediate exit with a clear error message

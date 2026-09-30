@@ -1,3 +1,3 @@
 """
-llmXive data package.
+Data package for llmXive.
 """

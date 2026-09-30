@@ -143,3 +143,244 @@
   source_type: external
   status: verified
   updated_at: '2026-09-03T14:00:43Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: Memory check returns boolean if usage exceeds 6.5 GB
+  claim_id: c_ba8596c6
+  context: '- [X] T007b [P] Implement code/data/preprocess.py memory check: check_memory_usage()
+    returning boolean if usage > 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data/preprocess.py memory check: check_memory_usage()
+    returning boolean if usage > 6.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:38:02Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: Memory usage check returns boolean if usage exceeds 6.5 GB
+  claim_id: c_d2bddaa5
+  context: 'Phase 2: Foundational tasks include memory checks and batch reduction
+    logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/data/preprocess.py` memory check: `check_memory_usage()`
+    returning boolean if usage > 6.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:38:37Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: CPU-only heuristic execution must complete within 6 hours
+  claim_id: c_2ff513de
+  context: 'Phase 3: User Story 1 describes independent tests for CPU feasibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Independent Test: Run `code/main.py` with `device="cpu"` and heuristic
+    selection enabled on a small RULER subset; verify no CUDA errors and completion
+    within 6 hours.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:38:58Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: Memory check triggers boolean return if usage exceeds 6.5 GB
+  claim_id: c_0687f90a
+  context: 'Phase 2, Task T007b: Implement memory check logic with a specific threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/data/preprocess.py` memory check: `check_memory_usage()`
+    returning boolean if usage > 6.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:40:01Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: MiniMax-M3 fits within 7 GB RAM on CPU without quantization
+  claim_id: c_14f1387e
+  context: 'Phase 2, Task T048: Model loading constraints and memory limits.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/main.py` model loading mechanism: Use `transformers`
+    pipeline with `device_map="cpu"` and manual layer sharding (or other valid methods)
+    to ensure MiniMax-M3 fits within 7 GB RAM without 4-bit/8-bit quantization.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:40:35Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: CPU-only execution completes within 6 hours
+  claim_id: c_66c057cd
+  context: 'Phase 3, Independent Test: Run `code/main.py` with `device="cpu"` and
+    heuristic selection enabled.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify no CUDA errors and completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:41:02Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds for Recency, Gradient Magnitude, and
+    Block Entropy
+  claim_id: c_3d7dc950
+  context: 'Phase 5, Task T028: Sensitivity analysis implementation details.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_thresholds_for_Recency,_Gradient_Magnit
+  kind: entity_fact
+  raw_text: 'Implement `code/eval/statistical.py`: Sensitivity sweep logic across
+    a range of thresholds mapping to: ''normalized attention score'' for Recency,
+    ''gradient magnitude threshold'' for Gradient Magnitude, and ''entropy probability
+    cutoff'' for Block Entropy.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:41:30Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: MiniMax-M3 fits within 7 GB RAM without 4-bit/8-bit quantization
+  claim_id: c_8b12fa2b
+  context: 'Phase 2: Foundational - T048 [P] [US1] Implement code/main.py model loading
+    mechanism'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MiniMax-M3 model must fit within 7 GB RAM without 4-bit/8-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:43:31Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: check_memory_usage returns boolean if usage > 6.5 GB
+  claim_id: c_e490c8ee
+  context: 'Phase 2: Foundational - T007b [P] Implement code/data/preprocess.py memory
+    check'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory check function check_memory_usage() returns boolean if usage >
+    6.5 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:43:31Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: memory check threshold 6.5 GB
+  claim_id: c_68f2cd5a
+  context: 'T007b [P] Implement code/data/preprocess.py memory check: check_memory_usage()
+    returning boolean if usage > 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Task T007b implements a memory check returning boolean if usage > 6.5
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:44:43Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: memory check threshold is 6.5 GB
+  claim_id: c_0a871a8b
+  context: 'T007b [P] Implement code/data/preprocess.py memory check: check_memory_usage()
+    returning boolean if usage > 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Task T007b implements a memory check returning boolean if usage > 6.5
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:46:03Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: User Story 1 independent test completion time is 6 hours
+  claim_id: c_5029f6ab
+  context: 'Independent Test: Run code/main.py with device="cpu" and heuristic selection
+    enabled on a small RULER subset; verify no CUDA errors and completion within 6
+    hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 1 requires completion within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:46:29Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: Memory usage check threshold set to 6.5 GB
+  claim_id: c_5e272917
+  context: 'T007b [P] Implement `code/data/preprocess.py` memory check: `check_memory_usage()`
+    returning boolean if usage > 6.5 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/data/preprocess.py` memory check: `check_memory_usage()`
+    returning boolean if usage > 6.5 GB.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:47:14Z'
+- artifact_path: projects/PROJ-937-llmxive-follow-up-extending-minimax-spar/specs/001-llmxive-follow-up-extending-minimax-spar/tasks.md
+  attempts: 1
+  canonical: CPU-only execution completion time limit of 6 hours
+  claim_id: c_1ec906d8
+  context: 'Independent Test: Run `code/main.py` with `device="cpu"` and heuristic
+    selection enabled on a small RULER subset; verify no CUDA errors and completion
+    within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Independent Test: Run `code/main.py` with `device="cpu"` and heuristic
+    selection enabled on a small RULER subset; verify no CUDA errors and completion
+    within 6 hours.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T09:47:14Z'

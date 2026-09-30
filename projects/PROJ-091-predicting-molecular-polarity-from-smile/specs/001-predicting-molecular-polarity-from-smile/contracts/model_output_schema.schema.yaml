@@ -1,0 +1,54 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for the LightGBM model output and evaluation metrics.
+type: object
+properties:
+  model_info:
+    type: object
+    properties:
+      algorithm:
+        type: string
+        const: "LightGBM"
+      task:
+        type: string
+        const: "regression"
+      target_variable:
+        type: string
+        const: "mu"
+  metrics:
+    type: object
+    properties:
+      r2_score:
+        type: number
+        minimum: -1
+      rmse:
+        type: number
+        minimum: 0
+      baseline_r2:
+        type: number
+        description: "R2 of the null model (predicting mean)"
+    required:
+      - r2_score
+      - rmse
+      - baseline_r2
+  shap_analysis:
+    type: object
+    properties:
+      top_features:
+        type: array
+        items:
+          type: string
+        minItems: 10
+      stability_jaccard:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Jaccard similarity of top 10 features across 100 bootstraps"
+    required:
+      - top_features
+      - stability_jaccard
+required:
+  - model_info
+  - metrics
+  - shap_analysis
+additionalProperties: false

@@ -43,12 +43,12 @@
 - [X] T006 [P] Implement `code/data/loader.py` to fetch RULER dataset from HuggingFace `datasets` library (verified URL)
 - [X] T037 [P] [Execution Order: Must run AFTER T006] Implement `code/data/loader.py` verification logic: Add a checksum validation step after downloading RULER data to `data/raw/` to ensure file integrity before processing. (Note: T006 must be executed before T037 within this parallel phase).
 - [X] T007a [P] Implement `code/data/preprocess.py` chunking logic: `split_context(context, chunk_size)` returning generator of chunks.
-- [X] T007b [P] Implement `code/data/preprocess.py` memory check: `check_memory_usage()` returning boolean if usage > 6.5 GB. [UNRESOLVED-CLAIM: c_3755c1bf — status=not_enough_info]
+- [X] T007b [P] Implement `code/data/preprocess.py` memory check: `check_memory_usage()` returning boolean if usage > 6.5 GB.
 - [X] T007c [P] Implement `code/data/preprocess.py` batch reduction: `reduce_batch_size(batch)` returning smaller batch if memory check fails.
 - [X] T007d [P] Implement `code/data/preprocess.py` exit logic: `exit_on_memory_exceeded()` raising RuntimeError with "Memory constraint exceeded" if all reduction modes fail.
 - [X] T008 [P] Implement `code/heuristics/__init__.py` and base abstract class `HeuristicSelector`
 - [X] T009 [P] [US1] Setup `tests/unit/test_heuristics.py` and `tests/unit/test_metrics.py` with failing placeholders: Implement `test_entropy_returns_float`, `test_gradient_returns_float`, `test_recency_returns_float` in `test_heuristics.py` and `test_exact_match_returns_float`, `test_f1_returns_float` in `test_metrics.py` with `assert False` to ensure they fail initially.
-- [X] T048 [P] [US1] Implement `code/main.py` model loading mechanism: Use `transformers` pipeline with `device_map="cpu"` and manual layer sharding (or other valid methods) to ensure MiniMax-M3 fits within 7 GB RAM without 4-bit/8-bit quantization. [UNRESOLVED-CLAIM: c_db5c360d — status=not_enough_info] **CRITICAL**: Explicitly reiterate the "no quantization" constraint in the implementation.
+- [X] T048 [P] [US1] Implement `code/main.py` model loading mechanism: Use `transformers` pipeline with `device_map="cpu"` and manual layer sharding (or other valid methods) to ensure MiniMax-M3 fits within 7 GB RAM without 4-bit/8-bit quantization. **CRITICAL**: Explicitly reiterate the "no quantization" constraint in the implementation.
 - [X] T047 [P] [US1] Implement `code/main.py` context reduction logic: Check memory -> If exceeded, set config for reduced context (truncate input tokens) -> THEN load model. Must handle "reduce context to [deferred] tokens" clause of FR-003. **CRITICAL**: If reduction strategies fail, the system MUST explicitly `exit with code 1` and log the exact message "Memory constraint exceeded".
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -59,7 +59,7 @@
 
 **Goal**: Execute block-sparse attention selection logic using three deterministic heuristics on CPU-only environment without GPU.
 
-**Independent Test**: Run `code/main.py` with `device="cpu"` and heuristic selection enabled on a small RULER subset; verify no CUDA errors and completion within 6 hours. [UNRESOLVED-CLAIM: c_49c84b72 — status=not_enough_info]
+**Independent Test**: Run `code/main.py` with `device="cpu"` and heuristic selection enabled on a small RULER subset; verify no CUDA errors and completion within 6 hours.
 
 ### Tests for User Story 1 (Must run BEFORE implementation)
 
@@ -76,7 +76,7 @@
 - [X] T014 [P] [US1] Implement `code/heuristics/entropy.py`: Calculate block entropy from attention logits
 - [X] T015 [P] [US1] Implement `code/heuristics/gradient.py`: Compute local gradient magnitude via proxy next-token prediction loss (frozen model)
 - [X] T016 [P] [US1] Implement `code/heuristics/recency.py`: Apply recency bias weighting to block selection
-- [X] T019 [DEPRECATED] [US1] Implement memory guard in `code/main.py` using `psutil.virtual_memory().percent`: (Logic superseded by T040; kept for reference only. Original requirement: If > 85% of 7 GB, dynamically switch between reducing context to 4096 tokens (first priority) OR reducing batch size to 1 (second priority) [UNRESOLVED-CLAIM: c_f63b8ac5 — status=not_enough_info]; exit with code 1 only if both modes fail, logging "Memory constraint exceeded".)
+- [X] T019 [DEPRECATED] [US1] Implement memory guard in `code/main.py` using `psutil.virtual_memory().percent`: (Logic superseded by T040; kept for reference only. Original requirement: If > 85% of 7 GB, dynamically switch between reducing context to 4096 tokens (first priority) OR reducing batch size to 1 (second priority); exit with code 1 only if both modes fail, logging "Memory constraint exceeded".)
 
 **Checkpoint**: US1 fully functional; heuristics run on CPU without errors.
 
@@ -94,7 +94,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T021b [P] [US2] Implement `code/eval/metrics.py` proxy loss calculation: Calculate perplexity on a frozen model using a proxy next-token prediction loss (cross-entropy) without backpropagation. [UNRESOLVED-CLAIM: c_965220c2 — status=not_enough_info]
+- [X] T021b [P] [US2] Implement `code/eval/metrics.py` proxy loss calculation: Calculate perplexity on a frozen model using a proxy next-token prediction loss (cross-entropy) without backpropagation.
 - [X] T021 [P] [US2] Implement `code/eval/metrics.py`: Functions to calculate Exact Match, F1, and Perplexity (depends on T021b)
 - [X] T022c [US2] Implement `code/eval/baseline_runner.py`: A dedicated runner that executes the model in "Dense Attention" mode (Full Context, no sparsity, no Index Branch) to generate the ground truth selection set and baseline metrics for comparison, satisfying FR-004.
 - [ ] T024 [US2] Implement result aggregation to write `results/benchmark_report.json` with F1, PPL, and delta vs Dense Attention baseline for each heuristic. **Schema Requirement**: Must include all keys: `f1_score`, `p_value`, `false_positive_rate`, `sensitivity_table`, `ttest_stat`, `wilcoxon_stat`, `significance_statement`. (Note: This schema is the source of truth and must include all keys required by T031).
@@ -126,8 +126,8 @@
 - [X] T029 [US3] {{claim:c_7c5336b9}} (Note: T028 already includes these thresholds as a strict constraint).
 - [ ] T032a [US3] Implement logic to calculate false-positive rates during sensitivity analysis: Compare heuristic selection set vs. Dense Attention baseline selection set (from T022c) to identify blocks selected by heuristic but NOT by baseline (false positives).
 - [ ] T032b [US3] Ensure `false_positive_rate` is explicitly calculated and written to `results/benchmark_report.json` for each threshold in the sensitivity sweep, verifying SC-004.
-- [ ] T030a [US3] Implement statistical test runner in `code/main.py` to execute T027/T027b tests.
-- [ ] T030b [US3] Implement report prioritization logic in `code/main.py` to prioritize Paired t-test p-values in the report (per Constitution), while including Wilcoxon results as secondary checks.
+- [X] T030a [US3] Implement statistical test runner in `code/main.py` to execute T027/T027b tests.
+- [X] T030b [US3] Implement report prioritization logic in `code/main.py` to prioritize Paired t-test p-values in the report (per Constitution), while including Wilcoxon results as secondary checks.
 - [X] T030 [US3] Integrate statistical tests into `code/main.py` to compare best heuristic vs Dense Attention baseline (from T022c), prioritizing Paired t-test p-values in the report. (Depends on T032b, T030a, T030b)
 - [ ] T031 [US3] Generate final `results/benchmark_report.json` updates including p-values (Paired t-test primary), significance statements, and sensitivity tables. Format: `{"p_value": float, "significance_statement": "p < 0.05" or "p >= 0.05", "sensitivity_table": [{"threshold": float, "accuracy": float, "false_positive_rate": float}]}`. (Note: Must include all keys from T024 schema: `f1_score`, `p_value`, `false_positive_rate`, `sensitivity_table`, `ttest_stat`, `wilcoxon_stat`, `significance_statement`).
 - [X] T032a [US3] Implement logic to calculate false-positive rates during sensitivity analysis (selection without target vs Dense Attention selection from T022c). (Replaced by refined T032a above)
@@ -152,7 +152,7 @@
 **Purpose**: Address reviewer concerns regarding strict adherence to 7GB RAM and 6-hour time limits (Review Concern: "Compute feasibility")
 
 - [X] T040 [P] [US1] Implement `code/utils/resource_monitor.py`: A background thread that logs RAM usage at regular intervals and triggers an early exit with a failure code if usage exceeds a predefined safety threshold below the system limit. to prevent OOM crashes. (Supersedes T019).
-- [ ] T041 [US1] Add a "Timeout Guard" to `code/main.py`: Implement signal-based timeout of 21600 seconds (6 hours) to forcibly terminate the process if the RULER subset run exceeds the time threshold.
+- [X] T041 [US1] Add a "Timeout Guard" to `code/main.py`: Implement signal-based timeout of 21600 seconds (6 hours) to forcibly terminate the process if the RULER subset run exceeds the time threshold.
 - [X] T042 [P] [US3] Implement a "Batch Size Auto-Reducer" in `code/data/preprocess.py`: If a single batch causes memory pressure, automatically split the batch into smaller chunks (size reduced to unit level) and re-aggregate results, logging the auto-reduction event.
 
 ---

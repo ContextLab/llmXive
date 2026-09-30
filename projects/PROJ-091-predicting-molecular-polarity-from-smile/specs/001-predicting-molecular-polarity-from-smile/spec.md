@@ -25,7 +25,7 @@ The system must parse raw SMILES strings from a standard molecular dataset and c
 
 ### User Story 2 - 2D-Only Regression Model Training (Priority: P2)
 
-The system must train a Gradient Boosting Regressor (LightGBM) using only the generated 2D descriptors to predict quantum-mechanically calculated dipole moments, ensuring no data leakage from 3D information and using a standard random split (no target binning) for train/test separation.
+The system must train a Gradient Boosting Regressor (LightGBM) using only the generated D descriptors to predict quantum-mechanically calculated dipole moments, ensuring no data leakage from 3D information and using a standard random split (no target binning) for train/test separation.
 
 **Why this priority**: This implements the core predictive engine. It tests the hypothesis that 2D features alone can capture significant variance in dipole moments. It is the primary mechanism for generating the research results.
 
@@ -45,7 +45,7 @@ Rewritten passage:.
 
 ### User Story 3 - Feature Importance and Sensitivity Analysis (Priority: P3)
 
-The system must apply SHAP (SHapley Additive exPlanations) to quantify the contribution of individual 2D descriptors to the dipole prediction and perform a sensitivity analysis on the feature set stability using bootstrapping to validate the 'strongest signal' claim.
+The system must apply SHAP (SHapley Additive exPlanations) to quantify the contribution of individual descriptors to the dipole prediction and perform a sensitivity analysis on the feature set stability using bootstrapping to validate the 'strongest signal' claim.
 
 **Why this priority**: This addresses the "which features carry the strongest signal" part of the research question. It provides the interpretability required to understand the physical meaning of the 2D model's success or failure and ensures the results are not artifacts of a single data split.
 

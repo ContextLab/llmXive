@@ -1,13 +1,12 @@
 """
-Fetch SeaBASS in-situ data from HuggingFace Hub.
+Fetch SeaBASS in-situ data from the verified HuggingFace dataset source.
 
-Source: seabass/seabass dataset on HuggingFace.
+Source: seabass/seabass
 Output: data/raw/seabass.csv
 
-This script downloads the real SeaBASS dataset, filters for relevant
-columns (Chl-a, SST, Salinity), and saves the result to CSV.
-It strictly adheres to the "no synthetic fallback" policy:
-if the data cannot be fetched, it raises an exception.
+This script downloads the full SeaBASS dataset from HuggingFace Hub.
+It strictly adheres to the "fail loudly" policy: if the real data fetch fails,
+it raises an exception and does NOT fall back to synthetic data.
 """
 import os
 import sys
@@ -15,112 +14,139 @@ import logging
 from pathlib import Path
 import pandas as pd
 
-# Add parent directory to path to resolve imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path to ensure imports work
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from utils.logging_config import get_logger, setup_logging
-from utils.config import get_config
-
-# Ensure logging is configured
-setup_logging()
-logger = get_logger(__name__)
 
 # Constants
-DATASET_ID = "seabass/seabass"
-OUTPUT_FILE = Path(__file__).parent.parent / "data" / "raw" / "seabass.csv"
-REQUIRED_COLUMNS = [
-    "latitude", "longitude", "date", "time",
-    "temp", "sal", "chl", "depth", "region", "country"
+DATASET_NAME = "seabass/seabass"
+OUTPUT_DIR = Path("data/raw")
+OUTPUT_FILE = OUTPUT_DIR / "seabass.csv"
+
+# Required columns based on task description (Chl-a, SST, Salinity)
+# The dataset may have variations in column names, we map them below.
+TARGET_COLUMNS = [
+    "time", "latitude", "longitude", 
+    "temperature", "salinity", "chl_a", 
+    "depth", "station_name", "cruise_id"
 ]
 
-def fetch_seabass_data(output_path: Path) -> pd.DataFrame:
+def fetch_seabass_data():
     """
-    Fetch SeaBASS data from HuggingFace and save to CSV.
+    Fetches the SeaBASS dataset from HuggingFace and saves it to CSV.
     
-    Args:
-        output_path: Path where the CSV file will be saved.
-        
-    Returns:
-        DataFrame containing the fetched data.
-        
     Raises:
-        Exception: If the data cannot be fetched from the source.
+        Exception: If the dataset cannot be fetched or processed.
+        FileNotFoundError: If the output directory cannot be created.
     """
-    logger.info(f"Fetching SeaBASS data from HuggingFace: {DATASET_ID}")
+    logger = get_logger("fetch_seabass")
+    logger.info(f"Starting fetch of SeaBASS data from HuggingFace: {DATASET_NAME}")
+    
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     
     try:
+        # Import here to avoid heavy dependency load if not needed, 
+        # but datasets is a required dependency per T002.
         from datasets import load_dataset
-    except ImportError:
-        logger.error("The 'datasets' library is required. Install with: pip install datasets")
-        raise
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    try:
-        # Load the dataset
-        # Using streaming=False to ensure we get the full dataset if memory permits
-        # The SeaBASS dataset is relatively small (~100MB uncompressed), so this should fit in RAM.
-        logger.info("Loading dataset from HuggingFace...")
-        dataset = load_dataset(DATASET_ID, split="train")
         
-        logger.info(f"Dataset loaded. Rows: {len(dataset)}, Columns: {dataset.column_names}")
-
+        logger.info("Loading dataset from HuggingFace (streaming=False for full download)...")
+        # We load the full dataset as per the requirement to not shrink to a toy
+        # unless memory constraints are hit (handled in preprocessing).
+        # streaming=True is an option if memory is tight, but we fetch full here.
+        dataset = load_dataset(DATASET_NAME, split="train")
+        
+        logger.info(f"Dataset loaded successfully. Rows: {len(dataset)}, Columns: {dataset.column_names}")
+        
         # Convert to pandas DataFrame
         df = dataset.to_pandas()
-
-        # Filter for relevant columns if they exist, otherwise keep what we have
-        # and log a warning
-        available_cols = [col for col in REQUIRED_COLUMNS if col in df.columns]
-        if len(available_cols) < len(REQUIRED_COLUMNS):
-            missing = set(REQUIRED_COLUMNS) - set(available_cols)
-            logger.warning(f"Missing expected columns: {missing}. Proceeding with available columns.")
         
-        df = df[available_cols]
-
-        # Clean and preprocess data
-        # Convert date/time to a single timestamp if possible
-        if "date" in df.columns and "time" in df.columns:
-            # Handle potential NaT or string formats
-            try:
-                df['timestamp'] = pd.to_datetime(df['date'].astype(str) + ' ' + df['time'].astype(str), errors='coerce')
-                df = df.drop(columns=['date', 'time'])
-            except Exception as e:
-                logger.warning(f"Could not parse timestamp: {e}")
-
-        # Drop rows with critical missing values (lat, lon, chl)
-        critical_cols = [col for col in ['latitude', 'longitude', 'chl'] if col in df.columns]
-        if critical_cols:
-            initial_count = len(df)
-            df = df.dropna(subset=critical_cols)
-            dropped_count = initial_count - len(df)
-            if dropped_count > 0:
-                logger.info(f"Dropped {dropped_count} rows due to missing critical values.")
-
-        # Save to CSV
-        logger.info(f"Saving filtered data to {output_path}")
-        df.to_csv(output_path, index=False)
+        logger.info("Converting HuggingFace dataset to Pandas DataFrame...")
         
-        logger.info(f"Successfully saved {len(df)} rows to {output_path}")
-        return df
-
+        # Standardize column names to match expected schema (lowercase, underscore)
+        # HuggingFace SeaBASS dataset often has specific naming conventions.
+        # We map common variations to our target schema.
+        column_mapping = {
+            # Time
+            'time': 'time',
+            'datetime': 'time',
+            
+            # Location
+            'latitude': 'latitude',
+            'lat': 'latitude',
+            'longitude': 'longitude',
+            'lon': 'longitude',
+            
+            # Environmental
+            'temperature': 'temperature',
+            'temp': 'temperature',
+            'sst': 'temperature', # Sea Surface Temperature
+            'salinity': 'salinity',
+            'sal': 'salinity',
+            'chl_a': 'chl_a',
+            'chlorophyll': 'chl_a',
+            'chlorophyll_a': 'chl_a',
+            'depth': 'depth',
+        }
+        
+        # Rename columns where possible
+        existing_cols = set(df.columns)
+        mapped_cols = {}
+        for key, val in column_mapping.items():
+            if key in existing_cols:
+                mapped_cols[key] = val
+        
+        df = df.rename(columns=mapped_cols)
+        
+        # Select only the relevant columns for the project, or keep all if they are useful
+        # For this task, we save the cleaned dataframe.
+        # We ensure the critical columns exist, otherwise we note it but don't fail if the source is valid.
+        critical_cols = ['latitude', 'longitude', 'time']
+        missing_critical = [c for c in critical_cols if c not in df.columns]
+        if missing_critical:
+            logger.warning(f"Critical columns missing in source data: {missing_critical}. "
+                           "Proceeding with available columns. Downstream tasks may fail.")
+        
+        # Ensure required columns for the task (Chl-a, SST, Salinity) are present or mapped
+        # If the dataset uses different names, we rely on the mapping above.
+        # If they are truly missing, we log a warning but save what we have.
+        required_in_output = ['chl_a', 'temperature', 'salinity']
+        for col in required_in_output:
+            if col not in df.columns:
+                logger.warning(f"Required column '{col}' not found in dataset after mapping. "
+                               "It will be NaN in the output.")
+        
+        logger.info(f"Saving to {OUTPUT_FILE}...")
+        df.to_csv(OUTPUT_FILE, index=False)
+        
+        logger.info(f"Successfully saved SeaBASS data to {OUTPUT_FILE}")
+        logger.info(f"File size: {OUTPUT_FILE.stat().st_size / (1024*1024):.2f} MB")
+        
+        return OUTPUT_FILE
+        
+    except ImportError as e:
+        logger.error(f"Missing dependency 'datasets'. Please install: pip install datasets")
+        raise e
     except Exception as e:
-        logger.error(f"Failed to fetch SeaBASS data: {e}")
-        # Do not return a synthetic dataframe. Fail loudly.
-        raise RuntimeError(f"Unable to fetch real SeaBASS data from {DATASET_ID}. Aborting.") from e
+        logger.error(f"Failed to fetch or process SeaBASS data: {e}")
+        # Do NOT fall back to synthetic data. Raise the error.
+        raise e
 
 def main():
     """Main entry point for the script."""
-    config = get_config()
-    logger.info("Starting SeaBASS data fetch task (T011c)")
+    setup_logging()
+    logger = get_logger("fetch_seabass")
     
     try:
-        df = fetch_seabass_data(OUTPUT_FILE)
-        logger.info("Task T011c completed successfully.")
-        return 0
+        output_path = fetch_seabass_data()
+        logger.info(f"Task T011c completed successfully. Output: {output_path}")
     except Exception as e:
-        logger.error(f"Task T011c failed: {e}")
-        return 1
+        logger.error(f"Task T011c FAILED: {e}")
+        # Ensure the script exits with a non-zero code on failure
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

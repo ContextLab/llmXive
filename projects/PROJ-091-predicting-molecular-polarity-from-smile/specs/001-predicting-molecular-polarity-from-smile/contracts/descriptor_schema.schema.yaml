@@ -1,0 +1,47 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Descriptor Matrix Schema
+description: Schema for the 2D topological descriptor matrix used in the polarity prediction model.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        const: "qm9pack"
+      descriptor_count:
+        type: integer
+        minimum: 200
+      exclusion_rules:
+        type: array
+        items:
+          type: string
+        enum:
+          - "No 3D conformers"
+          - "No TPSA"
+          - "No functional group SMARTS"
+          - "No high-correlation exclusion (features retained)"
+  columns:
+    type: array
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+        dtype:
+          type: string
+          enum: ["float64", "int64", "object"]
+        description:
+          type: string
+      required:
+        - name
+        - dtype
+    minItems: 202
+  rows:
+    type: integer
+    minimum: 1000
+required:
+  - metadata
+  - columns
+  - rows
+additionalProperties: false

@@ -8,7 +8,7 @@ properties:
     description: "Input SMILES string"
   dipole_moment:
     type: "number"
-    description: "Target variable (Debye)"
+    description: "Target variable (Debye, scalar magnitude)"
   is_valid:
     type: "boolean"
     description: "Flag indicating if all descriptors were successfully calculated"

@@ -1,96 +1,75 @@
 # Quickstart: Predicting Molecular Polarity from SMILES Strings with Machine Learning
 
 ## Prerequisites
-
--   Python 3.10+
--   Git
--   6GB+ RAM available
--   Internet connection (for dataset download)
+- Python 3.11+
+- pip
+- 6GB+ RAM, 14GB+ Disk
+- Internet access (for `qm9pack` data download)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-091-predicting-molecular-polarity-from-smile
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Data Download
-
-Download the QM9 dataset to `data/raw/`:
-
-```bash
-python code/data/download_qm9.py
-```
-
-This script:
--   Fetches the dataset from the verified HuggingFace URL.
--   Computes a checksum.
--   Validates the file format.
+1. **Clone the repository** and navigate to the project root.
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+   *Note: `requirements.txt` includes `qm9pack`, `rdkit`, `lightgbm`, `shap`, `pandas`, `numpy`, `scikit-learn`, `pytest`, `scipy`.*
 
 ## Running the Pipeline
 
-Execute the full pipeline (Preprocessing -> Training -> Evaluation -> Interpretation):
-
+### 1. Fetch and Preprocess Data
+This step downloads QM9, generates 2D descriptors, and saves the feature matrix.
 ```bash
-python code/main.py
+python code/main.py --step fetch_and_preprocess
+```
+*Output*: `data/raw/qm9_raw.parquet`, `data/processed/descriptors.parquet`.
+
+### 2. Feature Selection
+Computes VIF, performs iterative removal (with L1 fallback), and generates cluster map.
+```bash
+python code/main.py --step feature_selection
+```
+*Output*: `data/processed/vif_scores.csv`, `data/processed/cluster_map.csv`.
+
+### 3. Train Model
+Trains the LightGBM regressor with cross-validation.
+```bash
+python code/main.py --step train
+```
+*Output*: `data/processed/model.pkl`, `data/results/training_metrics.json`.
+
+### 4. Analyze & Validate
+Runs SHAP analysis (with interaction values), bootstrap stability checks (A resampling approach with multiple iterations and subsamples per iteration will be employed to assess variability, following established protocols (e.g., Efron & Tibshirani, 1993).), and contract validation.
+```bash
+python code/main.py --step analyze
+```
+*Output*: `data/results/shap_summary.png`, `data/results/stability_report.json`.
+
+### 5. Verify Reproducibility
+Checks checksums against `state/manifest.json`.
+```bash
+python code/main.py --step verify
 ```
 
-### Step-by-Step Execution
+## Testing
 
-1.  **Preprocessing**:
-    ```bash
-    python code/data/preprocess_2d.py
-    ```
-    Generates the 2D descriptor matrix, excluding TPSA and 3D features.
-
-2.  **Feature Clustering**:
-    ```bash
-    python code/data/feature_clustering.py
-    ```
-    Computes correlation matrix, groups features into clusters, and calculates VIF for diagnostic reporting (no pruning).
-
-3.  **Training**:
-    ```bash
-    python code/models/train_lightgbm.py
-    ```
-    Trains the LightGBM model with 5-fold CV.
-
-4.  **Evaluation & SHAP**:
-    ```bash
-    python code/models/evaluate.py
-    python code/models/interpret.py
-    ```
-    Generates metrics and Cluster-Aware SHAP stability reports (Two-Stage Bootstrap).
-
-## Verification
-
-Run the test suite to ensure compliance with the spec:
-
+Run the full test suite (unit, contract, integration):
 ```bash
 pytest tests/ -v
 ```
 
-**Key Tests**:
--   `test_3d_exclusion`: Asserts no 3D conformer generation functions are called.
--   `test_cluster_stability`: Verifies Jaccard similarity of top feature clusters.
--   `test_no_pruning`: Asserts that no features are removed based on VIF or correlation thresholds.
+**Key Contract Tests**:
+- `tests/contract/test_schema_validation.py`: Validates that `descriptors.parquet`, `vif_scores.csv`, and `cluster_map.csv` match the schema.
+- `tests/unit/test_descriptors.py`: Asserts no 3D functions are called during preprocessing (mocking `EmbedMolecule`).
 
-## Expected Outputs
+## Troubleshooting
 
--   `data/processed/features_*.parquet`: Cleaned feature matrix with cluster IDs.
--   `models/lightgbm_*.pkl`: Trained model.
--   `reports/metrics.json`: R², RMSE, MAE.
--   `reports/shap_summary.png`: SHAP summary plot.
--   `reports/stability_report.json`: Cluster Jaccard similarity scores.
+- **Memory Error**: If RAM exceeds 6GB, reduce the batch size in `code/data/preprocess.py` or the bootstrap subsample size in `code/model/evaluate.py`.
+- **NaN in Descriptors**: The pipeline automatically imputes with median. If >5% missing, the record is dropped. Check `logs/preprocess.log`.
+- **3D Leakage**: If the unit test `test_no_3d_generation` fails, check `code/data/preprocess.py` for any accidental calls to `EmbedMolecule`.
+- **VIF Fallback**: If the feature count drops below a predefined threshold, the pipeline automatically switches to L1 regularization. Check `data/processed/vif_scores.csv` for the `fallback_triggered` flag.

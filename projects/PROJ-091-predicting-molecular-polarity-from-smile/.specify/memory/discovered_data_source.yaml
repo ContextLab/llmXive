@@ -1,51 +1,54 @@
 status: verified
 kind: pypi_package
-ref: datasets
-access_python: 'from datasets import load_dataset
+ref: qm9pack
+access_python: 'import pandas as pd
+
+  from qm9pack import get_data
 
 
-  # Load the QM9 dataset using a specific config that contains the full data
+  df = get_data(''qm9'')
 
-  dataset_dict = load_dataset(''jablonkagroup/qm9'', ''raw_data'')
+  records = df.to_dict("records")
 
+  print(f"RECORDS={len(records)}")
 
-  # Compute total number of records across all splits
-
-  total_records = sum(len(split) for split in dataset_dict.values())
-
-  print(f"RECORDS={total_records}")
-
-
-  # Print the field names from the first split (all splits share the same schema)
-
-  first_split = next(iter(dataset_dict.values()))
-
-  print("FIELDS=" + ",".join(first_split.column_names))'
-record_count: 133885
+  print("FIELDS=" + ",".join(df.columns))'
+record_count: 130831
 sample_fields:
-- inchi
+- XYZ_file
+- Index
 - SMILES
-- rotational_constant_a
-- rotational_constant_b
-- rotational_constant_c
-- dipole_moment
-- polarizability
-- homo
-- lumo
-- gap
-- r2
-- zero_point_energy
-- u0
-- u298
-- h298
-- g298
-- heat_capacity
-- split
-- __index_level_0__
-field_coverage: 0.667
+- InChi
+- N_atoms
+- Stoichiometry
+- Elements
+- XYZ_Ang
+- Mulliken_pop
+- Harmonic_Freq_cmi
+- RotA_GHz
+- RotB_GHz
+- RotC_GHz
+- Dipole_debye
+- Polarizability_bohr3
+- HOMO_au
+- LUMO_au
+- HOMO_LUMO_gap_au
+- R2_bohr2
+- ZPVE_au
+- InternalEnergy_0K_au
+- InternalEnergy_298K_au
+- Enthalphy_298K_au
+- GibbsFreeEnergy_298K_au
+- Heatcapacity_Cv_cal_mol_K
+- A_xx
+- A_xy
+- A_yy
+- A_xz
+- A_yz
+- A_zz
+field_coverage: 1.0
 required_fields:
-- smiles
-- molecule_id
+- SMILES
 - dipole_moment
-intent: download QM9 dataset python package dataset
-cache_key: 47eecf33e69d4ee255da274d245e086ac4da4a40fe043e073c68fb75dbd187a9
+intent: download QM9 molecular dataset SMILES dipole moment python package dataset
+cache_key: ea23b5cc73fd9eeee96d880634ea73fdde59d0d390b4d7b154be486f132d4522

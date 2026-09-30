@@ -1,185 +1,158 @@
-"""
-Report Verifier for T036.
-Verifies that results/benchmark_report.json contains all required metrics and statistical tests.
-"""
 import json
 import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Set
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Import logger from existing API
+from utils.logger import get_logger_for_task
 
 REQUIRED_KEYS: Set[str] = {
-    'f1_score',
-    'p_value',
-    'false_positive_rate',
-    'sensitivity_table',
-    'ttest_stat',
-    'wilcoxon_stat'
+    "f1_score",
+    "p_value",
+    "false_positive_rate",
+    "sensitivity_table",
+    "ttest_stat",
+    "wilcoxon_stat",
+    "significance_statement"
 }
 
-def verify_report_structure(report: Dict[str, Any], required_keys: Set[str]) -> bool:
-    """
-    Verify that the report contains all required top-level keys.
-    
-    Args:
-        report: The loaded JSON report dictionary.
-        required_keys: Set of required key names.
-        
-    Returns:
-        True if all required keys are present, False otherwise.
-    """
-    missing_keys = required_keys - set(report.keys())
-    if missing_keys:
-        logger.error(f"Missing required keys in report: {missing_keys}")
+def verify_report_file_exists(report_path: Path) -> bool:
+    """Check if the benchmark report file exists on disk."""
+    if not report_path.exists():
+        logging.error(f"Report file not found: {report_path}")
         return False
-    
-    logger.info(f"All required keys present: {required_keys}")
     return True
 
-def verify_sensitivity_table_structure(sensitivity_table: Any) -> bool:
+def verify_report_structure(report_data: Dict[str, Any]) -> tuple[bool, List[str]]:
     """
-    Verify that the sensitivity_table is a list of dictionaries with expected structure.
+    Verify that the report dictionary contains all required keys.
+    Returns (is_valid, list_of_missing_keys).
+    """
+    missing_keys = []
+    for key in REQUIRED_KEYS:
+        if key not in report_data:
+            missing_keys.append(key)
     
-    Args:
-        sensitivity_table: The sensitivity_table field from the report.
-        
-    Returns:
-        True if valid, False otherwise.
+    if missing_keys:
+        logging.error(f"Missing required keys in report: {missing_keys}")
+        return False, missing_keys
+    
+    logging.info("All required top-level keys present in report.")
+    return True, []
+
+def verify_sensitivity_table_structure(report_data: Dict[str, Any]) -> tuple[bool, List[str]]:
     """
+    Verify that the sensitivity_table is a list of dicts with expected numeric keys.
+    """
+    missing_keys = []
+    sensitivity_table = report_data.get("sensitivity_table")
+    
     if not isinstance(sensitivity_table, list):
-        logger.error(f"sensitivity_table must be a list, got {type(sensitivity_table)}")
-        return False
+        logging.error("sensitivity_table must be a list.")
+        return False, ["sensitivity_table (must be list)"]
     
     if len(sensitivity_table) == 0:
-        logger.warning("sensitivity_table is empty")
-        return True  # Empty is technically valid structure, just no data
-    
-    # Check first entry structure
-    sample_entry = sensitivity_table[0]
-    if not isinstance(sample_entry, dict):
-        logger.error(f"sensitivity_table entries must be dicts, got {type(sample_entry)}")
-        return False
-    
-    # Expect at least threshold and metric columns
-    expected_subkeys = {'threshold', 'metric_value'}
-    if not expected_subkeys.issubset(sample_entry.keys()):
-        logger.warning(f"sensitivity_table entries missing expected subkeys. Found: {sample_entry.keys()}")
-        # Not failing strictly, just warning
-    
-    logger.info(f"sensitivity_table structure valid with {len(sensitivity_table)} entries")
-    return True
+        logging.warning("sensitivity_table is empty.")
+        # Not strictly a failure of structure, but log warning
+        return True, []
 
-def verify_numeric_values(report: Dict[str, Any]) -> bool:
-    """
-    Verify that numeric fields are actually numbers and not None or strings.
+    required_table_keys = {"threshold", "accuracy", "false_positive_rate"}
     
-    Args:
-        report: The loaded JSON report dictionary.
+    for i, entry in enumerate(sensitivity_table):
+        if not isinstance(entry, dict):
+            logging.error(f"sensitivity_table entry {i} is not a dict.")
+            missing_keys.append(f"sensitivity_table[{i}]")
+            continue
         
-    Returns:
-        True if all numeric fields are valid numbers, False otherwise.
+        entry_keys = set(entry.keys())
+        if not required_table_keys.issubset(entry_keys):
+            missing_in_entry = required_table_keys - entry_keys
+            logging.error(f"sensitivity_table entry {i} missing keys: {missing_in_entry}")
+            missing_keys.append(f"sensitivity_table[{i}] keys: {missing_in_entry}")
+        
+        # Check numeric types
+        for k in required_table_keys:
+            val = entry.get(k)
+            if val is not None and not isinstance(val, (int, float)):
+                logging.error(f"sensitivity_table entry {i} key '{k}' is not numeric.")
+                missing_keys.append(f"sensitivity_table[{i}].{k} (non-numeric)")
+
+    if missing_keys:
+        return False, missing_keys
+    
+    logging.info("Sensitivity table structure verified.")
+    return True, []
+
+def verify_numeric_values(report_data: Dict[str, Any]) -> tuple[bool, List[str]]:
     """
-    numeric_fields = ['f1_score', 'p_value', 'ttest_stat', 'wilcoxon_stat']
-    all_valid = True
+    Verify that specific top-level fields are numeric.
+    """
+    numeric_fields = ["f1_score", "p_value", "ttest_stat", "wilcoxon_stat"]
+    missing_keys = []
     
     for field in numeric_fields:
-        if field in report:
-            value = report[field]
-            if value is None:
-                logger.error(f"Field '{field}' is None")
-                all_valid = False
-            elif not isinstance(value, (int, float)):
-                logger.error(f"Field '{field}' is not numeric: {type(value)}")
-                all_valid = False
-            else:
-                logger.info(f"Field '{field}' is valid: {value}")
+        val = report_data.get(field)
+        if val is None:
+            # Should have been caught by structure check, but double check
+            missing_keys.append(f"{field} (missing)")
+            continue
         
-        if 'false_positive_rate' in report:
-            fpr = report['false_positive_rate']
-            if fpr is None:
-                logger.error("Field 'false_positive_rate' is None")
-                all_valid = False
-            elif not isinstance(fpr, (int, float, list)):
-                # false_positive_rate can be a list if per-threshold
-                logger.error(f"Field 'false_positive_rate' is not numeric or list: {type(fpr)}")
-                all_valid = False
-            else:
-                logger.info(f"Field 'false_positive_rate' is valid")
-
-    return all_valid
-
-def verify_report_file_exists(report_path: Path) -> bool:
-    """
-    Verify that the report file exists.
+        if not isinstance(val, (int, float)):
+            logging.error(f"Field '{field}' is not numeric: {type(val)}")
+            missing_keys.append(f"{field} (non-numeric)")
     
-    Args:
-        report_path: Path to the report file.
-        
-    Returns:
-        True if file exists, False otherwise.
-    """
-    if not report_path.exists():
-        logger.error(f"Report file not found: {report_path}")
-        return False
-    logger.info(f"Report file found: {report_path}")
-    return True
+    if missing_keys:
+        return False, missing_keys
+    
+    logging.info("Numeric values verified.")
+    return True, []
 
-def verify_report(report_path: Path = Path("results/benchmark_report.json")) -> bool:
+def verify_report(report_path: Path) -> bool:
     """
-    Main verification function for T036.
-    
-    Args:
-        report_path: Path to the benchmark report JSON file.
-        
-    Returns:
-        True if all verifications pass, False otherwise.
+    Main entry point to verify the benchmark report.
+    Returns True if the report is valid, False otherwise.
     """
-    logger.info(f"Starting verification for {report_path}")
+    logger = get_logger_for_task("T036")
     
-    # Step 1: Check file existence
     if not verify_report_file_exists(report_path):
         return False
     
-    # Step 2: Load and parse JSON
     try:
         with open(report_path, 'r', encoding='utf-8') as f:
-            report = json.load(f)
-        logger.info("Report loaded successfully")
+            report_data = json.load(f)
     except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse JSON: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Failed to load report: {e}")
+        logger.error(f"Invalid JSON in report: {e}")
         return False
     
-    # Step 3: Verify required keys
-    if not verify_report_structure(report, REQUIRED_KEYS):
+    # 1. Check top-level structure
+    is_valid, missing = verify_report_structure(report_data)
+    if not is_valid:
         return False
     
-    # Step 4: Verify sensitivity_table structure
-    if 'sensitivity_table' in report:
-        if not verify_sensitivity_table_structure(report['sensitivity_table']):
-            return False
-    
-    # Step 5: Verify numeric values
-    if not verify_numeric_values(report):
+    # 2. Check sensitivity table structure
+    is_valid, missing = verify_sensitivity_table_structure(report_data)
+    if not is_valid:
         return False
     
-    logger.info("All verifications passed!")
+    # 3. Check numeric values
+    is_valid, missing = verify_numeric_values(report_data)
+    if not is_valid:
+        return False
+    
+    logger.info("Benchmark report verification PASSED.")
     return True
 
 def main():
-    """Entry point for the verifier script."""
+    """CLI entry point for verification."""
     report_path = Path("results/benchmark_report.json")
-    success = verify_report(report_path)
-    sys.exit(0 if success else 1)
+    
+    if not verify_report(report_path):
+        print("Verification FAILED.")
+        sys.exit(1)
+    else:
+        print("Verification SUCCESS.")
+        sys.exit(0)
 
 if __name__ == "__main__":
     main()

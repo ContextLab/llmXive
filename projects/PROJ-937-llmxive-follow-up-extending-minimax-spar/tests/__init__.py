@@ -1,3 +1,3 @@
 """
-llmXive tests package.
+llmXive project tests package.
 """

@@ -31,7 +31,7 @@ properties:
           pattern: "^[A-Za-z0-9@#$%&*()\\[\\]{}\\-+=~<>\\^/\\\\]+$"
         mu:
           type: "number"
-          description: "Dipole moment in Debye."
+          description: "Dipole moment magnitude in Debye (scalar)."
           minimum: 0
         descriptors:
           type: "array"

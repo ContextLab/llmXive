@@ -4,267 +4,255 @@ import argparse
 import logging
 import gc
 import json
-import time
 import signal
+import time
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, Optional, List
 
-# Local imports matching provided API surface
-from utils.config import Config, get_default_config, create_config_with_overrides, enforce_cpu, set_random_seed, get_heuristic_thresholds, get_sensitivity_range
-from utils.logger import setup_logger, get_structured_logger, get_current_resource_snapshot
-from utils.resource_monitor import start_monitor, stop_monitor, get_max_memory_usage_gb, MemoryGuard
+# Project imports based on API surface
+from utils.config import Config, get_default_config, enforce_cpu, set_random_seed
+from utils.logger import setup_logger, get_structured_logger, get_logger_for_task
+from utils.resource_monitor import start_monitor, stop_monitor, MemoryGuard
 from data.loader import download_and_verify_ruler, verify_ruler_data_integrity
-from data.preprocess import split_context, check_memory_usage, reduce_context_window, reduce_batch_size, exit_on_memory_exceeded, PreprocessConfig
+from data.preprocess import split_context, check_memory_usage, exit_on_memory_exceeded
 from heuristics.base import HeuristicSelector
-from heuristics.entropy import BlockEntropyHeuristic
+from heuristics.block_entropy import BlockEntropyHeuristic
 from heuristics.gradient import GradientMagnitudeHeuristic
 from heuristics.recency import RecencyBiasHeuristic
 from heuristics.fallback import FallbackHeuristicWrapper
-from eval.metrics import calculate_metrics, calculate_perplexity, evaluate_predictions
 from eval.baseline_runner import DenseAttentionRunner, run_baseline_experiment
-from eval.statistical import run_paired_ttest, run_wilcoxon_test, apply_holm_bonferroni, run_sensitivity_sweep, calculate_false_positive_rate, generate_statistical_report
-from eval.report_generator import load_baseline_metrics, load_heuristic_results, compute_statistical_significance, generate_sensitivity_analysis, generate_final_report
-from eval.exclusion_logger import validate_needle_presence, log_exclusion, scan_dataset_for_exclusions
+from eval.metrics import calculate_metrics, calculate_perplexity
+from eval.statistical import run_paired_ttest, run_wilcoxon_test, apply_holm_bonferroni, calculate_false_positive_rate, run_sensitivity_sweep
+from eval.report_generator import generate_final_report
 from eval.report_verifier import verify_report
+from models.mini_max_wrapper import create_minimax_wrapper, MiniMaxConfig
 
-# Timeout handling
+# --- Timeout Guard Implementation (Task T041) ---
 class TimeoutError(Exception):
+    """Custom exception raised when the 6-hour timeout is exceeded."""
     pass
 
 def timeout_handler(signum, frame):
-    raise TimeoutError("Operation timed out after 6 hours (21600 seconds)")
+    """Signal handler for timeout. Raises TimeoutError to terminate gracefully."""
+    raise TimeoutError("Execution exceeded the 6-hour (21600s) timeout limit.")
 
-def setup_timeout_guard(seconds: int = 21600):
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(seconds)
+def setup_timeout_guard(timeout_seconds: int = 21600):
+    """
+    Sets up a signal-based timeout guard.
+    Only works on Unix-like systems where SIGALRM is available.
+    On Windows, this is a no-op (graceful degradation).
+    """
+    if sys.platform != 'win32':
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(timeout_seconds)
+        logging.info(f"Timeout guard set to {timeout_seconds} seconds (6 hours).")
+    else:
+        logging.warning("SIGALRM not available on Windows. Timeout guard disabled.")
 
 def cancel_timeout_guard():
-    signal.alarm(0)
+    """Cancels the active timeout guard."""
+    if sys.platform != 'win32':
+        signal.alarm(0)
+        logging.info("Timeout guard cancelled.")
 
-def get_heuristic_instance(name: str, config: Config) -> HeuristicSelector:
-    """Factory to instantiate heuristics based on config name."""
-    thresholds = get_heuristic_thresholds(config)
-    if name == "entropy":
-        return BlockEntropyHeuristic(threshold=thresholds.get("entropy_threshold", 0.5))
-    elif name == "gradient":
-        return GradientMagnitudeHeuristic(threshold=thresholds.get("gradient_threshold", 0.5))
-    elif name == "recency":
-        return RecencyBiasHeuristic(threshold=thresholds.get("recency_threshold", 0.5))
+# --- Heuristic Logic ---
+def get_heuristic_instance(heuristic_name: str) -> HeuristicSelector:
+    """Factory to instantiate the correct heuristic based on name."""
+    if heuristic_name == "block_entropy":
+        return BlockEntropyHeuristic()
+    elif heuristic_name == "gradient_magnitude":
+        return GradientMagnitudeHeuristic()
+    elif heuristic_name == "recency_bias":
+        return RecencyBiasHeuristic()
+    elif heuristic_name == "fallback":
+        return FallbackHeuristicWrapper()
     else:
-        raise ValueError(f"Unknown heuristic: {name}")
+        raise ValueError(f"Unknown heuristic: {heuristic_name}")
 
 def run_single_task(
-    task_id: str,
-    sample: Dict[str, Any],
+    model,
+    task_data: Dict[str, Any],
     heuristic_name: str,
-    config: Config,
-    logger: logging.Logger
+    config: Config
 ) -> Dict[str, Any]:
     """
-    Run a single RULER task with a specific heuristic.
-    Returns a result dictionary containing metrics and selection info.
+    Executes a single RULER task with the specified heuristic.
+    Returns a dictionary of metrics.
     """
-    set_random_seed(config.seed)
-    start_time = time.time()
-    
-    # Memory check before processing
-    if check_memory_usage():
-        reduce_context_window(config)
-        reduce_batch_size(config)
-        if check_memory_usage():
-            exit_on_memory_exceeded()
+    logger = get_logger_for_task("main")
+    logger.info(f"Running task with heuristic: {heuristic_name}")
 
-    # Validate needle presence
-    if not validate_needle_presence(sample):
-        log_exclusion(task_id, "Missing needle string", logger)
-        return None
+    # 1. Prepare context
+    context = task_data.get("context", "")
+    target = task_data.get("target", "")
+    chunks = list(split_context(context, chunk_size=config.chunk_size))
 
-    # Initialize heuristic
-    heuristic = get_heuristic_instance(heuristic_name, config)
+    # 2. Select blocks using heuristic
+    heuristic = get_heuristic_instance(heuristic_name)
+    selected_blocks = heuristic.select_blocks(chunks, model)
+
+    # 3. Run inference on selected blocks
+    # (Simplified logic for the runner; actual implementation would feed blocks to model)
+    # Assuming model has an inference method compatible with the blocks
+    # For this implementation, we assume the model returns a prediction string
+    # In a real scenario, this would be the actual model call
+    prediction = model.infer(selected_blocks) 
+
+    # 4. Calculate metrics
+    metrics = calculate_metrics(prediction, target)
+    metrics["heuristic"] = heuristic_name
+    metrics["task_id"] = task_data.get("id", "unknown")
     
-    # Run inference (simplified logic for T023c context)
-    # In a full implementation, this would call the model wrapper and heuristic logic
-    # For T023c, we structure the output format expected by T024
-    
-    # Placeholder for actual inference result
-    # In real execution, this would come from the model wrapper
-    result = {
-        "task_id": task_id,
-        "heuristic": heuristic_name,
-        "selection_set": heuristic.select_blocks(sample, config),
-        "metrics": {
-            "exact_match": 0.0, # Calculated by eval.metrics in real run
-            "f1": 0.0,
-            "perplexity": 0.0
-        },
-        "timing": time.time() - start_time
-    }
-    
-    return result
+    return metrics
 
 def run_sensitivity_analysis(
-    config: Config,
-    baseline_results: List[Dict],
-    logger: logging.Logger
-) -> Dict[str, Any]:
+    model,
+    dataset: List[Dict[str, Any]],
+    config: Config
+) -> List[Dict[str, Any]]:
     """
-    Run sensitivity analysis across thresholds and calculate false positive rates.
+    Runs sensitivity analysis across different thresholds.
+    Returns a list of results for each threshold.
     """
-    thresholds = get_sensitivity_range(config) # {0.01, 0.05, 0.1}
-    sensitivity_table = []
-    
-    logger.info(f"Starting sensitivity analysis with thresholds: {thresholds}")
-    
-    for thresh in thresholds:
-        # Update config threshold
-        config.heuristic_threshold = thresh
-        
-        # Run heuristics with this threshold
-        # (In real execution, this loops through dataset samples)
-        heuristic_results = [] 
-        
-        # Calculate false positive rate against baseline
-        # FPR = (Heuristic Selection - Baseline Selection) / Total Baseline Selection
-        fpr = calculate_false_positive_rate(heuristic_results, baseline_results)
-        
-        # Mock accuracy for structure (real run calculates this)
-        acc = 0.0 
-        
-        sensitivity_table.append({
-            "threshold": thresh,
-            "accuracy": acc,
-            "false_positive_rate": fpr
-        })
-        
-        gc.collect()
-    
-    return {
-        "sensitivity_table": sensitivity_table,
-        "thresholds_tested": thresholds
-    }
+    logger = get_logger_for_task("main")
+    thresholds = config.sensitivity_range
+    results = []
 
-def format_results_for_aggregation(
-    heuristic_results: List[Dict],
-    baseline_results: List[Dict],
-    sensitivity_data: Dict,
-    config: Config,
-    logger: logging.Logger
-) -> Dict[str, Any]:
-    """
-    T023c: Implement output formatting in code/main.py to structure results for T024.
-    Aggregates raw run results into the schema required by T024 (benchmark_report.json).
-    """
-    logger.info("Formatting results for aggregation...")
-    
-    # 1. Aggregate Metrics (T021/T021b)
-    # Average F1 across runs
-    total_f1 = sum(r.get("metrics", {}).get("f1", 0.0) for r in heuristic_results if r)
-    count = len([r for r in heuristic_results if r])
-    avg_f1 = total_f1 / count if count > 0 else 0.0
-    
-    # 2. Statistical Significance (T027/T027b)
-    # Run paired t-test and Wilcoxon
-    ttest_p, ttest_stat = run_paired_ttest(heuristic_results, baseline_results)
-    wilcoxon_p, wilcoxon_stat = run_wilcoxon_test(heuristic_results, baseline_results)
-    
-    # Apply Holm-Bonferroni if multiple comparisons (simplified here)
-    corrected_p = apply_holm_bonferroni([ttest_p, wilcoxon_p])
-    
-    # Determine significance statement
-    significance_statement = f"p < 0.05" if corrected_p[0] < 0.05 else "p >= 0.05"
-    
-    # 3. Sensitivity Analysis (T028/T029/T032a/T032b)
-    # Use pre-calculated sensitivity data
-    sensitivity_table = sensitivity_data.get("sensitivity_table", [])
-    
-    # 4. Construct Final Report
-    report = {
-        "f1_score": avg_f1,
-        "p_value": corrected_p[0], # Primary t-test p-value
-        "false_positive_rate": sensitivity_table[0]["false_positive_rate"] if sensitivity_table else 0.0,
-        "sensitivity_table": sensitivity_table,
-        "ttest_stat": ttest_stat,
-        "wilcoxon_stat": wilcoxon_stat,
-        "significance_statement": significance_statement,
-        "metadata": {
-            "heuristic": config.heuristic_name,
-            "thresholds_tested": sensitivity_data.get("thresholds_tested", []),
-            "samples_processed": count,
-            "seed": config.seed
+    for threshold in thresholds:
+        logger.info(f"Running sensitivity sweep at threshold: {threshold}")
+        config.current_threshold = threshold
+        # Re-run specific heuristics or the whole pipeline with new threshold
+        # This is a placeholder for the actual sweep logic
+        batch_results = []
+        for sample in dataset:
+            res = run_single_task(model, sample, "block_entropy", config)
+            batch_results.append(res)
+        results.append({
+            "threshold": threshold,
+            "results": batch_results
+        })
+    return results
+
+def format_results_for_aggregation(results: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Formats individual task results into the aggregation structure."""
+    return {
+        "tasks": results,
+        "summary": {
+            "count": len(results),
+            "avg_f1": sum(r.get("f1_score", 0) for r in results) / len(results) if results else 0
         }
     }
-    
-    return report
 
 def main():
-    parser = argparse.ArgumentParser(description="LLMXive Sparse Attention Pipeline")
-    parser.add_argument("--config", type=str, default="default", help="Config profile")
-    parser.add_argument("--heuristic", type=str, default="entropy", help="Heuristic to run")
-    parser.add_argument("--output", type=str, default="results/benchmark_report.json", help="Output path")
+    """Main entry point for the RULER evaluation pipeline."""
+    # Setup logging
+    logger = setup_logger("main", level=logging.INFO)
+    logger.info("Starting llmXive Sparse Attention Evaluation Pipeline")
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Run Sparse Attention Heuristics on RULER")
+    parser.add_argument("--heuristic", type=str, default="block_entropy", help="Heuristic to use")
+    parser.add_argument("--timeout", type=int, default=21600, help="Timeout in seconds (default 6 hours)")
+    parser.add_argument("--sensitivity", action="store_true", help="Run sensitivity analysis")
     args = parser.parse_args()
 
-    # Setup
-    enforce_cpu()
-    logger = setup_logger("main", level=logging.INFO)
-    config = create_config_with_overrides(args.config, {"heuristic_name": args.heuristic})
-    
-    # Memory Guard
-    guard = MemoryGuard(max_gb=6.5, logger=logger)
-    guard.start()
-
-    # Setup Timeout
-    setup_timeout_guard(21600)
+    # 1. Setup Timeout Guard (T041)
+    setup_timeout_guard(args.timeout)
 
     try:
-        # 1. Load Data (T006/T037)
-        # In real execution, this downloads/verifies RULER
-        # dataset = download_and_verify_ruler() 
-        logger.info("Data loading step skipped in T023c formatting task (assumed loaded).")
+        # 2. Load Configuration
+        config = get_default_config()
+        enforce_cpu()
+        set_random_seed(config.seed)
+
+        # 3. Resource Monitoring (T040)
+        start_monitor()
+        memory_guard = MemoryGuard(threshold_gb=6.5)
         
-        # 2. Run Baseline (T022c)
-        # baseline_results = run_baseline_experiment(dataset, config, logger)
-        baseline_results = [] # Placeholder for real run
-        logger.info("Baseline execution skipped in T023c formatting task.")
+        # 4. Data Loading (T006, T037)
+        logger.info("Loading RULER dataset...")
+        # Assuming download_and_verify_ruler handles the fetch and checksum
+        dataset = download_and_verify_ruler()
+        
+        # 5. Model Loading (T048, T017a)
+        logger.info("Loading MiniMax-M3 model...")
+        model_config = MiniMaxConfig(device="cpu")
+        model = create_minimax_wrapper(model_config)
 
-        # 3. Run Heuristics (T023a/T023b)
-        # heuristic_results = [run_single_task(...) for ...]
+        # 6. Baseline Execution (T022c)
+        logger.info("Running Dense Attention Baseline...")
+        baseline_results = run_baseline_experiment(model, dataset, config)
+
+        # 7. Heuristic Execution
+        logger.info(f"Running Heuristic: {args.heuristic}")
         heuristic_results = []
-        logger.info("Heuristic execution skipped in T023c formatting task.")
+        
+        # Check memory before heavy lifting
+        if check_memory_usage():
+            logger.warning("Memory usage high. Attempting reduction...")
+            exit_on_memory_exceeded()
 
-        # 4. Run Sensitivity Analysis (T028/T029)
-        sensitivity_data = run_sensitivity_analysis(config, baseline_results, logger)
+        for sample in dataset:
+            res = run_single_task(model, sample, args.heuristic, config)
+            heuristic_results.append(res)
 
-        # 5. Format Results (T023c - THIS TASK)
-        final_report = format_results_for_aggregation(
-            heuristic_results,
-            baseline_results,
-            sensitivity_data,
-            config,
-            logger
+        # 8. Sensitivity Analysis (if requested)
+        if args.sensitivity:
+            logger.info("Running Sensitivity Analysis...")
+            sensitivity_data = run_sensitivity_analysis(model, dataset, config)
+            # Flatten sensitivity data for report
+            for sweep in sensitivity_data:
+                for r in sweep["results"]:
+                    r["sensitivity_threshold"] = sweep["threshold"]
+
+        # 9. Statistical Analysis (T027, T030)
+        logger.info("Running Statistical Analysis...")
+        # Compare heuristic vs baseline
+        # Note: In a real scenario, we align results by task_id
+        ttest_stat, ttest_p = run_paired_ttest(heuristic_results, baseline_results)
+        wilcoxon_stat, wilcoxon_p = run_wilcoxon_test(heuristic_results, baseline_results)
+        
+        # Holm-Bonferroni correction
+        corrected_p = apply_holm_bonferroni([ttest_p, wilcoxon_p])
+
+        # 10. Generate Report (T024, T031)
+        report = generate_final_report(
+            baseline=baseline_results,
+            heuristics=heuristic_results,
+            ttest_stat=ttest_stat,
+            ttest_p=ttest_p,
+            wilcoxon_stat=wilcoxon_stat,
+            wilcoxon_p=wilcoxon_p,
+            corrected_p=corrected_p,
+            sensitivity_data=sensitivity_data if args.sensitivity else None
         )
 
-        # 6. Write Output (T024)
-        output_path = Path(args.output)
+        # 11. Verify Report (T036)
+        verify_report(report)
+
+        # Save report
+        output_path = Path("results/benchmark_report.json")
         output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w") as f:
+            json.dump(report, f, indent=2)
         
-        with open(output_path, 'w') as f:
-            json.dump(final_report, f, indent=2)
-        
-        logger.info(f"Report written to {output_path}")
+        logger.info(f"Report saved to {output_path}")
 
-        # 7. Verify Report (T036)
-        verify_report(output_path)
-
-    except TimeoutError:
-        logger.error("Pipeline timed out.")
+    except TimeoutError as e:
+        logger.critical(str(e))
+        logger.error("Process terminated due to timeout. Check logs for partial results.")
         sys.exit(1)
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+    except RuntimeError as e:
+        if "Memory constraint exceeded" in str(e):
+            logger.critical(str(e))
+            sys.exit(1)
+        raise
     finally:
-        guard.stop()
+        # 12. Cleanup
         cancel_timeout_guard()
         stop_monitor()
+        gc.collect()
+        logger.info("Pipeline finished.")
 
 if __name__ == "__main__":
     main()

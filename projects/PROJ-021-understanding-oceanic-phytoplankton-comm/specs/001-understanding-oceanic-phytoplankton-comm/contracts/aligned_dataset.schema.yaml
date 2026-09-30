@@ -1,68 +1,10 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Aligned Phytoplankton Dataset Schema
 description: >
-  Unified schema for the preprocessed, aligned dataset combining satellite
-  (MODIS) and oceanographic reanalysis data with in-situ SeaBASS measurements.
-  This schema defines the expected fields, types, and constraints for the
-  dataset artifact produced in T017 (data/processed/aligned_dataset.nc).
+  Unified schema for the preprocessed, aligned multi-modal dataset
+  combining satellite (MODIS) and reanalysis (NOAA/Copernicus) data
+  with in-situ (SeaBASS) measurements.
 type: object
-properties:
-  lat:
-    description: Latitude coordinate in degrees (WGS84)
-    type: number
-    minimum: -90
-    maximum: 90
-  lon:
-    description: Longitude coordinate in degrees (WGS84)
-    type: number
-    minimum: -180
-    maximum: 180
-  timestamp:
-    description: ISO 8601 formatted timestamp of the observation
-    type: string
-    pattern: "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2})?$"
-  basin:
-    description: Ocean basin classification (e.g., North Pacific, Atlantic, Indian)
-    type: string
-    enum:
-      - North Pacific
-      - South Pacific
-      - North Atlantic
-      - South Atlantic
-      - Indian
-      - Southern
-      - Arctic
-      - Unknown
-  temp:
-    description: Sea Surface Temperature (SST) in degrees Celsius
-    type: number
-    units: "Celsius"
-  salinity:
-    description: Salinity in Practical Salinity Units (PSU)
-    type: number
-    units: "PSU"
-  nutrients:
-    description: Combined nutrient concentration (Nitrate + Phosphate) in mmol/m^3
-    type: number
-    units: "mmol/m^3"
-    minimum: 0
-  chlorophyll-a:
-    description: Chlorophyll-a concentration in mg/m^3 (from MODIS or in-situ)
-    type: number
-    units: "mg/m^3"
-    minimum: 0
-  quality_flags:
-    description: >
-      Bitmask or string representation of quality flags.
-      Expected values indicate valid data, cloud contamination, or aerosol issues.
-      'VALID' indicates no known quality issues.
-    type: string
-    enum:
-      - VALID
-      - CLOUD
-      - HIGH_AEROSOL
-      - LOW_SIGNAL
-      - MISSING
 required:
   - lat
   - lon
@@ -73,4 +15,93 @@ required:
   - nutrients
   - chlorophyll-a
   - quality_flags
+properties:
+  lat:
+    type: number
+    description: Latitude in decimal degrees (WGS84)
+    minimum: -90
+    maximum: 90
+  lon:
+    type: number
+    description: Longitude in decimal degrees (WGS84)
+    minimum: -180
+    maximum: 180
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 formatted timestamp of the observation
+  basin:
+    type: string
+    description: Ocean basin identifier (e.g., 'North Atlantic', 'Pacific', 'Indian', 'Southern', 'Arctic')
+    enum:
+      - North Atlantic
+      - South Atlantic
+      - North Pacific
+      - South Pacific
+      - Indian
+      - Southern
+      - Arctic
+      - Mediterranean
+  temp:
+    type: number
+    description: Sea Surface Temperature (SST) in degrees Celsius
+    minimum: -2
+    maximum: 40
+  salinity:
+    type: number
+    description: Salinity in PSU (Practical Salinity Units)
+    minimum: 0
+    maximum: 45
+  nutrients:
+    type: object
+    description: Nutrient concentrations
+    properties:
+      nitrate:
+        type: number
+        description: Nitrate concentration in µmol/L
+        minimum: 0
+      phosphate:
+        type: number
+        description: Phosphate concentration in µmol/L
+        minimum: 0
+      silicate:
+        type: number
+        description: Silicate concentration in µmol/L
+        minimum: 0
+    required:
+      - nitrate
+      - phosphate
+      - silicate
+  chlorophyll-a:
+    type: number
+    description: Chlorophyll-a concentration in mg/m³
+    minimum: 0
+    maximum: 100
+  quality_flags:
+    type: object
+    description: Quality control flags for data validity
+    properties:
+      cloud_flag:
+        type: integer
+        description: Cloud mask flag (0: Clear, 1: Cloudy, 2: High Aerosol)
+        minimum: 0
+        maximum: 2
+      anomaly_flag:
+        type: boolean
+        description: True if the data point is flagged as an anomaly
+      interpolation_status:
+        type: string
+        description: Status of gap filling
+        enum:
+          - none
+          - interpolated
+          - excluded
+      missing_data_mask:
+        type: boolean
+        description: True if the record has missing data requiring exclusion
+    required:
+      - cloud_flag
+      - anomaly_flag
+      - interpolation_status
+      - missing_data_mask
 additionalProperties: false
