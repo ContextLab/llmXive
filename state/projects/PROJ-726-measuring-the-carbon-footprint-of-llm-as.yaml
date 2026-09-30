@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-726-measuring-the-carbon-footprint-of-llm-as
-last_run_id: b209ae59-ec46-4b97-bdf7-7fa5ac53b311
+last_run_id: 640ae8f6-38e9-4402-9e97-9fc0d92b5064
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as
 title: "Measuring the Carbon Footprint of LLM\u2011Assisted Code Generation"
-updated_at: '2026-09-27T01:08:32.580351Z'
+updated_at: '2026-09-30T17:04:17.899737Z'

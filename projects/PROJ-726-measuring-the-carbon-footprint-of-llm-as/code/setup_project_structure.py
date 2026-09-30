@@ -4,49 +4,46 @@ from pathlib import Path
 
 def create_directory_structure():
     """
-    Create the project root directory structure as per the implementation plan.
-    
-    Creates the following directories relative to the project root:
+    Creates the required project directory structure:
     - code/
     - data/raw/
     - data/processed/
     - data/outputs/
     - tests/
-    - output/
-    """
-    # Define the base path (project root)
-    base_path = Path.cwd()
     
-    # Define the directories to create
+    Returns a list of created directory paths.
+    """
+    root = Path.cwd()
     directories = [
         "code",
         "data/raw",
         "data/processed",
         "data/outputs",
         "tests",
-        "output"
+        "tests/unit",
+        "tests/contract",
+        "specs",
+        "config",
     ]
     
-    created_dirs = []
+    created = []
     for dir_name in directories:
-        full_path = base_path / dir_name
+        full_path = root / dir_name
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(full_path))
+            created.append(str(full_path))
             print(f"Created directory: {full_path}")
         else:
             print(f"Directory already exists: {full_path}")
     
-    return created_dirs
+    return created
 
 def main():
-    """Main entry point for the script."""
+    """Entry point for project structure setup."""
     print("Setting up project directory structure...")
-    created = create_directory_structure()
-    if created:
-        print(f"Successfully created {len(created)} directories.")
-    else:
-        print("No new directories were created (all already exist).")
+    dirs = create_directory_structure()
+    print(f"Successfully created {len(dirs)} directories.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

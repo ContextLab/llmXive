@@ -1,23 +1,38 @@
-T012:
+T001:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `run_inference.py` file or diff showing the inference loop wrapped in a `codecarbon.EmissionsTracker`
-    configured for CPU is provided; without the actual code artifact we cannot confirm
-    the required change was made. The implementer must supply the updated script (or
-    a patch) demonstrating the tracker integration.
-T013:
+  r: No evidence of the required repository directories (`code/`, `data/raw/`, `data/processed/`,
+    `data/outputs/`, `tests/`) is provided; the artifact list is empty, so the root
+    structure has not been demonstrated.
+T003:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of a modified `run_inference.py` was provided\u2014there is no file\
-    \ content showing logging of CodeCarbon failures, skipping of the problematic\
-    \ prompt, or continuation of the loop. Without the actual script changes, the\
-    \ task\u2019s requirement cannot be confirmed."
-T014:
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or ruff section, or a GitHub Actions workflow invoking
+    ruff/black) were supplied, nor any evidence that these tools have been set up
+    in the repository. Without such artifacts, the requirement to configure ruff and
+    black is not satisfied.
+T007:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `run_inference.py` file or code showing a batch\u2011processing loop with\
-    \ scalable prompt handling and progress logging was provided; without such artifact\
-    \ the requirement cannot be verified as met."
+  r: No evidence of a `download_data.py` file containing checksum validation was provided;
+    the claim lacks any artifact showing the implementation of checksum verification
+    for the downloaded raw data. The required code is missing or not visible, so the
+    task is not demonstrably completed.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_inference.py` script or any generated JSON output is present; the required\
+    \ code that loads GPT\u20112\u2011medium on CPU and records the generated code\
+    \ string is missing, so the task\u2019s core requirement is not satisfied."
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `run_inference.py` (or equivalent script) was provided showing the inference
+    loop wrapped by `codecarbon.EmissionsTracker` with CPU configuration. Without
+    the actual file or code snippet, we cannot confirm that the required wrapping
+    was implemented. The missing artifact must be added and demonstrated to satisfy
+    the task.
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -26,22 +41,6 @@ T016:
     writing to the output file. Without such evidence, we cannot confirm the requirement
     was implemented. The implementer must supply the modified pipeline code (or a
     diff) and/or test results demonstrating that invalid prompts are excluded.
-T020:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes or new functions in `calculate_emissions.py` are provided, nor\
-    \ any evidence (e.g., diff, snippet, test results) showing that line\u2011of\u2011\
-    code counting for LLM\u2011generated code was added or integrated with the raw\
-    \ code strings from T006/T016/T011. The required artifact is missing, so the task\
-    \ is not satisfied."
-T021:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `calculate_emissions.py` file or any code implementing the human baseline\
-    \ CO\u2082 calculation is present; therefore the required artifact does not exist,\
-    \ and the task\u2019s specification (using the mean of the reported time range\
-    \ and a standard laptop power model) cannot be verified. The implementer must\
-    \ add a functional script that performs this calculation."
 T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

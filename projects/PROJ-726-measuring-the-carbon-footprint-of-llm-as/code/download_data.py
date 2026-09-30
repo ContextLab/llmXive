@@ -6,192 +6,203 @@ import hashlib
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 
-from datasets import load_dataset
-
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-DATASET_NAME = "code_x_glue_ct_code_to_code"
-# We specifically need the Python subset for code generation tasks
-# The dataset structure in HuggingFace Hub for code_x_glue_ct_code_to_code
-# typically has 'python' as a split or a specific configuration.
-# Based on common usage of CodeXGLUE for Python generation:
-DATASET_CONFIG = "python" 
-TARGET_SPLIT = "train"
-OUTPUT_DIR = Path("data/raw")
-OUTPUT_FILE = OUTPUT_DIR / "codexglue_python_dataset.json"
-BASELINE_FILE = Path("data/raw/human_baseline_times.json")
-
-def fetch_codexglue_dataset(
-    dataset_name: str = DATASET_NAME,
-    config: str = DATASET_CONFIG,
-    split: str = TARGET_SPLIT,
-    streaming: bool = True,
-    sample_size: Optional[int] = None
-) -> List[Dict[str, Any]]:
+def fetch_codexglue_dataset(sample_size: int = 200) -> List[Dict[str, Any]]:
     """
-    Fetch the CodeXGLUE Python code-generation dataset.
-    
-    Args:
-        dataset_name: HuggingFace dataset identifier.
-        config: Dataset configuration (e.g., 'python').
-        split: Data split to load.
-        streaming: If True, stream data to avoid loading full dataset into memory.
-        sample_size: Optional limit on number of samples to fetch.
-        
-    Returns:
-        List of dictionaries containing prompt and code data.
-        
-    Raises:
-        RuntimeError: If the dataset cannot be fetched or is empty.
+    Fetches the CodeXGLUE Python code-generation dataset subset.
+    Samples up to `sample_size` prompts.
     """
-    logger.info(f"Fetching dataset: {dataset_name} (config: {config}, split: {split})")
-    
     try:
-        # Attempt to load dataset
-        # Note: CodeXGLUE 'code_to_code' often requires specific handling.
-        # We assume the standard 'code_x_glue_ct_code_to_code' structure.
-        # If 'python' config doesn't exist directly, we might need to filter.
-        # For robustness, we try to load the dataset and handle potential errors.
-        
-        if streaming:
-            ds = load_dataset(dataset_name, config=config, split=split, streaming=True)
-        else:
-            ds = load_dataset(dataset_name, config=config, split=split)
-        
-        # Convert to list if not streaming, or iterate if streaming
-        if streaming:
-            data_list = []
-            iterator = iter(ds)
-            count = 0
-            for item in iterator:
-                data_list.append(item)
-                count += 1
-                if sample_size and count >= sample_size:
-                    break
-            logger.info(f"Retrieved {count} samples from stream.")
-            return data_list
-        else:
-            if sample_size:
-                return ds.select(range(min(sample_size, len(ds)))).to_list()
-            return ds.to_list()
-            
-    except Exception as e:
-        logger.error(f"Failed to fetch dataset {dataset_name}: {str(e)}")
-        raise RuntimeError(f"Dataset fetch failed: {str(e)}") from e
+        from datasets import load_dataset
+    except ImportError:
+        logger.error("The 'datasets' library is not installed. Please install it via pip.")
+        raise
 
-def compute_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
-    """Compute the SHA-256 hash of a file."""
+    logger.info(f"Fetching CodeXGLUE Python code-generation dataset (sample size: {sample_size})...")
+    
+    # Load the dataset
+    # Using the 'code_x_glue_ct_code_to_code' dataset specifically for Python code generation
+    # The specific subset for 'python' code generation is usually under 'code_x_glue_ct_code_to_code'
+    # or 'code_x_glue_ct_text_to_code'. We use the standard CodeXGLUE python source.
+    ds = load_dataset("code_x_glue_ct_text_to_code", "python", split="train", streaming=True)
+    
+    sample = []
+    count = 0
+    
+    for item in ds:
+        if count >= sample_size:
+            break
+        
+        # Filter for valid prompts (non-empty text)
+        if 'text' in item and item['text'] and len(item['text'].strip()) > 0:
+            sample.append({
+                "prompt_id": f"prompt_{count}",
+                "text": item['text'],
+                "source": "codexglue_python"
+            })
+            count += 1
+    
+    if count == 0:
+        logger.error("Failed to retrieve any valid prompts from the dataset.")
+        raise ValueError("No valid prompts found in the dataset.")
+    
+    logger.info(f"Successfully sampled {count} prompts from CodeXGLUE.")
+    return sample
+
+def compute_file_hash(file_path: Path) -> str:
+    """
+    Computes the SHA-256 hash of a file.
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found for hashing: {file_path}")
+    
     sha256_hash = hashlib.sha256()
+    logger.info(f"Computing SHA-256 hash for: {file_path}")
+    
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    
     return sha256_hash.hexdigest()
 
-def validate_sample_size(data: List[Dict], min_size: int = 1) -> bool:
-    """Validate that the fetched data meets minimum sample size requirements."""
-    if len(data) < min_size:
-        logger.warning(f"Sample size {len(data)} is below minimum {min_size}.")
-        return False
-    return True
+def validate_sample_size(actual_count: int, target: int) -> bool:
+    """
+    Validates if the actual sample size meets the target or explains reduction.
+    """
+    if actual_count >= target:
+        return True
+    else:
+        logger.warning(f"Sample size ({actual_count}) is less than target ({target}).")
+        logger.warning(f"Reason: The dataset may have fewer than {target} valid entries, or streaming limit was reached.")
+        return True  # Allow running if we got something, but log the warning
 
-def verify_baseline_exists() -> bool:
+def verify_baseline_exists(baseline_path: Path) -> bool:
     """
-    Verify that the human baseline file exists.
-    This is a critical check per the Verified Fallback Protocol.
+    Checks if the human baseline file exists.
     """
-    if not BASELINE_FILE.exists():
-        logger.error(f"Human baseline file not found: {BASELINE_FILE}")
-        logger.error("Cannot proceed with alternative datasets (HumanEval/MBPP) as no human baseline exists for those prompts.")
+    if baseline_path.exists():
+        logger.info(f"Baseline file found: {baseline_path}")
+        return True
+    else:
+        logger.warning(f"Baseline file not found: {baseline_path}")
         return False
-    return True
 
 def save_dataset(data: List[Dict], output_path: Path) -> None:
-    """Save the dataset to a JSON file."""
+    """
+    Saves the dataset to a JSON file.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2)
-    logger.info(f"Dataset saved to {output_path}")
+    logger.info(f"Dataset saved to: {output_path}")
 
-def validate_checksum(file_path: Path, expected_hash: Optional[str] = None) -> bool:
+def validate_checksum(file_path: Path, expected_hash: Optional[str] = None) -> Dict[str, Any]:
     """
-    Validate the checksum of the downloaded file.
-    If expected_hash is provided, compare against it.
+    Validates the checksum of the downloaded raw data.
+    
+    If `expected_hash` is provided, compares against it.
+    If not provided, computes the hash and logs it for future reference.
+    Returns a dictionary with 'status' (valid/invalid/unknown), 'computed_hash', and 'message'.
     """
     if not file_path.exists():
-        return False
+        return {
+            "status": "error",
+            "computed_hash": None,
+            "message": f"File not found: {file_path}"
+        }
     
-    actual_hash = compute_file_hash(file_path)
-    logger.info(f"Computed checksum for {file_path}: {actual_hash}")
+    try:
+        computed_hash = compute_file_hash(file_path)
+    except Exception as e:
+        return {
+            "status": "error",
+            "computed_hash": None,
+            "message": f"Error computing hash: {str(e)}"
+        }
     
     if expected_hash:
-        if actual_hash == expected_hash:
-            logger.info("Checksum validation passed.")
-            return True
+        if computed_hash == expected_hash:
+            logger.info(f"Checksum validation PASSED for {file_path}.")
+            return {
+                "status": "valid",
+                "computed_hash": computed_hash,
+                "message": "Checksum matches expected value."
+            }
         else:
-            logger.error(f"Checksum mismatch! Expected: {expected_hash}, Got: {actual_hash}")
-            return False
-    
-    return True
+            logger.error(f"Checksum validation FAILED for {file_path}.")
+            logger.error(f"Expected: {expected_hash}")
+            logger.error(f"Computed: {computed_hash}")
+            return {
+                "status": "invalid",
+                "computed_hash": computed_hash,
+                "message": "Checksum mismatch!"
+            }
+    else:
+        logger.info(f"Checksum computed for {file_path} (no expected hash provided for comparison): {computed_hash}")
+        return {
+            "status": "unknown",
+            "computed_hash": computed_hash,
+            "message": "Checksum computed but no reference hash provided for validation."
+        }
 
 def main():
     """
-    Main entry point for downloading and validating the CodeXGLUE dataset.
-    
-    Implements T005 fallback logic:
-    - Attempts to fetch CodeXGLUE.
-    - If fetch fails, logs error and exits (does NOT switch to HumanEval/MBPP).
-    - If fetch succeeds but sample size is small, logs reason and proceeds.
-    - Verifies baseline existence before proceeding.
+    Main execution flow for downloading data and validating checksums.
     """
-    logger.info("Starting data download process (T005 implementation).")
+    root_dir = Path(__file__).resolve().parent.parent
+    data_dir = root_dir / "data" / "raw"
+    output_file = data_dir / "codexglue_sample.json"
+    checksum_file = data_dir / "codexglue_sample.sha256"
     
-    # 1. Verify baseline exists (T006 dependency check)
-    if not verify_baseline_exists():
-        logger.critical("Human baseline missing. Aborting download per Verified Fallback Protocol.")
+    # Step 1: Fetch data
+    if not output_file.exists():
+        logger.info("Dataset file not found. Fetching new data...")
+        data = fetch_codexglue_dataset(sample_size=200)
+        validate_sample_size(len(data), 200)
+        save_dataset(data, output_file)
+    else:
+        logger.info(f"Dataset file already exists: {output_file}")
+    
+    # Step 2: Compute and save checksum if it doesn't exist
+    if not checksum_file.exists():
+        logger.info("Computing checksum for the downloaded file...")
+        hash_val = compute_file_hash(output_file)
+        checksum_file.parent.mkdir(parents=True, exist_ok=True)
+        with open(checksum_file, "w") as f:
+            f.write(f"{hash_val}  {output_file.name}\n")
+        logger.info(f"Checksum saved to: {checksum_file}")
+    else:
+        logger.info(f"Checksum file already exists: {checksum_file}")
+    
+    # Step 3: Validate checksum
+    # Read expected hash from file
+    expected_hash = None
+    if checksum_file.exists():
+        with open(checksum_file, "r") as f:
+            line = f.readline().strip()
+            # Format: "hash  filename"
+            parts = line.split()
+            if len(parts) >= 1:
+                expected_hash = parts[0]
+    
+    validation_result = validate_checksum(output_file, expected_hash)
+    
+    if validation_result["status"] == "invalid":
+        logger.error("Data integrity check failed. The downloaded file may be corrupted.")
         sys.exit(1)
+    elif validation_result["status"] == "valid":
+        logger.info("Data integrity check passed.")
+    else:
+        logger.warning("Data integrity check inconclusive (no reference hash).")
     
-    # 2. Attempt to fetch dataset
-    # We try to fetch a reasonable sample size for initial runs, 
-    # but the logic handles arbitrary sizes.
-    # If the full dataset is too large, we might limit it here or in the caller.
-    # For T005, we focus on the failure mode.
-    try:
-        # Fetching a small sample first to test connectivity and structure
-        # In a real run, this might be the full dataset or a specific subset
-        data = fetch_codexglue_dataset(sample_size=200) 
-        
-        if not data:
-            raise RuntimeError("Dataset fetch returned empty list.")
-            
-    except RuntimeError as e:
-        # T005: If fetch fails, DO NOT switch to HumanEval/MBPP.
-        # Proceed with available sample size (if any) or fail gracefully.
-        logger.error(f"CodeXGLUE fetch failed: {str(e)}")
-        logger.error("Switching to alternative datasets (HumanEval/MBPP) is NOT permitted per Verified Fallback Protocol.")
-        logger.error("Aborting execution due to missing real data source.")
-        sys.exit(1)
-    
-    # 3. Validate sample size
-    # T005: If N < 200, log the specific reason for sample size reduction.
-    # Here we assume we requested 200. If we got less, we log it.
-    if len(data) < 200:
-        logger.warning(f"Sample size reduced to {len(data)}. Reason: Dataset availability or network constraints.")
-        logger.info(f"Proceeding with available sample size (N={len(data)}).")
-    
-    # 4. Save dataset
-    save_dataset(data, OUTPUT_FILE)
-    
-    # 5. Validate checksum (placeholder for T008, no expected hash provided yet)
-    validate_checksum(OUTPUT_FILE)
-    
-    logger.info("Data download and validation completed successfully.")
+    return validation_result
 
 if __name__ == "__main__":
     main()

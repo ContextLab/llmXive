@@ -1,48 +1,55 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "llm-carbon-footprint"
 version = "0.1.0"
-description = "Measuring the Carbon Footprint of LLM-Assisted Code Generation"
-requires-python = ">=3.11"
+description = "Measuring the carbon footprint of LLM-assisted code generation"
+requires-python = ">=3.10"
 dependencies = [
-    "transformers>=4.40.0",
-    "codecarbon>=2.6.0",
-    "datasets>=2.19.0",
-    "scikit-learn>=1.4.0",
-    "pandas>=2.2.0",
-    "matplotlib>=3.8.0",
+    "transformers>=4.30.0",
+    "codecarbon>=2.0.0",
+    "datasets>=2.0.0",
+    "scikit-learn>=1.0.0",
+    "pandas>=2.0.0",
+    "matplotlib>=3.5.0",
     "seaborn>=0.13.0",
-    "numpy>=1.26.0",
-    "scipy>=1.13.0",
-    "torch>=2.2.0",
-]
-
-[project.optional-dependencies]
-dev = [
-    "black>=24.3.0",
-    "ruff>=0.3.0",
-    "pytest>=8.1.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
+target-version = ["py310"]
+include = ["code/", "tests/"]
+exclude = ["data/"]
+
+[tool.ruff]
+# Enable ppep8 (E1-E5, W) and pyflake (F) rules
+select = ["E", "F", "W", "I", "N"]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "E722",  # bare except (sometimes needed for robustness)
+    "F401",  # unused imports (sometimes needed for type checking)
+]
+line-length = 88
+target-version = "py310"
+src = ["code", "tests"]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.mccabe]
+max-complexity = 15
+
+[tool.ruff.pyflake]
+built-ins = ["__all__"]
+
+[tool.ruff.isort]
+known-first-party = ["code", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

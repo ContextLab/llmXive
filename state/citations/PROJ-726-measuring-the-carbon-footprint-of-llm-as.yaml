@@ -9,14 +9,3 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/llmXive
   verified_at: '2026-07-06T12:43:43.159684Z'
-- artifact_hash: 26c67caba741ba0afa2df26142c590b4aec59e9c81f6aa40a70e59f047adf7bf
-  artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Dhurandhar - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Dhurandhar
-  verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Dhurandhar
-  verified_at: '2026-09-27T01:08:26.781876Z'

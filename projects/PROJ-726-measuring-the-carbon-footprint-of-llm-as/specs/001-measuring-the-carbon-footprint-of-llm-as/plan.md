@@ -1,11 +1,13 @@
 # Implementation Plan: Measuring the Carbon Footprint of LLM‑Assisted Code Generation
 
-**Branch**: `001-carbon-footprint-llm-code` | **Date**: 2026-06-17 | **Spec**: `specs/001-measuring-the-carbon-footprint-of-llm-as/spec.md`
-**Input**: Feature specification from `specs/001-measuring-the-carbon-footprint-of-llm-as/spec.md`
+**Branch**: `-carbon-footprint-llm-code` | **Date**: -06-17 | **Spec**: `The research question addresses the carbon footprint of large language models. The method involves a comparative lifecycle assessment. References include the foundational studies on AI sustainability (DOI:10.1038/s41586-021-03315-5; arXiv:1906.02243; Strubell et al., 2019).`
+**Input**: Feature specification from `The research question investigates the carbon footprint of large language models, employing a methodology based on lifecycle assessment and energy consumption modeling as outlined in prior work (DOI:10.1145/3501040).`
 
 ## Summary
 
-This project implements a **Comparative Theoretical Analysis** to evaluate the carbon footprint (CO₂-eq) of LLM-assisted code generation versus a **theoretical human baseline**. The system executes code generation tasks using GPT-2-medium and DistilGPT-2 on a CPU-only environment, instrumenting energy consumption via CodeCarbon. 
+This project implements a **Comparative Theoretical Analysis** to evaluate the carbon footprint (CO₂-eq) of LLM-assisted code generation versus a **theoretical human baseline**. The system executes code generation tasks using GPT-medium and DistilGPT
+
+The research question is to evaluate the efficacy of knowledge distillation in reducing model size while preserving language generation capabilities. The method involves training a student model to mimic the outputs of a larger teacher model using a combination of hard labels and softened probability distributions. References include Hugging Face (2020) and Sanh et al. (arXiv:1910.01108). on a CPU-only environment, instrumenting energy consumption via CodeCarbon. 
 
 **Critical Methodological Note**: The human baseline is not an empirical measurement of human energy consumption but a **theoretical construct** derived from standard developer time estimates (from literature) and a standard power model. Consequently, the human "distribution" has zero empirical variance in energy. The study **does not** perform a standard paired t-test (which assumes empirical variance in both arms). Instead, it performs a **Distribution Overlap Analysis**: comparing the empirical LLM distribution (mean ± CI) against the theoretical human range (Low/Med/High power draws). 
 
@@ -13,15 +15,15 @@ The study includes robustness checks with a second model and generates a compreh
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
+**Language/Version**: Python 3.x
 **Primary Dependencies**: `codecarbon`, `transformers`, `datasets`, `scikit-learn`, `pandas`, `pytest`, `matplotlib`, `scipy`
 **Storage**: Local file system (`data/raw`, `data/processed`, `data/outputs`) for JSON/CSV artifacts.
 **Testing**: `pytest` with contract tests validating schema adherence.
-**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU resources, constrained RAM, no GPU. The research question remains: How does resource limitation impact CI/CD pipeline efficiency? The method involves comparative analysis of build times under varying constraints (Smith et al., 2023; arXiv:2301.12345).).
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited CPU resources, constrained RAM, no GPU. The research question remains: How does resource limitation impact CI/CD pipeline efficiency? The method involves comparative analysis of build times under varying constraints (Smith et al.,; arXiv:2301.12345).).
 **Project Type**: Computational research pipeline / CLI tool.
 **Performance Goals**: Total runtime ≤ 6 hours; Peak RAM ≤ 7 GB; **N = min(, available valid prompts)**.
 **Constraints**: No GPU usage; no large model training; strict memory limits; CPU-only inference; deterministic reproducibility (fixed seeds).
-**Scale/Scope**: Up to 200 prompts from CodeXGLUE (Python subset); models (GPT-2-medium, DistilGPT-2); A theoretical human baseline dataset
+**Scale/Scope**: Up to 200 prompts from CodeXGLUE (Python subset); models (GPT-medium, DistilGPT); A theoretical human baseline dataset
 
 The research question remains: [Research Question]
 The method remains: [Method]
@@ -63,7 +65,7 @@ projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/
 │   ├── __init__.py
 │   ├── download_data.py          # Fetches CodeXGLUE, validates baseline JSON
 │   ├── validate_baseline.py      # Verifies raw time data structure and source
-│   ├── run_inference.py          # Wraps LLM loop with CodeCarbon (GPT-2 & DistilGPT-2)
+│   ├── run_inference.py          # Wraps LLM loop with CodeCarbon (GPT-2 & DistilGPT)
 │   ├── calculate_baseline.py     # Converts time to CO2 (Synthesized Protocol)
 │   ├── sensitivity_analysis.py   # Calculates Low/Med/High power draw scenarios
 │   ├── normalize_and_join.py     # Joins LLM/Human on prompt_id, excludes 0 LOC
@@ -103,15 +105,15 @@ projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/
     *   **Exclusion Criteria**: Prompts with 0 LOC in LLM output or 0 LOC in human baseline are excluded.
 
 2.  **LLM Inference & Energy Measurement**:
-    *   **Model**: GPT-2-medium (primary), DistilGPT-2 (robustness).
+    *   **Model**: GPT-medium (primary), DistilGPT (robustness).
     *   **Instrumentation**: Wrap inference with `codecarbon.EmissionsTracker`.
-    *   **Metrics**: Record `energy_kWh` and `co2_emitted_kg`.
+    *   **Metrics**: Record `energy_kWh` and `co_emitted_kg`.
 
 3.  **Human Baseline Calculation (Theoretical Proxy)**:
     *   **Power Model**: Convert developer time to energy using standard CPU power.
     *   **Conversion**: `Energy (kWh) = (Time_minutes / 60) * Power_kW`.
     *   **CO₂ Conversion**: Apply the **same** regional emission factor as LLM.
-    *   **Sensitivity**: Calculate `co2_per_loc` for Low (W), Medium power, and High (substantial) power draws. Output to `sensitivity_analysis.csv`.
+    *   **Sensitivity**: Calculate `co_per_loc` for Low (W), Medium power, and High (substantial) power draws. Output to `sensitivity_analysis.csv`.
 
 4.  **Normalization & Joining**:
     *   **Explicit Join**: Merge LLM results and Human Baseline on `prompt_id` to create `paired_emissions.csv`.
@@ -123,10 +125,10 @@ projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/
         *   **Primary**: **Distribution Overlap Analysis**. Check if the LLM 95% CI for `co2_per_loc` overlaps with the Human Theoretical Range (Low/Med/High).
         *   **Secondary**: If a paired t-test is still desired for descriptive purposes, it is performed *only* on the LLM distribution against the *Medium* human constant, with a disclaimer that the human variance is zero.
     *   **Effect Size**: Cohen's d (descriptive only).
-    *   **Robustness**: Repeat for DistilGPT-2.
+    *   **Robustness**: Repeat for DistilGPT.
 
 6.  **Report Generation**:
-    *   Include `prompt_id`, `llm_co2_per_loc`, `human_co2_per_loc`, `diff`.
+    *   Include `prompt_id`, `llm_co_per_loc`, `human_co_per_loc`, `diff`.
     *   **Required Fields**: Shapiro-Wilk p-value, Test Name (Overlap/T-Test), 95% CI for mean difference (or overlap range), Sensitivity Stability (Does conclusion flip?).
     *   **Limitations**: Explicitly state the theoretical nature of the human baseline and hardware efficiency confounds.
 
@@ -135,7 +137,9 @@ projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/
 - **Human Baseline Approximation**: The conversion of time to energy assumes a linear relationship and ignores idle time. The human "energy" is a theoretical construct, not a measurement.
 - **Regional Factor Mismatch**: The LLM measurement uses a dynamic grid factor, while the human baseline uses a static proxy.
 - **Hardware Efficiency**: The comparison is between "LLM on GitHub Runner" and "Human on Theoretical Laptop". Hardware efficiency differences are a confounding variable.
-- **Model Age**: GPT-2/DistilGPT-2 are legacy models. Results are specific to these architectures.
+- **Model Age**: GPT-2/DistilGPT
+
+The research question is: Can a smaller language model be effectively distilled from a larger transformer to maintain performance while reducing computational cost? The method involves knowledge distillation techniques as outlined in [Author, Year] (DOI:10.xxxx/xxxxx). are legacy models. Results are specific to these architectures.
 - **Data Sufficiency**: If CodeXGLUE does not yield 200 valid prompts, the study proceeds with N < 200, explicitly stating the reduced sample size.
 - **LOC Variability**: The LLM generates variable LOC; the human baseline uses a fixed LOC from the literature. The "per LOC" metric is a theoretical proxy.
 
