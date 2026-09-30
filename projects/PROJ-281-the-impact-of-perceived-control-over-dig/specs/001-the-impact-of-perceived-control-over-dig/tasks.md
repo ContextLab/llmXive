@@ -53,7 +53,7 @@
 - [X] T008c [P] **FINALIZE** `contracts/analysis.schema.yaml` and `contracts/dataset.schema.yaml` based on validation results from T006a. **Dependency**: T006a.
 - [X] T008b [SC] Generate `data-model.md` artifact defining the data model and relationships. **Dependency**: T008c. **Note**: T008b is NOT [P] to ensure it runs after T008c.
 - [X] T009 [P] Configure `pytest` with `pytest-cov` in `tests/`
-- [X] T013b [US1] **PRE-RUN SAMPLING**: Implement logic in `code/services/data_ingestion.py` to enforce `config.SAMPLE_SIZE` (default 10000) on the dataset *before* full ingestion. **Logic**: If dataset size > SAMPLE_SIZE, select a random subset using `datasets.load_dataset(..., split='train', streaming=True)` and `itertools.islice` to fetch exactly SAMPLE_SIZE rows. **Output**: A subset of the dataset ready for processing. **Dependency**: T004. **Rationale**: Ensures SC-004 (6-hour limit) is met by capping data volume upfront, eliminating the need for runtime profiling. <!-- FAILED: unspecified -->
+- [X] T013b [US1] **PRE-RUN SAMPLING**: Implement logic in `code/services/data_ingestion.py` to enforce `config.SAMPLE_SIZE` (default 10000) on the dataset *before* full ingestion. **Logic**: If dataset size > SAMPLE_SIZE, select a random subset using `datasets.load_dataset(..., split='train', streaming=True)` and `itertools.islice` to fetch exactly SAMPLE_SIZE rows. **Output**: A subset of the dataset ready for processing. **Dependency**: T004. **Rationale**: Ensures SC-004 (6-hour limit) is met by capping data volume upfront, eliminating the need for runtime profiling.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
