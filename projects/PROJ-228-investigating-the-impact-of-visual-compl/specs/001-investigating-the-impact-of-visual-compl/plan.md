@@ -17,7 +17,7 @@ This feature implements a neuroimaging analysis pipeline to quantify the correla
 **Project Type**: Research pipeline / CLI tool.  
 **Performance Goals**: Peak RAM ≤ 6GB; Total runtime ≤ 6 hours for a subset of subjects (e.g., 5-10 subjects) due to CI constraints.  
 **Constraints**: No local GPU; must stream or sample large datasets; must handle missing frames gracefully; must use verified HRF parameters (canonical double-gamma, Friston et al.).  
-**Scale/Scope**: Single dataset (OpenNeuro ds000246 or verified equivalent); 2 complexity metrics; 1 ROI (DLPFC).
+**Scale/Scope**: Single dataset (OpenNeuro or verified equivalent); 2 complexity metrics; 1 ROI (DLPFC).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

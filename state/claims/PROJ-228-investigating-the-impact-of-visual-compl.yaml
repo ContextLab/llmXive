@@ -3256,21 +3256,6 @@
   updated_at: '2026-09-26T11:09:57Z'
 - artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
   attempts: 1
-  canonical: Python version 3.11
-  claim_id: c_c23a1a02
-  context: Initialize Python 3.11 project with requirements.txt
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project uses Python 3.11.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-09-26T11:09:57Z'
-- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
-  attempts: 1
   canonical: double-gamma HRF model peak 5s undershoot 15s based on Friston 1998
   claim_id: c_fd81f53a
   context: 'Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
@@ -3648,3 +3633,330 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-09-26T11:33:47Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ID ds000246 used
+  claim_id: c_2ccf0bf1
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246_used
+  kind: entity_fact
+  raw_text: The project uses OpenNeuro ID ds000246.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:47:26Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma peak 5s undershoot 15s based on Friston et al.
+    1998
+  claim_id: c_0849bf1e
+  context: 'Set constants (OpenNeuro ID ds000246, HRF model double-gamma based on
+    Friston et al. (1998): ''Friston, K. J., et al. (1998). Event-related fMRI: characterizing
+    differential responses. NeuroImage, 7(1), 30-40.'', HRF model peak=5s, undershoot=15s).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HRF model used is double-gamma based on Friston et al. (1998) with
+    a peak of 5s and undershoot of 15s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:48:13Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation logic from Winkler et al. 2014
+  claim_id: c_58c44857
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al.: ''Winkler, A. M., et al. (2014). Permutation inference for the general
+    linear model. NeuroImage, [volume], -397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses a circular block permutation logic as established
+    in Winkler et al. (2014).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:49:11Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 6GB
+  claim_id: c_23f70321
+  context: Add memory monitoring in code/ingestion.py and code/complexity.py to abort
+    if RAM > 6GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6GB
+  kind: entity_fact
+  raw_text: The system is designed to ensure peak RAM usage stays at or below 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:50:19Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: FDR correction using Benjamini-Hochberg procedure
+  claim_id: c_eed3ee53
+  context: Implement FDR correction for the two metrics (entropy, fractal dimension)
+    using Benjamini-Hochberg procedure.
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2607.12208'
+        url: https://arxiv.org/abs/2607.12208
+        value: '0.01'
+      quote: i.e., an adaptive Benjamini-Hochberg (BH) procedure and an adaptive Benjamini-Hochberg-
+      source_id: '1410.4274'
+      url: https://arxiv.org/abs/1410.4274
+      value: Benjamini-Hochberg (BH) procedure
+    filled: true
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg procedure is used for FDR correction.
+  resolved_value: Benjamini-Hochberg (BH) procedure
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T02:51:52Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: Python version 3.11
+  claim_id: c_c23a1a02
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:52:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: AAL atlas used for ROI extraction
+  claim_id: c_f10fdecb
+  context: Create code/roi_extraction.py skeleton for AAL atlas loading and smoothing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AAL_atlas_used_for_ROI_extraction
+  kind: entity_fact
+  raw_text: The project uses the AAL atlas for ROI extraction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:53:23Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 'Dependencies: nibabel, numpy, scikit-image, scipy, pandas, statsmodels,
+    nilearn, matplotlib, requests, tqdm, pyfd, wget, Pillow'
+  claim_id: c_61c82f44
+  context: Initialize Python 3.11 project with requirements.txt (nibabel, numpy, scikit-image,
+    scipy, pandas, statsmodels, nilearn, matplotlib, requests, tqdm, pyfd, wget, Pillow).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dependencies:_nibabel,_numpy,_scikit-image,_scipy,_pandas,_s
+  kind: entity_fact
+  raw_text: The project uses nibabel, numpy, scikit-image, scipy, pandas, statsmodels,
+    nilearn, matplotlib, requests, tqdm, pyfd, wget, and Pillow.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:53:46Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Single-subject regression and permutation testing focus
+  claim_id: c_c2d867bc
+  context: Implementation focuses strictly on single-subject regression and permutation
+    testing as per Spec US-3.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Single-subject_regression_and_permutation_testing_focus
+  kind: entity_fact
+  raw_text: The project focuses on single-subject regression and permutation testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:54:09Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_165d33ad
+  context: Define paths and set constants including OpenNeuro ID ds000246
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T02:54:22Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Friston et al. 1998 NeuroImage 7(1) 30-40
+  claim_id: c_89516cfc
+  context: Define constants (OpenNeuro ID ds000246, HRF model double-gamma based on
+    Friston et al. (1998))
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Friston, K. J., et al. (1998). Event-related fMRI: characterizing differential
+    responses. NeuroImage, 7(1), 30-40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:54:49Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF peak 5s undershoot 15s
+  claim_id: c_483546c6
+  context: Set constants including HRF model peak=5s, undershoot=15s based on Friston
+    et al. (1998)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:55:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Winkler et al. 2014 NeuroImage permutation inference GLM
+  claim_id: c_0f2ecbc6
+  context: Block size calculation proportional to TR as established in Winkler et
+    al.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Winkler, A. M., et al. (2014). Permutation inference for the general linear
+    model. NeuroImage, [volume], -397.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:55:33Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246 used
+  claim_id: c_ecb5703b
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/processed), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: The project uses the OpenNeuro dataset ds000246.
+  resolved_value: OpenNeuro dataset ID ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T02:55:52Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma based on Friston et al. (1998)
+  claim_id: c_7596c7a1
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HRF model used is the double-gamma model based on Friston et al. (1998).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:56:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model peak 5s and undershoot 15s
+  claim_id: c_fbd0d785
+  context: HRF model peak=5s, undershoot=15s
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HRF model parameters are set to a peak of 5 seconds and an undershoot
+    of 15 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:56:23Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 6GB
+  claim_id: c_3fa96960
+  context: "memory usage logs show \u2264 6GB peak"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6GB
+  kind: entity_fact
+  raw_text: The project requires a peak RAM usage of 6GB or less during processing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:56:50Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size proportional to TR per Winkler
+    et al. (2014)
+  claim_id: c_2ee267c8
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al.: ''Winkler, A. M., et al. (2014). Permutation inference for the general
+    linear model. NeuroImage, [volume], -397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Circular Block Permutation logic references Winkler et al. (2014)
+    for block size calculation proportional to TR.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:57:20Z'

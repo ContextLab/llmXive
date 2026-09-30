@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-228-investigating-the-impact-of-visual-compl",
+  "tasks": [
+    {
+      "task_key": "T013",
+      "reject_count": 1,
+      "last_reason": "The provided `tests/integration/test_ingestion.py` is truncated and does not contain the required post\u2011pipeline assertion `assert os.path.exists(csv_path) and len(csv_path) > 0`. Moreover, the expected output file `data/interim/complexity_metrics.csv` is absent, so the test cannot verify its existence or non\u2011emptiness. The integration test therefore does not satisfy the task specification.",
+      "first_seen": "2026-09-30T02:57:23.133174+00:00",
+      "last_seen": "2026-09-30T02:57:23.133174+00:00"
+    }
+  ],
+  "updated_at": "2026-09-30T02:57:23.133174+00:00"
+}
