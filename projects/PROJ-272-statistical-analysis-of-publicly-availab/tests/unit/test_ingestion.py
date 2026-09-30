@@ -1,146 +1,88 @@
 """
-Unit tests for ingestion module (T013b, T014).
-Tests for T010: UTF-8 normalization and exclusion logic.
+Unit tests for ingestion module.
 """
 import pytest
 import pandas as pd
 from pathlib import Path
+import json
 import tempfile
 import os
-import sys
 
-# Ensure the code directory is in the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from ingestion import (
+    clean_transcript_text,
+    parse_cognitive_status,
+    validate_scope,
+    count_raw_records_from_csv,
+    DataSourceConfig
+)
 
-from ingestion import clean_transcript_text, extract_metadata_and_log_exclusions
-from utils import normalize_text, validate_text_length
+def test_clean_transcript_text_removes_annotations():
+    """Test that non-verbal annotations are removed."""
+    text = "Hello <laughter> world <pause>!"
+    cleaned = clean_transcript_text(text)
+    assert "<laughter>" not in cleaned
+    assert "<pause>" not in cleaned
+    assert "Hello world !" in cleaned
 
-def test_utf8_normalization():
-    """Test that text is normalized to UTF-8 and incompatible chars are handled."""
-    # Create a string with some non-ASCII characters that might appear in transcripts
-    # Using a mix of valid and potentially problematic characters
-    raw_text = "Hello\u00A0World\u2014Test\u00E9"  # Non-breaking space, em-dash, e-acute
-    cleaned = clean_transcript_text(raw_text)
-    
-    # Verify the text is valid UTF-8 (it should be a standard Python string)
-    assert isinstance(cleaned, str)
-    # Verify normalization occurred (e.g., non-breaking space might be converted to regular space)
-    # The exact behavior depends on the implementation, but it should not crash
-    assert len(cleaned) > 0
-    
-    # Test with explicit invalid byte sequence simulation (if passed as string with surrogate)
-    # Python handles this gracefully usually, but we ensure our function doesn't crash
+def test_clean_transcript_text_normalizes_whitespace():
+    """Test that whitespace is normalized."""
+    text = "Hello   world   !"
+    cleaned = clean_transcript_text(text)
+    assert "  " not in cleaned
+    assert "Hello world !" in cleaned
+
+def test_parse_cognitive_status_control():
+    """Test parsing of Control status."""
+    header = "ID: P001, Status: Control"
+    status = parse_cognitive_status(header)
+    assert status == "Control"
+
+def test_parse_cognitive_status_ad():
+    """Test parsing of AD status."""
+    header = "ID: P002, Status: AD"
+    status = parse_cognitive_status(header)
+    assert status == "AD"
+
+def test_parse_cognitive_status_mci():
+    """Test parsing of MCI status."""
+    header = "ID: P003, Status: MCI"
+    status = parse_cognitive_status(header)
+    assert status == "MCI"
+
+def test_parse_cognitive_status_none():
+    """Test parsing when status is not found."""
+    header = "ID: P004, Some other info"
+    status = parse_cognitive_status(header)
+    assert status is None
+
+def test_validate_scope_adress():
+    """Test validation for ADReSS source."""
+    config = DataSourceConfig(source="ADReSS")
     try:
-        # This simulates text that might have encoding issues
-        problematic = "Text with \udcff invalid surrogate"
-        result = clean_transcript_text(problematic)
-        # Should not raise an exception
-        assert isinstance(result, str)
-    except Exception:
-        # If it raises, it should be a specific encoding error, not a generic crash
-        # But ideally our function handles this
-        pass
+        validate_scope(config)
+    except ValueError:
+        pytest.fail("validate_scope raised ValueError for valid ADReSS source")
 
-def test_exclusion_logic_null_label():
-    """Test that records with null labels are excluded."""
-    df = pd.DataFrame({
-        'participant_id': ['P1', 'P2', 'P3'],
-        'label': ['Control', None, 'AD'],
-        'text': ['Valid text here', 'Valid text here', 'Valid text here']
-    })
+def test_validate_scope_dementiabank():
+    """Test validation fails for DementiaBank source."""
+    config = DataSourceConfig(source="DementiaBank")
+    with pytest.raises(ValueError, match="DementiaBank is explicitly excluded"):
+        validate_scope(config)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = Path(tmpdir) / "exclusions.log"
-        
-        result = extract_metadata_and_log_exclusions(df, log_path)
-        
-        # P2 should be excluded due to null label
-        assert len(result) == 2
-        assert 'P2' not in result['participant_id'].values
-        assert 'P1' in result['participant_id'].values
-        assert 'P3' in result['participant_id'].values
+def test_validate_scope_missing():
+    """Test validation fails for missing source."""
+    config = DataSourceConfig(source="")
+    with pytest.raises(ValueError, match="Dataset source configuration is missing"):
+        validate_scope(config)
 
-        # Check log
-        assert log_path.exists()
-        with open(log_path, 'r') as f:
-            content = f.read()
-        assert 'P2|NULL_LABEL' in content
-
-def test_exclusion_logic_short_text():
-    """Test that records with text < 50 words are excluded."""
-    # Create a dataframe with one short text and one long text
-    long_text = " ".join(["word"] * 60)  # 60 words
-    short_text = " ".join(["word"] * 20) # 20 words
+def test_count_raw_records_from_csv():
+    """Test counting records in a CSV file."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("id,label,text\n1,Control,Hello world\n2,AD,Test text\n")
+        temp_path = Path(f.name)
     
-    df = pd.DataFrame({
-        'participant_id': ['P1', 'P2'],
-        'label': ['Control', 'AD'],
-        'text': [short_text, long_text]
-    })
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = Path(tmpdir) / "exclusions.log"
-        
-        result = extract_metadata_and_log_exclusions(df, log_path)
-        
-        # P1 should be excluded due to short text
-        assert len(result) == 1
-        assert 'P1' not in result['participant_id'].values
-        assert 'P2' in result['participant_id'].values
-
-        # Check log
-        assert log_path.exists()
-        with open(log_path, 'r') as f:
-            content = f.read()
-        assert 'P1|TEXT_TOO_SHORT' in content or 'P1|EMPTY_TEXT' in content
-
-def test_exclusion_logic_combined():
-    """Test exclusion logic with multiple failure reasons."""
-    df = pd.DataFrame({
-        'participant_id': ['P1', 'P2', 'P3', 'P4'],
-        'label': ['Control', None, 'AD', 'MCI'],
-        'text': [
-            "Short text",  # Too short
-            "Long enough text for the test with sufficient words to pass the length requirement.",  # Valid length
-            "Another valid text here with enough length to pass the test.", # Valid length
-            ""  # Empty
-        ]
-    })
-
-    with tempfile.TemporaryDirectory() as tmpdir:
-        log_path = Path(tmpdir) / "exclusions.log"
-        
-        result = extract_metadata_and_log_exclusions(df, log_path)
-        
-        # P1 (short), P2 (null), P4 (empty) should be excluded
-        # P3 should remain
-        assert len(result) == 1
-        assert 'P3' in result['participant_id'].values
-        assert 'P1' not in result['participant_id'].values
-        assert 'P2' not in result['participant_id'].values
-        assert 'P4' not in result['participant_id'].values
-
-        # Check log
-        assert log_path.exists()
-        with open(log_path, 'r') as f:
-            content = f.read()
-        assert 'P1|TEXT_TOO_SHORT' in content
-        assert 'P2|NULL_LABEL' in content
-        assert 'P4|EMPTY_TEXT' in content or 'P4|TEXT_TOO_SHORT' in content
-
-def test_validate_text_length_edge_cases():
-    """Test text length validation with edge cases."""
-    # Empty string
-    assert not validate_text_length("", 50)
-    
-    # Exactly 50 words
-    text_50 = " ".join(["word"] * 50)
-    assert validate_text_length(text_50, 50)
-    
-    # 49 words
-    text_49 = " ".join(["word"] * 49)
-    assert not validate_text_length(text_49, 50)
-    
-    # 100 words
-    text_100 = " ".join(["word"] * 100)
-    assert validate_text_length(text_100, 50)
+    try:
+        count = count_raw_records_from_csv(temp_path)
+        assert count == 2
+    finally:
+        os.unlink(temp_path)

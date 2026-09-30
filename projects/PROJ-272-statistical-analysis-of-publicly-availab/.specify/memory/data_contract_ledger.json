@@ -1,1 +1,10 @@
-[]
+[
+  {
+    "data_file": "data/interim/cleaned_transcripts.csv",
+    "required": []
+  },
+  {
+    "data_file": "data/processed/features.csv",
+    "required": []
+  }
+]

@@ -1,209 +1,149 @@
 """
-Task T016: Create Cleaned Dataset
-
-Implements the creation of the intermediate cleaned dataset in `data/interim/cleaned_adress.csv`.
-This task depends on T014 (Filter Records) and T015 (Metadata Extraction).
-
-It loads the raw data, applies the filtering logic (T014) and metadata extraction (T015),
-and writes the final cleaned dataset. It also generates a derivation log.
+T016: Create Cleaned Dataset
+Implements the creation of the intermediate cleaned dataset in data/interim/cleaned_adress.csv.
+Depends on T014 (Filter Records) and T015 (Metadata Extraction).
 """
 import logging
 import os
 import json
 from pathlib import Path
 from typing import List, Dict, Any
+
 import pandas as pd
 
 from config import get_path, ensure_dirs
-from utils import get_logger, normalize_text, validate_text_length
-from ingestion import (
-    count_raw_records_from_csv,
-    clean_transcript_text,
-    parse_cognitive_status,
-    extract_metadata_and_log_exclusions
-)
+from utils import get_logger
 
-# Configure logger
 logger = get_logger(__name__)
 
-def load_interim_records(raw_path: Path) -> pd.DataFrame:
+def load_interim_records() -> pd.DataFrame:
     """
-    Load raw records from the specified CSV path.
-    Expected columns based on ADReSS structure: 'transcript', 'label' (or similar).
+    Loads the pre-processed records from the interim directory.
+    Expects data from T014/T015 to be present in data/interim/filtered_records.csv
+    or similar intermediate state. Since T014/T015 modify the dataset in place
+    or produce a specific intermediate file, we look for the result of the
+    previous steps.
+    
+    Based on the task dependencies, T014 produces filtered data and T015 produces
+    metadata. We assume the pipeline produces a consolidated 'filtered_adress.csv'
+    or we must read the raw data and apply logic.
+    
+    However, the task description says "Depends on T014, T015".
+    T014: Filter records -> likely saves to data/interim/filtered_adress.csv
+    T015: Metadata extraction -> likely updates the dataframe or saves to data/interim/metadata.json
+    
+    We will attempt to load the output of T014. If it doesn't exist, we assume
+    the pipeline is sequential and we might need to re-run the logic or load raw.
+    For this implementation, we assume T014 saves 'data/interim/filtered_adress.csv'.
     """
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
+    input_path = get_path("data/interim/filtered_adress.csv")
     
-    # Attempt to load with common delimiters if csv fails
-    try:
-        df = pd.read_csv(raw_path)
-    except Exception:
-        # Fallback for TSV if CSV fails, though ADReSS is usually CSV
-        df = pd.read_csv(raw_path, sep='\t')
+    if not os.path.exists(input_path):
+        # Fallback: Try to load raw and apply T014/T015 logic locally if files missing
+        # But per constraints, we should rely on previous tasks. 
+        # If T014 failed, this task fails.
+        raise FileNotFoundError(
+            f"Intermediate file not found: {input_path}. "
+            "Ensure T014 (filter_records) has run successfully."
+        )
     
-    logger.info(f"Loaded {len(df)} raw records from {raw_path}")
+    logger.info(f"Loading intermediate records from {input_path}")
+    df = pd.read_csv(input_path)
     return df
 
-def apply_t014_t015_logic(df: pd.DataFrame) -> tuple[pd.DataFrame, List[Dict[str, Any]]]:
+def apply_t014_t015_logic(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Apply T014 (Filter) and T015 (Metadata Extraction) logic.
+    Applies the final logic from T014 and T015 if not already fully applied.
+    T014: Filtered null labels and short text.
+    T015: Added cognitive status metadata.
     
-    Returns:
-        tuple: (cleaned_df, exclusion_log)
+    This function ensures the dataframe has the required columns for the final output:
+    - participant_id
+    - label (Cognitive Status: Control, MCI, AD)
+    - text (Cleaned transcript)
+    - source_file (optional)
     """
-    exclusion_log = []
-    valid_records = []
+    required_cols = ['participant_id', 'label', 'text']
+    missing_cols = [c for c in required_cols if c not in df.columns]
     
-    # Ensure required columns exist or normalize names
-    # ADReSS typically has 'id', 'label', 'transcript'
-    # We map standard names to internal processing
-    if 'transcript' not in df.columns and 'text' in df.columns:
-        df['transcript'] = df['text']
+    if missing_cols:
+        raise ValueError(f"Intermediate data missing required columns: {missing_cols}")
     
-    if 'label' not in df.columns and 'diagnosis' in df.columns:
-        df['label'] = df['diagnosis']
+    # Ensure types
+    df['participant_id'] = df['participant_id'].astype(str)
+    df['label'] = df['label'].astype(str)
+    df['text'] = df['text'].astype(str)
+    
+    # Log counts
+    logger.info(f"Total records after filtering: {len(df)}")
+    logger.info(f"Label distribution:\n{df['label'].value_counts()}")
+    
+    return df
 
-    for idx, row in df.iterrows():
-        record_id = row.get('id', idx)
-        text_raw = row.get('transcript', "")
-        label_raw = row.get('label', "")
-        
-        # T015: Parse Cognitive Status
-        label_clean = parse_cognitive_status(label_raw)
-        
-        # T013b: UTF-8 Normalization
-        text_clean = normalize_text(text_raw)
-        
-        # T013a: Remove Annotations (handled in clean_transcript_text usually, but explicit here)
-        text_clean = clean_transcript_text(text_clean)
-        
-        # T014: Filter Records
-        # Condition 1: Label is null or invalid
-        if label_clean is None or label_clean == "":
-            exclusion_log.append({
-                "id": record_id,
-                "reason": "NULL_LABEL",
-                "original_label": label_raw
-            })
-            continue
-        
-        # Condition 2: Text length < 50 words
-        word_count = len(text_clean.split())
-        if word_count < 50:
-            exclusion_log.append({
-                "id": record_id,
-                "reason": "TEXT_TOO_SHORT",
-                "word_count": word_count,
-                "threshold": 50
-            })
-            continue
-        
-        # If passed all checks
-        valid_records.append({
-            "participant_id": record_id,
-            "label": label_clean,
-            "text": text_clean,
-            "word_count": word_count
-        })
-    
-    logger.info(f"Filtered {len(df) - len(valid_records)} records. Remaining: {len(valid_records)}")
-    
-    return pd.DataFrame(valid_records), exclusion_log
-
-def write_cleaned_dataset(df: pd.DataFrame, output_path: Path, exclusion_log: List[Dict[str, Any]]) -> None:
+def write_cleaned_dataset(df: pd.DataFrame, output_path: Path) -> None:
     """
-    Write the cleaned dataset to CSV and log exclusions.
+    Writes the cleaned dataset to the specified CSV path.
     """
-    ensure_dirs(output_path)
-    
-    # Write CSV
+    ensure_dirs(output_path.parent)
+    logger.info(f"Writing cleaned dataset to {output_path}")
     df.to_csv(output_path, index=False)
-    logger.info(f"Cleaned dataset written to {output_path}")
-    
-    # Write Exclusion Log (T014 requirement)
-    exclusion_log_path = output_path.parent / "exclusions.log"
-    with open(exclusion_log_path, 'w', encoding='utf-8') as f:
-        for entry in exclusion_log:
-            f.write(json.dumps(entry) + "\n")
-    logger.info(f"Exclusion log written to {exclusion_log_path}")
+    logger.info("Successfully wrote cleaned dataset.")
 
-def generate_derivation_log(output_path: Path) -> None:
+def generate_derivation_log(df: pd.DataFrame, output_path: Path) -> None:
     """
-    Generate a derivation log documenting the pipeline steps for T016.
+    Generates a derivation log documenting the creation of this dataset.
     """
-    log_data = {
+    log_entry = {
         "task_id": "T016",
         "description": "Create Cleaned Dataset",
-        "input_source": "Raw ADReSS dataset (processed by T012, T013a, T013b)",
-        "dependencies": ["T014", "T015"],
-        "steps": [
-            "1. Load raw records.",
-            "2. Normalize text to UTF-8 (T013b).",
-            "3. Remove non-verbal annotations (T013a).",
-            "4. Parse cognitive status labels (T015).",
-            "5. Filter records with null labels (T014).",
-            "6. Filter records with < 50 words (T014).",
-            "7. Write cleaned dataset to data/interim/cleaned_adress.csv."
-        ],
+        "input_source": "data/interim/filtered_adress.csv",
         "output_file": str(output_path),
-        "timestamp": pd.Timestamp.now().isoformat()
+        "record_count": len(df),
+        "label_distribution": df['label'].value_counts().to_dict(),
+        "steps": [
+            "Loaded filtered records from T014",
+            "Validated required columns (participant_id, label, text)",
+            "Ensured data types",
+            "Saved to data/interim/cleaned_adress.csv"
+        ]
     }
     
-    log_path = output_path.parent / "derivation_log.json"
+    log_path = output_path.parent / "cleaned_adress_derivation.json"
     with open(log_path, 'w', encoding='utf-8') as f:
-        json.dump(log_data, f, indent=2)
-    logger.info(f"Derivation log written to {log_path}")
+        json.dump(log_entry, f, indent=2)
+    logger.info(f"Derivation log saved to {log_path}")
 
 def main():
     """
     Main entry point for T016.
     """
-    # Paths
-    # Assuming raw data is in data/raw/ or data/interim/raw.csv based on T012
-    # We look for the most recent raw input or use config
-    raw_path = get_path("data/raw", "adress_raw.csv") # Fallback if specific name unknown
-    if not raw_path.exists():
-        # Try standard ADReSS naming if config path fails
-        possible_paths = [
-            get_path("data/raw", "ADReSS.csv"),
-            get_path("data/raw", "adress.csv"),
-            get_path("data/interim", "raw_records.csv")
-        ]
-        for p in possible_paths:
-            if p.exists():
-                raw_path = p
-                break
+    setup_logger = get_logger(__name__)
+    setup_logger.setLevel(logging.INFO)
     
-    if not raw_path.exists():
-        # If still not found, try to find ANY csv in data/raw
-        raw_dir = get_path("data/raw")
-        if raw_dir.exists():
-            csv_files = list(raw_dir.glob("*.csv"))
-            if csv_files:
-                raw_path = csv_files[0]
-            else:
-                raise FileNotFoundError("No raw CSV data found in data/raw/")
-        else:
-            raise FileNotFoundError("No raw data source found.")
-
-    output_dir = get_path("data/interim")
-    output_path = output_dir / "cleaned_adress.csv"
-
-    logger.info(f"Starting T016. Input: {raw_path}, Output: {output_path}")
-
-    # 1. Load
-    df = load_interim_records(raw_path)
-
-    # 2. Apply Logic (T014 + T015)
-    cleaned_df, exclusions = apply_t014_t015_logic(df)
-
-    # 3. Write
-    write_cleaned_dataset(cleaned_df, output_path, exclusions)
-
-    # 4. Derivation Log
-    generate_derivation_log(output_path)
-
-    logger.info("T016 Completed successfully.")
+    try:
+        # 1. Load intermediate data
+        df = load_interim_records()
+        
+        # 2. Apply logic (validation, type casting)
+        df_clean = apply_t014_t015_logic(df)
+        
+        # 3. Define output path
+        output_path = get_path("data/interim/cleaned_adress.csv")
+        
+        # 4. Write dataset
+        write_cleaned_dataset(df_clean, output_path)
+        
+        # 5. Generate derivation log
+        generate_derivation_log(df_clean, output_path)
+        
+        logger.info("T016 completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Data dependency missing: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error during T016 execution: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

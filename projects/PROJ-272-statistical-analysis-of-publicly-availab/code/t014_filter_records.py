@@ -1,45 +1,7 @@
 """
-Task T014: Filter Records
-
-Filters records where label is null OR text length < 50 words.
-Logs excluded records with reason codes to `data/interim/exclusions.log`.
-Note: This logic is also integrated into T016, but this script exists for the pipeline run-book
-if T016 is split or if T014 needs to run as a standalone step before T015.
-However, per T016 description, T014 and T015 logic is combined in T016.
-To satisfy the run-book requirement and T014 task definition, we ensure the exclusion log
-is written by T016. This file is a placeholder to ensure the task exists in the codebase
-if the run-book calls it, or we update the run-book to call T016 which handles T014.
-
-Since T016 depends on T014 and T015, and T016 writes the final CSV and the exclusion log,
-we implement T014 here as a helper or standalone that writes to the log, 
-but T016 is the primary writer. 
-
-To avoid duplication and ensure the log is written correctly by T016 (which does the filtering),
-this script will primarily serve as a validation of the filtering logic if called,
-or it can be a no-op if T016 handles the log.
-
-Actually, the prompt says: "Make ONE of these WRITE `data/interim/cleaned_adress.csv`".
-T016 is the one doing it. T014 is a dependency.
-If the run-book calls `python code/ingestion.py`, that script handles T012.
-If the run-book calls `python code/t014_filter_records.py`, it should write the log.
-
-Let's implement T014 to write the exclusion log based on raw data, so T016 can rely on it
-or T016 can do it all.
-
-Revised Plan for T014:
-Read raw data -> Filter -> Write exclusions.log -> (Optionally write interim filtered CSV if needed).
-But T016 writes the final CSV.
-
-To be safe and ensure the log exists:
-We will make T014 write the `exclusions.log` based on the raw data.
-T016 will read the raw data and apply the same logic (or read the log) to create the CSV.
-Actually, T016 is defined as "Create Cleaned Dataset ... (Depends on T014, T015)".
-So T016 should run AFTER T014.
-
-We will implement T014 to filter and write the log.
-T016 will then read the filtered data (or re-read raw and apply logic) to create the CSV.
-To avoid double work, T016 will re-apply the logic to ensure atomicity or read the log.
-Given the constraints, T016 will re-apply the logic to ensure the CSV matches the log exactly.
+T014: Filter Records
+Filter records where label is null OR text length < 50 words.
+Log excluded records with reason codes to data/interim/exclusions.log.
 """
 import logging
 import os
@@ -47,58 +9,138 @@ import json
 from pathlib import Path
 import pandas as pd
 from config import get_path
-from utils import normalize_text
-from ingestion import clean_transcript_text, parse_cognitive_status
 
+# Configure logging for this specific task
 logger = logging.getLogger(__name__)
 
-def main():
-    # Locate raw data
-    raw_dir = get_path("data/raw")
-    if not raw_dir.exists():
-        raise FileNotFoundError("data/raw not found.")
+def filter_records(input_path: Path, output_path: Path, exclusions_log_path: Path):
+    """
+    Filter the dataset based on FR-001 Edge Case requirements:
+    1. Remove records where 'label' is null/missing.
+    2. Remove records where 'text' length is < 50 words.
     
-    raw_files = list(raw_dir.glob("*.csv"))
-    if not raw_files:
-        raise FileNotFoundError("No raw CSV found.")
+    Args:
+        input_path: Path to the input CSV (cleaned transcripts).
+        output_path: Path to save the filtered CSV.
+        exclusions_log_path: Path to save the exclusion log.
+    """
+    logger.info(f"Loading data from {input_path}")
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    raw_path = raw_files[0]
-    output_dir = get_path("data/interim")
-    log_path = output_dir / "exclusions.log"
+    df = pd.read_csv(input_path)
     
-    df = pd.read_csv(raw_path)
+    # Ensure 'label' and 'text' columns exist
+    if 'label' not in df.columns:
+        raise ValueError(f"Input CSV missing required column 'label'. Columns: {df.columns.tolist()}")
+    if 'text' not in df.columns:
+        raise ValueError(f"Input CSV missing required column 'text'. Columns: {df.columns.tolist()}")
+
+    # Prepare exclusion log data
     exclusions = []
-    valid = []
     
-    for idx, row in df.iterrows():
-        rid = row.get('id', idx)
-        label = row.get('label', "")
-        text = row.get('transcript', row.get('text', ""))
-        
-        # Parse label
-        clean_label = parse_cognitive_status(label)
-        
-        # Check label
-        if clean_label is None or clean_label == "":
-            exclusions.append({"id": rid, "reason": "NULL_LABEL", "label": label})
-            continue
-        
-        # Check text
-        text_norm = normalize_text(text)
-        text_clean = clean_transcript_text(text_norm)
-        if len(text_clean.split()) < 50:
-            exclusions.append({"id": rid, "reason": "SHORT_TEXT", "len": len(text_clean.split())})
-            continue
-        
-        valid.append(row)
+    # Count before filtering
+    initial_count = len(df)
+    logger.info(f"Total records before filtering: {initial_count}")
+
+    # 1. Filter out null labels
+    # Handle potential NaNs in label column
+    label_mask = df['label'].notna()
+    null_label_count = initial_count - label_mask.sum()
     
-    # Write log
-    output_dir.mkdir(parents=True, exist_ok=True)
-    with open(log_path, 'w') as f:
-        for e in exclusions:
-            f.write(json.dumps(e) + "\n")
+    if null_label_count > 0:
+        null_label_ids = df[~label_mask].get('participant_id', df.index).tolist()
+        for pid in null_label_ids:
+            exclusions.append({
+                'participant_id': pid,
+                'reason_code': 'LABEL_NULL',
+                'reason_detail': 'Label is missing or NaN'
+            })
     
-    logger.info(f"Filtered {len(exclusions)} records. Log: {log_path}")
+    # 2. Filter out short texts (< 50 words)
+    # Apply label mask first to only check texts of valid records
+    df_with_labels = df[label_mask].copy()
+    
+    # Word count function
+    def count_words(text):
+        if pd.isna(text) or not isinstance(text, str):
+            return 0
+        return len(str(text).split())
+    
+    df_with_labels['word_count'] = df_with_labels['text'].apply(count_words)
+    
+    short_text_mask = df_with_labels['word_count'] >= 50
+    short_text_count = len(df_with_labels) - short_text_mask.sum()
+    
+    if short_text_count > 0:
+        short_text_ids = df_with_labels[~short_text_mask].get('participant_id', df_with_labels.index).tolist()
+        for pid in short_text_ids:
+            exclusions.append({
+                'participant_id': pid,
+                'reason_code': 'TEXT_TOO_SHORT',
+                'reason_detail': f'Text length ({df_with_labels.loc[df_with_labels.get("participant_id") == pid, "word_count"].values[0] if not df_with_labels[df_with_labels.get("participant_id") == pid].empty else "unknown"}) < 50 words'
+            })
+    
+    # Apply final filtering
+    # We need to combine the masks carefully. 
+    # Start with the label mask, then apply the word count mask on the subset.
+    # Since df_with_labels is a copy, we need to map the indices back or filter the original.
+    # Easier approach: Filter original df using combined boolean logic.
+    
+    # Re-calculate word counts on the original df for the mask
+    df['word_count'] = df['text'].apply(count_words)
+    
+    final_mask = df['label'].notna() & (df['word_count'] >= 50)
+    
+    filtered_df = df[final_mask].copy()
+    filtered_df = filtered_df.drop(columns=['word_count']) # Drop helper column
+    
+    final_count = len(filtered_df)
+    excluded_count = initial_count - final_count
+    
+    logger.info(f"Records excluded: {excluded_count} (Label Null: {null_label_count}, Text Short: {short_text_count})")
+    logger.info(f"Records remaining: {final_count}")
+
+    # Ensure output directories exist
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    exclusions_log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Save filtered dataset
+    filtered_df.to_csv(output_path, index=False)
+    logger.info(f"Filtered dataset saved to {output_path}")
+
+    # Save exclusions log
+    with open(exclusions_log_path, 'w', encoding='utf-8') as f:
+        json.dump(exclusions, f, indent=2)
+    logger.info(f"Exclusions log saved to {exclusions_log_path}")
+
+    return filtered_df, exclusions
+
+def main():
+    """Entry point for T014."""
+    # Setup basic logging if not already configured
+    if not logging.getLogger().handlers:
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+
+    # Define paths based on project structure
+    # Input: Output of T013 (cleaned transcripts)
+    input_path = get_path("data/interim/cleaned_transcripts.csv")
+    # Output: Filtered dataset (interim step before final clean dataset)
+    output_path = get_path("data/interim/cleaned_filtered_adress.csv")
+    # Exclusions log
+    exclusions_log_path = get_path("data/interim/exclusions.log")
+
+    logger.info("Starting T014: Filter Records")
+    
+    try:
+        filter_records(input_path, output_path, exclusions_log_path)
+        logger.info("T014 completed successfully.")
+    except Exception as e:
+        logger.error(f"T014 failed: {str(e)}")
+        raise
 
 if __name__ == "__main__":
     main()

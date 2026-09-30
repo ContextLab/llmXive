@@ -1,12 +1,12 @@
 status: none
-intent: ADReSS Challenge raw speech transcripts download python package dataset
+intent: download ADReSS Challenge raw speech transcripts dataset python package dataset
 required_fields:
 - participant_id
-- diagnosis
+- transcript_text
+- diagnosis_label
 - age
 - gender
-- transcript_text
 - audio_file_path
-cache_key: 53b563e4ae0f034a02373215e864932e7fad7a9a7fa6da40f54825c961cd3dc5
-searched_at: '2026-09-24T10:22:54.203785+00:00'
+cache_key: 5c377c2859451eebd0facf8c75b2e3eb8c11b8de6ea26ceb4bb1b20e13516b96
+searched_at: '2026-09-30T16:29:07.891785+00:00'
 retry_count: 1
