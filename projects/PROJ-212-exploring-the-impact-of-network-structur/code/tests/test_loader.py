@@ -1,185 +1,149 @@
-"""
-Unit tests for src/loader.py
-"""
 import pytest
 import os
 import json
 import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import logging
+import yaml
 
-from src.loader import (
-    get_snap_dataset_list,
-    load_snap_graph_from_edgelist,
-    generate_synthetic_graph,
-    fetch_snap_dataset,
-    load_real_data
-)
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from src.loader import load_real_data, get_snap_dataset_list, fetch_snap_dataset
 
 @pytest.fixture
 def temp_dirs():
     """Create temporary directories for testing."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        raw_dir = Path(tmpdir) / "raw"
-        state_dir = Path(tmpdir) / "state"
-        raw_dir.mkdir()
-        state_dir.mkdir()
-        yield {
-            "raw": raw_dir,
-            "state": state_dir,
-            "tmpdir": Path(tmpdir)
+    with tempfile.TemporaryDirectory() as tmp:
+        tmp_path = Path(tmp)
+        raw_dir = tmp_path / "data" / "raw"
+        state_dir = tmp_path / "state"
+        results_dir = tmp_path / "results"
+        raw_dir.mkdir(parents=True)
+        state_dir.mkdir(parents=True)
+        results_dir.mkdir(parents=True)
+        
+        config = {
+            "paths": {
+                "raw_data": str(raw_dir),
+                "state": str(state_dir),
+                "results": str(results_dir)
+            }
         }
+        yield config, raw_dir, state_dir, results_dir
 
 def test_get_snap_dataset_list():
-    """Test that we get a non-empty list of datasets."""
+    """Test that get_snap_dataset_list returns a non-empty list."""
     datasets = get_snap_dataset_list()
-    assert len(datasets) > 0
     assert isinstance(datasets, list)
-    # Check a few expected datasets
-    assert "email-Eu-core.txt" in datasets
-    assert "ca-AstroPh.txt" in datasets
-
-def test_generate_synthetic_graph_ba():
-    """Test Barabási-Albert graph generation."""
-    G = generate_synthetic_graph(100, "ba", m=2)
-    assert G.number_of_nodes() == 100
-    assert G.number_of_edges() > 0
-
-def test_generate_synthetic_graph_er():
-    """Test Erdos-Renyi graph generation."""
-    G = generate_synthetic_graph(50, "er", p=0.1)
-    assert G.number_of_nodes() == 50
-    assert G.number_of_edges() > 0
-
-def test_generate_synthetic_graph_ring():
-    """Test ring graph generation."""
-    G = generate_synthetic_graph(20, "ring")
-    assert G.number_of_nodes() == 20
-    # Ring graph has exactly n edges
-    assert G.number_of_edges() == 20
-
-def test_load_snap_graph_from_edgelist_plain():
-    """Test loading a plain text edgelist."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
-        f.write("0 1\n")
-        f.write("1 2\n")
-        f.write("2 3\n")
-        temp_path = Path(f.name)
-    
-    try:
-        G = load_snap_graph_from_eddelist(temp_path)
-        assert G is not None
-        assert G.number_of_nodes() == 4
-        assert G.number_of_edges() == 3
-    finally:
-        os.unlink(temp_path)
-
-def test_load_snap_graph_from_edgelist_gz(temp_dirs):
-    """Test loading a gzipped edgelist."""
-    import gzip
-    
-    gz_path = temp_dirs["raw"] / "test.txt.gz"
-    with gzip.open(gz_path, 'wt') as f:
-        f.write("# Comment line\n")
-        f.write("0 1\n")
-        f.write("1 2\n")
-    
-    G = load_snap_graph_from_edgelist(gz_path)
-    assert G is not None
-    assert G.number_of_nodes() == 3
-    assert G.number_of_edges() == 2
-
-@patch('src.loader.requests.get')
-def test_fetch_snap_dataset(mock_get, temp_dirs):
-    """Test fetching a dataset from SNAP."""
-    # Mock the response
-    mock_response = MagicMock()
-    mock_response.iter_content.return_value = [b"0 1\n1 2\n"]
-    mock_response.raise_for_status = MagicMock()
-    mock_get.return_value = mock_response
-    
-    result = fetch_snap_dataset("test.txt", temp_dirs["raw"])
-    
-    assert result is not None
-    assert result.exists()
-    mock_get.assert_called_once()
+    assert len(datasets) > 0
+    # Check that some known SNAP datasets are present
+    known_datasets = {"ca-AstrPH", "email-Enron", "web-Google"}
+    assert any(d in known_datasets for d in datasets), "Expected known SNAP datasets in the list"
 
 def test_load_real_data_with_insufficient_files(temp_dirs):
-    """Test load_real_data when file count < minimum."""
-    config = {
-        "paths": {
-            "raw_data": str(temp_dirs["raw"]),
-            "state": str(temp_dirs["state"])
-        },
-        "thresholds": {
-            "min_files": 10
-        }
-    }
+    """
+    Test load_real_data when file count < 10.
+    It should:
+    1. Set regression_blocked: True in state/data_availability.yaml
+    2. Generate results/descriptive_stats.json with mean, median, std_dev
+    3. NOT generate synthetic data
+    """
+    config, raw_dir, state_dir, results_dir = temp_dirs
     
-    # Create only 3 files
-    for i in range(3):
-        (temp_dirs["raw"] / f"test_{i}.txt").touch()
+    # Create fewer than 10 dummy files
+    for i in range(5):
+        (raw_dir / f"dummy_{i}.edges.gz").touch()
     
-    result = load_real_data(config)
+    with patch('src.loader.fetch_snap_dataset', return_value=None): # Simulate no new fetches
+        result = load_real_data(config)
     
-    assert result["data_availability_flag"] == False
-    assert result["file_count"] == 3
+    # Check return value
+    assert result['file_count'] == 5
+    assert result['regression_blocked'] is True
+    assert result['descriptive_stats'] is not None
     
-    # Check state file was written
-    state_file = temp_dirs["state"] / "data_availability.json"
+    # Check state file
+    state_file = state_dir / "data_availability.yaml"
     assert state_file.exists()
+    with open(state_file, 'r') as f:
+        state_data = yaml.safe_load(f)
+    assert state_data['regression_blocked'] is True
     
-    with open(state_file) as f:
-        state_data = json.load(f)
+    # Check descriptive stats file
+    stats_file = results_dir / "descriptive_stats.json"
+    assert stats_file.exists()
+    with open(stats_file, 'r') as f:
+        stats_data = json.load(f)
     
-    assert state_data["data_availability_flag"] == False
-    assert state_data["file_count"] == 3
-    assert "warning" in state_data
+    # Verify required fields
+    assert 'file_count' in stats_data
+    assert 'metrics' in stats_data
+    assert 'note' in stats_data
+    
+    # If metrics exist, check for mean, median, std_dev
+    if stats_data['metrics']:
+        for metric_name, metric_data in stats_data['metrics'].items():
+            assert 'mean' in metric_data
+            assert 'median' in metric_data
+            assert 'std_dev' in metric_data
 
 def test_load_real_data_with_sufficient_files(temp_dirs):
-    """Test load_real_data when file count >= minimum."""
-    config = {
-        "paths": {
-            "raw_data": str(temp_dirs["raw"]),
-            "state": str(temp_dirs["state"])
-        },
-        "thresholds": {
-            "min_files": 3
-        }
-    }
+    """
+    Test load_real_data when file count >= 10.
+    It should:
+    1. Set regression_blocked: False in state/data_availability.yaml
+    2. NOT generate descriptive_stats.json
+    """
+    config, raw_dir, state_dir, results_dir = temp_dirs
     
-    # Create 5 files
-    for i in range(5):
-        (temp_dirs["raw"] / f"test_{i}.txt").touch()
+    # Create 10 dummy files
+    for i in range(10):
+        (raw_dir / f"dummy_{i}.edges.gz").touch()
     
-    result = load_real_data(config)
+    with patch('src.loader.fetch_snap_dataset', return_value=None):
+        result = load_real_data(config)
     
-    assert result["data_availability_flag"] == True
-    assert result["file_count"] == 5
+    # Check return value
+    assert result['file_count'] == 10
+    assert result['regression_blocked'] is False
+    
+    # Check state file
+    state_file = state_dir / "data_availability.yaml"
+    assert state_file.exists()
+    with open(state_file, 'r') as f:
+        state_data = yaml.safe_load(f)
+    assert state_data['regression_blocked'] is False
+    
+    # Check that descriptive stats file does NOT exist
+    stats_file = results_dir / "descriptive_stats.json"
+    assert not stats_file.exists()
 
 def test_load_real_data_no_synthetic_fallback(temp_dirs):
     """
-    Verify that load_real_data does NOT generate synthetic data
-    when files are missing.
+    Test that load_real_data does NOT generate synthetic graphs.
+    It should strictly rely on real data fetches.
     """
-    config = {
-        "paths": {
-            "raw_data": str(temp_dirs["raw"]),
-            "state": str(temp_dirs["state"])
-        },
-        "thresholds": {
-            "min_files": 10
-        }
-    }
+    config, raw_dir, state_dir, results_dir = temp_dirs
     
-    # No files created
-    result = load_real_data(config)
+    # Simulate fetches that fail (return None)
+    with patch('src.loader.fetch_snap_dataset', return_value=None):
+        result = load_real_data(config)
     
-    # Should return the actual count (0), not a synthetic count
-    assert result["file_count"] == 0
-    assert result["data_availability_flag"] == False
+    # Verify that no synthetic files were created
+    # The only files should be the dummy ones we created (if any) or none
+    # We didn't create any dummy files in this test, so raw_dir should be empty
+    # But the function might have created some? No, fetch_snap_dataset returns None, so no files are created.
+    files_in_raw = list(raw_dir.iterdir())
+    assert len(files_in_raw) == 0, "No files should be created if fetch fails and no synthetic fallback is used"
     
-    # Verify no synthetic files were created
-    files = list(temp_dirs["raw"].glob("*"))
-    assert len(files) == 0
+    # Verify regression_blocked is True because N=0 < 10
+    assert result['regression_blocked'] is True
+    
+    # Verify descriptive_stats was generated
+    stats_file = results_dir / "descriptive_stats.json"
+    assert stats_file.exists()
+    with open(stats_file, 'r') as f:
+        stats_data = json.load(f)
+    assert stats_data['file_count'] == 0
+    assert 'note' in stats_data

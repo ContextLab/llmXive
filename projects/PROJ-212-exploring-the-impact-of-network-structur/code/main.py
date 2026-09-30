@@ -1,13 +1,3 @@
-"""
-Main orchestration script for the network synchronization simulation pipeline.
-
-This script:
-1. Loads configuration and sets up logging.
-2. Iterates over available networks (real or synthetic fallback for testing).
-3. Computes topological metrics.
-4. Runs Kuramoto simulations to find critical coupling strength.
-5. Aggregates results into `results/sim_results.json`.
-"""
 import sys
 import json
 import logging
@@ -15,120 +5,121 @@ import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Local imports from the project structure
+# Add project root to path
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+
 from config import load_config, get_paths
-from loader import load_real_data, generate_synthetic_graph
+from src.loader import load_real_data
 from src.topology import compute_metrics
-from src.simulation import run_kuramoto_simulation, check_disconnected
-from src.utils import setup_logging, compute_checksum, log_error, safe_exit
+from src.simulation import find_critical_coupling, process_single_network
+from src.utils import setup_logging, timing_decorator, log_error
+from src.verify_snap import main as run_verification
 
-def process_single_network(graph_id: str, G: Any, config: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Process a single network: compute metrics, run simulation, return result dict.
-    """
-    logger = logging.getLogger(__name__)
-    start_time = time.time()
-    
-    result_entry = {
-        "id": graph_id,
-        "status": "pending",
-        "metrics": {},
-        "simulation": {},
-        "duration": 0.0,
-        "error": None
-    }
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
+@timing_decorator
+def process_network_graph(graph_id: str, graph_data: Dict[str, Any], config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Process a single network graph: compute topology and run simulation.
+    """
     try:
-        # 1. Check connectivity
-        if check_disconnected(G):
-            logger.warning(f"Graph {graph_id} is disconnected. Skipping simulation.")
-            result_entry["status"] = "disconnected"
-            result_entry["metrics"] = compute_metrics(G)
-            result_entry["simulation"] = {"threshold": None, "reason": "disconnected"}
-            return result_entry
-
-        # 2. Compute topological metrics
-        logger.info(f"Computing metrics for {graph_id}...")
-        metrics = compute_metrics(G)
-        result_entry["metrics"] = metrics
-
-        # 3. Run simulation
-        logger.info(f"Running Kuramoto simulation for {graph_id}...")
-        sim_config = config.get("simulation", {})
-        sim_result = run_kuramoto_simulation(
-            G, 
-            k_range=sim_config.get("k_range", [0, 5, 0.1]),
-            threshold_r=sim_config.get("threshold_r", 0.8),
-            threshold_t=sim_config.get("threshold_t", 100)
-        )
+        # Compute topological metrics
+        metrics = compute_metrics(graph_data['graph'])
         
-        result_entry["simulation"] = {
-            "threshold": sim_result.get("critical_k"),
-            "order_at_threshold": sim_result.get("order_at_threshold"),
-            "final_order": sim_result.get("final_order"),
-            "steps": sim_result.get("steps", 0)
+        # Run Kuramoto simulation to find critical coupling
+        # Pass the graph and configuration parameters
+        result = process_single_network(graph_data['graph'], config)
+        
+        return {
+            "network_id": graph_id,
+            "metrics": metrics,
+            "threshold": result.get('threshold'),
+            "status": result.get('status')
         }
-        result_entry["status"] = "success"
-
     except Exception as e:
-        log_error(logger, f"Error processing {graph_id}", e)
-        result_entry["status"] = "failed"
-        result_entry["error"] = str(e)
-    
-    result_entry["duration"] = time.time() - start_time
-    return result_entry
+        logger.error(f"Error processing graph {graph_id}: {e}")
+        return {
+            "network_id": graph_id,
+            "metrics": None,
+            "threshold": None,
+            "status": "error",
+            "error": str(e)
+        }
 
 def main():
     """
-    Main entry point for the orchestration script.
+    Main orchestration script for the pipeline.
     """
-    # Load config and paths
     config = load_config()
-    paths = get_paths(config)
-    results_dir = paths.get("results", Path("results"))
-    results_dir.mkdir(parents=True, exist_ok=True)
+    paths = get_paths()
     
     # Setup logging
-    logger = setup_logging(config)
-    logger.info("Starting main orchestration pipeline.")
+    setup_logging(config)
     
-    start_total = time.time()
+    logger.info("Starting the network synchronization analysis pipeline.")
+    start_time = time.time()
+    
+    # Load real data
+    logger.info("Loading real data...")
+    try:
+        network_list = load_real_data(paths['data_raw'], config)
+    except Exception as e:
+        logger.error(f"Failed to load real data: {e}")
+        # If loading fails, we might still want to generate an empty results file
+        # or exit gracefully. Let's log and exit.
+        log_error(e, paths['results_dir'] / 'pipeline_errors.log')
+        return 1
+
+    if not network_list:
+        logger.warning("No networks loaded. Exiting.")
+        # Create an empty results file to indicate completion
+        results_path = paths['results_dir'] / 'sim_results.json'
+        results_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(results_path, 'w') as f:
+            json.dump([], f)
+        return 0
+
+    logger.info(f"Loaded {len(network_list)} networks.")
+    
     all_results = []
     
-    # Load real data (or synthetic if < 10 files found, per T005 logic)
-    # Note: load_real_data handles the fetching and counting logic.
-    # It returns a list of (id, graph) tuples.
-    networks = load_real_data(config, paths)
-    
-    if not networks:
-        logger.warning("No networks available to process. Exiting.")
-        # Even if empty, we write an empty results file to satisfy the artifact requirement
-        output_path = results_dir / "sim_results.json"
-        with open(output_path, "w") as f:
-            json.dump({"networks": [], "total_duration": 0.0}, f, indent=2)
-        return
-
-    logger.info(f"Processing {len(networks)} networks.")
-    
-    for graph_id, G in networks:
-        entry = process_single_network(graph_id, G, config)
-        all_results.append(entry)
-        
-    total_duration = time.time() - start_total
+    for graph_id, graph_data in network_list:
+        logger.info(f"Processing network: {graph_id}")
+        result = process_network_graph(graph_id, graph_data, config)
+        all_results.append(result)
     
     # Save results
-    output_path = results_dir / "sim_results.json"
-    final_report = {
-        "networks": all_results,
-        "total_duration": total_duration,
-        "checksum": compute_checksum(all_results)
+    results_path = paths['results_dir'] / 'sim_results.json'
+    results_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(results_path, 'w') as f:
+        json.dump(all_results, f, indent=2)
+    
+    logger.info(f"Simulation results saved to {results_path}")
+    
+    # Run verification step (T017b)
+    logger.info("Running verification step (T017b)...")
+    run_verification()
+    
+    end_time = time.time()
+    duration = end_time - start_time
+    
+    # Log pipeline status
+    status_path = paths['results_dir'] / 'pipeline_status.json'
+    status_data = {
+        "network_id": "aggregate",
+        "duration": duration,
+        "status": "SUCCESS",
+        "networks_processed": len(all_results)
     }
     
-    with open(output_path, "w") as f:
-        json.dump(final_report, f, indent=2)
+    with open(status_path, 'w') as f:
+        json.dump(status_data, f, indent=2)
     
-    logger.info(f"Pipeline complete. Results saved to {output_path}")
-    safe_exit(0)
+    logger.info(f"Pipeline completed successfully in {duration:.2f} seconds.")
+    return 0
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main())

@@ -13,7 +13,7 @@ As a researcher, I need to compute standard topological metrics (degree distribu
 
 **Why this priority**: This is the core scientific engine of the project. Without the ability to generate the predictor variables (topology) and the outcome variable (synchronization threshold), no analysis can occur. It represents the Minimum Viable Product (MVP) for the research pipeline.
 
-**Independent Test**: The system can be tested by loading a single, known small network (e.g., a 10-node Barabási-Albert graph), computing its metrics, running the simulation, and verifying that the output file contains a valid coupling threshold value and the computed metrics.
+**Independent Test**: The system can be tested by loading a single, known small network (e.g., a Barabási-Albert graph), computing its metrics, running the simulation, and verifying that the output file contains a valid coupling threshold value and the computed metrics.
 
 **Acceptance Scenarios**:
 

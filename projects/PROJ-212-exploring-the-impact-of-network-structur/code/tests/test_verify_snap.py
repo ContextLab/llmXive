@@ -4,171 +4,143 @@ import tempfile
 import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import networkx as nx
 
-from src.verify_snap import run_simulation_on_graph, main
+import sys
+import logging
 
-class TestVerifySnapSubset:
-    
-    @patch('src.verify_snap.check_disconnected')
-    @patch('src.verify_snap.run_kuramoto_simulation')
-    def test_run_simulation_on_graph_connected(self, mock_sim, mock_disconnected):
-        """Test simulation on a connected graph returns a threshold."""
-        mock_disconnected.return_value = False
-        mock_result = MagicMock()
-        mock_result.threshold = 2.5
-        mock_sim.return_value = mock_result
+# Add parent directory to path for imports if running directly
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-        G = nx.Graph()
-        G.add_edges_from([(0, 1), (1, 2)])
-        
-        threshold = run_simulation_on_graph(G, "test_graph")
-        
-        assert threshold == 2.5
-        mock_sim.assert_called_once_with(G)
+from src.verify_snap import (
+    get_sorted_network_files,
+    load_simulation_results,
+    generate_verification_report,
+    generate_manual_verification_log
+)
 
-    @patch('src.verify_snap.check_disconnected')
-    def test_run_simulation_on_graph_disconnected(self, mock_disconnected):
-        """Test simulation on a disconnected graph returns None."""
-        mock_disconnected.return_value = True
-
-        G = nx.Graph()
-        G.add_edges_from([(0, 1)])
-        G.add_node(2) # Disconnected node
-        
-        threshold = run_simulation_on_graph(G, "test_graph")
-        
-        assert threshold is None
-
-    def test_main_integration(self, tmp_path):
-        """
-        Integration test for main():
-        - Creates mock data files
-        - Mocks loader functions to avoid real network fetches
-        - Verifies report generation
-        """
-        # Setup temporary directories
-        raw_dir = tmp_path / "data" / "raw"
+@pytest.fixture
+def temp_dirs():
+    """Create temporary directories for testing."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        raw_dir = tmp_path / 'data' / 'raw'
         raw_dir.mkdir(parents=True)
-        results_dir = tmp_path / "results"
-        results_dir.mkdir(parents=True)
-
-        # Create mock network files
-        (raw_dir / "test1.mtx").write_text("Mock Matrix Market")
-        (raw_dir / "test2.csv").write_text("0 1\n1 2")
-        (raw_dir / "test3.gml").write_text('graph [ node [ id 0 ] edge [ source 0 target 1 ] ]')
-
-        # Mock the functions that would normally fetch real data or load complex files
-        with patch('src.verify_snap.get_snap_dataset_list') as mock_list, \
-             patch('src.verify_snap.load_snap_graph_from_edgelist') as mock_load, \
-             patch('src.verify_snap.check_disconnected') as mock_check, \
-             patch('src.verify_snap.run_kuramoto_simulation') as mock_sim, \
-             patch('src.verify_snap.Path') as mock_path_class:
-            
-            mock_list.return_value = [] # No datasets to fetch
-            mock_check.return_value = False
-            
-            # Mock simulation results
-            mock_res1 = MagicMock()
-            mock_res1.threshold = 1.0
-            mock_res2 = MagicMock()
-            mock_res2.threshold = 2.0
-            mock_res3 = MagicMock()
-            mock_res3.threshold = 3.0
-            mock_sim.side_effect = [mock_res1, mock_res2, mock_res3]
-
-            # Mock Path to use our tmp_path
-            # We need to intercept the specific calls for data/raw and results
-            def path_side_effect(*args, **kwargs):
-                p = Path(*args, **kwargs)
-                if str(p).startswith("data/raw"):
-                    return raw_dir
-                elif str(p).startswith("results"):
-                    return results_dir
-                return p
-
-            mock_path_class.side_effect = path_side_effect
-            mock_path_class.return_value = tmp_path # Fallback
-
-            # Run main
-            # We need to patch the specific file reads in main
-            # Since main uses glob on raw_dir, we rely on the real Path object for that
-            # But we need to ensure the 'results' path is the temp one
-            
-            # Re-run logic manually for the test to ensure paths are correct
-            # The main function uses global Path("data/raw") and Path("results")
-            # We need to patch those specific calls
-            
-            with patch('src.verify_snap.Path') as MockPath:
-                MockPath.side_effect = lambda *args, **kwargs: (
-                    raw_dir if "raw" in str(args) else 
-                    results_dir if "results" in str(args) else 
-                    Path(*args, **kwargs)
-                )
-                
-                # We also need to mock the loading logic inside main because it tries to read files
-                # We'll mock the graph loading to return simple graphs
-                original_load = None
-                
-                # Instead of complex patching, let's just verify the report generation logic
-                # by mocking the simulation calls directly on the files found
-                
-                # Actually, let's just test the report generation part by mocking the simulation
-                # and file loading
-                
-                pass
-
-        # A simpler integration test approach:
-        # Mock the entire simulation and loading process, just verify the file structure and JSON output
-        
-        with patch('src.verify_snap.get_snap_dataset_list', return_value=[]), \
-             patch('src.verify_snap.load_snap_graph_from_edgelist'), \
-             patch('src.verify_snap.check_disconnected', return_value=False), \
-             patch('src.verify_snap.run_kuramoto_simulation') as mock_sim, \
-             patch('src.verify_snap.Path') as MockPath:
-            
-            # Setup mock paths
-            def mock_path_init(*args, **kwargs):
-                p = Path(*args, **kwargs)
-                if "raw" in str(p):
-                    return raw_dir
-                if "results" in str(p):
-                    return results_dir
-                return p
-            
-            MockPath.side_effect = mock_path_init
-            MockPath.return_value = tmp_path
-
-            # Mock simulation results
-            mock_res = MagicMock()
-            mock_res.threshold = 4.5
-            mock_sim.return_value = mock_res
-            
-            # Mock the graph loading to return a valid graph
-            # We need to patch the reading logic inside main
-            # Since main does: G = nx.read_gml(...) etc, we can't easily patch nx
-            # So we patch the specific file reading calls or the loop logic
-            
-            # Let's just verify the report structure is created
-            # We'll mock the loop that processes files
-            with patch('src.verify_snap.run_simulation_on_graph', return_value=4.5):
-                # We need to make sure the files are found
-                # The glob is called on raw_dir which we mocked
-                pass
-
-        # Final verification: Check if report exists and has correct schema
-        # Since the above mocking is complex, let's do a direct check of the schema logic
-        report = {
-            "networks": [
-                {"id": "test1", "threshold": 1.0},
-                {"id": "test2", "threshold": None}
-            ]
+        results_dir = tmp_path / 'results'
+        results_dir.mkdir()
+        yield {
+            'raw_dir': raw_dir,
+            'results_dir': results_dir,
+            'base': tmp_path
         }
-        
-        # Verify schema
-        assert "networks" in report
-        for net in report["networks"]:
-            assert "id" in net
-            assert "threshold" in net
-            assert isinstance(net["id"], str)
-            assert net["threshold"] is None or isinstance(net["threshold"], float)
+
+def test_get_sorted_network_files(temp_dirs):
+    """Test that network files are correctly identified and sorted."""
+    raw_dir = temp_dirs['raw_dir']
+    
+    # Create some dummy files
+    (raw_dir / 'z_network.mtx').touch()
+    (raw_dir / 'a_network.csv').touch()
+    (raw_dir / 'm_network.gml').touch()
+    (raw_dir / 'ignore.txt').touch()
+    
+    files = get_sorted_network_files(raw_dir)
+    
+    assert len(files) == 3
+    assert files == ['a_network.csv', 'm_network.gml', 'z_network.mtx']
+
+def test_get_sorted_network_files_empty(temp_dirs):
+    """Test behavior when no network files exist."""
+    files = get_sorted_network_files(temp_dirs['raw_dir'])
+    assert files == []
+
+def test_load_simulation_results_valid(temp_dirs):
+    """Test loading valid simulation results."""
+    results_path = temp_dirs['results_dir'] / 'sim_results.json'
+    data = [
+        {"network_id": "test.mtx", "threshold": 0.5},
+        {"id": "test2.csv", "threshold": 0.8}
+    ]
+    with open(results_path, 'w') as f:
+        json.dump(data, f)
+    
+    loaded = load_simulation_results(results_path)
+    assert len(loaded) == 2
+    assert loaded[0]['network_id'] == 'test.mtx'
+    assert loaded[1]['id'] == 'test2.csv'
+
+def test_load_simulation_results_missing_file(temp_dirs):
+    """Test loading when file does not exist."""
+    results_path = temp_dirs['results_dir'] / 'nonexistent.json'
+    with pytest.raises(FileNotFoundError):
+        load_simulation_results(results_path)
+
+def test_generate_verification_report(temp_dirs):
+    """Test generation of verification report."""
+    sorted_files = ['a.mtx', 'b.csv']
+    sim_results = [
+        {"network_id": "a.mtx", "threshold": 0.5},
+        {"network_id": "b.csv", "threshold": 0.8}
+    ]
+    output_path = temp_dirs['results_dir'] / 'verification_report.json'
+    
+    generate_verification_report(sorted_files, sim_results, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        report = json.load(f)
+    
+    assert 'networks' in report
+    assert len(report['networks']) == 2
+    assert report['networks'][0]['id'] == 'a.mtx'
+    assert report['networks'][0]['threshold'] == 0.5
+    assert report['networks'][1]['id'] == 'b.csv'
+    assert report['networks'][1]['threshold'] == 0.8
+
+def test_generate_verification_report_missing_threshold(temp_dirs):
+    """Test generation when some thresholds are missing."""
+    sorted_files = ['a.mtx', 'b.csv']
+    sim_results = [
+        {"network_id": "a.mtx", "threshold": 0.5}
+    ]
+    output_path = temp_dirs['results_dir'] / 'verification_report.json'
+    
+    generate_verification_report(sorted_files, sim_results, output_path)
+    
+    with open(output_path, 'r') as f:
+        report = json.load(f)
+    
+    assert report['networks'][1]['threshold'] is None
+
+def test_generate_manual_verification_log(temp_dirs):
+    """Test generation of manual verification log."""
+    sorted_files = ['a.mtx', 'b.csv', 'c.gml', 'd.mtx', 'e.csv', 'f.gml']
+    output_path = temp_dirs['results_dir'] / 'manual_verification_log.txt'
+    
+    generate_manual_verification_log(sorted_files, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        content = f.read()
+    
+    assert "Manual Verification Log" in content
+    assert "a.mtx" in content
+    assert "b.csv" in content
+    assert "c.gml" in content
+    assert "d.mtx" in content
+    assert "e.csv" in content
+    assert "f.gml" not in content # Only first 5
+    assert "Sign-off:" in content
+
+def test_generate_manual_verification_log_fewer_than_5(temp_dirs):
+    """Test generation when fewer than 5 files exist."""
+    sorted_files = ['a.mtx', 'b.csv']
+    output_path = temp_dirs['results_dir'] / 'manual_verification_log.txt'
+    
+    generate_manual_verification_log(sorted_files, output_path)
+    
+    with open(output_path, 'r') as f:
+        content = f.read()
+    
+    assert "a.mtx" in content
+    assert "b.csv" in content
+    assert content.count("Verifier Name:") == 1

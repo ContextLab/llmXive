@@ -20,7 +20,7 @@ Key revisions in this plan:
 **Primary Dependencies**: `networkx`, `scipy`, `numpy`, `pandas`, `scikit-learn`, `matplotlib`, `pytest`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `results`)  
 **Testing**: `pytest` with TDD workflow (tests written before implementation)  
-**Target Platform**: Linux (GitHub Actions free tier: 2 vCPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free tier: vCPU, ~7 GB RAM)  
 **Project Type**: Scientific computing CLI / Data analysis pipeline  
 **Performance Goals**: Complete pipeline for 10+ networks within 6 hours; single network simulation < 20 mins.  
 **Constraints**: No local GPU; memory usage < 7 GB; strict adherence to spec-defined predictors (no unauthorized motif analysis).  
@@ -38,7 +38,7 @@ Key revisions in this plan:
 - **Principle IV (Single Source of Truth)**: Regression results in `results/regression_summary.json` will be the sole source for paper statistics.
 - **Principle V (Versioning)**: All artifacts (code, data, results) will be tracked with content hashes in the project state file.
 - **Principle VI (Numerical Stability)**: The Kuramoto implementation will strictly use `scipy.integrate.ode` with `method='dop5'` (RK45) and fixed tolerances (`rtol=1e-6`, `atol=1e-9`). Initial phases will be seeded via `numpy.random.seed`.
-- **Principle VII (Statistical Rigor)**: The plan enforces VIF checks (threshold > 5) and conditional regression logic (N < 10 warning). Cross-validation strategy (LOOCV for N<50, 10-fold for N≥50) will be implemented exactly as per FR-005, overriding any prior plan text suggesting 5x5-CV. The plan explicitly reports 95% confidence intervals and validates against the R² > 0.6 threshold as required, while acknowledging power limitations if N < 30.
+- **Principle VII (Statistical Rigor)**: The plan enforces VIF checks (threshold > 5) and conditional regression logic (N < 10 warning). Cross-validation strategy (LOOCV for N<50, 10-fold for N≥50) will be implemented exactly as per FR-005, overriding any prior plan text suggesting 5x5-CV. The plan explicitly reports % confidence intervals and validates against the R² > 0.6 threshold as required, while acknowledging power limitations if N < 30.
 
 ## Project Structure
 
@@ -107,6 +107,6 @@ tests/
 ## Data & Compute Feasibility
 
 - **CPU-First**: All simulations (RK45) and statistical models (scikit-learn) are computationally lightweight for N=200 oscillators and typical network sizes (up to 10k nodes). No GPU is required.
-- **Memory**: Streaming the dataset and processing one graph at a time ensures RAM usage remains well under the 7 GB limit.
-- **Time**: With a 6-hour limit, we can process a small to moderate number of networks (assuming Approximately a quarter of an hour per network). If the verified dataset yields more, we will process the initial subset. If the pipeline exceeds 6 hours, `results/pipeline_status.json` will log the specific network ID causing the delay.
+- **Memory**: Streaming the dataset and processing one graph at a time ensures RAM usage remains well under the system memory limit..
+- **Time**: With a A time limit is imposed., we can process a small to moderate number of networks (assuming Approximately a quarter of an hour per network). If the verified dataset yields more, we will process the initial subset. If the pipeline exceeds 6 hours, `results/pipeline_status.json` will log the specific network ID causing the delay.
 - **Data Sources**: Verified URLs for SNAP and Network Repository are used. If these fail to yield graphs, the pipeline halts with a warning.

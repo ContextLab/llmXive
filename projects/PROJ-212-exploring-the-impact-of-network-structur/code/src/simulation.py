@@ -5,215 +5,181 @@ from typing import List, Dict, Any, Optional, Tuple
 from data_models import SynchronizationStatus, SimulationResult
 import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def check_disconnected(G: nx.Graph) -> bool:
+def check_disconnected(graph: nx.Graph) -> bool:
     """
-    Check if the graph is disconnected.
-    
-    Args:
-        G: NetworkX graph to check
-        
-    Returns:
-        True if the graph is disconnected, False otherwise
+    Checks if the graph is disconnected.
     """
-    if G.number_of_nodes() == 0:
-        logger.warning("Graph has no nodes, treating as disconnected")
+    if graph.number_of_nodes() == 0:
         return True
-        
-    if not nx.is_connected(G):
-        logger.warning("Graph is disconnected")
-        return True
-        
-    return False
-
-def kuramoto_derivative(t: float, y: np.ndarray, K: float, adj_matrix: np.ndarray) -> np.ndarray:
-    """
-    Compute the derivative for the Kuramoto model.
-    
-    Args:
-        t: Current time (unused, but required by solve_ivp)
-        y: Current phase angles
-        K: Coupling strength
-        adj_matrix: Adjacency matrix of the network
-        
-    Returns:
-        Array of phase derivatives
-    """
-    N = len(y)
-    dydt = np.zeros(N)
-    
-    # Compute sin(theta_j - theta_i) for all pairs
-    diff = y[:, np.newaxis] - y[np.newaxis, :]
-    sin_diff = np.sin(diff)
-    
-    # Compute sum over neighbors for each node
-    for i in range(N):
-        dydt[i] = (K / N) * np.sum(adj_matrix[i, :] * sin_diff[i, :])
-        
-    return dydt
+    return not nx.is_connected(graph)
 
 def compute_order_parameter(phases: np.ndarray) -> float:
     """
-    Compute the Kuramoto order parameter R.
-    
-    Args:
-        phases: Array of phase angles
-        
-    Returns:
-        Order parameter R (0 <= R <= 1)
+    Computes the Kuramoto order parameter r.
     """
     if len(phases) == 0:
         return 0.0
-        
-    # Compute the complex order parameter
-    z = np.mean(np.exp(1j * phases))
-    return np.abs(z)
+    # r = |1/N * sum(exp(i * theta_j))|
+    complex_phases = np.exp(1j * phases)
+    r = np.abs(np.mean(complex_phases))
+    return float(r)
 
-def run_kuramoto_simulation(
-    G: nx.Graph,
-    k_values: Optional[List[float]] = None,
-    t_max: float = 200.0,
-    dt: float = 0.01,
-    threshold_r: float = 0.8,
-    threshold_t: int = 100,
-    random_seed: Optional[int] = None
-) -> SimulationResult:
+def kuramoto_derivative(t: float, phases: np.ndarray, K: float, omega: np.ndarray, adjacency: np.ndarray) -> np.ndarray:
     """
-    Run Kuramoto synchronization simulation on a network.
-    
-    Args:
-        G: NetworkX graph representing the network
-        k_values: List of coupling strengths to test. Defaults to [0, 5] step 0.1
-        t_max: Maximum simulation time
-        dt: Time step for integration
-        threshold_r: Minimum order parameter for synchronization
-        threshold_t: Minimum duration of synchronization
-        random_seed: Random seed for initial phases
-        
-    Returns:
-        SimulationResult containing the critical coupling strength and metrics
+    Computes the derivative for the Kuramoto model.
+    d(theta_i)/dt = omega_i + (K/N) * sum(sin(theta_j - theta_i))
     """
-    if k_values is None:
-        k_values = list(np.arange(0.0, 5.1, 0.1))
-        
-    N = G.number_of_nodes()
+    N = len(phases)
+    dphases = np.zeros(N)
     
+    # Vectorized computation
+    # sin(theta_j - theta_i) = sin(theta_j)cos(theta_i) - cos(theta_j)sin(theta_i)
+    sin_phases = np.sin(phases)
+    cos_phases = np.cos(phases)
+    
+    # sum_j A_ij * sin(theta_j - theta_i)
+    # = sum_j A_ij * (sin(theta_j)cos(theta_i) - cos(theta_j)sin(theta_i))
+    # = cos(theta_i) * sum_j A_ij sin(theta_j) - sin(theta_i) * sum_j A_ij cos(theta_j)
+    
+    sin_sum = adjacency @ sin_phases
+    cos_sum = adjacency @ cos_phases
+    
+    dphases = omega + (K / N) * (cos_phases * sin_sum - sin_phases * cos_sum)
+    
+    return dphases
+
+def run_kuramoto_simulation(graph: nx.Graph, K: float, config: Dict[str, Any]) -> SimulationResult:
+    """
+    Runs the Kuramoto simulation on a given graph with coupling strength K.
+    """
+    N = graph.number_of_nodes()
     if N == 0:
-        logger.error("Cannot simulate on empty graph")
         return SimulationResult(
-            critical_k=float('inf'),
-            synchronization_status=SynchronizationStatus.DISCONNECTED,
+            network_id="empty",
+            threshold=0.0,
+            status=SynchronizationStatus.ERROR,
             metrics={},
-            raw_data=None
+            r_parameter=0.0,
+            t_parameter=0
         )
+
+    # Natural frequencies (random for now, or from config)
+    omega = np.random.RandomState(config.get('random_seed', 42)).randn(N)
     
-    # Check for disconnected graph - early exit logic
-    if check_disconnected(G):
-        logger.info("Graph is disconnected, skipping K-sweep, returning infinity")
-        return SimulationResult(
-            critical_k=float('inf'),
-            synchronization_status=SynchronizationStatus.DISCONNECTED,
-            metrics={
-                'num_nodes': N,
-                'num_edges': G.number_of_edges(),
-                'is_connected': False,
-                'critical_k': float('inf'),
-                'status': 'disconnected'
-            },
-            raw_data=None
+    # Initial phases
+    theta0 = np.random.RandomState(config.get('random_seed', 42)).rand(N) * 2 * np.pi
+    
+    # Adjacency matrix
+    adjacency = nx.to_numpy_array(graph)
+    
+    # Simulation parameters
+    t_span = (0, config.get('t_max', 100))
+    t_eval = np.linspace(t_span[0], t_span[1], config.get('n_eval', 1000))
+    
+    # Solve ODE
+    try:
+        sol = solve_ivp(
+            lambda t, y: kuramoto_derivative(t, y, K, omega, adjacency),
+            t_span,
+            theta0,
+            method='RK45',
+            t_eval=t_eval
         )
-    
-    # Convert graph to adjacency matrix
-    adj_matrix = nx.to_numpy_array(G)
-    
-    # Set random seed for reproducibility
-    if random_seed is not None:
-        np.random.seed(random_seed)
         
-    # Initialize phases randomly
-    initial_phases = np.random.uniform(0, 2 * np.pi, N)
-    
-    # Track synchronization status for each K
-    sync_results = []
-    
-    for K in k_values:
-        # Solve the differential equation
-        t_eval = np.arange(0, t_max, dt)
-        
-        try:
-            sol = solve_ivp(
-                lambda t, y: kuramoto_derivative(t, y, K, adj_matrix),
-                [0, t_max],
-                initial_phases,
-                method='RK45',
-                t_eval=t_eval
+        if not sol.success:
+            logger.error(f"Simulation failed: {sol.message}")
+            return SimulationResult(
+                network_id="failed",
+                threshold=K,
+                status=SynchronizationStatus.ERROR,
+                metrics={},
+                r_parameter=0.0,
+                t_parameter=0
             )
-            
-            if not sol.success:
-                logger.warning(f"Integration failed for K={K}: {sol.message}")
-                sync_results.append((K, 0.0, False))
-                continue
-            
-            # Compute order parameter over time
-            phases = sol.y.T
-            order_params = np.array([compute_order_parameter(p) for p in phases])
-            
-            # Check for sustained synchronization
-            # Find the last threshold_t points and check if R > threshold_r
-            if len(order_params) >= threshold_t:
-                recent_params = order_params[-threshold_t:]
-                avg_recent = np.mean(recent_params)
-                sustained = np.all(recent_params > threshold_r)
-            else:
-                avg_recent = np.mean(order_params)
-                sustained = avg_recent > threshold_r
-                
-            sync_results.append((K, avg_recent, sustained))
-            
-        except Exception as e:
-            logger.error(f"Error running simulation for K={K}: {e}")
-            sync_results.append((K, 0.0, False))
-    
-    # Find critical K (first K where sustained synchronization occurs)
-    critical_k = float('inf')
-    synchronization_status = SynchronizationStatus.NOT_SYNCHRONIZED
-    
-    for K, avg_r, sustained in sync_results:
-        if sustained:
-            critical_k = K
-            synchronization_status = SynchronizationStatus.SYNCHRONIZED
-            break
         
-    # If no sustained synchronization found, check if any partial synchronization
-    if synchronization_status == SynchronizationStatus.NOT_SYNCHRONIZED:
-        max_r = max(avg_r for _, avg_r, _ in sync_results)
-        if max_r > threshold_r:
-            synchronization_status = SynchronizationStatus.PARTIALLY_SYNCHRONIZED
+        phases = sol.y
+        # Compute order parameter over time
+        r_values = [compute_order_parameter(phases[:, i]) for i in range(phases.shape[1])]
         
-    # Prepare metrics
-    metrics = {
-        'num_nodes': N,
-        'num_edges': G.number_of_edges(),
-        'is_connected': True,
-        'critical_k': critical_k,
-        'status': synchronization_status.value,
-        'k_values_tested': len(k_values),
-        'max_order_parameter': max(avg_r for _, avg_r, _ in sync_results) if sync_results else 0.0
+        # Check for synchronization: r > threshold for t > duration
+        r_threshold = config.get('thresholds', {}).get('r', 0.8)
+        t_threshold = config.get('thresholds', {}).get('t', 100)
+        
+        # Find if there's a period where r > r_threshold for at least t_threshold
+        # We'll check the last part of the simulation
+        # Simplified: check if the last 10% of time steps have r > r_threshold
+        last_n = max(1, len(r_values) // 10)
+        last_r = r_values[-last_n:]
+        avg_r = np.mean(last_r)
+        
+        status = SynchronizationStatus.SYNCHRONIZED if avg_r > r_threshold else SynchronizationStatus.NOT_SYNCHRONIZED
+        
+        return SimulationResult(
+            network_id="simulation",
+            threshold=K,
+            status=status,
+            metrics={"final_r": float(np.mean(last_r))},
+            r_parameter=avg_r,
+            t_parameter=int(t_span[1])
+        )
+    except Exception as e:
+        logger.error(f"Simulation error: {e}")
+        return SimulationResult(
+            network_id="error",
+            threshold=K,
+            status=SynchronizationStatus.ERROR,
+            metrics={},
+            r_parameter=0.0,
+            t_parameter=0
+        )
+
+def find_critical_coupling(graph: nx.Graph, config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Finds the critical coupling strength K_c using bisection search.
+    """
+    # Check for disconnected graph
+    if check_disconnected(graph):
+        logger.info("Graph is disconnected. Critical coupling is infinity.")
+        return {
+            "threshold": float('inf'),
+            "status": SynchronizationStatus.DISCONNECTED
+        }
+
+    K_min = config.get('simulation', {}).get('k_range', [0, 5])[0]
+    K_max = config.get('simulation', {}).get('k_range', [0, 5])[1]
+    tolerance = config.get('simulation', {}).get('tolerance', 0.001)
+    
+    # Bisection search
+    while K_max - K_min > tolerance:
+        K_mid = (K_min + K_max) / 2
+        result = run_kuramoto_simulation(graph, K_mid, config)
+        
+        if result.status == SynchronizationStatus.SYNCHRONIZED:
+            K_max = K_mid
+        else:
+            K_min = K_mid
+    
+    K_c = (K_min + K_max) / 2
+    logger.info(f"Critical coupling K_c found: {K_c:.4f}")
+    
+    return {
+        "threshold": K_c,
+        "status": SynchronizationStatus.SYNCHRONIZED
     }
+
+def process_single_network(graph: nx.Graph, config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Processes a single network: checks connectivity, runs simulation, finds critical coupling.
+    """
+    if check_disconnected(graph):
+        logger.info("Skipping simulation for disconnected graph.")
+        return {
+            "threshold": float('inf'),
+            "status": "disconnected"
+        }
     
-    # Store raw data for analysis
-    raw_data = {
-        'k_values': [K for K, _, _ in sync_results],
-        'order_parameters': [avg_r for _, avg_r, _ in sync_results],
-        'sustained': [sustained for _, _, sustained in sync_results]
-    }
-    
-    logger.info(f"Simulation complete for {N} nodes: critical_k = {critical_k}, status = {synchronization_status}")
-    
-    return SimulationResult(
-        critical_k=critical_k,
-        synchronization_status=synchronization_status,
-        metrics=metrics,
-        raw_data=raw_data
-    )
+    result = find_critical_coupling(graph, config)
+    return result

@@ -1,20 +1,18 @@
 """
-Unit tests for data validators in src/validators.py.
+Unit tests for src/validators.py
 
 Tests cover:
 - Disconnected graph detection
-- Graph validation with various edge cases
+- Graph validation (self-loops, multi-edges, connectivity)
 - Network list validation
 - Simulation input validation
 """
+
 import pytest
 import networkx as nx
 import numpy as np
 from pathlib import Path
 import sys
-
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.validators import (
     check_disconnected_graph,
@@ -27,304 +25,276 @@ from data_models import NetworkGraph
 
 class TestCheckDisconnectedGraph:
     """Tests for check_disconnected_graph function."""
-    
+
     def test_connected_graph(self):
-        """Test that a connected graph is correctly identified."""
-        G = nx.complete_graph(10)
-        is_disconnected, sizes = check_disconnected_graph(G)
-        assert not is_disconnected
-        assert sizes == [10]
-        
+        """Test that a connected graph returns False."""
+        G = nx.barbell_graph(10, 5)  # Two cliques connected by a path
+        assert check_disconnected_graph(G) is False
+
     def test_disconnected_graph(self):
-        """Test that a disconnected graph is correctly identified."""
+        """Test that a disconnected graph returns True."""
+        G = nx.disjoint_union(
+            nx.complete_graph(5),
+            nx.complete_graph(5)
+        )
+        assert check_disconnected_graph(G) is True
+
+    def test_single_node_graph(self):
+        """Test that a single-node graph is considered connected."""
         G = nx.Graph()
-        G.add_nodes_from(range(10))
-        G.add_edges_from([(0, 1), (1, 2), (2, 0)])  # Component 1
-        G.add_edges_from([(3, 4), (4, 5)])          # Component 2
-        G.add_edges_from([(6, 7), (7, 8), (8, 9), (9, 6)])  # Component 3
-        
-        is_disconnected, sizes = check_disconnected_graph(G)
-        assert is_disconnected
-        assert sorted(sizes) == [3, 3, 4]
-        
-    def test_single_node(self):
-        """Test that a single node graph is considered connected."""
-        G = nx.Graph()
-        G.add_node(0)
-        is_disconnected, sizes = check_disconnected_graph(G)
-        assert not is_disconnected
-        assert sizes == [1]
-        
+        G.add_node(1)
+        assert check_disconnected_graph(G) is False
+
     def test_empty_graph(self):
-        """Test that an empty graph returns appropriate result."""
+        """Test that an empty graph is considered disconnected."""
         G = nx.Graph()
-        is_disconnected, sizes = check_disconnected_graph(G)
-        assert is_disconnected
-        assert sizes == []
-        
-    def test_invalid_input(self):
-        """Test that non-graph input raises ValueError."""
-        with pytest.raises(ValueError):
-            check_disconnected_graph("not a graph")
-            
-    def test_ba_graph(self):
-        """Test Barabási-Albert graph (typically connected)."""
-        G = nx.barabasi_albert_graph(100, 3)
-        is_disconnected, sizes = check_disconnected_graph(G)
-        # BA graphs are usually connected, but can be disconnected for small m
-        assert isinstance(is_disconnected, bool)
-        assert isinstance(sizes, list)
+        assert check_disconnected_graph(G) is True
+
+    def test_two_nodes_no_edge(self):
+        """Test that two nodes with no edge is disconnected."""
+        G = nx.Graph()
+        G.add_nodes_from([1, 2])
+        assert check_disconnected_graph(G) is True
+
+    def test_two_nodes_with_edge(self):
+        """Test that two nodes with an edge is connected."""
+        G = nx.Graph()
+        G.add_nodes_from([1, 2])
+        G.add_edge(1, 2)
+        assert check_disconnected_graph(G) is False
+
+    def test_networkgraph_wrapper(self):
+        """Test that NetworkGraph wrapper is handled correctly."""
+        G = nx.Graph()
+        G.add_nodes_from([1, 2, 3])
+        G.add_edges_from([(1, 2), (2, 3)])
+        network_graph = NetworkGraph(graph=G, id="test", source="test")
+        assert check_disconnected_graph(network_graph) is False
 
 
 class TestValidateGraph:
     """Tests for validate_graph function."""
-    
-    def test_valid_complete_graph(self):
-        """Test validation of a valid complete graph."""
-        G = nx.complete_graph(10)
-        result = validate_graph(G)
-        assert result['valid']
-        assert len(result['errors']) == 0
-        assert result['stats']['num_nodes'] == 10
-        assert result['stats']['num_edges'] == 45
-        
-    def test_graph_too_small(self):
-        """Test validation fails for graph too small."""
+
+    def test_valid_connected_graph(self):
+        """Test validation of a valid connected graph."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
+        result = validate_graph(G, name="test_valid")
+        assert result["valid"] is True
+        assert result["is_connected"] is True
+        assert len(result["errors"]) == 0
+        assert result["node_count"] == 20
+
+    def test_graph_with_self_loops(self):
+        """Test validation of a graph with self-loops."""
         G = nx.Graph()
-        G.add_node(0)
-        result = validate_graph(G, min_nodes=2)
-        assert not result['valid']
-        assert any("minimum" in e.lower() for e in result['errors'])
-        
-    def test_graph_too_large(self):
-        """Test validation fails for graph too large."""
-        G = nx.complete_graph(100)
-        result = validate_graph(G, max_nodes=50)
-        assert not result['valid']
-        assert any("maximum" in e.lower() for e in result['errors'])
-        
-    def test_self_loops_not_allowed(self):
-        """Test validation catches self-loops when not allowed."""
+        G.add_nodes_from([1, 2, 3])
+        G.add_edges_from([(1, 2), (2, 3), (1, 1)])  # Self-loop on 1
+        result = validate_graph(G, name="test_self_loop")
+        assert result["valid"] is True  # Still valid, just a warning
+        assert result["has_self_loops"] is True
+        assert len(result["warnings"]) > 0
+        assert any("self-loop" in w for w in result["warnings"])
+
+    def test_disconnected_graph_validation(self):
+        """Test validation of a disconnected graph."""
+        G = nx.disjoint_union(nx.complete_graph(5), nx.complete_graph(5))
+        result = validate_graph(G, name="test_disconnected")
+        assert result["valid"] is True  # Still valid, just a warning
+        assert result["is_connected"] is False
+        assert len(result["warnings"]) > 0
+        assert any("disconnected" in w.lower() for w in result["warnings"])
+
+    def test_empty_graph_validation(self):
+        """Test validation of an empty graph."""
         G = nx.Graph()
-        G.add_edges_from([(0, 1), (1, 2), (2, 0), (0, 0)])
-        result = validate_graph(G, allow_self_loops=False)
-        assert not result['valid']
-        assert any("self-loop" in e.lower() for e in result['errors'])
-        
-    def test_self_loops_allowed(self):
-        """Test validation passes with self-loops when allowed."""
+        result = validate_graph(G, name="test_empty")
+        assert result["valid"] is False
+        assert len(result["errors"]) > 0
+        assert any("empty" in e.lower() for e in result["errors"])
+
+    def test_graph_with_no_edges(self):
+        """Test validation of a graph with nodes but no edges."""
         G = nx.Graph()
-        G.add_edges_from([(0, 1), (1, 2), (2, 0), (0, 0)])
-        result = validate_graph(G, allow_self_loops=True)
-        assert result['valid']
-        
-    def test_isolated_nodes_warning(self):
-        """Test that isolated nodes generate warnings."""
+        G.add_nodes_from([1, 2, 3])
+        result = validate_graph(G, name="test_no_edges")
+        assert result["valid"] is False
+        assert len(result["errors"]) > 0
+        assert any("no edges" in e.lower() for e in result["errors"])
+
+    def test_single_node_graph(self):
+        """Test validation of a single-node graph."""
         G = nx.Graph()
-        G.add_edges_from([(0, 1), (1, 2)])
-        G.add_node(3)  # Isolated
-        result = validate_graph(G)
-        assert any("isolated" in w.lower() for w in result['warnings'])
-        
-    def test_disconnected_graph_warning(self):
-        """Test that disconnected graphs generate warnings."""
-        G = nx.Graph()
-        G.add_edges_from([(0, 1), (2, 3)])  # Two components
-        result = validate_graph(G)
-        assert any("disconnected" in w.lower() for w in result['warnings'])
-        
-    def test_degree_statistics(self):
-        """Test that degree statistics are computed."""
-        G = nx.star_graph(5)  # One center, 5 leaves
-        result = validate_graph(G)
-        assert 'mean_degree' in result['stats']
-        assert 'max_degree' in result['stats']
-        assert 'min_degree' in result['stats']
-        assert result['stats']['max_degree'] == 5
-        assert result['stats']['min_degree'] == 1
-        
-    def test_invalid_input_type(self):
-        """Test that non-graph input raises ValueError."""
-        with pytest.raises(ValueError):
-            validate_graph("not a graph")
+        G.add_node(1)
+        result = validate_graph(G, name="test_single")
+        assert result["valid"] is True  # Technically valid
+        assert len(result["warnings"]) > 0
+        assert any("fewer than 2 nodes" in w for w in result["warnings"])
+
+    def test_networkgraph_wrapper(self):
+        """Test validation with NetworkGraph wrapper."""
+        G = nx.barbell_graph(10, 5)
+        network_graph = NetworkGraph(graph=G, id="test", source="test")
+        result = validate_graph(network_graph, name="test_wrapper")
+        assert result["valid"] is True
+        assert result["is_connected"] is True
 
 
 class TestValidateNetworkList:
     """Tests for validate_network_list function."""
-    
+
     def test_valid_list(self):
-        """Test validation of a valid network list."""
-        networks = [nx.complete_graph(5), nx.path_graph(5)]
-        result = validate_network_list(networks)
-        assert result['valid']
-        assert result['stats']['valid_networks'] == 2
-        assert result['stats']['num_networks'] == 2
-        
-    def test_empty_list(self):
-        """Test validation fails for empty list."""
-        result = validate_network_list([])
-        assert not result['valid']
-        assert any("minimum" in e.lower() for e in result['errors'])
-        
-    def test_list_too_small(self):
-        """Test validation fails for list with too few networks."""
-        networks = [nx.complete_graph(5)]
-        result = validate_network_list(networks, min_networks=3)
-        assert not result['valid']
-        
-    def test_list_too_large(self):
-        """Test validation fails for list with too many networks."""
-        networks = [nx.complete_graph(i) for i in range(1, 6)]
-        result = validate_network_list(networks, max_networks=3)
-        assert not result['valid']
-        
-    def test_mixed_validity(self):
-        """Test validation with mixed valid/invalid networks."""
-        networks = [
-            nx.complete_graph(5),  # Valid
-            nx.Graph(),             # Invalid (single node with min_nodes=2)
-            nx.path_graph(5)
+        """Test validation of a list of valid graphs."""
+        graphs = [
+            nx.erdos_renyi_graph(20, 0.3, seed=i)
+            for i in range(3)
         ]
-        result = validate_network_list(networks, min_nodes=2)
-        assert not result['valid']  # Because one is invalid
-        assert result['stats']['valid_networks'] == 2
-        assert result['stats']['invalid_networks'] == 1
-        
-    def test_disconnected_networks_counted(self):
-        """Test that disconnected networks are counted."""
-        G1 = nx.complete_graph(5)
-        G2 = nx.Graph()
-        G2.add_edges_from([(0, 1), (2, 3)])  # Disconnected
-        networks = [G1, G2]
-        result = validate_network_list(networks)
-        assert result['stats']['disconnected_networks'] == 1
-        
-    def test_networkgraph_objects(self):
-        """Test validation with NetworkGraph dataclass objects."""
-        G = nx.complete_graph(5)
-        net = NetworkGraph(id="test_1", graph=G, metrics={})
-        result = validate_network_list([net])
-        assert result['valid']
-        assert result['stats']['num_networks'] == 1
+        result = validate_network_list(graphs)
+        assert result["total_count"] == 3
+        assert result["valid_count"] == 3
+        assert result["invalid_count"] == 0
+        assert len(result["results"]) == 3
+
+    def test_mixed_validity(self):
+        """Test validation of a list with mixed validity."""
+        graphs = [
+            nx.erdos_renyi_graph(20, 0.3, seed=0),  # Valid
+            nx.Graph(),  # Invalid (empty)
+            nx.disjoint_union(nx.complete_graph(5), nx.complete_graph(5)),  # Valid but disconnected
+        ]
+        result = validate_network_list(graphs)
+        assert result["total_count"] == 3
+        assert result["valid_count"] == 2
+        assert result["invalid_count"] == 1
+        assert result["disconnected_count"] == 1
+
+    def test_empty_list(self):
+        """Test validation of an empty list."""
+        result = validate_network_list([])
+        assert result["total_count"] == 0
+        assert result["valid_count"] == 0
+        assert result["invalid_count"] == 0
+        assert len(result["results"]) == 0
+
+    def test_invalid_input_type(self):
+        """Test that non-list input raises TypeError."""
+        with pytest.raises(TypeError):
+            validate_network_list("not a list")
 
 
 class TestValidateSimulationInputs:
     """Tests for validate_simulation_inputs function."""
-    
+
     def test_valid_inputs(self):
-        """Test validation of valid simulation inputs."""
-        G = nx.complete_graph(10)
-        K_values = [0.0, 0.5, 1.0, 1.5, 2.0]
+        """Test validation with valid inputs."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
         result = validate_simulation_inputs(
-            G, K_values, t_max=100.0, dt=0.01
+            G,
+            coupling_range=(0.0, 5.0),
+            tolerance=0.001,
+            max_iterations=1000,
+            time_steps=1000,
+            dt=0.01
         )
-        assert result['valid']
-        assert len(result['errors']) == 0
-        
-    def test_empty_k_values(self):
-        """Test validation fails for empty K_values."""
-        G = nx.complete_graph(10)
+        assert result["valid"] is True
+        assert len(result["errors"]) == 0
+
+    def test_invalid_coupling_range(self):
+        """Test validation with invalid coupling range."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
         result = validate_simulation_inputs(
-            G, [], t_max=100.0, dt=0.01
+            G,
+            coupling_range=(5.0, 0.0),  # min > max
+            tolerance=0.001
         )
-        assert not result['valid']
-        assert any("empty" in e.lower() for e in result['errors'])
-        
-    def test_negative_k_values(self):
-        """Test validation fails for negative K_values."""
-        G = nx.complete_graph(10)
+        assert result["valid"] is False
+        assert len(result["errors"]) > 0
+        assert any("min coupling" in e.lower() for e in result["errors"])
+
+    def test_negative_coupling(self):
+        """Test validation with negative coupling."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
         result = validate_simulation_inputs(
-            G, [-0.5, 0.0, 0.5], t_max=100.0, dt=0.01
+            G,
+            coupling_range=(-1.0, 5.0)
         )
-        assert not result['valid']
-        assert any("negative" in e.lower() for e in result['errors'])
-        
-    def test_invalid_t_max(self):
-        """Test validation fails for non-positive t_max."""
-        G = nx.complete_graph(10)
+        assert result["valid"] is False
+        assert any("non-negative" in e.lower() for e in result["errors"])
+
+    def test_invalid_tolerance(self):
+        """Test validation with invalid tolerance."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
         result = validate_simulation_inputs(
-            G, [0.5], t_max=-1.0, dt=0.01
+            G,
+            tolerance=-0.001
         )
-        assert not result['valid']
-        
+        assert result["valid"] is False
+        assert any("tolerance" in e.lower() for e in result["errors"])
+
+    def test_large_tolerance_warning(self):
+        """Test warning for large tolerance."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
+        result = validate_simulation_inputs(
+            G,
+            tolerance=0.5
+        )
+        assert result["valid"] is True
+        assert len(result["warnings"]) > 0
+        assert any("large" in w.lower() for w in result["warnings"])
+
+    def test_invalid_max_iterations(self):
+        """Test validation with invalid max iterations."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
+        result = validate_simulation_inputs(
+            G,
+            max_iterations=-10
+        )
+        assert result["valid"] is False
+        assert any("positive" in e.lower() for e in result["errors"])
+
+    def test_small_max_iterations_warning(self):
+        """Test warning for small max iterations."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
+        result = validate_simulation_inputs(
+            G,
+            max_iterations=5
+        )
+        assert result["valid"] is True
+        assert len(result["warnings"]) > 0
+        assert any("low" in w.lower() for w in result["warnings"])
+
     def test_invalid_dt(self):
-        """Test validation fails for non-positive dt."""
-        G = nx.complete_graph(10)
+        """Test validation with invalid dt."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
         result = validate_simulation_inputs(
-            G, [0.5], t_max=100.0, dt=-0.01
+            G,
+            dt=-0.01
         )
-        assert not result['valid']
-        
-    def test_dt_exceeds_t_max(self):
-        """Test validation fails when dt > t_max."""
-        G = nx.complete_graph(10)
+        assert result["valid"] is False
+        assert any("positive" in e.lower() for e in result["errors"])
+
+    def test_large_dt_warning(self):
+        """Test warning for large dt."""
+        G = nx.erdos_renyi_graph(20, 0.3, seed=42)
         result = validate_simulation_inputs(
-            G, [0.5], t_max=1.0, dt=2.0
+            G,
+            dt=0.5
         )
-        assert not result['valid']
-        
-    def test_few_time_steps_warning(self):
-        """Test warning for too few time steps."""
-        G = nx.complete_graph(10)
-        result = validate_simulation_inputs(
-            G, [0.5], t_max=1.0, dt=0.1  # Only 10 steps
-        )
-        assert any("time steps" in w.lower() for w in result['warnings'])
-        
-    def test_mismatched_initial_conditions(self):
-        """Test validation fails for mismatched initial conditions."""
-        G = nx.complete_graph(10)
-        initial = np.random.rand(5)  # Wrong size
-        result = validate_simulation_inputs(
-            G, [0.5], t_max=100.0, dt=0.01, initial_conditions=initial
-        )
-        assert not result['valid']
-        assert any("length" in e.lower() for e in result['errors'])
-        
-    def test_non_finite_initial_conditions(self):
-        """Test validation fails for non-finite initial conditions."""
-        G = nx.complete_graph(10)
-        initial = np.array([0.0, 1.0, np.nan, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0])
-        result = validate_simulation_inputs(
-            G, [0.5], t_max=100.0, dt=0.01, initial_conditions=initial
-        )
-        assert not result['valid']
-        assert any("non-finite" in e.lower() for e in result['errors'])
-        
-    def test_disconnected_graph_suggestion(self):
-        """Test that disconnected graphs get suggestions."""
+        assert result["valid"] is True
+        assert len(result["warnings"]) > 0
+        assert any("large" in w.lower() for w in result["warnings"])
+
+    def test_disconnected_graph_warning(self):
+        """Test warning for disconnected graph."""
+        G = nx.disjoint_union(nx.complete_graph(5), nx.complete_graph(5))
+        result = validate_simulation_inputs(G)
+        assert result["valid"] is True
+        assert len(result["warnings"]) > 0
+        assert any("disconnected" in w.lower() for w in result["warnings"])
+
+    def test_empty_graph_error(self):
+        """Test error for empty graph."""
         G = nx.Graph()
-        G.add_edges_from([(0, 1), (2, 3)])  # Disconnected
-        result = validate_simulation_inputs(
-            G, [0.5], t_max=100.0, dt=0.01
-        )
-        assert any("disconnected" in w.lower() for w in result['warnings'])
-        assert any("largest connected component" in s.lower() for s in result['suggestions'])
-        
-    def test_k_value_range_suggestions(self):
-        """Test suggestions for unusual K value ranges."""
-        G = nx.complete_graph(10)
-        
-        # Low K_max
-        result = validate_simulation_inputs(
-            G, [0.0, 0.1, 0.2], t_max=100.0, dt=0.01
-        )
-        assert any("maximum K value is low" in s.lower() for s in result['suggestions'])
-        
-        # High K_min
-        result = validate_simulation_inputs(
-            G, [3.0, 4.0, 5.0], t_max=100.0, dt=0.01
-        )
-        assert any("minimum K value is high" in s.lower() for s in result['suggestions'])
-        
-    def test_simulation_info_present(self):
-        """Test that simulation info is included in result."""
-        G = nx.complete_graph(10)
-        result = validate_simulation_inputs(
-            G, [0.0, 0.5, 1.0], t_max=100.0, dt=0.01
-        )
-        assert 'simulation_info' in result
-        assert result['simulation_info']['n_nodes'] == 10
-        assert result['simulation_info']['n_k_values'] == 3
-        assert result['simulation_info']['t_max'] == 100.0
-        assert result['simulation_info']['dt'] == 0.01
+        result = validate_simulation_inputs(G)
+        assert result["valid"] is False
+        assert len(result["errors"]) > 0
+        assert any("empty" in e.lower() for e in result["errors"])
