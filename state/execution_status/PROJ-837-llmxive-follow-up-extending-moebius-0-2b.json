@@ -1,21 +1,23 @@
 {
   "project_id": "PROJ-837-llmxive-follow-up-extending-moebius-0-2b",
   "ok": false,
-  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/training/train_gating.py: self-declared fabricated metric \u2014 \u201c\u2026uction weight to 0.0 or use a dummy value if not available.\u2026\u201d; 2 run-book script(s) missing (plan/impl path mismatch): python code/data/download.py; python code/eval/evaluate.py; 4 command(s) failed: python code/data/mask_generator.py --seed <random_seed> (rc=1); python code/data/annotator.py --participants --seed 42 (rc=1); python code/training/train_gating.py --epochs [REDACTED] (rc=1); 6 declared deliverable(s) absent: data/annotations/decoupled_scores.csv; data/annotations/human_scores.csv; data/results/ablation_report.json",
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data/annotator.py: metric `score` assigned from an RNG draw (line 188); code/eval/ablation_runner.py: self-declared fabricated metric \u2014 \u201c\u2026e\": np.random.uniform(1, 5) # Simulated score for binning         })\u2026\u201d; code/eval/inference_runner.py: self-declared fabricated metric \u2014 \u201c\u2026bins.         # This is NOT a fake measurement, but a fake label assignment\u2026\u201d; 6 command(s) failed: python code/data/download.py (rc=1); python code/data/mask_generator.py --seed <random_seed> (rc=2); python code/data/annotator.py --participants --seed 42 (rc=1); 10 declared deliverable(s) absent: data/annotations/decoupled_scores.csv; data/annotations/human_scores.csv; data/annotations/krippendorff_raw.json",
   "artifacts": [],
   "failures": [
-    "python code/data/download.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/data/download.py': [Errno 2] No such file or directory",
-    "python code/data/mask_generator.py --seed <random_seed> -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/data/mask_generator.py\", line 5, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python code/data/annotator.py --participants --seed 42 -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/data/annotator.py\", line 9, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python code/training/train_gating.py --epochs [REDACTED] -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/training/train_gating.py\", line 24, in <module>\n    import torch\nModuleNotFoundError: No module named 'torch'",
-    "python code/training/train_end_to_end.py --epochs [a sufficient number of] -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/training/train_end_to_end.py\", line 31, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
-    "python code/eval/evaluate.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/eval/evaluate.py': [Errno 2] No such file or directory"
+    "python code/data/download.py -> rc=1\n    [2026-10-01 04:54:13] Downloading Places365 subset (limit=100)...\n[2026-10-01 04:54:13] Failed to download dataset: fetch_places365_subset() got an unexpected keyword argument 'limit'",
+    "python code/data/mask_generator.py --seed <random_seed> -> rc=2\n    usage: mask_generator.py [-h] [--seed SEED] [--sample-size SAMPLE_SIZE]\n                         [--output-dir OUTPUT_DIR]\nmask_generator.py: error: argument --seed: invalid int value: '<random_seed>'",
+    "python code/data/annotator.py --participants --seed 42 -> rc=1\n    [2026-10-01 04:54:18] Starting Research Mode workflow.\n[2026-10-01 04:54:18] Research mode disabled: Human annotation file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/annotations/human_scores.csv\n[2026-10-01 04:54:18] Validation failed: Human Annotation Load - Human annotation file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/annotations/human_scores.csv\n[2026-10-01 04:54:18] Research Mode validation failed.",
+    "python code/training/train_gating.py --epochs [REDACTED] -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/training/train_gating.py\", line 35, in <module>\n    logger = setup_project_logger(\"train_gating\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/utils/logger.py\", line 43, in setup_project_logger\n    return get_logger(name, str(log_file))\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+    "python code/training/train_end_to_end.py --epochs [a sufficient number of] -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/training/train_end_to_end.py\", line 35, in <module>\n    logger = setup_project_logger(\"train_end_to_end\")\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/utils/logger.py\", line 43, in setup_project_logger\n    return get_logger(name, str(log_file))\n           ^",
+    "python code/eval/evaluate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/eval/evaluate.py\", line 15, in <module>\n    from eval.metrics import run_metrics_evaluation\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-837-llmxive-follow-up-extending-moebius-0-2b/code/eval/metrics.py\", line 21, in <module>\n    from torchmetrics.image import FrechetInceptionDistance\nImportError: cannot import name 'FrechetInceptionDistance' from 'torchmetrics.image' (/home/runner/work/llmXive/llmXive/p"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 0,
-  "total_attempts": 1,
+  "total_attempts": 2,
   "replan_rounds": 0,
-  "failure_class": "fabrication",
-  "evidence": [],
-  "updated_at": "2026-09-27T09:21:41Z"
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/data/download.py"
+  ],
+  "updated_at": "2026-10-01T04:54:31Z"
 }

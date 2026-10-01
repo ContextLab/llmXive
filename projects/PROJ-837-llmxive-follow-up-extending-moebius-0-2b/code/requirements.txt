@@ -6,3 +6,5 @@ psutil  # auto-added: imported by run-book but missing from venv
 torch  # auto-added: imported by run-book but missing from venv
 torchmetrics  # auto-added: imported by run-book but missing from venv
 torchvision  # auto-added: imported by run-book but missing from venv
+krippendorff  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv

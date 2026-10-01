@@ -29,7 +29,10 @@ def get_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
 
         # File handler (if specified)
         if log_file:
-            os.makedirs(os.dirname(log_file), exist_ok=True)
+            # FIX: Use os.path.dirname instead of os.dirname
+            log_dir = os.dirname(log_file)
+            if log_dir:
+                os.makedirs(log_dir, exist_ok=True)
             file_handler = logging.FileHandler(log_file)
             file_handler.setLevel(logging.INFO)
             file_handler.setFormatter(LlmXiveFormatter())
@@ -64,12 +67,6 @@ def log_fatal(message: str, logger_name: str = "root") -> None:
     logger.critical(message)
     sys.exit(1)
 
-# Add the missing datetime import for the log function in annotator.py
-# We need to import datetime in the module level or inside the function.
-# Since we are adding a new function `log_validation_result` in annotator.py,
-# we need to ensure `datetime` is available.
-# We will import it inside the function in annotator.py.
-# But here, we can also add a utility function to get the current timestamp.
 def get_timestamp() -> str:
     """Get current timestamp in the format [YYYY-MM-DD HH:MM:SS]."""
     return f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]"

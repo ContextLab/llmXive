@@ -12,6 +12,24 @@ T011:
   r: "The required integration test file `tests/integration/test_data_independence.py`\
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ No further evidence of a test implementation is provided."
+T015:
+  c: false
+  h: 1142dfd7a3e075b07bc533e1a7e65b3d40b30696ace4889c43f0c97b6cc02e2b
+  r: "The required input file `data/annotations/validated_scores.csv` does not exist,\
+    \ and the expected output files `data/annotations/krippendorff_raw.json` and `data/results/validation_log.txt`\
+    \ are missing. Moreover, the provided `code/eval/stats.py` snippet does not contain\
+    \ a `calculate_krippendorff` function (and is truncated), so the implementation\
+    \ cannot be verified. The task\u2019s core computation and persistence steps are\
+    \ therefore not fulfilled."
+T016:
+  c: false
+  h: 81f7efabfb4d1c9a1fb396176d3b7ba164fcf7f574c95067b362fd5f2827b32f
+  r: "The provided `annotator.py` only defines helper functions that return booleans;\
+    \ it never raises an exception when the sample size is <\u202F50 or when label\
+    \ independence fails, nor does it invoke these checks in the workflow. Additionally,\
+    \ the required `data/results/validation_log.txt` file is absent, so no validation\
+    \ result is being logged. The task\u2019s core requirements are therefore not\
+    \ met."
 T019:
   c: false
   h: 6ced3e91182fc1c05c82be9112d14471280336b8420338a2c2d6f7b5c5959707
@@ -19,6 +37,23 @@ T019:
     \ does not exist in the repository, so the claimed implementation provides no\
     \ evidence of a completed test. The task cannot be considered fulfilled until\
     \ a non\u2011empty test file covering the dynamic rank modulation logic is added."
+T023:
+  c: false
+  h: 34dd35387cfcf0e907645a1af785aa81046ff62c3f84211e18b2136145d68818
+  r: "The provided `train_gating.py` is present but the snippet is truncated, so we\
+    \ cannot confirm it implements the required multi\u2011task loss with the specified\
+    \ loss\u2011weight hierarchy or that it uses an AdamW optimizer. Moreover, the\
+    \ critical dependency file `data/results/proxy_validation.json` from T035 is missing,\
+    \ and there is no visible logic that checks for this file and skips execution\
+    \ if T035 failed. Both the required behavior and the necessary dependency artifact\
+    \ are absent."
+T025:
+  c: false
+  h: b4d80a788b69f9b8cc9dd572563063c3f44f210d8f78a68080f6ad41ec0fcd91
+  r: The provided `code/eval/stats.py` does not contain a `run_permutation_test` implementation
+    (the file is truncated before any such function appears), and the required output
+    file `data/results/permutation_test.json` is absent. Both the core logic and the
+    persisted result are missing, so the task is not fulfilled.
 T025a:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -46,6 +81,13 @@ T032c:
     \ \u226530\u202F% latency reduction, \u22640.5 FID difference, or significance\
     \ testing for the dynamic model versus the static baseline. Consequently the US3\
     \ acceptance criteria are not met."
+T035:
+  c: false
+  h: 44accece991f610eb540093fa6fc6142c7f30ee8f2163a62e2226f84fdbe2e92
+  r: "The provided `code/eval/stats.py` contains a `run_proxy_correlation_analysis`\
+    \ function but no `validate_proxy_correlation` implementation, no gate\u2011status\
+    \ handling, and no `SystemExit` logic. Moreover, the required output file `data/results/proxy_validation.json`\
+    \ does not exist. The task\u2019s core requirements are therefore unmet."
 T042:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

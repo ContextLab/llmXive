@@ -85,7 +85,7 @@ class TestMaskGenerator:
         # Test minimum complexity
         mask_min = generate_mask(self.image_size, complexity=1.0)
         assert mask_min is not None
-        
+
         # Test maximum complexity
         mask_max = generate_mask(self.image_size, complexity=5.0)
         assert mask_max is not None

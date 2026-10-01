@@ -8,4 +8,4 @@ datasets==2.14.0
 lpips==0.1.4
 torchmetrics==1.1.0
 torchvision==0.16.0+cpu
-krippendorff>=1.0.0
+krippendorff==0.6.0
