@@ -1,58 +1,52 @@
+"""
+Task T001: Initialize project directory structure.
+
+Creates the required directory hierarchy for PROJ-582 and places .gitkeep files
+in data directories to ensure they are tracked by version control.
+
+Directory Structure:
+projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/
+    ├── src/
+    ├── data/
+    │   ├── raw/
+    │   ├── processed/
+    │   └── results/
+    └── tests/
+"""
 import os
+import sys
 from pathlib import Path
 
-def create_directories(base_path: Path) -> None:
-    """
-    Create the required directory structure for the project.
-    
-    Args:
-        base_path: The root directory for the project structure.
-    """
-    # Define the directories to create
-    directories = [
-        base_path / "src",
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "data" / "results",
-        base_path / "tests",
-    ]
-    
-    # Create each directory if it doesn't exist
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
 
-def create_gitkeep_files(base_path: Path) -> None:
-    """
-    Create .gitkeep files in data directories to ensure they are tracked by git.
-    
-    Args:
-        base_path: The root directory for the project structure.
-    """
-    # Define the data directories that need .gitkeep files
-    data_dirs = [
-        base_path / "data" / "raw",
-        base_path / "data" / "processed",
-        base_path / "data" / "results",
+def create_directories(base_path: Path) -> None:
+    """Create the standard project directory structure."""
+    structure = [
+        "src",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "tests",
     ]
-    
-    # Create .gitkeep in each data directory
-    for directory in data_dirs:
-        gitkeep_path = directory / ".gitkeep"
+
+    for subdir in structure:
+        dir_path = base_path / subdir
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+
+
+def create_gitkeep_files(data_path: Path) -> None:
+    """Create .gitkeep files in all data subdirectories."""
+    data_subdirs = ["raw", "processed", "results"]
+
+    for subdir in data_subdirs:
+        dir_path = data_path / subdir
+        gitkeep_path = dir_path / ".gitkeep"
         gitkeep_path.touch()
-        print(f"Created .gitkeep in: {directory}")
+        print(f"Created .gitkeep: {gitkeep_path}")
+
 
 def verify_structure(base_path: Path) -> bool:
-    """
-    Verify that all required directories and .gitkeep files exist.
-    
-    Args:
-        base_path: The root directory for the project structure.
-        
-    Returns:
-        bool: True if all required paths exist, False otherwise.
-    """
-    # Define the required paths
+    """Verify that all required directories exist."""
     required_dirs = [
         base_path / "src",
         base_path / "data" / "raw",
@@ -60,50 +54,36 @@ def verify_structure(base_path: Path) -> bool:
         base_path / "data" / "results",
         base_path / "tests",
     ]
-    
-    required_gitkeep_files = [
-        base_path / "data" / "raw" / ".gitkeep",
-        base_path / "data" / "processed" / ".gitkeep",
-        base_path / "data" / "results" / ".gitkeep",
-    ]
-    
-    # Check directories
-    for directory in required_dirs:
-        if not directory.is_dir():
-            print(f"Missing directory: {directory}")
-            return False
-    
-    # Check .gitkeep files
-    for file_path in required_gitkeep_files:
-        if not file_path.is_file():
-            print(f"Missing .gitkeep file: {file_path}")
-            return False
-    
-    return True
 
-def main():
-    """
-    Main function to initialize the project directory structure.
-    """
-    # Define the base path for this project
-    base_path = Path(__file__).parent
-    
-    print(f"Initializing project structure in: {base_path}")
-    
-    # Create directories
-    create_directories(base_path)
-    
-    # Create .gitkeep files
-    create_gitkeep_files(base_path)
-    
-    # Verify structure
-    if verify_structure(base_path):
-        print("Project structure verification: SUCCESS")
+    all_exist = all(d.is_dir() for d in required_dirs)
+
+    if all_exist:
+        print("Verification successful: All directories exist.")
     else:
-        print("Project structure verification: FAILED")
+        missing = [str(d) for d in required_dirs if not d.is_dir()]
+        print(f"Verification failed: Missing directories: {missing}")
+
+    return all_exist
+
+
+def main() -> int:
+    """Main entry point for the script."""
+    # Determine the project root relative to this script's location
+    # The script is expected to be in: projects/PROJ-582-socratic-transformers-dialogue-based-sel/code/
+    current_file = Path(__file__).resolve()
+    project_root = current_file.parent
+
+    print(f"Project root: {project_root}")
+
+    try:
+        create_directories(project_root)
+        create_gitkeep_files(project_root / "data")
+        success = verify_structure(project_root)
+        return 0 if success else 1
+    except Exception as e:
+        print(f"Error during setup: {e}", file=sys.stderr)
         return 1
-    
-    return 0
+
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

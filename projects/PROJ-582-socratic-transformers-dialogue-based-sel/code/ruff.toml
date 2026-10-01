@@ -1,61 +1,24 @@
-# Ruff configuration for Socratic Transformers project
-target-version = 'py39'
-line-length = 88
+# Ruff configuration file for Socratic Transformers project
+# This file extends the settings in pyproject.toml for specific overrides
+# or can be used as the primary config if pyproject.toml is not preferred.
+# Currently, we rely on pyproject.toml for the main config, but this file
+# ensures compatibility if tools look specifically for ruff.toml.
 
 [lint]
-# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+# Ensure we select the same rules as defined in pyproject.toml for redundancy
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "E", "W", "F", "I", "C", "B", "UP", "N"
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E501",
+    "B008"
 ]
 
-# Allow autofix for all enabled rules (when `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
 
-# Exclude a few files and directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
-]
-
-# Same as Black.
-per-file-ignores = {}
-
-[lint.isort]
-known-first-party = ["src"]
-
-[lint.flake8-bugbear]
-extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
-
-[lint.pydocstyle]
-convention = "google"
+[lint.per-file-ignores]
+"tests/*" = ["S101"]
+"src/**/__init__.py" = ["F401"]

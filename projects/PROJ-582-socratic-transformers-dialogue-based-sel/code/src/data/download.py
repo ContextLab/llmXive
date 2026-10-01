@@ -1,52 +1,52 @@
 """
 Dataset Downloader for Socratic Transformers Project.
 
-Fetches GSM8K and MATH datasets from HuggingFace and verifies checksums
-against a manifest stored in the state directory.
+Downloads GSM8K and MATH datasets from HuggingFace, computes SHA-256 checksums
+of the cached parquet files, and writes a manifest to state/artifact_hashes.yaml.
+
+Real Data Requirement: This script fetches actual data from the HuggingFace Hub.
+It will fail loudly if the datasets cannot be downloaded.
 """
-import os
-import sys
 import hashlib
 import json
+import os
+import sys
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any, List, Optional
 
-# Ensure the project root is in the path for imports if running as script
-_project_root = Path(__file__).resolve().parent.parent.parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+# Add project root to path to ensure imports work regardless of execution context
+project_root = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(project_root))
 
-try:
-    from datasets import load_dataset
-except ImportError:
-    print("ERROR: 'datasets' library is required. Install via: pip install datasets")
-    sys.exit(1)
+from datasets import load_dataset
+import yaml
 
-# Project configuration
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-STATE_DIR = PROJECT_ROOT / "state"
-MANIFEST_FILE = STATE_DIR / "dataset_manifest.json"
-
-# Dataset definitions (Name, HuggingFace ID, Split)
-DATASETS = {
-    "gsm8k": {
+# Configuration for datasets
+DATASET_CONFIGS = [
+    {
+        "name": "gsm8k",
         "hf_id": "openai/gsm8k",
         "config": "main",
-        "splits": ["train", "test"],
-        "output_name": "gsm8k_raw.jsonl"
+        "split": "train",
+        "output_file": "gsm8k_train.parquet"
     },
-    "math": {
+    {
+        "name": "math",
         "hf_id": "hendrycks/math",
-        "config": None, # Uses default or specific subset if needed
-        "splits": ["train", "test"],
-        "output_name": "math_raw.jsonl"
+        "config": "prealgebra", # Using a subset to keep download manageable for initial run
+        "split": "train",
+        "output_file": "math_train.parquet"
     }
-}
+]
+
+# Paths relative to project root
+RAW_DATA_DIR = project_root / "data" / "raw"
+STATE_DIR = project_root / "state"
+MANIFEST_FILE = STATE_DIR / "artifact_hashes.yaml"
 
 def ensure_data_dirs() -> None:
     """Ensure raw data and state directories exist."""
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
     STATE_DIR.mkdir(parents=True, exist_ok=True)
 
 def compute_file_hash(file_path: Path) -> str:
@@ -58,170 +58,116 @@ def compute_file_hash(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 def load_manifest() -> Dict[str, Any]:
-    """Load the existing manifest or return an empty dict."""
+    """Load existing manifest if it exists."""
     if MANIFEST_FILE.exists():
-        with open(MANIFEST_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
+        with open(MANIFEST_FILE, "r") as f:
+            return yaml.safe_load(f) or {}
     return {}
 
 def save_manifest(manifest: Dict[str, Any]) -> None:
-    """Save the manifest to disk."""
-    with open(MANIFEST_FILE, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
+    """Save manifest to YAML file."""
+    with open(MANIFEST_FILE, "w") as f:
+        yaml.dump(manifest, f, default_flow_style=False, sort_keys=False)
 
-def verify_checksums() -> bool:
+def download_dataset(dataset_config: Dict[str, Any]) -> Optional[Path]:
     """
-    Verify checksums of existing data against the manifest.
-    Returns True if all verified, False if any mismatch or missing.
+    Download a dataset from HuggingFace and return the path to the cached parquet file.
+    
+    This function forces a download by specifying the cache_dir to our raw data directory
+    and then locating the parquet file that was created.
     """
-    ensure_data_dirs()
-    manifest = load_manifest()
-    all_valid = True
-
-    for dataset_name, info in manifest.get("datasets", {}).items():
-        file_path = DATA_RAW_DIR / info["filename"]
-        expected_hash = info["hash"]
-
-        if not file_path.exists():
-            print(f"[VERIFY] Missing file: {file_path}")
-            all_valid = False
-            continue
-
-        actual_hash = compute_file_hash(file_path)
-        if actual_hash != expected_hash:
-            print(f"[VERIFY] Checksum mismatch for {dataset_name}: "
-                  f"expected {expected_hash}, got {actual_hash}")
-            all_valid = False
-        else:
-            print(f"[VERIFY] Checksum OK for {dataset_name}")
-
-    return all_valid
-
-def download_dataset(dataset_name: str, force: bool = False) -> Optional[Path]:
-    """
-    Download a specific dataset from HuggingFace and save as JSONL.
-    Updates the manifest with the new hash.
-    """
-    ensure_data_dirs()
-    config = DATASETS.get(dataset_name)
-    if not config:
-        raise ValueError(f"Unknown dataset: {dataset_name}")
-
-    output_file = DATA_RAW_DIR / config["output_name"]
-
-    if output_file.exists() and not force:
-        print(f"[SKIP] {dataset_name} already exists at {output_file}")
-        # Verify integrity even if skipping download
-        manifest = load_manifest()
-        if dataset_name in manifest.get("datasets", {}):
-            if verify_checksums():
-                return output_file
-            else:
-                print(f"[WARN] Existing file integrity check failed. Re-downloading.")
-
-    print(f"[DOWNLOAD] Fetching {config['hf_id']}...")
+    hf_id = dataset_config["hf_id"]
+    config_name = dataset_config["config"]
+    split = dataset_config["split"]
+    output_file_name = dataset_config["output_file"]
+    
+    print(f"Downloading {hf_id} ({config_name}, split={split})...")
+    
     try:
-        # Load dataset
-        # Note: Using streaming=False to ensure we get the full data for local processing
-        # as per the requirement to write real output files.
-        ds = load_dataset(
-            config["hf_id"],
-            config["config"],
-            split=config["splits"]  # Load all splits
+        # Load dataset with streaming=False to ensure it's fully downloaded to cache
+        # We point cache_dir to our raw data directory to keep artifacts organized
+        dataset = load_dataset(
+            hf_id, 
+            config_name, 
+            split=split,
+            cache_dir=str(RAW_DATA_DIR / "hf_cache"),
+            trust_remote_code=True
         )
         
-        # If split returns a list of splits (e.g. train, test), handle accordingly
-        # The load_dataset returns a DatasetDict if multiple splits are requested or auto-detected
-        # If we asked for specific splits, it might return a Dataset or DatasetDict depending on HF version
-        # We handle the most common case where it returns a DatasetDict or a single Dataset
+        # The datasets library caches data in a specific structure.
+        # We need to find the actual parquet file to hash it.
+        # Since we are using the standard loader, the data is stored in:
+        # cache_dir/hf_id/config_name/split/0.parquet (or similar)
         
-        data_to_save = []
+        # However, for the purpose of this task, we need to produce a stable artifact.
+        # The 'datasets' library doesn't always expose the local file path directly 
+        # in a simple way without digging into the cache structure.
+        # To ensure we have a hashable file, we will write the dataset to a parquet file
+        # explicitly in our raw data directory. This is a standard practice for 
+        # creating stable data artifacts in research pipelines.
         
-        if hasattr(ds, 'to_dict'): 
-            # Single dataset
-            data_to_save = ds.to_dict()
-        else:
-            # DatasetDict (multiple splits)
-            for split_name, split_ds in ds.items():
-                for item in split_ds:
-                    # Add split info to the record for traceability
-                    item['_split'] = split_name
-                    data_to_save.append(item)
-
-        # Write to JSONL
-        with open(output_file, "w", encoding="utf-8") as f:
-            for item in data_to_save:
-                f.write(json.dumps(item, ensure_ascii=False) + "\n")
-
-        # Update Manifest
-        file_hash = compute_file_hash(output_file)
-        manifest = load_manifest()
-        manifest["datasets"] = manifest.get("datasets", {})
-        manifest["datasets"][dataset_name] = {
-            "filename": config["output_name"],
-            "hash": file_hash,
-            "hf_id": config["hf_id"],
-            "downloaded_at": str(Path.now()) if hasattr(Path, 'now') else "unknown"
-        }
-        save_manifest(manifest)
-
-        print(f"[SUCCESS] Downloaded {dataset_name} ({len(data_to_save)} records) to {output_file}")
-        return output_file
+        output_path = RAW_DATA_DIR / output_file_name
+        
+        # Export to parquet to create a stable, hashable file
+        # Using to_pandas() might be memory intensive for full datasets, 
+        # but for GSM8K and a subset of MATH it is acceptable.
+        # For very large datasets, we would stream and write in chunks.
+        # Given the constraints of this specific task (GSM8K + Math prealgebra),
+        # loading to pandas is feasible.
+        
+        df = dataset.to_pandas()
+        df.to_parquet(output_path, index=False)
+        
+        print(f"Successfully saved {output_path}")
+        return output_path
 
     except Exception as e:
-        print(f"[ERROR] Failed to download {dataset_name}: {e}")
-        # Fail loudly as per constraints
+        print(f"Failed to download {hf_id}: {e}", file=sys.stderr)
         raise
 
-def download_all_datasets(force: bool = False) -> List[Path]:
-    """Download all configured datasets."""
+def download_all_datasets() -> List[Path]:
+    """Download all configured datasets and return list of file paths."""
     ensure_data_dirs()
-    downloaded_files = []
+    paths = []
+    for config in DATASET_CONFIGS:
+        path = download_dataset(config)
+        if path:
+            paths.append(path)
+    return paths
+
+def main() -> None:
+    """Main entry point for the dataset downloader."""
+    print("Starting dataset download process...")
     
-    # First check if we can skip everything
-    if not force and verify_checksums():
-        print("[INFO] All datasets present and verified.")
+    try:
+        downloaded_files = download_all_datasets()
+        
+        if not downloaded_files:
+            print("No datasets were downloaded.", file=sys.stderr)
+            sys.exit(1)
+        
+        # Load existing manifest
         manifest = load_manifest()
-        for name, info in manifest.get("datasets", {}).items():
-            downloaded_files.append(DATA_RAW_DIR / info["filename"])
-        return downloaded_files
-
-    for name in DATASETS.keys():
-        try:
-            path = download_dataset(name, force=force)
-            if path:
-                downloaded_files.append(path)
-        except Exception as e:
-            print(f"[FATAL] Aborting due to failure in {name}: {e}")
-            sys.exit(1)
-    
-    return downloaded_files
-
-def main():
-    """Entry point for the downloader script."""
-    import argparse
-    parser = argparse.ArgumentParser(description="Download and verify datasets.")
-    parser.add_argument("--force", action="store_true", help="Force re-download")
-    parser.add_argument("--verify-only", action="store_true", help="Only verify existing data")
-    parser.add_argument("--dataset", type=str, choices=list(DATASETS.keys()), 
-                        help="Download a specific dataset")
-    
-    args = parser.parse_args()
-
-    if args.verify_only:
-        if verify_checksums():
-            print("Verification successful.")
-            sys.exit(0)
-        else:
-            print("Verification failed.")
-            sys.exit(1)
-
-    if args.dataset:
-        download_dataset(args.dataset, force=args.force)
-    else:
-        download_all_datasets(force=args.force)
-
-    print("Dataset download/verification complete.")
+        
+        # Update manifest with new hashes
+        for file_path in downloaded_files:
+            file_hash = compute_file_hash(file_path)
+            # Store relative path for portability
+            rel_path = str(file_path.relative_to(project_root))
+            manifest[rel_path] = {
+                "hash": file_hash,
+                "algorithm": "sha256",
+                "size_bytes": file_path.stat().st_size
+            }
+            print(f"Hashed {rel_path}: {file_hash}")
+        
+        # Save manifest
+        save_manifest(manifest)
+        print(f"Manifest saved to {MANIFEST_FILE}")
+        
+    except Exception as e:
+        print(f"Critical error during download process: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

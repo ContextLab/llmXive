@@ -1,11 +1,9 @@
 """
-Metric utilities for evaluating model performance.
+Metric utility for standard accuracy and loss calculations.
 
-This module provides functions to calculate accuracy and loss for
-classification and regression tasks, as well as specialized metrics
-for the Socratic transformer pipeline.
+Provides functions to compute accuracy and loss for model predictions,
+compatible with the project's transformer-based pipeline.
 """
-
 import math
 from typing import List, Optional, Tuple, Union
 
@@ -13,188 +11,235 @@ import torch
 from transformers import PreTrainedModel, PreTrainedTokenizer
 
 
-def calculate_accuracy(y_true: Union[List[int], torch.Tensor], y_pred: Union[List[int], torch.Tensor]) -> float:
+def calculate_accuracy(
+    predictions: Union[List[int], torch.Tensor],
+    labels: Union[List[int], torch.Tensor],
+    ignore_index: int = -100
+) -> float:
     """
-    Calculate the accuracy of predictions.
-
+    Calculate accuracy between predictions and labels.
+    
     Args:
-        y_true: Ground truth labels.
-        y_pred: Predicted labels.
-
+        predictions: Model predictions (logits or token ids)
+        labels: Ground truth labels
+        ignore_index: Index to ignore in the calculation (default: -100)
+        
     Returns:
-        Accuracy as a float between 0 and 1.
-
+        Accuracy as a float between 0.0 and 1.0
+        
     Raises:
-        ValueError: If input lengths do not match or inputs are empty.
+        ValueError: If predictions and labels have different shapes
     """
-    if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length")
+    if isinstance(predictions, torch.Tensor):
+        if predictions.dim() > 1:
+            # If logits, take argmax
+            predictions = predictions.argmax(dim=-1)
+        predictions = predictions.flatten()
+    else:
+        predictions = torch.tensor(predictions).flatten()
+        
+    if isinstance(labels, torch.Tensor):
+        labels = labels.flatten()
+    else:
+        labels = torch.tensor(labels).flatten()
+        
+    if predictions.shape != labels.shape:
+        raise ValueError(
+            f"Predictions and labels must have the same shape. "
+            f"Got {predictions.shape} and {labels.shape}"
+        )
+        
+    # Mask out ignored indices
+    mask = labels != ignore_index
+    if not mask.any():
+        return 0.0
+        
+    correct = (predictions[mask] == labels[mask]).sum().item()
+    total = mask.sum().item()
     
-    if len(y_true) == 0:
-        raise ValueError("Input lists cannot be empty")
-
-    # Convert to lists if tensors
-    if isinstance(y_true, torch.Tensor):
-        y_true = y_true.tolist()
-    if isinstance(y_pred, torch.Tensor):
-        y_pred = y_pred.tolist()
-
-    correct = sum(1 for t, p in zip(y_true, y_pred) if t == p)
-    return correct / len(y_true)
+    return correct / total if total > 0 else 0.0
 
 
-def calculate_loss(y_true: Union[List[float], torch.Tensor], y_pred: Union[List[float], torch.Tensor]) -> float:
+def calculate_loss(
+    logits: Union[torch.Tensor, List[List[float]]],
+    labels: Union[torch.Tensor, List[int]],
+    ignore_index: int = -100,
+    reduction: str = 'mean'
+) -> float:
     """
-    Calculate the Mean Squared Error (MSE) loss between true and predicted values.
+    Calculate cross-entropy loss between logits and labels.
     
-    For classification tasks with probabilities, this calculates Cross-Entropy loss
-    approximation using negative log-likelihood of the true class probability.
-
     Args:
-        y_true: Ground truth values (can be labels or probabilities depending on context).
-        y_pred: Predicted values (probabilities or logits).
-
+        logits: Model output logits of shape (batch_size, seq_len, vocab_size)
+               or (batch_size, vocab_size)
+        labels: Ground truth labels of shape (batch_size, seq_len) or (batch_size,)
+        ignore_index: Index to ignore in the calculation (default: -100)
+        reduction: 'mean', 'sum', or 'none'
+        
     Returns:
-        Loss value as a float.
-
+        Loss value as a float
+        
     Raises:
-        ValueError: If input lengths do not match or inputs are empty.
+        ValueError: If inputs have incompatible shapes
     """
-    if len(y_true) != len(y_pred):
-        raise ValueError("y_true and y_pred must have the same length")
-    
-    if len(y_true) == 0:
-        raise ValueError("Input lists cannot be empty")
-
-    # Convert to lists if tensors
-    if isinstance(y_true, torch.Tensor):
-        y_true = y_true.tolist()
-    if isinstance(y_pred, torch.Tensor):
-        y_pred = y_pred.tolist()
-
-    # Calculate MSE for continuous values or probability-based loss
-    total_loss = 0.0
-    for t, p in zip(y_true, y_pred):
-        # If values are probabilities (0-1), use MSE
-        # If values are logits, we assume they've been processed appropriately
-        diff = float(t) - float(p)
-        total_loss += diff * diff
-    
-    return total_loss / len(y_true)
+    if isinstance(logits, list):
+        logits = torch.tensor(logits, dtype=torch.float32)
+    if isinstance(labels, list):
+        labels = torch.tensor(labels, dtype=torch.long)
+        
+    if logits.dim() == 2:
+        # (batch_size, vocab_size)
+        loss_fn = torch.nn.CrossEntropyLoss(
+            ignore_index=ignore_index,
+            reduction=reduction
+        )
+        loss = loss_fn(logits, labels)
+    elif logits.dim() == 3:
+        # (batch_size, seq_len, vocab_size) -> (batch_size * seq_len, vocab_size)
+        batch_size, seq_len, vocab_size = logits.shape
+        logits_flat = logits.view(-1, vocab_size)
+        labels_flat = labels.view(-1)
+        
+        loss_fn = torch.nn.CrossEntropyLoss(
+            ignore_index=ignore_index,
+            reduction=reduction
+        )
+        loss = loss_fn(logits_flat, labels_flat)
+        
+        if reduction == 'mean':
+            # Recalculate mean over non-ignored tokens
+            mask = labels_flat != ignore_index
+            if mask.sum() > 0:
+                loss = loss * (logits_flat.shape[0] / mask.sum())
+    else:
+        raise ValueError(
+            f"Logits must be 2D or 3D tensor. Got shape {logits.shape}"
+        )
+        
+    if isinstance(loss, torch.Tensor):
+        return loss.item()
+    return float(loss)
 
 
 class MetricCalculator:
     """
-    A class to calculate various metrics for model evaluation.
+    A utility class for computing various metrics during training and evaluation.
     
-    This class provides methods for calculating accuracy, loss, and other
-    specialized metrics for the Socratic transformer pipeline.
+    This class maintains state for running calculations and provides methods
+    for batch-wise metric computation.
     """
-
-    def __init__(self, model: Optional[PreTrainedModel] = None, 
-                tokenizer: Optional[PreTrainedTokenizer] = None):
+    
+    def __init__(self, ignore_index: int = -100):
         """
         Initialize the MetricCalculator.
-
-        Args:
-            model: Optional pre-trained model for token-based metrics.
-            tokenizer: Optional tokenizer for token-based metrics.
-        """
-        self.model = model
-        self.tokenizer = tokenizer
-
-    def compute_prediction_error_proxy(self, predictions: List[float], 
-                                      targets: List[float]) -> float:
-        """
-        Compute a proxy for prediction error using MSE.
-
-        Args:
-            predictions: List of predicted values.
-            targets: List of target values.
-
-        Returns:
-            MSE error as a float.
-        """
-        return calculate_loss(targets, predictions)
-
-    def compute_calibration_error(self, predicted_probs: List[float], 
-                                 actual_outcomes: List[int]) -> float:
-        """
-        Compute calibration error (Expected Calibration Error approximation).
-
-        Args:
-            predicted_probs: List of predicted probabilities.
-            actual_outcomes: List of actual binary outcomes (0 or 1).
-
-        Returns:
-            Calibration error as a float.
-        """
-        if len(predicted_probs) != len(actual_outcomes):
-            raise ValueError("predicted_probs and actual_outcomes must have the same length")
         
-        if len(predicted_probs) == 0:
-            return 0.0
-
-        # Bin predictions into 10 bins
-        num_bins = 10
-        bin_boundaries = [i / num_bins for i in range(num_bins + 1)]
-        bin_errors = []
-
-        for i in range(num_bins):
-            bin_lower = bin_boundaries[i]
-            bin_upper = bin_boundaries[i + 1]
-            
-            # Get predictions in this bin
-            bin_indices = [j for j, p in enumerate(predicted_probs) 
-                         if bin_lower <= p < bin_upper]
-            
-            if not bin_indices:
-                continue
-
-            # Calculate average predicted probability and actual accuracy in bin
-            avg_pred = sum(predicted_probs[j] for j in bin_indices) / len(bin_indices)
-            actual_acc = sum(actual_outcomes[j] for j in bin_indices) / len(bin_indices)
-            
-            # Calculate calibration error for this bin
-            bin_error = abs(avg_pred - actual_acc)
-            bin_weight = len(bin_indices) / len(predicted_probs)
-            bin_errors.append(bin_error * bin_weight)
-
-        return sum(bin_errors)
-
-    def compute_ngram_overlap(self, generated_text: str, reference_text: str, 
-                             n: int = 2) -> float:
-        """
-        Compute n-gram overlap between generated and reference text.
-
         Args:
-            generated_text: The generated text.
-            reference_text: The reference text.
-            n: The n-gram size (default: 2 for bigrams).
-
-        Returns:
-            N-gram overlap score as a float between 0 and 1.
+            ignore_index: Index to ignore in calculations (default: -100)
         """
-        if not self.tokenizer:
-            raise ValueError("Tokenizer must be provided for n-gram overlap calculation")
-
-        # Tokenize texts
-        gen_tokens = self.tokenizer.tokenize(generated_text)
-        ref_tokens = self.tokenizer.tokenize(reference_text)
-
-        if not gen_tokens or not ref_tokens:
+        self.ignore_index = ignore_index
+        self.total_correct = 0
+        self.total_count = 0
+        self.total_loss = 0.0
+        self.loss_count = 0
+        
+    def reset(self):
+        """Reset all accumulated metrics."""
+        self.total_correct = 0
+        self.total_count = 0
+        self.total_loss = 0.0
+        self.loss_count = 0
+        
+    def update_accuracy(
+        self,
+        predictions: Union[List[int], torch.Tensor],
+        labels: Union[List[int], torch.Tensor]
+    ) -> None:
+        """
+        Update accuracy metrics with a batch of predictions and labels.
+        
+        Args:
+            predictions: Model predictions
+            labels: Ground truth labels
+        """
+        correct = calculate_accuracy(predictions, labels, self.ignore_index)
+        
+        if isinstance(predictions, torch.Tensor):
+            if predictions.dim() > 1:
+                predictions = predictions.argmax(dim=-1)
+            predictions = predictions.flatten()
+        else:
+            predictions = torch.tensor(predictions).flatten()
+            
+        if isinstance(labels, torch.Tensor):
+            labels = labels.flatten()
+        else:
+            labels = torch.tensor(labels).flatten()
+            
+        mask = labels != self.ignore_index
+        count = mask.sum().item()
+        
+        if count > 0:
+            self.total_correct += correct * count
+            self.total_count += count
+            
+    def update_loss(
+        self,
+        logits: Union[torch.Tensor, List[List[float]]],
+        labels: Union[torch.Tensor, List[int]]
+    ) -> None:
+        """
+        Update loss metrics with a batch of logits and labels.
+        
+        Args:
+            logits: Model output logits
+            labels: Ground truth labels
+        """
+        loss = calculate_loss(logits, labels, self.ignore_index, reduction='sum')
+        
+        if isinstance(logits, torch.Tensor):
+            if logits.dim() == 2:
+                count = logits.shape[0]
+            elif logits.dim() == 3:
+                mask = labels != self.ignore_index
+                count = mask.sum().item() if isinstance(mask, torch.Tensor) else mask.sum()
+            else:
+                count = 1
+        else:
+            count = 1
+            
+        self.total_loss += loss
+        self.loss_count += count
+        
+    def get_accuracy(self) -> float:
+        """
+        Get the current accuracy.
+        
+        Returns:
+            Accuracy as a float, or 0.0 if no data has been seen
+        """
+        if self.total_count == 0:
             return 0.0
-
-        # Generate n-grams
-        def get_ngrams(tokens, n):
-            return set(tuple(tokens[i:i+n]) for i in range(len(tokens) - n + 1))
-
-        gen_ngrams = get_ngrams(gen_tokens, n)
-        ref_ngrams = get_ngrams(ref_tokens, n)
-
-        if not gen_ngrams or not ref_ngrams:
+        return self.total_correct / self.total_count
+        
+    def get_loss(self) -> float:
+        """
+        Get the current average loss.
+        
+        Returns:
+            Average loss as a float, or 0.0 if no data has been seen
+        """
+        if self.loss_count == 0:
             return 0.0
-
-        # Calculate overlap
-        overlap = len(gen_ngrams.intersection(ref_ngrams))
-        return overlap / len(ref_ngrams)  # Precision-based
+        return self.total_loss / self.loss_count
+        
+    def get_metrics(self) -> dict:
+        """
+        Get all current metrics.
+        
+        Returns:
+            Dictionary containing 'accuracy' and 'loss'
+        """
+        return {
+            'accuracy': self.get_accuracy(),
+            'loss': self.get_loss()
+        }
