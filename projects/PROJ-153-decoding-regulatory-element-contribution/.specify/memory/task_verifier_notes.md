@@ -2,6 +2,4 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T007c** — The repository contains the R script `code/03c_extract_peak_signals.R`, but the script is truncated and there is no generated `data/processed/peak_signal_matrix.tsv` file. Since the required output file is missing, the task’s core requirement is not met.
-- **T043** — The required input `data/processed/null_region_signal.bed` does not exist, and the expected output `data/processed/delta_peak_signal.tsv` was never created. Moreover, the provided `code/05b_compute_delta_signal.py` is truncated and does not contain the full implementation needed to join the two files and write the delta signal. The task therefore remains unfinished.
-- **T051b** — The repository contains `code/051b_filter_genes.py`, but the script is truncated and does not show the logic that counts and logs dropped genes, performs the post‑filter join, or writes `data/processed/cre_gene_pairs.tsv`. Moreover, the required output file `data/processed/cre_gene_pairs.tsv` is absent from the disk. The task’s core deliverable is therefore not present.
+- **T066** — declared artifact(s) missing/empty/invalid: code/05_weights.py

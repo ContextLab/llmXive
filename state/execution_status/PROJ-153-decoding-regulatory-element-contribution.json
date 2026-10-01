@@ -1,19 +1,19 @@
 {
   "project_id": "PROJ-153-decoding-regulatory-element-contribution",
   "ok": false,
-  "reason": "12 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/04_filter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026s that zero synthetic or mock data sources were loaded duri\u2026\u201d; code/04_filter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rds indicating synthetic/mock data usage.          Args:\u2026\u201d; code/04_filter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026(\"CRITICAL: Synthetic or mock data sources detected in pipe\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/05_weights.py; 3 command(s) failed: python code/03_annotate.py (rc=1); python code/04_filter.py (rc=1); python code/08_visualize.py (rc=1); 7 declared deliverable(s) absent: data/processed/cre_filtered.tsv; data/processed/delta_peak_signal.tsv; data/processed/hic_validation_flags.tsv",
+  "reason": "12 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/04_filter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026s that zero synthetic or mock data sources were loaded duri\u2026\u201d; code/04_filter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rds indicating synthetic/mock data usage.          Args:\u2026\u201d; code/04_filter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026(\"CRITICAL: Synthetic or mock data sources detected in pipe\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/05_weights.py; 3 command(s) failed: python code/03_annotate.py (rc=1); python code/04_filter.py (rc=1); python code/08_visualize.py (rc=1); 6 declared deliverable(s) absent: data/processed/cre_filtered.tsv; data/processed/delta_peak_signal.tsv; data/processed/hic_validation_flags.tsv",
   "artifacts": [],
   "failures": [
-    "python code/03_annotate.py -> rc=1\n    2026-09-28 06:52:51,412 - ERROR - Input file not found: data/processed/CRE_merged.bed",
-    "python code/04_filter.py -> rc=1\n    2026-09-28T06:52:51 - INFO - Starting data integrity assertion scan on: logs/pipeline.log\n2026-09-28T06:52:51 - ERROR - Log file not found: logs/pipeline.log\n2026-09-28T06:52:51 - CRITICAL - Integrity check failed: Log file logs/pipeline.log does not exist. Cannot verify data source integrity.",
+    "python code/03_annotate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/03_annotate.py\", line 18, in <module>\n    import pybedtools\nModuleNotFoundError: No module named 'pybedtools'",
+    "python code/04_filter.py -> rc=1\n    2026-10-01T23:08:08 - INFO - Starting data integrity assertion scan on: logs/pipeline.log\n2026-10-01T23:08:08 - ERROR - Log file not found: logs/pipeline.log\n2026-10-01T23:08:08 - CRITICAL - Integrity check failed: Log file logs/pipeline.log does not exist. Cannot verify data source integrity.",
     "python code/05_weights.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/05_weights.py': [Errno 2] No such file or directory",
-    "python code/08_visualize.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/08_visualize.py\", line 29, in <module>\n    import matplotlib.pyplot as plt\nModuleNotFoundError: No module named 'matplotlib'"
+    "python code/08_visualize.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/08_visualize.py\", line 37, in <module>\n    logging.FileHandler('logs/pipeline.log'),\n    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py\", line 1181, in __init__\n    StreamHandler.__init__(self, self._open())\n                                 ^^^^^^^^^^^^\n  File \"/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py\", lin"
   ],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "total_attempts": 2,
+  "total_attempts": 3,
   "replan_rounds": 0,
   "failure_class": "fabrication",
   "evidence": [],
-  "updated_at": "2026-09-28T06:52:53Z"
+  "updated_at": "2026-10-01T23:08:12Z"
 }

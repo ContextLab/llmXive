@@ -19,23 +19,33 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 12 fabricated/simulated-result signal(s) — results are not real measurements: code/04_filter.py: synthetic/fake INPUT data not authorized by the spec — “…s that zero synthetic or mock data sources were loaded duri…”; code/04_filter.py: synthetic/fake INPUT data not authorized by the spec — “…rds indicating synthetic/mock data usage.          Args:…”; code/04_filter.py: synthetic/fake INPUT data not authorized by the spec — “…("CRITICAL: Synthetic or mock data sources detected in pipe…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/05_weights.py; 3 command(s) failed: python code/03_annotate.py (rc=1); python code/04_filter.py (rc=1); python code/08_visualize.py (rc=1); 7 declared deliverable(s) absent: data/processed/cre_filtered.tsv; data/processed/delta_peak_signal.tsv; data/processed/hic_validation_flags.tsv
+**Summary**: 12 fabricated/simulated-result signal(s) — results are not real measurements: code/04_filter.py: synthetic/fake INPUT data not authorized by the spec — “…s that zero synthetic or mock data sources were loaded duri…”; code/04_filter.py: synthetic/fake INPUT data not authorized by the spec — “…rds indicating synthetic/mock data usage.          Args:…”; code/04_filter.py: synthetic/fake INPUT data not authorized by the spec — “…("CRITICAL: Synthetic or mock data sources detected in pipe…”; 1 run-book script(s) missing (plan/impl path mismatch): python code/05_weights.py; 3 command(s) failed: python code/03_annotate.py (rc=1); python code/04_filter.py (rc=1); python code/08_visualize.py (rc=1); 6 declared deliverable(s) absent: data/processed/cre_filtered.tsv; data/processed/delta_peak_signal.tsv; data/processed/hic_validation_flags.tsv
 
 ## Failing / missing run-book commands
 
 - python code/03_annotate.py -> rc=1
-    2026-09-28 06:52:51,412 - ERROR - Input file not found: data/processed/CRE_merged.bed
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/03_annotate.py", line 18, in <module>
+    import pybedtools
+ModuleNotFoundError: No module named 'pybedtools'
 - python code/04_filter.py -> rc=1
-    2026-09-28T06:52:51 - INFO - Starting data integrity assertion scan on: logs/pipeline.log
-2026-09-28T06:52:51 - ERROR - Log file not found: logs/pipeline.log
-2026-09-28T06:52:51 - CRITICAL - Integrity check failed: Log file logs/pipeline.log does not exist. Cannot verify data source integrity.
+    2026-10-01T23:08:08 - INFO - Starting data integrity assertion scan on: logs/pipeline.log
+2026-10-01T23:08:08 - ERROR - Log file not found: logs/pipeline.log
+2026-10-01T23:08:08 - CRITICAL - Integrity check failed: Log file logs/pipeline.log does not exist. Cannot verify data source integrity.
 - python code/05_weights.py -> rc=2 [script missing]
     /home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/05_weights.py': [Errno 2] No such file or directory
 - python code/08_visualize.py -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/08_visualize.py", line 29, in <module>
-    import matplotlib.pyplot as plt
-ModuleNotFoundError: No module named 'matplotlib'
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/code/08_visualize.py", line 37, in <module>
+    logging.FileHandler('logs/pipeline.log'),
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py", line 1181, in __init__
+    StreamHandler.__init__(self, self._open())
+                                 ^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/logging/__init__.py", line 1213, in _open
+    return open_func(self.baseFilename, self.mode,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/runner/work/llmXive/llmXive/projects/PROJ-153-decoding-regulatory-element-contribution/logs/pipeline.log'
 
 ## Declared deliverables still missing
 
@@ -43,7 +53,6 @@ ModuleNotFoundError: No module named 'matplotlib'
 - data/processed/delta_peak_signal.tsv
 - data/processed/hic_validation_flags.tsv
 - data/processed/lmm_results.tsv
-- data/processed/motif_validation_flags.tsv
 - data/processed/peak_signal_matrix.tsv
 - data/processed/vif_flags.tsv
 
@@ -53,6 +62,7 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 
 - `data/processed/cre_filtered.tsv` is declared but was NOT written. Scripts referencing it:
     - `code/062c_mock_data_flow_simulation.py` — NOT invoked by the run-book
+    - `code/051b_filter_genes.py` — NOT invoked by the run-book
     - `code/062b_path_dependency_checker.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/cre_filtered.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/delta_peak_signal.tsv` is declared but was NOT written. Scripts referencing it:
@@ -71,14 +81,10 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
 - `data/processed/lmm_results.tsv` is declared but was NOT written. Scripts referencing it:
     - `code/062b_path_dependency_checker.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/lmm_results.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/processed/motif_validation_flags.tsv` is declared but was NOT written. Scripts referencing it:
-    - `code/062c_mock_data_flow_simulation.py` — NOT invoked by the run-book
-    - `code/062b_path_dependency_checker.py` — NOT invoked by the run-book
-    - `code/05c_compute_weights.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/motif_validation_flags.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/peak_signal_matrix.tsv` is declared but was NOT written. Scripts referencing it:
     - `code/062c_mock_data_flow_simulation.py` — NOT invoked by the run-book
     - `code/05b_check_collinearity.py` — NOT invoked by the run-book
+    - `code/05b_compute_delta_signal.py` — NOT invoked by the run-book
     - `code/062b_path_dependency_checker.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/peak_signal_matrix.tsv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/vif_flags.tsv` is declared but was NOT written. Scripts referencing it:

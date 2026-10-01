@@ -9,3 +9,4 @@ statsmodels  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
 matplotlib  # auto-added: imported by run-book but missing from venv
 seaborn  # auto-added: imported by run-book but missing from venv
+pybedtools  # auto-added: imported by run-book but missing from venv
