@@ -1,3 +1,19 @@
+T004:
+  c: false
+  h: f35784ef3bbc12aaa5ed1b365a1e8c4060e0eb4e2ea77bed74d13e564fd454b8
+  r: "The repository lacks the required `data/raw/delaney-processed.csv` file and\
+    \ the `state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml`\
+    \ file with the SHA\u2011256 hash entry. Consequently the download script\u2019\
+    s side\u2011effects (saving the CSV and recording its checksum) have not been\
+    \ realized."
+T012a:
+  c: false
+  h: 877622d2c4e86bafb482ac98c019e2352650de4d9117448720865ebf49c82bf3
+  r: "The `code/data/featurize.py` file exists but is truncated and does not show\
+    \ the saving step, and the required input `data/processed/cleaned_graphs.pkl`\
+    \ as well as the expected output `data/processed/fingerprints.npz` are missing,\
+    \ so the script cannot be run to produce the fingerprints. The task\u2019s core\
+    \ artifacts are therefore not present."
 T025:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
@@ -5,6 +21,14 @@ T025:
     the Random Forest baseline and the GNN model is provided. The required artifact
     (code or output showing the delta calculation without a pass/fail flag) is missing,
     so the task is not satisfied.
+T033:
+  c: false
+  h: a284842c4ee7baec935de40f6816e789aa87e49b5fb0e759cc8641f0ec49d39e
+  r: "The `aggregate_predictions.py` script is truncated (e.g., the `save_aggregated_predictions`\
+    \ function ends abruptly) and does not contain code that actually writes the JSON\
+    \ file. Moreover, the required input files `data/processed/rf_fold_predictions.json`\
+    \ and `data/processed/gnn_fold_predictions.json` are absent, and no `aggregated_predictions.json`\
+    \ was produced. The task\u2019s core functionality is therefore not fulfilled."
 T036:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e

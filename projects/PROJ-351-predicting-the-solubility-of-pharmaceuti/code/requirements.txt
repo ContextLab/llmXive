@@ -10,3 +10,5 @@ pyyaml
 jsonschema
 datasets
 huggingface-hub
+psutil  # auto-added: imported by run-book but missing from venv
+statsmodels  # auto-added: imported by run-book but missing from venv

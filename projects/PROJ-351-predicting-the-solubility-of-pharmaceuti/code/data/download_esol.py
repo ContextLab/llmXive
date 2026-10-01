@@ -1,9 +1,10 @@
 import os
 import sys
 import pandas as pd
-from datasets import load_dataset
 import hashlib
 import logging
+import urllib.request
+import urllib.error
 from pathlib import Path
 from typing import Optional
 
@@ -14,14 +15,17 @@ if __name__ == '__main__' and 'code' not in sys.path[0]:
 logger = logging.getLogger(__name__)
 
 # Verified sources as per project constraints
-PRIMARY_SOURCE = "deepchem/delaney-processed" # HuggingFace dataset ID
-# Note: The original S3 URL is deprecated/unreliable. We rely on HF mirror.
-# If HF fails, we must fail loudly.
+# Primary: MoleculeNet S3 (as per task description)
+PRIMARY_SOURCE_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv"
+# Fallback: HuggingFace direct file resolve (verified mirror)
+FALLBACK_SOURCE_URL = "https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv"
 
 def fetch_esol_dataset(output_dir: str) -> pd.DataFrame:
     """
-    Fetches the ESOL dataset from a verified real source.
-    Fails loudly if the source is unreachable. No synthetic fallbacks.
+    Fetches the ESOL dataset from verified real sources.
+    Tries Primary URL, then Fallback URL.
+    Fails loudly if both sources are unreachable.
+    No synthetic fallbacks allowed.
     """
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
@@ -29,36 +33,72 @@ def fetch_esol_dataset(output_dir: str) -> pd.DataFrame:
 
     if csv_path.exists():
         logger.info(f"Found existing raw CSV at {csv_path}")
-        return pd.read_csv(csv_path)
+        # Validate content minimally
+        try:
+            df = pd.read_csv(csv_path)
+            if "logS" in df.columns:
+                return df
+            else:
+                logger.warning("Existing CSV missing 'logS' column, re-fetching...")
+        except Exception:
+            logger.warning("Existing CSV corrupted, re-fetching...")
 
-    logger.info(f"Fetching ESOL dataset from {PRIMARY_SOURCE}...")
+    # Attempt Primary Source
+    logger.info(f"Attempting to fetch from Primary Source: {PRIMARY_SOURCE_URL}")
     try:
-        # Load from HuggingFace datasets (verified source)
-        # This wraps the CSV download logic
-        dataset = load_dataset(PRIMARY_SOURCE, split="train")
+        df = _download_csv(PRIMARY_SOURCE_URL, output_path)
+        return df
+    except Exception as e:
+        logger.warning(f"Primary source failed: {e}. Attempting fallback...")
+
+    # Attempt Fallback Source
+    logger.info(f"Attempting to fetch from Fallback Source: {FALLBACK_SOURCE_URL}")
+    try:
+        df = _download_csv(FALLBACK_SOURCE_URL, output_path)
+        return df
+    except Exception as e:
+        logger.error(f"Fallback source failed: {e}")
+        # CRITICAL: Fail loudly. No synthetic fallback.
+        raise RuntimeError(
+            f"CRITICAL: Could not fetch real data from any verified source. "
+            f"Primary: {PRIMARY_SOURCE_URL}, Fallback: {FALLBACK_SOURCE_URL}. "
+            f"Aborting."
+        ) from e
+
+def _download_csv(url: str, output_path: Path) -> pd.DataFrame:
+    """Helper to download CSV from a URL and return as DataFrame."""
+    try:
+        # Use urllib to fetch the file directly
+        with urllib.request.urlopen(url, timeout=30) as response:
+            if response.status != 200:
+                raise ConnectionError(f"HTTP {response.status}")
+            
+            # Save raw content
+            raw_path = output_path / "delaney-processed.csv"
+            with open(raw_path, "wb") as f:
+                f.write(response.read())
         
-        # Convert to pandas
-        df = dataset.to_pandas()
+        # Load and validate
+        df = pd.read_csv(raw_path)
         
         # Validate required columns
         if "logS" not in df.columns:
             raise ValueError("Invalid dataset format: 'logS' column missing.")
         if "smiles" not in df.columns:
-            # Some versions might use 'SMILES'
-            if "SMILES" in df.columns:
-                df = df.rename(columns={"SMILES": "smiles"})
+            # Handle case sensitivity if needed
+            cols_lower = {c.lower(): c for c in df.columns}
+            if "smiles" in cols_lower:
+                df = df.rename(columns={cols_lower["smiles"]: "smiles"})
             else:
                 raise ValueError("Invalid dataset format: 'smiles' column missing.")
-
-        # Save to disk
-        df.to_csv(csv_path, index=False)
-        logger.info(f"Successfully saved raw CSV to {csv_path}")
+        
+        logger.info(f"Successfully downloaded and validated CSV from {url}")
         return df
 
+    except urllib.error.URLError as e:
+        raise ConnectionError(f"Network error fetching {url}: {e}")
     except Exception as e:
-        # CRITICAL: Fail loudly. No synthetic fallback.
-        logger.error(f"Failed to fetch ESOL dataset from verified source: {e}")
-        raise RuntimeError(f"CRITICAL: Could not fetch real data. Aborting. Source: {PRIMARY_SOURCE}") from e
+        raise RuntimeError(f"Failed to process CSV from {url}: {e}")
 
 def save_raw_csv(df: pd.DataFrame, output_path: str):
     """Saves the dataframe to a CSV file."""
@@ -74,15 +114,56 @@ def verify_checksum(file_path: str) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
+def update_state_manifest(checksum: str, csv_path: str):
+    """Updates the project state manifest with the artifact checksum."""
+    import yaml
+    from config.seeds import get_seed # Just to ensure config imports work if needed elsewhere, though not strictly used here
+    
+    project_id = "PROJ-351-predicting-the-solubility-of-pharmaceuti"
+    state_dir = Path("state/projects")
+    state_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = state_dir / f"{project_id}.yaml"
+    
+    # Load existing or create new
+    if manifest_path.exists():
+        with open(manifest_path, 'r') as f:
+            try:
+                state = yaml.safe_load(f) or {}
+            except yaml.YAMLError:
+                state = {}
+    else:
+        state = {}
+    
+    # Ensure structure
+    if "artifact_hashes" not in state:
+        state["artifact_hashes"] = {}
+    
+    # Update specific hash
+    relative_path = csv_path
+    if not relative_path.startswith("data/"):
+        relative_path = f"data/{csv_path}"
+        
+    state["artifact_hashes"][relative_path] = f"sha256:{checksum}"
+    
+    # Write back
+    with open(manifest_path, 'w') as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+    
+    logger.info(f"Updated state manifest at {manifest_path}")
+
 def main():
     """Main entry point for downloading ESOL dataset."""
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     output_dir = os.environ.get("DATA_RAW_DIR", "data/raw")
     os.makedirs(output_dir, exist_ok=True)
     
     df = fetch_esol_dataset(output_dir)
-    checksum = verify_checksum(os.path.join(output_dir, "delaney-processed.csv"))
+    csv_path = os.path.join(output_dir, "delaney-processed.csv")
+    checksum = verify_checksum(csv_path)
     logger.info(f"Dataset checksum: {checksum}")
+    
+    # Update state manifest
+    update_state_manifest(checksum, csv_path)
 
 if __name__ == "__main__":
     main()
