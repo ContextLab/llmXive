@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+type: "object"
+properties:
+  query_id:
+    type: "string"
+    description: "Unique identifier for the query"
+  method:
+    type: "string"
+    enum:
+      - "bm25"
+      - "dual_encoder"
+      - "rag"
+    description: "Retrieval method"
+  precision_at_10:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Precision@10 score"
+  recall_at_10:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Recall@10 score"
+  ndcg_at_10:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "nDCG@10 score"
+required:
+  - query_id
+  - method
+  - precision_at_10
+  - recall_at_10
+  - ndcg_at_10
+additionalProperties: false

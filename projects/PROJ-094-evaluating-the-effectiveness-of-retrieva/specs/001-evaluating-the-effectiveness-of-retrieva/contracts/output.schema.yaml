@@ -25,13 +25,16 @@ properties:
     description: "Documentation density of the **query/GT**. Missing values are 'NaN'."
   naming_consistency:
     type: ["number", "string"]
-    description: "Naming consistency of the **query/GT** (orthogonalized). Missing values are 'NaN'."
+    description: "Naming consistency of the **query/GT** (CodeBERT-base). Missing values are 'NaN'."
   bleu_score:
     type: ["number", "null"]
     description: "BLEU score of the generated answer (RAG only)."
   rouge_score:
     type: ["number", "null"]
     description: "ROUGE-L score of the generated answer (RAG only)."
+  noise_weight:
+    type: "number"
+    description: "Weight applied to the metric based on label noise estimate (0.0 to 1.0)."
 required:
   - query_id
   - method
@@ -41,3 +44,4 @@ required:
   - api_density
   - doc_density
   - naming_consistency
+  - noise_weight

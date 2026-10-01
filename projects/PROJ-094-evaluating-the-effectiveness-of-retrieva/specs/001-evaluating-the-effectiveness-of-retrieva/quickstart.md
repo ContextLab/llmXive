@@ -1,115 +1,117 @@
-# Quickstart: Evaluating the Effectiveness of Retrieval-Augmented Generation for Code Search
+# Quickstart: Evaluating the Effectiveness of Retrieval‑Augmented Generation for Code Search
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Sufficient RAM (minimum), 14GB disk (minimum)
+- Standard RAM and CPU core allocation (GitHub Actions free-tier compatible)
+- Internet access for dataset download (one-time)
 
 ## Installation
 
 1. **Clone the repository**:
    ```bash
    git clone <repo-url>
-   cd <project-dir>
+   cd projects/PROJ-094-evaluating-the-effectiveness-of-retrieva
    ```
 
 2. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
+   `requirements.txt` includes: `ir-datasets`, `sentence-transformers`, `transformers`, `faiss-cpu`, `scikit-learn`, `pandas`, `numpy`, `psutil`, `pyyaml`, `pytest`, `accelerate`.
 
-3. **Download the dataset** (automatically via `ir-datasets` on first run):
+3. **Download dataset** (automatic on first run):
    ```bash
-   python src/data/download.py
+   python src/cli/run_experiment.py --download-only
    ```
+   This downloads CodeSearchNet (Python/Java) to `data/raw/` and computes checksums.
 
-## Running the Pipeline
+## Running the Experiment
 
-### Standard Run (a series of queries)
-
-The research question remains: [Research Question]
-The method remains: [Method]
-The references remain: [References]
+### Standard Run (CPU)
 ```bash
-python src/cli/main.py --queries 50 --mode standard
+python src/cli/run_experiment.py \
+  --queries 200 \
+  --seed 42 \
+  --output results/metrics.csv
 ```
-- Downloads CodeSearchNet.
-- Computes semantic descriptors (query/GT only).
-- Runs BM25, Dual-Encoder, and RAG pipelines.
-- Outputs `data/processed/results.csv` and `data/processed/plots/`.
+- Downloads and preprocesses a set of queries from the Test Split.
+- Runs BM25, Dual-Encoder, and RAG pipelines (with 8-bit quantization if needed).
+- Computes metrics and outputs `results/metrics.csv`.
 
 ### Resource-Constrained Run
 ```bash
-python src/cli/main.py --queries 50 --mode constrained
+python src/cli/run_experiment.py \
+  --queries 200 \
+  --seed 42 \
+  --resource-constrained \
+  --output results/metrics_constrained.csv
 ```
-- Limits FAISS index to 1GB RAM.
-- Uses a multi-layer transformer for generation.
-- Outputs `data/processed/degradation_report.csv`.
+- Enforces ≤1GB FAISS index memory.
+- Uses `codegen-160M-mono` (2-layer) for generation.
+- Outputs degradation report.
 
-### Correlation Analysis
+### Full Pipeline (with Correlation Analysis)
 ```bash
-python src/analysis/correlation.py --input data/processed/results.csv
+python src/cli/run_experiment.py \
+  --queries 200 \
+  --seed 42 \
+  --analyze \
+  --output results/final_results.csv
 ```
-- Computes Spearman's rho, Pearson's r, and multivariate regression.
-- Outputs `data/processed/correlations.json`.
+- Runs full experiment + correlation analysis + label noise estimation.
+- Outputs `results/final_results.csv` and `results/correlation.json`.
 
 ### Control Experiment (Masking)
 ```bash
-python src/analysis/control_experiment.py --input data/processed/results.csv
+python src/cli/run_experiment.py \
+  --queries 200 \
+  --seed 42 \
+  --control-masking \
+  --output results/control_metrics.csv
 ```
-- Masks API/doc tokens and re-runs correlation.
-- Outputs `data/processed/control_results.json`.
+- Runs retrieval on masked code (API/doc tokens replaced with `<MASK>`).
+- Outputs control metrics for artifact verification.
 
-### Label Noise Estimation
-```bash
-python src/analysis/label_noise.py --input data/raw/codesearchnet.jsonl
-```
-- Performs manual spot-check (or simulates if automated).
-- Outputs `data/processed/label_noise.json`.
+## Output Files
 
-## Output Format
+- `results/metrics.csv`: Per-query metrics for all methods.
+- `results/correlation.json`: Statistical analysis results.
+- `results/degradation_report.json`: Resource-constrained vs. standard comparison.
+- `results/noise_estimate.json`: Label noise estimate from manual spot-check.
+- `results/final_results.csv`: Combined results for paper generation.
 
-### results.csv
-```csv
-query_id,method,ndcg_at_10,precision_at_10,recall_at_10,api_density,doc_density,naming_consistency,bleu_score,rouge_score
-q001,bm25,0.45,0.30,0.50,0.12,0.05,0.85,0.0,0.0
-q001,dual_encoder,0.52,0.35,0.55,0.12,0.05,0.85,0.0,0.0
-q001,rag,0.60,0.40,0.60,0.12,0.05,0.85,0.45,0.50
-...
-```
+## Validation
 
-### correlations.json
-```json
-{
-  "api_density": {
-    "pearson_r": 0.35,
-    "spearman_rho": 0.32,
-    "p_value": 0.01,
-    "significance": "significant"
-  },
-  "doc_density": {
-    "pearson_r": 0.12,
-    "spearman_rho": 0.10,
-    "p_value": 0.25,
-    "significance": "non-significant"
-  },
-  "naming_consistency": {
-    "pearson_r": 0.45,
-    "spearman_rho": 0.42,
-    "p_value": 0.005,
-    "significance": "significant"
-  }
-}
-```
+1. **Schema Validation**:
+   ```bash
+   pytest tests/contract/
+   ```
+   Validates all output files against `contracts/*.schema.yaml`.
 
-### Plots
-- `data/processed/plots/api_density_vs_delta.png`
-- `data/processed/plots/doc_density_vs_delta.png`
-- `data/processed/plots/naming_consistency_vs_delta.png`
+2. **Reproducibility Check**:
+   ```bash
+   python src/cli/run_experiment.py --seed 42 --output results/test_run.csv
+   python src/cli/run_experiment.py --seed 42 --output results/test_run_2.csv
+   diff results/test_run.csv results/test_run_2.csv
+   ```
+   Outputs should be identical (bit-for-bit).
+
+3. **Resource Constraint Check**:
+   ```bash
+   python src/cli/run_experiment.py --resource-constrained --output results/test_constrained.csv
+   # Check peak RSS via psutil logs
+   ```
+   Verify FAISS index ≤1GB and generator model uses 2 layers.
 
 ## Troubleshooting
 
-- **OOM Error**: If the process exceeds available memory capacity, the job will fail. (no GPU offload). Reduce the query count or use `--mode constrained`.
-- **Model Load Failed**: If 4-bit quantization fails, the system attempts to load a smaller model. If that fails, the job terminates.
-- **Data Download Failed**: Ensure internet access and that `ir-datasets` is installed.
+- **OOM Error on CPU**: If `codegen-350M-mono` fails, the system reduces context window to a constrained length. If OOM persists, it triggers the GPU offload (non-reproducible).
+- **Dataset Download Fails**: Check internet connection. Ensure `ir-datasets` URLs are reachable.
+- **Descriptor Calculation Fails**: Some snippets may fail (e.g., invalid syntax). These are marked as "NaN" and excluded from correlation analysis.
+
+## Next Steps
+
+1. Review `results/final_results.csv` and `results/correlation.json`.
+2. Generate paper artifacts using the results.
+3. Validate against success criteria (SC-001 to SC-006).

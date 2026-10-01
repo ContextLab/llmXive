@@ -1,33 +1,33 @@
-- artifact_hash: ac144f5d913608f89385f31c2f2a901e011d8c7d6d45324343d8bd1abc8f91b9
+- artifact_hash: e0a275e4f79d4cb852b92862c8851ee2b183954c53acfcba715aff115dcba084
   artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: en_data.jsonl
+  fetched_title: train-00000-of-00002-022fcdc5658ecd68.parquet
   kind: url
-  value: https://huggingface.co/datasets/PatSnap/Hiro-Pharma-RAG-Benchmark/resolve/main/en_data.jsonl
+  value: https://huggingface.co/datasets/kejian/codesearchnet-python-raw/resolve/main/data/train-00000-of-00002-022fcdc5658ecd68.parquet`
   verification_status: pending
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/PatSnap/Hiro-Pharma-RAG-Benchmark/0a4755a178436f7adfaabd20391912905bb954f7/en_data.jsonl?%2Fdatasets%2FPatSnap%2FHiro-Pharma-RAG-Benchmark%2Fresolve%2Fmain%2Fen_data.jsonl=&etag=%22d0882418144b2855e3f7d6f492725e745d6410bc%22
-  verified_at: '2026-07-26T04:39:56.121948Z'
-- artifact_hash: ac144f5d913608f89385f31c2f2a901e011d8c7d6d45324343d8bd1abc8f91b9
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6328088c5d34ed9e2dbc75ec/4dd6adfab9c8aeb7d8bf6019eee05d59c675587806421fa1da88fc84b7b5c32f?user_id=public&xip=QQeksUMEslE&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00002-022fcdc5658ecd68.parquet%3B+filename%3D%22train-00000-of-00002-022fcdc5658ecd68.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1790840904&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMyODA4OGM1ZDM0ZWQ5ZTJkYmM3NWVjLzRkZDZhZGZhYjljOGFlYjdkOGJmNjAxOWVlZTA1ZDU5YzY3NTU4NzgwNjQyMWZhMWRhODhmYzg0YjdiNWMzMmZcXD91c2VyX2lkPXB1YmxpYyZ4aXA9UVFla3NVTUVzbEUmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3RyYWluLTAwMDAwLW9mLTAwMDAyLTAyMmZjZGM1NjU4ZWNkNjgucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAyLTAyMmZjZGM1NjU4ZWNkNjgucGFycXVldCUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkwODQwOTA0fX19XX0_&Signature=MEUCIDocCneCPCviLU1QhQe77Q0bGozDswyj0UAZp0yTn0FAAiEAwRV2KCV7WOhowK-P96kUXQeRwSK80crNBrH0VMITS7w_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-01T06:48:24.671625Z'
+- artifact_hash: e0a275e4f79d4cb852b92862c8851ee2b183954c53acfcba715aff115dcba084
   artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: train-00000-of-00003-2005afc34e0ba73a.parquet
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/iohadrubin/nq_reranking_bm25/resolve/main/data/train-00000-of-00003-2005afc34e0ba73a.parquet
+  value: https://huggingface.co/datasets/kejian/codesearchnet-java-raw/resolve/main/data/train-00000-of-00002.parquet`
   verification_status: pending
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/62b4a75ab25cb80fcf25d3fa/483ae9e7f5b7b0704b2b11ff0568daf0325d94c36f319467d67705ec86c1d969?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00003-2005afc34e0ba73a.parquet%3B+filename%3D%22train-00000-of-00003-2005afc34e0ba73a.parquet%22%3B&Expires=1785044396&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjJiNGE3NWFiMjVjYjgwZmNmMjVkM2ZhLzQ4M2FlOWU3ZjViN2IwNzA0YjJiMTFmZjA1NjhkYWYwMzI1ZDk0YzM2ZjMxOTQ2N2Q2NzcwNWVjODZjMWQ5NjlcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDMtMjAwNWFmYzM0ZTBiYTczYS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDMtMjAwNWFmYzM0ZTBiYTczYS5wYXJxdWV0JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODUwNDQzOTZ9fX1dfQ__&Signature=MEYCIQD73lpgMeG8Bd8tE6erNZX0t8ak-DvRlxqL4xQu14krCgIhANKAFHt1h8HyybCM5ETV0r4Jq3ZCsKOcZgl7HPqXWbND&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
-  verified_at: '2026-07-26T04:39:56.121948Z'
-- artifact_hash: 0024b1e3cc915311553d37719741bb178212f0977e4959a42fc21d1e42e53ad6
-  artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/tasks.md
-  cite_id: c-001
+  verified_against_url: https://huggingface.co/datasets/kejian/codesearchnet-java-raw/resolve/main/data/train-00000-of-00002.parquet
+  verified_at: '2026-10-01T06:48:24.671625Z'
+- artifact_hash: e0a275e4f79d4cb852b92862c8851ee2b183954c53acfcba715aff115dcba084
+  artifact_path: projects/PROJ-094-evaluating-the-effectiveness-of-retrieva/specs/001-evaluating-the-effectiveness-of-retrieva/research.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: Management of data with uncertainties
-  kind: doi
-  value: 10.1145/1321440.1321442
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/kejian/codesearchnet-python-pep8-v1/resolve/main/data/test-00000-of-00001.parquet`
   verification_status: pending
-  verified_against_url: https://doi.org/10.1145/1321440.1321442
-  verified_at: '2026-09-27T10:05:58.310557Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/63280d034c551e456f855222/40ce23a06722301dffad5c1999f318780ff45dbf666d2702dab478d978eac7b1?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=QQeksUMEslE&Expires=1790840925&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMyODBkMDM0YzU1MWU0NTZmODU1MjIyLzQwY2UyM2EwNjcyMjMwMWRmZmFkNWMxOTk5ZjMxODc4MGZmNDVkYmY2NjZkMjcwMmRhYjQ3OGQ5NzhlYWM3YjFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD1RUWVrc1VNRXNsRSIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkwODQwOTI1fX19XX0_&Signature=MEUCIDRsd4Uwywoox2ELSGk8-Mn3hX5sITXLcPfSNN3DTrUgAiEA0-LXUX7LZqfNYHmi5%7E0t4W8Y8WWPL1WYLkX6LT7HQdU_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-01T06:48:24.671625Z'

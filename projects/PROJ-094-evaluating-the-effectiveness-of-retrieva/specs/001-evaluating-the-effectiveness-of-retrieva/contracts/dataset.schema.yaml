@@ -1,42 +1,53 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CodeSnippet Dataset Schema"
+title: "CodeSearchNet Dataset Schema"
 type: "object"
 properties:
   doc_id:
     type: "string"
-    description: "Unique identifier for the document."
-  func_name:
-    type: ["string", "null"]
-    description: "Function name (if available)."
-  language:
-    type: "string"
-    description: "Programming language (e.g., 'python', 'java')."
-  path:
-    type: "string"
-    description: "File path in the repository."
+    description: "Unique identifier for the code snippet"
   repo:
     type: "string"
-    description: "Repository name."
+    description: "Repository name"
+  path:
+    type: "string"
+    description: "File path within repository"
+  func_name:
+    type: "string"
+    description: "Function/method name"
   code:
     type: "string"
-    description: "Original code snippet."
-  code_truncated:
+    description: "Source code (truncated to ≤256 tokens)"
+  language:
     type: "string"
-    description: "Code snippet truncated to ≤ 256 tokens."
+    enum:
+      - "python"
+      - "java"
+    description: "Programming language"
+  docstring:
+    type: "string"
+    description: "Natural language description (query)"
   api_density:
     type: "number"
-    description: "Ratio of API calls to total tokens (computed on query/GT)."
+    description: "Ratio of API calls to total tokens"
   doc_density:
     type: "number"
-    description: "Ratio of comment tokens to total tokens (computed on query/GT)."
+    description: "Ratio of comment tokens to total tokens"
   naming_consistency:
-    type: ["number", "string"]
-    description: "Average pairwise cosine similarity of identifier embeddings (computed on query/GT, orthogonalized). Missing values are 'NaN'."
+    type: "number"
+    description: "Average pairwise cosine similarity of identifier embeddings (CodeBERT-base)"
+  truncated:
+    type: "boolean"
+    description: "True if code was truncated"
 required:
   - doc_id
-  - language
+  - repo
+  - path
+  - func_name
   - code
-  - code_truncated
+  - language
+  - docstring
   - api_density
   - doc_density
   - naming_consistency
+  - truncated
+additionalProperties: false
