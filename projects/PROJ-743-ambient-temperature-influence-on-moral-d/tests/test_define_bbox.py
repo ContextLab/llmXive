@@ -1,70 +1,101 @@
 """
-Tests for define_bbox.py
+Unit tests for code/define_bbox.py
 """
 import os
 import json
 import tempfile
-from pathlib import Path
 import pandas as pd
 import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Import the module functions
-from code.define_bbox import calculate_bounding_box, save_bounding_box, load_moral_machine_data
+# Import the module under test
+import sys
+sys.path.insert(0, 'code')
+from define_bbox import calculate_bounding_box, load_moral_machine_data, save_bounding_box
 
 def test_calculate_bounding_box_basic():
-    """Test basic bounding box calculation."""
+    """Test basic bounding box calculation with expansion."""
     data = {
         'latitude': [10.0, 20.0, 30.0],
-        'longitude': [5.0, 15.0, 25.0]
+        'longitude': [100.0, 110.0, 120.0]
+    }
+    df = pd.DataFrame(data)
+    
+    result = calculate_bounding_box(df, expand_degrees=2.0)
+    
+    assert result['min_lat'] == 8.0  # 10 - 2
+    assert result['max_lat'] == 32.0  # 30 + 2
+    assert result['min_lon'] == 98.0  # 100 - 2
+    assert result['max_lon'] == 122.0  # 120 + 2
+    assert result['source_records'] == 3
+    assert result['expand_degrees'] == 2.0
+
+def test_calculate_bounding_box_with_missing_values():
+    """Test that rows with missing lat/lon are excluded."""
+    data = {
+        'latitude': [10.0, None, 30.0],
+        'longitude': [100.0, 110.0, None]
     }
     df = pd.DataFrame(data)
     
     result = calculate_bounding_box(df, expand_degrees=1.0)
     
+    # Only first row is valid
     assert result['min_lat'] == 9.0
-    assert result['max_lat'] == 31.0
-    assert result['min_lon'] == 4.0
-    assert result['max_lon'] == 26.0
-    assert result['source_records'] == 3
+    assert result['max_lat'] == 11.0
+    assert result['min_lon'] == 99.0
+    assert result['max_lon'] == 101.0
+    assert result['source_records'] == 1
 
-def test_calculate_bounding_box_with_nulls():
-    """Test bounding box calculation ignores null values."""
+def test_calculate_bounding_box_empty_valid():
+    """Test that error is raised when no valid lat/lon exists."""
     data = {
-        'latitude': [10.0, None, 30.0],
-        'longitude': [5.0, 15.0, None]
+        'latitude': [None, None],
+        'longitude': [None, None]
     }
     df = pd.DataFrame(data)
     
-    # Only the first row is valid
-    result = calculate_bounding_box(df, expand_degrees=0.0)
-    
-    assert result['min_lat'] == 10.0
-    assert result['max_lat'] == 10.0
-    assert result['min_lon'] == 5.0
-    assert result['max_lon'] == 5.0
-    assert result['source_records'] == 1
+    with pytest.raises(ValueError, match="No valid latitude/longitude data found"):
+        calculate_bounding_box(df)
 
-def test_save_and_load_bounding_box():
-    """Test saving and loading bounding box to JSON."""
+def test_save_bounding_box(tmp_path):
+    """Test saving bounding box to JSON."""
     bbox_data = {
         "min_lat": 10.0,
         "max_lat": 20.0,
-        "min_lon": 5.0,
-        "max_lon": 15.0
+        "min_lon": 100.0,
+        "max_lon": 110.0
     }
+    output_file = tmp_path / "test_bbox.json"
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "bbox.json"
-        save_bounding_box(bbox_data, output_path)
-        
-        assert output_path.exists()
-        
-        with open(output_path, 'r') as f:
-            loaded_data = json.load(f)
-        
-        assert loaded_data == bbox_data
+    save_bounding_box(bbox_data, output_file)
+    
+    assert output_file.exists()
+    
+    with open(output_file, 'r') as f:
+        loaded = json.load(f)
+    
+    assert loaded == bbox_data
 
 def test_load_moral_machine_data_missing_file():
-    """Test that load_moral_machine_data raises FileNotFoundError for missing file."""
+    """Test that FileNotFoundError is raised for missing input."""
     with pytest.raises(FileNotFoundError):
-        load_moral_machine_data("non_existent_file.csv.gz")
+        load_moral_machine_data("nonexistent_file.csv.gz")
+
+def test_load_moral_machine_data_success(tmp_path):
+    """Test loading a valid CSV file."""
+    # Create a temporary CSV file
+    csv_file = tmp_path / "test_data.csv.gz"
+    data = {
+        'latitude': [10.0, 20.0],
+        'longitude': [100.0, 110.0]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(csv_file, compression='gzip', index=False)
+    
+    loaded_df = load_moral_machine_data(csv_file)
+    
+    assert len(loaded_df) == 2
+    assert 'latitude' in loaded_df.columns
+    assert 'longitude' in loaded_df.columns

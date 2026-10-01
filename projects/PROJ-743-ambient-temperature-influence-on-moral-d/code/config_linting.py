@@ -1,195 +1,144 @@
+"""
+Configuration and verification utilities for linting and formatting.
+This module ensures that pyproject.toml and ruff.toml are correctly configured
+and that the codebase passes `ruff check` and `black --check`.
+"""
 import os
 import sys
 import tomli
 import tomli_w
 from pathlib import Path
-
 from config import get_path_env_override
+import subprocess
+import logging
 
-def ensure_pyproject_toml(project_root: Path) -> bool:
-    """
-    Ensure pyproject.toml exists and contains [tool.black] and [tool.ruff] sections.
-    Returns True if the file is valid and contains the required sections.
-    """
-    pyproject_path = project_root / "pyproject.toml"
-
+def ensure_pyproject_toml(root: Path) -> None:
+    """Ensure pyproject.toml exists with Black and Ruff sections."""
+    pyproject_path = root / "pyproject.toml"
     if not pyproject_path.exists():
-        # Create a minimal pyproject.toml with required sections
-        config = {
-            "project": {
-                "name": "ambient-temp-moral-speed",
-                "version": "0.1.0",
-                "dependencies": [
-                    "pandas",
-                    "numpy",
-                    "scikit-learn",
-                    "statsmodels",
-                    "cdsapi",
-                    "pyarrow",
-                    "matplotlib",
-                    "seaborn",
-                    "geopandas",
-                    "shapely",
-                    "ruff",
-                    "black",
-                    "tomli",
-                    "tomli-w",
-                ],
-            },
-            "tool": {
-                "black": {
-                    "line-length": 88,
-                    "target-version": ["py310"],
-                },
-                "ruff": {
-                    "line-length": 88,
-                    "target-version": "py310",
-                    "select": ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"],
-                    "ignore": [],
-                    "exclude": [
-                        ".git",
-                        "__pycache__",
-                        ".venv",
-                        "venv",
-                        "build",
-                        "dist",
-                        "*.egg-info",
-                    ],
-                },
-            },
+        logging.error(f"pyproject.toml not found at {pyproject_path}")
+        sys.exit(1)
+
+    with open(pyproject_path, "rb") as f:
+        config = tomli.load(f)
+
+    # Ensure [tool.black] exists
+    if "tool" not in config or "black" not in config.get("tool", {}):
+        logging.warning("Missing [tool.black] section in pyproject.toml. Adding defaults.")
+        if "tool" not in config:
+            config["tool"] = {}
+        config["tool"]["black"] = {
+            "line-length": 88,
+            "target-version": ["py39", "py310", "py311"],
+            "include": r"\.pyi?$",
+            "exclude": r"/(\.git|\.hg|\.mypy_cache|\.tox|\.venv|_build|buck-out|build|dist)/"
         }
-        with open(pyproject_path, "wb") as f:
-            tomli_w.dump(config, f)
-        return True
 
-    # File exists, check for required sections
-    try:
-        with open(pyproject_path, "rb") as f:
-            config = tomli.load(f)
+    # Ensure [tool.ruff] exists
+    if "tool" not in config or "ruff" not in config.get("tool", {}):
+        logging.warning("Missing [tool.ruff] section in pyproject.toml. Adding defaults.")
+        if "tool" not in config:
+            config["tool"] = {}
+        config["tool"]["ruff"] = {
+            "line-length": 88,
+            "target-version": "py39",
+            "select": ["E", "W", "F", "I", "C", "B"],
+            "ignore": ["E501", "B008", "C901"]
+        }
 
-        tool = config.get("tool", {})
-        if "black" not in tool or "ruff" not in tool:
-            # Update existing config to include missing sections
-            if "tool" not in config:
-                config["tool"] = {}
-            if "black" not in config["tool"]:
-                config["tool"]["black"] = {
-                    "line-length": 88,
-                    "target-version": ["py310"],
-                }
-            if "ruff" not in config["tool"]:
-                config["tool"]["ruff"] = {
-                    "line-length": 88,
-                    "target-version": "py310",
-                    "select": ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"],
-                    "ignore": [],
-                    "exclude": [
-                        ".git",
-                        "__pycache__",
-                        ".venv",
-                        "venv",
-                        "build",
-                        "dist",
-                        "*.egg-info",
-                    ],
-                }
-            with open(pyproject_path, "wb") as f:
-                tomli_w.dump(config, f)
-            return True
+    # Write back if changed (optional, but ensures consistency)
+    with open(pyproject_path, "wb") as f:
+        tomli_w.dump(config, f)
 
-        return True
-    except Exception as e:
-        print(f"Error reading/writing pyproject.toml: {e}")
-        return False
-
-def ensure_ruff_config(project_root: Path) -> bool:
-    """
-    Ensure ruff.toml exists with proper configuration.
-    Note: ruff.toml is deprecated in favor of pyproject.toml [tool.ruff],
-    but we create it for compatibility with older workflows.
-    """
-    ruff_path = project_root / "ruff.toml"
-
-    config_content = """# Ruff configuration
+def ensure_ruff_config(root: Path) -> None:
+    """Ensure ruff.toml exists."""
+    ruff_path = root / "ruff.toml"
+    if not ruff_path.exists():
+        logging.info(f"Creating ruff.toml at {ruff_path}")
+        content = """
+# Ruff configuration
 line-length = 88
-target-version = "py310"
+target-version = "py39"
 
 [lint]
 select = [
     "E",   # pycodestyle errors
-    "F",   # Pyflakes
     "W",   # pycodestyle warnings
+    "F",   # pyflakes
     "I",   # isort
-    "N",   # pep8-naming
-    "UP",  # pyupgrade
+    "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "SIM", # flake8-simplify
 ]
-ignore = []
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
 
 [lint.per-file-ignores]
 "__init__.py" = ["F401"]
-"conftest.py" = ["F401"]
-"tests/*" = ["S101", "ARG"]
-
-[lint.isort]
-known-first-party = ["code"]
-
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
 """
+        with open(ruff_path, "w") as f:
+            f.write(content.strip())
 
-    with open(ruff_path, "w") as f:
-        f.write(config_content)
+def ensure_flake8_config(root: Path) -> None:
+    """Optional: Ensure .flake8 or setup.cfg exists if needed, but we prioritize Ruff."""
+    # For this project, we rely on Ruff, so this is a no-op or placeholder.
+    pass
+
+def run_linting_checks(root: Path) -> bool:
+    """Run ruff check and black --check."""
+    logging.info("Running Ruff check...")
+    try:
+        result = subprocess.run(
+            ["ruff", "check", "."],
+            cwd=root,
+            capture_output=True,
+            text=True
+        )
+        if result.returncode != 0:
+            logging.error("Ruff check failed:\n%s", result.stdout)
+            logging.error("Errors:\n%s", result.stderr)
+            return False
+        logging.info("Ruff check passed.")
+    except FileNotFoundError:
+        logging.error("Ruff not found in PATH. Please install it.")
+        return False
+
+    logging.info("Running Black check...")
+    try:
+        result = subprocess.run(
+            ["black", "--check", "."],
+            cwd=root,
+            capture_output=True,
+            text=True
+        )
+        if result.returncode != 0:
+            logging.error("Black check failed:\n%s", result.stdout)
+            logging.error("Errors:\n%s", result.stderr)
+            return False
+        logging.info("Black check passed.")
+    except FileNotFoundError:
+        logging.error("Black not found in PATH. Please install it.")
+        return False
+
     return True
 
-def ensure_flake8_config(project_root: Path) -> bool:
-    """
-    Ensure .flake8 config exists (for compatibility, though ruff is preferred).
-    """
-    flake8_path = project_root / ".flake8"
+def main():
+    """Main entry point for T009."""
+    root = Path(get_path_env_override("PROJECT_ROOT", "."))
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-    config_content = """[flake8]
-max-line-length = 88
-exclude = .git,__pycache__,.venv,venv,build,dist,*.egg-info
-ignore = E203,E266,W503
-select = E,F,W,C90,I,N,UP,B,C4,SIM
-"""
-    with open(flake8_path, "w") as f:
-        f.write(config_content)
-    return True
+    logging.info(f"Configuring linting for project at {root}")
+    ensure_pyproject_toml(root)
+    ensure_ruff_config(root)
 
-def main() -> int:
-    """
-    Main entry point for T009: Configure Linting and Formatting.
-    Creates/updates pyproject.toml, ruff.toml, and .flake8.
-    """
-    project_root = Path(get_path_env_override("PROJECT_ROOT", "."))
-
-    success = True
-
-    if not ensure_pyproject_toml(project_root):
-        print("Failed to ensure pyproject.toml")
-        success = False
-
-    if not ensure_ruff_config(project_root):
-        print("Failed to ensure ruff.toml")
-        success = False
-
-    if not ensure_flake8_config(project_root):
-        print("Failed to ensure .flake8")
-        success = False
-
-    if success:
-        print("Linting and formatting configuration created successfully.")
+    if run_linting_checks(root):
+        logging.info("All linting and formatting checks passed.")
+        sys.exit(0)
     else:
-        print("Some configuration steps failed.")
-
-    return 0 if success else 1
+        logging.error("Linting or formatting checks failed.")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

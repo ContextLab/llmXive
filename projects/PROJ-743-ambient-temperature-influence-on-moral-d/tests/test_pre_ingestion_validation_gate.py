@@ -1,139 +1,126 @@
-import pytest
-import json
 import os
+import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import sys
+import tempfile
+import shutil
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Ensure the code directory is in the path
+sys_path_backup = __import__('sys').path.copy()
+try:
+    __import__('sys').path.insert(0, str(Path(__file__).parent.parent / 'code'))
+    
+    from pre_ingestion_validation_gate import (
+        ensure_directories, 
+        check_file_exists, 
+        check_directory_exists, 
+        run_validation_gate,
+        update_project_state
+    )
+finally:
+    __import__('sys').path = sys_path_backup
 
-from pre_ingestion_validation_gate import load_json_log, check_file_exists, run_validation_gate
+@pytest.fixture
+def temp_test_dir(tmp_path):
+    """Create a temporary directory structure for testing."""
+    # Create a temp root to avoid polluting the actual project structure during tests
+    # We will mock the paths used in the functions
+    return tmp_path
 
-class TestPreIngestionValidationGate:
-    @pytest.fixture
-    def temp_project_root(self, tmp_path):
-        """Create a temporary project structure for testing."""
-        # Create necessary directories
-        (tmp_path / "results" / "logs").mkdir(parents=True)
-        (tmp_path / "data" / "raw").mkdir(parents=True)
-        return tmp_path
+def test_check_file_exists_exists(tmp_path):
+    file_path = tmp_path / "test.txt"
+    file_path.write_text("content")
+    logger = MagicMock()
+    assert check_file_exists(file_path, logger) is True
+    logger.error.assert_not_called()
 
-    def test_load_json_log_existing(self, temp_project_root):
-        """Test loading an existing JSON log file."""
-        log_path = temp_project_root / "results" / "logs" / "test.json"
-        log_path.write_text('{"status": "pass", "details": "ok"}')
+def test_check_file_exists_missing(tmp_path):
+    file_path = tmp_path / "missing.txt"
+    logger = MagicMock()
+    assert check_file_exists(file_path, logger) is False
+    logger.error.assert_called_once()
+
+def test_check_file_exists_empty(tmp_path):
+    file_path = tmp_path / "empty.txt"
+    file_path.touch() # Create empty file
+    logger = MagicMock()
+    assert check_file_exists(file_path, logger) is False
+    logger.error.assert_called_once()
+
+def test_check_directory_exists_populated(tmp_path):
+    dir_path = tmp_path / "data"
+    dir_path.mkdir()
+    (dir_path / "file.txt").write_text("content")
+    logger = MagicMock()
+    assert check_directory_exists(dir_path, logger) is True
+    logger.error.assert_not_called()
+
+def test_check_directory_exists_empty(tmp_path):
+    dir_path = tmp_path / "empty_dir"
+    dir_path.mkdir()
+    logger = MagicMock()
+    assert check_directory_exists(dir_path, logger) is False
+    logger.error.assert_called_once()
+
+def test_check_directory_exists_missing(tmp_path):
+    dir_path = tmp_path / "non_existent"
+    logger = MagicMock()
+    assert check_directory_exists(dir_path, logger) is False
+    logger.error.assert_called_once()
+
+@patch('pre_ingestion_validation_gate.check_file_exists')
+@patch('pre_ingestion_validation_gate.check_directory_exists')
+def test_run_validation_gate_pass(mock_check_dir, mock_check_file, tmp_path):
+    # Setup mocks to return True
+    mock_check_file.return_value = True
+    mock_check_dir.return_value = True
+
+    # Mock paths to point to temp dirs to avoid side effects
+    with patch('pre_ingestion_validation_gate.Path') as MockPath:
+        # Configure the Path mock to return our temp paths for specific strings
+        def path_side_effect(p):
+            if p == "data/raw/moral_machine.csv.gz":
+                return tmp_path / "moral_machine.csv.gz"
+            elif p == "data/raw/era5_raw_chunks":
+                return tmp_path / "era5_raw_chunks"
+            elif p == "results/logs/data_validation_log.txt":
+                return tmp_path / "validation_log.txt"
+            return Path(p) # Default behavior for other paths
+
+        MockPath.side_effect = path_side_effect
         
-        result = load_json_log(log_path)
-        assert result == {"status": "pass", "details": "ok"}
+        # Ensure temp paths exist for the mocks to work correctly if needed
+        (tmp_path / "moral_machine.csv.gz").write_text("data")
+        (tmp_path / "era5_raw_chunks").mkdir()
+        (tmp_path / "era5_raw_chunks" / "chunk.txt").write_text("data")
 
-    def test_load_json_log_missing(self, temp_project_root):
-        """Test loading a missing JSON log file."""
-        log_path = temp_project_root / "results" / "logs" / "missing.json"
-        
-        result = load_json_log(log_path)
-        assert result == {}
-
-    def test_load_json_log_invalid_json(self, temp_project_root):
-        """Test loading a JSON log file with invalid JSON."""
-        log_path = temp_project_root / "results" / "logs" / "invalid.json"
-        log_path.write_text('not valid json {')
-        
-        result = load_json_log(log_path)
-        assert result == {}
-
-    def test_check_file_exists_true(self, temp_project_root):
-        """Test check_file_exists when file exists."""
-        file_path = temp_project_root / "data" / "raw" / "test.h5"
-        file_path.write_text("dummy content")
-        
-        assert check_file_exists(file_path) is True
-
-    def test_check_file_exists_false(self, temp_project_root):
-        """Test check_file_exists when file does not exist."""
-        file_path = temp_project_root / "data" / "raw" / "missing.h5"
-        
-        assert check_file_exists(file_path) is False
-
-    @patch('pre_ingestion_validation_gate.logging')
-    def test_run_validation_gate_all_pass(self, mock_logging, temp_project_root):
-        """Test run_validation_gate when all checks pass."""
-        # Setup log file content
-        log_content = """
-        2026-01-01T00:00:00 - Task T001: Status: Pass
-        2026-01-01T00:00:01 - Task T001c: Status: Pass
-        2026-01-01T00:00:02 - Task T004: Status: Pass
-        """
-        log_path = temp_project_root / "results" / "logs" / "data_validation_log.txt"
-        log_path.write_text(log_content)
-        
-        # Setup ERA5 full file
-        era5_full_path = temp_project_root / "data" / "raw" / "era5_full.h5"
-        era5_full_path.write_text("dummy era5 data")
-        
-        # Mock the logger to avoid actual logging side effects in tests
-        mock_logger = MagicMock()
-        mock_logging.getLogger.return_value = mock_logger
-        
-        result = run_validation_gate(temp_project_root)
+        logger = MagicMock()
+        result = run_validation_gate(logger)
         
         assert result is True
-        mock_logger.info.assert_any_call("Pre-Ingestion Validation Gate: PASSED")
+        logger.info.assert_called_with("Pre-Ingestion Validation Gate: PASS")
 
-    @patch('pre_ingestion_validation_gate.logging')
-    def test_run_validation_gate_log_missing(self, mock_logging, temp_project_root):
-        """Test run_validation_gate when validation log is missing."""
-        # Do not create the log file
-        
-        mock_logger = MagicMock()
-        mock_logging.getLogger.return_value = mock_logger
-        
-        with pytest.raises(RuntimeError, match="Pre-Ingestion Validation Gate Failed"):
-            run_validation_gate(temp_project_root)
-        
-        mock_logger.error.assert_any_call("Validation log file not found: %s", temp_project_root / "results" / "logs" / "data_validation_log.txt")
+@patch('pre_ingestion_validation_gate.check_file_exists')
+@patch('pre_ingestion_validation_gate.check_directory_exists')
+def test_run_validation_gate_fail(mock_check_dir, mock_check_file, tmp_path):
+    # Setup mocks to return False for one check
+    mock_check_file.return_value = False
+    mock_check_dir.return_value = True
 
-    @patch('pre_ingestion_validation_gate.logging')
-    def test_run_validation_gate_era5_missing(self, mock_logging, temp_project_root):
-        """Test run_validation_gate when ERA5 full file is missing."""
-        # Setup log file content
-        log_content = """
-        2026-01-01T00:00:00 - Task T001: Status: Pass
-        2026-01-01T00:00:01 - Task T001c: Status: Pass
-        2026-01-01T00:00:02 - Task T004: Status: Pass
-        """
-        log_path = temp_project_root / "results" / "logs" / "data_validation_log.txt"
-        log_path.write_text(log_content)
-        
-        # Do not create ERA5 full file
-        
-        mock_logger = MagicMock()
-        mock_logging.getLogger.return_value = mock_logger
-        
-        with pytest.raises(RuntimeError, match="Pre-Ingestion Validation Gate Failed"):
-            run_validation_gate(temp_project_root)
-        
-        mock_logger.error.assert_any_call("T002c: ERA5 Full Fetch file not found: %s", temp_project_root / "data" / "raw" / "era5_full.h5")
+    with patch('pre_ingestion_validation_gate.Path') as MockPath:
+        def path_side_effect(p):
+            if p == "data/raw/moral_machine.csv.gz":
+                return tmp_path / "moral_machine.csv.gz"
+            elif p == "data/raw/era5_raw_chunks":
+                return tmp_path / "era5_raw_chunks"
+            elif p == "results/logs/data_validation_log.txt":
+                return tmp_path / "validation_log.txt"
+            return Path(p)
 
-    @patch('pre_ingestion_validation_gate.logging')
-    def test_run_validation_gate_t001_fail(self, mock_logging, temp_project_root):
-        """Test run_validation_gate when T001 fails (no Pass in log)."""
-        # Setup log file content without T001 Pass
-        log_content = """
-        2026-01-01T00:00:00 - Task T001c: Status: Pass
-        2026-01-01T00:00:01 - Task T004: Status: Pass
-        """
-        log_path = temp_project_root / "results" / "logs" / "data_validation_log.txt"
-        log_path.write_text(log_content)
+        MockPath.side_effect = path_side_effect
         
-        # Setup ERA5 full file
-        era5_full_path = temp_project_root / "data" / "raw" / "era5_full.h5"
-        era5_full_path.write_text("dummy era5 data")
+        logger = MagicMock()
+        result = run_validation_gate(logger)
         
-        mock_logger = MagicMock()
-        mock_logging.getLogger.return_value = mock_logger
-        
-        with pytest.raises(RuntimeError, match="Pre-Ingestion Validation Gate Failed"):
-            run_validation_gate(temp_project_root)
-        
-        mock_logger.warning.assert_any_call("T001: Could not confirm PASS status in log.")
+        assert result is False
+        logger.error.assert_called_with("Pre-Ingestion Validation Gate: FAIL")

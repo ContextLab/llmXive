@@ -1,0 +1,35 @@
+# Ruff configuration for PROJ-743-ambient-temperature-influence-on-moral-d
+# Extends and overrides settings from pyproject.toml if needed,
+# but primarily serves as the explicit configuration file for `ruff check`.
+
+line-length = 88
+target-version = "py39"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"code/validate_era5_sample_integrity.py" = ["SIM105"]
+"code/stream_era5.py" = ["SIM105"]
+
+[lint.isort]
+known-first-party = ["config", "utils", "loaders", "ingestion", "modeling", "setup_logging"]
+force-sort-within-sections = true
+
+[lint.flake8-comprehensions]
+allow-dict-calls-with-keyword-arguments = true

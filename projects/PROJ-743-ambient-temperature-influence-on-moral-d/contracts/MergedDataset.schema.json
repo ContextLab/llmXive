@@ -1,67 +1,65 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/MergedDataset.schema.json",
   "title": "MergedDataset",
-  "description": "Derived entity combining Moral Response and Temperature Record data with additional derived features for analysis.",
+  "description": "Schema for the final merged dataset including derived fields.",
   "type": "object",
   "properties": {
     "participant_id": {
       "type": "string",
-      "description": "Unique identifier for the participant (from MoralResponse)."
+      "description": "Unique identifier for the participant"
     },
     "latitude": {
       "type": "number",
-      "description": "Latitude coordinate (from MoralResponse)."
+      "description": "Latitude of the participant",
+      "minimum": -90.0,
+      "maximum": 90.0
     },
     "longitude": {
       "type": "number",
-      "description": "Longitude coordinate (from MoralResponse)."
+      "description": "Longitude of the participant",
+      "minimum": -180.0,
+      "maximum": 180.0
     },
     "timestamp": {
       "type": "string",
       "format": "date-time",
-      "description": "Timestamp of the response (from MoralResponse)."
+      "description": "Timestamp of the response"
     },
     "response_time": {
       "type": "number",
-      "description": "Response time in milliseconds (from MoralResponse)."
+      "description": "Response time in milliseconds"
     },
     "country": {
       "type": "string",
-      "description": "Country code or name (from MoralResponse)."
+      "description": "Country code or name"
     },
     "dilemma_id": {
       "type": "string",
-      "description": "Dilemma identifier (from MoralResponse)."
+      "description": "Unique identifier for the dilemma"
     },
     "grid_id": {
       "type": "string",
-      "description": "ERA5 grid cell identifier (from TemperatureRecord)."
+      "description": "Matched ERA5 grid identifier"
     },
     "temperature_celsius": {
       "type": "number",
-      "description": "2-meter air temperature in degrees Celsius (from TemperatureRecord)."
+      "description": "Matched temperature in Celsius"
     },
     "dilemma_choice": {
       "type": "string",
-      "description": "Derived categorical variable indicating the choice made (e.g., 'save_many', 'save_few')."
+      "description": "Derived dilemma choice (e.g., 'save_many', 'save_few')"
     },
     "dilemma_complexity": {
       "type": "number",
-      "description": "Derived static complexity score based on lives at stake and dilemma type."
+      "description": "Derived complexity score of the dilemma"
     },
     "time_of_day": {
       "type": "string",
-      "description": "Categorized time of day (e.g., 'morning', 'afternoon', 'evening', 'night')."
+      "description": "Categorized time of day (e.g., 'morning', 'afternoon')"
     },
-    "match_quality": {
+    "cultural_region": {
       "type": "string",
-      "description": "Quality of the geospatial match (e.g., 'high', 'low').",
-      "enum": ["high", "low"]
-    },
-    "distance_km": {
-      "type": "number",
-      "description": "Distance in kilometers between response location and ERA5 grid point."
+      "description": "Derived cultural region based on country"
     }
   },
   "required": [
@@ -77,8 +75,6 @@
     "dilemma_choice",
     "dilemma_complexity",
     "time_of_day",
-    "match_quality",
-    "distance_km"
-  ],
-  "additionalProperties": false
+    "cultural_region"
+  ]
 }

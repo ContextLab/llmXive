@@ -6,14 +6,14 @@ T001b:
     is incomplete/truncated and there is no evidence that it fetched, saved, and validated
     the data as specified. The missing HDF5 file and lack of concrete validation logs
     must be addressed.
-T007:
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory listing or other evidence was provided showing that the required\
-    \ folders (`code/`, `data/raw/`, `data/processed/`, `results/figures/`, `results/logs/`,\
-    \ `results/stats/`, `tests/`) actually exist; thus the task\u2019s deliverable\
-    \ cannot be confirmed. The implementer must supply a file\u2011system snapshot\
-    \ or command output proving the structure is created."
+  h: bd54722f7087bb4edec86c2961448fbab147a3d2db4da26b327d35acdb92f3ef
+  r: "The implementer\u2019s artifact list shows that `data/raw/moral_machine.csv.gz`\
+    \ does not exist, so the validation gate cannot confirm the required file\u2019\
+    s presence. Consequently the task\u2019s requirement to verify both `data/raw/era5_raw_chunks/`\
+    \ and `data/raw/moral_machine.csv.gz` is not satisfied. The missing CSV file must\
+    \ be added (or correctly generated) for the task to be complete."
 T009:
   c: false
   h: 10ca4135870ca7a986b1262c99675074e89a4172ae0a96cf6d119c62029f35ae
@@ -22,28 +22,19 @@ T009:
     output) that `ruff check` and `black --check` succeed on the `code/` and `tests/`
     directories. Both the missing file and lack of verification mean the task is not
     fully satisfied.
-T009b:
+T011:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `contracts/models.py` file containing Pydantic model classes was provided;
-    the evidence contains only the task description and no code artifact, so the required
-    models are missing.
-T009c:
+  r: No evidence of a `results/logs/` directory, logging configuration files, or code
+    that writes data quality logs and model diagnostics to that path was provided.
+    The required logging infrastructure artifact is missing.
+T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "I looked for the three JSON\u2011Schema files (`MoralResponse.schema.json`,\
-    \ `TemperatureRecord.schema.json`, `MergedDataset.schema.json`) in the `contracts/`\
-    \ directory and for the source Pydantic models in `contracts/models.py`. No such\
-    \ files or source code were provided, so the required schemas have not been generated.\
-    \ The task therefore remains unfinished."
-T009d:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `contracts/models.py` file or `MergedDataset` Pydantic class was presented\
-    \ in the evidence; without the actual code file containing the required fields,\
-    \ the task\u2019s deliverable cannot be confirmed as completed. The implementer\
-    \ must add the `MergedDataset` model with the specified raw and derived columns\
-    \ in the indicated module."
+  r: "No pytest configuration files (e.g.,\u202Fpytest.ini,\u202Fconftest.py) or related\
+    \ code were presented, so there is no evidence that a CPU\u2011only execution\
+    \ mode or stratified\u2011sampling fixtures/markers have been set up. The required\
+    \ artifact is missing."
 T017:
   c: false
   h: dc3b38c9259104dcab6a3c7b379ae6cafb606947e01557628e5df9349f8241ec
@@ -63,22 +54,22 @@ T019:
     \ file only has a header and no entries reflecting such exclusions. Implement\
     \ the full matching routine, add the low\u2011quality flag, and write detailed\
     \ exclusion rows to the log."
-T028a:
+T028e:
   c: false
-  h: a6cf2131a14a4b40cfc1b049e1af918a036d80b928444aef9f74a123913aefb4
-  r: "The log file `results/logs/covariate_status.json` is present, but the required\
-    \ output `data/processed/covariates.csv` does not exist, so the task\u2019s final\
-    \ step of saving the covariates was not fulfilled. The missing CSV file must be\
-    \ created (even if containing nulls) to satisfy the requirement."
-T028g:
+  h: 60c371aa0a7bed2eb3be8f259f0a8e94abaf70650660760902ac6b28bc5563a4
+  r: "The required log file `results/logs/covariate_validation.json` is missing, so\
+    \ no evidence that covariate integrity was validated or issues logged. The task\u2019\
+    s primary artifact is absent."
+T028f:
   c: false
-  h: 68999d7713dfd9272fa9c2e9a15d42e919402c98f0b760cbaca423a0fcb602fa
-  r: "The provided evidence includes only a partial `code/modeling.py` file that does\
-    \ not show any handling of a `dilemma_choice` column, and the required log file\
-    \ `results/logs/dilemma_choice_verification.json` is missing. No unit\u2011test\
-    \ verifying that `dilemma_choice` is created without referencing `response_time`\
-    \ or that it is merged as a fixed effect is present. The implementer must add\
-    \ the appropriate test and generate the verification JSON log."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, configuration file, or documentation was provided that demonstrates
+    the `dilemma_choice` component being merged into the primary processing pipeline
+    used for modeling. Without any artifact showing the integration (e.g., updated
+    pipeline code, a diff, or a test confirming the merged functionality), the requirement
+    is not satisfied. The implementer must supply the modified pipeline code (or equivalent
+    evidence) that incorporates `dilemma_choice` and verifies it works in the modeling
+    workflow.
 T055:
   c: false
   h: 8628c4475bb9c84a30cde393af4f7489bee0b13ef55f141dec777fcef984a861

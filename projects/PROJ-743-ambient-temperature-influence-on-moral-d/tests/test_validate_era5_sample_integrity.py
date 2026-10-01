@@ -1,18 +1,13 @@
-"""
-Unit tests for T004: validate_era5_sample_integrity.
-"""
-import pytest
 import os
-import sys
 import tempfile
+import pytest
 import h5py
 import numpy as np
 from pathlib import Path
+import sys
 
-# Add code directory to path
-code_dir = Path(__file__).parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from validate_era5_sample_integrity import (
     validate_temporal_resolution,
@@ -21,80 +16,82 @@ from validate_era5_sample_integrity import (
 )
 
 @pytest.fixture
-def mock_hdf5_file():
-    """Create a temporary HDF5 file with mock ERA5-like data."""
-    fd, path = tempfile.mkstemp(suffix='.h5')
-    os.close(fd)
+def temp_h5_file():
+    """Create a temporary valid HDF5 file for testing."""
+    with tempfile.NamedTemporaryFile(suffix='.h5', delete=False) as tmp:
+        path = tmp.name
     
-    with h5py.File(path, 'w') as hf:
-        # Create time dimension (hourly for 7 days)
-        time_data = np.arange(0, 7 * 24, 1) # 0 to 167 hours
-        hf.create_dataset('time', data=time_data)
-
-        # Create lat/lon grid (0.25 deg)
-        lat_data = np.arange(-90, 90.25, 0.25)
-        lon_data = np.arange(-180, 180.25, 0.25)
-        hf.create_dataset('latitude', data=lat_data)
-        hf.create_dataset('longitude', data=lon_data)
-
-        # Create temperature data (2m temperature, Kelvin in reality, but we'll store C for this test)
-        # Shape: (time, lat, lon)
-        temp_data = np.random.normal(288.0, 10.0, (len(time_data), len(lat_data), len(lon_data)))
-        # Convert to Celsius for the test logic (assuming input is C)
-        # Actually, let's store realistic C values to pass the check
-        temp_c = np.clip(temp_data - 273.15, -50, 50) 
-        hf.create_dataset('t2m', data=temp_c)
-
+    with h5py.File(path, 'w') as f:
+        # Create time dimension (hourly)
+        time_data = np.arange(0, 86400 * 3, 3600) # 3 days of hourly data
+        f.create_dataset('time', data=time_data)
+        
+        # Create spatial dimensions
+        f.create_dataset('lat', data=np.linspace(50, 52, 10))
+        f.create_dataset('lon', data=np.linspace(-1, 1, 10))
+        
+        # Create temperature data (valid range)
+        temp_data = np.random.uniform(270, 300, (len(time_data), 10, 10)) # Kelvin-ish, but let's pretend it's C for test or adjust
+        # Actually, let's make it realistic C for the validator check
+        temp_data = np.random.uniform(10, 30, (len(time_data), 10, 10)) 
+        f.create_dataset('t2m', data=temp_data)
+    
     yield path
-    os.remove(path)
+    os.unlink(path)
 
 @pytest.fixture
-def mock_hdf5_file_bad_time():
-    """Create a file with inconsistent time steps."""
-    fd, path = tempfile.mkstemp(suffix='.h5')
-    os.close(fd)
+def temp_h5_file_bad_time():
+    """Create a temporary HDF5 file with bad time resolution."""
+    with tempfile.NamedTemporaryFile(suffix='.h5', delete=False) as tmp:
+        path = tmp.name
     
-    with h5py.File(path, 'w') as hf:
-        # Irregular time steps
-        time_data = np.array([0, 1, 3, 4, 8]) 
-        hf.create_dataset('time', data=time_data)
-        hf.create_dataset('latitude', data=[0.0])
-        hf.create_dataset('longitude', data=[0.0])
-        hf.create_dataset('t2m', data=[20.0])
+    with h5py.File(path, 'w') as f:
+        # Create time dimension (10 minutes resolution)
+        time_data = np.arange(0, 600, 600) 
+        f.create_dataset('time', data=time_data)
+        f.create_dataset('lat', data=np.linspace(50, 52, 10))
+        f.create_dataset('t2m', data=np.random.rand(1, 10, 10))
+    
     yield path
-    os.remove(path)
+    os.unlink(path)
 
 @pytest.fixture
-def mock_hdf5_file_bad_temp():
-    """Create a file with impossible temperature."""
-    fd, path = tempfile.mkstemp(suffix='.h5')
-    os.close(fd)
+def temp_h5_file_bad_temp():
+    """Create a temporary HDF5 file with out-of-range temperature."""
+    with tempfile.NamedTemporaryFile(suffix='.h5', delete=False) as tmp:
+        path = tmp.name
     
-    with h5py.File(path, 'w') as hf:
-        hf.create_dataset('time', data=[0, 1])
-        hf.create_dataset('latitude', data=[0.0])
-        hf.create_dataset('longitude', data=[0.0])
-        # 100 C is impossible for surface air
-        hf.create_dataset('t2m', data=[100.0, 20.0])
+    with h5py.File(path, 'w') as f:
+        time_data = np.arange(0, 3600, 3600)
+        f.create_dataset('time', data=time_data)
+        f.create_dataset('lat', data=np.linspace(50, 52, 10))
+        # Temp = -100 C (invalid)
+        f.create_dataset('t2m', data=np.array([-100.0]))
+    
     yield path
-    os.remove(path)
+    os.unlink(path)
 
-def test_validate_temporal_resolution_pass(mock_hdf5_file):
-    with h5py.File(mock_hdf5_file, 'r') as hf:
-        assert validate_temporal_resolution(None, hf) is True
+def test_validate_temporal_resolution_valid(temp_h5_file):
+    is_valid, msg = validate_temporal_resolution(None, temp_h5_file)
+    assert is_valid is True
+    assert "Temporal resolution validated" in msg
 
-def test_validate_temporal_resolution_fail(mock_hdf5_file_bad_time):
-    with h5py.File(mock_hdf5_file_bad_time, 'r') as hf:
-        assert validate_temporal_resolution(None, hf) is False
+def test_validate_temporal_resolution_invalid(temp_h5_file_bad_time):
+    is_valid, msg = validate_temporal_resolution(None, temp_h5_file_bad_time)
+    assert is_valid is False
+    assert "mismatch" in msg
 
-def test_validate_grid_size_pass(mock_hdf5_file):
-    with h5py.File(mock_hdf5_file, 'r') as hf:
-        assert validate_grid_size(None, hf) is True
+def test_validate_grid_size_valid(temp_h5_file):
+    is_valid, msg = validate_grid_size(None, temp_h5_file)
+    assert is_valid is True
+    assert "Spatial dimensions validated" in msg
 
-def test_validate_temperature_range_pass(mock_hdf5_file):
-    with h5py.File(mock_hdf5_file, 'r') as hf:
-        assert validate_temperature_range(None, hf) is True
+def test_validate_temperature_range_valid(temp_h5_file):
+    is_valid, msg = validate_temperature_range(None, temp_h5_file)
+    assert is_valid is True
+    assert "Temperature range validated" in msg
 
-def test_validate_temperature_range_fail(mock_hdf5_file_bad_temp):
-    with h5py.File(mock_hdf5_file_bad_temp, 'r') as hf:
-        assert validate_temperature_range(None, hf) is False
+def test_validate_temperature_range_invalid(temp_h5_file_bad_temp):
+    is_valid, msg = validate_temperature_range(None, temp_h5_file_bad_temp)
+    assert is_valid is False
+    assert "out of range" in msg

@@ -53,14 +53,36 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1126/science.aar7000
   verified_at: '2026-08-19T21:43:10.349798Z'
-- artifact_hash: 017baaf64485328fee76964cf9c78632c3f7d9b9debda9406d927634dfe2a988
+- artifact_hash: 410d1d032d0d5dfb87ca55bd046d5ae737eb675cf21394889d18d29b1a0eff6b
   artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://www.kaggle.com/datasets/mitmoral/moral-machine`
+  value: https://www.kaggle.com/datasets/marcellemartel/moral-machine`
   verification_status: mismatch
-  verified_against_url: https://www.kaggle.com/datasets/mitmoral/moral-machine
-  verified_at: '2026-09-29T22:27:46.744687Z'
+  verified_against_url: https://www.kaggle.com/datasets/marcellemartel/moral-machine
+  verified_at: '2026-10-01T06:24:54.748479Z'
+- artifact_hash: 410d1d032d0d5dfb87ca55bd046d5ae737eb675cf21394889d18d29b1a0eff6b
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: SP.POP.DPGE,SP.DYN.LE00.IN?format=json
+  kind: url
+  value: https://api.worldbank.org/v2/country/all/indicator/SP.POP.DPGE,SP.DYN.LE00.IN?format=json`
+  verification_status: pending
+  verified_against_url: https://api.worldbank.org/v2/country/all/indicator/SP.POP.DPGE,SP.DYN.LE00.IN?format=json
+  verified_at: '2026-10-01T06:24:54.748479Z'
+- artifact_hash: 410d1d032d0d5dfb87ca55bd046d5ae737eb675cf21394889d18d29b1a0eff6b
+  artifact_path: projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: OSF
+  kind: url
+  value: https://osf.io/xyz123/download`
+  verification_status: pending
+  verified_against_url: https://osf.io/xyz123/download
+  verified_at: '2026-10-01T06:24:54.748479Z'
