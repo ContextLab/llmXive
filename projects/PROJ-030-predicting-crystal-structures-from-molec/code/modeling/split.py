@@ -4,224 +4,339 @@ import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
+import hashlib
+
 import pandas as pd
 from rdkit import Chem
-from rdkit.Chem.Scaffolds import MurckoScaffold
-from sklearn.model_selection import train_test_split
-from collections import defaultdict
+from rdkit.Chem import rdMolDescriptors
 
-from config import get_path_data, get_path_processed_data, get_path_validation
-from ingestion.models import MoleculeRecord
+# Import logging utilities from project root
+from logging_config import get_logger, log_event
+from config import get_path_processed_data, get_path_validation, ensure_directory
 
 # Configure logger
-logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
+logger = get_logger("split")
 
-def group_rare_space_groups(data: pd.DataFrame, threshold: int = 20) -> pd.DataFrame:
+def load_dataset(file_path: str) -> pd.DataFrame:
     """
-    Groups space groups with fewer than 'threshold' samples into an 'Other' category.
-    This must be done PRIOR to splitting to ensure the 'Other' category is treated
-    as a single class during the scaffold split.
+    Load the dataset from a CSV file.
+    
+    Args:
+        file_path: Path to the input CSV file.
+        
+    Returns:
+        pandas DataFrame containing the dataset.
     """
-    if 'space_group' not in data.columns:
-        raise ValueError("Dataset must contain a 'space_group' column.")
-
-    space_group_counts = data['space_group'].value_counts()
-    rare_space_groups = space_group_counts[space_group_counts < threshold].index
+    logger.info(f"Loading dataset from {file_path}")
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"Dataset file not found: {file_path}")
     
-    # Log the number of groups being collapsed
-    logger.info(f"Found {len(rare_space_groups)} rare space groups (count < {threshold}). Collapsing to 'Other'.")
-    
-    data = data.copy()
-    data['space_group'] = data['space_group'].replace(rare_space_groups, 'Other')
-    return data
+    df = pd.read_csv(file_path)
+    logger.info(f"Loaded {len(df)} rows from {file_path}")
+    return df
 
 def get_murcko_scaffold(smiles: str) -> Optional[str]:
     """
-    Extracts the Bemis-Murcko scaffold from a SMILES string.
-    Returns None if the molecule cannot be parsed.
+    Generate the Bemis-Murcko scaffold for a given SMILES string.
+    
+    Args:
+        smiles: SMILES string of the molecule.
+        
+    Returns:
+        Canonical SMILES of the scaffold, or None if generation fails.
     """
     try:
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
             return None
-        scaffold = MurckoScaffold.GetScaffoldForMol(mol)
-        return Chem.MolToSmiles(scaffold)
+        
+        scaffold = rdMolDescriptors.GetScaffoldForMol(mol)
+        # Convert back to canonical SMILES
+        scaffold_smiles = Chem.MolToSmiles(scaffold, isomericSmiles=False)
+        return scaffold_smiles
     except Exception as e:
         logger.warning(f"Failed to generate scaffold for SMILES '{smiles}': {e}")
         return None
 
-def scaffold_split(data: pd.DataFrame, random_state: int = 42, test_size: float = 0.2) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def scaffold_split(
+    df: pd.DataFrame,
+    smiles_col: str = "smiles",
+    train_frac: float = 0.8,
+    val_frac: float = 0.1,
+    test_frac: float = 0.1,
+    seed: int = 42
+) -> Tuple[List[int], List[int], List[int]]:
     """
-    Performs a scaffold-based split using the Bemis-Murcko algorithm.
+    Perform a scaffold-based split of the dataset.
     
-    Strategy:
-    1. Generate a scaffold for each molecule.
-    2. Group molecules by their scaffold.
-    3. Split the unique scaffolds into train/test sets.
-    4. Assign all molecules belonging to a scaffold to the same set.
+    Groups molecules by their Bemis-Murcko scaffold and assigns
+    entire scaffold groups to train, validation, or test sets to
+    ensure zero scaffold overlap between splits.
     
-    This guarantees zero scaffold overlap between train and test sets.
+    Args:
+        df: DataFrame containing the dataset.
+        smiles_col: Name of the column containing SMILES strings.
+        train_frac: Fraction of data for training.
+        val_frac: Fraction of data for validation.
+        test_frac: Fraction of data for testing.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Tuple of (train_indices, val_indices, test_indices)
     """
-    if 'smiles' not in data.columns:
-        raise ValueError("Dataset must contain a 'smiles' column to generate scaffolds.")
-
-    logger.info("Generating Bemis-Murcko scaffolds for all molecules...")
-    scaffolds = data['smiles'].apply(get_murcko_scaffold)
+    import random
+    random.seed(seed)
     
-    # Handle None scaffolds (failed parsing) by assigning a unique placeholder
-    # to ensure they don't get grouped with valid scaffolds, but still split.
-    # We give them a unique ID so they are treated as individual scaffolds.
-    unique_counter = 0
-    scaffold_ids = []
-    for s in scaffolds:
-        if s is None:
-            scaffold_ids.append(f"__FAILED_PARSE_{unique_counter}__")
-            unique_counter += 1
-        else:
-            scaffold_ids.append(s)
+    logger.info(f"Performing scaffold split with seed={seed}")
     
-    data = data.copy()
-    data['_scaffold_id'] = scaffold_ids
-
-    # Group by scaffold
-    scaffold_groups = data.groupby('_scaffold_id')
-    unique_scaffolds = list(scaffold_groups.groups.keys())
+    # Generate scaffolds for all molecules
+    logger.info("Generating Bemis-Murcko scaffolds...")
+    scaffolds = df[smiles_col].apply(get_murcko_scaffold)
     
-    logger.info(f"Found {len(unique_scaffolds)} unique scaffolds.")
-
-    # Split the unique scaffolds
-    train_scaffolds, test_scaffolds = train_test_split(
-        unique_scaffolds, 
-        test_size=test_size, 
-        random_state=random_state
-    )
+    # Handle None scaffolds (malformed molecules)
+    valid_mask = scaffolds.notna()
+    if not valid_mask.all():
+        invalid_count = (~valid_mask).sum()
+        logger.warning(f"Skipping {invalid_count} molecules with invalid scaffolds")
     
-    # Create sets for fast lookup
-    train_scaffold_set = set(train_scaffolds)
-    test_scaffold_set = set(test_scaffolds)
-
-    # Assign indices
+    # Create a mapping from scaffold to list of indices
+    scaffold_to_indices: Dict[str, List[int]] = {}
+    for idx, scaffold in scaffolds.items():
+        if pd.isna(scaffold):
+            continue
+        if scaffold not in scaffold_to_indices:
+            scaffold_to_indices[scaffold] = []
+        scaffold_to_indices[scaffold].append(idx)
+    
+    logger.info(f"Found {len(scaffold_to_indices)} unique scaffolds")
+    
+    # Shuffle scaffolds
+    scaffold_list = list(scaffold_to_indices.keys())
+    random.shuffle(scaffold_list)
+    
+    # Calculate split sizes
+    total_scaffolds = len(scaffold_list)
+    train_count = int(total_scaffolds * train_frac)
+    val_count = int(total_scaffolds * val_frac)
+    test_count = total_scaffolds - train_count - val_count
+    
+    logger.info(f"Split sizes: train={train_count}, val={val_count}, test={test_count}")
+    
+    # Assign scaffolds to splits
     train_indices = []
+    val_indices = []
     test_indices = []
-
-    for idx, scaffold_id in zip(data.index, data['_scaffold_id']):
-        if scaffold_id in train_scaffold_set:
-            train_indices.append(idx)
-        elif scaffold_id in test_scaffold_set:
-            test_indices.append(idx)
-        else:
-            # This should theoretically not happen if split covers all
-            logger.warning(f"Scaffold {scaffold_id} not found in split sets.")
-
-    # Drop the temporary scaffold column
-    data = data.drop(columns=['_scaffold_id'])
-
-    train_df = data.loc[train_indices].reset_index(drop=True)
-    test_df = data.loc[test_indices].reset_index(drop=True)
-
-    logger.info(f"Scaffold split completed. Train: {len(train_df)}, Test: {len(test_df)}")
     
-    return train_df, test_df
+    for i, scaffold in enumerate(scaffold_list):
+        indices = scaffold_to_indices[scaffold]
+        if i < train_count:
+            train_indices.extend(indices)
+        elif i < train_count + val_count:
+            val_indices.extend(indices)
+        else:
+            test_indices.extend(indices)
+    
+    logger.info(f"Split complete: train={len(train_indices)}, val={len(val_indices)}, test={len(test_indices)}")
+    
+    return train_indices, val_indices, test_indices
 
-def verify_zero_overlap(train_data: pd.DataFrame, test_data: pd.DataFrame) -> Dict[str, Any]:
+def verify_zero_overlap(
+    train_indices: List[int],
+    val_indices: List[int],
+    test_indices: List[int],
+    df: pd.DataFrame,
+    smiles_col: str = "smiles"
+) -> Dict[str, Any]:
     """
-    Verifies that there is no overlap in scaffolds between train and test sets.
-    Returns a report dictionary with the verification status and details.
+    Verify that there is zero scaffold overlap between splits.
+    
+    Args:
+        train_indices: List of training indices.
+        val_indices: List of validation indices.
+        test_indices: List of test indices.
+        df: DataFrame containing the dataset.
+        smiles_col: Name of the column containing SMILES strings.
+        
+    Returns:
+        Dictionary with verification results and overlap counts.
     """
     logger.info("Verifying zero scaffold overlap...")
     
-    if 'smiles' not in train_data.columns or 'smiles' not in test_data.columns:
-        raise ValueError("Both train and test data must contain 'smiles' columns.")
-
-    train_scaffolds = set(train_data['smiles'].apply(get_murcko_scaffold).dropna())
-    test_scaffolds = set(test_data['smiles'].apply(get_murcko_scaffold).dropna())
+    # Generate scaffolds for each split
+    def get_scaffolds_for_indices(indices: List[int]) -> set:
+        scaffolds = set()
+        for idx in indices:
+            smiles = df.loc[idx, smiles_col]
+            scaffold = get_murcko_scaffold(smiles)
+            if scaffold:
+                scaffolds.add(scaffold)
+        return scaffolds
     
-    overlap = train_scaffolds.intersection(test_scaffolds)
+    train_scaffolds = get_scaffolds_for_indices(train_indices)
+    val_scaffolds = get_scaffolds_for_indices(val_indices)
+    test_scaffolds = get_scaffolds_for_indices(test_indices)
     
-    is_valid = len(overlap) == 0
+    # Check for overlaps
+    train_val_overlap = train_scaffolds & val_scaffolds
+    train_test_overlap = train_scaffolds & test_scaffolds
+    val_test_overlap = val_scaffolds & test_scaffolds
     
-    report = {
-        "overlap_verified": is_valid,
+    result = {
         "train_scaffold_count": len(train_scaffolds),
+        "val_scaffold_count": len(val_scaffolds),
         "test_scaffold_count": len(test_scaffolds),
-        "overlap_count": len(overlap),
-        "overlap_scaffolds": list(overlap) if not is_valid else []
+        "train_val_overlap_count": len(train_val_overlap),
+        "train_test_overlap_count": len(train_test_overlap),
+        "val_test_overlap_count": len(val_test_overlap),
+        "zero_overlap": len(train_val_overlap) == 0 and len(train_test_overlap) == 0 and len(val_test_overlap) == 0,
+        "train_val_overlap_scaffolds": list(train_val_overlap),
+        "train_test_overlap_scaffolds": list(train_test_overlap),
+        "val_test_overlap_scaffolds": list(val_test_overlap)
     }
     
-    if is_valid:
-        logger.info("Zero scaffold overlap verified successfully.")
+    if result["zero_overlap"]:
+        logger.info("SUCCESS: Zero scaffold overlap verified between all splits!")
     else:
-        logger.error(f"Scaffold overlap detected! {len(overlap)} scaffolds found in both sets.")
+        logger.error(f"FAILURE: Scaffold overlap detected! Train-Val: {len(train_val_overlap)}, Train-Test: {len(train_test_overlap)}, Val-Test: {len(val_test_overlap)}")
+    
+    return result
+
+def save_split_indices(
+    train_indices: List[int],
+    val_indices: List[int],
+    test_indices: List[int],
+    output_path: str
+) -> None:
+    """
+    Save the split indices to a JSON file.
+    
+    Args:
+        train_indices: List of training indices.
+        val_indices: List of validation indices.
+        test_indices: List of test indices.
+        output_path: Path to save the JSON file.
+    """
+    ensure_directory(output_path)
+    
+    split_data = {
+        "train_indices": train_indices,
+        "val_indices": val_indices,
+        "test_indices": test_indices,
+        "train_count": len(train_indices),
+        "val_count": len(val_indices),
+        "test_count": len(test_indices),
+        "total_count": len(train_indices) + len(val_indices) + len(test_indices)
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(split_data, f, indent=2)
+    
+    logger.info(f"Saved split indices to {output_path}")
+
+def save_overlap_report(
+    overlap_result: Dict[str, Any],
+    output_path: str
+) -> None:
+    """
+    Save the scaffold overlap verification report to a JSON file.
+    
+    Args:
+        overlap_result: Dictionary containing overlap verification results.
+        output_path: Path to save the JSON file.
+    """
+    ensure_directory(output_path)
+    
+    with open(output_path, 'w') as f:
+        json.dump(overlap_result, f, indent=2)
+    
+    logger.info(f"Saved overlap report to {output_path}")
+
+def run_split(
+    input_path: str,
+    output_split_path: str,
+    output_report_path: str,
+    smiles_col: str = "smiles",
+    train_frac: float = 0.8,
+    val_frac: float = 0.1,
+    test_frac: float = 0.1,
+    seed: int = 42
+) -> Dict[str, Any]:
+    """
+    Main function to perform the scaffold split and verification.
+    
+    Args:
+        input_path: Path to the input dataset CSV.
+        output_split_path: Path to save the split indices JSON.
+        output_report_path: Path to save the overlap report JSON.
+        smiles_col: Name of the column containing SMILES strings.
+        train_frac: Fraction of data for training.
+        val_frac: Fraction of data for validation.
+        test_frac: Fraction of data for testing.
+        seed: Random seed for reproducibility.
         
-    return report
+    Returns:
+        Dictionary containing the split results and verification status.
+    """
+    # Load dataset
+    df = load_dataset(input_path)
+    
+    # Perform scaffold split
+    train_indices, val_indices, test_indices = scaffold_split(
+        df, smiles_col, train_frac, val_frac, test_frac, seed
+    )
+    
+    # Save split indices
+    save_split_indices(train_indices, val_indices, test_indices, output_split_path)
+    
+    # Verify zero overlap
+    overlap_result = verify_zero_overlap(
+        train_indices, val_indices, test_indices, df, smiles_col
+    )
+    
+    # Save overlap report
+    save_overlap_report(overlap_result, output_report_path)
+    
+    return {
+        "split_path": output_split_path,
+        "report_path": output_report_path,
+        "overlap_result": overlap_result,
+        "success": overlap_result["zero_overlap"]
+    }
 
 def main():
-    """Main function to perform the split and save the indices."""
-    try:
-        # Load the dataset
-        input_path = get_path_data('crystal_dataset.csv')
-        if not os.path.exists(input_path):
-            raise FileNotFoundError(f"Dataset not found at {input_path}. Run the ingestion pipeline first.")
-        
-        logger.info(f"Loading dataset from {input_path}...")
-        df = pd.read_csv(input_path)
-        
-        # Group rare space groups
-        logger.info("Grouping rare space groups...")
-        df = group_rare_space_groups(df, threshold=20)
-        
-        # Perform scaffold split
-        logger.info("Performing scaffold split...")
-        train_df, test_df = scaffold_split(df, random_state=42, test_size=0.2)
-        
-        # Verify zero overlap
-        overlap_report = verify_zero_overlap(train_df, test_df)
-        
-        if not overlap_report['overlap_verified']:
-            raise ValueError("Scaffold overlap detected! Split failed verification.")
-        
-        # Save split indices
-        train_indices = train_df.index.tolist()
-        test_indices = test_df.index.tolist()
-        
-        split_indices = {
-            'train': train_indices,
-            'test': test_indices,
-            'train_count': len(train_indices),
-            'test_count': len(test_indices)
-        }
-        
-        output_split_path = get_path_processed_data('split_indices.json')
-        with open(output_split_path, 'w') as f:
-            json.dump(split_indices, f, indent=2)
-        logger.info(f"Saved split indices to {output_split_path}")
-        
-        # Save validation report
-        validation_report = {
-            'overlap_verified': overlap_report['overlap_verified'],
-            'train_scaffold_count': overlap_report['train_scaffold_count'],
-            'test_scaffold_count': overlap_report['test_scaffold_count'],
-            'overlap_count': overlap_report['overlap_count'],
-            'method': 'Bemis-Murcko Scaffold Split',
-            'rare_space_group_threshold': 20
-        }
-        
-        output_report_path = get_path_validation('scaffold_overlap_report.json')
-        with open(output_report_path, 'w') as f:
-            json.dump(validation_report, f, indent=2)
-        logger.info(f"Saved validation report to {output_report_path}")
-        
-        logger.info("Split task completed successfully!")
-        
-    except Exception as e:
-        logger.error(f"Error during split process: {e}", exc_info=True)
-        raise
+    """Main entry point for the scaffold split script."""
+    # Define paths
+    input_file = get_path_processed_data("grouped_dataset.csv")
+    output_split_file = get_path_processed_data("split_indices.json")
+    output_report_file = get_path_validation("scaffold_overlap_report.json")
+    
+    # Check if input file exists
+    if not os.path.exists(input_file):
+        logger.error(f"Input file not found: {input_file}")
+        logger.error("Please run T015a (group_rare.py) first to generate the grouped dataset.")
+        sys.exit(1)
+    
+    # Run the split
+    logger.info("Starting scaffold-based split...")
+    result = run_split(
+        input_path=input_file,
+        output_split_path=output_split_file,
+        output_report_path=output_report_file,
+        smiles_col="smiles",
+        train_frac=0.8,
+        val_frac=0.1,
+        test_frac=0.1,
+        seed=42
+    )
+    
+    # Log final result
+    if result["success"]:
+        logger.info(f"SUCCESS: Scaffold split completed with zero overlap.")
+        logger.info(f"Split indices saved to: {result['split_path']}")
+        logger.info(f"Overlap report saved to: {result['report_path']}")
+    else:
+        logger.error(f"FAILURE: Scaffold split completed but overlap detected!")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

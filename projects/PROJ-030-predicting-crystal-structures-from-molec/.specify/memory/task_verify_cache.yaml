@@ -11,38 +11,67 @@ T013:
     and never produces the required `data/processed/crystal_dataset.csv` (the file
     is missing, as is the intermediate `polymorphic_dataset.csv`). The script therefore
     does not demonstrably generate the expected output, so the task is not satisfied.
-T015:
+T015a:
   c: false
-  h: 24537d46041b34005da54c4454f2809486f8cd04c184e0f47bc6ad7c19496ee6
-  r: "The repository contains a partially implemented `code/modeling/split.py` (functions\
-    \ for grouping rare space groups and generating scaffolds) but the script does\
-    \ not include logic to load the dataset, perform the split, write `data/processed/split_indices.json`,\
-    \ or create `data/validation/scaffold_overlap_report.json`. Both required output\
-    \ files are missing, so the task\u2019s deliverables are not satisfied."
-T016:
+  h: 81557fe0e1d222a2daed14099eeb3a35bff1159d6358fe5b9897507d65d0683c
+  r: "The repository contains a partially\u2011written `code/modeling/group_rare.py`,\
+    \ but the script is truncated (e.g., `run_grouping` is incomplete) and cannot\
+    \ be executed. Moreover, the required input file `data/processed/crystal_dataset.csv`\
+    \ and the expected output `data/processed/grouped_dataset.csv` are absent. Consequently\
+    \ the task\u2019s requirement\u2014to read the dataset, group rare space groups,\
+    \ and write the new CSV\u2014is not satisfied."
+T015b:
   c: false
-  h: f8863b64e1fd68abe1a0bc60bd76724de59fe144eddfd388ca106a43550167d2
-  r: The repository lacks the required `data/processed/split_indices.json` and the
-    resulting `data/models/rf_model.pkl`. Moreover, `code/modeling/train.py` does
-    not contain a concrete Random Forest training implementation that reads the split
-    indices and saves the model to the specified path (the file is truncated and only
-    shows placeholders). These essential artifacts are missing, so the task is not
-    satisfied.
-T016b:
+  h: 997ea43085246d88af8d83bd0063f7a5ac18b0fd2eab5dd21e1907c4af1a4477
+  r: "The provided `code/modeling/split.py` is incomplete (truncated and ends mid\u2011\
+    function) and cannot run to generate a split. Moreover, the required input file\
+    \ `data/processed/grouped_dataset.csv` does not exist, and the expected output\
+    \ `data/processed/split_indices.json` is also missing. Consequently the task\u2019\
+    s specification is not fulfilled."
+T015c:
   c: false
-  h: df72850519963d25e818fcb91361aac541f6c19c05aae87ae54f25c15954ec19
-  r: The repository lacks the required `data/processed/split_indices.json` file and
-    the expected output model `data/models/gb_model.pkl`. Moreover, the provided portion
-    of `code/modeling/train.py` does not contain any implementation of Gradient Boosting
-    classifier training (no function that fits a `GradientBoostingClassifier` and
-    saves it). These missing artifacts and absent functionality mean the task is not
-    satisfied.
-T016c:
+  h: badcdb6d8b86df53e6a34795dc717a8c19008e8c6a07cc033e03ee57a59615ff
+  r: "The repository contains `code/modeling/validate_split.py`, but the required\
+    \ output file `data/validation/scaffold_overlap_report.json` is absent, and the\
+    \ shown portion of the script is truncated before the validation logic that would\
+    \ generate and save the report. Without the JSON report present (or evidence it\
+    \ is created), the task\u2019s output requirement is not satisfied."
+T015d:
   c: false
-  h: 53e72e8aab19c9d7a48ba7641b4e8ed84b4a5fab71c96972d955ca40e030addd
-  r: The repository lacks the required `data/processed/split_indices.json` file and
-    the resulting `data/models/ridge_model.pkl` model artifact. Moreover, while `train.py`
-    defines a `train_ridge_regression` function, it never invokes it using the split
-    indices nor calls `save_model` to write the ridge model, so the training step
-    is not actually executed. These missing pieces mean the task is not genuinely
-    completed.
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact for the \u201Czero scaffold overlap\u201D report (the required SC\u2011\
+    002 gate) is present or referenced; there is no file, data, or document on disk\
+    \ demonstrating that a hard pass/fail scaffold\u2011overlap check was generated.\
+    \ Consequently the task\u2019s core deliverable is missing."
+T017:
+  c: false
+  h: 3f8e2cfde9c9327a791d6c7a887fefd3af145315540f271c7eb63d08b86c4594
+  r: "The required output file `data/results/mw_baseline_metrics.json` does not exist,\
+    \ and the provided `code/modeling/train.py` is truncated before showing any complete\
+    \ implementation of the molecular\u2011weight baseline logic or code that writes\
+    \ the JSON results. Consequently the task\u2019s specification is not satisfied."
+T017b:
+  c: false
+  h: 82ecc4ddbe12cdcaf8f8142b3cef941121cdafadf5338024ac231f957796cb4e
+  r: "The provided `code/modeling/train.py` does not contain any implementation for\
+    \ a majority\u2011class baseline for the \u201CSpace Group\u201D target, and the\
+    \ required output file `data/results/majority_class_baseline_metrics.json` is\
+    \ missing from the repository. Consequently the task\u2019s core requirement is\
+    \ not satisfied."
+T018a:
+  c: false
+  h: c7c94df19a11d1d41c1f89261b9491c0c973a2f5da8d0313ef252d26b92447cd
+  r: "The repository contains a `code/modeling/timeout_handler.py` file, but the displayed\
+    \ content is truncated and does not show any function that actually performs the\
+    \ timeout check, reduces the number of trees during model training, or writes\
+    \ a log entry to `data/results/timeout_action.log`. Moreover, the expected log\
+    \ file is absent from the `data/results` directory, so the required logging side\u2011\
+    effect is not demonstrated. The task\u2019s core behavior is therefore not verifiably\
+    \ implemented."
+T022:
+  c: false
+  h: 2f4e534688edaa1d5b6c441a536f05e2d0bf89e51d67d5637565369a2b677880
+  r: The repository lacks the required `data/models/rf_model.pkl` file, and the expected
+    output `data/results/permutation_importance.json` is missing. Moreover, `code/analysis/interpret.py`
+    does not contain any implementation for computing permutation importance or writing
+    it to the JSON file. The task therefore is not satisfied.

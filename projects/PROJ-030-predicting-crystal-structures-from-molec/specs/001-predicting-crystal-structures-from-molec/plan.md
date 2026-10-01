@@ -12,7 +12,7 @@ Critical methodological updates:
 2. **Data Source**: Uses the `crystallography-open-database/organic` HuggingFace dataset as the *sole* primary source. This is a verified, pre-filtered mirror guaranteeing <500MB output and organic compliance, eliminating the risk of raw downloads exceeding CI limits.
 3. **Baseline Correction**: Includes a Molecular Weight baseline for volume regression. Success requires a statistically significant improvement in model performance over the baseline to distinguish topological signal from trivial size correlations.
 4. **Class Imbalance**: Groups rare space groups (<20 samples) into an 'Other' category *prior* to splitting to ensure statistical validity of macro-F1 metrics.
-5. **Power Analysis**: Explicitly justifies the minimum sample size (500 unique scaffolds) based on an effect size (Cohen's w) of 0.15 ([deferred] lift over baseline) with alpha=0.05 and beta=0.20.
+5. **Power Analysis**: Explicitly justifies the minimum sample size (a sufficient number of unique scaffolds) based on a small to medium effect size (Cohen's w). ([deferred] lift over baseline) with alpha=0.05 and beta=0.20.
 
 The implementation is designed to run entirely on the GitHub Actions free-tier (CPU-first), streaming data to stay within 7 GB RAM limits.
 
@@ -26,7 +26,7 @@ The implementation is designed to run entirely on the GitHub Actions free-tier (
 **Project Type**: Data Science / Computational Chemistry Pipeline  
 **Performance Goals**: Complete full pipeline (ingestion → training → analysis) within 6 hours; memory usage < 7 GB via streaming/sampling.  
 **Constraints**: No local GPU; no access to gated datasets (e.g., ADNI, CSD); strict scaffold-split enforcement; handling of polymorphic ambiguity via Top-K metrics.  
-**Scale/Scope**: Process pre-filtered organic COD data; generate a substantial number of samples (determined by HuggingFace subset size); train 3 models (2 classifiers, 1 regressor).
+**Scale/Scope**: Process pre-filtered organic COD data; generate a substantial number of samples (determined by HuggingFace subset size); train multiple models (2 classifiers, 1 regressor).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
